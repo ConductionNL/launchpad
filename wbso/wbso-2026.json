@@ -23,6 +23,7 @@
           "uren": null,
           "start": "2025-01-01",
           "eerder_ingediend": false,
+          "status": "niet toegekend in 2025, heringediend voor 2026",
           "opvolger_van": "14283/119/01 (Codestack Merging, 2025)",
           "fasering": {
             "definitiestudie": "gereed",
@@ -53,10 +54,133 @@
             "Kubernetes Operator: technisch nieuw mechanisme dat Nextcloud applicatielogica integreert met Kubernetes orchestratie-capaciteiten; custom controller en CRDs voor incrementele datamigratie is nieuw concept voor Nextcloud-deployments",
             "Fijnmazig hybride autorisatiesysteem: multi-language ontwikkeling (PHP-extensie, validatietool, autorisatie-engine) voor geintegreerd beveiligingssysteem is technisch nieuw binnen Nextcloud en voor de onderneming"
           ]
+        },
+        {
+          "nummer": "14283/127/02",
+          "titel": "Isolated Search Engine",
+          "uren": null,
+          "start": "2025-01-01",
+          "eerder_ingediend": false,
+          "status": "ingediend voor 2026",
+          "opvolger_van": "14283/119/02 (Isolated Search Engine, 2025)",
+          "fasering": {
+            "definitiestudie": "gereed",
+            "onderzoek": "gereed",
+            "ontwikkeling_alfa": "Q1-Q4 2025",
+            "test_alfa": "2026",
+            "technische_optimalisering": "2026"
+          },
+          "beschrijving": "AI-gestuurd platform dat federatieve zoekopdrachten mogelijk maakt binnen een volledig gesloten en gecontroleerde omgeving, met strikte data-isolatie en contextafhankelijke zoekopdrachten.",
+          "componenten": [
+            "Multi-layer beveiligingsmechanisme voor data-isolatie met veilig delen/combineren zonder directe toegang tot brondata",
+            "Dynamische contextafhankelijke zoekopdrachten met strikte isolatie van data en verwerkingslogica",
+            "Naadloze integratie met bestaande IT-infrastructuren en datastromen"
+          ],
+          "technische_knelpunten": [
+            "Bestaande tooling voor netwerkrouting en requestverwerking biedt onvoldoende granulaire controle over pakketrouting/headers voor strikte data-isolatie; middleware niet flexibel genoeg voor dynamische context-aware routeringsbeslissingen; complexe beveiligingsregels in routeringslaag verhoogt latency significant",
+            "Traditionele SQL JOIN/NoSQL queries tekortschieten in flexibiliteit; PHP/JavaScript/Python voor koppelen zoekopdrachten aan datasets zonder directe toegang leidt tot inefficiente query-prestaties; API-managementtools niet in staat vereiste dynamische routing te realiseren",
+            "Data heterogeniteit: standaard ETL techniek kan niet om met diverse formaten/classificaties; Python/SQL niet krachtig genoeg voor semantische verschillen tussen gegevens"
+          ],
+          "oplossingsrichtingen": [
+            "Custom packet inspection component met routing engine: realtime parsing van payload en headers, dynamische context-aware routeringslogica met regelsets en cachingmechanisme voor latency-minimalisatie",
+            "Nieuwe query-engine in PHP, JavaScript en Python voor gedistribueerde datasets met eigen Domain-Specific Language (DSL) en custom compiler voor efficiente parallelle query-uitvoeringsplannen",
+            "Eigen ETL-framework op basis van metaprogrammering met zelf-lerend systeem voor semantische relaties en plugin mechanisme voor domeinspecifieke transformatielogica zonder programmeerwerk"
+          ],
+          "programmeertalen": ["PHP", "Python", "JavaScript", "SQL", "NoSQL"],
+          "technische_nieuwheid": [
+            "Custom packet inspection met routing engine: geavanceerde realtime parsing en context-aware routering gaat verder dan bestaande bibliotheken; risicos op gebied van performantie en schaalbaarheid",
+            "Eigen query-engine in PHP/JavaScript/Python: innovatieve DSL en custom compiler; onderneming heeft nog nooit een query-engine of DSL ontwikkeld",
+            "Eigen ETL-framework met metaprogrammering en zelf-lerende systemen voor semantische relaties: ambitieus, grenst aan AI-mechanisme; risicos in nauwkeurigheid transformatieregels en robuustheid"
+          ]
+        },
+        {
+          "nummer": "14283/127/03",
+          "titel": "Fault Tolerant Task Orchestrator",
+          "uren": null,
+          "start": "2025-05-01",
+          "eerder_ingediend": false,
+          "status": "ingediend voor 2026",
+          "opvolger_van": "14283/120/02 (Fault Tolerant Task Orchestrator, 2025)",
+          "fasering": {
+            "definitiestudie": "gereed",
+            "onderzoek": "gereed",
+            "ontwikkeling_alfa": "Q2-Q4 2025",
+            "test_alfa": "2026",
+            "technische_optimalisering": "2026"
+          },
+          "beschrijving": "Fault-tolerant task orchestration system dat robuust kan omgaan met verschillende soorten fouten en systeemuitval in een gedistribueerd ecosysteem.",
+          "componenten": [
+            "Mechanisme voor betrouwbare taakuitvoering met garanties in omgeving met frequente fouten en crashes",
+            "Component voor foutdetectie en -classificatie met intelligente beslissingen over herstelstrategieen",
+            "Resource-locking component dat vastlopen voorkomt zonder excessieve overhead"
+          ],
+          "technische_knelpunten": [
+            "Transactionele integriteit breekt wanneer taken process-grenzen overschrijden; PDO-transacties sluiten voortijdig bij PHP process-terminatie; two-phase commit prepare-fase niet persistent tijdens server-crashes; optimistic locking via versioned records resulteert in deadlocks bij meerdere workers",
+            "PHP exception handling bewaart enkel stacktrace van exception-moment, niet volledige executieketen; eigen exception-handler krijgt geen toegang tot volledige uitvoeringscontext na proces-grensoverschrijding",
+            "Onvoorspelbare resourcevolgorden: taken bepalen pas tijdens runtime welke resources nodig; bestaande deadlock-preventie vereist vooraf bekende resource hierarchie"
+          ],
+          "oplossingsrichtingen": [
+            "Idempotent task execution framework: algoritme voor unieke idempotente taak-identifiers op input-parameters met deduplicatiemechanisme via statusvergelijking",
+            "Machine learning-gebaseerd foutclassificatiesysteem: feature-extractie uit foutgegevens bij onvolledige context, classificatiecomponent op kenmerken, beslissingsengine voor herstelstrategie op basis van foutcategorieen en historische effectiviteit",
+            "Timeout-gebaseerd deadlock-preventie algoritme: detectiemechanisme op resource-acquisitiepatronen, adaptieve timeout-strategie op taakprioriteit en wachttijd, herstartmechanisme voor veilig hervatten na resource-vrijgave"
+          ],
+          "programmeertalen": ["PHP", "SQL"],
+          "technische_nieuwheid": [
+            "Idempotent task execution framework: transactionele garanties in omgeving waar databasetransacties niet process-overschrijdend werken; bestaande PHP task runners bieden geen robuuste idempotentie-garanties bij crashes",
+            "ML-gebaseerd foutclassificatiesysteem: patronen herkennen in incomplete foutcontexten gaat verder dan conventionele exception handling; bestaande error tracking tools kunnen geen classificaties maken bij ontbrekende contextinformatie",
+            "Timeout-gebaseerd deadlock-preventie: deadlocks voorkomen zonder voorkennis resource-acquisitiepatronen; bestaande locking-bibliotheken veronderstellen vooraf gedefinieerde resource-hierarchie"
+          ]
+        },
+        {
+          "nummer": "14283/127/04",
+          "titel": "Gedistribueerde Rechtenengine",
+          "uren": null,
+          "start": "2025-05-01",
+          "eerder_ingediend": false,
+          "status": "ingediend voor 2026",
+          "opvolger_van": "14283/120/01 (Gedistribueerde Rechtenengine, 2025)",
+          "fasering": {
+            "definitiestudie": "gereed",
+            "onderzoek": "gereed",
+            "ontwikkeling_alfa": "Q2-Q4 2025",
+            "test_alfa": "2026",
+            "technische_optimalisering": "2026"
+          },
+          "beschrijving": "Gedistribueerde rechtenengine met dynamische caching die complexe, fijnmazige autorisatiebeslissingen kan nemen in real-time binnen een gedistribueerde omgeving met meerdere stakeholders.",
+          "componenten": [
+            "Mechanisme voor gedistribueerde rechtenberekening dat consistent blijft bij parallelle updates",
+            "Dynamisch caching-mechanisme met intelligente beslissingen over caching en invalidatie",
+            "Query-analyse engine die rechtenfilters toepast zonder significante performance-impact"
+          ],
+          "technische_knelpunten": [
+            "PHP biedt geen transactionele garanties wanneer meerdere threads tegelijkertijd rechten wijzigen; Symfony EventDispatcher biedt geen cross-process locking voor synchronisatie",
+            "Rechten hebben complexe diep-geneste afhankelijkheden; precies bepalen welke cache-entries geinvalideerd moeten worden zonder over- of onder-invalidatie; bestaande strategieen zijn te grof of vereisen vooraf bekende afhankelijkheidstructuur",
+            "Naieve query-transformaties voor rechtenfiltering leiden tot queries buiten indexen; alles ophalen en in software filteren leidt tot beveiligingsproblemen"
+          ],
+          "oplossingsrichtingen": [
+            "CRDT-gebaseerd rechtenmodel (Conflict-free Replicated Data Types): rechten als CRDT-operaties met commutativiteit en idempotentie, deterministische samenvoeg bij conflicten, eigen propagatiemechanisme via publish-subscribe",
+            "Dependency-aware caching-systeem: algoritme voor detectie impliciete afhankelijkheden via analyse toegangspatronen, efficiente graafstructuur voor afhankelijkheden, selectief invalidatiemechanisme",
+            "Query-transformatie-engine met index-bewustzijn: analyse query-executieplannen voor optimale rechtenfilter-plaatsing, custom heuristiek op index-impact, query-herschrijvingsengine met behoud semantiek en performance"
+          ],
+          "programmeertalen": ["PHP", "SQL", "CRDT"],
+          "technische_nieuwheid": [
+            "CRDT-gebaseerd rechtenmodel: geavanceerde distributed systems-concepten toepassen op autorisatie is niet-triviale vertaalslag; bestaande CRDT-implementaties niet toegesneden op rechtensystemen; convergentieproblemen bij hoge concurrency",
+            "Dependency-aware caching: dynamisch impliciete afhankelijkheden detecteren zonder vooraf gedefinieerde structuur gaat verder dan bestaande cache-invalidatiestrategieen; exponientiele groei afhankelijkheidsgraaf bij grote rechtenstructuren",
+            "Query-transformatie met index-bewustzijn: query-optimalisatie combineren met dynamische rechtenfiltering niet ondersteund door bestaande ORMs of query builders; onvoorspelbare query-plannen bij dynamische filter-injectie"
+          ]
         }
       ]
     }
   ],
+  "totalen": {
+    "totaal_uren_2026": null,
+    "projecten": [
+      { "nummer": "14283/127/01", "titel": "MCP Tool (voormalig codestack)", "uren": null, "status": "niet toegekend in 2025" },
+      { "nummer": "14283/127/02", "titel": "Isolated Search Engine", "uren": null },
+      { "nummer": "14283/127/03", "titel": "Fault Tolerant Task Orchestrator", "uren": null },
+      { "nummer": "14283/127/04", "titel": "Gedistribueerde Rechtenengine", "uren": null }
+    ]
+  },
   "jira_tempo": {
     "instructie": "Pas Tempo account keys aan zodra aanvraag is toegekend en uren bekend zijn.",
     "deadline_melden": "2027-03-31"

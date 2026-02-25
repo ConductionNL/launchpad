@@ -1,0 +1,44 @@
+{
+  "year": 2025,
+  "company": {
+    "name": "Conduction B.V.",
+    "kvk": "76741850",
+    "rsin": "860784241",
+    "relatienummer": "4923362"
+  },
+  "aanvragen": [
+    {
+      "referentie": "SO25022118",
+      "briefkenmerk": "20250035952-1.6A",
+      "datum_verklaring": "2025-06-02",
+      "periode": {
+        "van": "2025-05",
+        "tot": "2025-12"
+      },
+      "totaal_uren": 4000,
+      "so_uurloon": 32,
+      "so_loon": 128000,
+      "forfaitair_bedrag": 16000,
+      "totaalbedrag": 144000,
+      "max_afdrachtvermindering": 51840,
+      "projecten": [
+        {
+          "nummer": "14283/120/01",
+          "titel": "Gedistribueerde Rechtenengine",
+          "uren": 2100,
+          "beschrijving": ""
+        },
+        {
+          "nummer": "14283/120/02",
+          "titel": "Fault Tolerant Task Orchestrator",
+          "uren": 1900,
+          "beschrijving": ""
+        }
+      ]
+    }
+  ],
+  "jira_tempo": {
+    "instructie": "Gebruik de projectnummers als Tempo account keys voor uren verantwoording. Uren mogen geschoven worden tussen projecten binnen dezelfde aanvraag.",
+    "deadline_melden": "2026-03-31"
+  }
+}

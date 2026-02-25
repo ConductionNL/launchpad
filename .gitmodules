@@ -69,3 +69,6 @@
 	path = zaakafhandelapp
 	url = https://github.com/ConductionNL/zaakafhandelapp.git
 	branch = chore/normalize-line-endings
+[submodule ".github"]
+	path = .github
+	url = https://github.com/ConductionNL/.github.git

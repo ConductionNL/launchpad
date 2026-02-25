@@ -1,0 +1,31 @@
+schema: conduction
+
+context: |
+  Organization: Conduction BV
+  Workspace: Nextcloud apps-extra (multi-repo)
+  Tech stack: PHP 8.1+ (Nextcloud App Framework), React/MobX (frontends)
+  Database: PostgreSQL with pgvector
+  Design system: NL Design System (Rijkshuisstijl, Utrecht tokens)
+  Compliance: WCAG AA, Dutch government design standards
+  Container: Docker (Apache + mod_php for NC, Node for frontends)
+  CI/CD: GitHub Actions
+  All projects are under the ConductionNL GitHub organization.
+
+rules:
+  proposal:
+    - Reference which project(s) this change affects
+    - Identify cross-project dependencies if any
+    - Include rollback strategy
+  specs:
+    - Use Given/When/Then format for all scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Reference shared specs from openspec/specs/ where applicable
+  design:
+    - Include API endpoint definitions with request/response examples
+    - Note Nextcloud-specific patterns (DI, OCP interfaces, annotations)
+    - Include database migration plan if schema changes are needed
+  tasks:
+    - Each task should be small enough for a single Ralph Wiggum iteration
+    - Include spec_ref pointing to the relevant spec section
+    - Include files_likely_affected list
+    - Tasks should be ordered by dependency (implement foundations first)

@@ -1,0 +1,71 @@
+[submodule "Softwarecatalogus"]
+	path = Softwarecatalogus
+	url = https://github.com/VNG-Realisatie/Softwarecatalogus.git
+	branch = documentation
+[submodule "docudesk"]
+	path = docudesk
+	url = https://github.com/ConductionNL/docudesk.git
+	branch = feature/dashboarding
+[submodule "ggm-openregister"]
+	path = ggm-openregister
+	url = https://github.com/ConductionNL/ggm-openregister.git
+	branch = main
+[submodule "larpingapp"]
+	path = larpingapp
+	url = https://github.com/ConductionNL/LarpingNextApp.git
+[submodule "mydash"]
+	path = mydash
+	url = https://github.com/ConductionNL/mydash.git
+	branch = feature/nldesign
+[submodule "nldesign"]
+	path = nldesign
+	url = https://github.com/ConductionNL/nldesign.git
+	branch = feature/styling
+[submodule "opencatalogi"]
+	path = opencatalogi
+	url = https://github.com/ConductionNL/opencatalogi.git
+	branch = feature/newopenregister
+[submodule "openconnector"]
+	path = openconnector
+	url = https://github.com/ConductionNL/openconnector.git
+	branch = development
+[submodule "openklant"]
+	path = openklant
+	url = https://github.com/ConductionNL/openklant.git
+	branch = development
+[submodule "openregister"]
+	path = openregister
+	url = https://github.com/ConductionNL/openregister.git
+	branch = feature/php-linting
+[submodule "opentalk"]
+	path = opentalk
+	url = https://github.com/ConductionNL/opentalk.git
+	branch = development
+[submodule "openzaak"]
+	path = openzaak
+	url = https://github.com/ConductionNL/openzaak.git
+	branch = development
+[submodule "pipelinq"]
+	path = pipelinq
+	url = https://github.com/ConductionNL/pipelinq.git
+	branch = main
+[submodule "procest"]
+	path = procest
+	url = https://github.com/ConductionNL/procest.git
+	branch = main
+[submodule "softwarecatalog"]
+	path = softwarecatalog
+	url = https://github.com/ConductionNL/softwarecatalog.git
+	branch = development
+[submodule "tilburg-woo-ui"]
+	path = tilburg-woo-ui
+	url = https://github.com/ConductionNL/tilburg-woo-ui.git
+	branch = hotfix/other-issues
+[submodule "valtimo"]
+	path = valtimo
+	url = https://github.com/ConductionNL/valtimo.git
+	branch = development
+[submodule "zaakafhandelapp"]
+	path = zaakafhandelapp
+	url = https://github.com/ConductionNL/zaakafhandelapp.git
+	branch = chore/normalize-line-endings

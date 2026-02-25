@@ -1,0 +1,36 @@
+# Claude Code local settings
+.claude/
+
+# Playwright MCP browser profiles
+.playwright-mcp/
+
+# Screenshots (ephemeral browser session artifacts)
+*.png
+
+# Time tracking files (generated from git commit history)
+timetracking/
+
+# API Configuration (SENSITIVE - DO NOT COMMIT)
+tempo_config.env
+.env
+*.env
+tempo_import_audit.log
+
+# IDE / Editor
+.cursor/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node / Build artifacts
+node_modules/
+vendor/
+
+# Certificates and backups
+*.pem
+*.bak

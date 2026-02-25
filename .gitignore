@@ -34,3 +34,6 @@ vendor/
 # Certificates and backups
 *.pem
 *.bak
+
+# WBSO intermediate classification files
+wbso/raw/

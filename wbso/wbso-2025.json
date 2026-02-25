@@ -116,6 +116,30 @@
       { "nummer": "14283/120/02", "titel": "Fault Tolerant Task Orchestrator", "uren": 1900 }
     ]
   },
+  "commit_classificatie": {
+    "csv_bestand": "wbso-2025-commits.csv",
+    "regels_bestand": "classification-rules.json",
+    "totaal_commits": 11557,
+    "handmatig": 7823,
+    "geautomatiseerd": 3734,
+    "per_project": {
+      "14283/119/01": { "commits": 3600, "pct": "31.1%" },
+      "14283/119/02": { "commits": 5772, "pct": "49.9%" },
+      "14283/120/01": { "commits": 602, "pct": "5.2%" },
+      "14283/120/02": { "commits": 1583, "pct": "13.7%" }
+    },
+    "repo_mapping": {
+      "openregister": "Kern dataplatform - entity mapping, RBAC, background jobs (primair: Codestack Merging)",
+      "openconnector": "Data synchronisatie, job orchestratie, webhooks (primair: Fault Tolerant Task Orchestrator)",
+      "opencatalogi": "Federatie, catalogus, publicatie (primair: Isolated Search Engine)",
+      "softwarecatalog": "GEMMA Softwarecatalogus app, views, modules (primair: Isolated Search Engine)",
+      "tilburg-woo-ui": "Frontend UI, zoek-interfaces, facetten (primair: Isolated Search Engine)",
+      "docudesk": "Document management, Solr indexering (primair: Isolated Search Engine)",
+      "Softwarecatalogus": "VNG project documentatie (primair: Isolated Search Engine)",
+      "zaakafhandelapp": "Zaakgericht werken, ZGW API wrapping (primair: Codestack Merging)",
+      "larpingapp": "Referentie-implementatie object store (primair: Codestack Merging)"
+    }
+  },
   "jira_tempo": {
     "instructie": "Gebruik de projectnummers als Tempo account keys voor uren verantwoording. Uren mogen geschoven worden tussen projecten binnen dezelfde aanvraag. Niet tussen aanvragen onderling.",
     "deadline_melden": "2026-03-31"

@@ -1,0 +1,74 @@
+{
+  "description": "WBSO 2025 commit classification rules for uren verantwoording",
+  "projects": {
+    "14283/119/01": {
+      "titel": "Codestack Merging",
+      "kort": "Symfony->Nextcloud platform migration, wrapping, bridging, entity mapping",
+      "keywords_high": ["entity", "mapper", "doctrine", "symfony", "migration", "wrapping", "bridge", "repair step", "DI container", "dependency injection", "service container", "object store", "objectservice", "nextcloud app structure", "info.xml", "appinfo", "composer", "autoload"],
+      "keywords_medium": ["refactor", "restructure", "rewrite", "port", "convert", "adapt", "compatibility", "upgrade nextcloud", "nextcloud 3"],
+      "keywords_low": ["build", "webpack", "vue-loader", "npm", "node_modules", "lint", "eslint", "phpcs", "code cleanup", "code quality"]
+    },
+    "14283/119/02": {
+      "titel": "Isolated Search Engine",
+      "kort": "Federated search, data isolation, ETL, query engine, data transformation",
+      "keywords_high": ["search", "solr", "elastic", "index", "query", "facet", "filter", "federation", "catalog", "ETL", "data source", "mapping", "import", "export", "AMEF", "AMEFF", "synchroniz", "sync", "data transform", "listing"],
+      "keywords_medium": ["view", "dashboard", "overview", "browse", "navigation", "sitemap", "robots", "SEO", "schema", "register", "data model"],
+      "keywords_low": ["API", "endpoint", "route", "CORS", "REST", "OAS", "openapi"]
+    },
+    "14283/120/01": {
+      "titel": "Gedistribueerde Rechtenengine",
+      "kort": "Distributed rights/RBAC, authorization, caching, multi-tenancy, permissions",
+      "keywords_high": ["RBAC", "rights", "permission", "role", "authoriz", "autoris", "access control", "multi-tenant", "organisation", "organization", "security", "cache", "invalidat"],
+      "keywords_medium": ["user", "group", "admin", "login", "session", "token", "JWT", "brute force", "rate limit", "audit"],
+      "keywords_low": ["config", "settings", "middleware"]
+    },
+    "14283/120/02": {
+      "titel": "Fault Tolerant Task Orchestrator",
+      "kort": "Task orchestration, fault tolerance, job scheduling, locking, error handling",
+      "keywords_high": ["job", "task", "cron", "queue", "worker", "orchestrat", "fault", "retry", "lock", "deadlock", "idempotent", "async", "background", "scheduler"],
+      "keywords_medium": ["error", "exception", "recover", "rollback", "transaction", "timeout", "process", "handler", "event", "dispatch", "webhook", "notification"],
+      "keywords_low": ["log", "debug", "monitor", "status", "health"]
+    }
+  },
+  "repo_defaults": {
+    "_comment": "Default project when no keyword match. Based on the primary purpose of each repo.",
+    "openregister": "14283/119/01",
+    "openconnector": "14283/120/02",
+    "opencatalogi": "14283/119/02",
+    "softwarecatalog": "14283/119/02",
+    "tilburg-woo-ui": "14283/119/02",
+    "docudesk": "14283/119/02",
+    "Softwarecatalogus": "14283/119/02",
+    "zaakafhandelapp": "14283/119/01",
+    "larpingapp": "14283/119/01"
+  },
+  "repo_overrides": {
+    "_comment": "For specific repos, certain topics always map to a specific project regardless of keywords",
+    "openregister": {
+      "rbac|rights|permission|authoriz|autoris|multi-tenant|organisation": "14283/120/01",
+      "job|cron|background|queue|async|task|worker|scheduler": "14283/120/02",
+      "search|solr|elastic|index|query|facet|filter": "14283/119/02"
+    },
+    "openconnector": {
+      "search|solr|elastic|index|query|facet": "14283/119/02",
+      "mapping|sync|synchroniz|source|endpoint": "14283/119/02",
+      "entity|mapper|doctrine|wrapper": "14283/119/01"
+    },
+    "opencatalogi": {
+      "rbac|rights|permission|authoriz|autoris": "14283/120/01",
+      "entity|mapper|object store|repair step": "14283/119/01"
+    }
+  },
+  "skip_patterns": [
+    "^Merge ",
+    "^Bump .* version",
+    "\\[skip ci\\]",
+    "^deploy:",
+    "^Revert ",
+    "^chore\\(deps\\)"
+  ],
+  "auto_commits": {
+    "_comment": "Automated commits (CI/CD, version bumps, deploys) - classify but flag as automated",
+    "patterns": ["GitHub Action", "github-actions[bot]", "Bump.*version.*skip ci", "^deploy:"]
+  }
+}

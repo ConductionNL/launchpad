@@ -1,0 +1,64 @@
+{
+  "year": 2026,
+  "company": {
+    "name": "Conduction B.V.",
+    "kvk": "76741850",
+    "rsin": "860784241",
+    "relatienummer": "4923362"
+  },
+  "aanvragen": [
+    {
+      "referentie": "pending",
+      "status": "ingediend, nog niet toegekend",
+      "datum_ingediend": "2025-12-02",
+      "periode": {
+        "van": "2026-01",
+        "tot": "2026-12"
+      },
+      "totaal_uren": null,
+      "projecten": [
+        {
+          "nummer": "14283/127/01",
+          "titel": "MCP Tool (voormalig codestack)",
+          "uren": null,
+          "start": "2025-01-01",
+          "eerder_ingediend": false,
+          "opvolger_van": "14283/119/01 (Codestack Merging, 2025)",
+          "fasering": {
+            "definitiestudie": "gereed",
+            "onderzoek": "deels gereed",
+            "ontwikkeling_alfa": "Q1-Q4 2025",
+            "test_alfa": "Q4 2025 - Q1 2026",
+            "technische_optimalisering": "Q1/Q2 2026"
+          },
+          "beschrijving": "Samenvoegen van meerdere codebases uit meerdere ecosystemen (Common Ground/Symfony) naar een nieuwe codebase specifiek ontworpen voor het Nextcloud-platform.",
+          "componenten": [
+            "Wrapping techniek om Symfony routines binnen Nextcloud aan de praat te krijgen zonder volledige herontwikkeling",
+            "Bridge om tech-stack verschillen tussen Symfony en Nextcloud op te vangen",
+            "Hybride fijnmazige autorisatiestack die hiaten in de autorisatie backbone kan opvangen"
+          ],
+          "technische_knelpunten": [
+            "Symfony API Platform routes/entiteiten mappen naar Nextcloud handmatige route-definities in PHP; Doctrine ORM entiteiten en relaties niet direct compatibel met Nextcloud Entity klassen; geen Symfony EventDispatcher support voor event-driven data synchronisatie en caching",
+            "Doctrine ORM entiteiten hergebruiken binnen Nextcloud mapper systeem niet mogelijk door beperkingen in Nextcloud Doctrine DBAL; multi-tenant datastructuur obv Doctrine table prefixing/filtering matcht niet met Nextcloud app-gebaseerde isolatie",
+            "JWT-gebaseerde authenticatie en fijnmazige autorisatie logica past niet binnen Nextcloud security systeem; standaard rollen/permissies (info.xml, AuthorizedAdminSettingsPage) bieden onvoldoende granulariteit; geen equivalent voor Symfony Security component voor dynamische rol-/rechtentoewijzing op custom attributes en metadata"
+          ],
+          "oplossingsrichtingen": [
+            "Custom Nextcloud app als microservice-orchestrator met PHP-based message broker voor Symfony-achtige event-driven functionaliteit en abstractielaag Nextcloud Entity -> Doctrine-compatibele entiteiten",
+            "Custom Kubernetes Operator voor Nextcloud-instanties per tenant met eigen datamigratiecontroller voor incrementele datatransformatie van Doctrine ORM naar Nextcloud datastructuur via custom CRDs, aangevuld met PHP-scripts voor datavalidatie/-transformatie",
+            "PHP-extensie voor Nextcloud met fijnmazig autorisatiesysteem op custom attributes en metadata, validatietool voor pre-migratie checks op datamodellen/rollen/rechten, en real-time autorisatie-engine voor optimale performance via PHP-FFI"
+          ],
+          "programmeertalen": ["PHP", "Nextcloud", "Symfony", "ORM"],
+          "technische_nieuwheid": [
+            "Microservice-orchestrator als Nextcloud-app: technisch nieuwe PHP-code bridge tussen Symfony event-driven architectuur en Nextcloud modulaire structuur; message broker en abstractielaag voor entity-mapping bestaan niet binnen het Nextcloud-ecosysteem",
+            "Kubernetes Operator: technisch nieuw mechanisme dat Nextcloud applicatielogica integreert met Kubernetes orchestratie-capaciteiten; custom controller en CRDs voor incrementele datamigratie is nieuw concept voor Nextcloud-deployments",
+            "Fijnmazig hybride autorisatiesysteem: multi-language ontwikkeling (PHP-extensie, validatietool, autorisatie-engine) voor geintegreerd beveiligingssysteem is technisch nieuw binnen Nextcloud en voor de onderneming"
+          ]
+        }
+      ]
+    }
+  ],
+  "jira_tempo": {
+    "instructie": "Pas Tempo account keys aan zodra aanvraag is toegekend en uren bekend zijn.",
+    "deadline_melden": "2027-03-31"
+  }
+}

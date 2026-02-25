@@ -8,6 +8,76 @@
   },
   "aanvragen": [
     {
+      "referentie": "SO25022118-voorgaand",
+      "periode": {
+        "van": "2025-01",
+        "tot": "2025-12"
+      },
+      "totaal_uren": 6500,
+      "projecten": [
+        {
+          "nummer": "14283/119/01",
+          "titel": "Codestack Merging",
+          "uren": 3500,
+          "start": "2025-01-01",
+          "fasering": {
+            "definitiestudie": "gereed",
+            "onderzoek": "deels gereed",
+            "ontwikkeling_alfa": "Q1-Q4 2025",
+            "test_alfa": "Q4 2025 - Q1 2026",
+            "technische_optimalisering": "Q1/Q2 2026"
+          },
+          "beschrijving": "Samenvoegen van meerdere codebases uit meerdere ecosystemen (Common Ground/Symfony) naar een nieuwe codebase specifiek ontworpen voor het Nextcloud-platform.",
+          "componenten": [
+            "Wrapping techniek om Symfony routines binnen Nextcloud aan de praat te krijgen zonder volledige herontwikkeling",
+            "Bridge om tech-stack verschillen tussen Symfony en Nextcloud op te vangen",
+            "Hybride fijnmazige autorisatiestack die hiaten in de autorisatie backbone kan opvangen"
+          ],
+          "technische_knelpunten": [
+            "Symfony API Platform routes/entiteiten mappen naar Nextcloud handmatige route-definities; Doctrine ORM entiteiten incompatibel met Nextcloud Entity klassen; geen Symfony EventDispatcher support",
+            "Doctrine ORM entiteiten hergebruiken binnen Nextcloud mapper systeem; multi-tenant datastructuur obv Doctrine table prefixing matcht niet met Nextcloud app-gebaseerde isolatie",
+            "JWT-gebaseerde authenticatie en fijnmazige autorisatie logica past niet binnen Nextcloud's security systeem; standaard rollen/permissies bieden onvoldoende granulariteit"
+          ],
+          "oplossingsrichtingen": [
+            "Custom Nextcloud app als microservice-orchestrator met PHP-based message broker en abstractielaag Entity->Doctrine",
+            "Custom Kubernetes Operator in Go voor Nextcloud-instanties per tenant met datamigratiecontroller en custom CRDs",
+            "PHP-extensie voor fijnmazig autorisatiesysteem met Python validatietool en C++ autorisatie-engine via PHP-FFI"
+          ],
+          "programmeertalen": ["PHP", "Go", "Symfony", "Nextcloud"]
+        },
+        {
+          "nummer": "14283/119/02",
+          "titel": "Isolated Search Engine",
+          "uren": 3000,
+          "start": "2025-01-01",
+          "fasering": {
+            "definitiestudie": "gereed",
+            "onderzoek": "gereed",
+            "ontwikkeling_alfa": "Q1-Q4 2025",
+            "test_alfa": "2026",
+            "technische_optimalisering": "2026"
+          },
+          "beschrijving": "AI-gestuurd platform dat federatieve zoekopdrachten mogelijk maakt binnen een volledig gesloten en gecontroleerde omgeving, met strikte data-isolatie en contextafhankelijke zoekopdrachten.",
+          "componenten": [
+            "Multi-layer beveiligingsmechanisme voor data-isolatie met veilig delen/combineren zonder directe toegang tot brondata",
+            "Dynamische contextafhankelijke zoekopdrachten met strikte isolatie van data en verwerkingslogica",
+            "Naadloze integratie met bestaande IT-infrastructuren en datastromen"
+          ],
+          "technische_knelpunten": [
+            "Go net/http en Rust hyper libraries bieden onvoldoende granulaire controle over pakketrouting/headers voor strikte data-isolatie; middleware niet flexibel genoeg voor dynamische context-aware routering",
+            "Traditionele SQL JOIN/NoSQL queries tekortschieten in flexibiliteit; R/JavaScript voor koppelen zoekopdrachten aan datasets leidt tot inefficiente query-prestaties",
+            "Data heterogeniteit: standaard ETL techniek kan niet om met diverse formaten/classificaties; Python/SQL niet krachtig genoeg voor semantische verschillen"
+          ],
+          "oplossingsrichtingen": [
+            "Custom packet inspection component met routing engine: realtime parsing, context-aware routeringslogica met dynamische regelsets en caching",
+            "Nieuwe query-engine in Rust voor gedistribueerde datasets met eigen Domain-Specific Language (DSL) en custom compiler voor parallelle query-uitvoeringsplannen",
+            "Eigen ETL-framework op basis van metaprogrammering met zelf-lerend systeem voor semantische relaties en plugin mechanisme voor domeinspecifieke transformatielogica"
+          ],
+          "programmeertalen": ["R", "JavaScript", "Rust", "SQL", "NoSQL"]
+        }
+      ]
+    },
+    {
       "referentie": "SO25022118",
       "briefkenmerk": "20250035952-1.6A",
       "datum_verklaring": "2025-06-02",
@@ -37,8 +107,17 @@
       ]
     }
   ],
+  "totalen": {
+    "totaal_uren_2025": 10500,
+    "projecten": [
+      { "nummer": "14283/119/01", "titel": "Codestack Merging", "uren": 3500 },
+      { "nummer": "14283/119/02", "titel": "Isolated Search Engine", "uren": 3000 },
+      { "nummer": "14283/120/01", "titel": "Gedistribueerde Rechtenengine", "uren": 2100 },
+      { "nummer": "14283/120/02", "titel": "Fault Tolerant Task Orchestrator", "uren": 1900 }
+    ]
+  },
   "jira_tempo": {
-    "instructie": "Gebruik de projectnummers als Tempo account keys voor uren verantwoording. Uren mogen geschoven worden tussen projecten binnen dezelfde aanvraag.",
+    "instructie": "Gebruik de projectnummers als Tempo account keys voor uren verantwoording. Uren mogen geschoven worden tussen projecten binnen dezelfde aanvraag. Niet tussen aanvragen onderling.",
     "deadline_melden": "2026-03-31"
   }
 }

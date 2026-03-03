@@ -35,5 +35,8 @@ vendor/
 *.pem
 *.bak
 
+# CSV data files (client import data - sensitive)
+*.csv
+
 # WBSO intermediate classification files
 wbso/raw/

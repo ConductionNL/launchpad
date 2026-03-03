@@ -73,14 +73,6 @@ We are working on the Nextcloud app "Open Register" and a separate UI with nginx
 - UI: http://localhost:3000/
 - Backend: http://localhost:8080/
 
-### Test  Environments
-- UI: https://performance.accept.opencatalogi.nl/
-- Backend: https://softwarecatalogus.performance.accept.commonground.nu/
-
-### Production  Environments
-- UI: https://softwarecatalogus.accept.opencatalogi.nl/
-- Backend: https://softwarecatalogus.performance.commonground.nu/
-
 ## Design System
 
 ### NL Design System Support
@@ -101,11 +93,49 @@ All apps in this workspace should support the **nldesign** app for consistent go
 
 ## Docker Environment
 
-**Always use the OpenRegister docker-compose** as the development environment:
+**Always use the OpenRegister docker-compose** as the development environment. The compose file lives at `openregister/docker-compose.yml`.
+
+### Starting the environment
+
+**Default (minimal)** — starts only db, Nextcloud, and n8n:
 ```bash
 docker compose -f openregister/docker-compose.yml up -d
 ```
-This compose file includes the Nextcloud container with all apps volume-mounted (openregister, opencatalogi, softwarecatalog, nldesign, mydash, etc.) and PostgreSQL with pgvector.
+
+**With optional service groups** — add `--profile <name>` to include extra services:
+```bash
+# AI services (presidio, tgi-llm, dolphin-vlm, openanonymiser, exapp-ollama, exapp-openwebui)
+docker compose -f openregister/docker-compose.yml --profile ai up -d
+
+# Tilburg WOO UI frontend
+docker compose -f openregister/docker-compose.yml --profile ui up -d
+
+# AppAPI infrastructure (HaRP reverse proxy)
+docker compose -f openregister/docker-compose.yml --profile exapps up -d
+
+# Multiple profiles at once
+docker compose -f openregister/docker-compose.yml --profile ai --profile ui up -d
+```
+
+### Available profiles
+
+| Profile | Services | Purpose |
+|---------|----------|---------|
+| *(default)* | db, nextcloud, exapp-n8n | Core dev environment |
+| `ai` | presidio-analyzer, tgi-llm, dolphin-vlm, openanonymiser, exapp-ollama, exapp-openwebui | AI/LLM services |
+| `ui` | tilburg-woo-ui | Public WOO document frontend |
+| `exapps` | harp | Nextcloud AppAPI reverse proxy |
+| `solr` / `search` | solr, zookeeper | Search engine (alternative to pgvector) |
+| `elasticsearch` | elasticsearch | Elasticsearch backend |
+| `ollama` | ollama (standalone) | Standalone Ollama (not ExApp) |
+| `standalone` | n8n, open-webui (standalone) | Standalone versions (not ExApps) |
+| `mariadb` | db-mariadb, nextcloud-mariadb | MariaDB compatibility testing |
+| `openproject` / `integrations` | openproject | Project management |
+| `xwiki` / `integrations` | xwiki | Wiki platform |
+| `ox` / `integrations` | open-xchange | Email and groupware |
+| `valtimo` / `commonground` | valtimo | BPM and case management |
+| `openzaak` / `commonground` | openzaak | ZGW API case management |
+| `openklant` / `commonground` | openklant | Customer interaction registry |
 
 ### Scripts
 
@@ -133,7 +163,7 @@ This workspace has **7 independent Playwright browser sessions** configured as M
 3. **Fallback on error**: If a browser session errors or is unresponsive (e.g. another agent is using it), try the next numbered browser. Cycle through `browser-1` → `browser-2` → ... → `browser-5` → `browser-7`.
 4. **User watching**: When the user asks to "look along", "watch", "see the browser", or "follow along", switch to `browser-6`. This is the only headed (visible window) browser. Tell the user you're switching so they know to look at the browser window.
 5. **Sub-agent assignment**: When launching N parallel sub-agents that need browsers, assign them `browser-2` through `browser-5` and `browser-7`, keeping `browser-1` free for the main agent and `browser-6` reserved for user watching. For 6 parallel agents: use `browser-2`, `browser-3`, `browser-4`, `browser-5`, `browser-7`, and `browser-1` (if the main agent doesn't need a browser).
-6. **Profile directories**: Each browser has its own profile at `/tmp/claude-browsers/browser-{N}`. These are isolated — cookies, sessions, and state do not leak between browsers. Profiles are lost on reboot (they live in `/tmp`).
+6. **Isolated mode**: All browsers run with `--isolated` — profiles are kept in memory only, no state is written to disk. Cookies, sessions, and storage are destroyed when the browser process exits. Each browser process is fully independent.
 
 ### Tool Naming Convention
 All Playwright tools are prefixed with the server name:

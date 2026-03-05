@@ -72,3 +72,12 @@
 [submodule ".github"]
 	path = .github
 	url = https://github.com/ConductionNL/.github.git
+[submodule "n8n-nextcloud"]
+	path = n8n-nextcloud
+	url = https://github.com/ConductionNL/n8n-nextcloud.git
+[submodule "open-webui-nextcloud"]
+	path = open-webui-nextcloud
+	url = https://github.com/ConductionNL/open-webui-nextcloud.git
+[submodule "keycloak-nextcloud"]
+	path = keycloak-nextcloud
+	url = https://github.com/ConductionNL/keycloak-nextcloud.git

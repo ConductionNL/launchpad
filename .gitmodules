@@ -81,3 +81,6 @@
 [submodule "keycloak-nextcloud"]
 	path = keycloak-nextcloud
 	url = https://github.com/ConductionNL/keycloak-nextcloud.git
+[submodule "nextcloud-vue"]
+	path = nextcloud-vue
+	url = https://github.com/ConductionNL/nextcloud-vue.git

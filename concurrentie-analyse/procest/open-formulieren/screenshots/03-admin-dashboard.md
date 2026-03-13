@@ -1,0 +1,985 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#content-start"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Open Formulieren Administration" [ref=e7] [cursor=pointer]:
+          - /url: /admin/
+        - generic [ref=e8]: docker-compose
+      - generic [ref=e9]:
+        - text: Logged in as
+        - strong [ref=e10]: admin
+        - text: .
+        - link:
+          - /url: /
+        - text: /
+        - link "Change password" [ref=e11] [cursor=pointer]:
+          - /url: /admin/password_change/
+        - text: /
+        - link "Account security" [ref=e12] [cursor=pointer]:
+          - /url: /admin/mfa/
+        - text: /
+        - button "Log out" [ref=e14] [cursor=pointer]
+        - 'button "Toggle theme (current theme: auto)" [ref=e15] [cursor=pointer]':
+          - generic [ref=e16]: "Toggle theme (current theme: auto)"
+          - img [ref=e17]
+      - generic [ref=e19]:
+        - link "Dashboard" [ref=e20] [cursor=pointer]:
+          - /url: /admin/
+        - generic [ref=e21] [cursor=pointer]: Accounts
+        - generic [ref=e22] [cursor=pointer]: Forms
+        - generic [ref=e23] [cursor=pointer]: Submissions
+        - generic [ref=e24] [cursor=pointer]: Appointments
+        - generic [ref=e25] [cursor=pointer]: Products
+        - generic [ref=e26] [cursor=pointer]: Configuration
+        - generic [ref=e27] [cursor=pointer]: Logs
+        - generic [ref=e28] [cursor=pointer]: Useful links
+        - generic [ref=e29] [cursor=pointer]: Miscellaneous
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - heading "Welcome to the Open Forms admin" [level=1] [ref=e33]
+        - generic [ref=e34]:
+          - table "Accounts" [ref=e36]:
+            - caption [ref=e37]: Accounts
+            - rowgroup [ref=e38]:
+              - row "Groups Add Change" [ref=e39]:
+                - rowheader "Groups" [ref=e40]:
+                  - link "Groups" [ref=e41] [cursor=pointer]:
+                    - /url: /admin/auth/group/
+                - cell "Add" [ref=e42]:
+                  - link "Add" [ref=e43] [cursor=pointer]:
+                    - /url: /admin/auth/group/add/
+                - cell "Change" [ref=e44]:
+                  - link "Change" [ref=e45] [cursor=pointer]:
+                    - /url: /admin/auth/group/
+              - row "Static devices Add Change" [ref=e46]:
+                - rowheader "Static devices" [ref=e47]:
+                  - link "Static devices" [ref=e48] [cursor=pointer]:
+                    - /url: /admin/otp_static/staticdevice/
+                - cell "Add" [ref=e49]:
+                  - link "Add" [ref=e50] [cursor=pointer]:
+                    - /url: /admin/otp_static/staticdevice/add/
+                - cell "Change" [ref=e51]:
+                  - link "Change" [ref=e52] [cursor=pointer]:
+                    - /url: /admin/otp_static/staticdevice/
+              - row "TOTP devices Add Change" [ref=e53]:
+                - rowheader "TOTP devices" [ref=e54]:
+                  - link "TOTP devices" [ref=e55] [cursor=pointer]:
+                    - /url: /admin/otp_totp/totpdevice/
+                - cell "Add" [ref=e56]:
+                  - link "Add" [ref=e57] [cursor=pointer]:
+                    - /url: /admin/otp_totp/totpdevice/add/
+                - cell "Change" [ref=e58]:
+                  - link "Change" [ref=e59] [cursor=pointer]:
+                    - /url: /admin/otp_totp/totpdevice/
+              - row "Tokens Add Change" [ref=e60]:
+                - rowheader "Tokens" [ref=e61]:
+                  - link "Tokens" [ref=e62] [cursor=pointer]:
+                    - /url: /admin/authtoken/tokenproxy/
+                - cell "Add" [ref=e63]:
+                  - link "Add" [ref=e64] [cursor=pointer]:
+                    - /url: /admin/authtoken/tokenproxy/add/
+                - cell "Change" [ref=e65]:
+                  - link "Change" [ref=e66] [cursor=pointer]:
+                    - /url: /admin/authtoken/tokenproxy/
+              - row "User preferences Change" [ref=e67]:
+                - rowheader "User preferences" [ref=e68]:
+                  - link "User preferences" [ref=e69] [cursor=pointer]:
+                    - /url: /admin/accounts/userpreferences/
+                - cell [ref=e70]
+                - cell "Change" [ref=e71]:
+                  - link "Change" [ref=e72] [cursor=pointer]:
+                    - /url: /admin/accounts/userpreferences/
+              - row "Users Add Change" [ref=e73]:
+                - rowheader "Users" [ref=e74]:
+                  - link "Users" [ref=e75] [cursor=pointer]:
+                    - /url: /admin/accounts/user/
+                - cell "Add" [ref=e76]:
+                  - link "Add" [ref=e77] [cursor=pointer]:
+                    - /url: /admin/accounts/user/add/
+                - cell "Change" [ref=e78]:
+                  - link "Change" [ref=e79] [cursor=pointer]:
+                    - /url: /admin/accounts/user/
+              - row "Webauthn devices Add Change" [ref=e80]:
+                - rowheader "Webauthn devices" [ref=e81]:
+                  - link "Webauthn devices" [ref=e82] [cursor=pointer]:
+                    - /url: /admin/two_factor_webauthn/webauthndevice/
+                - cell "Add" [ref=e83]:
+                  - link "Add" [ref=e84] [cursor=pointer]:
+                    - /url: /admin/two_factor_webauthn/webauthndevice/add/
+                - cell "Change" [ref=e85]:
+                  - link "Change" [ref=e86] [cursor=pointer]:
+                    - /url: /admin/two_factor_webauthn/webauthndevice/
+          - table "Forms" [ref=e88]:
+            - caption [ref=e89]: Forms
+            - rowgroup [ref=e90]:
+              - row "Categories Add Change" [ref=e91]:
+                - rowheader "Categories" [ref=e92]:
+                  - link "Categories" [ref=e93] [cursor=pointer]:
+                    - /url: /admin/forms/category/
+                - cell "Add" [ref=e94]:
+                  - link "Add" [ref=e95] [cursor=pointer]:
+                    - /url: /admin/forms/category/add/
+                - cell "Change" [ref=e96]:
+                  - link "Change" [ref=e97] [cursor=pointer]:
+                    - /url: /admin/forms/category/
+              - row "Form submission statistics View" [ref=e98]:
+                - rowheader "Form submission statistics" [ref=e99]:
+                  - link "Form submission statistics" [ref=e100] [cursor=pointer]:
+                    - /url: /admin/forms/formsubmissionstatistics/
+                - cell [ref=e101]
+                - cell "View" [ref=e102]:
+                  - link "View" [ref=e103] [cursor=pointer]:
+                    - /url: /admin/forms/formsubmissionstatistics/
+              - row "Forms Add Change" [ref=e104]:
+                - rowheader "Forms" [ref=e105]:
+                  - link "Forms" [ref=e106] [cursor=pointer]:
+                    - /url: /admin/forms/form/
+                - cell "Add" [ref=e107]:
+                  - link "Add" [ref=e108] [cursor=pointer]:
+                    - /url: /admin/forms/form/add/
+                - cell "Change" [ref=e109]:
+                  - link "Change" [ref=e110] [cursor=pointer]:
+                    - /url: /admin/forms/form/
+          - table "Submissions" [ref=e112]:
+            - caption [ref=e113]: Submissions
+            - rowgroup [ref=e114]:
+              - row "Cosign one-time passwords Add Change" [ref=e115]:
+                - rowheader "Cosign one-time passwords" [ref=e116]:
+                  - link "Cosign one-time passwords" [ref=e117] [cursor=pointer]:
+                    - /url: /admin/submissions/cosignotp/
+                - cell "Add" [ref=e118]:
+                  - link "Add" [ref=e119] [cursor=pointer]:
+                    - /url: /admin/submissions/cosignotp/add/
+                - cell "Change" [ref=e120]:
+                  - link "Change" [ref=e121] [cursor=pointer]:
+                    - /url: /admin/submissions/cosignotp/
+              - row "Email verifications Add Change" [ref=e122]:
+                - rowheader "Email verifications" [ref=e123]:
+                  - link "Email verifications" [ref=e124] [cursor=pointer]:
+                    - /url: /admin/submissions/emailverification/
+                - cell "Add" [ref=e125]:
+                  - link "Add" [ref=e126] [cursor=pointer]:
+                    - /url: /admin/submissions/emailverification/add/
+                - cell "Change" [ref=e127]:
+                  - link "Change" [ref=e128] [cursor=pointer]:
+                    - /url: /admin/submissions/emailverification/
+              - row "Submission file attachments Change" [ref=e129]:
+                - rowheader "Submission file attachments" [ref=e130]:
+                  - link "Submission file attachments" [ref=e131] [cursor=pointer]:
+                    - /url: /admin/submissions/submissionfileattachment/
+                - cell [ref=e132]
+                - cell "Change" [ref=e133]:
+                  - link "Change" [ref=e134] [cursor=pointer]:
+                    - /url: /admin/submissions/submissionfileattachment/
+              - row "Submission payment details Add Change" [ref=e135]:
+                - rowheader "Submission payment details" [ref=e136]:
+                  - link "Submission payment details" [ref=e137] [cursor=pointer]:
+                    - /url: /admin/payments/submissionpayment/
+                - cell "Add" [ref=e138]:
+                  - link "Add" [ref=e139] [cursor=pointer]:
+                    - /url: /admin/payments/submissionpayment/add/
+                - cell "Change" [ref=e140]:
+                  - link "Change" [ref=e141] [cursor=pointer]:
+                    - /url: /admin/payments/submissionpayment/
+              - row "Submission reports Change" [ref=e142]:
+                - rowheader "Submission reports" [ref=e143]:
+                  - link "Submission reports" [ref=e144] [cursor=pointer]:
+                    - /url: /admin/submissions/submissionreport/
+                - cell [ref=e145]
+                - cell "Change" [ref=e146]:
+                  - link "Change" [ref=e147] [cursor=pointer]:
+                    - /url: /admin/submissions/submissionreport/
+              - row "Submissions Add Change" [ref=e148]:
+                - rowheader "Submissions" [ref=e149]:
+                  - link "Submissions" [ref=e150] [cursor=pointer]:
+                    - /url: /admin/submissions/submission/
+                - cell "Add" [ref=e151]:
+                  - link "Add" [ref=e152] [cursor=pointer]:
+                    - /url: /admin/submissions/submission/add/
+                - cell "Change" [ref=e153]:
+                  - link "Change" [ref=e154] [cursor=pointer]:
+                    - /url: /admin/submissions/submission/
+          - table "Appointments" [ref=e156]:
+            - caption [ref=e157]: Appointments
+            - rowgroup [ref=e158]:
+              - row "Appointment configuration Change" [ref=e159]:
+                - rowheader "Appointment configuration" [ref=e160]:
+                  - link "Appointment configuration" [ref=e161] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentsconfig/
+                - cell [ref=e162]
+                - cell "Change" [ref=e163]:
+                  - link "Change" [ref=e164] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentsconfig/
+              - row "Appointment information Add Change" [ref=e165]:
+                - rowheader "Appointment information" [ref=e166]:
+                  - link "Appointment information" [ref=e167] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentinfo/
+                - cell "Add" [ref=e168]:
+                  - link "Add" [ref=e169] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentinfo/add/
+                - cell "Change" [ref=e170]:
+                  - link "Change" [ref=e171] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentinfo/
+              - row "Appointments Add Change" [ref=e172]:
+                - rowheader "Appointments" [ref=e173]:
+                  - link "Appointments" [ref=e174] [cursor=pointer]:
+                    - /url: /admin/appointments/appointment/
+                - cell "Add" [ref=e175]:
+                  - link "Add" [ref=e176] [cursor=pointer]:
+                    - /url: /admin/appointments/appointment/add/
+                - cell "Change" [ref=e177]:
+                  - link "Change" [ref=e178] [cursor=pointer]:
+                    - /url: /admin/appointments/appointment/
+          - table "Products" [ref=e180]:
+            - caption [ref=e181]: Products
+            - rowgroup [ref=e182]:
+              - row "Products Add Change" [ref=e183]:
+                - rowheader "Products" [ref=e184]:
+                  - link "Products" [ref=e185] [cursor=pointer]:
+                    - /url: /admin/products/product/
+                - cell "Add" [ref=e186]:
+                  - link "Add" [ref=e187] [cursor=pointer]:
+                    - /url: /admin/products/product/add/
+                - cell "Change" [ref=e188]:
+                  - link "Change" [ref=e189] [cursor=pointer]:
+                    - /url: /admin/products/product/
+          - table "Configuration" [ref=e191]:
+            - caption [ref=e192]: Configuration
+            - rowgroup [ref=e193]:
+              - row "Analytics tools configuration Change" [ref=e194]:
+                - rowheader "Analytics tools configuration" [ref=e195]:
+                  - link "Analytics tools configuration" [ref=e196] [cursor=pointer]:
+                    - /url: /admin/analytics_tools/analyticstoolsconfiguration/
+                - cell [ref=e197]
+                - cell "Change" [ref=e198]:
+                  - link "Change" [ref=e199] [cursor=pointer]:
+                    - /url: /admin/analytics_tools/analyticstoolsconfiguration/
+              - row "Application groups Add Change" [ref=e200]:
+                - rowheader "Application groups" [ref=e201]:
+                  - link "Application groups" [ref=e202] [cursor=pointer]:
+                    - /url: /admin/admin_index/appgroup/
+                - cell "Add" [ref=e203]:
+                  - link "Add" [ref=e204] [cursor=pointer]:
+                    - /url: /admin/admin_index/appgroup/add/
+                - cell "Change" [ref=e205]:
+                  - link "Change" [ref=e206] [cursor=pointer]:
+                    - /url: /admin/admin_index/appgroup/
+              - row "Appointment configuration Change" [ref=e207]:
+                - rowheader "Appointment configuration" [ref=e208]:
+                  - link "Appointment configuration" [ref=e209] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentsconfig/
+                - cell [ref=e210]
+                - cell "Change" [ref=e211]:
+                  - link "Change" [ref=e212] [cursor=pointer]:
+                    - /url: /admin/appointments/appointmentsconfig/
+              - row "Blacklisted emails Add Change" [ref=e213]:
+                - rowheader "Blacklisted emails" [ref=e214]:
+                  - link "Blacklisted emails" [ref=e215] [cursor=pointer]:
+                    - /url: /admin/django_yubin/blacklist/
+                - cell "Add" [ref=e216]:
+                  - link "Add" [ref=e217] [cursor=pointer]:
+                    - /url: /admin/django_yubin/blacklist/add/
+                - cell "Change" [ref=e218]:
+                  - link "Change" [ref=e219] [cursor=pointer]:
+                    - /url: /admin/django_yubin/blacklist/
+              - row "Camunda configuration Change" [ref=e220]:
+                - rowheader "Camunda configuration" [ref=e221]:
+                  - link "Camunda configuration" [ref=e222] [cursor=pointer]:
+                    - /url: /admin/django_camunda/camundaconfig/
+                - cell [ref=e223]
+                - cell "Change" [ref=e224]:
+                  - link "Change" [ref=e225] [cursor=pointer]:
+                    - /url: /admin/django_camunda/camundaconfig/
+              - row "Certificates Add Change" [ref=e226]:
+                - rowheader "Certificates" [ref=e227]:
+                  - link "Certificates" [ref=e228] [cursor=pointer]:
+                    - /url: /admin/simple_certmanager/certificate/
+                - cell "Add" [ref=e229]:
+                  - link "Add" [ref=e230] [cursor=pointer]:
+                    - /url: /admin/simple_certmanager/certificate/add/
+                - cell "Change" [ref=e231]:
+                  - link "Change" [ref=e232] [cursor=pointer]:
+                    - /url: /admin/simple_certmanager/certificate/
+              - row "Configuration overview View" [ref=e233]:
+                - rowheader "Configuration overview" [ref=e234]:
+                  - link "Configuration overview" [ref=e235] [cursor=pointer]:
+                    - /url: /admin/config/overview/
+                - cell [ref=e236]
+                - cell "View" [ref=e237]:
+                  - link "View" [ref=e238] [cursor=pointer]:
+                    - /url: /admin/config/overview/
+              - row "Cookie Groups Add Change" [ref=e239]:
+                - rowheader "Cookie Groups" [ref=e240]:
+                  - link "Cookie Groups" [ref=e241] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/cookiegroup/
+                - cell "Add" [ref=e242]:
+                  - link "Add" [ref=e243] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/cookiegroup/add/
+                - cell "Change" [ref=e244]:
+                  - link "Change" [ref=e245] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/cookiegroup/
+              - row "Cookies Add Change" [ref=e246]:
+                - rowheader "Cookies" [ref=e247]:
+                  - link "Cookies" [ref=e248] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/cookie/
+                - cell "Add" [ref=e249]:
+                  - link "Add" [ref=e250] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/cookie/add/
+                - cell "Change" [ref=e251]:
+                  - link "Change" [ref=e252] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/cookie/
+              - row "Csp settings Add Change" [ref=e253]:
+                - rowheader "Csp settings" [ref=e254]:
+                  - link "Csp settings" [ref=e255] [cursor=pointer]:
+                    - /url: /admin/config/cspsetting/
+                - cell "Add" [ref=e256]:
+                  - link "Add" [ref=e257] [cursor=pointer]:
+                    - /url: /admin/config/cspsetting/add/
+                - cell "Change" [ref=e258]:
+                  - link "Change" [ref=e259] [cursor=pointer]:
+                    - /url: /admin/config/cspsetting/
+              - row "DigiD/eHerkenning certificates Add Change" [ref=e260]:
+                - rowheader "DigiD/eHerkenning certificates" [ref=e261]:
+                  - link "DigiD/eHerkenning certificates" [ref=e262] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/configcertificate/
+                - cell "Add" [ref=e263]:
+                  - link "Add" [ref=e264] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/configcertificate/add/
+                - cell "Change" [ref=e265]:
+                  - link "Change" [ref=e266] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/configcertificate/
+              - row "Digid configuration Change" [ref=e267]:
+                - rowheader "Digid configuration" [ref=e268]:
+                  - link "Digid configuration" [ref=e269] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/digidconfiguration/
+                - cell [ref=e270]
+                - cell "Change" [ref=e271]:
+                  - link "Change" [ref=e272] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/digidconfiguration/
+              - row "Domains Add Change" [ref=e273]:
+                - rowheader "Domains" [ref=e274]:
+                  - link "Domains" [ref=e275] [cursor=pointer]:
+                    - /url: /admin/multidomain/domain/
+                - cell "Add" [ref=e276]:
+                  - link "Add" [ref=e277] [cursor=pointer]:
+                    - /url: /admin/multidomain/domain/add/
+                - cell "Change" [ref=e278]:
+                  - link "Change" [ref=e279] [cursor=pointer]:
+                    - /url: /admin/multidomain/domain/
+              - row "Eherkenning/eIDAS configuration Change" [ref=e280]:
+                - rowheader "Eherkenning/eIDAS configuration" [ref=e281]:
+                  - link "Eherkenning/eIDAS configuration" [ref=e282] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/eherkenningconfiguration/
+                - cell [ref=e283]
+                - cell "Change" [ref=e284]:
+                  - link "Change" [ref=e285] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/eherkenningconfiguration/
+              - row "Flag states Add Change" [ref=e286]:
+                - rowheader "Flag states" [ref=e287]:
+                  - link "Flag states" [ref=e288] [cursor=pointer]:
+                    - /url: /admin/flags/flagstate/
+                - cell "Add" [ref=e289]:
+                  - link "Add" [ref=e290] [cursor=pointer]:
+                    - /url: /admin/flags/flagstate/add/
+                - cell "Change" [ref=e291]:
+                  - link "Change" [ref=e292] [cursor=pointer]:
+                    - /url: /admin/flags/flagstate/
+              - row "General configuration Change" [ref=e293]:
+                - rowheader "General configuration" [ref=e294]:
+                  - link "General configuration" [ref=e295] [cursor=pointer]:
+                    - /url: /admin/config/globalconfiguration/
+                - cell [ref=e296]
+                - cell "Change" [ref=e297]:
+                  - link "Change" [ref=e298] [cursor=pointer]:
+                    - /url: /admin/config/globalconfiguration/
+              - row "Global prefill configuration Change" [ref=e299]:
+                - rowheader "Global prefill configuration" [ref=e300]:
+                  - link "Global prefill configuration" [ref=e301] [cursor=pointer]:
+                    - /url: /admin/prefill/prefillconfig/
+                - cell [ref=e302]
+                - cell "Change" [ref=e303]:
+                  - link "Change" [ref=e304] [cursor=pointer]:
+                    - /url: /admin/prefill/prefillconfig/
+              - row "Map tile layers Add Change" [ref=e305]:
+                - rowheader "Map tile layers" [ref=e306]:
+                  - link "Map tile layers" [ref=e307] [cursor=pointer]:
+                    - /url: /admin/config/maptilelayer/
+                - cell "Add" [ref=e308]:
+                  - link "Add" [ref=e309] [cursor=pointer]:
+                    - /url: /admin/config/maptilelayer/add/
+                - cell "Change" [ref=e310]:
+                  - link "Change" [ref=e311] [cursor=pointer]:
+                    - /url: /admin/config/maptilelayer/
+              - row "NLX configuration Change" [ref=e312]:
+                - rowheader "NLX configuration" [ref=e313]:
+                  - link "NLX configuration" [ref=e314] [cursor=pointer]:
+                    - /url: /admin/zgw_consumers/nlxconfig/
+                - cell [ref=e315]
+                - cell "Change" [ref=e316]:
+                  - link "Change" [ref=e317] [cursor=pointer]:
+                    - /url: /admin/zgw_consumers/nlxconfig/
+              - row "OIDC Providers Add Change" [ref=e318]:
+                - rowheader "OIDC Providers" [ref=e319]:
+                  - link "OIDC Providers" [ref=e320] [cursor=pointer]:
+                    - /url: /admin/mozilla_django_oidc_db/oidcprovider/
+                - cell "Add" [ref=e321]:
+                  - link "Add" [ref=e322] [cursor=pointer]:
+                    - /url: /admin/mozilla_django_oidc_db/oidcprovider/add/
+                - cell "Change" [ref=e323]:
+                  - link "Change" [ref=e324] [cursor=pointer]:
+                    - /url: /admin/mozilla_django_oidc_db/oidcprovider/
+              - row "OIDC clients Change" [ref=e325]:
+                - rowheader "OIDC clients" [ref=e326]:
+                  - link "OIDC clients" [ref=e327] [cursor=pointer]:
+                    - /url: /admin/mozilla_django_oidc_db/oidcclient/
+                - cell [ref=e328]
+                - cell "Change" [ref=e329]:
+                  - link "Change" [ref=e330] [cursor=pointer]:
+                    - /url: /admin/mozilla_django_oidc_db/oidcclient/
+              - row "Outgoing request log configuration Change" [ref=e331]:
+                - rowheader "Outgoing request log configuration" [ref=e332]:
+                  - link "Outgoing request log configuration" [ref=e333] [cursor=pointer]:
+                    - /url: /admin/log_outgoing_requests/outgoingrequestslogconfig/
+                - cell [ref=e334]
+                - cell "Change" [ref=e335]:
+                  - link "Change" [ref=e336] [cursor=pointer]:
+                    - /url: /admin/log_outgoing_requests/outgoingrequestslogconfig/
+              - row "SOAP services Add Change" [ref=e337]:
+                - rowheader "SOAP services" [ref=e338]:
+                  - link "SOAP services" [ref=e339] [cursor=pointer]:
+                    - /url: /admin/soap/soapservice/
+                - cell "Add" [ref=e340]:
+                  - link "Add" [ref=e341] [cursor=pointer]:
+                    - /url: /admin/soap/soapservice/add/
+                - cell "Change" [ref=e342]:
+                  - link "Change" [ref=e343] [cursor=pointer]:
+                    - /url: /admin/soap/soapservice/
+              - row "Service fetch configurations Add Change" [ref=e344]:
+                - rowheader "Service fetch configurations" [ref=e345]:
+                  - link "Service fetch configurations" [ref=e346] [cursor=pointer]:
+                    - /url: /admin/variables/servicefetchconfiguration/
+                - cell "Add" [ref=e347]:
+                  - link "Add" [ref=e348] [cursor=pointer]:
+                    - /url: /admin/variables/servicefetchconfiguration/add/
+                - cell "Change" [ref=e349]:
+                  - link "Change" [ref=e350] [cursor=pointer]:
+                    - /url: /admin/variables/servicefetchconfiguration/
+              - row "Services Add Change" [ref=e351]:
+                - rowheader "Services" [ref=e352]:
+                  - link "Services" [ref=e353] [cursor=pointer]:
+                    - /url: /admin/zgw_consumers/service/
+                - cell "Add" [ref=e354]:
+                  - link "Add" [ref=e355] [cursor=pointer]:
+                    - /url: /admin/zgw_consumers/service/add/
+                - cell "Change" [ref=e356]:
+                  - link "Change" [ref=e357] [cursor=pointer]:
+                    - /url: /admin/zgw_consumers/service/
+              - row "Signing requests Add Change" [ref=e358]:
+                - rowheader "Signing requests" [ref=e359]:
+                  - link "Signing requests" [ref=e360] [cursor=pointer]:
+                    - /url: /admin/simple_certmanager/signingrequest/
+                - cell "Add" [ref=e361]:
+                  - link "Add" [ref=e362] [cursor=pointer]:
+                    - /url: /admin/simple_certmanager/signingrequest/add/
+                - cell "Change" [ref=e363]:
+                  - link "Change" [ref=e364] [cursor=pointer]:
+                    - /url: /admin/simple_certmanager/signingrequest/
+              - row "Test email backend View" [ref=e365]:
+                - rowheader "Test email backend" [ref=e366]:
+                  - link "Test email backend" [ref=e367] [cursor=pointer]:
+                    - /url: /admin/email/test/
+                - cell [ref=e368]
+                - cell "View" [ref=e369]:
+                  - link "View" [ref=e370] [cursor=pointer]:
+                    - /url: /admin/email/test/
+              - row "Themes Add Change" [ref=e371]:
+                - rowheader "Themes" [ref=e372]:
+                  - link "Themes" [ref=e373] [cursor=pointer]:
+                    - /url: /admin/config/theme/
+                - cell "Add" [ref=e374]:
+                  - link "Add" [ref=e375] [cursor=pointer]:
+                    - /url: /admin/config/theme/add/
+                - cell "Change" [ref=e376]:
+                  - link "Change" [ref=e377] [cursor=pointer]:
+                    - /url: /admin/config/theme/
+              - row "WMS layers Add Change" [ref=e378]:
+                - rowheader "WMS layers" [ref=e379]:
+                  - link "WMS layers" [ref=e380] [cursor=pointer]:
+                    - /url: /admin/config/mapwmstilelayer/
+                - cell "Add" [ref=e381]:
+                  - link "Add" [ref=e382] [cursor=pointer]:
+                    - /url: /admin/config/mapwmstilelayer/add/
+                - cell "Change" [ref=e383]:
+                  - link "Change" [ref=e384] [cursor=pointer]:
+                    - /url: /admin/config/mapwmstilelayer/
+              - row "Worldline webhook configurations Add Change" [ref=e385]:
+                - rowheader "Worldline webhook configurations" [ref=e386]:
+                  - link "Worldline webhook configurations" [ref=e387] [cursor=pointer]:
+                    - /url: /admin/payments_worldline/worldlinewebhookconfiguration/
+                - cell "Add" [ref=e388]:
+                  - link "Add" [ref=e389] [cursor=pointer]:
+                    - /url: /admin/payments_worldline/worldlinewebhookconfiguration/add/
+                - cell "Change" [ref=e390]:
+                  - link "Change" [ref=e391] [cursor=pointer]:
+                    - /url: /admin/payments_worldline/worldlinewebhookconfiguration/
+              - row "Worldline webhook configurations (transition) Add Change" [ref=e392]:
+                - rowheader "Worldline webhook configurations (transition)" [ref=e393]:
+                  - link "Worldline webhook configurations (transition)" [ref=e394] [cursor=pointer]:
+                    - /url: /admin/payments_ogone/ogonewebhookconfiguration/
+                - cell "Add" [ref=e395]:
+                  - link "Add" [ref=e396] [cursor=pointer]:
+                    - /url: /admin/payments_ogone/ogonewebhookconfiguration/add/
+                - cell "Change" [ref=e397]:
+                  - link "Change" [ref=e398] [cursor=pointer]:
+                    - /url: /admin/payments_ogone/ogonewebhookconfiguration/
+              - row "Yivi attribute groups Add Change" [ref=e399]:
+                - rowheader "Yivi attribute groups" [ref=e400]:
+                  - link "Yivi attribute groups" [ref=e401] [cursor=pointer]:
+                    - /url: /admin/yivi_oidc/attributegroup/
+                - cell "Add" [ref=e402]:
+                  - link "Add" [ref=e403] [cursor=pointer]:
+                    - /url: /admin/yivi_oidc/attributegroup/add/
+                - cell "Change" [ref=e404]:
+                  - link "Change" [ref=e405] [cursor=pointer]:
+                    - /url: /admin/yivi_oidc/attributegroup/
+          - table "Logs" [ref=e407]:
+            - caption [ref=e408]: Logs
+            - rowgroup [ref=e409]:
+              - row "Access attempts Change" [ref=e410]:
+                - rowheader "Access attempts" [ref=e411]:
+                  - link "Access attempts" [ref=e412] [cursor=pointer]:
+                    - /url: /admin/axes/accessattempt/
+                - cell [ref=e413]
+                - cell "Change" [ref=e414]:
+                  - link "Change" [ref=e415] [cursor=pointer]:
+                    - /url: /admin/axes/accessattempt/
+              - row "Access failures Change" [ref=e416]:
+                - rowheader "Access failures" [ref=e417]:
+                  - link "Access failures" [ref=e418] [cursor=pointer]:
+                    - /url: /admin/axes/accessfailurelog/
+                - cell [ref=e419]
+                - cell "Change" [ref=e420]:
+                  - link "Change" [ref=e421] [cursor=pointer]:
+                    - /url: /admin/axes/accessfailurelog/
+              - row "Access logs Change" [ref=e422]:
+                - rowheader "Access logs" [ref=e423]:
+                  - link "Access logs" [ref=e424] [cursor=pointer]:
+                    - /url: /admin/axes/accesslog/
+                - cell [ref=e425]
+                - cell "Change" [ref=e426]:
+                  - link "Change" [ref=e427] [cursor=pointer]:
+                    - /url: /admin/axes/accesslog/
+              - row "Avg timeline log entries View" [ref=e428]:
+                - rowheader "Avg timeline log entries" [ref=e429]:
+                  - link "Avg timeline log entries" [ref=e430] [cursor=pointer]:
+                    - /url: /admin/logging/avgtimelinelogproxy/
+                - cell [ref=e431]
+                - cell "View" [ref=e432]:
+                  - link "View" [ref=e433] [cursor=pointer]:
+                    - /url: /admin/logging/avgtimelinelogproxy/
+              - row "Csp reports View" [ref=e434]:
+                - rowheader "Csp reports" [ref=e435]:
+                  - link "Csp reports" [ref=e436] [cursor=pointer]:
+                    - /url: /admin/cspreports/cspreport/
+                - cell [ref=e437]
+                - cell "View" [ref=e438]:
+                  - link "View" [ref=e439] [cursor=pointer]:
+                    - /url: /admin/cspreports/cspreport/
+              - row "Log items View" [ref=e440]:
+                - rowheader "Log items" [ref=e441]:
+                  - link "Log items" [ref=e442] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/logitem/
+                - cell [ref=e443]
+                - cell "View" [ref=e444]:
+                  - link "View" [ref=e445] [cursor=pointer]:
+                    - /url: /admin/cookie_consent/logitem/
+              - row "Logs View" [ref=e446]:
+                - rowheader "Logs" [ref=e447]:
+                  - link "Logs" [ref=e448] [cursor=pointer]:
+                    - /url: /admin/django_yubin/log/
+                - cell [ref=e449]
+                - cell "View" [ref=e450]:
+                  - link "View" [ref=e451] [cursor=pointer]:
+                    - /url: /admin/django_yubin/log/
+              - row "Messages View" [ref=e452]:
+                - rowheader "Messages" [ref=e453]:
+                  - link "Messages" [ref=e454] [cursor=pointer]:
+                    - /url: /admin/django_yubin/message/
+                - cell [ref=e455]
+                - cell "View" [ref=e456]:
+                  - link "View" [ref=e457] [cursor=pointer]:
+                    - /url: /admin/django_yubin/message/
+              - row "Outgoing request logs Change" [ref=e458]:
+                - rowheader "Outgoing request logs" [ref=e459]:
+                  - link "Outgoing request logs" [ref=e460] [cursor=pointer]:
+                    - /url: /admin/log_outgoing_requests/outgoingrequestslog/
+                - cell [ref=e461]
+                - cell "Change" [ref=e462]:
+                  - link "Change" [ref=e463] [cursor=pointer]:
+                    - /url: /admin/log_outgoing_requests/outgoingrequestslog/
+              - row "Temporary file uploads View" [ref=e464]:
+                - rowheader "Temporary file uploads" [ref=e465]:
+                  - link "Temporary file uploads" [ref=e466] [cursor=pointer]:
+                    - /url: /admin/submissions/temporaryfileupload/
+                - cell [ref=e467]
+                - cell "View" [ref=e468]:
+                  - link "View" [ref=e469] [cursor=pointer]:
+                    - /url: /admin/submissions/temporaryfileupload/
+              - row "Timeline log entries View" [ref=e470]:
+                - rowheader "Timeline log entries" [ref=e471]:
+                  - link "Timeline log entries" [ref=e472] [cursor=pointer]:
+                    - /url: /admin/logging/timelinelogproxy/
+                - cell [ref=e473]
+                - cell "View" [ref=e474]:
+                  - link "View" [ref=e475] [cursor=pointer]:
+                    - /url: /admin/logging/timelinelogproxy/
+          - table "Useful links" [ref=e477]:
+            - caption [ref=e478]: Useful links
+            - rowgroup [ref=e479]:
+              - row "API Documentation View" [ref=e480]:
+                - rowheader "API Documentation" [ref=e481]:
+                  - link "API Documentation" [ref=e482] [cursor=pointer]:
+                    - /url: /api/docs/
+                - cell [ref=e483]
+                - cell "View" [ref=e484]:
+                  - link "View" [ref=e485] [cursor=pointer]:
+                    - /url: /api/docs/
+              - row "Documentation View" [ref=e486]:
+                - rowheader "Documentation" [ref=e487]:
+                  - link "Documentation" [ref=e488] [cursor=pointer]:
+                    - /url: http://open-forms.readthedocs.io/
+                - cell [ref=e489]
+                - cell "View" [ref=e490]:
+                  - link "View" [ref=e491] [cursor=pointer]:
+                    - /url: http://open-forms.readthedocs.io/
+              - row "Github View" [ref=e492]:
+                - rowheader "Github" [ref=e493]:
+                  - link "Github" [ref=e494] [cursor=pointer]:
+                    - /url: https://github.com/open-formulieren/open-forms
+                - cell [ref=e495]
+                - cell "View" [ref=e496]:
+                  - link "View" [ref=e497] [cursor=pointer]:
+                    - /url: https://github.com/open-formulieren/open-forms
+          - table "Miscellaneous" [ref=e499]:
+            - caption [ref=e500]: Miscellaneous
+            - rowgroup [ref=e501]:
+              - row "Authentication details Add Change" [ref=e502]:
+                - rowheader "Authentication details" [ref=e503]:
+                  - link "Authentication details" [ref=e504] [cursor=pointer]:
+                    - /url: /admin/of_authentication/authinfo/
+                - cell "Add" [ref=e505]:
+                  - link "Add" [ref=e506] [cursor=pointer]:
+                    - /url: /admin/of_authentication/authinfo/add/
+                - cell "Change" [ref=e507]:
+                  - link "Change" [ref=e508] [cursor=pointer]:
+                    - /url: /admin/of_authentication/authinfo/
+              - row "BRK configuration Change" [ref=e509]:
+                - rowheader "BRK configuration" [ref=e510]:
+                  - link "BRK configuration" [ref=e511] [cursor=pointer]:
+                    - /url: /admin/brk/brkconfig/
+                - cell [ref=e512]
+                - cell "Change" [ref=e513]:
+                  - link "Change" [ref=e514] [cursor=pointer]:
+                    - /url: /admin/brk/brkconfig/
+              - row "BRP Personen request options Add Change" [ref=e515]:
+                - rowheader "BRP Personen request options" [ref=e516]:
+                  - link "BRP Personen request options" [ref=e517] [cursor=pointer]:
+                    - /url: /admin/haalcentraal/brppersonenrequestoptions/
+                - cell "Add" [ref=e518]:
+                  - link "Add" [ref=e519] [cursor=pointer]:
+                    - /url: /admin/haalcentraal/brppersonenrequestoptions/add/
+                - cell "Change" [ref=e520]:
+                  - link "Change" [ref=e521] [cursor=pointer]:
+                    - /url: /admin/haalcentraal/brppersonenrequestoptions/
+              - row "Confirmation email templates Add Change" [ref=e522]:
+                - rowheader "Confirmation email templates" [ref=e523]:
+                  - link "Confirmation email templates" [ref=e524] [cursor=pointer]:
+                    - /url: /admin/emails/confirmationemailtemplate/
+                - cell "Add" [ref=e525]:
+                  - link "Add" [ref=e526] [cursor=pointer]:
+                    - /url: /admin/emails/confirmationemailtemplate/add/
+                - cell "Change" [ref=e527]:
+                  - link "Change" [ref=e528] [cursor=pointer]:
+                    - /url: /admin/emails/confirmationemailtemplate/
+              - row "Customer interactions API groups Add Change" [ref=e529]:
+                - rowheader "Customer interactions API groups" [ref=e530]:
+                  - link "Customer interactions API groups" [ref=e531] [cursor=pointer]:
+                    - /url: /admin/customer_interactions/customerinteractionsapigroupconfig/
+                - cell "Add" [ref=e532]:
+                  - link "Add" [ref=e533] [cursor=pointer]:
+                    - /url: /admin/customer_interactions/customerinteractionsapigroupconfig/add/
+                - cell "Change" [ref=e534]:
+                  - link "Change" [ref=e535] [cursor=pointer]:
+                    - /url: /admin/customer_interactions/customerinteractionsapigroupconfig/
+              - row "Email registration configuration Change" [ref=e536]:
+                - rowheader "Email registration configuration" [ref=e537]:
+                  - link "Email registration configuration" [ref=e538] [cursor=pointer]:
+                    - /url: /admin/registrations_email/emailconfig/
+                - cell [ref=e539]
+                - cell "Change" [ref=e540]:
+                  - link "Change" [ref=e541] [cursor=pointer]:
+                    - /url: /admin/registrations_email/emailconfig/
+              - row "Form definitions Add Change" [ref=e542]:
+                - rowheader "Form definitions" [ref=e543]:
+                  - link "Form definitions" [ref=e544] [cursor=pointer]:
+                    - /url: /admin/forms/formdefinition/
+                - cell "Add" [ref=e545]:
+                  - link "Add" [ref=e546] [cursor=pointer]:
+                    - /url: /admin/forms/formdefinition/add/
+                - cell "Change" [ref=e547]:
+                  - link "Change" [ref=e548] [cursor=pointer]:
+                    - /url: /admin/forms/formdefinition/
+              - row "Form logic rules Add Change" [ref=e549]:
+                - rowheader "Form logic rules" [ref=e550]:
+                  - link "Form logic rules" [ref=e551] [cursor=pointer]:
+                    - /url: /admin/forms/formlogic/
+                - cell "Add" [ref=e552]:
+                  - link "Add" [ref=e553] [cursor=pointer]:
+                    - /url: /admin/forms/formlogic/add/
+                - cell "Change" [ref=e554]:
+                  - link "Change" [ref=e555] [cursor=pointer]:
+                    - /url: /admin/forms/formlogic/
+              - row "Form steps Add Change" [ref=e556]:
+                - rowheader "Form steps" [ref=e557]:
+                  - link "Form steps" [ref=e558] [cursor=pointer]:
+                    - /url: /admin/forms/formstep/
+                - cell "Add" [ref=e559]:
+                  - link "Add" [ref=e560] [cursor=pointer]:
+                    - /url: /admin/forms/formstep/add/
+                - cell "Change" [ref=e561]:
+                  - link "Change" [ref=e562] [cursor=pointer]:
+                    - /url: /admin/forms/formstep/
+              - row "Form variables Add Change" [ref=e563]:
+                - rowheader "Form variables" [ref=e564]:
+                  - link "Form variables" [ref=e565] [cursor=pointer]:
+                    - /url: /admin/forms/formvariable/
+                - cell "Add" [ref=e566]:
+                  - link "Add" [ref=e567] [cursor=pointer]:
+                    - /url: /admin/forms/formvariable/add/
+                - cell "Change" [ref=e568]:
+                  - link "Change" [ref=e569] [cursor=pointer]:
+                    - /url: /admin/forms/formvariable/
+              - row "Form versions Change" [ref=e570]:
+                - rowheader "Form versions" [ref=e571]:
+                  - link "Form versions" [ref=e572] [cursor=pointer]:
+                    - /url: /admin/forms/formversion/
+                - cell [ref=e573]
+                - cell "Change" [ref=e574]:
+                  - link "Change" [ref=e575] [cursor=pointer]:
+                    - /url: /admin/forms/formversion/
+              - row "Forms exports Add Change" [ref=e576]:
+                - rowheader "Forms exports" [ref=e577]:
+                  - link "Forms exports" [ref=e578] [cursor=pointer]:
+                    - /url: /admin/forms/formsexport/
+                - cell "Add" [ref=e579]:
+                  - link "Add" [ref=e580] [cursor=pointer]:
+                    - /url: /admin/forms/formsexport/add/
+                - cell "Change" [ref=e581]:
+                  - link "Change" [ref=e582] [cursor=pointer]:
+                    - /url: /admin/forms/formsexport/
+              - row "Haal Centraal configuration Change" [ref=e583]:
+                - rowheader "Haal Centraal configuration" [ref=e584]:
+                  - link "Haal Centraal configuration" [ref=e585] [cursor=pointer]:
+                    - /url: /admin/haalcentraal/haalcentraalconfig/
+                - cell [ref=e586]
+                - cell "Change" [ref=e587]:
+                  - link "Change" [ref=e588] [cursor=pointer]:
+                    - /url: /admin/haalcentraal/haalcentraalconfig/
+              - row "JCC Rest configuration Change" [ref=e589]:
+                - rowheader "JCC Rest configuration" [ref=e590]:
+                  - link "JCC Rest configuration" [ref=e591] [cursor=pointer]:
+                    - /url: /admin/jcc_rest/jccrestconfig/
+                - cell [ref=e592]
+                - cell "Change" [ref=e593]:
+                  - link "Change" [ref=e594] [cursor=pointer]:
+                    - /url: /admin/jcc_rest/jccrestconfig/
+              - row "JCC configuration Change" [ref=e595]:
+                - rowheader "JCC configuration" [ref=e596]:
+                  - link "JCC configuration" [ref=e597] [cursor=pointer]:
+                    - /url: /admin/jcc/jccconfig/
+                - cell [ref=e598]
+                - cell "Change" [ref=e599]:
+                  - link "Change" [ref=e600] [cursor=pointer]:
+                    - /url: /admin/jcc/jccconfig/
+              - row "Kadaster API configuration Change" [ref=e601]:
+                - rowheader "Kadaster API configuration" [ref=e602]:
+                  - link "Kadaster API configuration" [ref=e603] [cursor=pointer]:
+                    - /url: /admin/kadaster/kadasterapiconfig/
+                - cell [ref=e604]
+                - cell "Change" [ref=e605]:
+                  - link "Change" [ref=e606] [cursor=pointer]:
+                    - /url: /admin/kadaster/kadasterapiconfig/
+              - row "KvK configuration Change" [ref=e607]:
+                - rowheader "KvK configuration" [ref=e608]:
+                  - link "KvK configuration" [ref=e609] [cursor=pointer]:
+                    - /url: /admin/kvk/kvkconfig/
+                - cell [ref=e610]
+                - cell "Change" [ref=e611]:
+                  - link "Change" [ref=e612] [cursor=pointer]:
+                    - /url: /admin/kvk/kvkconfig/
+              - row "Microsoft Graph registration Change" [ref=e613]:
+                - rowheader "Microsoft Graph registration" [ref=e614]:
+                  - link "Microsoft Graph registration" [ref=e615] [cursor=pointer]:
+                    - /url: /admin/registrations_microsoft_graph/msgraphregistrationconfig/
+                - cell [ref=e616]
+                - cell "Change" [ref=e617]:
+                  - link "Change" [ref=e618] [cursor=pointer]:
+                    - /url: /admin/registrations_microsoft_graph/msgraphregistrationconfig/
+              - row "Microsoft Graph services Add Change" [ref=e619]:
+                - rowheader "Microsoft Graph services" [ref=e620]:
+                  - link "Microsoft Graph services" [ref=e621] [cursor=pointer]:
+                    - /url: /admin/microsoft/msgraphservice/
+                - cell "Add" [ref=e622]:
+                  - link "Add" [ref=e623] [cursor=pointer]:
+                    - /url: /admin/microsoft/msgraphservice/add/
+                - cell "Change" [ref=e624]:
+                  - link "Change" [ref=e625] [cursor=pointer]:
+                    - /url: /admin/microsoft/msgraphservice/
+              - row "Mock DigiD users Add Change" [ref=e626]:
+                - rowheader "Mock DigiD users" [ref=e627]:
+                  - link "Mock DigiD users" [ref=e628] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/mockdigiduser/
+                - cell "Add" [ref=e629]:
+                  - link "Add" [ref=e630] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/mockdigiduser/add/
+                - cell "Change" [ref=e631]:
+                  - link "Change" [ref=e632] [cursor=pointer]:
+                    - /url: /admin/digid_eherkenning/mockdigiduser/
+              - row "Objects API configuration Change" [ref=e633]:
+                - rowheader "Objects API configuration" [ref=e634]:
+                  - link "Objects API configuration" [ref=e635] [cursor=pointer]:
+                    - /url: /admin/registrations_objects_api/objectsapiconfig/
+                - cell [ref=e636]
+                - cell "Change" [ref=e637]:
+                  - link "Change" [ref=e638] [cursor=pointer]:
+                    - /url: /admin/registrations_objects_api/objectsapiconfig/
+              - row "Objects API groups Add Change" [ref=e639]:
+                - rowheader "Objects API groups" [ref=e640]:
+                  - link "Objects API groups" [ref=e641] [cursor=pointer]:
+                    - /url: /admin/objects_api/objectsapigroupconfig/
+                - cell "Add" [ref=e642]:
+                  - link "Add" [ref=e643] [cursor=pointer]:
+                    - /url: /admin/objects_api/objectsapigroupconfig/add/
+                - cell "Change" [ref=e644]:
+                  - link "Change" [ref=e645] [cursor=pointer]:
+                    - /url: /admin/objects_api/objectsapigroupconfig/
+              - row "Ogone merchants Add Change" [ref=e646]:
+                - rowheader "Ogone merchants" [ref=e647]:
+                  - link "Ogone merchants" [ref=e648] [cursor=pointer]:
+                    - /url: /admin/payments_ogone/ogonemerchant/
+                - cell "Add" [ref=e649]:
+                  - link "Add" [ref=e650] [cursor=pointer]:
+                    - /url: /admin/payments_ogone/ogonemerchant/add/
+                - cell "Change" [ref=e651]:
+                  - link "Change" [ref=e652] [cursor=pointer]:
+                    - /url: /admin/payments_ogone/ogonemerchant/
+              - row "Qmatic configuration Change" [ref=e653]:
+                - rowheader "Qmatic configuration" [ref=e654]:
+                  - link "Qmatic configuration" [ref=e655] [cursor=pointer]:
+                    - /url: /admin/qmatic/qmaticconfig/
+                - cell [ref=e656]
+                - cell "Change" [ref=e657]:
+                  - link "Change" [ref=e658] [cursor=pointer]:
+                    - /url: /admin/qmatic/qmaticconfig/
+              - row "Registrator authentication details Add Change" [ref=e659]:
+                - rowheader "Registrator authentication details" [ref=e660]:
+                  - link "Registrator authentication details" [ref=e661] [cursor=pointer]:
+                    - /url: /admin/of_authentication/registratorinfo/
+                - cell "Add" [ref=e662]:
+                  - link "Add" [ref=e663] [cursor=pointer]:
+                    - /url: /admin/of_authentication/registratorinfo/add/
+                - cell "Change" [ref=e664]:
+                  - link "Change" [ref=e665] [cursor=pointer]:
+                    - /url: /admin/of_authentication/registratorinfo/
+              - row "StUF services Add Change" [ref=e666]:
+                - rowheader "StUF services" [ref=e667]:
+                  - link "StUF services" [ref=e668] [cursor=pointer]:
+                    - /url: /admin/stuf/stufservice/
+                - cell "Add" [ref=e669]:
+                  - link "Add" [ref=e670] [cursor=pointer]:
+                    - /url: /admin/stuf/stufservice/add/
+                - cell "Change" [ref=e671]:
+                  - link "Change" [ref=e672] [cursor=pointer]:
+                    - /url: /admin/stuf/stufservice/
+              - row "StUF-BG configuration Change" [ref=e673]:
+                - rowheader "StUF-BG configuration" [ref=e674]:
+                  - link "StUF-BG configuration" [ref=e675] [cursor=pointer]:
+                    - /url: /admin/stuf_bg/stufbgconfig/
+                - cell [ref=e676]
+                - cell "Change" [ref=e677]:
+                  - link "Change" [ref=e678] [cursor=pointer]:
+                    - /url: /admin/stuf_bg/stufbgconfig/
+              - row "StUF-ZDS configuration Change" [ref=e679]:
+                - rowheader "StUF-ZDS configuration" [ref=e680]:
+                  - link "StUF-ZDS configuration" [ref=e681] [cursor=pointer]:
+                    - /url: /admin/stuf_zds/stufzdsconfig/
+                - cell [ref=e682]
+                - cell "Change" [ref=e683]:
+                  - link "Change" [ref=e684] [cursor=pointer]:
+                    - /url: /admin/stuf_zds/stufzdsconfig/
+              - row "Suwinet configuration Change" [ref=e685]:
+                - rowheader "Suwinet configuration" [ref=e686]:
+                  - link "Suwinet configuration" [ref=e687] [cursor=pointer]:
+                    - /url: /admin/suwinet/suwinetconfig/
+                - cell [ref=e688]
+                - cell "Change" [ref=e689]:
+                  - link "Change" [ref=e690] [cursor=pointer]:
+                    - /url: /admin/suwinet/suwinetconfig/
+              - row "Text editor color presets Add Change" [ref=e691]:
+                - rowheader "Text editor color presets" [ref=e692]:
+                  - link "Text editor color presets" [ref=e693] [cursor=pointer]:
+                    - /url: /admin/config/richtextcolor/
+                - cell "Add" [ref=e694]:
+                  - link "Add" [ref=e695] [cursor=pointer]:
+                    - /url: /admin/config/richtextcolor/add/
+                - cell "Change" [ref=e696]:
+                  - link "Change" [ref=e697] [cursor=pointer]:
+                    - /url: /admin/config/richtextcolor/
+              - row "Translation metadata Add Change" [ref=e698]:
+                - rowheader "Translation metadata" [ref=e699]:
+                  - link "Translation metadata" [ref=e700] [cursor=pointer]:
+                    - /url: /admin/of_translations/translationsmetadata/
+                - cell "Add" [ref=e701]:
+                  - link "Add" [ref=e702] [cursor=pointer]:
+                    - /url: /admin/of_translations/translationsmetadata/add/
+                - cell "Change" [ref=e703]:
+                  - link "Change" [ref=e704] [cursor=pointer]:
+                    - /url: /admin/of_translations/translationsmetadata/
+              - row "Versions Add Change" [ref=e705]:
+                - rowheader "Versions" [ref=e706]:
+                  - link "Versions" [ref=e707] [cursor=pointer]:
+                    - /url: /admin/upgrade_check/version/
+                - cell "Add" [ref=e708]:
+                  - link "Add" [ref=e709] [cursor=pointer]:
+                    - /url: /admin/upgrade_check/version/add/
+                - cell "Change" [ref=e710]:
+                  - link "Change" [ref=e711] [cursor=pointer]:
+                    - /url: /admin/upgrade_check/version/
+              - row "Worldline merchants Add Change" [ref=e712]:
+                - rowheader "Worldline merchants" [ref=e713]:
+                  - link "Worldline merchants" [ref=e714] [cursor=pointer]:
+                    - /url: /admin/payments_worldline/worldlinemerchant/
+                - cell "Add" [ref=e715]:
+                  - link "Add" [ref=e716] [cursor=pointer]:
+                    - /url: /admin/payments_worldline/worldlinemerchant/add/
+                - cell "Change" [ref=e717]:
+                  - link "Change" [ref=e718] [cursor=pointer]:
+                    - /url: /admin/payments_worldline/worldlinemerchant/
+              - row "ZGW API sets Add Change" [ref=e719]:
+                - rowheader "ZGW API sets" [ref=e720]:
+                  - link "ZGW API sets" [ref=e721] [cursor=pointer]:
+                    - /url: /admin/zgw_apis/zgwapigroupconfig/
+                - cell "Add" [ref=e722]:
+                  - link "Add" [ref=e723] [cursor=pointer]:
+                    - /url: /admin/zgw_apis/zgwapigroupconfig/add/
+                - cell "Change" [ref=e724]:
+                  - link "Change" [ref=e725] [cursor=pointer]:
+                    - /url: /admin/zgw_apis/zgwapigroupconfig/
+        - generic [ref=e727]:
+          - heading "Recent actions" [level=2] [ref=e728]
+          - heading "My actions" [level=3] [ref=e729]
+          - paragraph [ref=e730]: None available
+    - contentinfo [ref=e731]:
+      - 'generic "Git SHA: 628ae31ad629dcea45c1d400a9c3b121645aadd0" [ref=e733]': version latest

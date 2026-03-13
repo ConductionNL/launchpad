@@ -1,0 +1,214 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#content-start"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Open Formulieren Administration" [ref=e7] [cursor=pointer]:
+          - /url: /admin/
+        - generic [ref=e8]: docker-compose
+      - generic [ref=e9]:
+        - text: Logged in as
+        - strong [ref=e10]: admin
+        - text: .
+        - link:
+          - /url: /
+        - text: /
+        - link "Change password" [ref=e11] [cursor=pointer]:
+          - /url: /admin/password_change/
+        - text: /
+        - link "Account security" [ref=e12] [cursor=pointer]:
+          - /url: /admin/mfa/
+        - text: /
+        - button "Log out" [ref=e14] [cursor=pointer]
+        - 'button "Toggle theme (current theme: auto)" [ref=e15] [cursor=pointer]':
+          - generic [ref=e16]: "Toggle theme (current theme: auto)"
+          - img [ref=e17]
+      - generic [ref=e19]:
+        - link "Dashboard" [ref=e20] [cursor=pointer]:
+          - /url: /admin/
+        - generic [ref=e21] [cursor=pointer]: Accounts
+        - generic [ref=e22] [cursor=pointer]: Forms
+        - generic [ref=e23] [cursor=pointer]: Submissions
+        - generic [ref=e24] [cursor=pointer]: Appointments
+        - generic [ref=e25] [cursor=pointer]: Products
+        - generic [ref=e26] [cursor=pointer]: Configuration
+        - generic [ref=e27] [cursor=pointer]: Logs
+        - generic [ref=e28] [cursor=pointer]: Useful links
+        - generic [ref=e29] [cursor=pointer]: Miscellaneous
+    - navigation "Breadcrumbs" [ref=e30]:
+      - generic [ref=e31]:
+        - link "Home" [ref=e32] [cursor=pointer]:
+          - /url: /admin/
+        - text: ›
+        - link "Forms" [ref=e33] [cursor=pointer]:
+          - /url: /admin/forms/form/
+        - text: › Add form
+    - main [ref=e35]:
+      - generic [ref=e40]:
+        - list [ref=e50]:
+          - listitem [ref=e51]:
+            - link "History" [ref=e52] [cursor=pointer]:
+              - /url: ""
+        - heading "Change form" [level=1] [ref=e53]
+        - generic [ref=e54]:
+          - tablist [ref=e55]:
+            - tab "Form" [selected] [ref=e56] [cursor=pointer]
+            - tab "Steps and fields" [ref=e57] [cursor=pointer]
+            - tab "Confirmation" [ref=e58] [cursor=pointer]
+            - tab "Registration" [ref=e59] [cursor=pointer]
+            - tab "Submission" [ref=e60] [cursor=pointer]
+            - tab "Literals" [ref=e61] [cursor=pointer]
+            - tab "Product & payment" [ref=e62] [cursor=pointer]
+            - tab "Data removal" [ref=e63] [cursor=pointer]
+            - tab "Logic" [ref=e64] [cursor=pointer]
+            - tab "Variables" [ref=e65] [cursor=pointer]
+            - tab "Advanced configuration" [ref=e66] [cursor=pointer]
+          - tabpanel "Form" [ref=e67]:
+            - group "Form details" [ref=e68]:
+              - heading "Form details" [level=2] [ref=e69]
+              - generic [ref=e70]:
+                - tablist [ref=e71]:
+                  - tab "nl" [selected] [ref=e72] [cursor=pointer]
+                  - tab "en" [ref=e73] [cursor=pointer]
+                - tabpanel "nl" [ref=e74]:
+                  - generic [ref=e76]:
+                    - generic [ref=e77]:
+                      - generic [ref=e78]: Name
+                      - textbox "Name" [ref=e79]
+                    - generic [ref=e81]: Name/title of the form
+                  - generic [ref=e83]:
+                    - generic [ref=e84]:
+                      - generic [ref=e85]: Explanation
+                      - application [ref=e86]:
+                        - generic [ref=e87]:
+                          - group [ref=e89]:
+                            - group [ref=e90]:
+                              - toolbar [ref=e91]:
+                                - button "Undo" [disabled] [ref=e92]:
+                                  - img [ref=e94]
+                                - button "Redo" [disabled] [ref=e96]:
+                                  - img [ref=e98]
+                              - toolbar [ref=e100]:
+                                - button "Block Paragraph" [ref=e101] [cursor=pointer]:
+                                  - generic [ref=e102]: Paragraph
+                                  - img [ref=e104]
+                              - toolbar [ref=e106]:
+                                - button "Bold" [ref=e107] [cursor=pointer]:
+                                  - img [ref=e109]
+                                - button "Italic" [ref=e111] [cursor=pointer]:
+                                  - img [ref=e113]
+                                - button "Background color Black" [ref=e115]:
+                                  - img [ref=e117]
+                                  - img [ref=e121]
+                              - toolbar [ref=e123]:
+                                - button "Reveal or hide additional toolbar items" [ref=e124] [cursor=pointer]:
+                                  - img [ref=e126]
+                          - iframe [ref=e130]:
+                            - generic "Rich Text Area. Press ALT-0 for help." [active] [ref=f1e1]:
+                              - paragraph [ref=f1e2]
+                        - generic [ref=e131]:
+                          - generic [ref=e132]:
+                            - navigation [ref=e133]:
+                              - button "p" [ref=e134]
+                            - generic [ref=e135]: Press Alt+0 for help
+                            - generic [ref=e136]:
+                              - button "0 words" [ref=e137] [cursor=pointer]
+                              - link "Build with TinyMCE" [ref=e139]:
+                                - /url: https://www.tiny.cloud/powered-by-tiny?utm_campaign=poweredby&utm_source=tiny&utm_medium=referral&utm_content=v7
+                                - text: Build with
+                                - img [ref=e140]
+                          - generic "Press the Up and Down arrow keys to resize the editor." [ref=e146]:
+                            - img [ref=e147]
+                    - generic [ref=e151]: Content that will be shown on the start page of the form, below the title and above the log in text.
+            - group "Introduction page" [ref=e152]:
+              - group [ref=e153]:
+                - generic "Introduction page" [ref=e154] [cursor=pointer]:
+                  - heading "Introduction page" [level=2] [ref=e155]
+            - group "Form configuration" [ref=e156]:
+              - heading "Form configuration" [level=2] [ref=e157]
+              - generic [ref=e159]:
+                - generic [ref=e160]:
+                  - generic [ref=e161]: ID
+                  - textbox "ID" [disabled] [ref=e162]
+                - generic [ref=e164]: Unique identifier for the form
+              - generic [ref=e166]:
+                - generic [ref=e167]:
+                  - generic [ref=e168]: Internal name
+                  - textbox "Internal name" [ref=e169]
+                - generic [ref=e171]: Internal name/title of the form
+              - generic [ref=e173]:
+                - generic [ref=e174]:
+                  - generic [ref=e175]: Internal remarks
+                  - textbox "Internal remarks" [ref=e176]
+                - generic [ref=e178]: Remarks or intentions about the form. Can also be used to save notes for later use or for another admin user.
+              - generic [ref=e180]:
+                - generic [ref=e181]:
+                  - generic [ref=e182]: Slug
+                  - textbox "Slug" [ref=e183]
+                - generic [ref=e185]: Slug of the form, used in URLs
+              - generic [ref=e187]:
+                - generic [ref=e188]:
+                  - generic [ref=e189]: Category
+                  - combobox "Category" [ref=e190]:
+                    - option "----" [selected]
+                - generic [ref=e192]: Optional category for internal organisation.
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - checkbox "Is deleted" [ref=e196]
+                  - generic [ref=e197]: Is deleted
+                - generic [ref=e199]: Whether the form is (soft) deleted
+            - group "Features" [ref=e200]:
+              - heading "Features" [level=2] [ref=e201]
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - checkbox "Appointment enabled" [ref=e205]
+                  - generic [ref=e206]: Appointment enabled
+                - generic [ref=e208]: Indicates whether appointments are enabled for this form.
+              - generic [ref=e210]:
+                - generic [ref=e211]:
+                  - checkbox "Translation enabled" [ref=e212]
+                  - generic [ref=e213]: Translation enabled
+                - generic [ref=e215]: Indicates whether translations are enabled for this form.
+              - generic [ref=e217]:
+                - generic [ref=e218]:
+                  - checkbox "Suspension allowed" [checked] [ref=e219]
+                  - generic [ref=e220]: Suspension allowed
+                - generic [ref=e222]: Whether the user is allowed to suspend this form or not.
+            - 'group "Authentication (status: none configured)" [ref=e223]':
+              - group [ref=e224]:
+                - 'generic "Authentication (status: none configured)" [ref=e225] [cursor=pointer]':
+                  - 'heading "Authentication (status: none configured)" [level=2] [ref=e226]'
+            - group "Presentation / appearance" [ref=e227]:
+              - group [ref=e228]:
+                - generic "Presentation / appearance" [ref=e229] [cursor=pointer]:
+                  - heading "Presentation / appearance" [level=2] [ref=e230]
+            - 'group "Availability (status: publicly available)" [ref=e231]':
+              - group [ref=e232]:
+                - 'generic "Availability (status: publicly available)" [ref=e233] [cursor=pointer]':
+                  - 'heading "Availability (status: publicly available)" [level=2] [ref=e234]'
+                - text:  
+            - group "Submission settings" [ref=e235]:
+              - group [ref=e236]:
+                - generic "Submission settings" [ref=e237] [cursor=pointer]:
+                  - heading "Submission settings" [level=2] [ref=e238]
+                - option "Yes" [selected]
+                - option "No (with overview page)"
+                - option "No (without overview page)"
+                - option "Global setting" [selected]
+                - option "Required"
+                - option "Do not ask"
+                - option "Global setting" [selected]
+                - option "Required"
+                - option "Do not ask"
+            - group "Experimental features" [ref=e239]:
+              - group [ref=e240]:
+                - generic "Experimental features" [ref=e241] [cursor=pointer]:
+                  - heading "Experimental features" [level=2] [ref=e242]
+        - generic [ref=e243]:
+          - button "Save" [ref=e244] [cursor=pointer]
+          - button "Save and continue editing" [ref=e245] [cursor=pointer]
+    - contentinfo [ref=e44]:
+      - generic [ref=e45]:
+        - 'generic "Git SHA: 628ae31ad629dcea45c1d400a9c3b121645aadd0" [ref=e46]': version latest
+        - generic [ref=e49]: Session expires in 60 minutes

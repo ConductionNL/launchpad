@@ -84,3 +84,7 @@
 [submodule "nextcloud-vue"]
 	path = nextcloud-vue
 	url = https://github.com/ConductionNL/nextcloud-vue.git
+[submodule "conduction-theme"]
+	path = conduction-theme
+	url = https://github.com/ConductionNL/conduction-theme.git
+	branch = feature/vaals-theme

@@ -321,24 +321,24 @@ Update this section as each competitor is completed. Mark with date when done.
 |---|-----------|:---:|:---:|:---:|:---:|:---:|
 | 1 | OpenZaak | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
 | 2 | Valtimo (GZAC) | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
-| 3 | Dimpact ZAC | done | - | - | - | - |
-| 4 | xxllnc Zaken | done | - | - | - | - |
-| 5 | CaseFabric (Cafienne) | done | - | - | - | - |
-| 6 | ArkCase | done | - | - | - | - |
-| 7 | Flowable | done | - | - | - | - |
+| 3 | Dimpact ZAC | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 4 | xxllnc Zaken | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 5 | CaseFabric (Cafienne) | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 6 | ArkCase | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
+| 7 | Flowable | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
 | 8 | Open Formulieren | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
 
 ### Round 2 — Pipelinq
 
 | # | Competitor | Initial Research | Codebase Analysis | Docs Analysis | Browser Walkthrough | Merged |
 |---|-----------|:---:|:---:|:---:|:---:|:---:|
-| 9 | Twenty | done | - | - | - | - |
-| 10 | EspoCRM | done | - | - | - | - |
-| 11 | Krayin | done | - | - | - | - |
-| 12 | Monica | done | - | - | - | - |
+| 9 | Twenty | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 10 | EspoCRM | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 11 | Krayin | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 12 | Monica | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
 | 13 | KISS | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
-| 14 | BottleCRM | done | - | - | - | - |
-| 15 | Erxes | done | - | - | - | - |
+| 14 | BottleCRM | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 15 | Erxes | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
 | 16 | Open Klant | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
 | 17 | Open VTB | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
 
@@ -346,13 +346,13 @@ Update this section as each competitor is completed. Mark with date when done.
 
 | # | Competitor | Initial Research | Codebase Analysis | Docs Analysis | Browser Walkthrough | Merged |
 |---|-----------|:---:|:---:|:---:|:---:|:---:|
-| 18 | Directus | done | - | - | - | - |
-| 19 | Strapi | done | - | - | - | - |
-| 20 | NocoDB | done | - | - | - | - |
-| 21 | Baserow | done | - | - | - | - |
-| 22 | NocoBase | done | - | - | - | - |
-| 23 | PocketBase | done | - | - | - | - |
-| 24 | CKAN | done | - | - | - | - |
+| 18 | Directus | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 19 | Strapi | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 20 | NocoDB | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 21 | Baserow | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 22 | NocoBase | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 23 | PocketBase | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
+| 24 | CKAN | done | 2026-03-14 | 2026-03-14 | 2026-03-14 | 2026-03-14 |
 | 25 | Objects API | done | 2026-03-12 | 2026-03-12 | 2026-03-12 | 2026-03-12 |
 | 26 | Open Beheer | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |
 | 27 | Open Product | done | 2026-03-13 | 2026-03-13 | 2026-03-13 | 2026-03-13 |

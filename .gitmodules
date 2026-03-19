@@ -88,3 +88,6 @@
 	path = conduction-theme
 	url = https://github.com/ConductionNL/conduction-theme.git
 	branch = feature/vaals-theme
+[submodule "SovereignWorkplace"]
+	path = SovereignWorkplace
+	url = https://github.com/ConductionNL/SovereignWorkplace

@@ -1,3 +1,7 @@
+---
+status: reviewed
+---
+
 # i18n-dutch-translations Specification
 
 ## Purpose

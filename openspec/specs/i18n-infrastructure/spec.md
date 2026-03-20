@@ -1,3 +1,7 @@
+---
+status: reviewed
+---
+
 # i18n-infrastructure Specification
 
 ## Purpose

@@ -4,7 +4,7 @@
 
 Automated generation, validation, and publication of a CycloneDX Software Bill of Materials (SBOM) for each ConductionNL repository. The SBOM captures all production PHP and JavaScript dependencies in a single machine-readable file (`sbom.cdx.json`) at the repository root, enabling external CVE scanning and supply chain transparency.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: SBOM file format
 

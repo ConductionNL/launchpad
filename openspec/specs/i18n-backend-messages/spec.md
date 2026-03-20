@@ -7,7 +7,7 @@ status: reviewed
 ## Purpose
 Defines the requirements for translating user-facing messages in PHP backend controllers and services using Nextcloud's `IL10N` interface, so that API responses are locale-aware.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: il10n-injection
 Each PHP controller that returns user-facing messages MUST have `OCP\IL10N` injected via constructor dependency injection.

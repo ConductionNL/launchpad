@@ -3,7 +3,7 @@
 ## Purpose
 Provides a reusable Vue component for visualizing sequential progression through named stages. Used in case management, pipeline tracking, and any workflow with discrete phases.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Stage rendering
 The component MUST render each item in the `stages` array as a visual node connected by a track line, preserving array order as the stage sequence.

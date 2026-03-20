@@ -7,7 +7,7 @@ status: reviewed
 ## Purpose
 Establishes the standard i18n setup pattern for all Conduction Nextcloud apps so that translation functions are available throughout the Vue frontend — for both Options API and Composition API (`<script setup>`) components.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: l10n-import
 Each Conduction Nextcloud app with a Vue frontend MUST import the translation functions from `@nextcloud/l10n` in its main entry point (`src/main.js`).

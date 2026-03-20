@@ -8,7 +8,7 @@ Today, user names in the sidebar (note authors, task assignees) are rendered as 
 
 No component in `@conduction/nextcloud-vue` currently uses the Nextcloud OCS Capabilities API or Talk/Mail/Calendar APIs. The `@nextcloud/capabilities` package (v1.2.1) is available as an indirect dependency through `@nextcloud/vue` and provides `getCapabilities()` which synchronously reads from the page's initial state.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: User action menu display
 The system MUST display a popover menu when a user's name is clicked, showing available communication actions.

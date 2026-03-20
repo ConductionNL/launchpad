@@ -10,7 +10,7 @@ Procest's CaseDetail has a separate inline tasks table (not using any shared com
 
 The task API returns objects with `title`/`name` (display name), `status` (string: `available`, `active`, `completed`, `terminated`, `disabled`), `assignee` (plain string userId, NOT an object), and `dueDate` (ISO datetime string).
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Inline tasks display
 The system MUST render a `CnDetailCard` with title "Tasks" that displays tasks for the current object.

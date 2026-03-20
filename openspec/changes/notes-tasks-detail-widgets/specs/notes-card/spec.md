@@ -8,7 +8,7 @@ Today, notes are only accessible via the CnObjectSidebar's Notes tab. The sideba
 
 The sidebar's note data structure supports dual formats from the OpenRegister API: `actorDisplayName`/`author` for the author, `message`/`content` for the body, and `creationDateTime`/`created` for the timestamp. The `CnNotesCard` must handle both formats identically.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Inline notes display
 The system MUST render a `CnDetailCard` with title "Notes" that displays the most recent notes for the current object.

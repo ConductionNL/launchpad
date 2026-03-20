@@ -3,7 +3,7 @@
 ## Purpose
 Defines the rules for identifying and wrapping all translatable strings — both in Vue components (frontend) and PHP controllers/services (backend) — with the appropriate translation functions.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: wrap-user-facing-strings
 All user-facing strings in Vue templates MUST be wrapped with the `t()` translation function using the app's ID as the first argument.

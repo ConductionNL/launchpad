@@ -7,7 +7,7 @@ status: reviewed
 ## Purpose
 Defines the requirements for Dutch (nl) translations across all Conduction Nextcloud apps, ensuring consistent, accurate, and complete translations for Dutch-speaking users — covering both frontend and backend strings.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: complete-dutch-translations
 Every string wrapped with `t()` (frontend) or `$l->t()` (backend) in an app MUST have a corresponding Dutch translation in `l10n/nl.json`.

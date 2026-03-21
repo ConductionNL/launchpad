@@ -236,35 +236,32 @@ python3 concurrentie-analyse/scripts/sync/sync_tec_rfp.py concurrentie-analyse/i
 
 ## Spec Reference Usability
 
-Each source type is classified by how it can be used in OpenSpec change proposals:
+**All sources can and should be directly linked in OpenSpec change proposals**, with one exception: **competitor data** is contextual only (we don't spec features just because a competitor has them).
 
-- **REF (direct)** — Can be directly referenced in spec requirements as authoritative evidence
-- **CTX (contextual)** — Provides motivation/background but not specific enough for spec requirements
-- **BKG (background)** — Useful for discovery and research, not for spec references
-
-| Usability | Sources | Count | % | Use in specs |
-|-----------|---------|-------|---|-------------|
-| **REF** | tec, tender-eis, tender-wens, gemma, github-issue, competitor, iso, con, documentation, changelog, manual | 60,819 | 73.1% | Reference directly in requirements, scenarios, and acceptance criteria |
-| **CTX** | standard, g2, blog, article, research-paper, pro, social-media, forum, github-discussion, capterra | 18,470 | 22.2% | Use in Motivation section, cross-references, and background context |
-| **BKG** | awesome-list, alternativeto, sourceforge | 3,882 | 4.7% | Use for competitor discovery and ecosystem research only |
+| Usability | Sources | Count | Use in specs |
+|-----------|---------|-------|-------------|
+| **REF (direct)** | All except competitor | 83,113 (99.9%) | Reference directly in requirements, scenarios, motivation, and acceptance criteria |
+| **CTX (contextual)** | competitor | 58 (0.1%) | Competitive analysis and background only — cannot be the sole reason for a feature |
 
 ### How to reference in OpenSpec changes
 
-**Direct references (REF)** — cite in requirement text:
+Every source type has a URL that should be linked in the spec. Example for a CRM feature:
+
 ```markdown
 ### Requirement: Support commercial account management
-**Source**: TEC CRM RFP 1.4.1 — Commercial Account Management
-**Tender evidence**: Tender 162869 EIS: "Het systeem moet commerciële accounts beheren"
-**GEMMA**: Relatiebeheercomponent — Beheren van klantcontacten
-**Competitor**: Baserow, Twenty CRM (GitHub issue #26816, 42 reactions)
-```
 
-**Contextual references (CTX)** — cite in motivation/background:
-```markdown
-## Motivation
-G2 categorizes CRM software as requiring contact management, pipeline tracking,
-and reporting capabilities (https://www.g2.com/categories/crm).
-Wikipedia's Comparison of CRM systems lists email integration as a standard feature.
+#### Sources
+- **TEC RFP**: CRM 1.4.1 — Commercial Account Management ([link](https://www3.technologyevaluation.com/...))
+- **Tender**: 162869 EIS — "Het systeem moet commerciële accounts beheren" ([TenderNed](https://www.tenderned.nl/aankondigingen/overzicht/162869))
+- **GEMMA**: Relatiebeheercomponent — Beheren van klantcontacten ([gemmaonline.nl](https://gemmaonline.nl/...))
+- **G2**: CRM category — contact management is a standard capability ([g2.com](https://www.g2.com/categories/crm))
+- **Wikipedia**: Comparison of CRM systems — contact management listed ([wikipedia](https://en.wikipedia.org/wiki/Comparison_of_CRM_systems))
+- **GitHub issue**: Twenty #26816 — users request improved contact management (42 reactions) ([link](https://github.com/twentyhq/twenty/issues/26816))
+- **User feedback**: G2 review con — "No way to bulk import contacts from CSV" ([g2.com](https://www.g2.com/...))
+- **awesome-selfhosted**: 12 CRM projects listed with contact management ([github](https://github.com/awesome-selfhosted/awesome-selfhosted))
+
+#### Context only (not a direct requirement source)
+- **Competitor**: Baserow has a contacts module — for awareness, not as spec motivation
 ```
 
 ## Source Type Reference

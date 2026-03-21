@@ -10,3 +10,6 @@ tenders/raw/
 # Python cache
 scripts/__pycache__/
 *.pyc
+
+# Windows WSL zone identifier files
+*:Zone.Identifier

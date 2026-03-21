@@ -94,3 +94,6 @@
 [submodule "nextcloud-app-template"]
 	path = nextcloud-app-template
 	url = https://github.com/ConductionNL/nextcloud-app-template.git
+[submodule "concurrentie-analyse"]
+	path = concurrentie-analyse
+	url = https://github.com/ConductionNL/market-intelligence.git

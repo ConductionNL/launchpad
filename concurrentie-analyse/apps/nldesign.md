@@ -5,7 +5,7 @@
 **Software categories**: Design system (`ontwerp`)
 **Generated**: 2026-03-21
 
-> Design systems are not a standard TEC category. Features are defined by NL Design System standards, WCAG guidelines, and Rijkshuisstijl requirements.
+> Design systems are not a standard TEC/G2 category. Features defined by NL Design System standards, WCAG guidelines, and Rijkshuisstijl requirements.
 
 ## Design system — Additional Features (not in TEC)
 
@@ -19,6 +19,6 @@
 
 ---
 
-**Summary**: 0 TEC features, 0 evidence links, 2 additional (non-TEC) features
+**Summary**: 0 TEC features, 0 evidence links, 2 additional (non-TEC) features, 5 standard features
 
 *Generated from `concurrentie-analyse/intelligence.db` by `scripts/generate_app_features.py`*

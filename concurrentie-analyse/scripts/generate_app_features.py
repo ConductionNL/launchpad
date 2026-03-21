@@ -24,30 +24,31 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 APPS = {
     "openregister": {
         "name": "OpenRegister",
-        "description": "Core data registration platform for structured data management. Foundation for all Conduction apps.",
-        "categories": ["objectregistratie", "database-software"],
-        "tec_categories": [],  # No direct TEC match
-        "custom_note": "OpenRegister is a generic data platform — its features are defined by the schemas and registers configured on it, not by a single software category. Features below come from GEMMA referentiecomponenten and tender requirements for objectregistratie.",
+        "description": "Core data platform providing DMS, object registration, and structured data management to Nextcloud. Foundation for all Conduction apps.",
+        "categories": ["dms", "objectregistratie", "database-software"],
+        "tec_categories": ["dms"],
+        "custom_note": "OpenRegister adds Document Management System functionality to Nextcloud (TEC DMS template), alongside its core object registration capabilities.",
     },
     "opencatalogi": {
         "name": "OpenCatalogi",
-        "description": "Federated catalogue platform for open data, DCAT-AP compliance, and metadata management.",
-        "categories": ["catalogus"],
+        "description": "Federated data catalogue — DCAT-AP compliance, open data portal, metadata harvesting. Aligns with EU SIMPL middleware for European data spaces.",
+        "categories": ["data-catalogue"],
         "tec_categories": [],
-        "custom_note": "No direct TEC RFP template exists for federated catalogues. Features sourced from GEMMA, EU Interoperable Europe, and Dutch tender requirements.",
+        "custom_note": "Federated data catalogues are a specialized niche (Gartner: Metadata Management, G2: Data Catalog). Standards: DCAT-AP, EU SIMPL, IDSA connectors. Features from GEMMA, EU Interoperable Europe, and tender requirements.",
     },
     "openconnector": {
         "name": "OpenConnector",
-        "description": "API gateway and integration platform — protocol translation, data synchronization, event bus.",
-        "categories": ["integratie"],
+        "description": "API gateway and integration platform — API lifecycle management, protocol translation, data synchronization, event bus.",
+        "categories": ["api-management", "ipaas"],
         "tec_categories": [],
-        "custom_note": "Integration middleware is partially covered by TEC's ERP integration modules. Features below are primarily from GEMMA and tender requirements.",
+        "custom_note": "Covers two Gartner Magic Quadrant categories: API Management (gateway, auth, rate limiting) and iPaaS (integration connectors, workflow orchestration). G2 categories: API Management + iPaaS.",
     },
     "docudesk": {
         "name": "Docudesk",
-        "description": "Document management — storage, versioning, templates, digital signing, WOO publication, anonymization.",
-        "categories": ["dms"],
-        "tec_categories": ["dms"],
+        "description": "Document generation from templates and data anonymization/redaction. NOT a DMS — OpenRegister provides DMS.",
+        "categories": ["document-generation", "data-anonymization"],
+        "tec_categories": [],
+        "custom_note": "Two distinct capabilities: (1) Template-based document generation (G2: Document Generation — Windward, Docmosis category) and (2) Data anonymization/redaction (G2: Data De-Identification, ISO/IEC 27038 Digital Redaction, ISO/IEC 27559 Anonymization).",
     },
     "pipelinq": {
         "name": "Pipelinq",
@@ -67,21 +68,21 @@ APPS = {
         "description": "Dashboard system — KPI widgets, layout customization, role-based views, data source connections.",
         "categories": ["dashboard"],
         "tec_categories": [],
-        "custom_note": "TEC's BI template covers dashboards as a subset. Features below come from GEMMA, G2 categories, and tender requirements.",
+        "custom_note": "TEC's BI template covers dashboards as a subset. Features from GEMMA, G2, and tender requirements.",
     },
     "nldesign": {
         "name": "NL Design",
         "description": "Design system providing NL Design System tokens, WCAG AA accessibility, and Rijkshuisstijl theming for Nextcloud.",
         "categories": ["ontwerp"],
         "tec_categories": [],
-        "custom_note": "Design systems are not a standard TEC category. Features are defined by NL Design System standards, WCAG guidelines, and Rijkshuisstijl requirements.",
+        "custom_note": "Design systems are not a standard TEC/G2 category. Features defined by NL Design System standards, WCAG guidelines, and Rijkshuisstijl requirements.",
     },
     "softwarecatalog": {
         "name": "SoftwareCatalog",
-        "description": "Software portfolio management — GEMMA architecture mapping, application landscape, compliance tracking.",
-        "categories": ["softwarecatalogus"],
+        "description": "IT Asset Management — register which software an organization has, how it's installed, GEMMA architecture mapping, license compliance.",
+        "categories": ["itam"],
         "tec_categories": [],
-        "custom_note": "Software catalogues are a Dutch government-specific concept (GEMMA Softwarecatalogus). Features come from GEMMA and VNG standards.",
+        "custom_note": "IT Asset Management / Software Asset Management (SAM). Standard: ISO/IEC 19770. G2: IT Asset Management. ITIL: ITAM practice. Includes GEMMA Softwarecatalogus functionality for Dutch municipalities.",
     },
     "zaakafhandelapp": {
         "name": "ZaakAfhandelApp",
@@ -92,11 +93,10 @@ APPS = {
     },
     "larpingapp": {
         "name": "LarpingApp",
-        "description": "LARP (Live Action Role Playing) character and event management application.",
-        "categories": [],
+        "description": "LARP character/event management with storytelling, world-building, and campaign management capabilities.",
+        "categories": ["worldbuilding"],
         "tec_categories": [],
-        "custom_note": "LarpingApp is a domain-specific application with no standard software category mapping. Its features are defined by the LARP community's needs, not by industry frameworks.",
-        "skip_features": True,
+        "custom_note": "Worldbuilding & Campaign Management — no formal TEC/G2/Gartner category exists. Niche market led by World Anvil, Kanka, LegendKeeper, Campfire. Features include character sheets, world-building, branching storylines, event registration, and campaign tracking.",
     },
 }
 
@@ -219,14 +219,44 @@ def generate_feature_md(conn, app_id, app_info):
                     lines.append(f"- *...and {len(items) - 20} more*")
                 lines.append(f"")
 
+    # Standard features from category_features (for categories without TEC data)
+    for cat in cats:
+        tec_count = conn.execute("SELECT COUNT(*) FROM tec_features WHERE category_slug=?", (cat,)).fetchone()[0]
+        unmapped_count = conn.execute("SELECT COUNT(*) FROM unmapped_evidence WHERE category_slug=?", (cat,)).fetchone()[0]
+
+        if tec_count == 0 and unmapped_count == 0:
+            # No TEC or unmapped data — use seeded category_features
+            std_features = conn.execute("""
+                SELECT feature_slug, feature_name_en, description, priority
+                FROM category_features WHERE category_slug = ?
+                ORDER BY
+                    CASE priority WHEN 'core' THEN 1 WHEN 'standard' THEN 2 WHEN 'advanced' THEN 3 ELSE 4 END,
+                    feature_slug
+            """, (cat,)).fetchall()
+
+            if std_features:
+                cat_name = conn.execute("SELECT name_en FROM software_categories WHERE slug=?", (cat,)).fetchone()
+                lines.append(f"## {cat_name[0] if cat_name else cat} — Standard Features")
+                lines.append(f"")
+                lines.append(f"*{len(std_features)} features defined. Evidence will grow as sync sources populate this category.*")
+                lines.append(f"")
+
+                for slug, name, desc, priority in std_features:
+                    icon = {"core": "**[core]**", "standard": "[standard]", "advanced": "[advanced]"}.get(priority, "")
+                    desc_str = f" — {desc}" if desc else ""
+                    lines.append(f"- {icon} `{slug}` {name}{desc_str}")
+
+                lines.append(f"")
+
     # Summary stats
     total_tec = sum(conn.execute("SELECT COUNT(*) FROM tec_features WHERE category_slug=?", (c,)).fetchone()[0] for c in cats)
     total_evidence = sum(conn.execute("SELECT COUNT(*) FROM feature_evidence fe JOIN tec_features tf ON tf.id=fe.tec_feature_id WHERE tf.category_slug=?", (c,)).fetchone()[0] for c in cats)
     total_unmapped = sum(conn.execute("SELECT COUNT(*) FROM unmapped_evidence WHERE category_slug=?", (c,)).fetchone()[0] for c in cats)
+    total_std = sum(conn.execute("SELECT COUNT(*) FROM category_features WHERE category_slug=?", (c,)).fetchone()[0] for c in cats if conn.execute("SELECT COUNT(*) FROM tec_features WHERE category_slug=?", (c,)).fetchone()[0] == 0)
 
     lines.append(f"---")
     lines.append(f"")
-    lines.append(f"**Summary**: {total_tec} TEC features, {total_evidence} evidence links, {total_unmapped} additional (non-TEC) features")
+    lines.append(f"**Summary**: {total_tec} TEC features, {total_evidence} evidence links, {total_unmapped} additional (non-TEC) features, {total_std} standard features")
     lines.append(f"")
     lines.append(f"*Generated from `concurrentie-analyse/intelligence.db` by `scripts/generate_app_features.py`*")
 

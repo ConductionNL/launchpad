@@ -5,7 +5,7 @@
 **Software categories**: Dashboard system (`dashboard`)
 **Generated**: 2026-03-21
 
-> TEC's BI template covers dashboards as a subset. Features below come from GEMMA, G2 categories, and tender requirements.
+> TEC's BI template covers dashboards as a subset. Features from GEMMA, G2, and tender requirements.
 
 ## Dashboard system — Additional Features (not in TEC)
 
@@ -40,6 +40,6 @@
 
 ---
 
-**Summary**: 0 TEC features, 0 evidence links, 21 additional (non-TEC) features
+**Summary**: 0 TEC features, 0 evidence links, 21 additional (non-TEC) features, 6 standard features
 
 *Generated from `concurrentie-analyse/intelligence.db` by `scripts/generate_app_features.py`*

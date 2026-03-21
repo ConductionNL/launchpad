@@ -183,6 +183,6 @@
 
 ---
 
-**Summary**: 88 TEC features, 935 evidence links, 154 additional (non-TEC) features
+**Summary**: 88 TEC features, 935 evidence links, 154 additional (non-TEC) features, 0 standard features
 
 *Generated from `concurrentie-analyse/intelligence.db` by `scripts/generate_app_features.py`*

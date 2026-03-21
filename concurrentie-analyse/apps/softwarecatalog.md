@@ -1,22 +1,26 @@
 # SoftwareCatalog — Feature Reference
 
 **Application**: SoftwareCatalog
-**Description**: Software portfolio management — GEMMA architecture mapping, application landscape, compliance tracking.
-**Software categories**: Software catalogue (`softwarecatalogus`)
+**Description**: IT Asset Management — register which software an organization has, how it's installed, GEMMA architecture mapping, license compliance.
+**Software categories**: IT Asset Management (ITAM/SAM) (`itam`)
 **Generated**: 2026-03-21
 
-> Software catalogues are a Dutch government-specific concept (GEMMA Softwarecatalogus). Features come from GEMMA and VNG standards.
+> IT Asset Management / Software Asset Management (SAM). Standard: ISO/IEC 19770. G2: IT Asset Management. ITIL: ITAM practice. Includes GEMMA Softwarecatalogus functionality for Dutch municipalities.
 
-## Software catalogue — Additional Features (not in TEC)
+## IT Asset Management (ITAM/SAM) — Standard Features
 
-*2 features from sources outside the TEC taxonomy.*
+*7 features defined. Evidence will grow as sync sources populate this category.*
 
-### From gemma
-- Architectuur- en ontwerpcomponent ([source](https://gemmaonline.nl/index.php/GEMMA/id-94d89ab33cfe452fac7a58ed61cb2962))
-- Architectuur- en ontwerpcomponent ([source](https://gemmaonline.nl/index.php/GEMMA/id-2df9670c-a8d8-4a7b-b7d1-a52c404dc6fd))
+- **[core]** `installation-tracking` Installation tracking — Track where and how software is installed
+- **[core]** `license-management` License management — Track licenses, compliance, expiration dates
+- **[core]** `software-registry` Software registry — Register all software in use with metadata (ISO 19770)
+- [standard] `dependency-mapping` Dependency mapping — Visualize system dependencies and integrations
+- [standard] `gemma-mapping` GEMMA architecture mapping — Map software to GEMMA referentiecomponenten
+- [standard] `lifecycle-tracking` Lifecycle tracking — Track status: planned, active, deprecated, retired
+- [advanced] `compliance-reporting` Compliance reporting — Report on standards compliance (Common Ground, NL Design)
 
 ---
 
-**Summary**: 0 TEC features, 0 evidence links, 2 additional (non-TEC) features
+**Summary**: 0 TEC features, 0 evidence links, 0 additional (non-TEC) features, 7 standard features
 
 *Generated from `concurrentie-analyse/intelligence.db` by `scripts/generate_app_features.py`*

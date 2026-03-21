@@ -295,6 +295,89 @@ All `source_type` values available in `feature_sources`:
 | | `con` | negative | Explicit con/complaint about missing feature |
 | **Manual** | `manual` | neutral | Manually added by analyst |
 
+## Feature Catalog Pipeline
+
+The intelligence system transforms raw sources into a canonical feature list per application type.
+
+### Architecture
+
+```
+Raw sources (83,171)
+  ↓ sync scripts pull data
+feature_sources table (bulk links)
+  ↓ build_feature_catalog.py
+tec_features (5,096 canonical features from TEC RFP templates)
+  ↓ keyword matching
+feature_evidence (11,316 individual source-to-feature links)
+  ↓ aggregation
+feature_importance (per-feature evidence count + source diversity score)
+```
+
+### Key Tables
+
+| Table | Records | Purpose |
+|-------|---------|---------|
+| `tec_features` | 5,096 | Canonical feature list — hierarchical, coded (e.g., `1.4.1`), per software category |
+| `feature_evidence` | 11,316 | Individual source → feature mappings (1 source confirms 1 feature) |
+| `feature_importance` | 5,096 | Precomputed: evidence count, source diversity, source type list per feature |
+
+### How It Works
+
+1. **TEC features are the taxonomy** — 5,096 hierarchical features extracted from 40 TEC RFP Excel templates. Each has a code (`1.4.1`), name (`Commercial Account Management`), and description.
+
+2. **All other sources map to TEC features** — keyword matching links each GEMMA service, tender requirement, G2 category, GitHub issue, etc. to the closest TEC feature(s). Multiple sources matching = higher importance.
+
+3. **Evidence scoring** — each feature gets:
+   - `evidence_count`: how many independent sources mention it
+   - `source_diversity`: how many different source types (TEC, GEMMA, tender, G2, etc.)
+   - Features with high diversity are cross-validated across authorities
+
+### Per-Category Coverage
+
+| Category | Features | Leaf Features | Evidence Links | Avg Source Types |
+|----------|----------|--------------|----------------|-----------------|
+| erp | 2,781 | 2,291 | 3,548 | 1.1 |
+| inkoop | 850 | 631 | 920 | 1.1 |
+| hrm | 560 | 207 | 1,298 | 1.5 |
+| bi-reporting | 177 | 141 | 474 | 1.5 |
+| crm | 133 | 90 | 718 | 2.2 |
+| boekhouding | 118 | 54 | 871 | 2.1 |
+| meldingen | 118 | 77 | 188 | 1.3 |
+| projectmanagement | 115 | 79 | 443 | 1.5 |
+| dms | 99 | 17 | 1,619 | 2.4 |
+| zaaksysteem | 88 | 31 | 935 | 1.8 |
+| website-cms | 57 | 12 | 302 | 1.8 |
+
+### Running the Pipeline
+
+```bash
+# Rebuild feature catalog (safe to re-run — drops and rebuilds mapping tables)
+python3 concurrentie-analyse/scripts/build_feature_catalog.py concurrentie-analyse/intelligence.db
+
+# Query top features for a category
+sqlite3 concurrentie-analyse/intelligence.db "
+    SELECT tec_code, name, evidence_count, source_diversity, source_types
+    FROM feature_importance
+    WHERE category_slug = 'crm' AND is_module = 0
+    ORDER BY evidence_count DESC LIMIT 20
+"
+```
+
+### Using Features in OpenSpec Changes
+
+When writing a spec for a specific feature, query the evidence:
+
+```sql
+-- Find all evidence for a specific feature
+SELECT fe.source_type, fe.source_url, fe.source_label, fe.match_score
+FROM feature_evidence fe
+JOIN tec_features tf ON tf.id = fe.tec_feature_id
+WHERE tf.category_slug = 'crm' AND tf.name LIKE '%Account Management%'
+ORDER BY fe.match_score DESC
+```
+
+This gives you all the URLs and citations to include in the spec's Sources section.
+
 ## Adding New Sources
 
 1. Pick the appropriate `source_type` from the table above

@@ -234,6 +234,39 @@ python3 concurrentie-analyse/scripts/sync/sync_tec_rfp.py concurrentie-analyse/i
 | 16 | **MERX** (Canada) | Canadian public sector procurement | Web search | Low priority |
 | 17 | **ICTU / VNG publications** | Dutch e-government research and guidance | Free publications | Manual collection |
 
+## Spec Reference Usability
+
+Each source type is classified by how it can be used in OpenSpec change proposals:
+
+- **REF (direct)** — Can be directly referenced in spec requirements as authoritative evidence
+- **CTX (contextual)** — Provides motivation/background but not specific enough for spec requirements
+- **BKG (background)** — Useful for discovery and research, not for spec references
+
+| Usability | Sources | Count | % | Use in specs |
+|-----------|---------|-------|---|-------------|
+| **REF** | tec, tender-eis, tender-wens, gemma, github-issue, competitor, iso, con, documentation, changelog, manual | 60,819 | 73.1% | Reference directly in requirements, scenarios, and acceptance criteria |
+| **CTX** | standard, g2, blog, article, research-paper, pro, social-media, forum, github-discussion, capterra | 18,470 | 22.2% | Use in Motivation section, cross-references, and background context |
+| **BKG** | awesome-list, alternativeto, sourceforge | 3,882 | 4.7% | Use for competitor discovery and ecosystem research only |
+
+### How to reference in OpenSpec changes
+
+**Direct references (REF)** — cite in requirement text:
+```markdown
+### Requirement: Support commercial account management
+**Source**: TEC CRM RFP 1.4.1 — Commercial Account Management
+**Tender evidence**: Tender 162869 EIS: "Het systeem moet commerciële accounts beheren"
+**GEMMA**: Relatiebeheercomponent — Beheren van klantcontacten
+**Competitor**: Baserow, Twenty CRM (GitHub issue #26816, 42 reactions)
+```
+
+**Contextual references (CTX)** — cite in motivation/background:
+```markdown
+## Motivation
+G2 categorizes CRM software as requiring contact management, pipeline tracking,
+and reporting capabilities (https://www.g2.com/categories/crm).
+Wikipedia's Comparison of CRM systems lists email integration as a standard feature.
+```
+
 ## Source Type Reference
 
 All `source_type` values available in `feature_sources`:

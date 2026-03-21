@@ -241,7 +241,7 @@ python3 concurrentie-analyse/scripts/sync/sync_tec_rfp.py concurrentie-analyse/i
 | Usability | Sources | Count | Use in specs |
 |-----------|---------|-------|-------------|
 | **REF (direct)** | All except competitor | 83,113 (99.9%) | Reference directly in requirements, scenarios, motivation, and acceptance criteria |
-| **CTX (contextual)** | competitor | 58 (0.1%) | Competitive analysis and background only — cannot be the sole reason for a feature |
+| **CTX (contextual)** | competitor | 58 (0.1%) | Not cited as spec source — use the other sources to justify the same feature |
 
 ### How to reference in OpenSpec changes
 
@@ -260,8 +260,8 @@ Every source type has a URL that should be linked in the spec. Example for a CRM
 - **User feedback**: G2 review con — "No way to bulk import contacts from CSV" ([g2.com](https://www.g2.com/...))
 - **awesome-selfhosted**: 12 CRM projects listed with contact management ([github](https://github.com/awesome-selfhosted/awesome-selfhosted))
 
-#### Context only (not a direct requirement source)
-- **Competitor**: Baserow has a contacts module — for awareness, not as spec motivation
+#### Not cited in spec (use other sources to justify the same feature)
+- **Competitor**: Baserow has a contacts module — we know, but we reference TEC/GEMMA/tenders instead
 ```
 
 ## Source Type Reference

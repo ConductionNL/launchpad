@@ -1,196 +1,190 @@
-# Tender Scraping Plan — Feature Research from Dutch Government Tenders
+# Tender & Ecosystem Intelligence System — Plan
 
 ## Goal
 
-Scrape Dutch government tenders (aanbestedingen) related to zaaksystemen, CRM, klantinteractie, and registratie to extract:
-1. **Functional requirements** — what municipalities actually need
-2. **Feature priorities** — which features appear most frequently across tenders
-3. **Market intelligence** — who wins, at what price, and for which municipalities
-4. **Gap analysis** — requirements we don't yet support in Procest/Pipelinq/OpenRegister
+Build a comprehensive intelligence database that tracks:
+1. **Software application types** — what kinds of software municipalities need (CPV + GEMMA taxonomy)
+2. **Features per type** — what each application type should be able to do, with multi-source provenance
+3. **Tender demand** — which types are being procured, how often, at what value
+4. **Ecosystem gaps** — application types with tender demand but no Conduction product
+5. **Competitor landscape** — who builds what, with what features, at what quality
+6. **Market intelligence** — who wins tenders, pricing, trends
 
-## Data Sources
-
-### Primary: TenderNed API (undocumented REST)
-
-```
-Base: https://www.tenderned.nl/papi/tenderned-rs-tns/v2/publicaties
-Auth: None required
-Format: JSON
-```
-
-**Search terms to scrape:**
-
-| Term | Relevance |
-|------|-----------|
-| `zaaksysteem` | Direct Procest competitor market |
-| `zaakafhandel` | Case handling — Procest |
-| `zaakgericht werken` | Case-oriented working — Procest |
-| `case management` | English variant — Procest |
-| `CRM` | Customer relationship — Pipelinq |
-| `klantinteractie` | Customer interaction — Pipelinq |
-| `klantcontact` | Customer contact — Pipelinq |
-| `registratiesysteem` | Registration system — OpenRegister |
-| `objectregistratie` | Object registration — OpenRegister |
-| `VTH` | Environmental permits (common zaaksysteem market) |
-| `formulieren` | Forms — Procest intake |
-| `document management` | Document handling — Docudesk |
-| `proces automatisering` | Process automation — Procest/n8n |
-| `low code` | Low-code platforms — all products |
-| `common ground` | Common Ground architecture — all products |
-
-**API parameters:**
-- `zoekterm` — search term
-- `typeOpdracht=D` — services only (not works/supplies)
-- `page` — 0-indexed pagination
-- `size` — results per page (max ~50)
-
-**Detail endpoint:**
-```
-GET https://www.tenderned.nl/papi/tenderned-rs-tns/v2/publicaties/{publicatieId}
-```
-
-### Secondary: TED SPARQL (EU tenders, includes Dutch)
+## Architecture
 
 ```
-Endpoint: https://publications.europa.eu/webapi/rdf/sparql
-Format: JSON/CSV/XML
+Claude (orchestrator, complex reasoning, skills)
+  ↓
+n8n (scheduled automation, data pipelines)
+  ↓
+Qwen 3.5 (cheap local LLM — classification, summarization, extraction)
+  ↓
+SQLite (intelligence.db — single source of truth, committed to repo)
+  ↓
+Python sync scripts (zero-token API pulls, cron-friendly)
 ```
-
-Filter by buyer country NL and CPV codes:
-- 72260000-5 (Software-related services)
-- 48000000-8 (Software packages and information systems)
-- 72200000-7 (Software programming and consultancy)
-- 48600000-4 (Database and operating software)
-
-## Output Structure
-
-```
-concurrentie-analyse/
-├── tenders/
-│   ├── TENDER-ANALYSIS.md          # Summary report
-│   ├── raw/
-│   │   ├── tenderned-zaaksysteem.json
-│   │   ├── tenderned-crm.json
-│   │   └── ...
-│   ├── requirements/
-│   │   ├── procest-requirements.md      # Aggregated requirements for Procest
-│   │   ├── pipelinq-requirements.md     # Aggregated requirements for Pipelinq
-│   │   └── openregister-requirements.md # Aggregated requirements for OpenRegister
-│   ├── feature-matrix/
-│   │   ├── feature-frequency.md         # Which features appear most often
-│   │   └── feature-priority-matrix.md   # Priority matrix across tenders
-│   └── market/
-│       ├── winners.md                   # Who wins tenders and at what price
-│       ├── municipalities.md            # Which municipalities are buying
-│       └── trends.md                    # Trends over time
-```
-
-## Execution Method
-
-### Phase 1: Scrape TenderNed
-
-For each search term:
-1. Fetch all results (paginate through all pages)
-2. Save raw JSON to `raw/`
-3. For each tender, fetch the detail endpoint for full descriptions
-4. Extract and categorize functional requirements from descriptions
-
-### Phase 2: Scrape TED
-
-1. Query SPARQL endpoint for Dutch software tenders
-2. Extract contract values, winners, and CPV codes
-3. Cross-reference with TenderNed data
-
-### Phase 3: Analyze
-
-1. **Extract requirements** from tender descriptions:
-   - Parse Dutch text for functional requirements (eisen/wensen)
-   - Categorize by product relevance (Procest/Pipelinq/OpenRegister)
-   - Count frequency across tenders
-2. **Classify requirements by abstraction layer** (see `tenders/SPEC-CLASSIFICATION.md`):
-   - Route each requirement through the decision tree to the correct layer:
-     - Foundation (OpenRegister) — audit, archiving, RBAC, GDPR, search
-     - Platform (Nextcloud Core) — auth, files, calendar, chat, federation
-     - Theming (NL Design) — design tokens, WCAG, branding
-     - Documents (Docudesk) — generation, signing, anonymization, WOO
-     - Integration (OpenConnector) — API gateway, sync, StUF translation
-     - Catalogus (OpenCatalogi) — open data, DCAT, metadata
-     - Dashboard (MyDash) — KPI visualization, admin templates
-     - Software Portfolio (SoftwareCatalog) — GEMMA, software landscape
-     - App-Specific (Procest/Pipelinq) — domain workflows and UI
-   - Split cross-layer requirements into separate specs per layer
-   - Check existing specs before creating duplicates
-   - Link cross-layer specs with `depends_on:` references
-3. **Build feature matrix**:
-   - Map requirements to features
-   - Score by frequency and importance (eis vs wens)
-   - Cross-reference with Government Feature Pages (`docs/GOVERNMENT-FEATURES.md` per app)
-4. **Market analysis**:
-   - Which vendors win (Centric, xxllnc, Decos, Dimpact, etc.)
-   - Contract values and durations
-   - Geographic distribution
-5. **Gap analysis**:
-   - Requirements we support (mark as Beschikbaar on Government Feature Pages)
-   - Requirements we partially support (mark as Gepland with tier/timeline)
-   - Requirements we don't support (opportunities — create new specs)
-6. **Update Government Feature Pages**:
-   - For each app, update `docs/GOVERNMENT-FEATURES.md` with newly discovered tender requirements
-   - Add tender frequency data to justify feature priorities
-
-### Phase 4: Integration
-
-1. Cross-reference tender requirements with competitor features from our competitive analysis
-2. Identify which competitor features appear as tender requirements
-3. Prioritize our roadmap based on both competitor features AND tender demand
-4. Generate updated Government Feature Pages per app with tender coverage scores
-
-## Search Strategy Notes
-
-- Dutch tenders use specific terminology:
-  - "Eisen" = mandatory requirements (must-have)
-  - "Wensen" = desired requirements (nice-to-have)
-  - "Programma van Eisen (PvE)" = requirements specification document
-  - "Bestek" = tender specifications
-  - "Nota van Inlichtingen (NvI)" = Q&A document
-- Many tenders link to external documents (PDFs) with detailed requirements
-- Award notices (gunningen) contain winner information
-- Market consultations (marktconsultaties) reveal upcoming tenders
 
 ## Current State (2026-03-21)
 
-### Intelligence Database
-- Path: `concurrentie-analyse/intelligence.db` (19 tables, SQLite WAL mode)
-- 1,340 tenders imported from TenderNed
-- 5,956 requirements extracted from 74 ANALYSE.md files
-- 65 competitors across 3 product lines (openregister, pipelinq, procest)
-- 37 software categories (EU CPV codes + GEMMA mapping)
-- 190 standard features across 27 concrete categories
-- 3,204 feature sources with provenance URLs
+### Database: `concurrentie-analyse/intelligence.db` (29.5 MB)
 
-### GEMMA Architecture Data
-- Imported from `softwarecatalog/data/GEMMA release.xml` (ArchiMate 3.0)
-- 254 application components (169 referentiecomponenten)
-- 422 application services (features/functions per component)
-- 296 business functions, 176 business processes
-- 80 GEMMA components mapped to our software categories
-- 1,504 GEMMA feature sources with gemmaonline.nl URLs
-- Import script: `concurrentie-analyse/scripts/import_gemma.py`
+| Table | Records | Description |
+|-------|---------|-------------|
+| tenders | **6,295** | TenderNed procurement notices |
+| requirements | 5,956 | Extracted eisen/wensen from 74 analysed tenders |
+| tender_documents | 11,064 | PDF documents linked to tenders |
+| competitors | 65 | Open source (45) + closed source (20) |
+| competitor_features | 583 | Individual features per competitor |
+| software_categories | 37 | CPV + GEMMA based taxonomy |
+| category_features | 190 | Standard features across 27 categories |
+| **feature_sources** | **14,616** | Multi-source provenance with URLs |
+| gemma_components | 254 | ArchiMate application components |
+| gemma_services | 422 | Application services per component |
+| gemma_business_functions | 296 | Municipal business capabilities |
+| gemma_business_processes | 176 | Work processes |
+| source_syncs | 8 | Sync tracking per external source |
 
-### Feature Source Tracking
-Every feature has multi-source provenance in `feature_sources` table:
-- **tender-eis** (1,079): functional requirements from tenders
-- **tender-wens** (563): wishes from tenders
-- **gemma** (1,504): GEMMA referentiecomponenten + services with gemmaonline.nl URLs
-- **competitor** (58): features from competitor analysis
-- Pending sources: g2, capterra, alternativeto, tec (software comparison websites)
+### Feature Sources Breakdown
 
-### Automation
-- **Claude skills**: `/tender:status`, `/tender:scan`, `/tender:gap-report`, `/ecosystem:investigate`, `/ecosystem:propose-app`
-- **n8n workflows**: saved as JSON in `concurrentie-analyse/n8n-workflows/`
-- **Qwen 3.5**: local LLM on Ollama (43 t/s, port 11434) for classification/summarization
-- **Standalone n8n**: docker-compose `--profile standalone`, port 5678
+| Source Type | Count | Status |
+|------------|-------|--------|
+| standard (Wikipedia + Wikidata + DPG + Italia) | 6,130 | Auto-synced |
+| awesome-list (awesome-selfhosted) | 3,882 | Auto-synced |
+| gemma | 1,504 | Imported from XML |
+| github-issue (competitor feature requests) | 1,400 | Auto-synced |
+| tender-eis | 1,079 | From 74 ANALYSE.md files |
+| tender-wens | 563 | From 74 ANALYSE.md files |
+| competitor | 58 | From MERGED-ANALYSIS.md |
 
-### Reproducible Scripts
+### Automated Sync System
+
+Standalone Python runner — zero Claude tokens needed:
+
+```bash
+python3 concurrentie-analyse/scripts/sync/run_sync.py        # sync due sources
+python3 concurrentie-analyse/scripts/sync/run_sync.py all    # force sync all
+python3 concurrentie-analyse/scripts/sync/run_sync.py --status  # check status
+```
+
+| Source | Script | Interval | Status | Records |
+|--------|--------|----------|--------|---------|
+| TenderNed | `sync_tenderned.py` | 24h | OK | 6,295 tenders |
+| Wikidata SPARQL | `sync_wikidata_software.py` | 7 days | OK | 500 types |
+| Wikipedia Comparisons | `sync_wikipedia_comparisons.py` | 7 days | OK | 357 features |
+| awesome-selfhosted | `sync_awesome_selfhosted.py` | 7 days | OK | 1,229 projects |
+| GitHub Issues | `sync_github_issues.py` | 7 days | OK | 162 issues |
+| Developers Italia | `sync_developers_italia.py` | 7 days | OK | 25 gov tools |
+| DPG Registry | `sync_dpg_registry.py` | 7 days | Slow API | — |
+| GEMMA Release | One-time import | Yearly | OK | 1,148 elements |
+
+### Claude Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `/tender:status` | Dashboard — totals by source, category, status, gaps |
+| `/tender:scan` | Trigger TenderNed scrape + Qwen classification |
+| `/tender:gap-report` | Generate ecosystem gap analysis report |
+| `/ecosystem:investigate` | Research competitors for a software category |
+| `/ecosystem:propose-app` | Generate app proposal from gap data |
+| `/intelligence:update` | Pull latest data from all external sources |
+
+### Qwen 3.5 (Local LLM)
+
+- Model: `qwen3.5-optimized` on Ollama (port 11434)
+- Speed: 43 t/s (think:false), 2.65 t/s (think:true)
+- Context: 16K tokens, Q4_K_M quantization, 100% GPU offload
+- Use: tender classification, requirement extraction, summarization
+
+## What's Done
+
+### Phase 1: Foundation (COMPLETE)
+- [x] SQLite schema with 19 tables
+- [x] CPV-based software taxonomy (37 categories)
+- [x] GEMMA ArchiMate import (1,148 elements with URLs)
+- [x] Migration scripts (tenders, analyses, competitors)
+- [x] 190 standard features seeded across 27 categories
+- [x] Feature source provenance tracking (14,616 sources)
+
+### Phase 2: Data Collection (COMPLETE)
+- [x] TenderNed sync (6,295 tenders, 33 expanded search terms)
+- [x] Wikidata SPARQL sync (500 software types)
+- [x] Wikipedia comparison tables (357 features from 10 articles)
+- [x] awesome-selfhosted (1,229 projects, 94 categories)
+- [x] GitHub issue tracker sync (162 feature requests from 20 repos)
+- [x] Developers Italia publiccode.yml catalog
+- [x] DPG Registry (graceful fallback for slow API)
+- [x] Competitor data cleanup (45 OSS with GitHub URLs, 20 closed source)
+
+### Phase 3: Source Types & Sentiment (COMPLETE)
+- [x] 22 source types organized by category
+- [x] Sentiment tracking (positive/negative/neutral) for pro/con
+- [x] Source sync tracking table with intervals
+- [x] Standalone sync runner (zero-token, cron-friendly)
+
+## What's In Progress
+
+### Phase 4: Browser-Based Sources (IN PROGRESS)
+- [ ] G2 API — needs free signup at `my.g2.com/developers` (user action needed)
+  - Has `categories/{id}/features` endpoint — best structured feature data
+  - Also has MCP Server for AI integration
+- [ ] TEC RFP Templates — investigating access method
+- [ ] SelectHub — investigating access method
+- [ ] Interoperable Europe Portal — investigating scraping approach
+- [ ] UK G-Cloud / Digital Marketplace — investigating
+- [ ] FedRAMP Marketplace — investigating
+
+### Phase 5: Tender Classification (NOT STARTED)
+- [ ] Classify 6,295 tenders by software category using Qwen
+  - Currently: `category_slug` is NULL on most tenders
+  - Only `relevance` (procest/pipelinq/both) is set from search terms
+  - Need: map each tender to specific `software_categories` slug
+- [ ] Re-run requirement extraction with category-aware mapping
+- [ ] n8n workflow: `tender-classify.json`
+
+### Phase 6: Feature-Requirement Mapping (NOT STARTED)
+- [ ] Map 5,956 individual requirements to specific features
+  - Current: bulk keyword matching (only 25% linked, not per-requirement)
+  - Need: per-requirement → per-feature mapping via Qwen
+  - Each requirement should link to 1-3 specific `category_features`
+- [ ] Auto-discover new features from unmatched requirements
+- [ ] Normalize 673 messy requirement categories to ~50-100 canonical ones
+
+### Phase 7: Gap Detection & Reporting (NOT STARTED)
+- [ ] Weekly gap detection (SQL aggregation + threshold rules)
+- [ ] Auto-generate gap reports
+- [ ] Application roadmap sync
+- [ ] n8n workflow: `gap-detect.json`
+
+### Phase 8: TED Integration (NOT STARTED)
+- [ ] TED API v3.0 implementation
+- [ ] CPV code filtering for software procurement
+- [ ] Multi-language support (EN/NL/FR/DE)
+
+## Data Flow
+
+```
+External APIs ──→ sync scripts ──→ intelligence.db ──→ Claude skills ──→ Reports
+     │                                    │
+     │ (zero tokens)                      │ (cheap queries)
+     │                                    │
+     ├── TenderNed (daily)                ├── /tender:status (dashboard)
+     ├── GitHub Issues (weekly)           ├── /tender:gap-report (analysis)
+     ├── Wikidata (weekly)                ├── /ecosystem:investigate (research)
+     ├── Wikipedia (weekly)               └── /ecosystem:propose-app (proposals)
+     ├── awesome-selfhosted (weekly)
+     ├── DPG Registry (weekly)
+     ├── Developers Italia (weekly)
+     └── G2 API (weekly, pending signup)
+
+n8n workflows ──→ Qwen 3.5 ──→ intelligence.db
+     │                │
+     ├── classify     ├── tender classification (think:false, 43 t/s)
+     ├── extract      ├── requirement extraction (think:false)
+     └── detect       └── feature matching (think:false)
+```
+
+## Scripts Reference
+
 | Script | Purpose |
 |--------|---------|
 | `scripts/create_db.py` | Full schema + category seed data |
@@ -199,16 +193,34 @@ Every feature has multi-source provenance in `feature_sources` table:
 | `scripts/migrate_analyses.py` | ANALYSE.md → requirements + integrations |
 | `scripts/migrate_competitors.py` | MERGED-ANALYSIS.md → competitors |
 | `scripts/seed_features.py` | Standard features per category + backfill sources |
+| `scripts/sync/run_sync.py` | Unified sync runner (cron-friendly) |
+| `scripts/sync/sync_tenderned.py` | TenderNed API with 33 search terms |
+| `scripts/sync/sync_wikidata_software.py` | Wikidata SPARQL taxonomy |
+| `scripts/sync/sync_wikipedia_comparisons.py` | Wikipedia feature grids |
+| `scripts/sync/sync_awesome_selfhosted.py` | awesome-selfhosted categories |
+| `scripts/sync/sync_github_issues.py` | Competitor feature requests |
+| `scripts/sync/sync_dpg_registry.py` | Digital Public Goods |
+| `scripts/sync/sync_developers_italia.py` | Italian gov publiccode.yml |
 
-## Risks
+## Key Documents
 
-| Risk | Mitigation |
-|------|-----------|
-| API rate limiting | Add delays between requests, cache responses |
-| Requirements in PDF attachments | Note PDF links, manual review if needed |
-| Dutch language parsing | Use keyword extraction, not full NLP |
-| Historical data gaps | Focus on last 3 years for relevance |
-| Award data not in listing API | Use TED SPARQL for winner/value data |
-| n8n reset loses workflows | All workflows saved as JSON in repo |
-| Qwen classification accuracy | Validate against 74 manually-classified tenders |
-| SQLite concurrent access | WAL mode; n8n and Claude don't write simultaneously |
+| File | Purpose |
+|------|---------|
+| `SOURCES.md` | Comprehensive data source inventory with processing status |
+| `TENDER-PLAN.md` | This file — overall plan and progress |
+| `LAUNCH.md` | Competitor research launch plan |
+| `application-roadmap.md` | App lifecycle tracking |
+| `tenders/SPEC-CLASSIFICATION.md` | 9-layer classification decision tree |
+| `tenders/ANALYSE-TEMPLATE.md` | Template for tender analysis |
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Tender classification accuracy | Medium | Validate against 74 manually-classified tenders |
+| Requirement→feature mapping quality | High | Use Qwen with GEMMA context; human review |
+| 673 messy requirement categories | High | Qwen normalization + manual canonical list |
+| G2 API may gate useful endpoints | Medium | Capterra/TrustRadius as fallbacks |
+| GitHub rate limits (60/hr unauth) | Low | Process 20 repos per sync, 1s delay |
+| DPG API unreliable | Low | Graceful fallback, retry next sync |
+| Binary DB in git (no diffs) | Low | DB is source of truth; scripts for reproducibility |

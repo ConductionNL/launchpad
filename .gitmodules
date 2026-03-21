@@ -91,3 +91,6 @@
 [submodule "SovereignWorkplace"]
 	path = SovereignWorkplace
 	url = https://github.com/ConductionNL/SovereignWorkplace
+[submodule "nextcloud-app-template"]
+	path = nextcloud-app-template
+	url = https://github.com/ConductionNL/nextcloud-app-template.git

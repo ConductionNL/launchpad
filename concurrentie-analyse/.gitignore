@@ -1,0 +1,12 @@
+# Large binary files — tender PDFs and archives
+tenders/docs/
+tenders/docs.tar
+tenders/tenders-batch-*.tar.gz
+tenders/raw/
+
+# Screenshots from competitor analyses
+*/*/screenshots/
+
+# Python cache
+scripts/__pycache__/
+*.pyc

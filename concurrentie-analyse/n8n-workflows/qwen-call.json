@@ -1,0 +1,80 @@
+{
+  "name": "Qwen Call (Sub-workflow)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'qwen3.5-optimized', messages: [ { role: 'system', content: $json.system_prompt || 'You are a helpful assistant.' }, { role: 'user', content: $json.user_prompt } ], temperature: $json.temperature || 0.3, stream: false }) }}",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "qwen-request",
+      "name": "Call Qwen API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [420, 300],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "response",
+              "value": "={{ $json.body.choices[0].message.content }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.body.model }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "tokens_used",
+              "value": "={{ $json.body.usage.total_tokens }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-response",
+      "name": "Extract Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [640, 300]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [[{ "node": "Call Qwen API", "type": "main", "index": 0 }]]
+    },
+    "Call Qwen API": {
+      "main": [[{ "node": "Extract Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Reusable sub-workflow: calls local Qwen 3.5 via Ollama OpenAI-compatible API. Input: system_prompt, user_prompt, temperature. Output: response, model, tokens_used."
+  }
+}

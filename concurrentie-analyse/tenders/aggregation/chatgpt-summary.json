@@ -1,0 +1,7878 @@
+[
+  {
+    "tenderned_id": "134792",
+    "folder": "T-134792",
+    "tender_name": "Zaaksysteem (ZS), Document Management Systeem (DMS), Klantcontactsysteem (KCS)",
+    "organisation": "Gemeente Waalwijk",
+    "date": "2018-04-13",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR",
+      "NEN 7510"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "147833",
+    "folder": "T-147833",
+    "tender_name": "Aanschaf en onderhoud van een Zaaksysteem voor de gemeente Berkelland",
+    "organisation": "Gemeente Berkelland",
+    "date": "2018-10-01",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "REST"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "162869",
+    "folder": "T-162869",
+    "tender_name": "Aanschaf en onderhoud van een Zaaksysteem voor de gemeente Berkelland",
+    "organisation": "Gemeente Berkelland",
+    "date": "2019-04-10",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "REST"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "171429",
+    "folder": "T-171429",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Zoetermeer",
+    "date": "2019-07-23",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "175049",
+    "folder": "T-175049",
+    "tender_name": "Zaaksysteem gemeente Winterswijk",
+    "organisation": "Gemeente Winterswijk",
+    "date": "2019-09-13",
+    "product_relevance": "procest",
+    "eisen_count": 14,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "177754",
+    "folder": "T-177754",
+    "tender_name": "Aanbesteding Zaaksysteem gemeente Hilversum",
+    "organisation": "Gemeente Hilversum",
+    "date": "2019-10-14",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 2,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "ISAE 3402"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "179746",
+    "folder": "T-179746",
+    "tender_name": "Handhavingssysteem fiscaal  Parkeren incl. scanapparatuur",
+    "organisation": "Gemeente Zaanstad",
+    "date": "2019-11-06",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "REST"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "180987",
+    "folder": "T-180987",
+    "tender_name": "Aanbesteding Zaaksysteem gemeente Hilversum en Gooise Meren",
+    "organisation": "Gemeente Hilversum",
+    "date": "2019-11-20",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 2,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "ISAE 3402"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "181999",
+    "folder": "T-181999",
+    "tender_name": "Aanbesteding Zaaksysteem gemeente Hilversum en Gooise Meren",
+    "organisation": "Gemeente Hilversum",
+    "date": "2019-12-04",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 2,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "ISAE 3402"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "182345",
+    "folder": "T-182345",
+    "tender_name": "VTH-SaaS applicatie gemeente Baarn & Soest",
+    "organisation": "Gemeente Baarn",
+    "date": "2019-12-06",
+    "product_relevance": "procest / both",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Workflow / Procesautomatisering": 1,
+      "Communicatie en notificaties": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "182574",
+    "folder": "T-182574",
+    "tender_name": "Handhavingssysteem fiscaal  Parkeren incl. scanapparatuur",
+    "organisation": "Gemeente Zaanstad",
+    "date": "2019-12-10",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "REST"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "183190",
+    "folder": "T-183190",
+    "tender_name": "Aanbesteding applicatie bezwaar en beroep",
+    "organisation": "Gemeente Amsterdam, afdeling ICT",
+    "date": "2019-12-17",
+    "product_relevance": "procest",
+    "eisen_count": 19,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 7,
+      "Workflow / Procesautomatisering": 1,
+      "Rapportage en dashboards": 2,
+      "Klantinteractie / CRM": 1,
+      "Communicatie en notificaties": 1,
+      "Gebruikersbeheer en autorisatie": 2,
+      "Integraties en API": 2,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "190676",
+    "folder": "T-190676",
+    "tender_name": "VTH Applicatie",
+    "organisation": "Gemeente Zaanstad",
+    "date": "2020-03-23",
+    "product_relevance": "procest",
+    "eisen_count": 43,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 5,
+      "Document management": 3,
+      "Rapportage en dashboards": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 5,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Architectuur en techniek": 1,
+      "Overige eisen": 25
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "Common Ground",
+      "API",
+      "REST",
+      "NLX"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "194635",
+    "folder": "T-194635",
+    "tender_name": "Zaaksysteem 2020 dat zaakgericht werken incl documentmanagement mogelijk maakt",
+    "organisation": "Gemeenschappelijk Belastingkantoor Lococensus-Tricijn",
+    "date": "2020-05-11",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR",
+      "Pen test"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "196310",
+    "folder": "T-196310",
+    "tender_name": "Leveren en Implementeren van een Zaaksysteem - Openbare Europese aanbesteding",
+    "organisation": "Gemeente Zeist",
+    "date": "2020-05-28",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "197160",
+    "folder": "T-197160",
+    "tender_name": "Zaaksysteem 2020 dat zaakgericht werken incl documentmanagement mogelijk maakt",
+    "organisation": "Gemeenschappelijk Belastingkantoor Lococensus-Tricijn",
+    "date": "2020-06-09",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR",
+      "Pen test"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "198896",
+    "folder": "T-198896",
+    "tender_name": "Zaaksysteem gemeente Winterswijk",
+    "organisation": "Gemeente Winterswijk",
+    "date": "2020-06-29",
+    "product_relevance": "procest",
+    "eisen_count": 14,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "199242",
+    "folder": "T-199242",
+    "tender_name": "Aanbesteding zaaksysteem",
+    "organisation": "Gemeente Nieuwkoop",
+    "date": "2020-07-02",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Communicatie en notificaties": 1,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "20012",
+    "folder": "T-20012",
+    "tender_name": "Aanbesteding VTH/Zaaksysteem en DMS RUD NHN",
+    "organisation": "Regionale Uitvoeringsdienst Noord-Holland Noord",
+    "date": "2013-07-22",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "201505",
+    "folder": "T-201505",
+    "tender_name": "Aanbesteding zaaksysteem",
+    "organisation": "Gemeente Nieuwkoop",
+    "date": "2020-07-28",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Communicatie en notificaties": 1,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "202699",
+    "folder": "T-202699",
+    "tender_name": "Aanbesteding zaaksysteem",
+    "organisation": "Gemeente Nieuwkoop",
+    "date": "2020-08-17",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Communicatie en notificaties": 1,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "204076",
+    "folder": "T-204076",
+    "tender_name": "Aanbesteding Zaaksysteem gemeente Hilversum en Gooise Meren",
+    "organisation": "Gemeente Hilversum",
+    "date": "2020-09-01",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 2,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "ISAE 3402"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "204835",
+    "folder": "T-204835",
+    "tender_name": "Aanbesteding applicatie bezwaar en beroep",
+    "organisation": "Gemeente Amsterdam, afdeling ICT",
+    "date": "2020-09-08",
+    "product_relevance": "procest",
+    "eisen_count": 19,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 7,
+      "Workflow / Procesautomatisering": 1,
+      "Rapportage en dashboards": 2,
+      "Klantinteractie / CRM": 1,
+      "Communicatie en notificaties": 1,
+      "Gebruikersbeheer en autorisatie": 2,
+      "Integraties en API": 2,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "205708",
+    "folder": "T-205708",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Zoetermeer",
+    "date": "2020-09-17",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "206120",
+    "folder": "T-206120",
+    "tender_name": "VTH-SaaS applicatie gemeente Baarn & Soest",
+    "organisation": "Gemeente Baarn",
+    "date": "2020-09-22",
+    "product_relevance": "procest / both",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Workflow / Procesautomatisering": 1,
+      "Communicatie en notificaties": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "208441",
+    "folder": "T-208441",
+    "tender_name": "Aanbesteding Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "Gemeente Noordenveld",
+    "date": "2020-10-14",
+    "product_relevance": "procest",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 2
+    },
+    "wensen_count": 7,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "209390",
+    "folder": "T-209390",
+    "tender_name": "Applicatie VTH (Vergunning, Toezicht en Handhaving) inclusief Omgevingswet.",
+    "organisation": "Gemeente Amersfoort",
+    "date": "2020-10-22",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Document management": 1,
+      "Klantinteractie / CRM": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "SCIM",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "209786",
+    "folder": "T-209786",
+    "tender_name": "Zaaksysteem, DMS en KCS",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 18,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "210307",
+    "folder": "T-210307",
+    "tender_name": "Zaaksysteem 2020 dat zaakgericht werken incl documentmanagement mogelijk maakt",
+    "organisation": "Gemeenschappelijk Belastingkantoor Lococensus-Tricijn",
+    "date": "2020-11-02",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR",
+      "Pen test"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "210810",
+    "folder": "T-210810",
+    "tender_name": "Aanbesteding Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "Gemeente Noordenveld",
+    "date": "2020-11-06",
+    "product_relevance": "procest",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 2
+    },
+    "wensen_count": 7,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "211461",
+    "folder": "T-211461",
+    "tender_name": "Europese aanbesteding “aanschaf VTH-applicatie gemeente Middelburg”",
+    "organisation": "Gemeente Middelburg",
+    "date": "2020-11-12",
+    "product_relevance": "procest",
+    "eisen_count": 32,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 1,
+      "Zoeken en filteren": 1,
+      "Rapportage en dashboards": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 5,
+      "Gebruikersbeheer en autorisatie": 2,
+      "Integraties en API": 1,
+      "Overige eisen": 13
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "211807",
+    "folder": "T-211807",
+    "tender_name": "Europese Aanbesteding Zaaksysteem",
+    "organisation": "Gemeente Aa en Hunze",
+    "date": "2020-11-17",
+    "product_relevance": "procest",
+    "eisen_count": 17,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 1,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 2,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "21182",
+    "folder": "T-21182",
+    "tender_name": "Aanbesteding VTH/Zaaksysteem en DMS RUD NHN",
+    "organisation": "Regionale Uitvoeringsdienst Noord-Holland Noord",
+    "date": "2013-08-23",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "212765",
+    "folder": "T-212765",
+    "tender_name": "Leveren en Implementeren van een Zaaksysteem - Openbare Europese aanbesteding",
+    "organisation": "Gemeente Zeist",
+    "date": "2020-11-26",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "213172",
+    "folder": "T-213172",
+    "tender_name": "Europese aanbesteding “aanschaf VTH-applicatie gemeente Middelburg”",
+    "organisation": "Gemeente Middelburg",
+    "date": "2020-12-01",
+    "product_relevance": "procest",
+    "eisen_count": 32,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 1,
+      "Zoeken en filteren": 1,
+      "Rapportage en dashboards": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 5,
+      "Gebruikersbeheer en autorisatie": 2,
+      "Integraties en API": 1,
+      "Overige eisen": 13
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "215134",
+    "folder": "T-215134",
+    "tender_name": "Europese Aanbesteding Zaaksysteem",
+    "organisation": "Gemeente Aa en Hunze",
+    "date": "2020-12-22",
+    "product_relevance": "procest",
+    "eisen_count": 17,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 1,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 2,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "215477",
+    "folder": "T-215477",
+    "tender_name": "Zaakgericht registreren",
+    "organisation": "Gemeente Lelystad",
+    "date": "2020-12-28",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Gebruikersbeheer en autorisatie": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "21556",
+    "folder": "T-21556",
+    "tender_name": "Zaaksuite DOWR gemeenten",
+    "organisation": "Gemeente Deventer",
+    "date": "2013-08-29",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "21557",
+    "folder": "T-21557",
+    "tender_name": "Aanbesteding VTH/Zaaksysteem en DMS RUD NHN",
+    "organisation": "Regionale Uitvoeringsdienst Noord-Holland Noord",
+    "date": "2013-08-29",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "216588",
+    "folder": "T-216588",
+    "tender_name": "VTH Applicatie",
+    "organisation": "Gemeente Zaanstad",
+    "date": "2021-01-12",
+    "product_relevance": "procest",
+    "eisen_count": 43,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 5,
+      "Document management": 3,
+      "Rapportage en dashboards": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 5,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Architectuur en techniek": 1,
+      "Overige eisen": 25
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "Common Ground",
+      "API",
+      "REST",
+      "NLX"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "216590",
+    "folder": "T-216590",
+    "tender_name": "Handhavingssysteem fiscaal  Parkeren incl. scanapparatuur",
+    "organisation": "Gemeente Zaanstad",
+    "date": "2021-01-12",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "REST"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "ISAE 3402",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "217108",
+    "folder": "T-217108",
+    "tender_name": "Zaaksysteem/DMS",
+    "organisation": "Nationale ombudsman",
+    "date": "2021-01-18",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 3,
+      "Workflow / Procesautomatisering": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "DigiD",
+      "ISAE 3402",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "218276",
+    "folder": "T-218276",
+    "tender_name": "VTH-Zaaksysteem",
+    "organisation": "Gemeenschappelijke Regeling Omgevingsdienst Regio Utrecht",
+    "date": "2021-01-29",
+    "product_relevance": "procest",
+    "eisen_count": 22,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 6,
+      "Document management": 1,
+      "Formulieren / Intake": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Klantinteractie / CRM": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "218780",
+    "folder": "T-218780",
+    "tender_name": "Zaakgericht registreren",
+    "organisation": "Gemeente Lelystad",
+    "date": "2021-02-08",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Gebruikersbeheer en autorisatie": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "219257",
+    "folder": "T-219257",
+    "tender_name": "Aanbesteding zaaksysteem",
+    "organisation": "Gemeente Nieuwkoop",
+    "date": "2021-02-10",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Communicatie en notificaties": 1,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "223483",
+    "folder": "T-223483",
+    "tender_name": "Zaakgericht registreren",
+    "organisation": "Gemeente Lelystad",
+    "date": "2021-03-29",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Gebruikersbeheer en autorisatie": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "223537",
+    "folder": "T-223537",
+    "tender_name": "Aanbesteding Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "Gemeente Noordenveld",
+    "date": "2021-03-29",
+    "product_relevance": "procest",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 2
+    },
+    "wensen_count": 7,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "224235",
+    "folder": "T-224235",
+    "tender_name": "Zaaksysteem, DMS en KCS",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 18,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "226100",
+    "folder": "T-226100",
+    "tender_name": "Zaak/DMS-RMA/Integratieplatform",
+    "organisation": "Gemeente Stein",
+    "date": "2021-04-23",
+    "product_relevance": "procest",
+    "eisen_count": 8,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 4,
+      "Document management": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "227989",
+    "folder": "T-227989",
+    "tender_name": "Zaak/DMS-RMA/Integratieplatform",
+    "organisation": "Gemeente Stein",
+    "date": "2021-05-18",
+    "product_relevance": "procest",
+    "eisen_count": 8,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 4,
+      "Document management": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "228152",
+    "folder": "T-228152",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Barneveld",
+    "date": "2021-05-20",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1
+    },
+    "wensen_count": 6,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "228225",
+    "folder": "T-228225",
+    "tender_name": "VTH (Vergunning, Toezicht en Handhaving) - applicatie met geïntegreerde zaaksysteemfunctionaliteit",
+    "organisation": "Veiligheidsregio Twente",
+    "date": "2021-05-21",
+    "product_relevance": "procest",
+    "eisen_count": 15,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 12
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "229146",
+    "folder": "T-229146",
+    "tender_name": "VTH-Zaaksysteem",
+    "organisation": "Gemeenschappelijke Regeling Omgevingsdienst Regio Utrecht",
+    "date": "2021-06-03",
+    "product_relevance": "procest",
+    "eisen_count": 22,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 6,
+      "Document management": 1,
+      "Formulieren / Intake": 3,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Klantinteractie / CRM": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "229235",
+    "folder": "T-229235",
+    "tender_name": "Zaaksysteem/KCC",
+    "organisation": "Gemeente Stein",
+    "date": "2021-06-03",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "229791",
+    "folder": "T-229791",
+    "tender_name": "Zaak- en archiefsysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 21,
+    "integrations": [],
+    "architecture_keywords": [
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "230950",
+    "folder": "T-230950",
+    "tender_name": "Applicatie VTH (Vergunning, Toezicht en Handhaving) inclusief Omgevingswet.",
+    "organisation": "Gemeente Amersfoort",
+    "date": "2021-06-23",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Document management": 1,
+      "Klantinteractie / CRM": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "SCIM",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "231274",
+    "folder": "T-231274",
+    "tender_name": "Zaaksysteem (ZS), Document Management Systeem (DMS), Klantcontactsysteem (KCS)",
+    "organisation": "Gemeente Waalwijk",
+    "date": "2021-06-26",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR",
+      "NEN 7510"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "235619",
+    "folder": "T-235619",
+    "tender_name": "Zaakgericht registreren",
+    "organisation": "Gemeente Lelystad",
+    "date": "2021-08-08",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Gebruikersbeheer en autorisatie": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "236933",
+    "folder": "T-236933",
+    "tender_name": "Europese aanbesteding “aanschaf VTH-applicatie gemeente Middelburg”",
+    "organisation": "Gemeente Middelburg",
+    "date": "2021-09-01",
+    "product_relevance": "procest",
+    "eisen_count": 32,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Document management": 5,
+      "Workflow / Procesautomatisering": 1,
+      "Zoeken en filteren": 1,
+      "Rapportage en dashboards": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 5,
+      "Gebruikersbeheer en autorisatie": 2,
+      "Integraties en API": 1,
+      "Overige eisen": 13
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "237144",
+    "folder": "T-237144",
+    "tender_name": "Zaaksysteem/DMS",
+    "organisation": "Nationale ombudsman",
+    "date": "2021-09-03",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 3,
+      "Workflow / Procesautomatisering": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "DigiD",
+      "ISAE 3402",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "239791",
+    "folder": "T-239791",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Barneveld",
+    "date": "2021-10-02",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1
+    },
+    "wensen_count": 6,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "240161",
+    "folder": "T-240161",
+    "tender_name": "Aanbesteding Zaaksysteem",
+    "organisation": "Gemeente Terneuzen",
+    "date": "2021-10-06",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Document management": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "240342",
+    "folder": "T-240342",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Barneveld",
+    "date": "2021-10-08",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1
+    },
+    "wensen_count": 6,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "240417",
+    "folder": "T-240417",
+    "tender_name": "SBB telefonie en callcenter",
+    "organisation": "Stichting Samenwerking Beroepsonderwijs Bedrijfsleven",
+    "date": "2021-10-08",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Klantinteractie / CRM": 1,
+      "Communicatie en notificaties": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "241147",
+    "folder": "T-241147",
+    "tender_name": "Zaaksysteem/KCC",
+    "organisation": "Gemeente Stein",
+    "date": "2021-10-16",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "242937",
+    "folder": "T-242937",
+    "tender_name": "SBB telefonie en callcenter",
+    "organisation": "Stichting Samenwerking Beroepsonderwijs Bedrijfsleven",
+    "date": "2021-11-02",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Klantinteractie / CRM": 1,
+      "Communicatie en notificaties": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "244336",
+    "folder": "T-244336",
+    "tender_name": "Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "gemeente Nissewaard",
+    "date": "2021-11-19",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 1
+    },
+    "wensen_count": 10,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "244640",
+    "folder": "T-244640",
+    "tender_name": "VTH software gemeente Waalwijk",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 14,
+    "integrations": [],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "244664",
+    "folder": "T-244664",
+    "tender_name": "Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "gemeente Nissewaard",
+    "date": "2021-11-22",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 1
+    },
+    "wensen_count": 10,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "246416",
+    "folder": "T-246416",
+    "tender_name": "Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "gemeente Nissewaard",
+    "date": "2021-12-08",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 1
+    },
+    "wensen_count": 10,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "247891",
+    "folder": "T-247891",
+    "tender_name": "Zaaksysteem",
+    "organisation": "SED Organisatie",
+    "date": "2021-12-24",
+    "product_relevance": "procest / both",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "open formulieren",
+      "templafy",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "249307",
+    "folder": "T-249307",
+    "tender_name": "Aanschaf VTH-software",
+    "organisation": "Gemeente Westerkwartier",
+    "date": "2022-01-14",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Integraties en API": 1,
+      "Overige eisen": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "251969",
+    "folder": "T-251969",
+    "tender_name": "Het leveren, implementeren en onderhouden van een zaaksysteem",
+    "organisation": "Gemeente Waterland",
+    "date": "2022-02-11",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "252425",
+    "folder": "T-252425",
+    "tender_name": "Zaak- en archiefsysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 21,
+    "integrations": [],
+    "architecture_keywords": [
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "253372",
+    "folder": "T-253372",
+    "tender_name": "Aanschaf generiek zaaksysteem (inclusief DMS en RMA)",
+    "organisation": "gemeente Hulst",
+    "date": "2022-02-25",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 2,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 12,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "255697",
+    "folder": "T-255697",
+    "tender_name": "VTH (Vergunning, Toezicht en Handhaving) - applicatie met geïntegreerde zaaksysteemfunctionaliteit",
+    "organisation": "Veiligheidsregio Twente",
+    "date": "2022-03-13",
+    "product_relevance": "procest",
+    "eisen_count": 15,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 12
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "256225",
+    "folder": "T-256225",
+    "tender_name": "VTH software gemeente Waalwijk",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 14,
+    "integrations": [],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "257916",
+    "folder": "T-257916",
+    "tender_name": "Zaaksysteem (met geïntegreerd DMS en RMA)",
+    "organisation": "gemeente Nissewaard",
+    "date": "2022-04-06",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Overige eisen": 1
+    },
+    "wensen_count": 10,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "258116",
+    "folder": "T-258116",
+    "tender_name": "Leveren en implementeren van een zaak- en archiefsysteem en een DMS/RMA t.b.v. het zaakgericht werken",
+    "organisation": "Waterschap Noorderzijlvest",
+    "date": "2022-04-07",
+    "product_relevance": "procest",
+    "eisen_count": 7,
+    "eisen_categories": {
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "258136",
+    "folder": "T-258136",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "258217",
+    "folder": "T-258217",
+    "tender_name": "Aanbesteding applicatie bezwaar en beroep",
+    "organisation": "Gemeente Amsterdam, afdeling ICT",
+    "date": "2022-04-08",
+    "product_relevance": "procest",
+    "eisen_count": 19,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 7,
+      "Workflow / Procesautomatisering": 1,
+      "Rapportage en dashboards": 2,
+      "Klantinteractie / CRM": 1,
+      "Communicatie en notificaties": 1,
+      "Gebruikersbeheer en autorisatie": 2,
+      "Integraties en API": 2,
+      "Architectuur en techniek": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "258909",
+    "folder": "T-258909",
+    "tender_name": "Het leveren van een zaaksysteem, alsmede het leveren van onderhoud, beheer en ondersteuning",
+    "organisation": "Gemeente Den Helder",
+    "date": "2022-04-14",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "259021",
+    "folder": "T-259021",
+    "tender_name": "Onderhoud straatmeubilair en bebording 2022 - 2026",
+    "organisation": "Gemeente Amersfoort",
+    "date": "2022-04-15",
+    "product_relevance": "procest",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Zoeken en filteren": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "259212",
+    "folder": "T-259212",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "260056",
+    "folder": "T-260056",
+    "tender_name": "Leveren van een VTH (Vergunningen Toezicht en Handhaving) systeem, alsmede het leveren van onderhoud, beheer en ondersteuning",
+    "organisation": "Gemeente Den Helder",
+    "date": "2022-04-28",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "261173",
+    "folder": "T-261173",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 22,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "261361",
+    "folder": "T-261361",
+    "tender_name": "Onderhoud straatmeubilair en bebording 2022 - 2026",
+    "organisation": "Gemeente Amersfoort",
+    "date": "2022-05-12",
+    "product_relevance": "procest",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Zoeken en filteren": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "261430",
+    "folder": "T-261430",
+    "tender_name": "Leveren van een VTH (Vergunningen Toezicht en Handhaving) systeem, alsmede het leveren van onderhoud, beheer en ondersteuning",
+    "organisation": "Gemeente Den Helder",
+    "date": "2022-05-12",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "261680",
+    "folder": "T-261680",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 22,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "261739",
+    "folder": "T-261739",
+    "tender_name": "Zaaksysteem en Document Management Systeem (DMS)",
+    "organisation": "Waterschap Vallei en Veluwe",
+    "date": "2022-05-19",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Overige eisen": 10
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "validsign",
+      "templafy",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "261948",
+    "folder": "T-261948",
+    "tender_name": "VTH systeem",
+    "organisation": "Gemeente Zoetermeer",
+    "date": "2022-05-20",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Workflow / Procesautomatisering": 1,
+      "Architectuur en techniek": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "263227",
+    "folder": "T-263227",
+    "tender_name": "Het leveren, implementeren en onderhouden van een zaaksysteem",
+    "organisation": "Gemeente Waterland",
+    "date": "2022-06-03",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "263644",
+    "folder": "T-263644",
+    "tender_name": "Aanbesteding Zaaksysteem",
+    "organisation": "Gemeente Terneuzen",
+    "date": "2022-06-10",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Document management": 1
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "263767",
+    "folder": "T-263767",
+    "tender_name": "VTH systeem",
+    "organisation": "Gemeente Zoetermeer",
+    "date": "2022-06-08",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Workflow / Procesautomatisering": 1,
+      "Architectuur en techniek": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "264852",
+    "folder": "T-264852",
+    "tender_name": "Aanschaf VTH-software",
+    "organisation": "Gemeente Westerkwartier",
+    "date": "2022-06-22",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Integraties en API": 1,
+      "Overige eisen": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "265849",
+    "folder": "T-265849",
+    "tender_name": "Aanschaf generiek zaaksysteem (inclusief DMS en RMA)",
+    "organisation": "gemeente Hulst",
+    "date": "2022-07-01",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 2,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 12,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "DPIA"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "267874",
+    "folder": "T-267874",
+    "tender_name": "Het leveren van een zaaksysteem, alsmede het leveren van onderhoud, beheer en ondersteuning",
+    "organisation": "Gemeente Den Helder",
+    "date": "2022-07-21",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "267875",
+    "folder": "T-267875",
+    "tender_name": "Leveren van een VTH (Vergunningen Toezicht en Handhaving) systeem, alsmede het leveren van onderhoud, beheer en ondersteuning",
+    "organisation": "Gemeente Den Helder",
+    "date": "2022-07-21",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "269424",
+    "folder": "T-269424",
+    "tender_name": "Zaaksysteem",
+    "organisation": "SED Organisatie",
+    "date": "2022-08-11",
+    "product_relevance": "procest / both",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "open formulieren",
+      "templafy",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "270512",
+    "folder": "T-270512",
+    "tender_name": "Onderhoud straatmeubilair en bebording 2022 - 2026",
+    "organisation": "Gemeente Amersfoort",
+    "date": "2022-08-27",
+    "product_relevance": "procest",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Zoeken en filteren": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "271359",
+    "folder": "T-271359",
+    "tender_name": "Leveren en implementeren van een zaak- en archiefsysteem en een DMS/RMA t.b.v. het zaakgericht werken",
+    "organisation": "Waterschap Noorderzijlvest",
+    "date": "2022-09-07",
+    "product_relevance": "procest",
+    "eisen_count": 7,
+    "eisen_categories": {
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "273408",
+    "folder": "T-273408",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 22,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "274886",
+    "folder": "T-274886",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "274926",
+    "folder": "T-274926",
+    "tender_name": "Klantcontactsysteem",
+    "organisation": "Koninklijke Bibliotheek",
+    "date": "2022-10-04",
+    "product_relevance": "pipelinq",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "275677",
+    "folder": "T-275677",
+    "tender_name": "Leveren en implementeren van een zaak- en archiefsysteem en een DMS/RMA t.b.v. het zaakgericht werken",
+    "organisation": "Waterschap Noorderzijlvest",
+    "date": "2022-10-11",
+    "product_relevance": "procest",
+    "eisen_count": 7,
+    "eisen_categories": {
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "275710",
+    "folder": "T-275710",
+    "tender_name": "Zaaksysteem en Document Management Systeem (DMS)",
+    "organisation": "Waterschap Vallei en Veluwe",
+    "date": "2022-10-13",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Overige eisen": 10
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "validsign",
+      "templafy",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "281865",
+    "folder": "T-281865",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Veiligheidsregio Amsterdam-Amstelland",
+    "date": "2022-12-09",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "282155",
+    "folder": "T-282155",
+    "tender_name": "VTH systeem",
+    "organisation": "Gemeente Zoetermeer",
+    "date": "2022-12-11",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Workflow / Procesautomatisering": 1,
+      "Architectuur en techniek": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "282355",
+    "folder": "T-282355",
+    "tender_name": "Applicatie Sociaal Domein",
+    "organisation": "Gemeente Heemskerk",
+    "date": "2022-12-14",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "283632",
+    "folder": "T-283632",
+    "tender_name": "Levering en ondersteuning nieuw VTH systeem op basis van SaaS",
+    "organisation": "Omgevingsdienst Noordzeekanaalgebied",
+    "date": "2022-12-23",
+    "product_relevance": "procest",
+    "eisen_count": 25,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 2,
+      "Rapportage en dashboards": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 4,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Architectuur en techniek": 1,
+      "Overige eisen": 14
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "SCIM",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "283639",
+    "folder": "T-283639",
+    "tender_name": "Applicatie Sociaal Domein",
+    "organisation": "Gemeente Heemskerk",
+    "date": "2022-12-22",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "283653",
+    "folder": "T-283653",
+    "tender_name": "Vervanging Zaaksysteem",
+    "organisation": "Orionis Walcheren",
+    "date": "2022-12-23",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Communicatie en notificaties": 1,
+      "Beveiliging en compliance": 6,
+      "Overige eisen": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "286505",
+    "folder": "T-286505",
+    "tender_name": "Levering en ondersteuning nieuw VTH systeem op basis van SaaS",
+    "organisation": "Omgevingsdienst Noordzeekanaalgebied",
+    "date": "2023-01-26",
+    "product_relevance": "procest",
+    "eisen_count": 46,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 21,
+      "Document management": 6,
+      "Formulieren / Intake": 2,
+      "Zoeken en filteren": 4,
+      "Rapportage en dashboards": 2,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 3,
+      "Gebruikersbeheer en autorisatie": 4,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Architectuur en techniek": 2
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "287369",
+    "folder": "T-287369",
+    "tender_name": "Oplossing voor zaakgericht werken",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 15,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "289266",
+    "folder": "T-289266",
+    "tender_name": "Klantcontactsysteem",
+    "organisation": "Koninklijke Bibliotheek",
+    "date": "2023-02-22",
+    "product_relevance": "pipelinq",
+    "eisen_count": 4,
+    "eisen_categories": {
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "295016",
+    "folder": "T-295016",
+    "tender_name": "Inhuur I-specialisten",
+    "organisation": "Gemeente Haarlem",
+    "date": "2023-04-16",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Document management": 3,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "296963",
+    "folder": "T-296963",
+    "tender_name": "Leveren en implementeren van een zaak- en archiefsysteem en een DMS/RMA t.b.v. het zaakgericht werken",
+    "organisation": "Waterschap Noorderzijlvest",
+    "date": "2023-05-05",
+    "product_relevance": "procest",
+    "eisen_count": 7,
+    "eisen_categories": {
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "297098",
+    "folder": "T-297098",
+    "tender_name": "Applicatie Sociaal Domein",
+    "organisation": "Gemeente Heemskerk",
+    "date": "2023-05-10",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "297564",
+    "folder": "T-297564",
+    "tender_name": "Leveren van een document generator inclusief dienstverlening",
+    "organisation": "Gemeente Den Helder",
+    "date": "2023-05-13",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "299647",
+    "folder": "T-299647",
+    "tender_name": "Europese aanbesteding voor het leveren, implementeren en beheren van een zaaksysteem.",
+    "organisation": "Gemeente Lochem",
+    "date": "2023-06-03",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Formulieren / Intake": 2,
+      "Communicatie en notificaties": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "301932",
+    "folder": "T-301932",
+    "tender_name": "Zaaksysteem en Document Management Systeem (DMS)",
+    "organisation": "Waterschap Vallei en Veluwe",
+    "date": "2023-06-28",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Overige eisen": 10
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "SAML",
+      "validsign",
+      "templafy",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "304775",
+    "folder": "T-304775",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Veiligheidsregio Amsterdam-Amstelland",
+    "date": "2023-07-22",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "305956",
+    "folder": "T-305956",
+    "tender_name": "Vervanging Zaaksysteem",
+    "organisation": "Orionis Walcheren",
+    "date": "2023-08-02",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Communicatie en notificaties": 1,
+      "Beveiliging en compliance": 6,
+      "Overige eisen": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "306597",
+    "folder": "T-306597",
+    "tender_name": "Leveren van een document generator inclusief dienstverlening",
+    "organisation": "Gemeente Den Helder",
+    "date": "2023-08-04",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "308208",
+    "folder": "T-308208",
+    "tender_name": "Levering en ondersteuning nieuw VTH systeem op basis van SaaS",
+    "organisation": "Omgevingsdienst Noordzeekanaalgebied",
+    "date": "2023-08-30",
+    "product_relevance": "procest",
+    "eisen_count": 46,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 21,
+      "Document management": 6,
+      "Formulieren / Intake": 2,
+      "Zoeken en filteren": 4,
+      "Rapportage en dashboards": 2,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 3,
+      "Gebruikersbeheer en autorisatie": 4,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Architectuur en techniek": 2
+    },
+    "wensen_count": 0,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "313819",
+    "folder": "T-313819",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Meppel",
+    "date": "2023-10-18",
+    "product_relevance": "procest",
+    "eisen_count": 7,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "314729",
+    "folder": "T-314729",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Waalwijk",
+    "date": "2023-10-26",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "315763",
+    "folder": "T-315763",
+    "tender_name": "Zaaksysteem Diplomawaardering",
+    "organisation": "Stichting Nuffic",
+    "date": "2023-11-05",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 3,
+      "Overige eisen": 8
+    },
+    "wensen_count": 4,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "316326",
+    "folder": "T-316326",
+    "tender_name": "Europese aanbesteding voor het leveren, implementeren en beheren van een zaaksysteem.",
+    "organisation": "Gemeente Lochem",
+    "date": "2023-11-11",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Formulieren / Intake": 2,
+      "Communicatie en notificaties": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "316500",
+    "folder": "T-316500",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 76,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISAE 3402",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "318331",
+    "folder": "T-318331",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 76,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISAE 3402",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "319120",
+    "folder": "T-319120",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Veiligheidsregio Brabant-Noord",
+    "date": "2023-12-08",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Formulieren / Intake": 1,
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "319798",
+    "folder": "T-319798",
+    "tender_name": "Oplossing voor zaakgericht werken",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 15,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "320577",
+    "folder": "T-320577",
+    "tender_name": "Europese Aanbesteding Zaaksysteem",
+    "organisation": "Gemeente Aa en Hunze",
+    "date": "2023-12-21",
+    "product_relevance": "procest",
+    "eisen_count": 17,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Document management": 1,
+      "Formulieren / Intake": 1,
+      "Workflow / Procesautomatisering": 2,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "API",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "ISO 27002",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "320753",
+    "folder": "T-320753",
+    "tender_name": "Zaaksysteem Diplomawaardering",
+    "organisation": "Stichting Nuffic",
+    "date": "2023-12-20",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 3,
+      "Overige eisen": 8
+    },
+    "wensen_count": 4,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "323845",
+    "folder": "T-323845",
+    "tender_name": "Inhuur I-specialisten",
+    "organisation": "Gemeente Haarlem",
+    "date": "2024-01-26",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Document management": 3,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "324229",
+    "folder": "T-324229",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Veiligheidsregio Brabant-Noord",
+    "date": "2024-01-29",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Formulieren / Intake": 1,
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "329088",
+    "folder": "T-329088",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 18,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API",
+      "Haal Centraal"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "329906",
+    "folder": "T-329906",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Waalwijk",
+    "date": "2024-03-21",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Overig": 2,
+      "Documentmanagement": 1
+    },
+    "wensen_count": 6,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "330646",
+    "folder": "T-330646",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Meppel",
+    "date": "2024-03-28",
+    "product_relevance": "procest",
+    "eisen_count": 7,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 2,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 4
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "validsign",
+      "DSO",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "331221",
+    "folder": "T-331221",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 76,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISAE 3402",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "332173",
+    "folder": "T-332173",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 18,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API",
+      "Haal Centraal"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "333116",
+    "folder": "T-333116",
+    "tender_name": "De levering, onderhoud en implementatie van een SaaS-oplossing voor een Zaaksysteem voor de gemeenten Horst aan de Maas en Venray.",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 17,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "335792",
+    "folder": "T-335792",
+    "tender_name": "De levering, onderhoud en implementatie van een SaaS-oplossing voor een Zaaksysteem voor de gemeenten Horst aan de Maas en Venray.",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 17,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "335957",
+    "folder": "T-335957",
+    "tender_name": "VTHA-Zaaksysteem ODWH",
+    "organisation": "Omgevingsdienst West-Holland",
+    "date": "2024-05-12",
+    "product_relevance": "procest",
+    "eisen_count": 6,
+    "eisen_categories": {
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "337664",
+    "folder": "T-337664",
+    "tender_name": "Zaaksysteem Diplomawaardering",
+    "organisation": "Stichting Nuffic",
+    "date": "2024-05-29",
+    "product_relevance": "procest",
+    "eisen_count": 12,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 3,
+      "Overige eisen": 8
+    },
+    "wensen_count": 4,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "API",
+      "DSO",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "341829",
+    "folder": "T-341829",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Veiligheidsregio Brabant-Noord",
+    "date": "2024-07-03",
+    "product_relevance": "procest",
+    "eisen_count": 9,
+    "eisen_categories": {
+      "Formulieren / Intake": 1,
+      "Klantinteractie / CRM": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API",
+      "GEMMA"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "342065",
+    "folder": "T-342065",
+    "tender_name": "Zaak-/archiefsysteem",
+    "organisation": "Gemeente Geertruidenberg",
+    "date": "2024-07-04",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "342228",
+    "folder": "T-342228",
+    "tender_name": "Vergunningverlening, Toezicht en Handhaving (VTH) applicatie",
+    "organisation": "Gemeente Haarlemmermeer",
+    "date": "2024-07-06",
+    "product_relevance": "procest",
+    "eisen_count": 21,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Formulieren / Intake": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 14
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "343626",
+    "folder": "T-343626",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 18,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API",
+      "Haal Centraal"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "343743",
+    "folder": "T-343743",
+    "tender_name": "VTH zaak- en registratiesysteem omgevingsdienst",
+    "organisation": "Omgevingsdienst Haaglanden *",
+    "date": "2024-07-19",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "templafy",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "344747",
+    "folder": "T-344747",
+    "tender_name": "DMS met Zaaksysteemfunctionaliteit",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "345060",
+    "folder": "T-345060",
+    "tender_name": "De levering, onderhoud en implementatie van een SaaS-oplossing voor een Zaaksysteem voor de gemeenten Horst aan de Maas en Venray.",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 17,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "347449",
+    "folder": "T-347449",
+    "tender_name": "Vergunningverlening, Toezicht en Handhaving (VTH) applicatie",
+    "organisation": "Gemeente Haarlemmermeer",
+    "date": "2024-08-30",
+    "product_relevance": "procest",
+    "eisen_count": 21,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Formulieren / Intake": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 14
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "347963",
+    "folder": "T-347963",
+    "tender_name": "Zaak-/archiefsysteem",
+    "organisation": "Gemeente Geertruidenberg",
+    "date": "2024-09-04",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "348330",
+    "folder": "T-348330",
+    "tender_name": "Vergunningverlening, Toezicht en Handhaving (VTH) applicatie",
+    "organisation": "Gemeente Haarlemmermeer",
+    "date": "2024-09-06",
+    "product_relevance": "procest",
+    "eisen_count": 21,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Formulieren / Intake": 1,
+      "VTH (Vergunningen, Toezicht, Handhaving)": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 14
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "348375",
+    "folder": "T-348375",
+    "tender_name": "Zaak-/archiefsysteem",
+    "organisation": "Gemeente Geertruidenberg",
+    "date": "2024-09-09",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "348539",
+    "folder": "T-348539",
+    "tender_name": "DMS met Zaaksysteemfunctionaliteit",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "351040",
+    "folder": "T-351040",
+    "tender_name": "Projectmanagementtool",
+    "organisation": "gemeente Sittard-Geleen",
+    "date": "2024-09-29",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "352726",
+    "folder": "T-352726",
+    "tender_name": "Marktconsultatie Objectregistratie- en zaaksysteem VRZHZ",
+    "organisation": "Veiligheidsregio Zuid-Holland Zuid",
+    "date": "2024-10-10",
+    "product_relevance": "procest / both",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "validsign",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "352931",
+    "folder": "T-352931",
+    "tender_name": "Projectmanagementtool",
+    "organisation": "gemeente Sittard-Geleen",
+    "date": "2024-10-11",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "352938",
+    "folder": "T-352938",
+    "tender_name": "Vergunningverlening, Toezicht en Handhaving (VTH) applicatie",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 15,
+    "integrations": [],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "353289",
+    "folder": "T-353289",
+    "tender_name": "VTHA-Zaaksysteem ODWH",
+    "organisation": "Omgevingsdienst West-Holland",
+    "date": "2024-10-16",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overig": 2
+    },
+    "wensen_count": 5,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "354773",
+    "folder": "T-354773",
+    "tender_name": "zaaksysteem Opmeer",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "355307",
+    "folder": "T-355307",
+    "tender_name": "Gemeente Scherpenzeel - Applicatie Sociaal Domein",
+    "organisation": "Gemeente Scherpenzeel",
+    "date": "2024-10-31",
+    "product_relevance": "procest",
+    "eisen_count": 18,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 3,
+      "Communicatie en notificaties": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "356634",
+    "folder": "T-356634",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Werkorganisatie HLT Samen",
+    "date": "2024-11-09",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "357481",
+    "folder": "T-357481",
+    "tender_name": "zaaksysteem Opmeer",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "357715",
+    "folder": "T-357715",
+    "tender_name": "zaaksysteem Opmeer",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "359014",
+    "folder": "T-359014",
+    "tender_name": "Gemeente Scherpenzeel - Applicatie Sociaal Domein",
+    "organisation": "Gemeente Scherpenzeel",
+    "date": "2024-11-27",
+    "product_relevance": "procest",
+    "eisen_count": 18,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 3,
+      "Communicatie en notificaties": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "359074",
+    "folder": "T-359074",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Werkorganisatie HLT Samen",
+    "date": "2024-11-28",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "359983",
+    "folder": "T-359983",
+    "tender_name": "CRM Oplossing",
+    "organisation": "Nederlandse Zorgautoriteit",
+    "date": "2024-12-06",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overig": 1
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "360657",
+    "folder": "T-360657",
+    "tender_name": "VTH-software",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "361060",
+    "folder": "T-361060",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Werkorganisatie HLT Samen",
+    "date": "2024-12-12",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "361871",
+    "folder": "T-361871",
+    "tender_name": "VTH zaak- en registratiesysteem omgevingsdienst",
+    "organisation": "Omgevingsdienst Haaglanden *",
+    "date": "2024-12-20",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "templafy",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "362175",
+    "folder": "T-362175",
+    "tender_name": "Vergunning-, Toezicht- en Handhaving  software Omgevingswet",
+    "organisation": "Gemeente Zeist",
+    "date": "2024-12-21",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "362829",
+    "folder": "T-362829",
+    "tender_name": "Zaak-/archiefsysteem",
+    "organisation": "Gemeente Geertruidenberg",
+    "date": "2025-01-07",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "362866",
+    "folder": "T-362866",
+    "tender_name": "Primair Proces Platform voor de ANVS",
+    "organisation": "Ministerie van Infrastructuur en Waterstaat",
+    "date": "2025-01-07",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 2,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API",
+      "containerization"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "362898",
+    "folder": "T-362898",
+    "tender_name": "Vergunning-, Toezicht- en Handhaving  software Omgevingswet",
+    "organisation": "Gemeente Zeist",
+    "date": "2025-01-06",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "363420",
+    "folder": "T-363420",
+    "tender_name": "zaaksysteem Opmeer",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "363605",
+    "folder": "T-363605",
+    "tender_name": "Vergunningverlening, Toezicht en Handhaving (VTH) applicatie",
+    "organisation": "Gemeente Haarlemmermeer",
+    "date": "2025-01-14",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "364027",
+    "folder": "T-364027",
+    "tender_name": "Leveren, implementeren en onderhouden van een Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 16,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "Haven"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "365598",
+    "folder": "T-365598",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Shared Service Centrum Ons",
+    "date": "2025-01-30",
+    "product_relevance": "procest",
+    "eisen_count": 6,
+    "eisen_categories": {
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "sharepoint",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "365739",
+    "folder": "T-365739",
+    "tender_name": "Projectmanagementtool",
+    "organisation": "gemeente Sittard-Geleen",
+    "date": "2025-01-31",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "366333",
+    "folder": "T-366333",
+    "tender_name": "Primair Proces Platform voor de ANVS",
+    "organisation": "Ministerie van Infrastructuur en Waterstaat",
+    "date": "2025-02-04",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 2,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API",
+      "containerization"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "367903",
+    "folder": "T-367903",
+    "tender_name": "Leveren, implementeren en onderhouden van een Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 16,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "Haven"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "368551",
+    "folder": "T-368551",
+    "tender_name": "Primair Proces Platform voor de ANVS",
+    "organisation": "Ministerie van Infrastructuur en Waterstaat",
+    "date": "2025-02-20",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 2,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API",
+      "containerization"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "371293",
+    "folder": "T-371293",
+    "tender_name": "Klant Contact Systeem",
+    "organisation": "Veiligheidsregio Utrecht",
+    "date": "2025-03-17",
+    "product_relevance": "pipelinq",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "371863",
+    "folder": "T-371863",
+    "tender_name": "Levering en implementatie van een SaaS-oplossing ter ondersteuning van de VTH-processen.",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "372651",
+    "folder": "T-372651",
+    "tender_name": "Europees openbare aanbesteding Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 17,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "372967",
+    "folder": "T-372967",
+    "tender_name": "ICC-Mutatiesignalering, -kartering en -verwerking 2025-2027",
+    "organisation": "ICC Regio Schiphol Bevlogen",
+    "date": "2025-04-02",
+    "product_relevance": "both",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "STUF",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "375587",
+    "folder": "T-375587",
+    "tender_name": "Europees openbare aanbesteding Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 17,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "376395",
+    "folder": "T-376395",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Gemeente Midden-Drenthe",
+    "date": "2025-04-25",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "377441",
+    "folder": "T-377441",
+    "tender_name": "Gemeente Scherpenzeel - Applicatie Sociaal Domein",
+    "organisation": "Gemeente Scherpenzeel",
+    "date": "2025-05-04",
+    "product_relevance": "procest",
+    "eisen_count": 18,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 3,
+      "Communicatie en notificaties": 1,
+      "Integraties en API": 1,
+      "Overige eisen": 11
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "377457",
+    "folder": "T-377457",
+    "tender_name": "Levering en implementatie van een SaaS-oplossing ter ondersteuning van de VTH-processen.",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "377711",
+    "folder": "T-377711",
+    "tender_name": "Vergunningverlening, Toezicht en Handhaving (VTH) applicatie",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 15,
+    "integrations": [],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "377997",
+    "folder": "T-377997",
+    "tender_name": "Specialistische inhuur ten behoeve van VTH",
+    "organisation": "Gemeente Haarlem",
+    "date": "2025-05-10",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "378009",
+    "folder": "T-378009",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Gemeente Midden-Drenthe",
+    "date": "2025-05-08",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "379196",
+    "folder": "T-379196",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Gemeente Midden-Drenthe",
+    "date": "2025-05-16",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "379782",
+    "folder": "T-379782",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Houten",
+    "date": "2025-05-23",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Documentmanagement": 1,
+      "Zaakgericht": 2
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "381355",
+    "folder": "T-381355",
+    "tender_name": "Specialistische inhuur ten behoeve van VTH",
+    "organisation": "Gemeente Haarlem",
+    "date": "2025-06-04",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "383984",
+    "folder": "T-383984",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Werkorganisatie HLT Samen",
+    "date": "2025-06-27",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "peppol"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "384261",
+    "folder": "T-384261",
+    "tender_name": "ICC-Mutatiesignalering, -kartering en -verwerking 2025-2027",
+    "organisation": "ICC Regio Schiphol Bevlogen",
+    "date": "2025-06-29",
+    "product_relevance": "both",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Overige eisen": 5
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "STUF",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "384508",
+    "folder": "T-384508",
+    "tender_name": "Specialistische inhuur ten behoeve van VTH",
+    "organisation": "Gemeente Haarlem",
+    "date": "2025-06-30",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 7
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "384605",
+    "folder": "T-384605",
+    "tender_name": "Raadsinformatiesysteem Stede Broec-Enkhuizen-Drechterland",
+    "organisation": "SED Organisatie",
+    "date": "2025-07-02",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Workflow / Procesautomatisering": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "Pen test"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "385317",
+    "folder": "T-385317",
+    "tender_name": "Vergunning-, Toezicht- en Handhaving  software Omgevingswet",
+    "organisation": "Gemeente Zeist",
+    "date": "2025-07-08",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "386683",
+    "folder": "T-386683",
+    "tender_name": "Raadsinformatiesysteem Stede Broec-Enkhuizen-Drechterland",
+    "organisation": "SED Organisatie",
+    "date": "2025-07-17",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Workflow / Procesautomatisering": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "Pen test"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "387927",
+    "folder": "T-387927",
+    "tender_name": "VTH-software",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "389321",
+    "folder": "T-389321",
+    "tender_name": "Systeem voor Vergunningverlening en -beheer",
+    "organisation": "Nationale en Internationale Wegvervoer Organisatie",
+    "date": "2025-08-17",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "API",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "389501",
+    "folder": "T-389501",
+    "tender_name": "Common Ground Platform",
+    "organisation": "Gemeente Alkmaar",
+    "date": "2025-08-20",
+    "product_relevance": "procest / both",
+    "eisen_count": 8,
+    "eisen_categories": {
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "Common Ground",
+      "API",
+      "open source",
+      "Haven"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "389961",
+    "folder": "T-389961",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Werkorganisatie HLT Samen",
+    "date": "2025-08-24",
+    "product_relevance": "procest / both",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "digid",
+      "STUF",
+      "ZGW",
+      "API",
+      "templafy",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "390684",
+    "folder": "T-390684",
+    "tender_name": "Levering CMS-ERP systeem gem Barneveld",
+    "organisation": "Gemeente Barneveld",
+    "date": "2025-08-31",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API",
+      "containerization"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "392571",
+    "folder": "T-392571",
+    "tender_name": "Primair Proces Platform voor de ANVS",
+    "organisation": "Ministerie van Infrastructuur en Waterstaat",
+    "date": "2025-09-14",
+    "product_relevance": "procest",
+    "eisen_count": 5,
+    "eisen_categories": {
+      "Document management": 2,
+      "Overige eisen": 3
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API",
+      "containerization"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "394346",
+    "folder": "T-394346",
+    "tender_name": "Gemeente Leusden - Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 13,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "394813",
+    "folder": "T-394813",
+    "tender_name": "Applicatie Vergunning, Toezicht en Handhaving",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 4,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "395469",
+    "folder": "T-395469",
+    "tender_name": "Het uitvoeren voor de levering en implementatie van een nieuw zaaksysteem",
+    "organisation": "Landelijk Bureau Inning Onderhoudsbijdragen",
+    "date": "2025-10-03",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "API",
+      "teams",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "397891",
+    "folder": "T-397891",
+    "tender_name": "Gemeente Leusden - Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 13,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "398696",
+    "folder": "T-398696",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Houten",
+    "date": "2025-10-29",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Documentmanagement": 1,
+      "Zaakgericht": 2
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "399455",
+    "folder": "T-399455",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Werkorganisatie HLT Samen",
+    "date": "2025-11-03",
+    "product_relevance": "procest / both",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "digid",
+      "STUF",
+      "ZGW",
+      "API",
+      "templafy",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "399577",
+    "folder": "T-399577",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Houten",
+    "date": "2025-11-04",
+    "product_relevance": "procest",
+    "eisen_count": 3,
+    "eisen_categories": {
+      "Documentmanagement": 1,
+      "Zaakgericht": 2
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "400282",
+    "folder": "T-400282",
+    "tender_name": "VTH-applicatie",
+    "organisation": "Gemeente Midden-Drenthe",
+    "date": "2025-11-10",
+    "product_relevance": "procest",
+    "eisen_count": 10,
+    "eisen_categories": {
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "DSO"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "400508",
+    "folder": "T-400508",
+    "tender_name": "Europees openbare aanbesteding Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 17,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "401016",
+    "folder": "T-401016",
+    "tender_name": "Specialistische inhuur ten behoeve van VTH",
+    "organisation": "Gemeente Haarlem",
+    "date": "2025-11-14",
+    "product_relevance": "procest",
+    "eisen_count": 17,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 14
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "API",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "402189",
+    "folder": "T-402189",
+    "tender_name": "Common Ground Platform",
+    "organisation": "Gemeente Alkmaar",
+    "date": "2025-11-21",
+    "product_relevance": "procest / both",
+    "eisen_count": 8,
+    "eisen_categories": {
+      "Overige eisen": 8
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "kofax"
+    ],
+    "architecture_keywords": [
+      "Common Ground",
+      "API",
+      "open source",
+      "Haven"
+    ],
+    "security_compliance": [
+      "DigiD"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "402469",
+    "folder": "T-402469",
+    "tender_name": "Document Management Systeem",
+    "organisation": "Tilburg University",
+    "date": "2025-11-26",
+    "product_relevance": "procest",
+    "eisen_count": 11,
+    "eisen_categories": {
+      "Document management": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 9
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "digid",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "OIDC",
+      "validsign",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "on-premise",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "DigiD",
+      "AVG/GDPR",
+      "Pen test"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "402863",
+    "folder": "T-402863",
+    "tender_name": "Levering en implementatie van een SaaS-oplossing ter ondersteuning van de VTH-processen.",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "403035",
+    "folder": "T-403035",
+    "tender_name": "zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "404174",
+    "folder": "T-404174",
+    "tender_name": "Aanbesteding VTH applicatie inclusief Omgevingswet",
+    "organisation": "RUD Utrecht",
+    "date": "2025-12-09",
+    "product_relevance": "procest",
+    "eisen_count": 13,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 3,
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Gebruikersbeheer en autorisatie": 1,
+      "Overige eisen": 6
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "AVG/GDPR",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "405475",
+    "folder": "T-405475",
+    "tender_name": "Levering CMS-ERP systeem gem Barneveld",
+    "organisation": "Gemeente Barneveld",
+    "date": "2025-12-18",
+    "product_relevance": "procest",
+    "eisen_count": 2,
+    "eisen_categories": {
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BAG",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "SAML",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "API",
+      "containerization"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "406212",
+    "folder": "T-406212",
+    "tender_name": "Geïntegreerd Zaaksysteem met KCS-functionaliteit",
+    "organisation": "Gemeente Beverwijk",
+    "date": "2025-12-21",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 6,
+    "eisen_categories": {
+      "Formulieren / Intake": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Communicatie en notificaties": 1,
+      "Overige eisen": 2
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "digid",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "validsign",
+      "DSO",
+      "peppol",
+      "sharepoint",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "on-premise",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "406416",
+    "folder": "T-406416",
+    "tender_name": "zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 12,
+    "integrations": [],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "406732",
+    "folder": "T-406732",
+    "tender_name": "Specialistische inhuur ten behoeve van VTH",
+    "organisation": "Gemeente Haarlem",
+    "date": "2025-12-24",
+    "product_relevance": "procest",
+    "eisen_count": 17,
+    "eisen_categories": {
+      "Document management": 2,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 14
+    },
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "API",
+      "validsign",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "API"
+    ],
+    "security_compliance": [
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "407031",
+    "folder": "T-407031",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Gemeente Gulpen-Wittem",
+    "date": "2026-01-06",
+    "product_relevance": "procest",
+    "eisen_count": 14,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Workflow / Procesautomatisering": 1,
+      "Overige eisen": 12
+    },
+    "wensen_count": 32,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "digid",
+      "eherkenning",
+      "eidas",
+      "STUF",
+      "ZDS",
+      "ZGW",
+      "API",
+      "SAML",
+      "OIDC",
+      "validsign",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "407112",
+    "folder": "T-407112",
+    "tender_name": "Marktconsultatie 25.383-BV Documentmanagementsysteem Edam-Volendam",
+    "organisation": "Gemeente Edam-Volendam",
+    "date": "2026-01-06",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "407114",
+    "folder": "T-407114",
+    "tender_name": "Marktconsultatie 25.383 BV Zaak- en Document Management Systeem Edam-Volendam",
+    "organisation": "Gemeente Edam-Volendam",
+    "date": "2026-01-06",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "407116",
+    "folder": "T-407116",
+    "tender_name": "Marktconsultatie 25.383-BV Zaaksysteem Edam-Volendam",
+    "organisation": "Gemeente Edam-Volendam",
+    "date": "2026-01-06",
+    "product_relevance": "procest",
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 0,
+    "integrations": [
+      "BRP",
+      "KVK",
+      "STUF",
+      "ZGW",
+      "API",
+      "DSO",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "409596",
+    "folder": "T-409596",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "411386",
+    "folder": "T-411386",
+    "tender_name": "Geïntegreerd Zaaksysteem met KCS-functionaliteit",
+    "organisation": "Gemeente Beverwijk",
+    "date": "2026-02-09",
+    "product_relevance": "procest / pipelinq",
+    "eisen_count": 22,
+    "eisen_categories": {
+      "Documentmanagement": 5,
+      "Overig": 5,
+      "Zaakgericht": 3,
+      "Integraties": 5,
+      "Zoeken": 2,
+      "Formulieren": 1,
+      "Workflow": 1
+    },
+    "wensen_count": 2,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Cloud",
+      "Common Ground",
+      "API"
+    ],
+    "security_compliance": [
+      "DigiD",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "412160",
+    "folder": "T-412160",
+    "tender_name": "VTH-Zaaksysteem FUMO",
+    "organisation": "Fryske Utfieringstsjinst Miljeu en Omjouwing",
+    "date": "2026-02-15",
+    "product_relevance": "procest",
+    "eisen_count": 20,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Workflow / Procesautomatisering": 2,
+      "Rapportage en dashboards": 1,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 13
+    },
+    "wensen_count": 2,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "open formulieren",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "412166",
+    "folder": "T-412166",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 10,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "413336",
+    "folder": "T-413336",
+    "tender_name": "Systeem voor Vergunningverlening en -beheer",
+    "organisation": "Nationale en Internationale Wegvervoer Organisatie",
+    "date": "2026-02-25",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 6,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "413426",
+    "folder": "T-413426",
+    "tender_name": "Zaaksysteem",
+    "organisation": "Shared Service Centrum Ons",
+    "date": "2026-02-26",
+    "product_relevance": "procest",
+    "eisen_count": 97,
+    "eisen_categories": {
+      "Documentmanagement": 18,
+      "Zoeken": 4,
+      "Overig": 22,
+      "Zaakgericht": 27,
+      "Integraties": 7,
+      "Workflow": 3,
+      "Formulieren": 10,
+      "Rapportage": 3,
+      "Beveiliging": 3
+    },
+    "wensen_count": 34,
+    "integrations": [],
+    "architecture_keywords": [
+      "SaaS",
+      "Common Ground",
+      "API",
+      "open source",
+      "REST"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "BIO",
+      "DigiD",
+      "AVG/GDPR",
+      "Pen test",
+      "Baseline Informatiebeveiliging"
+    ],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "414239",
+    "folder": "T-414239",
+    "tender_name": "Applicatie Vergunning, Toezicht en Handhaving",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 4,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "414248",
+    "folder": "T-414248",
+    "tender_name": "Zaaksysteem",
+    "organisation": null,
+    "date": null,
+    "product_relevance": null,
+    "eisen_count": 0,
+    "eisen_categories": {},
+    "wensen_count": 13,
+    "integrations": [],
+    "architecture_keywords": [
+      "Common Ground",
+      "API",
+      "Haal Centraal"
+    ],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "414697",
+    "folder": "T-414697",
+    "tender_name": "Platform voor scan- en documentverwerking",
+    "organisation": "Gemeente Haarlemmermeer",
+    "date": "2026-03-06",
+    "product_relevance": "procest",
+    "eisen_count": 1,
+    "eisen_categories": {
+      "Overige eisen": 1
+    },
+    "wensen_count": 1,
+    "integrations": [],
+    "architecture_keywords": [],
+    "security_compliance": [],
+    "winner": null,
+    "contract_value": null
+  },
+  {
+    "tenderned_id": "415897",
+    "folder": "T-415897",
+    "tender_name": "VTH-Zaaksysteem FUMO",
+    "organisation": "Fryske Utfieringstsjinst Miljeu en Omjouwing",
+    "date": "2026-03-13",
+    "product_relevance": "procest",
+    "eisen_count": 20,
+    "eisen_categories": {
+      "Zaakgericht werken / Case management": 1,
+      "Document management": 1,
+      "Workflow / Procesautomatisering": 2,
+      "Rapportage en dashboards": 1,
+      "Integraties en API": 1,
+      "Beveiliging en compliance": 1,
+      "Overige eisen": 13
+    },
+    "wensen_count": 2,
+    "integrations": [
+      "BRP",
+      "BAG",
+      "KVK",
+      "eherkenning",
+      "STUF",
+      "ZGW",
+      "API",
+      "open formulieren",
+      "DSO",
+      "peppol",
+      "teams"
+    ],
+    "architecture_keywords": [
+      "SaaS",
+      "API"
+    ],
+    "security_compliance": [
+      "ISO 27001",
+      "AVG/GDPR"
+    ],
+    "winner": null,
+    "contract_value": null
+  }
+]

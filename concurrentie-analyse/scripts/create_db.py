@@ -219,14 +219,32 @@ CREATE TABLE IF NOT EXISTS category_features (
 );
 
 -- Multi-source provenance: where each feature was seen
+-- Source types organized by category:
+--   Tenders:     tender-eis, tender-wens
+--   Architecture: gemma, iso, standard
+--   Competitors: competitor, github-issue, github-discussion, documentation, changelog
+--   Comparison:  g2, capterra, alternativeto, sourceforge, awesome-list
+--   Opinion:     blog, article, research-paper, social-media, forum, pro, con
+--   Manual:      manual, tec
 CREATE TABLE IF NOT EXISTS feature_sources (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     category_slug TEXT NOT NULL,
     feature_slug TEXT NOT NULL,
     source_type TEXT NOT NULL CHECK(source_type IN (
-        'tender-eis', 'tender-wens', 'gemma', 'g2', 'capterra',
-        'alternativeto', 'competitor', 'tec', 'manual', 'iso'
+        'tender-eis', 'tender-wens',
+        'gemma',
+        'competitor',
+        'github-issue', 'github-discussion',
+        'g2', 'capterra', 'alternativeto', 'sourceforge',
+        'blog', 'article', 'research-paper',
+        'social-media', 'forum',
+        'pro', 'con',
+        'awesome-list',
+        'documentation', 'changelog',
+        'iso', 'standard',
+        'manual', 'tec'
     )),
+    sentiment TEXT CHECK(sentiment IN ('positive', 'negative', 'neutral', NULL)),
     source_url TEXT,                     -- URL to the source
     source_label TEXT,                   -- human-readable label
     source_detail TEXT,                  -- extra context
@@ -246,6 +264,7 @@ CREATE INDEX IF NOT EXISTS idx_cat_features_slug ON category_features(feature_sl
 CREATE INDEX IF NOT EXISTS idx_feat_sources_feature ON feature_sources(feature_slug);
 CREATE INDEX IF NOT EXISTS idx_feat_sources_type ON feature_sources(source_type);
 CREATE INDEX IF NOT EXISTS idx_feat_sources_category ON feature_sources(category_slug);
+CREATE INDEX IF NOT EXISTS idx_feat_sources_sentiment ON feature_sources(sentiment);
 
 -- GEMMA architecture model data (from GEMMA release.xml)
 -- These tables store the full ArchiMate model so we don't need the XML file

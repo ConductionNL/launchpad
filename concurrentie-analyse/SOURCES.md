@@ -183,12 +183,129 @@ This document tracks all data sources feeding into the intelligence database (`i
 | Comparison sites | 0 | — | — | Not started |
 | Feature→requirement mapping | 5,956 reqs | ~1,642 (keyword) | — | 4,314 unmapped |
 
+### 10. Open Source Issue Trackers
+
+**Status:** Not yet scraped
+**Purpose:** Feature requests = what users actually want; bug reports = what doesn't work
+
+| Source | Data Available | Approach |
+|--------|----------------|----------|
+| GitHub Issues (feature requests) | User-requested features with votes/reactions | `source_type = 'github-issue'` |
+| GitHub Discussions | Community feature discussions, polls | `source_type = 'github-discussion'` |
+| GitLab Issues | Same for GitLab-hosted projects | `source_type = 'github-issue'` |
+
+**For each open source competitor (45 with GitHub URLs), collect:**
+- Issues labeled `enhancement`, `feature-request`, `feature`
+- Sort by reactions/thumbs-up (= demand signal)
+- Extract the feature being requested
+- Map to `category_features` with issue URL as source
+
+### 11. Community & Opinion Sources
+
+**Status:** Not yet scraped
+**Purpose:** What real users say software should or shouldn't do
+
+**Positive signals (pros)** — things people praise:
+- "Finally a CRM that does X properly"
+- "The best feature is Y"
+- Feature announcements that get positive reception
+
+**Negative signals (cons)** — things people complain about:
+- "I switched because it can't do X"
+- "The biggest missing feature is Y"
+- Common complaints in reviews
+
+| Source | URL | Data | Source Type | Sentiment |
+|--------|-----|------|-------------|-----------|
+| Reddit r/selfhosted | reddit.com/r/selfhosted | Software recommendations, complaints | `social-media` | pos/neg |
+| Reddit r/opensource | reddit.com/r/opensource | Open source software opinions | `social-media` | pos/neg |
+| Reddit r/sysadmin | reddit.com/r/sysadmin | Enterprise software opinions | `social-media` | pos/neg |
+| Hacker News | news.ycombinator.com | Tech community opinions | `forum` | pos/neg |
+| Pleio | pleio.nl | Dutch government community | `forum` | pos/neg |
+| Common Ground community | commonground.nl | Dutch municipal IT community | `forum` | pos/neg |
+| Dev.to / Medium | dev.to, medium.com | Technical blog posts | `blog` | neutral |
+| G2 Reviews (pros/cons) | g2.com | Structured pros/cons per product | `pro` / `con` | pos/neg |
+| Capterra Reviews | capterra.com | Review text with pros/cons | `pro` / `con` | pos/neg |
+| Slant.co | slant.co | Community-voted pros/cons | `pro` / `con` | pos/neg |
+
+### 12. Research & Analyst Sources
+
+**Status:** Not yet investigated
+**Purpose:** Expert evaluation criteria, market categorization, maturity models
+
+| Source | Data | Access | Source Type |
+|--------|------|--------|-------------|
+| Gartner Magic Quadrant | Category definitions, evaluation criteria | Paid (summaries free) | `research-paper` |
+| Forrester Wave | Feature evaluation grids | Paid (summaries free) | `research-paper` |
+| ICTU publications | Dutch e-government research | Free | `research-paper` |
+| VNG Realisatie | Municipal IT guidance | Free | `standard` |
+| BZK (Min. BZK) | Government digitalization policy | Free | `standard` |
+| Academic papers | e-government, digital transformation | Google Scholar | `research-paper` |
+
+### 13. International Procurement Sources
+
+**Status:** Not yet investigated
+
+| Source | URL | Region | Data | Access |
+|--------|-----|--------|------|--------|
+| UK Digital Marketplace (G-Cloud) | digitalmarketplace.service.gov.uk | UK | SaaS category feature lists | Free API |
+| SAM.gov | sam.gov | US | Federal IT procurement notices | Free |
+| AusTender | tenders.gov.au | Australia | Government IT tenders | Free |
+| MERX | merx.com | Canada | Public sector procurement | Free search |
+| BuyIT (Korea) | g2b.go.kr | South Korea | Government procurement | Free |
+
+### 14. Documentation & Changelogs
+
+**Status:** Not yet scraped
+**Purpose:** What features competitors actually ship (vs what they promise)
+
+| Source | Data | Source Type |
+|--------|------|-------------|
+| Official documentation | Feature descriptions, API specs | `documentation` |
+| Release notes / changelogs | New features shipped over time | `changelog` |
+| OpenAPI/Swagger specs | Machine-readable API capabilities | `documentation` |
+
+## Source Type Reference
+
+All source types available in `feature_sources.source_type`:
+
+| Category | Source Type | Sentiment | Description |
+|----------|-----------|-----------|-------------|
+| **Tenders** | `tender-eis` | neutral | Mandatory requirement from procurement |
+| | `tender-wens` | neutral | Optional wish from procurement |
+| **Architecture** | `gemma` | neutral | GEMMA referentiecomponent/service |
+| | `iso` | neutral | ISO standard requirement |
+| | `standard` | neutral | Other standards (NORA, Common Ground, BIO) |
+| **Competitors** | `competitor` | neutral | Feature observed in competitor product |
+| | `github-issue` | positive | Feature request from issue tracker |
+| | `github-discussion` | varies | Community discussion about feature |
+| | `documentation` | neutral | Official docs describing a feature |
+| | `changelog` | neutral | Feature shipped in a release |
+| **Comparison** | `g2` | varies | G2 feature grid or review |
+| | `capterra` | varies | Capterra feature comparison or review |
+| | `alternativeto` | neutral | AlternativeTo feature tags |
+| | `sourceforge` | neutral | SourceForge project metadata |
+| | `awesome-list` | positive | Curated awesome list inclusion |
+| **Opinion** | `blog` | varies | Blog post about features |
+| | `article` | varies | News article or analysis |
+| | `research-paper` | neutral | Academic or analyst research |
+| | `social-media` | varies | Reddit, Twitter, Mastodon |
+| | `forum` | varies | Hacker News, Pleio, Stack Exchange |
+| | `pro` | positive | Explicit pro/advantage of a feature |
+| | `con` | negative | Explicit con/complaint about missing feature |
+| **Manual** | `manual` | neutral | Manually added by analyst |
+| | `tec` | neutral | Technical assessment |
+
 ## Adding New Sources
 
 To add a new data source:
 
-1. Define the `source_type` in `feature_sources` CHECK constraint (or use existing: `tender-eis`, `tender-wens`, `gemma`, `g2`, `capterra`, `alternativeto`, `competitor`, `tec`, `manual`, `iso`)
-2. Create an n8n workflow or script for data collection
-3. Map extracted data to `category_features` + `feature_sources` with URLs
+1. Pick the appropriate `source_type` from the table above (or propose a new one)
+2. Create an n8n workflow or Claude skill for data collection
+3. Map extracted data to `category_features` + `feature_sources` with:
+   - `source_url` — direct URL to the evidence
+   - `source_label` — human-readable description
+   - `sentiment` — positive/negative/neutral
+   - `competitor_id` — if about a specific competitor
 4. Document the source in this file
 5. Commit the updated `intelligence.db`

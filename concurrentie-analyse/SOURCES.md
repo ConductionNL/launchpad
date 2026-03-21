@@ -171,17 +171,77 @@ This document tracks all data sources feeding into the intelligence database (`i
 | Overeenkomst | Contract template | Read for SLA/compliance |
 | Gunningsbeslissing | Award decision | Parsed → `tender_awards` |
 
-## Processing Status Summary
+## Processing Status Summary (2026-03-21)
 
-| Source | Total Records | Fully Processed | Partially Processed | Not Started |
-|--------|--------------|-----------------|--------------------|----|
-| TenderNed tenders | 1,340 | 74 (analysed) | 171 (downloaded) | 1,095 |
-| TED tenders | 0 | — | — | Not implemented |
-| Competitors (deep) | 27 | 27 | — | — |
-| Competitors (metadata) | 38 | — | 38 | — |
-| GEMMA model | 1,148 elements | 1,148 | — | — |
-| Comparison sites | 0 | — | — | Not started |
-| Feature→requirement mapping | 5,956 reqs | ~1,642 (keyword) | — | 4,314 unmapped |
+### Automated Sync Sources (12 registered, 10 pulling data)
+
+| # | Source | Script | Interval | Status | Records | Feature Sources |
+|---|--------|--------|----------|--------|---------|----------------|
+| 1 | TenderNed (NL) | `sync_tenderned.py` | 24h | OK | 6,295 tenders | — |
+| 2 | G2 API | `sync_g2_categories.py` | 7d | OK | 2,267 categories | 6,030 |
+| 3 | Wikipedia Comparisons | `sync_wikipedia_comparisons.py` | 7d | OK | 357 features | 2,782 |
+| 4 | Wikidata SPARQL | `sync_wikidata_software.py` | 7d | OK | 500 types | 24 |
+| 5 | awesome-selfhosted | `sync_awesome_selfhosted.py` | 7d | OK | 1,229 projects | 3,882 |
+| 6 | Developers Italia | `sync_developers_italia.py` | 7d | OK | 25 gov tools | 283 |
+| 7 | DPG Registry | `sync_dpg_registry.py` | 7d | Slow | — | — |
+| 8 | EU Interoperable | `sync_interoperable_europe.py` | 7d | OK | 500 solutions | 6,235 |
+| 9 | GitHub Issues | `sync_github_issues.py` | 7d | OK | 162 issues | 1,400 |
+| 10 | UK G-Cloud | `sync_uk_gcloud.py` | 7d | OK | 116K services | 75 |
+| 11 | FedRAMP | `sync_fedramp.py` | 7d | Partial | 704 products | 0 |
+| 12 | GEMMA Release | One-time import | Yearly | OK | 1,148 elements | 1,504 |
+
+### Other Data Already in Database
+
+| Source | Records | Status |
+|--------|---------|--------|
+| Tender requirements (from 74 ANALYSE.md) | 5,956 | Migrated |
+| Competitors (45 OSS + 20 closed) | 65 | Clean, with GitHub URLs |
+| Competitor features | 583 | From MERGED-ANALYSIS.md |
+| Software categories (CPV + GEMMA) | 37 | Seeded |
+| Standard features per category | 190 | Seeded |
+
+### Totals
+
+| Metric | Value |
+|--------|-------|
+| **Feature sources** | **26,956** |
+| **Tenders** | 6,295 |
+| **Features defined** | 190 |
+| **Competitors** | 65 |
+| **DB size** | 35.3 MB |
+
+### Sources We Should Add Next (high value, automatable)
+
+| # | Source | Data | Access | Priority |
+|---|--------|------|--------|----------|
+| 1 | **G2 Reviews (pro/con)** | Structured pros/cons per product | G2 API (have token) | High |
+| 2 | **Hacker News** | Tech community discussions | Free Algolia API | Medium |
+| 3 | **GitHub Discussions** | Community feature conversations | GitHub API | Medium |
+| 4 | **TED EU Tenders** | European procurement notices | TED API v3.0 | High |
+| 5 | **SourceForge** | Open source project metadata | API | Low |
+| 6 | **GEMMA Softwarecatalogus** | Which NL municipalities use what software | Web scraping | High |
+
+### Sources We Might Add in Future (manual or restricted)
+
+| # | Source | Data | Access | Blocker |
+|---|--------|------|--------|---------|
+| 1 | **TEC RFP Templates** | 25,000+ features across 40 categories | Signup required (contact form) | Gated |
+| 2 | **SelectHub** | Feature requirement checklists | Articles free, templates gated | Cloudflare blocks bots |
+| 3 | **Capterra** | Feature comparisons, reviews | No API, Cloudflare protection | Bot-blocked |
+| 4 | **TrustRadius** | Reviews with feature scores, pros/cons | No official API (Apify scrapers exist) | No API |
+| 5 | **Gartner Peer Insights** | Analyst-verified reviews | No API, paid research | Paid |
+| 6 | **Reddit** (r/selfhosted, r/sysadmin) | Community recommendations | API now paid since 2023 | Paid API |
+| 7 | **Stack Exchange** (softwarerecs) | Feature requirement Q&A | Free API | Low volume |
+| 8 | **Slant.co** | Community-voted pros/cons | No API | Scraping needed |
+| 9 | **OpenAlternative** | Curated OSS alternatives | GitHub (open source data) | Low priority |
+| 10 | **ISO Standards** | Compliance feature requirements | Paid documents | Paid |
+| 11 | **Gartner Magic Quadrant** | Category criteria, evaluation frameworks | Paid ($30K+/yr) | Very expensive |
+| 12 | **Forrester Wave** | Evaluation criteria per category | Paid ($2.5-5K/report) | Expensive |
+| 13 | **Pleio** (NL gov community) | Government IT discussions | Login required | Gov employees only |
+| 14 | **Common Ground community** | Municipal IT architecture discussions | Web portal | Manual |
+| 15 | **Australian BuyICT** | AU gov software marketplace | Web search | Low priority |
+| 16 | **SAM.gov** (US federal) | US government IT procurement | Web search | Low priority |
+| 17 | **MERX** (Canada) | Canadian public sector procurement | Web search | Low priority |
 
 ### 10. Open Source Issue Trackers
 

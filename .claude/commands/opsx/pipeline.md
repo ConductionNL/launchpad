@@ -373,10 +373,14 @@ For EACH task, do ALL of these steps — do not skip any:
 - Keep changes minimal and focused on this task
 - Follow existing project patterns
 
-**b. Write tests**
-- **Every new PHP service/controller** gets a PHPUnit test in `tests/Unit/` with at least 3 test methods: happy path, error handling, edge case
+**b. Write tests — MANDATORY for every new PHP class**
+- **Every new PHP service** gets `tests/Unit/Service/<Name>Test.php` with at least 3 test methods
+- **Every new PHP controller** gets `tests/Unit/Controller/<Name>Test.php` with at least 3 test methods
+- **Every new PHP background job** gets `tests/Unit/BackgroundJob/<Name>Test.php` with at least 2 test methods
+- Test methods must cover: happy path, error/exception handling, edge case or boundary
+- After writing tests, run them: `php vendor/bin/phpunit <test-file>` — they must pass
+- If tests cannot run in the worktree (missing Nextcloud bootstrap), verify the test file at least parses: `php -l <test-file>`
 - **Every new Vue component** gets a test if the project has Jest/Vitest
-- Tests must actually run and pass
 
 **c. Update documentation**
 - Add/update feature description in README.md or docs/
@@ -410,7 +414,7 @@ Change `- [ ]` to `- [x]` for this task.
 
 4. **Update plan.json**: set this task's `"status": "done"`.
 
-**f. Commit this task's changes**
+**f. Commit this task's changes IMMEDIATELY — before starting the next task**
 ```bash
 git add -A
 git commit -m "$(cat <<'EOF'
@@ -418,7 +422,9 @@ feat(<app>): <task-title> [#<task_issue>]
 EOF
 )"
 ```
-ONE commit per task. Do not batch multiple tasks into one commit.
+MANDATORY: ONE commit per task. You MUST commit after completing each task
+before moving to the next. Do NOT batch multiple tasks into a single commit.
+After committing, verify with `git log --oneline -1` that the commit exists.
 
 **g. Seed data** (if this task introduces/modifies OpenRegister schemas):
 - Generate seed data entries in `lib/Settings/<app>_register.json`
@@ -501,10 +507,11 @@ Perform a structured verification against the specs. Do NOT skip this phase.
 
 ### 4.3 Verify Coherence
 
-**Test coverage audit:**
-- List all NEW PHP service/controller files added by this change (git diff)
-- For each, verify a corresponding test file exists in `tests/Unit/`
-- If a new service has no test, add as CRITICAL
+**Test coverage audit — MANDATORY:**
+- Run `git diff --name-only origin/development...HEAD -- 'lib/Service/' 'lib/Controller/' 'lib/BackgroundJob/'` to list all new/modified PHP classes
+- For EACH new PHP file, verify a corresponding test file exists in `tests/Unit/`
+- If a new service/controller/job has NO test file, this is CRITICAL — go back and create the test before continuing
+- Verify test count: run `php vendor/bin/phpunit --list-tests 2>/dev/null | grep -c "Test"` to count total tests
 
 **Documentation audit:**
 - Check that README.md or docs/ mentions the new feature

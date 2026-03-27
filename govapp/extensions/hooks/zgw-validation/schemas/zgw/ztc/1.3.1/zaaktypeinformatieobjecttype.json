@@ -1,0 +1,37 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:zaaktypeinformatieobjecttype",
+	"title": "ZaakTypeInformatieObjectType",
+	"description": "De relatie tussen een zaaktype en een informatieobjecttype.",
+	"type": "object",
+	"required": ["zaaktype", "informatieobjecttype", "volgnummer", "richting"],
+	"properties": {
+		"zaaktype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het zaaktype."
+		},
+		"informatieobjecttype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het informatieobjecttype."
+		},
+		"volgnummer": {
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 999,
+			"description": "Volgnummer van de relatie."
+		},
+		"richting": {
+			"type": "string",
+			"enum": ["inkomend", "intern", "uitgaand"],
+			"description": "De richting van het informatieobject."
+		},
+		"statustype": {
+			"type": ["string", "null"],
+			"format": "uri",
+			"description": "URL-referentie naar het statustype."
+		}
+	},
+	"additionalProperties": false
+}

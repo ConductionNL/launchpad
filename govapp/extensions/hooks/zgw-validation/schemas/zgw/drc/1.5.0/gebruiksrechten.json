@@ -1,0 +1,30 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:drc:1.5.0:gebruiksrechten",
+	"title": "Gebruiksrechten",
+	"description": "De gebruiksrechten van een informatieobject.",
+	"type": "object",
+	"required": ["informatieobject", "startdatum", "omschrijvingVoorwaarden"],
+	"properties": {
+		"informatieobject": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het informatieobject."
+		},
+		"startdatum": {
+			"type": "string",
+			"format": "date-time",
+			"description": "Begindatum van het gebruiksrecht."
+		},
+		"einddatum": {
+			"type": ["string", "null"],
+			"format": "date-time",
+			"description": "Einddatum van het gebruiksrecht."
+		},
+		"omschrijvingVoorwaarden": {
+			"type": "string",
+			"description": "Omschrijving van de gebruiksvoorwaarden."
+		}
+	},
+	"additionalProperties": false
+}

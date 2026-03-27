@@ -1,0 +1,54 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:catalogus",
+	"title": "Catalogus",
+	"description": "Een catalogus van zaaktypen, informatieobjecttypen en besluittypen.",
+	"type": "object",
+	"required": ["domein", "rsin", "contactpersoonBeheerNaam"],
+	"properties": {
+		"domein": {
+			"type": "string",
+			"maxLength": 5,
+			"minLength": 1,
+			"pattern": "^[A-Z]{1,5}$",
+			"description": "Een afkorting waarmee wordt aangegeven voor welk domein de catalogus geldt."
+		},
+		"rsin": {
+			"type": "string",
+			"pattern": "^[0-9]{9}$",
+			"description": "Het RSIN van de organisatie die de catalogus beheert."
+		},
+		"contactpersoonBeheerNaam": {
+			"type": "string",
+			"maxLength": 40,
+			"description": "Naam van de contactpersoon voor het beheer van de catalogus."
+		},
+		"contactpersoonBeheerTelefoonnummer": {
+			"type": "string",
+			"maxLength": 20,
+			"description": "Telefoonnummer van de contactpersoon."
+		},
+		"contactpersoonBeheerEmailadres": {
+			"type": "string",
+			"format": "email",
+			"maxLength": 254,
+			"description": "E-mailadres van de contactpersoon."
+		},
+		"naam": {
+			"type": "string",
+			"maxLength": 200,
+			"description": "De benaming van de catalogus."
+		},
+		"versie": {
+			"type": "string",
+			"maxLength": 20,
+			"description": "De versie-aanduiding van de catalogus."
+		},
+		"begindatumVersie": {
+			"type": ["string", "null"],
+			"format": "date",
+			"description": "De begindatum van de versie van de catalogus."
+		}
+	},
+	"additionalProperties": false
+}

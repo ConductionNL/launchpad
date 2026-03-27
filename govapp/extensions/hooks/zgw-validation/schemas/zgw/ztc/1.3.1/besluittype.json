@@ -1,0 +1,75 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:besluittype",
+	"title": "BesluitType",
+	"description": "Een besluittype uit de Catalogus API.",
+	"type": "object",
+	"required": ["catalogus", "omschrijving", "omschrijvingGeneriek", "besluitcategorie", "publicatieIndicatie", "beginGeldigheid"],
+	"properties": {
+		"catalogus": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de catalogus."
+		},
+		"omschrijving": {
+			"type": "string",
+			"maxLength": 80,
+			"description": "Omschrijving van het besluittype."
+		},
+		"omschrijvingGeneriek": {
+			"type": "string",
+			"maxLength": 80,
+			"description": "Generieke omschrijving."
+		},
+		"besluitcategorie": {
+			"type": "string",
+			"maxLength": 40,
+			"description": "Categorie van het besluit."
+		},
+		"reactietermijn": {
+			"type": ["string", "null"],
+			"description": "ISO 8601 duration"
+		},
+		"publicatieIndicatie": {
+			"type": "boolean"
+		},
+		"publicatietekst": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"publicatietermijn": {
+			"type": ["string", "null"],
+			"description": "ISO 8601 duration"
+		},
+		"toelichting": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"informatieobjecttypen": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "uri"
+			}
+		},
+		"zaaktypen": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "uri"
+			}
+		},
+		"beginGeldigheid": {
+			"type": "string",
+			"format": "date"
+		},
+		"eindeGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"concept": {
+			"type": "boolean"
+		}
+	},
+	"additionalProperties": false
+}

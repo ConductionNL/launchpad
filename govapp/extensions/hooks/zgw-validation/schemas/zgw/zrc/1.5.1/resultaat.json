@@ -1,0 +1,26 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:zrc:1.5.1:resultaat",
+	"title": "Resultaat",
+	"description": "Het resultaat van een zaak.",
+	"type": "object",
+	"required": ["zaak", "resultaattype"],
+	"properties": {
+		"zaak": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de zaak."
+		},
+		"resultaattype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het resultaattype in de Catalogus API."
+		},
+		"toelichting": {
+			"type": "string",
+			"maxLength": 1000,
+			"description": "Een toelichting op het resultaat."
+		}
+	},
+	"additionalProperties": false
+}

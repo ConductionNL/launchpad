@@ -1,0 +1,97 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:zrc:1.5.1:rol",
+	"title": "Rol",
+	"description": "Een rol van een betrokkene bij een zaak.",
+	"type": "object",
+	"required": ["zaak", "betrokkeneType", "roltype", "roltoelichting"],
+	"properties": {
+		"zaak": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de zaak."
+		},
+		"betrokkene": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de betrokkene."
+		},
+		"betrokkeneType": {
+			"type": "string",
+			"enum": ["natuurlijk_persoon", "niet_natuurlijk_persoon", "vestiging", "organisatorische_eenheid", "medewerker"],
+			"description": "Type van de betrokkene."
+		},
+		"roltype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het roltype in de Catalogus API."
+		},
+		"omschrijving": {
+			"type": "string",
+			"maxLength": 80,
+			"description": "Omschrijving van de rol."
+		},
+		"omschrijvingGeneriek": {
+			"type": "string",
+			"enum": ["adviseur", "behandelaar", "belanghebbende", "beslisser", "initiator", "klantcontacter", "zaakcoordinator", "mede_initiator"],
+			"description": "Generieke aanduiding van de aard van de rol."
+		},
+		"roltoelichting": {
+			"type": "string",
+			"maxLength": 1000,
+			"description": "Toelichting op de rol."
+		},
+		"registratiedatum": {
+			"type": "string",
+			"format": "date-time",
+			"description": "De datum en het tijdstip waarop de rol is geregistreerd."
+		},
+		"indicatieMachtiging": {
+			"type": "string",
+			"enum": ["gemachtigde", "machtiginggever"],
+			"description": "Indicatie of de betrokkene gemachtigd is."
+		},
+		"betrokkeneIdentificatie": {
+			"type": ["object", "null"],
+			"description": "Identificatie van de betrokkene.",
+			"properties": {
+				"inpBsn": {
+					"type": "string",
+					"pattern": "^[0-9]{9}$"
+				},
+				"nnpId": {
+					"type": "string",
+					"maxLength": 9
+				},
+				"vestigingsNummer": {
+					"type": "string",
+					"maxLength": 24
+				},
+				"voornamen": {
+					"type": "string",
+					"maxLength": 200
+				},
+				"voorvoegselAchternaam": {
+					"type": "string",
+					"maxLength": 10
+				},
+				"achternaam": {
+					"type": "string",
+					"maxLength": 200
+				},
+				"geboortedatum": {
+					"type": "string"
+				},
+				"identificatie": {
+					"type": "string",
+					"maxLength": 24
+				},
+				"naam": {
+					"type": "string",
+					"maxLength": 200
+				}
+			}
+		}
+	},
+	"additionalProperties": false
+}

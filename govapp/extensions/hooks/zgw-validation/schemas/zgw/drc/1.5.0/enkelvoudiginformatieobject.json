@@ -1,0 +1,143 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:drc:1.5.0:enkelvoudiginformatieobject",
+	"title": "EnkelvoudigInformatieObject",
+	"description": "Een informatieobject (document) in het Documentregistratiecomponent.",
+	"type": "object",
+	"required": [
+		"bronorganisatie",
+		"creatiedatum",
+		"titel",
+		"auteur",
+		"taal",
+		"informatieobjecttype"
+	],
+	"properties": {
+		"identificatie": {
+			"type": "string",
+			"maxLength": 40,
+			"description": "De unieke identificatie."
+		},
+		"bronorganisatie": {
+			"type": "string",
+			"pattern": "^[0-9]{9}$",
+			"description": "Het RSIN van de organisatie die het document heeft gecreeerd."
+		},
+		"creatiedatum": {
+			"type": "string",
+			"format": "date",
+			"description": "De datum waarop het document is aangemaakt."
+		},
+		"titel": {
+			"type": "string",
+			"maxLength": 200,
+			"description": "De titel van het document."
+		},
+		"vertrouwelijkheidaanduiding": {
+			"type": "string",
+			"enum": [
+				"openbaar", "beperkt_openbaar", "intern", "zaakvertrouwelijk",
+				"vertrouwelijk", "confidentieel", "geheim", "zeer_geheim"
+			]
+		},
+		"auteur": {
+			"type": "string",
+			"maxLength": 200,
+			"description": "De naam van de auteur."
+		},
+		"status": {
+			"type": "string",
+			"enum": ["in_bewerking", "ter_vaststelling", "definitief", "gearchiveerd"],
+			"description": "De status van het document."
+		},
+		"formaat": {
+			"type": "string",
+			"maxLength": 255,
+			"description": "MIME-type van het document."
+		},
+		"taal": {
+			"type": "string",
+			"minLength": 3,
+			"maxLength": 3,
+			"description": "ISO 639-2/B taalcode."
+		},
+		"versie": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Het (automatisch) versienummer van het document."
+		},
+		"beginRegistratie": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"bestandsnaam": {
+			"type": "string",
+			"maxLength": 255,
+			"description": "De naam van het fysieke bestand."
+		},
+		"inhoud": {
+			"type": ["string", "null"],
+			"description": "De (base64-encoded) inhoud van het document."
+		},
+		"bestandsomvang": {
+			"type": ["integer", "null"],
+			"minimum": 0,
+			"description": "De omvang van het bestand in bytes."
+		},
+		"link": {
+			"type": "string",
+			"format": "uri",
+			"description": "Link naar het document in een extern systeem."
+		},
+		"beschrijving": {
+			"type": "string",
+			"maxLength": 1000,
+			"description": "Een beschrijving van het document."
+		},
+		"ontvangstdatum": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"verzenddatum": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"indicatieGebruiksrecht": {
+			"type": ["boolean", "null"]
+		},
+		"ondertekening": {
+			"type": ["object", "null"],
+			"properties": {
+				"soort": {
+					"type": "string",
+					"enum": ["analoog", "digitaal", "pki", "profiel_ee"]
+				},
+				"datum": {
+					"type": "string",
+					"format": "date"
+				}
+			},
+			"required": ["soort", "datum"]
+		},
+		"integriteit": {
+			"type": ["object", "null"],
+			"properties": {
+				"algoritme": {
+					"type": "string",
+					"enum": ["crc_16", "crc_32", "crc_64", "fletcher_4", "fletcher_8", "fletcher_16", "fletcher_32", "hmac", "md5", "sha_1", "sha_256", "sha_512", "sha_3"]
+				},
+				"waarde": { "type": "string", "maxLength": 128 },
+				"datum": { "type": "string", "format": "date" }
+			}
+		},
+		"informatieobjecttype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het informatieobjecttype."
+		},
+		"locked": {
+			"type": "boolean"
+		}
+	},
+	"additionalProperties": false
+}

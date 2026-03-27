@@ -1,0 +1,48 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:nrc:1.0.0:notificatie",
+	"title": "Notificatie",
+	"description": "Een notificatie over een gebeurtenis in een ZGW component.",
+	"type": "object",
+	"required": ["kanaal", "hoofdObject", "resource", "resourceUrl", "actie", "aanmaakdatum"],
+	"properties": {
+		"kanaal": {
+			"type": "string",
+			"maxLength": 50,
+			"description": "Het kanaal waarop de notificatie wordt gepubliceerd."
+		},
+		"hoofdObject": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het hoofdobject van de notificatie."
+		},
+		"resource": {
+			"type": "string",
+			"maxLength": 100,
+			"description": "De resource waarop de actie heeft plaatsgevonden."
+		},
+		"resourceUrl": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de resource."
+		},
+		"actie": {
+			"type": "string",
+			"enum": ["create", "update", "partial_update", "destroy"],
+			"description": "De actie die heeft plaatsgevonden."
+		},
+		"aanmaakdatum": {
+			"type": "string",
+			"format": "date-time",
+			"description": "Het tijdstip van de notificatie."
+		},
+		"kenmerken": {
+			"type": "object",
+			"description": "Aanvullende kenmerken voor filtering.",
+			"additionalProperties": {
+				"type": "string"
+			}
+		}
+	},
+	"additionalProperties": false
+}

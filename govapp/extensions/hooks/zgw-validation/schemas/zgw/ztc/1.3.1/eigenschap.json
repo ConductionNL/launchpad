@@ -1,0 +1,73 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:eigenschap",
+	"title": "Eigenschap",
+	"description": "Een eigenschap behorend bij een zaaktype, met specificatie voor validatie.",
+	"type": "object",
+	"required": ["naam", "zaaktype", "specificatie"],
+	"properties": {
+		"naam": {
+			"type": "string",
+			"maxLength": 20,
+			"description": "De naam van de eigenschap."
+		},
+		"definitie": {
+			"type": "string",
+			"maxLength": 255,
+			"description": "De definitie van de eigenschap."
+		},
+		"toelichting": {
+			"type": "string",
+			"maxLength": 1000,
+			"description": "Een toelichting op de eigenschap."
+		},
+		"zaaktype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het zaaktype."
+		},
+		"specificatie": {
+			"type": "object",
+			"description": "De specificatie van de eigenschap (formaat, lengte, kardinaliteit, waardenverzameling).",
+			"required": ["groep", "formaat", "lengte", "kardinaliteit"],
+			"properties": {
+				"groep": {
+					"type": "string",
+					"maxLength": 32,
+					"description": "De groep waartoe de eigenschap behoort."
+				},
+				"formaat": {
+					"type": "string",
+					"enum": ["tekst", "getal", "datum", "datum_tijd"],
+					"description": "Het formaat van de eigenschap."
+				},
+				"lengte": {
+					"type": "string",
+					"maxLength": 14,
+					"description": "De maximale lengte van de waarde."
+				},
+				"kardinaliteit": {
+					"type": "string",
+					"maxLength": 3,
+					"description": "De kardinaliteit van de eigenschap (bijv. '1', 'N')."
+				},
+				"waardenverzameling": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "De toegestane waarden."
+				}
+			}
+		},
+		"beginGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"eindeGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		}
+	},
+	"additionalProperties": false
+}

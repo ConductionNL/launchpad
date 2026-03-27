@@ -1,0 +1,217 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:zrc:1.5.1:zaak",
+	"title": "Zaak",
+	"description": "Een zaak uit het Zaakregistratiecomponent (ZRC), conform VNG ZGW API 1.5.1.",
+	"type": "object",
+	"required": [
+		"bronorganisatie",
+		"zaaktype",
+		"verantwoordelijkeOrganisatie",
+		"startdatum"
+	],
+	"properties": {
+		"identificatie": {
+			"type": "string",
+			"maxLength": 40,
+			"description": "De unieke identificatie van de zaak binnen de organisatie."
+		},
+		"bronorganisatie": {
+			"type": "string",
+			"pattern": "^[0-9]{9}$",
+			"description": "Het RSIN van de organisatie die de zaak heeft gecreeerd."
+		},
+		"omschrijving": {
+			"type": "string",
+			"maxLength": 80,
+			"description": "Een korte omschrijving van de zaak."
+		},
+		"toelichting": {
+			"type": "string",
+			"maxLength": 1000,
+			"description": "Een toelichting op de zaak."
+		},
+		"zaaktype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het ZAAKTYPE in de Catalogus API."
+		},
+		"registratiedatum": {
+			"type": "string",
+			"format": "date",
+			"description": "De datum waarop de zaak is geregistreerd."
+		},
+		"verantwoordelijkeOrganisatie": {
+			"type": "string",
+			"pattern": "^[0-9]{9}$",
+			"description": "Het RSIN van de organisatie die verantwoordelijk is voor de behandeling van de zaak."
+		},
+		"startdatum": {
+			"type": "string",
+			"format": "date",
+			"description": "De datum waarop met de uitvoering van de zaak is gestart."
+		},
+		"einddatum": {
+			"type": ["string", "null"],
+			"format": "date",
+			"description": "De datum waarop de uitvoering van de zaak is afgerond."
+		},
+		"einddatumGepland": {
+			"type": ["string", "null"],
+			"format": "date",
+			"description": "De datum waarop de zaak volgens planning afgerond zou moeten zijn."
+		},
+		"uiterlijkeEinddatumAfdoening": {
+			"type": ["string", "null"],
+			"format": "date",
+			"description": "De uiterlijke datum waarop de zaak afgehandeld moet zijn."
+		},
+		"publicatiedatum": {
+			"type": ["string", "null"],
+			"format": "date",
+			"description": "De datum waarop het zaakresultaat is gepubliceerd."
+		},
+		"communicatiekanaal": {
+			"type": "string",
+			"format": "uri",
+			"description": "Het communicatiekanaal waarlangs de zaak is binnengekomen."
+		},
+		"productenOfDiensten": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "uri"
+			},
+			"description": "De producten en/of diensten die door de zaak worden afgehandeld."
+		},
+		"vertrouwelijkheidaanduiding": {
+			"type": "string",
+			"enum": [
+				"openbaar",
+				"beperkt_openbaar",
+				"intern",
+				"zaakvertrouwelijk",
+				"vertrouwelijk",
+				"confidentieel",
+				"geheim",
+				"zeer_geheim"
+			],
+			"description": "Mate van vertrouwelijkheid van de zaak."
+		},
+		"betalingsindicatie": {
+			"type": "string",
+			"enum": ["nvt", "nog_niet", "gedeeltelijk", "geheel"],
+			"description": "Indicatie of de behandeling van de zaak een betaling vereist."
+		},
+		"laatsteBetaaldatum": {
+			"type": ["string", "null"],
+			"format": "date-time",
+			"description": "De datum van de laatste betaling."
+		},
+		"zaakgeometrie": {
+			"type": ["object", "null"],
+			"description": "Punt, lijn of vlak geometrie-Loss van de zaak.",
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": ["Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon", "GeometryCollection"]
+				},
+				"coordinates": {
+					"type": "array"
+				}
+			}
+		},
+		"verlenging": {
+			"type": ["object", "null"],
+			"description": "Verlenging van de doorlooptijd van de behandeling van de zaak.",
+			"properties": {
+				"reden": {
+					"type": "string",
+					"maxLength": 200,
+					"description": "De reden voor het verlengen van de doorlooptijd."
+				},
+				"duur": {
+					"type": "string",
+					"description": "De verlenging van de doorlooptijd (ISO 8601 duration)."
+				}
+			},
+			"required": ["reden", "duur"]
+		},
+		"opschorting": {
+			"type": ["object", "null"],
+			"description": "Gegevens over de opschorting van de behandeling van de zaak.",
+			"properties": {
+				"indicatie": {
+					"type": "boolean",
+					"description": "Geeft aan of de behandeling van de zaak is opgeschort."
+				},
+				"reden": {
+					"type": "string",
+					"maxLength": 200,
+					"description": "De reden voor het opschorten van de behandeling."
+				}
+			},
+			"required": ["indicatie", "reden"]
+		},
+		"selectielijstklasse": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de selectielijstklasse."
+		},
+		"hoofdzaak": {
+			"type": ["string", "null"],
+			"format": "uri",
+			"description": "URL-referentie naar de hoofdzaak."
+		},
+		"relevanteAndereZaken": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"url": {
+						"type": "string",
+						"format": "uri"
+					},
+					"aardRelatie": {
+						"type": "string",
+						"enum": ["vervolg", "bijdrage", "onderwerp"]
+					}
+				},
+				"required": ["url", "aardRelatie"]
+			}
+		},
+		"kenmerken": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"kenmerk": {
+						"type": "string",
+						"maxLength": 40
+					},
+					"bron": {
+						"type": "string",
+						"maxLength": 40
+					}
+				},
+				"required": ["kenmerk", "bron"]
+			}
+		},
+		"archiefnominatie": {
+			"type": ["string", "null"],
+			"enum": ["blijvend_bewaren", "vernietigen", null],
+			"description": "Aanduiding of het zaakdossier bewaard of vernietigd moet worden."
+		},
+		"archiefstatus": {
+			"type": "string",
+			"enum": ["nog_te_archiveren", "gearchiveerd", "gearchiveerd_procestermijn_onbekend", "overgedragen"],
+			"description": "De huidige status van de zaak m.b.t. archivering."
+		},
+		"archiefactiedatum": {
+			"type": ["string", "null"],
+			"format": "date",
+			"description": "De datum waarop het gearchiveerde zaakdossier vernietigd of overgedragen moet worden."
+		}
+	},
+	"additionalProperties": false
+}

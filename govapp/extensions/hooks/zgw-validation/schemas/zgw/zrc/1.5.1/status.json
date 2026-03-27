@@ -1,0 +1,31 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:zrc:1.5.1:status",
+	"title": "Status",
+	"description": "De status van een zaak.",
+	"type": "object",
+	"required": ["zaak", "statustype", "datumStatusGezet"],
+	"properties": {
+		"zaak": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de zaak."
+		},
+		"statustype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het statustype in de Catalogus API."
+		},
+		"datumStatusGezet": {
+			"type": "string",
+			"format": "date-time",
+			"description": "De datum en het tijdstip waarop de status is gezet."
+		},
+		"statustoelichting": {
+			"type": "string",
+			"maxLength": 1000,
+			"description": "Een toelichting op de status van de zaak."
+		}
+	},
+	"additionalProperties": false
+}

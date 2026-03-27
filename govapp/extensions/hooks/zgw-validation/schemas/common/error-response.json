@@ -1,0 +1,59 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:common:error-response",
+	"title": "Error Response",
+	"description": "Standaard foutresponse conform VNG ZGW API standaard (RFC 9457).",
+	"type": "object",
+	"required": ["type", "title", "status"],
+	"properties": {
+		"type": {
+			"type": "string",
+			"format": "uri",
+			"description": "URI die het fouttype identificeert."
+		},
+		"title": {
+			"type": "string",
+			"description": "Korte, leesbare samenvatting van het fouttype."
+		},
+		"status": {
+			"type": "integer",
+			"minimum": 100,
+			"maximum": 599,
+			"description": "De HTTP-statuscode."
+		},
+		"detail": {
+			"type": "string",
+			"description": "Mensleesbare uitleg specifiek voor deze fout."
+		},
+		"instance": {
+			"type": "string",
+			"format": "uri",
+			"description": "URI die het specifieke voorkomen van de fout identificeert."
+		},
+		"code": {
+			"type": "string",
+			"description": "Systeemcode van de fout."
+		},
+		"invalidParams": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["name", "code", "reason"],
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "Naam van het ongeldige veld."
+					},
+					"code": {
+						"type": "string",
+						"description": "Foutcode (kebab-case)."
+					},
+					"reason": {
+						"type": "string",
+						"description": "Uitleg waarom de waarde ongeldig is."
+					}
+				}
+			}
+		}
+	}
+}

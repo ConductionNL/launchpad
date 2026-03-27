@@ -1,0 +1,44 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:zrc:1.5.1:zaakinformatieobject",
+	"title": "ZaakInformatieObject",
+	"description": "De relatie tussen een zaak en een informatieobject.",
+	"type": "object",
+	"required": ["zaak", "informatieobject"],
+	"properties": {
+		"zaak": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de zaak."
+		},
+		"informatieobject": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het informatieobject in het DRC."
+		},
+		"aardRelatieWeergave": {
+			"type": "string",
+			"description": "De weergave van de aard relatie."
+		},
+		"titel": {
+			"type": "string",
+			"maxLength": 200,
+			"description": "De naam van het informatieobject binnen de zaak."
+		},
+		"beschrijving": {
+			"type": "string",
+			"description": "Een beschrijving van het informatieobject binnen de zaak."
+		},
+		"registratiedatum": {
+			"type": "string",
+			"format": "date-time",
+			"description": "De datum en het tijdstip waarop de relatie is geregistreerd."
+		},
+		"status": {
+			"type": ["string", "null"],
+			"format": "uri",
+			"description": "De status van de zaak op het moment van registratie."
+		}
+	},
+	"additionalProperties": false
+}

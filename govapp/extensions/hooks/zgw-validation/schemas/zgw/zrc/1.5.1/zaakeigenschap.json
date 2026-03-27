@@ -1,0 +1,30 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:zrc:1.5.1:zaakeigenschap",
+	"title": "ZaakEigenschap",
+	"description": "Een eigenschap van een zaak.",
+	"type": "object",
+	"required": ["zaak", "eigenschap", "waarde"],
+	"properties": {
+		"zaak": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de zaak."
+		},
+		"eigenschap": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de eigenschap in de Catalogus API."
+		},
+		"naam": {
+			"type": "string",
+			"maxLength": 20,
+			"description": "De naam van de eigenschap."
+		},
+		"waarde": {
+			"type": "string",
+			"description": "De waarde van de eigenschap. Wordt dynamisch gevalideerd op basis van de specificatie van de eigenschap."
+		}
+	},
+	"additionalProperties": false
+}

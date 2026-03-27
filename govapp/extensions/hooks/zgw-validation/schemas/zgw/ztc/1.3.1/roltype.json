@@ -1,0 +1,34 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:roltype",
+	"title": "RolType",
+	"description": "Een roltype behorend bij een zaaktype.",
+	"type": "object",
+	"required": ["zaaktype", "omschrijving", "omschrijvingGeneriek"],
+	"properties": {
+		"zaaktype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het zaaktype."
+		},
+		"omschrijving": {
+			"type": "string",
+			"maxLength": 100,
+			"description": "Omschrijving van het roltype."
+		},
+		"omschrijvingGeneriek": {
+			"type": "string",
+			"enum": ["adviseur", "behandelaar", "belanghebbende", "beslisser", "initiator", "klantcontacter", "zaakcoordinator", "mede_initiator"],
+			"description": "Generieke aanduiding van de aard van de rol."
+		},
+		"beginGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"eindeGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		}
+	},
+	"additionalProperties": false
+}

@@ -1,0 +1,26 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:drc:1.5.0:objectinformatieobject",
+	"title": "ObjectInformatieObject",
+	"description": "De relatie tussen een informatieobject en een object (zaak of besluit).",
+	"type": "object",
+	"required": ["informatieobject", "object", "objectType"],
+	"properties": {
+		"informatieobject": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het informatieobject."
+		},
+		"object": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het gerelateerde object (zaak of besluit)."
+		},
+		"objectType": {
+			"type": "string",
+			"enum": ["zaak", "besluit"],
+			"description": "Het type van het gerelateerde object."
+		}
+	},
+	"additionalProperties": false
+}

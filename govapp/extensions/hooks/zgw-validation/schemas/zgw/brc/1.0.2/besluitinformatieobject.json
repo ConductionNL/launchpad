@@ -1,0 +1,21 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:brc:1.0.2:besluitinformatieobject",
+	"title": "BesluitInformatieObject",
+	"description": "De relatie tussen een besluit en een informatieobject.",
+	"type": "object",
+	"required": ["besluit", "informatieobject"],
+	"properties": {
+		"besluit": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het besluit."
+		},
+		"informatieobject": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het informatieobject."
+		}
+	},
+	"additionalProperties": false
+}

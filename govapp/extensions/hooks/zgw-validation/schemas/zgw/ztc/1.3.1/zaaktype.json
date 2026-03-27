@@ -1,0 +1,156 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:zaaktype",
+	"title": "ZaakType",
+	"description": "Een zaaktype uit de Catalogus API.",
+	"type": "object",
+	"required": [
+		"identificatie",
+		"omschrijving",
+		"catalogus",
+		"vertrouwelijkheidaanduiding",
+		"doel",
+		"aanleiding",
+		"indicatieInternOfExtern",
+		"handelingInitiator",
+		"onderwerp",
+		"handelingBehandelaar",
+		"doorlooptijd",
+		"opschortingEnAanhoudingMogelijk",
+		"verlengingMogelijk",
+		"publicatieIndicatie",
+		"beginGeldigheid",
+		"versiedatum",
+		"productenOfDiensten"
+	],
+	"properties": {
+		"identificatie": {
+			"type": "string",
+			"maxLength": 50,
+			"description": "De unieke identificatie van het zaaktype."
+		},
+		"omschrijving": {
+			"type": "string",
+			"maxLength": 80,
+			"description": "Omschrijving van de aard van de zaak."
+		},
+		"omschrijvingGeneriek": {
+			"type": "string",
+			"maxLength": 80,
+			"description": "Generieke omschrijving."
+		},
+		"vertrouwelijkheidaanduiding": {
+			"type": "string",
+			"enum": [
+				"openbaar", "beperkt_openbaar", "intern", "zaakvertrouwelijk",
+				"vertrouwelijk", "confidentieel", "geheim", "zeer_geheim"
+			]
+		},
+		"doel": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"aanleiding": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"toelichting": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"indicatieInternOfExtern": {
+			"type": "string",
+			"enum": ["intern", "extern"]
+		},
+		"handelingInitiator": {
+			"type": "string",
+			"maxLength": 20
+		},
+		"onderwerp": {
+			"type": "string",
+			"maxLength": 80
+		},
+		"handelingBehandelaar": {
+			"type": "string",
+			"maxLength": 20
+		},
+		"doorlooptijd": {
+			"type": "string",
+			"description": "ISO 8601 duration"
+		},
+		"servicenorm": {
+			"type": ["string", "null"],
+			"description": "ISO 8601 duration"
+		},
+		"opschortingEnAanhoudingMogelijk": {
+			"type": "boolean"
+		},
+		"verlengingMogelijk": {
+			"type": "boolean"
+		},
+		"verlengingstermijn": {
+			"type": ["string", "null"],
+			"description": "ISO 8601 duration"
+		},
+		"trefwoorden": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"maxLength": 30
+			}
+		},
+		"publicatieIndicatie": {
+			"type": "boolean"
+		},
+		"publicatietekst": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"verantwoordingsrelatie": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "uri"
+			}
+		},
+		"productenOfDiensten": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"format": "uri"
+			}
+		},
+		"selectielijstProcestype": {
+			"type": "string",
+			"format": "uri"
+		},
+		"referentieproces": {
+			"type": ["object", "null"],
+			"properties": {
+				"naam": { "type": "string", "maxLength": 80 },
+				"link": { "type": "string", "format": "uri" }
+			},
+			"required": ["naam"]
+		},
+		"catalogus": {
+			"type": "string",
+			"format": "uri"
+		},
+		"beginGeldigheid": {
+			"type": "string",
+			"format": "date"
+		},
+		"eindeGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"versiedatum": {
+			"type": "string",
+			"format": "date"
+		},
+		"concept": {
+			"type": "boolean"
+		}
+	},
+	"additionalProperties": false
+}

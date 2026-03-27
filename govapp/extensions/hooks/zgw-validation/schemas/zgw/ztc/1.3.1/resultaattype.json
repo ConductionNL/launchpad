@@ -1,0 +1,73 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:vng:zgw:ztc:1.3.1:resultaattype",
+	"title": "ResultaatType",
+	"description": "Een resultaattype behorend bij een zaaktype.",
+	"type": "object",
+	"required": ["zaaktype", "omschrijving", "resultaattypeomschrijving", "selectielijstklasse"],
+	"properties": {
+		"zaaktype": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar het zaaktype."
+		},
+		"omschrijving": {
+			"type": "string",
+			"maxLength": 20,
+			"description": "Omschrijving van het resultaattype."
+		},
+		"resultaattypeomschrijving": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de generieke resultaattypeomschrijving."
+		},
+		"omschrijvingGeneriek": {
+			"type": "string",
+			"maxLength": 20,
+			"description": "Generieke omschrijving."
+		},
+		"selectielijstklasse": {
+			"type": "string",
+			"format": "uri",
+			"description": "URL-referentie naar de selectielijstklasse."
+		},
+		"toelichting": {
+			"type": "string",
+			"maxLength": 1000
+		},
+		"archiefnominatie": {
+			"type": "string",
+			"enum": ["blijvend_bewaren", "vernietigen"]
+		},
+		"archiefactietermijn": {
+			"type": ["string", "null"],
+			"description": "ISO 8601 duration"
+		},
+		"brondatumArchiefprocedure": {
+			"type": ["object", "null"],
+			"properties": {
+				"afleidingswijze": {
+					"type": "string",
+					"enum": ["afgehandeld", "ander_datumkenmerk", "eigenschap", "gerelateerde_zaak", "hoofdzaak", "ingangsdatum_besluit", "termijn", "vervaldatum_besluit", "zaakobject"]
+				},
+				"datumkenmerk": { "type": "string", "maxLength": 80 },
+				"einddatumBekend": { "type": "boolean" },
+				"objecttype": {
+					"type": "string",
+					"enum": ["adres", "besluit", "buurt", "enkelvoudig_document", "gemeente", "gemeentelijke_openbare_ruimte", "huishouden", "inrichtingselement", "kadastrale_onroerende_zaak", "kunstwerkdeel", "maatschappelijke_activiteit", "medewerker", "natuurlijk_persoon", "niet_natuurlijk_persoon", "openbare_ruimte", "organisatorische_eenheid", "pand", "spoorbaandeel", "status", "terreindeel", "terrein_gebouwd_object", "vestiging", "waterdeel", "wegdeel", "wijk", "woonplaats", "woz_deelobject", "woz_object", "woz_waarde", "zakelijk_recht", "overige"]
+				},
+				"registratie": { "type": "string", "maxLength": 80 },
+				"procestermijn": { "type": ["string", "null"] }
+			}
+		},
+		"beginGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		},
+		"eindeGeldigheid": {
+			"type": ["string", "null"],
+			"format": "date"
+		}
+	},
+	"additionalProperties": false
+}

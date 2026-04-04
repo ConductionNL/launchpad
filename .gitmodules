@@ -97,3 +97,9 @@
 [submodule "concurrentie-analyse"]
 	path = concurrentie-analyse
 	url = https://github.com/ConductionNL/market-intelligence.git
+[submodule "hydra"]
+	path = hydra
+	url = https://github.com/ConductionNL/hydra
+[submodule "planix"]
+	path = planix
+	url = https://github.com/ConductionNL/planix

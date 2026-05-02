@@ -277,6 +277,12 @@
         "Vertical (list)": "Verticaal (lijst)",
         "Horizontal (cards)": "Horizontaal (kaarten)",
         "Loading…": "Laden…",
-        "No items available": "Geen items beschikbaar"
+        "No items available": "Geen items beschikbaar",
+        "Emoji not allowed": "Emoji niet toegestaan",
+        "Reactions are disabled": "Reacties zijn uitgeschakeld",
+        "Permission denied": "Geen toestemming",
+        "Dashboard not found": "Dashboard niet gevonden",
+        "React": "Reageren",
+        "Reactions": "Reacties"
     }
 }

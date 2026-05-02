@@ -70,6 +70,26 @@ return [
 		 'url' => '/api/sharees/{shareType}/{shareWith}', 'verb' => 'DELETE',
 		 'requirements' => ['shareType' => '[^/]+', 'shareWith' => '[^/]+']],
 
+		// Dashboard reaction endpoints (REQ-RXN-001..004). Routes use the
+		// `{uuid}` segment so they nest cleanly under `/api/dashboards/`
+		// — these come AFTER the `/api/dashboards/visible|active|fork`
+		// specific routes above to avoid wildcard hijack. The
+		// reactors-by-emoji route is registered before the simpler
+		// summary route so the `/{emoji}/users` suffix is matched
+		// before the parent path.
+		['name' => 'dashboard_reaction_api#getReactorsByEmoji',
+		 'url' => '/api/dashboards/{uuid}/reactions/{emoji}/users', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'emoji' => '.+']],
+		['name' => 'dashboard_reaction_api#removeReaction',
+		 'url' => '/api/dashboards/{uuid}/reactions/{emoji}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'emoji' => '.+']],
+		['name' => 'dashboard_reaction_api#getReactions',
+		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_reaction_api#addReaction',
+		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// Widget endpoints
 		['name' => 'widget_api#listAvailable', 'url' => '/api/widgets', 'verb' => 'GET'],
 		['name' => 'widget_api#getItems', 'url' => '/api/widgets/items', 'verb' => 'GET'],

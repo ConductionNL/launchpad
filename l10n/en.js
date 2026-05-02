@@ -270,7 +270,13 @@ OC.L10N.register(
     "Widgets" : "Widgets",
     "Your primary group for shared dashboards" : "Your primary group for shared dashboards",
     "https://example.com or /apps/files" : "https://example.com or /apps/files",
-    "shareWith is required" : "shareWith is required"
+    "shareWith is required" : "shareWith is required",
+    "Emoji not allowed" : "Emoji not allowed",
+    "Reactions are disabled" : "Reactions are disabled",
+    "Permission denied" : "Permission denied",
+    "Dashboard not found" : "Dashboard not found",
+    "React" : "React",
+    "Reactions" : "Reactions"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -54,6 +54,18 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
+ * @method int|null getReactionsEnabled()
+ * @method void setReactionsEnabled(?int $reactionsEnabled)
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields) Each new capability adds one
+ *                                          column (groupId, isDefault,
+ *                                          isActive, reactionsEnabled,
+ *                                          ...). The entity is the
+ *                                          single source of truth for
+ *                                          dashboard state and splitting
+ *                                          it would force every cascade
+ *                                          listener and the resolver to
+ *                                          juggle two objects.
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -267,6 +279,23 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $updatedAt = null;
 
     /**
+     * Per-dashboard reactions toggle (REQ-RXN-006).
+     *
+     * Tri-state SMALLINT NULL column:
+     *   - NULL → follow the global `mydash.reactions_enabled_default`
+     *     admin setting
+     *   - 1    → reactions force-enabled on this dashboard, overriding
+     *     the global setting
+     *   - 0    → reactions force-disabled on this dashboard, overriding
+     *     the global setting
+     *
+     * Resolution lives in {@see \OCA\MyDash\Service\ReactionService}.
+     *
+     * @var integer|null
+     */
+    protected ?int $reactionsEnabled = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -283,6 +312,8 @@ class Dashboard extends Entity implements JsonSerializable
         // SMALLINT in DB (0/1).
         $this->addType(fieldName: 'isActive', type: 'integer');
         // SMALLINT in DB (0/1).
+        $this->addType(fieldName: 'reactionsEnabled', type: 'integer');
+        // SMALLINT NULL in DB — null means follow global setting.
     }//end __construct()
 
     /**
@@ -327,22 +358,24 @@ class Dashboard extends Entity implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id'              => $this->getId(),
-            'uuid'            => $this->uuid,
-            'name'            => $this->name,
-            'description'     => $this->description,
-            'icon'            => $this->icon,
-            'type'            => $this->type,
-            'userId'          => $this->userId,
-            'groupId'         => $this->groupId,
-            'basedOnTemplate' => $this->basedOnTemplate,
-            'gridColumns'     => $this->gridColumns,
-            'permissionLevel' => $this->permissionLevel,
-            'targetGroups'    => $this->getTargetGroupsArray(),
-            'isDefault'       => $this->isDefault,
-            'isActive'        => $this->isActive,
-            'createdAt'       => $this->createdAt,
-            'updatedAt'       => $this->updatedAt,
+            'id'               => $this->getId(),
+            'uuid'             => $this->uuid,
+            'name'             => $this->name,
+            'description'      => $this->description,
+            'icon'             => $this->icon,
+            'type'             => $this->type,
+            'userId'           => $this->userId,
+            'groupId'          => $this->groupId,
+            'basedOnTemplate'  => $this->basedOnTemplate,
+            'gridColumns'      => $this->gridColumns,
+            'permissionLevel'  => $this->permissionLevel,
+            'targetGroups'     => $this->getTargetGroupsArray(),
+            'isDefault'        => $this->isDefault,
+            'isActive'         => $this->isActive,
+            'createdAt'        => $this->createdAt,
+            'updatedAt'        => $this->updatedAt,
+            // REQ-RXN-006 — null/1/0 tri-state.
+            'reactionsEnabled' => $this->reactionsEnabled,
         ];
     }//end jsonSerialize()
 }//end class

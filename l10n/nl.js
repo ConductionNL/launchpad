@@ -270,7 +270,13 @@ OC.L10N.register(
     "Widgets" : "Widgets",
     "Your primary group for shared dashboards" : "Je primaire groep voor gedeelde dashboards",
     "https://example.com or /apps/files" : "https://voorbeeld.nl of /apps/files",
-    "shareWith is required" : "shareWith is verplicht"
+    "shareWith is required" : "shareWith is verplicht",
+    "Emoji not allowed" : "Emoji niet toegestaan",
+    "Reactions are disabled" : "Reacties zijn uitgeschakeld",
+    "Permission denied" : "Geen toestemming",
+    "Dashboard not found" : "Dashboard niet gevonden",
+    "React" : "Reageren",
+    "Reactions" : "Reacties"
 },
 "nplurals=2; plural=(n != 1);"
 );

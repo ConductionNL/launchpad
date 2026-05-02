@@ -4,9 +4,10 @@
  * ReactionsListener
  *
  * Cleans up `oc_mydash_dashboard_reactions` rows when a dashboard is
- * soft-deleted. Stub registered as part of the cascade-events
- * scaffolding; the live implementation is owned by the
- * dashboard-reactions follow-up. REQ-CSC-003.
+ * soft-deleted. Subscribes to {@see DashboardDeletedEvent} via the
+ * cascade-events listener registry (REQ-CSC-002, REQ-CSC-003) and
+ * delegates the actual delete to {@see ReactionService} so the same
+ * code path is reused by every cascade source.
  *
  * @category  Listener
  * @package   OCA\MyDash\Listener
@@ -25,13 +26,14 @@ declare(strict_types=1);
 namespace OCA\MyDash\Listener;
 
 use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\MyDash\Service\ReactionService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Deletes reactions for the deleted dashboard.
+ * Deletes reactions for the deleted dashboard. REQ-RXN-009.
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -40,10 +42,15 @@ class ReactionsListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param ReactionService $reactionService Service that owns the
+     *                                         `deleteReactionsByDashboard`
+     *                                         cascade path.
+     * @param LoggerInterface $logger          PSR-3 logger for
+     *                                         log-and-continue failure
+     *                                         handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly ReactionService $reactionService,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -61,15 +68,18 @@ class ReactionsListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-reactions): DELETE FROM
-            // oc_mydash_dashboard_reactions WHERE dashboardUuid = ?.
-            // Stub registered for cascade scaffolding — live cleanup
-            // owned by the reactions subsystem.
+            $deleted = $this->reactionService->deleteReactionsByDashboard(
+                dashboardUuid: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash ReactionsListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash ReactionsListener: deleted %d reactions for dashboard %s',
+                    $deleted,
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -77,7 +87,7 @@ class ReactionsListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash ReactionsListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

@@ -8,7 +8,7 @@ status: draft
 
 ## ADDED Requirements
 
-### Requirement: REQ-DASH-011 Dashboard hierarchy and parent relationship
+### Requirement: REQ-DASH-023 Dashboard hierarchy and parent relationship
 
 The system MUST support an optional parent-child hierarchy among dashboards. Each dashboard MAY have a parent dashboard specified by UUID in a nullable `parentUuid` column. Dashboards with no parent are root-level dashboards. A dashboard MAY have unlimited children, but the total depth (root + descendants) MUST NOT exceed 5 levels.
 
@@ -54,7 +54,7 @@ The system MUST support an optional parent-child hierarchy among dashboards. Eac
 - WHEN the dashboard is serialized
 - THEN the JSON MUST include `parentUuid: null`
 
-### Requirement: REQ-DASH-012 Slug uniqueness and path resolution
+### Requirement: REQ-DASH-024 Slug uniqueness and path resolution
 
 Each dashboard MUST have a `slug` field — a URL-safe string unique among its siblings (dashboards sharing the same parent). Slugs are auto-generated from the dashboard name if not supplied, and MAY be manually overridden. Slugs are used to form human-readable paths like `/marketing/campaigns/q1`.
 
@@ -99,7 +99,7 @@ Each dashboard MUST have a `slug` field — a URL-safe string unique among its s
 - THEN the system MUST preserve `slug = "q1"`
 - AND MUST NOT auto-regenerate the slug to `q2-campaigns`
 
-### Requirement: REQ-DASH-013 Computed path and breadcrumb navigation
+### Requirement: REQ-DASH-025 Computed path and breadcrumb navigation
 
 The system MUST compute a `path` field on demand (not stored) by joining the slug chain from root to the target dashboard. The system MUST also compute `breadcrumbs` — an ordered list of `{uuid, name, slug}` objects from root to the target dashboard, used for navigation UI.
 
@@ -143,7 +143,7 @@ The system MUST compute a `path` field on demand (not stored) by joining the slu
 - WHEN the response is inspected
 - THEN it SHOULD include a computed `breadcrumbs` field (optional per endpoint; at minimum available via `/api/dashboards/by-path/...`)
 
-### Requirement: REQ-DASH-014 Tree API endpoint
+### Requirement: REQ-DASH-026 Tree API endpoint
 
 The system MUST expose `GET /api/dashboards/tree` returning the full visible tree of dashboards as a nested structure `{uuid, name, slug, children: [...]}`, allowing the frontend to render collapsible hierarchies.
 
@@ -176,7 +176,7 @@ The system MUST expose `GET /api/dashboards/tree` returning the full visible tre
 - WHEN he sends GET /api/dashboards/tree
 - THEN the response MUST be an empty array (or `{children: []}` depending on schema)
 
-### Requirement: REQ-DASH-015 Path-based dashboard resolution
+### Requirement: REQ-DASH-027 Path-based dashboard resolution
 
 The system MUST expose `GET /api/dashboards/by-path/{*path}` to resolve a slug chain (e.g., `/marketing/campaigns/q1`) to the dashboard at that location, returning the dashboard object with computed breadcrumbs and path.
 
@@ -211,7 +211,7 @@ The system MUST expose `GET /api/dashboards/by-path/{*path}` to resolve a slug c
 - WHEN she sends GET /api/dashboards/by-path/marketing/campaigns/q1/ (with trailing slash)
 - THEN the system MUST resolve to the dashboard (trailing slash must be ignored or normalized)
 
-### Requirement: REQ-DASH-016 Cycle prevention and depth validation
+### Requirement: REQ-DASH-028 Cycle prevention and depth validation
 
 The system MUST prevent setting a dashboard's parent to any of its own descendants (cycle prevention) and MUST enforce a maximum tree depth of 5 levels (root + 4 descendants).
 
@@ -250,7 +250,7 @@ The system MUST prevent setting a dashboard's parent to any of its own descendan
 - THEN the system MUST allow creating the new root dashboard
 - AND multiple independent 5-level trees MAY coexist
 
-### Requirement: REQ-DASH-017 Sibling ordering
+### Requirement: REQ-DASH-029 Sibling ordering
 
 Dashboards sharing the same parent MUST be ordered by a `sortOrder INT` column. Ties in `sortOrder` MUST be broken alphabetically by `name`. Ordering MUST be reflected in all tree and list responses.
 
@@ -285,7 +285,7 @@ Dashboards sharing the same parent MUST be ordered by a `sortOrder INT` column. 
 - THEN the dashboard MUST be updated to `sortOrder = 50`
 - AND tree responses MUST reflect the new order
 
-### Requirement: REQ-DASH-018 Cascade deletion with guard
+### Requirement: REQ-DASH-030 Cascade deletion with guard
 
 Deleting a dashboard with children MUST require an explicit `?cascade=true` query parameter. Without it, the system MUST return HTTP 409 with the count of children, preventing accidental loss of subtrees.
 
@@ -326,4 +326,4 @@ Deleting a dashboard with children MUST require an explicit `?cascade=true` quer
 
 ## UNCHANGED Requirements
 
-All REQ-DASH-001 through REQ-DASH-010 from the base `dashboards` capability remain fully supported. Existing flat dashboard operations (create, list, update, delete without children) continue to work unchanged. This delta is additive and does not break backward compatibility for clients using the legacy `/api/dashboards` and `/api/dashboard/{id}` endpoints.
+All REQ-DASH-001 through REQ-DASH-022 from the base `dashboards` capability remain fully supported. Existing flat dashboard operations (create, list, update, delete without children), group-shared scope (REQ-DASH-011..017), the multi-scope resolver (REQ-DASH-018..019), and the fork pipeline (REQ-DASH-020..022) all continue to work unchanged. This delta is additive and does not break backward compatibility for clients using the legacy `/api/dashboards` and `/api/dashboard/{id}` endpoints.

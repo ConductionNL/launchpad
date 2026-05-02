@@ -115,6 +115,7 @@ class DashboardServiceActiveResolutionTest extends TestCase
             templateService: $this->templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $this->dashResolver,
+            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
             groupManager: $this->groupManager,
             adminTemplateService: $this->adminTemplateService,
             db: $this->db,

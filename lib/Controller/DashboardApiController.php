@@ -22,8 +22,10 @@ namespace OCA\MyDash\Controller;
 
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCA\MyDash\Service\DashboardService;
+use OCA\MyDash\Service\DashboardTreeService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -44,18 +46,28 @@ class DashboardApiController extends Controller
     /**
      * Constructor
      *
-     * @param IRequest          $request           The request.
-     * @param DashboardService  $dashboardService  The dashboard service.
-     * @param PermissionService $permissionService The permission service.
-     * @param LoggerInterface   $logger            PSR logger (used by fork
-     *                                             to report unexpected
-     *                                             errors — REQ-DASH-021).
-     * @param string|null       $userId            The user ID.
+     * @param IRequest             $request           The request.
+     * @param DashboardService     $dashboardService  The dashboard service.
+     * @param PermissionService    $permissionService The permission service.
+     * @param DashboardTreeService $treeService       The tree service that
+     *                                                owns hierarchy
+     *                                                queries, cycle
+     *                                                detection, slug
+     *                                                uniqueness, path
+     *                                                resolution, and the
+     *                                                cascade-delete walker
+     *                                                (REQ-DASH-023..030).
+     * @param LoggerInterface      $logger            PSR logger (used by
+     *                                                fork to report
+     *                                                unexpected errors
+     *                                                — REQ-DASH-021).
+     * @param string|null          $userId            The user ID.
      */
     public function __construct(
         IRequest $request,
         private readonly DashboardService $dashboardService,
         private readonly PermissionService $permissionService,
+        private readonly DashboardTreeService $treeService,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -160,6 +172,13 @@ class DashboardApiController extends Controller
      * @param mixed       $name        The dashboard name.
      * @param string|null $description The description.
      * @param string|null $icon        The icon registry key (or NULL/empty to use the default).
+     * @param string|null $parentUuid  Optional parent dashboard UUID
+     *                                 (REQ-DASH-023). NULL ⇒ root.
+     * @param string|null $slug        Optional caller-supplied slug
+     *                                 (REQ-DASH-024). NULL ⇒ derive from
+     *                                 the name.
+     * @param int|null    $sortOrder   Optional sibling sort order
+     *                                 (REQ-DASH-029). NULL ⇒ 0.
      *
      * @return JSONResponse The created dashboard.
      */
@@ -167,7 +186,10 @@ class DashboardApiController extends Controller
     public function create(
         $name=null,
         ?string $description=null,
-        ?string $icon=null
+        ?string $icon=null,
+        ?string $parentUuid=null,
+        ?string $slug=null,
+        ?int $sortOrder=null
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
@@ -192,7 +214,10 @@ class DashboardApiController extends Controller
         $resolved = $this->resolveCreateParams(
             name: $name,
             description: $description,
-            icon: $icon
+            icon: $icon,
+            parentUuid: $parentUuid,
+            slug: $slug,
+            sortOrder: $sortOrder
         );
 
         try {
@@ -220,16 +245,30 @@ class DashboardApiController extends Controller
                 userId: $this->userId,
                 name: $resolved['name'],
                 description: $resolved['description'],
-                icon: $resolved['icon']
+                icon: $resolved['icon'],
+                parentUuid: $resolved['parentUuid'],
+                slug: $resolved['slug'],
+                sortOrder: $resolved['sortOrder']
             );
 
             return ResponseHelper::success(
                 data: ['dashboard' => $dashboard->jsonSerialize()],
                 statusCode: Http::STATUS_CREATED
             );
+        } catch (InvalidArgumentException $e) {
+            // REQ-DASH-023..029: parent / slug / depth / cycle violations
+            // surface as HTTP 400 with the validation message verbatim.
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'invalid_argument',
+                    'message' => $e->getMessage(),
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
-        }
+        }//end try
     }//end create()
 
     /**
@@ -240,6 +279,11 @@ class DashboardApiController extends Controller
      * @param string|null $description The description.
      * @param array|null  $placements  The placements.
      * @param string|null $icon        The icon registry key, URL, or NULL to leave unchanged.
+     * @param string|null $parentUuid  Optional new parent UUID (REQ-DASH-023);
+     *                                 explicit empty string clears the
+     *                                 parent (re-roots the dashboard).
+     * @param string|null $slug        Optional new slug (REQ-DASH-024).
+     * @param int|null    $sortOrder   Optional new sort order (REQ-DASH-029).
      *
      * @return JSONResponse The updated dashboard.
      */
@@ -249,7 +293,10 @@ class DashboardApiController extends Controller
         ?string $name=null,
         ?string $description=null,
         ?array $placements=null,
-        ?string $icon=null
+        ?string $icon=null,
+        ?string $parentUuid=null,
+        ?string $slug=null,
+        ?int $sortOrder=null
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
@@ -282,7 +329,10 @@ class DashboardApiController extends Controller
                 name: $name,
                 description: $description,
                 placements: $placements,
-                icon: $icon
+                icon: $icon,
+                parentUuid: $parentUuid,
+                slug: $slug,
+                sortOrder: $sortOrder
             );
 
             $dashboard = $this->dashboardService->updateDashboard(
@@ -294,6 +344,17 @@ class DashboardApiController extends Controller
             return ResponseHelper::success(
                 data: ['dashboard' => $dashboard->jsonSerialize()]
             );
+        } catch (InvalidArgumentException $e) {
+            // REQ-DASH-023..029: parent / slug / depth / cycle violations
+            // surface as HTTP 400 with the validation message verbatim.
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'invalid_argument',
+                    'message' => $e->getMessage(),
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
         }//end try
@@ -301,6 +362,11 @@ class DashboardApiController extends Controller
 
     /**
      * Delete a dashboard.
+     *
+     * Honours the cascade-delete guard from REQ-DASH-030: when the
+     * dashboard has children the request MUST include `?cascade=true`
+     * (case-insensitive) — otherwise the response is HTTP 409 with the
+     * child count so the UI can surface a confirmation.
      *
      * @param int $id The dashboard ID.
      *
@@ -313,17 +379,105 @@ class DashboardApiController extends Controller
             return ResponseHelper::unauthorized();
         }
 
+        $cascade = $this->resolveCascadeFlag();
+
         try {
             $this->dashboardService->deleteDashboard(
                 dashboardId: $id,
-                userId: $this->userId
+                userId: $this->userId,
+                cascade: $cascade
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);
+        } catch (DashboardHasChildrenException $e) {
+            // REQ-DASH-030: stable 409 envelope with the child count so
+            // the frontend can render "Delete N children?" before
+            // retrying with cascade=true.
+            return new JSONResponse(
+                data: [
+                    'status'     => 'error',
+                    'error'      => DashboardHasChildrenException::ERROR_CODE,
+                    'message'    => $e->getMessage(),
+                    'childCount' => $e->getChildCount(),
+                ],
+                statusCode: Http::STATUS_CONFLICT
+            );
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
-        }
+        }//end try
     }//end delete()
+
+    /**
+     * GET /api/dashboards/tree — return the full nested dashboard tree
+     * (REQ-DASH-026).
+     *
+     * Each node carries `{uuid, name, slug, sortOrder, children: [...]}`.
+     * The endpoint is user-agnostic for now — the visible-to-user
+     * filter applies via REQ-DASH-013's existing endpoints; this tree is
+     * the structural view used by navigation editors and the upcoming
+     * `confluence-html-import` / `dashboard-bulk-operations` flows.
+     *
+     * @return JSONResponse The nested tree.
+     */
+    #[NoAdminRequired]
+    public function tree(): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        $tree = $this->treeService->getFullTree();
+
+        return ResponseHelper::success(data: $tree);
+    }//end tree()
+
+    /**
+     * GET /api/dashboards/by-path/{path} — resolve a slug-chain path
+     * (REQ-DASH-027).
+     *
+     * Returns the matching dashboard with its computed `path` and
+     * `breadcrumbs` (REQ-DASH-025) attached. Unknown paths return 404.
+     *
+     * @param string $path The slug-joined path captured from the URL
+     *                     (the `{path}` placeholder is regex-allowed
+     *                     to include slashes — see `appinfo/routes.php`).
+     *
+     * @return JSONResponse The dashboard payload, or a 404 envelope.
+     */
+    #[NoAdminRequired]
+    public function byPath(string $path=''): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        if ($path === '') {
+            $path = (string) $this->request->getParam(key: 'path', default: '');
+        }
+
+        $dashboard = $this->treeService->resolvePath(path: $path);
+        if ($dashboard === null) {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'not_found',
+                    'message' => 'Dashboard not found at path',
+                ],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        }
+
+        $uuid       = (string) $dashboard->getUuid();
+        $serialised = $dashboard->jsonSerialize();
+        $serialised['path']        = $this->treeService->computePath(uuid: $uuid);
+        $serialised['breadcrumbs'] = $this->treeService->computeBreadcrumbs(
+            uuid: $uuid
+        );
+
+        return ResponseHelper::success(
+            data: ['dashboard' => $serialised]
+        );
+    }//end byPath()
 
     /**
      * Activate a dashboard.
@@ -768,16 +922,29 @@ class DashboardApiController extends Controller
     /**
      * Resolve create parameters from JSON body or individual params.
      *
+     * Forwards the new hierarchy fields (`parentUuid`, `slug`,
+     * `sortOrder`) introduced by REQ-DASH-023..029. When the caller
+     * sends a JSON body the helper inspects the array form first; when
+     * positional / typed params come via the framework binding it
+     * falls back to those.
+     *
      * @param mixed       $name        The name parameter.
      * @param string|null $description The description parameter.
      * @param string|null $icon        The icon parameter.
+     * @param string|null $parentUuid  Optional parent UUID.
+     * @param string|null $slug        Optional caller-supplied slug.
+     * @param int|null    $sortOrder   Optional sort order.
      *
-     * @return array{name: string, description: ?string, icon: ?string} The resolved values.
+     * @return array{name: string, description: ?string, icon: ?string, parentUuid: ?string, slug: ?string, sortOrder: int}
+     *   The resolved values.
      */
     private function resolveCreateParams(
         $name,
         ?string $description,
-        ?string $icon=null
+        ?string $icon=null,
+        ?string $parentUuid=null,
+        ?string $slug=null,
+        ?int $sortOrder=null
     ): array {
         if (is_array($name) === true) {
             $bodyIcon     = ($name['icon'] ?? null);
@@ -786,19 +953,66 @@ class DashboardApiController extends Controller
                 $resolvedIcon = $bodyIcon;
             }
 
+            $bodyParent     = ($name['parentUuid'] ?? null);
+            $bodySlug       = ($name['slug'] ?? null);
+            $bodySort       = ($name['sortOrder'] ?? null);
+            $resolvedParent = null;
+            if (is_string($bodyParent) === true) {
+                $resolvedParent = $bodyParent;
+            }
+
+            $resolvedSlug = null;
+            if (is_string($bodySlug) === true) {
+                $resolvedSlug = $bodySlug;
+            }
+
+            $resolvedSort = 0;
+            if (is_numeric($bodySort) === true) {
+                $resolvedSort = (int) $bodySort;
+            }
+
             return [
                 'name'        => $name['name'] ?? 'My Dashboard',
                 'description' => $name['description'] ?? null,
                 'icon'        => $resolvedIcon,
+                'parentUuid'  => $resolvedParent,
+                'slug'        => $resolvedSlug,
+                'sortOrder'   => $resolvedSort,
             ];
-        }
+        }//end if
 
         return [
             'name'        => $name ?? 'My Dashboard',
             'description' => $description,
             'icon'        => $icon,
+            'parentUuid'  => $parentUuid,
+            'slug'        => $slug,
+            'sortOrder'   => ($sortOrder ?? 0),
         ];
     }//end resolveCreateParams()
+
+    /**
+     * Read the case-insensitive `cascade` query param (REQ-DASH-030).
+     *
+     * `?cascade=true|TRUE|True|1|yes|on|cascade` → true; anything else
+     * (including the param being absent) → false.
+     *
+     * @return bool Whether cascade-delete was explicitly requested.
+     */
+    private function resolveCascadeFlag(): bool
+    {
+        $raw = $this->request->getParam(key: 'cascade');
+        if ($raw === null) {
+            return false;
+        }
+
+        $lower = strtolower((string) $raw);
+        return in_array(
+            $lower,
+            ['true', '1', 'yes', 'on', 'cascade'],
+            true
+        );
+    }//end resolveCascadeFlag()
 
     /**
      * Check creation permissions and return error if denied.
@@ -841,6 +1055,17 @@ class DashboardApiController extends Controller
      * @param string|null $description The description.
      * @param array|null  $placements  The placements.
      * @param string|null $icon        The icon registry key, URL, or NULL/empty.
+     * @param string|null $parentUuid  Optional new parent UUID
+     *                                 (REQ-DASH-023). The literal sentinel
+     *                                 `__null__` clears the parent
+     *                                 (re-roots the dashboard) — needed
+     *                                 because the framework cannot
+     *                                 distinguish "not in payload" from
+     *                                 "explicit NULL" with typed-string
+     *                                 binding.
+     * @param string|null $slug        Optional new slug (REQ-DASH-024).
+     * @param int|null    $sortOrder   Optional new sort order
+     *                                 (REQ-DASH-029).
      *
      * @return array The non-null update data.
      */
@@ -848,7 +1073,10 @@ class DashboardApiController extends Controller
         ?string $name,
         ?string $description,
         ?array $placements,
-        ?string $icon=null
+        ?string $icon=null,
+        ?string $parentUuid=null,
+        ?string $slug=null,
+        ?int $sortOrder=null
     ): array {
         $fields = [
             'name'        => $name,
@@ -869,6 +1097,27 @@ class DashboardApiController extends Controller
         // null sentinel.
         if ($icon !== null) {
             $data['icon'] = $icon;
+        }
+
+        // REQ-DASH-023: `parentUuid = '__null__'` is the agreed sentinel
+        // for "re-root this dashboard" because the framework's typed
+        // string binding cannot represent an explicit NULL. Anything
+        // else (non-null string) is forwarded verbatim — including the
+        // empty string, which the service treats as a NULL parent.
+        if ($parentUuid !== null) {
+            if ($parentUuid === '__null__' || $parentUuid === '') {
+                $data['parentUuid'] = null;
+            } else {
+                $data['parentUuid'] = $parentUuid;
+            }
+        }
+
+        if ($slug !== null) {
+            $data['slug'] = $slug;
+        }
+
+        if ($sortOrder !== null) {
+            $data['sortOrder'] = $sortOrder;
         }
 
         return $data;

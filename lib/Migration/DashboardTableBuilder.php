@@ -219,4 +219,82 @@ class DashboardTableBuilder
             indexName: 'mydash_dash_type_group'
         );
     }//end addIndexes()
+
+    /**
+     * Apply the dashboard-tree hierarchy schema (REQ-DASH-023..030) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds the three nullable columns (`parent_uuid`, `slug`, `sort_order`)
+     * plus the supporting indexes used by `DashboardTreeService` for
+     * sibling lookups, ordered traversal, and the per-parent slug
+     * uniqueness guarantee. Idempotent — every check is `hasColumn` /
+     * `hasIndex` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addTreeColumns($table): void
+    {
+        if ($table->hasColumn(name: 'parent_uuid') === false) {
+            $table->addColumn(
+                name: 'parent_uuid',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => false,
+                    'length'  => 36,
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'slug') === false) {
+            $table->addColumn(
+                name: 'slug',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => false,
+                    'length'  => 128,
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'sort_order') === false) {
+            $table->addColumn(
+                name: 'sort_order',
+                typeName: Types::INTEGER,
+                options: [
+                    'notnull' => true,
+                    'default' => 0,
+                ]
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_parent') === false) {
+            $table->addIndex(
+                columnNames: ['parent_uuid'],
+                indexName: 'mydash_dash_parent'
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_parent_slug') === false) {
+            // Composite (parent_uuid, slug) supports per-parent slug
+            // uniqueness lookups (REQ-DASH-024) and child-by-slug lookups
+            // during path resolution (REQ-DASH-027). NULL parent_uuid is
+            // accepted by both MySQL/MariaDB and PostgreSQL in non-unique
+            // composite indexes — the uniqueness rule is enforced at the
+            // service layer because composite NULL semantics differ
+            // between drivers (sqlite ⇢ NULL = NULL, postgres ⇢ NULL ≠ NULL).
+            $table->addIndex(
+                columnNames: ['parent_uuid', 'slug'],
+                indexName: 'mydash_dash_parent_slug'
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_sort') === false) {
+            $table->addIndex(
+                columnNames: ['parent_uuid', 'sort_order'],
+                indexName: 'mydash_dash_sort'
+            );
+        }
+    }//end addTreeColumns()
 }//end class

@@ -32,6 +32,12 @@ return [
 		// prevent the literal 'fork' suffix being consumed by any wildcard.
 		['name' => 'dashboard_api#fork', 'url' => '/api/dashboards/{uuid}/fork', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// REQ-DASH-026: nested dashboard tree.
+		['name' => 'dashboard_api#tree', 'url' => '/api/dashboards/tree', 'verb' => 'GET'],
+		// REQ-DASH-027: slug-chain path resolution. The {path} placeholder
+		// allows slashes so `/marketing/campaigns/q1` resolves verbatim.
+		['name' => 'dashboard_api#byPath', 'url' => '/api/dashboards/by-path/{path}', 'verb' => 'GET',
+		 'requirements' => ['path' => '.+']],
 
 		// Group-shared dashboard CRUD (REQ-DASH-014). All five routes are
 		// scoped to a single `groupId` (real Nextcloud group id or the

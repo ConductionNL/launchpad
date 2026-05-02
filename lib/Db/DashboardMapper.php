@@ -638,6 +638,217 @@ class DashboardMapper extends QBMapper
     }//end setGroupDefaultUuid()
 
     /**
+     * Find direct children of a parent dashboard (REQ-DASH-026, REQ-DASH-029).
+     *
+     * Returns rows ordered by `sort_order` ASC, then `name` ASC for tie
+     * breaking. Pass `null` for `$parentUuid` to fetch root dashboards
+     * (`parent_uuid IS NULL`). The query is user-agnostic — caller is
+     * responsible for filtering visible-to-user results in the service
+     * layer.
+     *
+     * @param string|null $parentUuid The parent UUID (null ⇒ root).
+     *
+     * @return Dashboard[] The direct children, ordered for tree display.
+     */
+    public function findByParent(?string $parentUuid): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName());
+
+        if ($parentUuid === null) {
+            $qb->where($qb->expr()->isNull(x: 'parent_uuid'));
+        } else {
+            $qb->where(
+                $qb->expr()->eq(
+                    x: 'parent_uuid',
+                    y: $qb->createNamedParameter(value: $parentUuid)
+                )
+            );
+        }
+
+        $qb->orderBy(sort: 'sort_order', order: 'ASC')
+            ->addOrderBy(sort: 'name', order: 'ASC');
+
+        return $this->findEntities(query: $qb);
+    }//end findByParent()
+
+    /**
+     * Find a single child by `(parent_uuid, slug)` (REQ-DASH-024,
+     * REQ-DASH-027).
+     *
+     * Used by the path resolver to walk the tree segment by segment.
+     * Returns `null` when no row matches — the resolver translates that
+     * into a 404 to the caller. Slug comparison is case-insensitive
+     * (slugs are stored lowercase by `SlugGenerator::slugify()` but
+     * `LOWER(slug)` keeps stale rows uppercased pre-migration matching
+     * predictably).
+     *
+     * @param string|null $parentUuid The parent UUID, or null for root.
+     * @param string      $slug       The slug to look up (case folded).
+     *
+     * @return Dashboard|null The matching child, or null when not found.
+     */
+    public function findChildBySlug(
+        ?string $parentUuid,
+        string $slug
+    ): ?Dashboard {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName());
+
+        if ($parentUuid === null) {
+            $qb->where($qb->expr()->isNull(x: 'parent_uuid'));
+        } else {
+            $qb->where(
+                $qb->expr()->eq(
+                    x: 'parent_uuid',
+                    y: $qb->createNamedParameter(value: $parentUuid)
+                )
+            );
+        }
+
+        $qb->andWhere(
+            $qb->expr()->eq(
+                x: $qb->func()->lower('slug'),
+                y: $qb->createNamedParameter(value: strtolower($slug))
+            )
+        )->setMaxResults(maxResults: 1);
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false) {
+            return null;
+        }
+
+        return Dashboard::fromRow($row);
+    }//end findChildBySlug()
+
+    /**
+     * Count direct children of a parent dashboard.
+     *
+     * Used by the cascade-delete guard (REQ-DASH-030) to populate the
+     * 409 response body without materialising every child entity.
+     *
+     * @param string $parentUuid The parent UUID.
+     *
+     * @return int The number of direct children.
+     */
+    public function countChildrenByParent(string $parentUuid): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('*', 'cnt'))
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'parent_uuid',
+                    y: $qb->createNamedParameter(value: $parentUuid)
+                )
+            );
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false || isset($row['cnt']) === false) {
+            return 0;
+        }
+
+        return (int) $row['cnt'];
+    }//end countChildrenByParent()
+
+    /**
+     * Walk the ancestor chain upward from a child dashboard (REQ-DASH-025).
+     *
+     * Returns the ancestor entities in **root-first** order (so the
+     * caller can append the child itself to build a breadcrumb list
+     * without re-sorting). The walk hard-stops at
+     * {@see Dashboard::MAX_DEPTH} hops to defend against pre-existing
+     * malformed cycles surviving from before the cycle guard shipped.
+     *
+     * @param string $uuid The child dashboard UUID.
+     *
+     * @return Dashboard[] The ancestor entities ordered root → parent
+     *                     (the child itself is NOT included).
+     */
+    public function findAncestors(string $uuid): array
+    {
+        $ancestors = [];
+        $cursor    = $uuid;
+
+        for ($i = 0; $i < Dashboard::MAX_DEPTH; $i++) {
+            try {
+                $current = $this->findByUuid(uuid: $cursor);
+            } catch (DoesNotExistException) {
+                break;
+            }
+
+            $parent = $current->getParentUuid();
+            if ($parent === null || $parent === '') {
+                break;
+            }
+
+            try {
+                $parentEntity = $this->findByUuid(uuid: $parent);
+            } catch (DoesNotExistException) {
+                break;
+            }
+
+            // Prepend so the final list is root-first.
+            array_unshift($ancestors, $parentEntity);
+            $cursor = $parent;
+        }//end for
+
+        return $ancestors;
+    }//end findAncestors()
+
+    /**
+     * Walk every descendant of an ancestor dashboard.
+     *
+     * Implements iterative breadth-first traversal capped at
+     * {@see Dashboard::MAX_DEPTH} hops below the ancestor. Used by the
+     * cascade-delete path (REQ-DASH-030) and by the cycle-detection
+     * guard (REQ-DASH-028) when the proposed parent is the dashboard
+     * itself or a known descendant.
+     *
+     * @param string $ancestorUuid The ancestor dashboard UUID.
+     *
+     * @return Dashboard[] Every descendant dashboard, breadth-first.
+     */
+    public function findDescendants(string $ancestorUuid): array
+    {
+        $descendants = [];
+        $frontier    = [$ancestorUuid];
+
+        // Cap iterations at MAX_DEPTH as a belt-and-braces guard against
+        // pre-existing malformed cycles surviving from before the cycle
+        // guard shipped — the for limit is the explicit defence.
+        for ($depth = 0; $depth < Dashboard::MAX_DEPTH; $depth++) {
+            if (count($frontier) === 0) {
+                break;
+            }
+
+            $next = [];
+            foreach ($frontier as $parentUuid) {
+                $children = $this->findByParent(parentUuid: $parentUuid);
+                foreach ($children as $child) {
+                    $descendants[] = $child;
+                    $childUuid     = $child->getUuid();
+                    if ($childUuid !== null && $childUuid !== '') {
+                        $next[] = $childUuid;
+                    }
+                }
+            }
+
+            $frontier = $next;
+        }
+
+        return $descendants;
+    }//end findDescendants()
+
+    /**
      * Clear default flag on all admin templates.
      *
      * @return void

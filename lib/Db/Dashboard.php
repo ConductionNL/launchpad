@@ -54,9 +54,26 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
+ * @method string|null getParentUuid()
+ * @method void setParentUuid(?string $parentUuid)
+ * @method string|null getSlug()
+ * @method void setSlug(?string $slug)
+ * @method int getSortOrder()
+ * @method void setSortOrder(int $sortOrder)
  */
 class Dashboard extends Entity implements JsonSerializable
 {
+
+    /**
+     * Maximum supported dashboard tree depth (root + 4 descendants).
+     *
+     * Enforced at write time by `DashboardTreeService::validateDepth()`
+     * and surfaced via the `validateDepth` guard called from the create
+     * and update controllers (REQ-DASH-028).
+     *
+     * @var integer
+     */
+    public const MAX_DEPTH = 5;
 
     /**
      * Dashboard type for admin templates.
@@ -267,6 +284,40 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $updatedAt = null;
 
     /**
+     * The parent dashboard UUID (REQ-DASH-023).
+     *
+     * NULL for root dashboards. Children reference their parent by
+     * UUID (the same value the entity exposes via {@see Dashboard::$uuid}).
+     * Cycle prevention and depth enforcement live in
+     * `DashboardTreeService` — callers MUST go through the service rather
+     * than mutating `parentUuid` directly via the mapper.
+     *
+     * @var string|null
+     */
+    protected ?string $parentUuid = null;
+
+    /**
+     * The URL-safe slug (REQ-DASH-024).
+     *
+     * Unique among siblings (per-parent). Auto-generated from the name
+     * by `SlugGenerator::slugify()` when not supplied. Slugs combine
+     * to form the path (REQ-DASH-025) — `/marketing/campaigns/q1`.
+     *
+     * @var string|null
+     */
+    protected ?string $slug = null;
+
+    /**
+     * The sibling sort order (REQ-DASH-029).
+     *
+     * Defaults to 0; ties broken alphabetically by `name`. Lower values
+     * appear first in tree responses.
+     *
+     * @var integer
+     */
+    protected int $sortOrder = 0;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -283,6 +334,7 @@ class Dashboard extends Entity implements JsonSerializable
         // SMALLINT in DB (0/1).
         $this->addType(fieldName: 'isActive', type: 'integer');
         // SMALLINT in DB (0/1).
+        $this->addType(fieldName: 'sortOrder', type: 'integer');
     }//end __construct()
 
     /**
@@ -343,6 +395,9 @@ class Dashboard extends Entity implements JsonSerializable
             'isActive'        => $this->isActive,
             'createdAt'       => $this->createdAt,
             'updatedAt'       => $this->updatedAt,
+            'parentUuid'      => $this->parentUuid,
+            'slug'            => $this->slug,
+            'sortOrder'       => $this->sortOrder,
         ];
     }//end jsonSerialize()
 }//end class

@@ -27,10 +27,12 @@ use Exception;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\AdminSetting;
 use OCA\MyDash\Db\AdminSettingMapper;
+use InvalidArgumentException;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -100,6 +102,10 @@ class DashboardService
      * @param TemplateService       $templateService      Template service.
      * @param DashboardFactory      $dashboardFactory     Dashboard factory.
      * @param DashboardResolver     $dashResolver         Dashboard resolver.
+     * @param DashboardTreeService  $treeService          Tree-aware
+     *                                                    validation /
+     *                                                    cascade walker
+     *                                                    (REQ-DASH-023..030).
      * @param IGroupManager         $groupManager         Group manager (used for
      *                                                    `isAdmin` only — group
      *                                                    membership lookups go
@@ -129,6 +135,7 @@ class DashboardService
         private readonly TemplateService $templateService,
         private readonly DashboardFactory $dashboardFactory,
         private readonly DashboardResolver $dashResolver,
+        private readonly DashboardTreeService $treeService,
         private readonly IGroupManager $groupManager,
         private readonly AdminTemplateService $adminTemplateService,
         private readonly IDBConnection $db,
@@ -184,10 +191,25 @@ class DashboardService
     /**
      * Create a new dashboard for a user.
      *
+     * Accepts the optional hierarchy fields introduced by REQ-DASH-023..029:
+     * `parentUuid`, `slug`, `sortOrder`. The factory generates a slug
+     * from the name when none is supplied; the tree service validates
+     * the parent (existence, cycle, depth) and the slug uniqueness
+     * (per-parent) before the row is persisted.
+     *
      * @param string      $userId      The user ID.
      * @param string      $name        The dashboard name.
      * @param string|null $description The dashboard description.
-     * @param string|null $icon        Opaque icon identifier (registry key or URL); see the `dashboard-icons` capability.
+     * @param string|null $icon        Opaque icon identifier (registry
+     *                                 key or URL); see the
+     *                                 `dashboard-icons` capability.
+     * @param string|null $parentUuid  Optional parent dashboard UUID
+     *                                 (REQ-DASH-023). NULL ⇒ root.
+     * @param string|null $slug        Optional caller-supplied slug
+     *                                 (REQ-DASH-024). NULL ⇒ derive from
+     *                                 the name.
+     * @param int         $sortOrder   Optional sibling sort order
+     *                                 (REQ-DASH-029). Defaults to 0.
      *
      * @return Dashboard The created dashboard.
      */
@@ -195,12 +217,26 @@ class DashboardService
         string $userId,
         string $name,
         ?string $description=null,
-        ?string $icon=null
+        ?string $icon=null,
+        ?string $parentUuid=null,
+        ?string $slug=null,
+        int $sortOrder=0
     ): Dashboard {
+        // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
+        // depth checks BEFORE the entity is built so the request is
+        // rejected without a partial row in memory.
+        $this->treeService->validateParent(
+            movingUuid: null,
+            newParentUuid: $parentUuid
+        );
+
         $dashboard = $this->dashboardFactory->create(
             userId: $userId,
             name: $name,
-            description: $description
+            description: $description,
+            parentUuid: $parentUuid,
+            slug: $slug,
+            sortOrder: $sortOrder
         );
 
         // Icon is an opaque string (registry key or URL) — see the
@@ -209,6 +245,19 @@ class DashboardService
         if ($icon !== null && $icon !== '') {
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $dashboard->setIcon($icon);
+        }
+
+        // REQ-DASH-024: slug uniqueness within parent scope. The
+        // factory may have emitted NULL when the name yields no legal
+        // characters and the caller did not supply an explicit slug —
+        // skip the unique check in that case (NULL slugs are simply
+        // unaddressable by path).
+        $resolvedSlug = $dashboard->getSlug();
+        if ($resolvedSlug !== null && $resolvedSlug !== '') {
+            $this->treeService->validateSlugUnique(
+                parentUuid: $parentUuid,
+                slug: $resolvedSlug
+            );
         }
 
         $this->dashboardMapper->deactivateAllForUser(userId: $userId);
@@ -245,19 +294,47 @@ class DashboardService
     }//end updateDashboard()
 
     /**
-     * Delete a dashboard.
+     * Delete a dashboard, with cascade-delete guard for the tree.
+     *
+     * REQ-DASH-030: when the dashboard has children the caller MUST pass
+     * `$cascade = true`; otherwise `Exception` is raised with the
+     * sentinel message `Dashboard has children` so the controller can
+     * map it to HTTP 409 with the child count. With `$cascade = true`
+     * the entire subtree (including placements) is removed via
+     * {@see DashboardTreeService::deleteSubtree()}.
      *
      * @param int    $dashboardId The dashboard ID.
      * @param string $userId      The user ID.
+     * @param bool   $cascade     When true, remove the entire subtree.
      *
      * @return void
      */
-    public function deleteDashboard(int $dashboardId, string $userId): void
-    {
+    public function deleteDashboard(
+        int $dashboardId,
+        string $userId,
+        bool $cascade=false
+    ): void {
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
             throw new Exception(message: 'Access denied');
+        }
+
+        $uuid = (string) $dashboard->getUuid();
+        if ($uuid !== '' && $cascade === false) {
+            $childCount = $this->dashboardMapper->countChildrenByParent(
+                parentUuid: $uuid
+            );
+            if ($childCount > 0) {
+                throw new DashboardHasChildrenException(
+                    childCount: $childCount
+                );
+            }
+        }
+
+        if ($cascade === true && $uuid !== '') {
+            $this->treeService->deleteSubtree(dashboard: $dashboard);
+            return;
         }
 
         $this->placementMapper->deleteByDashboardId(
@@ -1225,6 +1302,8 @@ class DashboardService
             $dashboard->setGridColumns($data['gridColumns']);
         }
 
+        $this->applyTreeUpdates(dashboard: $dashboard, data: $data);
+
         $dashboard->setUpdatedAt(
             (new DateTime())->format(format: 'Y-m-d H:i:s')
         );
@@ -1237,4 +1316,80 @@ class DashboardService
             );
         }
     }//end applyDashboardUpdates()
+
+    /**
+     * Apply hierarchy updates (parentUuid, slug, sortOrder) with the
+     * REQ-DASH-023..029 guards.
+     *
+     * The three keys are decoupled — callers can patch any subset:
+     *  - `parentUuid` (NULL or string) — re-parents the dashboard, runs
+     *    cycle and depth checks via {@see DashboardTreeService}.
+     *  - `slug` (string) — updates the slug, runs the per-parent
+     *    uniqueness guard against the resolved parent (post-update).
+     *  - `sortOrder` (int) — updates the sibling sort order verbatim.
+     *
+     * Slug uniqueness is rechecked against the dashboard's parent AFTER
+     * any pending `parentUuid` change so a single PUT can re-parent and
+     * rename in one atomic patch.
+     *
+     * @param Dashboard $dashboard The dashboard being updated.
+     * @param array     $data      The update payload.
+     *
+     * @return void
+     */
+    private function applyTreeUpdates(
+        Dashboard $dashboard,
+        array $data
+    ): void {
+        $movingUuid = $dashboard->getUuid();
+
+        // Track the parent the slug uniqueness check should fire against.
+        $effectiveParent = $dashboard->getParentUuid();
+
+        if (array_key_exists(key: 'parentUuid', array: $data) === true) {
+            $newParent = $data['parentUuid'];
+            if ($newParent !== null && is_string($newParent) === false) {
+                $newParent = (string) $newParent;
+            }
+
+            // REQ-DASH-028: cycle + depth before applying.
+            $this->treeService->validateParent(
+                movingUuid: $movingUuid,
+                newParentUuid: $newParent
+            );
+
+            $dashboard->setParentUuid($newParent);
+            $effectiveParent = $newParent;
+        }
+
+        if (array_key_exists(key: 'slug', array: $data) === true) {
+            $newSlug = $data['slug'];
+            if ($newSlug !== null && is_string($newSlug) === false) {
+                $newSlug = (string) $newSlug;
+            }
+
+            if ($newSlug !== null && $newSlug !== '') {
+                if (SlugGenerator::isValid(slug: $newSlug) === false) {
+                    throw new InvalidArgumentException(
+                        message: 'Slug must match [a-z0-9_-]+ and be at most 128 characters'
+                    );
+                }
+
+                // REQ-DASH-024: per-parent uniqueness — exclude the row
+                // being updated so no-op writes succeed.
+                $this->treeService->validateSlugUnique(
+                    parentUuid: $effectiveParent,
+                    slug: $newSlug,
+                    excludeUuid: $movingUuid
+                );
+            }
+
+            $dashboard->setSlug($newSlug);
+        }//end if
+
+        if (array_key_exists(key: 'sortOrder', array: $data) === true) {
+            $sortOrder = $data['sortOrder'];
+            $dashboard->setSortOrder((int) $sortOrder);
+        }
+    }//end applyTreeUpdates()
 }//end class

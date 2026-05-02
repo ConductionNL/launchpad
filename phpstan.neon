@@ -76,3 +76,13 @@ parameters:
         - '#Call to an undefined method OCP\\IUser::getLanguage#'
         # OCP\AppFramework\Db\Entity implements JsonSerializable at runtime but stub omits it
         - '#Call to an undefined method OCP\\AppFramework\\Db\\Entity::jsonSerialize#'
+        # `Dashboard::MAX_DEPTH` is a literal-typed integer constant; PHPStan
+        # collapses depth-bounded loops on it to "always true" comparisons.
+        # The bound exists so future MAX_DEPTH bumps work unchanged — the
+        # comparison is correct at runtime.
+        -
+            message: "#Comparison operation \"<\" between .* and 5 is always true#"
+            path: lib/Db/DashboardMapper.php
+        -
+            message: "#Comparison operation \"<\" between .* and 5 is always true#"
+            path: lib/Service/DashboardTreeService.php

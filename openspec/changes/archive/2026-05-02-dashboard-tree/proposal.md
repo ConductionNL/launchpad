@@ -22,7 +22,7 @@ Today MyDash treats all dashboards as a flat list. Users with many dashboards ex
 
 ### Modified Capabilities
 
-- `dashboards`: adds REQ-DASH-011 (hierarchy and tree structure), REQ-DASH-012 (slug uniqueness and path resolution), REQ-DASH-013 (breadcrumb and path computation), REQ-DASH-014 (tree API endpoints), REQ-DASH-015 (cycle and depth prevention), REQ-DASH-016 (cascade delete guards). Existing REQ-DASH-001..010 are untouched.
+- `dashboards`: adds REQ-DASH-023 (hierarchy and tree structure), REQ-DASH-024 (slug uniqueness and path resolution), REQ-DASH-025 (breadcrumb and path computation), REQ-DASH-026 (tree API endpoints), REQ-DASH-027 (path-based dashboard resolution), REQ-DASH-028 (cycle and depth prevention), REQ-DASH-029 (sibling ordering), REQ-DASH-030 (cascade delete guards). Existing REQ-DASH-001..022 are untouched.
 
 ## Impact
 

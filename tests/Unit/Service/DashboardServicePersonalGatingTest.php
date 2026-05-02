@@ -96,6 +96,7 @@ class DashboardServicePersonalGatingTest extends TestCase
             templateService: $templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $dashResolver,
+            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
             groupManager: $groupManager,
             adminTemplateService: $adminTemplateService,
             db: $db,

@@ -171,6 +171,7 @@ class DashboardServiceAllowFlagTest extends TestCase
             templateService: $this->templateService,
             dashboardFactory: $this->dashboardFactory,
             dashResolver: $this->dashResolver,
+            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
             groupManager: $this->groupManager,
             adminTemplateService: $this->adminTemplateService,
             db: $this->db,

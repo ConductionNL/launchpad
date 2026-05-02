@@ -73,32 +73,11 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboard/${id}`)
 	},
 
-	// Visible-to-user resolution endpoint (REQ-DASH-013).
-	// Returns deduplicated union of personal + group + default-group
-	// dashboards, each tagged with `source: 'user' | 'group' | 'default'`.
-	getVisibleDashboards() {
-		return axios.get(`${baseUrl}/api/dashboards/visible`)
-	},
-
-	// Group-shared dashboard CRUD (REQ-DASH-014).
+	// Group-shared dashboard CRUD alias (REQ-DASH-014).
+	// `listGroupDashboards` mirrors the `getGroupDashboards` method
+	// above for callers that prefer the verb spelling.
 	listGroupDashboards(groupId) {
 		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
-	},
-
-	createGroupDashboard(groupId, data) {
-		return axios.post(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`, data)
-	},
-
-	getGroupDashboard(groupId, uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
-	},
-
-	updateGroupDashboard(groupId, uuid, data) {
-		return axios.put(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`, data)
-	},
-
-	deleteGroupDashboard(groupId, uuid) {
-		return axios.delete(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
 	},
 
 	// Promote a single group-shared dashboard to the group's default
@@ -120,6 +99,20 @@ export const api = {
 			? {}
 			: { name }
 		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(sourceUuid)}/fork`, payload)
+	},
+
+	// Fetch the nested dashboard tree (REQ-DASH-026).
+	getDashboardTree() {
+		return axios.get(`${baseUrl}/api/dashboards/tree`)
+	},
+
+	// Resolve a slug-chain path to a dashboard (REQ-DASH-027).
+	// Path segments are forwarded verbatim — the backend folds case and
+	// strips trailing slashes, but callers SHOULD normalise to lowercase
+	// without leading/trailing `/` to maximise the cache hit rate.
+	getDashboardByPath(path) {
+		const cleanPath = String(path || '').replace(/^\/+/, '').replace(/\/+$/, '')
+		return axios.get(`${baseUrl}/api/dashboards/by-path/${cleanPath}`)
 	},
 
 	// Sharing endpoints

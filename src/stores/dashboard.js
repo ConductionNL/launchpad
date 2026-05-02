@@ -41,6 +41,14 @@ export const useDashboardStore = defineStore('dashboard', {
 		// The frontend uses the source to route subsequent edit calls
 		// to the correct backend endpoint (personal vs group-scoped).
 		dashboards: [],
+		// REQ-DASH-026: nested dashboard tree fetched from
+		// `/api/dashboards/tree`. Each node carries
+		// `{uuid, name, slug, sortOrder, children}`. Empty until
+		// `loadDashboardTree()` runs.
+		dashboardTree: [],
+		// REQ-DASH-027: cache of resolved-by-path dashboards keyed on the
+		// canonical slash-joined path. Populated by `dashboardByPath()`.
+		pathCache: {},
 		activeDashboard: null,
 		widgetPlacements: [],
 		permissionLevel: 'full',
@@ -548,6 +556,59 @@ export const useDashboardStore = defineStore('dashboard', {
 				})
 				console.error('Failed to set group default dashboard:', error)
 				throw error
+			}
+		},
+
+		/**
+		 * Fetch the nested dashboard tree (REQ-DASH-026).
+		 *
+		 * Stores the result on `state.dashboardTree`. Failures are
+		 * logged to the console; callers fall back to the flat
+		 * `dashboards` getter when the tree is empty.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async loadDashboardTree() {
+			try {
+				const response = await api.getDashboardTree()
+				this.dashboardTree = Array.isArray(response.data) ? response.data : []
+			} catch (error) {
+				console.error('Failed to load dashboard tree:', error)
+				this.dashboardTree = []
+			}
+		},
+
+		/**
+		 * Resolve a slug-chain path to a dashboard (REQ-DASH-027).
+		 *
+		 * Caches the result on `state.pathCache` keyed by the
+		 * canonical path so repeated lookups during a session avoid
+		 * the round-trip. Returns `null` on miss.
+		 *
+		 * @param {string} path The slash-joined slug chain.
+		 * @return {Promise<object|null>} The dashboard payload or null.
+		 */
+		async dashboardByPath(path) {
+			const key = String(path || '').replace(/\/+$/, '').replace(/^\/+/, '')
+			if (key === '') {
+				return null
+			}
+
+			if (this.pathCache[key] !== undefined) {
+				return this.pathCache[key]
+			}
+
+			try {
+				const response = await api.getDashboardByPath(key)
+				const payload = response?.data?.dashboard ?? null
+				this.pathCache[key] = payload
+				return payload
+			} catch (error) {
+				if (error?.response?.status !== 404) {
+					console.error('Failed to resolve dashboard path:', error)
+				}
+				this.pathCache[key] = null
+				return null
 			}
 		},
 

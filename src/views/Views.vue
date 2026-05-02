@@ -213,10 +213,8 @@ export default {
 	// (REQ-INIT-003..005). Defaults match the reader contract so the
 	// sidebar still mounts when running under tests that don't set a
 	// provider (e.g. Vitest harness) — see DashboardSwitcherSidebar specs.
-	inject: {
-		primaryGroupName: { default: '' },
-		allowUserDashboards: { default: false },
-	},
+	// (Inject keys are defined once below; this comment block was kept
+	// as the historical anchor for the provide/inject contract.)
 	setup() {
 		// Reactive `canEdit` proxy handed to the grid manager composable.
 		// Wrapped in Vue.observable so the composable's

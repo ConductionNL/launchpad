@@ -54,6 +54,15 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
+ * @method int|null getCommentsEnabled()
+ * @method void setCommentsEnabled(?int $commentsEnabled)
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields) Persistence entity legitimately
+ *                                        carries one property per database
+ *                                        column; the comments-enabled
+ *                                        toggle (REQ-CMNT-007) bumps the
+ *                                        column count by one and stays
+ *                                        deliberate.
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -267,6 +276,24 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $updatedAt = null;
 
     /**
+     * Per-dashboard comments toggle (REQ-CMNT-007).
+     *
+     * Three legal values:
+     *   - NULL — inherit the global `mydash.comments_enabled_default`
+     *     admin setting.
+     *   - 1 (SMALLINT) — force comments on regardless of global toggle.
+     *   - 0 (SMALLINT) — force comments off regardless of global toggle.
+     *
+     * Stored as a nullable SMALLINT to keep the same wire format as
+     * `is_default` / `is_active`. Resolution lives in
+     * {@see Dashboard::isCommentsEffectivelyEnabled()} so callers do
+     * not have to re-implement the precedence rules.
+     *
+     * @var integer|null
+     */
+    protected ?int $commentsEnabled = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -283,6 +310,8 @@ class Dashboard extends Entity implements JsonSerializable
         // SMALLINT in DB (0/1).
         $this->addType(fieldName: 'isActive', type: 'integer');
         // SMALLINT in DB (0/1).
+        $this->addType(fieldName: 'commentsEnabled', type: 'integer');
+        // Nullable SMALLINT (NULL / 0 / 1) — REQ-CMNT-007.
     }//end __construct()
 
     /**
@@ -341,8 +370,37 @@ class Dashboard extends Entity implements JsonSerializable
             'targetGroups'    => $this->getTargetGroupsArray(),
             'isDefault'       => $this->isDefault,
             'isActive'        => $this->isActive,
+            'commentsEnabled' => $this->commentsEnabled,
             'createdAt'       => $this->createdAt,
             'updatedAt'       => $this->updatedAt,
         ];
     }//end jsonSerialize()
+
+    /**
+     * Whether comments are effectively enabled on this dashboard
+     * (REQ-CMNT-007, REQ-CMNT-008).
+     *
+     * Resolution order:
+     *  - When `commentsEnabled` is 1 → true (per-dashboard force-on).
+     *  - When `commentsEnabled` is 0 → false (per-dashboard force-off).
+     *  - When NULL → fall back to the supplied global default.
+     *
+     * @param bool $globalDefault The resolved value of the global
+     *                            `mydash.comments_enabled_default`
+     *                            admin setting.
+     *
+     * @return bool True when comments are effectively enabled.
+     */
+    public function isCommentsEffectivelyEnabled(bool $globalDefault): bool
+    {
+        if ($this->commentsEnabled === 1) {
+            return true;
+        }
+
+        if ($this->commentsEnabled === 0) {
+            return false;
+        }
+
+        return $globalDefault;
+    }//end isCommentsEffectivelyEnabled()
 }//end class

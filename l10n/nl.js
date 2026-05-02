@@ -281,7 +281,24 @@ OC.L10N.register(
     "Unknown group" : "Onbekende groep",
     "That target already has the requested role assigned" : "Dit doel heeft de gevraagde rol al toegewezen",
     "Role assignment not found" : "Roltoewijzing niet gevonden",
-    "Role assignment payload is invalid" : "Inhoud van roltoewijzing is ongeldig"
+    "Role assignment payload is invalid" : "Inhoud van roltoewijzing is ongeldig",
+    "Comments" : "Reacties",
+    "Post comment" : "Reactie plaatsen",
+    "Reply" : "Antwoorden",
+    "Edited" : "Bewerkt",
+    "Comments are disabled on this dashboard" : "Reacties zijn uitgeschakeld op dit dashboard",
+    "Comment message must not be empty" : "Reactie mag niet leeg zijn",
+    "Comments can only be replied to once" : "Reacties kunnen maar één keer worden beantwoord",
+    "Only the author or an admin may modify this comment" : "Alleen de auteur of een beheerder mag deze reactie wijzigen",
+    "Comment not found" : "Reactie niet gevonden",
+    "Parent comment not found" : "Bovenliggende reactie niet gevonden",
+    "Are you sure you want to delete this comment?" : "Weet je zeker dat je deze reactie wilt verwijderen?",
+    "Deleting this top-level comment will also remove all its replies." : "Het verwijderen van deze hoofdreactie verwijdert ook alle antwoorden.",
+    "Write a comment…" : "Schrijf een reactie…",
+    "Write a reply…" : "Schrijf een antwoord…",
+    "Cancel reply" : "Antwoord annuleren",
+    "%1$s mentioned you in a dashboard comment" : "%1$s heeft je genoemd in een dashboardreactie",
+    "Open the dashboard to read the comment" : "Open het dashboard om de reactie te lezen"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -48,6 +48,12 @@ parameters:
         -
             message: '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor#'
             path: lib/Controller/FileController.php
+        # Same JSONResponse status-code union widening — comment exceptions
+        # carry a typed `getHttpStatus()` that only returns 400/403/404 but
+        # PHPStan cannot prove the constraint statically.
+        -
+            message: '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor#'
+            path: lib/Controller/DashboardCommentsApiController.php
         # DataResponse declares a `T of DataResponseType` template parameter
         # whose union does not cover plain associative arrays. Every call
         # site here passes a JSON-serialisable array — runtime is sound;

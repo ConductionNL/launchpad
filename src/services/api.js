@@ -73,32 +73,10 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboard/${id}`)
 	},
 
-	// Visible-to-user resolution endpoint (REQ-DASH-013).
-	// Returns deduplicated union of personal + group + default-group
-	// dashboards, each tagged with `source: 'user' | 'group' | 'default'`.
-	getVisibleDashboards() {
-		return axios.get(`${baseUrl}/api/dashboards/visible`)
-	},
-
-	// Group-shared dashboard CRUD (REQ-DASH-014).
+	// Group-shared dashboard CRUD (REQ-DASH-014). Companion `listGroupDashboards`
+	// alias for callers that prefer the verb-prefixed name.
 	listGroupDashboards(groupId) {
 		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
-	},
-
-	createGroupDashboard(groupId, data) {
-		return axios.post(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`, data)
-	},
-
-	getGroupDashboard(groupId, uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
-	},
-
-	updateGroupDashboard(groupId, uuid, data) {
-		return axios.put(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`, data)
-	},
-
-	deleteGroupDashboard(groupId, uuid) {
-		return axios.delete(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
 	},
 
 	// Promote a single group-shared dashboard to the group's default
@@ -229,6 +207,25 @@ export const api = {
 
 	updateAdminGroupOrder(groups) {
 		return axios.post(`${baseUrl}/api/admin/groups`, { groups })
+	},
+
+	// Dashboard comments (REQ-CMNT-001..009). Threaded comments backed by
+	// Nextcloud's ICommentsManager. The `enabled` field on the GET
+	// response carries the effective per-dashboard / global toggle.
+	listDashboardComments(uuid) {
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`)
+	},
+
+	createDashboardComment(uuid, payload) {
+		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`, payload)
+	},
+
+	updateDashboardComment(uuid, id, payload) {
+		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`, payload)
+	},
+
+	deleteDashboardComment(uuid, id) {
+		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`)
 	},
 
 	// Tile endpoints

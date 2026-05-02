@@ -285,7 +285,19 @@ OC.L10N.register(
     "Schedule dashboard" : "Schedule dashboard",
     "Draft" : "Draft",
     "Published" : "Published",
-    "Scheduled" : "Scheduled"
+    "Scheduled" : "Scheduled",
+    "%s's MyDash dashboards" : "%s's MyDash dashboards",
+    "Reverse-chronological list of dashboards accessible to %s." : "Reverse-chronological list of dashboards accessible to %s.",
+    "Dashboard feed" : "Dashboard feed",
+    "RSS / Atom feed" : "RSS / Atom feed",
+    "Generate feed token" : "Generate feed token",
+    "Regenerate feed token" : "Regenerate feed token",
+    "Revoke feed token" : "Revoke feed token",
+    "Copy feed URL" : "Copy feed URL",
+    "Feed URL copied to clipboard" : "Feed URL copied to clipboard",
+    "Your personal RSS feed of accessible dashboards." : "Your personal RSS feed of accessible dashboards.",
+    "Treat this URL as a password — anyone with the link can read your dashboards." : "Treat this URL as a password — anyone with the link can read your dashboards.",
+    "No feed token issued yet." : "No feed token issued yet."
 },
 "nplurals=2; plural=(n != 1);"
 );

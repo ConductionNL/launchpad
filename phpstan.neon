@@ -58,6 +58,18 @@ parameters:
         -
             message: '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor#'
             path: lib/Controller/DashboardShareApiController.php
+        # Same DataResponse template-narrowing issue — FeedController's
+        # `{token, url}` envelopes are `array<string, string>` and the
+        # 401 envelope is `array<string, string>`; both are sound at
+        # runtime but trip the upstream generic bound. The 204 path
+        # also widens an int-literal status code that PHPStan refuses
+        # to narrow without a generic helper.
+        -
+            message: '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor#'
+            path: lib/Controller/FeedController.php
+        -
+            message: '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\DataResponse constructor#'
+            path: lib/Controller/FeedController.php
         # `getimagesizefromstring` shape from PHPStan's stubs already
         # guarantees the `mime` key exists; the `??` is intentional defence
         # in depth for older runtimes / stubs.

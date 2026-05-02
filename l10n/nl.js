@@ -285,7 +285,16 @@ OC.L10N.register(
     "Schedule dashboard" : "Dashboard inplannen",
     "Draft" : "Concept",
     "Published" : "Gepubliceerd",
-    "Scheduled" : "Ingepland"
+    "Scheduled" : "Ingepland",
+    "Lock held by another user" : "Vergrendeld door een andere gebruiker",
+    "Lock not found; call acquire first" : "Geen vergrendeling gevonden; vraag deze eerst aan",
+    "Lock not found" : "Geen vergrendeling gevonden",
+    "Only the lock owner can extend the lease" : "Alleen de eigenaar van de vergrendeling kan deze verlengen",
+    "Only the lock owner or an admin can release this lock" : "Alleen de eigenaar of een beheerder kan deze vergrendeling vrijgeven",
+    "Only an administrator may force-release a lock" : "Alleen een beheerder mag een vergrendeling geforceerd vrijgeven",
+    "Dashboard is being edited by {displayName}" : "Dashboard wordt bewerkt door {displayName}",
+    "Your edit lock has expired" : "Je bewerkvergrendeling is verlopen",
+    "You may be editing in another tab" : "Je bewerkt dit dashboard mogelijk in een ander tabblad"
 },
 "nplurals=2; plural=(n != 1);"
 );

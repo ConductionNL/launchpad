@@ -73,6 +73,24 @@ return [
 		['name' => 'dashboard_api#delete', 'url' => '/api/dashboard/{id}', 'verb' => 'DELETE'],
 		['name' => 'dashboard_api#activate', 'url' => '/api/dashboard/{id}/activate', 'verb' => 'POST'],
 
+		// Dashboard editing-lock endpoints (REQ-LOCK-001..008).
+		// Four verbs on a single lock resource URL plus the admin
+		// `force-release` action. Registered BEFORE the personal-scope
+		// `/api/dashboard/{id}` group so the literal `lock` segment
+		// always wins against any wildcard. The `force-release` route
+		// MUST precede the bare `lock` routes for the same reason.
+		['name' => 'dashboard_lock_api#forceRelease',
+		 'url' => '/api/dashboards/{uuid}/lock/force-release', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_lock_api#acquire', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_lock_api#heartbeat', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'PUT',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_lock_api#release', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_lock_api#get', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
 		['name' => 'dashboard_share_api#index', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'GET'],
 		['name' => 'dashboard_share_api#create', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'POST'],

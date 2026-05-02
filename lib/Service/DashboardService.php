@@ -29,6 +29,7 @@ use OCA\MyDash\Db\AdminSetting;
 use OCA\MyDash\Db\AdminSettingMapper;
 use InvalidArgumentException;
 use OCA\MyDash\Db\Dashboard;
+use OCA\MyDash\Db\DashboardLockMapper;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
@@ -112,37 +113,58 @@ class DashboardService
     /**
      * Constructor
      *
-     * @param DashboardMapper       $dashboardMapper      Dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper      Widget placement mapper.
-     * @param AdminSettingMapper    $settingMapper        Admin setting mapper.
-     * @param TemplateService       $templateService      Template service.
-     * @param DashboardFactory      $dashboardFactory     Dashboard factory.
-     * @param DashboardResolver     $dashResolver         Dashboard resolver.
-     * @param DashboardTreeService  $treeService          Tree-aware
-     *                                                    validation /
-     *                                                    cascade walker
-     *                                                    (REQ-DASH-023..030).
-     * @param IGroupManager         $groupManager         Group manager (used for
-     *                                                    `isAdmin` only — group
-     *                                                    membership lookups go
-     *                                                    through the routing
-     *                                                    resolver per
-     *                                                    REQ-TMPL-013).
-     * @param AdminTemplateService  $adminTemplateService Routing resolver — single
-     *                                                    source of truth for
-     *                                                    `IGroupManager::getUserGroupIds`
-     *                                                    (REQ-TMPL-013).
-     * @param IDBConnection         $db                   DB connection (for the
-     *                                                    transactional default
-     *                                                    flip — REQ-DASH-015).
-     * @param IConfig               $config               Nextcloud per-user
-     *                                                    preference storage.
-     * @param IFactory              $l10nFactory          L10N factory used to
-     *                                                    build the
-     *                                                    "My copy of {name}"
-     *                                                    default fork name
-     *                                                    (REQ-DASH-020).
-     * @param LoggerInterface       $logger               PSR logger.
+     * @param DashboardMapper          $dashboardMapper      Dashboard mapper.
+     * @param WidgetPlacementMapper    $placementMapper      Widget placement mapper.
+     * @param AdminSettingMapper       $settingMapper        Admin setting mapper.
+     * @param TemplateService          $templateService      Template service.
+     * @param DashboardFactory         $dashboardFactory     Dashboard factory.
+     * @param DashboardResolver        $dashResolver         Dashboard resolver.
+     * @param DashboardTreeService     $treeService          Tree-aware
+     *                                                       validation
+     *                                                       / cascade
+     *                                                       walker
+     *                                                       (REQ-DASH-023..030).
+     * @param IGroupManager            $groupManager         Group manager (used for
+     *                                                       `isAdmin` only —
+     *                                                       group membership
+     *                                                       lookups go through the
+     *                                                       routing resolver per
+     *                                                       REQ-TMPL-013).
+     * @param AdminTemplateService     $adminTemplateService Routing resolver —
+     *                                                       single source of truth
+     *                                                       for
+     *                                                       `IGroupManager::getUserGroupIds`
+     *                                                       (REQ-TMPL-013).
+     * @param IDBConnection            $db                   DB connection (for the
+     *                                                       transactional default
+     *                                                       flip —
+     *                                                       REQ-DASH-015).
+     * @param IConfig                  $config               Nextcloud per-user
+     *                                                       preference
+     *                                                       storage.
+     * @param IFactory                 $l10nFactory          L10N factory used to
+     *                                                       build the "My copy
+     *                                                       of {name}" default
+     *                                                       fork name
+     *                                                       (REQ-DASH-020).
+     * @param LoggerInterface          $logger               PSR logger.
+     * @param DashboardLockMapper|null $lockMapper           Optional lock
+     *                                                       mapper. When
+     *                                                       provided the
+     *                                                       delete path
+     *                                                       cascades the
+     *                                                       row removal
+     *                                                       to the
+     *                                                       editing-lock
+     *                                                       table per
+     *                                                       REQ-LOCK-008.
+     *                                                       Nullable to
+     *                                                       keep the
+     *                                                       constructor
+     *                                                       backwards-
+     *                                                       compatible
+     *                                                       with existing
+     *                                                       unit tests.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -158,6 +180,7 @@ class DashboardService
         private readonly IConfig $config,
         private readonly IFactory $l10nFactory,
         private readonly LoggerInterface $logger,
+        private readonly ?DashboardLockMapper $lockMapper=null,
     ) {
     }//end __construct()
 
@@ -349,6 +372,18 @@ class DashboardService
         }
 
         if ($cascade === true && $uuid !== '') {
+            // Cascade-clear the editing lock for the root before the
+            // subtree wipe (REQ-LOCK-008). Descendant locks are not
+            // tracked through this path because the spec scopes locks
+            // to the dashboard the user is editing — children that
+            // disappear simply leak a row that the next-acquire
+            // inline-cleanup will reap.
+            if ($this->lockMapper !== null) {
+                $this->lockMapper->deleteByDashboardUuid(
+                    dashboardUuid: $uuid
+                );
+            }
+
             $this->treeService->deleteSubtree(dashboard: $dashboard);
             return;
         }
@@ -356,6 +391,15 @@ class DashboardService
         $this->placementMapper->deleteByDashboardId(
             dashboardId: $dashboardId
         );
+
+        // Cascade-clear the editing lock so a deleted dashboard never
+        // leaves an orphaned lock row behind (REQ-LOCK-008).
+        if ($this->lockMapper !== null && $uuid !== '') {
+            $this->lockMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+        }
+
         $this->dashboardMapper->delete(entity: $dashboard);
     }//end deleteDashboard()
 

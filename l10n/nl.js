@@ -277,7 +277,15 @@ OC.L10N.register(
     "Widgets" : "Widgets",
     "Your primary group for shared dashboards" : "Je primaire groep voor gedeelde dashboards",
     "https://example.com or /apps/files" : "https://voorbeeld.nl of /apps/files",
-    "shareWith is required" : "shareWith is verplicht"
+    "shareWith is required" : "shareWith is verplicht",
+    "publishAt must be a future timestamp" : "publishAt moet een toekomstige datum zijn",
+    "Forbidden: owner or admin only" : "Niet toegestaan: alleen eigenaar of beheerder",
+    "Publish dashboard" : "Dashboard publiceren",
+    "Unpublish dashboard" : "Publicatie ongedaan maken",
+    "Schedule dashboard" : "Dashboard inplannen",
+    "Draft" : "Concept",
+    "Published" : "Gepubliceerd",
+    "Scheduled" : "Ingepland"
 },
 "nplurals=2; plural=(n != 1);"
 );

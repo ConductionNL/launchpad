@@ -284,6 +284,14 @@
         "Vertical (list)": "Vertical (list)",
         "Horizontal (cards)": "Horizontal (cards)",
         "Loading…": "Loading…",
-        "No items available": "No items available"
+        "No items available": "No items available",
+        "publishAt must be a future timestamp": "publishAt must be a future timestamp",
+        "Forbidden: owner or admin only": "Forbidden: owner or admin only",
+        "Publish dashboard": "Publish dashboard",
+        "Unpublish dashboard": "Unpublish dashboard",
+        "Schedule dashboard": "Schedule dashboard",
+        "Draft": "Draft",
+        "Published": "Published",
+        "Scheduled": "Scheduled"
     }
 }

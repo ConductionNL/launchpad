@@ -33,6 +33,17 @@ export const SOURCE_USER = 'user'
 export const SOURCE_GROUP = 'group'
 export const SOURCE_DEFAULT = 'default'
 
+/**
+ * Publication-state values mirrored from the PHP entity
+ * (Dashboard::STATUS_DRAFT / STATUS_PUBLISHED / STATUS_SCHEDULED).
+ * REQ-DASH-031..037.
+ *
+ * @type {string}
+ */
+export const STATUS_DRAFT = 'draft'
+export const STATUS_PUBLISHED = 'published'
+export const STATUS_SCHEDULED = 'scheduled'
+
 export const useDashboardStore = defineStore('dashboard', {
 	state: () => ({
 		// `dashboards` carries every dashboard visible to the user
@@ -264,6 +275,125 @@ export const useDashboardStore = defineStore('dashboard', {
 			api.setActiveDashboardPreference(uuid || '').catch((error) => {
 				console.warn('Failed to persist active dashboard preference:', error)
 			})
+		},
+
+		/**
+		 * Publish a dashboard (REQ-DASH-032).
+		 *
+		 * On success the local copy is patched in place so the UI reflects
+		 * the new publicationStatus / publishedAt without a full reload.
+		 *
+		 * @param {string} uuid The dashboard UUID to publish.
+		 * @return {Promise<object|null>} The updated dashboard payload or
+		 *   `null` on failure (an error toast is surfaced).
+		 */
+		async publishDashboard(uuid) {
+			try {
+				const response = await api.publishDashboard(uuid)
+				this.applyPublicationPatch(response.data?.dashboard)
+				return response.data?.dashboard ?? null
+			} catch (error) {
+				console.error('Failed to publish dashboard:', error)
+				showError(t('mydash', 'Publish dashboard'))
+				return null
+			}
+		},
+
+		/**
+		 * Unpublish a dashboard (REQ-DASH-033). Preserves publishedAt
+		 * server-side; the local copy is patched in place.
+		 *
+		 * @param {string} uuid The dashboard UUID to unpublish.
+		 * @return {Promise<object|null>} The updated dashboard or null.
+		 */
+		async unpublishDashboard(uuid) {
+			try {
+				const response = await api.unpublishDashboard(uuid)
+				this.applyPublicationPatch(response.data?.dashboard)
+				return response.data?.dashboard ?? null
+			} catch (error) {
+				console.error('Failed to unpublish dashboard:', error)
+				showError(t('mydash', 'Unpublish dashboard'))
+				return null
+			}
+		},
+
+		/**
+		 * Schedule a dashboard for automatic publication (REQ-DASH-034).
+		 *
+		 * @param {string} uuid      The dashboard UUID to schedule.
+		 * @param {string} publishAt The future ISO-8601 timestamp.
+		 * @return {Promise<object|null>} The updated dashboard or null.
+		 */
+		async scheduleDashboard(uuid, publishAt) {
+			try {
+				const response = await api.scheduleDashboard(uuid, publishAt)
+				this.applyPublicationPatch(response.data?.dashboard)
+				return response.data?.dashboard ?? null
+			} catch (error) {
+				console.error('Failed to schedule dashboard:', error)
+				showError(t('mydash', 'Schedule dashboard'))
+				return null
+			}
+		},
+
+		/**
+		 * Patch the publication-state fields on a dashboard already in the
+		 * store. No-op when the dashboard is not yet loaded — the next
+		 * `loadDashboards()` call will fetch the canonical state.
+		 *
+		 * @param {object|null|undefined} dashboard The updated entity.
+		 * @return {void}
+		 */
+		applyPublicationPatch(dashboard) {
+			if (!dashboard || !dashboard.uuid) {
+				return
+			}
+			const idx = this.dashboards.findIndex(d => d.uuid === dashboard.uuid)
+			if (idx >= 0) {
+				this.dashboards[idx] = {
+					...this.dashboards[idx],
+					publicationStatus: dashboard.publicationStatus,
+					publishAt: dashboard.publishAt,
+					publishedAt: dashboard.publishedAt,
+				}
+			}
+			if (this.activeDashboard?.uuid === dashboard.uuid) {
+				this.activeDashboard = {
+					...this.activeDashboard,
+					publicationStatus: dashboard.publicationStatus,
+					publishAt: dashboard.publishAt,
+					publishedAt: dashboard.publishedAt,
+				}
+			}
+		},
+
+		/**
+		 * Resolve the effective publication status for a dashboard,
+		 * applying client-side lazy materialisation of scheduled-as-
+		 * published rows for instant UI feedback (REQ-DASH-034). The
+		 * backend remains the source of truth; this is purely a UX hint.
+		 *
+		 * @param {object} dashboard The dashboard entity.
+		 * @return {string} `'draft' | 'published' | 'scheduled'`.
+		 */
+		effectivePublicationStatus(dashboard) {
+			if (!dashboard) {
+				return STATUS_DRAFT
+			}
+			const status = dashboard.publicationStatus || STATUS_PUBLISHED
+			if (status !== STATUS_SCHEDULED) {
+				return status
+			}
+			const publishAt = dashboard.publishAt
+			if (!publishAt) {
+				return STATUS_SCHEDULED
+			}
+			const when = new Date(publishAt)
+			if (Number.isNaN(when.getTime())) {
+				return STATUS_SCHEDULED
+			}
+			return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
 		},
 
 		async createDashboard(payload = 'My Dashboard') {

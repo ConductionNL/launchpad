@@ -120,6 +120,13 @@ class DashboardFactory
         $dashboard->setSlug($resolvedSlug);
         $dashboard->setSortOrder($sortOrder);
 
+        // REQ-DASH-031 / design D2: every newly created dashboard MUST
+        // default to publicationStatus = 'draft'. The database column
+        // default is `'published'` (REQ-DASH-035) — the application
+        // overrides it here so the "create now, share later" contract
+        // holds for every new row regardless of how it gets persisted.
+        $dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+
         return $dashboard;
     }//end create()
 

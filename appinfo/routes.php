@@ -32,6 +32,15 @@ return [
 		// prevent the literal 'fork' suffix being consumed by any wildcard.
 		['name' => 'dashboard_api#fork', 'url' => '/api/dashboards/{uuid}/fork', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// REQ-DASH-032..034: publication-state actions on a single dashboard.
+		// Registered alongside `fork` so the literal `publish` / `unpublish` /
+		// `schedule` suffixes precede the group-scoped `{groupId}` wildcards.
+		['name' => 'dashboard_api#publish', 'url' => '/api/dashboards/{uuid}/publish', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_api#unpublish', 'url' => '/api/dashboards/{uuid}/unpublish', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_api#schedule', 'url' => '/api/dashboards/{uuid}/schedule', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		// REQ-DASH-026: nested dashboard tree.
 		['name' => 'dashboard_api#tree', 'url' => '/api/dashboards/tree', 'verb' => 'GET'],
 		// REQ-DASH-027: slug-chain path resolution. The {path} placeholder

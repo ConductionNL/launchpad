@@ -297,4 +297,69 @@ class DashboardTableBuilder
             );
         }
     }//end addTreeColumns()
+
+    /**
+     * Apply the dashboard publication-state schema (REQ-DASH-031..037) to
+     * an existing `mydash_dashboards` table.
+     *
+     * Adds three nullable / defaulted columns (`publication_status`,
+     * `publish_at`, `published_at`) plus the `(user_id, publication_status)`
+     * composite index used by the visibility filter in
+     * `DashboardMapper`. The `publication_status` column is declared with
+     * `DEFAULT 'published'` so pre-existing rows are backfilled to
+     * `'published'` automatically by the database engine — no explicit
+     * `UPDATE` statement is required (REQ-DASH-035, design D1). New
+     * dashboards created post-migration receive `'draft'` via application
+     * logic in `DashboardFactory::create()` instead of relying on the
+     * column default. Idempotent — every check is `hasColumn` /
+     * `hasIndex` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addPublicationColumns($table): void
+    {
+        if ($table->hasColumn(name: 'publication_status') === false) {
+            $table->addColumn(
+                name: 'publication_status',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => true,
+                    'length'  => 20,
+                    'default' => 'published',
+                    'comment' => 'Dashboard publication status (draft|published|scheduled). REQ-DASH-031.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'publish_at') === false) {
+            $table->addColumn(
+                name: 'publish_at',
+                typeName: Types::DATETIME,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Scheduled publication timestamp; used when publication_status = scheduled.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'published_at') === false) {
+            $table->addColumn(
+                name: 'published_at',
+                typeName: Types::DATETIME,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'First-publication timestamp; preserved across unpublish. REQ-DASH-032.',
+                ]
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_user_pubstatus') === false) {
+            $table->addIndex(
+                columnNames: ['user_id', 'publication_status'],
+                indexName: 'mydash_dash_user_pubstatus'
+            );
+        }
+    }//end addPublicationColumns()
 }//end class

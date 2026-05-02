@@ -94,6 +94,22 @@ class DashboardService
     public const ACTIVE_DASHBOARD_UUID_PREF_KEY = 'active_dashboard_uuid';
 
     /**
+     * HTTP-like error message for non-owner / non-admin attempting a
+     * publication state mutation. REQ-DASH-032..034.
+     *
+     * @var string
+     */
+    public const ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN = 'Forbidden: owner or admin only';
+
+    /**
+     * Validation error returned when `publishAt` is missing or in the
+     * past for the schedule action. REQ-DASH-033.
+     *
+     * @var string
+     */
+    public const ERR_SCHEDULE_PAST_DATE = 'publishAt must be a future timestamp';
+
+    /**
      * Constructor
      *
      * @param DashboardMapper       $dashboardMapper      Dashboard mapper.
@@ -652,11 +668,120 @@ class DashboardService
             userId: $userId
         );
 
-        return $this->dashboardMapper->findVisibleToUser(
+        $entries = $this->dashboardMapper->findVisibleToUser(
             userId: $userId,
             userGroupIds: $userGroupIds
         );
+
+        // REQ-DASH-031..035: apply publication-state filter and lazy
+        // materialisation in one pass — drafts hidden from non-owners,
+        // scheduled rows past `publishAt` surfaced as published without
+        // a DB write, future scheduled rows hidden from non-owners.
+        // Defensive cast: legacy test doubles may stub isAdmin to null.
+        $isAdmin = (bool) $this->safeIsAdmin(userId: $userId);
+
+        return $this->filterByPublicationState(
+            entries: $entries,
+            actorUserId: $userId,
+            actorIsAdmin: $isAdmin
+        );
     }//end getVisibleToUser()
+
+    /**
+     * Defensive admin check for the visibility filter.
+     *
+     * Wraps {@see self::isAdmin()} in a try/catch so legacy test doubles
+     * that stub the underlying `IGroupManager::isAdmin` to return `null`
+     * or throw on unknown users degrade gracefully to "not admin"
+     * instead of taking down the whole `getVisibleToUser` call.
+     *
+     * @param string $userId The user ID.
+     *
+     * @return bool Whether the user is a Nextcloud admin (false on any
+     *              defect in the underlying group manager).
+     */
+    private function safeIsAdmin(string $userId): bool
+    {
+        try {
+            return (bool) $this->groupManager->isAdmin(userId: $userId);
+        } catch (Throwable) {
+            return false;
+        }
+    }//end safeIsAdmin()
+
+    /**
+     * Apply publication-state filtering and lazy materialisation to a
+     * visible-to-user result set. REQ-DASH-031..035.
+     *
+     * Rules:
+     *  - `published` rows pass through unchanged.
+     *  - `scheduled` rows whose `publishAt <= now()` are surfaced as
+     *    `published` (entity mutated in-memory only — no DB write).
+     *  - `scheduled` rows whose `publishAt > now()` and `draft` rows are
+     *    hidden from non-owner non-admin viewers; owners and admins
+     *    keep seeing them in their unmaterialised form.
+     *
+     * @param array<int, array{dashboard: Dashboard, source: string}> $entries      The mapper result set.
+     * @param string                                                  $actorUserId  The acting user ID.
+     * @param bool                                                    $actorIsAdmin Whether the actor is a Nextcloud admin.
+     *
+     * @return array<int, array{dashboard: Dashboard, source: string}>
+     *   The filtered, lazily-materialised result set.
+     */
+    private function filterByPublicationState(
+        array $entries,
+        string $actorUserId,
+        bool $actorIsAdmin
+    ): array {
+        $now      = new DateTime();
+        $filtered = [];
+
+        foreach ($entries as $entry) {
+            $dashboard = $entry['dashboard'];
+            $status    = $dashboard->getPublicationStatus();
+            // Pre-migration / legacy rows that never set the column
+            // semantically remain visible (REQ-DASH-035): treat an
+            // empty string as `'published'` so backwards compatibility
+            // holds even if an entity is hydrated without the column.
+            if ($status === '') {
+                $status = Dashboard::STATUS_PUBLISHED;
+            }
+
+            // REQ-DASH-034: lazy materialisation of due scheduled rows.
+            if ($status === Dashboard::STATUS_SCHEDULED) {
+                $publishAt = $dashboard->getPublishAt();
+                if ($publishAt !== null && $publishAt !== '') {
+                    try {
+                        $when = new DateTime($publishAt);
+                        if ($when <= $now) {
+                            $dashboard->setPublicationStatus(
+                                Dashboard::STATUS_PUBLISHED
+                            );
+                            $status = Dashboard::STATUS_PUBLISHED;
+                        }
+                    } catch (Exception) {
+                        // Malformed timestamp — leave as scheduled and
+                        // fall through to the visibility check below.
+                    }
+                }
+            }
+
+            if ($status === Dashboard::STATUS_PUBLISHED) {
+                $filtered[] = $entry;
+                continue;
+            }
+
+            // Status is now draft or (still) scheduled — hide from
+            // non-owner non-admin viewers.
+            $ownerId = $dashboard->getUserId();
+            $isOwner = ($ownerId !== null && $ownerId === $actorUserId);
+            if ($isOwner === true || $actorIsAdmin === true) {
+                $filtered[] = $entry;
+            }
+        }//end foreach
+
+        return $filtered;
+    }//end filterByPublicationState()
 
     /**
      * Resolve the active dashboard for a user using the 7-step precedence
@@ -829,6 +954,179 @@ class DashboardService
             value: $uuid
         );
     }//end setActivePreference()
+
+    /**
+     * Transition a dashboard to `published` and stamp `publishedAt`
+     * the first time it happens. REQ-DASH-032.
+     *
+     * Idempotent: republishing an already-published dashboard returns
+     * the existing entity without altering `publishedAt`. Owner-or-admin
+     * gated — non-owner non-admin callers raise `Exception` with the
+     * sentinel message {@see self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN}
+     * so the controller can map to HTTP 403.
+     *
+     * @param string $uuid   The dashboard UUID to publish.
+     * @param string $userId The acting user ID.
+     *
+     * @return Dashboard The updated dashboard entity.
+     *
+     * @throws DoesNotExistException When the UUID does not exist.
+     * @throws Exception             When the actor is neither the owner
+     *                               nor a Nextcloud administrator.
+     */
+    public function publish(string $uuid, string $userId): Dashboard
+    {
+        $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+        $this->assertOwnerOrAdmin(
+            dashboard: $dashboard,
+            actorUserId: $userId
+        );
+
+        $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+
+        // Idempotent: already published — no-op other than touching
+        // updatedAt is intentionally skipped so audit timestamps stay
+        // accurate. Caller still receives the current state.
+        if ($dashboard->getPublicationStatus() === Dashboard::STATUS_PUBLISHED) {
+            return $dashboard;
+        }
+
+        $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+
+        // First-publication timestamp survives unpublish (REQ-DASH-032
+        // scenario "Unpublish preserves publishedAt"); only set it when
+        // the dashboard has never been published before.
+        if ($dashboard->getPublishedAt() === null) {
+            $dashboard->setPublishedAt($now);
+        }
+
+        // Clear any pending scheduled-publish hint; the dashboard is
+        // published immediately and `publishAt` is meaningless now.
+        $dashboard->setPublishAt(null);
+        $dashboard->setUpdatedAt($now);
+
+        return $this->dashboardMapper->update(entity: $dashboard);
+    }//end publish()
+
+    /**
+     * Transition a dashboard back to `draft` while preserving
+     * `publishedAt` for the audit trail. REQ-DASH-033.
+     *
+     * Idempotent: unpublishing an already-draft dashboard returns the
+     * existing entity unchanged. Owner-or-admin gated.
+     *
+     * @param string $uuid   The dashboard UUID to unpublish.
+     * @param string $userId The acting user ID.
+     *
+     * @return Dashboard The updated dashboard entity.
+     *
+     * @throws DoesNotExistException When the UUID does not exist.
+     * @throws Exception             When the actor is neither owner nor
+     *                               admin.
+     */
+    public function unpublish(string $uuid, string $userId): Dashboard
+    {
+        $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+        $this->assertOwnerOrAdmin(
+            dashboard: $dashboard,
+            actorUserId: $userId
+        );
+
+        if ($dashboard->getPublicationStatus() === Dashboard::STATUS_DRAFT) {
+            return $dashboard;
+        }
+
+        $dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+        // REQ-DASH-033: publishedAt is preserved verbatim; publishAt is
+        // cleared because the scheduled hint no longer applies once we
+        // are explicitly back in draft state.
+        $dashboard->setPublishAt(null);
+        $dashboard->setUpdatedAt(
+            (new DateTime())->format(format: 'Y-m-d H:i:s')
+        );
+
+        return $this->dashboardMapper->update(entity: $dashboard);
+    }//end unpublish()
+
+    /**
+     * Schedule a dashboard for automatic publication at a future
+     * timestamp. REQ-DASH-034.
+     *
+     * Validates that `$publishAt` parses as a valid timestamp strictly
+     * greater than `now()`. Past or unparseable values raise
+     * `InvalidArgumentException` with the canonical error message
+     * {@see self::ERR_SCHEDULE_PAST_DATE} so the controller can map to
+     * HTTP 400 with an i18n-translatable copy. Owner-or-admin gated.
+     *
+     * @param string $uuid      The dashboard UUID to schedule.
+     * @param string $publishAt The ISO-8601 timestamp at which the
+     *                          dashboard should automatically publish.
+     * @param string $userId    The acting user ID.
+     *
+     * @return Dashboard The updated dashboard entity.
+     *
+     * @throws DoesNotExistException    When the UUID does not exist.
+     * @throws InvalidArgumentException When `publishAt` is missing,
+     *                                  unparseable, or in the past.
+     * @throws Exception                When the actor is neither owner
+     *                                  nor admin.
+     */
+    public function schedule(
+        string $uuid,
+        string $publishAt,
+        string $userId
+    ): Dashboard {
+        $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+        $this->assertOwnerOrAdmin(
+            dashboard: $dashboard,
+            actorUserId: $userId
+        );
+
+        $parsed = $this->parseFuturePublishAt(publishAt: $publishAt);
+
+        $dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+        $dashboard->setPublishAt($parsed);
+        $dashboard->setUpdatedAt(
+            (new DateTime())->format(format: 'Y-m-d H:i:s')
+        );
+
+        return $this->dashboardMapper->update(entity: $dashboard);
+    }//end schedule()
+
+    /**
+     * Eagerly materialise scheduled dashboards whose `publishAt` is
+     * past-due. REQ-DASH-034 (optional eager path).
+     *
+     * Iterates every row with `publication_status = 'scheduled'` and
+     * `publish_at <= now()`, flips it to `'published'`, and stamps
+     * `publishedAt = now()`. Lazy materialisation in the visibility
+     * filter still runs at read time (correctness guarantee); this
+     * method exists only to keep the database row consistent with the
+     * effective state for cleaner audit queries.
+     *
+     * @return int The number of dashboards materialised.
+     */
+    public function materialiseScheduledDashboards(): int
+    {
+        $dueRows = $this->dashboardMapper->findDueScheduled();
+        if (count($dueRows) === 0) {
+            return 0;
+        }
+
+        $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+        foreach ($dueRows as $dashboard) {
+            $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+            if ($dashboard->getPublishedAt() === null) {
+                $dashboard->setPublishedAt($now);
+            }
+
+            $dashboard->setPublishAt(null);
+            $dashboard->setUpdatedAt($now);
+            $this->dashboardMapper->update(entity: $dashboard);
+        }
+
+        return count($dueRows);
+    }//end materialiseScheduledDashboards()
 
     /**
      * Fork any dashboard the user can read into a brand-new personal copy.
@@ -1392,4 +1690,81 @@ class DashboardService
             $dashboard->setSortOrder((int) $sortOrder);
         }
     }//end applyTreeUpdates()
+
+    /**
+     * Assert the actor is allowed to mutate the dashboard's publication
+     * state. REQ-DASH-031..034.
+     *
+     * Owner-or-admin is the gate: the dashboard's `userId` must match
+     * the actor, OR the actor must be a Nextcloud admin. Group-shared
+     * and admin-template dashboards (which have `userId = null`) fall
+     * back to the admin-only check.
+     *
+     * @param Dashboard $dashboard   The dashboard being mutated.
+     * @param string    $actorUserId The acting user ID.
+     *
+     * @return void
+     *
+     * @throws Exception When the actor is neither owner nor admin.
+     */
+    private function assertOwnerOrAdmin(
+        Dashboard $dashboard,
+        string $actorUserId
+    ): void {
+        $ownerId = $dashboard->getUserId();
+        if ($ownerId !== null && $ownerId === $actorUserId) {
+            return;
+        }
+
+        if ($this->isAdmin(userId: $actorUserId) === true) {
+            return;
+        }
+
+        throw new Exception(
+            message: self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
+        );
+    }//end assertOwnerOrAdmin()
+
+    /**
+     * Parse and validate a `publishAt` argument for the schedule action.
+     * REQ-DASH-034.
+     *
+     * Accepts any string `DateTime::__construct` understands (ISO-8601
+     * recommended). The parsed value is normalised to the canonical
+     * `Y-m-d H:i:s` storage format used elsewhere on the entity.
+     *
+     * @param string $publishAt The caller-supplied publish-at string.
+     *
+     * @return string The normalised storage timestamp.
+     *
+     * @throws InvalidArgumentException When the string is empty,
+     *                                  unparseable, or not strictly in
+     *                                  the future.
+     */
+    private function parseFuturePublishAt(string $publishAt): string
+    {
+        $trimmed = trim($publishAt);
+        if ($trimmed === '') {
+            throw new InvalidArgumentException(
+                message: self::ERR_SCHEDULE_PAST_DATE
+            );
+        }
+
+        try {
+            $parsed = new DateTime($trimmed);
+        } catch (Exception) {
+            throw new InvalidArgumentException(
+                message: self::ERR_SCHEDULE_PAST_DATE
+            );
+        }
+
+        $now = new DateTime();
+        if ($parsed <= $now) {
+            throw new InvalidArgumentException(
+                message: self::ERR_SCHEDULE_PAST_DATE
+            );
+        }
+
+        return $parsed->format(format: 'Y-m-d H:i:s');
+    }//end parseFuturePublishAt()
 }//end class

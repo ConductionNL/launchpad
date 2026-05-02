@@ -277,7 +277,15 @@ OC.L10N.register(
     "Widgets" : "Widgets",
     "Your primary group for shared dashboards" : "Your primary group for shared dashboards",
     "https://example.com or /apps/files" : "https://example.com or /apps/files",
-    "shareWith is required" : "shareWith is required"
+    "shareWith is required" : "shareWith is required",
+    "publishAt must be a future timestamp" : "publishAt must be a future timestamp",
+    "Forbidden: owner or admin only" : "Forbidden: owner or admin only",
+    "Publish dashboard" : "Publish dashboard",
+    "Unpublish dashboard" : "Unpublish dashboard",
+    "Schedule dashboard" : "Schedule dashboard",
+    "Draft" : "Draft",
+    "Published" : "Published",
+    "Scheduled" : "Scheduled"
 },
 "nplurals=2; plural=(n != 1);"
 );

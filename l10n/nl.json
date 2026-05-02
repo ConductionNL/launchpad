@@ -284,6 +284,14 @@
         "Vertical (list)": "Verticaal (lijst)",
         "Horizontal (cards)": "Horizontaal (kaarten)",
         "Loading…": "Laden…",
-        "No items available": "Geen items beschikbaar"
+        "No items available": "Geen items beschikbaar",
+        "publishAt must be a future timestamp": "publishAt moet een toekomstige datum zijn",
+        "Forbidden: owner or admin only": "Niet toegestaan: alleen eigenaar of beheerder",
+        "Publish dashboard": "Dashboard publiceren",
+        "Unpublish dashboard": "Publicatie ongedaan maken",
+        "Schedule dashboard": "Dashboard inplannen",
+        "Draft": "Concept",
+        "Published": "Gepubliceerd",
+        "Scheduled": "Ingepland"
     }
 }

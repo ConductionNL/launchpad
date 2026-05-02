@@ -920,6 +920,173 @@ class DashboardApiController extends Controller
     }//end fork()
 
     /**
+     * Publish a dashboard. REQ-DASH-032.
+     *
+     * Owner-or-admin gated at the service boundary; the route attribute
+     * is `#[NoAdminRequired]` because the in-body owner check is the
+     * actual authorization point (gate-semantic-auth).
+     *
+     * @param string $uuid The dashboard UUID from the URL.
+     *
+     * @return JSONResponse The updated dashboard payload.
+     */
+    #[NoAdminRequired]
+    public function publish(string $uuid): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $dashboard = $this->dashboardService->publish(
+                uuid: $uuid,
+                userId: $this->userId
+            );
+
+            return ResponseHelper::success(
+                data: ['dashboard' => $dashboard->jsonSerialize()]
+            );
+        } catch (DoesNotExistException) {
+            return new JSONResponse(
+                data: [
+                    'status' => 'error',
+                    'error'  => 'not_found',
+                ],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        } catch (\Exception $e) {
+            return $this->mapPublicationError(exception: $e);
+        }//end try
+    }//end publish()
+
+    /**
+     * Unpublish a dashboard. REQ-DASH-033.
+     *
+     * @param string $uuid The dashboard UUID from the URL.
+     *
+     * @return JSONResponse The updated dashboard payload.
+     */
+    #[NoAdminRequired]
+    public function unpublish(string $uuid): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $dashboard = $this->dashboardService->unpublish(
+                uuid: $uuid,
+                userId: $this->userId
+            );
+
+            return ResponseHelper::success(
+                data: ['dashboard' => $dashboard->jsonSerialize()]
+            );
+        } catch (DoesNotExistException) {
+            return new JSONResponse(
+                data: [
+                    'status' => 'error',
+                    'error'  => 'not_found',
+                ],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        } catch (\Exception $e) {
+            return $this->mapPublicationError(exception: $e);
+        }//end try
+    }//end unpublish()
+
+    /**
+     * Schedule a dashboard for automatic publication. REQ-DASH-034.
+     *
+     * Body: `{"publishAt": "2026-04-01T10:00:00Z"}`. Returns 400 with an
+     * i18n-friendly error message when `publishAt` is missing,
+     * unparseable, or in the past; 403 when the actor is neither owner
+     * nor admin.
+     *
+     * @param string      $uuid      The dashboard UUID from the URL.
+     * @param string|null $publishAt The future ISO-8601 timestamp from
+     *                               the request body.
+     *
+     * @return JSONResponse The updated dashboard payload.
+     */
+    #[NoAdminRequired]
+    public function schedule(
+        string $uuid,
+        ?string $publishAt=null
+    ): JSONResponse {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        if ($publishAt === null || $publishAt === '') {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'invalid_argument',
+                    'message' => DashboardService::ERR_SCHEDULE_PAST_DATE,
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        try {
+            $dashboard = $this->dashboardService->schedule(
+                uuid: $uuid,
+                publishAt: $publishAt,
+                userId: $this->userId
+            );
+
+            return ResponseHelper::success(
+                data: ['dashboard' => $dashboard->jsonSerialize()]
+            );
+        } catch (DoesNotExistException) {
+            return new JSONResponse(
+                data: [
+                    'status' => 'error',
+                    'error'  => 'not_found',
+                ],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        } catch (InvalidArgumentException $e) {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'invalid_argument',
+                    'message' => $e->getMessage(),
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        } catch (\Exception $e) {
+            return $this->mapPublicationError(exception: $e);
+        }//end try
+    }//end schedule()
+
+    /**
+     * Map publication-related service exceptions onto the right HTTP
+     * status. REQ-DASH-032..034.
+     *
+     * The service raises `Exception` with the sentinel message
+     * {@see DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN} when
+     * the actor is not allowed; everything else falls through to the
+     * generic ResponseHelper::error path.
+     *
+     * @param \Exception $exception The thrown exception.
+     *
+     * @return JSONResponse The mapped error envelope.
+     */
+    private function mapPublicationError(\Exception $exception): JSONResponse
+    {
+        if ($exception->getMessage() === DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
+        ) {
+            return ResponseHelper::forbidden(
+                message: DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
+            );
+        }
+
+        return ResponseHelper::error(exception: $exception);
+    }//end mapPublicationError()
+
+    /**
      * Resolve create parameters from JSON body or individual params.
      *
      * Forwards the new hierarchy fields (`parentUuid`, `slug`,

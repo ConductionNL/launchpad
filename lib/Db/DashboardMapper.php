@@ -849,6 +849,42 @@ class DashboardMapper extends QBMapper
     }//end findDescendants()
 
     /**
+     * Find every scheduled dashboard whose `publishAt` is past-due.
+     *
+     * Used by the optional eager-materialisation path in
+     * {@see \OCA\MyDash\Service\DashboardService::materialiseScheduledDashboards()}.
+     * Lazy materialisation in the visibility filter remains the
+     * correctness contract — this mapper exists only for cleaner audit
+     * data on the underlying table. REQ-DASH-034.
+     *
+     * @return Dashboard[] The due-scheduled dashboards.
+     */
+    public function findDueScheduled(): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'publication_status',
+                    y: $qb->createNamedParameter(
+                        value: Dashboard::STATUS_SCHEDULED
+                    )
+                )
+            )
+            ->andWhere(
+                $qb->expr()->lte(
+                    x: 'publish_at',
+                    y: $qb->createNamedParameter(
+                        value: (new DateTime())->format(format: 'Y-m-d H:i:s')
+                    )
+                )
+            );
+
+        return $this->findEntities(query: $qb);
+    }//end findDueScheduled()
+
+    /**
      * Clear default flag on all admin templates.
      *
      * @return void

@@ -267,4 +267,27 @@ class DashboardFactoryTest extends TestCase
             $dashboard->getGroupId()
         );
     }
+
+    /**
+     * REQ-DASH-031 / design D2: every newly created dashboard MUST be
+     * persisted with publicationStatus = 'draft' regardless of the
+     * column default. Overrides the entity's PHP default of 'published'
+     * (which exists only to keep legacy hydrations visible).
+     *
+     * @return void
+     */
+    public function testCreateSetsPublicationStatusToDraft(): void
+    {
+        $dashboard = $this->factory->create(
+            userId: 'alice',
+            name: 'New Dashboard'
+        );
+
+        $this->assertSame(
+            \OCA\MyDash\Db\Dashboard::STATUS_DRAFT,
+            $dashboard->getPublicationStatus()
+        );
+        $this->assertNull($dashboard->getPublishAt());
+        $this->assertNull($dashboard->getPublishedAt());
+    }
 }

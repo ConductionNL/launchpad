@@ -306,4 +306,77 @@ class DashboardTest extends TestCase
         $this->assertArrayHasKey('groupId', $serialized);
         $this->assertNull($serialized['groupId']);
     }
+
+    /**
+     * REQ-DASH-031: the entity MUST expose the three publication-state
+     * constants matching the column enum vocabulary.
+     *
+     * @return void
+     */
+    public function testPublicationStatusConstants(): void
+    {
+        $this->assertSame('draft', Dashboard::STATUS_DRAFT);
+        $this->assertSame('published', Dashboard::STATUS_PUBLISHED);
+        $this->assertSame('scheduled', Dashboard::STATUS_SCHEDULED);
+    }
+
+    /**
+     * REQ-DASH-035: the PHP default mirrors the database column default
+     * (`'published'`) so legacy / pre-migration entity hydrations remain
+     * visible until explicitly transitioned. New dashboards override
+     * this to `'draft'` via the factory (REQ-DASH-031, design D2).
+     *
+     * @return void
+     */
+    public function testDefaultPublicationStatusIsPublished(): void
+    {
+        $this->assertSame(
+            Dashboard::STATUS_PUBLISHED,
+            $this->dashboard->getPublicationStatus()
+        );
+        $this->assertNull($this->dashboard->getPublishAt());
+        $this->assertNull($this->dashboard->getPublishedAt());
+    }
+
+    /**
+     * REQ-DASH-031: the publication-state setters must round-trip the
+     * three legal values plus null for the timestamps.
+     *
+     * @return void
+     */
+    public function testPublicationStateSettersRoundTrip(): void
+    {
+        $this->dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+        $this->assertSame('draft', $this->dashboard->getPublicationStatus());
+
+        $this->dashboard->setPublishAt('2026-04-01 10:00:00');
+        $this->assertSame('2026-04-01 10:00:00', $this->dashboard->getPublishAt());
+
+        $this->dashboard->setPublishedAt('2026-03-20 14:30:00');
+        $this->assertSame('2026-03-20 14:30:00', $this->dashboard->getPublishedAt());
+
+        $this->dashboard->setPublishAt(null);
+        $this->assertNull($this->dashboard->getPublishAt());
+    }
+
+    /**
+     * REQ-DASH-031: jsonSerialize MUST include the three publication
+     * fields with stable key names, including null timestamps.
+     *
+     * @return void
+     */
+    public function testJsonSerializeIncludesPublicationFields(): void
+    {
+        $this->dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+        $this->dashboard->setPublishAt('2026-04-01 10:00:00');
+
+        $serialized = $this->dashboard->jsonSerialize();
+
+        $this->assertArrayHasKey('publicationStatus', $serialized);
+        $this->assertArrayHasKey('publishAt', $serialized);
+        $this->assertArrayHasKey('publishedAt', $serialized);
+        $this->assertSame('scheduled', $serialized['publicationStatus']);
+        $this->assertSame('2026-04-01 10:00:00', $serialized['publishAt']);
+        $this->assertNull($serialized['publishedAt']);
+    }
 }

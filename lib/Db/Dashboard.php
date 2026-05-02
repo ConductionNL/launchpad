@@ -60,6 +60,12 @@ use OCP\AppFramework\Db\Entity;
  * @method void setSlug(?string $slug)
  * @method int getSortOrder()
  * @method void setSortOrder(int $sortOrder)
+ * @method string getPublicationStatus()
+ * @method void setPublicationStatus(string $publicationStatus)
+ * @method string|null getPublishAt()
+ * @method void setPublishAt(?string $publishAt)
+ * @method string|null getPublishedAt()
+ * @method void setPublishedAt(?string $publishedAt)
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -140,6 +146,32 @@ class Dashboard extends Entity implements JsonSerializable
      * @var string
      */
     public const SOURCE_DEFAULT = 'default';
+
+    /**
+     * Publication status: dashboard is a draft, visible only to its owner
+     * (and Nextcloud admins). REQ-DASH-031..037.
+     *
+     * @var string
+     */
+    public const STATUS_DRAFT = 'draft';
+
+    /**
+     * Publication status: dashboard is published and follows the normal
+     * visibility / share rules. REQ-DASH-031..037.
+     *
+     * @var string
+     */
+    public const STATUS_PUBLISHED = 'published';
+
+    /**
+     * Publication status: dashboard is scheduled for automatic publication
+     * at a future timestamp held in `publishAt`. Behaves as `draft` until
+     * `publishAt <= now()`, after which read-time materialisation flips it
+     * to `published`. REQ-DASH-034.
+     *
+     * @var string
+     */
+    public const STATUS_SCHEDULED = 'scheduled';
 
     /**
      * Permission level for view only.
@@ -318,6 +350,45 @@ class Dashboard extends Entity implements JsonSerializable
     protected int $sortOrder = 0;
 
     /**
+     * The publication status (REQ-DASH-031).
+     *
+     * One of {@see Dashboard::STATUS_DRAFT}, {@see Dashboard::STATUS_PUBLISHED},
+     * {@see Dashboard::STATUS_SCHEDULED}. The PHP default mirrors the
+     * database column default (`'published'`) so pre-existing rows and
+     * raw `new Dashboard()` constructions remain visible until any
+     * future migration explicitly flips them. New dashboards created
+     * via {@see DashboardFactory::create()} are explicitly overridden
+     * to `'draft'` immediately before persistence (REQ-DASH-031, design
+     * D2), so the safe default at the application boundary is still
+     * "create now, share later".
+     *
+     * @var string
+     */
+    protected string $publicationStatus = self::STATUS_PUBLISHED;
+
+    /**
+     * The scheduled publish timestamp (REQ-DASH-031, REQ-DASH-033).
+     *
+     * Required when {@see Dashboard::$publicationStatus} is
+     * {@see Dashboard::STATUS_SCHEDULED}; ignored otherwise. ISO-8601
+     * timestamp string in the database (DATETIME column, NULL allowed).
+     *
+     * @var string|null
+     */
+    protected ?string $publishAt = null;
+
+    /**
+     * The first-publication timestamp (REQ-DASH-031, REQ-DASH-032).
+     *
+     * Set automatically the first time the dashboard transitions to
+     * {@see Dashboard::STATUS_PUBLISHED}; preserved when later
+     * unpublished so the audit trail survives the round-trip.
+     *
+     * @var string|null
+     */
+    protected ?string $publishedAt = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -379,25 +450,28 @@ class Dashboard extends Entity implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id'              => $this->getId(),
-            'uuid'            => $this->uuid,
-            'name'            => $this->name,
-            'description'     => $this->description,
-            'icon'            => $this->icon,
-            'type'            => $this->type,
-            'userId'          => $this->userId,
-            'groupId'         => $this->groupId,
-            'basedOnTemplate' => $this->basedOnTemplate,
-            'gridColumns'     => $this->gridColumns,
-            'permissionLevel' => $this->permissionLevel,
-            'targetGroups'    => $this->getTargetGroupsArray(),
-            'isDefault'       => $this->isDefault,
-            'isActive'        => $this->isActive,
-            'createdAt'       => $this->createdAt,
-            'updatedAt'       => $this->updatedAt,
-            'parentUuid'      => $this->parentUuid,
-            'slug'            => $this->slug,
-            'sortOrder'       => $this->sortOrder,
+            'id'                => $this->getId(),
+            'uuid'              => $this->uuid,
+            'name'              => $this->name,
+            'description'       => $this->description,
+            'icon'              => $this->icon,
+            'type'              => $this->type,
+            'userId'            => $this->userId,
+            'groupId'           => $this->groupId,
+            'basedOnTemplate'   => $this->basedOnTemplate,
+            'gridColumns'       => $this->gridColumns,
+            'permissionLevel'   => $this->permissionLevel,
+            'targetGroups'      => $this->getTargetGroupsArray(),
+            'isDefault'         => $this->isDefault,
+            'isActive'          => $this->isActive,
+            'createdAt'         => $this->createdAt,
+            'updatedAt'         => $this->updatedAt,
+            'parentUuid'        => $this->parentUuid,
+            'slug'              => $this->slug,
+            'sortOrder'         => $this->sortOrder,
+            'publicationStatus' => $this->publicationStatus,
+            'publishAt'         => $this->publishAt,
+            'publishedAt'       => $this->publishedAt,
         ];
     }//end jsonSerialize()
 }//end class

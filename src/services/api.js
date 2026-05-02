@@ -101,6 +101,29 @@ export const api = {
 		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(sourceUuid)}/fork`, payload)
 	},
 
+	// REQ-DASH-032: publish a dashboard. Owner-or-admin only on the
+	// backend; a 403 envelope surfaces here when the caller lacks
+	// permission.
+	publishDashboard(uuid) {
+		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/publish`)
+	},
+
+	// REQ-DASH-033: unpublish (return to draft). Preserves publishedAt
+	// on the backend for audit history.
+	unpublishDashboard(uuid) {
+		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/unpublish`)
+	},
+
+	// REQ-DASH-034: schedule a dashboard for automatic publication at a
+	// future ISO-8601 timestamp. Backend rejects past dates with a
+	// localised 400 error message.
+	scheduleDashboard(uuid, publishAt) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/schedule`,
+			{ publishAt },
+		)
+	},
+
 	// Fetch the nested dashboard tree (REQ-DASH-026).
 	getDashboardTree() {
 		return axios.get(`${baseUrl}/api/dashboards/tree`)

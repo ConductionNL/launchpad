@@ -292,6 +292,17 @@
         "Schedule dashboard": "Schedule dashboard",
         "Draft": "Draft",
         "Published": "Published",
-        "Scheduled": "Scheduled"
+        "Scheduled": "Scheduled",
+        "Backup, restore & migrate dashboards": "Backup, restore & migrate dashboards",
+        "Download a versioned ZIP archive of all dashboards in this MyDash instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.": "Download a versioned ZIP archive of all dashboards in this MyDash instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.",
+        "Download all dashboards": "Download all dashboards",
+        "Exporting…": "Exporting…",
+        "Export failed. Please try again.": "Export failed. Please try again.",
+        "Import a dashboard archive (.zip)": "Import a dashboard archive (.zip)",
+        "Preserve original dashboard UUIDs (fail on collision)": "Preserve original dashboard UUIDs (fail on collision)",
+        "Upload archive": "Upload archive",
+        "Importing…": "Importing…",
+        "Imported {imported} dashboards, skipped {skipped}.": "Imported {imported} dashboards, skipped {skipped}.",
+        "Import failed. Please try again.": "Import failed. Please try again."
     }
 }

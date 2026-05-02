@@ -145,5 +145,13 @@ return [
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'admin_settings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'admin_settings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+
+		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
+		// via runtime `IGroupManager::isAdmin` check inside the
+		// controller; the routes carry no CSRF token because the import
+		// path accepts multipart uploads from CLI tools as well as the
+		// admin UI.
+		['name' => 'admin#export', 'url' => '/api/admin/export', 'verb' => 'POST'],
+		['name' => 'admin#import', 'url' => '/api/admin/import', 'verb' => 'POST'],
 	],
 ];

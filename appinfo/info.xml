@@ -76,6 +76,12 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>
 	</settings>
 
+	<commands>
+		<!-- REQ-EXIM-010: dashboard export / import via `php occ`. -->
+		<command>OCA\MyDash\Command\ExportCommand</command>
+		<command>OCA\MyDash\Command\ImportCommand</command>
+	</commands>
+
 	<navigations>
 		<navigation>
 			<name>MyDash</name>

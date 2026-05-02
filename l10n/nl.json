@@ -292,6 +292,17 @@
         "Schedule dashboard": "Dashboard inplannen",
         "Draft": "Concept",
         "Published": "Gepubliceerd",
-        "Scheduled": "Ingepland"
+        "Scheduled": "Ingepland",
+        "Backup, restore & migrate dashboards": "Dashboards back-uppen, herstellen en migreren",
+        "Download a versioned ZIP archive of all dashboards in this MyDash instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.": "Download een geversioneerd ZIP-archief van alle dashboards in deze MyDash-instantie, of upload een eerder geëxporteerd archief om te herstellen of te migreren. Het archief is overdraagbaar tussen Nextcloud-installaties.",
+        "Download all dashboards": "Alle dashboards downloaden",
+        "Exporting…": "Exporteren…",
+        "Export failed. Please try again.": "Export mislukt. Probeer het opnieuw.",
+        "Import a dashboard archive (.zip)": "Importeer een dashboard-archief (.zip)",
+        "Preserve original dashboard UUIDs (fail on collision)": "Originele dashboard-UUID's behouden (afbreken bij conflict)",
+        "Upload archive": "Archief uploaden",
+        "Importing…": "Importeren…",
+        "Imported {imported} dashboards, skipped {skipped}.": "{imported} dashboards geïmporteerd, {skipped} overgeslagen.",
+        "Import failed. Please try again.": "Import mislukt. Probeer het opnieuw."
     }
 }

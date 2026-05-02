@@ -23,6 +23,8 @@ namespace Unit\Controller;
 use OCA\MyDash\Controller\AdminController;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
+use OCA\MyDash\Service\ExportService;
+use OCA\MyDash\Service\ImportService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -59,6 +61,8 @@ class AdminControllerGroupOrderTest extends TestCase
             settingsService: $this->settingsService,
             groupManager: $this->groupManager,
             userSession: $this->userSession,
+            exportService: $this->createMock(ExportService::class),
+            importService: $this->createMock(ImportService::class),
         );
     }
 

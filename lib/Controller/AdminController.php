@@ -23,15 +23,24 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\AdminSettingsService;
+use OCA\MyDash\Service\ExportService;
+use OCA\MyDash\Service\ImportService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\StreamResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
  * Controller for admin dashboard template management.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Mirrors aggregated services.
+ * @SuppressWarnings(PHPMD.Superglobals)
+ *      $_FILES is the only multipart entry point.
  */
 class AdminController extends Controller
 {
@@ -43,6 +52,10 @@ class AdminController extends Controller
      * @param AdminSettingsService $settingsService The admin settings service.
      * @param IGroupManager        $groupManager    The Nextcloud group manager.
      * @param IUserSession         $userSession     The current user session.
+     * @param ExportService        $exportService   ZIP export service
+     *                                              (REQ-EXIM-001..003).
+     * @param ImportService        $importService   ZIP import service
+     *                                              (REQ-EXIM-004..008).
      */
     public function __construct(
         IRequest $request,
@@ -50,6 +63,8 @@ class AdminController extends Controller
         private readonly AdminSettingsService $settingsService,
         private readonly IGroupManager $groupManager,
         private readonly IUserSession $userSession,
+        private readonly ExportService $exportService,
+        private readonly ImportService $importService,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -375,6 +390,145 @@ class AdminController extends Controller
             ]
         );
     }//end updateGroupOrder()
+
+    /**
+     * Export a single dashboard or the entire site as a ZIP archive.
+     *
+     * Implements REQ-EXIM-002 (single-dashboard export) and REQ-EXIM-003
+     * (site export). Admin-only — non-admins receive HTTP 403.
+     *
+     * Query parameters:
+     *   - `scope` (string, required): `dashboard` or `site`.
+     *   - `dashboardUuid` (string, required when scope=dashboard).
+     *
+     * @param string      $scope         The export scope.
+     * @param string|null $dashboardUuid The dashboard UUID for scope=dashboard.
+     *
+     * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
+     *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function export(
+        string $scope='site',
+        ?string $dashboardUuid=null
+    ): StreamResponse|JSONResponse {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        if (in_array(needle: $scope, haystack: ['site', 'dashboard'], strict: true) === false) {
+            return new JSONResponse(
+                data: ['error' => 'Unsupported scope: '.$scope],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        $userId = (string) $this->userSession->getUser()?->getUID();
+
+        if ($scope === 'site') {
+            return $this->exportService->exportSite(currentUserId: $userId);
+        }
+
+        if ($dashboardUuid === null || $dashboardUuid === '') {
+            return new JSONResponse(
+                data: ['error' => 'dashboardUuid parameter is required when scope=dashboard'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        if (preg_match(pattern: '/^[A-Za-z0-9\-]{8,}$/', subject: $dashboardUuid) !== 1) {
+            return new JSONResponse(
+                data: ['error' => 'Invalid dashboard UUID format'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        try {
+            return $this->exportService->exportDashboard(
+                dashboardUuid: $dashboardUuid,
+                currentUserId: $userId
+            );
+        } catch (DoesNotExistException) {
+            return new JSONResponse(
+                data: ['error' => 'Dashboard not found'],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        }
+    }//end export()
+
+    /**
+     * Import a previously-exported ZIP archive.
+     *
+     * Implements REQ-EXIM-004..008. Admin-only.
+     *
+     * Multipart body: a `file` field containing the ZIP archive.
+     * Query parameter: `preserveUuids` (default false).
+     *
+     * @param bool $preserveUuids When true, fail on UUID collision.
+     *
+     * @return JSONResponse The import summary, or an error response.
+     *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function import(bool $preserveUuids=false): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        // Multipart uploads bind to $_FILES; PHP only populates this for
+        // POST requests, which is what the route declares (REQ-EXIM-004).
+        $upload = $_FILES['file'] ?? null;
+        if (is_array($upload) === false
+            || isset($upload['tmp_name']) === false
+            || (string) $upload['tmp_name'] === ''
+        ) {
+            return new JSONResponse(
+                data: ['error' => 'No file uploaded under field "file".'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        $tmpName = (string) $upload['tmp_name'];
+
+        $userId = (string) $this->userSession->getUser()?->getUID();
+
+        try {
+            $result = $this->importService->import(
+                zipPath: $tmpName,
+                preserveUuids: $preserveUuids,
+                currentUserId: $userId
+            );
+        } catch (InvalidArgumentException $e) {
+            return new JSONResponse(
+                data: ['error' => $e->getMessage()],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
+            return new JSONResponse(
+                data: [
+                    'importedDashboardCount' => 0,
+                    'skippedDashboardCount'  => 0,
+                    'errors'                 => $result['errors'],
+                ],
+                statusCode: Http::STATUS_CONFLICT
+            );
+        }
+
+        return ResponseHelper::success(
+            data: [
+                'importedDashboardCount' => $result['importedDashboardCount'],
+                'skippedDashboardCount'  => $result['skippedDashboardCount'],
+                'errors'                 => $result['errors'],
+            ]
+        );
+    }//end import()
 
     /**
      * Verify the current session belongs to a Nextcloud admin.

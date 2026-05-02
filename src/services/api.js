@@ -247,6 +247,31 @@ export const api = {
 		return axios.post(`${baseUrl}/api/admin/groups`, { groups })
 	},
 
+	// Dashboard export / import (REQ-EXIM-002..004). Both endpoints
+	// require Nextcloud-admin and are gated server-side; the admin UI
+	// only renders the controls behind the same admin check. Export
+	// returns a binary blob streamed straight to disk; import accepts a
+	// multipart upload.
+	exportDashboards({ scope = 'site', dashboardUuid = null } = {}) {
+		const params = { scope }
+		if (dashboardUuid) {
+			params.dashboardUuid = dashboardUuid
+		}
+		return axios.post(`${baseUrl}/api/admin/export`, null, {
+			params,
+			responseType: 'blob',
+		})
+	},
+
+	importDashboards(file, { preserveUuids = false } = {}) {
+		const form = new FormData()
+		form.append('file', file)
+		return axios.post(`${baseUrl}/api/admin/import`, form, {
+			params: { preserveUuids },
+			headers: { 'Content-Type': 'multipart/form-data' },
+		})
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

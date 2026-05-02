@@ -163,6 +163,11 @@
 				</div>
 			</div>
 
+			<!-- Backup & migration (REQ-EXIM-001..010) -->
+			<div class="mydash-admin__section">
+				<DashboardExportImport />
+			</div>
+
 			<!-- Info -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
@@ -243,6 +248,7 @@ import {
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
+import DashboardExportImport from './DashboardExportImport.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -250,6 +256,7 @@ export default {
 
 	components: {
 		CnSettingsSection,
+		DashboardExportImport,
 		GroupPriorityOrder,
 		NcButton,
 		NcSelect,

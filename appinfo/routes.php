@@ -153,5 +153,15 @@ return [
 		// admin UI.
 		['name' => 'admin#export', 'url' => '/api/admin/export', 'verb' => 'POST'],
 		['name' => 'admin#import', 'url' => '/api/admin/import', 'verb' => 'POST'],
+
+		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
+		// via runtime `IGroupManager::isAdmin` check inside the
+		// controller. The dry-run route MUST precede the bare /confluence
+		// route so the literal `dry-run` segment matches before the
+		// import handler claims it.
+		['name' => 'confluence_import#dryRun',
+		 'url' => '/api/admin/import/confluence/dry-run', 'verb' => 'POST'],
+		['name' => 'confluence_import#import',
+		 'url' => '/api/admin/import/confluence', 'verb' => 'POST'],
 	],
 ];

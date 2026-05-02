@@ -80,6 +80,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- REQ-EXIM-010: dashboard export / import via `php occ`. -->
 		<command>OCA\MyDash\Command\ExportCommand</command>
 		<command>OCA\MyDash\Command\ImportCommand</command>
+		<!-- REQ-CFLI-011: Confluence HTML export importer via `php occ`. -->
+		<command>OCA\MyDash\Command\ImportConfluenceCommand</command>
 	</commands>
 
 	<navigations>

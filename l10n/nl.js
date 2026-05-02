@@ -296,7 +296,20 @@ OC.L10N.register(
     "Upload archive" : "Archief uploaden",
     "Importing…" : "Importeren…",
     "Imported {imported} dashboards, skipped {skipped}." : "{imported} dashboards geïmporteerd, {skipped} overgeslagen.",
-    "Import failed. Please try again." : "Import mislukt. Probeer het opnieuw."
+    "Import failed. Please try again." : "Import mislukt. Probeer het opnieuw.",
+    "Import from Confluence" : "Importeren vanuit Confluence",
+    "Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a MyDash dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree." : "Upload een Confluence HTML-export-ZIP. Elke Confluence-pagina wordt een MyDash-dashboard met één volledige-breedte tekst-widget; de paginahiërarchie wordt overgenomen via de dashboard-boom.",
+    "Confluence export archive (.zip)" : "Confluence-export-archief (.zip)",
+    "Optional parent dashboard UUID (root pages will be slotted under this dashboard)" : "Optionele bovenliggende dashboard-UUID (rootpagina's komen onder dit dashboard)",
+    "Leave empty to import as root dashboards" : "Laat leeg om als root-dashboards te importeren",
+    "Dry-run preview" : "Dry-run-voorbeeld",
+    "Inspecting…" : "Analyseren…",
+    "Import dashboards" : "Dashboards importeren",
+    "{pages} pages, {attachments} attachments — would create {dashboards} dashboards." : "{pages} pagina's, {attachments} bijlagen — zou {dashboards} dashboards aanmaken.",
+    "Assets would be uploaded to {folder}" : "Bestanden worden geüpload naar {folder}",
+    "Assets uploaded to {folder}" : "Bestanden geüpload naar {folder}",
+    "Confluence dry-run failed. Please try again." : "Confluence-dry-run mislukt. Probeer het opnieuw.",
+    "Confluence import failed. Please try again." : "Confluence-import mislukt. Probeer het opnieuw."
 },
 "nplurals=2; plural=(n != 1);"
 );

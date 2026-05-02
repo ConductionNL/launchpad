@@ -272,6 +272,34 @@ export const api = {
 		})
 	},
 
+	// Confluence HTML export importer (REQ-CFLI-001..012). Both endpoints
+	// are admin-only on the server side; the UI gates the controls behind
+	// the same admin check. Dry-run returns the parse preview without
+	// touching the database; the import endpoint creates one MyDash
+	// dashboard per Confluence page.
+	confluenceImportDryRun(file) {
+		const form = new FormData()
+		form.append('file', file)
+		return axios.post(
+			`${baseUrl}/api/admin/import/confluence/dry-run`,
+			form,
+			{ headers: { 'Content-Type': 'multipart/form-data' } },
+		)
+	},
+
+	confluenceImport(file, { parentUuid = null } = {}) {
+		const form = new FormData()
+		form.append('file', file)
+		const params = {}
+		if (parentUuid) {
+			params.parentUuid = parentUuid
+		}
+		return axios.post(`${baseUrl}/api/admin/import/confluence`, form, {
+			params,
+			headers: { 'Content-Type': 'multipart/form-data' },
+		})
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

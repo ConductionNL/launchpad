@@ -168,6 +168,11 @@
 				<DashboardExportImport />
 			</div>
 
+			<!-- Confluence HTML import (REQ-CFLI-001..012) -->
+			<div class="mydash-admin__section">
+				<ConfluenceImport />
+			</div>
+
 			<!-- Info -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
@@ -249,6 +254,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
 import DashboardExportImport from './DashboardExportImport.vue'
+import ConfluenceImport from './ConfluenceImport.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -256,6 +262,7 @@ export default {
 
 	components: {
 		CnSettingsSection,
+		ConfluenceImport,
 		DashboardExportImport,
 		GroupPriorityOrder,
 		NcButton,

@@ -303,6 +303,19 @@
         "Upload archive": "Upload archive",
         "Importing…": "Importing…",
         "Imported {imported} dashboards, skipped {skipped}.": "Imported {imported} dashboards, skipped {skipped}.",
-        "Import failed. Please try again.": "Import failed. Please try again."
+        "Import failed. Please try again.": "Import failed. Please try again.",
+        "Import from Confluence": "Import from Confluence",
+        "Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a MyDash dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree.": "Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a MyDash dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree.",
+        "Confluence export archive (.zip)": "Confluence export archive (.zip)",
+        "Optional parent dashboard UUID (root pages will be slotted under this dashboard)": "Optional parent dashboard UUID (root pages will be slotted under this dashboard)",
+        "Leave empty to import as root dashboards": "Leave empty to import as root dashboards",
+        "Dry-run preview": "Dry-run preview",
+        "Inspecting…": "Inspecting…",
+        "Import dashboards": "Import dashboards",
+        "{pages} pages, {attachments} attachments — would create {dashboards} dashboards.": "{pages} pages, {attachments} attachments — would create {dashboards} dashboards.",
+        "Assets would be uploaded to {folder}": "Assets would be uploaded to {folder}",
+        "Assets uploaded to {folder}": "Assets uploaded to {folder}",
+        "Confluence dry-run failed. Please try again.": "Confluence dry-run failed. Please try again.",
+        "Confluence import failed. Please try again.": "Confluence import failed. Please try again."
     }
 }

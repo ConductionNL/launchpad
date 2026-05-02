@@ -247,6 +247,37 @@ export const api = {
 		return axios.post(`${baseUrl}/api/admin/groups`, { groups })
 	},
 
+	// Dashboard metadata-fields admin CRUD (REQ-MDFL-001..003).
+	getMetadataFields() {
+		return axios.get(`${baseUrl}/api/admin/metadata-fields`)
+	},
+
+	createMetadataField(field) {
+		return axios.post(`${baseUrl}/api/admin/metadata-fields`, field)
+	},
+
+	getMetadataField(id) {
+		return axios.get(`${baseUrl}/api/admin/metadata-fields/${id}`)
+	},
+
+	updateMetadataField(id, patch) {
+		return axios.put(`${baseUrl}/api/admin/metadata-fields/${id}`, patch)
+	},
+
+	deleteMetadataField(id, cascade = false) {
+		const query = cascade ? '?cascade=true' : ''
+		return axios.delete(`${baseUrl}/api/admin/metadata-fields/${id}${query}`)
+	},
+
+	// Per-dashboard metadata read/write (REQ-MDFL-004..006, REQ-MDFL-008).
+	getDashboardMetadata(uuid) {
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`)
+	},
+
+	updateDashboardMetadata(uuid, metadata) {
+		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`, { metadata })
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

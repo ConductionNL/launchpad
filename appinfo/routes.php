@@ -145,5 +145,24 @@ return [
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'admin_settings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'admin_settings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+
+		// Dashboard metadata-fields admin registry (REQ-MDFL-001..003).
+		// All admin-only via runtime `IGroupManager::isAdmin` check.
+		['name' => 'metadata_admin#listFields', 'url' => '/api/admin/metadata-fields', 'verb' => 'GET'],
+		['name' => 'metadata_admin#createField', 'url' => '/api/admin/metadata-fields', 'verb' => 'POST'],
+		['name' => 'metadata_admin#getField', 'url' => '/api/admin/metadata-fields/{id}', 'verb' => 'GET',
+		 'requirements' => ['id' => '\d+']],
+		['name' => 'metadata_admin#updateField', 'url' => '/api/admin/metadata-fields/{id}', 'verb' => 'PUT',
+		 'requirements' => ['id' => '\d+']],
+		['name' => 'metadata_admin#deleteField', 'url' => '/api/admin/metadata-fields/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['id' => '\d+']],
+
+		// Dashboard metadata read/write per dashboard
+		// (REQ-MDFL-004..006, REQ-MDFL-008). Specific routes already
+		// declared above precede the wildcard `{id}` patterns; the
+		// `{uuid}/metadata` URLs cannot collide with them because the
+		// `metadata` literal is unique to this capability.
+		['name' => 'dashboard_metadata#getMetadata', 'url' => '/api/dashboards/{uuid}/metadata', 'verb' => 'GET'],
+		['name' => 'dashboard_metadata#setMetadata', 'url' => '/api/dashboards/{uuid}/metadata', 'verb' => 'PUT'],
 	],
 ];

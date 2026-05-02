@@ -1,6 +1,14 @@
 OC.L10N.register(
     "mydash",
     {
+    "— Choose —" : "— Choose —",
+    "Dashboard metadata" : "Dashboard metadata",
+    "Failed to update dashboard metadata" : "Failed to update dashboard metadata",
+    "No metadata fields are configured. Ask an administrator to add some." : "No metadata fields are configured. Ask an administrator to add some.",
+    "Save metadata" : "Save metadata",
+    "Saving…" : "Saving…",
+    "Yes" : "Yes",
+    "No" : "No",
     "%1$s is now yours" : "%1$s is now yours",
     "%1$s shared %2$s with you" : "%1$s shared %2$s with you",
     "%1$s shared **%2$s** with you" : "%1$s shared **%2$s** with you",

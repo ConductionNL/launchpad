@@ -69,6 +69,16 @@ export const useDashboardStore = defineStore('dashboard', {
 		primaryGroup: '',
 		loading: false,
 		saving: false,
+		// REQ-MDFL-001..006: dashboard-metadata-fields capability.
+		// `metadataFields` caches the admin-managed field definitions
+		// fetched from `GET /api/admin/metadata-fields` (admin only —
+		// the call returns 403 for non-admins, in which case the array
+		// stays empty and the metadata UI hides).
+		metadataFields: [],
+		// `metadataByDashboard` keys dashboard UUID → flat
+		// {fieldKey: encodedValue} map. Lazily populated on first
+		// `fetchDashboardMetadata(uuid)` call.
+		metadataByDashboard: {},
 	}),
 
 	getters: {
@@ -182,6 +192,23 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			// Step 7: nothing.
 			return null
+		},
+
+		// REQ-MDFL-004: returns the metadata map for the given UUID, or
+		// an empty object when nothing has been fetched yet. Components
+		// using this getter MUST call `fetchDashboardMetadata(uuid)`
+		// once on mount to populate the cache.
+		metadataFor: (state) => (uuid) => {
+			return state.metadataByDashboard[uuid] || {}
+		},
+
+		// REQ-MDFL-001: alphabetised admin-managed field-definition list.
+		metadataFieldsSorted: (state) => {
+			return [...state.metadataFields].sort((a, b) => {
+				const ao = Number(a.sortOrder || 0)
+				const bo = Number(b.sortOrder || 0)
+				return ao !== bo ? ao - bo : String(a.label).localeCompare(String(b.label))
+			})
 		},
 	},
 
@@ -759,6 +786,107 @@ export const useDashboardStore = defineStore('dashboard', {
 			} catch (error) {
 				console.error('Failed to update widget placement:', error)
 				console.error('Error details:', error.response?.data)
+			}
+		},
+
+		/**
+		 * Fetch the admin-managed metadata-field registry
+		 * (REQ-MDFL-001). Non-admin callers receive HTTP 403; the
+		 * action swallows the error so the caller does not need to
+		 * branch on admin status.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async fetchMetadataFields() {
+			try {
+				const response = await api.getMetadataFields()
+				const payload = response?.data
+				if (Array.isArray(payload?.fields)) {
+					this.metadataFields = payload.fields
+				} else if (Array.isArray(payload)) {
+					this.metadataFields = payload
+				} else {
+					this.metadataFields = []
+				}
+			} catch (error) {
+				if (error?.response?.status !== 403) {
+					console.error('Failed to load metadata fields:', error)
+				}
+				this.metadataFields = []
+			}
+		},
+
+		/**
+		 * Fetch the metadata key-value map for a single dashboard
+		 * (REQ-MDFL-004). Caches the result on
+		 * `state.metadataByDashboard[uuid]` so repeated reads in the
+		 * same session avoid the round-trip.
+		 *
+		 * @param {string} uuid The dashboard UUID.
+		 * @return {Promise<object>} The metadata map (always an object).
+		 */
+		async fetchDashboardMetadata(uuid) {
+			if (!uuid) {
+				return {}
+			}
+
+			try {
+				const response = await api.getDashboardMetadata(uuid)
+				const payload = response?.data
+				const map = (payload && typeof payload === 'object' && !Array.isArray(payload))
+					? payload
+					: {}
+				this.metadataByDashboard = {
+					...this.metadataByDashboard,
+					[uuid]: map,
+				}
+				return map
+			} catch (error) {
+				if (error?.response?.status !== 403 && error?.response?.status !== 404) {
+					console.error('Failed to load dashboard metadata:', error)
+				}
+				this.metadataByDashboard = {
+					...this.metadataByDashboard,
+					[uuid]: {},
+				}
+				return {}
+			}
+		},
+
+		/**
+		 * Upsert metadata key-values for a dashboard (REQ-MDFL-005).
+		 * On 400 (validation failure) the user-facing error message
+		 * is shown via the standard `showError` helper.
+		 *
+		 * @param {string} uuid     The dashboard UUID.
+		 * @param {object} metadata Flat key-value map. Omitted keys are
+		 *                          NOT removed; only keys present in
+		 *                          this object are upserted.
+		 * @return {Promise<object|null>} The updated metadata map or
+		 *                                null on failure.
+		 */
+		async updateDashboardMetadata(uuid, metadata) {
+			if (!uuid) {
+				return null
+			}
+
+			try {
+				const response = await api.updateDashboardMetadata(uuid, metadata)
+				const payload = response?.data
+				const map = (payload && typeof payload === 'object' && !Array.isArray(payload))
+					? payload
+					: {}
+				this.metadataByDashboard = {
+					...this.metadataByDashboard,
+					[uuid]: map,
+				}
+				return map
+			} catch (error) {
+				const message = error?.response?.data?.message
+					|| t('mydash', 'Failed to update dashboard metadata')
+				console.error('Failed to update dashboard metadata:', error)
+				showError(message)
+				return null
 			}
 		},
 	},

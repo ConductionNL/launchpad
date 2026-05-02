@@ -1,5 +1,13 @@
 {
     "translations": {
+        "— Choose —": "— Kies —",
+        "Dashboard metadata": "Dashboard-metadata",
+        "Failed to update dashboard metadata": "Bijwerken van dashboard-metadata mislukt",
+        "No metadata fields are configured. Ask an administrator to add some.": "Er zijn geen metadata-velden geconfigureerd. Vraag een beheerder om er enkele toe te voegen.",
+        "Save metadata": "Metadata opslaan",
+        "Saving…": "Opslaan…",
+        "Yes": "Ja",
+        "No": "Nee",
         "SVG could not be parsed or contained no allowed content": "SVG kon niet worden verwerkt of bevatte geen toegestane inhoud",
         "Active": "Actief",
         "Add": "Toevoegen",

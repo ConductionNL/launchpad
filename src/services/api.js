@@ -124,6 +124,51 @@ export const api = {
 		)
 	},
 
+	// REQ-ANLT-002: record a dashboard view event. Authed users only;
+	// server short-circuits to 204 silently when the user has opted
+	// out (REQ-ANLT-004) or analytics is globally disabled
+	// (REQ-ANLT-005). Body is empty `{}`.
+	recordDashboardViewEvent(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/view-event`,
+			{},
+		)
+	},
+
+	// REQ-ANLT-006: top-N dashboards by view count for the given period.
+	getAnalyticsTopDashboards(period = '30d', limit = 10) {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/dashboards/top`,
+			{ params: { period, limit } },
+		)
+	},
+
+	// REQ-ANLT-007: daily breakdown for one dashboard.
+	getAnalyticsDashboardDetail(uuid, period = '30d') {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/dashboards/${encodeURIComponent(uuid)}`,
+			{ params: { period } },
+		)
+	},
+
+	// REQ-ANLT-008: instance-wide totals + top-5.
+	getAnalyticsInstanceSummary(period = '30d') {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/summary`,
+			{ params: { period } },
+		)
+	},
+
+	// REQ-ANLT-010: trigger a CSV export download. Returns the raw
+	// response so the caller can stream it to a file or pass it to
+	// `URL.createObjectURL` for in-browser download.
+	getAnalyticsCsvExport(period = '30d') {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/export`,
+			{ params: { period }, responseType: 'blob' },
+		)
+	},
+
 	// Fetch the nested dashboard tree (REQ-DASH-026).
 	getDashboardTree() {
 		return axios.get(`${baseUrl}/api/dashboards/tree`)

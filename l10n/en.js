@@ -285,7 +285,25 @@ OC.L10N.register(
     "Schedule dashboard" : "Schedule dashboard",
     "Draft" : "Draft",
     "Published" : "Published",
-    "Scheduled" : "Scheduled"
+    "Scheduled" : "Scheduled",
+    "View analytics" : "View analytics",
+    "Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored." : "Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored.",
+    "Period" : "Period",
+    "Last 7 days" : "Last 7 days",
+    "Last 30 days" : "Last 30 days",
+    "Last 90 days" : "Last 90 days",
+    "Loading analytics…" : "Loading analytics…",
+    "Total views" : "Total views",
+    "Unique viewers" : "Unique viewers",
+    "Dashboards seen" : "Dashboards seen",
+    "Top dashboards" : "Top dashboards",
+    "Dashboard" : "Dashboard",
+    "Views" : "Views",
+    "No view events recorded yet for this period." : "No view events recorded yet for this period.",
+    "Export analytics (CSV)" : "Export analytics (CSV)",
+    "Exporting…" : "Exporting…",
+    "Failed to load analytics data. Please try again." : "Failed to load analytics data. Please try again.",
+    "Failed to export analytics CSV. Please try again." : "Failed to export analytics CSV. Please try again."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -163,6 +163,11 @@
 				</div>
 			</div>
 
+			<!-- Dashboard view-analytics (REQ-ANLT-006..010) -->
+			<div class="mydash-admin__section">
+				<AdminAnalytics />
+			</div>
+
 			<!-- Info -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
@@ -242,6 +247,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import AdminAnalytics from './AdminAnalytics.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
 import { api } from '../../services/api.js'
 
@@ -249,6 +255,7 @@ export default {
 	name: 'AdminSettings',
 
 	components: {
+		AdminAnalytics,
 		CnSettingsSection,
 		GroupPriorityOrder,
 		NcButton,

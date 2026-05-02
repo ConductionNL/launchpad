@@ -27,6 +27,7 @@ namespace Unit\Controller;
 use OCA\MyDash\Controller\DashboardApiController;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
+use OCA\MyDash\Service\AnalyticsService;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
 use OCA\MyDash\Service\PermissionService;
@@ -58,6 +59,9 @@ class DashboardApiControllerForkTest extends TestCase
     /** @var LoggerInterface&MockObject */
     private $logger;
 
+    /** @var AnalyticsService&MockObject */
+    private $analyticsService;
+
     /**
      * Set up shared mocks.
      *
@@ -69,6 +73,7 @@ class DashboardApiControllerForkTest extends TestCase
         $this->dashboardService  = $this->createMock(DashboardService::class);
         $this->permissionService = $this->createMock(PermissionService::class);
         $this->treeService       = $this->createMock(DashboardTreeService::class);
+        $this->analyticsService  = $this->createMock(AnalyticsService::class);
         $this->logger            = $this->createMock(LoggerInterface::class);
     }//end setUp()
 
@@ -86,6 +91,7 @@ class DashboardApiControllerForkTest extends TestCase
             dashboardService: $this->dashboardService,
             permissionService: $this->permissionService,
             treeService: $this->treeService,
+            analyticsService: $this->analyticsService,
             logger: $this->logger,
             userId: $userId,
         );

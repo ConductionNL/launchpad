@@ -24,6 +24,7 @@ use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
+use OCA\MyDash\Service\AnalyticsService;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
 use OCA\MyDash\Service\PermissionService;
@@ -57,6 +58,10 @@ class DashboardApiController extends Controller
      *                                                resolution, and the
      *                                                cascade-delete walker
      *                                                (REQ-DASH-023..030).
+     * @param AnalyticsService     $analyticsService  The view-analytics
+     *                                                service used by the
+     *                                                `viewEvent` endpoint
+     *                                                (REQ-ANLT-002).
      * @param LoggerInterface      $logger            PSR logger (used by
      *                                                fork to report
      *                                                unexpected errors
@@ -68,6 +73,7 @@ class DashboardApiController extends Controller
         private readonly DashboardService $dashboardService,
         private readonly PermissionService $permissionService,
         private readonly DashboardTreeService $treeService,
+        private readonly AnalyticsService $analyticsService,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -1060,6 +1066,49 @@ class DashboardApiController extends Controller
             return $this->mapPublicationError(exception: $e);
         }//end try
     }//end schedule()
+
+    /**
+     * Record a dashboard view event (REQ-ANLT-002).
+     *
+     * Authenticated users only — POST `{}` body. Returns HTTP 204
+     * after the daily counter has been incremented. Short-circuits
+     * silently to 204 when the user has opted out (REQ-ANLT-004) or
+     * when global analytics is disabled (REQ-ANLT-005). Returns 404
+     * when the dashboard does not exist.
+     *
+     * @param string $uuid The dashboard UUID from the URL.
+     *
+     * @return JSONResponse An empty 204 response on success, 401
+     *                      when unauthenticated, 404 when the
+     *                      dashboard does not exist.
+     */
+    #[NoAdminRequired]
+    public function viewEvent(string $uuid): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->analyticsService->recordViewEvent(
+                dashboardUuid: $uuid,
+                userId: $this->userId
+            );
+        } catch (DoesNotExistException) {
+            return new JSONResponse(
+                data: [
+                    'status' => 'error',
+                    'error'  => 'not_found',
+                ],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        }
+
+        return new JSONResponse(
+            data: [],
+            statusCode: Http::STATUS_NO_CONTENT
+        );
+    }//end viewEvent()
 
     /**
      * Map publication-related service exceptions onto the right HTTP

@@ -18,12 +18,15 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\AppInfo;
 
+use OCA\MyDash\BackgroundJob\PurgeViewsJob;
+use OCA\MyDash\BackgroundJob\SaltRotationJob;
 use OCA\MyDash\Listener\UserDeletedListener;
 use OCA\MyDash\Notification\Notifier;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\BackgroundJob\IJobList;
 use OCP\User\Events\UserDeletedEvent;
 
 class Application extends App implements IBootstrap
@@ -72,5 +75,16 @@ class Application extends App implements IBootstrap
     {
         // App initialization after all apps are registered.
         \OCP\Util::addStyle(application: self::APP_ID, file: 'mydash');
+
+        // Register the dashboard view-analytics background jobs
+        // (REQ-ANLT-003 design D2 + REQ-ANLT-009). Both are
+        // idempotent: `IJobList::add()` is a no-op when the job is
+        // already registered.
+        $serverContainer = $context->getServerContainer();
+        $jobList         = $serverContainer->get(IJobList::class);
+        if ($jobList instanceof IJobList === true) {
+            $jobList->add(job: PurgeViewsJob::class);
+            $jobList->add(job: SaltRotationJob::class);
+        }
     }//end boot()
 }//end class

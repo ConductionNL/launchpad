@@ -18,14 +18,39 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\AppInfo;
 
+use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\MyDash\Listener\CommentsListener;
+use OCA\MyDash\Listener\GroupDeletedListener;
+use OCA\MyDash\Listener\LocksListener;
+use OCA\MyDash\Listener\MetadataValuesListener;
+use OCA\MyDash\Listener\PublicSharesListener;
+use OCA\MyDash\Listener\ReactionsListener;
+use OCA\MyDash\Listener\TranslationsListener;
+use OCA\MyDash\Listener\TreeListener;
 use OCA\MyDash\Listener\UserDeletedListener;
+use OCA\MyDash\Listener\VersionsListener;
+use OCA\MyDash\Listener\ViewAnalyticsListener;
+use OCA\MyDash\Listener\WidgetPlacementsListener;
 use OCA\MyDash\Notification\Notifier;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\Group\Events\GroupDeletedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
+/**
+ * Application bootstrap.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The bootstrap
+ *                                                  legitimately wires
+ *                                                  every event listener
+ *                                                  in the cascade-events
+ *                                                  registry (REQ-CSC-002),
+ *                                                  which inflates the
+ *                                                  coupling count beyond
+ *                                                  the default threshold.
+ */
 class Application extends App implements IBootstrap
 {
     public const APP_ID = 'mydash';
@@ -54,10 +79,65 @@ class Application extends App implements IBootstrap
         $context->registerNotifierService(notifierClass: Notifier::class);
 
         // Cascade share cleanup + admin-retention transfer on user deletion.
-        // REQ-SHARE-012, REQ-SHARE-013.
+        // REQ-SHARE-012, REQ-SHARE-013. The same listener also satisfies the
+        // owned-dashboard enumeration mandated by REQ-CSC-004 — every owned
+        // dashboard is routed through the deletion path that dispatches
+        // DashboardDeletedEvent below, triggering the full cascade stack.
         $context->registerEventListener(
             event: UserDeletedEvent::class,
             listener: UserDeletedListener::class
+        );
+
+        // Group lifecycle cleanup. REQ-CSC-005.
+        $context->registerEventListener(
+            event: GroupDeletedEvent::class,
+            listener: GroupDeletedListener::class
+        );
+
+        // DashboardDeletedEvent listener registry. REQ-CSC-002.
+        // Each listener owns one dependent table (or, for TreeListener,
+        // recursive child dispatch). Adding a new listener requires only
+        // appending one registration line below — no edits to existing
+        // listener classes, the event, or DashboardService.
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: WidgetPlacementsListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: CommentsListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: ReactionsListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: LocksListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: VersionsListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: PublicSharesListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: MetadataValuesListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: TranslationsListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: ViewAnalyticsListener::class
+        );
+        $context->registerEventListener(
+            event: DashboardDeletedEvent::class,
+            listener: TreeListener::class
         );
     }//end register()
 

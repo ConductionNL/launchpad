@@ -38,6 +38,7 @@ use Psr\Log\LoggerInterface;
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Spans personal + group-shared + resolution scopes.
  */
 class DashboardApiController extends Controller
 {

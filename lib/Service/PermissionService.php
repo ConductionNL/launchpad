@@ -32,16 +32,25 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 
+/**
+ * Service for resolving dashboard permissions across personal,
+ * shared, and group-shared scopes (REQ-DASH-014).
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) Twelve methods cover the
+ *                                                three scopes' permission
+ *                                                checks without splitting.
+ */
 class PermissionService
 {
     /**
      * Constructor
      *
-     * @param DashboardMapper        $dashboardMapper Dashboard mapper.
-     * @param WidgetPlacementMapper  $placementMapper Widget placement mapper.
-     * @param AdminSettingMapper     $settingMapper   Admin setting mapper.
-     * @param DashboardShareService  $shareService    Share resolution service.
-     * @param IGroupManager          $groupManager    Group manager for resolving recipient groups.
+     * @param DashboardMapper       $dashboardMapper Dashboard mapper.
+     * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
+     * @param AdminSettingMapper    $settingMapper   Admin setting mapper.
+     * @param DashboardShareService $shareService    Share resolution service.
+     * @param IGroupManager         $groupManager    Group manager for resolving recipient groups.
+     * @param IUserManager          $userManager     User manager (used by share resolution).
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -55,6 +64,11 @@ class PermissionService
 
     /**
      * Whether the user can see a dashboard at all (owner OR has any share).
+     *
+     * @param string $userId      The acting user ID.
+     * @param int    $dashboardId The dashboard ID.
+     *
+     * @return bool True when the dashboard is visible to the user.
      */
     public function canViewDashboard(string $userId, int $dashboardId): bool
     {
@@ -174,9 +188,11 @@ class PermissionService
         if ($level === Dashboard::PERMISSION_VIEW_ONLY) {
             return false;
         }
+
         if ($level === Dashboard::PERMISSION_FULL) {
             return true;
         }
+
         if ($level === Dashboard::PERMISSION_ADD_ONLY) {
             return $placement->getIsCompulsory() === 0;
         }
@@ -250,12 +266,39 @@ class PermissionService
     /**
      * Get the effective permission level for a dashboard, ignoring sharing.
      *
-     * @param Dashboard $dashboard The dashboard.
+     * For `group_shared` dashboards (REQ-DASH-014): the resolved level is
+     * always `view_only` for non-admin members and `full` for admins —
+     * the row's own `permissionLevel` field is intentionally ignored so
+     * the read-only-for-members rule lives in one place. Pass `$userId`
+     * to enable the admin override; omit it to keep the legacy "ignore
+     * sharing, return record level" behaviour.
+     *
+     * @param Dashboard   $dashboard The dashboard.
+     * @param string|null $userId    The acting user (enables the
+     *                               group-shared admin override). Pass
+     *                               null to fall back to the record's
+     *                               own permission level.
      *
      * @return string The effective permission level.
      */
-    public function getEffectivePermissionLevel(Dashboard $dashboard): string
-    {
+    public function getEffectivePermissionLevel(
+        Dashboard $dashboard,
+        ?string $userId=null
+    ): string {
+        // REQ-DASH-014: group-shared dashboards are read-only for
+        // non-admin members and fully editable for admins, regardless of
+        // the row's persisted `permissionLevel` field (which is kept on
+        // the row for forward-compat with future per-tile editing).
+        if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
+            if ($userId !== null
+                && $this->groupManager->isAdmin(userId: $userId) === true
+            ) {
+                return Dashboard::PERMISSION_FULL;
+            }
+
+            return Dashboard::PERMISSION_VIEW_ONLY;
+        }
+
         // If based on a template, use template's permission level.
         if ($dashboard->getBasedOnTemplate() !== null) {
             try {
@@ -296,8 +339,8 @@ class PermissionService
      */
     public function resolveAccessLevel(
         string $userId,
-        ?int $dashboardId = null,
-        ?Dashboard $dashboard = null
+        ?int $dashboardId=null,
+        ?Dashboard $dashboard=null
     ): ?string {
         if ($dashboard === null) {
             try {
@@ -307,8 +350,36 @@ class PermissionService
             }
         }
 
+        // Group-shared dashboards bypass the ownership-vs-share path:
+        // visibility is by group membership, not by per-row sharing.
+        // REQ-DASH-014.
+        if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
+            $groupId = (string) $dashboard->getGroupId();
+            if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+                return $this->getEffectivePermissionLevel(
+                    dashboard: $dashboard,
+                    userId: $userId
+                );
+            }
+
+            $userGroupIds = $this->getUserGroupIds(userId: $userId);
+            if (in_array(needle: $groupId, haystack: $userGroupIds, strict: true) === true
+                || $this->groupManager->isAdmin(userId: $userId) === true
+            ) {
+                return $this->getEffectivePermissionLevel(
+                    dashboard: $dashboard,
+                    userId: $userId
+                );
+            }//end if
+
+            return null;
+        }//end if
+
         if ($dashboard->getUserId() === $userId) {
-            return $this->getEffectivePermissionLevel(dashboard: $dashboard);
+            return $this->getEffectivePermissionLevel(
+                dashboard: $dashboard,
+                userId: $userId
+            );
         }
 
         $shares = $this->shareService->resolveSharedDashboards(
@@ -378,6 +449,7 @@ class PermissionService
         if ($user === null) {
             return [];
         }
+
         return $this->groupManager->getUserGroupIds(user: $user);
     }//end getUserGroupIds()
 }//end class

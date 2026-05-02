@@ -2,10 +2,10 @@
 
 ## 1. Schema migration
 
-- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddGroupIdColumn.php` adding `groupId VARCHAR(64) NULL` to `oc_mydash_dashboards`
-- [ ] 1.2 Same migration adds composite index `idx_mydash_dash_type_group` on `(type, groupId)` for fast `findByGroup` and `findVisibleToUser` lookups
-- [ ] 1.3 Confirm migration is reversible (drop column + index in `postSchemaChange` rollback path)
-- [ ] 1.4 Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly each time
+- [x] 1.1 Created `lib/Migration/Version001007Date20260501100000.php` adding `group_id VARCHAR(64) NULL` to `oc_mydash_dashboards`
+- [x] 1.2 Same migration adds composite index `mydash_dash_type_group_idx` on `(type, group_id)` for the `findByGroup` / `findVisibleToUser` lookups
+- [ ] 1.3 Confirm migration is reversible (drop column + index in `postSchemaChange` rollback path) — Nextcloud's `SimpleMigrationStep` doesn't expose a rollback hook; if downgrade is needed, a follow-up migration will be required
+- [x] 1.4 Verified locally against postgres (live `oc_mydash_dashboards` shows `group_id` column + `mydash_dash_type_group_idx` index; idempotent on re-run via `hasColumn` / `hasIndex` guards). MySQL + SQLite verification pending CI
 
 ## 2. Domain model
 

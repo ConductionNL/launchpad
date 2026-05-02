@@ -47,3 +47,7 @@ node_modules
 /docs/sendent-analysis.md
 /sendent-workspace-main/
 /2026.*_sendent-workspace-main.zip
+
+# IntraVox source (cloned for clean-room behavioural analysis — local only, never commit)
+/intravox-source/
+/docs/intravox-analysis.md

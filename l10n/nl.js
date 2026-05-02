@@ -270,7 +270,18 @@ OC.L10N.register(
     "Widgets" : "Widgets",
     "Your primary group for shared dashboards" : "Je primaire groep voor gedeelde dashboards",
     "https://example.com or /apps/files" : "https://voorbeeld.nl of /apps/files",
-    "shareWith is required" : "shareWith is verplicht"
+    "shareWith is required" : "shareWith is verplicht",
+    "Dashboard Admin" : "Dashboardbeheerder",
+    "Dashboard Editor" : "Dashboardredacteur",
+    "Dashboard Viewer" : "Dashboardlezer",
+    "Either userId or groupId must be provided" : "Geef of een gebruikers-ID of een groeps-ID op",
+    "Only one of userId or groupId may be provided" : "Slechts één van gebruikers-ID of groeps-ID is toegestaan",
+    "Unknown role; must be one of admin, editor, viewer" : "Onbekende rol; moet een van admin, editor of viewer zijn",
+    "Unknown user" : "Onbekende gebruiker",
+    "Unknown group" : "Onbekende groep",
+    "That target already has the requested role assigned" : "Dit doel heeft de gevraagde rol al toegewezen",
+    "Role assignment not found" : "Roltoewijzing niet gevonden",
+    "Role assignment payload is invalid" : "Inhoud van roltoewijzing is ongeldig"
 },
 "nplurals=2; plural=(n != 1);"
 );

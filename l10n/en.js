@@ -270,7 +270,18 @@ OC.L10N.register(
     "Widgets" : "Widgets",
     "Your primary group for shared dashboards" : "Your primary group for shared dashboards",
     "https://example.com or /apps/files" : "https://example.com or /apps/files",
-    "shareWith is required" : "shareWith is required"
+    "shareWith is required" : "shareWith is required",
+    "Dashboard Admin" : "Dashboard Admin",
+    "Dashboard Editor" : "Dashboard Editor",
+    "Dashboard Viewer" : "Dashboard Viewer",
+    "Either userId or groupId must be provided" : "Either userId or groupId must be provided",
+    "Only one of userId or groupId may be provided" : "Only one of userId or groupId may be provided",
+    "Unknown role; must be one of admin, editor, viewer" : "Unknown role; must be one of admin, editor, viewer",
+    "Unknown user" : "Unknown user",
+    "Unknown group" : "Unknown group",
+    "That target already has the requested role assigned" : "That target already has the requested role assigned",
+    "Role assignment not found" : "Role assignment not found",
+    "Role assignment payload is invalid" : "Role assignment payload is invalid"
 },
 "nplurals=2; plural=(n != 1);"
 );

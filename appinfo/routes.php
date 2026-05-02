@@ -130,5 +130,14 @@ return [
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'admin_settings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'admin_settings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+
+		// Admin role-assignment endpoints (REQ-ROLE-004, REQ-ROLE-006).
+		// All NC-admin-gated via `requireAdmin()` inside the controller.
+		['name' => 'admin#listRoles', 'url' => '/api/admin/roles', 'verb' => 'GET'],
+		['name' => 'admin#createRole', 'url' => '/api/admin/roles', 'verb' => 'POST'],
+		['name' => 'admin#deleteRole', 'url' => '/api/admin/roles/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['id' => '\d+']],
+		// Self-introspection endpoint — any authenticated user.
+		['name' => 'admin#getMyRole', 'url' => '/api/me/role', 'verb' => 'GET'],
 	],
 ];

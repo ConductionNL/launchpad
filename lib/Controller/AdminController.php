@@ -21,9 +21,13 @@ namespace OCA\MyDash\Controller;
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
+use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
+use OCA\MyDash\Exception\InvalidRoleAssignmentException;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\AdminSettingsService;
+use OCA\MyDash\Service\RoleService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -31,7 +35,26 @@ use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * Controller for admin dashboard template management.
+ * Controller for admin dashboard template management plus role-assignment
+ * CRUD (REQ-ROLE-004, REQ-ROLE-006).
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)   The admin surface
+ *                                                legitimately covers
+ *                                                templates, settings,
+ *                                                group-priority order,
+ *                                                role assignments and
+ *                                                the self-introspection
+ *                                                endpoint in one
+ *                                                cohesive admin namespace.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Admin coordination
+ *                                                  spans multiple
+ *                                                  injected services
+ *                                                  (templates, settings,
+ *                                                  roles, helpers) by
+ *                                                  design — splitting
+ *                                                  the controller would
+ *                                                  fragment the routing
+ *                                                  surface.
  */
 class AdminController extends Controller
 {
@@ -43,6 +66,8 @@ class AdminController extends Controller
      * @param AdminSettingsService $settingsService The admin settings service.
      * @param IGroupManager        $groupManager    The Nextcloud group manager.
      * @param IUserSession         $userSession     The current user session.
+     * @param RoleService          $roleService     The MyDash role service
+     *                                              (REQ-ROLE-001..011).
      */
     public function __construct(
         IRequest $request,
@@ -50,6 +75,7 @@ class AdminController extends Controller
         private readonly AdminSettingsService $settingsService,
         private readonly IGroupManager $groupManager,
         private readonly IUserSession $userSession,
+        private readonly RoleService $roleService,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -375,6 +401,149 @@ class AdminController extends Controller
             ]
         );
     }//end updateGroupOrder()
+
+    /**
+     * List every role assignment in the system (REQ-ROLE-006). NC-admin only.
+     *
+     * Returns a JSON array of role-assignment rows with their persisted
+     * fields (id, userId, groupId, role, assignedBy, assignedAt). The
+     * caller MUST be a Nextcloud admin; non-admins receive HTTP 403.
+     *
+     * @return JSONResponse The list of role assignments, or 401/403.
+     *
+     * @NoAdminRequired
+     */
+    public function listRoles(): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $assignments = $this->roleService->listAssignments();
+
+        return ResponseHelper::success(
+            data: ResponseHelper::serializeList(entities: $assignments)
+        );
+    }//end listRoles()
+
+    /**
+     * Create a new role assignment (REQ-ROLE-004). NC-admin only.
+     *
+     * Accepts a JSON body `{userId?: string, groupId?: string, role: string}`.
+     * Exactly one of `userId` / `groupId` MUST be set. Returns the new
+     * assignment with HTTP 201 on success. Returns 400 on structural
+     * failure, 409 on duplicate, 401/403 on auth failure.
+     *
+     * @param string|null $userId  The target user ID (XOR with groupId).
+     * @param string|null $groupId The target group ID (XOR with userId).
+     * @param string|null $role    The role name (admin / editor / viewer).
+     *
+     * @return JSONResponse The created assignment, or an error envelope.
+     *
+     * @NoAdminRequired
+     */
+    public function createRole(
+        ?string $userId=null,
+        ?string $groupId=null,
+        ?string $role=null
+    ): JSONResponse {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $assignedBy = (string) $this->userSession->getUser()->getUID();
+
+        try {
+            $assignment = $this->roleService->assignRole(
+                userId: $userId,
+                groupId: $groupId,
+                role: (string) $role,
+                assignedBy: $assignedBy
+            );
+        } catch (DuplicateRoleAssignmentException $e) {
+            return new JSONResponse(
+                data: [
+                    'error'     => $e->getDisplayMessage(),
+                    'errorCode' => $e->getErrorCode(),
+                ],
+                statusCode: Http::STATUS_CONFLICT
+            );
+        } catch (InvalidRoleAssignmentException $e) {
+            return new JSONResponse(
+                data: [
+                    'error'     => $e->getDisplayMessage(),
+                    'errorCode' => $e->getErrorCode(),
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }//end try
+
+        return ResponseHelper::success(
+            data: $assignment->jsonSerialize(),
+            statusCode: Http::STATUS_CREATED
+        );
+    }//end createRole()
+
+    /**
+     * Delete a role assignment by ID (REQ-ROLE-004). NC-admin only.
+     *
+     * Returns 204 on success, 404 when no row matches, 401/403 on auth.
+     *
+     * @param int $id The role assignment ID.
+     *
+     * @return JSONResponse Empty success or error envelope.
+     *
+     * @NoAdminRequired
+     */
+    public function deleteRole(int $id): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        try {
+            $this->roleService->removeRole(id: $id);
+        } catch (DoesNotExistException) {
+            return ResponseHelper::forbidden(
+                message: 'Role assignment not found'
+            )->setStatus(status: Http::STATUS_NOT_FOUND);
+        }
+
+        return new JSONResponse(
+            data: [],
+            statusCode: Http::STATUS_NO_CONTENT
+        );
+    }//end deleteRole()
+
+    /**
+     * Return the calling user's effective MyDash role and source
+     * (REQ-ROLE-006). Available to any authenticated user.
+     *
+     * Response shape: `{role: string|null, source: string|null}`.
+     *
+     * @return JSONResponse The role / source envelope, or 401.
+     *
+     * @NoAdminRequired
+     */
+    public function getMyRole(): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        $userId = (string) $user->getUID();
+
+        return ResponseHelper::success(
+            data: [
+                'role'   => $this->roleService->getEffectiveRole(userId: $userId),
+                'source' => $this->roleService->getRoleSource(userId: $userId),
+            ]
+        );
+    }//end getMyRole()
 
     /**
      * Verify the current session belongs to a Nextcloud admin.

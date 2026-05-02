@@ -38,6 +38,15 @@ use Psr\Log\LoggerInterface;
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   The dashboard API
+ *                                                  legitimately spans
+ *                                                  multiple persistence
+ *                                                  and service layers
+ *                                                  (dashboard, share,
+ *                                                  permission, factory)
+ *                                                  — splitting would
+ *                                                  fragment the routing
+ *                                                  surface.
  */
 class DashboardApiController extends Controller
 {

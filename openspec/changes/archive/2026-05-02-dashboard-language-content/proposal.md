@@ -22,7 +22,7 @@ Today MyDash dashboards store a single widget tree, name, and description per da
 
 ### Modified Capabilities
 
-- `dashboards`: adds REQ-DASH-026 (translation schema), REQ-DASH-027 (locale resolution and primary fallback), REQ-DASH-028 (create variant), REQ-DASH-029 (update variant), REQ-DASH-030 (delete variant), REQ-DASH-031 (promote primary), REQ-DASH-032 (backwards-compat migration). Existing REQ-DASH-001..025 are untouched.
+- `dashboards`: adds REQ-DASH-038 (translation schema), REQ-DASH-039 (locale resolution and primary fallback), REQ-DASH-040 (create variant), REQ-DASH-041 (update variant), REQ-DASH-042 (delete variant), REQ-DASH-043 (promote primary), REQ-DASH-044 (backwards-compat migration). Existing REQ-DASH-001..037 are untouched.
 
 ## Impact
 

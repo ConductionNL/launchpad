@@ -285,7 +285,12 @@ OC.L10N.register(
     "Schedule dashboard" : "Dashboard inplannen",
     "Draft" : "Concept",
     "Published" : "Gepubliceerd",
-    "Scheduled" : "Ingepland"
+    "Scheduled" : "Ingepland",
+    "Language variant already exists" : "Taalvariant bestaat al",
+    "Cannot delete the only language variant" : "Kan de enige taalvariant niet verwijderen",
+    "Cannot delete the primary variant; promote another variant first" : "Kan de primaire variant niet verwijderen; promoveer eerst een andere variant",
+    "Language code is required" : "Taalcode is verplicht",
+    "Language not available" : "Taal niet beschikbaar"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -112,37 +112,58 @@ class DashboardService
     /**
      * Constructor
      *
-     * @param DashboardMapper       $dashboardMapper      Dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper      Widget placement mapper.
-     * @param AdminSettingMapper    $settingMapper        Admin setting mapper.
-     * @param TemplateService       $templateService      Template service.
-     * @param DashboardFactory      $dashboardFactory     Dashboard factory.
-     * @param DashboardResolver     $dashResolver         Dashboard resolver.
-     * @param DashboardTreeService  $treeService          Tree-aware
-     *                                                    validation /
-     *                                                    cascade walker
-     *                                                    (REQ-DASH-023..030).
-     * @param IGroupManager         $groupManager         Group manager (used for
-     *                                                    `isAdmin` only — group
-     *                                                    membership lookups go
-     *                                                    through the routing
-     *                                                    resolver per
-     *                                                    REQ-TMPL-013).
-     * @param AdminTemplateService  $adminTemplateService Routing resolver — single
-     *                                                    source of truth for
-     *                                                    `IGroupManager::getUserGroupIds`
-     *                                                    (REQ-TMPL-013).
-     * @param IDBConnection         $db                   DB connection (for the
-     *                                                    transactional default
-     *                                                    flip — REQ-DASH-015).
-     * @param IConfig               $config               Nextcloud per-user
-     *                                                    preference storage.
-     * @param IFactory              $l10nFactory          L10N factory used to
-     *                                                    build the
-     *                                                    "My copy of {name}"
-     *                                                    default fork name
-     *                                                    (REQ-DASH-020).
-     * @param LoggerInterface       $logger               PSR logger.
+     * @param DashboardMapper                  $dashboardMapper      Dashboard mapper.
+     * @param WidgetPlacementMapper            $placementMapper      Widget placement mapper.
+     * @param AdminSettingMapper               $settingMapper        Admin setting mapper.
+     * @param TemplateService                  $templateService      Template service.
+     * @param DashboardFactory                 $dashboardFactory     Dashboard factory.
+     * @param DashboardResolver                $dashResolver         Dashboard resolver.
+     * @param DashboardTreeService             $treeService          Tree-aware
+     *                                                               validation
+     *                                                               / cascade
+     *                                                               walker
+     *                                                               (REQ-DASH-023..030).
+     * @param IGroupManager                    $groupManager         Group manager (used for
+     *                                                               `isAdmin` only —
+     *                                                               group membership
+     *                                                               lookups go through the
+     *                                                               routing resolver per
+     *                                                               REQ-TMPL-013).
+     * @param AdminTemplateService             $adminTemplateService Routing resolver —
+     *                                                               single source of truth
+     *                                                               for
+     *                                                               `IGroupManager::getUserGroupIds`
+     *                                                               (REQ-TMPL-013).
+     * @param IDBConnection                    $db                   DB connection (for the
+     *                                                               transactional default
+     *                                                               flip —
+     *                                                               REQ-DASH-015).
+     * @param IConfig                          $config               Nextcloud per-user
+     *                                                               preference
+     *                                                               storage.
+     * @param IFactory                         $l10nFactory          L10N factory used to
+     *                                                               build the "My copy
+     *                                                               of {name}" default
+     *                                                               fork name
+     *                                                               (REQ-DASH-020).
+     * @param LoggerInterface                  $logger               PSR logger.
+     * @param DashboardTranslationService|null $translationService   Optional
+     *                                                               translation
+     *                                                               service
+     *                                                               for the
+     *                                                               per-language
+     *                                                               content
+     *                                                               variants
+     *                                                               (REQ-DASH-038..044).
+     *                                                               Nullable
+     *                                                               so
+     *                                                               legacy
+     *                                                               test
+     *                                                               doubles
+     *                                                               constructed
+     *                                                               without
+     *                                                               it keep
+     *                                                               working.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -158,6 +179,7 @@ class DashboardService
         private readonly IConfig $config,
         private readonly IFactory $l10nFactory,
         private readonly LoggerInterface $logger,
+        private readonly ?DashboardTranslationService $translationService=null,
     ) {
     }//end __construct()
 
@@ -278,7 +300,28 @@ class DashboardService
 
         $this->dashboardMapper->deactivateAllForUser(userId: $userId);
 
-        return $this->dashboardMapper->insert(entity: $dashboard);
+        $persisted = $this->dashboardMapper->insert(entity: $dashboard);
+
+        // REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
+        // a primary translation row in the owner's Nextcloud locale (or
+        // the default fallback when no preference is set). The seed is
+        // best-effort — failure here does not abort dashboard creation,
+        // because the legacy materialiser keeps reads working until the
+        // seed retries via a subsequent translation API call.
+        if ($this->translationService !== null) {
+            try {
+                $this->translationService->seedPrimaryFor(
+                    dashboard: $persisted
+                );
+            } catch (Throwable $t) {
+                $this->logger->warning(
+                    message: 'mydash: failed to seed primary translation: {message}',
+                    context: ['message' => $t->getMessage()]
+                );
+            }
+        }
+
+        return $persisted;
     }//end createDashboard()
 
     /**
@@ -349,8 +392,38 @@ class DashboardService
         }
 
         if ($cascade === true && $uuid !== '') {
+            // Translation rows are scoped by uuid; clear them BEFORE the
+            // tree walker drops the parent rows so we never orphan a
+            // variant on a vanished dashboard. The cascade-delete spans
+            // the entire descendant set as well. REQ-DASH-044.
+            if ($this->translationService !== null) {
+                $descendants = $this->dashboardMapper->findDescendants(
+                    ancestorUuid: $uuid
+                );
+                foreach ($descendants as $descendant) {
+                    $descendantUuid = (string) $descendant->getUuid();
+                    if ($descendantUuid !== '') {
+                        $this->translationService->deleteAllForDashboard(
+                            dashboardUuid: $descendantUuid
+                        );
+                    }
+                }
+
+                $this->translationService->deleteAllForDashboard(
+                    dashboardUuid: $uuid
+                );
+            }
+
             $this->treeService->deleteSubtree(dashboard: $dashboard);
             return;
+        }//end if
+
+        // REQ-DASH-044: cascade-delete translation variants for the
+        // dashboard about to disappear so they don't outlive the parent.
+        if ($uuid !== '' && $this->translationService !== null) {
+            $this->translationService->deleteAllForDashboard(
+                dashboardUuid: $uuid
+            );
         }
 
         $this->placementMapper->deleteByDashboardId(

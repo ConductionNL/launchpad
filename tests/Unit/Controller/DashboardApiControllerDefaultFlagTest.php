@@ -25,6 +25,7 @@ use OCA\MyDash\Controller\DashboardApiController;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
+use OCA\MyDash\Service\DashboardVersionService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -47,6 +48,8 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
     private $permissionService;
     /** @var DashboardTreeService&MockObject */
     private $treeService;
+    /** @var DashboardVersionService&MockObject */
+    private $versionService;
     /** @var LoggerInterface&MockObject */
     private $logger;
 
@@ -56,6 +59,7 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
         $this->dashboardService  = $this->createMock(DashboardService::class);
         $this->permissionService = $this->createMock(PermissionService::class);
         $this->treeService       = $this->createMock(DashboardTreeService::class);
+        $this->versionService    = $this->createMock(DashboardVersionService::class);
         $this->logger            = $this->createMock(LoggerInterface::class);
     }//end setUp()
 
@@ -70,6 +74,7 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
             dashboardService: $this->dashboardService,
             permissionService: $this->permissionService,
             treeService: $this->treeService,
+            versionService: $this->versionService,
             logger: $this->logger,
             userId: $userId,
         );

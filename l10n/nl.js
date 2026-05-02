@@ -285,7 +285,13 @@ OC.L10N.register(
     "Schedule dashboard" : "Dashboard inplannen",
     "Draft" : "Concept",
     "Published" : "Gepubliceerd",
-    "Scheduled" : "Ingepland"
+    "Scheduled" : "Ingepland",
+    "Version history" : "Versiegeschiedenis",
+    "Restore this version" : "Deze versie herstellen",
+    "Save version" : "Versie opslaan",
+    "Versioning backend unavailable" : "Versie-backend niet beschikbaar",
+    "Version not found" : "Versie niet gevonden",
+    "Version history is not available for this dashboard" : "Versiegeschiedenis is niet beschikbaar voor dit dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

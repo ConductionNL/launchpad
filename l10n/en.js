@@ -285,7 +285,13 @@ OC.L10N.register(
     "Schedule dashboard" : "Schedule dashboard",
     "Draft" : "Draft",
     "Published" : "Published",
-    "Scheduled" : "Scheduled"
+    "Scheduled" : "Scheduled",
+    "Version history" : "Version history",
+    "Restore this version" : "Restore this version",
+    "Save version" : "Save version",
+    "Versioning backend unavailable" : "Versioning backend unavailable",
+    "Version not found" : "Version not found",
+    "Version history is not available for this dashboard" : "Version history is not available for this dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

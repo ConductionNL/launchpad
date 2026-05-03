@@ -416,7 +416,16 @@ OC.L10N.register(
     "Feed URL copied to clipboard" : "Feed URL copied to clipboard",
     "Your personal RSS feed of accessible dashboards." : "Your personal RSS feed of accessible dashboards.",
     "Treat this URL as a password — anyone with the link can read your dashboards." : "Treat this URL as a password — anyone with the link can read your dashboards.",
-    "No feed token issued yet." : "No feed token issued yet."
+    "No feed token issued yet." : "No feed token issued yet.",
+    "Lock held by another user" : "Lock held by another user",
+    "Lock not found; call acquire first" : "Lock not found; call acquire first",
+    "Lock not found" : "Lock not found",
+    "Only the lock owner can extend the lease" : "Only the lock owner can extend the lease",
+    "Only the lock owner or an admin can release this lock" : "Only the lock owner or an admin can release this lock",
+    "Only an administrator may force-release a lock" : "Only an administrator may force-release a lock",
+    "Dashboard is being edited by {displayName}" : "Dashboard is being edited by {displayName}",
+    "Your edit lock has expired" : "Your edit lock has expired",
+    "You may be editing in another tab" : "You may be editing in another tab"
 },
 "nplurals=2; plural=(n != 1);"
 );

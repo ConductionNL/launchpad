@@ -168,6 +168,11 @@
 				<DashboardExportImport />
 			</div>
 
+			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
+			<div class="mydash-admin__section">
+				<DashboardBulkOperations />
+			</div>
+
 			<!-- Confluence HTML import (REQ-CFLI-001..012) -->
 			<div class="mydash-admin__section">
 				<ConfluenceImport />
@@ -254,6 +259,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
 import DashboardExportImport from './DashboardExportImport.vue'
+import DashboardBulkOperations from './DashboardBulkOperations.vue'
 import ConfluenceImport from './ConfluenceImport.vue'
 import { api } from '../../services/api.js'
 
@@ -263,6 +269,7 @@ export default {
 	components: {
 		CnSettingsSection,
 		ConfluenceImport,
+		DashboardBulkOperations,
 		DashboardExportImport,
 		GroupPriorityOrder,
 		NcButton,

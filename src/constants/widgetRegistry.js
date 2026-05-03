@@ -48,6 +48,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import QuicklinksWidget from '../components/Widgets/Renderers/QuicklinksWidget.vue'
+import QuicklinksForm from '../components/Widgets/Forms/QuicklinksForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +124,22 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	quicklinks: {
+		renderer: QuicklinksWidget,
+		form: QuicklinksForm,
+		defaultContent: {
+			links: [],
+			iconSize: 'medium',
+			iconShape: 'rounded',
+			showLabels: true,
+			labelPosition: 'below',
+			columns: 'auto',
+			tileBackgroundStyle: 'transparent',
+			hoverEffect: 'lift',
+		},
+		displayName: t('mydash', 'Quicklinks'),
+		icon: 'Star',
 	},
 }
 

@@ -7,7 +7,7 @@ import { mount } from '@vue/test-utils'
 
 import LabelWidget from '../components/Widgets/Renderers/LabelWidget.vue'
 import LabelForm from '../components/Widgets/Forms/LabelForm.vue'
-import { widgetRegistry, getWidgetRegistryEntry } from '../constants/widgetRegistry.js'
+import { widgetRegistry, getWidgetTypeEntry as getWidgetRegistryEntry } from '../constants/widgetRegistry.js'
 
 beforeAll(() => {
 	// Stub the Nextcloud `t` global with an identity function so components

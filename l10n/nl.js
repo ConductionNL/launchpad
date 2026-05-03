@@ -363,7 +363,12 @@ OC.L10N.register(
     "Write a reply…" : "Schrijf een antwoord…",
     "Cancel reply" : "Antwoord annuleren",
     "%1$s mentioned you in a dashboard comment" : "%1$s heeft je genoemd in een dashboardreactie",
-    "Open the dashboard to read the comment" : "Open het dashboard om de reactie te lezen"
+    "Open the dashboard to read the comment" : "Open het dashboard om de reactie te lezen",
+    "Emoji not allowed" : "Emoji niet toegestaan",
+    "Reactions are disabled" : "Reacties zijn uitgeschakeld",
+    "Permission denied" : "Geen toestemming",
+    "React" : "Reageren",
+    "Reactions" : "Reacties"
 },
 "nplurals=2; plural=(n != 1);"
 );

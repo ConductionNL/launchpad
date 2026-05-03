@@ -335,4 +335,30 @@ export const api = {
 	deleteTile(id) {
 		return axios.delete(`${baseUrl}/api/tiles/${id}`)
 	},
+
+	// Dashboard reaction endpoints (REQ-RXN-001..004).
+	getDashboardReactions(uuid) {
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`)
+	},
+
+	addDashboardReaction(uuid, emoji) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`,
+			{ emoji },
+		)
+	},
+
+	removeDashboardReaction(uuid, emoji) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}`,
+		)
+	},
+
+	getDashboardReactors(uuid, emoji, cursor = null) {
+		const params = cursor !== null && cursor !== '' ? { cursor } : {}
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}/users`,
+			{ params },
+		)
+	},
 }

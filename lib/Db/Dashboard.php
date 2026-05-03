@@ -68,12 +68,19 @@ use OCP\AppFramework\Db\Entity;
  * @method void setPublishedAt(?string $publishedAt)
  * @method int|null getCommentsEnabled()
  * @method void setCommentsEnabled(?int $commentsEnabled)
+ * @method int|null getReactionsEnabled()
+ * @method void setReactionsEnabled(?int $reactionsEnabled)
  *
- * @SuppressWarnings(PHPMD.TooManyFields) Persistence entity legitimately
- *                                        carries one property per database
- *                                        column; the tree, publication and
- *                                        comments-enabled toggles bump the
- *                                        column count and stay deliberate.
+ * @SuppressWarnings(PHPMD.TooManyFields) Each new capability adds one
+ *                                          column (groupId, isDefault,
+ *                                          isActive, commentsEnabled,
+ *                                          reactionsEnabled, ...). The
+ *                                          entity is the single source
+ *                                          of truth for dashboard state
+ *                                          and splitting it would force
+ *                                          every cascade listener and
+ *                                          the resolver to juggle two
+ *                                          objects.
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -415,6 +422,23 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?int $commentsEnabled = null;
 
     /**
+     * Per-dashboard reactions toggle (REQ-RXN-006).
+     *
+     * Tri-state SMALLINT NULL column:
+     *   - NULL → follow the global `mydash.reactions_enabled_default`
+     *     admin setting
+     *   - 1    → reactions force-enabled on this dashboard, overriding
+     *     the global setting
+     *   - 0    → reactions force-disabled on this dashboard, overriding
+     *     the global setting
+     *
+     * Resolution lives in {@see \OCA\MyDash\Service\ReactionService}.
+     *
+     * @var integer|null
+     */
+    protected ?int $reactionsEnabled = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -434,6 +458,8 @@ class Dashboard extends Entity implements JsonSerializable
         $this->addType(fieldName: 'sortOrder', type: 'integer');
         $this->addType(fieldName: 'commentsEnabled', type: 'integer');
         // Nullable SMALLINT (NULL / 0 / 1) — REQ-CMNT-007.
+        $this->addType(fieldName: 'reactionsEnabled', type: 'integer');
+        // SMALLINT NULL in DB — null means follow global setting (REQ-RXN-006).
     }//end __construct()
 
     /**
@@ -493,6 +519,8 @@ class Dashboard extends Entity implements JsonSerializable
             'isDefault'         => $this->isDefault,
             'isActive'          => $this->isActive,
             'commentsEnabled'   => $this->commentsEnabled,
+            // REQ-RXN-006 — null/1/0 tri-state.
+            'reactionsEnabled'  => $this->reactionsEnabled,
             'createdAt'         => $this->createdAt,
             'updatedAt'         => $this->updatedAt,
             'parentUuid'        => $this->parentUuid,

@@ -69,6 +69,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		primaryGroup: '',
 		loading: false,
 		saving: false,
+		// REQ-RXN-003 — per-dashboard reactions summary cache.
+		// Map<uuid, {counts: {emoji: number, ...}, mine: [emoji, ...], enabled: boolean}>.
+		reactionsSummary: {},
 	}),
 
 	getters: {
@@ -759,6 +762,80 @@ export const useDashboardStore = defineStore('dashboard', {
 			} catch (error) {
 				console.error('Failed to update widget placement:', error)
 				console.error('Error details:', error.response?.data)
+			}
+		},
+
+		/**
+		 * Fetch and cache the reactions summary for a dashboard. REQ-RXN-003.
+		 *
+		 * @param {string} dashboardUuid The dashboard UUID.
+		 * @return {Promise<object|null>} The summary, or null on error.
+		 */
+		async fetchReactionsSummary(dashboardUuid) {
+			if (!dashboardUuid) {
+				return null
+			}
+
+			try {
+				const response = await api.getDashboardReactions(dashboardUuid)
+				this.reactionsSummary = {
+					...this.reactionsSummary,
+					[dashboardUuid]: response.data,
+				}
+				return response.data
+			} catch (error) {
+				console.error('Failed to fetch reactions summary:', error)
+				return null
+			}
+		},
+
+		/**
+		 * Add a reaction (idempotent — REQ-RXN-001). Updates the cached
+		 * summary on success.
+		 *
+		 * @param {string} dashboardUuid The dashboard UUID.
+		 * @param {string} emoji         The emoji to add.
+		 * @return {Promise<object|null>} Updated summary, or null on error.
+		 */
+		async addReaction(dashboardUuid, emoji) {
+			if (!dashboardUuid || !emoji) {
+				return null
+			}
+
+			try {
+				const response = await api.addDashboardReaction(dashboardUuid, emoji)
+				this.reactionsSummary = {
+					...this.reactionsSummary,
+					[dashboardUuid]: response.data,
+				}
+				return response.data
+			} catch (error) {
+				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				showError(message)
+				return null
+			}
+		},
+
+		/**
+		 * Remove a reaction (idempotent — REQ-RXN-002). Optimistically
+		 * refreshes the cached summary after the DELETE.
+		 *
+		 * @param {string} dashboardUuid The dashboard UUID.
+		 * @param {string} emoji         The emoji to remove.
+		 * @return {Promise<object|null>} Updated summary, or null on error.
+		 */
+		async removeReaction(dashboardUuid, emoji) {
+			if (!dashboardUuid || !emoji) {
+				return null
+			}
+
+			try {
+				await api.removeDashboardReaction(dashboardUuid, emoji)
+				return await this.fetchReactionsSummary(dashboardUuid)
+			} catch (error) {
+				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				showError(message)
+				return null
 			}
 		},
 	},

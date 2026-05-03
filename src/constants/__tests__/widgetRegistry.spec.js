@@ -33,7 +33,7 @@ describe('widgetRegistry', () => {
 		expect(listWidgetTypes()).toContain('label')
 	})
 
-	it('REQ-LBN-001..007: exposes a `link` entry with the proper defaultContent', async () => {
+	it('REQ-LBN-001..007 / REQ-LBLM-001..009: exposes a `link` entry with the proper defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
 		expect(widgetRegistry.link).toBeDefined()
 		expect(widgetRegistry.link.defaultContent).toEqual({
@@ -43,6 +43,10 @@ describe('widgetRegistry', () => {
 			actionType: 'external',
 			backgroundColor: '',
 			textColor: '',
+			displayMode: 'button',
+			listOrientation: 'vertical',
+			listItemGap: 'normal',
+			links: [],
 		})
 	})
 

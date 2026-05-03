@@ -5,7 +5,10 @@
  * Vitest unit tests for `LinkButtonWidget.vue` covering REQ-LBN-001
  * (three click branches, edit-mode suppression, disabled-while-in-flight),
  * REQ-LBN-002 (icon resolution), REQ-LBN-005 (internal action lookup),
- * and REQ-LBN-007 (theme-defaulted styling).
+ * REQ-LBN-007 (theme-defaulted styling), and REQ-LBLM-001..008
+ * (list-mode display: vertical/horizontal containers, per-item action
+ * dispatch, edit-mode suppression for list items, orientation/gap
+ * defaults, and backward compatibility for legacy placements).
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -240,5 +243,240 @@ describe('LinkButtonWidget', () => {
 		const style = wrapper.find('button.link-button-widget__button').attributes('style') || ''
 		expect(style).toContain('background-color: var(--color-primary)')
 		expect(style).toContain('color: var(--color-primary-text)')
+	})
+
+	it('REQ-LBLM-001/009: legacy placement (no displayMode) renders the single button', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: { label: 'Legacy', url: 'https://e', actionType: 'external' },
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		expect(wrapper.find('button.link-button-widget__button').exists()).toBe(true)
+		expect(wrapper.find('ul.link-button-widget__list').exists()).toBe(false)
+		expect(wrapper.find('div.link-button-widget__list').exists()).toBe(false)
+	})
+
+	it('REQ-LBLM-002: displayMode=list with empty links falls back to single button', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [],
+					label: 'Fallback',
+					url: 'https://e',
+					actionType: 'external',
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		expect(wrapper.find('button.link-button-widget__button').exists()).toBe(true)
+		expect(wrapper.find('.link-button-widget__list').exists()).toBe(false)
+	})
+
+	it('REQ-LBLM-005/008: vertical list with 3 links renders <ul role="list"> with <li> items', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					listOrientation: 'vertical',
+					links: [
+						{ label: 'A', url: 'https://a', actionType: 'external' },
+						{ label: 'B', url: 'https://b', actionType: 'external' },
+						{ label: 'C', url: 'https://c', actionType: 'external' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		const ul = wrapper.find('ul.link-button-widget__list--vertical')
+		expect(ul.exists()).toBe(true)
+		expect(ul.attributes('role')).toBe('list')
+		const items = wrapper.findAll('li.link-button-widget__list-item-wrap')
+		expect(items.length).toBe(3)
+		expect(wrapper.findAll('button.link-button-widget__list-item').length).toBe(3)
+	})
+
+	it('REQ-LBLM-005/008: horizontal list with 2 links renders <div role="list"> with role=listitem', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					listOrientation: 'horizontal',
+					links: [
+						{ label: 'A', url: 'https://a', actionType: 'external' },
+						{ label: 'B', url: 'https://b', actionType: 'external' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		const container = wrapper.find('div.link-button-widget__list--horizontal')
+		expect(container.exists()).toBe(true)
+		expect(container.attributes('role')).toBe('list')
+		const items = wrapper.findAll('div.link-button-widget__list-item-wrap--horizontal')
+		expect(items.length).toBe(2)
+		expect(items.at(0).attributes('role')).toBe('listitem')
+	})
+
+	it('REQ-LBLM-005: listItemGap controls the CSS gap value (compact/normal/spacious)', () => {
+		const links = [{ label: 'A', url: 'https://a', actionType: 'external' }]
+		const compact = mount(LinkButtonWidget, {
+			propsData: {
+				content: { displayMode: 'list', listItemGap: 'compact', links },
+			},
+			stubs: { IconRenderer: true },
+		})
+		const normal = mount(LinkButtonWidget, {
+			propsData: {
+				content: { displayMode: 'list', links },
+			},
+			stubs: { IconRenderer: true },
+		})
+		const spacious = mount(LinkButtonWidget, {
+			propsData: {
+				content: { displayMode: 'list', listItemGap: 'spacious', links },
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		expect(compact.find('.link-button-widget__list').attributes('style')).toContain('gap: 0.5rem')
+		expect(normal.find('.link-button-widget__list').attributes('style')).toContain('gap: 1rem')
+		expect(spacious.find('.link-button-widget__list').attributes('style')).toContain('gap: 1.5rem')
+	})
+
+	it('REQ-LBLM-003: clicking a list item with actionType=external opens the URL in a new tab', () => {
+		const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [
+						{ label: 'A', url: 'https://a', actionType: 'external' },
+						{ label: 'B', url: 'https://b', actionType: 'external' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		wrapper.findAll('button.link-button-widget__list-item').at(1).trigger('click')
+		expect(openSpy).toHaveBeenCalledWith('https://b', '_blank', 'noopener,noreferrer')
+		openSpy.mockRestore()
+	})
+
+	it('REQ-LBLM-003: clicking a list item with actionType=internal invokes the registered action', () => {
+		const fn = vi.fn()
+		useInternalActions().register('open-talk', fn)
+
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [
+						{ label: 'External', url: 'https://x', actionType: 'external' },
+						{ label: 'Talk', url: 'open-talk', actionType: 'internal' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		wrapper.findAll('button.link-button-widget__list-item').at(1).trigger('click')
+		expect(fn).toHaveBeenCalledTimes(1)
+	})
+
+	it('REQ-LBLM-003: clicking a list item with actionType=createFile opens the modal with the link.value extension', async () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [
+						{ label: 'New report', url: 'unused', actionType: 'createFile', value: 'docx' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		await wrapper.find('button.link-button-widget__list-item').trigger('click')
+		expect(wrapper.find('.link-button-widget__modal-backdrop').exists()).toBe(true)
+		expect(wrapper.find('.link-button-widget__modal-extension').text()).toBe('.docx')
+	})
+
+	it('REQ-LBLM-003: list item click is suppressed in edit mode', () => {
+		const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [{ label: 'A', url: 'https://a', actionType: 'external' }],
+				},
+				isAdmin: true,
+				canEdit: true,
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		wrapper.find('button.link-button-widget__list-item').trigger('click')
+		expect(openSpy).not.toHaveBeenCalled()
+		openSpy.mockRestore()
+	})
+
+	it('REQ-LBLM-004: list item with custom-URL icon renders an <img>', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [
+						{ label: 'A', url: 'https://a', actionType: 'external', icon: '/apps/mydash/resource/x.png' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		const img = wrapper.find('.link-button-widget__list-icon img')
+		expect(img.exists()).toBe(true)
+		expect(img.attributes('src')).toBe('/apps/mydash/resource/x.png')
+		expect(img.attributes('width')).toBe('24')
+	})
+
+	it('REQ-LBLM-004: list item with empty icon renders no icon span', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					links: [{ label: 'A', url: 'https://a', actionType: 'external', icon: '' }],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		expect(wrapper.find('.link-button-widget__list-icon').exists()).toBe(false)
+	})
+
+	it('REQ-LBLM-008: per-link backgroundColor and textColor override the widget defaults', () => {
+		const wrapper = mount(LinkButtonWidget, {
+			propsData: {
+				content: {
+					displayMode: 'list',
+					backgroundColor: '#000000',
+					textColor: '#ffffff',
+					links: [
+						{ label: 'A', url: 'https://a', actionType: 'external', backgroundColor: '#0066cc', textColor: '#eeeeee' },
+					],
+				},
+			},
+			stubs: { IconRenderer: true },
+		})
+
+		const style = wrapper.find('button.link-button-widget__list-item').attributes('style') || ''
+		expect(style).toContain('background-color: rgb(0, 102, 204)')
+		expect(style).toContain('color: rgb(238, 238, 238)')
 	})
 })

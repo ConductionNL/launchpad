@@ -491,6 +491,44 @@ export const api = {
 		return axios.put(`${baseUrl}/api/admin/org-navigation/position`, { position })
 	},
 
+	// Dashboard bulk operations (REQ-BULK-001..011). All four endpoints
+	// are admin-only on the server side; the UI gates the controls behind
+	// the same admin check. Each endpoint accepts `dryRun` to preview
+	// outcomes without mutating the database, and returns
+	// `{deletedCount|movedCount|updatedCount|reindexedCount, skippedCount, errors, dryRun}`
+	// (or the `wouldX` variants in dry-run mode).
+	bulkDeleteDashboards(dashboardUuids, { dryRun = false, cascade = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-delete`, {
+			dashboardUuids,
+			dryRun,
+			cascade,
+		})
+	},
+
+	bulkMoveDashboards(dashboardUuids, parentUuid, { dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-move`, {
+			dashboardUuids,
+			parentUuid,
+			dryRun,
+		})
+	},
+
+	bulkStatusDashboards(dashboardUuids, publicationStatus, { publishAt = null, dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-status`, {
+			dashboardUuids,
+			publicationStatus,
+			publishAt,
+			dryRun,
+		})
+	},
+
+	bulkReindexDashboards(dashboardUuids, { dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-reindex`, {
+			dashboardUuids,
+			dryRun,
+		})
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

@@ -400,5 +400,18 @@ return [
 		 'url' => '/api/admin/org-navigation', 'verb' => 'GET'],
 		['name' => 'admin_org_navigation#updateOrgNavigation',
 		 'url' => '/api/admin/org-navigation', 'verb' => 'PUT'],
+
+		// Dashboard bulk operations (REQ-BULK-001..011). Admin-only via
+		// runtime `IGroupManager::isAdmin` check inside the controller;
+		// the all-or-nothing permission pre-check + per-request size cap
+		// enforcement live in BulkOperationService.
+		['name' => 'admin_bulk#bulkDelete',
+		 'url' => '/api/admin/dashboards/bulk-delete', 'verb' => 'POST'],
+		['name' => 'admin_bulk#bulkMove',
+		 'url' => '/api/admin/dashboards/bulk-move', 'verb' => 'POST'],
+		['name' => 'admin_bulk#bulkStatus',
+		 'url' => '/api/admin/dashboards/bulk-status', 'verb' => 'POST'],
+		['name' => 'admin_bulk#bulkReindex',
+		 'url' => '/api/admin/dashboards/bulk-reindex', 'verb' => 'POST'],
 	],
 ];

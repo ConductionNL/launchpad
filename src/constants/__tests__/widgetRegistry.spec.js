@@ -64,7 +64,7 @@ describe('widgetRegistry', () => {
 		expect(a).not.toBe(b)
 	})
 
-	it('REQ-TXT-004/005: exposes a `text` entry with the proper defaultContent', async () => {
+	it('REQ-TXT-004/005 / REQ-TXMD-001: exposes a `text` entry with the proper defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
 		expect(widgetRegistry.text).toBeDefined()
 		expect(widgetRegistry.text.defaultContent).toEqual({
@@ -73,6 +73,11 @@ describe('widgetRegistry', () => {
 			color: '',
 			backgroundColor: '',
 			textAlign: 'left',
+			// REQ-TXMD-001 / REQ-TXMD-005: new text widgets default to
+			// markdown so authors can use lightweight syntax out of the
+			// box; existing placements without `contentMode` keep their
+			// legacy HTML rendering.
+			contentMode: 'markdown',
 		})
 	})
 

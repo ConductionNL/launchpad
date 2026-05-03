@@ -342,6 +342,11 @@
         "You overrode the lock on dashboard {dashboard}": "Je hebt de vergrendeling van dashboard {dashboard} omzeild",
         "{actor} overrode the lock on dashboard {dashboard}": "{actor} heeft de vergrendeling van dashboard {dashboard} omzeild",
         "Your role in {dashboard} was changed to {role}": "Je rol in {dashboard} is gewijzigd naar {role}",
-        "{actor} changed {target}'s role in {dashboard} to {role}": "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}"
+        "{actor} changed {target}'s role in {dashboard} to {role}": "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}",
+        "Mode": "Modus",
+        "HTML": "HTML",
+        "Markdown": "Markdown",
+        "Markdown — # heading, **bold**, *italic*, [link](url), - list": "Markdown — # kop, **vet**, *cursief*, [link](url), - lijst",
+        "HTML — <b>bold</b>, <i>italic</i>, <a href=\"…\">link</a>": "HTML — <b>vet</b>, <i>cursief</i>, <a href=\"…\">link</a>"
     }
 }

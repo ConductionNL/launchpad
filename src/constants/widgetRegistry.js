@@ -23,10 +23,12 @@
  * `defaultContent` of `{text:'', fontSize:'16px', color:'',
  * backgroundColor:'', fontWeight:'bold', textAlign:'center'}`.
  *
- * REQ-TXT-005 / REQ-TXT-001..004: The widget type `text` MUST be registered
- * with a renderer reference to `TextDisplayWidget.vue`, a form reference to
- * `TextDisplayForm.vue`, and a `defaultContent` of `{text:'',
- * fontSize:'14px', color:'', backgroundColor:'', textAlign:'left'}`.
+ * REQ-TXT-005 / REQ-TXT-001..004 / REQ-TXMD-001..007: The widget type `text`
+ * MUST be registered with a renderer reference to `TextDisplayWidget.vue`, a
+ * form reference to `TextDisplayForm.vue`, and a `defaultContent` of
+ * `{text:'', fontSize:'14px', color:'', backgroundColor:'', textAlign:'left',
+ * contentMode:'markdown'}`. New widgets default to markdown mode; existing
+ * placements without `contentMode` render through the legacy HTML branch.
  *
  * REQ-LBN-001..007: The widget type `link` MUST be registered with a
  * renderer reference to `LinkButtonWidget.vue`, a form reference to
@@ -77,12 +79,17 @@ export const widgetRegistry = {
 	text: {
 		renderer: TextDisplayWidget,
 		form: TextDisplayForm,
+		// REQ-TXMD-001 / REQ-TXMD-005: new text widgets default to
+		// markdown mode. Existing placements without a `contentMode` key
+		// fall through to the renderer's legacy 'html' branch — the
+		// registry default only seeds new placements via AddWidgetModal.
 		defaultContent: {
 			text: '',
 			fontSize: '14px',
 			color: '',
 			backgroundColor: '',
 			textAlign: 'left',
+			contentMode: 'markdown',
 		},
 		displayName: t('mydash', 'Text'),
 		icon: 'FormatText',

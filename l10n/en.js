@@ -335,7 +335,12 @@ OC.L10N.register(
     "You overrode the lock on dashboard {dashboard}" : "You overrode the lock on dashboard {dashboard}",
     "{actor} overrode the lock on dashboard {dashboard}" : "{actor} overrode the lock on dashboard {dashboard}",
     "Your role in {dashboard} was changed to {role}" : "Your role in {dashboard} was changed to {role}",
-    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} changed {target}'s role in {dashboard} to {role}"
+    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} changed {target}'s role in {dashboard} to {role}",
+    "Mode" : "Mode",
+    "HTML" : "HTML",
+    "Markdown" : "Markdown",
+    "Markdown — # heading, **bold**, *italic*, [link](url), - list" : "Markdown — # heading, **bold**, *italic*, [link](url), - list",
+    "HTML — <b>bold</b>, <i>italic</i>, <a href=\"…\">link</a>" : "HTML — <b>bold</b>, <i>italic</i>, <a href=\"…\">link</a>"
 },
 "nplurals=2; plural=(n != 1);"
 );

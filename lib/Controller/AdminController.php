@@ -27,6 +27,7 @@ use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
 use OCA\MyDash\Service\FeedRefreshService;
+use OCA\MyDash\Service\FooterService;
 use OCA\MyDash\Service\ImportService;
 use OCA\MyDash\Service\RoleService;
 use OCP\AppFramework\Controller;
@@ -48,7 +49,8 @@ use OCP\IUserSession;
  *                                                group-priority order,
  *                                                role assignments,
  *                                                export/import,
- *                                                feed-refresh, and the
+ *                                                feed-refresh, footer
+ *                                                customization, and the
  *                                                self-introspection
  *                                                endpoint in one
  *                                                cohesive admin namespace.
@@ -57,13 +59,19 @@ use OCP\IUserSession;
  *                                                  injected services
  *                                                  (templates, settings,
  *                                                  roles, export, import,
- *                                                  feed refresh, helpers)
- *                                                  by design — splitting
- *                                                  the controller would
- *                                                  fragment the routing
+ *                                                  feed refresh, footer,
+ *                                                  helpers) by design —
+ *                                                  splitting the controller
+ *                                                  would fragment the routing
  *                                                  surface.
  * @SuppressWarnings(PHPMD.Superglobals)            $_FILES is the only
  *                                                  multipart entry point.
+ * @SuppressWarnings(PHPMD.LongVariable)            `footerBackgroundColor`
+ *                                                  / `footerTextColor` mirror
+ *                                                  the API contract field
+ *                                                  names verbatim — shortening
+ *                                                  would diverge from the
+ *                                                  documented payload.
  */
 class AdminController extends Controller
 {
@@ -86,6 +94,8 @@ class AdminController extends Controller
      *                                              the on-demand admin
      *                                              `refreshFeeds` action
      *                                              (REQ-BGJOB-FEED-005).
+     * @param FooterService        $footerService   Global footer settings + sanitiser
+     *                                              (REQ-FTR-001..010).
      */
     public function __construct(
         IRequest $request,
@@ -97,6 +107,7 @@ class AdminController extends Controller
         private readonly ImportService $importService,
         private readonly RoleService $roleService,
         private readonly FeedRefreshService $feedRefresh,
+        private readonly FooterService $footerService,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -294,6 +305,98 @@ class AdminController extends Controller
             return ResponseHelper::error(exception: $e);
         }//end try
     }//end updateSettings()
+
+    /**
+     * Read the global footer settings (REQ-FTR-001, REQ-FTR-010).
+     *
+     * Returns the five footer keys as a flat camelCase object so the
+     * admin UI can render the form with one round-trip. Admin-only —
+     * non-admins receive HTTP 403 because even the read path discloses
+     * potentially-sensitive draft footer copy.
+     *
+     * @return JSONResponse The settings object, or 401/403 on guard failure.
+     *
+     * @NoAdminRequired
+     */
+    public function getFooterSettings(): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        return ResponseHelper::success(
+            data: $this->footerService->getGlobalSettings()
+        );
+    }//end getFooterSettings()
+
+    /**
+     * Patch the global footer settings (REQ-FTR-001..003, REQ-FTR-009,
+     * REQ-FTR-010).
+     *
+     * Body: any subset of `{footerEnabled, footerHtml, footerConfig,
+     * footerBackgroundColor, footerTextColor}`. The service sanitises
+     * HTML, validates the structured-config schema, and validates hex
+     * colour strings before persistence. Validation failures map to
+     * HTTP 400 (or 413 when the HTML exceeds the 8 KB cap).
+     *
+     * @param bool|null         $footerEnabled         Master toggle.
+     * @param string|array|null $footerHtml            Raw HTML or
+     *                                                 language-variant
+     *                                                 map.
+     * @param array|null        $footerConfig          Structured config.
+     * @param string|null       $footerBackgroundColor Hex (#rrggbb) or null.
+     * @param string|null       $footerTextColor       Hex (#rrggbb) or null.
+     *
+     * @return JSONResponse Status 200 on success, 400/413 on validation,
+     *                      401/403 on guard failure.
+     *
+     * @NoAdminRequired
+     */
+    public function updateFooterSettings(
+        ?bool $footerEnabled=null,
+        mixed $footerHtml=null,
+        ?array $footerConfig=null,
+        ?string $footerBackgroundColor=null,
+        ?string $footerTextColor=null
+    ): JSONResponse {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        // Build the patch from only those args that the caller actually
+        // supplied — `array_key_exists` semantics on the body let admins
+        // explicitly clear a colour by sending `null`.
+        $body  = $this->request->getParams();
+        $patch = [];
+        foreach (['footerEnabled', 'footerHtml', 'footerConfig', 'footerBackgroundColor', 'footerTextColor'] as $key) {
+            if (array_key_exists(key: $key, array: $body) === true) {
+                $patch[$key] = $body[$key];
+            }
+        }
+
+        try {
+            $this->footerService->updateGlobalSettings(patch: $patch);
+        } catch (InvalidArgumentException $e) {
+            $isOversize = str_contains(
+                haystack: $e->getMessage(),
+                needle: '8 KB limit'
+            );
+            if ($isOversize === true) {
+                $status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
+            } else {
+                $status = Http::STATUS_BAD_REQUEST;
+            }
+
+            return new JSONResponse(
+                data: ['error' => $e->getMessage()],
+                statusCode: $status
+            );
+        }
+
+        return ResponseHelper::success(data: ['status' => 'ok']);
+    }//end updateFooterSettings()
 
     /**
      * List all Nextcloud groups partitioned for the admin UI (REQ-ASET-013).

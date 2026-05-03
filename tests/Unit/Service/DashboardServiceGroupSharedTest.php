@@ -127,6 +127,7 @@ class DashboardServiceGroupSharedTest extends TestCase
             config: $this->config,
             l10nFactory: $this->l10nFactory,
             logger: $this->logger,
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
         );
     }//end setUp()
 

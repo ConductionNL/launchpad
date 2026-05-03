@@ -53,6 +53,8 @@ use Throwable;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Same; splitting risks losing the single-source-of-truth behaviour.
  * @SuppressWarnings(PHPMD.ExcessiveParameterList)   The constructor wires every dependency the three scopes need.
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)     `resolveActiveDashboard` fans out the 7-step REQ-DASH-018 chain.
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)     Single source of truth for CRUD + tree + publication + footer.
+ * @SuppressWarnings(PHPMD.TooManyMethods)           Mode methods live next to one another for grep-ability.
  */
 class DashboardService
 {
@@ -182,6 +184,17 @@ class DashboardService
      *                                                               compatible
      *                                                               with existing
      *                                                               unit tests.
+     * @param FooterService|null               $footerService        Optional
+     *                                                               per-dashboard
+     *                                                               footer
+     *                                                               sanitiser +
+     *                                                               resolver
+     *                                                               (REQ-FTR-006).
+     *                                                               Nullable for
+     *                                                               backwards-
+     *                                                               compat with
+     *                                                               existing
+     *                                                               test doubles.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -199,6 +212,7 @@ class DashboardService
         private readonly LoggerInterface $logger,
         private readonly ?DashboardTranslationService $translationService=null,
         private readonly ?DashboardLockMapper $lockMapper=null,
+        private readonly ?FooterService $footerService=null,
     ) {
     }//end __construct()
 
@@ -1714,6 +1728,7 @@ class DashboardService
         }
 
         $this->applyTreeUpdates(dashboard: $dashboard, data: $data);
+        $this->applyFooterUpdates(dashboard: $dashboard, data: $data);
 
         $dashboard->setUpdatedAt(
             (new DateTime())->format(format: 'Y-m-d H:i:s')
@@ -1727,6 +1742,96 @@ class DashboardService
             );
         }
     }//end applyDashboardUpdates()
+
+    /**
+     * Apply per-dashboard footer override updates (REQ-FTR-006).
+     *
+     * Mode + HTML are decoupled — callers can patch either independently.
+     * Validates the mode against {@see Dashboard::FOOTER_MODES}, sanitises
+     * the HTML through {@see FooterService::sanitiseHtml()} when mode is
+     * `custom`, and clears the HTML to NULL when mode flips away from
+     * `custom` (REQ-FTR-006 mode-change scenario). When mode is `custom`
+     * but no HTML is supplied (and the dashboard has no stored HTML
+     * either), throws so the controller can return HTTP 400.
+     *
+     * @param Dashboard $dashboard The dashboard being updated.
+     * @param array     $data      The patch payload.
+     *
+     * @return void
+     *
+     * @throws InvalidArgumentException When mode is invalid or `custom`
+     *                                  is requested without HTML.
+     */
+    private function applyFooterUpdates(
+        Dashboard $dashboard,
+        array $data
+    ): void {
+        $modeProvided = array_key_exists(key: 'dashboardFooterMode', array: $data);
+        $htmlProvided = array_key_exists(key: 'dashboardFooterHtml', array: $data);
+
+        if ($modeProvided === false && $htmlProvided === false) {
+            return;
+        }
+
+        if ($modeProvided === true) {
+            $newMode = $data['dashboardFooterMode'];
+        } else {
+            $newMode = $dashboard->getDashboardFooterMode();
+        }
+
+        if ($newMode === null || $newMode === '') {
+            $newMode = Dashboard::FOOTER_MODE_INHERIT;
+        }
+
+        if (is_string($newMode) === false
+            || in_array(needle: $newMode, haystack: Dashboard::FOOTER_MODES, strict: true) === false
+        ) {
+            throw new InvalidArgumentException(
+                message: 'dashboardFooterMode must be one of: '.implode(separator: ', ', array: Dashboard::FOOTER_MODES)
+            );
+        }
+
+        if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
+            if ($htmlProvided === true) {
+                $rawHtml = $data['dashboardFooterHtml'];
+            } else {
+                $rawHtml = $dashboard->getDashboardFooterHtml();
+            }
+
+            if ($rawHtml === null || is_string($rawHtml) === false || trim(string: $rawHtml) === '') {
+                throw new InvalidArgumentException(
+                    message: 'dashboardFooterHtml is required when dashboardFooterMode=custom'
+                );
+            }
+
+            $sanitised = $this->footerService->sanitiseHtml(html: $rawHtml);
+            $dashboard->setDashboardFooterMode(Dashboard::FOOTER_MODE_CUSTOM);
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $dashboard->setDashboardFooterHtml($sanitised);
+            return;
+        }
+
+        // Inherit / hidden — clear stale HTML to keep the invariant.
+        $dashboard->setDashboardFooterMode($newMode);
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setDashboardFooterHtml(null);
+    }//end applyFooterUpdates()
+
+    /**
+     * Resolve the effective footer payload for a dashboard
+     * (REQ-FTR-006 — see {@see FooterService::resolveFooterForDashboard()}).
+     *
+     * Thin pass-through so callers (controllers, listeners, tests) can
+     * stay on the `DashboardService` surface.
+     *
+     * @param Dashboard $dashboard The dashboard.
+     *
+     * @return array|null The effective footer payload, or NULL.
+     */
+    public function resolveFooterForDashboard(Dashboard $dashboard): ?array
+    {
+        return $this->footerService->resolveFooterForDashboard(dashboard: $dashboard);
+    }//end resolveFooterForDashboard()
 
     /**
      * Apply hierarchy updates (parentUuid, slug, sortOrder) with the

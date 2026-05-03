@@ -25,6 +25,7 @@ use OCA\MyDash\Controller\AdminController;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
+use OCA\MyDash\Service\FooterService;
 use OCA\MyDash\Service\ImportService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -58,6 +59,9 @@ class AdminControllerExportImportTest extends TestCase
     /** @var ImportService&MockObject */
     private $importService;
 
+    /** @var FooterService&MockObject */
+    private $footerService;
+
     private AdminController $controller;
 
     protected function setUp(): void
@@ -69,6 +73,7 @@ class AdminControllerExportImportTest extends TestCase
         $this->userSession     = $this->createMock(originalClassName: IUserSession::class);
         $this->exportService   = $this->createMock(originalClassName: ExportService::class);
         $this->importService   = $this->createMock(originalClassName: ImportService::class);
+        $this->footerService   = $this->createMock(originalClassName: FooterService::class);
 
         $this->controller = new AdminController(
             request: $this->request,
@@ -78,6 +83,7 @@ class AdminControllerExportImportTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->exportService,
             importService: $this->importService,
+            footerService: $this->footerService,
         );
     }
 

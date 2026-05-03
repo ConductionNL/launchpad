@@ -25,6 +25,7 @@ use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
 use OCA\MyDash\Service\FeedRefreshService;
+use OCA\MyDash\Service\FooterService;
 use OCA\MyDash\Service\ImportService;
 use OCA\MyDash\Service\RoleService;
 use OCP\AppFramework\Http;
@@ -73,6 +74,7 @@ class AdminControllerGroupOrderTest extends TestCase
             importService: $this->createMock(ImportService::class),
             roleService: $this->roleService,
             feedRefresh: $this->feedRefresh,
+            footerService: $this->createMock(FooterService::class),
         );
     }
 

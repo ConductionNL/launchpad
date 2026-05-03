@@ -374,4 +374,47 @@ class DashboardTableBuilder
             );
         }
     }//end addPublicationColumns()
+
+    /**
+     * Apply the per-dashboard footer-override schema (REQ-FTR-006) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds two columns: `dashboard_footer_mode` (VARCHAR(16), default
+     * `'inherit'`) selecting one of `inherit | hidden | custom`, and
+     * `dashboard_footer_html` (TEXT, nullable) holding the
+     * dashboard-specific HTML when mode is `custom`. Pre-existing rows
+     * materialise as `inherit` automatically via the column default —
+     * no explicit backfill required (footer-customization design D2).
+     * Idempotent — every column is checked with `hasColumn` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addFooterColumns($table): void
+    {
+        if ($table->hasColumn(name: 'dashboard_footer_mode') === false) {
+            $table->addColumn(
+                name: 'dashboard_footer_mode',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => true,
+                    'length'  => 16,
+                    'default' => 'inherit',
+                    'comment' => 'Per-dashboard footer mode (inherit|hidden|custom). REQ-FTR-006.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'dashboard_footer_html') === false) {
+            $table->addColumn(
+                name: 'dashboard_footer_html',
+                typeName: Types::TEXT,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Sanitised dashboard-specific footer HTML; only used when dashboard_footer_mode=custom.',
+                ]
+            );
+        }
+    }//end addFooterColumns()
 }//end class

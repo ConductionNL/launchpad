@@ -76,6 +76,8 @@ import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
 import FilesForm from '../components/Widgets/Forms/FilesForm.vue'
 import PeopleWidget from '../components/Widgets/Renderers/PeopleWidget.vue'
 import PeopleForm from '../components/Widgets/Forms/PeopleForm.vue'
+import QuicklinksWidget from '../components/Widgets/Renderers/QuicklinksWidget.vue'
+import QuicklinksForm from '../components/Widgets/Forms/QuicklinksForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -229,6 +231,22 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'People'),
 		icon: 'AccountGroup',
+	},
+	quicklinks: {
+		renderer: QuicklinksWidget,
+		form: QuicklinksForm,
+		defaultContent: {
+			links: [],
+			iconSize: 'medium',
+			iconShape: 'rounded',
+			showLabels: true,
+			labelPosition: 'below',
+			columns: 'auto',
+			tileBackgroundStyle: 'transparent',
+			hoverEffect: 'lift',
+		},
+		displayName: t('mydash', 'Quicklinks'),
+		icon: 'Star',
 	},
 }
 

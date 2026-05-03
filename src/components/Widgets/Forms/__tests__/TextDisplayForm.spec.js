@@ -93,6 +93,7 @@ describe('TextDisplayForm', () => {
 		expect(emitted[emitted.length - 1][0]).toMatchObject({ text: 'Y' })
 	})
 
+<<<<<<< HEAD
 	describe('REQ-TXMD-001/004/005: contentMode toggle', () => {
 		it('defaults to "markdown" in create mode (no editingWidget)', () => {
 			const wrapper = mount(TextDisplayForm, {
@@ -181,6 +182,79 @@ describe('TextDisplayForm', () => {
 			const last = emitted[emitted.length - 1][0]
 			expect(last).toHaveProperty('contentMode')
 			expect(['html', 'markdown']).toContain(last.contentMode)
+=======
+	describe('REQ-TBLE-002: table mode', () => {
+		it('defaults to text mode when no tableMode in initial content', () => {
+			const wrapper = mount(TextDisplayForm, {
+				propsData: { value: { text: 'X' } },
+				stubs: { NcTextField: true, NcSelect: true, TextTableEditor: true },
+			})
+			expect(wrapper.vm.tableMode).toBe(false)
+			expect(wrapper.vm.tableData).toBeNull()
+		})
+
+		it('initialises tableData with an empty 1x1 table when switching into table mode', () => {
+			const wrapper = mount(TextDisplayForm, {
+				propsData: { value: { text: 'X' } },
+				stubs: { NcTextField: true, NcSelect: true, TextTableEditor: true },
+			})
+			wrapper.vm.onModeChange({ id: 'table', label: 'Table' })
+			expect(wrapper.vm.tableMode).toBe(true)
+			expect(wrapper.vm.tableData).toEqual({
+				headerRow: false,
+				columnAlignments: ['left'],
+				rows: [[{ text: '', rowSpan: 1, colSpan: 1 }]],
+			})
+		})
+
+		it('preserves text when switching to table mode and back', () => {
+			const wrapper = mount(TextDisplayForm, {
+				propsData: { value: { text: 'preserve me' } },
+				stubs: { NcTextField: true, NcSelect: true, TextTableEditor: true },
+			})
+			wrapper.vm.onModeChange({ id: 'table', label: 'Table' })
+			wrapper.vm.onModeChange({ id: 'text', label: 'Text' })
+			expect(wrapper.vm.text).toBe('preserve me')
+		})
+
+		it('validate() defers to validateTable() when tableMode is on', () => {
+			const wrapper = mount(TextDisplayForm, {
+				propsData: { value: { tableMode: true, tableData: null } },
+				stubs: { NcTextField: true, NcSelect: true, TextTableEditor: true },
+			})
+			// tableData is null → validateTable returns the empty-rows error
+			expect(wrapper.vm.validate()).toEqual(['Table must have at least one row'])
+		})
+
+		it('validate() returns [] for a valid 1x1 table', () => {
+			const wrapper = mount(TextDisplayForm, {
+				propsData: {
+					value: {
+						tableMode: true,
+						tableData: {
+							headerRow: false,
+							columnAlignments: ['left'],
+							rows: [[{ text: '', rowSpan: 1, colSpan: 1 }]],
+						},
+					},
+				},
+				stubs: { NcTextField: true, NcSelect: true, TextTableEditor: true },
+			})
+			expect(wrapper.vm.validate()).toEqual([])
+		})
+
+		it('emits update:content carrying tableMode + tableData', () => {
+			const wrapper = mount(TextDisplayForm, {
+				propsData: { value: { text: 'X' } },
+				stubs: { NcTextField: true, NcSelect: true, TextTableEditor: true },
+			})
+			wrapper.vm.onModeChange({ id: 'table', label: 'Table' })
+			const emissions = wrapper.emitted('update:content')
+			const last = emissions[emissions.length - 1][0]
+			expect(last.tableMode).toBe(true)
+			expect(last.tableData).toBeTruthy()
+			expect(last.text).toBe('X')
+>>>>>>> feature/wave2-text-widget-tables
 		})
 	})
 })

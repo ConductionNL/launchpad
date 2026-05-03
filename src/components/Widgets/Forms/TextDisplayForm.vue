@@ -5,6 +5,7 @@
 
 <template>
 	<div class="text-display-form">
+<<<<<<< HEAD
 		<NcSelect
 			:value="contentMode"
 			:options="contentModeOptions"
@@ -50,17 +51,71 @@
 				@input="updateField('backgroundColor', $event.target.value)">
 		</label>
 
+=======
+>>>>>>> feature/wave2-text-widget-tables
 		<NcSelect
-			:value="textAlign"
-			:options="textAlignOptions"
-			:input-label="t('mydash', 'Alignment')"
+			:value="modeOption"
+			:options="modeOptions"
+			:input-label="t('mydash', 'Content type')"
 			:clearable="false"
-			@input="updateField('textAlign', $event)" />
+			label="label"
+			@input="onModeChange" />
+
+		<template v-if="!tableMode">
+			<label class="text-display-form__field">
+				{{ t('mydash', 'Text') }}
+				<textarea
+					:value="text"
+					class="text-display-form__textarea"
+					rows="4"
+					required
+					@input="updateField('text', $event.target.value)" />
+			</label>
+
+			<NcTextField
+				:value="fontSize"
+				:label="t('mydash', 'Font Size')"
+				placeholder="14px"
+				@update:value="updateField('fontSize', $event)" />
+
+			<label class="text-display-form__color-label">
+				{{ t('mydash', 'Text Color') }}
+				<input
+					type="color"
+					:value="color || '#000000'"
+					class="text-display-form__color"
+					@input="updateField('color', $event.target.value)">
+			</label>
+
+			<label class="text-display-form__color-label">
+				{{ t('mydash', 'Background Color') }}
+				<input
+					type="color"
+					:value="backgroundColor || '#ffffff'"
+					class="text-display-form__color"
+					@input="updateField('backgroundColor', $event.target.value)">
+			</label>
+
+			<NcSelect
+				:value="textAlign"
+				:options="textAlignOptions"
+				:input-label="t('mydash', 'Alignment')"
+				:clearable="false"
+				@input="updateField('textAlign', $event)" />
+		</template>
+
+		<template v-else>
+			<TextTableEditor
+				:value="tableData"
+				@input="onTableDataChange" />
+		</template>
 	</div>
 </template>
 
 <script>
 import { NcTextField, NcSelect } from '@conduction/nextcloud-vue'
+import TextTableEditor from './TextTableEditor.vue'
+import { emptyTable, validateTable } from '../../../utils/textTable.js'
 
 const DEFAULT_CONTENT = Object.freeze({
 	text: '',
@@ -68,9 +123,14 @@ const DEFAULT_CONTENT = Object.freeze({
 	color: '',
 	backgroundColor: '',
 	textAlign: 'left',
+<<<<<<< HEAD
 	// New widgets default to 'markdown' (REQ-TXMD-001 / REQ-TXMD-005);
 	// existing widgets without the field render in legacy 'html' mode.
 	contentMode: 'markdown',
+=======
+	tableMode: false,
+	tableData: null,
+>>>>>>> feature/wave2-text-widget-tables
 })
 
 const VALID_CONTENT_MODES = Object.freeze(['html', 'markdown'])
@@ -79,6 +139,7 @@ const VALID_CONTENT_MODES = Object.freeze(['html', 'markdown'])
  * TextDisplayForm is the sub-form for AddWidgetModal when the user is
  * creating or editing a `text` widget placement.
  *
+<<<<<<< HEAD
  * Exposes the controls described in REQ-TXT-004 (textarea, font size input,
  * two colour pickers, alignment select) and REQ-TXMD-004 (Mode toggle for
  * HTML / Markdown). Validation method `validate()` returns
@@ -88,6 +149,19 @@ const VALID_CONTENT_MODES = Object.freeze(['html', 'markdown'])
  * Switching modes never mutates the text content (REQ-TXMD-004 scenario
  * "Toggling mode preserves text content"); only the parsing branch in the
  * renderer changes on next render.
+=======
+ * Exposes the five controls described in REQ-TXT-004 (textarea, font size
+ * input, two colour pickers, alignment select) and a `validate()` method
+ * returning `[t('mydash', 'Text is required')]` when text is empty or
+ * whitespace-only — matching the AddWidgetModal sub-form contract.
+ *
+ * REQ-TBLE-002: a top-level "Content type" picker switches between text
+ * mode (the original five controls) and table mode (a `TextTableEditor`
+ * sub-component editing `content.tableData`). The legacy `text` field is
+ * preserved across mode switches so toggling back doesn't lose the user's
+ * markdown / plain text. `validate()` defers to `validateTable()` from
+ * `utils/textTable.js` when `tableMode` is on.
+>>>>>>> feature/wave2-text-widget-tables
  */
 export default {
 	name: 'TextDisplayForm',
@@ -95,6 +169,7 @@ export default {
 	components: {
 		NcTextField,
 		NcSelect,
+		TextTableEditor,
 	},
 
 	props: {
@@ -137,7 +212,14 @@ export default {
 			color: initial.color ?? DEFAULT_CONTENT.color,
 			backgroundColor: initial.backgroundColor ?? DEFAULT_CONTENT.backgroundColor,
 			textAlign: initial.textAlign ?? DEFAULT_CONTENT.textAlign,
+<<<<<<< HEAD
 			contentMode,
+=======
+			tableMode: initial.tableMode === true,
+			tableData: initial.tableData && typeof initial.tableData === 'object'
+				? initial.tableData
+				: null,
+>>>>>>> feature/wave2-text-widget-tables
 		}
 	},
 
@@ -146,6 +228,7 @@ export default {
 			return ['left', 'center', 'right', 'justify']
 		},
 
+<<<<<<< HEAD
 		contentModeOptions() {
 			return [
 				{ value: 'markdown', label: t('mydash', 'Markdown') },
@@ -157,6 +240,17 @@ export default {
 			return this.contentMode === 'markdown'
 				? t('mydash', 'Markdown — # heading, **bold**, *italic*, [link](url), - list')
 				: t('mydash', 'HTML — <b>bold</b>, <i>italic</i>, <a href="…">link</a>')
+=======
+		modeOptions() {
+			return [
+				{ id: 'text', label: t('mydash', 'Text') },
+				{ id: 'table', label: t('mydash', 'Table') },
+			]
+		},
+
+		modeOption() {
+			return this.modeOptions.find((o) => o.id === (this.tableMode ? 'table' : 'text'))
+>>>>>>> feature/wave2-text-widget-tables
 		},
 
 		assembledContent() {
@@ -166,7 +260,12 @@ export default {
 				color: this.color,
 				backgroundColor: this.backgroundColor,
 				textAlign: this.textAlign,
+<<<<<<< HEAD
 				contentMode: this.contentMode,
+=======
+				tableMode: this.tableMode,
+				tableData: this.tableData,
+>>>>>>> feature/wave2-text-widget-tables
 			}
 		},
 	},
@@ -189,11 +288,41 @@ export default {
 		},
 
 		/**
+		 * Switch between text and table content type. Initialises an empty
+		 * 1×1 tableData on first switch to table mode (REQ-TBLE-002 minimal
+		 * default). Preserves the original text so toggling back is lossless.
+		 *
+		 * @param {object} option the selected modeOptions item
+		 */
+		onModeChange(option) {
+			const id = option?.id || 'text'
+			this.tableMode = id === 'table'
+			if (this.tableMode && !this.tableData) {
+				this.tableData = emptyTable()
+			}
+			this.$emit('update:content', this.assembledContent)
+		},
+
+		/**
+		 * Receive the latest tableData from `TextTableEditor` and bubble up
+		 * through the standard sub-form contract.
+		 *
+		 * @param {object} next the next tableData value
+		 */
+		onTableDataChange(next) {
+			this.tableData = next
+			this.$emit('update:content', this.assembledContent)
+		},
+
+		/**
 		 * Returns a list of error strings; empty array means valid.
 		 *
 		 * @return {string[]} validation errors
 		 */
 		validate() {
+			if (this.tableMode) {
+				return validateTable(this.tableData)
+			}
 			if (typeof this.text !== 'string' || this.text.trim() === '') {
 				return [t('mydash', 'Text is required')]
 			}

@@ -823,7 +823,21 @@ OC.L10N.register(
     "New parent UUID (leave empty for root)" : "Nieuwe ouder-UUID (leeg laten voor root)",
     "Publication status" : "Publicatiestatus",
     "PREVIEW: would change {count} dashboards." : "PREVIEW: zou {count} dashboards wijzigen.",
-    "Changed {count} dashboards. Skipped {skipped}." : "{count} dashboards gewijzigd. {skipped} overgeslagen."
+    "Changed {count} dashboards. Skipped {skipped}." : "{count} dashboards gewijzigd. {skipped} overgeslagen.",
+    "Demo data showcases" : "Demo-voorbeelden",
+    "Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time." : "Installeer meegeleverde voorbeeld-dashboards zodat gebruikers een werkend startpunt hebben. Elk voorbeeld wordt aangemaakt als een groep-gedeeld dashboard dat zichtbaar is voor alle gebruikers; je kunt het op elk moment weer verwijderen.",
+    "Loading showcases…" : "Voorbeelden laden…",
+    "Could not load demo showcases. Please try again." : "Kon de demo-voorbeelden niet laden. Probeer het opnieuw.",
+    "Could not install showcase. Please try again." : "Kon het voorbeeld niet installeren. Probeer het opnieuw.",
+    "Could not uninstall showcase. Please try again." : "Kon het voorbeeld niet verwijderen. Probeer het opnieuw.",
+    "Showcase not found." : "Voorbeeld niet gevonden.",
+    "You need admin privileges to install showcases." : "Je hebt beheerdersrechten nodig om voorbeelden te installeren.",
+    "Install" : "Installeer",
+    "Installing…" : "Installeren…",
+    "Uninstall" : "Verwijder",
+    "Uninstalling…" : "Verwijderen…",
+    "Installed but skipped widgets: {list}" : "Geïnstalleerd, maar widgets overgeslagen: {list}",
+    "Remove the {name} showcase dashboard for all users? You can reinstall it later." : "Het voorbeeld-dashboard {name} voor alle gebruikers verwijderen? Je kunt het later opnieuw installeren."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -188,6 +188,11 @@
 				<AdminAnalytics />
 			</div>
 
+			<!-- Demo data showcases (REQ-DEMO-001..009) -->
+			<div class="mydash-admin__section">
+				<AdminDemoData />
+			</div>
+
 			<!-- Info -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
@@ -273,6 +278,7 @@ import DashboardExportImport from './DashboardExportImport.vue'
 import DashboardBulkOperations from './DashboardBulkOperations.vue'
 import ConfluenceImport from './ConfluenceImport.vue'
 import OrgNavigationEditor from './OrgNavigationEditor.vue'
+import AdminDemoData from './AdminDemoData.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -280,6 +286,7 @@ export default {
 
 	components: {
 		AdminAnalytics,
+		AdminDemoData,
 		CnSettingsSection,
 		ConfluenceImport,
 		DashboardBulkOperations,

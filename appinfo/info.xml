@@ -103,6 +103,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- REQ-OCLN-001..009: orphaned-data cleanup CLI. -->
 		<command>OCA\MyDash\Command\CleanupScanCommand</command>
 		<command>OCA\MyDash\Command\CleanupPurgeCommand</command>
+		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
+		<command>OCA\MyDash\Command\DemoShowcasesInstallCommand</command>
+		<command>OCA\MyDash\Command\DemoShowcasesListCommand</command>
 	</commands>
 
 	<navigations>

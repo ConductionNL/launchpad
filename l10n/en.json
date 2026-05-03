@@ -722,6 +722,11 @@
         "Selected file is missing required metadata": "Selected file is missing required metadata",
         "Please pick a file from Files": "Please pick a file from Files",
         "Image URL": "Image URL",
-        "Enter Image URL": "Enter Image URL"
+        "Enter Image URL": "Enter Image URL",
+        "Mode": "Mode",
+        "HTML": "HTML",
+        "Markdown": "Markdown",
+        "Markdown — # heading, **bold**, *italic*, [link](url), - list": "Markdown — # heading, **bold**, *italic*, [link](url), - list",
+        "HTML — <b>bold</b>, <i>italic</i>, <a href=\"…\">link</a>": "HTML — <b>bold</b>, <i>italic</i>, <a href=\"…\">link</a>"
     }
 }

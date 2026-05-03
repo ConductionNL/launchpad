@@ -714,7 +714,12 @@ OC.L10N.register(
     "Selected file is missing required metadata" : "Geselecteerd bestand mist vereiste metadata",
     "Please pick a file from Files" : "Kies een bestand uit Bestanden",
     "Image URL" : "Afbeelding-URL",
-    "Enter Image URL" : "Voer afbeelding-URL in"
+    "Enter Image URL" : "Voer afbeelding-URL in",
+    "Mode" : "Modus",
+    "HTML" : "HTML",
+    "Markdown" : "Markdown",
+    "Markdown — # heading, **bold**, *italic*, [link](url), - list" : "Markdown — # kop, **vet**, *cursief*, [link](url), - lijst",
+    "HTML — <b>bold</b>, <i>italic</i>, <a href=\"…\">link</a>" : "HTML — <b>vet</b>, <i>cursief</i>, <a href=\"…\">link</a>"
 },
 "nplurals=2; plural=(n != 1);"
 );

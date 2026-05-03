@@ -5,10 +5,21 @@
 
 <template>
 	<div class="text-display-form">
+		<NcSelect
+			:value="contentMode"
+			:options="contentModeOptions"
+			:input-label="t('mydash', 'Mode')"
+			:clearable="false"
+			:reduce="option => option.value"
+			label="label"
+			class="text-display-form__mode"
+			@input="updateField('contentMode', $event)" />
+
 		<label class="text-display-form__field">
 			{{ t('mydash', 'Text') }}
 			<textarea
 				:value="text"
+				:placeholder="modePlaceholder"
 				class="text-display-form__textarea"
 				rows="4"
 				required
@@ -57,16 +68,26 @@ const DEFAULT_CONTENT = Object.freeze({
 	color: '',
 	backgroundColor: '',
 	textAlign: 'left',
+	// New widgets default to 'markdown' (REQ-TXMD-001 / REQ-TXMD-005);
+	// existing widgets without the field render in legacy 'html' mode.
+	contentMode: 'markdown',
 })
+
+const VALID_CONTENT_MODES = Object.freeze(['html', 'markdown'])
 
 /**
  * TextDisplayForm is the sub-form for AddWidgetModal when the user is
  * creating or editing a `text` widget placement.
  *
- * Exposes the five controls described in REQ-TXT-004 (textarea, font size
- * input, two colour pickers, alignment select) and a `validate()` method
- * returning `[t('mydash', 'Text is required')]` when text is empty or
- * whitespace-only — matching the AddWidgetModal sub-form contract.
+ * Exposes the controls described in REQ-TXT-004 (textarea, font size input,
+ * two colour pickers, alignment select) and REQ-TXMD-004 (Mode toggle for
+ * HTML / Markdown). Validation method `validate()` returns
+ * `[t('mydash', 'Text is required')]` when text is empty or whitespace-only —
+ * matching the AddWidgetModal sub-form contract.
+ *
+ * Switching modes never mutates the text content (REQ-TXMD-004 scenario
+ * "Toggling mode preserves text content"); only the parsing branch in the
+ * renderer changes on next render.
  */
 export default {
 	name: 'TextDisplayForm',
@@ -99,18 +120,43 @@ export default {
 
 	data() {
 		const initial = this.editingWidget?.content || this.value || {}
+		// REQ-TXMD-004: existing widgets with no contentMode default to
+		// 'html' to preserve their current rendering; new widgets — which
+		// arrive via the registry default — get 'markdown'. The form
+		// honours whatever mode is on the placement and only falls back
+		// to 'html' for genuinely-legacy placements.
+		const isEditingExisting = this.editingWidget != null
+		const fallback = isEditingExisting ? 'html' : DEFAULT_CONTENT.contentMode
+		const requested = initial.contentMode
+		const contentMode = VALID_CONTENT_MODES.includes(requested)
+			? requested
+			: fallback
 		return {
 			text: initial.text ?? DEFAULT_CONTENT.text,
 			fontSize: initial.fontSize ?? DEFAULT_CONTENT.fontSize,
 			color: initial.color ?? DEFAULT_CONTENT.color,
 			backgroundColor: initial.backgroundColor ?? DEFAULT_CONTENT.backgroundColor,
 			textAlign: initial.textAlign ?? DEFAULT_CONTENT.textAlign,
+			contentMode,
 		}
 	},
 
 	computed: {
 		textAlignOptions() {
 			return ['left', 'center', 'right', 'justify']
+		},
+
+		contentModeOptions() {
+			return [
+				{ value: 'markdown', label: t('mydash', 'Markdown') },
+				{ value: 'html', label: t('mydash', 'HTML') },
+			]
+		},
+
+		modePlaceholder() {
+			return this.contentMode === 'markdown'
+				? t('mydash', 'Markdown — # heading, **bold**, *italic*, [link](url), - list')
+				: t('mydash', 'HTML — <b>bold</b>, <i>italic</i>, <a href="…">link</a>')
 		},
 
 		assembledContent() {
@@ -120,6 +166,7 @@ export default {
 				color: this.color,
 				backgroundColor: this.backgroundColor,
 				textAlign: this.textAlign,
+				contentMode: this.contentMode,
 			}
 		},
 	},
@@ -128,10 +175,15 @@ export default {
 		/**
 		 * Set a field and notify parent.
 		 *
-		 * @param {string} field one of: text, fontSize, color, backgroundColor, textAlign
+		 * @param {string} field one of: text, fontSize, color, backgroundColor, textAlign, contentMode
 		 * @param {string} value new value
 		 */
 		updateField(field, value) {
+			if (field === 'contentMode' && !VALID_CONTENT_MODES.includes(value)) {
+				// Ignore invalid mode writes — keeps the form aligned with
+				// REQ-TXMD-005 ("invalid setting values are rejected").
+				return
+			}
 			this[field] = value
 			this.$emit('update:content', this.assembledContent)
 		},
@@ -193,5 +245,9 @@ export default {
 	border-radius: var(--border-radius);
 	cursor: pointer;
 	background: transparent;
+}
+
+.text-display-form__mode {
+	width: 100%;
 }
 </style>

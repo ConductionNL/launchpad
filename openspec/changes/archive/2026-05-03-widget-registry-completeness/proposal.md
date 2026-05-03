@@ -21,7 +21,7 @@ This change introduces no production behaviour; it's a CI guard. But it directly
 
 ### Modified Capabilities
 
-- `widget-add-edit-modal` — REQ-WDG-014 (single-source-of-truth registry) gains a verifiable acceptance criterion (the completeness test).
+- `widgets` — REQ-WDG-014 (single-source-of-truth registry) gains a verifiable acceptance criterion (the completeness test).
 
 ## Impact
 

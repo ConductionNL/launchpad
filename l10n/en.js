@@ -598,7 +598,26 @@ OC.L10N.register(
     "just now" : "just now",
     "{n} minutes ago" : "{n} minutes ago",
     "{n} hours ago" : "{n} hours ago",
-    "{n} days ago" : "{n} days ago"
+    "{n} days ago" : "{n} days ago",
+    "No video URL configured" : "No video URL configured",
+    "Video not accessible" : "Video not accessible",
+    "Video failed to load" : "Video failed to load",
+    "Invalid video URL or domain not allowed." : "Invalid video URL or domain not allowed.",
+    "Video URL" : "Video URL",
+    "Video URL is required" : "Video URL is required",
+    "Detected: YouTube" : "Detected: YouTube",
+    "Detected: Vimeo" : "Detected: Vimeo",
+    "Detected: PeerTube" : "Detected: PeerTube",
+    "Detected: Nextcloud File" : "Detected: Nextcloud File",
+    "Aspect Ratio" : "Aspect Ratio",
+    "Autoplay" : "Autoplay",
+    "Autoplay requires muting" : "Autoplay requires muting",
+    "Muted" : "Muted",
+    "Loop" : "Loop",
+    "Show controls" : "Show controls",
+    "Poster Image URL (optional)" : "Poster Image URL (optional)",
+    "Nextcloud File ID" : "Nextcloud File ID",
+    "Nextcloud file ID is required" : "Nextcloud file ID is required"
 },
 "nplurals=2; plural=(n != 1);"
 );

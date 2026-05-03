@@ -605,6 +605,25 @@
         "just now": "zojuist",
         "{n} minutes ago": "{n} minuten geleden",
         "{n} hours ago": "{n} uur geleden",
-        "{n} days ago": "{n} dagen geleden"
+        "{n} days ago": "{n} dagen geleden",
+        "No video URL configured": "Geen video-URL ingesteld",
+        "Video not accessible": "Video niet toegankelijk",
+        "Video failed to load": "Video kon niet worden geladen",
+        "Invalid video URL or domain not allowed.": "Ongeldige video-URL of domein niet toegestaan.",
+        "Video URL": "Video-URL",
+        "Video URL is required": "Video-URL is verplicht",
+        "Detected: YouTube": "Herkend: YouTube",
+        "Detected: Vimeo": "Herkend: Vimeo",
+        "Detected: PeerTube": "Herkend: PeerTube",
+        "Detected: Nextcloud File": "Herkend: Nextcloud-bestand",
+        "Aspect Ratio": "Beeldverhouding",
+        "Autoplay": "Automatisch afspelen",
+        "Autoplay requires muting": "Automatisch afspelen vereist dempen",
+        "Muted": "Gedempt",
+        "Loop": "Herhalen",
+        "Show controls": "Bedieningselementen tonen",
+        "Poster Image URL (optional)": "URL voor voorvertoningsafbeelding (optioneel)",
+        "Nextcloud File ID": "Nextcloud-bestand-ID",
+        "Nextcloud file ID is required": "Nextcloud-bestand-ID is verplicht"
     }
 }

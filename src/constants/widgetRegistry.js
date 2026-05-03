@@ -86,6 +86,8 @@ import QuicklinksWidget from '../components/Widgets/Renderers/QuicklinksWidget.v
 import QuicklinksForm from '../components/Widgets/Forms/QuicklinksForm.vue'
 import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
 import NewsForm from '../components/Widgets/Forms/NewsForm.vue'
+import VideoWidget from '../components/Widgets/Renderers/VideoWidget.vue'
+import VideoForm from '../components/Widgets/Forms/VideoForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -271,6 +273,23 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'News'),
 		icon: 'RssBox',
+	},
+	video: {
+		renderer: VideoWidget,
+		form: VideoForm,
+		defaultContent: {
+			sourceType: null,
+			videoUrl: '',
+			fileId: null,
+			autoplay: false,
+			muted: true,
+			loop: false,
+			controls: true,
+			aspectRatio: '16:9',
+			posterUrl: '',
+		},
+		displayName: t('mydash', 'Video'),
+		icon: 'Video',
 	},
 }
 

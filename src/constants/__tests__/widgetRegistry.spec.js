@@ -178,4 +178,27 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('news')
 	})
+
+	it('REQ-VID-001/002: exposes a `video` entry with renderer + form + defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.video).toBeDefined()
+		expect(widgetRegistry.video.renderer).toBeTruthy()
+		expect(widgetRegistry.video.form).toBeTruthy()
+		expect(widgetRegistry.video.defaultContent).toEqual({
+			sourceType: null,
+			videoUrl: '',
+			fileId: null,
+			autoplay: false,
+			muted: true,
+			loop: false,
+			controls: true,
+			aspectRatio: '16:9',
+			posterUrl: '',
+		})
+	})
+
+	it('REQ-VID-001: `video` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('video')
+	})
 })

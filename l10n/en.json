@@ -432,6 +432,9 @@
         "Only an administrator may force-release a lock": "Only an administrator may force-release a lock",
         "Dashboard is being edited by {displayName}": "Dashboard is being edited by {displayName}",
         "Your edit lock has expired": "Your edit lock has expired",
-        "You may be editing in another tab": "You may be editing in another tab"
+        "You may be editing in another tab": "You may be editing in another tab",
+        "MyDash dashboard": "MyDash dashboard",
+        "Widget content on %s": "Widget content on %s",
+        "Metadata: %1$s = %2$s": "Metadata: %1$s = %2$s"
     }
 }

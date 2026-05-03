@@ -36,6 +36,7 @@ use OCA\MyDash\Listener\VersionsListener;
 use OCA\MyDash\Listener\ViewAnalyticsListener;
 use OCA\MyDash\Listener\WidgetPlacementsListener;
 use OCA\MyDash\Notification\Notifier;
+use OCA\MyDash\Search\MyDashSearchProvider;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -159,6 +160,10 @@ class Application extends App implements IBootstrap
             event: DashboardDeletedEvent::class,
             listener: TreeListener::class
         );
+
+        // Surface dashboards, widget content, and metadata values in
+        // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
+        $context->registerSearchProvider(class: MyDashSearchProvider::class);
     }//end register()
 
     /**

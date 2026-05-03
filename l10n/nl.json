@@ -432,6 +432,9 @@
         "Only an administrator may force-release a lock": "Alleen een beheerder mag een vergrendeling geforceerd vrijgeven",
         "Dashboard is being edited by {displayName}": "Dashboard wordt bewerkt door {displayName}",
         "Your edit lock has expired": "Je bewerkvergrendeling is verlopen",
-        "You may be editing in another tab": "Je bewerkt dit dashboard mogelijk in een ander tabblad"
+        "You may be editing in another tab": "Je bewerkt dit dashboard mogelijk in een ander tabblad",
+        "MyDash dashboard": "MyDash-dashboard",
+        "Widget content on %s": "Widget-inhoud op %s",
+        "Metadata: %1$s = %2$s": "Metadata: %1$s = %2$s"
     }
 }

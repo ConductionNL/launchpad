@@ -23,9 +23,10 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
 use OCA\MyDash\Exception\InvalidRoleAssignmentException;
-use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\AdminSettingsService;
+use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
+use OCA\MyDash\Service\FeedRefreshService;
 use OCA\MyDash\Service\ImportService;
 use OCA\MyDash\Service\RoleService;
 use OCP\AppFramework\Controller;
@@ -39,15 +40,16 @@ use OCP\IUserSession;
 
 /**
  * Controller for admin dashboard template management plus role-assignment
- * CRUD (REQ-ROLE-004, REQ-ROLE-006).
+ * CRUD (REQ-ROLE-004, REQ-ROLE-006) and feed-refresh admin actions.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)   The admin surface
  *                                                legitimately covers
  *                                                templates, settings,
  *                                                group-priority order,
  *                                                role assignments,
- *                                                export/import, and
- *                                                the self-introspection
+ *                                                export/import,
+ *                                                feed-refresh, and the
+ *                                                self-introspection
  *                                                endpoint in one
  *                                                cohesive admin namespace.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Admin coordination
@@ -55,9 +57,9 @@ use OCP\IUserSession;
  *                                                  injected services
  *                                                  (templates, settings,
  *                                                  roles, export, import,
- *                                                  helpers) by design —
- *                                                  splitting the
- *                                                  controller would
+ *                                                  feed refresh, helpers)
+ *                                                  by design — splitting
+ *                                                  the controller would
  *                                                  fragment the routing
  *                                                  surface.
  * @SuppressWarnings(PHPMD.Superglobals)            $_FILES is the only
@@ -79,6 +81,11 @@ class AdminController extends Controller
      *                                              (REQ-EXIM-004..008).
      * @param RoleService          $roleService     The MyDash role service
      *                                              (REQ-ROLE-001..011).
+     * @param FeedRefreshService   $feedRefresh     The background feed
+     *                                              refresh service used by
+     *                                              the on-demand admin
+     *                                              `refreshFeeds` action
+     *                                              (REQ-BGJOB-FEED-005).
      */
     public function __construct(
         IRequest $request,
@@ -89,6 +96,7 @@ class AdminController extends Controller
         private readonly ExportService $exportService,
         private readonly ImportService $importService,
         private readonly RoleService $roleService,
+        private readonly FeedRefreshService $feedRefresh,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -696,6 +704,48 @@ class AdminController extends Controller
             ]
         );
     }//end getMyRole()
+
+    /**
+     * Trigger an immediate background feed refresh (REQ-FRJ-010).
+     *
+     * Admin-only — guarded by {@see self::requireAdmin()}. Optionally
+     * scope the refresh to a single feed URL (must be HTTP/HTTPS).
+     * Returns `{processedCount, successCount, failureCount, durationMs}`.
+     *
+     * @param string|null $feedUrl Optional single URL to refresh.
+     *
+     * @return JSONResponse The aggregate refresh summary.
+     *
+     * @NoAdminRequired
+     */
+    public function refreshFeedsNow(?string $feedUrl=null): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        if ($feedUrl !== null && $feedUrl !== '') {
+            $scheme = strtolower(
+                string: (string) parse_url(
+                    url: $feedUrl,
+                    component: PHP_URL_SCHEME
+                )
+            );
+            if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
+                return new JSONResponse(
+                    data: [
+                        'error' => 'feedUrl must use http:// or https:// scheme.',
+                    ],
+                    statusCode: Http::STATUS_BAD_REQUEST
+                );
+            }
+        }
+
+        $summary = $this->feedRefresh->refreshAll(onlyUrl: $feedUrl);
+
+        return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
+    }//end refreshFeedsNow()
 
     /**
      * Verify the current session belongs to a Nextcloud admin.

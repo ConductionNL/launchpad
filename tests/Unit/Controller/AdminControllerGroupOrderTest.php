@@ -24,6 +24,7 @@ use OCA\MyDash\Controller\AdminController;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
+use OCA\MyDash\Service\FeedRefreshService;
 use OCA\MyDash\Service\ImportService;
 use OCA\MyDash\Service\RoleService;
 use OCP\AppFramework\Http;
@@ -49,6 +50,8 @@ class AdminControllerGroupOrderTest extends TestCase
     private $userSession;
     /** @var RoleService&MockObject */
     private $roleService;
+    /** @var FeedRefreshService&MockObject */
+    private $feedRefresh;
 
     protected function setUp(): void
     {
@@ -58,6 +61,7 @@ class AdminControllerGroupOrderTest extends TestCase
         $this->groupManager    = $this->createMock(IGroupManager::class);
         $this->userSession     = $this->createMock(IUserSession::class);
         $this->roleService     = $this->createMock(RoleService::class);
+        $this->feedRefresh     = $this->createMock(FeedRefreshService::class);
 
         $this->controller = new AdminController(
             request: $this->request,
@@ -68,6 +72,7 @@ class AdminControllerGroupOrderTest extends TestCase
             exportService: $this->createMock(ExportService::class),
             importService: $this->createMock(ImportService::class),
             roleService: $this->roleService,
+            feedRefresh: $this->feedRefresh,
         );
     }
 

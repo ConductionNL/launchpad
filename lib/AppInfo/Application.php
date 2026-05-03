@@ -22,6 +22,7 @@ use OCA\MyDash\Activity\DebounceHelper;
 use OCA\MyDash\BackgroundJob\PurgeViewsJob;
 use OCA\MyDash\BackgroundJob\SaltRotationJob;
 use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\MyDash\Job\FeedRefreshJob;
 use OCA\MyDash\Listener\CommentsListener;
 use OCA\MyDash\Listener\GroupDeletedListener;
 use OCA\MyDash\Listener\LocksListener;
@@ -173,14 +174,24 @@ class Application extends App implements IBootstrap
         \OCP\Util::addStyle(application: self::APP_ID, file: 'mydash');
 
         // Register the dashboard view-analytics background jobs
-        // (REQ-ANLT-003 design D2 + REQ-ANLT-009). Both are
-        // idempotent: `IJobList::add()` is a no-op when the job is
-        // already registered.
-        $serverContainer = $context->getServerContainer();
-        $jobList         = $serverContainer->get(IJobList::class);
-        if ($jobList instanceof IJobList === true) {
-            $jobList->add(job: PurgeViewsJob::class);
-            $jobList->add(job: SaltRotationJob::class);
+        // (REQ-ANLT-003 design D2 + REQ-ANLT-009) plus the periodic
+        // external-feed refresh job (REQ-FRJ-002). All are idempotent:
+        // `IJobList::add()` is a no-op when the job is already registered.
+        try {
+            $serverContainer = $context->getServerContainer();
+            $jobList         = $serverContainer->get(IJobList::class);
+            if ($jobList instanceof IJobList === true) {
+                $jobList->add(job: PurgeViewsJob::class);
+                $jobList->add(job: SaltRotationJob::class);
+                $jobList->add(job: FeedRefreshJob::class);
+            }
+        } catch (\Throwable $exception) {
+            $context->getServerContainer()
+                ->get(\Psr\Log\LoggerInterface::class)
+                ->warning(
+                    'Failed to register MyDash background jobs: '.$exception->getMessage(),
+                    ['app' => self::APP_ID]
+                );
         }
     }//end boot()
 }//end class

@@ -33,6 +33,12 @@
  * `LinkButtonForm.vue`, and a `defaultContent` of `{label:'', url:'',
  * icon:'', actionType:'external', backgroundColor:'', textColor:''}`.
  *
+ * REQ-PPL-001 / REQ-PPL-002: The widget type `people` MUST be registered
+ * with a renderer reference to `PeopleWidget.vue`, a form reference to
+ * `PeopleForm.vue`, and a `defaultContent` matching the spec's per-placement
+ * config shape (layout, selectionMode, filters, excludeDisabled,
+ * showBirthdays, birthdayWindowDays, sortBy, columns, showFields).
+ *
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
@@ -48,6 +54,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import PeopleWidget from '../components/Widgets/Renderers/PeopleWidget.vue'
+import PeopleForm from '../components/Widgets/Forms/PeopleForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +130,33 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	people: {
+		renderer: PeopleWidget,
+		form: PeopleForm,
+		defaultContent: {
+			layout: 'grid',
+			selectionMode: 'filter',
+			selectedUsers: [],
+			filters: [],
+			filterOperator: 'AND',
+			excludeDisabled: true,
+			showBirthdays: true,
+			birthdayWindowDays: 7,
+			sortBy: 'displayName',
+			columns: 3,
+			showFields: {
+				displayName: true,
+				role: true,
+				organisation: true,
+				email: true,
+				phone: true,
+				avatar: true,
+				birthdate: true,
+			},
+		},
+		displayName: t('mydash', 'People'),
+		icon: 'AccountGroup',
 	},
 }
 

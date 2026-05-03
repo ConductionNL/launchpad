@@ -222,6 +222,17 @@ return [
 		['name' => 'resource_serve#getResource', 'url' => '/resource/{filename}', 'verb' => 'GET',
 		 'requirements' => ['filename' => '[^/]+']],
 
+		// Per-user RSS / Atom feed endpoints (REQ-FEED-001..009).
+		// The three /api/feed/token routes are authenticated; the
+		// public /feed/{token}.xml route is gated only by the opaque
+		// token in the URL path. Specific `/regenerate` precedes the
+		// catch-all `{token}.xml` route below.
+		['name' => 'feed#getToken', 'url' => '/api/feed/token', 'verb' => 'GET'],
+		['name' => 'feed#regenerateToken', 'url' => '/api/feed/token/regenerate', 'verb' => 'POST'],
+		['name' => 'feed#revokeToken', 'url' => '/api/feed/token', 'verb' => 'DELETE'],
+		['name' => 'feed#publicFeed', 'url' => '/feed/{token}.xml', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9_\-]+']],
+
 		// Admin endpoints
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],

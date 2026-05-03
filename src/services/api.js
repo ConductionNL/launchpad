@@ -395,6 +395,22 @@ export const api = {
 		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`, { metadata })
 	},
 
+	// REQ-FEED-001..003 — per-user RSS / Atom feed-token management.
+	// `getFeedToken` issues-or-returns the existing token; `regenerate`
+	// atomically rotates; `revoke` soft-revokes (idempotent — 204 even
+	// when no token exists).
+	getFeedToken() {
+		return axios.get(`${baseUrl}/api/feed/token`)
+	},
+
+	regenerateFeedToken() {
+		return axios.post(`${baseUrl}/api/feed/token/regenerate`)
+	},
+
+	revokeFeedToken() {
+		return axios.delete(`${baseUrl}/api/feed/token`)
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

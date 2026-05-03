@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- **Per-user RSS / Atom dashboard feeds** (REQ-FEED-001..009): users can
+  now opt-in to a personal feed of their accessible dashboards via
+  `GET /api/feed/token`. New routes `POST /api/feed/token/regenerate`
+  (atomic rotate), `DELETE /api/feed/token` (idempotent soft-revoke),
+  and the public `GET /feed/{token}.xml` (no Nextcloud auth — gated
+  only by the opaque token). Tokens are 32 random bytes encoded
+  URL-safe base64 (~43 chars, 256-bit entropy, non-enumerable). Feed
+  output is RSS 2.0 by default; `Accept: application/atom+xml` (or the
+  `?format=atom` query fallback) switches to Atom 1.0. Visibility
+  reuses `DashboardService::getVisibleToUser()` so private dashboards
+  never leak to public feed consumers; item count is capped at the
+  admin-tunable `mydash.feed_item_cap` (default 50). New
+  `oc_mydash_feed_tokens` table with `UNIQUE(user_id)` enforces the
+  one-token-per-user rotation invariant.
+
 ### Changed
 
 - **GridStack bumped from `^10.3.1` to `^12.2.1`** (resolved 12.6.0). Major

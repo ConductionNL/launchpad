@@ -404,7 +404,19 @@ OC.L10N.register(
     "No view events recorded yet for this period." : "Nog geen weergaven geregistreerd voor deze periode.",
     "Export analytics (CSV)" : "Statistieken exporteren (CSV)",
     "Failed to load analytics data. Please try again." : "Het laden van de statistieken is mislukt. Probeer het opnieuw.",
-    "Failed to export analytics CSV. Please try again." : "Het exporteren van het CSV-bestand is mislukt. Probeer het opnieuw."
+    "Failed to export analytics CSV. Please try again." : "Het exporteren van het CSV-bestand is mislukt. Probeer het opnieuw.",
+    "%s's MyDash dashboards" : "MyDash-dashboards van %s",
+    "Reverse-chronological list of dashboards accessible to %s." : "Omgekeerd-chronologische lijst van dashboards die toegankelijk zijn voor %s.",
+    "Dashboard feed" : "Dashboard-feed",
+    "RSS / Atom feed" : "RSS-/Atom-feed",
+    "Generate feed token" : "Feed-token aanmaken",
+    "Regenerate feed token" : "Feed-token opnieuw genereren",
+    "Revoke feed token" : "Feed-token intrekken",
+    "Copy feed URL" : "Feed-URL kopiëren",
+    "Feed URL copied to clipboard" : "Feed-URL gekopieerd naar klembord",
+    "Your personal RSS feed of accessible dashboards." : "Je persoonlijke RSS-feed van toegankelijke dashboards.",
+    "Treat this URL as a password — anyone with the link can read your dashboards." : "Behandel deze URL als een wachtwoord — iedereen met de link kan je dashboards lezen.",
+    "No feed token issued yet." : "Nog geen feed-token uitgegeven."
 },
 "nplurals=2; plural=(n != 1);"
 );

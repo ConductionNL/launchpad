@@ -43,23 +43,20 @@
 				:title="t('mydash', 'Your primary group for shared dashboards')">
 				{{ primaryGroupLabel }}
 			</div>
-			<DashboardSwitcher
-				v-if="dashboards.length > 1"
-				:dashboards="dashboards"
-				:active-id="activeDashboard?.id"
-				@switch="switchDashboard" />
+			<!--
+				`runtime-shell-trim` removed the standalone "Active dashboard"
+				`<NcSelect>` switcher (`DashboardSwitcher`). The left sidebar
+				(`dashboard-switcher` capability) is now the only surface for
+				switching between dashboards (REQ-SHELL-004, REQ-SWITCH-002).
+			-->
 			<DashboardConfigMenu
-				:dashboards="dashboards"
 				:active-dashboard-id="activeDashboard?.id"
 				:is-edit-mode="isEditMode"
 				:can-edit="canEdit"
 				:is-active-owner="activeDashboard?.isOwner !== false"
-				@switch-dashboard="switchDashboard"
 				@create-dashboard="handleCreateDashboard"
 				@toggle-edit="toggleEditMode"
 				@open-config="openConfigModal"
-				@add-tile="openTileEditor()"
-				@add-widget="openWidgetModal"
 				@add-custom-widget="openCustomWidgetModal()" />
 		</div>
 
@@ -173,7 +170,6 @@ import DashboardGrid from '../components/DashboardGrid.vue'
 import WidgetPickerModal from '../components/WidgetPickerModal.vue'
 import WidgetStyleEditor from '../components/WidgetStyleEditor.vue'
 import TileEditor from '../components/TileEditor.vue'
-import DashboardSwitcher from '../components/DashboardSwitcher.vue'
 import DashboardConfigMenu from '../components/DashboardConfigMenu.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
 import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
@@ -201,7 +197,6 @@ export default {
 		WidgetPickerModal,
 		WidgetStyleEditor,
 		TileEditor,
-		DashboardSwitcher,
 		DashboardConfigMenu,
 		DashboardConfigModal,
 		AddWidgetModal,

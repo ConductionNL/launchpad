@@ -247,7 +247,6 @@ OC.L10N.register(
     "Right" : "Rechts",
     "SVG could not be parsed or contained no allowed content" : "SVG kon niet worden ontleed of bevat geen toegestane inhoud",
     "Save" : "Opslaan",
-    "Save Layout" : "Indeling opslaan",
     "Save failed" : "Opslaan mislukt",
     "Saving…" : "Opslaan…",
     "Search" : "Zoeken",

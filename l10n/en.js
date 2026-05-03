@@ -247,7 +247,6 @@ OC.L10N.register(
     "Right" : "Right",
     "SVG could not be parsed or contained no allowed content" : "SVG could not be parsed or contained no allowed content",
     "Save" : "Save",
-    "Save Layout" : "Save Layout",
     "Save failed" : "Save failed",
     "Saving…" : "Saving…",
     "Search" : "Search",

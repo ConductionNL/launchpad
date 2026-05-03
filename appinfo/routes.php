@@ -326,6 +326,15 @@ return [
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'people_widget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 
+		// Setup wizard endpoints (REQ-WIZ-008, REQ-WIZ-009, REQ-WIZ-003).
+		// Admin-only via runtime `IGroupManager::isAdmin` check inside the
+		// controller. The state endpoint also drives the "Run setup wizard"
+		// banner gate on the admin page; the storage endpoint persists the
+		// Step 2 choice immediately on `Next`.
+		['name' => 'admin#getWizardState', 'url' => '/api/admin/setup-wizard/state', 'verb' => 'GET'],
+		['name' => 'admin#completeWizard', 'url' => '/api/admin/setup-wizard/complete', 'verb' => 'POST'],
+		['name' => 'admin#setWizardStorage', 'url' => '/api/admin/setup-wizard/storage', 'verb' => 'POST'],
+
 		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
 		// controller. The dry-run route MUST precede the bare /confluence

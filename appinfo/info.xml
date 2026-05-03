@@ -106,6 +106,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
 		<command>OCA\MyDash\Command\DemoShowcasesInstallCommand</command>
 		<command>OCA\MyDash\Command\DemoShowcasesListCommand</command>
+		<!-- REQ-WIZ-010: setup wizard via `php occ mydash:setup`. -->
+		<command>OCA\MyDash\Command\SetupCommand</command>
 	</commands>
 
 	<navigations>

@@ -83,7 +83,10 @@ class AdminControllerExportImportTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->exportService,
             importService: $this->importService,
+            roleService: $this->createMock(originalClassName: \OCA\MyDash\Service\RoleService::class),
+            feedRefresh: $this->createMock(originalClassName: \OCA\MyDash\Service\FeedRefreshService::class),
             footerService: $this->footerService,
+            setupWizardService: $this->createMock(originalClassName: \OCA\MyDash\Service\SetupWizardService::class),
         );
     }
 

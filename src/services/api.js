@@ -350,6 +350,21 @@ export const api = {
 		return axios.post(`${baseUrl}/api/admin/groups`, { groups })
 	},
 
+	// Setup wizard endpoints (REQ-WIZ-008, REQ-WIZ-009, REQ-WIZ-003).
+	// All three are admin-only on the server side; the UI gates the
+	// banner + modal behind the same check via `getSetupWizardState`.
+	getSetupWizardState() {
+		return axios.get(`${baseUrl}/api/admin/setup-wizard/state`)
+	},
+
+	completeSetupWizard() {
+		return axios.post(`${baseUrl}/api/admin/setup-wizard/complete`)
+	},
+
+	setSetupWizardStorage(storage) {
+		return axios.post(`${baseUrl}/api/admin/setup-wizard/storage`, { storage })
+	},
+
 	// Dashboard export / import (REQ-EXIM-002..004). Both endpoints
 	// require Nextcloud-admin and are gated server-side; the admin UI
 	// only renders the controls behind the same admin check. Export

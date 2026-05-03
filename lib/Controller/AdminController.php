@@ -32,6 +32,7 @@ use OCA\MyDash\Service\FooterService;
 use OCA\MyDash\Service\ImportService;
 use OCA\MyDash\Service\ResourceService;
 use OCA\MyDash\Service\RoleService;
+use OCA\MyDash\Service\SetupWizardService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -55,6 +56,8 @@ use OCP\IUserSession;
  *                                                customization,
  *                                                template-preview-image
  *                                                upload (REQ-TMPL-017),
+ *                                                setup wizard
+ *                                                (REQ-WIZ-008..009),
  *                                                and the self-introspection
  *                                                endpoint in one
  *                                                cohesive admin namespace.
@@ -65,6 +68,7 @@ use OCP\IUserSession;
  *                                                  roles, export, import,
  *                                                  feed refresh, footer,
  *                                                  resource uploads,
+ *                                                  setup wizard,
  *                                                  helpers) by design —
  *                                                  splitting the controller
  *                                                  would fragment the routing
@@ -77,30 +81,38 @@ use OCP\IUserSession;
  *                                                  names verbatim — shortening
  *                                                  would diverge from the
  *                                                  documented payload.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Complexity is a function
+ *                                                  of the number of guarded
+ *                                                  admin endpoints, not
+ *                                                  nested branching inside
+ *                                                  any single method.
  */
 class AdminController extends Controller
 {
     /**
      * Constructor
      *
-     * @param IRequest             $request         The request.
-     * @param AdminTemplateService $templateService The admin template service.
-     * @param AdminSettingsService $settingsService The admin settings service.
-     * @param IGroupManager        $groupManager    The Nextcloud group manager.
-     * @param IUserSession         $userSession     The current user session.
-     * @param ExportService        $exportService   ZIP export service
-     *                                              (REQ-EXIM-001..003).
-     * @param ImportService        $importService   ZIP import service
-     *                                              (REQ-EXIM-004..008).
-     * @param RoleService          $roleService     The MyDash role service
-     *                                              (REQ-ROLE-001..011).
-     * @param FeedRefreshService   $feedRefresh     The background feed
-     *                                              refresh service used by
-     *                                              the on-demand admin
-     *                                              `refreshFeeds` action
-     *                                              (REQ-BGJOB-FEED-005).
-     * @param FooterService        $footerService   Global footer settings + sanitiser
-     *                                              (REQ-FTR-001..010).
+     * @param IRequest             $request            The request.
+     * @param AdminTemplateService $templateService    The admin template service.
+     * @param AdminSettingsService $settingsService    The admin settings service.
+     * @param IGroupManager        $groupManager       The Nextcloud group manager.
+     * @param IUserSession         $userSession        The current user session.
+     * @param ExportService        $exportService      ZIP export service
+     *                                                 (REQ-EXIM-001..003).
+     * @param ImportService        $importService      ZIP import service
+     *                                                 (REQ-EXIM-004..008).
+     * @param RoleService          $roleService        The MyDash role service
+     *                                                 (REQ-ROLE-001..011).
+     * @param FeedRefreshService   $feedRefresh        The background feed
+     *                                                 refresh service used by
+     *                                                 the on-demand admin
+     *                                                 `refreshFeeds` action
+     *                                                 (REQ-BGJOB-FEED-005).
+     * @param FooterService        $footerService      Global footer settings + sanitiser
+     *                                                 (REQ-FTR-001..010).
+     * @param SetupWizardService   $setupWizardService Setup-wizard
+     *                                                 orchestrator
+     *                                                 (REQ-WIZ-001..011).
      */
     public function __construct(
         IRequest $request,
@@ -113,6 +125,7 @@ class AdminController extends Controller
         private readonly RoleService $roleService,
         private readonly FeedRefreshService $feedRefresh,
         private readonly FooterService $footerService,
+        private readonly SetupWizardService $setupWizardService,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -931,6 +944,101 @@ class AdminController extends Controller
             statusCode: Http::STATUS_OK
         );
     }//end uploadTemplatePreviewImage()
+
+    /**
+     * Get the setup-wizard state (REQ-WIZ-008).
+     *
+     * Admin-only — non-admins receive HTTP 403. Returns
+     * `{complete, currentRecommendedStep, stepStatuses}`.
+     *
+     * @return JSONResponse The wizard state, or 401/403.
+     *
+     * @NoAdminRequired
+     */
+    public function getWizardState(): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        return ResponseHelper::success(
+            data: $this->setupWizardService->getWizardState()
+        );
+    }//end getWizardState()
+
+    /**
+     * Mark the setup-wizard complete (REQ-WIZ-009).
+     *
+     * Idempotent — calling on a completed instance returns 200 with the
+     * same payload. Admin-only.
+     *
+     * @return JSONResponse The post-completion wizard state, or 401/403.
+     *
+     * @NoAdminRequired
+     */
+    public function completeWizard(): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        return ResponseHelper::success(
+            data: $this->setupWizardService->markWizardComplete()
+        );
+    }//end completeWizard()
+
+    /**
+     * Persist the storage backend choice from Step 2 (REQ-WIZ-003).
+     *
+     * Validates the selection and writes `mydash.content_storage`. The
+     * GroupFolder option is server-side gated by the `groupfolders` app
+     * dependency — selecting it without the app installed returns 400.
+     * Admin-only.
+     *
+     * @param string|null $storage The chosen backend.
+     *
+     * @return JSONResponse The post-write wizard state, or 400/401/403.
+     *
+     * @NoAdminRequired
+     */
+    public function setWizardStorage(?string $storage=null): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        if ($storage === null || $storage === '') {
+            return new JSONResponse(
+                data: ['error' => 'Field "storage" is required.'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        if ($storage === SetupWizardService::STORAGE_GROUPFOLDER
+            && $this->setupWizardService->hasGroupfolderApp() === false
+        ) {
+            return new JSONResponse(
+                data: ['error' => 'GroupFolder app is not installed.'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        try {
+            $this->setupWizardService->setContentStorage(value: $storage);
+        } catch (InvalidArgumentException) {
+            return new JSONResponse(
+                data: ['error' => 'Unsupported storage backend.'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        return ResponseHelper::success(
+            data: $this->setupWizardService->getWizardState()
+        );
+    }//end setWizardStorage()
 
     /**
      * Verify the current session belongs to a Nextcloud admin.

@@ -75,6 +75,7 @@ class AdminControllerGroupOrderTest extends TestCase
             roleService: $this->roleService,
             feedRefresh: $this->feedRefresh,
             footerService: $this->createMock(FooterService::class),
+            setupWizardService: $this->createMock(\OCA\MyDash\Service\SetupWizardService::class),
         );
     }
 

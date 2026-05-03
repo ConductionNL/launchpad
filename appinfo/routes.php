@@ -123,6 +123,26 @@ return [
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// Dashboard versioning endpoints (REQ-VERS-001..009).
+		// `{uuid}` is the dashboard UUID; `{versionNumber}` is the integer
+		// version number. Routes are registered BEFORE the personal
+		// `/api/dashboard/{id}` PUT/DELETE handlers because they share
+		// the literal `/api/dashboards/...` prefix with the visible /
+		// tree / fork routes higher up; they MUST stay grouped under
+		// the plural `/api/dashboards/` namespace.
+		['name' => 'dashboard_version_api#listVersions',
+		 'url' => '/api/dashboards/{uuid}/versions', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_version_api#createVersion',
+		 'url' => '/api/dashboards/{uuid}/versions', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_version_api#fetchVersion',
+		 'url' => '/api/dashboards/{uuid}/versions/{versionNumber}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'versionNumber' => '\d+']],
+		['name' => 'dashboard_version_api#restoreVersion',
+		 'url' => '/api/dashboards/{uuid}/versions/{versionNumber}/restore', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'versionNumber' => '\d+']],
+
 		// Widget endpoints
 		['name' => 'widget_api#listAvailable', 'url' => '/api/widgets', 'verb' => 'GET'],
 		['name' => 'widget_api#getItems', 'url' => '/api/widgets/items', 'verb' => 'GET'],

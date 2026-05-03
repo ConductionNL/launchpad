@@ -368,7 +368,13 @@ OC.L10N.register(
     "Reactions are disabled" : "Reacties zijn uitgeschakeld",
     "Permission denied" : "Geen toestemming",
     "React" : "Reageren",
-    "Reactions" : "Reacties"
+    "Reactions" : "Reacties",
+    "Version history" : "Versiegeschiedenis",
+    "Restore this version" : "Deze versie herstellen",
+    "Save version" : "Versie opslaan",
+    "Versioning backend unavailable" : "Versie-backend niet beschikbaar",
+    "Version not found" : "Versie niet gevonden",
+    "Version history is not available for this dashboard" : "Versiegeschiedenis is niet beschikbaar voor dit dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

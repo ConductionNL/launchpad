@@ -26,6 +26,7 @@ use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
+use OCA\MyDash\Service\DashboardVersionService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -45,8 +46,9 @@ use Psr\Log\LoggerInterface;
  *                                                  multiple persistence
  *                                                  and service layers
  *                                                  (dashboard, share,
- *                                                  permission, factory)
- *                                                  plus personal +
+ *                                                  permission, factory,
+ *                                                  versions) plus
+ *                                                  personal +
  *                                                  group-shared +
  *                                                  resolution scopes —
  *                                                  splitting would
@@ -58,28 +60,39 @@ class DashboardApiController extends Controller
     /**
      * Constructor
      *
-     * @param IRequest             $request           The request.
-     * @param DashboardService     $dashboardService  The dashboard service.
-     * @param PermissionService    $permissionService The permission service.
-     * @param DashboardTreeService $treeService       The tree service that
-     *                                                owns hierarchy
-     *                                                queries, cycle
-     *                                                detection, slug
-     *                                                uniqueness, path
-     *                                                resolution, and the
-     *                                                cascade-delete walker
-     *                                                (REQ-DASH-023..030).
-     * @param LoggerInterface      $logger            PSR logger (used by
-     *                                                fork to report
-     *                                                unexpected errors
-     *                                                — REQ-DASH-021).
-     * @param string|null          $userId            The user ID.
+     * @param IRequest                $request           The request.
+     * @param DashboardService        $dashboardService  The dashboard service.
+     * @param PermissionService       $permissionService The permission service.
+     * @param DashboardTreeService    $treeService       The tree service that
+     *                                                   owns hierarchy
+     *                                                   queries, cycle
+     *                                                   detection, slug
+     *                                                   uniqueness, path
+     *                                                   resolution, and the
+     *                                                   cascade-delete walker
+     *                                                   (REQ-DASH-023..030).
+     * @param DashboardVersionService $versionService    Snapshot service
+     *                                                   (REQ-VERS-001) —
+     *                                                   automatic
+     *                                                   snapshots fire
+     *                                                   after every
+     *                                                   successful PUT
+     *                                                   via the
+     *                                                   debounced
+     *                                                   `captureSnapshot`
+     *                                                   helper.
+     * @param LoggerInterface         $logger            PSR logger (used by
+     *                                                   fork to report
+     *                                                   unexpected errors
+     *                                                   — REQ-DASH-021).
+     * @param string|null             $userId            The user ID.
      */
     public function __construct(
         IRequest $request,
         private readonly DashboardService $dashboardService,
         private readonly PermissionService $permissionService,
         private readonly DashboardTreeService $treeService,
+        private readonly DashboardVersionService $versionService,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -352,6 +365,13 @@ class DashboardApiController extends Controller
                 userId: $this->userId,
                 data: $data
             );
+
+            // REQ-VERS-001: capture an automatic snapshot after the
+            // PUT succeeds. The version service enforces its own
+            // debounce window (60 s) so rapid drag-and-drop edits do
+            // not flood the table. Failures are swallowed so they do
+            // not surface to the dashboard PUT response.
+            $this->captureAutomaticSnapshot(dashboard: $dashboard);
 
             return ResponseHelper::success(
                 data: ['dashboard' => $dashboard->jsonSerialize()]
@@ -1332,4 +1352,42 @@ class DashboardApiController extends Controller
             }
         );
     }//end buildGroupUpdateData()
+
+    /**
+     * Capture an automatic version snapshot after a successful update
+     * (REQ-VERS-001). The version service enforces a 60-second debounce
+     * window so a flurry of drag-and-drop saves does not flood the
+     * table.
+     *
+     * Failures here MUST NOT surface to the dashboard PUT response —
+     * the user's edit succeeded; missing one snapshot is a quality of
+     * life regression, not a data-integrity bug. We log + swallow.
+     *
+     * @param \OCA\MyDash\Db\Dashboard $dashboard The dashboard that was
+     *                                            just updated.
+     *
+     * @return void
+     */
+    private function captureAutomaticSnapshot(
+        \OCA\MyDash\Db\Dashboard $dashboard
+    ): void {
+        if ($this->userId === null) {
+            return;
+        }
+
+        try {
+            $this->versionService->captureSnapshot(
+                dashboard: $dashboard,
+                snapshotJson: null,
+                createdBy: $this->userId,
+                note: null,
+                explicit: false
+            );
+        } catch (\Throwable $t) {
+            $this->logger->warning(
+                message: 'mydash: automatic version snapshot failed',
+                context: ['exception' => $t]
+            );
+        }
+    }//end captureAutomaticSnapshot()
 }//end class

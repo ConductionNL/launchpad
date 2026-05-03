@@ -368,7 +368,13 @@ OC.L10N.register(
     "Reactions are disabled" : "Reactions are disabled",
     "Permission denied" : "Permission denied",
     "React" : "React",
-    "Reactions" : "Reactions"
+    "Reactions" : "Reactions",
+    "Version history" : "Version history",
+    "Restore this version" : "Restore this version",
+    "Save version" : "Save version",
+    "Versioning backend unavailable" : "Versioning backend unavailable",
+    "Version not found" : "Version not found",
+    "Version history is not available for this dashboard" : "Version history is not available for this dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

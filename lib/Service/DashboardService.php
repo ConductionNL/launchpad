@@ -27,10 +27,13 @@ use Exception;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\AdminSetting;
 use OCA\MyDash\Db\AdminSettingMapper;
+use InvalidArgumentException;
 use OCA\MyDash\Db\Dashboard;
+use OCA\MyDash\Db\DashboardLockMapper;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -50,6 +53,8 @@ use Throwable;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Same; splitting risks losing the single-source-of-truth behaviour.
  * @SuppressWarnings(PHPMD.ExcessiveParameterList)   The constructor wires every dependency the three scopes need.
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)     `resolveActiveDashboard` fans out the 7-step REQ-DASH-018 chain.
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)     Single source of truth for CRUD + tree + publication + footer.
+ * @SuppressWarnings(PHPMD.TooManyMethods)           Mode methods live next to one another for grep-ability.
  */
 class DashboardService
 {
@@ -92,35 +97,104 @@ class DashboardService
     public const ACTIVE_DASHBOARD_UUID_PREF_KEY = 'active_dashboard_uuid';
 
     /**
+     * HTTP-like error message for non-owner / non-admin attempting a
+     * publication state mutation. REQ-DASH-032..034.
+     *
+     * @var string
+     */
+    public const ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN = 'Forbidden: owner or admin only';
+
+    /**
+     * Validation error returned when `publishAt` is missing or in the
+     * past for the schedule action. REQ-DASH-033.
+     *
+     * @var string
+     */
+    public const ERR_SCHEDULE_PAST_DATE = 'publishAt must be a future timestamp';
+
+    /**
      * Constructor
      *
-     * @param DashboardMapper       $dashboardMapper      Dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper      Widget placement mapper.
-     * @param AdminSettingMapper    $settingMapper        Admin setting mapper.
-     * @param TemplateService       $templateService      Template service.
-     * @param DashboardFactory      $dashboardFactory     Dashboard factory.
-     * @param DashboardResolver     $dashResolver         Dashboard resolver.
-     * @param IGroupManager         $groupManager         Group manager (used for
-     *                                                    `isAdmin` only — group
-     *                                                    membership lookups go
-     *                                                    through the routing
-     *                                                    resolver per
-     *                                                    REQ-TMPL-013).
-     * @param AdminTemplateService  $adminTemplateService Routing resolver — single
-     *                                                    source of truth for
-     *                                                    `IGroupManager::getUserGroupIds`
-     *                                                    (REQ-TMPL-013).
-     * @param IDBConnection         $db                   DB connection (for the
-     *                                                    transactional default
-     *                                                    flip — REQ-DASH-015).
-     * @param IConfig               $config               Nextcloud per-user
-     *                                                    preference storage.
-     * @param IFactory              $l10nFactory          L10N factory used to
-     *                                                    build the
-     *                                                    "My copy of {name}"
-     *                                                    default fork name
-     *                                                    (REQ-DASH-020).
-     * @param LoggerInterface       $logger               PSR logger.
+     * @param DashboardMapper                  $dashboardMapper      Dashboard mapper.
+     * @param WidgetPlacementMapper            $placementMapper      Widget placement mapper.
+     * @param AdminSettingMapper               $settingMapper        Admin setting mapper.
+     * @param TemplateService                  $templateService      Template service.
+     * @param DashboardFactory                 $dashboardFactory     Dashboard factory.
+     * @param DashboardResolver                $dashResolver         Dashboard resolver.
+     * @param DashboardTreeService             $treeService          Tree-aware
+     *                                                               validation
+     *                                                               / cascade
+     *                                                               walker
+     *                                                               (REQ-DASH-023..030).
+     * @param IGroupManager                    $groupManager         Group manager (used for
+     *                                                               `isAdmin` only —
+     *                                                               group membership
+     *                                                               lookups go through the
+     *                                                               routing resolver per
+     *                                                               REQ-TMPL-013).
+     * @param AdminTemplateService             $adminTemplateService Routing resolver —
+     *                                                               single source of truth
+     *                                                               for
+     *                                                               `IGroupManager::getUserGroupIds`
+     *                                                               (REQ-TMPL-013).
+     * @param IDBConnection                    $db                   DB connection (for the
+     *                                                               transactional default
+     *                                                               flip —
+     *                                                               REQ-DASH-015).
+     * @param IConfig                          $config               Nextcloud per-user
+     *                                                               preference
+     *                                                               storage.
+     * @param IFactory                         $l10nFactory          L10N factory used to
+     *                                                               build the "My copy
+     *                                                               of {name}" default
+     *                                                               fork name
+     *                                                               (REQ-DASH-020).
+     * @param LoggerInterface                  $logger               PSR logger.
+     * @param DashboardTranslationService|null $translationService   Optional
+     *                                                               translation
+     *                                                               service
+     *                                                               for the
+     *                                                               per-language
+     *                                                               content
+     *                                                               variants
+     *                                                               (REQ-DASH-038..044).
+     *                                                               Nullable
+     *                                                               so
+     *                                                               legacy
+     *                                                               test
+     *                                                               doubles
+     *                                                               constructed
+     *                                                               without
+     *                                                               it keep
+     *                                                               working.
+     * @param DashboardLockMapper|null         $lockMapper           Optional lock
+     *                                                               mapper. When
+     *                                                               provided the
+     *                                                               delete path
+     *                                                               cascades the
+     *                                                               row removal
+     *                                                               to the
+     *                                                               editing-lock
+     *                                                               table per
+     *                                                               REQ-LOCK-008.
+     *                                                               Nullable to
+     *                                                               keep the
+     *                                                               constructor
+     *                                                               backwards-
+     *                                                               compatible
+     *                                                               with existing
+     *                                                               unit tests.
+     * @param FooterService|null               $footerService        Optional
+     *                                                               per-dashboard
+     *                                                               footer
+     *                                                               sanitiser +
+     *                                                               resolver
+     *                                                               (REQ-FTR-006).
+     *                                                               Nullable for
+     *                                                               backwards-
+     *                                                               compat with
+     *                                                               existing
+     *                                                               test doubles.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -129,12 +203,16 @@ class DashboardService
         private readonly TemplateService $templateService,
         private readonly DashboardFactory $dashboardFactory,
         private readonly DashboardResolver $dashResolver,
+        private readonly DashboardTreeService $treeService,
         private readonly IGroupManager $groupManager,
         private readonly AdminTemplateService $adminTemplateService,
         private readonly IDBConnection $db,
         private readonly IConfig $config,
         private readonly IFactory $l10nFactory,
         private readonly LoggerInterface $logger,
+        private readonly ?DashboardTranslationService $translationService=null,
+        private readonly ?DashboardLockMapper $lockMapper=null,
+        private readonly ?FooterService $footerService=null,
     ) {
     }//end __construct()
 
@@ -184,10 +262,25 @@ class DashboardService
     /**
      * Create a new dashboard for a user.
      *
+     * Accepts the optional hierarchy fields introduced by REQ-DASH-023..029:
+     * `parentUuid`, `slug`, `sortOrder`. The factory generates a slug
+     * from the name when none is supplied; the tree service validates
+     * the parent (existence, cycle, depth) and the slug uniqueness
+     * (per-parent) before the row is persisted.
+     *
      * @param string      $userId      The user ID.
      * @param string      $name        The dashboard name.
      * @param string|null $description The dashboard description.
-     * @param string|null $icon        Opaque icon identifier (registry key or URL); see the `dashboard-icons` capability.
+     * @param string|null $icon        Opaque icon identifier (registry
+     *                                 key or URL); see the
+     *                                 `dashboard-icons` capability.
+     * @param string|null $parentUuid  Optional parent dashboard UUID
+     *                                 (REQ-DASH-023). NULL ⇒ root.
+     * @param string|null $slug        Optional caller-supplied slug
+     *                                 (REQ-DASH-024). NULL ⇒ derive from
+     *                                 the name.
+     * @param int         $sortOrder   Optional sibling sort order
+     *                                 (REQ-DASH-029). Defaults to 0.
      *
      * @return Dashboard The created dashboard.
      */
@@ -195,12 +288,26 @@ class DashboardService
         string $userId,
         string $name,
         ?string $description=null,
-        ?string $icon=null
+        ?string $icon=null,
+        ?string $parentUuid=null,
+        ?string $slug=null,
+        int $sortOrder=0
     ): Dashboard {
+        // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
+        // depth checks BEFORE the entity is built so the request is
+        // rejected without a partial row in memory.
+        $this->treeService->validateParent(
+            movingUuid: null,
+            newParentUuid: $parentUuid
+        );
+
         $dashboard = $this->dashboardFactory->create(
             userId: $userId,
             name: $name,
-            description: $description
+            description: $description,
+            parentUuid: $parentUuid,
+            slug: $slug,
+            sortOrder: $sortOrder
         );
 
         // Icon is an opaque string (registry key or URL) — see the
@@ -211,9 +318,43 @@ class DashboardService
             $dashboard->setIcon($icon);
         }
 
+        // REQ-DASH-024: slug uniqueness within parent scope. The
+        // factory may have emitted NULL when the name yields no legal
+        // characters and the caller did not supply an explicit slug —
+        // skip the unique check in that case (NULL slugs are simply
+        // unaddressable by path).
+        $resolvedSlug = $dashboard->getSlug();
+        if ($resolvedSlug !== null && $resolvedSlug !== '') {
+            $this->treeService->validateSlugUnique(
+                parentUuid: $parentUuid,
+                slug: $resolvedSlug
+            );
+        }
+
         $this->dashboardMapper->deactivateAllForUser(userId: $userId);
 
-        return $this->dashboardMapper->insert(entity: $dashboard);
+        $persisted = $this->dashboardMapper->insert(entity: $dashboard);
+
+        // REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
+        // a primary translation row in the owner's Nextcloud locale (or
+        // the default fallback when no preference is set). The seed is
+        // best-effort — failure here does not abort dashboard creation,
+        // because the legacy materialiser keeps reads working until the
+        // seed retries via a subsequent translation API call.
+        if ($this->translationService !== null) {
+            try {
+                $this->translationService->seedPrimaryFor(
+                    dashboard: $persisted
+                );
+            } catch (Throwable $t) {
+                $this->logger->warning(
+                    message: 'mydash: failed to seed primary translation: {message}',
+                    context: ['message' => $t->getMessage()]
+                );
+            }
+        }
+
+        return $persisted;
     }//end createDashboard()
 
     /**
@@ -245,24 +386,103 @@ class DashboardService
     }//end updateDashboard()
 
     /**
-     * Delete a dashboard.
+     * Delete a dashboard, with cascade-delete guard for the tree.
+     *
+     * REQ-DASH-030: when the dashboard has children the caller MUST pass
+     * `$cascade = true`; otherwise `Exception` is raised with the
+     * sentinel message `Dashboard has children` so the controller can
+     * map it to HTTP 409 with the child count. With `$cascade = true`
+     * the entire subtree (including placements) is removed via
+     * {@see DashboardTreeService::deleteSubtree()}.
      *
      * @param int    $dashboardId The dashboard ID.
      * @param string $userId      The user ID.
+     * @param bool   $cascade     When true, remove the entire subtree.
      *
      * @return void
      */
-    public function deleteDashboard(int $dashboardId, string $userId): void
-    {
+    public function deleteDashboard(
+        int $dashboardId,
+        string $userId,
+        bool $cascade=false
+    ): void {
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
             throw new Exception(message: 'Access denied');
         }
 
+        $uuid = (string) $dashboard->getUuid();
+        if ($uuid !== '' && $cascade === false) {
+            $childCount = $this->dashboardMapper->countChildrenByParent(
+                parentUuid: $uuid
+            );
+            if ($childCount > 0) {
+                throw new DashboardHasChildrenException(
+                    childCount: $childCount
+                );
+            }
+        }
+
+        if ($cascade === true && $uuid !== '') {
+            // Translation rows are scoped by uuid; clear them BEFORE the
+            // tree walker drops the parent rows so we never orphan a
+            // variant on a vanished dashboard. The cascade-delete spans
+            // the entire descendant set as well. REQ-DASH-044.
+            if ($this->translationService !== null) {
+                $descendants = $this->dashboardMapper->findDescendants(
+                    ancestorUuid: $uuid
+                );
+                foreach ($descendants as $descendant) {
+                    $descendantUuid = (string) $descendant->getUuid();
+                    if ($descendantUuid !== '') {
+                        $this->translationService->deleteAllForDashboard(
+                            dashboardUuid: $descendantUuid
+                        );
+                    }
+                }
+
+                $this->translationService->deleteAllForDashboard(
+                    dashboardUuid: $uuid
+                );
+            }
+
+            // Cascade-clear the editing lock for the root before the
+            // subtree wipe (REQ-LOCK-008). Descendant locks are not
+            // tracked through this path because the spec scopes locks
+            // to the dashboard the user is editing — children that
+            // disappear simply leak a row that the next-acquire
+            // inline-cleanup will reap.
+            if ($this->lockMapper !== null) {
+                $this->lockMapper->deleteByDashboardUuid(
+                    dashboardUuid: $uuid
+                );
+            }
+
+            $this->treeService->deleteSubtree(dashboard: $dashboard);
+            return;
+        }//end if
+
+        // REQ-DASH-044: cascade-delete translation variants for the
+        // dashboard about to disappear so they don't outlive the parent.
+        if ($uuid !== '' && $this->translationService !== null) {
+            $this->translationService->deleteAllForDashboard(
+                dashboardUuid: $uuid
+            );
+        }
+
         $this->placementMapper->deleteByDashboardId(
             dashboardId: $dashboardId
         );
+
+        // Cascade-clear the editing lock so a deleted dashboard never
+        // leaves an orphaned lock row behind (REQ-LOCK-008).
+        if ($this->lockMapper !== null && $uuid !== '') {
+            $this->lockMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+        }
+
         $this->dashboardMapper->delete(entity: $dashboard);
     }//end deleteDashboard()
 
@@ -575,11 +795,120 @@ class DashboardService
             userId: $userId
         );
 
-        return $this->dashboardMapper->findVisibleToUser(
+        $entries = $this->dashboardMapper->findVisibleToUser(
             userId: $userId,
             userGroupIds: $userGroupIds
         );
+
+        // REQ-DASH-031..035: apply publication-state filter and lazy
+        // materialisation in one pass — drafts hidden from non-owners,
+        // scheduled rows past `publishAt` surfaced as published without
+        // a DB write, future scheduled rows hidden from non-owners.
+        // Defensive cast: legacy test doubles may stub isAdmin to null.
+        $isAdmin = (bool) $this->safeIsAdmin(userId: $userId);
+
+        return $this->filterByPublicationState(
+            entries: $entries,
+            actorUserId: $userId,
+            actorIsAdmin: $isAdmin
+        );
     }//end getVisibleToUser()
+
+    /**
+     * Defensive admin check for the visibility filter.
+     *
+     * Wraps {@see self::isAdmin()} in a try/catch so legacy test doubles
+     * that stub the underlying `IGroupManager::isAdmin` to return `null`
+     * or throw on unknown users degrade gracefully to "not admin"
+     * instead of taking down the whole `getVisibleToUser` call.
+     *
+     * @param string $userId The user ID.
+     *
+     * @return bool Whether the user is a Nextcloud admin (false on any
+     *              defect in the underlying group manager).
+     */
+    private function safeIsAdmin(string $userId): bool
+    {
+        try {
+            return (bool) $this->groupManager->isAdmin(userId: $userId);
+        } catch (Throwable) {
+            return false;
+        }
+    }//end safeIsAdmin()
+
+    /**
+     * Apply publication-state filtering and lazy materialisation to a
+     * visible-to-user result set. REQ-DASH-031..035.
+     *
+     * Rules:
+     *  - `published` rows pass through unchanged.
+     *  - `scheduled` rows whose `publishAt <= now()` are surfaced as
+     *    `published` (entity mutated in-memory only — no DB write).
+     *  - `scheduled` rows whose `publishAt > now()` and `draft` rows are
+     *    hidden from non-owner non-admin viewers; owners and admins
+     *    keep seeing them in their unmaterialised form.
+     *
+     * @param array<int, array{dashboard: Dashboard, source: string}> $entries      The mapper result set.
+     * @param string                                                  $actorUserId  The acting user ID.
+     * @param bool                                                    $actorIsAdmin Whether the actor is a Nextcloud admin.
+     *
+     * @return array<int, array{dashboard: Dashboard, source: string}>
+     *   The filtered, lazily-materialised result set.
+     */
+    private function filterByPublicationState(
+        array $entries,
+        string $actorUserId,
+        bool $actorIsAdmin
+    ): array {
+        $now      = new DateTime();
+        $filtered = [];
+
+        foreach ($entries as $entry) {
+            $dashboard = $entry['dashboard'];
+            $status    = $dashboard->getPublicationStatus();
+            // Pre-migration / legacy rows that never set the column
+            // semantically remain visible (REQ-DASH-035): treat an
+            // empty string as `'published'` so backwards compatibility
+            // holds even if an entity is hydrated without the column.
+            if ($status === '') {
+                $status = Dashboard::STATUS_PUBLISHED;
+            }
+
+            // REQ-DASH-034: lazy materialisation of due scheduled rows.
+            if ($status === Dashboard::STATUS_SCHEDULED) {
+                $publishAt = $dashboard->getPublishAt();
+                if ($publishAt !== null && $publishAt !== '') {
+                    try {
+                        $when = new DateTime($publishAt);
+                        if ($when <= $now) {
+                            $dashboard->setPublicationStatus(
+                                Dashboard::STATUS_PUBLISHED
+                            );
+                            $status = Dashboard::STATUS_PUBLISHED;
+                        }
+                    } catch (Exception) {
+                        // Malformed timestamp — leave as scheduled and
+                        // fall through to the visibility check below.
+                    }
+                }
+            }
+
+            if ($status === Dashboard::STATUS_PUBLISHED) {
+                $filtered[] = $entry;
+                continue;
+            }
+
+            // Status is now draft or (still) scheduled — hide from
+            // non-owner non-admin viewers.
+            $ownerId = $dashboard->getUserId();
+            $isOwner = ($ownerId !== null && $ownerId === $actorUserId);
+            if ($isOwner === true || $actorIsAdmin === true) {
+                $filtered[] = $entry;
+            }
+        }//end foreach
+
+        return $filtered;
+    }//end filterByPublicationState()
 
     /**
      * Resolve the active dashboard for a user using the 7-step precedence
@@ -752,6 +1081,179 @@ class DashboardService
             value: $uuid
         );
     }//end setActivePreference()
+
+    /**
+     * Transition a dashboard to `published` and stamp `publishedAt`
+     * the first time it happens. REQ-DASH-032.
+     *
+     * Idempotent: republishing an already-published dashboard returns
+     * the existing entity without altering `publishedAt`. Owner-or-admin
+     * gated — non-owner non-admin callers raise `Exception` with the
+     * sentinel message {@see self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN}
+     * so the controller can map to HTTP 403.
+     *
+     * @param string $uuid   The dashboard UUID to publish.
+     * @param string $userId The acting user ID.
+     *
+     * @return Dashboard The updated dashboard entity.
+     *
+     * @throws DoesNotExistException When the UUID does not exist.
+     * @throws Exception             When the actor is neither the owner
+     *                               nor a Nextcloud administrator.
+     */
+    public function publish(string $uuid, string $userId): Dashboard
+    {
+        $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+        $this->assertOwnerOrAdmin(
+            dashboard: $dashboard,
+            actorUserId: $userId
+        );
+
+        $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+
+        // Idempotent: already published — no-op other than touching
+        // updatedAt is intentionally skipped so audit timestamps stay
+        // accurate. Caller still receives the current state.
+        if ($dashboard->getPublicationStatus() === Dashboard::STATUS_PUBLISHED) {
+            return $dashboard;
+        }
+
+        $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+
+        // First-publication timestamp survives unpublish (REQ-DASH-032
+        // scenario "Unpublish preserves publishedAt"); only set it when
+        // the dashboard has never been published before.
+        if ($dashboard->getPublishedAt() === null) {
+            $dashboard->setPublishedAt($now);
+        }
+
+        // Clear any pending scheduled-publish hint; the dashboard is
+        // published immediately and `publishAt` is meaningless now.
+        $dashboard->setPublishAt(null);
+        $dashboard->setUpdatedAt($now);
+
+        return $this->dashboardMapper->update(entity: $dashboard);
+    }//end publish()
+
+    /**
+     * Transition a dashboard back to `draft` while preserving
+     * `publishedAt` for the audit trail. REQ-DASH-033.
+     *
+     * Idempotent: unpublishing an already-draft dashboard returns the
+     * existing entity unchanged. Owner-or-admin gated.
+     *
+     * @param string $uuid   The dashboard UUID to unpublish.
+     * @param string $userId The acting user ID.
+     *
+     * @return Dashboard The updated dashboard entity.
+     *
+     * @throws DoesNotExistException When the UUID does not exist.
+     * @throws Exception             When the actor is neither owner nor
+     *                               admin.
+     */
+    public function unpublish(string $uuid, string $userId): Dashboard
+    {
+        $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+        $this->assertOwnerOrAdmin(
+            dashboard: $dashboard,
+            actorUserId: $userId
+        );
+
+        if ($dashboard->getPublicationStatus() === Dashboard::STATUS_DRAFT) {
+            return $dashboard;
+        }
+
+        $dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+        // REQ-DASH-033: publishedAt is preserved verbatim; publishAt is
+        // cleared because the scheduled hint no longer applies once we
+        // are explicitly back in draft state.
+        $dashboard->setPublishAt(null);
+        $dashboard->setUpdatedAt(
+            (new DateTime())->format(format: 'Y-m-d H:i:s')
+        );
+
+        return $this->dashboardMapper->update(entity: $dashboard);
+    }//end unpublish()
+
+    /**
+     * Schedule a dashboard for automatic publication at a future
+     * timestamp. REQ-DASH-034.
+     *
+     * Validates that `$publishAt` parses as a valid timestamp strictly
+     * greater than `now()`. Past or unparseable values raise
+     * `InvalidArgumentException` with the canonical error message
+     * {@see self::ERR_SCHEDULE_PAST_DATE} so the controller can map to
+     * HTTP 400 with an i18n-translatable copy. Owner-or-admin gated.
+     *
+     * @param string $uuid      The dashboard UUID to schedule.
+     * @param string $publishAt The ISO-8601 timestamp at which the
+     *                          dashboard should automatically publish.
+     * @param string $userId    The acting user ID.
+     *
+     * @return Dashboard The updated dashboard entity.
+     *
+     * @throws DoesNotExistException    When the UUID does not exist.
+     * @throws InvalidArgumentException When `publishAt` is missing,
+     *                                  unparseable, or in the past.
+     * @throws Exception                When the actor is neither owner
+     *                                  nor admin.
+     */
+    public function schedule(
+        string $uuid,
+        string $publishAt,
+        string $userId
+    ): Dashboard {
+        $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+        $this->assertOwnerOrAdmin(
+            dashboard: $dashboard,
+            actorUserId: $userId
+        );
+
+        $parsed = $this->parseFuturePublishAt(publishAt: $publishAt);
+
+        $dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+        $dashboard->setPublishAt($parsed);
+        $dashboard->setUpdatedAt(
+            (new DateTime())->format(format: 'Y-m-d H:i:s')
+        );
+
+        return $this->dashboardMapper->update(entity: $dashboard);
+    }//end schedule()
+
+    /**
+     * Eagerly materialise scheduled dashboards whose `publishAt` is
+     * past-due. REQ-DASH-034 (optional eager path).
+     *
+     * Iterates every row with `publication_status = 'scheduled'` and
+     * `publish_at <= now()`, flips it to `'published'`, and stamps
+     * `publishedAt = now()`. Lazy materialisation in the visibility
+     * filter still runs at read time (correctness guarantee); this
+     * method exists only to keep the database row consistent with the
+     * effective state for cleaner audit queries.
+     *
+     * @return int The number of dashboards materialised.
+     */
+    public function materialiseScheduledDashboards(): int
+    {
+        $dueRows = $this->dashboardMapper->findDueScheduled();
+        if (count($dueRows) === 0) {
+            return 0;
+        }
+
+        $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+        foreach ($dueRows as $dashboard) {
+            $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+            if ($dashboard->getPublishedAt() === null) {
+                $dashboard->setPublishedAt($now);
+            }
+
+            $dashboard->setPublishAt(null);
+            $dashboard->setUpdatedAt($now);
+            $this->dashboardMapper->update(entity: $dashboard);
+        }
+
+        return count($dueRows);
+    }//end materialiseScheduledDashboards()
 
     /**
      * Fork any dashboard the user can read into a brand-new personal copy.
@@ -1225,6 +1727,9 @@ class DashboardService
             $dashboard->setGridColumns($data['gridColumns']);
         }
 
+        $this->applyTreeUpdates(dashboard: $dashboard, data: $data);
+        $this->applyFooterUpdates(dashboard: $dashboard, data: $data);
+
         $dashboard->setUpdatedAt(
             (new DateTime())->format(format: 'Y-m-d H:i:s')
         );
@@ -1237,4 +1742,247 @@ class DashboardService
             );
         }
     }//end applyDashboardUpdates()
+
+    /**
+     * Apply per-dashboard footer override updates (REQ-FTR-006).
+     *
+     * Mode + HTML are decoupled — callers can patch either independently.
+     * Validates the mode against {@see Dashboard::FOOTER_MODES}, sanitises
+     * the HTML through {@see FooterService::sanitiseHtml()} when mode is
+     * `custom`, and clears the HTML to NULL when mode flips away from
+     * `custom` (REQ-FTR-006 mode-change scenario). When mode is `custom`
+     * but no HTML is supplied (and the dashboard has no stored HTML
+     * either), throws so the controller can return HTTP 400.
+     *
+     * @param Dashboard $dashboard The dashboard being updated.
+     * @param array     $data      The patch payload.
+     *
+     * @return void
+     *
+     * @throws InvalidArgumentException When mode is invalid or `custom`
+     *                                  is requested without HTML.
+     */
+    private function applyFooterUpdates(
+        Dashboard $dashboard,
+        array $data
+    ): void {
+        $modeProvided = array_key_exists(key: 'dashboardFooterMode', array: $data);
+        $htmlProvided = array_key_exists(key: 'dashboardFooterHtml', array: $data);
+
+        if ($modeProvided === false && $htmlProvided === false) {
+            return;
+        }
+
+        if ($modeProvided === true) {
+            $newMode = $data['dashboardFooterMode'];
+        } else {
+            $newMode = $dashboard->getDashboardFooterMode();
+        }
+
+        if ($newMode === null || $newMode === '') {
+            $newMode = Dashboard::FOOTER_MODE_INHERIT;
+        }
+
+        if (is_string($newMode) === false
+            || in_array(needle: $newMode, haystack: Dashboard::FOOTER_MODES, strict: true) === false
+        ) {
+            throw new InvalidArgumentException(
+                message: 'dashboardFooterMode must be one of: '.implode(separator: ', ', array: Dashboard::FOOTER_MODES)
+            );
+        }
+
+        if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
+            if ($htmlProvided === true) {
+                $rawHtml = $data['dashboardFooterHtml'];
+            } else {
+                $rawHtml = $dashboard->getDashboardFooterHtml();
+            }
+
+            if ($rawHtml === null || is_string($rawHtml) === false || trim(string: $rawHtml) === '') {
+                throw new InvalidArgumentException(
+                    message: 'dashboardFooterHtml is required when dashboardFooterMode=custom'
+                );
+            }
+
+            $sanitised = $this->footerService->sanitiseHtml(html: $rawHtml);
+            $dashboard->setDashboardFooterMode(Dashboard::FOOTER_MODE_CUSTOM);
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $dashboard->setDashboardFooterHtml($sanitised);
+            return;
+        }
+
+        // Inherit / hidden — clear stale HTML to keep the invariant.
+        $dashboard->setDashboardFooterMode($newMode);
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setDashboardFooterHtml(null);
+    }//end applyFooterUpdates()
+
+    /**
+     * Resolve the effective footer payload for a dashboard
+     * (REQ-FTR-006 — see {@see FooterService::resolveFooterForDashboard()}).
+     *
+     * Thin pass-through so callers (controllers, listeners, tests) can
+     * stay on the `DashboardService` surface.
+     *
+     * @param Dashboard $dashboard The dashboard.
+     *
+     * @return array|null The effective footer payload, or NULL.
+     */
+    public function resolveFooterForDashboard(Dashboard $dashboard): ?array
+    {
+        return $this->footerService->resolveFooterForDashboard(dashboard: $dashboard);
+    }//end resolveFooterForDashboard()
+
+    /**
+     * Apply hierarchy updates (parentUuid, slug, sortOrder) with the
+     * REQ-DASH-023..029 guards.
+     *
+     * The three keys are decoupled — callers can patch any subset:
+     *  - `parentUuid` (NULL or string) — re-parents the dashboard, runs
+     *    cycle and depth checks via {@see DashboardTreeService}.
+     *  - `slug` (string) — updates the slug, runs the per-parent
+     *    uniqueness guard against the resolved parent (post-update).
+     *  - `sortOrder` (int) — updates the sibling sort order verbatim.
+     *
+     * Slug uniqueness is rechecked against the dashboard's parent AFTER
+     * any pending `parentUuid` change so a single PUT can re-parent and
+     * rename in one atomic patch.
+     *
+     * @param Dashboard $dashboard The dashboard being updated.
+     * @param array     $data      The update payload.
+     *
+     * @return void
+     */
+    private function applyTreeUpdates(
+        Dashboard $dashboard,
+        array $data
+    ): void {
+        $movingUuid = $dashboard->getUuid();
+
+        // Track the parent the slug uniqueness check should fire against.
+        $effectiveParent = $dashboard->getParentUuid();
+
+        if (array_key_exists(key: 'parentUuid', array: $data) === true) {
+            $newParent = $data['parentUuid'];
+            if ($newParent !== null && is_string($newParent) === false) {
+                $newParent = (string) $newParent;
+            }
+
+            // REQ-DASH-028: cycle + depth before applying.
+            $this->treeService->validateParent(
+                movingUuid: $movingUuid,
+                newParentUuid: $newParent
+            );
+
+            $dashboard->setParentUuid($newParent);
+            $effectiveParent = $newParent;
+        }
+
+        if (array_key_exists(key: 'slug', array: $data) === true) {
+            $newSlug = $data['slug'];
+            if ($newSlug !== null && is_string($newSlug) === false) {
+                $newSlug = (string) $newSlug;
+            }
+
+            if ($newSlug !== null && $newSlug !== '') {
+                if (SlugGenerator::isValid(slug: $newSlug) === false) {
+                    throw new InvalidArgumentException(
+                        message: 'Slug must match [a-z0-9_-]+ and be at most 128 characters'
+                    );
+                }
+
+                // REQ-DASH-024: per-parent uniqueness — exclude the row
+                // being updated so no-op writes succeed.
+                $this->treeService->validateSlugUnique(
+                    parentUuid: $effectiveParent,
+                    slug: $newSlug,
+                    excludeUuid: $movingUuid
+                );
+            }
+
+            $dashboard->setSlug($newSlug);
+        }//end if
+
+        if (array_key_exists(key: 'sortOrder', array: $data) === true) {
+            $sortOrder = $data['sortOrder'];
+            $dashboard->setSortOrder((int) $sortOrder);
+        }
+    }//end applyTreeUpdates()
+
+    /**
+     * Assert the actor is allowed to mutate the dashboard's publication
+     * state. REQ-DASH-031..034.
+     *
+     * Owner-or-admin is the gate: the dashboard's `userId` must match
+     * the actor, OR the actor must be a Nextcloud admin. Group-shared
+     * and admin-template dashboards (which have `userId = null`) fall
+     * back to the admin-only check.
+     *
+     * @param Dashboard $dashboard   The dashboard being mutated.
+     * @param string    $actorUserId The acting user ID.
+     *
+     * @return void
+     *
+     * @throws Exception When the actor is neither owner nor admin.
+     */
+    private function assertOwnerOrAdmin(
+        Dashboard $dashboard,
+        string $actorUserId
+    ): void {
+        $ownerId = $dashboard->getUserId();
+        if ($ownerId !== null && $ownerId === $actorUserId) {
+            return;
+        }
+
+        if ($this->isAdmin(userId: $actorUserId) === true) {
+            return;
+        }
+
+        throw new Exception(
+            message: self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
+        );
+    }//end assertOwnerOrAdmin()
+
+    /**
+     * Parse and validate a `publishAt` argument for the schedule action.
+     * REQ-DASH-034.
+     *
+     * Accepts any string `DateTime::__construct` understands (ISO-8601
+     * recommended). The parsed value is normalised to the canonical
+     * `Y-m-d H:i:s` storage format used elsewhere on the entity.
+     *
+     * @param string $publishAt The caller-supplied publish-at string.
+     *
+     * @return string The normalised storage timestamp.
+     *
+     * @throws InvalidArgumentException When the string is empty,
+     *                                  unparseable, or not strictly in
+     *                                  the future.
+     */
+    private function parseFuturePublishAt(string $publishAt): string
+    {
+        $trimmed = trim($publishAt);
+        if ($trimmed === '') {
+            throw new InvalidArgumentException(
+                message: self::ERR_SCHEDULE_PAST_DATE
+            );
+        }
+
+        try {
+            $parsed = new DateTime($trimmed);
+        } catch (Exception) {
+            throw new InvalidArgumentException(
+                message: self::ERR_SCHEDULE_PAST_DATE
+            );
+        }
+
+        $now = new DateTime();
+        if ($parsed <= $now) {
+            throw new InvalidArgumentException(
+                message: self::ERR_SCHEDULE_PAST_DATE
+            );
+        }
+
+        return $parsed->format(format: 'Y-m-d H:i:s');
+    }//end parseFuturePublishAt()
 }//end class

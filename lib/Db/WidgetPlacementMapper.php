@@ -103,6 +103,31 @@ class WidgetPlacementMapper extends QBMapper
     }//end findByDashboardId()
 
     /**
+     * Find all placements that reference a given widget id across the
+     * entire instance — used by {@see \OCA\MyDash\Service\FeedRefreshService::discoverFeedUrls()}
+     * to pull every news-widget placement before each refresh tick
+     * (REQ-FRJ-003).
+     *
+     * @param string $widgetId The widget id (e.g. `'mydash_news'`).
+     *
+     * @return WidgetPlacement[] The matching placements.
+     */
+    public function findByWidgetId(string $widgetId): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'widget_id',
+                    y: $qb->createNamedParameter(value: $widgetId)
+                )
+            );
+
+        return $this->findEntities(query: $qb);
+    }//end findByWidgetId()
+
+    /**
      * Find placement by dashboard and widget ID.
      *
      * @param int    $dashboardId The dashboard ID.
@@ -286,6 +311,124 @@ class WidgetPlacementMapper extends QBMapper
 
         return $count;
     }//end cloneToDashboard()
+
+    /**
+     * Count placement rows whose `dashboard_id` no longer points at
+     * any row in `mydash_dashboards`.
+     *
+     * Used by the orphaned-data-cleanup scan path (REQ-CLN-001).
+     * Placements are normally cleared by `DashboardService::delete()`;
+     * a row left behind here usually indicates a crashed delete path
+     * or a manual SQL operation.
+     *
+     * @return int The number of orphaned placement rows.
+     */
+    public function countOrphaned(): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('p.id'))
+            ->from(from: $this->getTableName(), alias: 'p')
+            ->leftJoin(
+                fromAlias: 'p',
+                join: 'mydash_dashboards',
+                alias: 'd',
+                condition: 'd.id = p.dashboard_id'
+            )
+            ->where($qb->expr()->isNull(x: 'd.id'));
+
+        $result = $qb->executeQuery();
+        $count  = $result->fetchOne();
+        $result->closeCursor();
+
+        return (int) ($count ?? 0);
+    }//end countOrphaned()
+
+    /**
+     * Delete placement rows whose `dashboard_id` no longer points at
+     * any row in `mydash_dashboards`.
+     *
+     * Companion to {@see self::countOrphaned()} on the purge path
+     * (REQ-CLN-002). Resolves the orphan IDs first via a SELECT and
+     * then deletes by primary key for portability across drivers.
+     *
+     * @return int The number of rows deleted.
+     */
+    public function deleteOrphaned(): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: 'p.id')
+            ->from(from: $this->getTableName(), alias: 'p')
+            ->leftJoin(
+                fromAlias: 'p',
+                join: 'mydash_dashboards',
+                alias: 'd',
+                condition: 'd.id = p.dashboard_id'
+            )
+            ->where($qb->expr()->isNull(x: 'd.id'));
+
+        $result = $qb->executeQuery();
+        $ids    = [];
+        while (($row = $result->fetch()) !== false) {
+            $ids[] = (int) $row['id'];
+        }
+
+        $result->closeCursor();
+
+        if (count(value: $ids) === 0) {
+            return 0;
+        }
+
+        $delete = $this->db->getQueryBuilder();
+        $delete->delete(delete: $this->getTableName())
+            ->where(
+                $delete->expr()->in(
+                    x: 'id',
+                    y: $delete->createNamedParameter(
+                        value: $ids,
+                        type: IQueryBuilder::PARAM_INT_ARRAY
+                    )
+                )
+            );
+
+        return $delete->executeStatement();
+    }//end deleteOrphaned()
+
+    /**
+     * Count widget placements for a dashboard (REQ-TMPL-014).
+     *
+     * Used by the gallery serialiser so the response includes the
+     * `widgetCount` field without fetching the full placement entities
+     * (the gallery is a list view; widget bodies are not included).
+     *
+     * @param int $dashboardId The dashboard ID.
+     *
+     * @return int The number of placements (0 when none).
+     */
+    public function countByDashboardId(int $dashboardId): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('*', 'cnt'))
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'dashboard_id',
+                    y: $qb->createNamedParameter(
+                        value: $dashboardId,
+                        type: IQueryBuilder::PARAM_INT
+                    )
+                )
+            );
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false || isset($row['cnt']) === false) {
+            return 0;
+        }
+
+        return (int) $row['cnt'];
+    }//end countByDashboardId()
 
     /**
      * Get max sort order for a dashboard.

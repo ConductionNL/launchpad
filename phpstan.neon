@@ -48,6 +48,12 @@ parameters:
         -
             message: '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor#'
             path: lib/Controller/FileController.php
+        # Same JSONResponse status-code union widening — comment exceptions
+        # carry a typed `getHttpStatus()` that only returns 400/403/404 but
+        # PHPStan cannot prove the constraint statically.
+        -
+            message: '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor#'
+            path: lib/Controller/DashboardCommentsApiController.php
         # DataResponse declares a `T of DataResponseType` template parameter
         # whose union does not cover plain associative arrays. Every call
         # site here passes a JSON-serialisable array — runtime is sound;
@@ -58,6 +64,18 @@ parameters:
         -
             message: '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor#'
             path: lib/Controller/DashboardShareApiController.php
+        # Same DataResponse template-narrowing issue — FeedController's
+        # `{token, url}` envelopes are `array<string, string>` and the
+        # 401 envelope is `array<string, string>`; both are sound at
+        # runtime but trip the upstream generic bound. The 204 path
+        # also widens an int-literal status code that PHPStan refuses
+        # to narrow without a generic helper.
+        -
+            message: '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor#'
+            path: lib/Controller/FeedController.php
+        -
+            message: '#Parameter \$statusCode of class OCP\\AppFramework\\Http\\DataResponse constructor#'
+            path: lib/Controller/FeedController.php
         # `getimagesizefromstring` shape from PHPStan's stubs already
         # guarantees the `mime` key exists; the `??` is intentional defence
         # in depth for older runtimes / stubs.
@@ -76,3 +94,13 @@ parameters:
         - '#Call to an undefined method OCP\\IUser::getLanguage#'
         # OCP\AppFramework\Db\Entity implements JsonSerializable at runtime but stub omits it
         - '#Call to an undefined method OCP\\AppFramework\\Db\\Entity::jsonSerialize#'
+        # `Dashboard::MAX_DEPTH` is a literal-typed integer constant; PHPStan
+        # collapses depth-bounded loops on it to "always true" comparisons.
+        # The bound exists so future MAX_DEPTH bumps work unchanged — the
+        # comparison is correct at runtime.
+        -
+            message: "#Comparison operation \"<\" between .* and 5 is always true#"
+            path: lib/Db/DashboardMapper.php
+        -
+            message: "#Comparison operation \"<\" between .* and 5 is always true#"
+            path: lib/Service/DashboardTreeService.php

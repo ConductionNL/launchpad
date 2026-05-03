@@ -9,6 +9,38 @@
 			:name="t('mydash', 'MyDash settings')"
 			:description="t('mydash', 'Configure dashboard permissions and defaults')"
 			doc-url="https://mydash.app">
+			<!-- Setup wizard banner (REQ-WIZ-001). Stays visible until the
+			     admin clicks Finish in the wizard; after completion a less
+			     prominent re-run link replaces it (REQ-WIZ-011). -->
+			<div
+				v-if="wizardState && !wizardState.complete"
+				class="mydash-admin__wizard-banner"
+				data-test="setup-wizard-banner">
+				<div>
+					<strong>{{ t('mydash', 'Run setup wizard') }}</strong>
+					<p>
+						{{ t('mydash', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
+					</p>
+				</div>
+				<NcButton
+					type="primary"
+					data-test="setup-wizard-open"
+					@click="openWizard">
+					{{ t('mydash', 'Run setup wizard') }}
+				</NcButton>
+			</div>
+			<div
+				v-else-if="wizardState && wizardState.complete"
+				class="mydash-admin__wizard-rerun"
+				data-test="setup-wizard-rerun">
+				<NcButton
+					type="tertiary"
+					data-test="setup-wizard-rerun-open"
+					@click="openWizard">
+					{{ t('mydash', 'Run setup wizard again') }}
+				</NcButton>
+			</div>
+
 			<!-- Global Settings -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Default settings') }}</h3>
@@ -163,6 +195,36 @@
 				</div>
 			</div>
 
+			<!-- Org-wide navigation editor (REQ-ONAV-001..012) -->
+			<div class="mydash-admin__section">
+				<OrgNavigationEditor :groups="injectedAllGroups" />
+			</div>
+
+			<!-- Backup & migration (REQ-EXIM-001..010) -->
+			<div class="mydash-admin__section">
+				<DashboardExportImport />
+			</div>
+
+			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
+			<div class="mydash-admin__section">
+				<DashboardBulkOperations />
+			</div>
+
+			<!-- Confluence HTML import (REQ-CFLI-001..012) -->
+			<div class="mydash-admin__section">
+				<ConfluenceImport />
+			</div>
+
+			<!-- Dashboard view-analytics (REQ-ANLT-006..010) -->
+			<div class="mydash-admin__section">
+				<AdminAnalytics />
+			</div>
+
+			<!-- Demo data showcases (REQ-DEMO-001..009) -->
+			<div class="mydash-admin__section">
+				<AdminDemoData />
+			</div>
+
 			<!-- Info -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
@@ -171,6 +233,14 @@
 				</p>
 			</div>
 		</CnSettingsSection>
+
+		<!-- Setup wizard modal (REQ-WIZ-002). Mounted lazily so step
+		     components only execute when the admin opens the flow. -->
+		<SetupWizardModal
+			v-if="showWizard"
+			data-test="setup-wizard-modal"
+			@close="closeWizard"
+			@completed="onWizardCompleted" />
 
 		<!-- Template Editor Modal -->
 		<NcModal
@@ -242,15 +312,28 @@ import {
 } from '@conduction/nextcloud-vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import AdminAnalytics from './AdminAnalytics.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
+import DashboardExportImport from './DashboardExportImport.vue'
+import DashboardBulkOperations from './DashboardBulkOperations.vue'
+import ConfluenceImport from './ConfluenceImport.vue'
+import OrgNavigationEditor from './OrgNavigationEditor.vue'
+import AdminDemoData from './AdminDemoData.vue'
+import SetupWizardModal from './SetupWizardModal.vue'
 import { api } from '../../services/api.js'
 
 export default {
 	name: 'AdminSettings',
 
 	components: {
+		AdminAnalytics,
+		AdminDemoData,
 		CnSettingsSection,
+		ConfluenceImport,
+		DashboardBulkOperations,
+		DashboardExportImport,
 		GroupPriorityOrder,
+		OrgNavigationEditor,
 		NcButton,
 		NcSelect,
 		NcSelectTags,
@@ -259,6 +342,7 @@ export default {
 		NcEmptyContent,
 		NcModal,
 		Plus,
+		SetupWizardModal,
 		ViewDashboard,
 	},
 
@@ -307,12 +391,18 @@ export default {
 			// uuid currently being promoted (disables the row's button to
 			// avoid double-clicks during the in-flight call).
 			settingGroupDefault: null,
+			// Setup wizard banner state (REQ-WIZ-001). Keeping it in this
+			// component avoids a dedicated store; the modal emits
+			// `completed` which triggers a state re-fetch.
+			wizardState: null,
+			showWizard: false,
 		}
 	},
 
 	async created() {
 		await this.loadData()
 		await this.loadGroupSharedDashboards()
+		await this.loadWizardState()
 	},
 
 	methods: {
@@ -496,6 +586,39 @@ export default {
 		 * @param {string} uuid The dashboard uuid to promote.
 		 * @return {Promise<void>}
 		 */
+		/**
+		 * Fetch the wizard state for the banner gate (REQ-WIZ-001,
+		 * REQ-WIZ-008). A failed call is silently swallowed so the rest
+		 * of the admin page stays usable; the banner just doesn't render.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async loadWizardState() {
+			try {
+				const { data } = await api.getSetupWizardState()
+				this.wizardState = data || null
+			} catch (e) {
+				console.warn('Failed to load setup wizard state:', e)
+				this.wizardState = null
+			}
+		},
+
+		openWizard() {
+			this.showWizard = true
+		},
+
+		closeWizard() {
+			this.showWizard = false
+		},
+
+		async onWizardCompleted() {
+			this.showWizard = false
+			// REQ-WIZ-002 final scenario: the banner MUST disappear without
+			// requiring a full page reload. Re-fetch the state so the
+			// reactive guard updates.
+			await this.loadWizardState()
+		},
+
 		async setGroupDefault(groupId, uuid) {
 			const rows = this.groupSharedDashboards[groupId] || []
 			// Snapshot prior `isDefault` values for rollback.
@@ -645,5 +768,29 @@ export default {
 	justify-content: flex-end;
 	gap: 12px;
 	margin-top: 24px;
+}
+
+.mydash-admin__wizard-banner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 20px;
+	margin-bottom: 24px;
+	background: var(--color-primary-element-light);
+	border: 1px solid var(--color-primary-element);
+	border-radius: var(--border-radius);
+}
+
+.mydash-admin__wizard-banner p {
+	margin: 4px 0 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}
+
+.mydash-admin__wizard-rerun {
+	margin-bottom: 16px;
+	display: flex;
+	justify-content: flex-end;
 }
 </style>

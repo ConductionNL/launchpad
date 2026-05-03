@@ -33,7 +33,7 @@ describe('widgetRegistry', () => {
 		expect(listWidgetTypes()).toContain('label')
 	})
 
-	it('REQ-LBN-001..007: exposes a `link` entry with the proper defaultContent', async () => {
+	it('REQ-LBN-001..007 / REQ-LBLM-001..009: exposes a `link` entry with the proper defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
 		expect(widgetRegistry.link).toBeDefined()
 		expect(widgetRegistry.link.defaultContent).toEqual({
@@ -43,6 +43,10 @@ describe('widgetRegistry', () => {
 			actionType: 'external',
 			backgroundColor: '',
 			textColor: '',
+			displayMode: 'button',
+			listOrientation: 'vertical',
+			listItemGap: 'normal',
+			links: [],
 		})
 	})
 
@@ -64,7 +68,7 @@ describe('widgetRegistry', () => {
 		expect(a).not.toBe(b)
 	})
 
-	it('REQ-TXT-004/005: exposes a `text` entry with the proper defaultContent', async () => {
+	it('REQ-TXT-004/005 + REQ-TXMD-001 + REQ-TBLE-002: exposes a `text` entry with the proper defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
 		expect(widgetRegistry.text).toBeDefined()
 		expect(widgetRegistry.text.defaultContent).toEqual({
@@ -73,6 +77,13 @@ describe('widgetRegistry', () => {
 			color: '',
 			backgroundColor: '',
 			textAlign: 'left',
+			// REQ-TXMD-001 / REQ-TXMD-005: new text widgets default to
+			// markdown so authors can use lightweight syntax out of the
+			// box; existing placements without `contentMode` keep their
+			// legacy HTML rendering.
+			contentMode: 'markdown',
+			tableMode: false,
+			tableData: null,
 		})
 	})
 
@@ -135,5 +146,110 @@ describe('widgetRegistry', () => {
 	it('REQ-IMG-005: `image` appears in listWidgetTypes() output', async () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('image')
+	})
+
+	it('REQ-DIV-002: exposes a `divider` entry with renderer + form + defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.divider).toBeDefined()
+		expect(widgetRegistry.divider.renderer).toBeTruthy()
+		expect(widgetRegistry.divider.form).toBeTruthy()
+		expect(widgetRegistry.divider.defaultContent).toEqual({
+			style: 'line',
+			lineColor: '',
+			lineThickness: 1,
+			lineStyle: 'solid',
+			whitespaceSize: 'medium',
+			headingText: '',
+		})
+	})
+
+	it('REQ-DIV-002: `divider` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('divider')
+	})
+
+	it('REQ-NEWS-001..011: exposes a `news` entry with the proper defaultContent', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.news).toBeDefined()
+		expect(widgetRegistry.news.renderer).toBeTruthy()
+		expect(widgetRegistry.news.form).toBeTruthy()
+		expect(widgetRegistry.news.defaultContent).toEqual({
+			feedUrls: [],
+			layout: 'list',
+			itemLimit: 10,
+			showThumbnails: true,
+			showSummary: true,
+			summaryMaxChars: 200,
+			dateFormat: 'relative',
+			metadataFilter: null,
+		})
+	})
+
+	it('REQ-NEWS-001..011: `news` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('news')
+	})
+
+	it('REQ-VID-001/002: exposes a `video` entry with renderer + form + defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.video).toBeDefined()
+		expect(widgetRegistry.video.renderer).toBeTruthy()
+		expect(widgetRegistry.video.form).toBeTruthy()
+		expect(widgetRegistry.video.defaultContent).toEqual({
+			sourceType: null,
+			videoUrl: '',
+			fileId: null,
+			autoplay: false,
+			muted: true,
+			loop: false,
+			controls: true,
+			aspectRatio: '16:9',
+			posterUrl: '',
+		})
+	})
+
+	it('REQ-VID-001: `video` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('video')
+	})
+
+	it('REQ-CAL-001: exposes a `calendar` entry with renderer + form + defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.calendar).toBeDefined()
+		expect(widgetRegistry.calendar.renderer).toBeTruthy()
+		expect(widgetRegistry.calendar.form).toBeTruthy()
+		expect(widgetRegistry.calendar.defaultContent).toEqual({
+			internalCalendars: [],
+			externalIcsUrls: [],
+			viewMode: 'agenda',
+			daysAhead: 14,
+			colorByCalendar: true,
+		})
+	})
+
+	it('REQ-CAL-001: `calendar` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('calendar')
+	})
+
+	it('REQ-LNKS-001..002: exposes a `links` entry with renderer + form + spec defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.links).toBeDefined()
+		expect(widgetRegistry.links.renderer).toBeTruthy()
+		expect(widgetRegistry.links.form).toBeTruthy()
+		expect(widgetRegistry.links.defaultContent).toEqual({
+			sections: [],
+			columns: 3,
+			linkLayout: 'card',
+			iconSize: 'medium',
+			openInNewTab: true,
+			showSectionTitles: true,
+			showLinkDescriptions: true,
+		})
+	})
+
+	it('REQ-LNKS-001: `links` appears in listWidgetTypes() output (visible in picker)', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('links')
 	})
 })

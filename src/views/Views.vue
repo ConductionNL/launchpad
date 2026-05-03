@@ -213,10 +213,8 @@ export default {
 	// (REQ-INIT-003..005). Defaults match the reader contract so the
 	// sidebar still mounts when running under tests that don't set a
 	// provider (e.g. Vitest harness) — see DashboardSwitcherSidebar specs.
-	inject: {
-		primaryGroupName: { default: '' },
-		allowUserDashboards: { default: false },
-	},
+	// (Inject keys are defined once below; this comment block was kept
+	// as the historical anchor for the provide/inject contract.)
 	setup() {
 		// Reactive `canEdit` proxy handed to the grid manager composable.
 		// Wrapped in Vue.observable so the composable's
@@ -281,6 +279,13 @@ export default {
 			// `dashboard-switcher` capability state — controlled here, the
 			// sidebar emits update:open(boolean) via its v-model rebind.
 			sidebarOpen: false,
+			// REQ-ANLT-011 — per-uuid debounce ledger. Maps dashboard
+			// UUID → last-send millisecond timestamp so two near-
+			// simultaneous mounts of the same dashboard (multi-tab,
+			// fast-tab-switch) collapse into a single view-event POST.
+			// Different uuids are tracked independently per spec
+			// scenario "Different dashboards are not debounced".
+			viewEventLastSent: Object.create(null),
 		}
 	},
 	computed: {
@@ -387,6 +392,24 @@ export default {
 				}
 			},
 		},
+		/**
+		 * REQ-ANLT-011 — fire a view-event whenever the active
+		 * dashboard switches (and on initial render once the active
+		 * dashboard hydrates). Per-uuid debouncing in
+		 * `recordViewEventDebounced` collapses near-simultaneous
+		 * mounts of the same dashboard into one network call.
+		 *
+		 * @param {object|null} dashboard the freshly-active dashboard
+		 */
+		'activeDashboard.uuid': {
+			immediate: true,
+			handler(uuid) {
+				if (!uuid) {
+					return
+				}
+				this.recordViewEventDebounced(uuid)
+			},
+		},
 	},
 	async created() {
 		// Bind the host onto the grid composable so its onEdit / onRemove
@@ -426,7 +449,33 @@ export default {
 			'addTileToDashboard',
 			'removeWidgetFromDashboard',
 			'updateWidgetPlacement',
+			'recordViewEvent',
 		]),
+
+		/**
+		 * REQ-ANLT-011 — per-uuid 1-second debounce wrapping the
+		 * fire-and-forget store action. The ledger lives on
+		 * `data.viewEventLastSent` (Object.create(null)) so different
+		 * dashboards are tracked independently per spec scenario
+		 * "Different dashboards are not debounced against each other".
+		 * The debounce is per-mount (not cross-tab), matching the
+		 * spec's reload semantics.
+		 *
+		 * @param {string} uuid The dashboard UUID to record.
+		 */
+		recordViewEventDebounced(uuid) {
+			if (!uuid) {
+				return
+			}
+			const now = Date.now()
+			const last = this.viewEventLastSent[uuid] || 0
+			if ((now - last) < 1000) {
+				return
+			}
+			this.viewEventLastSent[uuid] = now
+			this.recordViewEvent(uuid)
+		},
+
 		...mapActions(useTileStore, ['createTile', 'updateTile', 'deleteTile']),
 
 		toggleEditMode() {

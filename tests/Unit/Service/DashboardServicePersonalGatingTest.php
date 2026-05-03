@@ -96,12 +96,14 @@ class DashboardServicePersonalGatingTest extends TestCase
             templateService: $templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $dashResolver,
+            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
             groupManager: $groupManager,
             adminTemplateService: $adminTemplateService,
             db: $db,
             config: $config,
             l10nFactory: $l10nFactory,
             logger: $logger,
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
         );
     }//end setUp()
 

@@ -24,6 +24,7 @@ namespace OCA\MyDash\Service;
 use Exception;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
+use OCA\MyDash\Db\RoleAssignment;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCA\MyDash\Db\AdminSettingMapper;
@@ -33,11 +34,23 @@ use OCP\IGroupManager;
 
 /**
  * Service for resolving dashboard permissions across personal,
- * shared, and group-shared scopes (REQ-DASH-014).
+ * shared, and group-shared scopes (REQ-DASH-014). Also consults the
+ * role-assignment system layered on top via RoleService
+ * (REQ-ROLE-001, REQ-ROLE-007, REQ-ROLE-008).
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods) Twelve methods cover the
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)     Twelve methods cover the
  *                                                three scopes' permission
  *                                                checks without splitting.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) The role-layer
+ *                                                    additions for
+ *                                                    REQ-ROLE-007 /
+ *                                                    REQ-ROLE-008 are
+ *                                                    early-return guards
+ *                                                    keyed off RoleService
+ *                                                    and unavoidably
+ *                                                    raise the cyclomatic
+ *                                                    score over the
+ *                                                    default 50.
  */
 class PermissionService
 {
@@ -57,6 +70,10 @@ class PermissionService
      *                                                    source of truth for
      *                                                    `IGroupManager::getUserGroupIds`
      *                                                    (REQ-TMPL-013).
+     * @param RoleService           $roleService          Effective-role resolver
+     *                                                    layered on top of the
+     *                                                    permissions capability
+     *                                                    (REQ-ROLE-007, REQ-ROLE-008).
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -65,6 +82,7 @@ class PermissionService
         private readonly DashboardShareService $shareService,
         private readonly IGroupManager $groupManager,
         private readonly AdminTemplateService $adminTemplateService,
+        private readonly RoleService $roleService,
     ) {
     }//end __construct()
 
@@ -95,6 +113,20 @@ class PermissionService
             $dashboard = $this->dashboardMapper->find(id: $dashboardId);
         } catch (DoesNotExistException) {
             return false;
+        }
+
+        // REQ-ROLE-008: Viewer role blocks any mutation.
+        if ($this->roleService->isViewer(userId: $userId) === true) {
+            return false;
+        }
+
+        // REQ-ROLE-001 / REQ-ROLE-007: MyDash Admin can edit any
+        // dashboard except for the admin-template type which is gated
+        // by Nextcloud admin status only (REQ-PERM-011).
+        if ($this->roleService->isAdmin(userId: $userId) === true
+            && $dashboard->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE
+        ) {
+            return true;
         }
 
         // Admin templates can only be edited by admins.
@@ -153,6 +185,13 @@ class PermissionService
      */
     public function canAddWidget(string $userId, int $dashboardId): bool
     {
+        // REQ-ROLE-008: Viewer role blocks any mutation, including
+        // widget additions. Admin role grants by virtue of resolving
+        // access level (admin override is in `resolveAccessLevel`).
+        if ($this->roleService->isViewer(userId: $userId) === true) {
+            return false;
+        }
+
         $level = $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId);
         if ($level === null) {
             return false;
@@ -177,6 +216,11 @@ class PermissionService
      */
     public function canRemoveWidget(string $userId, int $placementId): bool
     {
+        // REQ-ROLE-008: Viewer role blocks any mutation.
+        if ($this->roleService->isViewer(userId: $userId) === true) {
+            return false;
+        }
+
         try {
             $placement = $this->placementMapper->find(id: $placementId);
             $dashboard = $this->dashboardMapper->find(
@@ -216,6 +260,11 @@ class PermissionService
      */
     public function canStyleWidget(string $userId, int $placementId): bool
     {
+        // REQ-ROLE-008: Viewer role blocks any mutation.
+        if ($this->roleService->isViewer(userId: $userId) === true) {
+            return false;
+        }
+
         try {
             $placement = $this->placementMapper->find(id: $placementId);
             $dashboard = $this->dashboardMapper->find(
@@ -248,6 +297,20 @@ class PermissionService
      */
     public function canCreateDashboard(string $userId): bool
     {
+        // REQ-ROLE-008: Viewer role explicitly blocks dashboard creation
+        // including personal dashboards (REQ-ROLE-003 scenario).
+        if ($this->roleService->isViewer(userId: $userId) === true) {
+            return false;
+        }
+
+        // REQ-ROLE-001 / REQ-ROLE-002: Admin and Editor may always
+        // create personal dashboards regardless of the
+        // `allow_user_dashboards` admin flag — the role is the
+        // canonical override.
+        if ($this->roleService->isEditorOrHigher(userId: $userId) === true) {
+            return true;
+        }
+
         // REQ-ASET-003 (extended): default `false` — when no row exists,
         // personal dashboard creation MUST be blocked. Defense-in-depth
         // companion to DashboardService::assertPersonalDashboardsAllowed().
@@ -299,8 +362,16 @@ class PermissionService
         // the row's persisted `permissionLevel` field (which is kept on
         // the row for forward-compat with future per-tile editing).
         if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
+            // REQ-ROLE-001 / REQ-ROLE-007: NC admin OR a MyDash Admin
+            // role grants full permissions on group_shared dashboards.
+            // Editors get full access only when the underlying group
+            // membership check (in `resolveAccessLevel`) has already
+            // succeeded — they edit through the membership path, not
+            // an unconditional override.
             if ($userId !== null
-                && $this->groupManager->isAdmin(userId: $userId) === true
+                && ($this->groupManager->isAdmin(userId: $userId) === true
+                || $this->roleService->isAdmin(userId: $userId) === true
+                || $this->roleService->isEditorOrHigher(userId: $userId) === true)
             ) {
                 return Dashboard::PERMISSION_FULL;
             }
@@ -376,6 +447,7 @@ class PermissionService
             );
             if (in_array(needle: $groupId, haystack: $userGroupIds, strict: true) === true
                 || $this->groupManager->isAdmin(userId: $userId) === true
+                || $this->roleService->isAdmin(userId: $userId) === true
             ) {
                 return $this->getEffectivePermissionLevel(
                     dashboard: $dashboard,

@@ -43,6 +43,7 @@ class DashboardTableBuilder
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
+        self::addTemplateDiscoveryColumns(table: $table);
     }//end create()
 
     /**
@@ -172,6 +173,18 @@ class DashboardTableBuilder
                 'unsigned' => true,
             ]
         );
+        // Per-dashboard comments toggle (REQ-CMNT-007). NULL = inherit
+        // global setting; 1 = force on; 0 = force off.
+        $table->addColumn(
+            name: 'comments_enabled',
+            typeName: Types::SMALLINT,
+            options: [
+                'notnull'  => false,
+                'default'  => null,
+                'unsigned' => true,
+                'comment'  => 'Per-dashboard comments toggle: NULL = inherit global, 1 = on, 0 = off.',
+            ]
+        );
         $table->addColumn(
             name: 'created_at',
             typeName: Types::DATETIME,
@@ -219,4 +232,250 @@ class DashboardTableBuilder
             indexName: 'mydash_dash_type_group'
         );
     }//end addIndexes()
+
+    /**
+     * Apply the dashboard-tree hierarchy schema (REQ-DASH-023..030) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds the three nullable columns (`parent_uuid`, `slug`, `sort_order`)
+     * plus the supporting indexes used by `DashboardTreeService` for
+     * sibling lookups, ordered traversal, and the per-parent slug
+     * uniqueness guarantee. Idempotent — every check is `hasColumn` /
+     * `hasIndex` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addTreeColumns($table): void
+    {
+        if ($table->hasColumn(name: 'parent_uuid') === false) {
+            $table->addColumn(
+                name: 'parent_uuid',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => false,
+                    'length'  => 36,
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'slug') === false) {
+            $table->addColumn(
+                name: 'slug',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => false,
+                    'length'  => 128,
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'sort_order') === false) {
+            $table->addColumn(
+                name: 'sort_order',
+                typeName: Types::INTEGER,
+                options: [
+                    'notnull' => true,
+                    'default' => 0,
+                ]
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_parent') === false) {
+            $table->addIndex(
+                columnNames: ['parent_uuid'],
+                indexName: 'mydash_dash_parent'
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_parent_slug') === false) {
+            // Composite (parent_uuid, slug) supports per-parent slug
+            // uniqueness lookups (REQ-DASH-024) and child-by-slug lookups
+            // during path resolution (REQ-DASH-027). NULL parent_uuid is
+            // accepted by both MySQL/MariaDB and PostgreSQL in non-unique
+            // composite indexes — the uniqueness rule is enforced at the
+            // service layer because composite NULL semantics differ
+            // between drivers (sqlite ⇢ NULL = NULL, postgres ⇢ NULL ≠ NULL).
+            $table->addIndex(
+                columnNames: ['parent_uuid', 'slug'],
+                indexName: 'mydash_dash_parent_slug'
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_sort') === false) {
+            $table->addIndex(
+                columnNames: ['parent_uuid', 'sort_order'],
+                indexName: 'mydash_dash_sort'
+            );
+        }
+    }//end addTreeColumns()
+
+    /**
+     * Apply the dashboard publication-state schema (REQ-DASH-031..037) to
+     * an existing `mydash_dashboards` table.
+     *
+     * Adds three nullable / defaulted columns (`publication_status`,
+     * `publish_at`, `published_at`) plus the `(user_id, publication_status)`
+     * composite index used by the visibility filter in
+     * `DashboardMapper`. The `publication_status` column is declared with
+     * `DEFAULT 'published'` so pre-existing rows are backfilled to
+     * `'published'` automatically by the database engine — no explicit
+     * `UPDATE` statement is required (REQ-DASH-035, design D1). New
+     * dashboards created post-migration receive `'draft'` via application
+     * logic in `DashboardFactory::create()` instead of relying on the
+     * column default. Idempotent — every check is `hasColumn` /
+     * `hasIndex` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addPublicationColumns($table): void
+    {
+        if ($table->hasColumn(name: 'publication_status') === false) {
+            $table->addColumn(
+                name: 'publication_status',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => true,
+                    'length'  => 20,
+                    'default' => 'published',
+                    'comment' => 'Dashboard publication status (draft|published|scheduled). REQ-DASH-031.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'publish_at') === false) {
+            $table->addColumn(
+                name: 'publish_at',
+                typeName: Types::DATETIME,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Scheduled publication timestamp; used when publication_status = scheduled.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'published_at') === false) {
+            $table->addColumn(
+                name: 'published_at',
+                typeName: Types::DATETIME,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'First-publication timestamp; preserved across unpublish. REQ-DASH-032.',
+                ]
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_dash_user_pubstatus') === false) {
+            $table->addIndex(
+                columnNames: ['user_id', 'publication_status'],
+                indexName: 'mydash_dash_user_pubstatus'
+            );
+        }
+    }//end addPublicationColumns()
+
+    /**
+     * Apply the per-dashboard footer-override schema (REQ-FTR-006) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds two columns: `dashboard_footer_mode` (VARCHAR(16), default
+     * `'inherit'`) selecting one of `inherit | hidden | custom`, and
+     * `dashboard_footer_html` (TEXT, nullable) holding the
+     * dashboard-specific HTML when mode is `custom`. Pre-existing rows
+     * materialise as `inherit` automatically via the column default —
+     * no explicit backfill required (footer-customization design D2).
+     * Idempotent — every column is checked with `hasColumn` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addFooterColumns($table): void
+    {
+        if ($table->hasColumn(name: 'dashboard_footer_mode') === false) {
+            $table->addColumn(
+                name: 'dashboard_footer_mode',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => true,
+                    'length'  => 16,
+                    'default' => 'inherit',
+                    'comment' => 'Per-dashboard footer mode (inherit|hidden|custom). REQ-FTR-006.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'dashboard_footer_html') === false) {
+            $table->addColumn(
+                name: 'dashboard_footer_html',
+                typeName: Types::TEXT,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Sanitised dashboard-specific footer HTML; only used when dashboard_footer_mode=custom.',
+                ]
+            );
+        }
+    }//end addFooterColumns()
+
+    /**
+     * Apply the template-discovery schema (REQ-TMPL-014..017) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds three nullable metadata columns (`template_category`,
+     * `template_description`, `template_preview_image`) plus the
+     * `(type, template_category)` composite index used by the gallery
+     * filter path in `DashboardMapper::findAllTemplatesForGallery()`.
+     * The base `WHERE type = 'admin_template'` query path already
+     * benefits from the existing single-column `type` index. Idempotent —
+     * every check is `hasColumn` / `hasIndex` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addTemplateDiscoveryColumns($table): void
+    {
+        if ($table->hasColumn(name: 'template_category') === false) {
+            $table->addColumn(
+                name: 'template_category',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => false,
+                    'length'  => 64,
+                    'comment' => 'Free-form gallery category for admin templates. REQ-TMPL-016.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'template_description') === false) {
+            $table->addColumn(
+                name: 'template_description',
+                typeName: Types::TEXT,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Long-form gallery description for admin templates. REQ-TMPL-016.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'template_preview_image') === false) {
+            $table->addColumn(
+                name: 'template_preview_image',
+                typeName: Types::TEXT,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Preview image URL stored via the resource-uploads pattern. REQ-TMPL-017.',
+                ]
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_tpl_type_cat') === false) {
+            $table->addIndex(
+                columnNames: ['type', 'template_category'],
+                indexName: 'mydash_tpl_type_cat'
+            );
+        }
+    }//end addTemplateDiscoveryColumns()
 }//end class

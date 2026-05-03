@@ -129,12 +129,14 @@ class DashboardServiceForkTest extends TestCase
             templateService: $templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $dashResolver,
+            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
             groupManager: $this->groupManager,
             adminTemplateService: $this->adminTemplateService,
             db: $this->db,
             config: $this->config,
             l10nFactory: $this->l10nFactory,
             logger: $logger,
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
         );
     }//end setUp()
 

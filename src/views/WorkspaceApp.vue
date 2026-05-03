@@ -4,7 +4,12 @@
 -->
 
 <template>
-	<div class="workspace-shell">
+	<div class="workspace-shell" :class="orgNavWrapperClass">
+		<!-- Org-wide navigation rail (REQ-ONAV-005, REQ-ONAV-008).
+		     Rendered above the shell when position='top', otherwise as
+		     a side rail. The component itself decides whether to
+		     render anything based on the empty-state + position rules. -->
+		<OrgNavigationPanel v-if="orgNavStore.shouldRender" />
 		<!-- Region 1: slide-in sidebar (REQ-SHELL-006).
 		     The DashboardSwitcherSidebar capability owns the slide-in
 		     panel; the backdrop intercepts off-panel clicks and emits
@@ -112,6 +117,16 @@
 				</button>
 			</div>
 		</div>
+
+		<!-- Region 5 (footer-customization): branded footer below the
+		     dashboard grid. Renders nothing when `effectiveFooter` is
+		     null (REQ-FTR-001 disabled scenario, REQ-FTR-006 hidden
+		     mode). The payload is resolved server-side by
+		     `FooterService::resolveFooterForDashboard()` and surfaced
+		     through initial-state injection / store hydration. -->
+		<DashboardFooter
+			:footer="effectiveFooter"
+			:locale="injectedLocale" />
 	</div>
 </template>
 
@@ -121,9 +136,12 @@ import { t } from '@nextcloud/l10n'
 import Views from './Views.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import DashboardFooter from '../components/DashboardFooter.vue'
+import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 
 import { listWidgetTypes, getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { useDashboardStore } from '../stores/dashboard.js'
+import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 import { api } from '../services/api.js'
 
 /**
@@ -158,6 +176,8 @@ export default {
 		Views,
 		SidebarBackdrop,
 		DashboardSwitcherSidebar,
+		DashboardFooter,
+		OrgNavigationPanel,
 	},
 
 	inject: {
@@ -192,6 +212,20 @@ export default {
 		injectedPrimaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
+		},
+		// REQ-FTR-001 / REQ-FTR-006 — initial-state surface for the
+		// effective footer payload. Defaults to NULL so the
+		// `DashboardFooter` component renders nothing until backend
+		// hydration completes.
+		injectedEffectiveFooter: {
+			from: 'effectiveFooter',
+			default: null,
+		},
+		// REQ-FTR-007 — viewer's NC locale for language-variant
+		// selection inside `DashboardFooter`.
+		injectedLocale: {
+			from: 'viewerLocale',
+			default: 'en',
 		},
 	},
 
@@ -257,6 +291,57 @@ export default {
 		 */
 		availableWidgetTypes() {
 			return listWidgetTypes()
+		},
+
+		/**
+		 * Effective footer payload (REQ-FTR-001, REQ-FTR-004, REQ-FTR-006).
+		 *
+		 * Prefers the active dashboard's `effectiveFooter` field (resolved
+		 * by the backend `FooterService::resolveFooterForDashboard()`) so
+		 * per-dashboard overrides win over the boot-time global injection.
+		 * Falls back to the initial-state injection when the active
+		 * dashboard hasn't been hydrated yet.
+		 *
+		 * @return {Object|null}
+		 */
+		effectiveFooter() {
+			if (!this.injectedActiveDashboardId) {
+				return this.injectedEffectiveFooter
+			}
+			const all = [
+				...(this.injectedUserDashboards || []),
+				...(this.injectedGroupDashboards || []),
+			]
+			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
+			if (match && Object.prototype.hasOwnProperty.call(match, 'effectiveFooter')) {
+				return match.effectiveFooter
+			}
+			return this.injectedEffectiveFooter
+		},
+
+		/**
+		 * REQ-ONAV-005 — exposed so the template can both check
+		 * `shouldRender` AND read `position` to drive the wrapper
+		 * layout class.
+		 *
+		 * @return {object}
+		 */
+		orgNavStore() {
+			return useOrgNavigationStore()
+		},
+
+		/**
+		 * REQ-ONAV-005 — flex direction follows the rail position so
+		 * `top` lays the rail above the shell, `right` after, `left`
+		 * before, and `hidden` collapses the wrapper to its baseline.
+		 *
+		 * @return {string[]}
+		 */
+		orgNavWrapperClass() {
+			if (!this.orgNavStore.shouldRender) {
+				return []
+			}
+			return ['workspace-shell--org-nav-' + (this.orgNavStore.position || 'hidden')]
 		},
 	},
 
@@ -475,6 +560,22 @@ export default {
 	min-height: 100vh;
 	width: 100%;
 	display: flex;
+	flex-direction: column;
+}
+
+/* REQ-ONAV-005 — rail position drives the outer layout. The
+   inner content (strip, toolbar, grid) keeps its column layout via
+   the `.workspace-shell__strip` etc. blocks below. */
+.workspace-shell--org-nav-left,
+.workspace-shell--org-nav-right {
+	flex-direction: row;
+}
+
+.workspace-shell--org-nav-right {
+	flex-direction: row-reverse;
+}
+
+.workspace-shell--org-nav-top {
 	flex-direction: column;
 }
 

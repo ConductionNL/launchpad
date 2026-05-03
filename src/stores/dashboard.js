@@ -33,6 +33,17 @@ export const SOURCE_USER = 'user'
 export const SOURCE_GROUP = 'group'
 export const SOURCE_DEFAULT = 'default'
 
+/**
+ * Publication-state values mirrored from the PHP entity
+ * (Dashboard::STATUS_DRAFT / STATUS_PUBLISHED / STATUS_SCHEDULED).
+ * REQ-DASH-031..037.
+ *
+ * @type {string}
+ */
+export const STATUS_DRAFT = 'draft'
+export const STATUS_PUBLISHED = 'published'
+export const STATUS_SCHEDULED = 'scheduled'
+
 export const useDashboardStore = defineStore('dashboard', {
 	state: () => ({
 		// `dashboards` carries every dashboard visible to the user
@@ -41,6 +52,14 @@ export const useDashboardStore = defineStore('dashboard', {
 		// The frontend uses the source to route subsequent edit calls
 		// to the correct backend endpoint (personal vs group-scoped).
 		dashboards: [],
+		// REQ-DASH-026: nested dashboard tree fetched from
+		// `/api/dashboards/tree`. Each node carries
+		// `{uuid, name, slug, sortOrder, children}`. Empty until
+		// `loadDashboardTree()` runs.
+		dashboardTree: [],
+		// REQ-DASH-027: cache of resolved-by-path dashboards keyed on the
+		// canonical slash-joined path. Populated by `dashboardByPath()`.
+		pathCache: {},
 		activeDashboard: null,
 		widgetPlacements: [],
 		permissionLevel: 'full',
@@ -50,6 +69,19 @@ export const useDashboardStore = defineStore('dashboard', {
 		primaryGroup: '',
 		loading: false,
 		saving: false,
+		// REQ-RXN-003 — per-dashboard reactions summary cache.
+		// Map<uuid, {counts: {emoji: number, ...}, mine: [emoji, ...], enabled: boolean}>.
+		reactionsSummary: {},
+		// REQ-MDFL-001..006: dashboard-metadata-fields capability.
+		// `metadataFields` caches the admin-managed field definitions
+		// fetched from `GET /api/admin/metadata-fields` (admin only —
+		// the call returns 403 for non-admins, in which case the array
+		// stays empty and the metadata UI hides).
+		metadataFields: [],
+		// `metadataByDashboard` keys dashboard UUID → flat
+		// {fieldKey: encodedValue} map. Lazily populated on first
+		// `fetchDashboardMetadata(uuid)` call.
+		metadataByDashboard: {},
 	}),
 
 	getters: {
@@ -164,6 +196,23 @@ export const useDashboardStore = defineStore('dashboard', {
 			// Step 7: nothing.
 			return null
 		},
+
+		// REQ-MDFL-004: returns the metadata map for the given UUID, or
+		// an empty object when nothing has been fetched yet. Components
+		// using this getter MUST call `fetchDashboardMetadata(uuid)`
+		// once on mount to populate the cache.
+		metadataFor: (state) => (uuid) => {
+			return state.metadataByDashboard[uuid] || {}
+		},
+
+		// REQ-MDFL-001: alphabetised admin-managed field-definition list.
+		metadataFieldsSorted: (state) => {
+			return [...state.metadataFields].sort((a, b) => {
+				const ao = Number(a.sortOrder || 0)
+				const bo = Number(b.sortOrder || 0)
+				return ao !== bo ? ao - bo : String(a.label).localeCompare(String(b.label))
+			})
+		},
 	},
 
 	actions: {
@@ -256,6 +305,125 @@ export const useDashboardStore = defineStore('dashboard', {
 			api.setActiveDashboardPreference(uuid || '').catch((error) => {
 				console.warn('Failed to persist active dashboard preference:', error)
 			})
+		},
+
+		/**
+		 * Publish a dashboard (REQ-DASH-032).
+		 *
+		 * On success the local copy is patched in place so the UI reflects
+		 * the new publicationStatus / publishedAt without a full reload.
+		 *
+		 * @param {string} uuid The dashboard UUID to publish.
+		 * @return {Promise<object|null>} The updated dashboard payload or
+		 *   `null` on failure (an error toast is surfaced).
+		 */
+		async publishDashboard(uuid) {
+			try {
+				const response = await api.publishDashboard(uuid)
+				this.applyPublicationPatch(response.data?.dashboard)
+				return response.data?.dashboard ?? null
+			} catch (error) {
+				console.error('Failed to publish dashboard:', error)
+				showError(t('mydash', 'Publish dashboard'))
+				return null
+			}
+		},
+
+		/**
+		 * Unpublish a dashboard (REQ-DASH-033). Preserves publishedAt
+		 * server-side; the local copy is patched in place.
+		 *
+		 * @param {string} uuid The dashboard UUID to unpublish.
+		 * @return {Promise<object|null>} The updated dashboard or null.
+		 */
+		async unpublishDashboard(uuid) {
+			try {
+				const response = await api.unpublishDashboard(uuid)
+				this.applyPublicationPatch(response.data?.dashboard)
+				return response.data?.dashboard ?? null
+			} catch (error) {
+				console.error('Failed to unpublish dashboard:', error)
+				showError(t('mydash', 'Unpublish dashboard'))
+				return null
+			}
+		},
+
+		/**
+		 * Schedule a dashboard for automatic publication (REQ-DASH-034).
+		 *
+		 * @param {string} uuid      The dashboard UUID to schedule.
+		 * @param {string} publishAt The future ISO-8601 timestamp.
+		 * @return {Promise<object|null>} The updated dashboard or null.
+		 */
+		async scheduleDashboard(uuid, publishAt) {
+			try {
+				const response = await api.scheduleDashboard(uuid, publishAt)
+				this.applyPublicationPatch(response.data?.dashboard)
+				return response.data?.dashboard ?? null
+			} catch (error) {
+				console.error('Failed to schedule dashboard:', error)
+				showError(t('mydash', 'Schedule dashboard'))
+				return null
+			}
+		},
+
+		/**
+		 * Patch the publication-state fields on a dashboard already in the
+		 * store. No-op when the dashboard is not yet loaded — the next
+		 * `loadDashboards()` call will fetch the canonical state.
+		 *
+		 * @param {object|null|undefined} dashboard The updated entity.
+		 * @return {void}
+		 */
+		applyPublicationPatch(dashboard) {
+			if (!dashboard || !dashboard.uuid) {
+				return
+			}
+			const idx = this.dashboards.findIndex(d => d.uuid === dashboard.uuid)
+			if (idx >= 0) {
+				this.dashboards[idx] = {
+					...this.dashboards[idx],
+					publicationStatus: dashboard.publicationStatus,
+					publishAt: dashboard.publishAt,
+					publishedAt: dashboard.publishedAt,
+				}
+			}
+			if (this.activeDashboard?.uuid === dashboard.uuid) {
+				this.activeDashboard = {
+					...this.activeDashboard,
+					publicationStatus: dashboard.publicationStatus,
+					publishAt: dashboard.publishAt,
+					publishedAt: dashboard.publishedAt,
+				}
+			}
+		},
+
+		/**
+		 * Resolve the effective publication status for a dashboard,
+		 * applying client-side lazy materialisation of scheduled-as-
+		 * published rows for instant UI feedback (REQ-DASH-034). The
+		 * backend remains the source of truth; this is purely a UX hint.
+		 *
+		 * @param {object} dashboard The dashboard entity.
+		 * @return {string} `'draft' | 'published' | 'scheduled'`.
+		 */
+		effectivePublicationStatus(dashboard) {
+			if (!dashboard) {
+				return STATUS_DRAFT
+			}
+			const status = dashboard.publicationStatus || STATUS_PUBLISHED
+			if (status !== STATUS_SCHEDULED) {
+				return status
+			}
+			const publishAt = dashboard.publishAt
+			if (!publishAt) {
+				return STATUS_SCHEDULED
+			}
+			const when = new Date(publishAt)
+			if (Number.isNaN(when.getTime())) {
+				return STATUS_SCHEDULED
+			}
+			return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
 		},
 
 		async createDashboard(payload = 'My Dashboard') {
@@ -551,6 +719,84 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
+		/**
+		 * Fetch the nested dashboard tree (REQ-DASH-026).
+		 *
+		 * Stores the result on `state.dashboardTree`. Failures are
+		 * logged to the console; callers fall back to the flat
+		 * `dashboards` getter when the tree is empty.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async loadDashboardTree() {
+			try {
+				const response = await api.getDashboardTree()
+				this.dashboardTree = Array.isArray(response.data) ? response.data : []
+			} catch (error) {
+				console.error('Failed to load dashboard tree:', error)
+				this.dashboardTree = []
+			}
+		},
+
+		/**
+		 * Resolve a slug-chain path to a dashboard (REQ-DASH-027).
+		 *
+		 * Caches the result on `state.pathCache` keyed by the
+		 * canonical path so repeated lookups during a session avoid
+		 * the round-trip. Returns `null` on miss.
+		 *
+		 * @param {string} path The slash-joined slug chain.
+		 * @return {Promise<object|null>} The dashboard payload or null.
+		 */
+		async dashboardByPath(path) {
+			const key = String(path || '').replace(/\/+$/, '').replace(/^\/+/, '')
+			if (key === '') {
+				return null
+			}
+
+			if (this.pathCache[key] !== undefined) {
+				return this.pathCache[key]
+			}
+
+			try {
+				const response = await api.getDashboardByPath(key)
+				const payload = response?.data?.dashboard ?? null
+				this.pathCache[key] = payload
+				return payload
+			} catch (error) {
+				if (error?.response?.status !== 404) {
+					console.error('Failed to resolve dashboard path:', error)
+				}
+				this.pathCache[key] = null
+				return null
+			}
+		},
+
+		/**
+		 * REQ-ANLT-002 / REQ-ANLT-011 — record a dashboard view event.
+		 *
+		 * Fire-and-forget POST to `/api/dashboards/{uuid}/view-event`.
+		 * The 204 response is intentionally silent in the UI; network
+		 * errors are logged to the console but never surfaced as
+		 * toasts because view-event tracking must never affect the
+		 * primary read path. Per-uuid debounce (1s) lives in the
+		 * caller (`Views.vue`) — the store action is idempotent on
+		 * the server side via the same-day cache dedup.
+		 *
+		 * @param {string} uuid The dashboard UUID being viewed.
+		 * @return {Promise<void>}
+		 */
+		async recordViewEvent(uuid) {
+			if (!uuid) {
+				return
+			}
+			try {
+				await api.recordDashboardViewEvent(uuid)
+			} catch (error) {
+				console.warn('Failed to record dashboard view event:', error)
+			}
+		},
+
 		async updateWidgetPlacement(placementId, updates) {
 			console.log('[DashboardStore] updateWidgetPlacement called:', JSON.stringify({ placementId, updates }, null, 2))
 			try {
@@ -568,6 +814,181 @@ export const useDashboardStore = defineStore('dashboard', {
 			} catch (error) {
 				console.error('Failed to update widget placement:', error)
 				console.error('Error details:', error.response?.data)
+			}
+		},
+
+		/**
+		 * Fetch and cache the reactions summary for a dashboard. REQ-RXN-003.
+		 *
+		 * @param {string} dashboardUuid The dashboard UUID.
+		 * @return {Promise<object|null>} The summary, or null on error.
+		 */
+		async fetchReactionsSummary(dashboardUuid) {
+			if (!dashboardUuid) {
+				return null
+			}
+
+			try {
+				const response = await api.getDashboardReactions(dashboardUuid)
+				this.reactionsSummary = {
+					...this.reactionsSummary,
+					[dashboardUuid]: response.data,
+				}
+				return response.data
+			} catch (error) {
+				console.error('Failed to fetch reactions summary:', error)
+				return null
+			}
+		},
+
+		/**
+		 * Add a reaction (idempotent — REQ-RXN-001). Updates the cached
+		 * summary on success.
+		 *
+		 * @param {string} dashboardUuid The dashboard UUID.
+		 * @param {string} emoji         The emoji to add.
+		 * @return {Promise<object|null>} Updated summary, or null on error.
+		 */
+		async addReaction(dashboardUuid, emoji) {
+			if (!dashboardUuid || !emoji) {
+				return null
+			}
+
+			try {
+				const response = await api.addDashboardReaction(dashboardUuid, emoji)
+				this.reactionsSummary = {
+					...this.reactionsSummary,
+					[dashboardUuid]: response.data,
+				}
+				return response.data
+			} catch (error) {
+				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				showError(message)
+				return null
+			}
+		},
+
+		/**
+		 * Remove a reaction (idempotent — REQ-RXN-002). Optimistically
+		 * refreshes the cached summary after the DELETE.
+		 *
+		 * @param {string} dashboardUuid The dashboard UUID.
+		 * @param {string} emoji         The emoji to remove.
+		 * @return {Promise<object|null>} Updated summary, or null on error.
+		 */
+		async removeReaction(dashboardUuid, emoji) {
+			if (!dashboardUuid || !emoji) {
+				return null
+			}
+
+			try {
+				await api.removeDashboardReaction(dashboardUuid, emoji)
+				return await this.fetchReactionsSummary(dashboardUuid)
+			} catch (error) {
+				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				showError(message)
+				return null
+			}
+		},
+
+		/**
+		 * Fetch the admin-managed metadata-field registry
+		 * (REQ-MDFL-001). Non-admin callers receive HTTP 403; the
+		 * action swallows the error so the caller does not need to
+		 * branch on admin status.
+		 *
+		 * @return {Promise<void>}
+		 */
+		async fetchMetadataFields() {
+			try {
+				const response = await api.getMetadataFields()
+				const payload = response?.data
+				if (Array.isArray(payload?.fields)) {
+					this.metadataFields = payload.fields
+				} else if (Array.isArray(payload)) {
+					this.metadataFields = payload
+				} else {
+					this.metadataFields = []
+				}
+			} catch (error) {
+				if (error?.response?.status !== 403) {
+					console.error('Failed to load metadata fields:', error)
+				}
+				this.metadataFields = []
+			}
+		},
+
+		/**
+		 * Fetch the metadata key-value map for a single dashboard
+		 * (REQ-MDFL-004). Caches the result on
+		 * `state.metadataByDashboard[uuid]` so repeated reads in the
+		 * same session avoid the round-trip.
+		 *
+		 * @param {string} uuid The dashboard UUID.
+		 * @return {Promise<object>} The metadata map (always an object).
+		 */
+		async fetchDashboardMetadata(uuid) {
+			if (!uuid) {
+				return {}
+			}
+
+			try {
+				const response = await api.getDashboardMetadata(uuid)
+				const payload = response?.data
+				const map = (payload && typeof payload === 'object' && !Array.isArray(payload))
+					? payload
+					: {}
+				this.metadataByDashboard = {
+					...this.metadataByDashboard,
+					[uuid]: map,
+				}
+				return map
+			} catch (error) {
+				if (error?.response?.status !== 403 && error?.response?.status !== 404) {
+					console.error('Failed to load dashboard metadata:', error)
+				}
+				this.metadataByDashboard = {
+					...this.metadataByDashboard,
+					[uuid]: {},
+				}
+				return {}
+			}
+		},
+
+		/**
+		 * Upsert metadata key-values for a dashboard (REQ-MDFL-005).
+		 * On 400 (validation failure) the user-facing error message
+		 * is shown via the standard `showError` helper.
+		 *
+		 * @param {string} uuid     The dashboard UUID.
+		 * @param {object} metadata Flat key-value map. Omitted keys are
+		 *                          NOT removed; only keys present in
+		 *                          this object are upserted.
+		 * @return {Promise<object|null>} The updated metadata map or
+		 *                                null on failure.
+		 */
+		async updateDashboardMetadata(uuid, metadata) {
+			if (!uuid) {
+				return null
+			}
+
+			try {
+				const response = await api.updateDashboardMetadata(uuid, metadata)
+				const payload = response?.data
+				const map = (payload && typeof payload === 'object' && !Array.isArray(payload))
+					? payload
+					: {}
+				this.metadataByDashboard = {
+					...this.metadataByDashboard,
+					[uuid]: map,
+				}
+				return map
+			} catch (error) {
+				const message = error?.response?.data?.message
+					|| t('mydash', 'Failed to update dashboard metadata')
+				console.error('Failed to update dashboard metadata:', error)
+				showError(message)
+				return null
 			}
 		},
 	},

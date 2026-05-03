@@ -33,6 +33,13 @@
  * `LinkButtonForm.vue`, and a `defaultContent` of `{label:'', url:'',
  * icon:'', actionType:'external', backgroundColor:'', textColor:''}`.
  *
+ * REQ-FLS-001..011: The widget type `files` MUST be registered with a
+ * renderer reference to `FilesWidget.vue`, a form reference to
+ * `FilesForm.vue`, and a `defaultContent` of `{folderPath:'',
+ * fileId:null, viewMode:'list', showThumbnails:true, mimeTypeFilter:[],
+ * allowUpload:false, allowDelete:false, sortBy:'name',
+ * sortDescending:false}`.
+ *
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
@@ -48,6 +55,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
+import FilesForm from '../components/Widgets/Forms/FilesForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +131,23 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	files: {
+		renderer: FilesWidget,
+		form: FilesForm,
+		defaultContent: {
+			folderPath: '',
+			fileId: null,
+			viewMode: 'list',
+			showThumbnails: true,
+			mimeTypeFilter: [],
+			allowUpload: false,
+			allowDelete: false,
+			sortBy: 'name',
+			sortDescending: false,
+		},
+		displayName: t('mydash', 'Files'),
+		icon: 'Folder',
 	},
 }
 

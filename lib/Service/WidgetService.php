@@ -46,7 +46,7 @@ class WidgetService
         private readonly WidgetFormatter $widgetFormatter,
         private readonly WidgetItemLoader $widgetItemLoader,
         private readonly IUserSession $userSession,
-        private readonly MenuService $menuService = new MenuService(),
+        private readonly MenuService $menuService=new MenuService(),
     ) {
     }//end __construct()
 

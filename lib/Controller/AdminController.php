@@ -46,7 +46,7 @@ use OCP\IUserSession;
  * Controller for admin dashboard template management plus role-assignment
  * CRUD (REQ-ROLE-004, REQ-ROLE-006) and feed-refresh admin actions.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)   The admin surface
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)     The admin surface
  *                                                legitimately covers
  *                                                templates, settings,
  *                                                group-priority order,
@@ -61,7 +61,7 @@ use OCP\IUserSession;
  *                                                and the self-introspection
  *                                                endpoint in one
  *                                                cohesive admin namespace.
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Admin coordination
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Admin coordination
  *                                                  spans multiple
  *                                                  injected services
  *                                                  (templates, settings,
@@ -73,9 +73,9 @@ use OCP\IUserSession;
  *                                                  splitting the controller
  *                                                  would fragment the routing
  *                                                  surface.
- * @SuppressWarnings(PHPMD.Superglobals)            $_FILES is the only
+ * @SuppressWarnings(PHPMD.Superglobals)             $_FILES is the only
  *                                                  multipart entry point.
- * @SuppressWarnings(PHPMD.LongVariable)            `footerBackgroundColor`
+ * @SuppressWarnings(PHPMD.LongVariable)             `footerBackgroundColor`
  *                                                  / `footerTextColor` mirror
  *                                                  the API contract field
  *                                                  names verbatim — shortening

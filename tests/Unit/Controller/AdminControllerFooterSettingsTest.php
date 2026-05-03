@@ -68,7 +68,10 @@ class AdminControllerFooterSettingsTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->createMock(ExportService::class),
             importService: $this->createMock(ImportService::class),
+            roleService: $this->createMock(\OCA\MyDash\Service\RoleService::class),
+            feedRefresh: $this->createMock(\OCA\MyDash\Service\FeedRefreshService::class),
             footerService: $this->footerService,
+            setupWizardService: $this->createMock(\OCA\MyDash\Service\SetupWizardService::class),
         );
     }
 

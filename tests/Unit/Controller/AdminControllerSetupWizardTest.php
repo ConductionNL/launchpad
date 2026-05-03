@@ -63,6 +63,9 @@ class AdminControllerSetupWizardTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->createMock(ExportService::class),
             importService: $this->createMock(ImportService::class),
+            roleService: $this->createMock(\OCA\MyDash\Service\RoleService::class),
+            feedRefresh: $this->createMock(\OCA\MyDash\Service\FeedRefreshService::class),
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
             setupWizardService: $this->wizardService,
         );
     }

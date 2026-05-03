@@ -72,7 +72,12 @@ class AdminControllerRefreshFeedsTest extends TestCase
             settingsService: $this->settingsService,
             groupManager: $this->groupManager,
             userSession: $this->userSession,
+            exportService: $this->createMock(\OCA\MyDash\Service\ExportService::class),
+            importService: $this->createMock(\OCA\MyDash\Service\ImportService::class),
+            roleService: $this->createMock(\OCA\MyDash\Service\RoleService::class),
             feedRefresh: $this->feedRefresh,
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
+            setupWizardService: $this->createMock(\OCA\MyDash\Service\SetupWizardService::class),
         );
     }//end setUp()
 

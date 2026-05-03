@@ -24,15 +24,6 @@ use OCP\AppFramework\Db\Entity;
 /**
  * Dashboard entity for storing dashboard configuration.
  *
- * @SuppressWarnings(PHPMD.TooManyFields)
- *      Each field maps to a documented column on `oc_mydash_dashboards`
- *      that the frontend or service layer reads directly; splitting
- *      would break the entity↔DB row contract. Aggregates personal,
- *      group-shared, hierarchy, publication-state, footer-override and
- *      template-discovery columns on a single row; cross-cutting
- *      capabilities use the same table per the admin-templates /
- *      dashboard-tree / footer-customization designs.
- *
  * @method string|null getUuid()
  * @method void setUuid(?string $uuid)
  * @method string|null getName()
@@ -90,21 +81,31 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
  *
- * @SuppressWarnings(PHPMD.TooManyFields) Each new capability adds one
- *                                          column (groupId, isDefault,
- *                                          isActive, commentsEnabled,
- *                                          reactionsEnabled,
- *                                          dashboardFooterMode,
- *                                          dashboardFooterHtml,
- *                                          templateCategory,
- *                                          templateDescription,
- *                                          templatePreviewImage, ...).
- *                                          The entity is the single source
- *                                          of truth for dashboard state
- *                                          and splitting it would force
- *                                          every cascade listener and
- *                                          the resolver to juggle two
- *                                          objects.
+ * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
+ *                                        column on `oc_mydash_dashboards`
+ *                                        that the frontend or service
+ *                                        layer reads directly; splitting
+ *                                        would break the entity↔DB row
+ *                                        contract. Each new capability
+ *                                        adds one column (groupId,
+ *                                        isDefault, isActive,
+ *                                        commentsEnabled,
+ *                                        reactionsEnabled,
+ *                                        dashboardFooterMode,
+ *                                        dashboardFooterHtml,
+ *                                        templateCategory,
+ *                                        templateDescription,
+ *                                        templatePreviewImage, ...).
+ *                                        Aggregates personal,
+ *                                        group-shared, hierarchy,
+ *                                        publication-state,
+ *                                        footer-override and
+ *                                        template-discovery columns on a
+ *                                        single row; cross-cutting
+ *                                        capabilities use the same table
+ *                                        per the admin-templates /
+ *                                        dashboard-tree /
+ *                                        footer-customization designs.
  */
 class Dashboard extends Entity implements JsonSerializable
 {

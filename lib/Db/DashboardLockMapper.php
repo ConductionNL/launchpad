@@ -228,6 +228,37 @@ class DashboardLockMapper extends QBMapper
     }//end deleteByDashboardUuid()
 
     /**
+     * Count every stale lock row across all dashboards.
+     *
+     * Mirror of {@see self::deleteAllExpired()} for the orphaned-data
+     * cleanup scan path (REQ-CLN-001). Same `updated_at < now - 15
+     * min` predicate so the scan total matches the purge delete count
+     * one-to-one.
+     *
+     * @return int The number of stale rows.
+     */
+    public function countAllExpired(): int
+    {
+        $threshold = $this->expiryThreshold();
+
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('*'))
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->lt(
+                    x: 'updated_at',
+                    y: $qb->createNamedParameter(value: $threshold)
+                )
+            );
+
+        $result = $qb->executeQuery();
+        $count  = $result->fetchOne();
+        $result->closeCursor();
+
+        return (int) ($count ?? 0);
+    }//end countAllExpired()
+
+    /**
      * Compute the active-lock threshold timestamp (`now - 15 min`).
      *
      * Centralised so the in-query expiry filter and the explicit

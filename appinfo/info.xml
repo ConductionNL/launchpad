@@ -76,6 +76,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<search/>
 	</types>
 
+	<background-jobs>
+		<job>OCA\MyDash\BackgroundJob\OrphanedDataCleanupJob</job>
+	</background-jobs>
+
 	<settings>
 		<admin>OCA\MyDash\Settings\MyDashAdmin</admin>
 		<admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>
@@ -96,6 +100,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\MyDash\Command\I18nExportStringsCommand</command>
 		<command>OCA\MyDash\Command\I18nMigrateLanguageStructureCommand</command>
 		<command>OCA\MyDash\Command\I18nCopyNavigationCommand</command>
+		<!-- REQ-OCLN-001..009: orphaned-data cleanup CLI. -->
+		<command>OCA\MyDash\Command\CleanupScanCommand</command>
+		<command>OCA\MyDash\Command\CleanupPurgeCommand</command>
 	</commands>
 
 	<navigations>

@@ -327,5 +327,13 @@ return [
 		// Background feed-refresh trigger (REQ-FRJ-010). Admin-only via
 		// runtime `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'admin#refreshFeedsNow', 'url' => '/api/admin/feeds/refresh-now', 'verb' => 'POST'],
+
+		// Orphaned-data cleanup admin endpoints (REQ-CLN-004, REQ-CLN-005).
+		// Both routes admin-only via runtime `IGroupManager::isAdmin`
+		// check inside `AdminCleanupController::requireAdmin()`. Mounted
+		// under `/api/admin/cleanup/...` to mirror the existing
+		// `/api/admin/...` admin surface.
+		['name' => 'admin_cleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
+		['name' => 'admin_cleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
 	],
 ];

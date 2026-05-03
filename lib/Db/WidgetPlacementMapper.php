@@ -313,6 +313,87 @@ class WidgetPlacementMapper extends QBMapper
     }//end cloneToDashboard()
 
     /**
+     * Count placement rows whose `dashboard_id` no longer points at
+     * any row in `mydash_dashboards`.
+     *
+     * Used by the orphaned-data-cleanup scan path (REQ-CLN-001).
+     * Placements are normally cleared by `DashboardService::delete()`;
+     * a row left behind here usually indicates a crashed delete path
+     * or a manual SQL operation.
+     *
+     * @return int The number of orphaned placement rows.
+     */
+    public function countOrphaned(): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('p.id'))
+            ->from(from: $this->getTableName(), alias: 'p')
+            ->leftJoin(
+                fromAlias: 'p',
+                join: 'mydash_dashboards',
+                alias: 'd',
+                condition: 'd.id = p.dashboard_id'
+            )
+            ->where($qb->expr()->isNull(x: 'd.id'));
+
+        $result = $qb->executeQuery();
+        $count  = $result->fetchOne();
+        $result->closeCursor();
+
+        return (int) ($count ?? 0);
+    }//end countOrphaned()
+
+    /**
+     * Delete placement rows whose `dashboard_id` no longer points at
+     * any row in `mydash_dashboards`.
+     *
+     * Companion to {@see self::countOrphaned()} on the purge path
+     * (REQ-CLN-002). Resolves the orphan IDs first via a SELECT and
+     * then deletes by primary key for portability across drivers.
+     *
+     * @return int The number of rows deleted.
+     */
+    public function deleteOrphaned(): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: 'p.id')
+            ->from(from: $this->getTableName(), alias: 'p')
+            ->leftJoin(
+                fromAlias: 'p',
+                join: 'mydash_dashboards',
+                alias: 'd',
+                condition: 'd.id = p.dashboard_id'
+            )
+            ->where($qb->expr()->isNull(x: 'd.id'));
+
+        $result = $qb->executeQuery();
+        $ids    = [];
+        while (($row = $result->fetch()) !== false) {
+            $ids[] = (int) $row['id'];
+        }
+
+        $result->closeCursor();
+
+        if (count(value: $ids) === 0) {
+            return 0;
+        }
+
+        $delete = $this->db->getQueryBuilder();
+        $delete->delete(delete: $this->getTableName())
+            ->where(
+                $delete->expr()->in(
+                    x: 'id',
+                    y: $delete->createNamedParameter(
+                        value: $ids,
+                        type: IQueryBuilder::PARAM_INT_ARRAY
+                    )
+                )
+            );
+
+        return $delete->executeStatement();
+    }//end deleteOrphaned()
+
+    /**
      * Get max sort order for a dashboard.
      *
      * @param int $dashboardId The dashboard ID.

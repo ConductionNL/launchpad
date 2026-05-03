@@ -48,6 +48,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import MenuWidget from '../components/Widgets/Renderers/MenuWidget.vue'
+import MenuForm from '../components/Widgets/Forms/MenuForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -121,6 +123,20 @@ export const widgetRegistry = {
 			displayMode: 'vertical',
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
+		icon: 'ViewDashboard',
+	},
+	menu: {
+		renderer: MenuWidget,
+		form: MenuForm,
+		defaultContent: {
+			items: [],
+			style: 'dropdown',
+			orientation: 'horizontal',
+			showIcons: true,
+			expandedByDefault: false,
+			activeItemHighlight: 'underline',
+		},
+		displayName: t('mydash', 'Menu'),
 		icon: 'ViewDashboard',
 	},
 }

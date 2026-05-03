@@ -140,6 +140,13 @@ return [
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 
+		// Global footer settings (REQ-FTR-001, REQ-FTR-010). Both
+		// admin-only via runtime `IGroupManager::isAdmin` check inside
+		// the controller. The PUT verb is a partial-patch contract —
+		// only keys present in the body are mutated.
+		['name' => 'admin#getFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'GET'],
+		['name' => 'admin#updateFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'PUT'],
+
 		// Admin group-priority order endpoints (REQ-ASET-012,
 		// REQ-ASET-013, REQ-ASET-014). Both admin-only via runtime
 		// `IGroupManager::isAdmin` check inside the controller.

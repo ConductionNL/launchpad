@@ -85,6 +85,51 @@ class AdminSetting extends Entity implements JsonSerializable
     public const KEY_LINK_CREATE_FILE_EXTENSIONS = 'link_create_file_extensions';
 
     /**
+     * Setting key for the global footer master toggle (REQ-FTR-001).
+     * Boolean; default `false` (footer hidden out of the box).
+     *
+     * @var string
+     */
+    public const KEY_FOOTER_ENABLED = 'footer_enabled';
+
+    /**
+     * Setting key for the raw HTML footer body (REQ-FTR-002).
+     * String, max 8 KB; sanitised server-side before persistence.
+     * Defaults to empty string when unset.
+     *
+     * @var string
+     */
+    public const KEY_FOOTER_HTML = 'footer_html';
+
+    /**
+     * Setting key for the structured-mode footer config (REQ-FTR-003).
+     * JSON object with the documented keys
+     * (`logoUrl?, organisation?, address?, links?, legal?, copyrightYear?, layoutMode`).
+     * Defaults to empty object when unset.
+     *
+     * @var string
+     */
+    public const KEY_FOOTER_CONFIG = 'footer_config';
+
+    /**
+     * Setting key for the optional footer background-colour override
+     * (REQ-FTR-009). Hex string (`#rrggbb` or `#rgb`) or NULL to fall
+     * back to the NC theme variable.
+     *
+     * @var string
+     */
+    public const KEY_FOOTER_BACKGROUND_COLOR = 'footer_background_color';
+
+    /**
+     * Setting key for the optional footer text-colour override
+     * (REQ-FTR-009). Hex string (`#rrggbb` or `#rgb`) or NULL to fall
+     * back to the NC theme variable.
+     *
+     * @var string
+     */
+    public const KEY_FOOTER_TEXT_COLOR = 'footer_text_color';
+
+    /**
      * The setting key.
      *
      * @var string

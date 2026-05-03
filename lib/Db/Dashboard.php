@@ -24,6 +24,11 @@ use OCP\AppFramework\Db\Entity;
 /**
  * Dashboard entity for storing dashboard configuration.
  *
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ *      Each field maps to a documented column on `oc_mydash_dashboards`
+ *      that the frontend or service layer reads directly; splitting
+ *      would break the entity↔DB row contract.
+ *
  * @method string|null getUuid()
  * @method void setUuid(?string $uuid)
  * @method string|null getName()
@@ -66,6 +71,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setPublishAt(?string $publishAt)
  * @method string|null getPublishedAt()
  * @method void setPublishedAt(?string $publishedAt)
+ * @method string getDashboardFooterMode()
+ * @method void setDashboardFooterMode(string $dashboardFooterMode)
+ * @method string|null getDashboardFooterHtml()
+ * @method void setDashboardFooterHtml(?string $dashboardFooterHtml)
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -193,6 +202,45 @@ class Dashboard extends Entity implements JsonSerializable
      * @var string
      */
     public const PERMISSION_FULL = 'full';
+
+    /**
+     * Footer mode: dashboard inherits the global instance footer
+     * (or none if globally disabled). REQ-FTR-006.
+     *
+     * @var string
+     */
+    public const FOOTER_MODE_INHERIT = 'inherit';
+
+    /**
+     * Footer mode: dashboard hides the footer regardless of any
+     * globally-enabled footer. REQ-FTR-006.
+     *
+     * @var string
+     */
+    public const FOOTER_MODE_HIDDEN = 'hidden';
+
+    /**
+     * Footer mode: dashboard renders its own
+     * {@see Dashboard::$dashboardFooterHtml} (sanitised identically to
+     * the global HTML), bypassing the instance footer entirely.
+     * REQ-FTR-006.
+     *
+     * @var string
+     */
+    public const FOOTER_MODE_CUSTOM = 'custom';
+
+    /**
+     * Allow-list of legal {@see Dashboard::$dashboardFooterMode} values.
+     * Used by `DashboardService::applyDashboardUpdates()` to validate
+     * patches before persisting (REQ-FTR-006).
+     *
+     * @var array<int, string>
+     */
+    public const FOOTER_MODES = [
+        self::FOOTER_MODE_INHERIT,
+        self::FOOTER_MODE_HIDDEN,
+        self::FOOTER_MODE_CUSTOM,
+    ];
 
     /**
      * The UUID.
@@ -389,6 +437,36 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $publishedAt = null;
 
     /**
+     * Per-dashboard footer override mode (REQ-FTR-006).
+     *
+     * One of {@see Dashboard::FOOTER_MODE_INHERIT},
+     * {@see Dashboard::FOOTER_MODE_HIDDEN},
+     * {@see Dashboard::FOOTER_MODE_CUSTOM}. Defaults to `inherit` so
+     * dashboards created before the migration ran (and any newly
+     * persisted entity that does not explicitly set a mode) follow
+     * the instance-wide footer setting. Invariant enforced at the
+     * service layer: when the mode is `custom`,
+     * {@see Dashboard::$dashboardFooterHtml} MUST be a non-empty
+     * sanitised HTML string; for both `inherit` and `hidden` it MUST
+     * be NULL (the service clears stale HTML on mode flip).
+     *
+     * @var string
+     */
+    protected string $dashboardFooterMode = self::FOOTER_MODE_INHERIT;
+
+    /**
+     * Per-dashboard footer HTML (REQ-FTR-006).
+     *
+     * Sanitised server-side via the same allow-list as the global
+     * footer (footer-customization design D4). Only consulted when
+     * {@see Dashboard::$dashboardFooterMode} is
+     * {@see Dashboard::FOOTER_MODE_CUSTOM}; NULL otherwise.
+     *
+     * @var string|null
+     */
+    protected ?string $dashboardFooterHtml = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -450,28 +528,34 @@ class Dashboard extends Entity implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id'                => $this->getId(),
-            'uuid'              => $this->uuid,
-            'name'              => $this->name,
-            'description'       => $this->description,
-            'icon'              => $this->icon,
-            'type'              => $this->type,
-            'userId'            => $this->userId,
-            'groupId'           => $this->groupId,
-            'basedOnTemplate'   => $this->basedOnTemplate,
-            'gridColumns'       => $this->gridColumns,
-            'permissionLevel'   => $this->permissionLevel,
-            'targetGroups'      => $this->getTargetGroupsArray(),
-            'isDefault'         => $this->isDefault,
-            'isActive'          => $this->isActive,
-            'createdAt'         => $this->createdAt,
-            'updatedAt'         => $this->updatedAt,
-            'parentUuid'        => $this->parentUuid,
-            'slug'              => $this->slug,
-            'sortOrder'         => $this->sortOrder,
-            'publicationStatus' => $this->publicationStatus,
-            'publishAt'         => $this->publishAt,
-            'publishedAt'       => $this->publishedAt,
+            'id'                  => $this->getId(),
+            'uuid'                => $this->uuid,
+            'name'                => $this->name,
+            'description'         => $this->description,
+            'icon'                => $this->icon,
+            'type'                => $this->type,
+            'userId'              => $this->userId,
+            'groupId'             => $this->groupId,
+            'basedOnTemplate'     => $this->basedOnTemplate,
+            'gridColumns'         => $this->gridColumns,
+            'permissionLevel'     => $this->permissionLevel,
+            'targetGroups'        => $this->getTargetGroupsArray(),
+            'isDefault'           => $this->isDefault,
+            'isActive'            => $this->isActive,
+            'createdAt'           => $this->createdAt,
+            'updatedAt'           => $this->updatedAt,
+            'parentUuid'          => $this->parentUuid,
+            'slug'                => $this->slug,
+            'sortOrder'           => $this->sortOrder,
+            'publicationStatus'   => $this->publicationStatus,
+            'publishAt'           => $this->publishAt,
+            'publishedAt'         => $this->publishedAt,
+            // REQ-FTR-006 — surface the per-dashboard footer override
+            // fields on every API payload so frontend renderers can
+            // decide whether to draw an instance footer, hide it, or
+            // render the dashboard-specific HTML.
+            'dashboardFooterMode' => $this->dashboardFooterMode,
+            'dashboardFooterHtml' => $this->dashboardFooterHtml,
         ];
     }//end jsonSerialize()
 }//end class

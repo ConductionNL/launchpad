@@ -103,6 +103,7 @@ class DashboardServicePersonalGatingTest extends TestCase
             config: $config,
             l10nFactory: $l10nFactory,
             logger: $logger,
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
         );
     }//end setUp()
 

@@ -112,6 +112,16 @@
 				</button>
 			</div>
 		</div>
+
+		<!-- Region 5 (footer-customization): branded footer below the
+		     dashboard grid. Renders nothing when `effectiveFooter` is
+		     null (REQ-FTR-001 disabled scenario, REQ-FTR-006 hidden
+		     mode). The payload is resolved server-side by
+		     `FooterService::resolveFooterForDashboard()` and surfaced
+		     through initial-state injection / store hydration. -->
+		<DashboardFooter
+			:footer="effectiveFooter"
+			:locale="injectedLocale" />
 	</div>
 </template>
 
@@ -121,6 +131,7 @@ import { t } from '@nextcloud/l10n'
 import Views from './Views.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import DashboardFooter from '../components/DashboardFooter.vue'
 
 import { listWidgetTypes, getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { useDashboardStore } from '../stores/dashboard.js'
@@ -158,6 +169,7 @@ export default {
 		Views,
 		SidebarBackdrop,
 		DashboardSwitcherSidebar,
+		DashboardFooter,
 	},
 
 	inject: {
@@ -192,6 +204,20 @@ export default {
 		injectedPrimaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
+		},
+		// REQ-FTR-001 / REQ-FTR-006 — initial-state surface for the
+		// effective footer payload. Defaults to NULL so the
+		// `DashboardFooter` component renders nothing until backend
+		// hydration completes.
+		injectedEffectiveFooter: {
+			from: 'effectiveFooter',
+			default: null,
+		},
+		// REQ-FTR-007 — viewer's NC locale for language-variant
+		// selection inside `DashboardFooter`.
+		injectedLocale: {
+			from: 'viewerLocale',
+			default: 'en',
 		},
 	},
 
@@ -257,6 +283,32 @@ export default {
 		 */
 		availableWidgetTypes() {
 			return listWidgetTypes()
+		},
+
+		/**
+		 * Effective footer payload (REQ-FTR-001, REQ-FTR-004, REQ-FTR-006).
+		 *
+		 * Prefers the active dashboard's `effectiveFooter` field (resolved
+		 * by the backend `FooterService::resolveFooterForDashboard()`) so
+		 * per-dashboard overrides win over the boot-time global injection.
+		 * Falls back to the initial-state injection when the active
+		 * dashboard hasn't been hydrated yet.
+		 *
+		 * @return {Object|null}
+		 */
+		effectiveFooter() {
+			if (!this.injectedActiveDashboardId) {
+				return this.injectedEffectiveFooter
+			}
+			const all = [
+				...(this.injectedUserDashboards || []),
+				...(this.injectedGroupDashboards || []),
+			]
+			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
+			if (match && Object.prototype.hasOwnProperty.call(match, 'effectiveFooter')) {
+				return match.effectiveFooter
+			}
+			return this.injectedEffectiveFooter
 		},
 	},
 

@@ -136,6 +136,7 @@ class DashboardServiceForkTest extends TestCase
             config: $this->config,
             l10nFactory: $this->l10nFactory,
             logger: $logger,
+            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
         );
     }//end setUp()
 

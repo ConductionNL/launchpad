@@ -24,6 +24,7 @@ use OCA\MyDash\Controller\AdminController;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
+use OCA\MyDash\Service\FooterService;
 use OCA\MyDash\Service\ImportService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -63,6 +64,7 @@ class AdminControllerGroupOrderTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->createMock(ExportService::class),
             importService: $this->createMock(ImportService::class),
+            footerService: $this->createMock(FooterService::class),
         );
     }
 

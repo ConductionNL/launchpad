@@ -23,12 +23,14 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
 use OCA\MyDash\Exception\InvalidRoleAssignmentException;
+use OCA\MyDash\Exception\ResourceException;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
 use OCA\MyDash\Service\FeedRefreshService;
 use OCA\MyDash\Service\FooterService;
 use OCA\MyDash\Service\ImportService;
+use OCA\MyDash\Service\ResourceService;
 use OCA\MyDash\Service\RoleService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -50,8 +52,10 @@ use OCP\IUserSession;
  *                                                role assignments,
  *                                                export/import,
  *                                                feed-refresh, footer
- *                                                customization, and the
- *                                                self-introspection
+ *                                                customization,
+ *                                                template-preview-image
+ *                                                upload (REQ-TMPL-017),
+ *                                                and the self-introspection
  *                                                endpoint in one
  *                                                cohesive admin namespace.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Admin coordination
@@ -60,6 +64,7 @@ use OCP\IUserSession;
  *                                                  (templates, settings,
  *                                                  roles, export, import,
  *                                                  feed refresh, footer,
+ *                                                  resource uploads,
  *                                                  helpers) by design —
  *                                                  splitting the controller
  *                                                  would fragment the routing
@@ -849,6 +854,83 @@ class AdminController extends Controller
 
         return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
     }//end refreshFeedsNow()
+
+    /**
+     * `POST /api/admin/templates/{uuid}/preview-image` — admin-only
+     * preview-image upload (REQ-TMPL-017).
+     *
+     * Body (JSON): `{base64: 'data:image/<type>;base64,<bytes>'}`. The
+     * payload is delegated to {@see ResourceService::upload()} (the
+     * "custom-icon-upload pattern"); the returned URL is written to the
+     * template's `templatePreviewImage` column. Allowed image types:
+     * PNG, JPG, GIF, WebP, SVG (sanitised). Maximum decoded size: 5 MB.
+     *
+     * @param string $uuid   The template UUID.
+     * @param string $base64 The base64 data URL.
+     *
+     * @return JSONResponse `{status: 'success', previewImage: '...'}`
+     *                      on success.
+     *
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function uploadTemplatePreviewImage(
+        string $uuid,
+        string $base64=''
+    ): JSONResponse {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        if ($base64 === '') {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'invalid_payload',
+                    'message' => 'Field "base64" is required',
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        try {
+            $url = $this->templateService->uploadPreviewImage(
+                templateUuid: $uuid,
+                base64DataUrl: $base64
+            );
+        } catch (DoesNotExistException $e) {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'not_found',
+                    'message' => 'Template not found',
+                ],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
+        } catch (ResourceException $e) {
+            // Catches every typed ResourceException subclass (bad data URL,
+            // disallowed image format, oversized payload, SVG sanitiser
+            // rejection, storage failure) returned by ResourceService::upload
+            // — all collapse to a single 400 envelope per REQ-TMPL-017.
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'invalid_image',
+                    'message' => $e->getMessage(),
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }//end try
+
+        return new JSONResponse(
+            data: [
+                'status'       => 'success',
+                'previewImage' => $url,
+            ],
+            statusCode: Http::STATUS_OK
+        );
+    }//end uploadTemplatePreviewImage()
 
     /**
      * Verify the current session belongs to a Nextcloud admin.

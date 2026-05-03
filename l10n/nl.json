@@ -792,6 +792,20 @@
         "Group ids, comma separated": "Groep-ID's, komma-gescheiden",
         "Tree depth cannot exceed 3 levels": "Boomdiepte mag niet groter dan 3 niveaus zijn",
         "No navigation configured. Add a section or link to start building the tree.": "Geen navigatie geconfigureerd. Voeg een sectie of link toe om de boom te bouwen.",
-        "Navigation saved successfully.": "Navigatie opgeslagen."
+        "Navigation saved successfully.": "Navigatie opgeslagen.",
+        "Save as template": "Opslaan als sjabloon",
+        "Template gallery": "Sjabloongalerij",
+        "Preview image": "Voorbeeldafbeelding",
+        "Invalid image format": "Ongeldig afbeeldingsformaat",
+        "All categories": "Alle categorieën",
+        "Recently updated": "Recent bijgewerkt",
+        "No templates available": "Geen sjablonen beschikbaar",
+        "Could not load template gallery": "Kon de sjabloongalerij niet laden",
+        "Could not save dashboard as template": "Kon het dashboard niet als sjabloon opslaan",
+        "You can only save your own dashboards as templates": "Je kunt alleen je eigen dashboards als sjabloon opslaan",
+        "Describe the template purpose": "Beschrijf het doel van het sjabloon",
+        "e.g. marketing, engineering": "bijv. marketing, engineering",
+        "{count} widgets": "{count} widgets",
+        "Category": "Categorie"
     }
 }

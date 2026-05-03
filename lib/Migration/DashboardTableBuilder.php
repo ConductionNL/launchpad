@@ -43,6 +43,7 @@ class DashboardTableBuilder
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
+        self::addTemplateDiscoveryColumns(table: $table);
     }//end create()
 
     /**
@@ -417,4 +418,64 @@ class DashboardTableBuilder
             );
         }
     }//end addFooterColumns()
+
+    /**
+     * Apply the template-discovery schema (REQ-TMPL-014..017) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds three nullable metadata columns (`template_category`,
+     * `template_description`, `template_preview_image`) plus the
+     * `(type, template_category)` composite index used by the gallery
+     * filter path in `DashboardMapper::findAllTemplatesForGallery()`.
+     * The base `WHERE type = 'admin_template'` query path already
+     * benefits from the existing single-column `type` index. Idempotent —
+     * every check is `hasColumn` / `hasIndex` first.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     */
+    public static function addTemplateDiscoveryColumns($table): void
+    {
+        if ($table->hasColumn(name: 'template_category') === false) {
+            $table->addColumn(
+                name: 'template_category',
+                typeName: Types::STRING,
+                options: [
+                    'notnull' => false,
+                    'length'  => 64,
+                    'comment' => 'Free-form gallery category for admin templates. REQ-TMPL-016.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'template_description') === false) {
+            $table->addColumn(
+                name: 'template_description',
+                typeName: Types::TEXT,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Long-form gallery description for admin templates. REQ-TMPL-016.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn(name: 'template_preview_image') === false) {
+            $table->addColumn(
+                name: 'template_preview_image',
+                typeName: Types::TEXT,
+                options: [
+                    'notnull' => false,
+                    'comment' => 'Preview image URL stored via the resource-uploads pattern. REQ-TMPL-017.',
+                ]
+            );
+        }
+
+        if ($table->hasIndex(name: 'mydash_tpl_type_cat') === false) {
+            $table->addIndex(
+                columnNames: ['type', 'template_category'],
+                indexName: 'mydash_tpl_type_cat'
+            );
+        }
+    }//end addTemplateDiscoveryColumns()
 }//end class

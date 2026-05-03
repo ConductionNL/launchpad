@@ -27,7 +27,11 @@ use OCP\AppFramework\Db\Entity;
  * @SuppressWarnings(PHPMD.TooManyFields)
  *      Each field maps to a documented column on `oc_mydash_dashboards`
  *      that the frontend or service layer reads directly; splitting
- *      would break the entity↔DB row contract.
+ *      would break the entity↔DB row contract. Aggregates personal,
+ *      group-shared, hierarchy, publication-state, footer-override and
+ *      template-discovery columns on a single row; cross-cutting
+ *      capabilities use the same table per the admin-templates /
+ *      dashboard-tree / footer-customization designs.
  *
  * @method string|null getUuid()
  * @method void setUuid(?string $uuid)
@@ -79,13 +83,22 @@ use OCP\AppFramework\Db\Entity;
  * @method void setDashboardFooterMode(string $dashboardFooterMode)
  * @method string|null getDashboardFooterHtml()
  * @method void setDashboardFooterHtml(?string $dashboardFooterHtml)
+ * @method string|null getTemplateCategory()
+ * @method void setTemplateCategory(?string $templateCategory)
+ * @method string|null getTemplateDescription()
+ * @method void setTemplateDescription(?string $templateDescription)
+ * @method string|null getTemplatePreviewImage()
+ * @method void setTemplatePreviewImage(?string $templatePreviewImage)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each new capability adds one
  *                                          column (groupId, isDefault,
  *                                          isActive, commentsEnabled,
  *                                          reactionsEnabled,
  *                                          dashboardFooterMode,
- *                                          dashboardFooterHtml, ...).
+ *                                          dashboardFooterHtml,
+ *                                          templateCategory,
+ *                                          templateDescription,
+ *                                          templatePreviewImage, ...).
  *                                          The entity is the single source
  *                                          of truth for dashboard state
  *                                          and splitting it would force
@@ -519,6 +532,42 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $dashboardFooterHtml = null;
 
     /**
+     * The template gallery category (REQ-TMPL-016).
+     *
+     * Free-form admin-curated label (max 64 chars). NULL means "no
+     * category" — surfaced in the gallery alongside categorised templates
+     * (sorted last by the default `(category NULLS LAST, name)` ordering).
+     * Only meaningful for rows with `type = 'admin_template'`; ignored on
+     * `user` and `group_shared` rows.
+     *
+     * @var string|null
+     */
+    protected ?string $templateCategory = null;
+
+    /**
+     * The template gallery long-form description (REQ-TMPL-016).
+     *
+     * Stored in a TEXT column so callers can use richer prose than the
+     * regular {@see Dashboard::$description} field. Surfaced verbatim
+     * in the gallery card. Only meaningful for `admin_template` rows.
+     *
+     * @var string|null
+     */
+    protected ?string $templateDescription = null;
+
+    /**
+     * The template gallery preview image URL (REQ-TMPL-017).
+     *
+     * URL produced by the resource-uploads pipeline (typically
+     * `/apps/mydash/resource/<filename>`); stored verbatim. NULL means
+     * "no preview image" — gallery card renders a placeholder. Only
+     * meaningful for `admin_template` rows.
+     *
+     * @var string|null
+     */
+    protected ?string $templatePreviewImage = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -584,37 +633,40 @@ class Dashboard extends Entity implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id'                  => $this->getId(),
-            'uuid'                => $this->uuid,
-            'name'                => $this->name,
-            'description'         => $this->description,
-            'icon'                => $this->icon,
-            'type'                => $this->type,
-            'userId'              => $this->userId,
-            'groupId'             => $this->groupId,
-            'basedOnTemplate'     => $this->basedOnTemplate,
-            'gridColumns'         => $this->gridColumns,
-            'permissionLevel'     => $this->permissionLevel,
-            'targetGroups'        => $this->getTargetGroupsArray(),
-            'isDefault'           => $this->isDefault,
-            'isActive'            => $this->isActive,
-            'commentsEnabled'     => $this->commentsEnabled,
+            'id'                   => $this->getId(),
+            'uuid'                 => $this->uuid,
+            'name'                 => $this->name,
+            'description'          => $this->description,
+            'icon'                 => $this->icon,
+            'type'                 => $this->type,
+            'userId'               => $this->userId,
+            'groupId'              => $this->groupId,
+            'basedOnTemplate'      => $this->basedOnTemplate,
+            'gridColumns'          => $this->gridColumns,
+            'permissionLevel'      => $this->permissionLevel,
+            'targetGroups'         => $this->getTargetGroupsArray(),
+            'isDefault'            => $this->isDefault,
+            'isActive'             => $this->isActive,
+            'commentsEnabled'      => $this->commentsEnabled,
             // REQ-RXN-006 — null/1/0 tri-state.
-            'reactionsEnabled'    => $this->reactionsEnabled,
-            'createdAt'           => $this->createdAt,
-            'updatedAt'           => $this->updatedAt,
-            'parentUuid'          => $this->parentUuid,
-            'slug'                => $this->slug,
-            'sortOrder'           => $this->sortOrder,
-            'publicationStatus'   => $this->publicationStatus,
-            'publishAt'           => $this->publishAt,
-            'publishedAt'         => $this->publishedAt,
+            'reactionsEnabled'     => $this->reactionsEnabled,
+            'createdAt'            => $this->createdAt,
+            'updatedAt'            => $this->updatedAt,
+            'parentUuid'           => $this->parentUuid,
+            'slug'                 => $this->slug,
+            'sortOrder'            => $this->sortOrder,
+            'publicationStatus'    => $this->publicationStatus,
+            'publishAt'            => $this->publishAt,
+            'publishedAt'          => $this->publishedAt,
             // REQ-FTR-006 — surface the per-dashboard footer override
             // fields on every API payload so frontend renderers can
             // decide whether to draw an instance footer, hide it, or
             // render the dashboard-specific HTML.
-            'dashboardFooterMode' => $this->dashboardFooterMode,
-            'dashboardFooterHtml' => $this->dashboardFooterHtml,
+            'dashboardFooterMode'  => $this->dashboardFooterMode,
+            'dashboardFooterHtml'  => $this->dashboardFooterHtml,
+            'templateCategory'     => $this->templateCategory,
+            'templateDescription'  => $this->templateDescription,
+            'templatePreviewImage' => $this->templatePreviewImage,
         ];
     }//end jsonSerialize()
 

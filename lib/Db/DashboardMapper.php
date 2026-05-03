@@ -32,6 +32,9 @@ use OCP\IDBConnection;
  * @extends QBMapper<Dashboard>
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Personal + group-shared
+ *  + tree + publication-state + template-discovery query paths converge here
+ *  per the cross-cutting `dashboards` table design.
  */
 class DashboardMapper extends QBMapper
 {
@@ -883,6 +886,127 @@ class DashboardMapper extends QBMapper
 
         return $this->findEntities(query: $qb);
     }//end findDueScheduled()
+
+    /**
+     * Find all admin templates for the discovery gallery (REQ-TMPL-014).
+     *
+     * Lists rows with `type = 'admin_template'`, optionally filtered to
+     * a single `template_category`. Sort order:
+     *   - `sortBy = 'name'` (default): `template_category` ascending with
+     *     NULL values last, then `name` ascending — matches the gallery's
+     *     "group by category, alphabetical inside each group" UX.
+     *   - `sortBy = 'updatedAt'`: `updated_at` descending (most recent
+     *     first) for the "Recently updated" tab.
+     *
+     * No widget placements are fetched — the gallery is a list view, not
+     * a render. Callers wanting a count of placements per template should
+     * issue a single follow-up query (or use a lightweight COUNT query)
+     * rather than N+1 over `findByDashboardId`.
+     *
+     * @param string|null $category Optional category exact-match filter
+     *                              (NULL → no filter).
+     * @param string      $sortBy   Sort key: `'name'` (default) or
+     *                              `'updatedAt'`.
+     *
+     * @return Dashboard[] The matching admin templates.
+     */
+    public function findAllTemplatesForGallery(
+        ?string $category=null,
+        string $sortBy='name'
+    ): array {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'type',
+                    y: $qb->createNamedParameter(
+                        value: Dashboard::TYPE_ADMIN_TEMPLATE
+                    )
+                )
+            );
+
+        if ($category !== null && $category !== '') {
+            $qb->andWhere(
+                $qb->expr()->eq(
+                    x: 'template_category',
+                    y: $qb->createNamedParameter(value: $category)
+                )
+            );
+        }
+
+        if ($sortBy === 'updatedAt') {
+            $qb->orderBy(sort: 'updated_at', order: 'DESC');
+        } else {
+            // Default: category ASC (NULL last), then name ASC. NULL
+            // ordering portability differs across drivers; the
+            // ISNULL-style synthetic column is widely supported via
+            // CASE WHEN.
+            $qb->orderBy(
+                sort: 'CASE WHEN template_category IS NULL THEN 1 ELSE 0 END',
+                order: 'ASC'
+            )
+                ->addOrderBy(sort: 'template_category', order: 'ASC')
+                ->addOrderBy(sort: 'name', order: 'ASC');
+        }
+
+        return $this->findEntities(query: $qb);
+    }//end findAllTemplatesForGallery()
+
+    /**
+     * Find a personal dashboard by `(userId, uuid)` for the
+     * save-as-template ownership check (REQ-TMPL-015).
+     *
+     * Restricts to `type = 'user'` so admins cannot save group-shared or
+     * admin-template rows as templates via this code path. Returns
+     * `null` when no row matches — caller treats as forbidden / not
+     * found per the REQ-TMPL-015 contract.
+     *
+     * @param string $userId The owning user ID.
+     * @param string $uuid   The dashboard UUID.
+     *
+     * @return Dashboard|null The owned dashboard, or `null` when no
+     *                        match.
+     */
+    public function findOwnedByUserAndUuid(
+        string $userId,
+        string $uuid
+    ): ?Dashboard {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'user_id',
+                    y: $qb->createNamedParameter(value: $userId)
+                )
+            )
+            ->andWhere(
+                $qb->expr()->eq(
+                    x: 'uuid',
+                    y: $qb->createNamedParameter(value: $uuid)
+                )
+            )
+            ->andWhere(
+                $qb->expr()->eq(
+                    x: 'type',
+                    y: $qb->createNamedParameter(
+                        value: Dashboard::TYPE_USER
+                    )
+                )
+            )
+            ->setMaxResults(maxResults: 1);
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false) {
+            return null;
+        }
+
+        return Dashboard::fromRow($row);
+    }//end findOwnedByUserAndUuid()
 
     /**
      * Clear default flag on all admin templates.

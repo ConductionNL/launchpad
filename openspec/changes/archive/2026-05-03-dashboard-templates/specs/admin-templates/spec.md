@@ -19,7 +19,12 @@ status: draft
 
 ## ADDED Requirements
 
-### Requirement: REQ-TMPL-012 Template Gallery Endpoint
+> NOTE (Numbering): The numbers REQ-TMPL-012 and REQ-TMPL-013 are already used by the canonical
+> spec for the primary-group routing resolver (`AdminTemplateService::resolvePrimaryGroup`) and the
+> `getUserGroupIdsFor` single-source-of-truth grep guard. The four new requirements introduced by
+> this change therefore start at REQ-TMPL-014.
+
+### Requirement: REQ-TMPL-014 Template Gallery Endpoint
 
 The system MUST expose a read-only gallery endpoint that lists all `admin_template` dashboards with metadata suitable for discovery and instantiation.
 
@@ -65,7 +70,7 @@ The system MUST expose a read-only gallery endpoint that lists all `admin_templa
 - THEN the template MUST be included
 - AND when calling `GET /api/templates/gallery?category=marketing`, the template with `null` category MUST NOT be included
 
-### Requirement: REQ-TMPL-013 Save-as-template Action
+### Requirement: REQ-TMPL-015 Save-as-template Action
 
 Any dashboard owner MUST be able to convert their current dashboard into a reusable admin template, creating a snapshot with a fresh UUID and a deep-copied widget tree.
 
@@ -124,7 +129,7 @@ Any dashboard owner MUST be able to convert their current dashboard into a reusa
   - `templatePreviewImage: null`
 - AND HTTP 201 MUST be returned with the new template
 
-### Requirement: REQ-TMPL-014 Template Metadata Fields
+### Requirement: REQ-TMPL-016 Template Metadata Fields
 
 Admin templates MUST support three new metadata fields for categorization and discovery.
 
@@ -158,7 +163,7 @@ Admin templates MUST support three new metadata fields for categorization and di
 - THEN the response MUST include the fields with null values
 - AND no error MUST be thrown
 
-### Requirement: REQ-TMPL-015 Preview Image Upload Endpoint
+### Requirement: REQ-TMPL-017 Preview Image Upload Endpoint
 
 Administrators MUST be able to upload a preview image for a template via multipart form, persisted using the existing dashboard-icons upload pattern.
 
@@ -219,10 +224,10 @@ Administrators MUST be able to upload a preview image for a template via multipa
 
 **Not yet implemented:**
 
-- REQ-TMPL-012 (Gallery endpoint): No `/api/templates/gallery` endpoint exists.
-- REQ-TMPL-013 (Save-as-template): No `/api/dashboards/{uuid}/save-as-template` endpoint exists.
-- REQ-TMPL-014 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns do not exist on `oc_mydash_dashboards`.
-- REQ-TMPL-015 (Preview image upload): No `/api/admin/templates/{uuid}/preview-image` endpoint exists.
+- REQ-TMPL-014 (Gallery endpoint): No `/api/templates/gallery` endpoint exists.
+- REQ-TMPL-015 (Save-as-template): No `/api/dashboards/{uuid}/save-as-template` endpoint exists.
+- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns do not exist on `oc_mydash_dashboards`.
+- REQ-TMPL-017 (Preview image upload): No `/api/admin/templates/{uuid}/preview-image` endpoint exists.
 
 ### Standards & References
 

@@ -276,9 +276,24 @@ return [
 		['name' => 'feed#publicFeed', 'url' => '/feed/{token}.xml', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9_\-]+']],
 
+		// Template gallery + save-as-template (REQ-TMPL-014, REQ-TMPL-015).
+		// `gallery` is logged-in-user only (not admin); `saveAsTemplate` is
+		// owner-only with the check inside the service. Registered BEFORE
+		// the personal `/api/dashboard/{id}` routes so the literal
+		// `templates/gallery` and `save-as-template` segments win in the
+		// router (Symfony first-match).
+		['name' => 'template#gallery', 'url' => '/api/templates/gallery', 'verb' => 'GET'],
+		['name' => 'template#saveAsTemplate', 'url' => '/api/dashboards/{uuid}/save-as-template', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// Admin endpoints
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],
+		// Preview-image upload — REQ-TMPL-017. Registered BEFORE the
+		// `/api/admin/templates/{id}` wildcard routes so the literal
+		// `{uuid}/preview-image` suffix matches first.
+		['name' => 'admin#uploadTemplatePreviewImage', 'url' => '/api/admin/templates/{uuid}/preview-image', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],

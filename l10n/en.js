@@ -784,7 +784,21 @@ OC.L10N.register(
     "Group ids, comma separated" : "Group ids, comma separated",
     "Tree depth cannot exceed 3 levels" : "Tree depth cannot exceed 3 levels",
     "No navigation configured. Add a section or link to start building the tree." : "No navigation configured. Add a section or link to start building the tree.",
-    "Navigation saved successfully." : "Navigation saved successfully."
+    "Navigation saved successfully." : "Navigation saved successfully.",
+    "Save as template" : "Save as template",
+    "Template gallery" : "Template gallery",
+    "Preview image" : "Preview image",
+    "Invalid image format" : "Invalid image format",
+    "All categories" : "All categories",
+    "Recently updated" : "Recently updated",
+    "No templates available" : "No templates available",
+    "Could not load template gallery" : "Could not load template gallery",
+    "Could not save dashboard as template" : "Could not save dashboard as template",
+    "You can only save your own dashboards as templates" : "You can only save your own dashboards as templates",
+    "Describe the template purpose" : "Describe the template purpose",
+    "e.g. marketing, engineering" : "e.g. marketing, engineering",
+    "{count} widgets" : "{count} widgets",
+    "Category" : "Category"
 },
 "nplurals=2; plural=(n != 1);"
 );

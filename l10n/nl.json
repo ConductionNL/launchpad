@@ -647,6 +647,27 @@
         "Days Ahead": "Dagen vooruit",
         "Color by Calendar": "Kleuren per kalender",
         "At least one calendar source is required": "Ten minste één kalenderbron is vereist",
-        "External ICS URLs must start with https://": "Externe ICS-URL's moeten beginnen met https://"
+        "External ICS URLs must start with https://": "Externe ICS-URL's moeten beginnen met https://",
+        "Links": "Links",
+        "Section title": "Sectietitel",
+        "Move up": "Omhoog verplaatsen",
+        "Move down": "Omlaag verplaatsen",
+        "Delete section": "Sectie verwijderen",
+        "Add section": "Sectie toevoegen",
+        "Icon (name or URL)": "Pictogram (naam of URL)",
+        "Description (optional)": "Beschrijving (optioneel)",
+        "Inline": "Inline",
+        "Icon only": "Alleen pictogram",
+        "Icon size": "Pictogramgrootte",
+        "Small (24 px)": "Klein (24 px)",
+        "Medium (40 px)": "Normaal (40 px)",
+        "Large (64 px)": "Groot (64 px)",
+        "Open in new tab": "In nieuw tabblad openen",
+        "Show section titles": "Sectietitels weergeven",
+        "Show descriptions": "Beschrijvingen weergeven",
+        "Link URL is required": "URL is verplicht",
+        "Link label is required": "Label is verplicht",
+        "Invalid URL — use HTTP(S) or relative paths.": "Ongeldige URL — gebruik HTTP(S) of relatieve paden.",
+        "No links yet — click the gear icon to add some.": "Nog geen links — klik op het tandwielpictogram om er enkele toe te voegen."
     }
 }

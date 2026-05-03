@@ -59,6 +59,12 @@
  * layout:'list', itemLimit:10, showThumbnails:true, showSummary:true,
  * summaryMaxChars:200, dateFormat:'relative', metadataFilter:null}`.
  *
+ * REQ-LNKS-001..010: The widget type `links` MUST be registered with a
+ * renderer reference to `LinksWidget.vue`, a form reference to
+ * `LinksForm.vue`, and a `defaultContent` of `{sections:[], columns:3,
+ * linkLayout:'card', iconSize:'medium', openInNewTab:true,
+ * showSectionTitles:true, showLinkDescriptions:true}`.
+ *
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
@@ -90,6 +96,8 @@ import VideoWidget from '../components/Widgets/Renderers/VideoWidget.vue'
 import VideoForm from '../components/Widgets/Forms/VideoForm.vue'
 import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
 import CalendarForm from '../components/Widgets/Forms/CalendarForm.vue'
+import LinksWidget from '../components/Widgets/Renderers/LinksWidget.vue'
+import LinksForm from '../components/Widgets/Forms/LinksForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -305,6 +313,21 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Calendar'),
 		icon: 'Calendar',
+	},
+	links: {
+		renderer: LinksWidget,
+		form: LinksForm,
+		defaultContent: {
+			sections: [],
+			columns: 3,
+			linkLayout: 'card',
+			iconSize: 'medium',
+			openInNewTab: true,
+			showSectionTitles: true,
+			showLinkDescriptions: true,
+		},
+		displayName: t('mydash', 'Links'),
+		icon: 'LinkBoxVariant',
 	},
 }
 

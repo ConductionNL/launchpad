@@ -154,6 +154,15 @@ return [
 		['name' => 'admin#export', 'url' => '/api/admin/export', 'verb' => 'POST'],
 		['name' => 'admin#import', 'url' => '/api/admin/import', 'verb' => 'POST'],
 
+		// Setup wizard endpoints (REQ-WIZ-008, REQ-WIZ-009, REQ-WIZ-003).
+		// Admin-only via runtime `IGroupManager::isAdmin` check inside the
+		// controller. The state endpoint also drives the "Run setup wizard"
+		// banner gate on the admin page; the storage endpoint persists the
+		// Step 2 choice immediately on `Next`.
+		['name' => 'admin#getWizardState', 'url' => '/api/admin/setup-wizard/state', 'verb' => 'GET'],
+		['name' => 'admin#completeWizard', 'url' => '/api/admin/setup-wizard/complete', 'verb' => 'POST'],
+		['name' => 'admin#setWizardStorage', 'url' => '/api/admin/setup-wizard/storage', 'verb' => 'POST'],
+
 		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
 		// controller. The dry-run route MUST precede the bare /confluence

@@ -85,6 +85,40 @@ class AdminSetting extends Entity implements JsonSerializable
     public const KEY_LINK_CREATE_FILE_EXTENSIONS = 'link_create_file_extensions';
 
     /**
+     * Setting key tracking first-run setup wizard completion (REQ-WIZ-001).
+     *
+     * Stored as JSON `true` once the admin clicks "Finish" in the wizard or
+     * the `mydash:setup` CLI command runs to completion. Defaults to `false`
+     * (banner visible) when the row is missing.
+     *
+     * @var string
+     */
+    public const KEY_SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
+
+    /**
+     * Setting key for the dashboard content storage backend (REQ-WIZ-003).
+     *
+     * Stored as a JSON string: either `"database"` (default) or
+     * `"groupfolder"` once the admin completes Step 2. The
+     * `groupfolder-storage-backend` capability is the eventual consumer;
+     * the wizard merely persists the choice.
+     *
+     * @var string
+     */
+    public const KEY_CONTENT_STORAGE = 'content_storage';
+
+    /**
+     * Setting key for the structured-mode footer configuration (REQ-WIZ-007).
+     *
+     * Stored as a JSON object describing footer layout + items, written by
+     * the `footer-customization` capability. The wizard simply reads the
+     * presence of a non-empty value to derive Step 6's "done" status.
+     *
+     * @var string
+     */
+    public const KEY_FOOTER_CONFIG = 'footer_config';
+
+    /**
      * The setting key.
      *
      * @var string

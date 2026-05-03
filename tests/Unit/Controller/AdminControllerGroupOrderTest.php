@@ -63,6 +63,7 @@ class AdminControllerGroupOrderTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->createMock(ExportService::class),
             importService: $this->createMock(ImportService::class),
+            setupWizardService: $this->createMock(\OCA\MyDash\Service\SetupWizardService::class),
         );
     }
 

@@ -82,6 +82,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\MyDash\Command\ImportCommand</command>
 		<!-- REQ-CFLI-011: Confluence HTML export importer via `php occ`. -->
 		<command>OCA\MyDash\Command\ImportConfluenceCommand</command>
+		<!-- REQ-WIZ-010: setup wizard via `php occ mydash:setup`. -->
+		<command>OCA\MyDash\Command\SetupCommand</command>
 	</commands>
 
 	<navigations>

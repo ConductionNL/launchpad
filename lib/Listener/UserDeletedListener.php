@@ -30,6 +30,7 @@ use OCA\MyDash\Db\DashboardShare;
 use OCA\MyDash\Db\DashboardShareMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCA\MyDash\Service\DashboardShareService;
+use OCA\MyDash\Service\RoleService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IDBConnection;
@@ -66,6 +67,8 @@ class UserDeletedListener implements IEventListener
      * @param LoggerInterface       $logger          PSR-3 logger (PHP_SAPI-safe;
      *                                               replaces deprecated
      *                                               `\OC::$server->getLogger()`).
+     * @param RoleService           $roleService     Role-assignment cascade
+     *                                               (REQ-ROLE-010).
      */
     public function __construct(
         private readonly DashboardShareMapper $shareMapper,
@@ -76,6 +79,7 @@ class UserDeletedListener implements IEventListener
         private readonly IUserManager $userManager,
         private readonly IDBConnection $db,
         private readonly LoggerInterface $logger,
+        private readonly RoleService $roleService,
     ) {
     }//end __construct()
 
@@ -97,6 +101,21 @@ class UserDeletedListener implements IEventListener
         }
 
         $userId = $event->getUser()->getUID();
+
+        // REQ-ROLE-010: cascade role-assignment cleanup. Best-effort —
+        // logged but never aborts the rest of the pipeline.
+        try {
+            $this->roleService->deleteByUserId(userId: $userId);
+        } catch (Throwable $t) {
+            $this->logger->error(
+                message: sprintf(
+                    'mydash UserDeletedListener: failed to cascade role assignment cleanup for user %s: %s',
+                    $userId,
+                    $t->getMessage()
+                ),
+                context: ['app' => 'mydash']
+            );
+        }
 
         // Step A: remove shares granted TO the deleted user.
         $this->shareMapper->deleteByRecipientUser(userId: $userId);

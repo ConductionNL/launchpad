@@ -342,6 +342,17 @@
         "You overrode the lock on dashboard {dashboard}": "Je hebt de vergrendeling van dashboard {dashboard} omzeild",
         "{actor} overrode the lock on dashboard {dashboard}": "{actor} heeft de vergrendeling van dashboard {dashboard} omzeild",
         "Your role in {dashboard} was changed to {role}": "Je rol in {dashboard} is gewijzigd naar {role}",
-        "{actor} changed {target}'s role in {dashboard} to {role}": "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}"
+        "{actor} changed {target}'s role in {dashboard} to {role}": "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}",
+        "Dashboard Admin": "Dashboardbeheerder",
+        "Dashboard Editor": "Dashboardredacteur",
+        "Dashboard Viewer": "Dashboardlezer",
+        "Either userId or groupId must be provided": "Geef of een gebruikers-ID of een groeps-ID op",
+        "Only one of userId or groupId may be provided": "Slechts één van gebruikers-ID of groeps-ID is toegestaan",
+        "Unknown role; must be one of admin, editor, viewer": "Onbekende rol; moet een van admin, editor of viewer zijn",
+        "Unknown user": "Onbekende gebruiker",
+        "Unknown group": "Onbekende groep",
+        "That target already has the requested role assigned": "Dit doel heeft de gevraagde rol al toegewezen",
+        "Role assignment not found": "Roltoewijzing niet gevonden",
+        "Role assignment payload is invalid": "Inhoud van roltoewijzing is ongeldig"
     }
 }

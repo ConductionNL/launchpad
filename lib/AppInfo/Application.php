@@ -19,12 +19,14 @@ declare(strict_types=1);
 namespace OCA\MyDash\AppInfo;
 
 use OCA\MyDash\Activity\DebounceHelper;
+use OCA\MyDash\Listener\GroupDeletedListener;
 use OCA\MyDash\Listener\UserDeletedListener;
 use OCA\MyDash\Notification\Notifier;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\Group\Events\GroupDeletedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
 class Application extends App implements IBootstrap
@@ -55,7 +57,8 @@ class Application extends App implements IBootstrap
         $context->registerNotifierService(notifierClass: Notifier::class);
 
         // Cascade share cleanup + admin-retention transfer on user deletion.
-        // REQ-SHARE-012, REQ-SHARE-013.
+        // Also fires the role-assignment cleanup. REQ-SHARE-012,
+        // REQ-SHARE-013, REQ-ROLE-010.
         $context->registerEventListener(
             event: UserDeletedEvent::class,
             listener: UserDeletedListener::class
@@ -72,6 +75,12 @@ class Application extends App implements IBootstrap
             name: DebounceHelper::class,
             factory: static fn(): DebounceHelper => new DebounceHelper(),
             shared: true
+        );
+
+        // Role-assignment cascade on group deletion. REQ-ROLE-011.
+        $context->registerEventListener(
+            event: GroupDeletedEvent::class,
+            listener: GroupDeletedListener::class
         );
     }//end register()
 

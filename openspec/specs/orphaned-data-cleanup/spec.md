@@ -20,7 +20,7 @@ Orphaned data exists in multiple tables and file locations. This spec defines wh
 - **orphaned_conditional_rules**: rows in `oc_mydash_conditional_rules` whose `widget_placement_id` does NOT exist in `oc_mydash_widget_placements`.
 - **orphaned_feed_tokens**: rows in `oc_mydash_feed_tokens` where `userId` no longer exists in `oc_users`. Optional; available only on installs with the dashboard-rss-feeds feature.
 - **orphaned_role_assignments**: rows in `oc_mydash_role_assignments` where `userId` (or `groupId`) no longer exists in `oc_users` (or `oc_groups`). Optional; available only on installs with the admin-roles feature.
-- **dangling_dashboard_translations**: rows in `oc_mydash_dashboard_translations` where `dashboardUuid` no longer exists in `oc_mydash_dashboards`. Optional; available only on installs with the dashboard-language-content feature.
+- **dangling_dashboard_translations**: rows in `oc_mydash_dash_translations` where `dashboardUuid` no longer exists in `oc_mydash_dashboards`. Optional; available only on installs with the dashboard-language-content feature.
 
 Categories that map to optional features MUST report `isAvailable() === false` on installs where the feature is not present, so the orchestrator can skip them cleanly (REQ-CLN-001 "Scan handles missing tables gracefully") without erroring on a missing-table SQL fault. The shipped four categories (expired_locks, expired_share_tokens, orphaned_widget_placements, orphaned_conditional_rules) are always available because their tables are part of the core schema.
 

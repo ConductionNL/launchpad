@@ -4,7 +4,7 @@
  * DashboardTranslationMapper
  *
  * Database mapper for {@see DashboardTranslation} entities. Owns the
- * oc_mydash_dashboard_translations table; implements per-language CRUD
+ * oc_mydash_dash_translations table; implements per-language CRUD
  * plus the locale-resolution lookup. REQ-DASH-038..044 (per-language
  * dashboard content variants).
  *
@@ -45,7 +45,7 @@ class DashboardTranslationMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dashboard_translations',
+            tableName: 'mydash_dash_translations',
             entityClass: DashboardTranslation::class
         );
     }//end __construct()

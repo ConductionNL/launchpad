@@ -57,75 +57,75 @@ class Version001014Date20260502120000 extends SimpleMigrationStep
         $schema = $schemaClosure();
 
         // 1. Create `mydash_dashboard_reactions` table.
-        if ($schema->hasTable(tableName: 'mydash_dashboard_reactions') === false) {
-            $table = $schema->createTable(tableName: 'mydash_dashboard_reactions');
+        if ($schema->hasTable('mydash_dashboard_reactions') === false) {
+            $table = $schema->createTable('mydash_dashboard_reactions');
 
             $table->addColumn(
-                name: 'id',
-                typeName: Types::BIGINT,
-                options: [
+                'id',
+                Types::BIGINT,
+                [
                     'autoincrement' => true,
                     'notnull'       => true,
                     'unsigned'      => true,
                 ]
             );
             $table->addColumn(
-                name: 'dashboard_uuid',
-                typeName: Types::STRING,
-                options: [
+                'dashboard_uuid',
+                Types::STRING,
+                [
                     'notnull' => true,
                     'length'  => 36,
                 ]
             );
             $table->addColumn(
-                name: 'user_id',
-                typeName: Types::STRING,
-                options: [
+                'user_id',
+                Types::STRING,
+                [
                     'notnull' => true,
                     'length'  => 64,
                 ]
             );
             $table->addColumn(
-                name: 'emoji',
-                typeName: Types::STRING,
-                options: [
+                'emoji',
+                Types::STRING,
+                [
                     'notnull' => true,
                     'length'  => 32,
                 ]
             );
             $table->addColumn(
-                name: 'reacted_at',
-                typeName: Types::DATETIME,
-                options: ['notnull' => true]
+                'reacted_at',
+                Types::DATETIME,
+                ['notnull' => true]
             );
 
-            $table->setPrimaryKey(columnNames: ['id']);
+            $table->setPrimaryKey(['id']);
 
             // Composite uniqueness — REQ-RXN-001 idempotency guarantee.
             $table->addUniqueIndex(
-                columnNames: ['dashboard_uuid', 'user_id', 'emoji'],
-                indexName: 'mydash_react_uuid_user_emoji'
+                ['dashboard_uuid', 'user_id', 'emoji'],
+                'mydash_react_uuid_user_emoji'
             );
 
             // Aggregation lookups — REQ-RXN-003 / REQ-RXN-004.
             $table->addIndex(
-                columnNames: ['dashboard_uuid'],
-                indexName: 'mydash_react_uuid'
+                ['dashboard_uuid'],
+                'mydash_react_uuid'
             );
             $table->addIndex(
-                columnNames: ['emoji'],
-                indexName: 'mydash_react_emoji'
+                ['emoji'],
+                'mydash_react_emoji'
             );
         }//end if
 
         // 2. Per-dashboard toggle column on the existing dashboards table.
-        if ($schema->hasTable(tableName: 'mydash_dashboards') === true) {
-            $dashTable = $schema->getTable(tableName: 'mydash_dashboards');
-            if ($dashTable->hasColumn(name: 'reactions_enabled') === false) {
+        if ($schema->hasTable('mydash_dashboards') === true) {
+            $dashTable = $schema->getTable('mydash_dashboards');
+            if ($dashTable->hasColumn('reactions_enabled') === false) {
                 $dashTable->addColumn(
-                    name: 'reactions_enabled',
-                    typeName: Types::SMALLINT,
-                    options: ['notnull' => false]
+                    'reactions_enabled',
+                    Types::SMALLINT,
+                    ['notnull' => false]
                 );
             }
         }

@@ -3,7 +3,7 @@
 /**
  * Version001017Date20260502130000
  *
- * Migration that adds the `oc_mydash_dashboard_translations` table
+ * Migration that adds the `oc_mydash_dash_translations` table
  * holding per-language content variants (widget tree, name, description)
  * for dashboards. REQ-DASH-038..044 (dashboard-language-content).
  *

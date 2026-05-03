@@ -47,81 +47,81 @@ class RoleAssignmentTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_role_assignments') === true) {
+        if ($schema->hasTable('mydash_role_assignments') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_role_assignments');
+        $table = $schema->createTable('mydash_role_assignments');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'user_id',
-            typeName: Types::STRING,
-            options: [
+            'user_id',
+            Types::STRING,
+            [
                 'notnull' => false,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'group_id',
-            typeName: Types::STRING,
-            options: [
+            'group_id',
+            Types::STRING,
+            [
                 'notnull' => false,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'role',
-            typeName: Types::STRING,
-            options: [
+            'role',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 16,
             ]
         );
         $table->addColumn(
-            name: 'assigned_by',
-            typeName: Types::STRING,
-            options: [
+            'assigned_by',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'assigned_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'assigned_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
 
         // Lookup indexes for cascade and resolution paths.
         $table->addIndex(
-            columnNames: ['user_id'],
-            indexName: 'mydash_role_user_idx'
+            ['user_id'],
+            'mydash_role_user_idx'
         );
         $table->addIndex(
-            columnNames: ['group_id'],
-            indexName: 'mydash_role_group_idx'
+            ['group_id'],
+            'mydash_role_group_idx'
         );
 
         // Enforce one assignment per (user, role) and per (group, role).
         // Rows are XOR — only one of user_id / group_id is populated —
         // so a single row never participates in both unique indexes.
         $table->addUniqueIndex(
-            columnNames: ['user_id', 'role'],
-            indexName: 'mydash_role_user_uniq'
+            ['user_id', 'role'],
+            'mydash_role_user_uniq'
         );
         $table->addUniqueIndex(
-            columnNames: ['group_id', 'role'],
-            indexName: 'mydash_role_group_uniq'
+            ['group_id', 'role'],
+            'mydash_role_group_uniq'
         );
     }//end create()
 }//end class

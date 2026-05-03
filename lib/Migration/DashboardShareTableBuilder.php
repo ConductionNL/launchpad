@@ -38,77 +38,77 @@ class DashboardShareTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_dashboard_shares') === true) {
+        if ($schema->hasTable('mydash_dashboard_shares') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_dashboard_shares');
+        $table = $schema->createTable('mydash_dashboard_shares');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'dashboard_id',
-            typeName: Types::BIGINT,
-            options: [
+            'dashboard_id',
+            Types::BIGINT,
+            [
                 'notnull'  => true,
                 'unsigned' => true,
             ]
         );
         $table->addColumn(
-            name: 'share_type',
-            typeName: Types::STRING,
-            options: [
+            'share_type',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 8,
             ]
         );
         $table->addColumn(
-            name: 'share_with',
-            typeName: Types::STRING,
-            options: [
+            'share_with',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'permission_level',
-            typeName: Types::STRING,
-            options: [
+            'permission_level',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 16,
                 'default' => 'view_only',
             ]
         );
         $table->addColumn(
-            name: 'created_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'created_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
         $table->addColumn(
-            name: 'updated_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => false]
+            'updated_at',
+            Types::DATETIME,
+            ['notnull' => false]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addIndex(
-            columnNames: ['dashboard_id'],
-            indexName: 'mydash_share_dash_idx'
+            ['dashboard_id'],
+            'mydash_share_dash_idx'
         );
         $table->addIndex(
-            columnNames: ['share_type', 'share_with'],
-            indexName: 'mydash_share_recip_idx'
+            ['share_type', 'share_with'],
+            'mydash_share_recip_idx'
         );
         $table->addUniqueIndex(
-            columnNames: ['dashboard_id', 'share_type', 'share_with'],
-            indexName: 'mydash_share_unique_idx'
+            ['dashboard_id', 'share_type', 'share_with'],
+            'mydash_share_unique_idx'
         );
     }//end create()
 }//end class

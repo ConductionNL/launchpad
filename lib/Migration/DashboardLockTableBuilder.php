@@ -50,68 +50,68 @@ class DashboardLockTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_dashboard_locks') === true) {
+        if ($schema->hasTable('mydash_dashboard_locks') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_dashboard_locks');
+        $table = $schema->createTable('mydash_dashboard_locks');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'dashboard_uuid',
-            typeName: Types::STRING,
-            options: [
+            'dashboard_uuid',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 36,
             ]
         );
         $table->addColumn(
-            name: 'user_id',
-            typeName: Types::STRING,
-            options: [
+            'user_id',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'display_name',
-            typeName: Types::STRING,
-            options: [
+            'display_name',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 255,
             ]
         );
         $table->addColumn(
-            name: 'created_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'created_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
         $table->addColumn(
-            name: 'updated_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'updated_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['dashboard_uuid'],
-            indexName: 'mydash_lock_dash_unique'
+            ['dashboard_uuid'],
+            'mydash_lock_dash_unique'
         );
         $table->addIndex(
-            columnNames: ['user_id'],
-            indexName: 'mydash_lock_user_idx'
+            ['user_id'],
+            'mydash_lock_user_idx'
         );
         $table->addIndex(
-            columnNames: ['updated_at'],
-            indexName: 'mydash_lock_updated_idx'
+            ['updated_at'],
+            'mydash_lock_updated_idx'
         );
     }//end create()
 }//end class

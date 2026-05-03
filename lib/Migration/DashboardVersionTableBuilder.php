@@ -53,74 +53,74 @@ class DashboardVersionTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_dashboard_versions') === true) {
+        if ($schema->hasTable('mydash_dashboard_versions') === true) {
             return;
         }
 
         $table = $schema->createTable(
-            tableName: 'mydash_dashboard_versions'
+            'mydash_dashboard_versions'
         );
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'dashboard_uuid',
-            typeName: Types::STRING,
-            options: [
+            'dashboard_uuid',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 36,
             ]
         );
         $table->addColumn(
-            name: 'version_number',
-            typeName: Types::BIGINT,
-            options: [
+            'version_number',
+            Types::BIGINT,
+            [
                 'notnull'  => true,
                 'unsigned' => true,
             ]
         );
         $table->addColumn(
-            name: 'snapshot_json',
-            typeName: Types::TEXT,
-            options: ['notnull' => true]
+            'snapshot_json',
+            Types::TEXT,
+            ['notnull' => true]
         );
         $table->addColumn(
-            name: 'created_by',
-            typeName: Types::STRING,
-            options: [
+            'created_by',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'created_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'created_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
         $table->addColumn(
-            name: 'note',
-            typeName: Types::STRING,
-            options: [
+            'note',
+            Types::STRING,
+            [
                 'notnull' => false,
                 'length'  => 500,
             ]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['dashboard_uuid', 'version_number'],
-            indexName: 'mydash_dvers_uuid_num'
+            ['dashboard_uuid', 'version_number'],
+            'mydash_dvers_uuid_num'
         );
         $table->addIndex(
-            columnNames: ['dashboard_uuid', 'created_at'],
-            indexName: 'mydash_dvers_uuid_ts'
+            ['dashboard_uuid', 'created_at'],
+            'mydash_dvers_uuid_ts'
         );
     }//end create()
 }//end class

@@ -54,17 +54,17 @@ class Version001013Date20260502120000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable(tableName: 'mydash_dashboards') === false) {
+        if ($schema->hasTable('mydash_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable(tableName: 'mydash_dashboards');
+        $table = $schema->getTable('mydash_dashboards');
 
-        if ($table->hasColumn(name: 'comments_enabled') === false) {
+        if ($table->hasColumn('comments_enabled') === false) {
             $table->addColumn(
-                name: 'comments_enabled',
-                typeName: Types::SMALLINT,
-                options: [
+                'comments_enabled',
+                Types::SMALLINT,
+                [
                     'notnull'  => false,
                     'default'  => null,
                     'unsigned' => true,

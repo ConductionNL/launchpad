@@ -50,61 +50,61 @@ class FeedTokenTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_feed_tokens') === true) {
+        if ($schema->hasTable('mydash_feed_tokens') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_feed_tokens');
+        $table = $schema->createTable('mydash_feed_tokens');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'user_id',
-            typeName: Types::STRING,
-            options: [
+            'user_id',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'token',
-            typeName: Types::STRING,
-            options: [
+            'token',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'created_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'created_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
         $table->addColumn(
-            name: 'last_used_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => false]
+            'last_used_at',
+            Types::DATETIME,
+            ['notnull' => false]
         );
         $table->addColumn(
-            name: 'revoked_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => false]
+            'revoked_at',
+            Types::DATETIME,
+            ['notnull' => false]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['user_id'],
-            indexName: 'mydash_feed_tok_user_uq'
+            ['user_id'],
+            'mydash_feed_tok_user_uq'
         );
         $table->addIndex(
-            columnNames: ['token'],
-            indexName: 'mydash_feed_tok_tok_idx'
+            ['token'],
+            'mydash_feed_tok_tok_idx'
         );
     }//end create()
 }//end class

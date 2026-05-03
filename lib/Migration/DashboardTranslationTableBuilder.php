@@ -3,7 +3,7 @@
 /**
  * DashboardTranslationTableBuilder
  *
- * Builder for the oc_mydash_dashboard_translations database table schema
+ * Builder for the oc_mydash_dash_translations database table schema
  * — per-language content variants for dashboards. REQ-DASH-038.
  *
  * @category  Migration
@@ -31,7 +31,7 @@ use OCP\DB\Types;
 class DashboardTranslationTableBuilder
 {
     /**
-     * Create the mydash_dashboard_translations table.
+     * Create the mydash_dash_translations table.
      *
      * Idempotent — returns immediately when the table already exists.
      *
@@ -41,65 +41,65 @@ class DashboardTranslationTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_dashboard_translations') === true) {
+        if ($schema->hasTable('mydash_dash_translations') === true) {
             return;
         }
 
         $table = $schema->createTable(
-            tableName: 'mydash_dashboard_translations'
+            'mydash_dash_translations'
         );
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'dashboard_uuid',
-            typeName: Types::STRING,
-            options: [
+            'dashboard_uuid',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 36,
             ]
         );
         $table->addColumn(
-            name: 'language_code',
-            typeName: Types::STRING,
-            options: [
+            'language_code',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 16,
                 'comment' => 'ISO 639-1 base code (nl, en, de, fr); normalised by mapper.',
             ]
         );
         $table->addColumn(
-            name: 'name',
-            typeName: Types::STRING,
-            options: [
+            'name',
+            Types::STRING,
+            [
                 'notnull' => false,
                 'length'  => 255,
             ]
         );
         $table->addColumn(
-            name: 'description',
-            typeName: Types::TEXT,
-            options: ['notnull' => false]
+            'description',
+            Types::TEXT,
+            ['notnull' => false]
         );
         $table->addColumn(
-            name: 'widget_tree_json',
-            typeName: Types::TEXT,
-            options: [
+            'widget_tree_json',
+            Types::TEXT,
+            [
                 'notnull' => false,
                 'comment' => 'Localised widget tree JSON — mirrors oc_mydash_dashboards shape.',
             ]
         );
         $table->addColumn(
-            name: 'is_primary',
-            typeName: Types::SMALLINT,
-            options: [
+            'is_primary',
+            Types::SMALLINT,
+            [
                 'notnull'  => true,
                 'default'  => 0,
                 'unsigned' => true,
@@ -107,28 +107,28 @@ class DashboardTranslationTableBuilder
             ]
         );
         $table->addColumn(
-            name: 'created_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => true]
+            'created_at',
+            Types::DATETIME,
+            ['notnull' => true]
         );
         $table->addColumn(
-            name: 'updated_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => false]
+            'updated_at',
+            Types::DATETIME,
+            ['notnull' => false]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addIndex(
-            columnNames: ['dashboard_uuid'],
-            indexName: 'mydash_trans_dash_idx'
+            ['dashboard_uuid'],
+            'mydash_trans_dash_idx'
         );
         $table->addUniqueIndex(
-            columnNames: ['dashboard_uuid', 'language_code'],
-            indexName: 'mydash_trans_unique_idx'
+            ['dashboard_uuid', 'language_code'],
+            'mydash_trans_unique_idx'
         );
         $table->addIndex(
-            columnNames: ['dashboard_uuid', 'is_primary'],
-            indexName: 'mydash_trans_primary_idx'
+            ['dashboard_uuid', 'is_primary'],
+            'mydash_trans_primary_idx'
         );
     }//end create()
 }//end class

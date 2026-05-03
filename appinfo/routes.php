@@ -219,6 +219,20 @@ return [
 		// admin-configured extension allow-list before touching storage.
 		['name' => 'file#createFile', 'url' => '/api/files/create', 'verb' => 'POST'],
 
+		// Files widget endpoints (REQ-FLS-003, REQ-FLS-007, REQ-FLS-008).
+		// All three are scoped to a placement id so the controller can
+		// re-read the placement's `widgetContent` JSON and re-validate
+		// per-viewer permission on every request.
+		['name' => 'files_widget#contents',
+		 'url' => '/api/widgets/files/{placementId}/contents', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
+		['name' => 'files_widget#upload',
+		 'url' => '/api/widgets/files/{placementId}/upload', 'verb' => 'POST',
+		 'requirements' => ['placementId' => '\d+']],
+		['name' => 'files_widget#destroy',
+		 'url' => '/api/widgets/files/{placementId}/files/{fileId}', 'verb' => 'DELETE',
+		 'requirements' => ['placementId' => '\d+', 'fileId' => '\d+']],
+
 		// Resource endpoints (REQ-RES-001..008).
 		// Specific routes precede the wildcard `/resource/{filename}`
 		// route so that any future addition of `/resource/...` paths

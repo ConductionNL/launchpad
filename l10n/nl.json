@@ -894,6 +894,9 @@
         "Link type": "Linktype",
         "App route": "App-route",
         "URL": "URL",
-        "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead.": "De herbruikbare tegel-API is niet meer beschikbaar. Gebruik in plaats daarvan de geünificeerde widget-toevoegstroom met type:tile."
+        "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead.": "De herbruikbare tegel-API is niet meer beschikbaar. Gebruik in plaats daarvan de geünificeerde widget-toevoegstroom met type:tile.",
+        "Pick a widget": "Kies een widget",
+        "No Nextcloud widgets are installed": "Er zijn geen Nextcloud-widgets geïnstalleerd",
+        "Selected": "Geselecteerd"
     }
 }

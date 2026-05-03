@@ -5,24 +5,13 @@
 
 <template>
 	<div class="nc-dashboard-form">
-		<label class="nc-dashboard-form__field">
-			<span class="nc-dashboard-form__label">{{ t('mydash', 'Select Widget') }}</span>
-			<select
+		<div class="nc-dashboard-form__field">
+			<span class="nc-dashboard-form__label">{{ t('mydash', 'Pick a widget') }}</span>
+			<NcWidgetGridPicker
 				v-model="widgetId"
-				class="nc-dashboard-form__select"
-				required
-				@change="emitContent">
-				<option value="" disabled>
-					{{ t('mydash', 'Choose a widget…') }}
-				</option>
-				<option
-					v-for="opt in widgetOptions"
-					:key="opt.id"
-					:value="opt.id">
-					{{ opt.title }}
-				</option>
-			</select>
-		</label>
+				:widgets="widgetOptions"
+				@input="emitContent" />
+		</div>
 
 		<label class="nc-dashboard-form__field">
 			<span class="nc-dashboard-form__label">{{ t('mydash', 'Display Mode') }}</span>
@@ -42,6 +31,8 @@
 </template>
 
 <script>
+import NcWidgetGridPicker from './NcWidgetGridPicker.vue'
+
 const DEFAULT_CONTENT = Object.freeze({
 	widgetId: '',
 	displayMode: 'vertical',
@@ -52,15 +43,18 @@ const DEFAULT_CONTENT = Object.freeze({
  * creating or editing an `nc-widget` placement (REQ-WDG-018).
  *
  * Two controls:
- *  - **picker** — `<select>` populated from the `widgets` initial-state list
- *    (REQ-WDG-001 / REQ-INIT-002 / REQ-WDG-018 scenario "Form picker lists
- *    discovered widgets"). Validation requires a non-empty `widgetId`.
+ *  - **picker** — `NcWidgetGridPicker` grid of icon cards populated from the
+ *    `widgets` initial-state list (REQ-WDG-001 / REQ-INIT-002 / REQ-WDG-018
+ *    scenario "Form picker lists discovered widgets"). Validation requires a
+ *    non-empty `widgetId`.
  *  - **display mode** — `vertical` (list) or `horizontal` (cards).
  *
  * Pre-fills both controls from `editingWidget.content` per REQ-WDG-018.
  */
 export default {
 	name: 'NcDashboardForm',
+
+	components: { NcWidgetGridPicker },
 
 	inject: {
 		widgetsCatalog: {
@@ -110,7 +104,11 @@ export default {
 					: [])
 			return list
 				.filter((w) => w && typeof w.id === 'string' && w.id !== '')
-				.map((w) => ({ id: w.id, title: w.title || w.id }))
+				.map((w) => ({
+					id: w.id,
+					title: w.title || w.id,
+					iconUrl: typeof w.iconUrl === 'string' ? w.iconUrl : '',
+				}))
 		},
 
 		assembledContent() {
@@ -133,7 +131,7 @@ export default {
 		 */
 		validate() {
 			if (typeof this.widgetId !== 'string' || this.widgetId.trim() === '') {
-				return [t('mydash', 'Choose a widget…')]
+				return [t('mydash', 'Pick a widget')]
 			}
 			return []
 		},

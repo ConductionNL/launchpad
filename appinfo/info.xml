@@ -71,6 +71,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<nextcloud min-version="28" max-version="34"/>
 	</dependencies>
 
+	<commands>
+		<command>OCA\MyDash\Command\CleanupScanCommand</command>
+		<command>OCA\MyDash\Command\CleanupPurgeCommand</command>
+	</commands>
+
+	<background-jobs>
+		<job>OCA\MyDash\BackgroundJob\OrphanedDataCleanupJob</job>
+	</background-jobs>
+
 	<settings>
 		<admin>OCA\MyDash\Settings\MyDashAdmin</admin>
 		<admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>

@@ -392,4 +392,35 @@ export const api = {
 			{ params },
 		)
 	},
+
+	// Dashboard translation endpoints (REQ-DASH-038..044) — per-language
+	// content variants for dashboards. All endpoints scope by dashboard
+	// UUID and require ownership; the server returns 403 for cross-user
+	// attempts.
+	listDashboardTranslations(uuid) {
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`)
+	},
+
+	createDashboardTranslation(uuid, data) {
+		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`, data)
+	},
+
+	updateDashboardTranslation(uuid, lang, data) {
+		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`, data)
+	},
+
+	deleteDashboardTranslation(uuid, lang) {
+		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`)
+	},
+
+	setDashboardTranslationPrimary(uuid, lang) {
+		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}/set-primary`)
+	},
+
+	// Resolve the dashboard for the viewer's locale; optional `?lang=`
+	// query parameter overrides the user's Nextcloud locale.
+	getResolvedDashboard(uuid, lang) {
+		const params = (lang !== undefined && lang !== null && lang !== '') ? { params: { lang } } : {}
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/resolved`, params)
+	},
 }

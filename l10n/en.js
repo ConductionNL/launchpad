@@ -382,7 +382,12 @@ OC.L10N.register(
     "Save version" : "Save version",
     "Versioning backend unavailable" : "Versioning backend unavailable",
     "Version not found" : "Version not found",
-    "Version history is not available for this dashboard" : "Version history is not available for this dashboard"
+    "Version history is not available for this dashboard" : "Version history is not available for this dashboard",
+    "Language variant already exists" : "Language variant already exists",
+    "Cannot delete the only language variant" : "Cannot delete the only language variant",
+    "Cannot delete the primary variant; promote another variant first" : "Cannot delete the primary variant; promote another variant first",
+    "Language code is required" : "Language code is required",
+    "Language not available" : "Language not available"
 },
 "nplurals=2; plural=(n != 1);"
 );

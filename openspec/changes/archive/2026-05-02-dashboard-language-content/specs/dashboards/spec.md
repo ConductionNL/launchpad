@@ -8,7 +8,7 @@ status: draft
 
 ## ADDED Requirements
 
-### Requirement: REQ-DASH-026 Translation Schema
+### Requirement: REQ-DASH-038 Translation Schema
 
 The system MUST store per-language content variants for a dashboard in a dedicated `oc_mydash_dashboard_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.
 
@@ -37,7 +37,7 @@ The system MUST store per-language content variants for a dashboard in a dedicat
 - THEN updates to the dashboard's `name`, `description`, or `widgetTreeJson` fields in `oc_mydash_dashboards` MUST NOT affect the translation records
 - AND all subsequent reads MUST fetch content from the translation table, not the dashboard record
 
-### Requirement: REQ-DASH-027 Locale Resolution and Primary Fallback
+### Requirement: REQ-DASH-039 Locale Resolution and Primary Fallback
 
 The system MUST resolve the appropriate translation variant for a requesting user using a three-tier matching strategy: exact language match first, then language-part match, then primary variant fallback.
 
@@ -86,7 +86,7 @@ The system MUST resolve the appropriate translation variant for a requesting use
 - WHEN `GET /api/dashboards/{uuid}` is called
 - THEN the response MUST include `availableLanguages: ['de-DE', 'en', 'fr', 'nl']` (sorted alphabetically)
 
-### Requirement: REQ-DASH-028 Create Translation Variant
+### Requirement: REQ-DASH-040 Create Translation Variant
 
 Users MUST be able to create new language variants for a dashboard, optionally seeding the new variant from an existing variant or the primary.
 
@@ -125,7 +125,7 @@ Users MUST be able to create new language variants for a dashboard, optionally s
 - THEN the system MUST return HTTP 403
 - AND no variant MUST be created
 
-### Requirement: REQ-DASH-029 Update Translation Variant
+### Requirement: REQ-DASH-041 Update Translation Variant
 
 Users MUST be able to update a translation variant's name, description, and widget tree.
 
@@ -163,7 +163,7 @@ Users MUST be able to update a translation variant's name, description, and widg
 - THEN the system MUST update only the `name` field
 - AND `description` and `widgetTreeJson` MUST remain unchanged
 
-### Requirement: REQ-DASH-030 Delete Translation Variant
+### Requirement: REQ-DASH-042 Delete Translation Variant
 
 Users MUST be able to delete language variants, with a guard against deleting the only remaining variant.
 
@@ -203,7 +203,7 @@ Users MUST be able to delete language variants, with a guard against deleting th
 - WHEN user "bob" sends `DELETE /api/dashboards/{uuid}/translations/nl`
 - THEN the system MUST return HTTP 403
 
-### Requirement: REQ-DASH-031 Promote Variant to Primary
+### Requirement: REQ-DASH-043 Promote Variant to Primary
 
 Users MUST be able to promote a non-primary variant to become the new primary, downgrading the current primary.
 
@@ -244,7 +244,7 @@ Users MUST be able to promote a non-primary variant to become the new primary, d
 - WHEN user "alice" sends `POST /api/dashboards/{uuid}/translations/ja/set-primary`
 - THEN the system MUST return HTTP 404
 
-### Requirement: REQ-DASH-032 Backwards Compatibility and Dashboard Deletion
+### Requirement: REQ-DASH-044 Backwards Compatibility and Dashboard Deletion
 
 Existing dashboards without translation rows MUST continue to function as before. Deleting a dashboard MUST cascade-delete all its translation variants.
 

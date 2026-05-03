@@ -41,6 +41,32 @@ return [
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboard_api#schedule', 'url' => '/api/dashboards/{uuid}/schedule', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// REQ-DASH-038..044: per-language dashboard content variants.
+		// All routes are anchored under `/api/dashboards/{uuid}/translations`
+		// and registered BEFORE the wildcard / group-scoped routes so the
+		// literal `translations` segment is never consumed by a wildcard.
+		['name' => 'dashboard_translation_api#list',
+		 'url' => '/api/dashboards/{uuid}/translations', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_translation_api#create',
+		 'url' => '/api/dashboards/{uuid}/translations', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_translation_api#update',
+		 'url' => '/api/dashboards/{uuid}/translations/{lang}', 'verb' => 'PUT',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'lang' => '[A-Za-z0-9_\-]+']],
+		['name' => 'dashboard_translation_api#destroy',
+		 'url' => '/api/dashboards/{uuid}/translations/{lang}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'lang' => '[A-Za-z0-9_\-]+']],
+		['name' => 'dashboard_translation_api#setPrimary',
+		 'url' => '/api/dashboards/{uuid}/translations/{lang}/set-primary', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'lang' => '[A-Za-z0-9_\-]+']],
+		// Read-side resolver — returns the dashboard payload plus the
+		// matched translation envelope (REQ-DASH-039). Optional `?lang=`
+		// query parameter overrides the user's Nextcloud locale.
+		['name' => 'dashboard_translation_api#resolved',
+		 'url' => '/api/dashboards/{uuid}/resolved', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// REQ-DASH-026: nested dashboard tree.
 		['name' => 'dashboard_api#tree', 'url' => '/api/dashboards/tree', 'verb' => 'GET'],
 		// REQ-DASH-027: slug-chain path resolution. The {path} placeholder

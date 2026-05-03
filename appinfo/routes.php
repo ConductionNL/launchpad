@@ -88,6 +88,11 @@ return [
 		// Widget endpoints
 		['name' => 'widget_api#listAvailable', 'url' => '/api/widgets', 'verb' => 'GET'],
 		['name' => 'widget_api#getItems', 'url' => '/api/widgets/items', 'verb' => 'GET'],
+		// REQ-NEWS-003: news widget items endpoint. Registered BEFORE the
+		// wildcard `/api/widgets/{placementId}` PUT/DELETE routes so the
+		// literal `news` segment is matched first by Symfony's router.
+		['name' => 'widget_api#newsItems', 'url' => '/api/widgets/news/{placementId}/items', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widget_api#addWidget', 'url' => '/api/dashboard/{dashboardId}/widgets', 'verb' => 'POST'],
 		['name' => 'widget_api#addTile', 'url' => '/api/dashboard/{dashboardId}/tile', 'verb' => 'POST'],
 		['name' => 'widget_api#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],

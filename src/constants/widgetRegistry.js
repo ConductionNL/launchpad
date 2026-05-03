@@ -33,6 +33,12 @@
  * `LinkButtonForm.vue`, and a `defaultContent` of `{label:'', url:'',
  * icon:'', actionType:'external', backgroundColor:'', textColor:''}`.
  *
+ * REQ-NEWS-001..011: The widget type `news` MUST be registered with a
+ * renderer reference to `NewsWidget.vue`, a form reference to
+ * `NewsForm.vue`, and a `defaultContent` of `{feedUrls:[],
+ * layout:'list', itemLimit:10, showThumbnails:true, showSummary:true,
+ * summaryMaxChars:200, dateFormat:'relative', metadataFilter:null}`.
+ *
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
@@ -48,6 +54,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
+import NewsForm from '../components/Widgets/Forms/NewsForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +130,22 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	news: {
+		renderer: NewsWidget,
+		form: NewsForm,
+		defaultContent: {
+			feedUrls: [],
+			layout: 'list',
+			itemLimit: 10,
+			showThumbnails: true,
+			showSummary: true,
+			summaryMaxChars: 200,
+			dateFormat: 'relative',
+			metadataFilter: null,
+		},
+		displayName: t('mydash', 'News'),
+		icon: 'RssBox',
 	},
 }
 

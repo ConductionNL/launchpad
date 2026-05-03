@@ -71,6 +71,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<nextcloud min-version="28" max-version="34"/>
 	</dependencies>
 
+	<!-- Surface dashboards, widget content, and metadata in NC unified search. REQ-SRCH-001. -->
+	<types>
+		<search/>
+	</types>
+
 	<settings>
 		<admin>OCA\MyDash\Settings\MyDashAdmin</admin>
 		<admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>

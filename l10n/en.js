@@ -293,7 +293,11 @@ OC.L10N.register(
     "Schedule dashboard" : "Schedule dashboard",
     "Draft" : "Draft",
     "Published" : "Published",
-    "Scheduled" : "Scheduled"
+    "Scheduled" : "Scheduled",
+    "Dashboards" : "Dashboards",
+    "MyDash dashboard" : "MyDash dashboard",
+    "Widget content on %s" : "Widget content on %s",
+    "Metadata: %1$s = %2$s" : "Metadata: %1$s = %2$s"
 },
 "nplurals=2; plural=(n != 1);"
 );

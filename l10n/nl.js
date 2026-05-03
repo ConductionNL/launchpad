@@ -293,7 +293,11 @@ OC.L10N.register(
     "Schedule dashboard" : "Dashboard inplannen",
     "Draft" : "Concept",
     "Published" : "Gepubliceerd",
-    "Scheduled" : "Ingepland"
+    "Scheduled" : "Ingepland",
+    "Dashboards" : "Dashboards",
+    "MyDash dashboard" : "MyDash-dashboard",
+    "Widget content on %s" : "Widget-inhoud op %s",
+    "Metadata: %1$s = %2$s" : "Metadata: %1$s = %2$s"
 },
 "nplurals=2; plural=(n != 1);"
 );

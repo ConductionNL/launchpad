@@ -335,7 +335,22 @@ OC.L10N.register(
     "You overrode the lock on dashboard {dashboard}" : "Je hebt de vergrendeling van dashboard {dashboard} omzeild",
     "{actor} overrode the lock on dashboard {dashboard}" : "{actor} heeft de vergrendeling van dashboard {dashboard} omzeild",
     "Your role in {dashboard} was changed to {role}" : "Je rol in {dashboard} is gewijzigd naar {role}",
-    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}"
+    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}",
+    "Save as template" : "Opslaan als sjabloon",
+    "Template gallery" : "Sjabloongalerij",
+    "Preview image" : "Voorbeeldafbeelding",
+    "Invalid image format" : "Ongeldig afbeeldingsformaat",
+    "All categories" : "Alle categorieën",
+    "Sort by" : "Sorteren op",
+    "Recently updated" : "Recent bijgewerkt",
+    "No templates available" : "Geen sjablonen beschikbaar",
+    "Could not load template gallery" : "Kon de sjabloongalerij niet laden",
+    "Could not save dashboard as template" : "Kon het dashboard niet als sjabloon opslaan",
+    "You can only save your own dashboards as templates" : "Je kunt alleen je eigen dashboards als sjabloon opslaan",
+    "Describe the template purpose" : "Beschrijf het doel van het sjabloon",
+    "e.g. marketing, engineering" : "bijv. marketing, engineering",
+    "{count} widgets" : "{count} widgets",
+    "Category" : "Categorie"
 },
 "nplurals=2; plural=(n != 1);"
 );

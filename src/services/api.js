@@ -228,6 +228,37 @@ export const api = {
 		return axios.delete(`${baseUrl}/api/admin/templates/${id}`)
 	},
 
+	// Template gallery (REQ-TMPL-014). Returns
+	// `{status, templates: [{uuid, name, description, category,
+	// previewImage, gridColumns, widgetCount, lastUpdatedAt}]}`.
+	getTemplateGallery({ category = null, sort = 'name' } = {}) {
+		const params = { sort }
+		if (category) {
+			params.category = category
+		}
+		return axios.get(`${baseUrl}/api/templates/gallery`, { params })
+	},
+
+	// Save a personal dashboard as an admin template (REQ-TMPL-015).
+	// Body: `{name, description?, category?, previewImage?}`. Owner-only;
+	// 403 envelope when caller does not own the source dashboard.
+	saveDashboardAsTemplate(dashboardUuid, metadata = {}) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/save-as-template`,
+			metadata,
+		)
+	},
+
+	// Upload an admin template preview image (REQ-TMPL-017). Admin-only.
+	// Body: `{base64: 'data:image/<type>;base64,<bytes>'}`. Reuses the
+	// resource-uploads pipeline so the same MIME / size validation applies.
+	uploadTemplatePreviewImage(templateUuid, base64) {
+		return axios.post(
+			`${baseUrl}/api/admin/templates/${encodeURIComponent(templateUuid)}/preview-image`,
+			{ base64 },
+		)
+	},
+
 	getAdminSettings() {
 		return axios.get(`${baseUrl}/api/admin/settings`)
 	},

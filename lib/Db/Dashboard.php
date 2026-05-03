@@ -24,6 +24,11 @@ use OCP\AppFramework\Db\Entity;
 /**
  * Dashboard entity for storing dashboard configuration.
  *
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ *      Aggregates personal, group-shared, hierarchy, publication-state and
+ *      template-discovery columns on a single row; cross-cutting capabilities
+ *      use the same table per the admin-templates / dashboard-tree designs.
+ *
  * @method string|null getUuid()
  * @method void setUuid(?string $uuid)
  * @method string|null getName()
@@ -66,6 +71,12 @@ use OCP\AppFramework\Db\Entity;
  * @method void setPublishAt(?string $publishAt)
  * @method string|null getPublishedAt()
  * @method void setPublishedAt(?string $publishedAt)
+ * @method string|null getTemplateCategory()
+ * @method void setTemplateCategory(?string $templateCategory)
+ * @method string|null getTemplateDescription()
+ * @method void setTemplateDescription(?string $templateDescription)
+ * @method string|null getTemplatePreviewImage()
+ * @method void setTemplatePreviewImage(?string $templatePreviewImage)
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -389,6 +400,42 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $publishedAt = null;
 
     /**
+     * The template gallery category (REQ-TMPL-016).
+     *
+     * Free-form admin-curated label (max 64 chars). NULL means "no
+     * category" — surfaced in the gallery alongside categorised templates
+     * (sorted last by the default `(category NULLS LAST, name)` ordering).
+     * Only meaningful for rows with `type = 'admin_template'`; ignored on
+     * `user` and `group_shared` rows.
+     *
+     * @var string|null
+     */
+    protected ?string $templateCategory = null;
+
+    /**
+     * The template gallery long-form description (REQ-TMPL-016).
+     *
+     * Stored in a TEXT column so callers can use richer prose than the
+     * regular {@see Dashboard::$description} field. Surfaced verbatim
+     * in the gallery card. Only meaningful for `admin_template` rows.
+     *
+     * @var string|null
+     */
+    protected ?string $templateDescription = null;
+
+    /**
+     * The template gallery preview image URL (REQ-TMPL-017).
+     *
+     * URL produced by the resource-uploads pipeline (typically
+     * `/apps/mydash/resource/<filename>`); stored verbatim. NULL means
+     * "no preview image" — gallery card renders a placeholder. Only
+     * meaningful for `admin_template` rows.
+     *
+     * @var string|null
+     */
+    protected ?string $templatePreviewImage = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -450,28 +497,31 @@ class Dashboard extends Entity implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id'                => $this->getId(),
-            'uuid'              => $this->uuid,
-            'name'              => $this->name,
-            'description'       => $this->description,
-            'icon'              => $this->icon,
-            'type'              => $this->type,
-            'userId'            => $this->userId,
-            'groupId'           => $this->groupId,
-            'basedOnTemplate'   => $this->basedOnTemplate,
-            'gridColumns'       => $this->gridColumns,
-            'permissionLevel'   => $this->permissionLevel,
-            'targetGroups'      => $this->getTargetGroupsArray(),
-            'isDefault'         => $this->isDefault,
-            'isActive'          => $this->isActive,
-            'createdAt'         => $this->createdAt,
-            'updatedAt'         => $this->updatedAt,
-            'parentUuid'        => $this->parentUuid,
-            'slug'              => $this->slug,
-            'sortOrder'         => $this->sortOrder,
-            'publicationStatus' => $this->publicationStatus,
-            'publishAt'         => $this->publishAt,
-            'publishedAt'       => $this->publishedAt,
+            'id'                   => $this->getId(),
+            'uuid'                 => $this->uuid,
+            'name'                 => $this->name,
+            'description'          => $this->description,
+            'icon'                 => $this->icon,
+            'type'                 => $this->type,
+            'userId'               => $this->userId,
+            'groupId'              => $this->groupId,
+            'basedOnTemplate'      => $this->basedOnTemplate,
+            'gridColumns'          => $this->gridColumns,
+            'permissionLevel'      => $this->permissionLevel,
+            'targetGroups'         => $this->getTargetGroupsArray(),
+            'isDefault'            => $this->isDefault,
+            'isActive'             => $this->isActive,
+            'createdAt'            => $this->createdAt,
+            'updatedAt'            => $this->updatedAt,
+            'parentUuid'           => $this->parentUuid,
+            'slug'                 => $this->slug,
+            'sortOrder'            => $this->sortOrder,
+            'publicationStatus'    => $this->publicationStatus,
+            'publishAt'            => $this->publishAt,
+            'publishedAt'          => $this->publishedAt,
+            'templateCategory'     => $this->templateCategory,
+            'templateDescription'  => $this->templateDescription,
+            'templatePreviewImage' => $this->templatePreviewImage,
         ];
     }//end jsonSerialize()
 }//end class

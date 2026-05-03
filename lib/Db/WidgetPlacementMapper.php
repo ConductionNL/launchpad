@@ -288,6 +288,43 @@ class WidgetPlacementMapper extends QBMapper
     }//end cloneToDashboard()
 
     /**
+     * Count widget placements for a dashboard (REQ-TMPL-014).
+     *
+     * Used by the gallery serialiser so the response includes the
+     * `widgetCount` field without fetching the full placement entities
+     * (the gallery is a list view; widget bodies are not included).
+     *
+     * @param int $dashboardId The dashboard ID.
+     *
+     * @return int The number of placements (0 when none).
+     */
+    public function countByDashboardId(int $dashboardId): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('*', 'cnt'))
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'dashboard_id',
+                    y: $qb->createNamedParameter(
+                        value: $dashboardId,
+                        type: IQueryBuilder::PARAM_INT
+                    )
+                )
+            );
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false || isset($row['cnt']) === false) {
+            return 0;
+        }
+
+        return (int) $row['cnt'];
+    }//end countByDashboardId()
+
+    /**
      * Get max sort order for a dashboard.
      *
      * @param int $dashboardId The dashboard ID.

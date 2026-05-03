@@ -30,11 +30,19 @@ namespace OCA\MyDash\Service;
 
 use DateTime;
 use Exception;
+use InvalidArgumentException;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Exception\ForbiddenException;
+use OCA\MyDash\Exception\InvalidDataUrlException;
+use OCA\MyDash\Exception\InvalidImageFormatException;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
+use RuntimeException;
+use Throwable;
 
 /**
  * Service for admin template CRUD operations and primary-group routing.
@@ -51,10 +59,27 @@ class AdminTemplateService
      * @param DashboardMapper       $dashboardMapper Dashboard mapper.
      * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
      * @param AdminSettingsService  $settingsService Admin settings reader
-     *                                               (provides the `group_order`
-     *                                               list).
+     *                                               (provides the
+     *                                               `group_order` list).
      * @param IGroupManager         $groupManager    Nextcloud group manager.
      * @param IUserManager          $userManager     Nextcloud user manager.
+     * @param ResourceService|null  $resourceService Resource-uploads
+     *                                               pipeline reused
+     *                                               for
+     *                                               preview-image
+     *                                               storage
+     *                                               (REQ-TMPL-017).
+     *                                               Optional so
+     *                                               existing wiring
+     *                                               + tests stay
+     *                                               valid.
+     * @param IDBConnection|null    $db              DB connection used to
+     *                                               wrap save-as-template
+     *                                               in a transaction
+     *                                               (REQ-TMPL-015).
+     *                                               Optional so test
+     *                                               wiring without a real
+     *                                               DB still works.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -62,6 +87,8 @@ class AdminTemplateService
         private readonly AdminSettingsService $settingsService,
         private readonly IGroupManager $groupManager,
         private readonly IUserManager $userManager,
+        private readonly ?ResourceService $resourceService=null,
+        private readonly ?IDBConnection $db=null,
     ) {
     }//end __construct()
 
@@ -391,5 +418,248 @@ class AdminTemplateService
                 $data['gridColumns']
             );
         }
+
+        if (array_key_exists(key: 'templateCategory', array: $data) === true) {
+            $template->setTemplateCategory(
+                $data['templateCategory']
+            );
+        }
+
+        if (array_key_exists(key: 'templateDescription', array: $data) === true) {
+            $template->setTemplateDescription(
+                $data['templateDescription']
+            );
+        }
+
+        if (array_key_exists(key: 'templatePreviewImage', array: $data) === true) {
+            $template->setTemplatePreviewImage(
+                $data['templatePreviewImage']
+            );
+        }
     }//end applyTemplateUpdates()
+
+    /**
+     * List admin templates for the discovery gallery (REQ-TMPL-014).
+     *
+     * Returns a serialised list of `{uuid, name, description, category,
+     * previewImage, gridColumns, widgetCount, lastUpdatedAt}` entries
+     * suitable for direct return to the frontend. Widget bodies are not
+     * fetched — `widgetCount` comes from a single COUNT query per
+     * template via {@see WidgetPlacementMapper::countByDashboardId()}.
+     *
+     * @param string|null $category Optional exact-match category filter.
+     * @param string      $sortBy   `'name'` (default) or `'updatedAt'`.
+     *
+     * @return array<int, array<string, mixed>> The gallery entries.
+     */
+    public function getGallery(
+        ?string $category=null,
+        string $sortBy='name'
+    ): array {
+        $templates = $this->dashboardMapper->findAllTemplatesForGallery(
+            category: $category,
+            sortBy: $sortBy
+        );
+
+        $result = [];
+        foreach ($templates as $template) {
+            $id       = (int) $template->getId();
+            $result[] = [
+                'uuid'          => $template->getUuid(),
+                'name'          => $template->getName(),
+                'description'   => $template->getTemplateDescription() ?? $template->getDescription(),
+                'category'      => $template->getTemplateCategory(),
+                'previewImage'  => $template->getTemplatePreviewImage(),
+                'gridColumns'   => $template->getGridColumns(),
+                'widgetCount'   => $this->placementMapper->countByDashboardId(
+                    dashboardId: $id
+                ),
+                'lastUpdatedAt' => $template->getUpdatedAt(),
+            ];
+        }
+
+        return $result;
+    }//end getGallery()
+
+    /**
+     * Save an existing personal dashboard as a new admin template
+     * (REQ-TMPL-015).
+     *
+     * Owner-only deep-copy: validates that `$dashboardUuid` belongs to
+     * `$userId` and is a `type = 'user'` row, then creates a new
+     * `type = 'admin_template'` row with a fresh UUID, inherited
+     * `gridColumns`, the supplied `{name, description, category,
+     * previewImage}` metadata, `userId = null`, `isActive = 0`,
+     * `isDefault = 0`, and `basedOnTemplate = null` (templates do NOT
+     * chain — REQ-TMPL-015 D3). All widget placements are byte-for-byte
+     * cloned via {@see WidgetPlacementMapper::cloneToDashboard()} inside
+     * a single transaction.
+     *
+     * @param string $userId        The acting user (must own the source).
+     * @param string $dashboardUuid The source personal dashboard UUID.
+     * @param array  $metadata      Required: `name`. Optional:
+     *                              `description`, `category`,
+     *                              `previewImage`.
+     *
+     * @return Dashboard The newly created admin template.
+     *
+     * @throws ForbiddenException    When the source is not owned by
+     *                               `$userId` or is not a `user` row.
+     * @throws DoesNotExistException When the source UUID does not exist
+     *                               at all (caller still maps to 403 to
+     *                               avoid leaking existence).
+     * @throws Throwable             On any DB error — the transaction is
+     *                               rolled back before rethrowing.
+     */
+    public function saveAsTemplate(
+        string $userId,
+        string $dashboardUuid,
+        array $metadata
+    ): Dashboard {
+        $name = trim((string) ($metadata['name'] ?? ''));
+        if ($name === '') {
+            throw new InvalidArgumentException(
+                message: 'Template name is required'
+            );
+        }
+
+        $source = $this->dashboardMapper->findOwnedByUserAndUuid(
+            userId: $userId,
+            uuid: $dashboardUuid
+        );
+        if ($source === null) {
+            throw new ForbiddenException(
+                message: 'You can only save your own dashboards as templates'
+            );
+        }
+
+        $now      = (new DateTime())->format(format: 'Y-m-d H:i:s');
+        $template = new Dashboard();
+        $template->setUuid($this->generateUuid());
+        $template->setName($name);
+        $template->setDescription($metadata['description'] ?? null);
+        $template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+        $template->setUserId(null);
+        $template->setGridColumns((int) $source->getGridColumns());
+        $template->setPermissionLevel(Dashboard::PERMISSION_ADD_ONLY);
+        $template->setTargetGroupsArray([]);
+        $template->setIsDefault(0);
+        $template->setIsActive(0);
+        $template->setBasedOnTemplate(null);
+        $template->setTemplateCategory(
+            $this->normaliseStringMeta(value: $metadata['category'] ?? null)
+        );
+        $template->setTemplateDescription(
+            $this->normaliseStringMeta(value: $metadata['description'] ?? null)
+        );
+        $template->setTemplatePreviewImage(
+            $this->normaliseStringMeta(value: $metadata['previewImage'] ?? null)
+        );
+        $template->setCreatedAt($now);
+        $template->setUpdatedAt($now);
+
+        $useTransaction = ($this->db !== null);
+        if ($useTransaction === true) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $persisted = $this->dashboardMapper->insert(entity: $template);
+
+            $this->placementMapper->cloneToDashboard(
+                sourceDashboardId: (int) $source->getId(),
+                targetDashboardId: (int) $persisted->getId()
+            );
+
+            if ($useTransaction === true) {
+                $this->db->commit();
+            }
+
+            return $persisted;
+        } catch (Throwable $t) {
+            if ($useTransaction === true) {
+                $this->db->rollBack();
+            }
+
+            throw $t;
+        }
+    }//end saveAsTemplate()
+
+    /**
+     * Upload a preview image for an admin template (REQ-TMPL-017).
+     *
+     * Reuses the resource-uploads pipeline (the "custom-icon-upload
+     * pattern") for storage: a base64 data URL `data:image/<type>;base64,
+     * <bytes>` is decoded, validated (PNG, JPG, GIF, WebP, SVG only),
+     * sanitised in the SVG case, and persisted via
+     * `IAppData::getFolder('resources')`. The returned URL is written
+     * back to the template's `templatePreviewImage` column.
+     *
+     * Admin-only: callers MUST gate via the controller before invoking
+     * — this service trusts its inputs because the resource-uploads
+     * pipeline is itself admin-only at the controller layer.
+     *
+     * @param string $templateUuid  The template UUID.
+     * @param string $base64DataUrl The `data:image/...;base64,...` URL.
+     *
+     * @return string The persisted preview-image URL.
+     *
+     * @throws DoesNotExistException       When the template UUID is
+     *                                     unknown or refers to a non-
+     *                                     template row.
+     * @throws InvalidDataUrlException     Bad data URL prefix.
+     * @throws InvalidImageFormatException Disallowed image type.
+     */
+    public function uploadPreviewImage(
+        string $templateUuid,
+        string $base64DataUrl
+    ): string {
+        if ($this->resourceService === null) {
+            throw new RuntimeException(
+                message: 'ResourceService is not wired in'
+            );
+        }
+
+        $template = $this->dashboardMapper->findByUuid(uuid: $templateUuid);
+        if ($template->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {
+            throw new DoesNotExistException(msg: 'Not an admin template');
+        }
+
+        $resource = $this->resourceService->upload(
+            base64DataUrl: $base64DataUrl
+        );
+
+        $template->setTemplatePreviewImage($resource['url']);
+        $template->setUpdatedAt(
+            (new DateTime())->format(format: 'Y-m-d H:i:s')
+        );
+        $this->dashboardMapper->update(entity: $template);
+
+        return (string) $resource['url'];
+    }//end uploadPreviewImage()
+
+    /**
+     * Coerce an incoming metadata field to a clean nullable string.
+     *
+     * Empty strings collapse to `null` so the stored value is unambiguous
+     * — gallery filters compare on equality and an empty-string category
+     * would create a phantom group.
+     *
+     * @param mixed $value The raw incoming value.
+     *
+     * @return string|null The cleaned value.
+     */
+    private function normaliseStringMeta(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim(string: (string) $value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        return $trimmed;
+    }//end normaliseStringMeta()
 }//end class

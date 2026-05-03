@@ -438,6 +438,28 @@ export const api = {
 		return axios.delete(`${baseUrl}/api/feed/token`)
 	},
 
+	// Org-wide navigation editor (REQ-ONAV-001..012). The GET endpoint
+	// is accessible to any logged-in user (the backend filters the tree
+	// by group visibility); the PUT endpoint is admin-only on the
+	// server. The position endpoints follow the same pattern. The lang
+	// query parameter selects which per-language JSON file is read or
+	// written; defaults to 'nl' on the backend.
+	getOrgNavigation(lang = 'nl') {
+		return axios.get(`${baseUrl}/api/admin/org-navigation`, { params: { lang } })
+	},
+
+	updateOrgNavigation(tree, lang = 'nl') {
+		return axios.put(`${baseUrl}/api/admin/org-navigation`, { tree }, { params: { lang } })
+	},
+
+	getOrgNavigationPosition() {
+		return axios.get(`${baseUrl}/api/admin/org-navigation/position`)
+	},
+
+	updateOrgNavigationPosition(position) {
+		return axios.put(`${baseUrl}/api/admin/org-navigation/position`, { position })
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

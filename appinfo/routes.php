@@ -372,5 +372,18 @@ return [
 		// `/api/admin/...` admin surface.
 		['name' => 'admin_cleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
 		['name' => 'admin_cleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
+
+		// Org-wide navigation editor (REQ-ONAV-001..012). The /position
+		// routes MUST precede the bare /org-navigation routes so the
+		// literal `position` suffix is matched before the wildcard
+		// {lang} query string is parsed.
+		['name' => 'admin_org_navigation#getPosition',
+		 'url' => '/api/admin/org-navigation/position', 'verb' => 'GET'],
+		['name' => 'admin_org_navigation#updatePosition',
+		 'url' => '/api/admin/org-navigation/position', 'verb' => 'PUT'],
+		['name' => 'admin_org_navigation#getOrgNavigation',
+		 'url' => '/api/admin/org-navigation', 'verb' => 'GET'],
+		['name' => 'admin_org_navigation#updateOrgNavigation',
+		 'url' => '/api/admin/org-navigation', 'verb' => 'PUT'],
 	],
 ];

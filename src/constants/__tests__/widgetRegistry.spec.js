@@ -270,4 +270,25 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('container')
 	})
+
+	it('REQ-WDG-022 / REQ-TILE-PLACEMENT: exposes a `tile` entry with renderer + form + spec defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.tile).toBeDefined()
+		expect(widgetRegistry.tile.renderer).toBeTruthy()
+		expect(widgetRegistry.tile.form).toBeTruthy()
+		expect(widgetRegistry.tile.defaultContent).toEqual({
+			title: '',
+			icon: '',
+			iconType: 'class',
+			backgroundColor: '#3b82f6',
+			textColor: '#ffffff',
+			linkType: 'app',
+			linkValue: '',
+		})
+	})
+
+	it('REQ-WDG-022: `tile` appears in listWidgetTypes() output (visible in picker)', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('tile')
+	})
 })

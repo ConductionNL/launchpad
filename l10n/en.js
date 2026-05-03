@@ -873,7 +873,19 @@ OC.L10N.register(
     "Title (optional)" : "Title (optional)",
     "Container nesting limit reached" : "Container nesting limit reached",
     "A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard." : "A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard.",
-    "Unknown widget type: {type}" : "Unknown widget type: {type}"
+    "Unknown widget type: {type}" : "Unknown widget type: {type}",
+    "Tile" : "Tile",
+    "Tile title" : "Tile title",
+    "Tile title is required" : "Tile title is required",
+    "Tile link target is required" : "Tile link target is required",
+    "Icon" : "Icon",
+    "Icon type" : "Icon type",
+    "Background color" : "Background color",
+    "Text color" : "Text color",
+    "Link type" : "Link type",
+    "App route" : "App route",
+    "URL" : "URL",
+    "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead." : "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead."
 },
 "nplurals=2; plural=(n != 1);"
 );

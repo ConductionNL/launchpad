@@ -72,28 +72,18 @@
 			</template>
 			{{ t('mydash', 'Dashboard configuration…') }}
 		</NcActionButton>
-		<NcActionButton
-			v-if="canEdit"
-			:close-after-click="true"
-			@click="$emit('add-tile')">
-			<template #icon>
-				<ShapeRectanglePlus :size="20" />
-			</template>
-			{{ t('mydash', 'Add tile…') }}
-		</NcActionButton>
-		<NcActionButton
-			v-if="canEdit"
-			:close-after-click="true"
-			@click="$emit('add-widget')">
-			<template #icon>
-				<ViewModule :size="20" />
-			</template>
-			{{ t('mydash', 'Add widget…') }}
-		</NcActionButton>
-		<!-- Custom widget types (label, text, image, link-button…) come from
-		     widgetRegistry.js — REQ-WDG-014. Only shown when the registry has
-		     at least one type with a usable form, so the menu never offers an
-		     option that opens an empty modal. -->
+		<!--
+			REQ-WDG-022 / unified-add-widget-flow: the standalone "Add tile…"
+			and "Add widget…" entries have been removed in favour of the
+			single unified picker below. Tile is now a registry-driven
+			widget type alongside label/text/image/link/etc. The legacy
+			parent emits (`add-tile`, `add-widget`) are still accepted by
+			Views.vue for backwards compatibility with existing callers.
+			Custom widget types come from widgetRegistry.js — REQ-WDG-014.
+			Only shown when the registry has at least one type with a
+			usable form, so the menu never offers an option that opens an
+			empty modal.
+		-->
 		<NcActionButton
 			v-if="canEdit && hasCustomWidgetTypes"
 			:close-after-click="true"
@@ -163,8 +153,6 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Tune from 'vue-material-design-icons/Tune.vue'
-import ViewModule from 'vue-material-design-icons/ViewModule.vue'
-import ShapeRectanglePlus from 'vue-material-design-icons/ShapeRectanglePlus.vue'
 import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 // AccountGroup is the only `dash.icon`-domain MDI import that remains in
@@ -191,8 +179,6 @@ export default {
 		Pencil,
 		ContentSave,
 		Tune,
-		ViewModule,
-		ShapeRectanglePlus,
 		ShapePolygonPlus,
 		BookOpenVariantOutline,
 		AccountGroup,

@@ -881,6 +881,18 @@
         "Title (optional)": "Titel (optioneel)",
         "Container nesting limit reached": "Maximale containernesting bereikt",
         "A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard.": "Een container houdt een subraster van onderliggende widgets vast. Voeg onderliggende widgets toe via het eigen raster van de container zodra deze op het dashboard staat.",
-        "Unknown widget type: {type}": "Onbekend widgettype: {type}"
+        "Unknown widget type: {type}": "Onbekend widgettype: {type}",
+        "Tile": "Tegel",
+        "Tile title": "Tegeltitel",
+        "Tile title is required": "Tegeltitel is verplicht",
+        "Tile link target is required": "Linkdoel van tegel is verplicht",
+        "Icon": "Pictogram",
+        "Icon type": "Pictogramtype",
+        "Background color": "Achtergrondkleur",
+        "Text color": "Tekstkleur",
+        "Link type": "Linktype",
+        "App route": "App-route",
+        "URL": "URL",
+        "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead.": "De herbruikbare tegel-API is niet meer beschikbaar. Gebruik in plaats daarvan de geünificeerde widget-toevoegstroom met type:tile."
     }
 }

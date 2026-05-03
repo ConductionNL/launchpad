@@ -201,4 +201,23 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('video')
 	})
+
+	it('REQ-CAL-001: exposes a `calendar` entry with renderer + form + defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.calendar).toBeDefined()
+		expect(widgetRegistry.calendar.renderer).toBeTruthy()
+		expect(widgetRegistry.calendar.form).toBeTruthy()
+		expect(widgetRegistry.calendar.defaultContent).toEqual({
+			internalCalendars: [],
+			externalIcsUrls: [],
+			viewMode: 'agenda',
+			daysAhead: 14,
+			colorByCalendar: true,
+		})
+	})
+
+	it('REQ-CAL-001: `calendar` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('calendar')
+	})
 })

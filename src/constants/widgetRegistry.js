@@ -88,6 +88,8 @@ import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
 import NewsForm from '../components/Widgets/Forms/NewsForm.vue'
 import VideoWidget from '../components/Widgets/Renderers/VideoWidget.vue'
 import VideoForm from '../components/Widgets/Forms/VideoForm.vue'
+import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
+import CalendarForm from '../components/Widgets/Forms/CalendarForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -290,6 +292,19 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Video'),
 		icon: 'Video',
+	},
+	calendar: {
+		renderer: CalendarWidget,
+		form: CalendarForm,
+		defaultContent: {
+			internalCalendars: [],
+			externalIcsUrls: [],
+			viewMode: 'agenda',
+			daysAhead: 14,
+			colorByCalendar: true,
+		},
+		displayName: t('mydash', 'Calendar'),
+		icon: 'Calendar',
 	},
 }
 

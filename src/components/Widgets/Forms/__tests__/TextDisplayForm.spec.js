@@ -93,7 +93,6 @@ describe('TextDisplayForm', () => {
 		expect(emitted[emitted.length - 1][0]).toMatchObject({ text: 'Y' })
 	})
 
-<<<<<<< HEAD
 	describe('REQ-TXMD-001/004/005: contentMode toggle', () => {
 		it('defaults to "markdown" in create mode (no editingWidget)', () => {
 			const wrapper = mount(TextDisplayForm, {
@@ -182,7 +181,9 @@ describe('TextDisplayForm', () => {
 			const last = emitted[emitted.length - 1][0]
 			expect(last).toHaveProperty('contentMode')
 			expect(['html', 'markdown']).toContain(last.contentMode)
-=======
+		})
+	})
+
 	describe('REQ-TBLE-002: table mode', () => {
 		it('defaults to text mode when no tableMode in initial content', () => {
 			const wrapper = mount(TextDisplayForm, {
@@ -254,7 +255,6 @@ describe('TextDisplayForm', () => {
 			expect(last.tableMode).toBe(true)
 			expect(last.tableData).toBeTruthy()
 			expect(last.text).toBe('X')
->>>>>>> feature/wave2-text-widget-tables
 		})
 	})
 })

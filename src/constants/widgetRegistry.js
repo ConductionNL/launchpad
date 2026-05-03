@@ -141,12 +141,9 @@ export const widgetRegistry = {
 			color: '',
 			backgroundColor: '',
 			textAlign: 'left',
-<<<<<<< HEAD
 			contentMode: 'markdown',
-=======
 			tableMode: false,
 			tableData: null,
->>>>>>> feature/wave2-text-widget-tables
 		},
 		displayName: t('mydash', 'Text'),
 		icon: 'FormatText',

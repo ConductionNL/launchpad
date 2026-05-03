@@ -154,7 +154,6 @@ The widget MUST fill its grid cell (`width: 100%, height: 100%`) with `padding: 
 - **WHEN** the widget renders
 - **THEN** the rendered text MUST be vertically centred in the cell
 
-<<<<<<< HEAD
 ### Requirement: REQ-TXMD-001 Add contentMode field to text-widget config
 
 The text-widget MUST support a `contentMode` field in its `styleConfig.content` object, with permitted values `'html'` or `'markdown'`. The field is optional; when absent, it defaults to `'html'` (backward compatibility with existing widgets). New widgets MUST receive a default determined by the system-wide default mode (see REQ-TXMD-005).
@@ -394,7 +393,7 @@ The markdown parser MUST recognise and render heading levels via the standard `#
 - GIVEN `text = "# Title\nThis is content.\n## Subsection\nMore content."`
 - WHEN the widget renders
 - THEN the DOM MUST contain `<h1>Title</h1><p>This is content.</p><h2>Subsection</h2><p>More content.</p>` (or semantic equivalent)
-=======
+
 ### Requirement: REQ-TBLE-001 Table Data Model
 
 The widget MUST store table content in a `tableData` JSON object within `styleConfig`, with the schema:
@@ -785,4 +784,3 @@ When a table is freshly created (empty cells, no user text), the renderer MUST d
 - WHEN the widget renders
 - THEN cells[0][1], [1][0], [1][1] MAY show placeholder (per-cell), but the table overall is not empty
 - NOTE: Placeholder is per-cell, not per-table.
->>>>>>> feature/wave2-text-widget-tables

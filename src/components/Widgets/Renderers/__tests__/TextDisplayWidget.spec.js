@@ -180,7 +180,6 @@ describe('TextDisplayWidget', () => {
 		})
 	})
 
-<<<<<<< HEAD
 	describe('REQ-TXMD-001 / REQ-TXMD-006: contentMode default and backward compatibility', () => {
 		it('absent contentMode renders as legacy HTML (does not parse markdown syntax)', () => {
 			const wrapper = mount(TextDisplayWidget, {
@@ -411,7 +410,9 @@ describe('TextDisplayWidget', () => {
 			const rel = a.attributes('rel') || ''
 			expect(rel).toContain('noopener')
 			expect(rel).toContain('noreferrer')
-=======
+		})
+	})
+
 	describe('REQ-TBLE-009: table-mode rendering', () => {
 		const sampleTable = (overrides = {}) => ({
 			tableMode: true,
@@ -515,7 +516,6 @@ describe('TextDisplayWidget', () => {
 			})
 			expect(wrapper.find('table').exists()).toBe(false)
 			expect(wrapper.text()).toContain('plain')
->>>>>>> feature/wave2-text-widget-tables
 		})
 	})
 })

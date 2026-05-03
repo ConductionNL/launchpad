@@ -65,11 +65,8 @@
 
 <script>
 import DOMPurify from 'dompurify'
-<<<<<<< HEAD
 import { marked } from 'marked'
-=======
 import { isPlaceholderCell } from '../../../utils/textTable.js'
->>>>>>> feature/wave2-text-widget-tables
 
 /**
  * TextDisplayWidget renders user-authored multi-line text inside a dashboard
@@ -82,7 +79,6 @@ import { isPlaceholderCell } from '../../../utils/textTable.js'
  * `{type: 'text', content: {text, fontSize, color, backgroundColor,
  * textAlign, contentMode}}`. Defaults: `fontSize='14px'`,
  * `color='var(--color-main-text)'`, `backgroundColor='transparent'`,
-<<<<<<< HEAD
  * `textAlign='left'`, `contentMode='html'` (existing widgets) /
  * `'markdown'` (new widgets via registry default).
  *
@@ -93,9 +89,6 @@ import { isPlaceholderCell } from '../../../utils/textTable.js'
  *
  * Empty/whitespace `text` shows a localised italic placeholder so the cell
  * stays a visible drop target.
-=======
- * `textAlign='left'`. Empty/whitespace `text` shows a localised italic
- * placeholder so the cell stays a visible drop target.
  *
  * REQ-TBLE-002 / REQ-TBLE-009: When `content.tableMode === true`, the
  * renderer draws an HTML `<table>` from `content.tableData` instead. Cell
@@ -104,7 +97,6 @@ import { isPlaceholderCell } from '../../../utils/textTable.js'
  * and `colSpan` / `rowSpan` are emitted as native HTML attributes. Cells that
  * have been "swallowed" by a neighbouring merge are hidden via `v-show` so
  * the visual grid stays rectangular.
->>>>>>> feature/wave2-text-widget-tables
  */
 
 // Configure marked once at module-load time; `gfm: true` enables tables, and
@@ -376,7 +368,6 @@ export default {
 	max-width: 100%;
 }
 
-<<<<<<< HEAD
 /* Markdown-mode rendering normalises spacing for headings, lists, blockquotes
    and tables so the parsed output sits naturally inside the cell rather
    than inheriting browser defaults that look out of place in a small grid
@@ -434,7 +425,8 @@ export default {
 .text-display-widget__content--markdown :deep(td) {
 	padding: 4px 8px;
 	border: 1px solid var(--color-border);
-=======
+}
+
 .text-display-widget__table {
 	border-collapse: collapse;
 	width: 100%;
@@ -450,6 +442,5 @@ export default {
 .text-display-widget__cell-placeholder {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
->>>>>>> feature/wave2-text-widget-tables
 }
 </style>

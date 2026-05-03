@@ -21,8 +21,9 @@ namespace OCA\MyDash\Controller;
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\AdminSettingsService;
+use OCA\MyDash\Service\AdminTemplateService;
+use OCA\MyDash\Service\FeedRefreshService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -32,6 +33,8 @@ use OCP\IUserSession;
 
 /**
  * Controller for admin dashboard template management.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class AdminController extends Controller
 {
@@ -43,6 +46,7 @@ class AdminController extends Controller
      * @param AdminSettingsService $settingsService The admin settings service.
      * @param IGroupManager        $groupManager    The Nextcloud group manager.
      * @param IUserSession         $userSession     The current user session.
+     * @param FeedRefreshService   $feedRefresh     The background feed refresh service.
      */
     public function __construct(
         IRequest $request,
@@ -50,6 +54,7 @@ class AdminController extends Controller
         private readonly AdminSettingsService $settingsService,
         private readonly IGroupManager $groupManager,
         private readonly IUserSession $userSession,
+        private readonly FeedRefreshService $feedRefresh,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -375,6 +380,48 @@ class AdminController extends Controller
             ]
         );
     }//end updateGroupOrder()
+
+    /**
+     * Trigger an immediate background feed refresh (REQ-FRJ-010).
+     *
+     * Admin-only — guarded by {@see self::requireAdmin()}. Optionally
+     * scope the refresh to a single feed URL (must be HTTP/HTTPS).
+     * Returns `{processedCount, successCount, failureCount, durationMs}`.
+     *
+     * @param string|null $feedUrl Optional single URL to refresh.
+     *
+     * @return JSONResponse The aggregate refresh summary.
+     *
+     * @NoAdminRequired
+     */
+    public function refreshFeedsNow(?string $feedUrl=null): JSONResponse
+    {
+        $guard = $this->requireAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        if ($feedUrl !== null && $feedUrl !== '') {
+            $scheme = strtolower(
+                string: (string) parse_url(
+                    url: $feedUrl,
+                    component: PHP_URL_SCHEME
+                )
+            );
+            if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
+                return new JSONResponse(
+                    data: [
+                        'error' => 'feedUrl must use http:// or https:// scheme.',
+                    ],
+                    statusCode: Http::STATUS_BAD_REQUEST
+                );
+            }
+        }
+
+        $summary = $this->feedRefresh->refreshAll(onlyUrl: $feedUrl);
+
+        return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
+    }//end refreshFeedsNow()
 
     /**
      * Verify the current session belongs to a Nextcloud admin.

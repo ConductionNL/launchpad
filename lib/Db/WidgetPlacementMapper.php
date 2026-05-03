@@ -103,6 +103,31 @@ class WidgetPlacementMapper extends QBMapper
     }//end findByDashboardId()
 
     /**
+     * Find all placements that reference a given widget id across the
+     * entire instance — used by {@see \OCA\MyDash\Service\FeedRefreshService::discoverFeedUrls()}
+     * to pull every news-widget placement before each refresh tick
+     * (REQ-FRJ-003).
+     *
+     * @param string $widgetId The widget id (e.g. `'mydash_news'`).
+     *
+     * @return WidgetPlacement[] The matching placements.
+     */
+    public function findByWidgetId(string $widgetId): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'widget_id',
+                    y: $qb->createNamedParameter(value: $widgetId)
+                )
+            );
+
+        return $this->findEntities(query: $qb);
+    }//end findByWidgetId()
+
+    /**
      * Find placement by dashboard and widget ID.
      *
      * @param int    $dashboardId The dashboard ID.

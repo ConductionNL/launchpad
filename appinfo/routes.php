@@ -156,5 +156,9 @@ return [
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'admin_settings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'admin_settings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+
+		// Background feed-refresh trigger (REQ-FRJ-010). Admin-only via
+		// runtime `IGroupManager::isAdmin` check inside the controller.
+		['name' => 'admin#refreshFeedsNow', 'url' => '/api/admin/feeds/refresh-now', 'verb' => 'POST'],
 	],
 ];

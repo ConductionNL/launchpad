@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\AppInfo;
 
+use OCA\MyDash\Job\FeedRefreshJob;
 use OCA\MyDash\Listener\UserDeletedListener;
 use OCA\MyDash\Notification\Notifier;
 use OCP\AppFramework\App;
@@ -72,5 +73,20 @@ class Application extends App implements IBootstrap
     {
         // App initialization after all apps are registered.
         \OCP\Util::addStyle(application: self::APP_ID, file: 'mydash');
+
+        // Register the periodic external-feed refresh job
+        // (REQ-FRJ-002). `IJobList::add` is idempotent — adding an
+        // already-registered job is a no-op.
+        try {
+            $jobList = $context->getServerContainer()->get(\OCP\BackgroundJob\IJobList::class);
+            $jobList->add(FeedRefreshJob::class);
+        } catch (\Throwable $exception) {
+            $context->getServerContainer()
+                ->get(\Psr\Log\LoggerInterface::class)
+                ->warning(
+                    'Failed to register FeedRefreshJob: '.$exception->getMessage(),
+                    ['app' => self::APP_ID]
+                );
+        }
     }//end boot()
 }//end class

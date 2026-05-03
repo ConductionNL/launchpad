@@ -23,6 +23,7 @@ namespace Unit\Controller;
 use OCA\MyDash\Controller\AdminController;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
+use OCA\MyDash\Service\FeedRefreshService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -44,6 +45,8 @@ class AdminControllerGroupOrderTest extends TestCase
     private $groupManager;
     /** @var IUserSession&MockObject */
     private $userSession;
+    /** @var FeedRefreshService&MockObject */
+    private $feedRefresh;
 
     protected function setUp(): void
     {
@@ -52,6 +55,7 @@ class AdminControllerGroupOrderTest extends TestCase
         $this->settingsService = $this->createMock(AdminSettingsService::class);
         $this->groupManager    = $this->createMock(IGroupManager::class);
         $this->userSession     = $this->createMock(IUserSession::class);
+        $this->feedRefresh     = $this->createMock(FeedRefreshService::class);
 
         $this->controller = new AdminController(
             request: $this->request,
@@ -59,6 +63,7 @@ class AdminControllerGroupOrderTest extends TestCase
             settingsService: $this->settingsService,
             groupManager: $this->groupManager,
             userSession: $this->userSession,
+            feedRefresh: $this->feedRefresh,
         );
     }
 

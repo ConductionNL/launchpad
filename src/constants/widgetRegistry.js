@@ -48,6 +48,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import HeaderWidget from '../components/Widgets/Renderers/HeaderWidget.vue'
+import HeaderForm from '../components/Widgets/Forms/HeaderForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +124,27 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	header: {
+		renderer: HeaderWidget,
+		form: HeaderForm,
+		defaultContent: {
+			title: '',
+			subtitle: '',
+			backgroundImageUrl: '',
+			backgroundImageFileId: null,
+			backgroundColor: '',
+			overlayMode: 'none',
+			overlayColor: '',
+			overlayOpacity: 0.4,
+			textColor: '',
+			textAlign: 'center',
+			verticalAlign: 'middle',
+			height: 'medium',
+			cta: null,
+		},
+		displayName: t('mydash', 'Header Banner'),
+		icon: 'ViewHeadline',
 	},
 }
 

@@ -3,14 +3,25 @@
 /**
  * GroupDeletedListener
  *
- * Listens to OCP\Group\Events\GroupDeletedEvent and removes any MyDash
- * role assignments scoped to the deleted group. REQ-ROLE-011.
+ * Listens to OCP\Group\Events\GroupDeletedEvent and cascades MyDash
+ * cleanup for the deleted group.
  *
- * The listener is intentionally narrow — it only touches the role
- * assignment table. Dashboard-share cleanup for deleted groups is
- * handled by Nextcloud's own group lifecycle (`UserDeletedListener`
- * deals with member fan-out via per-user events) and is therefore not
- * duplicated here.
+ * Live coverage:
+ *   1. Removes any MyDash role assignments scoped to the deleted group
+ *      via RoleService::deleteByGroupId. REQ-ROLE-011.
+ *
+ * Pending follow-ups (TODO, owned by dashboard-sharing /
+ * navigation-editor-org):
+ *   - Enumerate group-shared dashboards owned by the deleted group and
+ *     call DashboardService::delete() for each (which dispatches
+ *     DashboardDeletedEvent and fires the full cascade).
+ *   - Drop the group from `mydash.org_navigation_tree` JSON
+ *     groupVisibility arrays.
+ *   - Drop the group from the `mydash.group_order` IConfig array.
+ *   REQ-CSC-005.
+ *
+ * Failures are best-effort: the listener logs and continues so the
+ * Nextcloud group-deletion event chain is never interrupted (REQ-CSC-006).
  *
  * @category  Listener
  * @package   OCA\MyDash\Listener
@@ -36,7 +47,8 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Cascade role-assignment removal on group deletion (REQ-ROLE-011).
+ * Cascade role-assignment removal on group deletion (REQ-ROLE-011 +
+ * REQ-CSC-005 scaffolding for the wider group-scoped cleanup roadmap).
  *
  * @implements IEventListener<GroupDeletedEvent>
  */
@@ -83,6 +95,6 @@ class GroupDeletedListener implements IEventListener
                 ),
                 context: ['app' => 'mydash']
             );
-        }
+        }//end try
     }//end handle()
 }//end class

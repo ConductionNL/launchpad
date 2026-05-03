@@ -46,7 +46,10 @@ use Psr\Log\LoggerInterface;
  *                                                  and service layers
  *                                                  (dashboard, share,
  *                                                  permission, factory)
- *                                                  — splitting would
+ *                                                  plus personal +
+ *                                                  group-shared +
+ *                                                  resolution scopes —
+ *                                                  splitting would
  *                                                  fragment the routing
  *                                                  surface.
  */

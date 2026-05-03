@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+  - SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>sendentworkspace</id>
+	<name>Sendent Workspace</name>
+	<summary>Customizable workspace with dynamic grid layout</summary>
+	<description>Customizable workspace with dynamic grid layout.</description>
+	<version>1.0.0</version>
+	<licence>agpl</licence>
+	<author>Luc Pasmans</author>
+	<namespace>SendentWorkspace</namespace>
+
+	<category>customization</category>
+	<category>dashboard</category>
+
+	<bugs>https://sendent.freshdesk.com/</bugs>
+
+	<dependencies>
+		<nextcloud min-version="31" max-version="33"/>
+	</dependencies>
+
+	<navigations>
+		<navigation>
+			<name>Workspace</name>
+			<route>sendentworkspace.workspace.index</route>
+			<icon>app.svg</icon>
+			<order>-9</order>
+		</navigation>
+	</navigations>
+
+	<settings>
+		<admin>OCA\SendentWorkspace\Settings\Admin\AdminSettings</admin>
+		<admin-section>OCA\SendentWorkspace\Settings\Admin\Section</admin-section>
+	</settings>
+</info>

@@ -1,0 +1,246 @@
+{
+    "uniqueId": "page-7627c303-1418-4591-b4ec-3d2df36eea77",
+    "title": "Branding & Huisstijl",
+    "language": "nl",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Branding & Huisstijl",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Voorbeeld huisstijlpagina. Pas de kleuren, logo's en typografie aan naar uw eigen organisatie."
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Primaire Kleuren",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**Primaire kleur**\n#XXXXXX\nRGB: X, X, X\n\n**Secundaire kleur**\n#XXXXXX\nRGB: X, X, X\n\n*Vul uw eigen kleuren in*"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 1,
+                        "content": "Secundaire Kleuren",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 2,
+                        "content": "**Neutrale kleur licht**\n#XXXXXX\nRGB: X, X, X\n\n**Neutrale kleur donker**\n#XXXXXX\nRGB: X, X, X\n\n*Vul uw eigen kleuren in*"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 1,
+                        "content": "Accent Kleuren",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 2,
+                        "content": "**Succes kleur**\n#XXXXXX\nRGB: X, X, X\n\n**Waarschuwing kleur**\n#XXXXXX\nRGB: X, X, X\n\n*Vul uw eigen kleuren in*"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 2,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "logo-dark.jpg",
+                        "alt": "Logo op donkere achtergrond",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Logo Gebruik",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "**Do's:**\n- Gebruik het logo met voldoende witruimte\n- Gebruik alleen goedgekeurde kleurvariaties\n- Houd de verhoudingen intact\n\n**Don'ts:**\n- Verander de kleuren niet\n- Rek het logo niet uit\n- Voeg geen effecten toe"
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "typography.jpg",
+                        "alt": "Typografie voorbeelden",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Typografie",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "**Headlines:** Inter Bold\nGebruik voor koppen en titels\n\n**Body text:** Inter Regular\nVoor lopende tekst en content\n\n**Code:** JetBrains Mono\nTechnische documentatie"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Download Brand Assets",
+                        "level": 2
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 2,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "Logo Pakket",
+                                "text": "SVG, PNG, EPS formaten",
+                                "url": "#",
+                                "icon": "file-image",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Kleurenpaletten",
+                                "text": "ASE, CLR bestanden",
+                                "url": "#",
+                                "icon": "palette",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Font Licenties",
+                                "text": "Webfonts en desktop",
+                                "url": "#",
+                                "icon": "format-font",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Templates",
+                                "text": "PowerPoint, Word, etc.",
+                                "url": "#",
+                                "icon": "file-document-multiple",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 1,
+                        "columns": 3,
+                        "items": [
+                            {
+                                "title": "Social Media",
+                                "text": "Social templates",
+                                "url": "#afdeling/marketing/social-media",
+                                "icon": "share-variant",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Campagnes",
+                                "text": "Actieve campagnes",
+                                "url": "#afdeling/marketing/campagnes",
+                                "icon": "rocket",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Marketing",
+                                "text": "Terug naar Marketing",
+                                "url": "#afdeling/marketing",
+                                "icon": "arrow-left",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

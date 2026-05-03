@@ -1,0 +1,353 @@
+{
+    "uniqueId": "page-4ab987ae-afc7-4cc4-8190-1cd1bfac2887",
+    "title": "Evenementen",
+    "language": "nl",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "events-hero.jpg",
+                        "alt": "Evenementen",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Evenementen",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Dit is een demo evenementenpagina. Gebruik deze layout om aankomende bedrijfsevenementen, vergaderingen of belangrijke data te tonen."
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Voorbeeld: Aankomende Evenementen",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "De twee-kolommen layout hieronder laat zien hoe u event cards kunt tonen met afbeeldingen, beschrijvingen en actieknoppen."
+                    }
+                ]
+            },
+            {
+                "columns": 2,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "webinar.jpg",
+                        "alt": "Webinar",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Voorbeeld: Online Webinar",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Voeg hier eventdetails toe:\n\n- Datum en tijd\n- Locatie (online/fysiek)\n- Beschrijving\n- Registratielink"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 4,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "title": "Registreren",
+                                "text": "Meld je aan voor dit event",
+                                "url": "#",
+                                "icon": "calendar-check",
+                                "target": "_self"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "workshop.jpg",
+                        "alt": "Workshop",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Voorbeeld: Fysieke Workshop",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "Fysieke events kunnen bevatten:\n\n- Locatieadres\n- Parkeermogelijkheden\n- Maximaal aantal deelnemers\n- Wat mee te nemen"
+                    },
+                    {
+                        "type": "links",
+                        "column": 2,
+                        "order": 4,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "title": "Registreren",
+                                "text": "Beperkt aantal plaatsen",
+                                "url": "#",
+                                "icon": "calendar-check",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Snelkoppelingen Kalender",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "De Links widget kan worden gebruikt voor een visueel kalenderoverzicht:"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "Q1",
+                                "text": "Eerste kwartaal events",
+                                "url": "#",
+                                "icon": "video",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Q2",
+                                "text": "Tweede kwartaal events",
+                                "url": "#",
+                                "icon": "school",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Q3",
+                                "text": "Derde kwartaal events",
+                                "url": "#",
+                                "icon": "party-popper",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Q4",
+                                "text": "Vierde kwartaal events",
+                                "url": "#",
+                                "icon": "calendar",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Tabel Voorbeeld: Afgelopen Evenementen",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Gebruik Markdown tabellen voor gestructureerde informatie:\n\n| Kwartaal | Event Type | Status |\n|----------|------------|--------|\n| Q1 | Training Sessie | Afgerond |\n| Q2 | Team Building | Afgerond |\n| Q3 | Conferentie | Afgerond |\n| Q4 | Jaarlijkse Meeting | Gepland |"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "title": "Bekijk Archief",
+                                "text": "Alle afgelopen events",
+                                "url": "#",
+                                "icon": "video-box",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Gerelateerde Pagina's",
+                        "level": 2
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 2,
+                        "columns": 3,
+                        "items": [
+                            {
+                                "title": "Updates",
+                                "text": "Laatste nieuws",
+                                "url": "#nieuws/updates",
+                                "icon": "update",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Nieuws",
+                                "text": "Alle berichten",
+                                "url": "#nieuws",
+                                "icon": "newspaper",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Contact",
+                                "text": "Neem contact op",
+                                "url": "#contact",
+                                "icon": "email",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": true,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Zijkolom",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Dit demonstreert een **rechter zijkolom**. Gebruik deze voor:\n\n- Snelle info\n- Highlights\n- Call to action"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "text": "Voorbeeld Knop",
+                                "url": "#",
+                                "icon": "calendar-plus"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 4,
+                        "style": "solid",
+                        "color": "",
+                        "height": "1px"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 5,
+                        "content": "Abonneren",
+                        "level": 4
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 6,
+                        "content": "Voeg hier abonnement formulieren of nieuwsbrief links toe."
+                    }
+                ]
+            }
+        }
+    }
+}

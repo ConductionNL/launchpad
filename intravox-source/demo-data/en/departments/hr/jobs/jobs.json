@@ -1,0 +1,126 @@
+{
+    "uniqueId": "page-b1d4d55d-28d8-4cf2-867a-95e8a09fe0cc",
+    "title": "Careers",
+    "language": "en",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Careers",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "This is a demo careers page. Use this layout to showcase job openings and attract talent to your organization."
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Department A",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**Example Position 1**\nFull-time\n\n**Example Position 2**\nFull-time\n\n**Example Position 3**\nPart-time"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 1,
+                        "content": "Department B",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 2,
+                        "content": "**Example Position 4**\nFull-time\n\n**Example Position 5**\nPart-time\n\n**Example Position 6**\nContract"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 1,
+                        "content": "Department C",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 2,
+                        "content": "**Example Position 7**\nFull-time\n\n**Example Position 8**\nRemote\n\n**Example Position 9**\nInternship"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "How to Apply",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Add application instructions here:\n\n1. Review the job description\n2. Prepare your resume and cover letter\n3. Submit your application\n4. We'll respond within a few business days"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 1,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "title": "Back to HR",
+                                "text": "HR overview",
+                                "url": "#page-e6f2f90b-ee77-42f8-a1a6-45948a67e37e",
+                                "icon": "arrow-left",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

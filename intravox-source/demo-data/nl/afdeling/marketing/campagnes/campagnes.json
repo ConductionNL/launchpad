@@ -1,0 +1,217 @@
+{
+    "uniqueId": "page-d4e5f6a7-b8c9-0123-def1-234567890123",
+    "title": "Campagnes",
+    "language": "nl",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "campaign-hero.jpg",
+                        "alt": "Marketing Campagnes",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Marketing Campagnes",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Overzicht van onze marketing initiatieven en campagnes."
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Actieve Campagnes",
+                        "level": 2
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Open Source Week",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**Status:** Voorbeeld\n**Periode:** Doorlopend\n\nVoorbeeld van een actieve marketingcampagne. Pas dit aan naar uw eigen campagnes."
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 1,
+                        "content": "Nextcloud Conference",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 2,
+                        "content": "**Status:** Voorbeeld\n**Periode:** Gepland\n\nVoorbeeld van een geplande campagne. Voeg hier uw eigen campagnes toe."
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 1,
+                        "content": "GDPR Awareness",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 2,
+                        "content": "**Status:** Voorbeeld\n**Periode:** Doorlopend\n\nVoorbeeld van een doorlopende campagne met lange termijn focus."
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Voltooide Campagnes",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "| Campagne | Periode | Resultaat |\n|----------|---------|----------|\n| Voorbeeld Campagne 1 | Periode | Resultaat |\n| Voorbeeld Campagne 2 | Periode | Resultaat |\n| Voorbeeld Campagne 3 | Periode | Resultaat |\n\n*Pas deze tabel aan met uw eigen campagne historie.*"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Campagne Resources",
+                        "level": 2
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 2,
+                        "columns": 3,
+                        "items": [
+                            {
+                                "title": "Brand Guidelines",
+                                "text": "Logo's en huisstijl",
+                                "url": "https://nextcloud.com/press/",
+                                "icon": "palette",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "Media Kit",
+                                "text": "Persmateriaal downloaden",
+                                "url": "https://nextcloud.com/press/",
+                                "icon": "download",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "Contact Marketing",
+                                "text": "Vragen? Neem contact op",
+                                "url": "#contact",
+                                "icon": "email",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 1,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "title": "Terug naar Marketing",
+                                "text": "Marketing afdeling overview",
+                                "url": "#marketing",
+                                "icon": "arrow-left",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

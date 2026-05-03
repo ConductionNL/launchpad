@@ -1,0 +1,335 @@
+{
+    "type": "megamenu",
+    "items": [
+        {
+            "id": "nav_home",
+            "title": "Home",
+            "uniqueId": "page-61e74e0f-f7ff-4734-b1bd-6d48e1cae3e2",
+            "url": null,
+            "target": null,
+            "children": []
+        },
+        {
+            "id": "nav_over",
+            "title": "About IntraVox",
+            "uniqueId": "page-385b2171-18cb-4eb9-82a9-7264f8f10176",
+            "url": null,
+            "target": null,
+            "children": [
+                {
+                    "id": "nav_functies",
+                    "title": "Features",
+                    "uniqueId": "page-41989fcd-ce8b-45d6-9254-602feffa3c5d",
+                    "url": null,
+                    "target": null,
+                    "children": [
+                        {
+                            "id": "nav_widgets",
+                            "title": "Widgets",
+                            "uniqueId": "page-a1752e53-ec89-456c-a088-74623339ba91",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_layouts",
+                            "title": "Layouts",
+                            "uniqueId": "page-c597e56c-a9ba-44b2-9c41-bba668c4a570",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_navigatie",
+                            "title": "Navigation",
+                            "uniqueId": "page-1ad6f445-a794-4eff-b205-47887d0d8998",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "id": "nav_nextcloud",
+                    "title": "Nextcloud Platform",
+                    "uniqueId": "page-3647cead-9bc9-4f49-9422-ac31418a9cad",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                },
+                {
+                    "id": "nav_klanten",
+                    "title": "Customers & Cases",
+                    "uniqueId": "page-21677df6-eac5-48cc-8195-f2bb3f1f53b6",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "nav_afdelingen",
+            "title": "Departments",
+            "uniqueId": "page-19ce6a0b-5e6b-4d88-9424-2981496ae1d2",
+            "url": null,
+            "target": null,
+            "children": [
+                {
+                    "id": "nav_marketing",
+                    "title": "Marketing",
+                    "uniqueId": "page-2c866904-5a6a-4f59-affa-7121d5333824",
+                    "url": null,
+                    "target": null,
+                    "children": [
+                        {
+                            "id": "nav_campagnes",
+                            "title": "Campaigns",
+                            "uniqueId": "page-7f13fcbd-41da-4ae7-8e76-63d3ea354129",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_social",
+                            "title": "Social Media",
+                            "uniqueId": "page-853ae2cf-d77f-4f65-ba09-b714b16116c3",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_branding",
+                            "title": "Branding",
+                            "uniqueId": "page-78777fb8-14ba-4db1-8595-9cfb3f8954bf",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "id": "nav_sales",
+                    "title": "Sales",
+                    "uniqueId": "page-824924f9-d036-42bf-845f-18764bd1239c",
+                    "url": null,
+                    "target": null,
+                    "children": [
+                        {
+                            "id": "nav_crm",
+                            "title": "CRM & Customer Management",
+                            "uniqueId": "page-c53a3a2e-4973-4abe-b22f-d334cf289dc5",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_pipeline",
+                            "title": "Sales Pipeline",
+                            "uniqueId": "page-6db93f73-9418-4a1a-aeef-9c1050680808",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_targets",
+                            "title": "Sales Targets",
+                            "uniqueId": "page-0624b690-ffbf-45ea-a824-59b2a0f43dae",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "id": "nav_hr",
+                    "title": "HR",
+                    "uniqueId": "page-e6f2f90b-ee77-42f8-a1a6-45948a67e37e",
+                    "url": null,
+                    "target": null,
+                    "children": [
+                        {
+                            "id": "nav_vacatures",
+                            "title": "Job Openings",
+                            "uniqueId": "page-b1d4d55d-28d8-4cf2-867a-95e8a09fe0cc",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_onboarding",
+                            "title": "Onboarding",
+                            "uniqueId": "page-784d9132-cf2c-4448-a62c-0bf024bab1be",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_policies",
+                            "title": "HR Policies",
+                            "uniqueId": "page-65efaed4-dd68-40c3-a836-41298a041602",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        }
+                    ]
+                },
+                {
+                    "id": "nav_it",
+                    "title": "IT",
+                    "uniqueId": "page-7768529b-27aa-49d2-84bc-f087f0bc1ab7",
+                    "url": null,
+                    "target": null,
+                    "children": [
+                        {
+                            "id": "nav_helpdesk",
+                            "title": "IT Helpdesk",
+                            "uniqueId": "page-83ca1453-56d7-43e1-8258-eb902b7a07a3",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_systemen",
+                            "title": "Systems & Tools",
+                            "uniqueId": "page-05e982e8-b7e9-4242-b2dd-306f5d33840b",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        },
+                        {
+                            "id": "nav_security",
+                            "title": "Security & Privacy",
+                            "uniqueId": "page-44b0c8aa-135e-48d0-8837-21fb5c1a1d8b",
+                            "url": null,
+                            "target": null,
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "nav_documentatie",
+            "title": "Documentation",
+            "uniqueId": "page-e74a970d-aac2-4ea3-a837-cb33d483e76c",
+            "url": null,
+            "target": null,
+            "children": [
+                {
+                    "id": "nav_installatie",
+                    "title": "Installation",
+                    "uniqueId": "page-3e92d5d0-0e08-4def-80ef-ab87da56a649",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                },
+                {
+                    "id": "nav_handleidingen",
+                    "title": "User Guides",
+                    "uniqueId": "page-e1ee4b1d-382c-465c-b526-35d0496b5a3d",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                },
+                {
+                    "id": "nav_api",
+                    "title": "API",
+                    "uniqueId": "page-87006557-da0c-478d-964c-fbee1c75478a",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                },
+                {
+                    "id": "nav_faq",
+                    "title": "FAQ",
+                    "uniqueId": "page-e67d65ed-3449-46b4-9b20-15962d68da22",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                },
+                {
+                    "id": "nav_tips",
+                    "title": "Tips & Tricks",
+                    "uniqueId": "page-de5fe81e-782a-4c56-9e2a-1ed02aebb77e",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "nav_nieuws",
+            "title": "News",
+            "uniqueId": "page-84a37a4e-63ab-4e8a-a672-98d43d7e523b",
+            "url": null,
+            "target": null,
+            "children": [
+                {
+                    "id": "nav_updates",
+                    "title": "Product Updates",
+                    "uniqueId": "page-3118bbb6-8289-4b74-90e8-80e3d06ddd84",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                },
+                {
+                    "id": "nav_evenementen",
+                    "title": "Events",
+                    "uniqueId": "page-9c5eae33-ddd2-47f8-b9da-b0b19b981c3c",
+                    "url": null,
+                    "target": null,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": "nav_contact",
+            "title": "Contact",
+            "uniqueId": "page-fb78f50f-a053-4193-b9d2-1af414217ccf",
+            "url": null,
+            "target": null,
+            "children": []
+        },
+        {
+            "id": "nav_externe_links",
+            "title": "External Links",
+            "uniqueId": null,
+            "url": null,
+            "target": null,
+            "children": [
+                {
+                    "id": "nav_nextcloud_com",
+                    "title": "Nextcloud.com",
+                    "uniqueId": null,
+                    "url": "https://nextcloud.com",
+                    "target": "_blank",
+                    "children": []
+                },
+                {
+                    "id": "nav_github",
+                    "title": "GitHub",
+                    "uniqueId": null,
+                    "url": "https://github.com/nextcloud",
+                    "target": "_blank",
+                    "children": []
+                },
+                {
+                    "id": "nav_docs_ext",
+                    "title": "Nextcloud Docs",
+                    "uniqueId": null,
+                    "url": "https://docs.nextcloud.com",
+                    "target": "_blank",
+                    "children": []
+                },
+                {
+                    "id": "nav_community",
+                    "title": "Community Forum",
+                    "uniqueId": null,
+                    "url": "https://help.nextcloud.com",
+                    "target": "_blank",
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

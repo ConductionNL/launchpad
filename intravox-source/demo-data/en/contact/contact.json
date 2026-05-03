@@ -1,0 +1,270 @@
+{
+    "uniqueId": "page-fb78f50f-a053-4193-b9d2-1af414217ccf",
+    "title": "Contact",
+    "language": "en",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "office.jpg",
+                        "alt": "Contact us",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Contact",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "This is a demo contact page. In a real intranet, this would contain your organization's contact information."
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "email.jpg",
+                        "alt": "Email contact",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Get In Touch",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "You can add contact details here such as:\n\n- General inquiries email\n- Support email\n- Phone numbers\n- Office hours"
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "office-phone.jpg",
+                        "alt": "Phone",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Location",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "Add your office location here:\n\n- Street address\n- City and postal code\n- Country\n- Directions"
+                    },
+                    {
+                        "type": "image",
+                        "column": 3,
+                        "order": 1,
+                        "src": "support.jpg",
+                        "alt": "Support team",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 2,
+                        "content": "Support",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 3,
+                        "content": "Link to support resources:\n\n- Help desk system\n- Knowledge base\n- FAQ pages\n- Support hours"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Contact Options",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "The Links widget below shows how you can create quick-access buttons for different contact methods:"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "Email",
+                                "text": "General inquiries",
+                                "url": "#",
+                                "icon": "email",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Support",
+                                "text": "Technical help",
+                                "url": "#",
+                                "icon": "help-circle",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Sales",
+                                "text": "Business inquiries",
+                                "url": "#",
+                                "icon": "cash-register",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Phone",
+                                "text": "Call us",
+                                "url": "#",
+                                "icon": "phone",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "External Links",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Links to external websites can open in a new tab:"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "GitHub",
+                                "text": "Open source code",
+                                "url": "https://github.com/nextcloud",
+                                "icon": "github",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "LinkedIn",
+                                "text": "Business updates",
+                                "url": "https://www.linkedin.com/company/nextcloud/",
+                                "icon": "linkedin",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "Twitter/X",
+                                "text": "News and tips",
+                                "url": "https://twitter.com/nextcloud",
+                                "icon": "twitter",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "Community",
+                                "text": "Discussions",
+                                "url": "https://help.nextcloud.com",
+                                "icon": "forum",
+                                "target": "_blank"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

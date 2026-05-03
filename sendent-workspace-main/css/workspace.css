@@ -1,0 +1,40 @@
+/**
+ * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+#app-workspace {
+  width: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* GridStack overrides for Nextcloud theme */
+.grid-stack {
+}
+
+.grid-stack-item {
+  touch-action: auto;
+}
+
+.grid-stack-item-content {
+  cursor: default;
+  overflow: hidden;
+}
+
+/* Ensure widgets fill their containers */
+.widget-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Admin mode styling */
+.gs-dragging .grid-stack-item {
+  opacity: 0.8;
+}
+
+.gs-resizing .grid-stack-item {
+  opacity: 0.8;
+}

@@ -1,0 +1,88 @@
+<?php
+declare(strict_types=1);
+
+namespace OCA\IntraVox\Migration;
+
+use OCA\IntraVox\Service\DemoDataService;
+use OCA\IntraVox\Service\SetupService;
+use OCP\Migration\IOutput;
+use OCP\Migration\IRepairStep;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Repair step that runs on app install/update to setup demo data
+ */
+class SetupDemoData implements IRepairStep {
+    private SetupService $setupService;
+    private DemoDataService $demoDataService;
+    private LoggerInterface $logger;
+
+    public function __construct(
+        SetupService $setupService,
+        DemoDataService $demoDataService,
+        LoggerInterface $logger
+    ) {
+        $this->setupService = $setupService;
+        $this->demoDataService = $demoDataService;
+        $this->logger = $logger;
+    }
+
+    public function getName(): string {
+        return 'Setup IntraVox demo data';
+    }
+
+    public function run(IOutput $output): void {
+        $output->info('Setting up IntraVox...');
+
+        // Setup groupfolder structure
+        try {
+            if (!$this->setupService->setupSharedFolder()) {
+                $output->warning('Could not setup IntraVox groupfolder - groupfolders app may not be installed');
+                return;
+            }
+            $output->info('IntraVox groupfolder ready');
+        } catch (\Exception $e) {
+            $this->logger->error('[IntraVox] Setup failed: ' . $e->getMessage());
+            $output->warning('Setup failed: ' . $e->getMessage());
+            return;
+        }
+
+        // Import demo data if not already imported
+        if (!$this->demoDataService->isDemoDataImported()) {
+            $language = $this->setupService->detectDefaultLanguage();
+            $output->info("Importing demo data for language: {$language}...");
+
+            if ($this->demoDataService->hasBundledDemoData($language)) {
+                $result = $this->demoDataService->importBundledDemoData($language);
+                if ($result['success']) {
+                    $output->info("{$language}: {$result['imported']} items imported");
+                } else {
+                    $output->warning("{$language}: {$result['message']}");
+                }
+            }
+
+            $output->info('Demo data import complete');
+        } else {
+            $output->info('Demo data already imported, skipping');
+        }
+
+        // Install default templates (idempotent - skips existing templates)
+        $output->info('Installing default templates...');
+        try {
+            $result = $this->setupService->installDefaultTemplates();
+            if ($result['success']) {
+                if ($result['installed'] > 0) {
+                    $output->info("Default templates installed: {$result['installed']} new");
+                }
+                if ($result['skipped'] > 0) {
+                    $output->info("Default templates skipped: {$result['skipped']} already exist");
+                }
+            } else {
+                $output->warning('Default templates installation had issues: ' . ($result['error'] ?? 'unknown error'));
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning('[IntraVox] Template installation failed: ' . $e->getMessage());
+            $output->warning('Template installation failed: ' . $e->getMessage());
+        }
+    }
+}

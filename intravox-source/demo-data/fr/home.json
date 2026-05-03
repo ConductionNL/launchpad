@@ -1,0 +1,430 @@
+{
+    "uniqueId": "page-f718842c-0d0f-4b74-9b2d-d953aec4f0f2",
+    "title": "Bienvenue sur IntraVox",
+    "language": "fr",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Bienvenue sur IntraVox",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**La solution intranet moderne pour Nextcloud.** Créez de belles pages intranet dynamiques avec un éditeur drag-and-drop intuitif. Aucune programmation requise."
+                    },
+                    {
+                        "type": "news",
+                        "column": 1,
+                        "order": 3,
+                        "title": "",
+                        "sourcePath": "actualites",
+                        "sourcePageId": "",
+                        "layout": "carousel",
+                        "columns": 3,
+                        "limit": 5,
+                        "sortBy": "modified",
+                        "sortOrder": "desc",
+                        "showImage": true,
+                        "showDate": true,
+                        "showExcerpt": true,
+                        "excerptLength": 100,
+                        "autoplayInterval": 2,
+                        "filters": [],
+                        "filterOperator": "AND"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Qu'est-ce qu'IntraVox ?",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "IntraVox transforme votre Nextcloud en une puissante plateforme intranet. Créez des portails d'entreprise, des pages de département, des bases de connaissances et plus encore - le tout dans l'environnement sécurisé de votre serveur Nextcloud.\n\n**Avantages clés :**\n\n- **Privacy-first** - Vos données restent sur votre serveur\n- **Pas de verrouillage fournisseur** - Open source et auto-hébergé\n- **Intégration transparente** - Fonctionne avec les utilisateurs et groupes Nextcloud existants\n- **Multilingue** - Support intégré pour plusieurs langues"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "features.jpg",
+                        "alt": "Éditeur drag and drop",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Éditeur Visuel",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Créez des pages avec un éditeur drag-and-drop intuitif. Ajoutez du texte, des images, des vidéos, des liens et plus encore. Voyez les modifications en temps réel."
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "dashboard.jpg",
+                        "alt": "Mises en page flexibles",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Mises en Page Flexibles",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "Choisissez parmi des mises en page de 1 à 4 colonnes. Ajoutez des barres latérales, des couleurs de fond et créez des pages visuellement attrayantes."
+                    },
+                    {
+                        "type": "image",
+                        "column": 3,
+                        "order": 1,
+                        "src": "collaboration.jpg",
+                        "alt": "Gestion de la navigation",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 2,
+                        "content": "Navigation Facile",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 3,
+                        "content": "Créez des méga-menus avec des éléments imbriqués. Organisez votre contenu avec une structure de pages hiérarchique."
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Widgets Puissants",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "IntraVox est livré avec un riche ensemble de widgets pour créer tout type de page :"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "Texte & Titres",
+                                "text": "Texte riche avec support markdown",
+                                "url": "#",
+                                "icon": "format-text",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Images & Vidéo",
+                                "text": "Fichiers locaux ou vidéos intégrées",
+                                "url": "#",
+                                "icon": "image-multiple",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Cartes de Liens",
+                                "text": "Belles grilles de liens avec icônes",
+                                "url": "#",
+                                "icon": "link-box-variant",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Séparateurs",
+                                "text": "Diviseurs visuels et espacement",
+                                "url": "#",
+                                "icon": "minus",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 2,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "security.jpg",
+                        "alt": "Sécurité entreprise",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Prêt pour l'Entreprise",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "IntraVox est conçu pour les organisations de toute taille.\n\n**Fonctionnalités :**\n- Contrôle d'accès basé sur les rôles\n- Contenu multilingue\n- Données de démo pour une configuration rapide\n- Mises à jour régulières et support"
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "opensource.jpg",
+                        "alt": "Open source",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Open Source",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "IntraVox est open source et gratuit.\n\n**Avantages :**\n- Code source transparent\n- Contributions communautaires\n- Pas de frais d'abonnement\n- Contrôle total sur vos données"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Sections Repliables",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Organisez votre contenu avec des **sections repliables**. Parfait pour les FAQ, les notes de version ou tout contenu qui bénéficie d'une divulgation progressive. Cliquez sur les en-têtes de section ci-dessous pour les déplier ou les replier."
+                    }
+                ]
+            },
+            {
+                "id": "row-collapsible-demo-1",
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "collapsible": true,
+                "sectionTitle": "Pour Commencer",
+                "defaultCollapsed": false,
+                "widgets": [
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 1,
+                        "content": "**Bienvenue sur IntraVox !** Voici comment commencer :\n\n1. **Installez l'application** depuis le Nextcloud App Store\n2. **Chargez les données de démo** depuis les paramètres admin pour voir IntraVox en action\n3. **Créez votre première page** avec l'éditeur visuel\n4. **Configurez la navigation** pour organiser la structure de votre intranet\n\n*Conseil : Consultez la section documentation pour des guides et tutoriels détaillés.*"
+                    }
+                ]
+            },
+            {
+                "id": "row-collapsible-demo-2",
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "collapsible": true,
+                "sectionTitle": "FAQ - Questions Fréquentes",
+                "defaultCollapsed": true,
+                "widgets": [
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 1,
+                        "content": "**Q : Puis-je utiliser IntraVox avec mes utilisateurs Nextcloud existants ?**\nR : Oui ! IntraVox s'intègre parfaitement avec la gestion des utilisateurs et des groupes de Nextcloud.\n\n**Q : IntraVox est-il gratuit ?**\nR : Oui, IntraVox est open source et gratuit. Il n'y a pas de frais d'abonnement ou de coûts cachés.\n\n**Q : Puis-je avoir plusieurs langues sur mon intranet ?**\nR : Absolument ! IntraVox prend en charge plusieurs langues. Vous pouvez créer du contenu séparé pour chaque langue.\n\n**Q : Où sont stockées mes données ?**\nR : Toutes les données restent sur votre serveur Nextcloud. IntraVox utilise les groupfolders de Nextcloud pour le stockage."
+                    }
+                ]
+            },
+            {
+                "id": "row-collapsible-demo-3",
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "collapsible": true,
+                "sectionTitle": "Notes de Version - Version 0.8",
+                "defaultCollapsed": true,
+                "widgets": [
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 1,
+                        "content": "**Version 0.8.5** - Décembre 2025\n\n- **Nouveau :** Lignes repliables (sections style SharePoint)\n- **Nouveau :** Widget News auto-compact pour colonnes latérales\n- **Corrigé :** Arrière-plan transparent dans les colonnes latérales\n- **Amélioré :** Visibilité des contrôles de ligne sur fonds colorés\n\n**Version 0.8.4** - Décembre 2025\n\n- **Nouveau :** Support ligne d'en-tête\n- **Nouveau :** Colonnes latérales (gauche & droite)\n- **Amélioré :** Layouts responsive mobile\n- **Corrigé :** Diverses corrections de bugs et améliorations"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": true,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Commencer",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**Configuration Rapide**\nInstallez IntraVox depuis le Nextcloud App Store et chargez les données de démo pour le voir en action.\n\n**Documentation**\nConsultez nos guides pour apprendre à créer et gérer des pages."
+                    },
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 3,
+                        "style": "solid",
+                        "color": "",
+                        "height": "1px"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 4,
+                        "content": "Ressources",
+                        "level": 4
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 5,
+                        "items": [
+                            {
+                                "text": "GitHub",
+                                "url": "https://github.com/Rikkert-com/intravox",
+                                "icon": "github",
+                                "target": "_blank"
+                            },
+                            {
+                                "text": "Nextcloud Docs",
+                                "url": "https://docs.nextcloud.com",
+                                "icon": "book-open-variant",
+                                "target": "_blank"
+                            },
+                            {
+                                "text": "Nextcloud Apps",
+                                "url": "https://apps.nextcloud.com",
+                                "icon": "apps",
+                                "target": "_blank"
+                            }
+                        ],
+                        "columns": 1
+                    }
+                ]
+            }
+        }
+    }
+}

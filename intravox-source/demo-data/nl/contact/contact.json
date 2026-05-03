@@ -1,0 +1,270 @@
+{
+    "uniqueId": "page-dddaa881-f813-45e3-9820-81c8a9801893",
+    "title": "Contact",
+    "language": "nl",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "office.jpg",
+                        "alt": "Neem contact met ons op",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Contact",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Dit is een demo contactpagina. Op een echt intranet zou hier de contactinformatie van uw organisatie staan."
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "email.jpg",
+                        "alt": "E-mail contact",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Neem Contact Op",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Hier kunt u contactgegevens toevoegen zoals:\n\n- Algemeen e-mailadres\n- Support e-mail\n- Telefoonnummers\n- Openingstijden"
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "office-phone.jpg",
+                        "alt": "Telefoon",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Locatie",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "Voeg hier uw kantoorlocatie toe:\n\n- Straatnaam\n- Stad en postcode\n- Land\n- Routebeschrijving"
+                    },
+                    {
+                        "type": "image",
+                        "column": 3,
+                        "order": 1,
+                        "src": "support.jpg",
+                        "alt": "Support team",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 2,
+                        "content": "Support",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 3,
+                        "content": "Link naar support bronnen:\n\n- Helpdesk systeem\n- Kennisbank\n- FAQ pagina's\n- Support tijden"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Contact Opties",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "De Links widget hieronder laat zien hoe u snelkoppelingen kunt maken voor verschillende contactmethodes:"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "E-mail",
+                                "text": "Algemene vragen",
+                                "url": "#",
+                                "icon": "email",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Support",
+                                "text": "Technische hulp",
+                                "url": "#",
+                                "icon": "help-circle",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Sales",
+                                "text": "Zakelijke vragen",
+                                "url": "#",
+                                "icon": "cash-register",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Telefoon",
+                                "text": "Bel ons",
+                                "url": "#",
+                                "icon": "phone",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Externe Links",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Links naar externe websites kunnen in een nieuw tabblad openen:"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "GitHub",
+                                "text": "Open source code",
+                                "url": "https://github.com/nextcloud",
+                                "icon": "github",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "LinkedIn",
+                                "text": "Zakelijke updates",
+                                "url": "https://www.linkedin.com/company/nextcloud/",
+                                "icon": "linkedin",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "Twitter/X",
+                                "text": "Nieuws en tips",
+                                "url": "https://twitter.com/nextcloud",
+                                "icon": "twitter",
+                                "target": "_blank"
+                            },
+                            {
+                                "title": "Community",
+                                "text": "Discussies",
+                                "url": "https://help.nextcloud.com",
+                                "icon": "forum",
+                                "target": "_blank"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

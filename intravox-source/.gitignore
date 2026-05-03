@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+# js/ - NOT ignored, needed for App Store
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Deployment artifacts
+*.tar.gz
+intravox-deploy/
+
+# Demo data images (downloaded/generated content)
+demo-data/*/images/
+
+# Logs
+*.log
+
+# Translation templates (generated)
+translationfiles/
+
+# Package lock files (use composer.lock for PHP)
+package-lock.json
+
+# Local development scripts (if any remain)
+*.local.sh
+*.local.js
+
+# Deployment and release scripts (local use only)
+create-release.sh
+deploy-demo-data.sh
+deploy.sh
+deploy-*.sh
+check-*.sh
+
+# Code signing certificates (private keys must never be committed!)
+*.key
+*.csr
+*.crt
+*.pem
+
+# Backup files
+*.bak
+
+# macOS metadata
+._*
+
+# Claude Code configuration
+.claude/
+CLAUDE.md
+
+# Internal documentation (for Gitea only, not GitHub)
+docs/internal/
+
+# Test data (local development only)
+testdata/

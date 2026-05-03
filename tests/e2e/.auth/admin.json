@@ -1,0 +1,75 @@
+{
+  "cookies": [
+    {
+      "name": "oc_sessionPassphrase",
+      "value": "c%2F%2FeWBDldCxR56h1XpauhSmC6GOd21pwDp6D5%2BzUfjsZLydwTz2%2BDBy2v8CD%2FLhtitw0CwMciJieRhXd%2FvY%2FvwmWxlp0A5wlJ10IwcifpSBmJjER1Ucj2WwmzT4ZjW2L",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "nc_sameSiteCookielax",
+      "value": "true",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1812313561.272553,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "nc_sameSiteCookiestrict",
+      "value": "true",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1812313561.272644,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "ocgvvlc18h4o",
+      "value": "42c98b2813c7536f458bac891cd50602",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "nc_username",
+      "value": "admin",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1779049563.83269,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "nc_token",
+      "value": "vtaJ36IrLYW7nW3JSOvVeTm8EkdOQusN",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1779049563.832805,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "nc_session_id",
+      "value": "42c98b2813c7536f458bac891cd50602",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1779049563.832876,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

@@ -1,0 +1,430 @@
+{
+    "uniqueId": "page-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "title": "Welkom bij IntraVox",
+    "language": "nl",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Welkom bij IntraVox",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**De moderne intranetoplossing voor Nextcloud.** Maak mooie, dynamische intranetpagina's met een intuïtieve drag-and-drop editor. Geen code nodig."
+                    },
+                    {
+                        "type": "news",
+                        "column": 1,
+                        "order": 3,
+                        "title": "",
+                        "sourcePath": "nieuws",
+                        "sourcePageId": "",
+                        "layout": "carousel",
+                        "columns": 3,
+                        "limit": 5,
+                        "sortBy": "modified",
+                        "sortOrder": "desc",
+                        "showImage": true,
+                        "showDate": true,
+                        "showExcerpt": true,
+                        "excerptLength": 100,
+                        "autoplayInterval": 2,
+                        "filters": [],
+                        "filterOperator": "AND"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Wat is IntraVox?",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "IntraVox transformeert uw Nextcloud in een krachtig intranetplatform. Bouw bedrijfsportalen, afdelingspagina's, kennisbanken en meer - allemaal binnen de veilige omgeving van uw Nextcloud server.\n\n**Belangrijkste voordelen:**\n\n- **Privacy-first** - Uw data blijft op uw server\n- **Geen vendor lock-in** - Open source en self-hosted\n- **Naadloze integratie** - Werkt met bestaande Nextcloud gebruikers en groepen\n- **Meertalig** - Ingebouwde ondersteuning voor meerdere talen"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "features.jpg",
+                        "alt": "Drag and drop editor",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Visuele Editor",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Maak pagina's met een intuïtieve drag-and-drop editor. Voeg tekst, afbeeldingen, video's, links en meer toe. Zie wijzigingen in real-time."
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "dashboard.jpg",
+                        "alt": "Flexibele layouts",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Flexibele Layouts",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "Kies uit 1 tot 4 kolom layouts. Voeg sidebars, achtergrondkleuren toe en creëer visueel aantrekkelijke pagina's."
+                    },
+                    {
+                        "type": "image",
+                        "column": 3,
+                        "order": 1,
+                        "src": "collaboration.jpg",
+                        "alt": "Navigatie beheer",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 2,
+                        "content": "Eenvoudige Navigatie",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 3,
+                        "content": "Bouw mega menu's met geneste items. Organiseer uw content met een hiërarchische paginastructuur."
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Krachtige Widgets",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "IntraVox wordt geleverd met een uitgebreide set widgets om elk type pagina te bouwen:"
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 3,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "Tekst & Koppen",
+                                "text": "Rijke tekst met markdown ondersteuning",
+                                "url": "#",
+                                "icon": "format-text",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Afbeeldingen & Video",
+                                "text": "Lokale bestanden of embedded video's",
+                                "url": "#",
+                                "icon": "image-multiple",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Link Kaarten",
+                                "text": "Mooie link grids met iconen",
+                                "url": "#",
+                                "icon": "link-box-variant",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Scheidingslijnen",
+                                "text": "Visuele scheiders en witruimte",
+                                "url": "#",
+                                "icon": "minus",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 2,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "security.jpg",
+                        "alt": "Enterprise beveiliging",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Enterprise Ready",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "IntraVox is gebouwd voor organisaties van elke omvang.\n\n**Functies:**\n- Role-based access control\n- Meertalige content\n- Demo data voor snelle setup\n- Regelmatige updates en support"
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "opensource.jpg",
+                        "alt": "Open source",
+                        "caption": ""
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Open Source",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "IntraVox is open source en gratis te gebruiken.\n\n**Voordelen:**\n- Transparante codebase\n- Community bijdragen\n- Geen abonnementskosten\n- Volledige controle over uw data"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Inklapbare Secties",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Organiseer uw content met **inklapbare secties**. Perfect voor FAQ's, release notes of andere content die baat heeft bij progressieve onthulling. Klik op de sectiekoppen hieronder om ze uit te klappen of in te klappen."
+                    }
+                ]
+            },
+            {
+                "id": "row-collapsible-demo-1",
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "collapsible": true,
+                "sectionTitle": "Aan de slag",
+                "defaultCollapsed": false,
+                "widgets": [
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 1,
+                        "content": "**Welkom bij IntraVox!** Zo gaat u aan de slag:\n\n1. **Installeer de app** vanuit de Nextcloud App Store\n2. **Laad demo data** vanuit de admin instellingen om IntraVox in actie te zien\n3. **Maak uw eerste pagina** met de visuele editor\n4. **Configureer navigatie** om uw intranetstructuur te organiseren\n\n*Tip: Bekijk de documentatie sectie voor gedetailleerde handleidingen en tutorials.*"
+                    }
+                ]
+            },
+            {
+                "id": "row-collapsible-demo-2",
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "collapsible": true,
+                "sectionTitle": "FAQ - Veelgestelde Vragen",
+                "defaultCollapsed": true,
+                "widgets": [
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 1,
+                        "content": "**V: Kan ik IntraVox gebruiken met mijn bestaande Nextcloud gebruikers?**\nA: Ja! IntraVox integreert naadloos met het gebruikers- en groepenbeheer van Nextcloud.\n\n**V: Is IntraVox gratis te gebruiken?**\nA: Ja, IntraVox is open source en gratis. Er zijn geen abonnementskosten of verborgen kosten.\n\n**V: Kan ik meerdere talen op mijn intranet hebben?**\nA: Absoluut! IntraVox ondersteunt meerdere talen. U kunt aparte content maken voor elke taal.\n\n**V: Waar wordt mijn data opgeslagen?**\nA: Alle data blijft op uw Nextcloud server. IntraVox gebruikt Nextcloud's groupfolders voor opslag."
+                    }
+                ]
+            },
+            {
+                "id": "row-collapsible-demo-3",
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "collapsible": true,
+                "sectionTitle": "Release Notes - Versie 0.8",
+                "defaultCollapsed": true,
+                "widgets": [
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 1,
+                        "content": "**Versie 0.8.5** - December 2025\n\n- **Nieuw:** Inklapbare rijen (SharePoint-stijl secties)\n- **Nieuw:** Auto-compact News widget voor zijkolommen\n- **Opgelost:** Transparante achtergrond in zijkolommen\n- **Verbeterd:** Zichtbaarheid rijbediening op gekleurde achtergronden\n\n**Versie 0.8.4** - December 2025\n\n- **Nieuw:** Header rij ondersteuning\n- **Nieuw:** Zijkolommen (links & rechts)\n- **Verbeterd:** Mobiel responsieve layouts\n- **Opgelost:** Diverse bugfixes en verbeteringen"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": true,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Aan de slag",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**Snelle Setup**\nInstalleer IntraVox vanuit de Nextcloud App Store en laad de demo data om het in actie te zien.\n\n**Documentatie**\nBekijk onze handleidingen om te leren hoe u pagina's maakt en beheert."
+                    },
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 3,
+                        "style": "solid",
+                        "color": "",
+                        "height": "1px"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 4,
+                        "content": "Bronnen",
+                        "level": 4
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 5,
+                        "items": [
+                            {
+                                "text": "GitHub",
+                                "url": "https://github.com/Rikkert-com/intravox",
+                                "icon": "github",
+                                "target": "_blank"
+                            },
+                            {
+                                "text": "Nextcloud Docs",
+                                "url": "https://docs.nextcloud.com",
+                                "icon": "book-open-variant",
+                                "target": "_blank"
+                            },
+                            {
+                                "text": "Nextcloud Apps",
+                                "url": "https://apps.nextcloud.com",
+                                "icon": "apps",
+                                "target": "_blank"
+                            }
+                        ],
+                        "columns": 1
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,143 @@
+{
+    "uniqueId": "page-784d9132-cf2c-4448-a62c-0bf024bab1be",
+    "title": "Onboarding",
+    "language": "en",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Employee Onboarding",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "This is a demo onboarding page. Use this layout to guide new employees through their first days."
+                    }
+                ]
+            },
+            {
+                "columns": 2,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "First Day Checklist",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "**Example tasks:**\n\n- [ ] Collect badge and access card\n- [ ] Set up laptop and accounts\n- [ ] Team introduction\n- [ ] Lunch with buddy\n- [ ] Complete HR paperwork"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 1,
+                        "content": "First Week Overview",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 2,
+                        "content": "**Example schedule:**\n\n- Monday: Introduction & setup\n- Tuesday: Product training\n- Wednesday: Team meetings\n- Thursday: Shadowing sessions\n- Friday: Feedback & questions"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Important Resources",
+                        "level": 2
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 2,
+                        "columns": 4,
+                        "items": [
+                            {
+                                "title": "IT Setup",
+                                "text": "Accounts & tools",
+                                "url": "#departments/it",
+                                "icon": "laptop",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Policies",
+                                "text": "Rules & guidelines",
+                                "url": "#departments/hr/policies",
+                                "icon": "book-open",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "About Us",
+                                "text": "Company information",
+                                "url": "#about",
+                                "icon": "information",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Contact HR",
+                                "text": "Questions? Get in touch",
+                                "url": "#contact",
+                                "icon": "email",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 1,
+                        "columns": 1,
+                        "items": [
+                            {
+                                "title": "Back to HR",
+                                "text": "HR overview",
+                                "url": "#page-e6f2f90b-ee77-42f8-a1a6-45948a67e37e",
+                                "icon": "arrow-left",
+                                "target": "_self"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

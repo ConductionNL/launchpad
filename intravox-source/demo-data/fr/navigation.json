@@ -1,0 +1,46 @@
+{
+    "type": "megamenu",
+    "items": [
+        {
+            "id": "nav_home",
+            "title": "Accueil",
+            "uniqueId": "page-f718842c-0d0f-4b74-9b2d-d953aec4f0f2",
+            "url": null,
+            "target": null,
+            "children": []
+        },
+        {
+            "id": "nav_externe_links",
+            "title": "Liens externes",
+            "uniqueId": null,
+            "url": null,
+            "target": null,
+            "children": [
+                {
+                    "id": "nav_nextcloud_com",
+                    "title": "Nextcloud.com",
+                    "uniqueId": null,
+                    "url": "https://nextcloud.com",
+                    "target": "_blank",
+                    "children": []
+                },
+                {
+                    "id": "nav_github",
+                    "title": "GitHub",
+                    "uniqueId": null,
+                    "url": "https://github.com/nextcloud",
+                    "target": "_blank",
+                    "children": []
+                },
+                {
+                    "id": "nav_docs_ext",
+                    "title": "Documentation Nextcloud",
+                    "uniqueId": null,
+                    "url": "https://docs.nextcloud.com",
+                    "target": "_blank",
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

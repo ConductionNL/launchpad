@@ -1,0 +1,19 @@
+/**
+ * SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+#sendentworkspace-admin {
+  padding: 20px;
+}
+
+/* Remove max-width constraint when workspace editor is open */
+#sendentworkspace-admin.editor-active {
+  max-width: none !important;
+  width: 100%;
+  padding: 0;
+}
+
+#workspace-admin-vue {
+  min-height: 400px;
+}

@@ -1,0 +1,3343 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IntraVox API",
+    "version": "1.3.0",
+    "description": "IntraVox is a modern intranet page builder for Nextcloud. This API provides endpoints for managing pages, media, navigation, comments, and more.",
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://www.gnu.org/licenses/agpl-3.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://{nextcloud_host}/apps/intravox",
+      "description": "IntraVox API",
+      "variables": {
+        "nextcloud_host": {
+          "default": "localhost",
+          "description": "Nextcloud server hostname"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "basic_auth": []
+    },
+    {
+      "bearer_auth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Pages",
+      "description": "Page management operations"
+    },
+    {
+      "name": "Media",
+      "description": "Media file operations"
+    },
+    {
+      "name": "Navigation",
+      "description": "Navigation management"
+    },
+    {
+      "name": "Comments",
+      "description": "Page comments and reactions"
+    },
+    {
+      "name": "News",
+      "description": "News widget data"
+    },
+    {
+      "name": "Settings",
+      "description": "App settings (admin only)"
+    },
+    {
+      "name": "Export",
+      "description": "Content export"
+    },
+    {
+      "name": "Public Share",
+      "description": "Anonymous access to shared content via Nextcloud share links. No authentication required — access is controlled by the share token. Password-protected shares require session-based authentication via the /s/{token}/authenticate endpoint."
+    },
+    {
+      "name": "Templates",
+      "description": "Page template management - create pages from templates, save custom templates, and manage template library"
+    }
+  ],
+  "paths": {
+    "/api/pages": {
+      "get": {
+        "operationId": "list-pages",
+        "summary": "List all pages",
+        "description": "Returns a list of all pages the current user has access to",
+        "tags": [
+          "Pages"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageSummary"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "create-page",
+        "summary": "Create a new page",
+        "description": "Creates a new page with the given data",
+        "tags": [
+          "Pages"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Page created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/pages/tree": {
+      "get": {
+        "operationId": "get-page-tree",
+        "summary": "Get page tree",
+        "description": "Returns the hierarchical page tree structure",
+        "tags": [
+          "Pages"
+        ],
+        "responses": {
+          "200": {
+            "description": "Page tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tree": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PageTreeNode"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/pages/{id}": {
+      "get": {
+        "operationId": "get-page",
+        "summary": "Get a page",
+        "description": "Returns a single page by its unique ID",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Page unique ID (e.g., page-abc123)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "update-page",
+        "summary": "Update a page",
+        "description": "Updates an existing page",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Page unique ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Page updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete-page",
+        "summary": "Delete a page",
+        "description": "Deletes a page and all its children",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Page unique ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/pages/{id}/breadcrumb": {
+      "get": {
+        "operationId": "get-breadcrumb",
+        "summary": "Get page breadcrumb",
+        "description": "Returns the breadcrumb path for a page",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Breadcrumb path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "breadcrumb": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BreadcrumbItem"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/versions": {
+      "get": {
+        "operationId": "get-page-versions",
+        "summary": "Get page versions",
+        "description": "Returns version history for a page",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Version list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PageVersion"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/versions/{timestamp}": {
+      "post": {
+        "operationId": "restore-page-version",
+        "summary": "Restore page version",
+        "description": "Restores a page to a previous version",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Version restored successfully"
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/media": {
+      "post": {
+        "operationId": "upload-media",
+        "summary": "Upload media file",
+        "description": "Uploads a media file to a page",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to upload"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "filename": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "size": {
+                      "type": "integer"
+                    },
+                    "mimeType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "413": {
+            "description": "File too large"
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/media/list": {
+      "get": {
+        "operationId": "list-media",
+        "summary": "List media files",
+        "description": "Returns a list of media files for a page",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MediaFile"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/media/{filename}": {
+      "get": {
+        "operationId": "get-media",
+        "summary": "Get media file",
+        "description": "Returns a media file",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file content",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "video/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "operationId": "search-pages",
+        "summary": "Search pages",
+        "description": "Search pages by title and content",
+        "tags": [
+          "Pages"
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Search query (minimum 2 characters)",
+            "schema": {
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SearchResult"
+                      }
+                    },
+                    "query": {
+                      "type": "string"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news": {
+      "get": {
+        "operationId": "get-news",
+        "summary": "Get news items",
+        "description": "Returns news items for the News widget with optional filtering",
+        "tags": [
+          "News"
+        ],
+        "parameters": [
+          {
+            "name": "sourcePath",
+            "in": "query",
+            "description": "Source folder path (relative to language folder)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filters",
+            "in": "query",
+            "description": "JSON array of MetaVox filters",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterOperator",
+            "in": "query",
+            "description": "How to combine filters",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AND",
+                "OR"
+              ],
+              "default": "AND"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 5
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "modified",
+                "title"
+              ],
+              "default": "modified"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "Sort direction",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "News items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NewsItem"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "metavoxAvailable": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/navigation": {
+      "get": {
+        "operationId": "get-navigation",
+        "summary": "Get navigation",
+        "description": "Returns the navigation structure",
+        "tags": [
+          "Navigation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Navigation data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Navigation"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "save-navigation",
+        "summary": "Save navigation",
+        "description": "Saves the navigation structure",
+        "tags": [
+          "Navigation"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Navigation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Navigation saved"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/footer": {
+      "get": {
+        "operationId": "get-footer",
+        "summary": "Get footer",
+        "description": "Returns the footer configuration",
+        "tags": [
+          "Navigation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Footer data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Footer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "save-footer",
+        "summary": "Save footer",
+        "description": "Saves the footer configuration",
+        "tags": [
+          "Navigation"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Footer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Footer saved"
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/comments": {
+      "get": {
+        "operationId": "get-comments",
+        "summary": "Get page comments",
+        "description": "Returns comments for a page",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Comment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create-comment",
+        "summary": "Create comment",
+        "description": "Creates a new comment on a page",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "Comment content"
+                  },
+                  "parentId": {
+                    "type": "integer",
+                    "description": "Parent comment ID for replies"
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comments/{commentId}": {
+      "put": {
+        "operationId": "update-comment",
+        "summary": "Update comment",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment updated"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete-comment",
+        "summary": "Delete comment",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment deleted"
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/reactions": {
+      "get": {
+        "operationId": "get-page-reactions",
+        "summary": "Get page reactions",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reaction data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reactions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pages/{pageId}/reactions/{emoji}": {
+      "post": {
+        "operationId": "add-page-reaction",
+        "summary": "Add page reaction",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "emoji",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reaction added"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "remove-page-reaction",
+        "summary": "Remove page reaction",
+        "tags": [
+          "Comments"
+        ],
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "emoji",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reaction removed"
+          }
+        }
+      }
+    },
+    "/api/settings/video-domains": {
+      "get": {
+        "operationId": "get-video-domains",
+        "summary": "Get video domains whitelist",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Video domains",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "domains": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "set-video-domains",
+        "summary": "Set video domains whitelist",
+        "description": "Admin only",
+        "tags": [
+          "Settings"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Domains updated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/settings/engagement": {
+      "get": {
+        "operationId": "get-engagement-settings",
+        "summary": "Get engagement settings",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Engagement settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngagementSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "set-engagement-settings",
+        "summary": "Set engagement settings",
+        "description": "Admin only",
+        "tags": [
+          "Settings"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngagementSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated"
+          }
+        }
+      }
+    },
+    "/api/settings/publication": {
+      "get": {
+        "operationId": "get-publication-settings",
+        "summary": "Get publication settings",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Publication settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "set-publication-settings",
+        "summary": "Set publication settings",
+        "description": "Admin only",
+        "tags": [
+          "Settings"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated"
+          }
+        }
+      }
+    },
+    "/api/export/languages": {
+      "get": {
+        "operationId": "get-exportable-languages",
+        "summary": "Get exportable languages",
+        "tags": [
+          "Export"
+        ],
+        "responses": {
+          "200": {
+            "description": "Available languages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "languages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/language/{language}/zip": {
+      "get": {
+        "operationId": "export-language-zip",
+        "summary": "Export language as ZIP",
+        "tags": [
+          "Export"
+        ],
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ZIP file",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/metavox/status": {
+      "get": {
+        "operationId": "get-metavox-status",
+        "summary": "Get MetaVox status",
+        "description": "Check if MetaVox app is installed and enabled",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "MetaVox status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "installed": {
+                      "type": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates": {
+      "get": {
+        "operationId": "list-templates",
+        "summary": "List all templates",
+        "description": "Returns a list of all available page templates including built-in and custom templates",
+        "tags": [
+          "Templates"
+        ],
+        "responses": {
+          "200": {
+            "description": "Template list with metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "templates": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TemplatePreview"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "templates": [
+                    {
+                      "id": "department",
+                      "name": "Department",
+                      "description": "Team information, services, and resources",
+                      "columnCount": 3,
+                      "widgetCount": 12,
+                      "widgetTypes": [
+                        "heading",
+                        "text",
+                        "image",
+                        "links"
+                      ],
+                      "complexity": "medium",
+                      "hasHeaderRow": true,
+                      "hasSidebars": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "save-as-template",
+        "summary": "Save page as template",
+        "description": "Saves an existing page as a reusable template. Copies the page structure and media to the templates folder.",
+        "tags": [
+          "Templates"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateSaveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Template saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "templateId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/templates/{id}": {
+      "get": {
+        "operationId": "get-template",
+        "summary": "Get template details",
+        "description": "Returns the full template data including layout and widgets",
+        "tags": [
+          "Templates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Template ID (e.g., 'department', 'event')",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "template": {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete-template",
+        "summary": "Delete template",
+        "description": "Deletes a custom template. Built-in templates cannot be deleted.",
+        "tags": [
+          "Templates"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Template ID to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template deleted successfully"
+          },
+          "400": {
+            "description": "Cannot delete built-in template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/pages/from-template": {
+      "post": {
+        "operationId": "create-page-from-template",
+        "summary": "Create page from template",
+        "description": "Creates a new page based on an existing template. Clones the template's layout, widgets, and media files.",
+        "tags": [
+          "Templates"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateCreateFromRequest"
+              },
+              "examples": {
+                "department": {
+                  "summary": "Create HR department page",
+                  "value": {
+                    "templateId": "department",
+                    "pageTitle": "HR Department",
+                    "parentPath": "/teams"
+                  }
+                },
+                "event": {
+                  "summary": "Create company event page",
+                  "value": {
+                    "templateId": "event",
+                    "pageTitle": "Annual Conference 2026"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Page created from template successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "page": {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid template ID or missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/permissions": {
+      "get": {
+        "operationId": "get-permissions",
+        "summary": "Get user permissions",
+        "description": "Returns the current user's permissions",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Permission data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isAdmin": {
+                      "type": "boolean"
+                    },
+                    "canEdit": {
+                      "type": "boolean"
+                    },
+                    "canCreate": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/share/{token}/page/{uniqueId}": {
+      "get": {
+        "operationId": "get-page-by-share",
+        "summary": "Get a page via share token",
+        "description": "Returns a page's content for anonymous access via a Nextcloud share link. The page must be within the share's scope. Password-protected shares require a valid session (see /s/{token}/authenticate).",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token (15-20 alphanumeric characters)"
+          },
+          {
+            "name": "uniqueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID of the page to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page data including content, breadcrumb, and metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password required or invalid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "passwordRequired": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Page is outside the share scope"
+          },
+          "404": {
+            "description": "Share token invalid or page not found"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/navigation": {
+      "get": {
+        "operationId": "get-navigation-by-share",
+        "summary": "Get navigation for a share",
+        "description": "Returns the navigation menu filtered to the share's scope. Only items within the shared folder are included.",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Navigation data filtered by share scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "navigation": {
+                      "$ref": "#/components/schemas/Navigation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password required"
+          },
+          "404": {
+            "description": "Share token invalid"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/tree": {
+      "get": {
+        "operationId": "get-page-tree-by-share",
+        "summary": "Get page tree for a share",
+        "description": "Returns the page tree structure filtered to the share's scope.",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page tree filtered by share scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tree": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PageTreeItem"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password required"
+          },
+          "404": {
+            "description": "Share token invalid"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/news": {
+      "get": {
+        "operationId": "get-news-by-share",
+        "summary": "Get news items for a share",
+        "description": "Returns news items from pages within the share scope. Supports filtering by source page and sorting.",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token"
+          },
+          {
+            "name": "sourcePageId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter news to a specific source page"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Maximum number of news items"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "date",
+                "title"
+              ]
+            },
+            "description": "Sort order for news items"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of news items within share scope"
+          },
+          "401": {
+            "description": "Password required"
+          },
+          "404": {
+            "description": "Share token invalid"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/page/{uniqueId}/media/{filename}": {
+      "get": {
+        "operationId": "get-media-by-share",
+        "summary": "Get page media via share token",
+        "description": "Returns a media file (image, video, etc.) attached to a page within the share scope.",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token"
+          },
+          {
+            "name": "uniqueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID of the page"
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Media filename"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file content",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password required"
+          },
+          "404": {
+            "description": "Share token invalid or media not found"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/resources/media/{filename}": {
+      "get": {
+        "operationId": "get-resources-media-by-share",
+        "summary": "Get shared resource media via share token",
+        "description": "Returns a media file from the shared resources library (_resources folder).",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token"
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Resource media filename"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file content",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password required"
+          },
+          "404": {
+            "description": "Share token invalid or resource not found"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/resources/media/{folder}/{filename}": {
+      "get": {
+        "operationId": "get-resources-media-with-folder-by-share",
+        "summary": "Get shared resource media from subfolder via share token",
+        "description": "Returns a media file from a subfolder within the shared resources library.",
+        "tags": [
+          "Public Share"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nextcloud share token"
+          },
+          {
+            "name": "folder",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Subfolder name (e.g. 'backgrounds')"
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Resource media filename"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file content",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password required"
+          },
+          "404": {
+            "description": "Share token invalid or resource not found"
+          }
+        }
+      }
+    },
+    "/api/pages/{uniqueId}/share-info": {
+      "get": {
+        "operationId": "get-share-info",
+        "summary": "Get share info for a page",
+        "description": "Returns information about whether and how a page is shared via Nextcloud share links. Includes scope, password status, and public URL.",
+        "tags": [
+          "Public Share"
+        ],
+        "parameters": [
+          {
+            "name": "uniqueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID of the page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Share information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasShare": {
+                      "type": "boolean"
+                    },
+                    "scope": {
+                      "type": "string",
+                      "enum": [
+                        "page",
+                        "folder"
+                      ]
+                    },
+                    "scopeName": {
+                      "type": "string"
+                    },
+                    "scopeLabel": {
+                      "type": "string"
+                    },
+                    "isLanguageRoot": {
+                      "type": "boolean"
+                    },
+                    "hasPassword": {
+                      "type": "boolean"
+                    },
+                    "publicUrl": {
+                      "type": "string"
+                    },
+                    "filesUrl": {
+                      "type": "string"
+                    },
+                    "navigation": {
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/feed/{token}": {
+      "get": {
+        "operationId": "get-feed",
+        "summary": "Get RSS feed",
+        "description": "Returns an RSS 2.0 feed of IntraVox pages accessible to the token owner. Supports conditional requests via ETag and If-Modified-Since headers.",
+        "tags": [
+          "RSS Feed"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "description": "64-character alphanumeric feed token"
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "ETag from a previous response for conditional request"
+          },
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Last-Modified value from a previous response"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RSS 2.0 XML feed",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Last-Modified": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "public, max-age=300, must-revalidate"
+                }
+              }
+            },
+            "content": {
+              "application/rss+xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified (conditional request)"
+          },
+          "404": {
+            "description": "Invalid token or feed not found"
+          }
+        }
+      }
+    },
+    "/feed/{token}/media/{pageId}/{filename}": {
+      "get": {
+        "operationId": "get-feed-media",
+        "summary": "Get feed media file",
+        "description": "Serves media files (images) referenced in feed items, authenticated by the feed token.",
+        "tags": [
+          "RSS Feed"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "description": "64-character alphanumeric feed token"
+          },
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique ID of the page"
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Media filename"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid token or media not found"
+          }
+        }
+      }
+    },
+    "/api/feed/token": {
+      "get": {
+        "operationId": "get-feed-token",
+        "summary": "Get current user's feed token",
+        "description": "Returns the user's feed token information including the feed URL, configuration, and last accessed timestamp.",
+        "tags": [
+          "RSS Feed"
+        ],
+        "responses": {
+          "200": {
+            "description": "Feed token info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasToken": {
+                      "type": "boolean"
+                    },
+                    "linkSharingDisabled": {
+                      "type": "boolean"
+                    },
+                    "feedUrl": {
+                      "type": "string"
+                    },
+                    "last_accessed": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "config": {
+                      "type": "object",
+                      "properties": {
+                        "scope": {
+                          "type": "string",
+                          "enum": [
+                            "all",
+                            "language"
+                          ]
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 50
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "regenerate-feed-token",
+        "summary": "Generate or regenerate feed token",
+        "description": "Creates a new feed token (or replaces the existing one). The old feed URL stops working immediately.",
+        "tags": [
+          "RSS Feed"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "language"
+                    ],
+                    "default": "language"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "default": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New feed token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "feedUrl": {
+                      "type": "string"
+                    },
+                    "config": {
+                      "type": "object",
+                      "properties": {
+                        "scope": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Link sharing is disabled by the administrator"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revoke-feed-token",
+        "summary": "Revoke feed token",
+        "description": "Deletes the user's feed token. The feed URL becomes invalid immediately.",
+        "tags": [
+          "RSS Feed"
+        ],
+        "responses": {
+          "200": {
+            "description": "Token revoked"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/feed/config": {
+      "put": {
+        "operationId": "update-feed-config",
+        "summary": "Update feed configuration",
+        "description": "Updates feed scope and item limit without changing the token.",
+        "tags": [
+          "RSS Feed"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "language"
+                    ]
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Configuration updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "config": {
+                      "type": "object",
+                      "properties": {
+                        "scope": {
+                          "type": "string"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/calendar/calendars": {
+      "get": {
+        "operationId": "get-calendars",
+        "summary": "List available calendars",
+        "description": "Returns all calendars available to the current user (personal + shared)",
+        "tags": [
+          "Calendar"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of calendars",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "calendars": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "uri": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "color": {
+                            "type": "string"
+                          },
+                          "isReadOnly": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "500": {
+            "description": "Failed to get calendars"
+          }
+        }
+      }
+    },
+    "/api/calendar/events": {
+      "get": {
+        "operationId": "get-calendar-events",
+        "summary": "Get calendar events",
+        "description": "Returns events from one or more calendars within a time range. Recurring events are expanded into individual occurrences. Private/confidential events are filtered out.",
+        "tags": [
+          "Calendar"
+        ],
+        "parameters": [
+          {
+            "name": "calendarIds",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated calendar IDs"
+          },
+          {
+            "name": "rangeStart",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Start of date range (ISO 8601). Defaults to now"
+          },
+          {
+            "name": "rangeEnd",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "End of date range (ISO 8601). Defaults to 30 days from now"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 5,
+              "minimum": 1,
+              "maximum": 20
+            },
+            "description": "Maximum events to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "uid": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "location": {
+                            "type": "string"
+                          },
+                          "start": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "end": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "isAllDay": {
+                            "type": "boolean"
+                          },
+                          "calendarColor": {
+                            "type": "string"
+                          },
+                          "calendarName": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date format"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "500": {
+            "description": "Failed to get calendar events"
+          }
+        }
+      }
+    },
+    "/api/share/{token}/calendar/events": {
+      "get": {
+        "operationId": "get-calendar-events-by-share",
+        "summary": "Get calendar events via public share",
+        "description": "Returns calendar events using the share owner's context. Requires a valid share token.",
+        "tags": [
+          "Calendar",
+          "Public Share"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Share token"
+          },
+          {
+            "name": "calendarIds",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated calendar IDs"
+          },
+          {
+            "name": "rangeStart",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Start of date range (ISO 8601)"
+          },
+          {
+            "name": "rangeEnd",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "End of date range (ISO 8601)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 5,
+              "minimum": 1,
+              "maximum": 20
+            },
+            "description": "Maximum events to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "uid": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "location": {
+                            "type": "string"
+                          },
+                          "start": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "end": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "isAllDay": {
+                            "type": "boolean"
+                          },
+                          "calendarColor": {
+                            "type": "string"
+                          },
+                          "calendarName": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date format"
+          },
+          "403": {
+            "description": "Invalid or expired share token"
+          },
+          "500": {
+            "description": "Failed to get calendar events"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basic_auth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearer_auth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Authentication required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Permission denied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "PageSummary": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string",
+            "description": "Unique page identifier"
+          },
+          "title": {
+            "type": "string"
+          },
+          "modified": {
+            "type": "integer",
+            "description": "Unix timestamp of last modification"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Permissions"
+          }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "nl",
+              "en",
+              "de",
+              "fr"
+            ]
+          },
+          "layout": {
+            "$ref": "#/components/schemas/PageLayout"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Permissions"
+          },
+          "breadcrumb": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BreadcrumbItem"
+            }
+          }
+        }
+      },
+      "PageCreate": {
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "description": "Parent page unique ID"
+          },
+          "language": {
+            "type": "string"
+          }
+        }
+      },
+      "PageUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "layout": {
+            "$ref": "#/components/schemas/PageLayout"
+          }
+        }
+      },
+      "PageLayout": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "headerRow": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "backgroundColor": {
+                "type": "string"
+              },
+              "widgets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Widget"
+                }
+              }
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Row"
+            }
+          },
+          "sideColumns": {
+            "type": "object",
+            "properties": {
+              "left": {
+                "$ref": "#/components/schemas/SideColumn"
+              },
+              "right": {
+                "$ref": "#/components/schemas/SideColumn"
+              }
+            }
+          }
+        }
+      },
+      "Row": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "integer"
+          },
+          "backgroundColor": {
+            "type": "string"
+          },
+          "widgets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Widget"
+            }
+          }
+        }
+      },
+      "SideColumn": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "backgroundColor": {
+            "type": "string"
+          },
+          "widgets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Widget"
+            }
+          }
+        }
+      },
+      "Widget": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "heading",
+              "image",
+              "links",
+              "divider",
+              "video",
+              "file",
+              "spacer",
+              "news"
+            ]
+          },
+          "column": {
+            "type": "integer"
+          },
+          "order": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string",
+            "description": "For text/heading widgets"
+          },
+          "src": {
+            "type": "string",
+            "description": "For image/video widgets"
+          },
+          "level": {
+            "type": "integer",
+            "description": "For heading widget (1-6)"
+          }
+        }
+      },
+      "PageTreeNode": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageTreeNode"
+            }
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Permissions"
+          }
+        }
+      },
+      "BreadcrumbItem": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "PageVersion": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "Permissions": {
+        "type": "object",
+        "properties": {
+          "canRead": {
+            "type": "boolean"
+          },
+          "canWrite": {
+            "type": "boolean"
+          },
+          "canCreate": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
+          },
+          "canShare": {
+            "type": "boolean"
+          },
+          "raw": {
+            "type": "integer",
+            "description": "Nextcloud permissions bitmask"
+          }
+        }
+      },
+      "MediaFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "modified": {
+            "type": "integer"
+          }
+        }
+      },
+      "SearchResult": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "excerpt": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          }
+        }
+      },
+      "NewsItem": {
+        "type": "object",
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "excerpt": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "imagePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "modified": {
+            "type": "integer"
+          },
+          "modifiedFormatted": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "Navigation": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NavigationItem"
+            }
+          }
+        }
+      },
+      "NavigationItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "pageId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NavigationItem"
+            }
+          }
+        }
+      },
+      "Footer": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "content": {
+            "type": "string"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string"
+          },
+          "authorId": {
+            "type": "string"
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "created": {
+            "type": "integer"
+          },
+          "modified": {
+            "type": "integer"
+          },
+          "parentId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "reactions": {
+            "$ref": "#/components/schemas/Reactions"
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            }
+          }
+        }
+      },
+      "Reactions": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "userReacted": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "EngagementSettings": {
+        "type": "object",
+        "properties": {
+          "commentsEnabled": {
+            "type": "boolean"
+          },
+          "reactionsEnabled": {
+            "type": "boolean"
+          },
+          "allowedReactions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicationSettings": {
+        "type": "object",
+        "properties": {
+          "publishedOnField": {
+            "type": "string",
+            "description": "MetaVox field name for publish date"
+          },
+          "depublishedOnField": {
+            "type": "string",
+            "description": "MetaVox field name for expiration date"
+          }
+        }
+      },
+      "TemplatePreview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Template identifier (folder name)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template display name"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "created": {
+            "type": "integer",
+            "description": "Creation timestamp"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "columnCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "widgetCount": {
+            "type": "integer"
+          },
+          "widgetTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of widget types used in template"
+          },
+          "complexity": {
+            "type": "string",
+            "enum": [
+              "simple",
+              "medium",
+              "advanced"
+            ]
+          },
+          "hasHeaderRow": {
+            "type": "boolean"
+          },
+          "hasSidebars": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TemplateCreateFromRequest": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "pageTitle"
+        ],
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "description": "Template folder name (e.g., 'department', 'event')"
+          },
+          "pageTitle": {
+            "type": "string",
+            "description": "Title for the new page"
+          },
+          "parentPath": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional parent folder path (e.g., '/teams')"
+          }
+        }
+      },
+      "TemplateSaveRequest": {
+        "type": "object",
+        "required": [
+          "pageId",
+          "name"
+        ],
+        "properties": {
+          "pageId": {
+            "type": "string",
+            "description": "Unique ID of page to save as template"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template name"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional template description"
+          }
+        }
+      }
+    }
+  }
+}

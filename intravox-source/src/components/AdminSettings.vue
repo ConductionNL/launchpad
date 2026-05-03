@@ -1,0 +1,3892 @@
+<template>
+	<div class="intravox-admin-settings">
+		<!-- License Warning Banner -->
+		<div v-if="licenseBanner && !bannerDismissed" :class="['license-banner', licenseBanner.type]">
+			<span class="license-banner-text">
+				{{ licenseBanner.message }}
+				<a href="#" @click.prevent="activeTab = 'support'">
+					{{ licenseBanner.linkText }}
+				</a>
+			</span>
+			<button class="license-banner-close" @click="bannerDismissed = true" :aria-label="t('intravox', 'Dismiss banner')">&times;</button>
+		</div>
+
+		<!-- Orphaned Data Banner -->
+		<div v-if="orphanedBannerCount > 0 && !orphanedBannerDismissed" class="license-banner warning">
+			<span class="license-banner-text">
+				{{ t('intravox', 'Found {count} orphaned data folder(s) from a previous installation.', { count: orphanedBannerCount }) }}
+				<a href="#" @click.prevent="activeTab = 'maintenance'; scanOrphanedFolders()">
+					{{ t('intravox', 'Go to Maintenance') }}
+				</a>
+			</span>
+			<button class="license-banner-close" @click="orphanedBannerDismissed = true" :aria-label="t('intravox', 'Dismiss banner')">&times;</button>
+		</div>
+
+		<!-- Tab Navigation - MetaVox style -->
+		<div class="tab-navigation">
+			<button
+				:class="['tab-button', { active: activeTab === 'video' }]"
+				@click="activeTab = 'video'">
+				<Video :size="16" />
+				{{ t('intravox', 'Video Services') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'engagement' }]"
+				@click="activeTab = 'engagement'">
+				<CommentTextOutline :size="16" />
+				{{ t('intravox', 'Engagement') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'publication' }]"
+				@click="activeTab = 'publication'">
+				<CalendarClock :size="16" />
+				{{ t('intravox', 'Publication') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'demo' }]"
+				@click="activeTab = 'demo'">
+				<PackageVariant :size="16" />
+				{{ t('intravox', 'Demo Data') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'export' }]"
+				@click="activeTab = 'export'">
+				<Download :size="16" />
+				{{ t('intravox', 'Import/Export') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'sharing' }]"
+				@click="activeTab = 'sharing'; loadActiveShares()">
+				<LinkVariant :size="16" />
+				{{ t('intravox', 'Sharing') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'feeds' }]"
+				@click="activeTab = 'feeds'">
+				<RssBox :size="16" />
+				{{ t('intravox', 'External Feeds') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'support' }]"
+				@click="activeTab = 'support'">
+				<HeartOutline :size="16" />
+				{{ t('intravox', 'Support') }}
+			</button>
+			<button
+				:class="['tab-button', { active: activeTab === 'maintenance' }]"
+				@click="activeTab = 'maintenance'; scanOrphanedFolders()">
+				<DatabaseAlert :size="16" />
+				{{ t('intravox', 'Maintenance') }}
+			</button>
+		</div>
+
+		<!-- Demo Data Tab -->
+		<div v-if="activeTab === 'demo'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'Demo Data') }}</h2>
+			<p class="settings-section-desc">
+				{{ t('intravox', 'Install demo content to quickly set up your intranet with example pages, navigation, and images.') }}
+			</p>
+
+			<div class="demo-data-info">
+				<p v-if="!setupComplete" class="info-note info-setup">
+					{{ t('intravox', 'The IntraVox Team Folder will be created automatically when you install demo data.') }}
+				</p>
+			</div>
+
+			<table class="demo-data-table">
+				<thead>
+					<tr>
+						<th>{{ t('intravox', 'Language') }}</th>
+						<th>{{ t('intravox', 'Content') }}</th>
+						<th>{{ t('intravox', 'Status') }}</th>
+						<th>{{ t('intravox', 'Action') }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="lang in languages" :key="lang.code">
+						<td class="language-cell">
+							<span class="flag">{{ lang.flag }}</span>
+							<span class="name">{{ lang.name }}</span>
+						</td>
+						<td class="content-cell">
+							<span v-if="lang.fullContent" class="content-badge full">
+								{{ t('intravox', 'Full intranet') }}
+							</span>
+							<span v-else class="content-badge basic">
+								{{ t('intravox', 'Homepage only') }}
+							</span>
+						</td>
+						<td class="status-cell">
+							<span :class="['status-badge', lang.status]">
+								{{ getStatusLabel(lang.status) }}
+							</span>
+						</td>
+						<td class="action-cell">
+							<!-- Not installed: single Install button -->
+							<template v-if="lang.canInstall && lang.status !== 'installed'">
+								<NcButton
+									:disabled="installing !== null || cleaningStart !== null"
+									type="primary"
+									@click="installDemoData(lang.code)">
+									<template #icon>
+										<span v-if="installing === lang.code" class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+									</template>
+									{{ installing === lang.code ? t('intravox', 'Installing...') : t('intravox', 'Install') }}
+								</NcButton>
+							</template>
+							<!-- Already installed: reinstall button -->
+							<template v-else-if="lang.canInstall && lang.status === 'installed'">
+								<NcButton
+									:disabled="installing !== null || cleaningStart !== null"
+									type="secondary"
+									@click="showReinstallDialog(lang.code)">
+									<template #icon>
+										<span v-if="installing === lang.code" class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+									</template>
+									{{ installing === lang.code ? t('intravox', 'Reinstalling...') : t('intravox', 'Reinstall') }}
+								</NcButton>
+							</template>
+							<span v-else class="unavailable">
+								{{ t('intravox', 'Not available') }}
+							</span>
+							<!-- Clean Start button - always available when setup is complete -->
+							<NcButton
+								v-if="setupComplete"
+								:disabled="installing !== null || cleaningStart !== null"
+								type="tertiary"
+								@click="showCleanStartDialog(lang.code)">
+								<template #icon>
+									<span v-if="cleaningStart === lang.code" class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+									<Broom v-else :size="16" />
+								</template>
+								{{ cleaningStart === lang.code ? t('intravox', 'Resetting...') : t('intravox', 'Clean Start') }}
+							</NcButton>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+				<div v-if="message" :class="['message', messageType]">
+				{{ message }}
+			</div>
+			</div>
+		</div>
+
+		<!-- Reinstall confirmation dialog -->
+		<NcDialog
+			v-if="reinstallDialogVisible"
+			:name="t('intravox', 'Reinstall demo data')"
+			@closing="reinstallDialogVisible = false">
+			<template #default>
+				<div class="reinstall-dialog-content">
+					<NcNoteCard type="warning">
+						{{ t('intravox', 'This will delete all existing demo content for') }} <strong>{{ reinstallLanguageName }}</strong> {{ t('intravox', 'and replace it with fresh demo data.') }}
+					</NcNoteCard>
+					<p class="reinstall-warning">
+						{{ t('intravox', 'Any changes you made to the demo pages will be lost. This action cannot be undone.') }}
+					</p>
+				</div>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="reinstallDialogVisible = false">
+					{{ t('intravox', 'Cancel') }}
+				</NcButton>
+				<NcButton type="error" @click="confirmReinstall">
+					{{ t('intravox', 'Reinstall') }}
+				</NcButton>
+			</template>
+		</NcDialog>
+
+		<!-- Clean Start confirmation dialog -->
+		<NcDialog
+			v-if="cleanStartDialogVisible"
+			:name="t('intravox', 'Clean Start')"
+			@closing="cleanStartDialogVisible = false">
+			<template #default>
+				<div class="clean-start-dialog-content">
+					<NcNoteCard type="error">
+						<p><strong>{{ t('intravox', 'Warning: This action will permanently delete all content!') }}</strong></p>
+					</NcNoteCard>
+					<p class="clean-start-info">
+						{{ t('intravox', 'This will delete for') }} <strong>{{ cleanStartLanguageName }}</strong>:
+					</p>
+					<ul class="deletion-list">
+						<li>{{ t('intravox', 'All pages and subpages') }}</li>
+						<li>{{ t('intravox', 'Navigation structure') }}</li>
+						<li>{{ t('intravox', 'Footer content') }}</li>
+						<li>{{ t('intravox', 'All comments and reactions') }}</li>
+						<li>{{ t('intravox', 'All uploaded media files') }}</li>
+					</ul>
+					<p class="clean-start-result">
+						{{ t('intravox', 'You will get a fresh empty homepage and empty navigation.') }}
+					</p>
+					<NcNoteCard type="warning">
+						{{ t('intravox', 'This action cannot be undone!') }}
+					</NcNoteCard>
+					<div class="clean-start-confirm">
+						<label for="clean-start-confirm-input">{{ t('intravox', 'Type DELETE to confirm:') }}</label>
+						<input id="clean-start-confirm-input" v-model="cleanStartConfirmText" type="text" class="clean-start-confirm-input" placeholder="DELETE" autocomplete="off" />
+					</div>
+				</div>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="cleanStartDialogVisible = false">
+					{{ t('intravox', 'Cancel') }}
+				</NcButton>
+				<NcButton type="error" @click="confirmCleanStart" :disabled="cleanStartConfirmText !== 'DELETE'">
+					{{ t('intravox', 'Delete All & Start Fresh') }}
+				</NcButton>
+			</template>
+		</NcDialog>
+
+		<!-- Remove connection confirmation dialog -->
+		<NcDialog
+			v-if="removeConnectionDialogVisible"
+			:name="t('intravox', 'Remove connection')"
+			@closing="removeConnectionDialogVisible = false">
+			<template #default>
+				<p>{{ t('intravox', 'Remove "{name}"? This cannot be undone after saving.', { name: removeConnectionName }) }}</p>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="removeConnectionDialogVisible = false">
+					{{ t('intravox', 'Cancel') }}
+				</NcButton>
+				<NcButton type="error" @click="confirmRemoveConnection">
+					{{ t('intravox', 'Remove') }}
+				</NcButton>
+			</template>
+		</NcDialog>
+
+		<!-- Import connections confirmation dialog -->
+		<NcDialog
+			v-if="importDialogVisible && importPreview"
+			:name="t('intravox', 'Import connections')"
+			@closing="importDialogVisible = false; importPreview = null">
+			<template #default>
+				<p>{{ t('intravox', 'Found {total} connection(s) in file:', { total: importPreview.total }) }}</p>
+				<ul class="import-preview-list">
+					<li v-for="conn in importPreview.items" :key="conn.name" :class="{ 'is-duplicate': conn.duplicate }">
+						<strong>{{ conn.name }}</strong> ({{ conn.type }})
+						<span v-if="conn.duplicate" class="import-duplicate-badge">{{ t('intravox', 'already exists') }}</span>
+					</li>
+				</ul>
+				<p v-if="importPreview.newCount > 0">
+					{{ t('intravox', '{count} new connection(s) will be added.', { count: importPreview.newCount }) }}
+				</p>
+				<p v-else>
+					{{ t('intravox', 'All connections already exist. Nothing to import.') }}
+				</p>
+				<NcNoteCard v-if="importPreview.newCount > 0" type="info">
+					{{ t('intravox', 'Tokens and secrets are not included in the export. You will need to enter them after importing.') }}
+				</NcNoteCard>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="importDialogVisible = false; importPreview = null">
+					{{ t('intravox', 'Cancel') }}
+				</NcButton>
+				<NcButton type="primary" @click="confirmImportConnections" :disabled="importPreview.newCount === 0">
+					{{ t('intravox', 'Import {count} connection(s)', { count: importPreview.newCount }) }}
+				</NcButton>
+			</template>
+		</NcDialog>
+
+		<!-- Video Services Tab -->
+		<div v-if="activeTab === 'video'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'Video Embed Domains') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Configure which video platforms can be embedded in pages. Toggle services on or off.') }}
+				</p>
+
+				<!-- Services Grid (2 columns) -->
+				<div class="services-grid">
+					<div v-for="category in categories" :key="category.id" class="service-category" :class="category.id">
+						<h3 class="category-header" :class="category.id">
+							<span class="category-icon">{{ category.icon }}</span>
+							{{ t('intravox', category.name) }}
+						</h3>
+
+						<div class="service-list">
+							<div
+								v-for="service in getServicesByCategory(category.id)"
+								:key="service.id"
+								class="service-item"
+								:class="{ enabled: isServiceEnabled(service), 'tracking-warning': category.id === 'tracking' }">
+								<NcCheckboxRadioSwitch
+									type="switch"
+									:model-value="isServiceEnabled(service)"
+									@update:model-value="toggleService(service, $event)">
+									<div class="service-info">
+										<span class="service-name">
+											{{ service.name }}
+											<a
+												:href="getServiceHomepage(service)"
+												target="_blank"
+												rel="noopener noreferrer"
+												class="service-link"
+												:title="t('intravox', 'Visit website')"
+												@click.stop>
+												<OpenInNew :size="14" />
+											</a>
+										</span>
+										<span class="service-domain">{{ getHostFromUrl(service.domain) }}</span>
+									</div>
+								</NcCheckboxRadioSwitch>
+							</div>
+						</div>
+					</div>
+
+					<!-- Custom Servers Category (full width) -->
+					<div class="service-category custom">
+						<h3 class="category-header custom">
+							<span class="category-icon">🏢</span>
+							{{ t('intravox', 'Custom servers') }}
+						</h3>
+
+						<div class="service-list">
+							<!-- Existing custom domains with risk assessment -->
+							<div
+								v-for="item in customDomainsWithRisk"
+								:key="item.domain"
+								class="service-item custom-item enabled">
+								<div class="custom-domain-info">
+									<span class="service-name">
+										<span class="protocol-badge">HTTPS</span>
+										<a
+											:href="item.domain"
+											target="_blank"
+											rel="noopener noreferrer"
+											class="custom-domain-link"
+											:title="t('intravox', 'Visit website')">
+											{{ getHostFromUrl(item.domain) }}
+											<OpenInNew :size="12" />
+										</a>
+									</span>
+									<span :class="['risk-badge', item.risk.risk]">
+										{{ item.risk.icon }} {{ t('intravox', item.risk.label) }}
+									</span>
+								</div>
+								<NcButton
+									type="tertiary"
+									@click="removeCustomDomain(item.domain)">
+									{{ t('intravox', 'Remove') }}
+								</NcButton>
+							</div>
+
+							<!-- Add new domain row -->
+							<div class="add-domain-row">
+								<input
+									v-model="newDomain"
+									type="text"
+									class="domain-input"
+									:placeholder="t('intravox', 'video.example.org (HTTPS required)')"
+									:aria-label="t('intravox', 'Custom video domain')"
+									@keyup.enter="addCustomDomain"
+								/>
+								<NcButton type="secondary" @click="addCustomDomain" :disabled="!newDomain.trim()">
+									{{ t('intravox', 'Add') }}
+								</NcButton>
+							</div>
+							<p class="custom-server-hint">
+								{{ t('intravox', 'Only secure HTTPS servers can be added. The URL will be validated before adding.') }}
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Warnings display -->
+				<NcNoteCard v-if="domainWarnings.length > 0" type="warning" class="domain-warnings">
+					<p><strong>{{ t('intravox', 'Privacy warnings:') }}</strong></p>
+					<ul>
+						<li v-for="warning in domainWarnings" :key="warning">{{ warning }}</li>
+					</ul>
+				</NcNoteCard>
+
+				<div class="save-section">
+					<NcButton
+						type="primary"
+						:disabled="savingDomains"
+						@click="saveVideoDomains">
+						{{ savingDomains ? t('intravox', 'Saving...') : t('intravox', 'Save video settings') }}
+					</NcButton>
+				</div>
+			</div>
+		</div>
+
+		<!-- Import/Export Tab -->
+		<div v-if="activeTab === 'export'" class="tab-content">
+			<!-- Sub-tab Navigation -->
+			<div class="sub-tab-navigation">
+				<button
+					:class="['sub-tab-button', { active: exportSubTab === 'import' }]"
+					@click="exportSubTab = 'import'">
+					<Upload :size="16" />
+					{{ t('intravox', 'Import') }}
+				</button>
+				<button
+					:class="['sub-tab-button', { active: exportSubTab === 'export' }]"
+					@click="exportSubTab = 'export'">
+					<Download :size="16" />
+					{{ t('intravox', 'Export') }}
+				</button>
+				<button
+					:class="['sub-tab-button', { active: exportSubTab === 'confluence' }]"
+					@click="exportSubTab = 'confluence'">
+					<CloudDownload :size="16" />
+					{{ t('intravox', 'Confluence') }}
+				</button>
+			</div>
+
+			<!-- Export Section -->
+			<div v-if="exportSubTab === 'export'" class="settings-section">
+				<h2>{{ t('intravox', 'Export Pages') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Export your IntraVox pages for backup or migration.') }}
+				</p>
+
+				<div class="export-options">
+					<div class="export-row">
+						<label class="export-label" for="export-language">{{ t('intravox', 'Language') }}</label>
+						<select id="export-language" v-model="exportLanguage" class="export-select">
+							<option :value="null" disabled>{{ t('intravox', 'Select language') }}</option>
+							<option
+								v-for="lang in exportLanguages"
+								:key="lang.code"
+								:value="lang.code">
+								{{ lang.flag }} {{ lang.name }}
+								<template v-if="lang.hasContent">({{ lang.pageCount }} {{ t('intravox', 'pages') }})</template>
+								<template v-else>({{ t('intravox', 'empty') }})</template>
+							</option>
+						</select>
+					</div>
+
+					<div class="export-row">
+						<label class="export-label">{{ t('intravox', 'Format') }}</label>
+						<div class="export-format-options">
+							<NcCheckboxRadioSwitch
+								v-model="exportFormat"
+								value="zip"
+								type="radio"
+								name="exportFormat">
+								ZIP ({{ t('intravox', 'with media files') }})
+							</NcCheckboxRadioSwitch>
+							<NcCheckboxRadioSwitch
+								v-model="exportFormat"
+								value="json"
+								type="radio"
+								name="exportFormat">
+								JSON ({{ t('intravox', 'pages only') }})
+							</NcCheckboxRadioSwitch>
+						</div>
+					</div>
+
+					<div class="export-row">
+						<NcCheckboxRadioSwitch
+							v-model="exportIncludeComments"
+							type="checkbox">
+							{{ t('intravox', 'Include comments and reactions') }}
+						</NcCheckboxRadioSwitch>
+					</div>
+
+					<NcButton
+						type="primary"
+						:disabled="!exportLanguage || exporting"
+						@click="downloadExport">
+						<template #icon>
+							<Download :size="20" />
+						</template>
+						{{ exporting ? t('intravox', 'Exporting...') : t('intravox', 'Download Export') }}
+					</NcButton>
+
+					<!-- Export Progress -->
+					<div v-if="exporting" class="export-progress">
+						<NcNoteCard type="warning">
+							<p><strong>{{ t('intravox', 'Export in progress') }}</strong></p>
+							<p>{{ t('intravox', 'Please keep this page open until the export completes.') }}</p>
+						</NcNoteCard>
+						<NcProgressBar :value="exportProgress" />
+						<p class="progress-text">{{ exportStatusText }}</p>
+					</div>
+
+					<!-- Export Success Message -->
+					<div v-if="exportComplete" class="export-result">
+						<NcNoteCard type="success">
+							{{ t('intravox', 'Export completed successfully. Download should start automatically.') }}
+						</NcNoteCard>
+					</div>
+				</div>
+			</div>
+
+			<!-- Confluence Import Section -->
+			<div v-if="exportSubTab === 'confluence'" class="settings-section confluence-import-section">
+				<ConfluenceImport />
+			</div>
+
+			<!-- Import Section -->
+			<div v-if="exportSubTab === 'import'" class="settings-section import-section">
+				<h2>{{ t('intravox', 'Import from ZIP') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Import pages and media from an IntraVox ZIP export file.') }}
+				</p>
+
+				<div class="import-options">
+					<div class="import-row">
+						<label class="import-label" for="import-zip-file">{{ t('intravox', 'Select ZIP file') }}</label>
+						<input
+							id="import-zip-file"
+							ref="importFileInput"
+							type="file"
+							accept=".zip"
+							class="import-file-input"
+							@change="onImportFileSelect" />
+						<span v-if="importFileName" class="import-filename">
+							{{ importFileName }}
+						</span>
+					</div>
+
+					<div class="import-row">
+						<NcCheckboxRadioSwitch
+							v-model="importIncludeComments"
+							type="checkbox">
+							{{ t('intravox', 'Import comments and reactions') }}
+						</NcCheckboxRadioSwitch>
+					</div>
+
+					<div class="import-row">
+						<NcCheckboxRadioSwitch
+							v-model="importOverwrite"
+							type="checkbox">
+							{{ t('intravox', 'Overwrite existing pages') }}
+						</NcCheckboxRadioSwitch>
+					</div>
+
+					<NcButton
+						type="primary"
+						:disabled="!importFile || importing"
+						@click="startImport">
+						<template #icon>
+							<Upload :size="20" />
+						</template>
+						{{ importing ? t('intravox', 'Importing...') : t('intravox', 'Start Import') }}
+					</NcButton>
+
+					<!-- Import Progress -->
+					<div v-if="importing" class="import-progress">
+						<NcNoteCard type="warning">
+							<p><strong>{{ t('intravox', 'Import in progress') }}</strong></p>
+							<p>{{ t('intravox', 'Please keep this page open until the import completes.') }}</p>
+						</NcNoteCard>
+						<NcProgressBar :value="importProgress" />
+						<p class="progress-text">{{ importStatusText }}</p>
+					</div>
+
+					<!-- Import Result -->
+					<div v-if="importResult" class="import-result">
+						<NcNoteCard type="success">
+							{{ t('intravox', 'Import completed successfully') }}:
+							{{ importResult.stats.pagesImported }} {{ t('intravox', 'pages') }},
+							{{ importResult.stats.mediaFilesImported }} {{ t('intravox', 'media files') }},
+							{{ importResult.stats.commentsImported }} {{ t('intravox', 'comments') }}
+						</NcNoteCard>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Engagement Tab -->
+		<div v-if="activeTab === 'engagement'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'Reactions & Comments') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Configure how users can interact with pages through reactions and comments.') }}
+				</p>
+
+				<!-- Page Reactions -->
+				<div class="engagement-group">
+					<h3 class="engagement-group-header">
+						<span class="engagement-icon">👍</span>
+						{{ t('intravox', 'Page Reactions') }}
+					</h3>
+					<div class="engagement-option">
+						<NcCheckboxRadioSwitch
+							type="switch"
+							:model-value="engagementSettings.allowPageReactions"
+							@update:model-value="engagementSettings.allowPageReactions = $event">
+							<div class="option-info">
+								<span class="option-label">{{ t('intravox', 'Allow reactions on pages') }}</span>
+								<span class="option-desc">{{ t('intravox', 'Users can add emoji reactions to pages') }}</span>
+							</div>
+						</NcCheckboxRadioSwitch>
+					</div>
+				</div>
+
+				<!-- Comments -->
+				<div class="engagement-group">
+					<h3 class="engagement-group-header">
+						<span class="engagement-icon">💬</span>
+						{{ t('intravox', 'Comments') }}
+					</h3>
+					<div class="engagement-option">
+						<NcCheckboxRadioSwitch
+							type="switch"
+							:model-value="engagementSettings.allowComments"
+							@update:model-value="engagementSettings.allowComments = $event">
+							<div class="option-info">
+								<span class="option-label">{{ t('intravox', 'Allow comments on pages') }}</span>
+								<span class="option-desc">{{ t('intravox', 'Users can post comments on pages') }}</span>
+							</div>
+						</NcCheckboxRadioSwitch>
+					</div>
+					<div v-if="engagementSettings.allowComments" class="engagement-option sub-option">
+						<NcCheckboxRadioSwitch
+							type="switch"
+							:model-value="engagementSettings.allowCommentReactions"
+							@update:model-value="engagementSettings.allowCommentReactions = $event">
+							<div class="option-info">
+								<span class="option-label">{{ t('intravox', 'Allow reactions on comments') }}</span>
+								<span class="option-desc">{{ t('intravox', 'Users can add emoji reactions to comments') }}</span>
+							</div>
+						</NcCheckboxRadioSwitch>
+					</div>
+				</div>
+
+				<div class="save-section">
+					<NcButton
+						type="primary"
+						:disabled="savingEngagement"
+						@click="saveEngagementSettings">
+						{{ savingEngagement ? t('intravox', 'Saving...') : t('intravox', 'Save engagement settings') }}
+					</NcButton>
+				</div>
+			</div>
+		</div>
+
+		<!-- Publication Tab -->
+		<div v-if="activeTab === 'publication'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'Publication Date Fields') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Configure MetaVox fields used for publication date filtering in the News widget.') }}
+				</p>
+
+				<NcNoteCard v-if="!metavoxAvailable" type="warning">
+					{{ t('intravox', 'MetaVox is not available. Install and enable MetaVox to use publication date filtering.') }}
+				</NcNoteCard>
+
+				<div v-else class="publication-settings">
+					<p class="settings-info">
+						{{ t('intravox', 'Select the MetaVox date fields used for publication filtering. The News widget will use these fields to filter pages based on their publication period.') }}
+					</p>
+
+					<!-- Loading state -->
+					<div v-if="loadingMetavoxFields" class="loading-fields">
+						<span class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+						{{ t('intravox', 'Loading MetaVox fields...') }}
+					</div>
+
+					<!-- No date fields available -->
+					<NcNoteCard v-else-if="dateFields.length === 0" type="warning">
+						{{ t('intravox', 'No date fields found in MetaVox. Create date fields in MetaVox first and assign them to the IntraVox groupfolder.') }}
+					</NcNoteCard>
+
+					<template v-else>
+						<div class="setting-row">
+							<label class="setting-label" for="publish-date-field">
+								{{ t('intravox', 'Publish date field') }}
+							</label>
+							<select
+								id="publish-date-field"
+								v-model="publicationSettings.publishDateField"
+								class="setting-select">
+								<option value="">{{ t('intravox', '— Not configured —') }}</option>
+								<option
+									v-for="field in dateFields"
+									:key="field.field_name"
+									:value="field.field_name">
+									{{ field.field_label }}
+									<template v-if="field.field_label !== field.field_name">
+										({{ field.field_name }})
+									</template>
+								</option>
+							</select>
+							<p class="setting-hint">
+								{{ t('intravox', 'Pages will only be shown on or after this date.') }}
+							</p>
+						</div>
+
+						<div class="setting-row">
+							<label class="setting-label" for="expiration-date-field">
+								{{ t('intravox', 'Expiration date field') }}
+							</label>
+							<select
+								id="expiration-date-field"
+								v-model="publicationSettings.expirationDateField"
+								class="setting-select">
+								<option value="">{{ t('intravox', '— Not configured —') }}</option>
+								<option
+									v-for="field in dateFields"
+									:key="field.field_name"
+									:value="field.field_name">
+									{{ field.field_label }}
+									<template v-if="field.field_label !== field.field_name">
+										({{ field.field_name }})
+									</template>
+								</option>
+							</select>
+							<p class="setting-hint">
+								{{ t('intravox', 'Pages will be hidden after this date.') }}
+							</p>
+						</div>
+
+						<div class="save-section">
+							<NcButton
+								type="primary"
+								:disabled="savingPublication"
+								@click="savePublicationSettings">
+								{{ savingPublication ? t('intravox', 'Saving...') : t('intravox', 'Save publication settings') }}
+							</NcButton>
+						</div>
+					</template>
+				</div>
+			</div>
+
+			</div>
+
+		<!-- License Tab -->
+		<!-- Sharing Tab -->
+		<div v-if="activeTab === 'sharing'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'Public Share Links') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Overview of all active Nextcloud share links on IntraVox content.') }}
+				</p>
+
+				<div v-if="loadingShares" class="shares-loading">
+					<span class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+					{{ t('intravox', 'Loading shares...') }}
+				</div>
+
+				<NcNoteCard v-else-if="activeShares.length === 0" type="info">
+					{{ t('intravox', 'No active public share links found. Share links can be created in the Files app on IntraVox folders or pages.') }}
+				</NcNoteCard>
+
+				<table v-else class="shares-table">
+					<thead>
+						<tr>
+							<th>{{ t('intravox', 'Scope') }}</th>
+							<th>{{ t('intravox', 'Path') }}</th>
+							<th>{{ t('intravox', 'Created') }}</th>
+							<th>{{ t('intravox', 'Expires') }}</th>
+							<th>{{ t('intravox', 'Action') }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="share in activeShares" :key="share.token" :class="{ 'share-expired': share.expired }">
+							<td class="scope-cell">
+								<FolderOutline v-if="share.scope === 'folder' || share.scope === 'language'" :size="16" />
+								<FileDocumentOutline v-else :size="16" />
+								<span class="scope-label">{{ share.scopeLabel }}</span>
+								<span v-if="share.scope === 'language'" class="scope-badge language-badge">{{ t('intravox', 'All pages') }}</span>
+								<span v-if="share.expired" class="scope-badge expired-badge">{{ t('intravox', 'Expired') }}</span>
+							</td>
+							<td class="path-cell">{{ share.path }}</td>
+							<td class="date-cell">{{ share.createdAt || '—' }}</td>
+							<td class="date-cell" :class="{ 'expired-text': share.expired }">
+								{{ share.expirationDate || t('intravox', 'Never') }}
+							</td>
+							<td class="action-cell">
+								<a :href="getFilesUrl(share.filesUrl)" target="_blank" class="share-files-link">
+									<FolderOutline :size="14" />
+									{{ t('intravox', 'Open in Files') }}
+									<OpenInNew :size="12" />
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div v-if="activeTab === 'support'" class="tab-content">
+			<SupportSettings
+				:initial-telemetry-enabled="telemetryEnabled"
+				:initial-telemetry-last-report="telemetryLastReport"
+				@license-changed="loadLicenseStats" />
+		</div>
+
+		<!-- External Feeds Tab -->
+		<div v-if="activeTab === 'feeds'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'External Feed Connections') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Configure connections to external systems (LMS, RSS sources). These connections can be used by the Feed widget on any page.') }}
+				</p>
+
+				<div v-for="(conn, index) in feedConnections" :key="conn.id || index" class="connection-card" :class="{ 'connection-card--expanded': conn._expanded, 'connection-card--inactive': !conn.active }">
+					<div class="connection-header"
+						@click="handleHeaderClick(conn, $event)"
+						@keydown.enter="conn._expanded = !conn._expanded"
+						@keydown.space.prevent="conn._expanded = !conn._expanded"
+						tabindex="0"
+						role="button"
+						:aria-expanded="conn._expanded"
+						:aria-label="t('intravox', 'Toggle connection details')">
+						<span class="connection-name">{{ conn.name || t('intravox', 'New connection') }}</span>
+						<span class="connection-type">{{ getPresetLabel(conn.type) }}</span>
+						<span :class="['connection-badge', getConfigStatus(conn).class]">{{ getConfigStatus(conn).icon }} {{ getConfigStatus(conn).label }}</span>
+						<NcCheckboxRadioSwitch
+							:model-value="conn.active !== false"
+							type="switch"
+							@update:model-value="toggleConnectionActive(conn, $event)"
+							:aria-label="conn.active !== false ? t('intravox', 'Active') : t('intravox', 'Inactive')"
+						/>
+
+						<span class="connection-chevron">{{ conn._expanded ? '▾' : '▸' }}</span>
+						<button type="button" class="connection-remove" @click.stop="removeFeedConnection(index)" :title="t('intravox', 'Remove connection')">×</button>
+					</div>
+					<div v-if="conn._expanded" class="connection-body">
+					<div class="connection-fields">
+						<!-- Basis -->
+						<div class="fields-grid">
+							<div class="form-group">
+								<label :for="'conn-name-' + index">{{ t('intravox', 'Name') }}</label>
+								<input :id="'conn-name-' + index" v-model="conn.name" type="text" :placeholder="t('intravox', 'e.g. Canvas University')" />
+							</div>
+							<div class="form-group">
+								<label :for="'conn-type-' + index">{{ t('intravox', 'Type') }}</label>
+								<select :id="'conn-type-' + index" v-model="conn.type" @change="applyPreset(conn)">
+									<option v-for="lms in connectionPresets" :key="lms.value" :value="lms.value">{{ lms.label }}</option>
+								</select>
+							</div>
+							<div v-if="conn.type === 'sharepoint'" class="form-group full-width">
+								<label :for="'conn-siteurl-' + index">{{ t('intravox', 'SharePoint site URL') }}</label>
+								<input :id="'conn-siteurl-' + index" v-model="conn.siteUrl" type="url" placeholder="https://contoso.sharepoint.com/sites/intranet" />
+								<span class="field-hint">{{ t('intravox', 'The full URL of your SharePoint site. Found in your browser address bar.') }}</span>
+							</div>
+							<div v-else class="form-group full-width">
+								<label :for="'conn-url-' + index">{{ t('intravox', 'Base URL') }}</label>
+								<input :id="'conn-url-' + index" v-model="conn.baseUrl" type="url" :placeholder="conn.type === 'jira' ? 'https://your-org.atlassian.net' : t('intravox', 'https://lms.example.com')" @input="onBaseUrlInput(conn)" />
+							</div>
+						</div>
+						<!-- Endpoint, Auth & Mapping (non-LMS, non-SharePoint) -->
+						<template v-if="!['moodle', 'canvas', 'brightspace', 'sharepoint'].includes(conn.type)">
+							<button type="button" class="advanced-toggle" @click="conn._showAdvanced = !conn._showAdvanced">
+								{{ conn._showAdvanced ? '▾' : '▸' }} {{ t('intravox', 'Advanced options') }}
+							</button>
+							<div v-if="conn._showAdvanced" class="advanced-fields">
+							<div class="field-section">
+								<div class="fields-grid">
+									<div class="form-group full-width">
+										<label :for="'conn-endpoint-' + index">{{ t('intravox', 'Endpoint path') }}</label>
+										<input :id="'conn-endpoint-' + index" v-model="conn.customEndpoint" type="text" :placeholder="t('intravox', '/api/v1/announcements')" />
+										<span class="field-hint">{{ t('intravox', 'Path appended to the base URL.') }}</span>
+									</div>
+									<div v-if="conn.authMethod !== 'client_credentials'" class="form-group">
+										<label :for="'conn-authmethod-' + index">{{ t('intravox', 'Auth method') }}</label>
+										<select :id="'conn-authmethod-' + index" v-model="conn.authMethod">
+											<option value="bearer">{{ t('intravox', 'Bearer token') }}</option>
+											<option value="apikey">{{ t('intravox', 'API key (custom header)') }}</option>
+											<option value="basic">{{ t('intravox', 'Basic auth') }}</option>
+											<option value="none">{{ t('intravox', 'No authentication') }}</option>
+										</select>
+									</div>
+									<div v-if="conn.authMethod === 'apikey'" class="form-group">
+										<label :for="'conn-apikeyheader-' + index">{{ t('intravox', 'API key header name') }}</label>
+										<input :id="'conn-apikeyheader-' + index" v-model="conn.apiKeyHeader" type="text" :placeholder="t('intravox', 'X-API-Key')" />
+									</div>
+								</div>
+							</div>
+
+							<!-- Response mapping -->
+							<div class="field-section">
+								<div class="field-section-title">{{ t('intravox', 'Response mapping') }}</div>
+								<span class="field-hint">{{ t('intravox', 'Map JSON fields from the API response to feed items. Use dot notation for nested fields (e.g. data.items, author.name).') }}</span>
+								<div class="fields-grid">
+									<div class="form-group full-width">
+										<label :for="'conn-map-items-' + index">{{ t('intravox', 'Items path') }}</label>
+										<input :id="'conn-map-items-' + index" v-model="conn.responseMapping.items" type="text" :placeholder="t('intravox', 'data or results or leave empty for root array')" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-map-title-' + index">{{ t('intravox', 'Title field') }}</label>
+										<input :id="'conn-map-title-' + index" v-model="conn.responseMapping.title" type="text" placeholder="title" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-map-url-' + index">{{ t('intravox', 'URL field') }}</label>
+										<input :id="'conn-map-url-' + index" v-model="conn.responseMapping.url" type="text" placeholder="url" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-map-excerpt-' + index">{{ t('intravox', 'Excerpt field') }}</label>
+										<input :id="'conn-map-excerpt-' + index" v-model="conn.responseMapping.excerpt" type="text" placeholder="body" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-map-date-' + index">{{ t('intravox', 'Date field') }}</label>
+										<input :id="'conn-map-date-' + index" v-model="conn.responseMapping.date" type="text" placeholder="created_at" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-map-image-' + index">{{ t('intravox', 'Image field') }}</label>
+										<input :id="'conn-map-image-' + index" v-model="conn.responseMapping.image" type="text" :placeholder="t('intravox', 'thumbnail (optional)')" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-map-author-' + index">{{ t('intravox', 'Author field') }}</label>
+										<input :id="'conn-map-author-' + index" v-model="conn.responseMapping.author" type="text" :placeholder="t('intravox', 'author (optional)')" />
+									</div>
+								</div>
+							</div>
+
+							<!-- Custom headers -->
+							<div class="field-section">
+								<div class="field-section-title">{{ t('intravox', 'Custom request headers') }}</div>
+								<span class="field-hint">{{ t('intravox', 'Extra HTTP headers sent with every request. E.g. OCS-APIRequest: true for Nextcloud APIs.') }}</span>
+								<div v-for="(header, hIndex) in conn.customHeaders" :key="hIndex" class="custom-header-row">
+									<input v-model="header.key" type="text" :placeholder="t('intravox', 'Header name')" class="header-key" />
+									<input v-model="header.value" type="text" :placeholder="t('intravox', 'Value')" class="header-value" />
+									<button type="button" class="header-remove" @click="conn.customHeaders.splice(hIndex, 1)">&times;</button>
+								</div>
+								<button type="button" class="link-button" @click="conn.customHeaders.push({ key: '', value: '' })">{{ t('intravox', '+ Add header') }}</button>
+							</div>
+							</div>
+						</template>
+
+						<!-- Authentication -->
+						<div class="field-section">
+							<div class="field-section-title">{{ t('intravox', 'Authentication') }}</div>
+							<div class="fields-grid">
+								<div v-if="isJiraCloud(conn)" class="form-group">
+									<label :for="'conn-jira-email-' + index">{{ t('intravox', 'Atlassian account email') }}</label>
+									<input :id="'conn-jira-email-' + index" v-model="conn.jiraEmail" type="email" :placeholder="t('intravox', 'you@example.com')" />
+								</div>
+								<div v-if="['moodle', 'canvas', 'brightspace'].includes(conn.type) || ['bearer', 'basic', 'apikey'].includes(conn.authMethod)" class="form-group">
+									<label :for="'conn-token-' + index">{{ t('intravox', 'API Token') }}</label>
+									<input :id="'conn-token-' + index" v-model="conn.token" type="password" :placeholder="conn.hasToken ? t('intravox', '(unchanged)') : t('intravox', 'Enter API token')" />
+								</div>
+								<div v-if="['moodle', 'canvas', 'brightspace'].includes(conn.type)" class="form-group">
+									<label :for="'conn-authmode-' + index">{{ t('intravox', 'User authentication') }}</label>
+									<select :id="'conn-authmode-' + index" v-model="conn.authMode">
+										<option value="token">{{ t('intravox', 'Admin token only (shared)') }}</option>
+										<option value="oauth2">{{ t('intravox', 'OAuth2 (per-user, personalized)') }}</option>
+										<option value="both">{{ t('intravox', 'Both (OAuth2 with admin fallback)') }}</option>
+									</select>
+								</div>
+								<template v-if="conn.authMode === 'oauth2' || conn.authMode === 'both'">
+									<div class="form-group">
+										<label :for="'conn-clientid-' + index">{{ t('intravox', 'OAuth2 Client ID') }}</label>
+										<input :id="'conn-clientid-' + index" v-model="conn.clientId" type="text" :placeholder="t('intravox', 'Client ID from LMS')" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-clientsecret-' + index">{{ t('intravox', 'OAuth2 Client Secret') }}</label>
+										<input :id="'conn-clientsecret-' + index" v-model="conn.clientSecret" type="password" :placeholder="conn.hasClientCredentials ? t('intravox', '(unchanged)') : t('intravox', 'Client secret from LMS')" />
+									</div>
+									<div class="form-group full-width">
+										<label class="field-hint">
+											{{ t('intravox', 'Redirect URI:') }}
+											<code>{{ callbackUrl }}</code>
+										</label>
+									</div>
+									<div class="form-group full-width">
+										<NcCheckboxRadioSwitch
+											v-model="conn.oidcAutoConnect"
+											type="checkbox">
+											{{ t('intravox', 'OIDC auto-connect (zero-click SSO)') }}
+										</NcCheckboxRadioSwitch>
+										<span class="field-hint">{{ t('intravox', 'Enable if this system uses the same identity provider as Nextcloud (e.g. SURFconext, Keycloak, Azure AD).') }}</span>
+									</div>
+								</template>
+								<!-- Client credentials (e.g. SharePoint / Microsoft Graph) -->
+								<template v-if="conn.authMethod === 'client_credentials'">
+									<div class="form-group">
+										<label :for="'conn-tenantid-' + index">{{ t('intravox', 'Tenant ID') }}</label>
+										<input :id="'conn-tenantid-' + index" v-model="conn.tenantId" type="text" :placeholder="t('intravox', 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')" />
+										<span class="field-hint">{{ t('intravox', 'Azure AD / Entra ID Tenant ID. Found in Azure Portal → App registrations.') }}</span>
+									</div>
+									<div class="form-group">
+										<label :for="'conn-cc-clientid-' + index">{{ t('intravox', 'Client ID') }}</label>
+										<input :id="'conn-cc-clientid-' + index" v-model="conn.clientId" type="text" :placeholder="t('intravox', 'Application (client) ID')" />
+									</div>
+									<div class="form-group">
+										<label :for="'conn-cc-clientsecret-' + index">{{ t('intravox', 'Client Secret') }}</label>
+										<input :id="'conn-cc-clientsecret-' + index" v-model="conn.clientSecret" type="password" :placeholder="conn.hasClientCredentials ? t('intravox', '(unchanged)') : t('intravox', 'Client secret value')" />
+									</div>
+								</template>
+							</div>
+						</div>
+					</div>
+					<!-- Test connection -->
+					<div class="connection-test">
+						<NcButton type="tertiary" :disabled="!conn.id || testingConnection === index" @click="testFeedConnection(index)">
+							<template #icon>
+								<span v-if="testingConnection === index" class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+							</template>
+							{{ testingConnection === index ? t('intravox', 'Testing...') : t('intravox', 'Test connection') }}
+						</NcButton>
+						<span v-if="!conn.id" class="field-hint">{{ t('intravox', 'Save connections first to test') }}</span>
+					</div>
+					<NcNoteCard v-if="testResults[conn.id] && testResults[conn.id].success" type="success" class="connection-test-result">
+						{{ t('intravox', 'Connection OK') }} — {{ testResults[conn.id].count }} {{ t('intravox', 'items') }}
+					</NcNoteCard>
+					<NcNoteCard v-if="testResults[conn.id] && testResults[conn.id].warning" type="warning" class="connection-test-result">
+						{{ testResults[conn.id].warning }}
+					</NcNoteCard>
+					<NcNoteCard v-if="testResults[conn.id] && !testResults[conn.id].success" type="error" class="connection-test-result">
+						{{ testResults[conn.id].error }}
+					</NcNoteCard>
+					</div>
+				</div>
+
+				<div class="feed-connection-actions">
+					<NcButton type="secondary" @click="addFeedConnection">
+						{{ t('intravox', '+ Add connection') }}
+					</NcButton>
+					<NcButton type="primary" @click="saveFeedConnections" :disabled="feedConnectionsSaving">
+						{{ feedConnectionsSaving ? t('intravox', 'Saving...') : t('intravox', 'Save connections') }}
+					</NcButton>
+					<span class="feed-connection-actions-spacer"></span>
+					<NcButton type="tertiary" @click="exportFeedConnections" :disabled="feedConnections.length === 0">
+						{{ t('intravox', 'Export') }}
+					</NcButton>
+					<NcButton type="tertiary" @click="$refs.importConnectionsFile.click()">
+						{{ t('intravox', 'Import') }}
+					</NcButton>
+					<input ref="importConnectionsFile" type="file" accept=".json" style="display:none" @change="importFeedConnections" />
+				</div>
+			</div>
+		</div>
+
+		<!-- Maintenance Tab -->
+		<div v-if="activeTab === 'maintenance'" class="tab-content">
+			<div class="settings-section">
+				<h2>{{ t('intravox', 'Orphaned GroupFolder Data') }}</h2>
+				<p class="settings-section-desc">
+					{{ t('intravox', 'Detect and manage orphaned data from previous IntraVox installations.') }}
+				</p>
+
+				<NcNoteCard type="info">
+					{{ t('intravox', 'When the Team Folders app is reinstalled, previous data may become orphaned. This tool helps you recover or clean up that data.') }}
+				</NcNoteCard>
+
+				<div class="scan-section">
+					<NcButton
+						type="primary"
+						:disabled="scanningOrphaned"
+						@click="scanOrphanedFolders">
+						<template #icon>
+							<span v-if="scanningOrphaned" class="icon-loading-small" role="status" :aria-label="t('intravox', 'Loading')"></span>
+							<DatabaseSearch v-else :size="20" />
+						</template>
+						{{ scanningOrphaned ? t('intravox', 'Scanning...') : t('intravox', 'Scan for Orphaned Data') }}
+					</NcButton>
+				</div>
+
+				<!-- No orphaned data found -->
+				<div v-if="orphanedFolders.length === 0 && orphanedScanned" class="no-orphaned">
+					<NcNoteCard type="success">
+						{{ t('intravox', 'No orphaned GroupFolder data found. Your installation is clean.') }}
+					</NcNoteCard>
+				</div>
+
+				<!-- Orphaned folders table -->
+				<table v-else-if="orphanedFolders.length > 0" class="orphaned-table">
+					<thead>
+						<tr>
+							<th>{{ t('intravox', 'Folder ID') }}</th>
+							<th>{{ t('intravox', 'Content') }}</th>
+							<th>{{ t('intravox', 'Size') }}</th>
+							<th>{{ t('intravox', 'Last Modified') }}</th>
+							<th>{{ t('intravox', 'Actions') }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="folder in orphanedFolders" :key="folder.id">
+							<td class="id-cell">{{ folder.id }}</td>
+							<td class="content-cell">
+								<span v-if="folder.hasIntraVoxContent" class="content-badge intravox">
+									{{ t('intravox', 'IntraVox') }}: {{ folder.languages.join(', ') }}
+									<span class="page-count">({{ folder.pageCount }} {{ t('intravox', 'pages') }})</span>
+								</span>
+								<span v-else class="content-badge unknown">
+									{{ t('intravox', 'Unknown data') }}
+								</span>
+							</td>
+							<td class="size-cell">{{ folder.sizeFormatted }}</td>
+							<td class="date-cell">{{ folder.lastModifiedFormatted }}</td>
+							<td class="action-cell">
+								<NcButton
+									v-if="folder.hasIntraVoxContent"
+									type="primary"
+									:disabled="migratingOrphaned || cleaningOrphaned"
+									@click="showMigrateDialog(folder)">
+									{{ t('intravox', 'Recover') }}
+								</NcButton>
+								<NcButton
+									type="error"
+									:disabled="migratingOrphaned || cleaningOrphaned"
+									@click="showOrphanedCleanupDialog(folder)">
+									{{ t('intravox', 'Delete') }}
+								</NcButton>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Orphaned data migrate dialog -->
+		<NcDialog
+			v-if="migrateDialogVisible"
+			:name="t('intravox', 'Recover Orphaned Data')"
+			@closing="migrateDialogVisible = false">
+			<template #default>
+				<div class="migrate-dialog-content">
+					<p>{{ t('intravox', 'Recover data from orphaned folder #{id} to your active IntraVox installation.', { id: migrateFolder?.id }) }}</p>
+
+					<div class="migrate-option">
+						<label for="migrate-language">{{ t('intravox', 'Language to recover') }}</label>
+						<select id="migrate-language" v-model="migrateLanguage" class="migrate-select">
+							<option v-for="lang in migrateFolder?.languages" :key="lang" :value="lang">
+								{{ getLanguageFlag(lang) }} {{ getLanguageName(lang) }} ({{ lang }})
+							</option>
+						</select>
+					</div>
+
+					<div class="migrate-option">
+						<label>{{ t('intravox', 'Recovery mode') }}</label>
+						<NcCheckboxRadioSwitch
+							v-model="migrateMode"
+							value="merge"
+							type="radio"
+							name="migrateMode">
+							{{ t('intravox', 'Merge (keep existing, add missing)') }}
+						</NcCheckboxRadioSwitch>
+						<NcCheckboxRadioSwitch
+							v-model="migrateMode"
+							value="replace"
+							type="radio"
+							name="migrateMode">
+							{{ t('intravox', 'Replace (overwrite existing content)') }}
+						</NcCheckboxRadioSwitch>
+					</div>
+
+					<NcNoteCard v-if="migrateMode === 'replace'" type="warning">
+						{{ t('intravox', 'Warning: This will overwrite all existing content for the selected language!') }}
+					</NcNoteCard>
+				</div>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="migrateDialogVisible = false">
+					{{ t('intravox', 'Cancel') }}
+				</NcButton>
+				<NcButton type="primary" :disabled="migratingOrphaned" @click="executeMigrate">
+					{{ migratingOrphaned ? t('intravox', 'Recovering...') : t('intravox', 'Start Recovery') }}
+				</NcButton>
+			</template>
+		</NcDialog>
+
+		<!-- Orphaned data cleanup confirmation dialog -->
+		<NcDialog
+			v-if="orphanedCleanupDialogVisible"
+			:name="t('intravox', 'Delete Orphaned Data')"
+			@closing="orphanedCleanupDialogVisible = false">
+			<template #default>
+				<div class="cleanup-dialog-content">
+					<NcNoteCard type="error">
+						<p><strong>{{ t('intravox', 'Warning: This will permanently delete all data!') }}</strong></p>
+					</NcNoteCard>
+					<p>{{ t('intravox', 'You are about to delete orphaned folder #{id}:', { id: cleanupFolder?.id }) }}</p>
+					<ul>
+						<li>{{ t('intravox', 'Size') }}: {{ cleanupFolder?.sizeFormatted }}</li>
+						<li v-if="cleanupFolder?.hasIntraVoxContent">
+							{{ t('intravox', 'Contains IntraVox data for') }}: {{ cleanupFolder?.languages.join(', ') }}
+						</li>
+						<li v-if="cleanupFolder?.pageCount">
+							{{ t('intravox', 'Approximately {count} pages', { count: cleanupFolder?.pageCount }) }}
+						</li>
+					</ul>
+					<NcNoteCard type="warning">
+						{{ t('intravox', 'This action cannot be undone!') }}
+					</NcNoteCard>
+				</div>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="orphanedCleanupDialogVisible = false">
+					{{ t('intravox', 'Cancel') }}
+				</NcButton>
+				<NcButton type="error" :disabled="cleaningOrphaned" @click="executeOrphanedCleanup">
+					{{ cleaningOrphaned ? t('intravox', 'Deleting...') : t('intravox', 'Delete Permanently') }}
+				</NcButton>
+			</template>
+		</NcDialog>
+	</div>
+</template>
+
+<script>
+import { NcButton, NcDialog, NcNoteCard, NcCheckboxRadioSwitch, NcProgressBar, NcActions, NcActionButton } from '@nextcloud/vue'
+import { showSuccess, showError, showWarning } from '@nextcloud/dialogs'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
+import PackageVariant from 'vue-material-design-icons/PackageVariant.vue'
+import Video from 'vue-material-design-icons/Video.vue'
+import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
+import CommentTextOutline from 'vue-material-design-icons/CommentTextOutline.vue'
+import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import Download from 'vue-material-design-icons/Download.vue'
+import Upload from 'vue-material-design-icons/Upload.vue'
+import CloudDownload from 'vue-material-design-icons/CloudDownload.vue'
+import Broom from 'vue-material-design-icons/Broom.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
+import LinkVariant from 'vue-material-design-icons/LinkVariant.vue'
+import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
+import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
+import RssBox from 'vue-material-design-icons/RssBox.vue'
+import DatabaseAlert from 'vue-material-design-icons/DatabaseAlert.vue'
+import DatabaseSearch from 'vue-material-design-icons/DatabaseSearch.vue'
+import HeartOutline from 'vue-material-design-icons/HeartOutline.vue'
+import ConfluenceImport from '../admin/components/ConfluenceImport.vue'
+import SupportSettings from './SupportSettings.vue'
+
+export default {
+	name: 'AdminSettings',
+	components: {
+		NcButton,
+		NcDialog,
+		NcNoteCard,
+		NcCheckboxRadioSwitch,
+		NcProgressBar,
+		NcActions,
+		NcActionButton,
+		PackageVariant,
+		Video,
+		OpenInNew,
+		CommentTextOutline,
+		CalendarClock,
+		Download,
+		Upload,
+		CloudDownload,
+		Broom,
+		HeartOutline,
+		ContentCopy,
+		SupportSettings,
+		LinkVariant,
+		FolderOutline,
+		FileDocumentOutline,
+		RssBox,
+		DatabaseAlert,
+		DatabaseSearch,
+		ConfluenceImport,
+	},
+	props: {
+		initialState: {
+			type: Object,
+			required: true,
+		},
+	},
+	data() {
+		return {
+			activeTab: 'video', // Default to video tab
+			connectionPresets: [
+				{ value: 'moodle', label: 'Moodle' },
+				{ value: 'canvas', label: 'Canvas' },
+				{ value: 'brightspace', label: 'Brightspace' },
+				{ value: 'jira', label: 'Jira' },
+				{ value: 'confluence', label: 'Confluence' },
+				{ value: 'sharepoint', label: 'SharePoint (Graph API)' },
+				{ value: 'openproject', label: 'OpenProject' },
+				// Tijdelijk verborgen - nog niet getest:
+				// { value: 'afas', label: 'AFAS' },
+				// { value: 'topdesk', label: 'TOPdesk' },
+				{ value: 'custom', label: 'Custom' },
+			],
+			exportSubTab: 'import', // Default import sub-tab
+			languages: this.initialState.languages || [],
+			setupComplete: this.initialState.setupComplete !== false,
+			installing: null,
+			message: '',
+			messageType: 'success',
+			reinstallDialogVisible: false,
+			reinstallLanguageCode: null,
+			// Clean start state
+			cleaningStart: null,
+			cleanStartDialogVisible: false,
+			cleanStartLanguageCode: null,
+			cleanStartConfirmText: '',
+			removeConnectionDialogVisible: false,
+			removeConnectionIndex: null,
+			importDialogVisible: false,
+			importPreview: null,
+			// Video domains from server
+			videoDomains: Array.isArray(this.initialState.videoDomains)
+				? [...this.initialState.videoDomains]
+				: [],
+			newDomain: '',
+			savingDomains: false,
+			domainWarnings: [],
+			// Engagement settings
+			engagementSettings: {
+				allowPageReactions: this.initialState.engagementSettings?.allowPageReactions ?? true,
+				allowComments: this.initialState.engagementSettings?.allowComments ?? true,
+				allowCommentReactions: this.initialState.engagementSettings?.allowCommentReactions ?? true,
+			},
+			savingEngagement: false,
+			// Publication settings
+			publicationSettings: {
+				publishDateField: this.initialState.publicationSettings?.publishDateField ?? '',
+				expirationDateField: this.initialState.publicationSettings?.expirationDateField ?? '',
+			},
+			savingPublication: false,
+			metavoxAvailable: this.initialState.metavoxAvailable ?? false,
+			// MetaVox fields for publication settings
+			metavoxFields: [],
+			loadingMetavoxFields: false,
+			// Export settings
+			exportLanguage: null,
+			exportLanguages: [],
+			exportIncludeComments: true,
+			exportFormat: 'zip',
+			exporting: false,
+			exportProgress: 0,
+			exportStatusText: '',
+			exportComplete: false,
+			// Import settings
+			importFile: null,
+			importFileName: '',
+			importIncludeComments: true,
+			importOverwrite: false,
+			importing: false,
+			importProgress: 0,
+			importStatusText: '',
+			importResult: null,
+			// Timeout IDs for cleanup
+			exportTimeoutId: null,
+			importTimeoutId: null,
+			// Bound event handler for proper cleanup
+			boundBeforeUnloadHandler: null,
+			// Banner dismiss state
+			bannerDismissed: false,
+			// License stats
+			licenseStats: this.initialState.licenseStats || {
+				pageCounts: {},
+				totalPages: 0,
+				freeLimit: 50,
+				supportedLanguages: ['nl', 'en', 'de', 'fr'],
+			},
+			// License configuration
+			licenseKey: this.initialState.licenseKey || '',
+			savingLicense: false,
+			validatingLicense: false,
+			licenseValidation: null,
+			// Telemetry settings
+			telemetryEnabled: this.initialState.telemetryEnabled || false,
+			telemetryLastReport: this.initialState.telemetryLastReport || null,
+			sendingTelemetry: false,
+			// Sharing overview
+			activeShares: [],
+			loadingShares: false,
+			// External feed connections
+			feedConnections: [],
+			feedConnectionsSaving: false,
+			testingConnection: null,
+			testResults: {},
+			// Orphaned data management
+			orphanedFolders: [],
+			orphanedScanned: false,
+			scanningOrphaned: false,
+			orphanedBannerCount: 0,
+			orphanedBannerDismissed: false,
+			// Migrate dialog
+			migrateDialogVisible: false,
+			migrateFolder: null,
+			migrateLanguage: null,
+			migrateMode: 'merge',
+			migratingOrphaned: false,
+			// Cleanup dialog
+			orphanedCleanupDialogVisible: false,
+			cleanupFolder: null,
+			cleaningOrphaned: false,
+			// Known video services with metadata
+			knownServices: [
+				// Privacy-friendly (no/minimal tracking)
+				{ id: 'youtube-privacy', name: 'YouTube (privacy mode)', domain: 'https://www.youtube-nocookie.com', category: 'privacy', description: 'No tracking cookies' },
+				{ id: 'vimeo', name: 'Vimeo', domain: 'https://player.vimeo.com', category: 'privacy', description: 'Professional video hosting' },
+				{ id: 'surfnet', name: 'SURF Video', domain: 'https://video.edu.nl', category: 'privacy', description: 'Dutch education network' },
+				{ id: 'ted', name: 'TED Talks', domain: 'https://embed.ted.com', category: 'privacy', description: 'Ideas worth spreading' },
+				{ id: 'framatube', name: 'FramaTube', domain: 'https://framatube.org', category: 'privacy', description: 'PeerTube by Framasoft' },
+				{ id: 'tilvids', name: 'TilVids', domain: 'https://tilvids.com', category: 'privacy', description: 'Educational PeerTube' },
+				{ id: 'diode', name: 'Diode Zone', domain: 'https://diode.zone', category: 'privacy', description: 'PeerTube instance' },
+				{ id: 'blender', name: 'Blender Video', domain: 'https://video.blender.org', category: 'privacy', description: 'Blender Foundation' },
+				// Tracking concerns (known trackers)
+				{ id: 'youtube', name: 'YouTube (standard)', domain: 'https://www.youtube.com', category: 'tracking', description: 'Contains Google tracking' },
+				{ id: 'dailymotion', name: 'Dailymotion', domain: 'https://www.dailymotion.com', category: 'tracking', description: 'Contains tracking' },
+			],
+			// Categories for display (2 columns: privacy + tracking)
+			categories: [
+				{ id: 'privacy', name: 'Privacy-friendly', icon: '✅', description: 'No or minimal tracking' },
+				{ id: 'tracking', name: 'Tracking concerns', icon: '⚠️', description: 'Platforms with known trackers' },
+			],
+		}
+	},
+	computed: {
+		callbackUrl() {
+			return window.location.origin + generateUrl('/apps/intravox/api/lms/callback')
+		},
+		reinstallLanguageName() {
+			if (!this.reinstallLanguageCode) return ''
+			const langData = this.languages.find(l => l.code === this.reinstallLanguageCode)
+			return langData?.name || this.reinstallLanguageCode
+		},
+		cleanStartLanguageName() {
+			if (!this.cleanStartLanguageCode) return ''
+			const langData = this.languages.find(l => l.code === this.cleanStartLanguageCode)
+			return langData?.name || this.cleanStartLanguageCode
+		},
+		removeConnectionName() {
+			if (this.removeConnectionIndex === null) return ''
+			const conn = this.feedConnections[this.removeConnectionIndex]
+			return conn?.name || this.t('intravox', 'this connection')
+		},
+		// Get custom domains (domains not in knownServices)
+		customDomains() {
+			const knownDomains = this.knownServices.map(s => s.domain)
+			return this.videoDomains.filter(d => !knownDomains.includes(d))
+		},
+		// Computed domain risk assessments (prevents re-calculation on every render)
+		customDomainsWithRisk() {
+			return this.customDomains.map(domain => ({
+				domain,
+				risk: this.assessDomainRisk(domain)
+			}))
+		},
+		// Filter MetaVox fields to only show date type fields
+		dateFields() {
+			return this.metavoxFields.filter(field => field.field_type === 'date')
+		},
+		// Show free tier info if no license, invalid license, or expired license
+		showFreeTierInfo() {
+			// No license key entered
+			if (!this.licenseKey) return true
+			// License validation failed (invalid or expired)
+			if (this.licenseValidation && !this.licenseValidation.valid) return true
+			return false
+		},
+		licenseBanner() {
+			if (!this.licenseStats) return null
+			const s = this.licenseStats
+			const hasKey = !!s.hasLicense
+
+			// Invalid/expired subscription key
+			if (hasKey && s.licenseValid === false) {
+				return { type: 'info', message: this.t('intravox', 'Your IntraVox subscription key needs attention.'), linkText: this.t('intravox', 'Visit Support') }
+			}
+			// No subscription + page limit exceeded (>=50 pages in any language)
+			if (!hasKey && s.pageCounts) {
+				const exceeded = Object.values(s.pageCounts).some(count => count >= s.freeLimit)
+				if (exceeded) {
+					return { type: 'warning', message: this.t('intravox', 'Page limit reached for one or more languages. Upgrade for unlimited pages.'), linkText: this.t('intravox', 'Learn more') }
+				}
+				// Approaching limit (>=80% = 40 pages)
+				const approaching = Object.values(s.pageCounts).some(count => count >= s.freeLimit * 0.8)
+				if (approaching) {
+					return { type: 'info', message: this.t('intravox', 'You\'re approaching the free tier limit. Consider a subscription to support continued development.'), linkText: this.t('intravox', 'Learn more') }
+				}
+			}
+			return null
+		},
+	},
+	watch: {
+		// Clear success messages when switching tabs
+		activeTab(newTab) {
+			this.exportComplete = false
+			this.importResult = null
+			if (newTab === 'publication' && this.metavoxAvailable && this.metavoxFields.length === 0) {
+				this.loadMetavoxFields()
+			}
+			// Auto-test saved connections once when first opening External Feeds tab
+			if (newTab === 'feeds' && !this._connectionsTested) {
+				this._connectionsTested = true
+				this.testAllConnections()
+			}
+		},
+		// Clear success messages when switching export sub-tabs
+		exportSubTab() {
+			this.exportComplete = false
+			this.importResult = null
+		},
+	},
+	methods: {
+		// Feed connections management
+		async loadFeedConnections() {
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/settings/feed-connections'))
+				const connections = response.data.connections || []
+				this.feedConnections = connections.map(c => ({
+					...c,
+					token: '',
+					hasToken: c.hasToken || false,
+					clientSecret: '',
+					hasClientCredentials: c.hasClientCredentials || false,
+					authMode: c.authMode || 'token',
+					clientId: c.clientId || '',
+					oidcAutoConnect: c.oidcAutoConnect || false,
+					tenantId: c.tenantId || '',
+					siteUrl: c.siteUrl || '',
+					customEndpoint: c.customEndpoint || '',
+					jiraEmail: c.jiraEmail || '',
+					authMethod: c.authMethod || 'bearer',
+					apiKeyHeader: c.apiKeyHeader || '',
+					responseMapping: c.responseMapping || { items: '', title: 'title', url: 'url', excerpt: '', date: '', image: '', author: '' },
+					customHeaders: (c.customHeaders || []).map(h => ({ key: h.key || '', value: h.value || '' })),
+					_expanded: false,
+					_showAdvanced: false,
+				}))
+			} catch (e) {
+				this.feedConnections = []
+			}
+		},
+		addFeedConnection() {
+			this.feedConnections.push({
+				id: '',
+				name: '',
+				type: 'moodle',
+				baseUrl: '',
+				token: '',
+				active: true,
+				hasToken: false,
+				authMode: 'token',
+				clientId: '',
+				clientSecret: '',
+				hasClientCredentials: false,
+				oidcAutoConnect: false,
+				tenantId: '',
+				siteUrl: '',
+				customEndpoint: '',
+				jiraEmail: '',
+				authMethod: 'bearer',
+				apiKeyHeader: '',
+				responseMapping: { items: '', title: 'title', url: 'url', excerpt: '', date: '', image: '', author: '' },
+				customHeaders: [],
+				_expanded: true,
+				_showAdvanced: false,
+			})
+		},
+		async testAllConnections() {
+			// Sequentially test saved connections in the background (no UI blocking)
+			for (let i = 0; i < this.feedConnections.length; i++) {
+				const conn = this.feedConnections[i]
+				if (!conn.id) continue // skip unsaved
+				if (this.testResults[conn.id] !== undefined) continue // skip already tested
+				await this.testFeedConnection(i)
+			}
+		},
+		async testFeedConnection(index) {
+			const conn = this.feedConnections[index]
+			if (!conn.id) return
+			this.testingConnection = index
+			this.testResults = { ...this.testResults, [conn.id]: undefined }
+			try {
+				const params = new URLSearchParams({
+					sourceType: 'connection',
+					connectionId: conn.id,
+				})
+				const response = await axios.get(generateUrl(`/apps/intravox/api/feed/preview?${params}`))
+				if (response.data.error) {
+					this.testResults = { ...this.testResults, [conn.id]: { success: false, error: response.data.error } }
+				} else {
+					const items = response.data.items || []
+					// Warn if auth is configured but no token is set — data may be public-only
+					const needsToken = conn.authMethod && conn.authMethod !== 'none' && conn.authMethod !== 'client_credentials'
+					const noToken = !conn.hasToken && !conn.token
+					const warning = (needsToken && noToken)
+						? this.t('intravox', 'No API token configured — showing public data only.')
+						: null
+					this.testResults = { ...this.testResults, [conn.id]: { success: true, count: items.length, warning } }
+				}
+			} catch (e) {
+				this.testResults = { ...this.testResults, [conn.id]: { success: false, error: e.response?.data?.error || e.message } }
+			} finally {
+				this.testingConnection = null
+			}
+		},
+		removeFeedConnection(index) {
+			this.removeConnectionIndex = index
+			this.removeConnectionDialogVisible = true
+		},
+		confirmRemoveConnection() {
+			if (this.removeConnectionIndex !== null) {
+				this.feedConnections.splice(this.removeConnectionIndex, 1)
+			}
+			this.removeConnectionDialogVisible = false
+			this.removeConnectionIndex = null
+		},
+		exportFeedConnections() {
+			// Export connections as JSON (strip internal/sensitive fields)
+			const exportData = this.feedConnections.map(conn => ({
+				name: conn.name,
+				type: conn.type,
+				baseUrl: conn.baseUrl,
+				active: conn.active,
+				authMode: conn.authMode,
+				oidcAutoConnect: conn.oidcAutoConnect,
+				tenantId: conn.tenantId,
+				siteUrl: conn.siteUrl,
+				customEndpoint: conn.customEndpoint,
+				jiraEmail: conn.jiraEmail,
+				authMethod: conn.authMethod,
+				apiKeyHeader: conn.apiKeyHeader,
+				responseMapping: conn.responseMapping,
+				customHeaders: (conn.customHeaders || []).filter(h => h.key),
+			}))
+			const json = JSON.stringify(exportData, null, 2)
+			const blob = new Blob([json], { type: 'application/json' })
+			const url = URL.createObjectURL(blob)
+			const a = document.createElement('a')
+			a.href = url
+			a.download = 'intravox-feed-connections.json'
+			a.click()
+			URL.revokeObjectURL(url)
+			showSuccess(this.t('intravox', 'Exported {count} connection(s)', { count: exportData.length }))
+		},
+		importFeedConnections(event) {
+			const file = event.target.files?.[0]
+			if (!file) return
+			const reader = new FileReader()
+			reader.onload = (e) => {
+				try {
+					const data = JSON.parse(e.target.result)
+					if (!Array.isArray(data)) {
+						showError(this.t('intravox', 'Invalid file: expected an array of connections'))
+						return
+					}
+					// Build preview with duplicate detection
+					const existingNames = new Set(this.feedConnections.map(c => c.name.toLowerCase()))
+					const items = data.map(conn => ({
+						...conn,
+						name: conn.name || '',
+						type: conn.type || 'custom',
+						duplicate: existingNames.has((conn.name || '').toLowerCase()),
+					}))
+					this.importPreview = {
+						total: items.length,
+						newCount: items.filter(c => !c.duplicate).length,
+						items,
+						rawData: data,
+					}
+					this.importDialogVisible = true
+				} catch (err) {
+					showError(this.t('intravox', 'Failed to parse file: {error}', { error: err.message }))
+				}
+			}
+			reader.readAsText(file)
+			event.target.value = ''
+		},
+		confirmImportConnections() {
+			if (!this.importPreview) return
+			const existingNames = new Set(this.feedConnections.map(c => c.name.toLowerCase()))
+			let added = 0
+			for (const conn of this.importPreview.rawData) {
+				const name = (conn.name || '').toLowerCase()
+				if (name && existingNames.has(name)) continue
+				existingNames.add(name)
+				this.feedConnections.push({
+					id: '',
+					name: conn.name || '',
+					type: conn.type || 'custom',
+					baseUrl: conn.baseUrl || '',
+					token: '',
+					active: conn.active ?? true,
+					hasToken: false,
+					authMode: conn.authMode || 'token',
+					clientId: '',
+					clientSecret: '',
+					hasClientCredentials: false,
+					oidcAutoConnect: conn.oidcAutoConnect ?? false,
+					tenantId: conn.tenantId || '',
+					siteUrl: conn.siteUrl || '',
+					customEndpoint: conn.customEndpoint || '',
+					jiraEmail: conn.jiraEmail || '',
+					authMethod: conn.authMethod || 'bearer',
+					apiKeyHeader: conn.apiKeyHeader || '',
+					responseMapping: conn.responseMapping || { items: '', title: 'title', url: 'url', excerpt: '', date: '', image: '', author: '' },
+					customHeaders: (conn.customHeaders || []).map(h => ({ key: h.key || '', value: h.value || '' })),
+					_expanded: false,
+					_showAdvanced: false,
+				})
+				added++
+			}
+			this.importDialogVisible = false
+			this.importPreview = null
+			showSuccess(this.t('intravox', 'Imported {count} connection(s). Enter API tokens and save.', { count: added }))
+		},
+		isConnectionConfigured(conn) {
+			return this.getConfigStatus(conn).configured
+		},
+		getConfigStatus(conn) {
+			// Test succeeded
+			if (conn.id && this.testResults[conn.id]?.success) {
+				return { configured: true, class: 'configured', icon: '✓', label: this.t('intravox', 'Configured') }
+			}
+			// No auth needed
+			if (conn.authMethod === 'none') {
+				return { configured: true, class: 'configured', icon: '✓', label: this.t('intravox', 'Configured') }
+			}
+			// Client credentials (SharePoint)
+			if (conn.authMethod === 'client_credentials') {
+				const ok = conn.hasClientCredentials || (conn.clientId && conn.clientSecret && conn.tenantId)
+				return ok
+					? { configured: true, class: 'configured', icon: '✓', label: this.t('intravox', 'Configured') }
+					: { configured: false, class: 'not-configured', icon: '✗', label: this.t('intravox', 'Credentials missing') }
+			}
+			// LMS with OAuth2 — check if at least clientId+secret or admin token
+			if (['moodle', 'canvas', 'brightspace'].includes(conn.type)) {
+				if (conn.authMode === 'oauth2' || conn.authMode === 'both') {
+					const hasOAuth = conn.hasClientCredentials || (conn.clientId && conn.clientSecret)
+					const hasToken = conn.hasToken || !!conn.token
+					if (hasOAuth || hasToken) {
+						return { configured: true, class: 'configured', icon: '✓', label: this.t('intravox', 'Configured') }
+					}
+					return { configured: false, class: 'not-configured', icon: '✗', label: this.t('intravox', 'Credentials missing') }
+				}
+			}
+			// Bearer token / API key / basic auth
+			if (conn.hasToken || !!conn.token) {
+				return { configured: true, class: 'configured', icon: '✓', label: this.t('intravox', 'Configured') }
+			}
+			return { configured: false, class: 'not-configured', icon: '✗', label: this.t('intravox', 'Token missing') }
+		},
+		getPresetLabel(type) {
+			const preset = this.connectionPresets.find(p => p.value === type)
+			if (preset) return preset.label
+			// Backwards compat for old 'custom_rest_api' type
+			if (type === 'custom_rest_api') return 'Custom'
+			return type
+		},
+		applyPreset(conn) {
+			const presets = {
+				jira: {
+					customEndpoint: '/rest/api/2/search?jql=ORDER+BY+updated+DESC&maxResults=20',
+					responseMapping: { items: 'issues', title: 'fields.summary', url: 'key', excerpt: 'fields.description', date: 'fields.updated', author: 'fields.assignee.displayName', image: '' },
+				},
+				confluence: {
+					authMethod: 'bearer',
+					customEndpoint: '/rest/api/content?type=page&orderby=lastmodified&limit=10&expand=history.lastUpdated',
+					responseMapping: { items: 'results', title: 'title', url: '_links.webui', excerpt: '', date: 'history.lastUpdated.when', author: 'history.lastUpdated.by.displayName', image: '' },
+				},
+				sharepoint: {
+					baseUrl: 'https://graph.microsoft.com',
+					authMethod: 'client_credentials',
+				},
+				openproject: {
+					authMethod: 'basic',
+					customEndpoint: '/api/v3/work_packages?sortBy=[["updatedAt","desc"]]&pageSize=20',
+					responseMapping: { items: '_embedded.elements', title: 'subject', url: '_links.self.href', excerpt: 'description.raw', date: 'updatedAt', author: '_links.assignee.title', image: '' },
+				},
+				afas: {
+					authMethod: 'bearer',
+					customEndpoint: '/profitrestservices/connectors/',
+					responseMapping: { items: 'rows', title: 'Naam', url: '', excerpt: '', date: '', author: '', image: '' },
+				},
+				topdesk: {
+					authMethod: 'bearer',
+					customEndpoint: '/tas/api/incidents?pageSize=20&order_by=creation_date+desc',
+					responseMapping: { items: '', title: 'briefDescription', url: '_links.self.href', excerpt: '', date: 'creationDate', author: 'caller.dynamicName', image: '' },
+				},
+			}
+			const preset = presets[conn.type]
+			if (preset) {
+				conn.authMethod = preset.authMethod || this.detectJiraAuth(conn) || 'bearer'
+				conn.customEndpoint = preset.customEndpoint || ''
+				conn.responseMapping = { ...conn.responseMapping, ...preset.responseMapping }
+				if (preset.baseUrl) {
+					conn.baseUrl = preset.baseUrl
+				}
+			}
+			// Reset custom fields for LMS types (they don't use custom endpoint/mapping)
+			if (['moodle', 'canvas', 'brightspace'].includes(conn.type)) {
+				conn.customEndpoint = ''
+				conn.responseMapping = { items: '', title: 'title', url: 'url', excerpt: '', date: '', image: '', author: '' }
+			}
+		},
+		isJiraCloud(conn) {
+			return conn.type === 'jira' && (conn.baseUrl || '').toLowerCase().includes('.atlassian.net')
+		},
+		detectJiraAuth(conn) {
+			if (conn.type !== 'jira') return null
+			return this.isJiraCloud(conn) ? 'basic' : 'bearer'
+		},
+		onBaseUrlInput(conn) {
+			if (conn.type === 'jira') {
+				conn.authMethod = this.detectJiraAuth(conn)
+				conn.customEndpoint = this.isJiraCloud(conn)
+					? '/rest/api/3/search/jql?jql=updated+>=+-30d+ORDER+BY+updated+DESC&maxResults=20'
+					: '/rest/api/2/search?jql=ORDER+BY+updated+DESC&maxResults=20'
+			}
+		},
+		handleHeaderClick(conn, event) {
+			// Don't toggle expand when clicking interactive elements (toggle switch, remove button)
+			if (event.target.closest('.checkbox-radio-switch, .checkbox-radio-switch__input, .checkbox-radio-switch__icon, .checkbox-radio-switch__content, .connection-remove')) {
+				return
+			}
+			conn._expanded = !conn._expanded
+		},
+		async toggleConnectionActive(conn, value) {
+			conn.active = value
+			await this.saveFeedConnections()
+		},
+		async saveFeedConnections() {
+			this.feedConnectionsSaving = true
+			try {
+				await axios.post(generateUrl('/apps/intravox/api/settings/feed-connections'), {
+					connections: this.feedConnections,
+				})
+				showSuccess(t('intravox', 'Feed connections saved'))
+				await this.loadFeedConnections()
+			} catch (e) {
+				showError(t('intravox', 'Failed to save feed connections'))
+			} finally {
+				this.feedConnectionsSaving = false
+			}
+		},
+		// License stats for banner
+		async loadLicenseStats() {
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/license/stats'))
+				if (response.data.success) {
+					this.licenseStats = response.data
+					this.bannerDismissed = false
+				}
+			} catch (e) { /* silently fail — banner just won't show */ }
+		},
+		// Sharing overview methods
+		async loadActiveShares() {
+			if (this.loadingShares) return
+			this.loadingShares = true
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/admin/shares'))
+				this.activeShares = response.data || []
+			} catch (err) {
+				console.error('[AdminSettings] Failed to load shares:', err)
+				showError(this.t('intravox', 'Failed to load share links'))
+				this.activeShares = []
+			} finally {
+				this.loadingShares = false
+			}
+		},
+		getFilesUrl(url) {
+			if (!url) return '#'
+			const [path, query] = url.split('?')
+			const base = generateUrl(path)
+			return query ? base + '?' + query : base
+		},
+		// Service toggle methods
+		getServicesByCategory(categoryId) {
+			return this.knownServices.filter(s => s.category === categoryId)
+		},
+		isServiceEnabled(service) {
+			return this.videoDomains.includes(service.domain)
+		},
+		toggleService(service, enabled) {
+			if (enabled) {
+				if (!this.videoDomains.includes(service.domain)) {
+					this.videoDomains.push(service.domain)
+				}
+				if (service.category === 'tracking') {
+					showWarning(this.t('intravox', '{service} has tracking concerns. Consider privacy-friendly alternatives.', { service: service.name }))
+				}
+			} else {
+				const index = this.videoDomains.indexOf(service.domain)
+				if (index > -1) {
+					this.videoDomains.splice(index, 1)
+				}
+			}
+		},
+		// Custom domain methods
+		addCustomDomain() {
+			if (!this.newDomain) return
+
+			let domain = this.newDomain.trim()
+
+			// Remove trailing slashes and clean up
+			domain = domain.replace(/\/+$/, '')
+
+			// Check if it starts with http:// (insecure)
+			if (domain.startsWith('http://')) {
+				showError(this.t('intravox', 'Only HTTPS URLs are allowed for security reasons. Please use https://'))
+				return
+			}
+
+			// Add https:// if no protocol specified
+			if (!domain.startsWith('https://')) {
+				domain = 'https://' + domain
+			}
+
+			// Validate URL format
+			try {
+				const url = new URL(domain)
+
+				// Must be https
+				if (url.protocol !== 'https:') {
+					showError(this.t('intravox', 'Only HTTPS URLs are allowed for security reasons'))
+					return
+				}
+
+				// Must have a valid hostname
+				if (!url.hostname) {
+					showError(this.t('intravox', 'Please enter a valid domain name (e.g., video.example.org)'))
+					return
+				}
+
+				// Validate domain structure: must have at least one dot and valid TLD (2+ chars)
+				const parts = url.hostname.split('.')
+				if (parts.length < 2) {
+					showError(this.t('intravox', 'Please enter a valid domain name (e.g., video.example.org)'))
+					return
+				}
+
+				// TLD must be at least 2 characters
+				const tld = parts[parts.length - 1]
+				if (tld.length < 2) {
+					showError(this.t('intravox', 'Invalid domain: TLD must be at least 2 characters (e.g., .com, .org, .nl)'))
+					return
+				}
+
+				// Domain name part must be at least 1 character
+				const domainName = parts[parts.length - 2]
+				if (domainName.length < 1) {
+					showError(this.t('intravox', 'Please enter a valid domain name (e.g., video.example.org)'))
+					return
+				}
+
+				// Check for valid characters in hostname (letters, numbers, hyphens, dots)
+				if (!/^[a-zA-Z0-9.-]+$/.test(url.hostname)) {
+					showError(this.t('intravox', 'Domain contains invalid characters. Only letters, numbers, dots and hyphens are allowed.'))
+					return
+				}
+
+				// Use the cleaned URL (hostname only with https)
+				domain = `https://${url.hostname}`
+
+			} catch (e) {
+				showError(this.t('intravox', 'Invalid URL format. Please enter a valid URL (e.g., https://video.example.org)'))
+				return
+			}
+
+			// Check for duplicates
+			if (this.videoDomains.includes(domain)) {
+				showWarning(this.t('intravox', 'This domain is already in the list'))
+				this.newDomain = ''
+				return
+			}
+
+			// Check if it matches a known service
+			const knownService = this.knownServices.find(s => s.domain === domain)
+			if (knownService) {
+				showWarning(this.t('intravox', '{service} is already available in the predefined services above', { service: knownService.name }))
+				this.newDomain = ''
+				return
+			}
+
+			this.videoDomains.push(domain)
+			this.newDomain = ''
+			showSuccess(this.t('intravox', 'Domain added. Don\'t forget to save your settings.'))
+		},
+		removeCustomDomain(domain) {
+			const index = this.videoDomains.indexOf(domain)
+			if (index > -1) {
+				this.videoDomains.splice(index, 1)
+			}
+		},
+		getHostFromUrl(url) {
+			try {
+				return new URL(url).hostname
+			} catch {
+				return url
+			}
+		},
+		getServiceHomepage(service) {
+			// Map embed domains to their homepage URLs
+			const homepageMap = {
+				'www.youtube-nocookie.com': 'https://www.youtube.com',
+				'player.vimeo.com': 'https://vimeo.com',
+				'video.edu.nl': 'https://video.edu.nl',
+				'embed.ted.com': 'https://www.ted.com',
+				'framatube.org': 'https://framatube.org',
+				'tilvids.com': 'https://tilvids.com',
+				'diode.zone': 'https://diode.zone',
+				'video.blender.org': 'https://video.blender.org',
+				'www.youtube.com': 'https://www.youtube.com',
+				'www.dailymotion.com': 'https://www.dailymotion.com',
+			}
+
+			const host = this.getHostFromUrl(service.domain)
+			return homepageMap[host] || service.domain
+		},
+		// Risk assessment for custom domains
+		assessDomainRisk(domain) {
+			try {
+				const url = new URL(domain)
+				const host = url.hostname.toLowerCase()
+
+				// 1. HTTPS check - critical
+				if (url.protocol !== 'https:') {
+					return { risk: 'danger', label: 'No HTTPS', icon: '🔴' }
+				}
+
+				// 2. Known trackers - warning
+				if (/google\.|youtube\.|facebook\.|meta\.|doubleclick/i.test(host)) {
+					return { risk: 'warning', label: 'Tracking concerns', icon: '⚠️' }
+				}
+
+				// 3. PeerTube patterns - good
+				if (/peertube|tube\.|video\./i.test(host)) {
+					return { risk: 'good', label: 'Video platform', icon: '✅' }
+				}
+
+				// 4. Educational - good
+				if (/\.edu$|\.ac\.|university|college/i.test(host)) {
+					return { risk: 'good', label: 'Educational', icon: '🎓' }
+				}
+
+				// 5. Government - good
+				if (/\.gov$|\.overheid\.|\.govt\./i.test(host)) {
+					return { risk: 'good', label: 'Government', icon: '🏛️' }
+				}
+
+				// 6. Unknown - neutral
+				return { risk: 'unknown', label: 'Unknown platform', icon: '❓' }
+			} catch {
+				return { risk: 'danger', label: 'Invalid URL', icon: '🔴' }
+			}
+		},
+		getStatusLabel(status) {
+			const labels = {
+				not_installed: this.t('intravox', 'Not installed'),
+				installed: this.t('intravox', 'Installed'),
+				empty: this.t('intravox', 'Empty folder'),
+				unavailable: this.t('intravox', 'Unavailable'),
+				setup_required: this.t('intravox', 'Not installed'),
+			}
+			return labels[status] || status
+		},
+		showReinstallDialog(language) {
+			this.reinstallLanguageCode = language
+			this.reinstallDialogVisible = true
+		},
+		confirmReinstall() {
+			this.reinstallDialogVisible = false
+			if (this.reinstallLanguageCode) {
+				this.installDemoData(this.reinstallLanguageCode)
+			}
+		},
+		showCleanStartDialog(language) {
+			this.cleanStartLanguageCode = language
+			this.cleanStartConfirmText = ''
+			this.cleanStartDialogVisible = true
+		},
+		async confirmCleanStart() {
+			this.cleanStartDialogVisible = false
+			if (!this.cleanStartLanguageCode) return
+
+			this.cleaningStart = this.cleanStartLanguageCode
+			this.message = ''
+
+			try {
+				const response = await axios.post(
+					generateUrl('/apps/intravox/api/demo-data/clean-start'),
+					{ language: this.cleanStartLanguageCode }
+				)
+
+				if (response.data.success) {
+					this.message = this.t('intravox', 'Clean start completed successfully')
+					this.messageType = 'success'
+					await this.refreshStatus()
+				} else {
+					this.message = response.data.message || this.t('intravox', 'Clean start failed')
+					this.messageType = 'error'
+				}
+			} catch (error) {
+				console.error('Clean start failed:', error)
+				this.message = error.response?.data?.message || this.t('intravox', 'Clean start failed')
+				this.messageType = 'error'
+			} finally {
+				this.cleaningStart = null
+				this.cleanStartLanguageCode = null
+			}
+		},
+		async installDemoData(language) {
+			this.installing = language
+			this.message = ''
+
+			try {
+				const response = await axios.post(
+					generateUrl('/apps/intravox/api/demo-data/import'),
+					{ language, mode: 'overwrite' }
+				)
+
+				if (response.data.success) {
+					this.message = response.data.message || this.t('intravox', 'Demo data installed successfully')
+					this.messageType = 'success'
+					// Refresh status
+					await this.refreshStatus()
+				} else {
+					this.message = response.data.message || this.t('intravox', 'Failed to install demo data')
+					this.messageType = 'error'
+				}
+			} catch (error) {
+				console.error('Failed to install demo data:', error)
+				this.message = error.response?.data?.message || this.t('intravox', 'Failed to install demo data')
+				this.messageType = 'error'
+			} finally {
+				this.installing = null
+			}
+		},
+		async refreshStatus() {
+			try {
+				const response = await axios.get(
+					generateUrl('/apps/intravox/api/demo-data/status')
+				)
+				if (response.data.languages) {
+					this.languages = response.data.languages
+				}
+				if (response.data.setupComplete !== undefined) {
+					this.setupComplete = response.data.setupComplete
+				}
+			} catch (error) {
+				console.error('Failed to refresh status:', error)
+			}
+		},
+		t(app, text, vars) {
+			if (window.t) {
+				return vars ? window.t(app, text, vars) : window.t(app, text)
+			}
+			return text
+		},
+		async saveVideoDomains() {
+			this.savingDomains = true
+			this.domainWarnings = []
+
+			try {
+				const response = await axios.post(
+					generateUrl('/apps/intravox/api/settings/video-domains'),
+					{ domains: this.videoDomains.filter(d => d) }
+				)
+				showSuccess(this.t('intravox', 'Video domains saved'))
+
+				// Show warnings if any
+				if (response.data.warnings && response.data.warnings.length > 0) {
+					this.domainWarnings = response.data.warnings
+				}
+			} catch (error) {
+				console.error('Failed to save video domains:', error)
+				showError(this.t('intravox', 'Failed to save video domains'))
+			} finally {
+				this.savingDomains = false
+			}
+		},
+		async saveEngagementSettings() {
+			this.savingEngagement = true
+
+			try {
+				await axios.post(
+					generateUrl('/apps/intravox/api/settings/engagement'),
+					this.engagementSettings
+				)
+				showSuccess(this.t('intravox', 'Engagement settings saved'))
+			} catch (error) {
+				console.error('Failed to save engagement settings:', error)
+				showError(this.t('intravox', 'Failed to save engagement settings'))
+			} finally {
+				this.savingEngagement = false
+			}
+		},
+		async savePublicationSettings() {
+			this.savingPublication = true
+
+			try {
+				await axios.post(
+					generateUrl('/apps/intravox/api/settings/publication'),
+					this.publicationSettings
+				)
+				showSuccess(this.t('intravox', 'Publication settings saved'))
+			} catch (error) {
+				console.error('Failed to save publication settings:', error)
+				showError(this.t('intravox', 'Failed to save publication settings'))
+			} finally {
+				this.savingPublication = false
+			}
+		},
+		async loadMetavoxFields() {
+			if (!this.metavoxAvailable) return
+
+			this.loadingMetavoxFields = true
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/metavox/fields'))
+				this.metavoxFields = response.data.fields || []
+			} catch (error) {
+				console.error('Failed to load MetaVox fields:', error)
+				this.metavoxFields = []
+			} finally {
+				this.loadingMetavoxFields = false
+			}
+		},
+		async loadExportLanguages() {
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/export/languages'))
+				this.exportLanguages = response.data
+			} catch (error) {
+				console.error('Failed to load export languages:', error)
+			}
+		},
+		async downloadExport() {
+			if (!this.exportLanguage) return
+
+			this.exporting = true
+			this.exportProgress = 0
+			this.exportComplete = false
+			this.exportStatusText = this.t('intravox', 'Preparing export...')
+
+			try {
+				// Choose endpoint based on format
+				const endpoint = this.exportFormat === 'zip'
+					? '/apps/intravox/api/export/language/{language}/zip'
+					: '/apps/intravox/api/export/language/{language}'
+
+				const url = generateUrl(endpoint, {
+					language: this.exportLanguage,
+				})
+
+				// Use axios to download with progress tracking
+				const response = await axios.get(url, {
+					params: {
+						includeComments: this.exportIncludeComments ? '1' : '0',
+					},
+					responseType: 'blob',
+					onDownloadProgress: (progressEvent) => {
+						if (progressEvent.lengthComputable) {
+							const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+							this.exportProgress = percentCompleted
+							this.exportStatusText = this.t('intravox', 'Downloading... {percent}%', { percent: percentCompleted })
+						} else {
+							// If total size is unknown, show indeterminate progress
+							this.exportStatusText = this.t('intravox', 'Downloading... {size} MB', {
+								size: (progressEvent.loaded / 1024 / 1024).toFixed(2)
+							})
+						}
+					}
+				})
+
+				// Create blob download link
+				const blob = new Blob([response.data], {
+					type: response.headers['content-type'] || 'application/octet-stream'
+				})
+				const downloadUrl = window.URL.createObjectURL(blob)
+				const link = document.createElement('a')
+				link.href = downloadUrl
+
+				// Get filename from Content-Disposition header or generate one
+				const contentDisposition = response.headers['content-disposition']
+				let filename = `intravox-export-${this.exportLanguage}.${this.exportFormat}`
+				if (contentDisposition) {
+					const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+					if (filenameMatch && filenameMatch[1]) {
+						filename = filenameMatch[1].replace(/['"]/g, '')
+					}
+				}
+				link.download = filename
+
+				// Trigger download
+				document.body.appendChild(link)
+				link.click()
+				document.body.removeChild(link)
+				window.URL.revokeObjectURL(downloadUrl)
+
+				// Show success
+				this.exportProgress = 100
+				this.exportStatusText = this.t('intravox', 'Export completed')
+				this.exportComplete = true
+				showSuccess(this.t('intravox', 'Export downloaded successfully'))
+			} catch (error) {
+				console.error('Failed to export:', error)
+				showError(this.t('intravox', 'Failed to export: ') + (error.response?.data?.error || error.message))
+			} finally {
+				// Reset after a short delay (with proper cleanup)
+				if (this.exportTimeoutId) {
+					clearTimeout(this.exportTimeoutId)
+				}
+				this.exportTimeoutId = setTimeout(() => {
+					this.exporting = false
+					this.exportProgress = 0
+					this.exportTimeoutId = null
+				}, 1000)
+			}
+		},
+		onImportFileSelect(event) {
+			const file = event.target.files[0]
+			if (file) {
+				this.importFile = file
+				this.importFileName = file.name
+				this.importResult = null
+			}
+		},
+		async startImport() {
+			if (!this.importFile) return
+
+			this.importing = true
+			this.importProgress = 0
+			this.importResult = null
+			this.importStatusText = this.t('intravox', 'Uploading ZIP file...')
+
+			try {
+				const formData = new FormData()
+				formData.append('file', this.importFile)
+				formData.append('importComments', this.importIncludeComments ? '1' : '0')
+				formData.append('overwrite', this.importOverwrite ? '1' : '0')
+
+				const response = await axios.post(
+					generateUrl('/apps/intravox/api/import/zip'),
+					formData,
+					{
+						headers: { 'Content-Type': 'multipart/form-data' },
+						onUploadProgress: (progressEvent) => {
+							// Upload progress (0-50%)
+							if (progressEvent.lengthComputable) {
+								const uploadPercent = Math.round((progressEvent.loaded * 50) / progressEvent.total)
+								this.importProgress = uploadPercent
+								this.importStatusText = this.t('intravox', 'Uploading... {percent}%', { percent: Math.round((progressEvent.loaded * 100) / progressEvent.total) })
+							} else {
+								this.importStatusText = this.t('intravox', 'Uploading... {size} MB', {
+									size: (progressEvent.loaded / 1024 / 1024).toFixed(2)
+								})
+							}
+						},
+						onDownloadProgress: (progressEvent) => {
+							// Processing on server (50-100%)
+							// Since we don't know the exact processing time, show indeterminate progress
+							if (this.importProgress < 50) {
+								this.importProgress = 50
+							}
+							// Simulate processing progress
+							const processingProgress = 50 + Math.min(45, Math.floor(Math.random() * 30))
+							this.importProgress = processingProgress
+							this.importStatusText = this.t('intravox', 'Processing import on server...')
+						}
+					}
+				)
+
+				// Complete
+				this.importProgress = 100
+				this.importStatusText = this.t('intravox', 'Import completed')
+				this.importResult = response.data
+				showSuccess(this.t('intravox', 'Import completed successfully'))
+
+				// Refresh export languages to show new content
+				this.loadExportLanguages()
+			} catch (error) {
+				console.error('Import failed:', error)
+				showError(this.t('intravox', 'Import failed: ') + (error.response?.data?.error || error.message))
+			} finally {
+				// Reset after a short delay (with proper cleanup)
+				if (this.importTimeoutId) {
+					clearTimeout(this.importTimeoutId)
+				}
+				this.importTimeoutId = setTimeout(() => {
+					this.importing = false
+					this.importProgress = 0
+					this.importTimeoutId = null
+				}, 1000)
+			}
+		},
+		handleBeforeUnload(event) {
+			// Warn user if export or import is in progress
+			if (this.exporting || this.importing) {
+				event.preventDefault()
+				event.returnValue = '' // Required for Chrome
+				return '' // Required for some browsers
+			}
+		},
+		// License tab helper methods
+		getLanguageFlag(lang) {
+			const flags = {
+				nl: '🇳🇱',
+				en: '🇬🇧',
+				de: '🇩🇪',
+				fr: '🇫🇷',
+			}
+			return flags[lang] || '🌐'
+		},
+		getLanguageName(lang) {
+			const names = {
+				nl: this.t('intravox', 'Dutch'),
+				en: this.t('intravox', 'English'),
+				de: this.t('intravox', 'German'),
+				fr: this.t('intravox', 'French'),
+			}
+			return names[lang] || lang
+		},
+		// Orphaned data management methods
+		async checkOrphanedData() {
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/orphaned/scan'))
+				const folders = response.data.folders || []
+				this.orphanedBannerCount = folders.length
+			} catch (e) {
+				// Silent — banner just won't show
+			}
+		},
+		async scanOrphanedFolders() {
+			this.scanningOrphaned = true
+			try {
+				const response = await axios.get(generateUrl('/apps/intravox/api/orphaned/scan'))
+				this.orphanedFolders = response.data.folders || []
+				this.orphanedScanned = true
+				if (this.orphanedFolders.length === 0) {
+					showSuccess(this.t('intravox', 'No orphaned data found'))
+				} else {
+					showWarning(this.t('intravox', 'Found {count} orphaned folder(s)', { count: this.orphanedFolders.length }))
+				}
+			} catch (error) {
+				showError(this.t('intravox', 'Failed to scan for orphaned data'))
+				console.error('[AdminSettings] Orphaned scan failed:', error)
+			} finally {
+				this.scanningOrphaned = false
+			}
+		},
+		showMigrateDialog(folder) {
+			this.migrateFolder = folder
+			this.migrateLanguage = folder.languages?.[0] || 'nl'
+			this.migrateMode = 'merge'
+			this.migrateDialogVisible = true
+		},
+		async executeMigrate() {
+			if (!this.migrateFolder || !this.migrateLanguage) return
+			this.migratingOrphaned = true
+			try {
+				const response = await axios.post(
+					generateUrl(`/apps/intravox/api/orphaned/${this.migrateFolder.id}/migrate`),
+					{ language: this.migrateLanguage, mode: this.migrateMode }
+				)
+				if (response.data.success) {
+					showSuccess(this.t('intravox', 'Data recovered successfully: {files} files migrated', {
+						files: response.data.migratedFiles
+					}))
+					this.migrateDialogVisible = false
+					await this.scanOrphanedFolders()
+					await this.refreshStatus()
+				} else {
+					showError(response.data.message || this.t('intravox', 'Recovery failed'))
+				}
+			} catch (error) {
+				showError(this.t('intravox', 'Recovery failed'))
+				console.error('[AdminSettings] Migration failed:', error)
+			} finally {
+				this.migratingOrphaned = false
+			}
+		},
+		showOrphanedCleanupDialog(folder) {
+			this.cleanupFolder = folder
+			this.orphanedCleanupDialogVisible = true
+		},
+		async executeOrphanedCleanup() {
+			if (!this.cleanupFolder) return
+			this.cleaningOrphaned = true
+			try {
+				const response = await axios.delete(
+					generateUrl(`/apps/intravox/api/orphaned/${this.cleanupFolder.id}`)
+				)
+				if (response.data.success) {
+					showSuccess(this.t('intravox', 'Orphaned data deleted successfully ({space} freed)', {
+						space: response.data.freedSpaceFormatted
+					}))
+					this.orphanedCleanupDialogVisible = false
+					await this.scanOrphanedFolders()
+				} else {
+					showError(response.data.message || this.t('intravox', 'Deletion failed'))
+				}
+			} catch (error) {
+				showError(this.t('intravox', 'Deletion failed'))
+				console.error('[AdminSettings] Cleanup failed:', error)
+			} finally {
+				this.cleaningOrphaned = false
+			}
+		},
+	},
+	mounted() {
+		this.loadExportLanguages()
+		this.loadLicenseStats()
+		this.loadFeedConnections()
+		this.checkOrphanedData()
+		// Prevent accidental navigation during export (use bound handler for proper cleanup)
+		this.boundBeforeUnloadHandler = this.handleBeforeUnload.bind(this)
+		window.addEventListener('beforeunload', this.boundBeforeUnloadHandler)
+	},
+	beforeUnmount() {
+		// Clean up event listener with the same bound function reference
+		if (this.boundBeforeUnloadHandler) {
+			window.removeEventListener('beforeunload', this.boundBeforeUnloadHandler)
+			this.boundBeforeUnloadHandler = null
+		}
+		// Clean up any pending timeouts
+		if (this.exportTimeoutId) {
+			clearTimeout(this.exportTimeoutId)
+			this.exportTimeoutId = null
+		}
+		if (this.importTimeoutId) {
+			clearTimeout(this.importTimeoutId)
+			this.importTimeoutId = null
+		}
+	},
+}
+</script>
+
+<style scoped>
+.intravox-admin-settings {
+	max-width: 900px;
+	padding: 20px;
+}
+
+/* License Banner */
+.license-banner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-radius: var(--border-radius-large);
+	margin-bottom: 16px;
+	font-size: 14px;
+	border-left: 4px solid;
+}
+
+.license-banner.info {
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
+	border-left-color: var(--color-primary-element);
+}
+
+.license-banner.warning {
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
+	border-left-color: var(--color-warning);
+}
+
+.license-banner-text {
+	flex: 1;
+}
+
+.license-banner-text a {
+	color: var(--color-primary-element);
+	font-weight: 600;
+	text-decoration: none;
+	margin-left: 4px;
+}
+
+.license-banner-text a:hover {
+	text-decoration: underline;
+}
+
+.license-banner-close {
+	background: none;
+	border: none;
+	font-size: 20px;
+	cursor: pointer;
+	color: var(--color-text-maxcontrast);
+	padding: 0 4px;
+	margin-left: 12px;
+	opacity: 0.7;
+}
+
+.license-banner-close:hover {
+	opacity: 1;
+}
+
+/* Tab Navigation - MetaVox style */
+.tab-navigation {
+	border-bottom: 1px solid var(--color-border);
+	margin-bottom: 20px;
+	display: flex;
+	gap: 10px;
+}
+
+.tab-button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 20px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	color: var(--color-text-lighter);
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+
+.tab-button:hover:not(.active) {
+	background: var(--color-background-hover);
+}
+
+.tab-button.active {
+	border-bottom-color: var(--color-primary);
+	color: var(--color-primary);
+	background: var(--color-primary-element-light);
+}
+
+.tab-content {
+	animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; transform: translateY(-4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-section h2 {
+	font-size: 20px;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+.settings-section-desc {
+	color: var(--color-text-maxcontrast);
+	margin-bottom: 20px;
+}
+
+.demo-data-info {
+	margin-bottom: 20px;
+}
+
+.info-note.info-setup {
+	background-color: var(--color-primary-element-light);
+	border-left-color: var(--color-primary-element);
+	margin-bottom: 12px;
+}
+
+.info-note {
+	background-color: var(--color-background-hover);
+	padding: 12px;
+	border-radius: 4px;
+	border-left: 3px solid var(--color-primary);
+}
+
+.demo-data-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+
+.demo-data-table th,
+.demo-data-table td {
+	padding: 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.demo-data-table th {
+	font-weight: bold;
+	color: var(--color-text-maxcontrast);
+}
+
+.language-cell .flag {
+	font-size: 1.5em;
+	margin-right: 8px;
+}
+
+.language-cell .name {
+	font-weight: 500;
+}
+
+.content-badge {
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.85em;
+}
+
+.content-badge.full {
+	background-color: var(--color-success-hover);
+	color: var(--color-success-text);
+}
+
+.content-badge.basic {
+	background-color: var(--color-background-hover);
+	color: var(--color-text-maxcontrast);
+}
+
+.status-badge {
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.85em;
+}
+
+.status-badge.not_installed {
+	background-color: var(--color-background-hover);
+	color: var(--color-text-maxcontrast);
+}
+
+.status-badge.installed {
+	background-color: var(--color-success-hover);
+	color: var(--color-success-text);
+}
+
+.status-badge.empty {
+	background-color: var(--color-warning-hover);
+	color: var(--color-warning-text);
+}
+
+.status-badge.unavailable {
+	background-color: var(--color-error-hover);
+	color: var(--color-error-text);
+}
+
+.status-badge.setup_required {
+	background-color: var(--color-warning-hover);
+	color: var(--color-warning-text);
+}
+
+.action-cell .unavailable {
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
+}
+
+.message {
+	padding: 12px;
+	border-radius: 4px;
+	margin-top: 16px;
+}
+
+.message.success {
+	background-color: var(--color-success-hover);
+	color: var(--color-success-text);
+}
+
+.message.error {
+	background-color: var(--color-error-hover);
+	color: var(--color-error-text);
+}
+
+.icon-loading-small {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid transparent;
+	border-top-color: currentColor;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+
+.icon-download {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+}
+
+.reinstall-dialog-content {
+	padding: 8px 0;
+}
+
+.reinstall-warning {
+	margin-top: 12px;
+	color: var(--color-text-maxcontrast);
+}
+
+/* Clean Start dialog */
+.clean-start-dialog-content {
+	padding: 8px 0;
+}
+
+.clean-start-info {
+	margin: 12px 0 8px 0;
+	color: var(--color-main-text);
+}
+
+.deletion-list {
+	margin: 8px 0 16px 20px;
+	padding: 0;
+	color: var(--color-text-maxcontrast);
+}
+
+.deletion-list li {
+	margin-bottom: 4px;
+}
+
+.clean-start-result {
+	margin: 16px 0 12px 0;
+	color: var(--color-main-text);
+	font-weight: 500;
+}
+
+/* Action cell with multiple buttons */
+.action-cell {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+/* Video domains section */
+.settings-section + .settings-section {
+	margin-top: 40px;
+	padding-top: 20px;
+	border-top: 1px solid var(--color-border);
+}
+
+/* Services Grid - 2 columns */
+.services-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 20px;
+	margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+	.tab-navigation {
+		flex-direction: column;
+		gap: 0;
+	}
+
+	.tab-button {
+		width: 100%;
+		justify-content: flex-start;
+		border-bottom: none;
+		border-left: 2px solid transparent;
+	}
+
+	.tab-button.active {
+		border-bottom: none;
+		border-left-color: var(--color-primary);
+	}
+
+	.services-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Custom servers category spans full width */
+.service-category.custom {
+	grid-column: 1 / -1;
+}
+
+.service-category {
+	/* No margin needed - grid handles spacing */
+}
+
+.category-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px 0;
+	padding: 8px 12px;
+	font-size: 14px;
+	font-weight: 600;
+	border-radius: var(--border-radius);
+}
+
+.category-header.privacy {
+	background-color: var(--color-success-hover);
+	color: var(--color-success-text);
+}
+
+.category-header.tracking {
+	background-color: var(--color-warning-hover);
+	color: var(--color-warning-text);
+}
+
+.category-header.custom {
+	background-color: var(--color-background-dark);
+	color: var(--color-main-text);
+}
+
+.category-icon {
+	font-size: 16px;
+}
+
+.service-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.service-item {
+	padding: 8px 12px;
+	background: var(--color-background-hover);
+	border-radius: var(--border-radius);
+	border-left: 3px solid transparent;
+	transition: border-color 0.15s ease;
+}
+
+.service-item.enabled {
+	border-left-color: var(--color-success);
+	background: var(--color-background-dark);
+}
+
+.service-item.tracking-warning.enabled {
+	border-left-color: var(--color-warning);
+}
+
+/* Custom domain items */
+.service-item.custom-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.custom-domain-info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+}
+
+/* Risk badges */
+.risk-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	font-weight: 500;
+	padding: 2px 8px;
+	border-radius: 10px;
+	width: fit-content;
+}
+
+.risk-badge.good {
+	background-color: var(--color-success-hover);
+	color: var(--color-success-text);
+}
+
+.risk-badge.warning {
+	background-color: var(--color-warning-hover);
+	color: var(--color-warning-text);
+}
+
+.risk-badge.danger {
+	background-color: var(--color-error-hover);
+	color: var(--color-error-text);
+}
+
+.risk-badge.unknown {
+	background-color: var(--color-background-dark);
+	color: var(--color-text-maxcontrast);
+}
+
+.service-item :deep(.checkbox-radio-switch) {
+	width: 100%;
+}
+
+.service-item :deep(.checkbox-radio-switch__content) {
+	flex: 1;
+}
+
+.service-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.service-name {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 500;
+	color: var(--color-main-text);
+}
+
+/* External link styling for services */
+.service-link {
+	color: var(--color-text-maxcontrast);
+	opacity: 0.6;
+	transition: opacity 0.2s, color 0.2s;
+	vertical-align: middle;
+	text-decoration: none;
+}
+
+.service-link:hover {
+	opacity: 1;
+	color: var(--color-primary);
+}
+
+.service-item:hover .service-link {
+	opacity: 0.8;
+}
+
+.custom-domain-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--color-main-text);
+	text-decoration: none;
+	transition: color 0.2s;
+}
+
+.custom-domain-link:hover {
+	color: var(--color-primary);
+}
+
+.custom-domain-link :deep(svg) {
+	opacity: 0.5;
+	transition: opacity 0.2s;
+}
+
+.custom-domain-link:hover :deep(svg) {
+	opacity: 1;
+}
+
+.protocol-badge {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 4px;
+	background-color: var(--color-success);
+	color: white;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.service-domain {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+	font-family: var(--font-monospace, monospace);
+}
+
+/* Add domain row */
+.add-domain-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.domain-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	font-size: 14px;
+}
+
+.domain-input:focus {
+	border-color: var(--color-primary-element);
+	outline: none;
+}
+
+.custom-server-hint {
+	margin: 8px 0 0 0;
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
+}
+
+/* Warnings */
+.domain-warnings {
+	margin: 16px 0;
+}
+
+.domain-warnings ul {
+	margin: 8px 0 0 0;
+	padding-left: 20px;
+}
+
+.domain-warnings li {
+	margin-bottom: 4px;
+}
+
+/* Save section */
+.save-section {
+	margin-top: 24px;
+	padding-top: 16px;
+	border-top: 1px solid var(--color-border);
+}
+
+/* Section headers */
+.settings-section h3 {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 0 12px 0;
+}
+
+/* Engagement tab styles */
+.engagement-group {
+	margin-bottom: 24px;
+	padding: 16px;
+	background: var(--color-background-hover);
+	border-radius: var(--border-radius-large);
+}
+
+.engagement-group-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px 0;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--color-border);
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.engagement-icon {
+	font-size: 18px;
+}
+
+.engagement-option {
+	padding: 8px 0;
+}
+
+.engagement-option.sub-option {
+	margin-left: 24px;
+	padding-left: 16px;
+	border-left: 2px solid var(--color-border);
+}
+
+.option-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.option-label {
+	font-weight: 500;
+	color: var(--color-main-text);
+}
+
+.option-desc {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+}
+
+/* Export tab styles */
+.export-options {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	max-width: 400px;
+}
+
+.export-row {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.export-progress {
+	margin-top: 16px;
+}
+
+.progress-text {
+	margin-top: 8px;
+	color: var(--color-text-lighter);
+	font-size: 14px;
+	text-align: center;
+}
+
+.export-result {
+	margin-top: 16px;
+}
+
+.export-label {
+	font-weight: 500;
+	color: var(--color-main-text);
+}
+
+.export-select {
+	padding: 8px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.export-select:focus {
+	border-color: var(--color-primary-element);
+	outline: none;
+}
+
+.export-format-options {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* Import section styles */
+.import-section {
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid var(--color-border);
+}
+
+.import-options {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	max-width: 500px;
+}
+
+.import-row {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.import-label {
+	font-weight: 500;
+	color: var(--color-main-text);
+}
+
+.import-file-input {
+	padding: 8px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.import-file-input:focus {
+	border-color: var(--color-primary-element);
+	outline: none;
+}
+
+.import-filename {
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
+}
+
+.import-progress {
+	margin-top: 16px;
+}
+
+.import-progress .note-card,
+.export-progress .note-card {
+	margin-bottom: 16px;
+}
+
+.import-progress p,
+.export-progress p {
+	margin: 4px 0;
+}
+
+.import-result {
+	margin-top: 16px;
+}
+
+/* Sub-tab navigation */
+.sub-tab-navigation {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 30px;
+	border-bottom: 2px solid var(--color-border);
+	padding-bottom: 0;
+}
+
+.sub-tab-button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 24px;
+	border: none;
+	background: none;
+	color: var(--color-text-lighter);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border-bottom: 3px solid transparent;
+	margin-bottom: -2px; /* Overlap parent border */
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.sub-tab-button:hover {
+	color: var(--color-main-text);
+	background: var(--color-background-hover);
+}
+
+.sub-tab-button.active {
+	color: var(--color-primary);
+	border-bottom-color: var(--color-primary);
+	background: var(--color-primary-element-light);
+}
+
+.sub-tab-button .material-design-icon {
+	display: flex;
+	align-items: center;
+}
+
+/* Publication Settings */
+.publication-settings {
+	margin-top: 20px;
+}
+
+.settings-info {
+	color: var(--color-text-maxcontrast);
+	margin-bottom: 24px;
+	line-height: 1.5;
+}
+
+.setting-row {
+	margin-bottom: 24px;
+}
+
+.setting-label {
+	display: block;
+	font-weight: 500;
+	margin-bottom: 8px;
+	color: var(--color-main-text);
+}
+
+.setting-input {
+	width: 100%;
+	max-width: 400px;
+	padding: 8px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	font-size: 14px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+}
+
+.setting-input:focus {
+	border-color: var(--color-primary-element);
+	outline: none;
+	box-shadow: 0 0 0 2px var(--color-primary-element-light);
+}
+
+.setting-input::placeholder {
+	color: var(--color-text-maxcontrast);
+}
+
+.setting-hint {
+	margin-top: 6px;
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
+}
+
+.setting-select {
+	width: 100%;
+	max-width: 400px;
+	padding: 8px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	font-size: 14px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	cursor: pointer;
+}
+
+.setting-select:focus {
+	border-color: var(--color-primary-element);
+	outline: none;
+	box-shadow: 0 0 0 2px var(--color-primary-element-light);
+}
+
+.loading-fields {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 16px;
+	color: var(--color-text-maxcontrast);
+}
+
+/* Sharing tab styles */
+.shares-loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 16px 0;
+	color: var(--color-text-maxcontrast);
+}
+
+.shares-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+
+.shares-table th,
+.shares-table td {
+	padding: 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.shares-table th {
+	font-weight: bold;
+	color: var(--color-text-maxcontrast);
+}
+
+.share-expired {
+	opacity: 0.6;
+}
+
+.scope-cell {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.scope-label {
+	font-weight: 500;
+}
+
+.scope-badge {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 0.75em;
+	font-weight: 600;
+}
+
+.language-badge {
+	background-color: var(--color-primary-element-light);
+	color: var(--color-primary-element);
+}
+
+.expired-badge {
+	background-color: var(--color-error);
+	color: white;
+}
+
+.path-cell {
+	font-family: monospace;
+	font-size: 0.9em;
+	color: var(--color-text-maxcontrast);
+}
+
+.date-cell {
+	white-space: nowrap;
+}
+
+.expired-text {
+	color: var(--color-error);
+}
+
+.share-files-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 13px;
+	color: var(--color-primary-element);
+	text-decoration: none;
+	padding: 4px 8px;
+	border-radius: var(--border-radius);
+	transition: background-color 0.1s ease;
+}
+
+.share-files-link:hover {
+	background-color: var(--color-background-hover);
+}
+
+/* Maintenance Tab Styles */
+.scan-section {
+	margin: 20px 0;
+}
+
+.no-orphaned {
+	margin-top: 20px;
+}
+
+.orphaned-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+.orphaned-table th,
+.orphaned-table td {
+	padding: 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.orphaned-table th {
+	font-weight: bold;
+	color: var(--color-text-maxcontrast);
+}
+
+.orphaned-table .id-cell {
+	font-family: monospace;
+	font-weight: bold;
+}
+
+.orphaned-table .content-badge.intravox {
+	background-color: var(--color-primary-element-light);
+	color: var(--color-primary-element-text);
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.85em;
+}
+
+.orphaned-table .content-badge.unknown {
+	background-color: var(--color-background-hover);
+	color: var(--color-text-maxcontrast);
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.85em;
+}
+
+.orphaned-table .page-count {
+	margin-left: 4px;
+	opacity: 0.8;
+}
+
+.orphaned-table .action-cell {
+	display: flex;
+	gap: 8px;
+}
+
+/* Migrate dialog */
+.migrate-dialog-content {
+	padding: 10px 0;
+}
+
+.migrate-option {
+	margin: 16px 0;
+}
+
+.migrate-option label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+.migrate-select {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background-color: var(--color-main-background);
+}
+
+/* Cleanup dialog */
+.cleanup-dialog-content {
+	padding: 10px 0;
+}
+
+.cleanup-dialog-content ul {
+	margin: 12px 0;
+	padding-left: 20px;
+}
+
+.cleanup-dialog-content li {
+	margin: 4px 0;
+}
+
+/* Connection cards */
+.connection-card {
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	margin-bottom: 8px;
+	background: var(--color-main-background);
+	overflow: hidden;
+}
+
+.connection-card--expanded {
+	background: var(--color-background-hover);
+}
+
+.connection-card--inactive {
+	opacity: 0.6;
+}
+
+.connection-card--inactive .connection-name {
+	text-decoration: line-through;
+}
+
+.connection-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.connection-header:hover {
+	background: var(--color-background-hover);
+}
+
+.connection-badge.configured {
+	color: var(--color-success-text, #2d7a3a);
+	background: var(--color-success-element-light, color-mix(in srgb, var(--color-success) 15%, transparent));
+}
+
+.connection-badge.not-configured {
+	color: var(--color-warning-text, #945a00);
+	background: var(--color-warning-element-light, color-mix(in srgb, var(--color-warning) 15%, transparent));
+}
+
+
+.connection-name {
+	font-weight: 600;
+	font-size: 14px;
+	color: var(--color-main-text);
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.connection-type {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+	flex-shrink: 0;
+}
+
+.connection-badge {
+	font-size: 11px;
+	font-weight: 500;
+	flex-shrink: 0;
+	padding: 2px 8px;
+	border-radius: var(--border-radius-pill, 12px);
+	color: var(--color-text-maxcontrast);
+	white-space: nowrap;
+}
+
+.connection-chevron {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+	flex-shrink: 0;
+	width: 16px;
+	text-align: center;
+}
+
+.connection-remove {
+	background: none;
+	border: none;
+	color: var(--color-text-maxcontrast);
+	cursor: pointer;
+	font-size: 20px;
+	line-height: 1;
+	padding: 0 4px;
+	border-radius: var(--border-radius);
+	flex-shrink: 0;
+}
+
+.connection-remove:hover {
+	color: var(--color-error);
+	background: var(--color-background-hover);
+}
+
+.connection-body {
+	padding: 0 16px 16px;
+}
+
+.connection-test {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 0 4px;
+	border-top: 1px solid var(--color-border);
+	margin-top: 12px;
+}
+
+.connection-test-result {
+	margin-top: 8px;
+}
+
+.feed-connection-actions-spacer {
+	flex: 1;
+}
+
+.import-preview-list {
+	margin: 8px 0 12px;
+	padding-left: 20px;
+}
+
+.import-preview-list li {
+	padding: 4px 0;
+}
+
+.import-preview-list .is-duplicate {
+	opacity: 0.5;
+	text-decoration: line-through;
+}
+
+.import-duplicate-badge {
+	font-size: 11px;
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
+	margin-left: 6px;
+}
+
+.advanced-toggle {
+	display: inline-block;
+	padding: 8px 0;
+	margin-top: 8px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--color-primary-element);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.advanced-toggle:hover {
+	text-decoration: underline;
+}
+
+.advanced-fields {
+	margin-top: 4px;
+}
+
+.clean-start-confirm {
+	margin-top: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.clean-start-confirm-input {
+	max-width: 200px;
+	padding: 6px 10px;
+	border: 2px solid var(--color-error);
+	border-radius: var(--border-radius);
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+
+.connection-fields .form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.connection-fields label {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.fields-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+.fields-grid .full-width {
+	grid-column: 1 / -1;
+}
+
+.field-section {
+	border-top: 1px solid var(--color-border);
+	padding-top: 12px;
+	margin-top: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.field-section-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-main-text);
+	margin-bottom: 4px;
+}
+
+.custom-header-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-top: 4px;
+}
+
+.custom-header-row .header-key {
+	flex: 2;
+}
+
+.custom-header-row .header-value {
+	flex: 3;
+}
+
+.custom-header-row .header-remove {
+	background: none;
+	border: none;
+	color: var(--color-text-maxcontrast);
+	cursor: pointer;
+	font-size: 18px;
+	padding: 4px 8px;
+	border-radius: var(--border-radius);
+}
+
+.custom-header-row .header-remove:hover {
+	background: var(--color-error);
+	color: var(--color-primary-element-text);
+}
+
+.connection-fields input,
+.connection-fields select {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	font-size: 14px;
+	box-sizing: border-box;
+}
+
+.connection-fields input[type="password"],
+.connection-fields input[type="url"],
+.connection-fields input[type="text"] {
+	min-width: 0;
+}
+
+.connection-fields .checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: normal;
+	cursor: pointer;
+}
+
+.connection-fields :deep(.checkbox-radio-switch) {
+	width: auto !important;
+}
+
+.connection-fields :deep(.checkbox-radio-switch__label) {
+	min-height: auto !important;
+	padding: 4px 0 !important;
+}
+
+.connection-fields .field-hint {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+	font-style: italic;
+}
+
+.connection-fields .field-hint code {
+	font-style: normal;
+	background: var(--color-background-dark);
+	padding: 2px 6px;
+	border-radius: var(--border-radius-small);
+	user-select: all;
+}
+
+.connection-fields .link-button {
+	align-self: flex-start;
+	background: none;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	color: var(--color-main-text);
+	cursor: pointer;
+	font-size: 13px;
+	padding: 6px 12px;
+}
+
+.connection-fields .link-button:hover {
+	background: var(--color-background-hover);
+	border-color: var(--color-primary);
+	color: var(--color-primary);
+}
+
+.feed-connection-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+</style>

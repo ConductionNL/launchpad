@@ -1,0 +1,271 @@
+{
+    "uniqueId": "page-47c230b6-a0bd-4d95-9ba4-8cb8ec5a1f4e",
+    "title": "Product Updates",
+    "language": "nl",
+    "layout": {
+        "columns": 1,
+        "rows": [
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Product Updates",
+                        "level": 1
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Blijf op de hoogte van de nieuwste features en verbeteringen. Elke maand brengen we updates die uw ervaring verbeteren."
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Recente Updates",
+                        "level": 2
+                    }
+                ]
+            },
+            {
+                "columns": 3,
+                "backgroundColor": "var(--color-background-hover)",
+                "widgets": [
+                    {
+                        "type": "image",
+                        "column": 1,
+                        "order": 1,
+                        "src": "update-darkmode.jpg",
+                        "alt": "Dark Mode",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Dark Mode",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 3,
+                        "content": "Nieuw: Donker thema voor IntraVox! Volgt automatisch uw systeemvoorkeuren of stel handmatig in."
+                    },
+                    {
+                        "type": "image",
+                        "column": 2,
+                        "order": 1,
+                        "src": "update-search.jpg",
+                        "alt": "Verbeterd zoeken",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 2,
+                        "content": "Sneller Zoeken",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 3,
+                        "content": "Zoekresultaten worden nu 10x sneller geladen dankzij onze nieuwe index engine."
+                    },
+                    {
+                        "type": "image",
+                        "column": 3,
+                        "order": 1,
+                        "src": "update-mobile.jpg",
+                        "alt": "Mobiele verbeteringen",
+                        "objectFit": "cover"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 3,
+                        "order": 2,
+                        "content": "Mobiel Friendly",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 3,
+                        "order": 3,
+                        "content": "Responsive design verbeterd voor tablets en smartphones. Bewerk pagina's onderweg!"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Eerdere Updates",
+                        "level": 2
+                    }
+                ]
+            },
+            {
+                "columns": 2,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Multi-taal Ondersteuning",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "Beheer content in meerdere talen vanuit één dashboard. Automatische taaldetectie voor bezoekers.\n\n**Ondersteunde talen:**\n- Nederlands\n- Engels\n- Duits\n- Frans\n- Spaans"
+                    },
+                    {
+                        "type": "heading",
+                        "column": 2,
+                        "order": 1,
+                        "content": "Verbeterde Editor",
+                        "level": 3
+                    },
+                    {
+                        "type": "text",
+                        "column": 2,
+                        "order": 2,
+                        "content": "De drag-and-drop editor is volledig vernieuwd:\n\n- Real-time preview\n- Undo/redo ondersteuning\n- Keyboard shortcuts\n- Auto-save functie\n- Verbeterde prestaties"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "",
+                        "height": "2px"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Changelog Archief",
+                        "level": 2
+                    },
+                    {
+                        "type": "text",
+                        "column": 1,
+                        "order": 2,
+                        "content": "| Versie | Highlights |\n|--------|------------|\n| x.x.x | Voorbeeld: Dark mode, sneller zoeken |\n| x.x.x | Voorbeeld: Multi-taal ondersteuning |\n| x.x.x | Voorbeeld: Nieuwe editor features |\n\n*Pas deze tabel aan met uw eigen release informatie.*"
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "var(--color-primary-element-light)",
+                "widgets": [
+                    {
+                        "type": "heading",
+                        "column": 1,
+                        "order": 1,
+                        "content": "Meer Nieuws",
+                        "level": 2
+                    },
+                    {
+                        "type": "links",
+                        "column": 1,
+                        "order": 2,
+                        "columns": 3,
+                        "items": [
+                            {
+                                "title": "Evenementen",
+                                "text": "Komende events",
+                                "url": "#nieuws/evenementen",
+                                "icon": "calendar-star",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "Nieuws Overzicht",
+                                "text": "Alle nieuwsberichten",
+                                "url": "#nieuws",
+                                "icon": "newspaper",
+                                "target": "_self"
+                            },
+                            {
+                                "title": "GitHub Releases",
+                                "text": "Technische details",
+                                "url": "https://github.com",
+                                "icon": "github",
+                                "target": "_blank"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "columns": 1,
+                "backgroundColor": "",
+                "widgets": [
+                    {
+                        "type": "divider",
+                        "column": 1,
+                        "order": 1,
+                        "style": "solid",
+                        "color": "transparent",
+                        "height": "20px"
+                    }
+                ]
+            }
+        ],
+        "sideColumns": {
+            "left": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            },
+            "right": {
+                "enabled": false,
+                "backgroundColor": "",
+                "widgets": []
+            }
+        }
+    }
+}

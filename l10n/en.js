@@ -867,7 +867,13 @@ OC.L10N.register(
     "Finish" : "Finish",
     "Run setup wizard" : "Run setup wizard",
     "Run setup wizard again" : "Run setup wizard again",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles."
+    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.",
+    "Container" : "Container",
+    "Padding" : "Padding",
+    "Title (optional)" : "Title (optional)",
+    "Container nesting limit reached" : "Container nesting limit reached",
+    "A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard." : "A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard.",
+    "Unknown widget type: {type}" : "Unknown widget type: {type}"
 },
 "nplurals=2; plural=(n != 1);"
 );

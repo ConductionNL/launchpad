@@ -102,6 +102,8 @@ import LinksWidget from '../components/Widgets/Renderers/LinksWidget.vue'
 import LinksForm from '../components/Widgets/Forms/LinksForm.vue'
 import MenuWidget from '../components/Widgets/Renderers/MenuWidget.vue'
 import MenuForm from '../components/Widgets/Forms/MenuForm.vue'
+import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+import ContainerForm from '../components/Widgets/Forms/ContainerForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -361,6 +363,22 @@ export const widgetRegistry = {
 			activeItemHighlight: 'underline',
 		},
 		displayName: t('mydash', 'Menu'),
+		icon: 'ViewDashboard',
+	},
+	// REQ-CONT-001: container widget — recursive sub-grid host. Children
+	// live in `content.placements[]` and are rendered through the inner
+	// GridStack instance bounded by the container's outer cell. Server-
+	// side REQ-CONT-006 caps recursion at 3 levels deep.
+	container: {
+		renderer: ContainerWidget,
+		form: ContainerForm,
+		defaultContent: {
+			placements: [],
+			backgroundColor: 'transparent',
+			padding: 'medium',
+			title: '',
+		},
+		displayName: t('mydash', 'Container'),
 		icon: 'ViewDashboard',
 	},
 }

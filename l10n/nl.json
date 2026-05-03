@@ -875,6 +875,12 @@
         "Finish": "Voltooien",
         "Run setup wizard": "Installatiewizard starten",
         "Run setup wizard again": "Installatiewizard opnieuw starten",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Start je intranet: kies opslag, configureer groepen, installeer demo-data en stel beheerdersrollen in."
+        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Start je intranet: kies opslag, configureer groepen, installeer demo-data en stel beheerdersrollen in.",
+        "Container": "Container",
+        "Padding": "Opvulling",
+        "Title (optional)": "Titel (optioneel)",
+        "Container nesting limit reached": "Maximale containernesting bereikt",
+        "A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard.": "Een container houdt een subraster van onderliggende widgets vast. Voeg onderliggende widgets toe via het eigen raster van de container zodra deze op het dashboard staat.",
+        "Unknown widget type: {type}": "Onbekend widgettype: {type}"
     }
 }

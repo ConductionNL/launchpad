@@ -252,4 +252,22 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('links')
 	})
+
+	it('REQ-CONT-001: exposes a `container` entry with renderer + form + spec defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.container).toBeDefined()
+		expect(widgetRegistry.container.renderer).toBeTruthy()
+		expect(widgetRegistry.container.form).toBeTruthy()
+		expect(widgetRegistry.container.defaultContent).toEqual({
+			placements: [],
+			backgroundColor: 'transparent',
+			padding: 'medium',
+			title: '',
+		})
+	})
+
+	it('REQ-CONT-001: `container` appears in listWidgetTypes() output (visible in picker)', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('container')
+	})
 })

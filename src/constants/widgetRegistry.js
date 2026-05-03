@@ -98,6 +98,8 @@ import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
 import CalendarForm from '../components/Widgets/Forms/CalendarForm.vue'
 import LinksWidget from '../components/Widgets/Renderers/LinksWidget.vue'
 import LinksForm from '../components/Widgets/Forms/LinksForm.vue'
+import MenuWidget from '../components/Widgets/Renderers/MenuWidget.vue'
+import MenuForm from '../components/Widgets/Forms/MenuForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -328,6 +330,20 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Links'),
 		icon: 'LinkBoxVariant',
+	},
+	menu: {
+		renderer: MenuWidget,
+		form: MenuForm,
+		defaultContent: {
+			items: [],
+			style: 'dropdown',
+			orientation: 'horizontal',
+			showIcons: true,
+			expandedByDefault: false,
+			activeItemHighlight: 'underline',
+		},
+		displayName: t('mydash', 'Menu'),
+		icon: 'ViewDashboard',
 	},
 }
 

@@ -172,6 +172,18 @@ class DashboardTableBuilder
                 'unsigned' => true,
             ]
         );
+        // Per-dashboard comments toggle (REQ-CMNT-007). NULL = inherit
+        // global setting; 1 = force on; 0 = force off.
+        $table->addColumn(
+            name: 'comments_enabled',
+            typeName: Types::SMALLINT,
+            options: [
+                'notnull'  => false,
+                'default'  => null,
+                'unsigned' => true,
+                'comment'  => 'Per-dashboard comments toggle: NULL = inherit global, 1 = on, 0 = off.',
+            ]
+        );
         $table->addColumn(
             name: 'created_at',
             typeName: Types::DATETIME,

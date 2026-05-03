@@ -346,7 +346,24 @@ OC.L10N.register(
     "Unknown group" : "Unknown group",
     "That target already has the requested role assigned" : "That target already has the requested role assigned",
     "Role assignment not found" : "Role assignment not found",
-    "Role assignment payload is invalid" : "Role assignment payload is invalid"
+    "Role assignment payload is invalid" : "Role assignment payload is invalid",
+    "Comments" : "Comments",
+    "Post comment" : "Post comment",
+    "Reply" : "Reply",
+    "Edited" : "Edited",
+    "Comments are disabled on this dashboard" : "Comments are disabled on this dashboard",
+    "Comment message must not be empty" : "Comment message must not be empty",
+    "Comments can only be replied to once" : "Comments can only be replied to once",
+    "Only the author or an admin may modify this comment" : "Only the author or an admin may modify this comment",
+    "Comment not found" : "Comment not found",
+    "Parent comment not found" : "Parent comment not found",
+    "Are you sure you want to delete this comment?" : "Are you sure you want to delete this comment?",
+    "Deleting this top-level comment will also remove all its replies." : "Deleting this top-level comment will also remove all its replies.",
+    "Write a comment…" : "Write a comment…",
+    "Write a reply…" : "Write a reply…",
+    "Cancel reply" : "Cancel reply",
+    "%1$s mentioned you in a dashboard comment" : "%1$s mentioned you in a dashboard comment",
+    "Open the dashboard to read the comment" : "Open the dashboard to read the comment"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -85,6 +85,17 @@ class AdminSetting extends Entity implements JsonSerializable
     public const KEY_LINK_CREATE_FILE_EXTENSIONS = 'link_create_file_extensions';
 
     /**
+     * Setting key for the global default comments toggle (REQ-CMNT-008).
+     *
+     * Stored as a JSON-encoded boolean. Default is `true` — comments are
+     * enabled across all dashboards unless an admin disables the global
+     * switch or a per-dashboard `commentsEnabled = 0` overrides.
+     *
+     * @var string
+     */
+    public const KEY_COMMENTS_ENABLED_DEFAULT = 'comments_enabled_default';
+
+    /**
      * The setting key.
      *
      * @var string

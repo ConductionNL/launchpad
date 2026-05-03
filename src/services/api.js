@@ -73,9 +73,9 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboard/${id}`)
 	},
 
-	// Group-shared dashboard CRUD alias (REQ-DASH-014).
-	// `listGroupDashboards` mirrors the `getGroupDashboards` method
-	// above for callers that prefer the verb spelling.
+	// Group-shared dashboard CRUD alias (REQ-DASH-014). `listGroupDashboards`
+	// mirrors the `getGroupDashboards` method above for callers that prefer
+	// the verb-prefixed name.
 	listGroupDashboards(groupId) {
 		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
 	},
@@ -298,6 +298,25 @@ export const api = {
 			params,
 			headers: { 'Content-Type': 'multipart/form-data' },
 		})
+	},
+
+	// Dashboard comments (REQ-CMNT-001..009). Threaded comments backed by
+	// Nextcloud's ICommentsManager. The `enabled` field on the GET
+	// response carries the effective per-dashboard / global toggle.
+	listDashboardComments(uuid) {
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`)
+	},
+
+	createDashboardComment(uuid, payload) {
+		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`, payload)
+	},
+
+	updateDashboardComment(uuid, id, payload) {
+		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`, payload)
+	},
+
+	deleteDashboardComment(uuid, id) {
+		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`)
 	},
 
 	// Tile endpoints

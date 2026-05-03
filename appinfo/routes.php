@@ -48,6 +48,24 @@ return [
 		['name' => 'dashboard_api#byPath', 'url' => '/api/dashboards/by-path/{path}', 'verb' => 'GET',
 		 'requirements' => ['path' => '.+']],
 
+		// Dashboard comments endpoints (REQ-CMNT-001..009). Threaded
+		// comments backed by Nextcloud's `ICommentsManager` with
+		// object type `mydash_dashboard`. The literal `/comments`
+		// segment disambiguates from the `{groupId}` wildcard below
+		// — both share the `/api/dashboards/{uuid}/...` prefix.
+		['name' => 'dashboard_comments_api#index',
+		 'url' => '/api/dashboards/{uuid}/comments', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_comments_api#create',
+		 'url' => '/api/dashboards/{uuid}/comments', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboard_comments_api#update',
+		 'url' => '/api/dashboards/{uuid}/comments/{id}', 'verb' => 'PUT',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
+		['name' => 'dashboard_comments_api#destroy',
+		 'url' => '/api/dashboards/{uuid}/comments/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
+
 		// Group-shared dashboard CRUD (REQ-DASH-014). All five routes are
 		// scoped to a single `groupId` (real Nextcloud group id or the
 		// reserved literal `default`).

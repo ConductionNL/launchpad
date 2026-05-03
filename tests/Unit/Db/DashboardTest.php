@@ -379,4 +379,39 @@ class DashboardTest extends TestCase
         $this->assertSame('2026-04-01 10:00:00', $serialized['publishAt']);
         $this->assertNull($serialized['publishedAt']);
     }
+
+    /**
+     * REQ-CMNT-007: `commentsEnabled` defaults to NULL on a fresh entity
+     * and surfaces in the JSON envelope.
+     *
+     * @return void
+     */
+    public function testCommentsEnabledDefaultsNullAndSerialises(): void
+    {
+        $serialized = $this->dashboard->jsonSerialize();
+        $this->assertArrayHasKey('commentsEnabled', $serialized);
+        $this->assertNull($serialized['commentsEnabled']);
+
+        $this->dashboard->setCommentsEnabled(1);
+        $this->assertSame(1, $this->dashboard->jsonSerialize()['commentsEnabled']);
+    }
+
+    /**
+     * REQ-CMNT-007: `isCommentsEffectivelyEnabled` honours per-dashboard
+     * overrides and falls back to the global default when NULL.
+     *
+     * @return void
+     */
+    public function testIsCommentsEffectivelyEnabledPrecedence(): void
+    {
+        $this->dashboard->setCommentsEnabled(null);
+        $this->assertTrue($this->dashboard->isCommentsEffectivelyEnabled(globalDefault: true));
+        $this->assertFalse($this->dashboard->isCommentsEffectivelyEnabled(globalDefault: false));
+
+        $this->dashboard->setCommentsEnabled(1);
+        $this->assertTrue($this->dashboard->isCommentsEffectivelyEnabled(globalDefault: false));
+
+        $this->dashboard->setCommentsEnabled(0);
+        $this->assertFalse($this->dashboard->isCommentsEffectivelyEnabled(globalDefault: true));
+    }
 }

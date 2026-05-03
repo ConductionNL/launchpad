@@ -692,6 +692,18 @@
         "Level 2": "Niveau 2",
         "Level 3 - max reached": "Niveau 3 - maximum bereikt",
         "Expand": "Uitklappen",
-        "Collapse": "Inklappen"
+        "Collapse": "Inklappen",
+        "Image source": "Afbeeldingsbron",
+        "URL/Link": "URL/Link",
+        "Pick from Files": "Kies uit Bestanden",
+        "Pick image from Nextcloud Files": "Kies een afbeelding uit Nextcloud Bestanden",
+        "Pick image from Files": "Kies een afbeelding uit Bestanden",
+        "Opening file picker…": "Bestandskiezer openen…",
+        "Selected:": "Geselecteerd:",
+        "File picker failed to open": "Bestandskiezer kon niet worden geopend",
+        "Selected file is missing required metadata": "Geselecteerd bestand mist vereiste metadata",
+        "Please pick a file from Files": "Kies een bestand uit Bestanden",
+        "Image URL": "Afbeelding-URL",
+        "Enter Image URL": "Voer afbeelding-URL in"
     }
 }

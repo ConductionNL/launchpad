@@ -685,7 +685,19 @@ OC.L10N.register(
     "Level 2" : "Level 2",
     "Level 3 - max reached" : "Level 3 - max reached",
     "Expand" : "Expand",
-    "Collapse" : "Collapse"
+    "Collapse" : "Collapse",
+    "Image source" : "Image source",
+    "URL/Link" : "URL/Link",
+    "Pick from Files" : "Pick from Files",
+    "Pick image from Nextcloud Files" : "Pick image from Nextcloud Files",
+    "Pick image from Files" : "Pick image from Files",
+    "Opening file picker…" : "Opening file picker…",
+    "Selected:" : "Selected:",
+    "File picker failed to open" : "File picker failed to open",
+    "Selected file is missing required metadata" : "Selected file is missing required metadata",
+    "Please pick a file from Files" : "Please pick a file from Files",
+    "Image URL" : "Image URL",
+    "Enter Image URL" : "Enter Image URL"
 },
 "nplurals=2; plural=(n != 1);"
 );

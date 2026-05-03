@@ -48,6 +48,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import VideoWidget from '../components/Widgets/Renderers/VideoWidget.vue'
+import VideoForm from '../components/Widgets/Forms/VideoForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +124,23 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	video: {
+		renderer: VideoWidget,
+		form: VideoForm,
+		defaultContent: {
+			sourceType: null,
+			videoUrl: '',
+			fileId: null,
+			autoplay: false,
+			muted: true,
+			loop: false,
+			controls: true,
+			aspectRatio: '16:9',
+			posterUrl: '',
+		},
+		displayName: t('mydash', 'Video'),
+		icon: 'Video',
 	},
 }
 

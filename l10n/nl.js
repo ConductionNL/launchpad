@@ -335,7 +335,26 @@ OC.L10N.register(
     "You overrode the lock on dashboard {dashboard}" : "Je hebt de vergrendeling van dashboard {dashboard} omzeild",
     "{actor} overrode the lock on dashboard {dashboard}" : "{actor} heeft de vergrendeling van dashboard {dashboard} omzeild",
     "Your role in {dashboard} was changed to {role}" : "Je rol in {dashboard} is gewijzigd naar {role}",
-    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}"
+    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}",
+    "No video URL configured" : "Geen video-URL ingesteld",
+    "Video not accessible" : "Video niet toegankelijk",
+    "Video failed to load" : "Video kon niet worden geladen",
+    "Invalid video URL or domain not allowed." : "Ongeldige video-URL of domein niet toegestaan.",
+    "Video URL" : "Video-URL",
+    "Video URL is required" : "Video-URL is verplicht",
+    "Detected: YouTube" : "Herkend: YouTube",
+    "Detected: Vimeo" : "Herkend: Vimeo",
+    "Detected: PeerTube" : "Herkend: PeerTube",
+    "Detected: Nextcloud File" : "Herkend: Nextcloud-bestand",
+    "Aspect Ratio" : "Beeldverhouding",
+    "Autoplay" : "Automatisch afspelen",
+    "Autoplay requires muting" : "Automatisch afspelen vereist dempen",
+    "Muted" : "Gedempt",
+    "Loop" : "Herhalen",
+    "Show controls" : "Bedieningselementen tonen",
+    "Poster Image URL (optional)" : "URL voor voorvertoningsafbeelding (optioneel)",
+    "Nextcloud File ID" : "Nextcloud-bestand-ID",
+    "Nextcloud file ID is required" : "Nextcloud-bestand-ID is verplicht"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -6,9 +6,9 @@ status: implemented
 
 ## Purpose
 
-The `runtime-shell` capability owns the user-facing workspace page chrome — the mount point, the sidebar toggle, the edit toolbar, the empty-state branch, and the lifecycle hooks that bind it all together. It is the page-level orchestrator that coordinates four sibling capabilities (`dashboard-switcher-sidebar`, `widget-add-edit-modal`, `widget-context-menu`, `grid-layout`) and gates editing affordances based on user role and active dashboard scope.
+The `runtime-shell` capability owns the user-facing workspace page chrome — the mount point, the sidebar toggle, the active-dashboard label strip, the empty-state branch, and the lifecycle hooks that bind it all together. It is the page-level orchestrator that coordinates four sibling capabilities (`dashboard-switcher`, `widget-add-edit-modal`, `widget-context-menu`, `grid-layout`) and gates editing affordances based on user role and active dashboard scope.
 
-The shell deliberately holds NO source-of-truth data of its own — every key it consumes flows through the typed initial-state contract via `provide` / `inject`, and every persistence call routes through existing dashboard endpoints. Local state is restricted to UI-only fields (`sidebarOpen`, `saving`, `showAddDropdown`).
+The shell deliberately holds NO source-of-truth data of its own — every key it consumes flows through the typed initial-state contract via `provide` / `inject`, and every persistence call routes through existing dashboard endpoints. Local state is restricted to UI-only fields (currently just `sidebarOpen` after `runtime-shell-trim` removed the toolbar's `saving` + `showAddDropdown` fields).
 
 ## Requirements
 
@@ -24,72 +24,54 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `m
 - AND it MUST be a child of `<div id="app-workspace">`
 - AND no Nextcloud chrome navigation panel MUST be rendered
 
-### REQ-SHELL-002: Edit-mode permission rule
+### Requirement: REQ-SHELL-002 Edit affordances gated by canEdit
 
-The shell MUST expose a computed `canEdit` evaluated as `isAdmin || dashboardSource === 'user'`. When `canEdit` is `false`, the edit toolbar (Add Widget + Save buttons) and the right-click context menu MUST NOT be reachable; the GridStack instance MUST be in `staticGrid: true` mode. When `canEdit` is `true`, all editing affordances MUST be visible and the grid MUST permit drag/resize.
+`canEdit` (`isAdmin || dashboardSource === 'user'`) MUST gate:
 
-#### Scenario: Admin can edit any dashboard
+- The per-widget right-click context menu (REQ-WDG-015)
+- GridStack's `staticGrid` mode (false when `canEdit`, true otherwise)
+- The action menu's edit entries: "Add custom widget…", "Save dashboard", "Dashboard configuration…"
 
-- GIVEN injected initial state `isAdmin: true, dashboardSource: 'group'`
-- WHEN the workspace renders
-- THEN `canEdit` MUST be `true`
-- AND the toolbar MUST be visible
-- AND the grid MUST allow drag/resize
+`canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
 
-#### Scenario: User can edit own personal dashboard
+#### Scenario: Non-edit user has no edit affordances visible
 
-- GIVEN initial state `isAdmin: false, dashboardSource: 'user'`
-- WHEN the workspace renders
-- THEN `canEdit` MUST be `true`
-- AND the toolbar MUST be visible
-- AND the grid MUST allow drag/resize
+- **GIVEN** a non-admin user viewing a `group_shared` dashboard (`dashboardSource === 'group'`)
+- **WHEN** they open the action menu
+- **THEN** no "Add custom widget", "Save dashboard", or "Dashboard configuration" entries MUST be visible
+- **AND** right-clicking any widget MUST fall through to the browser's native context menu
 
-#### Scenario: User cannot edit a group-shared dashboard
+#### Scenario: canEdit user sees full edit menu
 
-- GIVEN initial state `isAdmin: false, dashboardSource: 'group'`
-- WHEN the workspace renders
-- THEN `canEdit` MUST be `false`
-- AND the toolbar MUST NOT be present in the DOM (`v-if`, not `v-show`)
-- AND right-clicking a widget MUST NOT open the context menu
-- AND the grid MUST be in `staticGrid: true` mode
+- **GIVEN** an admin user viewing any dashboard
+- **WHEN** they open the action menu
+- **THEN** "Add custom widget…", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
+- **AND** right-clicking a widget MUST open the widget context menu (REQ-WDG-015)
 
-### REQ-SHELL-003: Toolbar contents
+### Requirement: REQ-SHELL-004 Hamburger toggle and active-dashboard label
 
-When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Add Widget** dropdown button (sourced from the widget type registry — see `widget-add-edit-modal`) and a **Save Layout** button. Selecting an Add Widget option opens the modal pre-filled with that type. The Save Layout button MUST be disabled while a save request is in flight, and on click it MUST call `saveLayout()` which PUTs to `/api/dashboards/{uuid}` (or the matching group endpoint when `dashboardSource !== 'user'`) with `{layout: layout.value}` then toasts success or error.
+The shell MUST render, in the title strip:
 
-#### Scenario: Add-widget dropdown lists all widget types
+- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('mydash', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
+- The active dashboard's name as a plain `<h1>` (or `<h2>`) text label — NOT as a `<select>` or any other interactive switcher control. Switching between dashboards happens exclusively via the left sidebar (`dashboard-switcher` capability).
 
-- GIVEN the widget-type registry contains 5 entries
-- WHEN the user opens the Add Widget dropdown
-- THEN it MUST display 5 menu items, one per registered type
-- AND each item MUST be labelled with the type's translated display name
+The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhere in its surface area.
 
-#### Scenario: Save sends layout to correct endpoint
+#### Scenario: Toggle button matches account-button styling
 
-- GIVEN `dashboardSource: 'user'` and `activeDashboardId: 'abc'`
-- WHEN the user clicks Save
-- THEN the system MUST send `PUT /api/dashboards/abc` with body `{layout: <current widgets>}`
-- AND show a success toast on 200
-- AND show an error toast on 4xx or 5xx
+- **GIVEN** the workspace shell rendered for an authenticated user
+- **WHEN** the page loads
+- **THEN** the sidebar-toggle button MUST be a `NcButton type="tertiary"` element
+- **AND** its rendered class list MUST include the same `button-vue--vue-tertiary` (or current equivalent) classes the Nextcloud account button uses
+- **AND** clicking it MUST toggle the sidebar's `isOpen` state
 
-#### Scenario: Save button disabled while in flight
+#### Scenario: No active-dashboard select control
 
-- GIVEN a Save request is in flight
-- WHEN the user attempts to click Save again
-- THEN the button MUST be disabled (HTML `disabled` attribute set)
-- AND no second request MUST fire
-
-### REQ-SHELL-004: Sidebar toggle and active-dashboard label
-
-The shell MUST render a hamburger button plus a label showing the active dashboard's name (when one exists), placed immediately above the toolbar. The hamburger button MUST toggle `sidebarOpen`. The label MUST be empty when no active dashboard is resolved.
-
-#### Scenario: Hamburger toggles sidebar
-
-- GIVEN `sidebarOpen` is `false`
-- WHEN the user clicks the hamburger
-- THEN `sidebarOpen` MUST become `true`
-- AND the sidebar MUST animate in
-- AND clicking the hamburger again MUST close it
+- **GIVEN** the workspace shell rendered with multiple dashboards visible to the user
+- **WHEN** the page is inspected
+- **THEN** no `<select>` element with `name="activeDashboard"` (or equivalent) MUST be present
+- **AND** the active dashboard's name MUST appear as a heading in the title strip
+- **AND** dashboard switching MUST happen only via the left sidebar's row click handlers (REQ-SWITCH-002)
 
 #### Scenario: Active-dashboard name visible
 

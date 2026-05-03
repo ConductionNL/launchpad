@@ -23,6 +23,7 @@ namespace Unit\Controller;
 
 use OCA\MyDash\Controller\DashboardApiController;
 use OCA\MyDash\Db\Dashboard;
+use OCA\MyDash\Service\AnalyticsService;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
 use OCA\MyDash\Service\DashboardVersionService;
@@ -52,6 +53,8 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
     private $versionService;
     /** @var LoggerInterface&MockObject */
     private $logger;
+    /** @var AnalyticsService&MockObject */
+    private $analyticsService;
 
     protected function setUp(): void
     {
@@ -60,6 +63,7 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
         $this->permissionService = $this->createMock(PermissionService::class);
         $this->treeService       = $this->createMock(DashboardTreeService::class);
         $this->versionService    = $this->createMock(DashboardVersionService::class);
+        $this->analyticsService  = $this->createMock(AnalyticsService::class);
         $this->logger            = $this->createMock(LoggerInterface::class);
     }//end setUp()
 
@@ -75,6 +79,7 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
             permissionService: $this->permissionService,
             treeService: $this->treeService,
             versionService: $this->versionService,
+            analyticsService: $this->analyticsService,
             logger: $this->logger,
             userId: $userId,
         );

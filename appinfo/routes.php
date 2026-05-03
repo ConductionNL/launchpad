@@ -67,6 +67,13 @@ return [
 		 'url' => '/api/dashboards/{uuid}/resolved', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// REQ-ANLT-002: record a dashboard view event. Authed users only;
+		// the controller short-circuits silently when the user has opted
+		// out (REQ-ANLT-004) or analytics is globally disabled
+		// (REQ-ANLT-005). Returns HTTP 204 on success, 404 when the
+		// dashboard does not exist.
+		['name' => 'dashboard_api#viewEvent', 'url' => '/api/dashboards/{uuid}/view-event', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		// REQ-DASH-026: nested dashboard tree.
 		['name' => 'dashboard_api#tree', 'url' => '/api/dashboards/tree', 'verb' => 'GET'],
 		// REQ-DASH-027: slug-chain path resolution. The {path} placeholder
@@ -275,5 +282,17 @@ return [
 		// `metadata` literal is unique to this capability.
 		['name' => 'dashboard_metadata#getMetadata', 'url' => '/api/dashboards/{uuid}/metadata', 'verb' => 'GET'],
 		['name' => 'dashboard_metadata#setMetadata', 'url' => '/api/dashboards/{uuid}/metadata', 'verb' => 'PUT'],
+
+		// Dashboard view-analytics admin endpoints (REQ-ANLT-006..010).
+		// All admin-only via runtime `IGroupManager::isAdmin` check
+		// inside the controller. The literal `top` and `summary` /
+		// `export` segments precede the `{uuid}` wildcard so the router
+		// matches them before falling through to the per-dashboard
+		// breakdown endpoint.
+		['name' => 'analytics#topDashboards', 'url' => '/api/admin/analytics/dashboards/top', 'verb' => 'GET'],
+		['name' => 'analytics#instanceSummary', 'url' => '/api/admin/analytics/summary', 'verb' => 'GET'],
+		['name' => 'analytics#exportCsv', 'url' => '/api/admin/analytics/export', 'verb' => 'GET'],
+		['name' => 'analytics#dashboardDetail', 'url' => '/api/admin/analytics/dashboards/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 	],
 ];

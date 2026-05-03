@@ -772,6 +772,31 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
+		/**
+		 * REQ-ANLT-002 / REQ-ANLT-011 — record a dashboard view event.
+		 *
+		 * Fire-and-forget POST to `/api/dashboards/{uuid}/view-event`.
+		 * The 204 response is intentionally silent in the UI; network
+		 * errors are logged to the console but never surfaced as
+		 * toasts because view-event tracking must never affect the
+		 * primary read path. Per-uuid debounce (1s) lives in the
+		 * caller (`Views.vue`) — the store action is idempotent on
+		 * the server side via the same-day cache dedup.
+		 *
+		 * @param {string} uuid The dashboard UUID being viewed.
+		 * @return {Promise<void>}
+		 */
+		async recordViewEvent(uuid) {
+			if (!uuid) {
+				return
+			}
+			try {
+				await api.recordDashboardViewEvent(uuid)
+			} catch (error) {
+				console.warn('Failed to record dashboard view event:', error)
+			}
+		},
+
 		async updateWidgetPlacement(placementId, updates) {
 			console.log('[DashboardStore] updateWidgetPlacement called:', JSON.stringify({ placementId, updates }, null, 2))
 			try {

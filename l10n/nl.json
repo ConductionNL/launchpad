@@ -394,6 +394,23 @@
         "Cannot delete the only language variant": "Kan de enige taalvariant niet verwijderen",
         "Cannot delete the primary variant; promote another variant first": "Kan de primaire variant niet verwijderen; promoveer eerst een andere variant",
         "Language code is required": "Taalcode is verplicht",
-        "Language not available": "Taal niet beschikbaar"
+        "Language not available": "Taal niet beschikbaar",
+        "View analytics": "Weergavestatistieken",
+        "Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored.": "Geaggregeerde, privacyvriendelijke weergavetellers per dashboard. Unieke-bezoekerdeduplicatie gebruikt een dagelijks roterende gezouten hash; er worden geen gebruiker-id's opgeslagen.",
+        "Period": "Periode",
+        "Last 7 days": "Laatste 7 dagen",
+        "Last 30 days": "Laatste 30 dagen",
+        "Last 90 days": "Laatste 90 dagen",
+        "Loading analytics…": "Statistieken worden geladen…",
+        "Total views": "Totaal aantal weergaven",
+        "Unique viewers": "Unieke bezoekers",
+        "Dashboards seen": "Bekeken dashboards",
+        "Top dashboards": "Top-dashboards",
+        "Dashboard": "Dashboard",
+        "Views": "Weergaven",
+        "No view events recorded yet for this period.": "Nog geen weergaven geregistreerd voor deze periode.",
+        "Export analytics (CSV)": "Statistieken exporteren (CSV)",
+        "Failed to load analytics data. Please try again.": "Het laden van de statistieken is mislukt. Probeer het opnieuw.",
+        "Failed to export analytics CSV. Please try again.": "Het exporteren van het CSV-bestand is mislukt. Probeer het opnieuw."
     }
 }

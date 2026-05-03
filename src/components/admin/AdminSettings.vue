@@ -163,6 +163,11 @@
 				</div>
 			</div>
 
+			<!-- Org-wide navigation editor (REQ-ONAV-001..012) -->
+			<div class="mydash-admin__section">
+				<OrgNavigationEditor :groups="injectedAllGroups" />
+			</div>
+
 			<!-- Backup & migration (REQ-EXIM-001..010) -->
 			<div class="mydash-admin__section">
 				<DashboardExportImport />
@@ -255,6 +260,7 @@ import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
 import DashboardExportImport from './DashboardExportImport.vue'
 import ConfluenceImport from './ConfluenceImport.vue'
+import OrgNavigationEditor from './OrgNavigationEditor.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -265,6 +271,7 @@ export default {
 		ConfluenceImport,
 		DashboardExportImport,
 		GroupPriorityOrder,
+		OrgNavigationEditor,
 		NcButton,
 		NcSelect,
 		NcSelectTags,

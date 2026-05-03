@@ -4,7 +4,12 @@
 -->
 
 <template>
-	<div class="workspace-shell">
+	<div class="workspace-shell" :class="orgNavWrapperClass">
+		<!-- Org-wide navigation rail (REQ-ONAV-005, REQ-ONAV-008).
+		     Rendered above the shell when position='top', otherwise as
+		     a side rail. The component itself decides whether to
+		     render anything based on the empty-state + position rules. -->
+		<OrgNavigationPanel v-if="orgNavStore.shouldRender" />
 		<!-- Region 1: slide-in sidebar (REQ-SHELL-006).
 		     The DashboardSwitcherSidebar capability owns the slide-in
 		     panel; the backdrop intercepts off-panel clicks and emits
@@ -121,9 +126,11 @@ import { t } from '@nextcloud/l10n'
 import Views from './Views.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 
 import { listWidgetTypes, getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { useDashboardStore } from '../stores/dashboard.js'
+import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 import { api } from '../services/api.js'
 
 /**
@@ -158,6 +165,7 @@ export default {
 		Views,
 		SidebarBackdrop,
 		DashboardSwitcherSidebar,
+		OrgNavigationPanel,
 	},
 
 	inject: {
@@ -257,6 +265,31 @@ export default {
 		 */
 		availableWidgetTypes() {
 			return listWidgetTypes()
+		},
+
+		/**
+		 * REQ-ONAV-005 — exposed so the template can both check
+		 * `shouldRender` AND read `position` to drive the wrapper
+		 * layout class.
+		 *
+		 * @return {object}
+		 */
+		orgNavStore() {
+			return useOrgNavigationStore()
+		},
+
+		/**
+		 * REQ-ONAV-005 — flex direction follows the rail position so
+		 * `top` lays the rail above the shell, `right` after, `left`
+		 * before, and `hidden` collapses the wrapper to its baseline.
+		 *
+		 * @return {string[]}
+		 */
+		orgNavWrapperClass() {
+			if (!this.orgNavStore.shouldRender) {
+				return []
+			}
+			return ['workspace-shell--org-nav-' + (this.orgNavStore.position || 'hidden')]
 		},
 	},
 
@@ -475,6 +508,22 @@ export default {
 	min-height: 100vh;
 	width: 100%;
 	display: flex;
+	flex-direction: column;
+}
+
+/* REQ-ONAV-005 — rail position drives the outer layout. The
+   inner content (strip, toolbar, grid) keeps its column layout via
+   the `.workspace-shell__strip` etc. blocks below. */
+.workspace-shell--org-nav-left,
+.workspace-shell--org-nav-right {
+	flex-direction: row;
+}
+
+.workspace-shell--org-nav-right {
+	flex-direction: row-reverse;
+}
+
+.workspace-shell--org-nav-top {
 	flex-direction: column;
 }
 

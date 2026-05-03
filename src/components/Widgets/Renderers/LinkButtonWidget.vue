@@ -4,16 +4,18 @@
 -->
 
 <template>
-	<div class="link-button-widget">
+	<div class="link-button-widget" :class="rootClass">
+		<!-- Single-button mode (REQ-LBN-001..007). Default for legacy / button-mode placements. -->
 		<button
+			v-if="!isListMode"
 			type="button"
 			class="link-button-widget__button"
 			:style="buttonStyle"
 			:disabled="isExecuting"
-			@click="onClick">
+			@click="onSingleClick">
 			<span v-if="hasIcon" class="link-button-widget__icon">
 				<img
-					v-if="isCustomIcon"
+					v-if="isCustomIcon(icon)"
 					:src="icon"
 					width="48"
 					height="48"
@@ -25,6 +27,75 @@
 			</span>
 			<span class="link-button-widget__label">{{ displayLabel }}</span>
 		</button>
+
+		<!-- Vertical list mode (REQ-LBLM-005, REQ-LBLM-008). -->
+		<ul
+			v-else-if="isVerticalList"
+			role="list"
+			class="link-button-widget__list link-button-widget__list--vertical"
+			:style="listContainerStyle">
+			<li
+				v-for="(link, index) in renderableLinks"
+				:key="`link-${index}`"
+				class="link-button-widget__list-item-wrap">
+				<button
+					type="button"
+					class="link-button-widget__list-item"
+					:style="listItemStyle(link)"
+					:disabled="isExecuting"
+					:aria-label="link.label || ''"
+					@click="onListClick(link)">
+					<span v-if="link.icon" class="link-button-widget__list-icon">
+						<img
+							v-if="isCustomIcon(link.icon)"
+							:src="link.icon"
+							width="24"
+							height="24"
+							alt="">
+						<IconRenderer
+							v-else
+							:name="link.icon"
+							:size="24" />
+					</span>
+					<span class="link-button-widget__list-label">{{ link.label || '' }}</span>
+				</button>
+			</li>
+		</ul>
+
+		<!-- Horizontal list mode (REQ-LBLM-005, REQ-LBLM-008). -->
+		<div
+			v-else
+			role="list"
+			class="link-button-widget__list link-button-widget__list--horizontal"
+			:style="listContainerStyle">
+			<div
+				v-for="(link, index) in renderableLinks"
+				:key="`link-${index}`"
+				role="listitem"
+				class="link-button-widget__list-item-wrap link-button-widget__list-item-wrap--horizontal">
+				<button
+					type="button"
+					class="link-button-widget__list-item link-button-widget__list-item--horizontal"
+					:style="listItemStyle(link)"
+					:disabled="isExecuting"
+					:aria-label="link.label || ''"
+					@click="onListClick(link)">
+					<span v-if="link.icon" class="link-button-widget__list-icon">
+						<img
+							v-if="isCustomIcon(link.icon)"
+							:src="link.icon"
+							width="24"
+							height="24"
+							alt="">
+						<IconRenderer
+							v-else
+							:name="link.icon"
+							:size="24" />
+					</span>
+					<span class="link-button-widget__list-label">{{ link.label || '' }}</span>
+				</button>
+			</div>
+		</div>
 
 		<div
 			v-if="modalOpen"
@@ -48,7 +119,7 @@
 						@keyup.enter="onCreateConfirm">
 				</label>
 				<p class="link-button-widget__modal-extension">
-					.{{ extension }}
+					.{{ pendingExtension }}
 				</p>
 				<div class="link-button-widget__modal-actions">
 					<button
@@ -89,6 +160,28 @@ const ACTION_TYPES = Object.freeze({
 	CREATE_FILE: 'createFile',
 })
 
+const DISPLAY_MODES = Object.freeze({
+	BUTTON: 'button',
+	LIST: 'list',
+})
+
+const ORIENTATIONS = Object.freeze({
+	VERTICAL: 'vertical',
+	HORIZONTAL: 'horizontal',
+})
+
+const GAPS = Object.freeze({
+	COMPACT: 'compact',
+	NORMAL: 'normal',
+	SPACIOUS: 'spacious',
+})
+
+const GAP_REM = Object.freeze({
+	compact: '0.5rem',
+	normal: '1rem',
+	spacious: '1.5rem',
+})
+
 /**
  * LinkButtonWidget — renders a styled clickable tile that dispatches one
  * of three explicit action types (REQ-LBN-001):
@@ -101,12 +194,22 @@ const ACTION_TYPES = Object.freeze({
  *   - `createFile` → opens an inline modal that POSTs `/api/files/create`
  *     and opens the resulting file in the Files app.
  *
+ * The widget also supports a `displayMode = 'list'` (REQ-LBLM-001..009)
+ * that renders an array of links (`content.links[]`) as either a
+ * vertical `<ul role="list">` stack or a horizontal `<div role="list">`
+ * row of pills. Each link entry reuses the same three action types as
+ * the single-button mode, the same icon resolution rules, and the same
+ * edit-mode suppression. Default behaviour and legacy placements
+ * (`displayMode` absent) render the single button unchanged.
+ *
  * Click is fully suppressed while the surrounding dashboard is in
  * admin/edit mode (`isAdmin === true` AND `canEdit === true`) so
  * configuring the widget cannot accidentally fire actions
- * (REQ-LBN-001 scenario "Click in edit mode is suppressed"). The
- * button is `disabled` while an action is in flight to defeat
- * double-clicks (REQ-LBN-001 scenario "Disabled while action is in flight").
+ * (REQ-LBN-001 scenario "Click in edit mode is suppressed",
+ * REQ-LBLM-003 scenario "List item click suppressed in edit mode").
+ * The button is `disabled` while an action is in flight to defeat
+ * double-clicks (REQ-LBN-001 scenario "Disabled while action is in
+ * flight").
  */
 export default {
 	name: 'LinkButtonWidget',
@@ -117,8 +220,15 @@ export default {
 
 	props: {
 		/**
-		 * Persisted widget content. Shape:
+		 * Persisted widget content. Shape (single-button mode):
 		 * `{label, url, icon, actionType, backgroundColor, textColor}`.
+		 *
+		 * Shape (list mode, REQ-LBLM-002):
+		 * `{displayMode: 'list', listOrientation, listItemGap, links: [
+		 *   {label, url, icon, actionType, value?, backgroundColor?,
+		 *    textColor?},
+		 *   ...
+		 * ]}`.
 		 */
 		content: {
 			type: Object,
@@ -148,6 +258,8 @@ export default {
 			isExecuting: false,
 			modalOpen: false,
 			filenameDraft: '',
+			pendingExtension: '',
+			pendingLink: null,
 			modalTitleId: `link-button-widget-modal-${modalIdCounter}`,
 		}
 	},
@@ -187,10 +299,6 @@ export default {
 			return this.icon !== ''
 		},
 
-		isCustomIcon() {
-			return isCustomIconUrl(this.icon)
-		},
-
 		displayLabel() {
 			return this.label !== '' ? this.label : t('mydash', 'Link Button')
 		},
@@ -217,40 +325,185 @@ export default {
 		canCreate() {
 			return this.filenameDraft.trim() !== ''
 		},
+
+		/**
+		 * REQ-LBLM-001: detect display mode. Legacy / unset values
+		 * fall back to `'button'` to preserve backward compatibility.
+		 *
+		 * @return {string} 'button' or 'list'
+		 */
+		displayMode() {
+			return this.content?.displayMode === DISPLAY_MODES.LIST
+				? DISPLAY_MODES.LIST
+				: DISPLAY_MODES.BUTTON
+		},
+
+		/**
+		 * REQ-LBLM-002: list-mode renders only when both displayMode
+		 * is 'list' AND the links array has at least one entry.
+		 *
+		 * @return {boolean} true when the list renderer should activate
+		 */
+		isListMode() {
+			return this.displayMode === DISPLAY_MODES.LIST
+				&& Array.isArray(this.content?.links)
+				&& this.content.links.length > 0
+		},
+
+		/**
+		 * REQ-LBLM-005: orientation defaults to vertical.
+		 *
+		 * @return {string} 'vertical' or 'horizontal'
+		 */
+		listOrientation() {
+			return this.content?.listOrientation === ORIENTATIONS.HORIZONTAL
+				? ORIENTATIONS.HORIZONTAL
+				: ORIENTATIONS.VERTICAL
+		},
+
+		isVerticalList() {
+			return this.listOrientation === ORIENTATIONS.VERTICAL
+		},
+
+		/**
+		 * REQ-LBLM-005: spacing defaults to normal.
+		 *
+		 * @return {string} 'compact' | 'normal' | 'spacious'
+		 */
+		listItemGap() {
+			const declared = this.content?.listItemGap
+			if (declared === GAPS.COMPACT || declared === GAPS.SPACIOUS) {
+				return declared
+			}
+			return GAPS.NORMAL
+		},
+
+		listGapValue() {
+			return GAP_REM[this.listItemGap]
+		},
+
+		listContainerStyle() {
+			return { gap: this.listGapValue }
+		},
+
+		/**
+		 * Sanitised list of links that pass minimum schema (string label
+		 * or string url present). Each entry is normalised so the
+		 * renderer can rely on string fields.
+		 *
+		 * @return {Array<object>} normalised link entries
+		 */
+		renderableLinks() {
+			if (Array.isArray(this.content?.links) === false) {
+				return []
+			}
+			return this.content.links.map((raw) => {
+				const link = (raw !== null && typeof raw === 'object') ? raw : {}
+				const declaredAction = link.actionType
+				const actionType = (declaredAction === ACTION_TYPES.INTERNAL
+					|| declaredAction === ACTION_TYPES.CREATE_FILE)
+					? declaredAction
+					: ACTION_TYPES.EXTERNAL
+				return {
+					label: typeof link.label === 'string' ? link.label : '',
+					url: typeof link.url === 'string' ? link.url : '',
+					icon: typeof link.icon === 'string' ? link.icon : '',
+					actionType,
+					value: typeof link.value === 'string' ? link.value : '',
+					backgroundColor: typeof link.backgroundColor === 'string' ? link.backgroundColor : '',
+					textColor: typeof link.textColor === 'string' ? link.textColor : '',
+				}
+			})
+		},
+
+		rootClass() {
+			return {
+				'link-button-widget--list': this.isListMode,
+				[`link-button-widget--list-${this.listOrientation}`]: this.isListMode,
+			}
+		},
 	},
 
 	methods: {
-		onClick() {
-			if (this.isInEditMode) {
-				return
-			}
-			if (this.isExecuting) {
-				return
-			}
+		isCustomIcon(icon) {
+			return isCustomIconUrl(icon)
+		},
 
-			switch (this.actionType) {
+		listItemStyle(link) {
+			const bg = (typeof link.backgroundColor === 'string' && link.backgroundColor !== '')
+				? link.backgroundColor
+				: this.backgroundColor
+			const fg = (typeof link.textColor === 'string' && link.textColor !== '')
+				? link.textColor
+				: this.textColor
+			return {
+				'background-color': bg,
+				color: fg,
+			}
+		},
+
+		/**
+		 * REQ-LBN-001: dispatch the single-button click handler.
+		 *
+		 * @return {void}
+		 */
+		onSingleClick() {
+			if (this.isInEditMode || this.isExecuting) {
+				return
+			}
+			this.dispatchAction({
+				actionType: this.actionType,
+				url: this.url,
+				value: '',
+			})
+		},
+
+		/**
+		 * REQ-LBLM-003: dispatch the list-item click handler. Click
+		 * is suppressed in edit mode and when an action is already in
+		 * flight, mirroring single-button behaviour.
+		 *
+		 * @param {object} link the normalised link entry
+		 * @return {void}
+		 */
+		onListClick(link) {
+			if (this.isInEditMode || this.isExecuting) {
+				return
+			}
+			this.dispatchAction({
+				actionType: link.actionType,
+				url: link.url,
+				value: link.value,
+			})
+		},
+
+		dispatchAction({ actionType, url, value }) {
+			switch (actionType) {
 			case ACTION_TYPES.EXTERNAL:
-				this.handleExternal()
+				this.handleExternal(url)
 				break
 			case ACTION_TYPES.INTERNAL:
-				this.handleInternal()
+				this.handleInternal(url)
 				break
 			case ACTION_TYPES.CREATE_FILE:
-				this.openCreateFileModal()
+				// For list items the extension lives in `value`; for
+				// the single button it lives in `url` (see REQ-LBN-003
+				// and REQ-LBLM-003).
+				this.openCreateFileModal(value !== '' ? value : url)
 				break
 			}
 		},
 
-		handleExternal() {
-			if (this.url === '') {
+		handleExternal(url) {
+			if (typeof url !== 'string' || url === '') {
 				return
 			}
-			window.open(this.url, '_blank', 'noopener,noreferrer')
+			window.open(url, '_blank', 'noopener,noreferrer')
 		},
 
-		handleInternal() {
+		handleInternal(actionId) {
 			const { invoke } = useInternalActions()
-			const result = invoke(this.url)
+			const result = invoke(actionId)
 			// Promise-returning actions block the button so a slow
 			// internal action cannot be re-entered.
 			if (result && typeof result.then === 'function') {
@@ -261,7 +514,12 @@ export default {
 			}
 		},
 
-		openCreateFileModal() {
+		openCreateFileModal(extensionToken) {
+			const raw = (typeof extensionToken === 'string' ? extensionToken : '')
+				.trim()
+				.replace(/^\./, '')
+				.toLowerCase()
+			this.pendingExtension = raw
 			this.filenameDraft = `document_${Math.floor(Date.now() / 1000)}`
 			this.modalOpen = true
 			this.$nextTick(() => {
@@ -283,7 +541,7 @@ export default {
 				return
 			}
 
-			const ext = this.extension
+			const ext = this.pendingExtension
 			const safeName = this.filenameDraft.trim()
 			const filename = ext === '' ? safeName : `${safeName}.${ext}`
 
@@ -330,6 +588,11 @@ export default {
 	padding: 8px;
 }
 
+.link-button-widget--list {
+	align-items: stretch;
+	justify-content: stretch;
+}
+
 .link-button-widget__button {
 	display: flex;
 	flex-direction: column;
@@ -371,6 +634,75 @@ export default {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	max-width: 100%;
+}
+
+.link-button-widget__list {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+}
+
+.link-button-widget__list--vertical {
+	flex-direction: column;
+}
+
+.link-button-widget__list--horizontal {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
+
+.link-button-widget__list-item-wrap {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.link-button-widget__list-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	border-radius: var(--border-radius, 6px);
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	text-align: left;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.link-button-widget__list-item--horizontal {
+	width: auto;
+}
+
+.link-button-widget__list-item:hover:not(:disabled) {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.link-button-widget__list-item:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.link-button-widget__list-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+}
+
+.link-button-widget__list-label {
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .link-button-widget__modal-backdrop {

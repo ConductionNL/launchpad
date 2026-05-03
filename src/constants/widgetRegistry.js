@@ -109,6 +109,15 @@ export const widgetRegistry = {
 			actionType: 'external',
 			backgroundColor: '',
 			textColor: '',
+			// REQ-LBLM-001/005/009: list-mode defaults. `displayMode`
+			// defaults to `'button'` so newly-created placements behave
+			// exactly like the legacy single-link widget; the `links`,
+			// `listOrientation`, `listItemGap` keys ride along so the
+			// edit form has a stable starting shape.
+			displayMode: 'button',
+			listOrientation: 'vertical',
+			listItemGap: 'normal',
+			links: [],
 		},
 		displayName: t('mydash', 'Link Button'),
 		icon: 'LinkVariant',

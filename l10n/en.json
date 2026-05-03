@@ -1,5 +1,13 @@
 {
     "translations": {
+        "— Choose —": "— Choose —",
+        "Dashboard metadata": "Dashboard metadata",
+        "Failed to update dashboard metadata": "Failed to update dashboard metadata",
+        "No metadata fields are configured. Ask an administrator to add some.": "No metadata fields are configured. Ask an administrator to add some.",
+        "Save metadata": "Save metadata",
+        "Saving…": "Saving…",
+        "Yes": "Yes",
+        "No": "No",
         "SVG could not be parsed or contained no allowed content": "SVG could not be parsed or contained no allowed content",
         "Active": "Active",
         "Add": "Add",

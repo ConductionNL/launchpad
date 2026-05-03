@@ -1,6 +1,14 @@
 OC.L10N.register(
     "mydash",
     {
+    "— Choose —" : "— Kies —",
+    "Dashboard metadata" : "Dashboard-metadata",
+    "Failed to update dashboard metadata" : "Bijwerken van dashboard-metadata mislukt",
+    "No metadata fields are configured. Ask an administrator to add some." : "Er zijn geen metadata-velden geconfigureerd. Vraag een beheerder om er enkele toe te voegen.",
+    "Save metadata" : "Metadata opslaan",
+    "Saving…" : "Opslaan…",
+    "Yes" : "Ja",
+    "No" : "Nee",
     "%1$s is now yours" : "%1$s is nu van u",
     "%1$s shared %2$s with you" : "%1$s heeft %2$s met u gedeeld",
     "%1$s shared **%2$s** with you" : "%1$s heeft **%2$s** met u gedeeld",

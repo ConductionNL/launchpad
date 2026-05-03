@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\AppInfo;
 
+use OCA\MyDash\Activity\DebounceHelper;
 use OCA\MyDash\Listener\UserDeletedListener;
 use OCA\MyDash\Notification\Notifier;
 use OCP\AppFramework\App;
@@ -58,6 +59,19 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: UserDeletedEvent::class,
             listener: UserDeletedListener::class
+        );
+
+        // REQ-ACT-007: register DebounceHelper as a shared singleton
+        // so the in-memory fallback store (used when APCu is absent in
+        // CLI / test runs) survives across all callers within a single
+        // request. ActivityPublisher autowires from the app namespace
+        // — no explicit binding needed (referenced here in this
+        // docblock for the cross-capability discoverability contract:
+        // {@see ActivityPublisher}).
+        $context->registerService(
+            name: DebounceHelper::class,
+            factory: static fn(): DebounceHelper => new DebounceHelper(),
+            shared: true
         );
     }//end register()
 

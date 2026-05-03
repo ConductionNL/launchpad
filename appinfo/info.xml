@@ -92,4 +92,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<order>-5</order>
 		</navigation>
 	</navigations>
+
+	<activity>
+		<!-- REQ-ACT-001: register the MyDash Activity provider that
+		     surfaces the 13-event catalogue defined in
+		     OCA\MyDash\Activity\Extension. -->
+		<provider>OCA\MyDash\Activity\Extension</provider>
+	</activity>
 </info>

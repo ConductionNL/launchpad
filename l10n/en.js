@@ -335,7 +335,19 @@ OC.L10N.register(
     "You overrode the lock on dashboard {dashboard}" : "You overrode the lock on dashboard {dashboard}",
     "{actor} overrode the lock on dashboard {dashboard}" : "{actor} overrode the lock on dashboard {dashboard}",
     "Your role in {dashboard} was changed to {role}" : "Your role in {dashboard} was changed to {role}",
-    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} changed {target}'s role in {dashboard} to {role}"
+    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} changed {target}'s role in {dashboard} to {role}",
+    "Image source" : "Image source",
+    "URL/Link" : "URL/Link",
+    "Pick from Files" : "Pick from Files",
+    "Pick image from Nextcloud Files" : "Pick image from Nextcloud Files",
+    "Pick image from Files" : "Pick image from Files",
+    "Opening file picker…" : "Opening file picker…",
+    "Selected:" : "Selected:",
+    "File picker failed to open" : "File picker failed to open",
+    "Selected file is missing required metadata" : "Selected file is missing required metadata",
+    "Please pick a file from Files" : "Please pick a file from Files",
+    "Image URL" : "Image URL",
+    "Enter Image URL" : "Enter Image URL"
 },
 "nplurals=2; plural=(n != 1);"
 );

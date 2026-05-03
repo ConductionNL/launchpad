@@ -342,6 +342,18 @@
         "You overrode the lock on dashboard {dashboard}": "Je hebt de vergrendeling van dashboard {dashboard} omzeild",
         "{actor} overrode the lock on dashboard {dashboard}": "{actor} heeft de vergrendeling van dashboard {dashboard} omzeild",
         "Your role in {dashboard} was changed to {role}": "Je rol in {dashboard} is gewijzigd naar {role}",
-        "{actor} changed {target}'s role in {dashboard} to {role}": "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}"
+        "{actor} changed {target}'s role in {dashboard} to {role}": "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}",
+        "Image source": "Afbeeldingsbron",
+        "URL/Link": "URL/Link",
+        "Pick from Files": "Kies uit Bestanden",
+        "Pick image from Nextcloud Files": "Kies een afbeelding uit Nextcloud Bestanden",
+        "Pick image from Files": "Kies een afbeelding uit Bestanden",
+        "Opening file picker…": "Bestandskiezer openen…",
+        "Selected:": "Geselecteerd:",
+        "File picker failed to open": "Bestandskiezer kon niet worden geopend",
+        "Selected file is missing required metadata": "Geselecteerd bestand mist vereiste metadata",
+        "Please pick a file from Files": "Kies een bestand uit Bestanden",
+        "Image URL": "Afbeelding-URL",
+        "Enter Image URL": "Voer afbeelding-URL in"
     }
 }

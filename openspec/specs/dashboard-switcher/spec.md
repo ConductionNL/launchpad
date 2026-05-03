@@ -19,7 +19,7 @@ The component is stateless beyond its `v-model:open` flag. Its inputs:
 | `groupDashboards` | `Array<{id, name, icon, source: 'group'\|'default'}>` | yes | combined matched + folded default group |
 | `userDashboards` | `Array<{id, name, icon}>` | yes | personal dashboards |
 | `activeDashboardId` | `String` | no | id of currently active dashboard for highlighting |
-| `allowUserDashboards` | `Boolean` | no | when true, "+ New Dashboard" affordance is shown |
+| `allowUserDashboards` | `Boolean` | no | when true, the dedicated "Add Dashboard" card affordance is shown (REQ-SWITCH-008) |
 
 Emits: `switch(id: string, source: 'group'\|'default'\|'user')`, `create-dashboard()`, `delete-dashboard(id: string)`, `update:open(boolean)`.
 
@@ -54,7 +54,7 @@ Empty sections MUST NOT render their label or container at all (no empty heading
 - GIVEN `userDashboards = []` and `allowUserDashboards: true`
 - WHEN the sidebar renders
 - THEN the `'My Dashboards'` section heading MUST render
-- AND the `+ New Dashboard` button MUST be the only entry in the section
+- AND the dedicated Add-Dashboard card (REQ-SWITCH-008) MUST be the only entry in the section
 
 ### Requirement: REQ-SWITCH-002 Switch click semantics
 
@@ -114,22 +114,6 @@ Items in the `My Dashboards` section (excluding the `+ New Dashboard` row) MUST 
 - AND MUST NOT emit `switch(...)`
 - AND MUST NOT emit `update:open(false)` (closing decision is up to the parent)
 
-### Requirement: REQ-SWITCH-005 Create-dashboard affordance
-
-When `allowUserDashboards: true`, the `My Dashboards` section MUST end with a row labelled `t('+ New Dashboard')` (with a Plus icon) styled as a primary-coloured action. Clicking it MUST emit `update:open(false)` THEN `create-dashboard()`.
-
-#### Scenario: Create button hidden when feature disabled
-
-- GIVEN `allowUserDashboards: false`
-- WHEN the sidebar renders
-- THEN the `+ New Dashboard` row MUST NOT be present in the DOM
-
-#### Scenario: Create button click
-
-- GIVEN the user clicks `+ New Dashboard`
-- THEN the sidebar MUST emit `update:open(false)`
-- AND THEN MUST emit `create-dashboard` (no payload)
-
 ### Requirement: REQ-SWITCH-006 Slide-in animation
 
 The sidebar MUST be fixed-position (`top: 50px` to clear the Nextcloud header), `width: 280px`, `z-index: 1500`. Open/close MUST be animated via `transform: translateX(-100%)` ↔ `translateX(0)` over `0.25s ease`. The `.open` CSS class MUST be added when `isOpen === true`.
@@ -157,3 +141,67 @@ Each dashboard item's icon MUST be rendered via the shared `IconRenderer` compon
 - WHEN the sidebar renders
 - THEN all three MUST render correctly via `IconRenderer`
 - AND no inline `v-if="iconUrl"` branches MUST exist in the sidebar template
+
+### Requirement: REQ-SWITCH-008 Dedicated Add-Dashboard card button
+
+The sidebar MUST render a dedicated "Add dashboard" card button below the personal-dashboards list (still inside the sidebar's scroll container, NOT in the footer). The card MUST:
+
+- Be a `NcButton` with `type="outline"`, full sidebar width
+- Render a `+` icon and the localised label `t('mydash', 'Add dashboard')`
+- Be visible only when `allowUserDashboards === true`
+- On click, emit `update:open(false)` then `create-dashboard()` — same event contract the previous inline row used
+
+#### Scenario: Card visible with personal dashboards enabled
+
+- **GIVEN** a user whose injected `allowUserDashboards` is `true`
+- **WHEN** the sidebar is open
+- **THEN** the Add-Dashboard card MUST render below the personal section's last dashboard row
+- **AND** the card's icon MUST be a `+` symbol
+- **AND** the card's label MUST be `Add dashboard` (English) or `Dashboard toevoegen` (Dutch)
+
+#### Scenario: Card hidden when personal dashboards disabled
+
+- **GIVEN** a user whose injected `allowUserDashboards` is `false`
+- **WHEN** the sidebar is open
+- **THEN** the Add-Dashboard card MUST NOT render
+- **AND** the personal section MAY render an empty-state message
+
+#### Scenario: Click invokes create flow
+
+- **GIVEN** the Add-Dashboard card is visible
+- **WHEN** the user clicks it
+- **THEN** the sidebar MUST emit `update:open(false)` first
+- **AND** then emit `create-dashboard()` with no arguments
+- **AND** the parent (workspace shell) MUST handle the create flow
+
+### Requirement: REQ-SWITCH-009 Persistent sidebar footer with brand attribution and Documentation
+
+The sidebar MUST render a persistent footer at the bottom of its viewport (using `position: sticky; bottom: 0` so it stays visible while the dashboards list scrolls). The footer MUST contain:
+
+1. A "Powered by" line with two brand logos:
+   - Sendent — clickable link to the Sendent site, `target="_blank" rel="noopener noreferrer"`
+   - Conduction — clickable link to the Conduction site, same target/rel
+2. A Documentation link directly below the brand row, rendered as an icon + the localised label `t('mydash', 'Documentation')`. The link target MUST match the URL the gear menu's Documentation entry previously used (so behaviour is preserved across the move).
+
+A divider rule MUST separate the footer from the dashboards list above.
+
+#### Scenario: Footer renders both brand logos with safe target attributes
+
+- **GIVEN** the sidebar is open
+- **WHEN** the footer is inspected
+- **THEN** the Sendent logo MUST be wrapped in `<a target="_blank" rel="noopener noreferrer">` linking to the Sendent site
+- **AND** the Conduction logo MUST have the same target + rel attributes linking to the Conduction site
+- **AND** neither link MUST omit `rel="noopener noreferrer"` (per the security gate)
+
+#### Scenario: Footer documentation link uses the same URL as the gear-menu link did
+
+- **GIVEN** the sidebar's Documentation link is rendered
+- **WHEN** clicked
+- **THEN** it MUST navigate to the same URL the gear-menu Documentation entry used before `runtime-shell-trim` removed that entry
+
+#### Scenario: Footer stays visible while list scrolls
+
+- **GIVEN** a user with 30+ dashboards in the personal section
+- **WHEN** the user scrolls the dashboards list
+- **THEN** the footer MUST remain visible at the bottom of the sidebar viewport
+- **AND** MUST NOT scroll out of view with the list

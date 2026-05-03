@@ -22,9 +22,19 @@
 	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
 	never triggers a switch (REQ-SWITCH-004).
 
-	`+ New Dashboard` row appears at the end of the personal section ONLY
-	when `allowUserDashboards === true`; clicking it emits `update:open(false)`
-	then `create-dashboard()` (REQ-SWITCH-005).
+	A dedicated "Add Dashboard" card button (NcButton outline) renders
+	below the personal dashboards list — still inside the scroll container,
+	NOT inside the footer — when `allowUserDashboards === true`. Clicking
+	it emits `update:open(false)` then `create-dashboard()` (REQ-SWITCH-008).
+	(REQ-SWITCH-005's inline create row was removed in favour of this
+	card; same emit contract is preserved.)
+
+	A persistent SidebarFooter renders below the scroll container with
+	`position: sticky; bottom: 0` so it remains visible while the
+	dashboards list scrolls (REQ-SWITCH-009). The footer hosts the
+	"Powered by Sendent / Conduction" brand attribution and the
+	Documentation link previously surfaced in the gear menu (moved here
+	by `runtime-shell-trim`).
 
 	Slide-in is CSS-only via `transform: translateX(-100%) ↔ translateX(0)`
 	over 0.25s ease (REQ-SWITCH-006). Esc closes (WCAG 4.3).
@@ -163,37 +173,50 @@
 							<Close :size="16" />
 						</button>
 					</li>
-
-					<li
-						v-if="allowUserDashboards"
-						class="dashboard-switcher-sidebar__item dashboard-switcher-sidebar__item--create"
-						data-action="create"
-						tabindex="0"
-						role="button"
-						:aria-label="t('mydash', '+ New Dashboard')"
-						@click="onCreate"
-						@keydown.enter="onCreate"
-						@keydown.space.prevent="onCreate">
-						<span class="dashboard-switcher-sidebar__icon">
-							<Plus :size="20" />
-						</span>
-						<span class="dashboard-switcher-sidebar__label">
-							{{ t('mydash', '+ New Dashboard') }}
-						</span>
-					</li>
 				</ul>
+
+				<!--
+					REQ-SWITCH-008: dedicated "Add Dashboard" card button. Lives
+					BELOW the personal list (not inside the <ul>), still inside
+					the scroll container, gated on `allowUserDashboards`. Same
+					emit contract as the removed inline row.
+				-->
+				<div
+					v-if="allowUserDashboards"
+					class="dashboard-switcher-sidebar__add-dashboard-card">
+					<NcButton
+						type="outline"
+						wide
+						data-action="create"
+						:aria-label="t('mydash', 'Add dashboard')"
+						@click="onCreate">
+						<template #icon>
+							<Plus :size="20" />
+						</template>
+						{{ t('mydash', 'Add dashboard') }}
+					</NcButton>
+				</div>
 			</section>
 		</div>
+
+		<!--
+			REQ-SWITCH-009: persistent footer pinned to the sidebar bottom via
+			`position: sticky; bottom: 0`. Stays visible while the dashboards
+			list above scrolls.
+		-->
+		<SidebarFooter class="dashboard-switcher-sidebar__footer" />
 	</aside>
 </template>
 
 <script>
 import { t } from '@nextcloud/l10n'
+import { NcButton } from '@conduction/nextcloud-vue'
 
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 
 import IconRenderer from '../Dashboard/IconRenderer.vue'
+import SidebarFooter from './SidebarFooter.vue'
 
 export default {
 	name: 'DashboardSwitcherSidebar',
@@ -202,6 +225,8 @@ export default {
 		Close,
 		Plus,
 		IconRenderer,
+		NcButton,
+		SidebarFooter,
 	},
 
 	/**
@@ -268,8 +293,9 @@ export default {
 		},
 
 		/**
-		 * When true, the personal section ends with a `+ New Dashboard`
-		 * row; when false the row MUST NOT be in the DOM (REQ-SWITCH-005).
+		 * When true, the personal section renders a dedicated "Add
+		 * Dashboard" card button below the personal list (REQ-SWITCH-008);
+		 * when false the card MUST NOT be in the DOM.
 		 */
 		allowUserDashboards: {
 			type: Boolean,
@@ -347,8 +373,8 @@ export default {
 		},
 
 		/**
-		 * Click handler for the `+ New Dashboard` row. MUST emit
-		 * `update:open(false)` BEFORE `create-dashboard()` (REQ-SWITCH-005).
+		 * Click handler for the "Add Dashboard" card button. MUST emit
+		 * `update:open(false)` BEFORE `create-dashboard()` (REQ-SWITCH-008).
 		 */
 		onCreate() {
 			this.$emit('update:open', false)
@@ -514,18 +540,35 @@ export default {
 	color: var(--color-error, #c0392b);
 }
 
-.dashboard-switcher-sidebar__item--create {
-	color: var(--color-primary, #0082c9);
-	font-weight: 500;
+.dashboard-switcher-sidebar__add-dashboard-card {
+	display: flex;
+	padding: 8px 16px 4px 16px;
 }
 
-.dashboard-switcher-sidebar__item--create .dashboard-switcher-sidebar__icon {
-	color: var(--color-primary, #0082c9);
+/*
+	NcButton with `wide` already stretches to its container; this helper
+	keeps the card visually aligned with the dashboard rows above.
+ */
+.dashboard-switcher-sidebar__add-dashboard-card :deep(.button-vue) {
+	width: 100%;
 }
 
 .dashboard-switcher-sidebar__divider {
 	border: 0;
 	border-top: 1px solid var(--color-border, #e0e0e0);
 	margin: 4px 0;
+}
+
+/*
+	REQ-SWITCH-009: footer sticks to the bottom of the sidebar viewport
+	while the dashboards list above scrolls. `position: sticky` together
+	with the parent's `flex-direction: column` keeps the footer pinned
+	without removing it from document flow (so the sidebar still has a
+	deterministic height for the scroll container above).
+ */
+.dashboard-switcher-sidebar__footer {
+	position: sticky;
+	bottom: 0;
+	flex: 0 0 auto;
 }
 </style>

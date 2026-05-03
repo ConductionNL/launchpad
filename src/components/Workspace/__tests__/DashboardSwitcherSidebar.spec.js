@@ -3,18 +3,23 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `DashboardSwitcherSidebar.vue` (capability
- * `dashboard-switcher`). Covers REQ-SWITCH-001..007:
+ * `dashboard-switcher`). Covers REQ-SWITCH-001..004, 006..009:
  *  - three-section visibility matrix (group / default / personal)
  *  - empty sections do NOT render their heading or container
  *  - emit order: `update:open(false)` MUST precede `switch(id, source)`
  *  - `source` discriminator matches the section the row was rendered in
  *  - `delete-dashboard` does not also emit `switch` or `update:open`
- *  - `+ New Dashboard` row is gated on `allowUserDashboards`
+ *  - REQ-SWITCH-008: dedicated Add-Dashboard card gated on
+ *    `allowUserDashboards`, emits `update:open(false)` then
+ *    `create-dashboard()`
+ *  - REQ-SWITCH-009: persistent footer with brand attribution and
+ *    Documentation link, pinned via `position: sticky`
  *  - `.active` class follows `activeDashboardId` reactively
  *  - icon rendering goes through the shared IconRenderer (REQ-SWITCH-007)
  *
- * IconRenderer is stubbed so the test focuses on switcher semantics
- * (icon-discriminator coverage lives in the dashboard-icons spec).
+ * IconRenderer + NcButton + SidebarFooter are stubbed so the test focuses
+ * on switcher semantics (icon-discriminator coverage lives in the
+ * dashboard-icons spec; brand-link coverage lives in SidebarFooter.spec.js).
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -31,6 +36,27 @@ const iconRendererStub = {
 	template: '<span class="icon-renderer-stub" :data-name="name" />',
 }
 
+const ncButtonStub = {
+	name: 'NcButton',
+	props: ['type', 'wide', 'ariaLabel'],
+	template: `
+		<button
+			type="button"
+			class="nc-button-stub"
+			:data-action="$attrs['data-action']"
+			:data-button-type="type"
+			@click="$emit('click', $event)">
+			<slot name="icon" />
+			<slot />
+		</button>
+	`,
+}
+
+const sidebarFooterStub = {
+	name: 'SidebarFooter',
+	template: '<footer class="sidebar-footer-stub" data-testid="sidebar-footer-stub" />',
+}
+
 function mountSidebar(props = {}) {
 	return mount(DashboardSwitcherSidebar, {
 		propsData: {
@@ -44,6 +70,8 @@ function mountSidebar(props = {}) {
 		},
 		stubs: {
 			IconRenderer: iconRendererStub,
+			NcButton: ncButtonStub,
+			SidebarFooter: sidebarFooterStub,
 		},
 	})
 }
@@ -105,8 +133,10 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(userSection.exists()).toBe(true)
 			expect(userSection.find('.dashboard-switcher-sidebar__heading').text())
 				.toBe('My Dashboards')
-			// Only the create row is present
-			expect(userSection.findAll('.dashboard-switcher-sidebar__item').length).toBe(1)
+			// REQ-SWITCH-008: the dashboards list is empty; the Add-Dashboard
+			// card lives BELOW the list (still inside the section), not inside
+			// the <ul>.
+			expect(userSection.findAll('.dashboard-switcher-sidebar__item').length).toBe(0)
 			expect(userSection.find('[data-action="create"]').exists()).toBe(true)
 		})
 
@@ -244,24 +274,35 @@ describe('DashboardSwitcherSidebar', () => {
 		})
 	})
 
-	describe('REQ-SWITCH-005 create-dashboard affordance', () => {
-		it('renders the +New Dashboard row when allowUserDashboards: true', () => {
+	describe('REQ-SWITCH-008 dedicated Add-Dashboard card button', () => {
+		it('renders the Add-Dashboard card when allowUserDashboards: true', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [userRow],
 				allowUserDashboards: true,
 			})
-			expect(wrapper.find('[data-action="create"]').exists()).toBe(true)
+			const card = wrapper.find('.dashboard-switcher-sidebar__add-dashboard-card')
+			expect(card.exists()).toBe(true)
+			// The card lives in the personal section but BELOW the <ul>
+			expect(wrapper.find('[data-section="user"] .dashboard-switcher-sidebar__add-dashboard-card').exists())
+				.toBe(true)
+			// NcButton stub carries the type="outline" the spec requires
+			const button = card.find('[data-action="create"]')
+			expect(button.exists()).toBe(true)
+			expect(button.attributes('data-button-type')).toBe('outline')
+			// Localised label
+			expect(button.text()).toContain('Add dashboard')
 		})
 
-		it('does NOT render the +New Dashboard row when allowUserDashboards: false', () => {
+		it('does NOT render the Add-Dashboard card when allowUserDashboards: false', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [userRow],
 				allowUserDashboards: false,
 			})
 			expect(wrapper.find('[data-action="create"]').exists()).toBe(false)
+			expect(wrapper.find('.dashboard-switcher-sidebar__add-dashboard-card').exists()).toBe(false)
 		})
 
-		it('emits update:open(false) THEN create-dashboard on create row click', async () => {
+		it('emits update:open(false) THEN create-dashboard on Add-Dashboard card click', async () => {
 			const wrapper = mountSidebar({
 				userDashboards: [],
 				allowUserDashboards: true,
@@ -274,6 +315,45 @@ describe('DashboardSwitcherSidebar', () => {
 			const allEmits = Object.entries(wrapper.emitted())
 				.flatMap(([name, evs]) => evs.map(() => name))
 			expect(allEmits.indexOf('update:open')).toBeLessThan(allEmits.indexOf('create-dashboard'))
+		})
+	})
+
+	describe('REQ-SWITCH-009 persistent footer mounting', () => {
+		it('renders the SidebarFooter inside the sidebar root', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRow],
+				allowUserDashboards: true,
+			})
+			const footer = wrapper.find('[data-testid="sidebar-footer-stub"]')
+			expect(footer.exists()).toBe(true)
+			expect(footer.classes()).toContain('dashboard-switcher-sidebar__footer')
+		})
+
+		it('mounts the footer outside the scroll container (sibling of __body)', () => {
+			const wrapper = mountSidebar({ userDashboards: [userRow] })
+			const aside = wrapper.find('aside')
+			const directChildren = Array.from(aside.element.children)
+			const footerEl = wrapper.find('[data-testid="sidebar-footer-stub"]').element
+			// Footer must be a direct child of the sidebar root so its
+			// `position: sticky; bottom: 0` pins to the sidebar viewport,
+			// not to the inside of the scrolling __body container.
+			expect(directChildren).toContain(footerEl)
+		})
+
+		it('keeps the footer present when the personal list grows long (sticky semantics)', () => {
+			// Spec scenario: 30+ dashboards in the personal section MUST
+			// still render the footer (it does not scroll out of view because
+			// it's a sibling of the scroll container, not a child).
+			const many = Array.from({ length: 32 }, (_v, i) => ({
+				id: `p${i}`,
+				name: `Dashboard ${i}`,
+				icon: null,
+			}))
+			const wrapper = mountSidebar({
+				userDashboards: many,
+				allowUserDashboards: true,
+			})
+			expect(wrapper.find('[data-testid="sidebar-footer-stub"]').exists()).toBe(true)
 		})
 	})
 

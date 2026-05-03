@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\NewsWidgetService;
 use OCA\MyDash\Service\WidgetService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Controller;
@@ -39,12 +40,14 @@ class WidgetApiController extends Controller
      * @param IRequest          $request           The request.
      * @param WidgetService     $widgetService     The widget service.
      * @param PermissionService $permissionService The permission service.
+     * @param NewsWidgetService $newsWidgetService The news widget service.
      * @param string|null       $userId            The user ID.
      */
     public function __construct(
         IRequest $request,
         private readonly WidgetService $widgetService,
         private readonly PermissionService $permissionService,
+        private readonly NewsWidgetService $newsWidgetService,
         private readonly ?string $userId,
     ) {
         parent::__construct(
@@ -254,4 +257,56 @@ class WidgetApiController extends Controller
             return ResponseHelper::error(exception: $e);
         }
     }//end removePlacement()
+
+    /**
+     * Fetch merged news widget items for a placement (REQ-NEWS-003).
+     *
+     * Validates the caller, clamps the limit, and delegates to
+     * {@see NewsWidgetService::getItemsForPlacement()}. The response
+     * shape is `{items: array, feedsFailed: int, failedUrls: array}`
+     * — the placement-level metadata filter is applied server-side
+     * (REQ-NEWS-007), and a placement that fails the filter responds
+     * with an empty items array (no HTTP fetch occurs).
+     *
+     * @param integer      $placementId Placement entity id.
+     * @param integer|null $limit       Optional caller cap (default 10,
+     *                                  rejected when outside [1, 50]).
+     *
+     * @return JSONResponse
+     */
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function newsItems(int $placementId, ?int $limit=10): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        $effectiveLimit = $limit;
+        if ($effectiveLimit === null) {
+            $effectiveLimit = 10;
+        }
+
+        if ($effectiveLimit < 1 || $effectiveLimit > 50) {
+            return new JSONResponse(
+                data: ['error' => 'limit out of range (1..50)'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        if ($this->permissionService->canStyleWidget(
+            userId: $this->userId,
+            placementId: $placementId
+        ) === false
+        ) {
+            return ResponseHelper::forbidden();
+        }
+
+        $payload = $this->newsWidgetService->getItemsForPlacement(
+            placementId: $placementId,
+            limit: $effectiveLimit
+        );
+
+        return ResponseHelper::success(data: $payload);
+    }//end newsItems()
 }//end class

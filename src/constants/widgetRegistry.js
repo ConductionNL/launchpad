@@ -53,6 +53,12 @@
  * config shape (layout, selectionMode, filters, excludeDisabled,
  * showBirthdays, birthdayWindowDays, sortBy, columns, showFields).
  *
+ * REQ-NEWS-001..011: The widget type `news` MUST be registered with a
+ * renderer reference to `NewsWidget.vue`, a form reference to
+ * `NewsForm.vue`, and a `defaultContent` of `{feedUrls:[],
+ * layout:'list', itemLimit:10, showThumbnails:true, showSummary:true,
+ * summaryMaxChars:200, dateFormat:'relative', metadataFilter:null}`.
+ *
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
@@ -78,6 +84,8 @@ import PeopleWidget from '../components/Widgets/Renderers/PeopleWidget.vue'
 import PeopleForm from '../components/Widgets/Forms/PeopleForm.vue'
 import QuicklinksWidget from '../components/Widgets/Renderers/QuicklinksWidget.vue'
 import QuicklinksForm from '../components/Widgets/Forms/QuicklinksForm.vue'
+import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
+import NewsForm from '../components/Widgets/Forms/NewsForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -247,6 +255,22 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Quicklinks'),
 		icon: 'Star',
+	},
+	news: {
+		renderer: NewsWidget,
+		form: NewsForm,
+		defaultContent: {
+			feedUrls: [],
+			layout: 'list',
+			itemLimit: 10,
+			showThumbnails: true,
+			showSummary: true,
+			summaryMaxChars: 200,
+			dateFormat: 'relative',
+			metadataFilter: null,
+		},
+		displayName: t('mydash', 'News'),
+		icon: 'RssBox',
 	},
 }
 

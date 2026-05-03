@@ -156,4 +156,26 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('divider')
 	})
+
+	it('REQ-NEWS-001..011: exposes a `news` entry with the proper defaultContent', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.news).toBeDefined()
+		expect(widgetRegistry.news.renderer).toBeTruthy()
+		expect(widgetRegistry.news.form).toBeTruthy()
+		expect(widgetRegistry.news.defaultContent).toEqual({
+			feedUrls: [],
+			layout: 'list',
+			itemLimit: 10,
+			showThumbnails: true,
+			showSummary: true,
+			summaryMaxChars: 200,
+			dateFormat: 'relative',
+			metadataFilter: null,
+		})
+	})
+
+	it('REQ-NEWS-001..011: `news` appears in listWidgetTypes() output', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('news')
+	})
 })

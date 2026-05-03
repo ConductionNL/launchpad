@@ -885,7 +885,10 @@ OC.L10N.register(
     "Link type" : "Link type",
     "App route" : "App route",
     "URL" : "URL",
-    "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead." : "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead."
+    "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead." : "The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead.",
+    "Pick a widget" : "Pick a widget",
+    "No Nextcloud widgets are installed" : "No Nextcloud widgets are installed",
+    "Selected" : "Selected"
 },
 "nplurals=2; plural=(n != 1);"
 );

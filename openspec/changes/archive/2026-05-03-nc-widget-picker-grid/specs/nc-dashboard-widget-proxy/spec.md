@@ -1,6 +1,6 @@
 # Spec delta — nc-dashboard-widget-proxy
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-NCDP-PICKER NC widget picker UX
 

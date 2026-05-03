@@ -68,7 +68,7 @@ matches user intuition (a title match is more relevant than a body match).
 ### D5: Provider ID and group label
 **Decision:** Register the provider with id `mydash`. The NC search UI derives the dropdown
 group label from the provider id — this will render as "MyDash".
-**Alternatives considered:** `my_dash`, `intravox`, or a localised string id.
+**Alternatives considered:** `my_dash`, `the source app`, or a localised string id.
 **Rationale:** `mydash` matches the app id used everywhere else in info.xml and routes, keeping
 the namespace consistent and avoiding a separate label mapping.
 

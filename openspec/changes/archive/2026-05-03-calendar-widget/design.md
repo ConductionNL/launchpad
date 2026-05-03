@@ -4,7 +4,7 @@
 
 The calendar-widget spec (REQ-CAL-001..010) describes a merged calendar view for MyDash that combines internal Nextcloud calendars and external ICS feeds. Several architectural choices were left open in the proposal. This document resolves them based on ground-truth source code from an existing production implementation covering the same problem domain.
 
-Source root examined: `intravox-source/`
+Source root examined: `the source codebase-source/`
 
 ## Goals / Non-Goals
 
@@ -28,10 +28,10 @@ Source root examined: `intravox-source/`
 **Decision**: Expansion is done **server-side**, using `Sabre\VObject\VCalendar::expand()` for external ICS feeds, and relying on `OCP\Calendar\IManager::search()` timerange filtering (which itself uses sabre/vobject internally) for internal calendars. The client receives only fully-expanded, flat event instances scoped to the requested `from..to` range. No RRULE strings are sent to the frontend.
 
 **Source evidence**:
-- `intravox-source/lib/Service/ExternalIcsService.php:112-115` — `$vcalendar->expand(new \DateTime($rangeStart…), new \DateTime($rangeEnd…))` called before iterating `VEVENT`.
-- `intravox-source/lib/Service/CalendarService.php:93-98` — `$calendar->search('', [], ['timerange' => ['start' => $rangeStart, 'end' => $rangeEnd]], …)` delegates expansion to NC's Calendar backend.
-- `intravox-source/lib/Controller/CalendarController.php:105` — date range is capped at 1 year max to prevent unbounded RRULE expansion: `$end = $start->modify('+1 year')`.
-- `intravox-source/src/components/CalendarWidget.vue:156-172` — frontend calls the events endpoint and stores `response.data.events`; no client-side expansion logic exists.
+- `the source codebase-source/lib/Service/ExternalIcsService.php:112-115` — `$vcalendar->expand(new \DateTime($rangeStart…), new \DateTime($rangeEnd…))` called before iterating `VEVENT`.
+- `the source codebase-source/lib/Service/CalendarService.php:93-98` — `$calendar->search('', [], ['timerange' => ['start' => $rangeStart, 'end' => $rangeEnd]], …)` delegates expansion to NC's Calendar backend.
+- `the source codebase-source/lib/Controller/CalendarController.php:105` — date range is capped at 1 year max to prevent unbounded RRULE expansion: `$end = $start->modify('+1 year')`.
+- `the source codebase-source/src/components/CalendarWidget.vue:156-172` — frontend calls the events endpoint and stores `response.data.events`; no client-side expansion logic exists.
 
 **Implication for sabre/vobject dependency**: the source app does **not** vendor sabre/vobject itself (`composer.json` has no sabre dependency). It uses the copy bundled in Nextcloud via the autoloader. MyDash must do the same — import `Sabre\VObject\…` without adding it to `composer.json`.
 
@@ -42,7 +42,7 @@ Source root examined: `intravox-source/`
 **Decision**: **No cross-source deduplication is performed**. Internal calendar events and external ICS events are merged by a simple `array_merge` and then sorted by `start`. If the same UID appears in both an internal calendar and an external ICS feed (e.g., a user has subscribed an ICS feed both via NC Calendar and directly via the widget), duplicate instances will appear.
 
 **Source evidence**:
-- `intravox-source/lib/Service/CalendarService.php:117-127` — external ICS events are `array_merge`d with internal events with no dedup step.
+- `the source codebase-source/lib/Service/CalendarService.php:117-127` — external ICS events are `array_merge`d with internal events with no dedup step.
 - Both services suffix the UID with `-{start ISO}` to produce stable sort keys (e.g., `uid-2026-05-01T09:00:00+00:00`), but this composite key is not used to de-duplicate across sources.
 - The source app explicitly **hides NC ICS subscriptions** from the calendar picker (`CalendarService.php:35-37`: `str_contains(get_class($calendar), 'Subscription')` → skip), steering users toward the external URL field instead. This separation-of-concerns design makes cross-source UID collisions unlikely in practice.
 
@@ -82,12 +82,12 @@ Internal events omit `isExternal` (field absent → falsy in JS). External event
 
 ### D4: External ICS caching
 
-**Decision**: Raw ICS content (before parsing) is cached using `ICacheFactory::createDistributed('intravox-ics')` with a **per-URL cache key** (`'ics_' . md5($url)`) and a **fixed 30-minute TTL** (`CACHE_TTL = 1800`). There is no admin-configurable TTL setting and no per-placement cache key. Two placements referencing the same URL share a single cache entry (confirmed: same URL → same `md5` key).
+**Decision**: Raw ICS content (before parsing) is cached using `ICacheFactory::createDistributed('the source app-ics')` with a **per-URL cache key** (`'ics_' . md5($url)`) and a **fixed 30-minute TTL** (`CACHE_TTL = 1800`). There is no admin-configurable TTL setting and no per-placement cache key. Two placements referencing the same URL share a single cache entry (confirmed: same URL → same `md5` key).
 
 **Source evidence**:
-- `intravox-source/lib/Service/ExternalIcsService.php:19` — `private const CACHE_TTL = 1800;`
-- `intravox-source/lib/Service/ExternalIcsService.php:57-65` — check then populate cache using `$cacheFactory->createDistributed('intravox-ics')`.
-- `intravox-source/lib/Service/ExternalIcsService.php:83` — `$this->cache->set($cacheKey, $body, self::CACHE_TTL)`.
+- `the source codebase-source/lib/Service/ExternalIcsService.php:19` — `private const CACHE_TTL = 1800;`
+- `the source codebase-source/lib/Service/ExternalIcsService.php:57-65` — check then populate cache using `$cacheFactory->createDistributed('the source app-ics')`.
+- `the source codebase-source/lib/Service/ExternalIcsService.php:83` — `$this->cache->set($cacheKey, $body, self::CACHE_TTL)`.
 - No `IAppConfig` read for TTL anywhere in the ICS service.
 
 **Delta vs spec (REQ-CAL-005)**:
@@ -107,9 +107,9 @@ Internal events omit `isExternal` (field absent → falsy in JS). External event
 The admin settings page has no ICS allow-list UI; the only whitelist concept in admin settings is `video_domains`.
 
 **Source evidence**:
-- `intravox-source/lib/Service/ExternalIcsService.php:189-210` — `validateUrl()` method.
-- `intravox-source/lib/Controller/CalendarController.php:222` — `parse_url($url, PHP_URL_SCHEME) === 'https'` pre-filter.
-- `intravox-source/lib/Settings/AdminSettings.php:61-66` — only `video_domains` whitelist present.
+- `the source codebase-source/lib/Service/ExternalIcsService.php:189-210` — `validateUrl()` method.
+- `the source codebase-source/lib/Controller/CalendarController.php:222` — `parse_url($url, PHP_URL_SCHEME) === 'https'` pre-filter.
+- `the source codebase-source/lib/Settings/AdminSettings.php:61-66` — only `video_domains` whitelist present.
 
 **Delta vs spec (REQ-CAL-006)**:
 - Spec designs an **admin hostname allow-list** (empty = allow all; populated = restrict). Source has **no such list** but has stronger SSRF protection instead.

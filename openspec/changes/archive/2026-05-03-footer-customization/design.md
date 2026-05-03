@@ -42,9 +42,9 @@ Per-dashboard override gives dashboard owners three options: inherit the global 
 
 **Source evidence**:
 
-- `intravox-source/lib/Service/FooterService.php:81-168` — single global `footer.json` per language; no `pageId` argument.
-- `intravox-source/lib/Controller/FooterController.php` — `get()` and `save()` take no `pageId` or `uniqueId` parameter.
-- `intravox-source/lib/Service/PageService.php:564,1973` — `footer.json` at the language root explicitly excluded from page listings.
+- `the source codebase-source/lib/Service/FooterService.php:81-168` — single global `footer.json` per language; no `pageId` argument.
+- `the source codebase-source/lib/Controller/FooterController.php` — `get()` and `save()` take no `pageId` or `uniqueId` parameter.
+- `the source codebase-source/lib/Service/PageService.php:564,1973` — `footer.json` at the language root explicitly excluded from page listings.
 
 **Rationale**: Admin settings is already the established pattern for MyDash instance-wide configuration. Reusing it keeps the bootstrap path simple, avoids filesystem permission complexity, and makes the footer values available via `IAppConfig` without mounting any GroupFolder.
 

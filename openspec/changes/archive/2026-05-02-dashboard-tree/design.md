@@ -39,7 +39,7 @@ current dashboardUuid appears in the chain, reject with HTTP 422 `cycle_detected
 
 ### D2: Slug uniqueness scope
 **Decision**: Unique per `(parentUuid, slug)` pair — siblings must have distinct slugs, not global.
-**Source evidence**: `intravox-source/lib/Service/PageService.php:~140` — slug uniqueness enforced
+**Source evidence**: `the source codebase-source/lib/Service/PageService.php:~140` — slug uniqueness enforced
 within parent context only.
 **Alternatives considered**:
 - Global unique slug — rejected; makes deeply nested dashboards impossible to name naturally

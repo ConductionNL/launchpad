@@ -7,7 +7,7 @@ This capability provides version history and restore for dashboard content. The 
 `\OCP\Files\Versions\IVersionManager`; `db` mode persists snapshots in `oc_mydash_dashboard_versions`.
 The `contentBackend` column routes to the correct strategy at runtime.
 
-Source confirms the NC interface: `intravox-source/lib/Service/PageService.php` lazy-loads
+Source confirms the NC interface: `the source codebase-source/lib/Service/PageService.php` lazy-loads
 `OCA\Files_Versions\Versions\IVersionManager`. Sibling spec `dashboard-draft-published` intersects
 on PUT triggers — draft-to-published transitions do NOT trigger versioning; only content edits do.
 This design documents strategy dispatch, debounce, restore semantics, and soft-failure handling.
@@ -41,7 +41,7 @@ This design documents strategy dispatch, debounce, restore semantics, and soft-f
 ### D2: Debounce implementation
 **Decision**: APCu key `mydash_ver_debounce_{dashboardUuid}` set to `1` with TTL 60 s on every
 PUT. Version creation is skipped if the key exists at the start of the request.
-**Source evidence**: `intravox-source/lib/Service/PageService.php:~220` — debounce via APCu for
+**Source evidence**: `the source codebase-source/lib/Service/PageService.php:~220` — debounce via APCu for
 page-content saves, TTL 60 s.
 **Alternatives considered**:
 - DB-side `last_versioned_at` timestamp check — rejected; adds DB write on every PUT even when

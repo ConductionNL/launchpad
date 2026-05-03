@@ -36,16 +36,16 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 **Rationale:** MyDash's news widget is aimed at intranet and SaaS news sources that publish standard RSS 2.0 or Atom 1.0. The source implementation uses `SimpleXMLElement` successfully across those cases with no SimplePie dependency in `composer.json`. Keeping the parser built-in eliminates a supply-chain dependency and reduces the attack surface. The `FeedParserInterface` abstraction means adopting SimplePie later is a one-class swap, not a refactor.
 
 **Source evidence:**
-- `intravox-source/lib/Service/FeedReaderService.php:751,762,812,847` — `@simplexml_load_string($body, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NONET)` then dispatches to `parseXmlFeed(\SimpleXMLElement $xml)` → `normalizeRssItem()` or `normalizeAtomEntry()`.
-- `intravox-source/lib/Service/FeedReaderService.php` constructor — dependencies are `IClientService`, `ICacheFactory`, `IConfig`, `ICrypto`, `LoggerInterface`; no SimplePie injection.
-- `intravox-source/composer.json` — no `simplepie/simplepie` or equivalent; only `enshrined/svg-sanitize` as a third-party lib.
+- `the source codebase-source/lib/Service/FeedReaderService.php:751,762,812,847` — `@simplexml_load_string($body, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NONET)` then dispatches to `parseXmlFeed(\SimpleXMLElement $xml)` → `normalizeRssItem()` or `normalizeAtomEntry()`.
+- `the source codebase-source/lib/Service/FeedReaderService.php` constructor — dependencies are `IClientService`, `ICacheFactory`, `IConfig`, `ICrypto`, `LoggerInterface`; no SimplePie injection.
+- `the source codebase-source/composer.json` — no `simplepie/simplepie` or equivalent; only `enshrined/svg-sanitize` as a third-party lib.
 
 ### D2: Security flags on parse — `LIBXML_NONET`
 
 **Decision:** Always pass `LIBXML_NONET` (and `LIBXML_NOCDATA`) to `simplexml_load_string()`. `LIBXML_NONET` disables external entity loading, preventing XXE attacks via crafted feed bodies. `LIBXML_NOCDATA` coerces CDATA sections to plain text strings so field extraction works uniformly.
 
 **Source evidence:**
-- `intravox-source/lib/Service/FeedReaderService.php:751` — `LIBXML_NOCDATA | LIBXML_NONET` passed on every call.
+- `the source codebase-source/lib/Service/FeedReaderService.php:751` — `LIBXML_NOCDATA | LIBXML_NONET` passed on every call.
 
 **Rationale:** XXE is a known attack vector for XML parsers processing untrusted content. Disabling network access at the libxml level is the correct defence; it costs nothing and cannot be forgotten in a subclass. `LIBXML_NOCDATA` avoids defensive casting throughout the normaliser.
 
@@ -54,7 +54,7 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 **Decision:** Reject any feed response body larger than 10 MB (`MAX_RESPONSE_SIZE = 10 * 1024 * 1024`). Feeds exceeding this limit are recorded as failed with `lastFailureReason = "response too large"` and their cached items are left unchanged.
 
 **Source evidence:**
-- `intravox-source/lib/Service/FeedReaderService.php` — `MAX_RESPONSE_SIZE` constant at 10 MB.
+- `the source codebase-source/lib/Service/FeedReaderService.php` — `MAX_RESPONSE_SIZE` constant at 10 MB.
 
 **Rationale:** No legitimate news feed requires more than 10 MB of XML. The cap prevents a malicious or misconfigured feed server from exhausting PHP memory. The constant is defined once and is trivially tunable in a follow-up if a customer has an unusually large internal feed.
 
@@ -63,7 +63,7 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 **Decision:** Use Nextcloud's `IClientService` (not raw cURL) for all outbound HTTP requests. Set a 10-second connect timeout and a 30-second total timeout. The source uses 5 s; we extend this slightly to accommodate slow intranet servers without making the job hang indefinitely. Proxy settings (`system.proxy`, `system.proxyuserpwd`, `system.noproxy`) are honoured transparently by `IClientService`.
 
 **Source evidence:**
-- `intravox-source/lib/Service/FeedReaderService.php` — `IClientService` injected; 5 s timeout configured on the client options.
+- `the source codebase-source/lib/Service/FeedReaderService.php` — `IClientService` injected; 5 s timeout configured on the client options.
 
 **Rationale:** Using `IClientService` instead of raw cURL ensures proxy and SSL configuration set by the Nextcloud admin is respected without any custom logic. The spec (REQ-FRJ-006) defines 10 s connect / 30 s total — we align to the spec rather than the source's 5 s to reduce false-positive timeout failures on slow corporate proxies.
 
@@ -75,7 +75,7 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 - **Match source's 15-minute `CACHE_TTL`:** The source stores in NC `ICache` with a 900-second TTL. Rejected because a shared `ICache` entry is volatile (evicted under memory pressure) and does not survive across PHP processes. Database persistence is more reliable for a background-job pattern where the widget render must always find cached data.
 
 **Source evidence:**
-- `intravox-source/lib/Service/FeedReaderService.php` — `CACHE_TTL = 900` (15 min) used with `ICacheFactory`-backed cache.
+- `the source codebase-source/lib/Service/FeedReaderService.php` — `CACHE_TTL = 900` (15 min) used with `ICacheFactory`-backed cache.
 
 **Rationale:** The proposal explicitly defines `oc_mydash_feed_cache` as the persistence layer and the 60-minute `TimedJob` interval as the refresh cadence. Database storage survives pod restarts and Redis evictions; 60 minutes is appropriate for intranet news that does not change by the minute. Admins who need fresher data can lower the interval to 5 minutes.
 

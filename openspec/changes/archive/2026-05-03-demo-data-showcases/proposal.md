@@ -65,4 +65,4 @@ The demo showcases are a self-contained feature: bundled templates, installation
 - Showcase preview images are static PNG files bundled in `appdata/demo/` — live preview is OUT of scope for v1.
 - Showcase versioning (e.g., "Marketing v2") is OUT of scope for v1; one version per showcase name.
 - Export showcase from installed dashboard back to template file is OUT of scope for v1.
-- Showcase naming, "demo-data-showcases" terminology avoids any reference to intravox, intra, or voxcloud.
+- Showcase naming, "demo-data-showcases" terminology avoids any reference to the source app, intra, or the source app.

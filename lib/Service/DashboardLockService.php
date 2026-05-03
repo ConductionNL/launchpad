@@ -5,7 +5,7 @@
  *
  * Service for managing dashboard editing locks. Implements the
  * acquire / heartbeat / release / query / force-release workflow
- * defined by REQ-LOCK-001..008. Aligned with the proven IntraVox
+ * defined by REQ-LOCK-001..008. Aligned with the proven source
  * `PageLockService` design (see openspec/changes/dashboard-locking/
  * design.md decisions D1..D6):
  *

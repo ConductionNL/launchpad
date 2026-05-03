@@ -4,7 +4,7 @@
 
 MyDash currently resolves all access control through Nextcloud's binary admin/non-admin flag and GroupFolder ACL bitmasks (READ=1, UPDATE=2, CREATE=4, DELETE=8, SHARE=16). This is sufficient for filesystem-level sharing but creates a delegation problem: an organisation that wants to empower a trusted user to manage dashboards must either grant them full Nextcloud system administration — including server configuration, user management, and app installs — or leave them with no elevated access at all.
 
-The source app the MyDash feature set is informed by has no named role concept and no role precedence system. Its `PermissionService` resolves permissions entirely from GroupFolder ACL lookups via Nextcloud's `FolderManager`. It does seed three Nextcloud groups (`IntraVox Admins`, `IntraVox Editors`, `IntraVox Users`) and assign them GroupFolder permissions, but those are plain Nextcloud groups — not an in-app role model, not stored in any app table, and not consulted by any role resolver.
+The source app the MyDash feature set is informed by has no named role concept and no role precedence system. Its `PermissionService` resolves permissions entirely from GroupFolder ACL lookups via Nextcloud's `FolderManager`. It does seed three Nextcloud groups (`the source app Admins`, `the source app Editors`, `the source app Users`) and assign them GroupFolder permissions, but those are plain Nextcloud groups — not an in-app role model, not stored in any app table, and not consulted by any role resolver.
 
 Admin-roles is therefore a net-new MyDash design with no source counterpart. It introduces three roles scoped entirely within MyDash (Dashboard Admin, Dashboard Editor, Dashboard Viewer), persistent DB-backed assignments, and a highest-privilege-wins resolution algorithm. The existing `permissions` capability is extended to consult the role system before falling back to its default GroupFolder-derived behavior.
 
@@ -34,8 +34,8 @@ The three role names deliberately echo the three groups the source app seeds (`A
 **Decision**: Admin-roles is an entirely new MyDash design. The source app has no named-role concept and resolves all permissions from the GroupFolder ACL bitmask alone.
 
 **Source evidence (what the source DOES have, for context)**:
-- `intravox-source/lib/Service/PermissionService.php:1-150` — bitmask resolver from GroupFolder ACL only (READ/UPDATE/CREATE/DELETE/SHARE). No role table, no role names, no precedence resolver.
-- `intravox-source/lib/Service/SetupService.php` — three NC groups seeded with GroupFolder permissions at install time, but they are standard Nextcloud groups, not an in-app role model. No app-level code references them by name after seeding.
+- `the source codebase-source/lib/Service/PermissionService.php:1-150` — bitmask resolver from GroupFolder ACL only (READ/UPDATE/CREATE/DELETE/SHARE). No role table, no role names, no precedence resolver.
+- `the source codebase-source/lib/Service/SetupService.php` — three NC groups seeded with GroupFolder permissions at install time, but they are standard Nextcloud groups, not an in-app role model. No app-level code references them by name after seeding.
 
 **Rationale**: The source's ACL bitmask model cannot express a "Viewer" role meaningfully — a user who owns a personal dashboard would normally have write access via GroupFolder ownership, but MyDash's Viewer role must block that. Expressing this distinction requires an in-app role layer that overrides GroupFolder-derived permissions, not a bitmask union.
 
@@ -55,7 +55,7 @@ The three role names deliberately echo the three groups the source app seeds (`A
 **Decision**: Three roles named "admin", "editor", "viewer", defined in the spec. Names match the source app's three seeded NC group names to ease customer migration recognition.
 
 **Source evidence**:
-- `intravox-source/lib/Service/SetupService.php` — seeded groups `IntraVox Admins`, `IntraVox Editors`, `IntraVox Users`.
+- `the source codebase-source/lib/Service/SetupService.php` — seeded groups `the source app Admins`, `the source app Editors`, `the source app Users`.
 
 **Rationale**: Three levels map cleanly to real organisational needs (full delegation, content delegation, read-only access) without introducing fine-grained permission combinations that require complex UI to manage. The naming alignment with the source groups is intentional UX continuity, not a technical dependency — MyDash does not read from those groups at runtime.
 

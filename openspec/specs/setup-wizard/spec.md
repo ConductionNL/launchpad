@@ -29,7 +29,7 @@ Wizard progress (per-step completion status) is derived heuristically from the s
 
 The system MUST detect whether a MyDash instance is being initialized for the first time by consulting the `mydash.setup_wizard_complete` boolean flag. When the flag is `false`, the admin section MUST display a banner prompting the admin to run the wizard.
 
-> NOTE: This is a net-new MyDash capability with no counterpart in the source app. The source ships CLI-only setup via `intravox:setup`; no frontend first-run detection, wizard route, or onboarding component exists in the source. MyDash adds this flag and banner on top of the same underlying service primitives.
+> NOTE: This is a net-new MyDash capability with no counterpart in the source app. The source ships CLI-only setup via `the source app:setup`; no frontend first-run detection, wizard route, or onboarding component exists in the source. MyDash adds this flag and banner on top of the same underlying service primitives.
 
 #### Scenario: Fresh instance shows banner
 - GIVEN a freshly installed MyDash with `mydash.setup_wizard_complete = false`

@@ -76,7 +76,7 @@ audit trail.
 deletion.
 
 ### D6: Source reference
-**Decision:** The `OrphanedDataController` from `intravox-source/lib/Controller/` is the
+**Decision:** The `OrphanedDataController` from `the source codebase-source/lib/Controller/` is the
 reference; the refactor swaps its hardcoded list for the DI-tag registry.
 **Alternatives considered:** Full rewrite ignoring source.
 **Rationale:** Reusing the HTTP scaffolding reduces risk; the registry swap is the only

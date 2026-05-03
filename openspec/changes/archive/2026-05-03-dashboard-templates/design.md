@@ -78,21 +78,21 @@ not attempt convergence.
 
 **Source evidence (what the reference implementation does, not what we are adopting):**
 
-- `intravox-source/lib/Service/SetupService.php:337-341` — `_templates` subfolder is created under
+- `the source codebase-source/lib/Service/SetupService.php:337-341` — `_templates` subfolder is created under
   each language folder (`nl/_templates/`, `en/_templates/`) during initial setup. Code:
   ```php
   $langFolder->newFolder('_templates');
   $this->logger->info("Created _templates folder in {$lang}");
   ```
-- `intravox-source/lib/Service/SetupService.php:664-699` — `migrateTemplatesFolders()` is an
+- `the source codebase-source/lib/Service/SetupService.php:664-699` — `migrateTemplatesFolders()` is an
   idempotent migration that adds `_templates/` to existing installs that lack it. Runs per language.
-- `intravox-source/lib/Service/SetupService.php:711-784` — `installDefaultTemplates()` reads
+- `the source codebase-source/lib/Service/SetupService.php:711-784` — `installDefaultTemplates()` reads
   `demo-data/templates/*.json`, creates a subfolder per template name under each language's
   `_templates/`, writes the JSON, and copies a `_media/` folder alongside it. Template identity is
   the subfolder name, not a DB row.
-- `intravox-source/lib/Service/PageService.php:564` — `navigation.json` and `footer.json` at the
+- `the source codebase-source/lib/Service/PageService.php:564` — `navigation.json` and `footer.json` at the
   language root are excluded from page listings; these are config files, not pages.
-- `intravox-source/lib/Service/PageService.php:1973` — The same exclusion is applied when scanning
+- `the source codebase-source/lib/Service/PageService.php:1973` — The same exclusion is applied when scanning
   for media: files named `navigation.json` or `footer.json` are skipped. Template membership is
   inferred from path segment (`/_templates/`), not from any field inside the JSON.
 

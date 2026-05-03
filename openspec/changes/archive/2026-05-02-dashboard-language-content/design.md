@@ -8,16 +8,16 @@ directories, JSON keys, or database rows — and does that evidence validate or 
 proposed `oc_mydash_dashboard_translations` table?
 
 Source analysis covered:
-- `intravox-source/lib/Command/MigrateToLanguageStructureCommand.php`
-- `intravox-source/lib/Command/CreateLanguageHomepagesCommand.php`
-- `intravox-source/lib/Command/CopyNavigationCommand.php`
-- `intravox-source/lib/Service/PageService.php`
-- `intravox-source/lib/Service/NavigationService.php`
-- `intravox-source/lib/Service/FooterService.php`
-- `intravox-source/lib/Service/FeedService.php`
-- `intravox-source/lib/Search/PageSearchProvider.php`
-- `intravox-source/lib/Controller/PageController.php`
-- `intravox-source/lib/Migration/Version001300Date20260420000000.php` (and three earlier migrations)
+- `the source codebase-source/lib/Command/MigrateToLanguageStructureCommand.php`
+- `the source codebase-source/lib/Command/CreateLanguageHomepagesCommand.php`
+- `the source codebase-source/lib/Command/CopyNavigationCommand.php`
+- `the source codebase-source/lib/Service/PageService.php`
+- `the source codebase-source/lib/Service/NavigationService.php`
+- `the source codebase-source/lib/Service/FooterService.php`
+- `the source codebase-source/lib/Service/FeedService.php`
+- `the source codebase-source/lib/Search/PageSearchProvider.php`
+- `the source codebase-source/lib/Controller/PageController.php`
+- `the source codebase-source/lib/Migration/Version001300Date20260420000000.php` (and three earlier migrations)
 
 ## Goals / Non-Goals
 
@@ -39,21 +39,21 @@ Source analysis covered:
 
 **Alternatives considered:**
 
-- **(a) Per-language GroupFolder directories** (`IntraVox/nl/`, `IntraVox/en/`, …). This is what the source app uses. The `MigrateToLanguageStructureCommand` moves all existing flat content into a `<targetLang>/` subdirectory and creates empty sibling language folders. The `CreateLanguageHomepagesCommand` then writes `home.json` into each `<lang>/` folder. Content is a JSON file per page, stored on the Nextcloud filesystem. This approach is wholly inappropriate for MyDash, which stores dashboard widget trees in a relational database, not as GroupFolder files.
+- **(a) Per-language GroupFolder directories** (`the source app/nl/`, `the source app/en/`, …). This is what the source app uses. The `MigrateToLanguageStructureCommand` moves all existing flat content into a `<targetLang>/` subdirectory and creates empty sibling language folders. The `CreateLanguageHomepagesCommand` then writes `home.json` into each `<lang>/` folder. Content is a JSON file per page, stored on the Nextcloud filesystem. This approach is wholly inappropriate for MyDash, which stores dashboard widget trees in a relational database, not as GroupFolder files.
 
 - **(b) Per-language keys inside one JSON blob** (e.g. `{"content": {"en": "…", "nl": "…"}}`). Not used anywhere in the source app. JSON is used inside each page file but as a flat content document, not as a multilingual container.
 
 - **(c) Separate row per language** — the spec's proposed design. Matches MyDash's existing relational storage style; enables indexed lookups by `(dashboardUuid, languageCode)` without JSON parsing.
 
-- **(d) Other**: The source app has a secondary `intravox_page_index` DB table (migration `Version001300Date20260420000000`) with a `language VARCHAR(8)` column and a `(unique_id, language)` unique index, plus `(language)` and `(language, status)` plain indexes. This is a *metadata index* over the filesystem tree — one index row per page per language. MyDash does not have a filesystem layer, so the index serves as confirmation that a `(entityId, languageCode)` composite key is the natural DB shape for multi-language data in this ecosystem.
+- **(d) Other**: The source app has a secondary `the source app_page_index` DB table (migration `Version001300Date20260420000000`) with a `language VARCHAR(8)` column and a `(unique_id, language)` unique index, plus `(language)` and `(language, status)` plain indexes. This is a *metadata index* over the filesystem tree — one index row per page per language. MyDash does not have a filesystem layer, so the index serves as confirmation that a `(entityId, languageCode)` composite key is the natural DB shape for multi-language data in this ecosystem.
 
-**Rationale**: The source app moved away from flat storage to language directories because its content unit is a filesystem file. MyDash's content unit is already a DB row. The right analogy is the source app's `intravox_page_index` table schema — one row per `(entityId, language)` with a composite unique index — not the GroupFolder directory tree. The spec's proposed table matches that shape exactly.
+**Rationale**: The source app moved away from flat storage to language directories because its content unit is a filesystem file. MyDash's content unit is already a DB row. The right analogy is the source app's `the source app_page_index` table schema — one row per `(entityId, language)` with a composite unique index — not the GroupFolder directory tree. The spec's proposed table matches that shape exactly.
 
 **Source evidence:**
-- `intravox-source/lib/Command/MigrateToLanguageStructureCommand.php:17,67–149` — migrates flat `IntraVox/` content INTO `IntraVox/<lang>/` subdirectories; proves option (a) is the source architecture but is filesystem-specific.
-- `intravox-source/lib/Command/CreateLanguageHomepagesCommand.php:47–69` — creates `IntraVox/<lang>/home.json` per language; confirms the source app's unit of language partitioning is a directory, not a DB column.
-- `intravox-source/lib/Migration/Version001300Date20260420000000.php:28–76` — `intravox_page_index` table: `language VARCHAR(8)`, `UNIQUE(unique_id, language)`, `INDEX(language)`, `INDEX(language, status)`. Confirms the DB idiom for multi-language indexing is a `(entityId, language)` composite key.
-- `intravox-source/lib/Service/PageIndexService.php:27–66` — `indexPage($pageData, $language, $path)` writes one row per `(uniqueId, language)` pair; confirms the composite-key shape.
+- `the source codebase-source/lib/Command/MigrateToLanguageStructureCommand.php:17,67–149` — migrates flat `the source app/` content INTO `the source app/<lang>/` subdirectories; proves option (a) is the source architecture but is filesystem-specific.
+- `the source codebase-source/lib/Command/CreateLanguageHomepagesCommand.php:47–69` — creates `the source app/<lang>/home.json` per language; confirms the source app's unit of language partitioning is a directory, not a DB column.
+- `the source codebase-source/lib/Migration/Version001300Date20260420000000.php:28–76` — `the source app_page_index` table: `language VARCHAR(8)`, `UNIQUE(unique_id, language)`, `INDEX(language)`, `INDEX(language, status)`. Confirms the DB idiom for multi-language indexing is a `(entityId, language)` composite key.
+- `the source codebase-source/lib/Service/PageIndexService.php:27–66` — `indexPage($pageData, $language, $path)` writes one row per `(uniqueId, language)` pair; confirms the composite-key shape.
 
 ---
 
@@ -79,13 +79,13 @@ The spec's three-tier matching — exact match → language-prefix match → pri
 | `NavigationService::getCurrentLanguage()` | `IL10N::getLanguageCode()` + `substr(…, 0, 2)` | `'nl'` |
 | `PageSearchProvider` | `IConfig::getUserValue($uid, 'core', 'lang', 'en')` (no truncation — passes full locale string to index query) | `'en'` |
 
-Note: `PageSearchProvider` passes the raw value (e.g. `nl_NL`) directly to the `intravox_page_index` search without truncation — this is likely a latent bug in the source app, not intentional.
+Note: `PageSearchProvider` passes the raw value (e.g. `nl_NL`) directly to the `the source app_page_index` search without truncation — this is likely a latent bug in the source app, not intentional.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageService.php:350–356` — canonical resolution with `explode('_', $lang)[0]`.
-- `intravox-source/lib/Service/NavigationService.php:239–246` — uses `IL10N` instead of `IConfig`; truncates via `substr(…, 0, 2)`. Default falls back to `'nl'`, not `'en'`.
-- `intravox-source/lib/Service/FeedService.php:594–599` — same pattern as PageService, default `'en'`.
-- `intravox-source/lib/Search/PageSearchProvider.php:68` — raw locale string passed without truncation (inconsistency).
+- `the source codebase-source/lib/Service/PageService.php:350–356` — canonical resolution with `explode('_', $lang)[0]`.
+- `the source codebase-source/lib/Service/NavigationService.php:239–246` — uses `IL10N` instead of `IConfig`; truncates via `substr(…, 0, 2)`. Default falls back to `'nl'`, not `'en'`.
+- `the source codebase-source/lib/Service/FeedService.php:594–599` — same pattern as PageService, default `'en'`.
+- `the source codebase-source/lib/Search/PageSearchProvider.php:68` — raw locale string passed without truncation (inconsistency).
 
 ---
 
@@ -96,21 +96,21 @@ Note: `PageSearchProvider` passes the raw value (e.g. `nl_NL`) directly to the `
 **Rationale**: The spec's current `languageCode VARCHAR(16)` column and API are open-ended (any code can be posted). The source app is the opposite. MyDash is a generic dashboard tool, so open-ended is likely correct — but this should be an explicit spec decision, not an accidental omission. The `isPrimary` fallback mechanism compensates for open-ended by ensuring an unknown locale always has a safe landing.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageService.php:40` — `private const SUPPORTED_LANGUAGES = ['nl', 'en', 'de', 'fr'];`
-- `intravox-source/lib/Command/MigrateToLanguageStructureCommand.php:17` — `private const LANGUAGE_FOLDERS = ['nl', 'en', 'de', 'fr'];`
-- `intravox-source/lib/Service/NavigationService.php:20` — same constant repeated.
+- `the source codebase-source/lib/Service/PageService.php:40` — `private const SUPPORTED_LANGUAGES = ['nl', 'en', 'de', 'fr'];`
+- `the source codebase-source/lib/Command/MigrateToLanguageStructureCommand.php:17` — `private const LANGUAGE_FOLDERS = ['nl', 'en', 'de', 'fr'];`
+- `the source codebase-source/lib/Service/NavigationService.php:20` — same constant repeated.
 
 ---
 
 ### D4: GroupFolder-based sharing has no analogue in MyDash
 
-**Decision**: The source app uses a dedicated Nextcloud system user (`intravox`) and a GroupFolder (`IntraVox/`) as the content store, with per-language subdirectories inside. Nextcloud's GroupFolder ACL controls who can see which language tree. MyDash uses its own relational tables; there is no GroupFolder involved. The spec correctly does not attempt to mirror the GroupFolder pattern.
+**Decision**: The source app uses a dedicated Nextcloud system user (`the source app`) and a GroupFolder (`the source app/`) as the content store, with per-language subdirectories inside. Nextcloud's GroupFolder ACL controls who can see which language tree. MyDash uses its own relational tables; there is no GroupFolder involved. The spec correctly does not attempt to mirror the GroupFolder pattern.
 
 The `PageController::languagePage()` route (`/en/home`, `/nl/home`) is purely a Vue.js client-side routing shim — it returns the same template for all languages. Language resolution for actual content happens inside the API (PageService/NavigationService), not at the routing layer.
 
 **Source evidence:**
-- `intravox-source/lib/Controller/PageController.php:387–397` — `languagePage()` returns the same `TemplateResponse` as `index()` with no language-specific logic.
-- `intravox-source/lib/Command/MigrateToLanguageStructureCommand.php:15–16` — hardcoded system user `'intravox'` and folder `'IntraVox'`.
+- `the source codebase-source/lib/Controller/PageController.php:387–397` — `languagePage()` returns the same `TemplateResponse` as `index()` with no language-specific logic.
+- `the source codebase-source/lib/Command/MigrateToLanguageStructureCommand.php:15–16` — hardcoded system user `'the source app'` and folder `'the source app'`.
 
 ## Spec changes implied
 

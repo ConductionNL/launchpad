@@ -4,7 +4,7 @@
 
 The proposal (proposal.md) and spec (REQ-CFLI-001..012) were written before a
 ground-truth read of the existing importer in
-`intravox-source/lib/Service/Import/`. This document records what the source
+`the source codebase-source/lib/Service/Import/`. This document records what the source
 actually does so that the spec can be corrected before implementation begins.
 
 ## Goals / Non-Goals
@@ -34,11 +34,11 @@ The index link-list is read with a bare regex (`preg_match_all`) on `href`
 attributes — no DOMDocument, no nested-`<ul>` interpretation.
 
 **Source evidence**:
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php:418-470`
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php:418-470`
   (`buildPageHierarchy`) — outer loop over files, not index structure
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php:481-517`
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php:481-517`
   (`extractPageOrderFromIndex`) — index.html parsed only for ordering
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php:526-561`
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php:526-561`
   (`extractParentFromBreadcrumb`) — breadcrumb `<ol>` is the primary hierarchy
   signal
 
@@ -67,9 +67,9 @@ Fallback: regex `/<body>(.*?)<\/body>/is` with further inline regex stripping,
 then raw HTML as last resort.
 
 **Source evidence**:
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php:288-349`
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php:288-349`
   (`extractBody`)
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php:382-403`
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php:382-403`
   (`removeUnwantedElements`)
 
 The spec (REQ-CFLI-003 scenario "Text-display widget captures page body")
@@ -106,15 +106,15 @@ which creates typed blocks (HeadingBlock, DividerBlock, CodeBlock, PanelBlock,
 ImageBlock, HtmlBlock).
 
 **Source evidence**:
-- `intravox-source/lib/Service/Import/ConfluenceImporter.php:36-41` (handler
+- `the source codebase-source/lib/Service/Import/ConfluenceImporter.php:36-41` (handler
   registration)
-- `intravox-source/lib/Service/Import/ConfluenceImporter.php:198-236`
+- `the source codebase-source/lib/Service/Import/ConfluenceImporter.php:198-236`
   (`processStorageFormatNodes` — namespace dispatch)
-- `intravox-source/lib/Service/Import/Confluence/Macros/DefaultMacroHandler.php:26-48`
-- `intravox-source/lib/Service/Import/Confluence/Macros/PanelMacroHandler.php`
-- `intravox-source/lib/Service/Import/Confluence/Macros/CodeMacroHandler.php`
-- `intravox-source/lib/Service/Import/Confluence/Macros/ExpandMacroHandler.php`
-- `intravox-source/lib/Service/Import/Confluence/Macros/AttachmentMacroHandler.php`
+- `the source codebase-source/lib/Service/Import/Confluence/Macros/DefaultMacroHandler.php:26-48`
+- `the source codebase-source/lib/Service/Import/Confluence/Macros/PanelMacroHandler.php`
+- `the source codebase-source/lib/Service/Import/Confluence/Macros/CodeMacroHandler.php`
+- `the source codebase-source/lib/Service/Import/Confluence/Macros/ExpandMacroHandler.php`
+- `the source codebase-source/lib/Service/Import/Confluence/Macros/AttachmentMacroHandler.php`
 
 Spec REQ-CFLI-006 scenario "Replace structured-macro with placeholder" describes
 `<p><em>[Macro: code not imported]</em></p>`. The real output is a
@@ -132,7 +132,7 @@ implies.
 anything to Nextcloud directly. It registers `MediaDownload` objects (URL +
 target filename + page slug) on the `IntermediateFormat`. The controller
 (`ImportController::importFromConfluenceHtml`) converts the intermediate format
-to an IntraVox `export.json`, writes it to a temp folder, creates a ZIP, and
+to an the source app `export.json`, writes it to a temp folder, creates a ZIP, and
 passes that to the existing `ImportService::import()`. Actual Nextcloud file
 operations happen inside `ImportService`, not inside the Confluence parser.
 
@@ -148,11 +148,11 @@ uploads the referenced files. The `MediaDownload` mechanism only fires for
 `<ac:image>` elements processed through the Storage Format path.
 
 **Source evidence**:
-- `intravox-source/lib/Service/Import/Confluence/Macros/AttachmentMacroHandler.php:98-139`
+- `the source codebase-source/lib/Service/Import/Confluence/Macros/AttachmentMacroHandler.php:98-139`
   (`processImageElement` — sets `$url = $filename` as placeholder)
-- `intravox-source/lib/Controller/ImportController.php:178-209`
+- `the source codebase-source/lib/Controller/ImportController.php:178-209`
   (`importFromConfluenceHtml` — no file upload, delegates to `ImportService`)
-- `intravox-source/lib/Service/Import/IntermediateFormat.php:266-275`
+- `the source codebase-source/lib/Service/Import/IntermediateFormat.php:266-275`
   (`MediaDownload` — url, targetFilename, pageSlug only)
 
 Spec REQ-CFLI-005 ("Upload attachment image to NC folder" and the
@@ -170,11 +170,11 @@ blocks. The `IntermediatePage` has a `parentUniqueId` field for hierarchy, but
 there is no `pageId→uuid` map and no pass over `<a href>` attributes.
 
 **Source evidence**:
-- `intravox-source/lib/Service/Import/ConfluenceImporter.php` — no href
+- `the source codebase-source/lib/Service/Import/ConfluenceImporter.php` — no href
   rewriting anywhere
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php` — no href
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php` — no href
   rewriting anywhere
-- `intravox-source/lib/Service/Import/IntermediateFormat.php:35-85`
+- `the source codebase-source/lib/Service/Import/IntermediateFormat.php:35-85`
   (`IntermediatePage` — no page-id map field)
 
 Spec REQ-CFLI-004 (all scenarios) describes behaviour that does not exist. The
@@ -191,15 +191,15 @@ threshold, no background job dispatch, no job-id, and no polling endpoint.
 There is also no dry-run path (no `dry-run` parameter, no flag, no separate
 endpoint).
 
-The `ImportPagesCommand` CLI command exists but operates on the IntraVox native
+The `ImportPagesCommand` CLI command exists but operates on the source native
 JSON format, not Confluence ZIP archives. There is no `occ mydash:import:confluence`
 command.
 
 **Source evidence**:
-- `intravox-source/lib/Controller/ImportController.php:127-221`
+- `the source codebase-source/lib/Controller/ImportController.php:127-221`
   (`importFromConfluenceHtml` — single synchronous path)
-- `intravox-source/lib/Command/ImportPagesCommand.php:32-44`
-  (command name `intravox:import`, no Confluence ZIP support)
+- `the source codebase-source/lib/Command/ImportPagesCommand.php:32-44`
+  (command name `the source app:import`, no Confluence ZIP support)
 
 Spec REQ-CFLI-007 (dry-run endpoint), REQ-CFLI-008 (async + polling), and
 REQ-CFLI-011 (CLI `occ mydash:import:confluence`) all describe features that
@@ -218,9 +218,9 @@ no error accumulation, and no final `errors` list in the returned
 at the controller level, returning HTTP 500 for the whole request.
 
 **Source evidence**:
-- `intravox-source/lib/Service/Import/ConfluenceHtmlImporter.php:44-72`
+- `the source codebase-source/lib/Service/Import/ConfluenceHtmlImporter.php:44-72`
   (inner loop — null-check only, no try/catch, no error list)
-- `intravox-source/lib/Controller/ImportController.php:210-219`
+- `the source codebase-source/lib/Controller/ImportController.php:210-219`
   (catch block returns 500 for any exception)
 
 Spec REQ-CFLI-009 ("single-page failures do not abort import", `errors` array
@@ -267,7 +267,7 @@ accumulator, and surfacing it in the response. The skeleton is almost there
   and error-accumulation do not. State this gap explicitly.
 
 - **REQ-CFLI-011** (CLI command): The command class does not exist. The existing
-  `ImportPagesCommand` (`intravox:import`) operates on IntraVox native format
+  `ImportPagesCommand` (`the source app:import`) operates on the source app native format
   only.
 
 ---

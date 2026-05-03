@@ -40,9 +40,9 @@ Both buckets apply regardless of which share token is targeted. This matches the
 **Rationale**: NC's `IThrottler` + `BruteForceProtection` are designed around fixed action strings and give administrators a well-understood knob. IP-global throttling reliably stops broad scanning attacks — an attacker trying many share tokens from the same IP hits the ceiling quickly. The NAT collision trade-off is real but acceptable: the threshold (60 general / 10 password per minute) is high enough that legitimate users behind shared NAT are unlikely to collide, and the attack surface for a targeted single-share brute force is limited by the BCrypt cost of password verification. Keeping v1 simple and auditable outweighs the marginal gain of per-share scoping.
 
 **Source evidence**:
-- `intravox-source/lib/Controller/PageController.php:107, 197, 271` — `#[BruteForceProtection(action: 'intravox_share_access')]` and `#[BruteForceProtection(action: 'intravox_share_password')]` — single fixed action names with no token interpolation
-- `intravox-source/lib/Controller/PageController.php:106, 196, 270` — `#[AnonRateThrottle(limit: 60, period: 60)]` (general access) and `#[AnonRateThrottle(limit: 10, period: 60)]` (password) — also IP-global
-- `intravox-source/lib/Controller/PageController.php:318-323` — `registerBruteForceAttempt()` registers the IP without any per-share scoping
+- `the source codebase-source/lib/Controller/PageController.php:107, 197, 271` — `#[BruteForceProtection(action: 'the source app_share_access')]` and `#[BruteForceProtection(action: 'the source app_share_password')]` — single fixed action names with no token interpolation
+- `the source codebase-source/lib/Controller/PageController.php:106, 196, 270` — `#[AnonRateThrottle(limit: 60, period: 60)]` (general access) and `#[AnonRateThrottle(limit: 10, period: 60)]` (password) — also IP-global
+- `the source codebase-source/lib/Controller/PageController.php:318-323` — `registerBruteForceAttempt()` registers the IP without any per-share scoping
 
 ### D2: Throttle action names — `mydash_*` prefix
 

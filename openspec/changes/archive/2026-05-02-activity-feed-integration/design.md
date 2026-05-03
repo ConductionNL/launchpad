@@ -48,7 +48,7 @@ Audience fan-out is the other area requiring deliberate design. A default-group 
 - `dashboard_role_changed` — emitted by `admin-roles`
 
 **Source evidence**:
-- `intravox-source/lib/Activity/Provider.php:43-81` — `parse()` switch handles exactly the 5 source types listed above plus `page_viewed`; any other subject throws `\InvalidArgumentException`.
+- `the source codebase-source/lib/Activity/Provider.php:43-81` — `parse()` switch handles exactly the 5 source types listed above plus `page_viewed`; any other subject throws `\InvalidArgumentException`.
 
 **Rationale**: The 13-type catalogue is a complete, non-redundant set. Each MyDash addition maps 1-to-1 to a sibling capability that already owns the domain action; adding the emission call-site there keeps responsibility co-located with the action.
 
@@ -62,7 +62,7 @@ Audience fan-out is the other area requiring deliberate design. A default-group 
 - **Match source (emit `dashboard_viewed` to Activity stream)**: rejected. Every dashboard load triggers an event; on a default-group dashboard with 1 000 users that becomes 1 000 rows per page load. Users would receive view notifications for their own dashboards on every login. The `dashboard-view-analytics` capability already captures counts in a purpose-built structure with aggregation; a parallel Activity row adds no user-visible value.
 
 **Source evidence**:
-- `intravox-source/lib/Service/AnalyticsService.php::trackPageView()` — emits to Activity AND increments analytics counters; MyDash separates these concerns into distinct capabilities.
+- `the source codebase-source/lib/Service/AnalyticsService.php::trackPageView()` — emits to Activity AND increments analytics counters; MyDash separates these concerns into distinct capabilities.
 
 **Rationale**: The Activity feed is designed for actions that other users need to react to. A view is a passive event with no required follow-up. Keeping view data in the analytics capability preserves stream signal quality and prevents inbox fatigue, particularly for widely-shared dashboards.
 

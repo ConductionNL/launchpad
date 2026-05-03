@@ -5,21 +5,21 @@
 The `dashboard-locking` proposal was written with a heartbeat/lease model in mind, including a
 frontend-generated `clientId` per browser tab, a 5-minute TTL stored as an explicit `expiresAt`
 column, and a `/heartbeat` sub-resource endpoint. Before implementation began, it was flagged that
-the IntraVox app in the same monorepo already ships a working page-lock system whose design choices
+the source app in the same monorepo already ships a working page-lock system whose design choices
 may differ significantly from those assumptions.
 
-A deep-read of the IntraVox source at tag 0.8.4 was performed to ground-truth the open question.
+A deep-read of the source source at tag 0.8.4 was performed to ground-truth the open question.
 The findings below drive the final design choices for the MyDash `DashboardLock` feature.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Align the MyDash lock model with the proven IntraVox approach where it is architecturally sound.
+- Align the MyDash lock model with the proven the source app approach where it is architecturally sound.
 - Resolve all six open sub-questions (clientId, expiresAt column, heartbeat endpoint, owner check, admin override, background sweeper) with a clear decision backed by source evidence.
 - Produce a spec-delta list so REQ-LOCK-001..008 can be updated in a single targeted edit pass.
 
 **Non-Goals:**
-- Porting the IntraVox lock system directly — MyDash locks dashboards (UUID-keyed), not wiki pages (uniqueId-keyed). The column names and routes differ.
+- Porting the source lock system directly — MyDash locks dashboards (UUID-keyed), not wiki pages (uniqueId-keyed). The column names and routes differ.
 - Deciding the frontend implementation details beyond what the backend contract requires.
 
 ## Decisions
@@ -32,7 +32,7 @@ considered active if `updated_at > now() - timeout`. There is no `expiresAt` col
 database.
 
 **Alternatives considered:**
-- Explicit `expiresAt` column (as written in the spec). Rejected by the IntraVox implementation
+- Explicit `expiresAt` column (as written in the spec). Rejected by the source implementation
   in favour of a rolling `updated_at` timestamp, which is simpler and avoids a field that must be
   recalculated on every heartbeat write.
 
@@ -43,11 +43,11 @@ migration. The `expiresAt` model would require a backfill of every live lock row
 diagnostic information.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageLockService.php:17` — `private const LOCK_TIMEOUT_MINUTES = 15;`
-- `intravox-source/lib/Service/PageLockService.php:171-180` — `cleanExpiredLock()` computes
+- `the source codebase-source/lib/Service/PageLockService.php:17` — `private const LOCK_TIMEOUT_MINUTES = 15;`
+- `the source codebase-source/lib/Service/PageLockService.php:171-180` — `cleanExpiredLock()` computes
   `$expiry = new \DateTime(); $expiry->modify('-' . self::LOCK_TIMEOUT_MINUTES . ' minutes');`
   and deletes rows where `updated_at < $expiry`, confirming there is no stored `expiresAt`.
-- `intravox-source/lib/Migration/Version001001Date20260307000000.php:54-60` — the CREATE TABLE
+- `the source codebase-source/lib/Migration/Version001001Date20260307000000.php:54-60` — the CREATE TABLE
   statement has columns `created_at` and `updated_at`, with NO `expires_at` column.
 
 **MyDash implication**: The `expiresAt` field in the spec's data model and scenario steps must be
@@ -64,9 +64,9 @@ by `userId`. The same user opening a second tab does NOT get a separate lock slo
 existing lock rather than creating a conflict.
 
 **Alternatives considered:**
-- Frontend-generated `clientId` per tab (as written in the spec). Rejected by the IntraVox
+- Frontend-generated `clientId` per tab (as written in the spec). Rejected by the source
   implementation: no such column exists in the schema or in any query.
-- Server-generated token returned to the frontend. Not present in the IntraVox implementation.
+- Server-generated token returned to the frontend. Not present in the source implementation.
 
 **Rationale**: Tab-level isolation creates usability friction (the spec itself acknowledges that
 tab-2 would be blocked by tab-1 for the same user). The re-entrant `userId`-only model is simpler
@@ -75,14 +75,14 @@ The trade-off is that heartbeat authority cannot be scoped to a single tab, but 
 edge case is negligible: any of the user's tabs can extend the lease.
 
 **Source evidence:**
-- `intravox-source/lib/Migration/Version001001Date20260307000000.php:39-65` — full column list:
+- `the source codebase-source/lib/Migration/Version001001Date20260307000000.php:39-65` — full column list:
   `id`, `page_unique_id`, `user_id`, `display_name`, `created_at`, `updated_at`. No `client_id`.
-- `intravox-source/lib/Service/PageLockService.php:63-100` — `acquireLock()` checks
+- `the source codebase-source/lib/Service/PageLockService.php:63-100` — `acquireLock()` checks
   `if ($existing['userId'] === $userId) { $this->refreshLock(); return ['success' => true]; }`,
   explicitly making same-user acquire re-entrant.
-- `intravox-source/lib/Service/PageLockService.php:106-113` — `refreshLock()` WHERE clause uses
+- `the source codebase-source/lib/Service/PageLockService.php:106-113` — `refreshLock()` WHERE clause uses
   only `page_unique_id` + `user_id`; no `client_id` predicate.
-- `intravox-source/lib/Controller/PageLockController.php:48-64` — `acquireLock()` passes only
+- `the source codebase-source/lib/Controller/PageLockController.php:48-64` — `acquireLock()` passes only
   `$user->getUID()` and `$user->getDisplayName()` to the service; no request body is parsed.
 
 **MyDash implication**: Remove the `clientId` column from the data model. Remove `clientId` from
@@ -101,7 +101,7 @@ Returns 409 if the lock was lost; 200 on success.
 
 **Alternatives considered:**
 - Dedicated `POST /api/dashboards/{uuid}/lock/heartbeat` sub-resource (as written in the spec).
-  Rejected by the IntraVox implementation, which collapses acquire, heartbeat (refresh), and
+  Rejected by the source implementation, which collapses acquire, heartbeat (refresh), and
   release onto GET/POST/PUT/DELETE of a single resource URL.
 
 **Rationale**: Using the REST verb matrix on a single URL (GET=query, POST=acquire, PUT=refresh,
@@ -109,11 +109,11 @@ DELETE=release) is clean and avoids route proliferation. The 60-second heartbeat
 15-minute TTL gives a 15× safety margin on transient network failures, which is generous.
 
 **Source evidence:**
-- `intravox-source/appinfo/routes.php:27-30` — the four verbs on `/api/pages/{pageId}/lock`:
+- `the source codebase-source/appinfo/routes.php:27-30` — the four verbs on `/api/pages/{pageId}/lock`:
   GET=`getLock`, POST=`acquireLock`, PUT=`refreshLock`, DELETE=`releaseLock`.
-- `intravox-source/src/App.vue:777-792` — `setInterval(async () => { axios.put(url); }, 60 * 1000)`
+- `the source codebase-source/src/App.vue:777-792` — `setInterval(async () => { axios.put(url); }, 60 * 1000)`
   — heartbeat every 60 seconds confirmed in a comment: `// Every 60 seconds`.
-- `intravox-source/src/App.vue:779-780` — PUT target is the same lock URL (no `/heartbeat` suffix).
+- `the source codebase-source/src/App.vue:779-780` — PUT target is the same lock URL (no `/heartbeat` suffix).
 
 **MyDash implication**: Replace `POST /api/dashboards/{uuid}/lock/heartbeat` with
 `PUT /api/dashboards/{uuid}/lock`. Update REQ-LOCK-002 route reference. Update the proposal's
@@ -132,8 +132,8 @@ Nextcloud activity system.
 
 **Alternatives considered:**
 - `force-acquire` stealing the lock for the admin (as written in the spec). Not present in
-  IntraVox — admins release the lock but do not automatically enter edit mode.
-- Nextcloud `IManager` activity logging (as in the spec). Not present in IntraVox — the
+  the source app — admins release the lock but do not automatically enter edit mode.
+- Nextcloud `IManager` activity logging (as in the spec). Not present in the source app — the
   `forceReleaseLock()` call uses `$this->logger->info(...)` (PSR logger) only.
 
 **Rationale**: Force-release is the appropriate admin action: the admin unlocks the dashboard so
@@ -143,14 +143,14 @@ PSR logger is sufficient for audit in a single-instance deployment; `IActivity` 
 added later if compliance requirements surface.
 
 **Source evidence:**
-- `intravox-source/appinfo/routes.php:31` — `'pageLock#forceReleaseLock'` at
+- `the source codebase-source/appinfo/routes.php:31` — `'pageLock#forceReleaseLock'` at
   `/api/pages/{pageId}/lock/force-release` (POST). No `force-acquire` route exists.
-- `intravox-source/lib/Controller/PageLockController.php:114-126` — `forceReleaseLock()` calls
+- `the source codebase-source/lib/Controller/PageLockController.php:114-126` — `forceReleaseLock()` calls
   `$this->lockService->forceReleaseLock($pageId, $user->getUID())` and checks
   `$this->permissionService->isAdmin()` for the guard.
-- `intravox-source/lib/Service/PageLockService.php:137-153` — `forceReleaseLock()` deletes the
+- `the source codebase-source/lib/Service/PageLockService.php:137-153` — `forceReleaseLock()` deletes the
   row and logs via `$this->logger->info(...)`. No `OCP\Activity\IManager` import in the file.
-- `intravox-source/src/App.vue:828-835` — frontend calls `axios.post(url)` to the
+- `the source codebase-source/src/App.vue:828-835` — frontend calls `axios.post(url)` to the
   `force-release` endpoint; the admin then sees the lock indicator clear from the UI, after which
   they may enter edit mode themselves via the normal acquire path.
 
@@ -170,9 +170,9 @@ via a `cleanExpiredLock(pageId)` helper that deletes only the row for the reques
 is no global background sweeper or Nextcloud background job.
 
 **Alternatives considered:**
-- A Nextcloud `IJob` background sweeper (not present in IntraVox, though an `updated_at` index
+- A Nextcloud `IJob` background sweeper (not present in the source app, though an `updated_at` index
   exists that would make such a sweep efficient).
-- Leaving stale rows in place and filtering them by timestamp on SELECT (hybrid — IntraVox does
+- Leaving stale rows in place and filtering them by timestamp on SELECT (hybrid — the source app does
   clean them inline rather than relying on filter-only).
 
 **Rationale**: Inline cleanup is safe and predictable: the resource is clean by the time any user
@@ -181,15 +181,15 @@ then crashed without release. The `updated_at` index ensures the DELETE is fast 
 stale rows accumulate between accesses.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageLockService.php:30-33` — `getLock()` calls
+- `the source codebase-source/lib/Service/PageLockService.php:30-33` — `getLock()` calls
   `$this->cleanExpiredLock($pageUniqueId)` as its first line.
-- `intravox-source/lib/Service/PageLockService.php:63-64` — `acquireLock()` also calls
+- `the source codebase-source/lib/Service/PageLockService.php:63-64` — `acquireLock()` also calls
   `$this->cleanExpiredLock($pageUniqueId)` before checking for an existing lock.
-- `intravox-source/lib/Service/PageLockService.php:171-180` — `cleanExpiredLock()` issues a
+- `the source codebase-source/lib/Service/PageLockService.php:171-180` — `cleanExpiredLock()` issues a
   targeted `DELETE WHERE page_unique_id = ? AND updated_at < ?` (not a full-table sweep).
-- `intravox-source/lib/Migration/Version001001Date20260307000000.php:65` — `addIndex(['updated_at'],
+- `the source codebase-source/lib/Migration/Version001001Date20260307000000.php:65` — `addIndex(['updated_at'],
   'iv_pl_updated')` — the index exists to keep the cleanup DELETE fast.
-- No `IJob` or `BackgroundJob` subclass found anywhere in the IntraVox `lib/` tree.
+- No `IJob` or `BackgroundJob` subclass found anywhere in the source `lib/` tree.
 
 **MyDash implication**: The spec's current note "no background sweeper required for correctness,
 though a separate orphaned-data-cleanup spec may purge them" is directionally correct but should be
@@ -201,17 +201,17 @@ both `getLockState()` and `acquireLock()`.
 
 ### D6: TTL constant — 15 minutes, not 5 minutes
 
-**Decision**: Align the default TTL with the IntraVox implementation: 15 minutes, not the 5 minutes
+**Decision**: Align the default TTL with the source implementation: 15 minutes, not the 5 minutes
 written in the spec.
 
 **Rationale**: A 60-second heartbeat against a 5-minute TTL gives only a 5× safety margin; a
-single slow-loading page or 2G network blip could cause accidental expiry. The IntraVox choice of
+single slow-loading page or 2G network blip could cause accidental expiry. The the source app choice of
 15 minutes against 60-second heartbeats (15× margin) is more robust for real users. This also
 reduces false-positive lock-lost alerts in the UI.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageLockService.php:17` — `private const LOCK_TIMEOUT_MINUTES = 15;`
-- `intravox-source/src/App.vue:768` — comment `// Best effort — lock will auto-expire after 15 min`
+- `the source codebase-source/lib/Service/PageLockService.php:17` — `private const LOCK_TIMEOUT_MINUTES = 15;`
+- `the source codebase-source/src/App.vue:768` — comment `// Best effort — lock will auto-expire after 15 min`
 
 **MyDash implication**: Change all spec scenario times from "5 minutes / 300 seconds" to
 "15 minutes / 900 seconds". Update the heartbeat cadence note to "every 60 seconds (15× safety
@@ -221,7 +221,7 @@ margin)".
 
 ## Schema — Resolved Column Set
 
-Based on the IntraVox migration (ground-truth), the `oc_mydash_dashboard_locks` table MUST have:
+Based on the source migration (ground-truth), the `oc_mydash_dashboard_locks` table MUST have:
 
 | Column | Type | Notes |
 |---|---|---|
@@ -260,5 +260,5 @@ The following changes to `specs/dashboard-locking/spec.md` are implied by these 
 1. **Re-entrant same-user acquire UX**: With no `clientId`, the second tab for the same user now gets HTTP 200 (re-entrant) — the frontend must still detect "I'm already editing in another tab" and show an appropriate warning. Mechanism: the frontend can store the `acquiredAt` timestamp; if acquire returns 200 but `acquiredAt` is older than what this tab set, another tab must hold it. Or simply: always show "You may be editing in another tab" on acquire-200 if the tab is freshly opened. Needs a frontend UX decision.
 2. **`force-release` notification to evicted user**: When an admin force-releases a lock, the locked-out user's editor continues heartbeating. On the next PUT (within 60s), the heartbeat returns 409 (lock gone or held by new owner), triggering the "Your edit lock has expired" alert. This is acceptable but could be improved with a push notification via Nextcloud notification API. Defer to a follow-up.
 3. **Background sweeper for orphaned rows**: Inline cleanup handles rows on active dashboards. Locks on dashboards that are never visited after a browser crash will linger until someone opens that dashboard. The `updated_at` index makes a periodic `DELETE WHERE updated_at < now() - 15min` sweep trivially cheap. Wire a Nextcloud background job in a follow-up to prevent unbounded table growth.
-4. **Cascade on dashboard delete (REQ-LOCK-008)**: IntraVox does not have a cascade example (pages are not deleted the same way). Confirm whether MyDash's `DashboardMapper::delete()` should call `DashboardLockMapper::deleteByDashboardUuid()` explicitly in the service layer, or whether a DB-level ON DELETE CASCADE should be used. Note that Nextcloud's migration framework supports foreign keys on MySQL/Postgres but not SQLite; an application-layer cascade in `DashboardService::delete()` is safer.
-5. **Localization of heartbeat error messages**: The IntraVox frontend uses `this.t(...)` for error messages but the backend returns plain English strings. Ensure MyDash backend returns translatable error codes (not prose) so the frontend can show localized strings matching the i18n spec.
+4. **Cascade on dashboard delete (REQ-LOCK-008)**: the source app does not have a cascade example (pages are not deleted the same way). Confirm whether MyDash's `DashboardMapper::delete()` should call `DashboardLockMapper::deleteByDashboardUuid()` explicitly in the service layer, or whether a DB-level ON DELETE CASCADE should be used. Note that Nextcloud's migration framework supports foreign keys on MySQL/Postgres but not SQLite; an application-layer cascade in `DashboardService::delete()` is safer.
+5. **Localization of heartbeat error messages**: The the source app frontend uses `this.t(...)` for error messages but the backend returns plain English strings. Ensure MyDash backend returns translatable error codes (not prose) so the frontend can show localized strings matching the i18n spec.

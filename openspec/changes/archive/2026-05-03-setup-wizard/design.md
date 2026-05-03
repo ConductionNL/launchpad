@@ -2,7 +2,7 @@
 
 ## Context
 
-The source app ships a CLI-only setup flow: `occ intravox:setup [--language=nl] [--skip-demo] [--force-demo]`. The underlying `SetupService` creates a GroupFolder, configures three Nextcloud groups, sets folder permissions, and optionally seeds demo data. No HTTP endpoint, no Vue component, and no first-run detection flag exist in the source. `SetupService::migrateTemplatesFolders()` handles brownfield installs but is likewise CLI-driven.
+The source app ships a CLI-only setup flow: `occ the source app:setup [--language=nl] [--skip-demo] [--force-demo]`. The underlying `SetupService` creates a GroupFolder, configures three Nextcloud groups, sets folder permissions, and optionally seeds demo data. No HTTP endpoint, no Vue component, and no first-run detection flag exist in the source. `SetupService::migrateTemplatesFolders()` handles brownfield installs but is likewise CLI-driven.
 
 The setup wizard defined in this spec is an entirely new MyDash invention. Non-CLI administrators — the majority of self-hosted customers — have no guided path through the suite of configuration decisions that a healthy intranet requires: storage backend, group routing order, demo data, admin role assignment, and footer customization. Today they navigate five separate admin sections in isolation with no indication of what a proper setup sequence looks like.
 
@@ -37,9 +37,9 @@ The source CLI pattern is adopted as the model for a parallel `occ mydash:setup`
 **Decision**: The 7-step wizard is an entirely new MyDash design. The source app ships CLI-only setup. MyDash adds the frontend flow on top of the same underlying service primitives.
 
 **Source evidence (what the source has)**:
-- `intravox-source/lib/Command/SetupCommand.php` — CLI: `intravox:setup` with `--language`, `--skip-demo`, `--force-demo` flags
-- `intravox-source/lib/Service/SetupService.php:1-80` — creates GroupFolder, configures groups, seeds demo data
-- `intravox-source/lib/AppInfo/Application.php` — no `IInitialState` flag, no wizard route, no onboarding component registered
+- `the source codebase-source/lib/Command/SetupCommand.php` — CLI: `the source app:setup` with `--language`, `--skip-demo`, `--force-demo` flags
+- `the source codebase-source/lib/Service/SetupService.php:1-80` — creates GroupFolder, configures groups, seeds demo data
+- `the source codebase-source/lib/AppInfo/Application.php` — no `IInitialState` flag, no wizard route, no onboarding component registered
 
 **Rationale**: The frontend wizard reduces setup friction for admins who don't use OCC. The CLI command remains available and is the appropriate tool for IaC and scripted installs. Both surfaces co-exist; neither replaces the other.
 
@@ -88,7 +88,7 @@ All five sibling slugs exist in `openspec/changes/` and are confirmed present.
 **Decision**: A `php occ mydash:setup --config=<yaml>` command defined in the `cli-commands` sibling spec executes the equivalent flow non-interactively from a YAML file. The command calls the same service methods as the wizard steps and sets `setup_wizard_complete = true` on success.
 
 **Source evidence**:
-- `intravox-source/lib/Command/SetupCommand.php` — CLI pattern to model (flag names, OCC registration, console output conventions)
+- `the source codebase-source/lib/Command/SetupCommand.php` — CLI pattern to model (flag names, OCC registration, console output conventions)
 
 **Rationale**: CLI parity makes MyDash deployable via Ansible, Docker init scripts, and other IaC tooling without requiring a browser session. The YAML config schema covers all five configurable steps; optional steps may be omitted.
 
@@ -106,7 +106,7 @@ All five sibling slugs exist in `openspec/changes/` and are confirmed present.
 
 ## Spec changes implied
 
-- Add a NOTE to REQ-WIZ-001 confirming this is a net-new MyDash capability with no source counterpart; the source ships CLI-only via `intravox:setup`.
+- Add a NOTE to REQ-WIZ-001 confirming this is a net-new MyDash capability with no source counterpart; the source ships CLI-only via `the source app:setup`.
 - REQ-WIZ-002 (7 steps): add a NOTE pinning the embed pattern from D3 — wizard embeds canonical sibling admin UI, does not duplicate it.
 - REQ-WIZ-010 (CLI): cross-reference the `cli-commands` sibling spec and note that the YAML config schema covers all five configurable steps; optional steps may be omitted.
 - REQ-WIZ-008 (auto-launch): the existing scenario already uses "MAY" — add a NOTE clarifying this is intentionally SHOULD/MAY to avoid breaking mid-setup CLI installs.

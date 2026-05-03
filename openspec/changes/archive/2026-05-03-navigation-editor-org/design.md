@@ -29,16 +29,16 @@ examining how the reference intranet product actually stores and serves its navi
 inside a dedicated GroupFolder path, one file per language. Do **not** use a monolithic app-config key.
 
 **Source evidence:**
-- `intravox-source/lib/Service/NavigationService.php:44–91` — `getNavigation()` opens
-  `IntraVox/{lang}/navigation.json` from the user's mounted GroupFolder view.
-- `intravox-source/lib/Service/NavigationService.php:122–143` — `saveNavigation()` writes or
+- `the source codebase-source/lib/Service/NavigationService.php:44–91` — `getNavigation()` opens
+  `the source app/{lang}/navigation.json` from the user's mounted GroupFolder view.
+- `the source codebase-source/lib/Service/NavigationService.php:122–143` — `saveNavigation()` writes or
   creates `navigation.json` in the language folder via `file->putContent()`.
-- `intravox-source/lib/Service/SystemFileService.php:29` — fallback reads the same JSON file at
+- `the source codebase-source/lib/Service/SystemFileService.php:29` — fallback reads the same JSON file at
   up to 5 MB; `ALLOWED_SHARED_FILES = ['navigation.json', 'footer.json']`.
-- `intravox-source/lib/Controller/NavigationController.php:51–103` — single `GET /api/navigation`
+- `the source codebase-source/lib/Controller/NavigationController.php:51–103` — single `GET /api/navigation`
   reads the file; no DB or app-config call anywhere in the call chain.
-- `intravox-source/lib/Migration/` — no migration creates a `navigation` table. The two DB tables
-  that do exist (`intravox_lms_tokens` from Version001200, `intravox_page_index` from Version001300)
+- `the source codebase-source/lib/Migration/` — no migration creates a `navigation` table. The two DB tables
+  that do exist (`the source app_lms_tokens` from Version001200, `the source app_page_index` from Version001300)
   serve OAuth tokens and a page-metadata search index, respectively.
 
 **Implication for MyDash:** The spec's `mydash.org_navigation_tree` Nextcloud app-config key and
@@ -54,13 +54,13 @@ wholesale-replace per file write, but the file itself is not bounded by the 64 K
 ### D2: Per-language navigation
 
 **Decision:** Separate `navigation.json` file per language under a language subfolder
-(`IntraVox/{lang}/navigation.json`). Languages supported: `nl`, `en`, `de`, `fr`.
+(`the source app/{lang}/navigation.json`). Languages supported: `nl`, `en`, `de`, `fr`.
 
 **Source evidence:**
-- `intravox-source/lib/Service/NavigationService.php:20` — `SUPPORTED_LANGUAGES = ['nl', 'en', 'de', 'fr']`
-- `intravox-source/lib/Service/NavigationService.php:220–233` — `getLanguageFolder()` navigates
-  to `IntraVox/{lang}/`; creates the folder if absent.
-- `intravox-source/lib/Command/CopyNavigationCommand.php:15–138` — `intravox:copy-navigation`
+- `the source codebase-source/lib/Service/NavigationService.php:20` — `SUPPORTED_LANGUAGES = ['nl', 'en', 'de', 'fr']`
+- `the source codebase-source/lib/Service/NavigationService.php:220–233` — `getLanguageFolder()` navigates
+  to `the source app/{lang}/`; creates the folder if absent.
+- `the source codebase-source/lib/Command/CopyNavigationCommand.php:15–138` — `the source app:copy-navigation`
   copies one language's JSON file to another. Arguments are `source` and `target` language codes
   (or `all`). This proves trees are independent per-language files, not a single tree with
   language tags embedded in node objects.
@@ -81,12 +81,12 @@ implementation. Filtering is done by file-system ACL (GroupFolder read permissio
 per-node group arrays.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PermissionService.php:535–582` — `filterNavigation()` checks
+- `the source codebase-source/lib/Service/PermissionService.php:535–582` — `filterNavigation()` checks
   whether the user can read the page the nav item points to (`canRead($pagePath)`), using
   Nextcloud's native filesystem ACL. There is no `groupVisibility` field in the node schema.
-- `intravox-source/lib/Service/NavigationService.php:180–196` — validated node schema has fields:
+- `the source codebase-source/lib/Service/NavigationService.php:180–196` — validated node schema has fields:
   `id`, `title`, `uniqueId`, `url`, `target`, `children`. No `groupVisibility` field.
-- The `intravox_page_index` table (`parent_id`, `unique_id`, `language`, `path`, `status`) also
+- The `the source app_page_index` table (`parent_id`, `unique_id`, `language`, `path`, `status`) also
   has no group-visibility column.
 
 **Implication for MyDash:** The spec's `groupVisibility: ["g1","g2"]` per-node array field is a
@@ -106,12 +106,12 @@ No join table is needed; the array-per-node approach is correct for file-based s
 effect to a PUT-replace. The reference source does not expose per-node CRUD endpoints.
 
 **Source evidence:**
-- `intravox-source/appinfo/routes.php:57–58`:
+- `the source codebase-source/appinfo/routes.php:57–58`:
   ```
   ['name' => 'navigation#get',  'url' => '/api/navigation', 'verb' => 'GET'],
   ['name' => 'navigation#save', 'url' => '/api/navigation', 'verb' => 'POST'],
   ```
-- `intravox-source/lib/Controller/NavigationController.php:109–138` — `save()` accepts the
+- `the source codebase-source/lib/Controller/NavigationController.php:109–138` — `save()` accepts the
   entire navigation object and calls `saveNavigation()` which overwrites `navigation.json`.
 - No PATCH, no per-node PUT, no DELETE by id.
 
@@ -127,10 +127,10 @@ size is bounded only by practical tree size (hundreds of nodes are well under 1 
 block).
 
 **Source evidence:**
-- `intravox-source/lib/Service/NavigationService.php:166–197` — `validateNavigationItems()` takes
+- `the source codebase-source/lib/Service/NavigationService.php:166–197` — `validateNavigationItems()` takes
   a `$level` argument; silently returns `[]` when `$level > 3`; recursion stops at `$level < 3`
   for children. No HTTP 400 — excess depth is silently discarded.
-- `intravox-source/src/components/NavigationItem.vue:80` — `v-if="level < 3"` hides the
+- `the source codebase-source/src/components/NavigationItem.vue:80` — `v-if="level < 3"` hides the
   "Add sub-item" button at level 3 in the editor.
 
 **Implication for MyDash:** The spec's REQ-ONAV-003 returns HTTP 400 on depth violation — that is
@@ -146,10 +146,10 @@ depth guard (`v-if="level < 3"`) matches REQ-ONAV-007 exactly.
 node's URL or `uniqueId` hash.
 
 **Source evidence:**
-- `intravox-source/lib/Controller/NavigationController.php` — response contains `navigation`
+- `the source codebase-source/lib/Controller/NavigationController.php` — response contains `navigation`
   (tree), `canEdit`, `language`, `permissions`. No `activeNodeId` or server-side resolved active
   flag.
-- `intravox-source/src/components/Navigation.vue:330–364` — `getItemKey()` and `getItemUrl()`
+- `the source codebase-source/src/components/Navigation.vue:330–364` — `getItemKey()` and `getItemUrl()`
   derive the key from `uniqueId` or a slug; click handlers call `$emit('navigate', item)`.
   Active item tracking (`activeDropdown`, `activeMegaMenu`) is local component state for
   hover/focus, not a URL-match-based active class.
@@ -166,10 +166,10 @@ CSS class) is **confirmed correct**. Nothing needs to change.
 and `v-if` driven, not a separate component or route.
 
 **Source evidence:**
-- `intravox-source/src/components/Navigation.vue:11–82` — `<!-- Mobile hamburger menu -->` block
+- `the source codebase-source/src/components/Navigation.vue:11–82` — `<!-- Mobile hamburger menu -->` block
   with `mobile-nav`, `mobile-nav-level-2`, `mobile-nav-level-3`, `mobile-nav-level-4` CSS classes.
   The desktop dropdown/megamenu is a sibling block in the same template.
-- `intravox-source/src/components/Navigation.vue:489–530` — CSS defines `.mobile-nav` and indent
+- `the source codebase-source/src/components/Navigation.vue:489–530` — CSS defines `.mobile-nav` and indent
   classes. No responsive breakpoint JS; toggling is via Vue `data` state (`mobileExpandedItems`).
 
 **Implication for MyDash:** REQ-ONAV-010's 800 px breakpoint + hamburger/drawer is correct in

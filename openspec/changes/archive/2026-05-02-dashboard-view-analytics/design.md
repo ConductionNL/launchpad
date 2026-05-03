@@ -4,9 +4,9 @@
 
 MyDash currently has no way to track which dashboards are being used. This change adds aggregate, privacy-preserving view counts per dashboard (daily buckets) with admin query endpoints and a Vue frontend instrumentation layer. The capability is defined in `dashboard-view-analytics/spec.md` as REQ-ANLT-001 through REQ-ANLT-011.
 
-The source this feature is ported from uses a static hash strategy: `hash('sha256', $userId . $config->getSystemValue('secret', ''))` (see `intravox-source/lib/Service/AnalyticsService.php:288-291`). The Nextcloud instance secret is never rotated, meaning the same user always produces the same hash for all time. The "daily boundary" in the source comes from a `view_date = today()` composite key in an `intravox_uv` table — not from any salt rotation.
+The source this feature is ported from uses a static hash strategy: `hash('sha256', $userId . $config->getSystemValue('secret', ''))` (see `the source codebase-source/lib/Service/AnalyticsService.php:288-291`). The Nextcloud instance secret is never rotated, meaning the same user always produces the same hash for all time. The "daily boundary" in the source comes from a `view_date = today()` composite key in an `the source app_uv` table — not from any salt rotation.
 
-This creates a meaningful privacy risk: if the `intravox_uv` table (or its equivalent) were ever leaked, a party who learns the static salt could re-identify which user hash corresponds to which user across years of stored rows. For an analytics feature that explicitly advertises privacy preservation, that is an unacceptable residual risk.
+This creates a meaningful privacy risk: if the `the source app_uv` table (or its equivalent) were ever leaked, a party who learns the static salt could re-identify which user hash corresponds to which user across years of stored rows. For an analytics feature that explicitly advertises privacy preservation, that is an unacceptable residual risk.
 
 MyDash diverges from the source on this point deliberately. The daily boundary the source achieves through `view_date` is preserved — but the hash is made non-static by rotating the salt each UTC day and keeping no salt history. This means cross-day re-identification from the database alone becomes computationally infeasible.
 
@@ -41,8 +41,8 @@ MyDash diverges from the source on this point deliberately. The daily boundary t
 
 **Source evidence (what the source does, not what we adopt)**:
 
-- `intravox-source/lib/Service/AnalyticsService.php:288-291` — `hashUserId()` uses static `config.secret` as the salt.
-- `intravox-source/lib/Service/AnalyticsService.php:296-306` — `trackUserView()` inserts into `intravox_uv` with `(page_id, user_hash, view_date)`; uniqueness boundary is the `view_date` column, not salt rotation.
+- `the source codebase-source/lib/Service/AnalyticsService.php:288-291` — `hashUserId()` uses static `config.secret` as the salt.
+- `the source codebase-source/lib/Service/AnalyticsService.php:296-306` — `trackUserView()` inserts into `the source app_uv` with `(page_id, user_hash, view_date)`; uniqueness boundary is the `view_date` column, not salt rotation.
 
 **Rationale**: The daily boundary for unique-viewer counting is retained (one count per user per dashboard per UTC day) but the mechanism shifts to salt rotation instead of a stored uv row. Admins viewing "last 7 days" or "last 30 days" aggregates do not need cross-day user correlation — they need accurate daily counts. The cost (no ability to identify if the same physical user appeared on both 2026-05-01 and 2026-05-02) is accepted as a privacy feature, not a limitation.
 
@@ -58,11 +58,11 @@ MyDash diverges from the source on this point deliberately. The daily boundary t
 
 **Alternatives considered:**
 
-- **Match source: separate `oc_mydash_dashboard_view_log` (or `intravox_uv`-equivalent) table**: Rejected. Keeping per-event rows (even hashed) creates a long-lived table whose rows are individually attributable within a day's salt window. The cache-based approach gives identical dedup semantics with no residual per-user rows in the database.
+- **Match source: separate `oc_mydash_dashboard_view_log` (or `the source app_uv`-equivalent) table**: Rejected. Keeping per-event rows (even hashed) creates a long-lived table whose rows are individually attributable within a day's salt window. The cache-based approach gives identical dedup semantics with no residual per-user rows in the database.
 
 **Source evidence**:
 
-- `intravox-source/lib/Service/AnalyticsService.php:44-46` — source has both `intravox_uv` (per-event uv log) and `intravox_page_stats` (aggregate). We collapse this to one aggregate table + cache.
+- `the source codebase-source/lib/Service/AnalyticsService.php:44-46` — source has both `the source app_uv` (per-event uv log) and `the source app_page_stats` (aggregate). We collapse this to one aggregate table + cache.
 
 **Rationale**: Aggregate rows are the only data needed for every admin query endpoint. Cache-based dedup is cheaper than a DB insert-or-ignore per view event and leaves no hashes at rest. The cache is ephemeral by design — it does not survive process restarts longer than its TTL, which is acceptable because a restart mid-day may cause a small uniqueViewerCount undercount for that day.
 

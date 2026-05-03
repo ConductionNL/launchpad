@@ -41,9 +41,9 @@ A related question is whether to introduce a **soft-delete grace period** at thi
 **Rationale:** Hard delete keeps the implementation lean and matches the proven source behaviour, while flipping the dangerous default to `cascade=false` eliminates the most common catastrophic misclick. This is consistent with `dashboard-tree`'s existing pattern where operations that recurse into children require an explicit `?cascade=true` signal. The HTTP 409 response gives the admin a clear pause point before proceeding with a broader operation.
 
 **Source evidence:**
-- `intravox-source/lib/Service/BulkOperationService.php:97-130` — `bulkDelete()` iterates IDs and delegates to `deletePage()` per dashboard.
-- `intravox-source/lib/Service/PageService.php:1675,1712` — `deletePage()` calls `$result['folder']->delete()` on the NC filesystem node; hard delete with no soft-delete flag.
-- `intravox-source/lib/Controller/BulkController.php:100-135` — `deletePages()` accepts `deleteChildren` (default `true`); this default is the risky behaviour we are changing.
+- `the source codebase-source/lib/Service/BulkOperationService.php:97-130` — `bulkDelete()` iterates IDs and delegates to `deletePage()` per dashboard.
+- `the source codebase-source/lib/Service/PageService.php:1675,1712` — `deletePage()` calls `$result['folder']->delete()` on the NC filesystem node; hard delete with no soft-delete flag.
+- `the source codebase-source/lib/Controller/BulkController.php:100-135` — `deletePages()` accepts `deleteChildren` (default `true`); this default is the risky behaviour we are changing.
 
 ---
 
@@ -60,7 +60,7 @@ A related question is whether to introduce a **soft-delete grace period** at thi
 **Decision:** Each dashboard's mutation runs in its own database transaction. Partial failure (one dashboard fails) is reported in the response `errors` array and processing continues with the remaining UUIDs. The batch is not all-or-nothing at the mutation level — only the permission pre-check is (see D4).
 
 **Source evidence:**
-- `intravox-source/lib/Service/BulkOperationService.php:97-130` — per-page iteration with continue-on-error semantics; no wrapping transaction across the whole batch.
+- `the source codebase-source/lib/Service/BulkOperationService.php:97-130` — per-page iteration with continue-on-error semantics; no wrapping transaction across the whole batch.
 
 **Rationale:** Continue-on-error semantics let large-batch cleanup operations make progress even when a small number of dashboards have transient errors. All-or-nothing batch transactions would cause large operations to fail silently on any foreign-key hiccup. The caller is responsible for inspecting the `errors` array and retrying failed UUIDs.
 
@@ -79,7 +79,7 @@ A related question is whether to introduce a **soft-delete grace period** at thi
 **Decision:** Match the source. Apply `#[UserRateThrottle(limit: 5, period: 60)]` to all four bulk endpoints.
 
 **Source evidence:**
-- `intravox-source/lib/Controller/BulkController.php:100` — `#[UserRateThrottle(limit: 5, period: 60)]`.
+- `the source codebase-source/lib/Controller/BulkController.php:100` — `#[UserRateThrottle(limit: 5, period: 60)]`.
 
 **Rationale:** Five batch requests per minute allows rapid interactive use while preventing a runaway script from overwhelming the database with back-to-back 500-item batches.
 

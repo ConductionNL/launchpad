@@ -5,7 +5,7 @@
  *
  * Removes Nextcloud comments attached to the deleted dashboard via
  * `ICommentsManager::deleteCommentsAtObject()`. This is the one
- * listener whose pattern is directly carried over from the IntraVox
+ * listener whose pattern is directly carried over from the source
  * reference implementation. Stub registered as part of the
  * cascade-events scaffolding; the live ICommentsManager wiring is
  * filled in by the dashboard-comments follow-up. REQ-CSC-003.

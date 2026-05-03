@@ -7,8 +7,8 @@ NC `ICommentsManager` delegation model, `mydash_dashboard` object type, one-leve
 and admin + per-dashboard toggle. Sibling spec `dashboard-cascade-events` owns the
 `DashboardDeletedEvent → ICommentsManager::deleteCommentsAtObject` call — not duplicated here.
 
-Source confirms the approach: `intravox-source/lib/Controller/CommentController.php` and
-`intravox-source/lib/Listener/CommentsEntityListener.php` both use `\OCP\Comments\ICommentsManager`
+Source confirms the approach: `the source codebase-source/lib/Controller/CommentController.php` and
+`the source codebase-source/lib/Listener/CommentsEntityListener.php` both use `\OCP\Comments\ICommentsManager`
 directly with no custom comment table. We match this. This design documents object-type binding,
 depth enforcement, NC hooks, and toggle precedence.
 
@@ -30,7 +30,7 @@ depth enforcement, NC hooks, and toggle precedence.
 
 ### D1: Storage delegation to NC ICommentsManager
 **Decision**: All comment persistence via `\OCP\Comments\ICommentsManager`; no `oc_mydash_comments` table.
-**Source evidence**: `intravox-source/lib/Controller/CommentController.php:~30-80` — all reads/writes
+**Source evidence**: `the source codebase-source/lib/Controller/CommentController.php:~30-80` — all reads/writes
 through injected `ICommentsManager`; no custom DB mapper.
 **Alternatives considered**: Own table — rejected; loses NC activity feed, @-mention notifications,
 and unread-count badge at zero cost.
@@ -38,7 +38,7 @@ and unread-count badge at zero cost.
 
 ### D2: Object-type binding
 **Decision**: Object type string is `mydash_dashboard`; object ID is the dashboard UUID.
-**Source evidence**: `intravox-source/lib/Listener/CommentsEntityListener.php:~15` — uses
+**Source evidence**: `the source codebase-source/lib/Listener/CommentsEntityListener.php:~15` — uses
 `'page'` as object type; we use `mydash_dashboard` to avoid collision with other NC apps.
 **Alternatives considered**:
 - `files` object type sharing — rejected; semantically wrong, would pollute file comment queries
@@ -56,7 +56,7 @@ activity feed and notification emails.
 ### D4: One-level-deep threading enforcement
 **Decision**: `CommentController::create()` validates: if `parentId` is set, fetch the parent
 comment and reject (HTTP 422 `thread_depth_exceeded`) if `parent.parentId IS NOT NULL`.
-**Source evidence**: `intravox-source/lib/Controller/CommentController.php:~95` — depth check
+**Source evidence**: `the source codebase-source/lib/Controller/CommentController.php:~95` — depth check
 is explicit, not delegated to `ICommentsManager` (which allows arbitrary depth).
 **Alternatives considered**:
 - Allow arbitrary depth and prune at read — rejected; inconsistent write state is confusing

@@ -10,7 +10,7 @@ existed. After the change, dashboards begin life as `draft`, are promoted to
 non-owners until published.
 
 The reference source implements the same concept for pages: a new index table
-(`intravox_page_index`) carries a `status` column, pages without a `status` key in
+(`the source app_page_index`) carries a `status` column, pages without a `status` key in
 their JSON resolve to `'published'` at index time, and new template copies are
 seeded as `'draft'`. This design.md confirms where MyDash follows that pattern
 exactly, where it diverges intentionally (column-as-source-of-truth vs.
@@ -52,11 +52,11 @@ by the database engine. New dashboards created after the migration default to
 the column default.
 
 **Source evidence:**
-- `intravox-source/lib/Migration/Version001300Date20260420000000.php:43-47` — the
-  `intravox_page_index.status` column is declared with `default: 'published'`. The
+- `the source codebase-source/lib/Migration/Version001300Date20260420000000.php:43-47` — the
+  `the source app_page_index.status` column is declared with `default: 'published'`. The
   table itself is new in that migration, so there are no pre-existing rows requiring
   an UPDATE; existing pages are picked up on the next incremental re-index.
-- `intravox-source/lib/Service/PageIndexService.php:39, 57` — when indexing a page,
+- `the source codebase-source/lib/Service/PageIndexService.php:39, 57` — when indexing a page,
   status is read as `$pageData['status'] ?? 'published'`; pages without a status
   key in their JSON are treated as published at index time.
 
@@ -84,9 +84,9 @@ created via the `basedOnTemplate` flow (in `TemplateService::createDashboardFrom
 MUST also receive `publicationStatus = 'draft'` before first save.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageService.php:6029` — template copies are seeded as
+- `the source codebase-source/lib/Service/PageService.php:6029` — template copies are seeded as
   `'draft'` via `$pageData['status'] = 'draft'` before any persistence call.
-- `intravox-source/lib/Service/PageService.php:2056-2057` — the service validates
+- `the source codebase-source/lib/Service/PageService.php:2056-2057` — the service validates
   that `status` is one of `'draft'` or `'published'` at write time; `'scheduled'` is
   a MyDash addition not present in the source.
 
@@ -112,7 +112,7 @@ into widgetTree JSON is required or permitted.
   divergence risk between the two copies.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PageIndexService.php:39, 57` — source explicitly
+- `the source codebase-source/lib/Service/PageIndexService.php:39, 57` — source explicitly
   syncs status from JSON into the index table on each index run, confirming this is
   a workaround for a document-store architecture.
 
@@ -147,7 +147,7 @@ MUST NOT be named `PublicationSettingsService`. Suggested names:
 `DashboardPublicationService` or `PublicationStateService`.
 
 **Source evidence:**
-- `intravox-source/lib/Service/PublicationSettingsService.php` — this class manages
+- `the source codebase-source/lib/Service/PublicationSettingsService.php` — this class manages
   MetaVox field names used by the news-widget date-filtering import path. It has no
   connection to draft/published page state.
 

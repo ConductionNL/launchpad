@@ -424,7 +424,7 @@ The system MUST allow the same Confluence archive to be imported multiple times,
 
 The system MUST expose a Nextcloud OCC command `php occ mydash:import:confluence` for imports via CLI/cron, with options for file path and parent dashboard path.
 
-> **NOTE — MyDash addition:** No `occ mydash:import:confluence` command exists in the reference. The reference contains an `ImportPagesCommand` that operates on the native IntraVox JSON format only, not on Confluence ZIP archives. The `occ mydash:import:confluence` command must be built from scratch.
+> **NOTE — MyDash addition:** No `occ mydash:import:confluence` command exists in the reference. The reference contains an `ImportPagesCommand` that operates on the native the source app JSON format only, not on Confluence ZIP archives. The `occ mydash:import:confluence` command must be built from scratch.
 
 #### Scenario: CLI import with file option
 

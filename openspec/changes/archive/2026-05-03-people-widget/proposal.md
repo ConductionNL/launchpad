@@ -76,4 +76,4 @@ The people widget is a self-contained feature: registration, endpoint, service l
 - Presence status integration is OUT of scope for v1 — tracked as a follow-up.
 - History/activity-based sorting ("who did I chat with recently") requires `OCP\Activity` integration — OUT of scope for v1; `sortBy: 'recent-activity'` is reserved but not yet implemented.
 - Export (CSV of people + birthdays) is OUT of scope for v1.
-- Intravox, intra, voxcloud terminology is NOT used — widget is purely for Nextcloud user directory.
+- the source app, intra, the source app terminology is NOT used — widget is purely for Nextcloud user directory.

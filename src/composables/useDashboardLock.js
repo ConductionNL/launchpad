@@ -14,7 +14,7 @@
  * The composable starts a 60-second heartbeat timer the moment a lock
  * is acquired and stops it on release / unmount. The 60-second cadence
  * gives a 15× safety margin against the 15-minute server-side TTL —
- * matched to the IntraVox PageLockService design (D6 in
+ * matched to the source app PageLockService design (D6 in
  * `openspec/changes/dashboard-locking/design.md`).
  *
  * Conflicts (HTTP 409) are surfaced via the reactive `conflict` ref

@@ -7,8 +7,8 @@ token. The spec (`dashboard-rss-feeds`) pins one-token-per-user, ACL enforcement
 and dual RSS 2.0 / Atom output. Deleted dashboards disappear naturally via ACL checks at render
 time — `dashboard-cascade-events` is not involved.
 
-Source confirms the pattern: `intravox-source/lib/Db/FeedToken.php` and
-`intravox-source/lib/Controller/FeedController.php`. `generateToken()` deletes any existing token
+Source confirms the pattern: `the source codebase-source/lib/Db/FeedToken.php` and
+`the source codebase-source/lib/Controller/FeedController.php`. `generateToken()` deletes any existing token
 before insert — we match this replace-not-accumulate behaviour. This design covers token format,
 storage schema, revoke-regenerate flow, format negotiation, and ACL timing.
 
@@ -30,7 +30,7 @@ storage schema, revoke-regenerate flow, format negotiation, and ACL timing.
 
 ### D1: Token format
 **Decision**: `random_bytes(32)` encoded as URL-safe base64 (no padding) → ~43 chars. Stored as CHAR(43).
-**Source evidence**: `intravox-source/lib/Db/FeedToken.php:~40` — `bin2hex(random_bytes(32))` (64-char hex).
+**Source evidence**: `the source codebase-source/lib/Db/FeedToken.php:~40` — `bin2hex(random_bytes(32))` (64-char hex).
 We switch to base64url: shorter, same entropy (256-bit), URL-safe without encoding.
 **Alternatives considered**:
 - UUIDv4 — rejected; only 122 bits entropy
@@ -40,7 +40,7 @@ We switch to base64url: shorter, same entropy (256-bit), URL-safe without encodi
 ### D2: Storage schema
 **Decision**: Table `oc_mydash_feed_tokens(id, user_id, token, created_at)` with `UNIQUE(user_id)`
 and `UNIQUE(token)`. `user_id` unique enforces one-token-per-user at DB level.
-**Source evidence**: `intravox-source/lib/Db/FeedToken.php:~25-35` — `user_id` unique index
+**Source evidence**: `the source codebase-source/lib/Db/FeedToken.php:~25-35` — `user_id` unique index
 confirmed; the delete-before-insert in `generateToken()` is the application-level guarantee.
 **Alternatives considered**:
 - Allow multiple tokens per user with revocation list — rejected; spec is explicit on one-token model
@@ -51,7 +51,7 @@ confirmed; the delete-before-insert in `generateToken()` is the application-leve
 **Decision**: `POST /api/me/feed-token` handles both generation and rotation — always deletes
 existing token (if any) and inserts a new one in one transaction. Returns HTTP 200
 `{"token":"<new>","feedUrl":"<url>"}`. No separate DELETE endpoint.
-**Source evidence**: `intravox-source/lib/Controller/FeedController.php:~55` — single action, delete-then-insert.
+**Source evidence**: `the source codebase-source/lib/Controller/FeedController.php:~55` — single action, delete-then-insert.
 **Alternatives considered**: POST+DELETE+PUT — rejected; three endpoints for one atomic concept.
 **Rationale**: Atomic replace; old token invalid immediately after commit.
 
@@ -65,7 +65,7 @@ switches to Atom 1.0. `?format=atom` accepted as fallback for clients that can't
 **Decision**: `FeedController` resolves user from token, then calls
 `DashboardService::getAccessibleDashboards($userId)` — the same method as the regular API.
 No ACL snapshot at token-issue time.
-**Source evidence**: `intravox-source/lib/Controller/FeedController.php:~80-110` — render-time access checks.
+**Source evidence**: `the source codebase-source/lib/Controller/FeedController.php:~80-110` — render-time access checks.
 **Alternatives considered**: ACL snapshot at token issue — rejected; stale snapshot exposes revoked shares.
 **Rationale**: Real-time ACL; un-shared dashboards vanish from feed on next fetch without token rotation.
 

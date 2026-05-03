@@ -11,7 +11,7 @@
  *
  * Installation tracking is per-showcase via `IConfig::getAppValue` keys
  * shaped as `showcase_installed_<id>` whose value is the installed
- * dashboard UUID — the reference IntraVox app used a single boolean
+ * dashboard UUID — the reference source app used a single boolean
  * which only supports one dataset; the per-showcase approach scales
  * naturally (REQ-DEMO-004).
  *
@@ -74,7 +74,7 @@ class DemoShowcasesService
      * Bundled showcase IDs.
      *
      * The set is fixed at v1 (REQ-DEMO-001). The Dutch fictional
-     * organisation names mirror the reference IntraVox dataset so
+     * organisation names mirror the reference source dataset so
      * existing copy / screenshots remain reusable.
      *
      * @var array<int, string>

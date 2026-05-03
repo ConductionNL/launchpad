@@ -7,15 +7,15 @@ existing implementation in the reference source app. This document resolves the 
 questions by grounding each decision in the actual source code.
 
 Source roots examined:
-- `intravox-source/lib/Controller/PeopleController.php`
-- `intravox-source/lib/Service/UserService.php`
-- `intravox-source/src/components/PeopleWidget.vue`
-- `intravox-source/src/components/PeopleWidgetEditor.vue`
-- `intravox-source/src/components/people/PersonItem.vue`
-- `intravox-source/src/components/people/PeopleLayoutCard.vue`
-- `intravox-source/src/components/people/PeopleLayoutGrid.vue`
-- `intravox-source/src/components/people/PeopleLayoutList.vue`
-- `intravox-source/appinfo/routes.php`
+- `the source codebase-source/lib/Controller/PeopleController.php`
+- `the source codebase-source/lib/Service/UserService.php`
+- `the source codebase-source/src/components/PeopleWidget.vue`
+- `the source codebase-source/src/components/PeopleWidgetEditor.vue`
+- `the source codebase-source/src/components/people/PersonItem.vue`
+- `the source codebase-source/src/components/people/PeopleLayoutCard.vue`
+- `the source codebase-source/src/components/people/PeopleLayoutGrid.vue`
+- `the source codebase-source/src/components/people/PeopleLayoutList.vue`
+- `the source codebase-source/appinfo/routes.php`
 
 ## Goals / Non-Goals
 
@@ -70,9 +70,9 @@ The spec's `jobTitle` field does not exist. `PROPERTY_ROLE` is the NC standard f
 renders `user.organisation || user.department` — it tries `organisation` first).
 
 **Source evidence**:
-- `intravox-source/lib/Service/UserService.php:35-50` — `STANDARD_PROPERTIES` constant
-- `intravox-source/lib/Service/UserService.php:400-484` — `buildUserProfile()` method
-- `intravox-source/src/components/people/PersonItem.vue:33` — `user.organisation || user.department`
+- `the source codebase-source/lib/Service/UserService.php:35-50` — `STANDARD_PROPERTIES` constant
+- `the source codebase-source/lib/Service/UserService.php:400-484` — `buildUserProfile()` method
+- `the source codebase-source/src/components/people/PersonItem.vue:33` — `user.organisation || user.department`
 
 ---
 
@@ -88,7 +88,7 @@ This is a privacy bypass relative to what the spec requires. The spec mandates t
 fields must be omitted entirely (REQ-PPL-004). The implementation does not do this.
 
 There is a 1-hour distributed APCu cache on the non-group-filter path
-(`intravox-source/lib/Service/UserService.php:256-263`) keyed only on filter + sort, not on
+(`the source codebase-source/lib/Service/UserService.php:256-263`) keyed only on filter + sort, not on
 requesting user. Results from this cache will leak fields regardless of privacy settings.
 
 The spec requirement REQ-PPL-004 is therefore aspirational for v1 and needs a deliberate
@@ -96,8 +96,8 @@ implementation decision: either adopt NC scope-based visibility or document it a
 with a warning.
 
 **Source evidence**:
-- `intravox-source/lib/Service/UserService.php:414-435` — reads value with no scope check
-- `intravox-source/lib/Service/UserService.php:256-263` — shared cache ignores requesting user
+- `the source codebase-source/lib/Service/UserService.php:414-435` — reads value with no scope check
+- `the source codebase-source/lib/Service/UserService.php:256-263` — shared cache ignores requesting user
 
 ---
 
@@ -122,10 +122,10 @@ Leap-year handling in the `within_next_days` operator constructs `YYYY-MM-DD` di
 the birthday's month-day without special Feb-29 logic; this will throw on non-leap years.
 
 **Source evidence**:
-- `intravox-source/lib/Service/UserService.php:49` — `PROPERTY_BIRTHDATE` in standard set
-- `intravox-source/lib/Service/UserService.php:425-430` — ISO normalization
-- `intravox-source/lib/Service/UserService.php:750-755` — `within_next_days` logic (no Feb-29 guard)
-- `intravox-source/src/components/people/PersonItem.vue:304-315` — `formatBirthdate()`
+- `the source codebase-source/lib/Service/UserService.php:49` — `PROPERTY_BIRTHDATE` in standard set
+- `the source codebase-source/lib/Service/UserService.php:425-430` — ISO normalization
+- `the source codebase-source/lib/Service/UserService.php:750-755` — `within_next_days` logic (no Feb-29 guard)
+- `the source codebase-source/src/components/people/PersonItem.vue:304-315` — `formatBirthdate()`
 
 ---
 
@@ -144,9 +144,9 @@ The `IGroupManager::get()` approach (not `displayNamesInGroup()`) is what is use
 group returns an empty result (the `$group === null` check silently yields zero users).
 
 **Source evidence**:
-- `intravox-source/lib/Service/UserService.php:208-246` — group filter detection + union loop
-- `intravox-source/lib/Controller/PeopleController.php:210-228` — `filters` JSON param
-- `intravox-source/appinfo/routes.php:155` — `GET /api/people` (no separate groupFilter route)
+- `the source codebase-source/lib/Service/UserService.php:208-246` — group filter detection + union loop
+- `the source codebase-source/lib/Controller/PeopleController.php:210-228` — `filters` JSON param
+- `the source codebase-source/appinfo/routes.php:155` — `GET /api/people` (no separate groupFilter route)
 
 ---
 
@@ -178,10 +178,10 @@ The `click → /u/{userId}` navigation (REQ-PPL-010) is **not implemented** in P
 any layout component. The `PersonItem` component renders no click handlers on the card/name.
 
 **Source evidence**:
-- `intravox-source/src/components/people/PersonItem.vue:212-222` — avatarSize computed
-- `intravox-source/src/components/people/PeopleLayoutCard.vue` — card layout, columns from `widget.columns`
-- `intravox-source/src/components/people/PeopleLayoutGrid.vue` — grid default 4 columns
-- `intravox-source/src/components/people/PersonItem.vue:1-145` — no birthday badge, no click handler
+- `the source codebase-source/src/components/people/PersonItem.vue:212-222` — avatarSize computed
+- `the source codebase-source/src/components/people/PeopleLayoutCard.vue` — card layout, columns from `widget.columns`
+- `the source codebase-source/src/components/people/PeopleLayoutGrid.vue` — grid default 4 columns
+- `the source codebase-source/src/components/people/PersonItem.vue:1-145` — no birthday badge, no click handler
 
 ---
 
@@ -205,10 +205,10 @@ The spec's cursor-based pagination (REQ-PPL-003) is aspirational; the source imp
 offset-based with `hasMore` boolean.
 
 **Source evidence**:
-- `intravox-source/lib/Service/UserService.php:405-408` — hardcoded size 128 in avatar URL
-- `intravox-source/lib/Controller/PeopleController.php:177-185` — `limit` + `offset` params
-- `intravox-source/lib/Controller/PeopleController.php:234-238` — `{users, total, hasMore}` response
-- `intravox-source/src/components/PeopleWidget.vue:249-253` — `fetchPeople(this.users.length)`
+- `the source codebase-source/lib/Service/UserService.php:405-408` — hardcoded size 128 in avatar URL
+- `the source codebase-source/lib/Controller/PeopleController.php:177-185` — `limit` + `offset` params
+- `the source codebase-source/lib/Controller/PeopleController.php:234-238` — `{users, total, hasMore}` response
+- `the source codebase-source/src/components/PeopleWidget.vue:249-253` — `fetchPeople(this.users.length)`
 
 ---
 

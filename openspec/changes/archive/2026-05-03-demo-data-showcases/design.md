@@ -4,7 +4,7 @@
 
 The spec (`REQ-DEMO-001` through `REQ-DEMO-009`) was written before the source app's showcase structure was examined in detail. This document resolves the open design question about how bundled showcase templates are stored and what their content looks like, so the spec can be grounded in the real file format rather than a hypothetical one.
 
-Source examined: `intravox-source/showcases/`, `intravox-source/demo-data/`, `intravox-source/lib/Service/DemoDataService.php`, `intravox-source/lib/Controller/DemoDataController.php`, `intravox-source/lib/Command/ImportDemoDataCommand.php`, `intravox-source/lib/Command/AddDemoFieldsCommand.php`.
+Source examined: `the source codebase-source/showcases/`, `the source codebase-source/demo-data/`, `the source codebase-source/lib/Service/DemoDataService.php`, `the source codebase-source/lib/Controller/DemoDataController.php`, `the source codebase-source/lib/Command/ImportDemoDataCommand.php`, `the source codebase-source/lib/Command/AddDemoFieldsCommand.php`.
 
 ## Goals / Non-Goals
 
@@ -27,13 +27,13 @@ Source examined: `intravox-source/showcases/`, `intravox-source/demo-data/`, `in
 **Decision**: Showcases are stored as a **ZIP archive** containing a machine-readable `export.json` and a `{locale}/` directory tree with per-page JSON files, per-page `_media/` image assets, a root `navigation.json`, and a root `footer.json`. The `appdata/demo/` path assumed in the spec does not match the source — the actual path is `showcases/{id}/` with the canonical delivery artifact being `{id}.zip`.
 
 **Source evidence**:
-- `intravox-source/showcases/de-bron/` contains `export.json`, `de-bron.zip`, loose JPEG assets, and a `nl/` directory.
+- `the source codebase-source/showcases/de-bron/` contains `export.json`, `de-bron.zip`, loose JPEG assets, and a `nl/` directory.
 - `unzip -l de-bron.zip` reveals: `export.json` (machine-readable manifest + full page dump), `nl/` (locale tree), `nl/home.json`, `nl/navigation.json`, `nl/footer.json`, `nl/_media/*.jpg`.
-- `intravox-source/lib/Service/ImportService.php:57-63` — `importFromZip()` opens `export.json` inside the ZIP as the canonical entry point.
-- `intravox-source/lib/Service/DemoDataService.php:786-817` — `getBundledDemoDataPath()` resolves the path at `{appPath}/demo-data/{language}/`, which is a different (flat locale tree) path used only for the generic product demo data, NOT for showcases.
+- `the source codebase-source/lib/Service/ImportService.php:57-63` — `importFromZip()` opens `export.json` inside the ZIP as the canonical entry point.
+- `the source codebase-source/lib/Service/DemoDataService.php:786-817` — `getBundledDemoDataPath()` resolves the path at `{appPath}/demo-data/{language}/`, which is a different (flat locale tree) path used only for the generic product demo data, NOT for showcases.
 
 The two systems are distinct:
-- **`demo-data/`** — product tour content (generic IntraVox pages, multi-locale `nl/`, `en/`, `de/`, `fr/`). Installed via `importBundledDemoData()`.
+- **`demo-data/`** — product tour content (generic the source app pages, multi-locale `nl/`, `en/`, `de/`, `fr/`). Installed via `importBundledDemoData()`.
 - **`showcases/`** — persona-specific intranet examples (healthcare org, university, municipality, tech company, law firm). Installed by importing the showcase ZIP through the same `importFromZip()` pathway.
 
 **MyDash implication**: MyDash should adopt the ZIP + `export.json` format as the canonical showcase bundle format, not a flat JSON file at `appdata/demo/{id}.json`. The spec's assumed schema is mostly compatible but the delivery artifact is a ZIP, not a bare JSON.
@@ -44,13 +44,13 @@ The two systems are distinct:
 
 **Decision**: The per-showcase schema is a **two-level structure**. The `export.json` wraps one or more pages; individual page files (`home.json` etc.) carry the actual layout. The spec's widget schema shape (`type`, `position`, `config`) is wrong — the real schema uses `type`, `column`, `order`, plus type-specific flat fields.
 
-**Top-level `export.json` shape** (`intravox-source/showcases/de-bron/export.json:1-20`):
+**Top-level `export.json` shape** (`the source codebase-source/showcases/de-bron/export.json:1-20`):
 ```json
 {
   "exportVersion": "1.3",
   "schemaVersion": "1.3",
   "exportDate": "2026-03-07T12:00:00.000Z",
-  "exportedBy": "IntraVox Showcase - ...",
+  "exportedBy": "the source app Showcase - ...",
   "requiresMinVersion": "0.8.11",
   "language": "nl",
   "pages": [
@@ -125,7 +125,7 @@ The spec schema (`gridColumns`, `metadataFields`, `widgets[].position.{x,y,w,h}`
 | `video`     | 2  | 1   | `provider` (embed), `src` (URL), `title`, `autoplay`, `loop`, `muted` |
 | `people`    | 2  | 0   | `selectionMode`, `filters`, `layout` (card), `columns`, `limit`, `sortBy`, `showFields{}` |
 
-Source: grep of all `"type":` lines in `intravox-source/showcases/*/export.json` and `intravox-source/demo-data/**/*.json`.
+Source: grep of all `"type":` lines in `the source codebase-source/showcases/*/export.json` and `the source codebase-source/demo-data/**/*.json`.
 
 Widget types `calendar`, `welcome`, `recent-activity` referenced in the spec scenarios do NOT appear in any showcase. They are spec fiction; remove them from examples.
 
@@ -137,7 +137,7 @@ Widget types `calendar`, `welcome`, `recent-activity` referenced in the spec sce
 
 **Decision**: The source app tracks idempotency via `IConfig::getAppValue(APP_ID, 'demo_data_imported', 'false')` — a single boolean per app, not per showcase. There is NO per-showcase tracking. The `--force` CLI flag bypasses the guard; without it, the command exits early if the flag is set.
 
-Source: `intravox-source/lib/Service/DemoDataService.php:69-78` (`isDemoDataImported` / `markDemoDataImported`), `intravox-source/lib/Command/ImportDemoDataCommand.php:69-73`.
+Source: `the source codebase-source/lib/Service/DemoDataService.php:69-78` (`isDemoDataImported` / `markDemoDataImported`), `the source codebase-source/lib/Command/ImportDemoDataCommand.php:69-73`.
 
 **MyDash implication**: The spec's approach (query existing `group_shared` dashboards with `metadata.showcaseId`) is more granular and correct for a multi-showcase system. Adopt it. The source app's single-flag approach is a simplification that only works when there is one "demo dataset" being installed.
 
@@ -159,7 +159,7 @@ The separate `demo-data/` product tour content IS multi-locale: `nl/`, `en/`, `d
 
 Source: `unzip -l de-bron.zip` shows `nl/_media/locatie.jpg`, `nl/_media/verpleging.jpg`, `nl/_media/zorgteam.jpg`. The `export.json` widget entry reads `"src": "zorgteam.jpg"`.
 
-The ZIP also contains loose JPEG copies at the root of the showcase directory (e.g., `intravox-source/showcases/de-bron/zorgteam.jpg`) — these appear to be build-time artifacts or convenience copies, not the canonical location.
+The ZIP also contains loose JPEG copies at the root of the showcase directory (e.g., `the source codebase-source/showcases/de-bron/zorgteam.jpg`) — these appear to be build-time artifacts or convenience copies, not the canonical location.
 
 **MyDash implication**: On install, the service must extract `{locale}/_media/` from the ZIP and store the images alongside the installed page data (or in Nextcloud Files). The spec does not currently specify where installed media lands — this needs to be decided.
 

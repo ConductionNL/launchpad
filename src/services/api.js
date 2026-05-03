@@ -300,6 +300,25 @@ export const api = {
 		})
 	},
 
+	// Demo showcase install / list / uninstall (REQ-DEMO-002..006).
+	// All three endpoints are admin-only on the server side; the UI
+	// only renders the controls behind the same admin check.
+	listDemoShowcases() {
+		return axios.get(`${baseUrl}/api/admin/demo-showcases`)
+	},
+
+	installDemoShowcase(id, { lang = 'nl', force = false } = {}) {
+		const params = { lang }
+		if (force) {
+			params.force = true
+		}
+		return axios.post(`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}/install`, null, { params })
+	},
+
+	uninstallDemoShowcase(id) {
+		return axios.delete(`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}`)
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

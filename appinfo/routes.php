@@ -163,5 +163,19 @@ return [
 		 'url' => '/api/admin/import/confluence/dry-run', 'verb' => 'POST'],
 		['name' => 'confluence_import#import',
 		 'url' => '/api/admin/import/confluence', 'verb' => 'POST'],
+
+		// Demo showcases (REQ-DEMO-002..006). Admin-only via runtime
+		// `IGroupManager::isAdmin` check inside the controller. The
+		// install / destroy routes carry the showcase ID as a path
+		// segment with `[a-z0-9\-]+` requirement so curl typos surface
+		// as routing 404s rather than reaching the controller.
+		['name' => 'admin_demo_showcases#index',
+		 'url' => '/api/admin/demo-showcases', 'verb' => 'GET'],
+		['name' => 'admin_demo_showcases#install',
+		 'url' => '/api/admin/demo-showcases/{id}/install', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\-]+']],
+		['name' => 'admin_demo_showcases#destroy',
+		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['id' => '[a-z0-9\-]+']],
 	],
 ];

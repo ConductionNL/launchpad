@@ -335,7 +335,21 @@ OC.L10N.register(
     "You overrode the lock on dashboard {dashboard}" : "Je hebt de vergrendeling van dashboard {dashboard} omzeild",
     "{actor} overrode the lock on dashboard {dashboard}" : "{actor} heeft de vergrendeling van dashboard {dashboard} omzeild",
     "Your role in {dashboard} was changed to {role}" : "Je rol in {dashboard} is gewijzigd naar {role}",
-    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}"
+    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} heeft de rol van {target} in {dashboard} gewijzigd naar {role}",
+    "Demo data showcases" : "Demo-voorbeelden",
+    "Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time." : "Installeer meegeleverde voorbeeld-dashboards zodat gebruikers een werkend startpunt hebben. Elk voorbeeld wordt aangemaakt als een groep-gedeeld dashboard dat zichtbaar is voor alle gebruikers; je kunt het op elk moment weer verwijderen.",
+    "Loading showcases…" : "Voorbeelden laden…",
+    "Could not load demo showcases. Please try again." : "Kon de demo-voorbeelden niet laden. Probeer het opnieuw.",
+    "Could not install showcase. Please try again." : "Kon het voorbeeld niet installeren. Probeer het opnieuw.",
+    "Could not uninstall showcase. Please try again." : "Kon het voorbeeld niet verwijderen. Probeer het opnieuw.",
+    "Showcase not found." : "Voorbeeld niet gevonden.",
+    "You need admin privileges to install showcases." : "Je hebt beheerdersrechten nodig om voorbeelden te installeren.",
+    "Install" : "Installeer",
+    "Installing…" : "Installeren…",
+    "Uninstall" : "Verwijder",
+    "Uninstalling…" : "Verwijderen…",
+    "Installed but skipped widgets: {list}" : "Geïnstalleerd, maar widgets overgeslagen: {list}",
+    "Remove the {name} showcase dashboard for all users? You can reinstall it later." : "Het voorbeeld-dashboard {name} voor alle gebruikers verwijderen? Je kunt het later opnieuw installeren."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -173,6 +173,11 @@
 				<ConfluenceImport />
 			</div>
 
+			<!-- Demo data showcases (REQ-DEMO-001..009) -->
+			<div class="mydash-admin__section">
+				<AdminDemoData />
+			</div>
+
 			<!-- Info -->
 			<div class="mydash-admin__section">
 				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
@@ -255,12 +260,14 @@ import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
 import DashboardExportImport from './DashboardExportImport.vue'
 import ConfluenceImport from './ConfluenceImport.vue'
+import AdminDemoData from './AdminDemoData.vue'
 import { api } from '../../services/api.js'
 
 export default {
 	name: 'AdminSettings',
 
 	components: {
+		AdminDemoData,
 		CnSettingsSection,
 		ConfluenceImport,
 		DashboardExportImport,

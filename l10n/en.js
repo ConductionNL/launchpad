@@ -335,7 +335,21 @@ OC.L10N.register(
     "You overrode the lock on dashboard {dashboard}" : "You overrode the lock on dashboard {dashboard}",
     "{actor} overrode the lock on dashboard {dashboard}" : "{actor} overrode the lock on dashboard {dashboard}",
     "Your role in {dashboard} was changed to {role}" : "Your role in {dashboard} was changed to {role}",
-    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} changed {target}'s role in {dashboard} to {role}"
+    "{actor} changed {target}'s role in {dashboard} to {role}" : "{actor} changed {target}'s role in {dashboard} to {role}",
+    "Demo data showcases" : "Demo data showcases",
+    "Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time." : "Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.",
+    "Loading showcases…" : "Loading showcases…",
+    "Could not load demo showcases. Please try again." : "Could not load demo showcases. Please try again.",
+    "Could not install showcase. Please try again." : "Could not install showcase. Please try again.",
+    "Could not uninstall showcase. Please try again." : "Could not uninstall showcase. Please try again.",
+    "Showcase not found." : "Showcase not found.",
+    "You need admin privileges to install showcases." : "You need admin privileges to install showcases.",
+    "Install" : "Install",
+    "Installing…" : "Installing…",
+    "Uninstall" : "Uninstall",
+    "Uninstalling…" : "Uninstalling…",
+    "Installed but skipped widgets: {list}" : "Installed but skipped widgets: {list}",
+    "Remove the {name} showcase dashboard for all users? You can reinstall it later." : "Remove the {name} showcase dashboard for all users? You can reinstall it later."
 },
 "nplurals=2; plural=(n != 1);"
 );

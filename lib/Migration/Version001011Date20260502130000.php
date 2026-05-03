@@ -61,11 +61,11 @@ class Version001011Date20260502130000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable(tableName: 'mydash_dashboards') === false) {
+        if ($schema->hasTable('mydash_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable(tableName: 'mydash_dashboards');
+        $table = $schema->getTable('mydash_dashboards');
 
         DashboardTableBuilder::addPublicationColumns(table: $table);
 

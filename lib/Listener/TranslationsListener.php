@@ -3,7 +3,7 @@
 /**
  * TranslationsListener
  *
- * Cleans up `oc_mydash_dashboard_translations` rows when a dashboard
+ * Cleans up `oc_mydash_dash_translations` rows when a dashboard
  * is soft-deleted. Stub registered as part of the cascade-events
  * scaffolding; the live implementation is owned by the
  * dashboard-language-content follow-up. REQ-CSC-003.
@@ -63,7 +63,7 @@ class TranslationsListener implements IEventListener
 
         try {
             // TODO(dashboard-language-content): DELETE FROM
-            // oc_mydash_dashboard_translations WHERE dashboardUuid = ?.
+            // oc_mydash_dash_translations WHERE dashboardUuid = ?.
             // Stub registered for cascade scaffolding — live cleanup
             // owned by the language-content subsystem.
             $this->logger->debug(

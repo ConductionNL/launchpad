@@ -58,92 +58,92 @@ class MetadataTablesBuilder
      */
     private static function createFieldsTable(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_meta_fields') === true) {
+        if ($schema->hasTable('mydash_meta_fields') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_meta_fields');
+        $table = $schema->createTable('mydash_meta_fields');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'field_key',
-            typeName: Types::STRING,
-            options: [
+            'field_key',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 64,
             ]
         );
         $table->addColumn(
-            name: 'label',
-            typeName: Types::STRING,
-            options: [
+            'label',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 255,
             ]
         );
         $table->addColumn(
-            name: 'type',
-            typeName: Types::STRING,
-            options: [
+            'type',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 20,
             ]
         );
         $table->addColumn(
-            name: 'options',
-            typeName: Types::TEXT,
-            options: [
+            'options',
+            Types::TEXT,
+            [
                 'notnull' => false,
                 'comment' => 'JSON array of strings; NULL for non-select types.',
             ]
         );
         $table->addColumn(
-            name: 'required',
-            typeName: Types::SMALLINT,
-            options: [
+            'required',
+            Types::SMALLINT,
+            [
                 'notnull' => true,
                 'default' => 0,
             ]
         );
         $table->addColumn(
-            name: 'sort_order',
-            typeName: Types::INTEGER,
-            options: [
+            'sort_order',
+            Types::INTEGER,
+            [
                 'notnull' => true,
                 'default' => 0,
             ]
         );
         $table->addColumn(
-            name: 'created_at',
-            typeName: Types::DATETIME,
-            options: [
+            'created_at',
+            Types::DATETIME,
+            [
                 'notnull' => false,
             ]
         );
         $table->addColumn(
-            name: 'updated_at',
-            typeName: Types::DATETIME,
-            options: [
+            'updated_at',
+            Types::DATETIME,
+            [
                 'notnull' => false,
             ]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['field_key'],
-            indexName: 'mydash_meta_fkey'
+            ['field_key'],
+            'mydash_meta_fkey'
         );
         $table->addIndex(
-            columnNames: ['sort_order'],
-            indexName: 'mydash_meta_forder'
+            ['sort_order'],
+            'mydash_meta_forder'
         );
     }//end createFieldsTable()
 
@@ -156,57 +156,57 @@ class MetadataTablesBuilder
      */
     private static function createValuesTable(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_meta_values') === true) {
+        if ($schema->hasTable('mydash_meta_values') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_meta_values');
+        $table = $schema->createTable('mydash_meta_values');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'dashboard_uuid',
-            typeName: Types::STRING,
-            options: [
+            'dashboard_uuid',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 36,
             ]
         );
         $table->addColumn(
-            name: 'field_id',
-            typeName: Types::BIGINT,
-            options: [
+            'field_id',
+            Types::BIGINT,
+            [
                 'notnull'  => true,
                 'unsigned' => true,
             ]
         );
         $table->addColumn(
-            name: 'value',
-            typeName: Types::TEXT,
-            options: [
+            'value',
+            Types::TEXT,
+            [
                 'notnull' => true,
             ]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['dashboard_uuid', 'field_id'],
-            indexName: 'mydash_meta_vunique'
+            ['dashboard_uuid', 'field_id'],
+            'mydash_meta_vunique'
         );
         $table->addIndex(
-            columnNames: ['dashboard_uuid'],
-            indexName: 'mydash_meta_vdash'
+            ['dashboard_uuid'],
+            'mydash_meta_vdash'
         );
         $table->addIndex(
-            columnNames: ['field_id'],
-            indexName: 'mydash_meta_vfield'
+            ['field_id'],
+            'mydash_meta_vfield'
         );
     }//end createValuesTable()
 }//end class

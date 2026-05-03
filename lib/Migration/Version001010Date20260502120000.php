@@ -59,11 +59,11 @@ class Version001010Date20260502120000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable(tableName: 'mydash_dashboards') === false) {
+        if ($schema->hasTable('mydash_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable(tableName: 'mydash_dashboards');
+        $table = $schema->getTable('mydash_dashboards');
 
         DashboardTableBuilder::addTreeColumns(table: $table);
 

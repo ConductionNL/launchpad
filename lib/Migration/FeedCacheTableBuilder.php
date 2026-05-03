@@ -61,71 +61,71 @@ class FeedCacheTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_feed_cache') === true) {
+        if ($schema->hasTable('mydash_feed_cache') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_feed_cache');
+        $table = $schema->createTable('mydash_feed_cache');
 
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'feed_url',
-            typeName: Types::STRING,
-            options: [
+            'feed_url',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 2048,
             ]
         );
         $table->addColumn(
-            name: 'last_fetched_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => false]
+            'last_fetched_at',
+            Types::DATETIME,
+            ['notnull' => false]
         );
         $table->addColumn(
-            name: 'last_success_at',
-            typeName: Types::DATETIME,
-            options: ['notnull' => false]
+            'last_success_at',
+            Types::DATETIME,
+            ['notnull' => false]
         );
         $table->addColumn(
-            name: 'last_failure_reason',
-            typeName: Types::TEXT,
-            options: ['notnull' => false]
+            'last_failure_reason',
+            Types::TEXT,
+            ['notnull' => false]
         );
         $table->addColumn(
-            name: 'etag',
-            typeName: Types::STRING,
-            options: [
+            'etag',
+            Types::STRING,
+            [
                 'notnull' => false,
                 'length'  => 255,
             ]
         );
         $table->addColumn(
-            name: 'last_modified',
-            typeName: Types::STRING,
-            options: [
+            'last_modified',
+            Types::STRING,
+            [
                 'notnull' => false,
                 'length'  => 255,
             ]
         );
         $table->addColumn(
-            name: 'items_json',
-            typeName: Types::TEXT,
-            options: ['notnull' => false]
+            'items_json',
+            Types::TEXT,
+            ['notnull' => false]
         );
 
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['feed_url'],
-            indexName: 'mydash_feed_cache_url_uq',
-            options: ['lengths' => [191]]
+            ['feed_url'],
+            'mydash_feed_cache_url_uq',
+            ['lengths' => [191]]
         );
     }//end create()
 }//end class

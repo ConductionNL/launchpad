@@ -50,11 +50,11 @@ class DashboardViewsTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_dashboard_views') === true) {
+        if ($schema->hasTable('mydash_dashboard_views') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_dashboard_views');
+        $table = $schema->createTable('mydash_dashboard_views');
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
@@ -70,35 +70,35 @@ class DashboardViewsTableBuilder
     private static function addColumns($table): void
     {
         $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
+            'id',
+            Types::BIGINT,
+            [
                 'autoincrement' => true,
                 'notnull'       => true,
                 'unsigned'      => true,
             ]
         );
         $table->addColumn(
-            name: 'dashboard_uuid',
-            typeName: Types::STRING,
-            options: [
+            'dashboard_uuid',
+            Types::STRING,
+            [
                 'notnull' => true,
                 'length'  => 36,
                 'comment' => 'The dashboard UUID this aggregate row belongs to (REQ-ANLT-001).',
             ]
         );
         $table->addColumn(
-            name: 'view_bucket',
-            typeName: Types::DATE,
-            options: [
+            'view_bucket',
+            Types::DATE,
+            [
                 'notnull' => true,
                 'comment' => 'Calendar date in UTC; one row per (dashboard, day).',
             ]
         );
         $table->addColumn(
-            name: 'view_count',
-            typeName: Types::INTEGER,
-            options: [
+            'view_count',
+            Types::INTEGER,
+            [
                 'notnull'  => true,
                 'default'  => 0,
                 'unsigned' => true,
@@ -106,9 +106,9 @@ class DashboardViewsTableBuilder
             ]
         );
         $table->addColumn(
-            name: 'unique_viewer_count',
-            typeName: Types::INTEGER,
-            options: [
+            'unique_viewer_count',
+            Types::INTEGER,
+            [
                 'notnull'  => true,
                 'default'  => 0,
                 'unsigned' => true,
@@ -132,14 +132,14 @@ class DashboardViewsTableBuilder
      */
     private static function addIndexes($table): void
     {
-        $table->setPrimaryKey(columnNames: ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
-            columnNames: ['dashboard_uuid', 'view_bucket'],
-            indexName: 'mydash_anlt_uniq'
+            ['dashboard_uuid', 'view_bucket'],
+            'mydash_anlt_uniq'
         );
         $table->addIndex(
-            columnNames: ['view_bucket'],
-            indexName: 'mydash_anlt_bucket'
+            ['view_bucket'],
+            'mydash_anlt_bucket'
         );
     }//end addIndexes()
 }//end class

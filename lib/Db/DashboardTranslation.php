@@ -4,7 +4,7 @@
  * DashboardTranslation Entity
  *
  * Represents a per-language content variant for a dashboard — a single row
- * in the oc_mydash_dashboard_translations table holding the localised
+ * in the oc_mydash_dash_translations table holding the localised
  * widget tree, name, and description for one (dashboard, languageCode)
  * pair. REQ-DASH-038..044 (dashboard-language-content).
  *

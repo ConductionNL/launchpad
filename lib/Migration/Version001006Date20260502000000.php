@@ -52,16 +52,16 @@ class Version001006Date20260502000000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable(tableName: 'mydash_dashboards') === false) {
+        if ($schema->hasTable('mydash_dashboards') === false) {
             return null;
         }
 
-        $table = $schema->getTable(tableName: 'mydash_dashboards');
-        if ($table->hasColumn(name: 'icon') === false) {
+        $table = $schema->getTable('mydash_dashboards');
+        if ($table->hasColumn('icon') === false) {
             $table->addColumn(
-                name: 'icon',
-                typeName: Types::STRING,
-                options: [
+                'icon',
+                Types::STRING,
+                [
                     'notnull' => false,
                     'length'  => 2000,
                     'comment' => 'Dashboard icon: registry key (dashboard-icons) or upload URL; NULL = default.',

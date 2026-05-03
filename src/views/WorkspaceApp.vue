@@ -31,64 +31,33 @@
 		</template>
 
 		<!-- Region 2: hamburger + active-dashboard label strip
-		     (REQ-SHELL-004). Always visible regardless of canEdit. -->
+		     (REQ-SHELL-004). Always visible regardless of canEdit.
+		     The hamburger uses NcButton tertiary so its hover/focus
+		     ring matches the Nextcloud account-menu button. The
+		     active dashboard's name is rendered as a static label —
+		     dashboard switching is owned by the left sidebar
+		     (REQ-SWITCH-002). The runtime-shell-trim change removed
+		     the previous standalone "Active dashboard" select control
+		     plus the entire edit toolbar; auto-save covers the layout
+		     persistence path (REQ-GRID-005), and the action menu
+		     (gear) reachable inside Views.vue covers Add Custom
+		     Widget. -->
 		<div class="workspace-shell__strip">
-			<button
-				type="button"
-				class="workspace-shell__hamburger"
+			<NcButton
+				type="tertiary"
 				:aria-label="t('mydash', 'Open menu')"
+				class="workspace-shell__hamburger"
 				@click="toggleSidebar">
-				<span class="workspace-shell__hamburger-bar" />
-				<span class="workspace-shell__hamburger-bar" />
-				<span class="workspace-shell__hamburger-bar" />
-			</button>
-			<span class="workspace-shell__title">
+				<template #icon>
+					<MenuIcon :size="20" />
+				</template>
+			</NcButton>
+			<h1 class="workspace-shell__title">
 				{{ activeDashboardName }}
-			</span>
+			</h1>
 		</div>
 
-		<!-- Region 3: edit toolbar (REQ-SHELL-003). v-if (NOT v-show)
-		     so the DOM stays clean for non-edit users. Add Widget
-		     dropdown is sourced from the widget-type registry. -->
-		<div v-if="canEdit" class="workspace-shell__toolbar">
-			<div class="workspace-shell__toolbar-left">
-				<div class="workspace-shell__add-dropdown">
-					<button
-						type="button"
-						class="workspace-shell__add-button"
-						:aria-haspopup="true"
-						:aria-expanded="showAddDropdown"
-						@click.stop="toggleAddDropdown">
-						{{ t('mydash', 'Add Widget') }}
-					</button>
-					<ul
-						v-if="showAddDropdown"
-						class="workspace-shell__add-menu"
-						role="menu"
-						@click.stop>
-						<li
-							v-for="type in availableWidgetTypes"
-							:key="type"
-							role="menuitem"
-							class="workspace-shell__add-item"
-							@click="onAddTypeSelected(type)">
-							{{ typeDisplayName(type) }}
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div class="workspace-shell__toolbar-right">
-				<button
-					type="button"
-					class="workspace-shell__save-button"
-					:disabled="saving"
-					@click="saveLayout">
-					{{ saving ? t('mydash', 'Saving…') : t('mydash', 'Save Layout') }}
-				</button>
-			</div>
-		</div>
-
-		<!-- Region 4: grid surface (or empty state).
+		<!-- Region 3: grid surface (or empty state).
 		     The empty state branches on `allowUserDashboards`
 		     (REQ-SHELL-005). When an active dashboard is resolved we
 		     defer to the existing Views component which owns the
@@ -118,7 +87,7 @@
 			</div>
 		</div>
 
-		<!-- Region 5 (footer-customization): branded footer below the
+		<!-- Region 4 (footer-customization): branded footer below the
 		     dashboard grid. Renders nothing when `effectiveFooter` is
 		     null (REQ-FTR-001 disabled scenario, REQ-FTR-006 hidden
 		     mode). The payload is resolved server-side by
@@ -131,7 +100,9 @@
 </template>
 
 <script>
+import { NcButton } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
+import MenuIcon from 'vue-material-design-icons/Menu.vue'
 
 import Views from './Views.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
@@ -139,23 +110,27 @@ import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherS
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 
-import { listWidgetTypes, getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
-import { api } from '../services/api.js'
 
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
  *
- * Owns the four-region page chrome: slide-in sidebar (placeholder until
- * `dashboard-switcher-sidebar` lands), hamburger + active-dashboard label
- * strip, edit toolbar (gated on `canEdit`), and the grid container that
- * either shows the dashboard (delegating to `Views.vue` for widget
- * machinery) or the empty-state branch (REQ-SHELL-005).
+ * Owns the trimmed three-region page chrome (post `runtime-shell-trim`):
+ * slide-in sidebar (`dashboard-switcher` capability), hamburger +
+ * active-dashboard label strip styled to match the Nextcloud account
+ * button, and the grid container that either shows the dashboard
+ * (delegating to `Views.vue` for widget machinery) or the empty-state
+ * branch (REQ-SHELL-005).
+ *
+ * The previous edit toolbar (REQ-SHELL-003, removed) is gone — adding
+ * widgets routes through the action menu's "Add custom widget" entry
+ * (`unified-add-widget-flow`), and layout persistence is auto-saved by
+ * the grid composable on a 300 ms debounce (REQ-GRID-005).
  *
  * Permission rule (REQ-SHELL-002): `canEdit = isAdmin || dashboardSource === 'user'`.
- * When false, the toolbar is removed from the DOM (`v-if`, not `v-show`)
- * so non-edit users have no edit-only surface to interact with.
+ * It now gates the per-widget context menu and the action menu's edit
+ * entries inside `Views.vue` rather than a top toolbar.
  *
  * Initial-state contract (REQ-INIT-002): every key consumed here is
  * injected from the root `provide` set up in `main.js`. Defaults match
@@ -173,6 +148,8 @@ export default {
 	name: 'WorkspaceApp',
 
 	components: {
+		NcButton,
+		MenuIcon,
 		Views,
 		SidebarBackdrop,
 		DashboardSwitcherSidebar,
@@ -233,9 +210,9 @@ export default {
 		return {
 			// Local UI state only — every source-of-truth field flows
 			// from initial state via inject, NEVER duplicated locally.
+			// `saving` and `showAddDropdown` were removed alongside the
+			// edit toolbar (`runtime-shell-trim`).
 			sidebarOpen: false,
-			saving: false,
-			showAddDropdown: false,
 			// Click handler kept on `this` so addEventListener and
 			// removeEventListener see the same function reference.
 			outsideClickHandler: null,
@@ -245,7 +222,10 @@ export default {
 	computed: {
 		/**
 		 * REQ-SHELL-002 — admins can edit any dashboard; regular users
-		 * can edit only their own personal dashboards.
+		 * can edit only their own personal dashboards. After
+		 * `runtime-shell-trim` this no longer gates a top toolbar; it
+		 * gates the per-widget context menu (REQ-WDG-015) and the
+		 * action menu's edit entries inside `Views.vue`.
 		 *
 		 * @return {boolean}
 		 */
@@ -255,7 +235,7 @@ export default {
 
 		/**
 		 * Whether the resolver returned an active dashboard. Drives the
-		 * empty-state branch in Region 4 (REQ-SHELL-005).
+		 * empty-state branch in Region 3 (REQ-SHELL-005).
 		 *
 		 * @return {boolean}
 		 */
@@ -280,17 +260,6 @@ export default {
 			]
 			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
 			return match ? (match.name || '') : ''
-		},
-
-		/**
-		 * Available widget types from the registry (REQ-SHELL-003).
-		 * Filters out registry entries with no form (the registry helper
-		 * already does this — see `widgetRegistry.js`).
-		 *
-		 * @return {string[]}
-		 */
-		availableWidgetTypes() {
-			return listWidgetTypes()
 		},
 
 		/**
@@ -372,19 +341,6 @@ export default {
 	methods: {
 		t,
 
-		/**
-		 * Localised display name for a widget type (REQ-SHELL-003 dropdown
-		 * label scenario). Falls back to the registry key when no display
-		 * name is registered.
-		 *
-		 * @param {string} type widget type key
-		 * @return {string}
-		 */
-		typeDisplayName(type) {
-			const entry = getWidgetTypeEntry(type)
-			return (entry && entry.displayName) || type
-		},
-
 		toggleSidebar() {
 			this.sidebarOpen = !this.sidebarOpen
 		},
@@ -393,47 +349,19 @@ export default {
 			this.sidebarOpen = false
 		},
 
-		toggleAddDropdown() {
-			this.showAddDropdown = !this.showAddDropdown
-		},
-
-		closeAddDropdown() {
-			this.showAddDropdown = false
-		},
-
 		/**
-		 * Document-click handler that closes the Add-Widget dropdown when
-		 * the user clicks outside it (REQ-SHELL-007). Inner clicks are
-		 * stopped via `@click.stop` on the menu so they never reach here.
+		 * Document-click handler retained for future shell-level
+		 * dismiss flows; the previous Add-Widget dropdown was removed
+		 * by `runtime-shell-trim` so the body of this handler is
+		 * intentionally a no-op until a new shell-level popover lands.
+		 * Keeping the listener wiring lets REQ-SHELL-007's lifecycle
+		 * scenarios stay green.
 		 *
-		 * @param {MouseEvent} event the click event
+		 * @param {MouseEvent} _event the click event
+		 * @return {void}
 		 */
-		handleClickOutside(event) {
-			if (!this.showAddDropdown) {
-				return
-			}
-			const target = event.target
-			if (target && typeof target.closest === 'function'
-				&& target.closest('.workspace-shell__add-dropdown')) {
-				return
-			}
-			this.closeAddDropdown()
-		},
-
-		/**
-		 * Forward an Add Widget dropdown selection to the embedded Views
-		 * component, which owns the unified AddWidgetModal host. The
-		 * registry key flows through as `preselectedType` so the modal
-		 * opens directly on that sub-form (REQ-WDG-010 deep-link path).
-		 *
-		 * @param {string} type registry key selected from the dropdown
-		 */
-		onAddTypeSelected(type) {
-			this.closeAddDropdown()
-			const views = this.$refs.viewsRef
-			if (views && typeof views.openCustomWidgetModal === 'function') {
-				views.openCustomWidgetModal(type)
-			}
+		handleClickOutside(_event) {
+			// no-op
 		},
 
 		/**
@@ -509,48 +437,6 @@ export default {
 				console.error('[WorkspaceApp] Failed to create first dashboard:', error)
 			}
 		},
-
-		/**
-		 * Persist the current layout (REQ-SHELL-003). Routes to the
-		 * personal or group endpoint based on `dashboardSource`. The
-		 * Save button is bound to `:disabled="saving"` so concurrent
-		 * clicks cannot fire a second request.
-		 *
-		 * @return {Promise<void>}
-		 */
-		async saveLayout() {
-			if (this.saving) {
-				return
-			}
-			if (!this.injectedActiveDashboardId) {
-				return
-			}
-			this.saving = true
-			try {
-				const store = useDashboardStore()
-				const layout = store.widgetPlacements
-				if (this.injectedDashboardSource === 'user') {
-					await api.updateDashboard(
-						this.injectedActiveDashboardId,
-						{ layout },
-					)
-				} else {
-					// Group / default-group dashboards route through the
-					// group endpoint. The store already knows the group id
-					// because it loaded the visible payload at boot.
-					const groupId = store.activeDashboard?.groupId || 'default'
-					await api.updateGroupDashboard(
-						groupId,
-						this.injectedActiveDashboardId,
-						{ layout },
-					)
-				}
-			} catch (error) {
-				console.error('[WorkspaceApp] Save failed:', error)
-			} finally {
-				this.saving = false
-			}
-		},
 	},
 }
 </script>
@@ -564,8 +450,8 @@ export default {
 }
 
 /* REQ-ONAV-005 — rail position drives the outer layout. The
-   inner content (strip, toolbar, grid) keeps its column layout via
-   the `.workspace-shell__strip` etc. blocks below. */
+   inner content (strip, grid) keeps its column layout via the
+   `.workspace-shell__strip` etc. blocks below. */
 .workspace-shell--org-nav-left,
 .workspace-shell--org-nav-right {
 	flex-direction: row;
@@ -588,89 +474,20 @@ export default {
 	background: var(--color-main-background, #fff);
 }
 
+/* The hamburger uses the NcButton tertiary variant so its hover,
+   focus and active rings inherit the Nextcloud account-button
+   styling. We keep an empty selector here so future overrides have
+   a stable hook without re-introducing the bespoke chrome that the
+   `runtime-shell-trim` change removed. */
 .workspace-shell__hamburger {
-	display: inline-flex;
-	flex-direction: column;
-	justify-content: space-between;
-	width: 24px;
-	height: 18px;
-	background: transparent;
-	border: none;
-	padding: 0;
-	cursor: pointer;
-}
-
-.workspace-shell__hamburger-bar {
-	display: block;
-	width: 100%;
-	height: 2px;
-	background: var(--color-main-text, #222);
-	border-radius: 2px;
+	flex: 0 0 auto;
 }
 
 .workspace-shell__title {
 	font-weight: 600;
 	font-size: 1.05em;
 	color: var(--color-main-text, #222);
-}
-
-.workspace-shell__toolbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 8px 16px;
-	border-bottom: 1px solid var(--color-border, #ddd);
-	background: var(--color-main-background, #fff);
-}
-
-.workspace-shell__toolbar-left,
-.workspace-shell__toolbar-right {
-	display: flex;
-	gap: 8px;
-}
-
-.workspace-shell__add-dropdown {
-	position: relative;
-}
-
-.workspace-shell__add-button,
-.workspace-shell__save-button {
-	background: var(--color-primary-element, #1976d2);
-	color: var(--color-primary-element-text, #fff);
-	border: none;
-	border-radius: var(--border-radius, 4px);
-	padding: 6px 12px;
-	cursor: pointer;
-	font: inherit;
-}
-
-.workspace-shell__save-button[disabled] {
-	opacity: 0.6;
-	cursor: not-allowed;
-}
-
-.workspace-shell__add-menu {
-	position: absolute;
-	top: 100%;
-	left: 0;
-	margin: 4px 0 0;
-	padding: 4px 0;
-	min-width: 160px;
-	background: var(--color-main-background, #fff);
-	border: 1px solid var(--color-border, #ddd);
-	border-radius: var(--border-radius, 4px);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	list-style: none;
-	z-index: 1001;
-}
-
-.workspace-shell__add-item {
-	padding: 8px 12px;
-	cursor: pointer;
-}
-
-.workspace-shell__add-item:hover {
-	background: var(--color-background-hover, #f0f0f0);
+	margin: 0;
 }
 
 .workspace-shell__grid {

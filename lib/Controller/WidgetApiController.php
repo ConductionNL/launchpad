@@ -22,6 +22,7 @@ use DateTimeImmutable;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\CalendarWidgetService;
 use OCA\MyDash\Service\NewsWidgetService;
+use OCA\MyDash\Service\WidgetPlacementService;
 use OCA\MyDash\Service\WidgetService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Controller;
@@ -46,12 +47,13 @@ class WidgetApiController extends Controller
     /**
      * Constructor
      *
-     * @param IRequest              $request               The request.
-     * @param WidgetService         $widgetService         The widget service.
-     * @param PermissionService     $permissionService     The permission service.
-     * @param NewsWidgetService     $newsWidgetService     The news widget service.
-     * @param CalendarWidgetService $calendarWidgetService The calendar widget service (REQ-CAL-003).
-     * @param string|null           $userId                The user ID.
+     * @param IRequest               $request                The request.
+     * @param WidgetService          $widgetService          The widget service.
+     * @param PermissionService      $permissionService      The permission service.
+     * @param NewsWidgetService      $newsWidgetService      The news widget service.
+     * @param CalendarWidgetService  $calendarWidgetService  The calendar widget service (REQ-CAL-003).
+     * @param WidgetPlacementService $widgetPlacementService Placement-payload validators (REQ-CONT-006).
+     * @param string|null            $userId                 The user ID.
      */
     public function __construct(
         IRequest $request,
@@ -59,6 +61,7 @@ class WidgetApiController extends Controller
         private readonly PermissionService $permissionService,
         private readonly NewsWidgetService $newsWidgetService,
         private readonly CalendarWidgetService $calendarWidgetService,
+        private readonly WidgetPlacementService $widgetPlacementService,
         private readonly ?string $userId,
     ) {
         parent::__construct(
@@ -146,6 +149,25 @@ class WidgetApiController extends Controller
             return ResponseHelper::forbidden();
         }
 
+        // REQ-CONT-006: reject deeply-nested container payloads BEFORE
+        // touching the placement mapper so no rows are inserted on a
+        // depth violation. Tolerant of non-container payloads (no-op
+        // when the request carries no `content.placements[]` blob).
+        $contentParam = $this->request->getParam(key: 'content');
+        if (is_array($contentParam) === true) {
+            try {
+                $this->widgetPlacementService->validateContainerDepth(
+                    content: $contentParam
+                );
+            } catch (\InvalidArgumentException $depthError) {
+                if ($depthError->getMessage() === 'container_depth_exceeded') {
+                    return $this->containerDepthExceededResponse();
+                }
+
+                return ResponseHelper::error(exception: $depthError);
+            }
+        }
+
         try {
             $placement = $this->widgetService->addWidget(
                 dashboardId: $dashboardId,
@@ -164,6 +186,27 @@ class WidgetApiController extends Controller
             return ResponseHelper::error(exception: $e);
         }
     }//end addWidget()
+
+    /**
+     * Build the canonical "container_depth_exceeded" error response
+     * (REQ-CONT-006). HTTP 400 with the documented envelope shape:
+     * `{status: 'error', error: 'container_depth_exceeded', maxDepth: 3}`.
+     *
+     * @return JSONResponse
+     *
+     * @spec container-widget:REQ-CONT-006
+     */
+    private function containerDepthExceededResponse(): JSONResponse
+    {
+        return new JSONResponse(
+            data: [
+                'status'   => 'error',
+                'error'    => 'container_depth_exceeded',
+                'maxDepth' => WidgetPlacementService::MAX_CONTAINER_DEPTH,
+            ],
+            statusCode: Http::STATUS_BAD_REQUEST
+        );
+    }//end containerDepthExceededResponse()
 
     /**
      * Add a tile to a dashboard.
@@ -226,6 +269,24 @@ class WidgetApiController extends Controller
         ) === false
         ) {
             return ResponseHelper::forbidden();
+        }
+
+        // REQ-CONT-006: validate the container depth invariant on
+        // update too — a placement can grow nested children via PUT
+        // without ever going through addWidget.
+        $contentParam = $this->request->getParam(key: 'content');
+        if (is_array($contentParam) === true) {
+            try {
+                $this->widgetPlacementService->validateContainerDepth(
+                    content: $contentParam
+                );
+            } catch (\InvalidArgumentException $depthError) {
+                if ($depthError->getMessage() === 'container_depth_exceeded') {
+                    return $this->containerDepthExceededResponse();
+                }
+
+                return ResponseHelper::error(exception: $depthError);
+            }
         }
 
         try {

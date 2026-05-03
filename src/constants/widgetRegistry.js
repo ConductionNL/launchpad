@@ -102,6 +102,10 @@ import LinksWidget from '../components/Widgets/Renderers/LinksWidget.vue'
 import LinksForm from '../components/Widgets/Forms/LinksForm.vue'
 import MenuWidget from '../components/Widgets/Renderers/MenuWidget.vue'
 import MenuForm from '../components/Widgets/Forms/MenuForm.vue'
+import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+import ContainerForm from '../components/Widgets/Forms/ContainerForm.vue'
+import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
+import TileForm from '../components/Widgets/Forms/TileForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -362,6 +366,43 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Menu'),
 		icon: 'ViewDashboard',
+	},
+	// REQ-CONT-001: container widget — recursive sub-grid host. Children
+	// live in `content.placements[]` and are rendered through the inner
+	// GridStack instance bounded by the container's outer cell. Server-
+	// side REQ-CONT-006 caps recursion at 3 levels deep.
+	container: {
+		renderer: ContainerWidget,
+		form: ContainerForm,
+		defaultContent: {
+			placements: [],
+			backgroundColor: 'transparent',
+			padding: 'medium',
+			title: '',
+		},
+		displayName: t('mydash', 'Container'),
+		icon: 'ViewDashboard',
+	},
+	// REQ-WDG-022 / REQ-TILE-PLACEMENT: tile widget — registry-driven
+	// replacement for the deprecated standalone tile-creation flow. The
+	// renderer reads from BOTH the new inline `content.{...}` shape AND
+	// the legacy flat `placement.tile*` columns so dashboards holding
+	// tile placements created via the deprecated `oc_mydash_tiles` flow
+	// keep rendering without a migration step.
+	tile: {
+		renderer: TileWidget,
+		form: TileForm,
+		defaultContent: {
+			title: '',
+			icon: '',
+			iconType: 'class',
+			backgroundColor: '#3b82f6',
+			textColor: '#ffffff',
+			linkType: 'app',
+			linkValue: '',
+		},
+		displayName: t('mydash', 'Tile'),
+		icon: 'ViewGrid',
 	},
 }
 

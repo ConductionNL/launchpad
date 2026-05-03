@@ -664,6 +664,73 @@ The response MUST be parsed as `{items: {[widgetId]: WidgetItem[]}, meta: {[widg
 - THEN the cell MUST display `t('No items available')` centred
 - AND no `<a>` items MUST render
 
+### REQ-WDG-022: Tile widget type registered
+
+The widget registry (`src/constants/widgetRegistry.js`) MUST include a `tile` widget type that:
+
+- Renders a clickable card with title + icon + background/text colours
+- Supports `iconType` discriminator (`class` | `url` | `emoji` | `svg`)
+- Supports `linkType` discriminator (`app` | `url`) and dispatches click accordingly
+- Suppresses click handling while the dashboard is in edit mode (consistent with REQ-WDG-014)
+- Has `defaultContent: {title:'', icon:'', iconType:'class', backgroundColor:'#3b82f6', textColor:'#ffffff', linkType:'app', linkValue:''}`
+
+The tile widget type MUST be selectable from the unified "Add custom widget" picker (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
+
+#### Scenario: Tile widget appears in the picker
+
+- **GIVEN** the unified Add Custom Widget modal is open
+- **WHEN** the user opens the type picker
+- **THEN** the picker MUST list `tile` as a selectable type
+- **AND** picking it MUST mount the `TileForm` sub-form
+
+#### Scenario: Tile renders with content from placement
+
+- **GIVEN** a widget placement with `type: 'tile'` and `content: {title: 'Files', icon: 'icon-folder', iconType: 'class', linkType: 'app', linkValue: '/apps/files', backgroundColor: '#3b82f6', textColor: '#ffffff'}`
+- **WHEN** the placement renders
+- **THEN** a card with the icon + "Files" label + blue background + white text MUST appear
+- **AND** clicking the card (in view mode) MUST navigate to `/apps/files`
+
+#### Scenario: Tile renderer supports legacy and new content shapes
+
+- **GIVEN** a placement created via the deprecated `oc_mydash_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
+- **WHEN** the placement renders via `TileWidget`
+- **THEN** the title and icon MUST display correctly
+- **AND** no console errors MUST occur from the missing `placement.content` field
+
+### Requirement: REQ-WDG-023 Widget registry completeness verifiable in CI
+
+The widget registry (`src/constants/widgetRegistry.js`) MUST be covered by an explicit completeness test (`src/constants/__tests__/widgetRegistry.completeness.spec.js`) that asserts a canonical EXPECTED_TYPES set:
+
+- `calendar`, `container`, `divider`, `files`, `header`, `image`, `label`, `link`, `links`, `menu`, `nc-widget`, `news`, `people`, `quicklinks`, `text`, `tile`, `video` (current set; updated when widget capabilities are added or removed)
+
+The test MUST fail if:
+
+- A registered type is missing from EXPECTED_TYPES (registry has more types than expected -> drift undocumented)
+- An EXPECTED_TYPES entry is missing from the registry (regression -- type silently disappeared from the picker)
+- Any registered entry lacks `renderer`, `form`, `displayName`, `defaultContent`, or `icon` fields (incomplete entry -> would be filtered out by REQ-WDG-014's `listWidgetTypes`, hiding it from users)
+
+When a new widget capability lands, the EXPECTED_TYPES constant MUST be updated in the same commit. When a widget capability is deprecated, EXPECTED_TYPES MUST be updated in the same commit as its registry removal.
+
+#### Scenario: Test fails when a widget type is silently dropped
+
+- **GIVEN** the registry currently contains every member of EXPECTED_TYPES (including `tile`)
+- **AND** EXPECTED_TYPES is the same set
+- **WHEN** a refactor accidentally removes the `tile` entry from `widgetRegistry.js` without updating EXPECTED_TYPES
+- **THEN** `npm test` MUST fail with a clear diff message naming `tile` as the missing type
+
+#### Scenario: Test fails when registry adds a type without updating EXPECTED_TYPES
+
+- **GIVEN** EXPECTED_TYPES lists the canonical set
+- **WHEN** a new widget capability adds `chart` to `widgetRegistry.js` without updating EXPECTED_TYPES
+- **THEN** `npm test` MUST fail with a diff message naming `chart` as the unexpected addition
+- **AND** the failure message MUST instruct: "Update EXPECTED_TYPES in widgetRegistry.completeness.spec.js"
+
+#### Scenario: Test fails when an entry is incomplete
+
+- **GIVEN** a new widget type added to the registry without a `form` field (set to `null`)
+- **WHEN** `npm test` runs
+- **THEN** the test MUST fail with a clear message naming the type and the missing field
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/widgets MUST return within 1 second even with 50+ registered widgets. Widget item fetching SHOULD be parallelized across widget types.
@@ -687,6 +754,7 @@ The response MUST be parsed as `{items: {[widgetId]: WidgetItem[]}, meta: {[widg
 - REQ-WDG-010 (Widget Picker): `WidgetPicker.vue` component exists.
 - REQ-WDG-011 (Widget Style Editor): `WidgetStyleEditor.vue` component exists.
 - REQ-WDG-015..017 (Right-click context menu, auto-close, position constraints): `WidgetContextMenu.vue` + `useGridManager.js` composable; wired in `Views.vue` via `DashboardGrid`'s `widget-right-click` event.
+- REQ-WDG-023 (Registry completeness CI guard): `src/constants/__tests__/widgetRegistry.completeness.spec.js` asserts EXPECTED_TYPES matches `widgetRegistry` keys exactly, every entry surfaces in `listWidgetTypes()` with non-null form + renderer, and every entry carries displayName + defaultContent + icon.
 
 **Not yet implemented:**
 - REQ-WDG-003 grid bounds validation: No server-side validation for gridX + gridWidth <= gridColumns.

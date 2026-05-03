@@ -55,6 +55,16 @@ npm start            # Dev server at http://localhost:3000 with hot reload
 
 Simply add or edit Markdown files in the `docs/` folder. The sidebar is auto-generated from the folder structure. Changes will appear on the product page after pushing to `development`.
 
+## Adding a widget type
+
+The widget registry (`src/constants/widgetRegistry.js`) is the single source of truth for "addable" custom widget types (REQ-WDG-014). Because many widget capabilities ship in parallel branches that all touch the same object, the file is a heavy merge-conflict site -- a regression that silently drops a type would silently disappear from the Add Custom Widget picker without any test signal. To add a new widget type:
+
+- Update `src/constants/widgetRegistry.js` with the new entry (`renderer`, `form`, `defaultContent`, `displayName`, `icon`).
+- Update `EXPECTED_TYPES` in `src/constants/__tests__/widgetRegistry.completeness.spec.js` (REQ-WDG-023) so the completeness guard stays in sync. The test will fail with a precise diff if you forget.
+- Implement the renderer + form Vue components following the pattern of an existing widget (e.g. `LabelWidget.vue` + `LabelForm.vue`).
+- Add i18n keys for the type's `displayName` and any user-facing form labels to all four `l10n/` files (`en.js`, `en.json`, `nl.js`, `nl.json`).
+- Add the canonical capability spec under `openspec/specs/<widget-name>/spec.md` so the type's REQ-* identifiers, defaults, and acceptance scenarios are documented.
+
 ## Security review checklist
 
 ### Extending the SVG sanitiser whitelist

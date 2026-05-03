@@ -62,6 +62,16 @@ class TileService
      *
      * @return Tile The created tile.
      *
+     * @deprecated 1.0 Use the unified add-widget flow with `type: tile`
+     *                 (REQ-WDG-022 / REQ-TILE-PLACEMENT) instead. New tile
+     *                 placements MUST be created via
+     *                 `POST /api/dashboards/{uuid}/widgets` with the
+     *                 widget content stored inline on the placement; the
+     *                 `oc_mydash_tiles` reusable-entity table is being
+     *                 phased out. This method is preserved for legacy
+     *                 callers and migration tooling only and MUST NOT be
+     *                 invoked by new code paths.
+     *
      * @spec tiles:REQ-TILE-001
      */
     public function createTile(
@@ -101,6 +111,12 @@ class TileService
      * @return Tile The updated tile.
      * @throws \OCP\AppFramework\Db\DoesNotExistException If tile not found.
      * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException If multiple found.
+     *
+     * @deprecated 1.0 Use the unified add-widget flow with `type: tile`
+     *                 (REQ-WDG-022 / REQ-TILE-PLACEMENT) instead. Tile
+     *                 placement edits MUST go through the standard
+     *                 widget-placement update endpoint; the reusable
+     *                 tile-entity table is read-only going forward.
      *
      * @spec tiles:REQ-TILE-003
      */
@@ -157,6 +173,13 @@ class TileService
      * @return void
      * @throws \OCP\AppFramework\Db\DoesNotExistException If tile not found.
      * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException If multiple found.
+     *
+     * @deprecated 1.0 Use the unified add-widget flow with `type: tile`
+     *                 (REQ-WDG-022 / REQ-TILE-PLACEMENT) instead. The
+     *                 controller's destroy endpoint now returns HTTP 410
+     *                 Gone and this service method is preserved for
+     *                 migration tooling that needs to clear out legacy
+     *                 rows server-side.
      *
      * @spec tiles:REQ-TILE-004
      */

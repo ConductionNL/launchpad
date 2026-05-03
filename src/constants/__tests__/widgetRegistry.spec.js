@@ -252,4 +252,43 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('links')
 	})
+
+	it('REQ-CONT-001: exposes a `container` entry with renderer + form + spec defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.container).toBeDefined()
+		expect(widgetRegistry.container.renderer).toBeTruthy()
+		expect(widgetRegistry.container.form).toBeTruthy()
+		expect(widgetRegistry.container.defaultContent).toEqual({
+			placements: [],
+			backgroundColor: 'transparent',
+			padding: 'medium',
+			title: '',
+		})
+	})
+
+	it('REQ-CONT-001: `container` appears in listWidgetTypes() output (visible in picker)', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('container')
+	})
+
+	it('REQ-WDG-022 / REQ-TILE-PLACEMENT: exposes a `tile` entry with renderer + form + spec defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.tile).toBeDefined()
+		expect(widgetRegistry.tile.renderer).toBeTruthy()
+		expect(widgetRegistry.tile.form).toBeTruthy()
+		expect(widgetRegistry.tile.defaultContent).toEqual({
+			title: '',
+			icon: '',
+			iconType: 'class',
+			backgroundColor: '#3b82f6',
+			textColor: '#ffffff',
+			linkType: 'app',
+			linkValue: '',
+		})
+	})
+
+	it('REQ-WDG-022: `tile` appears in listWidgetTypes() output (visible in picker)', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('tile')
+	})
 })

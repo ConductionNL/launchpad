@@ -136,4 +136,25 @@ describe('widgetRegistry', () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('image')
 	})
+
+	it('REQ-LNKS-001..002: exposes a `links` entry with renderer + form + spec defaults', async () => {
+		const { widgetRegistry } = await import('../widgetRegistry.js')
+		expect(widgetRegistry.links).toBeDefined()
+		expect(widgetRegistry.links.renderer).toBeTruthy()
+		expect(widgetRegistry.links.form).toBeTruthy()
+		expect(widgetRegistry.links.defaultContent).toEqual({
+			sections: [],
+			columns: 3,
+			linkLayout: 'card',
+			iconSize: 'medium',
+			openInNewTab: true,
+			showSectionTitles: true,
+			showLinkDescriptions: true,
+		})
+	})
+
+	it('REQ-LNKS-001: `links` appears in listWidgetTypes() output (visible in picker)', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('links')
+	})
 })

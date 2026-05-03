@@ -48,6 +48,8 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.v
 import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
+import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
+import CalendarForm from '../components/Widgets/Forms/CalendarForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -122,6 +124,19 @@ export const widgetRegistry = {
 		},
 		displayName: t('mydash', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
+	},
+	calendar: {
+		renderer: CalendarWidget,
+		form: CalendarForm,
+		defaultContent: {
+			internalCalendars: [],
+			externalIcsUrls: [],
+			viewMode: 'agenda',
+			daysAhead: 14,
+			colorByCalendar: true,
+		},
+		displayName: t('mydash', 'Calendar'),
+		icon: 'Calendar',
 	},
 }
 

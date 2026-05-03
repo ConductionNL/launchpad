@@ -90,6 +90,12 @@ return [
 		['name' => 'widget_api#getItems', 'url' => '/api/widgets/items', 'verb' => 'GET'],
 		['name' => 'widget_api#addWidget', 'url' => '/api/dashboard/{dashboardId}/widgets', 'verb' => 'POST'],
 		['name' => 'widget_api#addTile', 'url' => '/api/dashboard/{dashboardId}/tile', 'verb' => 'POST'],
+		// REQ-CAL-003: calendar widget events endpoint. Registered BEFORE
+		// the wildcard `/api/widgets/{placementId}` PUT/DELETE so the
+		// literal `calendar` segment is matched first.
+		['name' => 'widget_api#calendarEvents',
+		 'url' => '/api/widgets/calendar/{placementId}/events', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widget_api#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],
 		['name' => 'widget_api#removePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'DELETE'],
 

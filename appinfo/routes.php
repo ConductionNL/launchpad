@@ -288,6 +288,11 @@ return [
 		['name' => 'admin#export', 'url' => '/api/admin/export', 'verb' => 'POST'],
 		['name' => 'admin#import', 'url' => '/api/admin/import', 'verb' => 'POST'],
 
+		// People widget (REQ-PPL-003). Paginated user-directory endpoint
+		// for the `people` MyDash widget. Authenticated users only;
+		// returns `{users, total, hasMore}` with offset-based pagination.
+		['name' => 'people_widget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
+
 		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
 		// controller. The dry-run route MUST precede the bare /confluence

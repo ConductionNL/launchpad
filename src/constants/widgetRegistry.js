@@ -83,6 +83,8 @@ export const widgetRegistry = {
 			color: '',
 			backgroundColor: '',
 			textAlign: 'left',
+			tableMode: false,
+			tableData: null,
 		},
 		displayName: t('mydash', 'Text'),
 		icon: 'FormatText',

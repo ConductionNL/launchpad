@@ -175,4 +175,110 @@ describe('TextDisplayWidget', () => {
 			expect(style).toContain('justify-content: center')
 		})
 	})
+
+	describe('REQ-TBLE-009: table-mode rendering', () => {
+		const sampleTable = (overrides = {}) => ({
+			tableMode: true,
+			tableData: {
+				headerRow: false,
+				columnAlignments: ['left', 'center'],
+				rows: [
+					[
+						{ text: 'A', rowSpan: 1, colSpan: 1 },
+						{ text: 'B', rowSpan: 1, colSpan: 1 },
+					],
+					[
+						{ text: 'C', rowSpan: 1, colSpan: 1 },
+						{ text: 'D', rowSpan: 1, colSpan: 1 },
+					],
+				],
+				...overrides,
+			},
+		})
+
+		it('renders an HTML <table> with one <td> per cell', () => {
+			const wrapper = mount(TextDisplayWidget, {
+				propsData: { content: sampleTable() },
+			})
+			expect(wrapper.find('table.text-display-widget__table').exists()).toBe(true)
+			expect(wrapper.findAll('td').length).toBe(4)
+			expect(wrapper.find('th').exists()).toBe(false)
+		})
+
+		it('renders <th> for row 0 when headerRow is true', () => {
+			const content = sampleTable()
+			content.tableData.headerRow = true
+			const wrapper = mount(TextDisplayWidget, { propsData: { content } })
+			const ths = wrapper.findAll('th')
+			expect(ths.length).toBe(2)
+			expect(ths.at(0).text()).toBe('A')
+		})
+
+		it('applies per-column text-align based on columnAlignments', () => {
+			const wrapper = mount(TextDisplayWidget, {
+				propsData: { content: sampleTable() },
+			})
+			const tds = wrapper.findAll('td')
+			expect(tds.at(0).attributes('style') || '').toContain('text-align: left')
+			expect(tds.at(1).attributes('style') || '').toContain('text-align: center')
+		})
+
+		it('emits rowspan / colspan attributes from cell metadata', () => {
+			const content = {
+				tableMode: true,
+				tableData: {
+					headerRow: false,
+					columnAlignments: ['left', 'left'],
+					rows: [
+						[
+							{ text: 'Wide', rowSpan: 1, colSpan: 2 },
+							{ text: '', rowSpan: 1, colSpan: 1 },
+						],
+						[
+							{ text: 'A', rowSpan: 1, colSpan: 1 },
+							{ text: 'B', rowSpan: 1, colSpan: 1 },
+						],
+					],
+				},
+			}
+			const wrapper = mount(TextDisplayWidget, { propsData: { content } })
+			const wide = wrapper.find('td')
+			expect(wide.attributes('colspan')).toBe('2')
+		})
+
+		it('runs cell text through DOMPurify (script tag stripped)', () => {
+			const content = {
+				tableMode: true,
+				tableData: {
+					headerRow: false,
+					columnAlignments: ['left'],
+					rows: [[{ text: '<script>alert(1)</script>safe', rowSpan: 1, colSpan: 1 }]],
+				},
+			}
+			const wrapper = mount(TextDisplayWidget, { propsData: { content } })
+			expect(wrapper.find('script').exists()).toBe(false)
+			expect(wrapper.find('td').text()).toContain('safe')
+		})
+
+		it('shows the localised "Empty cell" placeholder for empty cells', () => {
+			const content = {
+				tableMode: true,
+				tableData: {
+					headerRow: false,
+					columnAlignments: ['left'],
+					rows: [[{ text: '', rowSpan: 1, colSpan: 1 }]],
+				},
+			}
+			const wrapper = mount(TextDisplayWidget, { propsData: { content } })
+			expect(wrapper.text()).toContain('Empty cell')
+		})
+
+		it('falls through to the text path when tableMode is false', () => {
+			const wrapper = mount(TextDisplayWidget, {
+				propsData: { content: { tableMode: false, text: 'plain' } },
+			})
+			expect(wrapper.find('table').exists()).toBe(false)
+			expect(wrapper.text()).toContain('plain')
+		})
+	})
 })

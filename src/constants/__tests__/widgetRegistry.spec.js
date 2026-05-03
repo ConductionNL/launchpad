@@ -64,7 +64,7 @@ describe('widgetRegistry', () => {
 		expect(a).not.toBe(b)
 	})
 
-	it('REQ-TXT-004/005: exposes a `text` entry with the proper defaultContent', async () => {
+	it('REQ-TXT-004/005 + REQ-TBLE-002: exposes a `text` entry with the proper defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
 		expect(widgetRegistry.text).toBeDefined()
 		expect(widgetRegistry.text.defaultContent).toEqual({
@@ -73,6 +73,8 @@ describe('widgetRegistry', () => {
 			color: '',
 			backgroundColor: '',
 			textAlign: 'left',
+			tableMode: false,
+			tableData: null,
 		})
 	})
 

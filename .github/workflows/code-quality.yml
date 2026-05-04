@@ -18,19 +18,23 @@ jobs:
       enable-phpmetrics: true
       enable-frontend: true
       enable-eslint: true
-      # Hard gate added wave3.10: PHPUnit. The shared workflow runs
-      # `./vendor/bin/phpunit -c phpunit.xml`; mydash historically
-      # used `phpunit-unit.xml` so the validation step accepted the
-      # name but the run step failed with "Could not read XML from
-      # file `phpunit.xml`". This branch renames the file to
-      # `phpunit.xml` so the run step works without a cross-repo
-      # input change to `ConductionNL/.github/quality.yml`. The
-      # composer scripts that drive local runs (`test`, `test:unit`,
-      # `test:all`, `test:coverage`) were updated in the same commit.
+      # Hard gate wired in wave3.10:
+      #   - PHPUnit — `phpunit.xml` rename (was phpunit-unit.xml) plus
+      #     a `$roleFeaturePerm` nullable shim so existing PHPUnit
+      #     fixtures keep building. 4-way matrix (PHP 8.3/8.4 × NC
+      #     stable31/stable32) all green.
       #
-      # Newman + Playwright are still disabled — the postman
-      # collection has pre-existing assertion drift, and the shared
-      # Playwright job needs an `occ app:enable mydash` + fixture
-      # seed step before specs run on a fresh CI VM. Tracked
-      # separately as their own follow-up commits.
+      # Playwright + Newman remain disabled:
+      #   - Playwright: this branch ALSO landed the
+      #     `tests/e2e/global-setup.ts` `ensureBundleBuilt()` helper —
+      #     a future-prep change so when the shared workflow's
+      #     PHP-built-in-server lifetime is fixed (cross-repo PR to
+      #     `ConductionNL/.github`), flipping the gate Just Works.
+      #     Today the server appears to die between the build step and
+      #     the spec phase — every spec times out on
+      #     `.mydash-sidebar-toggle` even though the bundle compiles
+      #     successfully. Locally `npx playwright test` still passes
+      #     against the dev container.
+      #   - Newman: postman collection has pre-existing assertion
+      #     drift; needs its own sweep.
       enable-phpunit: true

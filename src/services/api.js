@@ -201,6 +201,15 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards/by-path/${cleanPath}`)
 	},
 
+	// Reverse lookup: dashboard UUID → canonical slug-chain path. Used
+	// by the sidebar after every switch to keep `window.location.pathname`
+	// in sync with the active dashboard. Server returns `{path: '...'}`;
+	// an empty path is a valid response (the dashboard has no slug, so
+	// there is no addressable URL).
+	getDashboardPath(uuid) {
+		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/path`)
+	},
+
 	// REQ-LOCK-001..008: dashboard editing-lock management.
 	// Re-entrant for the same user (a second tab refreshes the lease
 	// instead of getting 409). Heartbeat MUST be sent every 60 s by

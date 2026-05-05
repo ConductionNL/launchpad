@@ -169,6 +169,7 @@ import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
 import { NcButton, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -225,6 +226,15 @@ export default {
 		},
 		primaryGroupName: {
 			from: 'primaryGroupName',
+			default: '',
+		},
+		// Canonical slug-chain path the server resolved for the active
+		// dashboard. Empty string when no dashboard is active OR the
+		// active one has no slug. Read once on mount to bring
+		// `window.location.pathname` in line with what the server
+		// rendered (handles renamed parents / stale bookmarks).
+		injectedDeepLinkPath: {
+			from: 'deepLinkPath',
 			default: '',
 		},
 	},
@@ -433,11 +443,19 @@ export default {
 		 */
 		'activeDashboard.uuid': {
 			immediate: true,
-			handler(uuid) {
+			handler(uuid, prevUuid) {
 				if (!uuid) {
 					return
 				}
 				this.recordViewEventDebounced(uuid)
+				// Outbound URL sync — every uuid change pushes a new
+				// history entry so back/forward navigates between
+				// dashboards. The first hydration is `replaceState`
+				// (handled in mounted) so we don't pollute history with
+				// the bootstrap entry.
+				if (prevUuid !== undefined) {
+					this.pushUrlForActiveDashboard()
+				}
 			},
 		},
 	},
@@ -474,11 +492,23 @@ export default {
 		// click closes popover). Detached in beforeDestroy so we never
 		// leak a listener across mounts.
 		this.grid.attach()
+
+		// Deep-link URL sync — replace the URL in-place so the address
+		// bar reflects whichever dashboard the server actually rendered
+		// (handles renamed parents and stale bookmarked paths). Uses
+		// replaceState rather than pushState so the bootstrap entry
+		// doesn't pollute the back-button history.
+		this.replaceUrlFromInitialState()
+
+		// Browser back / forward → re-resolve the URL and switch.
+		window.addEventListener('popstate', this.handleHistoryPopState)
 	},
 	beforeDestroy() {
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null
+
+		window.removeEventListener('popstate', this.handleHistoryPopState)
 	},
 	methods: {
 		t,
@@ -791,6 +821,124 @@ export default {
 			// without re-touching this view (and so the load-bearing
 			// REQ-SWITCH-002 contract is visible at the call site).
 			await this.switchDashboard(id)
+		},
+
+		/**
+		 * Compute the absolute URL for a slug-chain path. The mydash
+		 * routes mount under whatever prefix `generateUrl` produces
+		 * (typically `/index.php/apps/mydash` or `/apps/mydash` when
+		 * URL rewriting is enabled), so we anchor onto the same prefix
+		 * the API client uses.
+		 *
+		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
+		 * @return {string} Absolute pathname for `history.pushState`.
+		 */
+		buildDeepLinkUrl(path) {
+			if (!path) {
+				return ''
+			}
+			const prefix = generateUrl('/apps/mydash')
+			const cleanPath = path.startsWith('/') ? path : `/${path}`
+			return `${prefix}${cleanPath}`
+		},
+
+		/**
+		 * Bring the browser URL in line with the deep-link path the
+		 * server pushed via initial state. Runs once on mount; uses
+		 * `replaceState` so the bootstrap entry doesn't pollute the
+		 * back-button history.
+		 */
+		replaceUrlFromInitialState() {
+			const target = this.buildDeepLinkUrl(this.injectedDeepLinkPath)
+			if (!target) {
+				return
+			}
+			if (window.location.pathname.replace(/\/+$/, '') === target.replace(/\/+$/, '')) {
+				return
+			}
+			try {
+				window.history.replaceState(
+					{ uuid: this.activeDashboard?.uuid ?? null, source: 'mydash-deeplink' },
+					'',
+					target,
+				)
+			} catch (e) {
+				// SecurityError when running outside the page's origin
+				// (jsdom test harnesses, sandboxed iframes). Failure is
+				// non-fatal — the URL just stays out of sync.
+				console.warn('[Views] history.replaceState failed:', e)
+			}
+		},
+
+		/**
+		 * Outbound URL sync — fetch the canonical path for the active
+		 * dashboard and `pushState` it. Called from the
+		 * `activeDashboard.uuid` watcher AFTER the initial hydration
+		 * (the bootstrap render uses `replaceUrlFromInitialState`
+		 * instead). Failures are non-fatal; the URL just stays at its
+		 * previous value while the active dashboard moves on.
+		 */
+		async pushUrlForActiveDashboard() {
+			const uuid = this.activeDashboard?.uuid
+			if (!uuid) {
+				return
+			}
+			try {
+				const res = await api.getDashboardPath(uuid)
+				const path = res?.data?.path ?? ''
+				const target = this.buildDeepLinkUrl(path)
+				if (!target) {
+					return
+				}
+				if (window.location.pathname === target) {
+					return
+				}
+				window.history.pushState(
+					{ uuid, source: 'mydash-deeplink' },
+					'',
+					target,
+				)
+			} catch (e) {
+				console.warn('[Views] failed to push URL for active dashboard:', e)
+			}
+		},
+
+		/**
+		 * Browser back / forward handler. Strips the mydash route
+		 * prefix off `window.location.pathname` and re-resolves the
+		 * remaining slug-chain via the existing by-path API. The state
+		 * payload's uuid is preferred when present (avoids the
+		 * round-trip), but we fall back to path resolution so external
+		 * navigations (manually pasted URLs that hit popstate) still
+		 * route correctly.
+		 *
+		 * @param {PopStateEvent} event The popstate event.
+		 */
+		async handleHistoryPopState(event) {
+			const targetUuid = event?.state?.uuid ?? null
+			if (targetUuid && targetUuid === this.activeDashboard?.uuid) {
+				return
+			}
+
+			const prefix = generateUrl('/apps/mydash')
+			const pathname = window.location.pathname
+			let suffix = ''
+			if (pathname.startsWith(prefix)) {
+				suffix = pathname.slice(prefix.length).replace(/^\/+/, '').replace(/\/+$/, '')
+			}
+			if (!suffix) {
+				return
+			}
+
+			try {
+				const res = await api.getDashboardByPath(suffix)
+				const dashboard = res?.data?.dashboard
+				if (dashboard?.id !== undefined && dashboard?.id !== null) {
+					await this.switchDashboard(dashboard.id)
+				}
+			} catch (e) {
+				console.warn('[Views] popstate path resolution failed:', e)
+			}
 		},
 
 		/*

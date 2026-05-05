@@ -88,10 +88,10 @@ class RuleApiController extends Controller
     /**
      * Add a conditional rule to a widget placement.
      *
-     * @param int    $placementId The placement ID.
-     * @param string $ruleType    The rule type.
-     * @param array  $ruleConfig  The rule configuration.
-     * @param bool   $isInclude   Whether this is an include rule.
+     * @param int         $placementId The placement ID.
+     * @param string|null $ruleType    The rule type.
+     * @param array|null  $ruleConfig  The rule configuration.
+     * @param bool        $isInclude   Whether this is an include rule.
      *
      * @return JSONResponse The created rule.
      *
@@ -100,12 +100,33 @@ class RuleApiController extends Controller
     #[NoAdminRequired]
     public function addRule(
         int $placementId,
-        string $ruleType,
-        array $ruleConfig,
+        ?string $ruleType=null,
+        ?array $ruleConfig=null,
         bool $isInclude=true
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
+        }
+
+        // Validate body shape explicitly so missing fields return a clean
+        // 400 instead of a TypeError 500 from the dispatcher. Mirrors the
+        // hardening on WidgetApiController::addWidget.
+        if ($ruleType === null || $ruleType === '') {
+            return ResponseHelper::error(
+                exception: new \InvalidArgumentException(
+                    'Missing required field: ruleType'
+                ),
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        if ($ruleConfig === null) {
+            return ResponseHelper::error(
+                exception: new \InvalidArgumentException(
+                    'Missing required field: ruleConfig'
+                ),
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         }
 
         try {

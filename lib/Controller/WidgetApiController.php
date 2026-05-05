@@ -162,7 +162,7 @@ class WidgetApiController extends Controller
     #[NoAdminRequired]
     public function addWidget(
         int $dashboardId,
-        string $widgetId,
+        ?string $widgetId=null,
         int $gridX=0,
         int $gridY=0,
         int $gridWidth=4,
@@ -170,6 +170,20 @@ class WidgetApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
+        }
+
+        // Validate the widgetId parameter explicitly so a missing /
+        // empty value returns 400 rather than letting PHP's TypeError
+        // bubble up to a 500. The route declared `string $widgetId`
+        // (non-nullable) before — Newman's drift test sends a body
+        // without the field and used to crash the dispatcher.
+        if ($widgetId === null || $widgetId === '') {
+            return ResponseHelper::error(
+                exception: new \InvalidArgumentException(
+                    'Missing required field: widgetId'
+                ),
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         }
 
         if ($this->permissionService->canAddWidget(

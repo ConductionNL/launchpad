@@ -938,17 +938,25 @@ class DashboardMapper extends QBMapper
         if ($sortBy === 'updatedAt') {
             $qb->orderBy(sort: 'updated_at', order: 'DESC');
         } else {
-            // Default: category ASC (NULL last), then name ASC. NULL
-            // ordering portability differs across drivers; the
-            // ISNULL-style synthetic column is widely supported via
-            // CASE WHEN.
+            // Default: category ASC (NULL last), then name ASC.
+            //
+            // Nextcloud's `IQueryBuilder::orderBy()` escapes its `sort`
+            // argument as a column identifier, so passing a literal
+            // CASE WHEN expression there produces invalid SQL on
+            // PostgreSQL ("column does not exist"). Wrap the
+            // synthetic sort key via `createFunction()` instead — that
+            // emits the expression verbatim, preserving NULL-last
+            // semantics across pgsql / mysql / sqlite without needing
+            // driver-specific NULLS LAST clauses.
             $qb->orderBy(
-                sort: 'CASE WHEN template_category IS NULL THEN 1 ELSE 0 END',
+                sort: $qb->createFunction(
+                    'CASE WHEN template_category IS NULL THEN 1 ELSE 0 END'
+                ),
                 order: 'ASC'
             )
                 ->addOrderBy(sort: 'template_category', order: 'ASC')
                 ->addOrderBy(sort: 'name', order: 'ASC');
-        }
+        }//end if
 
         return $this->findEntities(query: $qb);
     }//end findAllTemplatesForGallery()

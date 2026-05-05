@@ -40,6 +40,7 @@ use OCA\MyDash\Exception\LockForbiddenException;
 use OCA\MyDash\Exception\LockNotFoundException;
 use OCA\MyDash\Service\DashboardLockService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -77,6 +78,7 @@ class DashboardLockApiController extends Controller
      * @param string $uuid The dashboard UUID.
      *
      * @return JSONResponse 200 with the lock object on success,
+     *                      404 when the dashboard UUID is unknown,
      *                      409 with the existing lock on conflict.
      */
     #[NoAdminRequired]
@@ -95,6 +97,11 @@ class DashboardLockApiController extends Controller
                 data: $lock->jsonSerialize(),
                 statusCode: Http::STATUS_OK
             );
+        } catch (DoesNotExistException) {
+            return new JSONResponse(
+                data: ['error' => 'Dashboard not found'],
+                statusCode: Http::STATUS_NOT_FOUND
+            );
         } catch (LockConflictException $e) {
             return new JSONResponse(
                 data: [
@@ -104,7 +111,7 @@ class DashboardLockApiController extends Controller
                 ],
                 statusCode: Http::STATUS_CONFLICT
             );
-        }
+        }//end try
     }//end acquire()
 
     /**

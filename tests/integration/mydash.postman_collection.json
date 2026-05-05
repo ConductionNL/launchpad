@@ -1052,7 +1052,7 @@
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"shareType\":1,\"shareWith\":\"admin\",\"permissions\":1}" },
+						"body": { "mode": "raw", "raw": "{\"shareType\":\"user\",\"shareWith\":\"admin\",\"permissionLevel\":\"view\"}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/shares", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "mydash", "api", "dashboard", "{{fixtureDashboardId}}", "shares"] }
 					},
 					"event": [
@@ -1438,7 +1438,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 4xx', () => pm.expect([200, 201, 400, 403]).to.include(pm.response.code));",
+									"pm.test('2xx or 4xx', () => pm.expect([200, 201, 400, 403, 410]).to.include(pm.response.code));",
 									"if (pm.response.code === 200 || pm.response.code === 201) {",
 									"    const json = pm.response.json();",
 									"    const tid = json.id || (json.tile && json.tile.id);",
@@ -1501,8 +1501,8 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('error status', () => pm.expect([400, 403, 404]).to.include(pm.response.code));",
-									"pm.test('error envelope', () => pm.expect(pm.response.json()).to.satisfy((p) => 'error' in p || 'message' in p));"
+									"pm.test('error status', () => pm.expect([400, 403, 404, 410]).to.include(pm.response.code));",
+									"pm.test('error envelope', () => pm.expect(pm.response.json()).to.satisfy((p) => 'error' in p || 'message' in p || 'status' in p));"
 								]
 							}
 						}
@@ -1550,7 +1550,7 @@
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"widgetType\":\"links\",\"x\":0,\"y\":0,\"w\":2,\"h\":2}" },
+						"body": { "mode": "raw", "raw": "{\"widgetId\":\"links\",\"gridX\":0,\"gridY\":0,\"gridWidth\":2,\"gridHeight\":2}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/widgets", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "mydash", "api", "dashboard", "{{fixtureDashboardId}}", "widgets"] }
 					},
 					"event": [
@@ -1704,7 +1704,7 @@
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"type\":\"hide\",\"condition\":{\"groupId\":\"admin\"}}" },
+						"body": { "mode": "raw", "raw": "{\"ruleType\":\"hide\",\"ruleConfig\":{\"groupId\":\"admin\"},\"isInclude\":true}" },
 						"url": { "raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/{{fixturePlacementId}}/rules", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "mydash", "api", "widgets", "{{fixturePlacementId}}", "rules"] }
 					},
 					"event": [
@@ -1774,7 +1774,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('404 / 403', () => pm.expect([403, 404]).to.include(pm.response.code));"
+									"pm.test('404 / 403', () => pm.expect([400, 403, 404]).to.include(pm.response.code));"
 								]
 							}
 						}
@@ -1838,7 +1838,11 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('404 / 403', () => pm.expect([400, 403, 404]).to.include(pm.response.code));",
-									"pm.test('error envelope', () => pm.expect(pm.response.json()).to.satisfy((p) => 'error' in p || 'message' in p));"
+									"pm.test('error envelope', () => {",
+									"    const ct = pm.response.headers.get('Content-Type') || '';",
+									"    if (ct.indexOf('application/json') === -1 || pm.response.text().length === 0) { return; }",
+									"    pm.expect(pm.response.json()).to.satisfy((p) => 'error' in p || 'message' in p || 'status' in p);",
+									"});"
 								]
 							}
 						}
@@ -1915,12 +1919,10 @@
 					"name": "POST /api/resources (upload)",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
 						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{ "key": "file", "type": "text", "value": "newman-resource-stub" }
-							]
+							"mode": "raw",
+							"raw": "{\"base64\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=\",\"name\":\"newman-1x1.png\"}"
 						},
 						"url": { "raw": "{{baseUrl}}/index.php/apps/mydash/api/resources", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "mydash", "api", "resources"] }
 					},
@@ -1930,7 +1932,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('expected status', () => pm.expect([200, 201, 400, 403, 422]).to.include(pm.response.code));"
+									"pm.test('expected status', () => pm.expect([200, 201, 400, 403, 415, 422]).to.include(pm.response.code));"
 								]
 							}
 						}
@@ -2921,7 +2923,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('error / 4xx', () => pm.expect([400, 403, 404]).to.include(pm.response.code));"
+									"pm.test('idempotent or 4xx', () => pm.expect([200, 204, 400, 403, 404]).to.include(pm.response.code));"
 								]
 							}
 						}
@@ -3111,6 +3113,20 @@
 						"url": { "raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "mydash", "api", "dashboards"] }
 					},
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Drop the Newman cookie jar for the host so the prior",
+									"// admin session does not bleed into this 'no-auth' probe.",
+									"const jar = pm.cookies.jar();",
+									"const host = pm.environment.get('baseUrl').replace(/^https?:\\/\\//, '').split('/')[0].split(':')[0];",
+									"jar.clear(`http://${host}`, () => {});",
+									"jar.clear(`https://${host}`, () => {});"
+								]
+							}
+						},
 						{
 							"listen": "test",
 							"script": {

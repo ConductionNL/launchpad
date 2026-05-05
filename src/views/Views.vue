@@ -72,6 +72,15 @@
 				@widget-right-click="onWidgetRightClick"
 				@tile-edit="openTileEditorForEdit" />
 
+			<!-- Loading shim. The empty-state below previously rendered
+			     during the initial fetch because `activeDashboard` is
+			     null until `loadDashboards()` resolves; the spinner
+			     keeps the "No dashboard yet" CTA out of view while the
+			     user is just waiting on data. -->
+			<div v-else-if="loading" class="mydash-loading">
+				<NcLoadingIcon :size="48" />
+			</div>
+
 			<!-- Empty-state shell. The "Create dashboard" affordance is gated
 			     by the admin `allow_user_dashboards` flag (REQ-ASET-003,
 			     extended). When the flag is off the button MUST be hidden
@@ -158,7 +167,7 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 
 // Icons
@@ -190,6 +199,7 @@ export default {
 	components: {
 		NcButton,
 		NcEmptyContent,
+		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
 		DashboardGrid,
@@ -953,7 +963,8 @@ export default {
 	min-height: calc(100vh - var(--header-height));
 }
 
-.mydash-empty {
+.mydash-empty,
+.mydash-loading {
 	display: flex;
 	align-items: center;
 	justify-content: center;

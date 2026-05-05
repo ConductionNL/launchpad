@@ -345,11 +345,26 @@ class DashboardApiController extends Controller
                 icon: $resolved['icon'],
                 parentUuid: $resolved['parentUuid'],
                 slug: $resolved['slug'],
-                sortOrder: $resolved['sortOrder']
+                sortOrder: $resolved['sortOrder'],
+                seedDefaults: true
+            );
+
+            // The newly-created dashboard ships with a default widget
+            // bundle (Conduction + Sendent + Nextcloud tiles + a Files
+            // widget) seeded by the service. Returning the placements
+            // here matches the `getActive()` envelope so the store can
+            // populate `widgetPlacements` without an extra round-trip.
+            $placements = $this->dashboardService->findPlacements(
+                dashboardId: $dashboard->getId()
             );
 
             return ResponseHelper::success(
-                data: ['dashboard' => $dashboard->jsonSerialize()],
+                data: [
+                    'dashboard'  => $dashboard->jsonSerialize(),
+                    'placements' => ResponseHelper::serializeList(
+                        entities: $placements
+                    ),
+                ],
                 statusCode: Http::STATUS_CREATED
             );
         } catch (InvalidArgumentException $e) {

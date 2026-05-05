@@ -104,6 +104,13 @@
 						<span class="dashboard-switcher-sidebar__icon">
 							<IconRenderer :name="dashboard.icon" :size="20" />
 						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
+							:aria-label="t('mydash', 'Default dashboard')">
+							<Star :size="16" />
+						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
@@ -150,6 +157,13 @@
 						<span class="dashboard-switcher-sidebar__icon">
 							<IconRenderer :name="dashboard.icon" :size="20" />
 						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
+							:aria-label="t('mydash', 'Default dashboard')">
+							<Star :size="16" />
+						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
@@ -195,6 +209,13 @@
 						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
 						<span class="dashboard-switcher-sidebar__icon">
 							<IconRenderer :name="dashboard.icon" :size="20" />
+						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
+							:aria-label="t('mydash', 'Default dashboard')">
+							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
 						<DashboardRowActions
@@ -251,6 +272,7 @@ import { NcButton } from '@conduction/nextcloud-vue'
 
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import Star from 'vue-material-design-icons/Star.vue'
 
 import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SidebarFooter from './SidebarFooter.vue'
@@ -262,6 +284,7 @@ export default {
 	components: {
 		Close,
 		Plus,
+		Star,
 		IconRenderer,
 		NcButton,
 		SidebarFooter,
@@ -417,6 +440,44 @@ export default {
 		},
 
 		/**
+		 * UUID of the row the resolver would land the user on at
+		 * `/apps/mydash/`. Mirrors the backend's resolver precedence
+		 * (steps 0..5) up to the group fallback so the star stays in
+		 * sync with what the user will actually see when they navigate
+		 * cold. Personal dashboards (step 6) are intentionally NOT
+		 * starred when no explicit pin is set — starring an arbitrary
+		 * personal dashboard the user never marked feels presumptuous.
+		 *
+		 * @return {string} UUID of the effective default, or '' when
+		 *                  no pin/group default applies.
+		 */
+		effectiveDefaultUuid() {
+			if (this.defaultUuid) {
+				return this.defaultUuid
+			}
+			const isDefaultFlag = (d) => Number(d?.isDefault) === 1
+			// Step 2: primary-group with isDefault=1.
+			const groupDefault = this.primaryGroupDashboards.find(isDefaultFlag)
+			if (groupDefault?.uuid) {
+				return groupDefault.uuid
+			}
+			// Step 3: default-group with isDefault=1.
+			const defaultDefault = this.defaultGroupDashboards.find(isDefaultFlag)
+			if (defaultDefault?.uuid) {
+				return defaultDefault.uuid
+			}
+			// Step 4: first primary-group dashboard (no flag).
+			if (this.primaryGroupDashboards[0]?.uuid) {
+				return this.primaryGroupDashboards[0].uuid
+			}
+			// Step 5: first default-group dashboard (no flag).
+			if (this.defaultGroupDashboards[0]?.uuid) {
+				return this.defaultGroupDashboards[0].uuid
+			}
+			return ''
+		},
+
+		/**
 		 * Vue 2's `:aria-hidden="false"` removes the attribute entirely
 		 * rather than writing the literal string `"false"`. Screen readers
 		 * (and the WCAG rule that asks for an explicit `false` while open)
@@ -435,6 +496,20 @@ export default {
 
 		isActive(id) {
 			return this.activeDashboardId != null && id === this.activeDashboardId
+		},
+
+		/**
+		 * Whether `dashboard` is the row the resolver would land the
+		 * user on when they visit `/apps/mydash/`. The sidebar marks it
+		 * with a star so the effective default is visible at a glance
+		 * instead of buried in the cog menu.
+		 *
+		 * @param {object} dashboard Row payload from the parent.
+		 * @return {boolean} True when the row is the effective default.
+		 */
+		isDefaultDashboard(dashboard) {
+			return Boolean(this.effectiveDefaultUuid)
+				&& dashboard?.uuid === this.effectiveDefaultUuid
 		},
 
 		/**
@@ -609,6 +684,14 @@ export default {
 	justify-content: center;
 	width: 20px;
 	height: 20px;
+}
+
+.dashboard-switcher-sidebar__default-marker {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-warning, #e9a800);
 }
 
 .dashboard-switcher-sidebar__label {

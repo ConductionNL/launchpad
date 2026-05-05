@@ -447,7 +447,13 @@ export const useDashboardStore = defineStore('dashboard', {
 					source: response.data.dashboard.source ?? SOURCE_USER,
 				})
 				this.activeDashboard = response.data.dashboard
-				this.widgetPlacements = []
+				// Backend seeds a default widget bundle on every new
+				// user-created dashboard and returns the placements in
+				// the same envelope shape as `getActive()`. Older
+				// servers that haven't shipped the seed yet return no
+				// `placements` key — fall back to an empty array so the
+				// dashboard renders cleanly until the user adds widgets.
+				this.widgetPlacements = response.data.placements ?? []
 			} catch (error) {
 				// REQ-ASET-003 (extended): when the backend returns the
 				// stable `personal_dashboards_disabled` envelope, surface

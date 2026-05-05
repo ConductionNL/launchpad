@@ -104,6 +104,13 @@
 						<span class="dashboard-switcher-sidebar__icon">
 							<IconRenderer :name="dashboard.icon" :size="20" />
 						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
+							:aria-label="t('mydash', 'Default dashboard')">
+							<Star :size="16" />
+						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
@@ -150,6 +157,13 @@
 						<span class="dashboard-switcher-sidebar__icon">
 							<IconRenderer :name="dashboard.icon" :size="20" />
 						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
+							:aria-label="t('mydash', 'Default dashboard')">
+							<Star :size="16" />
+						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
@@ -195,6 +209,13 @@
 						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
 						<span class="dashboard-switcher-sidebar__icon">
 							<IconRenderer :name="dashboard.icon" :size="20" />
+						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
+							:aria-label="t('mydash', 'Default dashboard')">
+							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
 						<DashboardRowActions
@@ -251,6 +272,7 @@ import { NcButton } from '@conduction/nextcloud-vue'
 
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import Star from 'vue-material-design-icons/Star.vue'
 
 import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SidebarFooter from './SidebarFooter.vue'
@@ -262,6 +284,7 @@ export default {
 	components: {
 		Close,
 		Plus,
+		Star,
 		IconRenderer,
 		NcButton,
 		SidebarFooter,
@@ -438,6 +461,20 @@ export default {
 		},
 
 		/**
+		 * Whether `dashboard` is the user's pinned default — the row that
+		 * the resolver's "step 0" lands on when the user visits
+		 * `/apps/mydash/`. The sidebar marks it with a star icon so the
+		 * pin is visible at a glance instead of buried in the cog menu.
+		 *
+		 * @param {object} dashboard Row payload from the parent.
+		 * @return {boolean} True when the row is the active pin.
+		 */
+		isDefaultDashboard(dashboard) {
+			return Boolean(this.defaultUuid)
+				&& dashboard?.uuid === this.defaultUuid
+		},
+
+		/**
 		 * Click handler for a dashboard row. MUST emit `update:open(false)`
 		 * BEFORE `switch(id, source)` so the parent can close the sidebar
 		 * in the same tick (REQ-SWITCH-002).
@@ -609,6 +646,14 @@ export default {
 	justify-content: center;
 	width: 20px;
 	height: 20px;
+}
+
+.dashboard-switcher-sidebar__default-marker {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-warning, #e9a800);
 }
 
 .dashboard-switcher-sidebar__label {

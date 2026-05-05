@@ -401,4 +401,64 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(wrapper.emitted('update:open')[0]).toEqual([false])
 		})
 	})
+
+	describe('default-dashboard star marker', () => {
+		const userRowWithUuid = { id: 'p1', uuid: 'pin-uuid', name: 'My Notes', icon: null, source: 'user' }
+		const userRowOtherUuid = { id: 'p2', uuid: 'other-uuid', name: 'Side Project', icon: null, source: 'user' }
+		const groupRowWithUuid = { id: 'g1', uuid: 'group-uuid', name: 'Team Board', icon: null, source: 'group' }
+
+		it('renders a star marker only on the row whose uuid matches defaultUuid', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRowWithUuid, userRowOtherUuid],
+				defaultUuid: 'pin-uuid',
+			})
+
+			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+			expect(markers.length).toBe(1)
+
+			// The star sits in the row for the pinned dashboard.
+			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				(li) => li.text().includes('My Notes'),
+			)
+			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
+		})
+
+		it('star marker carries a tooltip via the title attribute', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRowWithUuid],
+				defaultUuid: 'pin-uuid',
+			})
+
+			const marker = wrapper.find('.dashboard-switcher-sidebar__default-marker')
+			expect(marker.exists()).toBe(true)
+			expect(marker.attributes('title')).toMatch(/default dashboard/i)
+			expect(marker.attributes('aria-label')).toMatch(/default dashboard/i)
+		})
+
+		it('does not render any star marker when defaultUuid is empty', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRowWithUuid, userRowOtherUuid],
+				defaultUuid: '',
+			})
+
+			expect(wrapper.findAll('.dashboard-switcher-sidebar__default-marker').length).toBe(0)
+		})
+
+		it('marks a group-section row when the user has pinned a group dashboard', () => {
+			const wrapper = mountSidebar({
+				groupName: 'Engineering',
+				groupDashboards: [groupRowWithUuid],
+				userDashboards: [userRowOtherUuid],
+				defaultUuid: 'group-uuid',
+			})
+
+			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+			expect(markers.length).toBe(1)
+
+			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				(li) => li.text().includes('Team Board'),
+			)
+			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
+		})
+	})
 })

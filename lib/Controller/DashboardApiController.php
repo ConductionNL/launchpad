@@ -588,6 +588,48 @@ class DashboardApiController extends Controller
     }//end byPath()
 
     /**
+     * GET /api/dashboards/{uuid}/path — return a dashboard's canonical
+     * slug-chain path.
+     *
+     * Used by the frontend after every sidebar switch to keep the
+     * browser URL in sync with the active dashboard. The path is the
+     * leading-slash slug-chain returned by
+     * {@see DashboardTreeService::computePath()}; an empty string means
+     * the UUID does not resolve OR the dashboard has no slug (legal —
+     * NULL slugs are simply unaddressable by path), and the frontend
+     * treats either case as "leave the URL alone".
+     *
+     * @param string $uuid Dashboard UUID captured from the URL.
+     *
+     * @return JSONResponse `{path: string}` envelope (always 200 when
+     *                      authorised — the empty-path case is a valid
+     *                      response shape the caller distinguishes
+     *                      client-side).
+     */
+    #[NoAdminRequired]
+    public function computePath(string $uuid=''): JSONResponse
+    {
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        if ($uuid === '') {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => 'missing_uuid',
+                    'message' => 'UUID is required',
+                ],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
+        }
+
+        return ResponseHelper::success(
+            data: ['path' => $this->treeService->computePath(uuid: $uuid)]
+        );
+    }//end computePath()
+
+    /**
      * Activate a dashboard.
      *
      * @param int $id The dashboard ID.

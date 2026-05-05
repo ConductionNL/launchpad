@@ -289,6 +289,26 @@ class InitialStateBuilder
     }//end setAllowedWidgets()
 
     /**
+     * Set the canonical slug-chain path for the active dashboard
+     * (workspace).
+     *
+     * Read by the frontend on mount to bring `window.location.pathname`
+     * in line with whichever dashboard was actually rendered — handles
+     * the renamed-parent / stale-bookmark cases by replacing the URL
+     * in-place via `history.replaceState`. Empty string when no
+     * dashboard is active (the page renders the empty state).
+     *
+     * @param string $deepLinkPath Canonical path or '' when none.
+     *
+     * @return self
+     */
+    public function setDeepLinkPath(string $deepLinkPath): self
+    {
+        $this->values['deepLinkPath'] = $deepLinkPath;
+        return $this;
+    }//end setDeepLinkPath()
+
+    /**
      * Set every Nextcloud group (admin).
      *
      * @param array $allGroups List of `{id, displayName}` pairs.

@@ -440,6 +440,44 @@ export default {
 		},
 
 		/**
+		 * UUID of the row the resolver would land the user on at
+		 * `/apps/mydash/`. Mirrors the backend's resolver precedence
+		 * (steps 0..5) up to the group fallback so the star stays in
+		 * sync with what the user will actually see when they navigate
+		 * cold. Personal dashboards (step 6) are intentionally NOT
+		 * starred when no explicit pin is set — starring an arbitrary
+		 * personal dashboard the user never marked feels presumptuous.
+		 *
+		 * @return {string} UUID of the effective default, or '' when
+		 *                  no pin/group default applies.
+		 */
+		effectiveDefaultUuid() {
+			if (this.defaultUuid) {
+				return this.defaultUuid
+			}
+			const isDefaultFlag = (d) => Number(d?.isDefault) === 1
+			// Step 2: primary-group with isDefault=1.
+			const groupDefault = this.primaryGroupDashboards.find(isDefaultFlag)
+			if (groupDefault?.uuid) {
+				return groupDefault.uuid
+			}
+			// Step 3: default-group with isDefault=1.
+			const defaultDefault = this.defaultGroupDashboards.find(isDefaultFlag)
+			if (defaultDefault?.uuid) {
+				return defaultDefault.uuid
+			}
+			// Step 4: first primary-group dashboard (no flag).
+			if (this.primaryGroupDashboards[0]?.uuid) {
+				return this.primaryGroupDashboards[0].uuid
+			}
+			// Step 5: first default-group dashboard (no flag).
+			if (this.defaultGroupDashboards[0]?.uuid) {
+				return this.defaultGroupDashboards[0].uuid
+			}
+			return ''
+		},
+
+		/**
 		 * Vue 2's `:aria-hidden="false"` removes the attribute entirely
 		 * rather than writing the literal string `"false"`. Screen readers
 		 * (and the WCAG rule that asks for an explicit `false` while open)
@@ -461,17 +499,17 @@ export default {
 		},
 
 		/**
-		 * Whether `dashboard` is the user's pinned default — the row that
-		 * the resolver's "step 0" lands on when the user visits
-		 * `/apps/mydash/`. The sidebar marks it with a star icon so the
-		 * pin is visible at a glance instead of buried in the cog menu.
+		 * Whether `dashboard` is the row the resolver would land the
+		 * user on when they visit `/apps/mydash/`. The sidebar marks it
+		 * with a star so the effective default is visible at a glance
+		 * instead of buried in the cog menu.
 		 *
 		 * @param {object} dashboard Row payload from the parent.
-		 * @return {boolean} True when the row is the active pin.
+		 * @return {boolean} True when the row is the effective default.
 		 */
 		isDefaultDashboard(dashboard) {
-			return Boolean(this.defaultUuid)
-				&& dashboard?.uuid === this.defaultUuid
+			return Boolean(this.effectiveDefaultUuid)
+				&& dashboard?.uuid === this.effectiveDefaultUuid
 		},
 
 		/**

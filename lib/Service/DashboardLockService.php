@@ -39,6 +39,7 @@ namespace OCA\MyDash\Service;
 use DateTime;
 use OCA\MyDash\Db\DashboardLock;
 use OCA\MyDash\Db\DashboardLockMapper;
+use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Exception\LockConflictException;
 use OCA\MyDash\Exception\LockForbiddenException;
 use OCA\MyDash\Exception\LockNotFoundException;
@@ -56,16 +57,20 @@ class DashboardLockService
     /**
      * Constructor
      *
-     * @param DashboardLockMapper $lockMapper   The lock mapper.
-     * @param IUserManager        $userManager  Resolves display names for
-     *                                          new locks.
-     * @param IGroupManager       $groupManager Admin check for force-release.
-     * @param LoggerInterface     $logger       PSR logger — used for the
-     *                                          force-release audit trail
-     *                                          (REQ-LOCK-006, design D4).
+     * @param DashboardLockMapper $lockMapper      The lock mapper.
+     * @param DashboardMapper     $dashboardMapper Used to verify the
+     *                                             dashboard exists before
+     *                                             a lock row is written.
+     * @param IUserManager        $userManager     Resolves display names for
+     *                                             new locks.
+     * @param IGroupManager       $groupManager    Admin check for force-release.
+     * @param LoggerInterface     $logger          PSR logger — used for the
+     *                                             force-release audit trail
+     *                                             (REQ-LOCK-006, design D4).
      */
     public function __construct(
         private readonly DashboardLockMapper $lockMapper,
+        private readonly DashboardMapper $dashboardMapper,
         private readonly IUserManager $userManager,
         private readonly IGroupManager $groupManager,
         private readonly LoggerInterface $logger,
@@ -89,6 +94,10 @@ class DashboardLockService
      *
      * @return DashboardLock The active lock owned by `$userId`.
      *
+     * @throws DoesNotExistException When the dashboard UUID does not
+     *                               resolve to an existing dashboard —
+     *                               propagated unchanged so the
+     *                               controller can map it to HTTP 404.
      * @throws LockConflictException When another user already holds an
      *                               active lock on the dashboard.
      */
@@ -96,6 +105,13 @@ class DashboardLockService
         string $dashboardUuid,
         string $userId
     ): DashboardLock {
+        // Reject locks against a non-existent dashboard up front. Without
+        // this guard the unique constraint on the lock table is satisfied
+        // by any UUID, so `POST /api/dashboards/{garbage}/lock` returns
+        // 200 with a brand-new orphaned row — silent acceptance of bogus
+        // resources.
+        $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
+
         // Inline cleanup so stale rows don't block the new acquire.
         $this->lockMapper->deleteExpiredForDashboard(
             dashboardUuid: $dashboardUuid

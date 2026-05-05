@@ -143,4 +143,30 @@ class FeedTokenMapper extends QBMapper
         $token->setRevokedAt($now);
         $this->update(entity: $token);
     }//end softRevoke()
+
+    /**
+     * Hard-delete every feed-token row for `$userId`, regardless of
+     * revoked state. Used by `regenerateToken` because the table's
+     * `mydash_feed_tok_user_uq` unique constraint sits on `user_id`
+     * alone — the soft-revoke pattern (one active + N revoked rows
+     * per user) trips it on the next insert. Feed tokens are
+     * regenerable user secrets so we drop revoked history rather
+     * than maintain a parallel audit table.
+     *
+     * @param string $userId The owning user ID.
+     *
+     * @return void
+     */
+    public function deleteAllForUser(string $userId): void
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete(delete: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'user_id',
+                    y: $qb->createNamedParameter(value: $userId)
+                )
+            );
+        $qb->executeStatement();
+    }//end deleteAllForUser()
 }//end class

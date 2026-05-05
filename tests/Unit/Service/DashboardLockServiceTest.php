@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardLock;
 use OCA\MyDash\Db\DashboardLockMapper;
+use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Exception\LockConflictException;
 use OCA\MyDash\Exception\LockForbiddenException;
 use OCA\MyDash\Exception\LockNotFoundException;
@@ -47,6 +49,14 @@ class DashboardLockServiceTest extends TestCase
      * @var DashboardLockMapper&MockObject
      */
     private $lockMapper;
+
+    /**
+     * Dashboard mapper mock — used by `acquireLock` to verify the
+     * dashboard UUID exists before persisting a new lock row.
+     *
+     * @var DashboardMapper&MockObject
+     */
+    private $dashboardMapper;
 
     /**
      * User manager mock.
@@ -76,13 +86,21 @@ class DashboardLockServiceTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->lockMapper   = $this->createMock(originalClassName: DashboardLockMapper::class);
-        $this->userManager  = $this->createMock(originalClassName: IUserManager::class);
-        $this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
-        $logger             = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->lockMapper      = $this->createMock(originalClassName: DashboardLockMapper::class);
+        $this->dashboardMapper = $this->createMock(originalClassName: DashboardMapper::class);
+        $this->userManager     = $this->createMock(originalClassName: IUserManager::class);
+        $this->groupManager    = $this->createMock(originalClassName: IGroupManager::class);
+        $logger                = $this->createMock(originalClassName: LoggerInterface::class);
+
+        // Default: dashboards exist. Tests that need to assert the
+        // missing-dashboard branch override this via willThrow.
+        $this->dashboardMapper
+            ->method('findByUuid')
+            ->willReturn(new Dashboard());
 
         $this->service = new DashboardLockService(
             lockMapper: $this->lockMapper,
+            dashboardMapper: $this->dashboardMapper,
             userManager: $this->userManager,
             groupManager: $this->groupManager,
             logger: $logger,

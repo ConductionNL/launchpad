@@ -63,13 +63,24 @@ class DebounceHelper
     private $clock;
 
     /**
+     * True when the helper is using the real wall-clock and may delegate
+     * to APCu. False when a test clock is injected — in that case APCu's
+     * own TTL would not move with the test clock, so the in-memory
+     * fallback is the only correct backend.
+     *
+     * @var boolean
+     */
+    private bool $realClock;
+
+    /**
      * Constructor.
      *
      * @param (callable():int)|null $clock Optional clock callable; defaults to `time()`.
      */
     public function __construct(?callable $clock=null)
     {
-        $this->clock = ($clock ?? static fn(): int => time());
+        $this->realClock = ($clock === null);
+        $this->clock     = ($clock ?? static fn(): int => time());
     }//end __construct()
 
     /**
@@ -174,6 +185,13 @@ class DebounceHelper
      */
     private function apcuUsable(): bool
     {
+        // A test-injected clock cannot move APCu's wall-clock TTL, so
+        // the in-memory store is the only backend that produces
+        // deterministic results when the clock is fake.
+        if ($this->realClock === false) {
+            return false;
+        }
+
         if (function_exists(function: 'apcu_add') === false || function_exists(function: 'apcu_exists') === false) {
             return false;
         }

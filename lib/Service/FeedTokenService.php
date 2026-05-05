@@ -78,6 +78,11 @@ class FeedTokenService
             return $existing;
         }
 
+        // The findByUserId filter is `revoked_at IS NULL`; the user
+        // could still have prior soft-revoked rows that the unique
+        // constraint (`mydash_feed_tok_user_uq`) would block on the
+        // next insert. Drop them before creating a fresh active token.
+        $this->mapper->deleteAllForUser(userId: $userId);
         return $this->createToken(userId: $userId);
     }//end getOrCreateToken()
 
@@ -95,11 +100,12 @@ class FeedTokenService
     {
         $this->db->beginTransaction();
         try {
-            $existing = $this->mapper->findByUserId(userId: $userId);
-            if ($existing !== null) {
-                $this->mapper->softRevoke(token: $existing);
-            }
-
+            // Hard-delete every existing row for this user (active +
+            // any previously soft-revoked) so the next insert doesn't
+            // collide with the `mydash_feed_tok_user_uq` constraint.
+            // Feed tokens are user secrets — losing revoke history is
+            // acceptable; running into a 500 on regenerate is not.
+            $this->mapper->deleteAllForUser(userId: $userId);
             $fresh = $this->createToken(userId: $userId);
             $this->db->commit();
             return $fresh;

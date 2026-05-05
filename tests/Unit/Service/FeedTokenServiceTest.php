@@ -123,21 +123,17 @@ class FeedTokenServiceTest extends TestCase
      */
     public function testRegenerateRevokesAndIssuesInTransaction(): void
     {
-        $existing = new FeedToken();
-        $existing->setUserId('carol');
-        $existing->setToken('old-token');
-
         $this->db->expects($this->once())->method('beginTransaction');
         $this->db->expects($this->once())->method('commit');
         $this->db->expects($this->never())->method('rollBack');
 
+        // The unique constraint on `user_id` cannot coexist with the
+        // soft-revoke pattern, so regenerate hard-deletes every prior
+        // row (active + revoked) before inserting the new one.
         $this->mapper->expects($this->once())
-            ->method('findByUserId')
-            ->with('carol')
-            ->willReturn($existing);
-        $this->mapper->expects($this->once())
-            ->method('softRevoke')
-            ->with($existing);
+            ->method('deleteAllForUser')
+            ->with('carol');
+        $this->mapper->expects($this->never())->method('softRevoke');
 
         $captured = null;
         $this->mapper->expects($this->once())
@@ -151,7 +147,7 @@ class FeedTokenServiceTest extends TestCase
         $fresh = $this->service->regenerateToken(userId: 'carol');
         $this->assertNotNull(actual: $captured);
         $this->assertSame(expected: 'carol', actual: $fresh->getUserId());
-        $this->assertNotSame(expected: 'old-token', actual: $fresh->getToken());
+        $this->assertNotEmpty(actual: $fresh->getToken());
     }//end testRegenerateRevokesAndIssuesInTransaction()
 
     /**
@@ -166,10 +162,11 @@ class FeedTokenServiceTest extends TestCase
         $this->db->expects($this->once())->method('beginTransaction');
         $this->db->expects($this->once())->method('commit');
 
+        // `deleteAllForUser` is unconditional — when the user has no
+        // prior row it is simply a 0-row delete.
         $this->mapper->expects($this->once())
-            ->method('findByUserId')
-            ->with('dan')
-            ->willReturn(null);
+            ->method('deleteAllForUser')
+            ->with('dan');
         $this->mapper->expects($this->never())->method('softRevoke');
         $this->mapper->expects($this->once())
             ->method('insert')

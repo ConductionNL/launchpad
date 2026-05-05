@@ -2023,6 +2023,14 @@ class DashboardService
             $placement->setUpdatedAt($now);
 
             if ($config['tile'] !== null) {
+                // `tileType` MUST be non-null for `WidgetPlacement::jsonSerialize()`
+                // to emit the flat tile* fields the renderer reads. The
+                // sentinel `'preset'` distinguishes seed-tiles from the
+                // legacy `'custom'` value that routes through the
+                // pre-registry tile path in DashboardGrid.vue, so these
+                // placements still flow through the registry-backed
+                // TileWidget renderer (REQ-WDG-022).
+                $placement->setTileType('preset');
                 $placement->setTileTitle($config['tile']['title']);
                 $placement->setTileIcon($config['tile']['icon']);
                 $placement->setTileIconType($config['tile']['iconType']);

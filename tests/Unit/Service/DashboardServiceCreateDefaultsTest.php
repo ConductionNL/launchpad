@@ -146,7 +146,10 @@ class DashboardServiceCreateDefaultsTest extends TestCase
         $this->assertCount(4, $captured);
 
         // Three tiles on the top row, then files spanning row 2.
+        // `tileType='preset'` is required so `WidgetPlacement::jsonSerialize`
+        // emits the flat tile* fields the frontend renderer reads.
         $this->assertSame('tile', $captured[0]->getWidgetId());
+        $this->assertSame('preset', $captured[0]->getTileType());
         $this->assertSame('Conduction', $captured[0]->getTileTitle());
         $this->assertSame('https://conduction.nl', $captured[0]->getTileLinkValue());
         $this->assertSame(0, $captured[0]->getGridX());
@@ -154,17 +157,20 @@ class DashboardServiceCreateDefaultsTest extends TestCase
         $this->assertSame(4, $captured[0]->getGridWidth());
 
         $this->assertSame('tile', $captured[1]->getWidgetId());
+        $this->assertSame('preset', $captured[1]->getTileType());
         $this->assertSame('Sendent', $captured[1]->getTileTitle());
         $this->assertSame('https://sendent.com', $captured[1]->getTileLinkValue());
         $this->assertSame(4, $captured[1]->getGridX());
 
         $this->assertSame('tile', $captured[2]->getWidgetId());
+        $this->assertSame('preset', $captured[2]->getTileType());
         $this->assertSame('Nextcloud', $captured[2]->getTileTitle());
         $this->assertSame('icon-nextcloud', $captured[2]->getTileIcon());
         $this->assertSame('class', $captured[2]->getTileIconType());
         $this->assertSame(8, $captured[2]->getGridX());
 
         $this->assertSame('files', $captured[3]->getWidgetId());
+        $this->assertNull($captured[3]->getTileType());
         $this->assertSame(0, $captured[3]->getGridX());
         $this->assertSame(3, $captured[3]->getGridY());
         $this->assertSame(12, $captured[3]->getGridWidth());

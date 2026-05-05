@@ -375,19 +375,31 @@ class DashboardService
      * the parent (existence, cycle, depth) and the slug uniqueness
      * (per-parent) before the row is persisted.
      *
-     * @param string      $userId      The user ID.
-     * @param string      $name        The dashboard name.
-     * @param string|null $description The dashboard description.
-     * @param string|null $icon        Opaque icon identifier (registry
-     *                                 key or URL); see the
-     *                                 `dashboard-icons` capability.
-     * @param string|null $parentUuid  Optional parent dashboard UUID
-     *                                 (REQ-DASH-023). NULL ⇒ root.
-     * @param string|null $slug        Optional caller-supplied slug
-     *                                 (REQ-DASH-024). NULL ⇒ derive from
-     *                                 the name.
-     * @param int         $sortOrder   Optional sibling sort order
-     *                                 (REQ-DASH-029). Defaults to 0.
+     * @param string      $userId       The user ID.
+     * @param string      $name         The dashboard name.
+     * @param string|null $description  The dashboard description.
+     * @param string|null $icon         Opaque icon identifier (registry
+     *                                  key or URL); see the
+     *                                  `dashboard-icons` capability.
+     * @param string|null $parentUuid   Optional parent dashboard UUID
+     *                                  (REQ-DASH-023). NULL ⇒ root.
+     * @param string|null $slug         Optional caller-supplied slug
+     *                                  (REQ-DASH-024). NULL ⇒
+     *                                  derive from the name.
+     * @param int         $sortOrder    Optional sibling sort order
+     *                                  (REQ-DASH-029). Defaults to
+     *                                  0.
+     * @param bool        $seedDefaults Whether to seed the default
+     *                                  widget bundle (Conduction +
+     *                                  Sendent + Nextcloud tiles +
+     *                                  a Files widget) on the new
+     *                                  dashboard. The controller
+     *                                  path (`POST
+     *                                  /api/dashboard`) opts in;
+     *                                  the bootstrap path keeps it
+     *                                  off to avoid double-seeding
+     *                                  when role defaults already
+     *                                  apply.
      *
      * @return Dashboard The created dashboard.
      */
@@ -398,7 +410,8 @@ class DashboardService
         ?string $icon=null,
         ?string $parentUuid=null,
         ?string $slug=null,
-        int $sortOrder=0
+        int $sortOrder=0,
+        bool $seedDefaults=false
     ): Dashboard {
         // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
         // depth checks BEFORE the entity is built so the request is
@@ -459,6 +472,16 @@ class DashboardService
                     context: ['message' => $t->getMessage()]
                 );
             }
+        }
+
+        // User-initiated dashboards (the "+" affordance in the sidebar)
+        // arrive here with $seedDefaults=true and are bootstrapped with
+        // the standard tile + files bundle. The bootstrap path
+        // (tryCreateFromTemplate) keeps $seedDefaults=false because it
+        // runs its own role-default-driven seed afterwards and would
+        // otherwise double-seed.
+        if ($seedDefaults === true) {
+            $this->seedDefaultWidgets(dashboardId: $persisted->getId());
         }
 
         return $persisted;
@@ -1857,8 +1880,9 @@ class DashboardService
     /**
      * Create default widget placements for a new dashboard.
      *
-     * Adds the same widgets shown on the standard Nextcloud dashboard:
-     * recommendations (recent files) and activity.
+     * Delegates to {@see self::seedDefaultWidgets()}; retained as a
+     * private alias because the bootstrap fallback in
+     * {@see self::tryCreateFromTemplate()} historically called this name.
      *
      * @param int $dashboardId The dashboard ID.
      *
@@ -1866,29 +1890,125 @@ class DashboardService
      */
     private function createDefaultPlacements(int $dashboardId): array
     {
+        return $this->seedDefaultWidgets(dashboardId: $dashboardId);
+    }//end createDefaultPlacements()
+
+    /**
+     * Return all widget placements for a dashboard.
+     *
+     * Thin pass-through over the placement mapper used by callers that
+     * only have a dashboard id and need the full placement list (e.g.
+     * the `POST /api/dashboard` controller path returning the freshly
+     * seeded default widget bundle in its response envelope).
+     *
+     * @param int $dashboardId The dashboard ID.
+     *
+     * @return WidgetPlacement[] The placements ordered by sortOrder.
+     */
+    public function findPlacements(int $dashboardId): array
+    {
+        return $this->placementMapper->findByDashboardId(
+            dashboardId: $dashboardId
+        );
+    }//end findPlacements()
+
+    /**
+     * Seed the default widget bundle on a freshly-created dashboard.
+     *
+     * Every brand-new personal dashboard is bootstrapped with three
+     * preconfigured `tile` widgets (Conduction, Sendent, Nextcloud) on
+     * the top row plus a `files` widget below, on a 12-column grid:
+     *
+     *   row 0..2 : Conduction (0..3) | Sendent (4..7) | Nextcloud (8..11)
+     *   row 3..7 : Files (0..11)
+     *
+     * Admin-created template dashboards skip this seed — templates run
+     * through the resolver path
+     * ({@see self::dashResolver::handleTemplateResult()}) and ship the
+     * widget set their author intended.
+     *
+     * The tile content is persisted via the legacy flat
+     * `tile{Title,Icon,IconType,BackgroundColor,TextColor,LinkType,LinkValue}`
+     * columns so the renderer's inline-or-flat coalescing path
+     * (REQ-TILE-PLACEMENT) picks them up without a JSON `content`
+     * column. The Nextcloud tile uses an `icon-` CSS class (no logo
+     * asset is shipped); Conduction and Sendent point at the PNGs in
+     * `mydash/img/` via app-relative URLs that resolve through any
+     * Nextcloud overwrite.
+     *
+     * @param int $dashboardId The dashboard ID to seed.
+     *
+     * @return WidgetPlacement[] The persisted placements (4 entries).
+     */
+    private function seedDefaultWidgets(int $dashboardId): array
+    {
         $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
-        $defaults = [
+        $tiles = [
             [
-                'widgetId'   => 'recommendations',
+                'widgetId'   => 'tile',
                 'gridX'      => 0,
                 'gridY'      => 0,
-                'gridWidth'  => 6,
-                'gridHeight' => 5,
+                'gridWidth'  => 4,
+                'gridHeight' => 3,
                 'sortOrder'  => 0,
+                'tile'       => [
+                    'title'           => 'Conduction',
+                    'icon'            => '/apps/mydash/img/conduction-logo.png',
+                    'iconType'        => 'url',
+                    'backgroundColor' => '#ffffff',
+                    'textColor'       => '#000000',
+                    'linkType'        => 'url',
+                    'linkValue'       => 'https://conduction.nl',
+                ],
             ],
             [
-                'widgetId'   => 'activity',
-                'gridX'      => 6,
+                'widgetId'   => 'tile',
+                'gridX'      => 4,
                 'gridY'      => 0,
-                'gridWidth'  => 6,
-                'gridHeight' => 5,
+                'gridWidth'  => 4,
+                'gridHeight' => 3,
                 'sortOrder'  => 1,
+                'tile'       => [
+                    'title'           => 'Sendent',
+                    'icon'            => '/apps/mydash/img/sendent-logo.png',
+                    'iconType'        => 'url',
+                    'backgroundColor' => '#ffffff',
+                    'textColor'       => '#000000',
+                    'linkType'        => 'url',
+                    'linkValue'       => 'https://sendent.com',
+                ],
+            ],
+            [
+                'widgetId'   => 'tile',
+                'gridX'      => 8,
+                'gridY'      => 0,
+                'gridWidth'  => 4,
+                'gridHeight' => 3,
+                'sortOrder'  => 2,
+                'tile'       => [
+                    'title'           => 'Nextcloud',
+                    'icon'            => 'icon-nextcloud',
+                    'iconType'        => 'class',
+                    'backgroundColor' => '#0082c9',
+                    'textColor'       => '#ffffff',
+                    'linkType'        => 'url',
+                    'linkValue'       => 'https://nextcloud.com',
+                ],
+            ],
+            [
+                'widgetId'   => 'files',
+                'gridX'      => 0,
+                'gridY'      => 3,
+                'gridWidth'  => 12,
+                'gridHeight' => 5,
+                'sortOrder'  => 3,
+                'tile'       => null,
             ],
         ];
 
         $placements = [];
-        foreach ($defaults as $config) {
+        foreach ($tiles as $config) {
             $placement = new WidgetPlacement();
             $placement->setDashboardId($dashboardId);
             $placement->setWidgetId($config['widgetId']);
@@ -1902,11 +2022,21 @@ class DashboardService
             $placement->setCreatedAt($now);
             $placement->setUpdatedAt($now);
 
+            if ($config['tile'] !== null) {
+                $placement->setTileTitle($config['tile']['title']);
+                $placement->setTileIcon($config['tile']['icon']);
+                $placement->setTileIconType($config['tile']['iconType']);
+                $placement->setTileBackgroundColor($config['tile']['backgroundColor']);
+                $placement->setTileTextColor($config['tile']['textColor']);
+                $placement->setTileLinkType($config['tile']['linkType']);
+                $placement->setTileLinkValue($config['tile']['linkValue']);
+            }
+
             $placements[] = $this->placementMapper->insert(entity: $placement);
         }//end foreach
 
         return $placements;
-    }//end createDefaultPlacements()
+    }//end seedDefaultWidgets()
 
     /**
      * Apply updates to a dashboard entity.

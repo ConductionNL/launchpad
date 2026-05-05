@@ -129,6 +129,31 @@
 			"name": "Dashboards - Fixture setup",
 			"item": [
 				{
+					"name": "PUT /api/admin/settings (enable personal dashboards)",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"allowUserDash\":true}"
+						},
+						"url": { "raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "mydash", "api", "admin", "settings"] }
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// REQ-ASET-003: personal dashboard creation is gated on this flag.",
+									"// Fresh CI installs default to false; flip it before any fixture POST.",
+									"pm.test('settings update accepted', () => pm.expect([200, 204]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
 					"name": "POST /api/dashboard (create fixture)",
 					"request": {
 						"method": "POST",

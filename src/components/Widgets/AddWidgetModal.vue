@@ -28,11 +28,13 @@
 					:id="typeSelectId"
 					v-model="state.type"
 					class="add-widget-modal__type-select"
+					data-testid="widget-type-select"
 					@change="onTypeSwitch">
 					<option
 						v-for="type in availableTypes"
 						:key="type"
-						:value="type">
+						:value="type"
+						:data-testid="`widget-type-option-${type}`">
 						{{ typeDisplayName(type) }}
 					</option>
 				</select>

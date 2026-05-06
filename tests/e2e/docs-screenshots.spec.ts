@@ -146,28 +146,24 @@ test.describe('docs: user track', () => {
 		// Open the AddWidgetModal via the cog → Add custom widget…
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-add-widget"]').click()
-		await page.waitForTimeout(500)
-		// 03-widget-picker: the type picker
+		await page.locator('[data-testid="widget-type-select"]').waitFor({ state: 'visible', timeout: 5000 })
+		// 03-widget-picker: the type picker (default = label widget)
 		await shoot(page, 'user', '03-widget-picker.png')
 
-		// Pick "Text" — every install has it. The picker offers buttons
-		// per registered widget type; selector matches the visible label.
-		const textBtn = page.getByRole('button', { name: /^Text$/ }).first()
-		if (await textBtn.count() > 0) {
-			await textBtn.click()
-			// Prefer placeholder match for the markdown body — the modal
-			// re-uses NcTextField/textarea components that don't carry a
-			// stable id per sub-form.
-			const body = page.locator('textarea[placeholder*="markdown" i], textarea[placeholder*="text" i]').first()
-			if (await body.count() > 0) {
-				await body.fill('# Hello docs\n\nThis was added by `docs-screenshots.spec.ts`.')
-			}
-			await shoot(page, 'user', '03-widget-form.png')
-
-			await page.locator('[data-testid="add-widget-save"]').click()
-			await page.waitForLoadState('networkidle')
-			await shoot(page, 'user', '03-widget-added.png')
+		// Switch to the text widget type — its sub-form has a markdown
+		// body that's easy to fill. The select drives the per-type form
+		// swap via the registry (REQ-WDG-014).
+		await page.locator('[data-testid="widget-type-select"]').selectOption('text')
+		await page.waitForTimeout(300)
+		const body = page.locator('textarea[placeholder*="markdown" i], textarea[placeholder*="text" i]').first()
+		if (await body.count() > 0) {
+			await body.fill('# Hello docs\n\nThis was added by `docs-screenshots.spec.ts`.')
 		}
+		await shoot(page, 'user', '03-widget-form.png')
+
+		await page.locator('[data-testid="add-widget-save"]').click()
+		await page.waitForLoadState('networkidle')
+		await shoot(page, 'user', '03-widget-added.png')
 	})
 
 	test('U4 reposition & resize — edit mode + drag + drop + resize + save', async ({ page }) => {
@@ -175,16 +171,17 @@ test.describe('docs: user track', () => {
 		await openSidebar(page)
 		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
 		await openCogFor(page, activeName.trim())
-		await page.getByRole('menuitem', { name: /^Edit dashboard$/ }).click()
+		await page.locator('[data-testid="cog-edit-dashboard"]').click()
 		await page.waitForTimeout(500)
 		await shoot(page, 'user', '04-edit-mode.png')
 
-		// 04-dragging: mid-drag — start a drag, screenshot before drop
-		const firstWidget = page.locator('.grid-stack-item').first()
-		const handle = firstWidget.locator('.widget-wrapper__title, .grid-stack-item-content > *').first()
-		const box = await handle.boundingBox()
+		// 04-dragging: mid-drag — start a drag, screenshot before drop.
+		// `[data-testid^="widget-placement-"]` matches the WidgetWrapper
+		// root for any placement (id is appended for uniqueness).
+		const firstWidget = page.locator('[data-testid^="widget-placement-"]').first()
+		const box = await firstWidget.boundingBox()
 		if (box) {
-			await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+			await page.mouse.move(box.x + box.width / 2, box.y + 30)
 			await page.mouse.down()
 			await page.mouse.move(box.x + 240, box.y + 120, { steps: 10 })
 			await shoot(page, 'user', '04-dragging.png')
@@ -194,11 +191,13 @@ test.describe('docs: user track', () => {
 			await shoot(page, 'user', '04-reflowed.png')
 		}
 
-		// 04-resizing: corner-resize a widget
-		const resizable = page.locator('.grid-stack-item').first()
-		const rbox = await resizable.boundingBox()
-		const corner = resizable.locator('.ui-resizable-handle.ui-resizable-se, .grid-stack-item-content + *').first()
-		if (rbox && (await corner.count()) > 0) {
+		// 04-resizing: corner-resize a widget. GridStack injects the
+		// `.ui-resizable-handle.ui-resizable-se` element on the wrapper
+		// in edit mode — that's a third-party class we can't control,
+		// but the stable testid on the placement scopes the lookup.
+		const resizable = page.locator('[data-testid^="widget-placement-"]').first()
+		const corner = resizable.locator('.ui-resizable-handle.ui-resizable-se, .gs-resize-handle').first()
+		if (await corner.count() > 0) {
 			const cbox = await corner.boundingBox()
 			if (cbox) {
 				await page.mouse.move(cbox.x + 4, cbox.y + 4)
@@ -217,10 +216,8 @@ test.describe('docs: user track', () => {
 	})
 
 	test('U5 edit content & style — context menu, edit modal, style modal', async ({ page }) => {
-		// The grid container varies; .grid-stack is the GridStack root,
-		// .widget-wrapper is the per-placement wrapper. Either works as
-		// a right-click target.
-		const widget = page.locator('.grid-stack-item, .widget-wrapper').first()
+		const widget = page.locator('[data-testid^="widget-placement-"]').first()
+
 		// 05-context-menu: right-click anchored popover
 		await widget.click({ button: 'right' })
 		await page.locator('[data-testid="widget-context-menu"]').waitFor({ state: 'visible', timeout: 5000 })
@@ -233,24 +230,30 @@ test.describe('docs: user track', () => {
 		await page.keyboard.press('Escape')
 		await page.waitForTimeout(300)
 
-		// 05-style-editor: there is no separate Style entry on the
-		// context menu today — the style editor opens via the cog button
-		// on the placement (NcDashboardWidget#openStyle). Capture
-		// whatever modal opens after right-click + cog click as a
-		// best-effort fallback. Selector intentionally permissive.
-		await widget.click({ button: 'right' })
-		await page.waitForTimeout(300)
-		const styleMenuItem = page.getByRole('menuitem', { name: /^Style$/ })
-		if (await styleMenuItem.count() > 0) {
-			await styleMenuItem.click()
+		// 05-style-editor: opens via the per-widget cog button (visible
+		// only in edit mode). Enter edit mode first if not already.
+		await openSidebar(page)
+		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		await openCogFor(page, activeName.trim())
+		const editEntry = page.locator('[data-testid="cog-edit-dashboard"]')
+		if (await editEntry.count() > 0) {
+			await editEntry.click()
 			await page.waitForTimeout(500)
+		} else {
+			await closeSidebar(page)
+		}
+
+		const cog = widget.locator('[data-testid="widget-edit-cog"]').first()
+		if (await cog.count() > 0) {
+			await cog.click()
+			await page.locator('[data-testid="widget-style-editor"]').waitFor({ state: 'visible', timeout: 5000 })
 			await shoot(page, 'user', '05-style-editor.png')
 			await page.keyboard.press('Escape')
 		}
 	})
 
 	test('U6 remove widget — context menu + after', async ({ page }) => {
-		const widget = page.locator('.grid-stack-item, .widget-wrapper').last()
+		const widget = page.locator('[data-testid^="widget-placement-"]').last()
 		await widget.click({ button: 'right' })
 		await page.locator('[data-testid="widget-context-menu"]').waitFor({ state: 'visible', timeout: 5000 })
 		// reuse 05-context-menu.png; capture only the after state

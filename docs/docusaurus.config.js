@@ -4,7 +4,7 @@
 const config = {
   title: 'MyDash',
   tagline: 'Your customizable dashboard for Nextcloud',
-  url: 'https://mydash.app',
+  url: 'https://mydash.conduction.nl',
   baseUrl: '/',
 
   // GitHub pages deployment config

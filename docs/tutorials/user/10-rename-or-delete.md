@@ -21,13 +21,13 @@ Change a dashboard's metadata (name, description, icon, slug) — or delete it.
 
 ### 1. Open the cog menu on the row
 
-![Cog action menu](../../screenshots/tutorials/user/03-cog-menu.png)
+![Cog action menu](/screenshots/tutorials/user/03-cog-menu.png)
 
 ### 2. Click **Dashboard configuration…**
 
 The configuration modal opens with the current values pre-filled:
 
-![Dashboard configuration modal](../../screenshots/tutorials/user/10-config-modal.png)
+![Dashboard configuration modal](/screenshots/tutorials/user/10-config-modal.png)
 
 Editable fields:
 
@@ -46,7 +46,7 @@ The dashboard updates in place. Slug changes propagate to the URL: if you were v
 
 A confirmation prompt appears. Confirming issues `DELETE /api/dashboard/{id}`; the row is removed from the sidebar and the active dashboard falls back to your default (or the next available).
 
-![Delete confirmation](../../screenshots/tutorials/user/10-delete-confirm.png)
+![Delete confirmation](/screenshots/tutorials/user/10-delete-confirm.png)
 
 :::danger Permanent
 Deleting a dashboard removes it AND every widget placement on it. There is no undo. Tile data, widget configs, and the dashboard row itself are all dropped.

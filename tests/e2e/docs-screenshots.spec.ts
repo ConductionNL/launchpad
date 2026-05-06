@@ -37,11 +37,13 @@ import { test, expect, type Page } from '@playwright/test'
 import * as path from 'path'
 import * as fs from 'fs'
 
-const SHOT_ROOT = path.resolve(__dirname, '..', '..', 'docs', 'screenshots', 'tutorials')
+const SHOT_ROOT = path.resolve(__dirname, '..', '..', 'docs', 'static', 'screenshots', 'tutorials')
 
 /**
- * Save a screenshot under `docs/screenshots/tutorials/<track>/<file>`.
- * Ensures the destination directory exists.
+ * Save a screenshot under `docs/static/screenshots/tutorials/<track>/<file>`.
+ * Lives under `static/` so Docusaurus copies the PNGs into the build root —
+ * markdown image refs use the absolute `/screenshots/...` path the static
+ * dir resolves to. Ensures the destination directory exists.
  */
 async function shoot(page: Page, track: 'user' | 'admin', file: string): Promise<void> {
 	const dir = path.join(SHOT_ROOT, track)

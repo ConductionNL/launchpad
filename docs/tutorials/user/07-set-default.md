@@ -25,7 +25,7 @@ Pin a dashboard as your personal default; verify the ★ marker appears in the s
 
 ### 1. Open the sidebar and click the cog on the row you want as default
 
-![Cog action menu](../../screenshots/tutorials/user/03-cog-menu.png)
+![Cog action menu](/screenshots/tutorials/user/03-cog-menu.png)
 
 ### 2. Click **Set as default**
 
@@ -35,7 +35,7 @@ Pin a dashboard as your personal default; verify the ★ marker appears in the s
 
 The sidebar redraws with a small star to the left of the dashboard name on the pinned row:
 
-![Sidebar with star marker](../../screenshots/tutorials/user/07-default-marker.png)
+![Sidebar with star marker](/screenshots/tutorials/user/07-default-marker.png)
 
 The marker carries a tooltip on hover: *"Default dashboard — opens automatically when you visit MyDash"*. Screen readers announce the same string via `aria-label`.
 
@@ -49,7 +49,7 @@ Close the tab. Visit `/apps/mydash/` from scratch. You land on the pinned dashbo
 - **The marker can land on any section.** Personal pin in **MY DASHBOARDS**, group dashboard in the primary-group section, default-group dashboard in **DEFAULT** — all carry the same star.
 - **No pin set?** The marker still appears on whichever group dashboard the resolver would land on (the same fallback chain — steps 2-5 above).
 
-![No pin — fallback to group default](../../screenshots/tutorials/user/07-fallback-marker.png)
+![No pin — fallback to group default](/screenshots/tutorials/user/07-fallback-marker.png)
 
 ## Common issues
 

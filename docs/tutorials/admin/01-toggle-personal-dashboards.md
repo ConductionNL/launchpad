@@ -22,13 +22,13 @@ Toggle the flag on or off and verify the user UI reflects the change.
 
 Settings menu (avatar) → **Administration settings** → **MyDash** in the left nav.
 
-![MyDash admin settings page](../../screenshots/tutorials/admin/01-admin-settings.png)
+![MyDash admin settings page](/screenshots/tutorials/admin/01-admin-settings.png)
 
 ### 2. Find the **Personal dashboards** section
 
 The section is near the top of the page. The toggle is labelled **Allow users to create personal dashboards**.
 
-![Personal dashboards toggle](../../screenshots/tutorials/admin/01-toggle.png)
+![Personal dashboards toggle](/screenshots/tutorials/admin/01-toggle.png)
 
 ### 3. Flip the toggle
 
@@ -41,7 +41,7 @@ Open MyDash as a non-admin user.
 - **Toggle on** → **+ Add dashboard** is visible in the sidebar; the empty state shows the standard "Create your first dashboard" CTA.
 - **Toggle off** → button hidden; empty state shows "Personal dashboards are not enabled by your administrator."
 
-![User UI when disabled](../../screenshots/tutorials/admin/01-user-disabled.png)
+![User UI when disabled](/screenshots/tutorials/admin/01-user-disabled.png)
 
 ## Behaviour notes
 

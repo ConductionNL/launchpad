@@ -33,7 +33,7 @@ Avatar → **Administration settings** → **MyDash**.
 
 The section lists every existing template with name, assigned groups, and edit / delete actions.
 
-![Admin templates list](../../screenshots/tutorials/admin/02-templates-list.png)
+![Admin templates list](/screenshots/tutorials/admin/02-templates-list.png)
 
 ### 3. Click **Create template**
 
@@ -42,7 +42,7 @@ The template-create modal opens. Required fields:
 - **Name** — internal label for admins. Not user-visible (the user sees a regular dashboard with whatever name you set there).
 - **Group order priority** — comma-separated group ids in priority order. The resolver picks the first group in this list that the user belongs to.
 
-![Create template modal](../../screenshots/tutorials/admin/02-template-create.png)
+![Create template modal](/screenshots/tutorials/admin/02-template-create.png)
 
 Optional fields:
 
@@ -53,13 +53,13 @@ Optional fields:
 
 Saving creates the template row. Click **Edit layout** on the new template — MyDash opens a regular dashboard editor scoped to the template. Add widgets, position them, configure them — exactly like editing a personal dashboard.
 
-![Edit template layout](../../screenshots/tutorials/admin/02-template-edit.png)
+![Edit template layout](/screenshots/tutorials/admin/02-template-edit.png)
 
 ### 5. Verify with a test user
 
 `occ user:add testuser` (or pick an existing member of the assigned group). Log in as that user and open MyDash. The first visit clones the template into a personal dashboard named **My Dashboard** (default) — visible in **MY DASHBOARDS** in the sidebar.
 
-![Test user lands on cloned template](../../screenshots/tutorials/admin/02-test-user-view.png)
+![Test user lands on cloned template](/screenshots/tutorials/admin/02-test-user-view.png)
 
 ## Behaviour notes
 

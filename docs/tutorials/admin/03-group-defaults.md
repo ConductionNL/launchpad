@@ -24,19 +24,19 @@ Mark an existing dashboard as the default for a Nextcloud group, and verify memb
 
 Open MyDash as the admin and navigate to the group dashboard. Open its cog menu.
 
-![Group dashboard cog menu](../../screenshots/tutorials/admin/03-group-cog.png)
+![Group dashboard cog menu](/screenshots/tutorials/admin/03-group-cog.png)
 
 ### 2. Click **Set as default for &lt;group&gt;**
 
 This is admin-only. The action issues `POST /api/dashboards/group/<group>/default` with the dashboard's UUID. The service flips the previous group default off and the new one on **in a single transaction** (REQ-DASH-015), so members never see a flash with no default.
 
-![Set as default for group](../../screenshots/tutorials/admin/03-set-group-default.png)
+![Set as default for group](/screenshots/tutorials/admin/03-set-group-default.png)
 
 ### 3. Verify on a member's view
 
 Log in as a member of the group. Their sidebar's **DEFAULT** section now lists the dashboard you marked.
 
-![Member view — DEFAULT section](../../screenshots/tutorials/admin/03-member-default.png)
+![Member view — DEFAULT section](/screenshots/tutorials/admin/03-member-default.png)
 
 ## Behaviour notes
 

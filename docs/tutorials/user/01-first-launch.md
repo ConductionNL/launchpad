@@ -18,7 +18,7 @@ Recognise the parts of the MyDash workspace and know where to find the controls 
 
 Or visit `/apps/mydash/` directly. After a moment of loading you land on **My Dashboard** with the default widget bundle already in place:
 
-![First-launch overview](../../screenshots/tutorials/user/01-first-launch-overview.png)
+![First-launch overview](/screenshots/tutorials/user/01-first-launch-overview.png)
 
 The bundle ships with three preconfigured tile widgets on the top row — Conduction, Sendent, and Nextcloud — plus a Files widget below.
 
@@ -26,7 +26,7 @@ The bundle ships with three preconfigured tile widgets on the top row — Conduc
 
 Click the **hamburger** button in the top-right to slide out the sidebar:
 
-![Sidebar open](../../screenshots/tutorials/user/02-sidebar-open.png)
+![Sidebar open](/screenshots/tutorials/user/02-sidebar-open.png)
 
 The sidebar is your jumping-off point for everything — switching between dashboards, creating new ones, configuring an existing one, and pinning a default.
 
@@ -44,7 +44,7 @@ A ★ next to a row marks that dashboard as your **default** — the one MyDash 
 
 Each row carries a cog (⚙️) on the right. Click it for the per-dashboard action menu:
 
-![Cog action menu](../../screenshots/tutorials/user/03-cog-menu.png)
+![Cog action menu](/screenshots/tutorials/user/03-cog-menu.png)
 
 From here you can edit the layout, configure metadata, add custom widgets, pin as default, and delete. Most of the rest of the user guide is built around these actions.
 

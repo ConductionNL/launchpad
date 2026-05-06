@@ -34,7 +34,7 @@ Open a dashboard via its URL, and verify the URL stays in sync as you switch das
 
 The address bar already shows it after the slash:
 
-![URL bar](../../screenshots/tutorials/user/08-url-bar.png)
+![URL bar](/screenshots/tutorials/user/08-url-bar.png)
 
 Or check **Dashboard configuration…** in the cog menu — the slug is editable there.
 
@@ -42,13 +42,13 @@ Or check **Dashboard configuration…** in the cog menu — the slug is editable
 
 Open a new tab and paste `http://localhost:8080/apps/mydash/<slug-chain>`. MyDash loads with that dashboard already active — no extra clicks needed.
 
-![Deep-link landing](../../screenshots/tutorials/user/08-deep-link-landed.png)
+![Deep-link landing](/screenshots/tutorials/user/08-deep-link-landed.png)
 
 ### 3. Switch dashboards in the sidebar
 
 Click another row. The URL updates immediately via `history.pushState` — the page doesn't reload but the address bar is now the slug-chain of the new dashboard.
 
-![URL updates after switch](../../screenshots/tutorials/user/08-url-after-switch.png)
+![URL updates after switch](/screenshots/tutorials/user/08-url-after-switch.png)
 
 ### 4. Use the browser back / forward buttons
 

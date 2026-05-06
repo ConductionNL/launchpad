@@ -27,7 +27,7 @@ Edit a widget you already added — both its content and its visual style.
 
 In edit mode, right-clicking a widget opens a context menu anchored at the cursor:
 
-![Right-click context menu](../../screenshots/tutorials/user/05-context-menu.png)
+![Right-click context menu](/screenshots/tutorials/user/05-context-menu.png)
 
 Options:
 - **Edit** — opens the per-type configuration form (same as during add).
@@ -39,7 +39,7 @@ Options:
 
 Pick **Edit**. The same `AddWidgetModal` you used to add the widget reopens, this time pre-filled with the current placement's content. Change fields and **Save**.
 
-![Edit content modal](../../screenshots/tutorials/user/05-edit-content.png)
+![Edit content modal](/screenshots/tutorials/user/05-edit-content.png)
 
 ### 3. Edit style
 
@@ -51,7 +51,7 @@ Pick **Style** instead. The dedicated `WidgetStyleEditor` opens with these contr
 - **Border** — colour and thickness.
 - **Background colour** — solid, transparent, or theme-bound.
 
-![Style editor](../../screenshots/tutorials/user/05-style-editor.png)
+![Style editor](/screenshots/tutorials/user/05-style-editor.png)
 
 The style is persisted as a JSON blob in `placement.styleConfig`; it doesn't touch the widget's content.
 

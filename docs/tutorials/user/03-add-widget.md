@@ -27,13 +27,13 @@ Add a new widget to your active dashboard.
 
 Open the active dashboard's cog menu and click **Edit dashboard**. The grid shows resize handles on each placement.
 
-![Edit dashboard menu entry](../../screenshots/tutorials/user/03-edit-mode-enter.png)
+![Edit dashboard menu entry](/screenshots/tutorials/user/03-edit-mode-enter.png)
 
 ### 2. Open the **Add widget** modal
 
 From the cog menu pick **Add custom widget…** for the MyDash custom families, or click the empty-cell **+** marker that appears in edit mode for built-in Nextcloud widgets.
 
-![Widget picker modal](../../screenshots/tutorials/user/03-widget-picker.png)
+![Widget picker modal](/screenshots/tutorials/user/03-widget-picker.png)
 
 ### 3. Pick a widget type
 
@@ -48,13 +48,13 @@ Each custom widget type opens its own form. Some examples:
 - **Files** — folder path, view mode (list / grid), optional filters and upload toggle.
 - **Link button** — single-link button or list mode with multiple links.
 
-![Per-type configuration form](../../screenshots/tutorials/user/03-widget-form.png)
+![Per-type configuration form](/screenshots/tutorials/user/03-widget-form.png)
 
 ### 5. Click **Save**
 
 The new placement appears in the grid at the next available cell. You can immediately drag it where you want — see [Reposition & resize widgets](04-reposition-resize.md).
 
-![Newly-added widget on dashboard](../../screenshots/tutorials/user/03-widget-added.png)
+![Newly-added widget on dashboard](/screenshots/tutorials/user/03-widget-added.png)
 
 ## Verification
 

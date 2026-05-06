@@ -34,19 +34,19 @@ Move every dashboard in `eng-old` into `eng`, then delete the now-empty `eng-old
 
 ### 1. Open Bulk operations
 
-![Bulk operations panel](../../screenshots/tutorials/admin/05-bulk-panel.png)
+![Bulk operations panel](/screenshots/tutorials/admin/05-bulk-panel.png)
 
 ### 2. Filter the dashboard list
 
 Filter controls: by group id, by `source`, by date range, by name match. The selected rows update live.
 
-![Filter applied — eng-old dashboards selected](../../screenshots/tutorials/admin/05-bulk-filter.png)
+![Filter applied — eng-old dashboards selected](/screenshots/tutorials/admin/05-bulk-filter.png)
 
 ### 3. Pick **Move** and the target group
 
 Select the rows (or **Select all matching**), open the action dropdown, pick **Move**, type or pick the target group id (`eng`).
 
-![Move action — target group entered](../../screenshots/tutorials/admin/05-bulk-move-target.png)
+![Move action — target group entered](/screenshots/tutorials/admin/05-bulk-move-target.png)
 
 ### 4. Confirm
 
@@ -54,7 +54,7 @@ A confirmation dialog summarises what's about to happen — count, source group,
 
 The action issues `POST /api/admin/dashboards/bulk-move` with the UUIDs and target group id. Service-side this is a single transaction: all rows or nothing.
 
-![Bulk move confirmation](../../screenshots/tutorials/admin/05-bulk-confirm.png)
+![Bulk move confirmation](/screenshots/tutorials/admin/05-bulk-confirm.png)
 
 ### 5. Repeat for **Delete** on the empty group
 

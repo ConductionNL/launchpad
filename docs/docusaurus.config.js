@@ -17,11 +17,16 @@ const config = {
   onBrokenAnchors: 'warn',
 
   i18n: {
+    // Dutch locale temporarily dropped — `i18n/nl/` carries only stale
+    // translation strings (no actual translated markdown), and recent
+    // docs additions broke Dutch SSR with "Cannot read properties of
+    // undefined (reading 'id')" on a handful of pages. Re-enable by
+    // adding `'nl'` back once the Dutch translation pass has been
+    // completed or the metadata audited for stale references.
     defaultLocale: 'en',
-    locales: ['en', 'nl'],
+    locales: ['en'],
     localeConfigs: {
       en: { label: 'English' },
-      nl: { label: 'Nederlands' },
     },
   },
 

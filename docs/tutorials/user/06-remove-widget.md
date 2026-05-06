@@ -23,13 +23,13 @@ Remove one widget from a dashboard.
 
 In edit mode, right-click anywhere on the widget. The context menu opens at the cursor.
 
-![Right-click context menu](../../screenshots/tutorials/user/05-context-menu.png)
+![Right-click context menu](/screenshots/tutorials/user/05-context-menu.png)
 
 ### 2. Click **Remove**
 
 The menu auto-closes and the placement disappears from the grid. The DELETE call fires immediately; there is no undo.
 
-![After remove](../../screenshots/tutorials/user/06-after-remove.png)
+![After remove](/screenshots/tutorials/user/06-after-remove.png)
 
 :::caution
 The remove is destructive. If you're unsure, [edit the style](05-edit-content.md) and toggle **Show title** off — it hides the placement without deleting it.

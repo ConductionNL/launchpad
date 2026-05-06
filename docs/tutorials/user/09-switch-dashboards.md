@@ -18,13 +18,13 @@ Switch from the active dashboard to a different one.
 
 Click the hamburger button (top-right). The sidebar slides in from the left:
 
-![Sidebar open](../../screenshots/tutorials/user/02-sidebar-open.png)
+![Sidebar open](/screenshots/tutorials/user/02-sidebar-open.png)
 
 ### 2. Click the row of the dashboard you want
 
 The sidebar closes immediately (per `REQ-SWITCH-002`); the workspace re-renders with the selected dashboard's layout. The URL updates via `history.pushState` so back/forward navigates between dashboards (see [Bookmark or share a dashboard URL](08-deep-link.md)).
 
-![After switching](../../screenshots/tutorials/user/09-after-switch.png)
+![After switching](/screenshots/tutorials/user/09-after-switch.png)
 
 ### 3. The active row is highlighted
 

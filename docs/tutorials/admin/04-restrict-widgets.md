@@ -27,7 +27,7 @@ Define a role with a widget allow-list, assign it to a group, and verify members
 
 ### 1. Open MyDash admin settings → **Roles**
 
-![Roles tab in admin settings](../../screenshots/tutorials/admin/04-roles-tab.png)
+![Roles tab in admin settings](/screenshots/tutorials/admin/04-roles-tab.png)
 
 ### 2. Click **Create role**
 
@@ -37,7 +37,7 @@ Required fields:
 - **Group** — Nextcloud group id this role applies to.
 - **Allowed widgets** — multi-select of widget IDs (e.g. `recommendations`, `activity`, `tile`, `files`, `text`).
 
-![Create role modal](../../screenshots/tutorials/admin/04-role-create.png)
+![Create role modal](/screenshots/tutorials/admin/04-role-create.png)
 
 Leave the allow-list empty to mean "no restriction" (the default for users not in any role).
 
@@ -49,7 +49,7 @@ The role row appears in the list. The allow-list is persisted in `oc_mydash_role
 
 As a member of the assigned group, open MyDash and the widget picker:
 
-![Filtered widget picker](../../screenshots/tutorials/admin/04-filtered-picker.png)
+![Filtered widget picker](/screenshots/tutorials/admin/04-filtered-picker.png)
 
 Only the allowed widget IDs appear. Existing placements of disallowed widgets keep rendering — the filter only applies to **adding new** widgets.
 

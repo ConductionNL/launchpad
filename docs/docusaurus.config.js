@@ -4,7 +4,7 @@
 const config = {
   title: 'MyDash',
   tagline: 'Your customizable dashboard for Nextcloud',
-  url: 'https://mydash.app',
+  url: 'https://mydash.conduction.nl',
   baseUrl: '/',
 
   // GitHub pages deployment config
@@ -14,6 +14,7 @@ const config = {
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
+  onBrokenAnchors: 'warn',
 
   i18n: {
     defaultLocale: 'en',
@@ -105,6 +106,15 @@ const config = {
     }),
   markdown: {
     mermaid: true,
+    // Tutorial pages reference screenshots that are populated by
+    // `tests/e2e/docs-screenshots.spec.ts`. The Playwright capture run is
+    // separate from the docs build, so the build needs to succeed even
+    // when a fresh checkout doesn't have every PNG yet. Warn instead of
+    // failing — the absence is visible at preview time and the capture
+    // spec brings everything back on demand.
+    hooks: {
+      onBrokenMarkdownImages: 'warn',
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
 };

@@ -19,6 +19,7 @@
 					:value="form.name"
 					:label="t('mydash', 'Title')"
 					:placeholder="t('mydash', 'My dashboard')"
+					data-testid="dashboard-name-input"
 					@update:value="form.name = $event" />
 			</div>
 
@@ -31,6 +32,7 @@
 					v-model="form.description"
 					class="dashboard-config__textarea"
 					rows="3"
+					data-testid="dashboard-description-input"
 					:placeholder="t('mydash', 'What is this dashboard for?')" />
 			</div>
 
@@ -144,6 +146,7 @@
 					v-if="canDelete && !isCreate"
 					type="error"
 					:disabled="saving"
+					data-testid="dashboard-delete-button"
 					@click="onDelete">
 					<template #icon>
 						<Delete :size="20" />
@@ -154,7 +157,11 @@
 					<NcButton type="tertiary" :disabled="saving" @click="$emit('close')">
 						{{ t('mydash', 'Cancel') }}
 					</NcButton>
-					<NcButton type="primary" :disabled="!canSave || saving" @click="onSave">
+					<NcButton
+						type="primary"
+						:disabled="!canSave || saving"
+						data-testid="dashboard-save-button"
+						@click="onSave">
 						<template #icon>
 							<Plus v-if="isCreate" :size="20" />
 							<ContentSave v-else :size="20" />

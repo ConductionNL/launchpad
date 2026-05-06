@@ -42,7 +42,7 @@
 			</div>
 
 			<!-- Global Settings -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-default-settings">
 				<h3>{{ t('mydash', 'Default settings') }}</h3>
 
 				<div class="mydash-admin__field">
@@ -64,6 +64,7 @@
 				     to admins so they don't fear data loss. -->
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowUserDashboards"
+					data-testid="admin-allow-user-dashboards"
 					@update:checked="updateSetting('allowUserDashboards', $event)">
 					{{ t('mydash', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
@@ -93,10 +94,10 @@
 			</div>
 
 			<!-- Template Management -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-templates-section">
 				<div class="mydash-admin__section-header">
 					<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
-					<NcButton type="primary" @click="createTemplate">
+					<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
 						<template #icon>
 							<Plus :size="20" />
 						</template>
@@ -206,7 +207,7 @@
 			</div>
 
 			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-bulk-section">
 				<DashboardBulkOperations />
 			</div>
 
@@ -226,7 +227,7 @@
 			</div>
 
 			<!-- Role-based widget permissions (REQ-RFP-001..010) -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-roles-section">
 				<RolePermissionsSection />
 			</div>
 

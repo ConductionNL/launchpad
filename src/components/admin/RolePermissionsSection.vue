@@ -62,7 +62,7 @@
 			</div>
 		</div>
 
-		<NcButton type="primary" @click="openCreate">
+		<NcButton type="primary" data-testid="admin-add-role" @click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>

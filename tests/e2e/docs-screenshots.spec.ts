@@ -340,40 +340,37 @@ test.describe('docs: admin track', () => {
 	})
 
 	test('A1 toggle personal dashboards', async ({ page }) => {
+		// 01-admin-settings: the full admin page above-the-fold
+		await page.locator('[data-testid="admin-default-settings"]').scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '01-admin-settings.png')
 
-		// 01-toggle: the personal-dashboards toggle close-up
-		const toggle = page.locator('input[type="checkbox"]', { hasText: '' }).first()
-		// Best-effort — the visible label varies; aria-label is the contract
-		const allowToggle = page.getByLabel(/Allow users to create personal dashboards/i).first()
-		if ((await allowToggle.count()) > 0) {
-			await allowToggle.scrollIntoViewIfNeeded()
-		}
+		// 01-toggle: zoom in on the Default settings section so the
+		// "Allow users to create custom dashboards" switch is the focal
+		// point of the screenshot.
+		await page.locator('[data-testid="admin-allow-user-dashboards"]').scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '01-toggle.png')
 
-		// 01-user-disabled: render the user empty-state when toggle is off.
-		// Skipped here — re-shoot manually after disabling to avoid leaving
-		// the test instance with personal dashboards off.
+		// 01-user-disabled: requires actually flipping the toggle off and
+		// switching to a non-admin user; skipped here so an automated
+		// docs run never leaves the test instance with personal
+		// dashboards disabled.
 	})
 
 	test('A2 admin templates — list + create + edit + test-user view', async ({ page }) => {
-		// Scroll to the templates section
-		const list = page.locator('[data-section="admin-templates"], section:has-text("Admin templates")')
-		if ((await list.count()) > 0) {
-			await list.scrollIntoViewIfNeeded()
-		}
+		await page.locator('[data-testid="admin-templates-section"]').scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '02-templates-list.png')
 
-		const createBtn = page.getByRole('button', { name: /^Create template$/ })
-		if ((await createBtn.count()) > 0) {
-			await createBtn.click()
-			await shoot(page, 'admin', '02-template-create.png')
-			await page.keyboard.press('Escape')
-		}
+		await page.locator('[data-testid="admin-create-template"]').click()
+		await page.waitForTimeout(500)
+		await shoot(page, 'admin', '02-template-create.png')
+		await page.keyboard.press('Escape')
+		await page.waitForTimeout(300)
 
-		// 02-template-edit: open the first existing template's editor if any
-		const firstEdit = page.getByRole('button', { name: /^Edit layout$/ }).first()
-		if ((await firstEdit.count()) > 0) {
+		// 02-template-edit: best-effort — opens the first existing
+		// template's edit affordance if any. Selector permissive because
+		// the per-template Edit button isn't testid-instrumented yet.
+		const firstEdit = page.locator('[data-testid="admin-templates-section"]').getByRole('button', { name: /^Edit$/ }).first()
+		if (await firstEdit.count() > 0) {
 			await firstEdit.click()
 			await page.waitForLoadState('networkidle')
 			await shoot(page, 'admin', '02-template-edit.png')
@@ -402,30 +399,29 @@ test.describe('docs: admin track', () => {
 		// 03-member-default: capture manually as a non-admin member
 	})
 
-	test('A4 restrict widgets per role — roles tab + create modal + filtered picker', async ({ page }) => {
-		// roles tab
-		const tab = page.getByRole('tab', { name: /^Roles$/ }).or(page.getByRole('link', { name: /^Roles$/ }))
-		if ((await tab.count()) > 0) {
-			await tab.first().click()
-			await shoot(page, 'admin', '04-roles-tab.png')
-		}
+	test('A4 restrict widgets per role — section + create modal', async ({ page }) => {
+		// 04-roles-tab: scroll the roles section into view (admin
+		// settings is one long page, not tabbed)
+		await page.locator('[data-testid="admin-roles-section"]').scrollIntoViewIfNeeded()
+		await shoot(page, 'admin', '04-roles-tab.png')
 
-		const createRole = page.getByRole('button', { name: /^Create role$/ })
-		if ((await createRole.count()) > 0) {
-			await createRole.click()
-			await shoot(page, 'admin', '04-role-create.png')
-			await page.keyboard.press('Escape')
-		}
+		// 04-role-create: open the Add role permission modal
+		await page.locator('[data-testid="admin-add-role"]').click()
+		await page.waitForTimeout(500)
+		await shoot(page, 'admin', '04-role-create.png')
+		await page.keyboard.press('Escape')
+
 		// 04-filtered-picker: capture manually as a non-admin in a restricted role
 	})
 
-	test('A5 bulk operations — panel + filter + move + confirm', async ({ page }) => {
-		const bulkLink = page.getByRole('link', { name: /^Bulk operations$/ }).or(page.getByRole('tab', { name: /^Bulk operations$/ }))
-		if ((await bulkLink.count()) > 0) {
-			await bulkLink.first().click()
-			await page.waitForLoadState('networkidle')
-			await shoot(page, 'admin', '05-bulk-panel.png')
-		}
-		// 05-bulk-filter, 05-bulk-move-target, 05-bulk-confirm: capture manually with seeded data
+	test('A5 bulk operations — panel scroll-into-view', async ({ page }) => {
+		// 05-bulk-panel: bulk ops is a section on the same admin page,
+		// not a separate tab. Scroll it into view and screenshot.
+		await page.locator('[data-testid="admin-bulk-section"]').scrollIntoViewIfNeeded()
+		await shoot(page, 'admin', '05-bulk-panel.png')
+
+		// 05-bulk-filter, 05-bulk-move-target, 05-bulk-confirm: depend
+		// on seeded multi-dashboard fixtures + a deeper data-test/testid
+		// pass on `DashboardBulkOperations.vue`. Capture manually for now.
 	})
 })

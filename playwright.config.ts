@@ -30,13 +30,12 @@ const baseURL = process.env.NC_BASE_URL ?? 'http://localhost:8080'
 
 export default defineConfig({
 	testDir: './tests/e2e',
-	// `docs-screenshots.spec.ts` is excluded from the default run because
-	// it's a capture script, not a regression test. Opt-in via the
-	// `docs-capture` project (see below) when refreshing tutorial PNGs.
+	// Root-level ignore covers fixtures only. The `docs-screenshots`
+	// spec is filtered per-project below — keeping it out of the root
+	// ignore so the `docs-capture` project can still match it.
 	testIgnore: [
 		'**/global-setup.ts',
 		'**/fixtures/**',
-		'**/docs-screenshots.spec.ts',
 	],
 	timeout: 30_000,
 	expect: {
@@ -57,12 +56,14 @@ export default defineConfig({
 		navigationTimeout: 60_000,
 	},
 	projects: [
+		// Default regression project. Excludes the docs capture spec so
+		// PR pipelines don't reshoot screenshots on every push.
 		{
 			name: 'chromium',
+			testIgnore: ['**/docs-screenshots.spec.ts'],
 			use: { ...devices['Desktop Chrome'] },
 		},
-		// Dedicated project for the documentation capture spec. Opts into
-		// the otherwise-ignored `docs-screenshots.spec.ts`. Run with:
+		// Dedicated project for the documentation capture spec. Opt in:
 		//   npx playwright test --project docs-capture
 		// Output lands in `docs/screenshots/tutorials/{user,admin}/`.
 		{

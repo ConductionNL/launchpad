@@ -82,7 +82,12 @@ async function openCogFor(page: Page, name: string): Promise<void> {
 	await expect(page.getByRole('menuitem').first()).toBeVisible()
 }
 
-test.describe.configure({ mode: 'serial' })
+// Capture flows are independent — each test re-navigates from `/apps/mydash/`
+// so a selector miss on one doesn't cascade. Selector misses are the
+// expected first-run failure mode (UI markup drifts faster than docs);
+// failures land per-test in `test-results/` rather than killing the suite.
+// Switch to `mode: 'serial'` if you actually need state continuity.
+test.describe.configure({ mode: 'default' })
 
 test.beforeEach(async ({ page }) => {
 	page.setViewportSize({ width: 1280, height: 800 })
@@ -114,10 +119,13 @@ test.describe('docs: user track', () => {
 		// 02-create-add-button: highlight the + Add dashboard CTA
 		await shoot(page, 'user', '02-create-add-button.png')
 
-		// 02-create-modal: the configuration modal mid-form
+		// 02-create-modal: the configuration modal mid-form. The
+		// modal's inputs have no `name` attribute — we hook on the
+		// localised placeholders that ship from `DashboardConfigModal.vue`.
 		await page.locator('[data-action="create"]').click()
-		await page.locator('input[name="name"], input[placeholder*="Name" i]').first().fill(`Docs example ${Date.now()}`)
-		await page.locator('textarea[name="description"], input[placeholder*="Description" i]').first().fill('Created by docs-screenshots.spec.ts')
+		await page.locator('input[placeholder="My dashboard"]').first().waitFor({ state: 'visible', timeout: 5000 })
+		await page.locator('input[placeholder="My dashboard"]').first().fill(`Docs example ${Date.now()}`)
+		await page.locator('textarea[placeholder="What is this dashboard for?"]').first().fill('Created by docs-screenshots.spec.ts')
 		await shoot(page, 'user', '02-create-modal.png')
 
 		// Save & screenshot the resulting dashboard with the default bundle

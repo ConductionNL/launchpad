@@ -65,6 +65,7 @@
 					type="primary"
 					:disabled="!isValid"
 					:title="firstError || ''"
+					data-testid="add-widget-save"
 					@click="onSubmit">
 					{{ submitLabel }}
 				</NcButton>

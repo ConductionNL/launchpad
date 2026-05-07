@@ -8,7 +8,7 @@
 		<CnSettingsSection
 			:name="t('mydash', 'MyDash settings')"
 			:description="t('mydash', 'Configure dashboard permissions and defaults')"
-			doc-url="https://mydash.conduction.nl">
+			doc-url="https://mydash.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays visible until the
 			     admin clicks Finish in the wizard; after completion a less
 			     prominent re-run link replaces it (REQ-WIZ-011). -->

@@ -257,6 +257,7 @@ export default function Home() {
       <main className="marketing-page">
         <DetailHero
           appId="mydash"
+          background="cobalt"
           status={{ label: 'Beta', color: 'var(--c-orange-knvb)' }}
           version="v0.9"
           locales="NL · EN"

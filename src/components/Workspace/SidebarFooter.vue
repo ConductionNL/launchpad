@@ -81,8 +81,12 @@ import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOut
  * Documentation URL targeted by both the (now-removed) gear menu entry
  * and the new sidebar footer link. Kept in module scope so the test
  * suite can assert exact value parity with the previous gear-menu link.
+ *
+ * Points at the docs intro page rather than the marketing landing —
+ * the click context is a user inside the app reaching for docs, not
+ * a prospect evaluating the product.
  */
-export const DOCS_URL = 'https://mydash.conduction.nl'
+export const DOCS_URL = 'https://mydash.conduction.nl/docs/intro'
 
 export default {
 	name: 'SidebarFooter',

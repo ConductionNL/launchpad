@@ -97,8 +97,9 @@ class PlacementService
      * @param array $tileData    Tile configuration data array.
      *
      * @return WidgetPlacement The created tile placement.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function addTileFromArray(
         int $dashboardId,
         array $tileData
@@ -197,8 +198,9 @@ class PlacementService
      * @param int $dashboardId The dashboard ID.
      *
      * @return WidgetPlacement[] The list of placements.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function getDashboardPlacements(int $dashboardId): array
     {
         return $this->placementMapper->findByDashboardId(

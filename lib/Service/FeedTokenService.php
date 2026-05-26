@@ -70,8 +70,9 @@ class FeedTokenService
      * @param string $userId The owning user ID.
      *
      * @return FeedToken The active feed token.
+     *
+     * @spec openspec/specs/dashboard-rss-feeds/spec.md
      */
-    /** @spec openspec/specs/dashboard-rss-feeds/spec.md */
     public function getOrCreateToken(string $userId): FeedToken
     {
         $existing = $this->mapper->findByUserId(userId: $userId);
@@ -96,8 +97,9 @@ class FeedTokenService
      * @param string $userId The owning user ID.
      *
      * @return FeedToken The newly-issued feed token.
+     *
+     * @spec openspec/specs/dashboard-rss-feeds/spec.md
      */
-    /** @spec openspec/specs/dashboard-rss-feeds/spec.md */
     public function regenerateToken(string $userId): FeedToken
     {
         $this->db->beginTransaction();
@@ -133,8 +135,9 @@ class FeedTokenService
      * @param string $userId The owning user ID.
      *
      * @return void
+     *
+     * @spec openspec/specs/dashboard-rss-feeds/spec.md
      */
-    /** @spec openspec/specs/dashboard-rss-feeds/spec.md */
     public function revokeToken(string $userId): void
     {
         $existing = $this->mapper->findByUserId(userId: $userId);
@@ -154,8 +157,9 @@ class FeedTokenService
      * @param string $token The opaque token from the URL path.
      *
      * @return FeedToken|null The active token row or null on miss.
+     *
+     * @spec openspec/specs/dashboard-rss-feeds/spec.md
      */
-    /** @spec openspec/specs/dashboard-rss-feeds/spec.md */
     public function resolveToken(string $token): ?FeedToken
     {
         if ($token === '') {
@@ -210,8 +214,9 @@ class FeedTokenService
      * segment (REQ-FEED-009 scenario "Token is URL-safe").
      *
      * @return string The 43-character opaque token.
+     *
+     * @spec openspec/specs/dashboard-rss-feeds/spec.md
      */
-    /** @spec openspec/specs/dashboard-rss-feeds/spec.md */
     public static function generateTokenString(): string
     {
         $raw     = random_bytes(length: self::TOKEN_BYTES);

@@ -32,8 +32,11 @@ class PlacementUpdater
      * @param array           $data      The update data.
      *
      * @return void
-     */
-    /** @spec openspec/specs/widgets/spec.md */
+      *
+
+      * @spec openspec/specs/widgets/spec.md
+
+      */
     public function applyGridUpdates(
         WidgetPlacement $placement,
         array $data
@@ -64,8 +67,11 @@ class PlacementUpdater
      * @param array           $data      The update data.
      *
      * @return void
-     */
-    /** @spec openspec/specs/widgets/spec.md */
+      *
+
+      * @spec openspec/specs/widgets/spec.md
+
+      */
     public function applyDisplayUpdates(
         WidgetPlacement $placement,
         array $data

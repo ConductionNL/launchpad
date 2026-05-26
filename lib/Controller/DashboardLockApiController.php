@@ -80,9 +80,12 @@ class DashboardLockApiController extends Controller
      * @return JSONResponse 200 with the lock object on success,
      *                      404 when the dashboard UUID is unknown,
      *                      409 with the existing lock on conflict.
-     */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboard-locking/spec.md */
     public function acquire(string $uuid): JSONResponse
     {
         if ($this->userId === null) {
@@ -122,9 +125,12 @@ class DashboardLockApiController extends Controller
      *
      * @return JSONResponse 200 with the refreshed lock; 404 when no
      *                      active lock exists; 403 on owner mismatch.
-     */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboard-locking/spec.md */
     public function heartbeat(string $uuid): JSONResponse
     {
         if ($this->userId === null) {
@@ -168,9 +174,12 @@ class DashboardLockApiController extends Controller
      * @param string $uuid The dashboard UUID.
      *
      * @return JSONResponse 204 on success; 403 on permission mismatch.
-     */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboard-locking/spec.md */
     public function release(string $uuid): JSONResponse
     {
         if ($this->userId === null) {
@@ -208,9 +217,12 @@ class DashboardLockApiController extends Controller
      * @param string $uuid The dashboard UUID.
      *
      * @return JSONResponse 200 with the lock or 404 when none.
-     */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboard-locking/spec.md */
     public function get(string $uuid): JSONResponse
     {
         if ($this->userId === null) {
@@ -242,9 +254,12 @@ class DashboardLockApiController extends Controller
      * @param string $uuid The dashboard UUID.
      *
      * @return JSONResponse 200 on success; 403 when caller is not admin.
-     */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboard-locking/spec.md */
     public function forceRelease(string $uuid): JSONResponse
     {
         if ($this->userId === null) {

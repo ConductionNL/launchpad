@@ -100,8 +100,11 @@ class DashboardLockService
      *                               controller can map it to HTTP 404.
      * @throws LockConflictException When another user already holds an
      *                               active lock on the dashboard.
-     */
-    /** @spec openspec/specs/dashboard-locking/spec.md */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     public function acquireLock(
         string $dashboardUuid,
         string $userId
@@ -166,8 +169,11 @@ class DashboardLockService
      *
      * @throws LockNotFoundException  When no active lock exists.
      * @throws LockForbiddenException When the caller is not the owner.
-     */
-    /** @spec openspec/specs/dashboard-locking/spec.md */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     public function heartbeat(
         string $dashboardUuid,
         string $userId
@@ -213,8 +219,11 @@ class DashboardLockService
      *
      * @throws LockForbiddenException When the caller is neither the
      *                                owner nor an admin (when allowed).
-     */
-    /** @spec openspec/specs/dashboard-locking/spec.md */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     public function releaseLock(
         string $dashboardUuid,
         string $userId,
@@ -251,8 +260,11 @@ class DashboardLockService
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return DashboardLock|null The active lock or null.
-     */
-    /** @spec openspec/specs/dashboard-locking/spec.md */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     public function getLockState(string $dashboardUuid): ?DashboardLock
     {
         // Inline cleanup so the next read is never polluted by a stale
@@ -283,8 +295,11 @@ class DashboardLockService
      * @return void
      *
      * @throws LockForbiddenException When the caller is not an admin.
-     */
-    /** @spec openspec/specs/dashboard-locking/spec.md */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     public function forceRelease(
         string $dashboardUuid,
         string $adminUserId
@@ -324,8 +339,11 @@ class DashboardLockService
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return int The number of rows deleted (0 or 1).
-     */
-    /** @spec openspec/specs/dashboard-locking/spec.md */
+      *
+
+      * @spec openspec/specs/dashboard-locking/spec.md
+
+      */
     public function cascadeDelete(string $dashboardUuid): int
     {
         return $this->lockMapper->deleteByDashboardUuid(

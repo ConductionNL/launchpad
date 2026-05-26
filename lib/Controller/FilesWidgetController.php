@@ -101,9 +101,12 @@ class FilesWidgetController extends Controller
      *
      * @return JSONResponse
      */
+
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    /** @spec openspec/specs/files-widget/spec.md */
+    /**
+     * @spec openspec/specs/files-widget/spec.md
+     */
     public function contents(
         int $placementId,
         string $currentPath='/',
@@ -171,9 +174,12 @@ class FilesWidgetController extends Controller
      * @param string  $currentPath Sub-path inside the configured folder.
      *
      * @return JSONResponse
-     */
+      *
+
+      * @spec openspec/specs/files-widget/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/files-widget/spec.md */
     public function upload(int $placementId, string $currentPath='/'): JSONResponse
     {
         $userId = $this->resolveUserId();
@@ -237,9 +243,12 @@ class FilesWidgetController extends Controller
      *                             configured folder).
      *
      * @return JSONResponse
-     */
+      *
+
+      * @spec openspec/specs/files-widget/spec.md
+
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/files-widget/spec.md */
     public function destroy(int $placementId, int $fileId): JSONResponse
     {
         $userId = $this->resolveUserId();

@@ -102,10 +102,10 @@ class ManifestController extends Controller
      *                      unavailable.
      *
      * @spec manifest-v2-runtime:REQ-MVR-001
+     * @spec openspec/specs/runtime-shell/spec.md
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    /** @spec openspec/specs/runtime-shell/spec.md */
     public function index(): JSONResponse
     {
         if ($this->userId === null) {
@@ -116,9 +116,10 @@ class ManifestController extends Controller
         // every instance. Returning an empty manifest (not an error) lets the
         // frontend render its "no dashboards yet" CTA without a red alert.
         try {
-            /**
+            /*
              * @var \OCA\OpenRegister\Service\ObjectService $objectService
              */
+
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
             $this->logger->warning(

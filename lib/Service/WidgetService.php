@@ -63,8 +63,9 @@ class WidgetService
      *
      * @return void
      * @throws \InvalidArgumentException When the content blob is invalid.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function validateWidgetContent(string $widgetType, array $content): void
     {
         if ($widgetType !== 'menu') {
@@ -154,8 +155,9 @@ class WidgetService
      *                                registry-driven custom widgets.
      *
      * @return WidgetPlacement The created widget placement.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function addWidget(
         int $dashboardId,
         string $widgetId,
@@ -183,8 +185,9 @@ class WidgetService
      * @param array $tileData    Tile configuration data array.
      *
      * @return WidgetPlacement The created tile placement.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function addTileFromArray(
         int $dashboardId,
         array $tileData
@@ -202,8 +205,9 @@ class WidgetService
      * @param array $data        The data to update.
      *
      * @return WidgetPlacement The updated widget placement.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function updatePlacement(
         int $placementId,
         array $data
@@ -220,8 +224,9 @@ class WidgetService
      * @param int $placementId The placement ID.
      *
      * @return void
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function removePlacement(int $placementId): void
     {
         $this->placementService->removePlacement(
@@ -235,8 +240,9 @@ class WidgetService
      * @param int $placementId The placement ID.
      *
      * @return WidgetPlacement The widget placement.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function getPlacement(int $placementId): WidgetPlacement
     {
         return $this->placementService->getPlacement(
@@ -250,8 +256,9 @@ class WidgetService
      * @param int $dashboardId The dashboard ID.
      *
      * @return WidgetPlacement[] The list of placements.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
-    /** @spec openspec/specs/widgets/spec.md */
     public function getDashboardPlacements(int $dashboardId): array
     {
         return $this->placementService->getDashboardPlacements(

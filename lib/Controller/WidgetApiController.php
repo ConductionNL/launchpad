@@ -293,9 +293,10 @@ class WidgetApiController extends Controller
      * @param int $dashboardId Dashboard ID.
      *
      * @return JSONResponse The created tile placement.
-     */
+     *
+      * @spec openspec/specs/widgets/spec.md
+      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/widgets/spec.md */
     public function addTile(int $dashboardId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -456,10 +457,11 @@ class WidgetApiController extends Controller
      *                                  rejected when outside [1, 50]).
      *
      * @return JSONResponse
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    /** @spec openspec/specs/widgets/spec.md */
     public function newsItems(int $placementId, ?int $limit=10): JSONResponse
     {
         if ($this->userSession->getUser() === null) {
@@ -513,10 +515,11 @@ class WidgetApiController extends Controller
      * @param string $to          ISO 8601 end.
      *
      * @return JSONResponse The aggregated events payload.
+     *
+     * @spec openspec/specs/widgets/spec.md
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    /** @spec openspec/specs/widgets/spec.md */
     public function calendarEvents(
         int $placementId,
         string $from='',

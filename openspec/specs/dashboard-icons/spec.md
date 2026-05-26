@@ -58,6 +58,9 @@ Two shared Vue components consume these exports:
 
 ## Requirements
 
+
+@e2e exclude icon-system scenarios test frontend registry + resource-upload API — resource uploads require admin API access not covered by UI-only tests
+
 ### Requirement: REQ-ICON-001 Curated registry of built-in icons
 
 The system MUST maintain a curated registry of at least 15 built-in dashboard icons drawn from `vue-material-design-icons`. The registry MUST include at minimum these names: `ViewDashboard`, `Home`, `ChartBar`, `Cog`, `AccountGroup`, `Calendar`, `FileDocument`, `Bell`, `Star`, `Heart`, `BookOpenVariant`, `Lightbulb`, `RocketLaunch`, `Earth`, `Briefcase`. Any consumer that renders an icon by name MUST resolve it through this registry — there MUST NOT be parallel ad-hoc registries elsewhere.

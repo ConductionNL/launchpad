@@ -10,6 +10,9 @@ Dashboard Metadata Fields allow administrators to define custom, queryable attri
 
 ## Data Model
 
+
+@e2e exclude all scenarios test REST CRUD for admin-defined fields — admin metadata UI not present in v1.0.5
+
 ### Metadata Field Definition (oc_mydash_meta_fields)
 
 Stores the global registry of field definitions:

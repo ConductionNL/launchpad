@@ -33,6 +33,9 @@ Indexes:
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-DASH-038 Translation Schema
 
 The system MUST store per-language content variants for a dashboard in a dedicated `oc_mydash_dash_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.

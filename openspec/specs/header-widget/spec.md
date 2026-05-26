@@ -34,6 +34,8 @@ Header placements reuse `oc_mydash_widget_placements.content` (JSON). The `conte
 
 ### Requirement: REQ-HDR-001 Widget registration
 
+@e2e exclude widget registration tests OCP\Dashboard\IManager registration — observed by widget appearing in picker; covered by generic widgets-in-picker test
+
 The system MUST register a MyDash dashboard widget with id `mydash_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
@@ -63,6 +65,8 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 - THEN the widget object MUST include at minimum: id, title, icon_url
 
 ### Requirement: REQ-HDR-002 Placement configuration structure
+
+@e2e exclude placement configuration tests JSON blob shape — Vitest/Newman scope
 
 The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
 
@@ -151,6 +155,8 @@ The system MUST store per-placement widget configuration in the `oc_mydash_widge
 
 ### Requirement: REQ-HDR-003 Image source precedence
 
+@e2e exclude image source precedence tests Vue computed property logic — Vitest component scope
+
 When both `backgroundImageFileId` and `backgroundImageUrl` are present in the configuration, the system MUST apply the following precedence: file ID takes priority over URL.
 
 #### Scenario: File ID overrides URL when both set
@@ -173,6 +179,8 @@ When both `backgroundImageFileId` and `backgroundImageUrl` are present in the co
 - THEN the widget MUST display backgroundColor only (no image)
 
 ### Requirement: REQ-HDR-004 Overlay rendering modes
+
+@e2e exclude overlay rendering modes tests CSS gradient/tint overlay — visual regression / Vitest snapshot scope
 
 The system MUST support three overlay modes for controlling how background images are layered with colors.
 
@@ -206,6 +214,8 @@ The system MUST support three overlay modes for controlling how background image
 - AND when no image is present, overlayMode MUST default to 'none'
 
 ### Requirement: REQ-HDR-005 External image allow-list
+
+@e2e exclude external image allow-list tests PHP config + IAppConfig — Newman scope
 
 The system MUST enforce an allow-list of external image hostnames via admin setting `mydash.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
 
@@ -245,6 +255,8 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 ### Requirement: REQ-HDR-006 File ID image with ACL validation
 
+@e2e exclude file ID image with ACL validation tests PHP ACL + IURLGenerator — Newman scope
+
 The system MUST validate file read permissions when `backgroundImageFileId` is set, falling back to backgroundColor if the user cannot read the file.
 
 #### Scenario: User can read file
@@ -273,6 +285,8 @@ The system MUST validate file read permissions when `backgroundImageFileId` is s
 
 ### Requirement: REQ-HDR-007 Image load failure graceful fallback
 
+@e2e exclude image load failure graceful fallback tests Vue imgError handler — Vitest scope; requires broken-image URL injection
+
 The system MUST gracefully handle image load failures (404, timeout, invalid URL) by falling back to backgroundColor and continuing to render the widget without error UI.
 
 #### Scenario: External image returns 404
@@ -298,6 +312,8 @@ The system MUST gracefully handle image load failures (404, timeout, invalid URL
 - AND the widget MUST render successfully
 
 ### Requirement: REQ-HDR-008 Text rendering and styling
+
+@e2e exclude text rendering and styling tests Vue slot rendering + CSS — Vitest snapshot scope
 
 The system MUST render title and subtitle with semantic HTML and configurable styling (color, alignment, vertical positioning).
 
@@ -338,6 +354,8 @@ The system MUST render title and subtitle with semantic HTML and configurable st
 
 ### Requirement: REQ-HDR-009 Height presets and responsive sizing
 
+@e2e exclude height presets and responsive sizing tests CSS calc values — visual regression scope
+
 The system MUST support four height presets (small, medium, large, xlarge) that map to fixed pixel values, and default widgets to full dashboard width.
 
 #### Scenario: Height small (120px)
@@ -374,6 +392,8 @@ The system MUST support four height presets (small, medium, large, xlarge) that 
 - AND gridHeight MUST be auto-calculated from the height preset and grid row size
 
 ### Requirement: REQ-HDR-010 Call-to-action button rendering and navigation
+
+@e2e exclude CTA button rendering and navigation tests a router.push / window.open click handler inside a placed widget — requires seeded header placement
 
 The system MUST render an optional CTA button with configurable style and handle navigation to internal or external URLs.
 
@@ -420,6 +440,8 @@ The system MUST render an optional CTA button with configurable style and handle
 
 ### Requirement: REQ-HDR-011 Accessibility for header widgets
 
+@e2e exclude accessibility ARIA attributes are render-time assertions; covered by Vitest snapshot
+
 The system MUST ensure header widgets are accessible to keyboard navigation and screen readers, with proper ARIA labels and semantic HTML.
 
 #### Scenario: Title is keyboard-navigable
@@ -458,6 +480,8 @@ The system MUST ensure header widgets are accessible to keyboard navigation and 
 - AND the semantic content (title, subtitle, CTA) MUST be independent of the image for understanding
 
 ### Requirement: REQ-HDR-012 Print-friendly rendering
+
+@e2e exclude print-friendly rendering tests CSS @media print — not observable in headless Chromium CI
 
 The system MUST render header widgets visibly when printed, including background images and colors, subject to the user's "print backgrounds" browser setting.
 

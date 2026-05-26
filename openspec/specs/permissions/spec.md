@@ -18,6 +18,9 @@ Permission levels control what users can do with their dashboards. When an admin
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: View-Only Permission Level (REQ-PERM-001)
 
 Dashboards with `permissionLevel: "view_only"` MUST restrict users to viewing only, with no widget or layout editing capabilities.

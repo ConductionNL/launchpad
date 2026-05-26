@@ -10,6 +10,9 @@ When a MyDash dashboard is deleted, all dependent data (widget placements, comme
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-CSC-001 DashboardDeletedEvent Definition
 
 The system MUST define a `DashboardDeletedEvent` class at `lib/Event/DashboardDeletedEvent.php` that carries all context listeners need to perform targeted cleanup.

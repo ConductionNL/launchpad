@@ -40,6 +40,9 @@ The events endpoint returns a flat array of normalised event objects with shape:
 
 ## Requirements
 
+
+@e2e exclude all scenarios test REST API / ICS-fetch / backend aggregation — widget rendering requires real calendar data and NC Calendar integration not available in test env
+
 ### Requirement: REQ-CAL-001 Widget registration
 
 The system MUST register a MyDash dashboard widget with id `mydash_calendar` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.

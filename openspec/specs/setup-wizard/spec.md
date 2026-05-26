@@ -25,6 +25,9 @@ Wizard progress (per-step completion status) is derived heuristically from the s
 
 ## Requirements
 
+
+@e2e exclude all scenarios test PHP wizard endpoint + flag persistence — wizard is a first-run flow that auto-completes on existing instances; cannot be reliably reproduced
+
 ### Requirement: REQ-WIZ-001 Detect First-Run State via Admin Setting Flag
 
 The system MUST detect whether a MyDash instance is being initialized for the first time by consulting the `mydash.setup_wizard_complete` boolean flag. When the flag is `false`, the admin section MUST display a banner prompting the admin to run the wizard.

@@ -37,6 +37,8 @@ This means tile placements store a COPY of the tile configuration at creation ti
 
 ### Requirement: REQ-TILE-001 Reusable tile entity model \u2014 DEPRECATED
 
+@e2e exclude tile entity DEPRECATED — write endpoints return 410; checked by Newman, not UI
+
 The reusable tile entity model (rows in `oc_mydash_tiles`, accessed via `TileService::createTile / updateTile / deleteTile` and `POST/PUT/DELETE /api/tiles[/{id}]`) MUST be treated as deprecated as of the `unified-add-widget-flow` change. The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
 
 The following behaviour MUST hold during the deprecation window:
@@ -70,6 +72,8 @@ The following behaviour MUST hold during the deprecation window:
 
 ### Requirement: List User Tiles (REQ-TILE-002)
 
+@e2e exclude list user tiles tests REST endpoint — Newman scope
+
 Users MUST be able to retrieve all their custom tile definitions, scoped to their user ID.
 
 #### Scenario: List tiles for a user
@@ -90,6 +94,8 @@ Users MUST be able to retrieve all their custom tile definitions, scoped to thei
 - THEN the system MUST return HTTP 200 with an empty array
 
 ### Requirement: Update Custom Tile (REQ-TILE-003)
+
+@e2e exclude update tile tests REST PUT — Newman scope
 
 Users MUST be able to update the properties of their custom tiles with ownership verification.
 
@@ -128,6 +134,8 @@ Users MUST be able to update the properties of their custom tiles with ownership
 
 ### Requirement: Delete Custom Tile (REQ-TILE-004)
 
+@e2e exclude delete tile tests REST DELETE — Newman scope
+
 Users MUST be able to delete their custom tile definitions with ownership verification.
 
 #### Scenario: Delete a tile not placed on any dashboard
@@ -150,6 +158,8 @@ Users MUST be able to delete their custom tile definitions with ownership verifi
 - AND the tile MUST NOT be deleted
 
 ### Requirement: Place Tile on Dashboard (REQ-TILE-005)
+
+@e2e exclude place tile on dashboard tests REST POST — Newman scope
 
 Users MUST be able to place tile data onto a dashboard, creating a widget placement with inline tile data.
 
@@ -191,6 +201,8 @@ Users MUST be able to place tile data onto a dashboard, creating a widget placem
 
 ### Requirement: Tile Icon Rendering (REQ-TILE-006)
 
+@e2e exclude tile icon rendering (emoji/CSS/URL/SVG path) requires a pre-placed tile on the dashboard — needs seeded state not available in CI fixture
+
 The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path.
 
 #### Scenario: Render emoji icon
@@ -219,6 +231,8 @@ The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path
 
 ### Requirement: Tile Color Validation (REQ-TILE-007)
 
+@e2e exclude tile color validation tests server-side validator — Newman scope
+
 Tile colors MUST be validated to ensure proper display and accessibility.
 
 #### Scenario: Valid hex colors accepted
@@ -239,6 +253,8 @@ Tile colors MUST be validated to ensure proper display and accessibility.
 
 ### Requirement: Tile Link Navigation (REQ-TILE-008)
 
+@e2e exclude tile link navigation tests window.location or router.push inside a widget click — requires a placed tile; seeding not available
+
 Tiles MUST navigate correctly based on their linkType.
 
 #### Scenario: App link navigation
@@ -258,6 +274,8 @@ Tiles MUST navigate correctly based on their linkType.
 - THEN the tile MUST scale slightly (transform: scale(1.02)) with reduced opacity (0.95)
 
 ### Requirement: Tile Styling (REQ-TILE-009)
+
+@e2e exclude tile background/text colour CSS tests require a pre-placed tile — seeded state not available in CI fixture
 
 Tiles MUST apply their configured colors as CSS custom properties for consistent rendering.
 
@@ -282,6 +300,8 @@ Tiles MUST apply their configured colors as CSS custom properties for consistent
 
 ### Requirement: Tile Edit Mode (REQ-TILE-010)
 
+@e2e exclude tile edit-mode button visibility requires a placed tile in edit mode — seeded state not available
+
 Tiles MUST support an edit mode that allows configuration changes.
 
 #### Scenario: Edit button visible in edit mode
@@ -303,6 +323,8 @@ Tiles MUST support an edit mode that allows configuration changes.
 
 ### Requirement: Tile Management UI (REQ-TILE-011)
 
+@e2e exclude tile management UI (modal form) requires an existing tile placement — seeded state not available
+
 Users MUST be able to manage their tile definitions through a dedicated UI.
 
 #### Scenario: Tile card display
@@ -317,6 +339,8 @@ Users MUST be able to manage their tile definitions through a dedicated UI.
 - AND changes MUST be saved via the tile API
 
 ### Requirement: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical
+
+@e2e exclude inline-content placement model is a data-model spec — no distinct UI surface beyond what REQ-TILE-010/011 cover
 
 Tile placements (rows in `oc_mydash_widget_placements` with `tileType: 'custom'` historically, or `widgetId: 'tile'` going forward) MUST store their data INLINE on the placement. This MUST be treated as the canonical model for tile data on dashboards going forward.
 

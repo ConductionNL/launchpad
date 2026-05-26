@@ -26,6 +26,8 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `m
 
 ### Requirement: REQ-SHELL-002 Edit affordances gated by canEdit
 
+@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
+
 `canEdit` (`isAdmin || dashboardSource === 'user'`) MUST gate:
 
 - The per-widget right-click context menu (REQ-WDG-015)
@@ -88,6 +90,8 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 
 ### Requirement: Empty state (REQ-SHELL-005)
 
+@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
+
 When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
 
 #### Scenario: Empty state with creation enabled
@@ -108,6 +112,8 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 
 ### Requirement: Sidebar backdrop (REQ-SHELL-006)
 
+@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
+
 When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop that intercepts clicks and closes the sidebar. The backdrop MUST start at the same `top` offset as the Nextcloud header (50 px) and span the rest of the viewport. Clicks on the sidebar itself MUST NOT close the sidebar.
 
 #### Scenario: Backdrop closes sidebar on click
@@ -123,6 +129,8 @@ When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop th
 - THEN `sidebarOpen` MUST remain `true`
 
 ### Requirement: Lifecycle hooks (REQ-SHELL-007)
+
+@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
 
 The shell MUST register a global `document.click` listener on mount (delegated to the grid composable's `handleClickOutside`) and remove it on unmount. The GridStack instance MUST be initialised after `nextTick()` (so the grid container ref is non-null) and destroyed on unmount.
 

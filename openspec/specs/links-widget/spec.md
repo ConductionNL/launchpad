@@ -12,6 +12,8 @@ Provide a multi-column dashboard widget that renders a curated grid of link card
 
 ### Requirement: REQ-LNKS-001 Widget registration
 
+@e2e exclude widget registration tested via widget-in-picker scenario in spec-coverage tests
+
 The system MUST register a MyDash dashboard widget with id `mydash_links` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
@@ -41,6 +43,8 @@ The system MUST register a MyDash dashboard widget with id `mydash_links` via `O
 - THEN the widget object MUST include at minimum: id, title, icon_url
 
 ### Requirement: REQ-LNKS-002 Placement configuration schema
+
+@e2e exclude placement configuration schema tests JSON blob persistence via REST — Newman scope
 
 The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify sections with links, layout preferences, and display options.
 
@@ -99,6 +103,8 @@ The system MUST store per-placement widget configuration in the `oc_mydash_widge
 
 ### Requirement: REQ-LNKS-003 Link data structure
 
+@e2e exclude link data structure tests schema validation — Vitest/Newman scope
+
 The system MUST support a link object with label, URL, icon, and optional description, and MUST allow zero or more links per section.
 
 #### Scenario: Link has required fields
@@ -132,6 +138,8 @@ The system MUST support a link object with label, URL, icon, and optional descri
 - NOTE: Users can add links later without reconfiguring the section
 
 ### Requirement: REQ-LNKS-004 Icon resolution precedence
+
+@e2e exclude icon resolution precedence tests IconRenderer dispatch — Vitest component scope
 
 The system MUST resolve the `icon` field of a link using the following precedence:
 
@@ -167,6 +175,8 @@ The system MUST resolve the `icon` field of a link using the following precedenc
 - THEN the system MUST fall back to the generic link icon (not crash)
 
 ### Requirement: REQ-LNKS-005 Three link layout modes
+
+@e2e exclude three link layout modes (card/inline/icon-only) tests CSS class toggling — requires a placed links widget with configured sections; seeded state not in CI fixture
 
 The system MUST support three distinct layout modes for rendering links, controlled by the `linkLayout` config field.
 
@@ -211,6 +221,8 @@ The system MUST support three distinct layout modes for rendering links, control
 
 ### Requirement: REQ-LNKS-006 Multi-column grid layout
 
+@e2e exclude multi-column grid layout tests CSS grid-template-columns — visual regression scope
+
 The system MUST render sections and links using a CSS Grid layout with a configurable column count, allowing responsive multi-column link organization.
 
 #### Scenario: Grid renders with configured columns
@@ -250,6 +262,8 @@ The system MUST render sections and links using a CSS Grid layout with a configu
 - NOTE: The specific responsive behavior is implementation-detail; requirement is that it MUST be usable on mobile
 
 ### Requirement: REQ-LNKS-007 URL sanitisation and validation
+
+@e2e exclude URL sanitisation runs at save time on the PHP side — tested by Newman; Playwright cannot assert server-side sanitiser
 
 The system MUST validate and sanitise all URLs in the links configuration to reject malicious or malformed inputs.
 
@@ -302,6 +316,8 @@ The system MUST validate and sanitise all URLs in the links configuration to rej
 - AND a label "Link URL is required" MUST be shown to the user
 
 ### Requirement: REQ-LNKS-008 Edit form with drag-to-reorder
+
+@e2e exclude edit form with drag-to-reorder tests complex vue-draggable integration inside a placed widget — requires seeded links placement
 
 The system MUST provide an interactive configuration UI allowing users to add/edit/delete sections and links, and reorder them via drag-and-drop.
 
@@ -379,6 +395,8 @@ The system MUST provide an interactive configuration UI allowing users to add/ed
 
 ### Requirement: REQ-LNKS-009 Empty widget state
 
+@e2e exclude empty widget state tests Vue empty-state component inside a placed widget — requires seeded empty-links placement
+
 The system MUST display a user-friendly empty-state message when the widget has no links to display.
 
 #### Scenario: Empty state appears with no sections
@@ -404,6 +422,8 @@ The system MUST display a user-friendly empty-state message when the widget has 
 - OR the dashboard MUST switch to edit mode (platform dependent)
 
 ### Requirement: REQ-LNKS-010 Navigation handling and rel attributes
+
+@e2e exclude navigation handling and rel attributes tests that external links have rel=noopener — requires a placed links widget with configured links; seeded state not in CI fixture
 
 The system MUST correctly handle link navigation, distinguishing between external and internal URLs, and set appropriate `rel` attributes to prevent security issues and preserve cross-tab messaging where needed.
 

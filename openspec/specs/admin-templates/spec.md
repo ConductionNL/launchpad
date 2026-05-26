@@ -21,6 +21,9 @@ Templates own their widget placements (in `oc_mydash_widget_placements`) which s
 
 ## Requirements
 
+
+@e2e exclude all scenarios test REST CRUD for admin template dashboards — template distribution and UI admin forms are not yet implemented in this version
+
 ### Requirement: Create Admin Template (REQ-TMPL-001)
 
 Nextcloud administrators MUST be able to create dashboard templates for distribution to users.

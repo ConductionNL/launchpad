@@ -30,6 +30,8 @@ Resource lifecycle (orphan GC, quota accounting) is owned by the `resource-uploa
 
 ### Requirement: REQ-IMG-001 Render image with object-fit
 
+@e2e exclude render image with object-fit tests CSS object-fit property — Vitest snapshot scope; requires a seeded image placement with a real URL
+
 The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit` MUST equal the `fit` field of the persisted content. The `<img>` MUST fill the cell with `width: 100%; height: 100%`. The cell wrapper MUST set `overflow: hidden` so over-fit images do not bleed out of the grid cell. The persisted content shape is `{type: 'image', content: {url, alt, link, fit}}` where `fit` is one of `'cover' | 'contain' | 'fill' | 'none'` (default `'cover'`). The Vue prop validator on `fit` MUST restrict the value to that enum and fall back to `'cover'` when an unknown value is passed.
 
 #### Scenario: Cover fit fills the cell
@@ -61,6 +63,8 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 - THEN the `<img>` MUST have `object-fit: cover`
 
 ### Requirement: REQ-IMG-002 Empty-URL placeholder
+
+@e2e exclude empty-URL placeholder tests Vue placeholder component — covered partially by existing spec file (test.skip); seeding not available in CI fixture
 
 When `url` is empty or null, the renderer MUST display a placeholder consisting of a 48 px camera icon plus the translated string `t('No image')`, centred, in `var(--color-text-maxcontrast)`. The placeholder MUST occupy the full cell. The DOM MUST NOT contain an `<img>` element while the placeholder is active.
 
@@ -110,6 +114,8 @@ When the persisted `link` field is non-empty, a click on the cell MUST open `lin
 - THEN the cell wrapper's CSS `cursor` MUST equal `pointer`
 
 ### Requirement: REQ-IMG-004 Broken-image fallback
+
+@e2e exclude broken-image fallback tests Vue imgError handler — Vitest scope; requires injecting a broken URL into a placed widget
 
 The `<img>` MUST handle the DOM `error` event by replacing itself with the empty-URL placeholder (as defined in REQ-IMG-002) plus the translated annotation `t('Image failed to load')`. The fallback MUST NOT crash, unmount, or otherwise disturb the surrounding GridStack grid.
 
@@ -169,6 +175,8 @@ The image sub-form for `AddWidgetModal` MUST expose the following controls: a fi
 
 ### Requirement: REQ-IMP-001 SourceType field for image-widget config
 
+@e2e exclude sourceType field tests JSON schema change — Vitest/Newman scope
+
 The image widget placement MUST store a `sourceType` field (ENUM: `'url'`, `'upload'`, `'files'`) in the placement's widget config. This field MUST default to `'url'` for backward compatibility with existing image widgets. The field MUST persist across widget updates and MUST be serialized in the placement API response.
 
 #### Scenario: New image widget defaults to URL source
@@ -197,6 +205,8 @@ The image widget placement MUST store a `sourceType` field (ENUM: `'url'`, `'upl
 - AND the `sourceType` value MUST NOT change
 
 ### Requirement: REQ-IMP-002 File picker invocation
+
+@e2e exclude file picker invocation tests file-chooser event — covered by existing image-widget spec test.skip; NC Files picker not available headlessly
 
 When the image widget edit form has `sourceType = 'files'`, the form MUST display a "Pick from Files" button that opens Nextcloud's native file picker. The file picker MUST be restricted to image MIME types: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/svg+xml`. The picker MUST support only single-file selection, not multi-select.
 
@@ -230,6 +240,8 @@ When the image widget edit form has `sourceType = 'files'`, the form MUST displa
 
 ### Requirement: REQ-IMP-003 File reference storage
 
+@e2e exclude file reference storage tests REST endpoint and DB persistence — Newman scope
+
 When a file is selected via the file picker, the placement MUST store two fields: `fileId` (BIGINT) and `filePath` (VARCHAR, max 2048 bytes). Both MUST be persisted on the placement record in the database. The `filePath` MUST be the display path shown to the user (e.g. `/Photos/vacation.jpg`), suitable for human reading in edit forms and error messages.
 
 #### Scenario: Selected file stores both ID and path
@@ -254,6 +266,8 @@ When a file is selected via the file picker, the placement MUST store two fields
 - AND the placement MUST NOT be saved
 
 ### Requirement: REQ-IMP-004 Preview URL generation for file-mode widgets
+
+@e2e exclude preview URL generation tests IURLGenerator::linkToRoute PHP call — Newman/PHP scope
 
 At render time, the widget MUST generate a preview image URL for the referenced Nextcloud file using the appropriate Nextcloud preview service. The system MUST use `IURLGenerator::linkToRoute()` (server) or the equivalent `/index.php/core/preview?fileId=…` route (client) to generate a URL that respects the viewer's access permissions to the file. The preview URL MUST support both scenarios: files owned by the viewer and files shared with the viewer.
 
@@ -288,6 +302,8 @@ At render time, the widget MUST generate a preview image URL for the referenced 
 
 ### Requirement: REQ-IMP-005 Broken-image fallback for file-mode widgets
 
+@e2e exclude broken-image fallback for file-mode tests Vue imgError handler — Vitest scope
+
 When a file-mode image widget's referenced file is inaccessible (deleted, permissions revoked, or network failure), the widget MUST display the same broken-image placeholder as REQ-IMG-004: a 48 px camera icon plus the translated message `t('Image failed to load')`, centered. The widget MUST NOT crash, unmount, or throw a 500 HTTP error. The broken-image fallback MUST be identical regardless of source type (`url`, `upload`, or `files`).
 
 #### Scenario: Deleted file shows broken-image fallback
@@ -314,6 +330,8 @@ When a file-mode image widget's referenced file is inaccessible (deleted, permis
 
 ### Requirement: REQ-IMP-006 File deletion handling
 
+@e2e exclude file deletion handling tests REST endpoint — Newman scope
+
 When the referenced Nextcloud file is deleted, the widget MUST retain its `fileId` and `filePath` reference on the placement (the placement is NOT auto-deleted). This allows the widget to show a clear "image unavailable" state (the broken-image fallback) rather than silently clearing the placement or showing a generic empty state. The broken-image fallback (REQ-IMP-005) provides the appropriate user feedback.
 
 #### Scenario: Deleted file retains placement metadata
@@ -332,6 +350,8 @@ When the referenced Nextcloud file is deleted, the widget MUST retain its `fileI
 - AND the orphaned fields (`fileId`, `filePath`) MUST be cleared on save
 
 ### Requirement: REQ-IMP-007 Widget form source type UI
+
+@e2e exclude widget form source type UI radio/select tests form field structure — Vitest snapshot scope; full form test requires open modal with widget selected
 
 The image widget edit form MUST display a "Source Type" radio group with three mutually exclusive options: "URL/Link", "Upload", and "Pick from Files". Only the input fields relevant to the selected source type MUST be visible. Switching between source types MUST NOT erase previously entered values for other source types (values MUST be retained in component state, allowing the user to switch back without re-entering).
 
@@ -371,6 +391,8 @@ The image widget edit form MUST display a "Source Type" radio group with three m
 - AND no data loss MUST occur
 
 ### Requirement: REQ-IMP-008 SVG source handoff to sanitisation
+
+@e2e exclude SVG source handoff to sanitisation pipeline tests PHP SvgSanitiser — Newman scope
 
 When a file-mode image widget references an SVG file (`image/svg+xml`), the widget MUST NOT render the SVG as a raw `<img>` element before sanitisation. Instead, the SVG file reference MUST be passed to the separate `svg-sanitisation` capability for XSS protection. This requirement specifies the handoff point; the actual SVG sanitisation is implemented in the `svg-sanitisation` change.
 

@@ -30,6 +30,9 @@ Two settings gate tracking:
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-ANLT-001 Dashboard Views Table Schema
 
 The system MUST track dashboard view events in a dedicated relational table with daily aggregation buckets, privacy-preserving counters, and composite unique indexes.

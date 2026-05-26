@@ -66,6 +66,8 @@ The grid MUST initialize with the correct configuration when a dashboard is load
 
 ### Requirement: Drag to Reposition (REQ-GRID-002)
 
+@e2e exclude drag-to-reposition requires live GridStack drag events — fragile in headless Playwright; composite regression covered by wave3 runtime-shell tests
+
 Users MUST be able to drag widgets to new positions on the grid in edit mode.
 
 #### Scenario: Drag a widget to a new position
@@ -104,6 +106,8 @@ Users MUST be able to drag widgets to new positions on the grid in edit mode.
 - AND `handleGridChange()` MUST emit `update:placements` with all current placement positions
 
 ### Requirement: Resize by Edge Dragging (REQ-GRID-003)
+
+@e2e exclude resize-by-edge requires live GridStack resize events — same fragility as REQ-GRID-002
 
 Users MUST be able to resize widgets by dragging their edges or corners in edit mode.
 
@@ -179,6 +183,8 @@ The grid MUST support two distinct interaction modes controlled by the `editMode
 
 ### Requirement: Position Persistence (REQ-GRID-005)
 
+@e2e exclude position persistence tested via Vue composable event-emit — not directly observable in Playwright without mock
+
 Grid position changes MUST be communicated to the parent component for API persistence.
 
 #### Scenario: Save after grid change
@@ -215,6 +221,8 @@ Grid position changes MUST be communicated to the parent component for API persi
 - AND the placement's gridX, gridY, gridWidth, gridHeight MUST be updated from the grid item's x, y, w, h values
 
 ### Requirement: Widget Auto-Layout — collision placement algorithm (REQ-GRID-006)
+
+@e2e exclude auto-layout collision algorithm tests composable internal math — Vitest unit scope; browser outcome covered by REQ-GRID-001 init test
 
 When a new widget is added to an existing dashboard, the system MUST place it without overlapping any existing widget and without leaving it outside the visible grid region. The algorithm MUST be:
 
@@ -328,6 +336,8 @@ The grid MUST also adapt to the container width while maintaining the active col
 
 ### Requirement: Grid Accessibility (REQ-GRID-008)
 
+@e2e exclude grid accessibility (Tab focus ordering, ARIA roles) requires pre-seeded placements and screen reader emulation — Vitest axe scope
+
 The grid MUST support keyboard navigation and screen reader compatibility.
 
 #### Scenario: Keyboard navigation between widgets
@@ -351,6 +361,8 @@ The grid MUST support keyboard navigation and screen reader compatibility.
 - NOTE: ARIA attributes for grid positions are NOT currently implemented.
 
 ### Requirement: Tile vs Widget Rendering (REQ-GRID-009)
+
+@e2e exclude tile vs widget rendering dispatch tests WidgetWrapper prop-threading — Vitest component scope; browser manifestation covered by tiles and widgets specs
 
 The grid MUST distinguish between tile placements and widget placements for rendering.
 
@@ -383,6 +395,8 @@ The grid MUST distinguish between tile placements and widget placements for rend
 
 ### Requirement: Grid Styling (REQ-GRID-010)
 
+@e2e exclude grid CSS styling (backdrop-filter, border-radius, placeholder colours) tests computed styles at pixel level — visual regression / Vitest snapshot scope
+
 The grid MUST apply consistent visual styling to all grid items.
 
 #### Scenario: Grid item content styling
@@ -401,6 +415,8 @@ The grid MUST apply consistent visual styling to all grid items.
 - THEN the placement key MUST include the `updatedAt` timestamp and `styleConfig` hash to force re-rendering via `getPlacementKey()`
 
 ### Requirement: Grid Synchronization (REQ-GRID-011)
+
+@e2e exclude grid sync uses Vue watcher + nextTick internals — observable as DOM behaviour but requires complex timing; covered by Vitest
 
 The grid MUST stay synchronized with the placements prop when items are added or removed externally.
 
@@ -422,6 +438,8 @@ The grid MUST stay synchronized with the placements prop when items are added or
 
 ### Requirement: Cell geometry constants (REQ-GRID-012)
 
+@e2e exclude cell geometry constants are source-code assertions; grep + import checks cannot be driven from Playwright
+
 The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). These constants MUST live in a single shared module exported from the grid composable, not duplicated in component templates.
 
 #### Scenario: Cell height read from constant
@@ -439,6 +457,8 @@ The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). Th
 
 ### Requirement: GridStack version pin (REQ-GRID-013)
 
+@e2e exclude GridStack version pin is a lockfile assertion — CLI/grep only, no browser observable
+
 The system MUST pin `gridstack` to a major version that supports `columnOpts.breakpoints` and the `moveScale` layout (currently v10 or later, target v12+). Bumping the major version MUST be a deliberate change with a regression-test pass on this capability.
 
 #### Scenario: Lockfile version
@@ -449,6 +469,8 @@ The system MUST pin `gridstack` to a major version that supports `columnOpts.bre
 - AND `package.json` MUST declare a constrained range like `"gridstack": "^12.2.1"` (or whichever major is current at apply time)
 
 ### Requirement: Placement helper is the single placement authority (REQ-GRID-014)
+
+@e2e exclude single placement authority is a source-code grep assertion — cannot be driven from Playwright
 
 All "add widget" code paths (toolbar dropdown, keyboard shortcut, drag-from-picker) MUST go through a single `placeNewWidget(spec)` helper exported from the grid composable. Inline calls to `grid.addWidget` outside this helper are forbidden.
 

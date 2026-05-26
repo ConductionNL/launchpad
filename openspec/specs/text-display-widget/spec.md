@@ -60,6 +60,8 @@ The renderer MUST run `text` through `DOMPurify.sanitize` before injecting into 
 
 ### Requirement: Style application with theme-aware fallbacks (REQ-TXT-002)
 
+@e2e exclude style application with theme-aware fallbacks tests CSS variable resolution — Vitest snapshot scope; requires a placed text widget with custom styles
+
 The renderer MUST apply `fontSize`, `color`, `backgroundColor`, and `textAlign` from `content` as inline styles on the wrapper element. When a field is null or empty, the renderer MUST fall back to: `fontSize='14px'`, `color='var(--color-main-text)'`, `backgroundColor='transparent'`, `textAlign='left'`.
 
 #### Scenario: Custom font size and colour
@@ -139,6 +141,8 @@ The component MUST expose a `validate()` method that returns `[t('mydash', 'Text
 
 ### Requirement: Layout — fill cell with padded scrollable content (REQ-TXT-005)
 
+@e2e exclude layout fill cell tests CSS height: 100% / overflow — visual regression scope
+
 The widget MUST fill its grid cell (`width: 100%, height: 100%`) with `padding: 16px` and `overflow: auto`. Content MUST be horizontally aligned per `textAlign` and vertically centred when content height is less than cell height (flex centred).
 
 #### Scenario: Overflow scrolls within the cell
@@ -155,6 +159,8 @@ The widget MUST fill its grid cell (`width: 100%, height: 100%`) with `padding: 
 - **THEN** the rendered text MUST be vertically centred in the cell
 
 ### Requirement: REQ-TXMD-001 Add contentMode field to text-widget config
+
+@e2e exclude add contentMode field tests JSON schema change — Vitest/Newman scope
 
 The text-widget MUST support a `contentMode` field in its `styleConfig.content` object, with permitted values `'html'` or `'markdown'`. The field is optional; when absent, it defaults to `'html'` (backward compatibility with existing widgets). New widgets MUST receive a default determined by the system-wide default mode (see REQ-TXMD-005).
 
@@ -186,6 +192,8 @@ The text-widget MUST support a `contentMode` field in its `styleConfig.content` 
 - THEN the widget's `contentMode` MUST be set to `'html'` (explicit choice overrides the default)
 
 ### Requirement: REQ-TXMD-002 CommonMark-compliant markdown parsing
+
+@e2e exclude CommonMark-compliant markdown parsing tests the JS markdown library integration — Vitest unit scope
 
 When `contentMode = 'markdown'`, the renderer MUST parse the widget text using a CommonMark-compliant parser and convert it to HTML. The parser MUST handle headings (H1–H6 via `#...######` syntax), emphasis (`**bold**`, `*italic*`, `***bold-italic***`), code (inline `` `code` `` and code blocks), links, lists (bullet and ordered), block quotes, and tables.
 
@@ -245,6 +253,8 @@ When `contentMode = 'markdown'`, the renderer MUST parse the widget text using a
 
 ### Requirement: REQ-TXMD-003 Sanitisation of parsed markdown output
 
+@e2e exclude sanitisation of parsed markdown output tests DOMPurify config — Vitest unit scope
+
 All HTML output produced by the markdown parser MUST be passed through the same XSS allow-list sanitiser used by REQ-TXT-001 (HTML mode). Tags and attributes that pose security risk MUST be stripped. Safe tags (heading, emphasis, link, list, blockquote, table) MUST be preserved. Anchors MUST receive `rel="noopener noreferrer"` whenever they carry `target="_blank"`, to mitigate reverse-tabnabbing.
 
 #### Scenario: Script tags in markdown are stripped
@@ -275,6 +285,8 @@ All HTML output produced by the markdown parser MUST be passed through the same 
 - THEN the `<a>` element MUST have `target="_blank"` AND `rel="noopener noreferrer"`
 
 ### Requirement: REQ-TXMD-004 Mode toggle in the edit form
+
+@e2e exclude mode toggle in edit form tests radio group inside AddWidgetModal for a placed text widget — requires seeded text placement
 
 The text-widget edit sub-form MUST display a `Mode` toggle or radio/select group with two options: `HTML` and `Markdown`. The toggle's state MUST be bound to `contentMode` in the widget's `styleConfig.content` object. Switching modes MUST NOT lose the text content — only the parsing behavior changes.
 
@@ -312,6 +324,8 @@ The text-widget edit sub-form MUST display a `Mode` toggle or radio/select group
 
 ### Requirement: REQ-TXMD-005 System default for new widget content mode
 
+@e2e exclude system default for new widget content mode tests defaultMode config constant — Vitest scope
+
 The widget registry's `text.defaultContent.contentMode` MUST seed every new text widget with a known-good mode. The shipped default MUST be `'markdown'` (the primary authoring mode). Invalid mode values written through the form MUST be rejected so that placements only ever persist `'html'` or `'markdown'`. A future admin setting (`mydash.text_widget_default_mode`, deferred to the `admin-text-widget-settings` change) MAY override the registry default at runtime.
 
 #### Scenario: Default is markdown when nothing else applies
@@ -335,6 +349,8 @@ The widget registry's `text.defaultContent.contentMode` MUST seed every new text
 - AND only widgets created after the change MUST use the new default
 
 ### Requirement: REQ-TXMD-006 Backward compatibility — existing HTML-mode widgets unaffected
+
+@e2e exclude backward compatibility tests that existing HTML-mode blobs are unaffected — Newman/Vitest scope
 
 All widgets with `contentMode = 'html'` (the default for existing widgets) MUST continue to render exactly as before per REQ-TXT-001..005. The markdown parser MUST NOT be invoked for these placements. The introduction of markdown mode MUST NOT degrade or change the behavior of HTML mode.
 
@@ -360,6 +376,8 @@ All widgets with `contentMode = 'html'` (the default for existing widgets) MUST 
 - AND no `<script>` element MUST appear
 
 ### Requirement: REQ-TXMD-007 Heading levels H1–H6 with markdown shortcuts
+
+@e2e exclude heading levels H1-H6 with markdown shortcuts tests markdown rendering inside a placed text widget — requires seeded markdown placement
 
 The markdown parser MUST recognise and render heading levels via the standard `#`-prefix syntax: `#` for H1, `##` for H2, ..., `######` for H6. Each heading level MUST produce a corresponding semantic HTML tag (`<h1>` through `<h6>`).
 
@@ -395,6 +413,8 @@ The markdown parser MUST recognise and render heading levels via the standard `#
 - THEN the DOM MUST contain `<h1>Title</h1><p>This is content.</p><h2>Subsection</h2><p>More content.</p>` (or semantic equivalent)
 
 ### Requirement: REQ-TBLE-001 Table Data Model
+
+@e2e exclude table data model tests JSON schema and migration — Vitest/Newman scope
 
 The widget MUST store table content in a `tableData` JSON object within `styleConfig`, with the schema:
 
@@ -451,6 +471,8 @@ All fields MUST be present on save; no partial updates.
 
 ### Requirement: REQ-TBLE-002 Table Mode Toggle
 
+@e2e exclude table mode toggle tests radio group inside placed text widget editor — requires seeded table placement
+
 The editor MUST expose a `tableMode` boolean flag (or "Text | Table" mode selector) that switches rendering between markdown/HTML text and structured table data.
 
 #### Scenario: Switch from text to table mode
@@ -475,6 +497,8 @@ The editor MUST expose a `tableMode` boolean flag (or "Text | Table" mode select
 - AND when `tableMode = true`, the renderer MUST draw table (ignore `text`)
 
 ### Requirement: REQ-TBLE-003 Add Row Operation
+
+@e2e exclude add row operation tests table editor inside placed widget — requires seeded table placement
 
 The editor MUST provide controls to insert a new row above or below the current selection.
 
@@ -509,6 +533,8 @@ The editor MUST provide controls to insert a new row above or below the current 
 
 ### Requirement: REQ-TBLE-004 Add Column Operation
 
+@e2e exclude add column operation tests table editor inside placed widget — requires seeded table placement
+
 The editor MUST provide controls to insert a new column left or right of the current selection.
 
 #### Scenario: Add column right of current column
@@ -535,6 +561,8 @@ The editor MUST provide controls to insert a new column left or right of the cur
 - THEN each of the N rows MUST receive a new cell object: `{text: "", rowSpan: 1, colSpan: 1}`
 
 ### Requirement: REQ-TBLE-005 Delete Row and Delete Column Operations
+
+@e2e exclude delete row and column tests table editor — requires seeded table placement
 
 The editor MUST provide controls to remove rows or columns, with confirmation if the target contains text.
 
@@ -569,6 +597,8 @@ The editor MUST provide controls to remove rows or columns, with confirmation if
 - AND `rows.length` MUST not change
 
 ### Requirement: REQ-TBLE-006 Merge and Split Cells
+
+@e2e exclude merge and split cells tests complex grid-integrity algorithm — Vitest scope; not yet visibly shipped in v1.0.5
 
 The editor MUST allow users to merge multiple selected cells horizontally or vertically, and to split a merged cell back to 1×1.
 
@@ -610,6 +640,8 @@ The editor MUST allow users to merge multiple selected cells horizontally or ver
 
 ### Requirement: REQ-TBLE-007 Column Alignment and Header Row Toggle
 
+@e2e exclude column alignment and header row toggle tests CSS class application — Vitest scope
+
 The editor MUST expose per-column alignment controls and a header-row flag toggle.
 
 #### Scenario: Set column alignment to center
@@ -641,6 +673,8 @@ The editor MUST expose per-column alignment controls and a header-row flag toggl
 - AND only the rendering format (th vs td) MUST change
 
 ### Requirement: REQ-TBLE-008 Table Validation — Grid Integrity
+
+@e2e exclude table validation grid integrity tests algorithmic invariant — Vitest scope
 
 On save, the system MUST validate that the table grid is rectangular and cell spans do not exceed bounds.
 
@@ -680,6 +714,8 @@ On save, the system MUST validate that the table grid is rectangular and cell sp
 - THEN validation MUST pass (grid is logically rectangular when spans are accounted for)
 
 ### Requirement: REQ-TBLE-009 Render HTML Table with Cell Merging
+
+@e2e exclude render HTML table with cell merging tests colspan/rowspan rendering inside placed widget — requires seeded table placement
 
 The renderer MUST output an HTML `<table>` with correct `<th>` / `<td>` elements, `rowspan` / `colspan` attributes, and per-column text alignment.
 
@@ -730,6 +766,8 @@ The renderer MUST output an HTML `<table>` with correct `<th>` / `<td>` elements
 
 ### Requirement: REQ-TBLE-010 Cell Text Sanitisation
 
+@e2e exclude cell text sanitisation tests DOMPurify integration — Vitest scope
+
 Cell text MUST be sanitised using DOMPurify before rendering to prevent XSS attacks.
 
 #### Scenario: Safe HTML tags preserved
@@ -760,6 +798,8 @@ Cell text MUST be sanitised using DOMPurify before rendering to prevent XSS atta
 - THEN the `<a>` element MUST NOT have an `href` starting with `javascript:`
 
 ### Requirement: REQ-TBLE-011 Empty-Table Placeholder
+
+@e2e exclude empty-table placeholder tests Vue empty state inside placed widget — requires seeded empty-table placement
 
 When a table is freshly created (empty cells, no user text), the renderer MUST display a subtle placeholder to indicate the table is empty.
 

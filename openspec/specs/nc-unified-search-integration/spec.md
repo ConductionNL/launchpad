@@ -10,6 +10,9 @@ Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanis
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-SRCH-001 Search Provider Registration
 
 The MyDash app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes MyDash dashboards in the unified search results.

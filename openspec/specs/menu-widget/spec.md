@@ -34,6 +34,8 @@ Each item carries:
 
 ### Requirement: REQ-MENU-001 Widget registration and default structure
 
+@e2e exclude widget registration tested via widget-in-picker scenario
+
 The system MUST register a widget `type: 'menu'` in `widgetRegistry.js` with default `widgetContent` shape:
 
 ```json
@@ -69,6 +71,8 @@ The `items` array MUST support objects with:
 
 ### Requirement: REQ-MENU-002 Config schema and depth validation
 
+@e2e exclude config schema and depth validation tests PHP validator via REST — Newman scope
+
 The `items` array MUST allow up to 3 levels of nesting (top-level + 2 child levels). Any item with `children` deeper than 2 levels MUST be rejected at placement-save time with HTTP 400 `{error: 'Menu items can nest at most 3 levels deep'}`.
 
 Server-side validation MUST recursively check all items in the saved placement's `widgetContent.items` and reject the placement if depth > 3.
@@ -101,6 +105,8 @@ Valid field values:
 - NOTE: Schema enforcement prevents invalid styles at the API level; form must also catch it client-side
 
 ### Requirement: REQ-MENU-003 Dropdown style
+
+@e2e exclude dropdown style tests CSS dropdown positioning — requires a placed menu widget; seeded state not in CI fixture
 
 When `style === 'dropdown'`, the renderer MUST:
 
@@ -142,6 +148,8 @@ When `style === 'dropdown'`, the renderer MUST:
 
 ### Requirement: REQ-MENU-004 Megamenu style
 
+@e2e exclude megamenu style tests CSS panel layout — requires a placed menu widget
+
 When `style === 'megamenu'`, the renderer MUST:
 
 - Render top-level items in a horizontal bar.
@@ -180,6 +188,8 @@ When `style === 'megamenu'`, the renderer MUST:
 - THEN the panel MUST close
 
 ### Requirement: REQ-MENU-005 Tree style
+
+@e2e exclude tree style tests recursive item rendering — requires a placed menu widget
 
 When `style === 'tree'`, the renderer MUST:
 
@@ -220,6 +230,8 @@ When `style === 'tree'`, the renderer MUST:
 - AND clicking the caret MUST only expand/collapse the children (no navigation)
 
 ### Requirement: REQ-MENU-006 Active item detection and highlighting
+
+@e2e exclude active item detection tests window.location.pathname matching — requires a placed menu widget and controlled navigation
 
 The renderer MUST detect the active item based on the current page URL and highlight it and its ancestors. The `activeItemHighlight` field controls the style:
 
@@ -264,6 +276,8 @@ An item is "active" if its `url` matches the current window location (exact matc
 
 ### Requirement: REQ-MENU-007 Keyboard navigation
 
+@e2e exclude keyboard navigation tests complex focus-trap pattern — requires placed widget and keyboard sequence; Vitest scope
+
 The renderer MUST support keyboard navigation conforming to WAI-ARIA Menu/Menubar pattern:
 
 - **Tab**: move focus to the next top-level item; if at the last item, move focus out of the widget. Close any open dropdowns/flyouts.
@@ -306,6 +320,8 @@ The renderer MUST support keyboard navigation conforming to WAI-ARIA Menu/Menuba
 
 ### Requirement: REQ-MENU-008 External link handling
 
+@e2e exclude external link handling tests rel=noopener on links — requires a placed menu widget with configured external links
+
 When an item's `url` starts with `http://` or `https://`, it is treated as an external URL. Clicking an external URL MUST:
 
 1. Open the link in a new tab via `window.open(url, '_blank', 'noopener,noreferrer')`
@@ -335,6 +351,8 @@ Internal URLs (starting with `/` or no protocol) MUST use `router.push()` or a s
 - THEN the `<a>` MUST have `rel="noopener noreferrer"`
 
 ### Requirement: REQ-MENU-009 Add/edit form with drag-and-drop editor
+
+@e2e exclude add/edit form with drag-and-drop editor tests complex form inside placed widget — requires seeded placement
 
 The menu sub-form for `AddWidgetModal` MUST include:
 
@@ -377,6 +395,8 @@ When editing an existing widget, all fields MUST pre-fill from `editingWidget.co
 
 ### Requirement: REQ-MENU-010 Icon resolution
 
+@e2e exclude icon resolution tests IconRenderer dispatch — Vitest component scope
+
 The `icon` field of a menu item MUST follow the same dual-mode convention as `link-button-widget` (REQ-LBN-002):
 
 - A custom URL (starts with `/` or `http`) MUST render as `<img>` inside the menu item
@@ -398,6 +418,8 @@ Icon size MUST be 16-24 px (smaller than REQ-LBN-002's 48 px, to fit in a menu l
 - THEN the item MUST display the custom SVG icon to the left of "Custom"
 
 ### Requirement: REQ-MENU-011 Empty state
+
+@e2e exclude empty state tests Vue empty component inside a placed widget — requires seeded empty-menu placement
 
 When the `items` array is empty or not provided, the renderer MUST display a placeholder message: **"No menu items yet — click the gear icon to add some."**
 

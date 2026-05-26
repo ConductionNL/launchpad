@@ -10,6 +10,9 @@ Admin settings provide Nextcloud administrators with global configuration option
 
 ## Data Model
 
+
+@e2e exclude all scenarios test REST/service/config API — admin UI reads settings from API; no dedicated Playwright-testable UI flow shipped in v1.0.5
+
 ### Admin Settings (oc_mydash_admin_settings)
 Settings are stored as key-value pairs:
 - **id**: Auto-increment integer primary key

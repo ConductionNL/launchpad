@@ -12,6 +12,9 @@ Expose application metrics in Prometheus text exposition format at `GET /api/met
 
 Metrics are collected at request time from database queries and system information. No persistent metrics storage is used -- all values are computed on-demand.
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Metrics Architecture
 - **MetricsController**: Handles HTTP request, formats output as Prometheus text exposition
 - **MetricsCollector**: Orchestrates metric collection, delegates to MetricsQueryService

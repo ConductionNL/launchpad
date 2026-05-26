@@ -24,6 +24,9 @@ Constraints:
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-FEED-001 Token Issue
 
 Users MUST be able to request and receive their personal feed token on first call, creating it atomically if not yet issued.

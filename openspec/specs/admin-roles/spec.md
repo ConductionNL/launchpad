@@ -26,6 +26,9 @@ Each role assignment is stored in the `oc_mydash_role_assignments` table with th
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-ROLE-001 Dashboard Admin Role Definition
 
 A Dashboard Admin MUST have full administrative access to MyDash, equivalent to Nextcloud admin status but scoped to MyDash only. A Dashboard Admin MUST be able to manage all dashboards, install demo data, edit organization-level navigation, and define new metadata fields.

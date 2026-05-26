@@ -28,6 +28,9 @@ At least one of `folderPath` or `fileId` MUST be present so the placement always
 
 ## Requirements
 
+
+@e2e exclude all scenarios test PHP file listing/upload/delete endpoints — requires Nextcloud Files ACL setup beyond the test fixture
+
 ### Requirement: REQ-FLS-001 Widget registration
 
 The system MUST register a MyDash dashboard widget with id `mydash_files` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.

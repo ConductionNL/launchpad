@@ -33,6 +33,9 @@ Each dashboard record is stored in the `oc_mydash_dashboards` table with the fol
 
 ## Requirements
 
+
+@e2e exclude all 163 scenarios test REST/service/factory/tree API — dashboard CRUD and tree ops have no dedicated UI flow in v1.0.5 (UI flows tested via runtime-shell, dashboard-switcher, tiles, widgets specs)
+
 ### Requirement: Create Personal Dashboard (REQ-DASH-001)
 
 Users MUST be able to create new personal dashboards with a name, optional description, and default grid configuration.

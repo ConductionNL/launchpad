@@ -10,6 +10,9 @@ Footer Customization provides per-instance branding, legal disclaimers, and cont
 
 ## Data Model
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Admin Footer Settings (oc_mydash_admin_settings extended)
 
 Settings are stored as key-value pairs:

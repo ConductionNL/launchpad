@@ -28,6 +28,9 @@ The global default is stored in `oc_mydash_admin_settings` under key `comments_e
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-CMNT-001 List Comments on Dashboard
 
 Users with view permissions MUST be able to retrieve all comments and replies on a dashboard in a single request, ordered with newest top-level comments first and replies grouped beneath their parent.

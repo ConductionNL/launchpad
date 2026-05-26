@@ -30,7 +30,13 @@ const baseURL = process.env.NC_BASE_URL ?? 'http://localhost:8080'
 
 export default defineConfig({
 	testDir: './tests/e2e',
-	testIgnore: ['**/global-setup.ts', '**/fixtures/**'],
+	// Root-level ignore covers fixtures only. The `docs-screenshots`
+	// spec is filtered per-project below — keeping it out of the root
+	// ignore so the `docs-capture` project can still match it.
+	testIgnore: [
+		'**/global-setup.ts',
+		'**/fixtures/**',
+	],
 	timeout: 30_000,
 	expect: {
 		timeout: 5_000,
@@ -50,9 +56,24 @@ export default defineConfig({
 		navigationTimeout: 60_000,
 	},
 	projects: [
+		// Default regression project. Excludes the docs capture spec so
+		// PR pipelines don't reshoot screenshots on every push.
 		{
 			name: 'chromium',
+			testIgnore: ['**/docs-screenshots.spec.ts'],
 			use: { ...devices['Desktop Chrome'] },
+		},
+		// Dedicated project for the documentation capture spec. Opt in:
+		//   npx playwright test --project docs-capture
+		// Output lands in `docs/screenshots/tutorials/{user,admin}/`.
+		{
+			name: 'docs-capture',
+			testMatch: /docs-screenshots\.spec\.ts$/,
+			use: {
+				...devices['Desktop Chrome'],
+				viewport: { width: 1280, height: 800 },
+			},
+			timeout: 90_000,
 		},
 	],
 })

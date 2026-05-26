@@ -401,4 +401,145 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(wrapper.emitted('update:open')[0]).toEqual([false])
 		})
 	})
+
+	describe('default-dashboard star marker', () => {
+		const userRowWithUuid = { id: 'p1', uuid: 'pin-uuid', name: 'My Notes', icon: null, source: 'user' }
+		const userRowOtherUuid = { id: 'p2', uuid: 'other-uuid', name: 'Side Project', icon: null, source: 'user' }
+		const groupRowWithUuid = { id: 'g1', uuid: 'group-uuid', name: 'Team Board', icon: null, source: 'group' }
+
+		it('renders a star marker only on the row whose uuid matches defaultUuid', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRowWithUuid, userRowOtherUuid],
+				defaultUuid: 'pin-uuid',
+			})
+
+			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+			expect(markers.length).toBe(1)
+
+			// The star sits in the row for the pinned dashboard.
+			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				(li) => li.text().includes('My Notes'),
+			)
+			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
+		})
+
+		it('star marker carries a tooltip via the title attribute', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRowWithUuid],
+				defaultUuid: 'pin-uuid',
+			})
+
+			const marker = wrapper.find('.dashboard-switcher-sidebar__default-marker')
+			expect(marker.exists()).toBe(true)
+			expect(marker.attributes('title')).toMatch(/default dashboard/i)
+			expect(marker.attributes('aria-label')).toMatch(/default dashboard/i)
+		})
+
+		it('does not render any star marker when defaultUuid is empty', () => {
+			const wrapper = mountSidebar({
+				userDashboards: [userRowWithUuid, userRowOtherUuid],
+				defaultUuid: '',
+			})
+
+			expect(wrapper.findAll('.dashboard-switcher-sidebar__default-marker').length).toBe(0)
+		})
+
+		it('marks a group-section row when the user has pinned a group dashboard', () => {
+			const wrapper = mountSidebar({
+				groupName: 'Engineering',
+				groupDashboards: [groupRowWithUuid],
+				userDashboards: [userRowOtherUuid],
+				defaultUuid: 'group-uuid',
+			})
+
+			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+			expect(markers.length).toBe(1)
+
+			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				(li) => li.text().includes('Team Board'),
+			)
+			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
+		})
+
+		describe('group-default fallback (no personal pin)', () => {
+			it('falls back to the default-group row carrying isDefault=1 when no pin is set', () => {
+				const groupDefault = { id: 'g3', uuid: 'group-default-uuid', name: 'Group Default', icon: null, source: 'default', isDefault: 1 }
+				const otherGroup = { id: 'g4', uuid: 'other-default-uuid', name: 'Other Default', icon: null, source: 'default', isDefault: 0 }
+
+				const wrapper = mountSidebar({
+					groupDashboards: [otherGroup, groupDefault],
+					userDashboards: [userRowOtherUuid],
+					defaultUuid: '',
+				})
+
+				const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+				expect(markers.length).toBe(1)
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
+				)
+				expect(starred.text()).toContain('Group Default')
+			})
+
+			it('prefers a primary-group isDefault=1 row over a default-group isDefault=1 row (resolver step 2 wins)', () => {
+				const primaryDefault = { id: 'g5', uuid: 'primary-default', name: 'Primary Default', icon: null, source: 'group', isDefault: 1 }
+				const fallbackDefault = { id: 'g6', uuid: 'fallback-default', name: 'Fallback Default', icon: null, source: 'default', isDefault: 1 }
+
+				const wrapper = mountSidebar({
+					groupName: 'Engineering',
+					groupDashboards: [fallbackDefault, primaryDefault],
+					userDashboards: [],
+					defaultUuid: '',
+				})
+
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
+				)
+				expect(starred.text()).toContain('Primary Default')
+			})
+
+			it('falls back to the first primary-group row when no isDefault=1 flag exists anywhere', () => {
+				const firstPrimary = { id: 'g7', uuid: 'first-primary', name: 'First Primary', icon: null, source: 'group', isDefault: 0 }
+				const secondPrimary = { id: 'g8', uuid: 'second-primary', name: 'Second Primary', icon: null, source: 'group', isDefault: 0 }
+
+				const wrapper = mountSidebar({
+					groupName: 'Engineering',
+					groupDashboards: [firstPrimary, secondPrimary],
+					userDashboards: [],
+					defaultUuid: '',
+				})
+
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
+				)
+				expect(starred.text()).toContain('First Primary')
+			})
+
+			it('does NOT star a personal dashboard via fallback when no group rows exist', () => {
+				const wrapper = mountSidebar({
+					groupDashboards: [],
+					userDashboards: [userRowWithUuid, userRowOtherUuid],
+					defaultUuid: '',
+				})
+
+				expect(wrapper.findAll('.dashboard-switcher-sidebar__default-marker').length).toBe(0)
+			})
+
+			it('still prefers the explicit pin over any group fallback', () => {
+				const groupDefault = { id: 'g9', uuid: 'group-default-uuid', name: 'Group Default', icon: null, source: 'default', isDefault: 1 }
+
+				const wrapper = mountSidebar({
+					groupDashboards: [groupDefault],
+					userDashboards: [userRowWithUuid],
+					defaultUuid: 'pin-uuid',
+				})
+
+				const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+				expect(markers.length).toBe(1)
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
+				)
+				expect(starred.text()).toContain('My Notes')
+			})
+		})
+	})
 })

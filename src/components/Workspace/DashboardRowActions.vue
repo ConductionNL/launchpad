@@ -44,6 +44,7 @@
 		<NcActionButton
 			v-if="canEdit"
 			:close-after-click="true"
+			data-testid="cog-edit-dashboard"
 			@click="$emit('toggle-edit')">
 			<template #icon>
 				<ContentSave v-if="showSave" :size="20" />
@@ -54,6 +55,7 @@
 		<NcActionButton
 			v-if="isOwner"
 			:close-after-click="true"
+			data-testid="cog-dashboard-config"
 			@click="$emit('open-config')">
 			<template #icon>
 				<Tune :size="20" />
@@ -63,6 +65,7 @@
 		<NcActionButton
 			v-if="canEdit"
 			:close-after-click="true"
+			data-testid="cog-add-widget"
 			@click="$emit('add-custom-widget')">
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
@@ -71,6 +74,7 @@
 		</NcActionButton>
 		<NcActionButton
 			:close-after-click="true"
+			data-testid="cog-set-default"
 			@click="$emit('set-default')">
 			<template #icon>
 				<StarCheck v-if="isDefault" :size="20" />
@@ -81,6 +85,7 @@
 		<NcActionButton
 			v-if="isOwner"
 			:close-after-click="true"
+			data-testid="cog-delete"
 			@click="$emit('delete')">
 			<template #icon>
 				<TrashCanOutline :size="20" />
@@ -176,6 +181,7 @@ export default {
 		 * explicit `dashboard.isOwner` flag when present and otherwise
 		 * conservatively hide the destructive actions.
 		 */
+		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		isOwner() {
 			if (this.source === 'user') {
 				return true
@@ -189,6 +195,7 @@ export default {
 		 * StarCheck) and label ("Set as default" vs "Default
 		 * dashboard").
 		 */
+		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		isDefault() {
 			const uuid = this.dashboard?.uuid
 			return !!uuid && uuid === this.defaultUuid
@@ -202,6 +209,7 @@ export default {
 		 * user can still enter edit mode on them by switching first
 		 * (the host's `maybeSwitchTo` helper handles that).
 		 */
+		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		showSave() {
 			return this.isEditMode
 				&& this.activeDashboardId != null

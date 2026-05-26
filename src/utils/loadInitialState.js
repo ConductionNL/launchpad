@@ -47,6 +47,14 @@ const PAGE_KEYS = {
 		// REQ-RFP-010: list of widget IDs the caller is permitted to see.
 		// `null` = no role-feature-permissions configured (legacy, unrestricted).
 		allowedWidgets: null,
+		// Canonical slug-chain path for the active dashboard. Empty when
+		// no dashboard is active or the active one has no slug. The
+		// frontend uses this on mount to bring `window.location.pathname`
+		// in line with whichever dashboard the server actually rendered
+		// (handles renamed parents / stale bookmarks via replaceState).
+		// Optional key — older servers don't push it, so the default
+		// keeps reads typed even before the deploy lands.
+		deepLinkPath: '',
 	},
 	admin: {
 		allGroups: [],
@@ -65,6 +73,7 @@ const PAGE_KEYS = {
  * @return {object} Typed snapshot — never carries `undefined` values.
  * @throws {Error} When `page` is not a known page identifier.
  */
+/** @spec openspec/specs/initial-state-contract/spec.md */
 export function loadInitialState(page) {
 	const defaults = PAGE_KEYS[page]
 	if (!defaults) {

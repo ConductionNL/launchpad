@@ -138,7 +138,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The list of templates.
      *
-     * @spec admin-templates:REQ-TMPL-002
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
      */
     public function listTemplates(): JSONResponse
     {
@@ -156,6 +156,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The template data.
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function getTemplate(int $id): JSONResponse
     {
         try {
@@ -191,7 +192,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The created template.
      *
-     * @spec admin-templates:REQ-TMPL-001
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-3
      */
     public function createTemplate(
         string $name,
@@ -231,7 +232,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The updated template.
      *
-     * @spec admin-templates:REQ-TMPL-003
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-5
      */
     public function updateTemplate(
         int $id,
@@ -272,7 +273,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The deletion confirmation.
      *
-     * @spec admin-templates:REQ-TMPL-004
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-6
      */
     public function deleteTemplate(int $id): JSONResponse
     {
@@ -290,7 +291,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The admin settings.
      *
-     * @spec admin-settings:REQ-ASET-001
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-1
      */
     public function getSettings(): JSONResponse
     {
@@ -312,7 +313,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The update confirmation.
      *
-     * @spec admin-settings:REQ-ASET-002
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
      */
     public function updateSettings(
         ?string $defaultPermLevel=null,
@@ -348,6 +349,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function getFooterSettings(): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -383,6 +385,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function updateFooterSettings(
         ?bool $footerEnabled=null,
         mixed $footerHtml=null,
@@ -413,10 +416,9 @@ class AdminController extends Controller
                 haystack: $e->getMessage(),
                 needle: '8 KB limit'
             );
+            $status     = Http::STATUS_BAD_REQUEST;
             if ($isOversize === true) {
                 $status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
-            } else {
-                $status = Http::STATUS_BAD_REQUEST;
             }
 
             return new JSONResponse(
@@ -448,6 +450,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function listGroups(): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -524,6 +527,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function updateGroupOrder(mixed $groups=null): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -574,6 +578,7 @@ class AdminController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function export(
         string $scope='site',
         ?string $dashboardUuid=null
@@ -638,6 +643,7 @@ class AdminController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function import(bool $preserveUuids=false): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -706,6 +712,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function listRoles(): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -736,6 +743,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function createRole(
         ?string $userId=null,
         ?string $groupId=null,
@@ -790,6 +798,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function deleteRole(int $id): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -821,6 +830,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function getMyRole(): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -851,6 +861,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function refreshFeedsNow(?string $feedUrl=null): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -899,6 +910,7 @@ class AdminController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function uploadTemplatePreviewImage(
         string $uuid,
         string $base64=''
@@ -967,6 +979,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function getWizardState(): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -989,6 +1002,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function completeWizard(): JSONResponse
     {
         $guard = $this->requireAdmin();
@@ -1015,6 +1029,7 @@ class AdminController extends Controller
      *
      * @NoAdminRequired
      */
+    /** @spec openspec/specs/admin-templates/spec.md */
     public function setWizardStorage(?string $storage=null): JSONResponse
     {
         $guard = $this->requireAdmin();

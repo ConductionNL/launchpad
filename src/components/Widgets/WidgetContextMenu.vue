@@ -7,12 +7,14 @@
 	<div
 		class="widget-context-menu"
 		role="menu"
+		data-testid="widget-context-menu"
 		:style="positionStyle"
 		@click.stop>
 		<button
 			type="button"
 			class="widget-context-menu__item"
 			role="menuitem"
+			data-testid="ctx-edit"
 			@click="onEdit">
 			{{ t('mydash', 'Edit') }}
 		</button>
@@ -20,6 +22,7 @@
 			type="button"
 			class="widget-context-menu__item widget-context-menu__item--danger"
 			role="menuitem"
+			data-testid="ctx-remove"
 			@click="onRemove">
 			{{ t('mydash', 'Remove') }}
 		</button>
@@ -27,6 +30,7 @@
 			type="button"
 			class="widget-context-menu__item"
 			role="menuitem"
+			data-testid="ctx-cancel"
 			@click="onCancel">
 			{{ t('mydash', 'Cancel') }}
 		</button>
@@ -85,6 +89,7 @@ export default {
 		 *
 		 * @return {object}
 		 */
+		/** @spec openspec/specs/widgets/spec.md */
 		positionStyle() {
 			return {
 				top: `${this.top}px`,
@@ -96,16 +101,19 @@ export default {
 	methods: {
 		t,
 
+		/** @spec openspec/specs/widgets/spec.md */
 		onEdit() {
 			this.$emit('edit')
 			this.$emit('close')
 		},
 
+		/** @spec openspec/specs/widgets/spec.md */
 		onRemove() {
 			this.$emit('remove')
 			this.$emit('close')
 		},
 
+		/** @spec openspec/specs/widgets/spec.md */
 		onCancel() {
 			this.$emit('close')
 		},

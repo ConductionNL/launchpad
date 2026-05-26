@@ -17,6 +17,10 @@ return [
 		['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
 		['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
 
+		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
+		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
+		['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
+
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 
@@ -323,6 +327,11 @@ return [
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
+
+		// ADR-023 action-authorization matrix. Admin-only via
+		// #[AuthorizedAdminSetting] on the controller methods.
+		['name' => 'action_matrix#getMatrix', 'url' => '/api/admin/action-matrix', 'verb' => 'GET'],
+		['name' => 'action_matrix#setMatrix', 'url' => '/api/admin/action-matrix', 'verb' => 'PUT'],
 
 		// Global footer settings (REQ-FTR-001, REQ-FTR-010). Both
 		// admin-only via runtime `IGroupManager::isAdmin` check inside

@@ -66,6 +66,12 @@
     "docsUrl": "openspec/specs/dashboard-comments/spec.md"
   },
   {
+    "slug": "dashboard-deeplinking",
+    "title": "Dashboard Deep-Linking",
+    "summary": "Each dashboard has a stable, addressable URL based on its slug-chain. Visiting `/apps/mydash/{slug-chain}` lands the workspace on the matching dashboard; switching dashboards via the sidebar pushes a new history entry; the browser back/forward buttons navigate between dashboards.",
+    "docsUrl": "openspec/specs/dashboard-deeplinking/spec.md"
+  },
+  {
     "slug": "dashboard-export-import",
     "title": "Dashboard Export & Import",
     "summary": "Dashboard export and import allow MyDash administrators to create versioned snapshots of dashboard configurations, widgets, metadata fields, and associated assets. Snapshots are portable across Nextcloud instances, enabling backup, disaster recovery, template authoring, and cross-instance sharing. This capability defines a standardised ZIP container format (`mydash-export-v1.zip`), collision handling semantics, and API/CLI endpoints for end-to-end export-import workflows. Downstream capabilities such as `confluence-html-import` consume the same ZIP shape, so the manifest schema (`schemaVersion: 1`) is treated as a stable contract.",
@@ -138,6 +144,12 @@
     "docsUrl": "openspec/specs/dashboards/spec.md"
   },
   {
+    "slug": "default-widget-bundle",
+    "title": "Default Widget Bundle",
+    "summary": "Every newly-created personal dashboard ships with a preconfigured set of four widget placements so the user lands on a non-empty grid. Empty grids on first-create were a documented friction point — the \"No dashboard yet\" empty-state CTA flashed on every cold load and new dashboards rendered as a blank canvas with no way to discover the widget catalog.",
+    "docsUrl": "openspec/specs/default-widget-bundle/spec.md"
+  },
+  {
     "slug": "demo-data-showcases",
     "title": "Demo Data Showcases",
     "summary": "The `demo-data-showcases` capability provides administrators with one-click installation of pre-built, fully populated example dashboards that illustrate different organizational use cases. Showcases are bundled as ZIP archives containing a machine-readable `export.json` manifest plus per-locale page JSON files and media assets, loaded from disk on demand, and installed as `group_shared` dashboards visible to all users (via REQ-DASH-012 default-group sentinel). The capability includes widget type validation, graceful skip-on-missing for unknown widgets, NL-only localization in v1, and idempotent installation via API and CLI commands.",
@@ -148,6 +160,12 @@
     "title": "Divider Widget",
     "summary": "The divider widget is a lightweight, configurable visual separator for MyDash dashboards. It enables dashboard creators to break up widget sections into logical groups using minimal UI — a horizontal line, whitespace spacer, or centered heading with dividing lines — all rendered client-side with full theme awareness and print support. This capability adds no backend endpoints or data storage; all configuration is stored in the placement's `widgetContent JSON` blob and rendered in-browser.",
     "docsUrl": "openspec/specs/divider-widget/spec.md"
+  },
+  {
+    "slug": "effective-default-marker",
+    "title": "Effective Default Marker",
+    "summary": "The dashboard switcher sidebar marks the user's *effective default dashboard* — the dashboard the resolver lands them on when they visit `/apps/mydash/` cold — with a small ★ icon and a tooltip.",
+    "docsUrl": "openspec/specs/effective-default-marker/spec.md"
   },
   {
     "slug": "files-widget",
@@ -178,6 +196,12 @@
     "title": "Image Widget",
     "summary": "The image widget is a built-in MyDash widget type that lets dashboard authors place a single image — logo, screenshot, branding, or decorative imagery — onto a dashboard cell with proper `object-fit` control, broken-image fallback, optional click-through, and a first-class file-upload UX. It replaces the prior workarounds where users jammed `<img>` tags into the markdown widget or pointed an iframe widget at an image URL.",
     "docsUrl": "openspec/specs/image-widget/spec.md"
+  },
+  {
+    "slug": "infrastructure-helpers",
+    "title": "Infrastructure Helpers",
+    "summary": "The `infrastructure-helpers` capability collects small, pure (or nearly-pure) utility classes that are reused across multiple capability boundaries. These are not domain logic — they are primitives: string transformation, lookup, parameter extraction. Each helper has a single narrow contract, no persistence, and is invoked from multiple capability code paths. Grouping them here keeps each individual capability spec focused on domain behaviour rather than utility internals.",
+    "docsUrl": "openspec/specs/infrastructure-helpers/spec.md"
   },
   {
     "slug": "initial-state-contract",

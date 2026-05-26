@@ -16,7 +16,7 @@
 	     (security gate — never omit `noopener noreferrer`).
 	  2. A Documentation link (icon + label) targeting the same URL the
 	     gear-menu Documentation entry used before runtime-shell-trim
-	     removed it (https://mydash.app).
+	     removed it (https://mydash.conduction.nl).
 
 	The footer itself is a stateless block; the parent
 	(`DashboardSwitcherSidebar`) owns the `position: sticky; bottom: 0`
@@ -81,8 +81,12 @@ import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOut
  * Documentation URL targeted by both the (now-removed) gear menu entry
  * and the new sidebar footer link. Kept in module scope so the test
  * suite can assert exact value parity with the previous gear-menu link.
+ *
+ * Points at the docs intro page rather than the marketing landing —
+ * the click context is a user inside the app reaching for docs, not
+ * a prospect evaluating the product.
  */
-export const DOCS_URL = 'https://mydash.app'
+export const DOCS_URL = 'https://mydash.conduction.nl/docs/intro'
 
 export default {
 	name: 'SidebarFooter',
@@ -92,12 +96,15 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/specs/footer-customization/spec.md */
 		docsUrl() {
 			return DOCS_URL
 		},
+		/** @spec openspec/specs/footer-customization/spec.md */
 		sendentLogo() {
 			return generateFilePath('mydash', 'img', 'sendent-logo.png')
 		},
+		/** @spec openspec/specs/footer-customization/spec.md */
 		conductionLogo() {
 			return generateFilePath('mydash', 'img', 'conduction-logo.png')
 		},

@@ -8,7 +8,7 @@
 		<CnSettingsSection
 			:name="t('mydash', 'MyDash settings')"
 			:description="t('mydash', 'Configure dashboard permissions and defaults')"
-			doc-url="https://mydash.app">
+			doc-url="https://mydash.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays visible until the
 			     admin clicks Finish in the wizard; after completion a less
 			     prominent re-run link replaces it (REQ-WIZ-011). -->
@@ -42,7 +42,7 @@
 			</div>
 
 			<!-- Global Settings -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-default-settings">
 				<h3>{{ t('mydash', 'Default settings') }}</h3>
 
 				<div class="mydash-admin__field">
@@ -64,6 +64,7 @@
 				     to admins so they don't fear data loss. -->
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowUserDashboards"
+					data-testid="admin-allow-user-dashboards"
 					@update:checked="updateSetting('allowUserDashboards', $event)">
 					{{ t('mydash', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
@@ -93,10 +94,10 @@
 			</div>
 
 			<!-- Template Management -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-templates-section">
 				<div class="mydash-admin__section-header">
 					<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
-					<NcButton type="primary" @click="createTemplate">
+					<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
 						<template #icon>
 							<Plus :size="20" />
 						</template>
@@ -206,7 +207,7 @@
 			</div>
 
 			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-bulk-section">
 				<DashboardBulkOperations />
 			</div>
 
@@ -226,8 +227,13 @@
 			</div>
 
 			<!-- Role-based widget permissions (REQ-RFP-001..010) -->
-			<div class="mydash-admin__section">
+			<div class="mydash-admin__section" data-testid="admin-roles-section">
 				<RolePermissionsSection />
+			</div>
+
+			<!-- Action authorization matrix (ADR-023) -->
+			<div class="mydash-admin__section">
+				<ActionAuthMatrix />
 			</div>
 
 			<!-- Info -->
@@ -272,6 +278,7 @@
 						v-model="editingTemplate.targetGroups"
 						:options="availableGroups"
 						:multiple="true"
+						:aria-label-combobox="t('mydash', 'Target groups')"
 						:placeholder="t('mydash', 'Select groups (leave empty for all users)')" />
 				</div>
 
@@ -327,6 +334,7 @@ import AdminDemoData from './AdminDemoData.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
 import { api } from '../../services/api.js'
 import RolePermissionsSection from './RolePermissionsSection.vue'
+import ActionAuthMatrix from './ActionAuthMatrix.vue'
 
 export default {
 	name: 'AdminSettings',
@@ -351,6 +359,7 @@ export default {
 		SetupWizardModal,
 		ViewDashboard,
 		RolePermissionsSection,
+		ActionAuthMatrix,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
@@ -406,6 +415,7 @@ export default {
 		}
 	},
 
+	/** @spec openspec/specs/admin-settings/spec.md */
 	async created() {
 		await this.loadData()
 		await this.loadGroupSharedDashboards()
@@ -413,6 +423,7 @@ export default {
 	},
 
 	methods: {
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadData() {
 			this.loading = true
 			try {
@@ -443,6 +454,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveSettings() {
 			try {
 				// REQ-ASET-002: the PUT /api/admin/settings endpoint accepts
@@ -463,11 +475,13 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		updateSetting(key, value) {
 			this.settings[key] = value
 			this.saveSettings()
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		createTemplate() {
 			this.editingTemplate = {
 				id: null,
@@ -479,6 +493,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		editTemplate(template) {
 			this.editingTemplate = {
 				...template,
@@ -488,10 +503,12 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		closeTemplateEditor() {
 			this.editingTemplate = null
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveTemplate() {
 			try {
 				const data = {
@@ -515,6 +532,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async deleteTemplate(template) {
 			if (!confirm(this.t('mydash', 'Are you sure you want to delete this template?'))) {
 				return
@@ -528,6 +546,7 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		formatTargetGroups(groups) {
 			if (!groups || groups.length === 0) {
 				return this.t('mydash', 'All users')
@@ -543,6 +562,7 @@ export default {
 		 *
 		 * @return {string[]} Group ids to render.
 		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		resolveAdminGroupIds() {
 			const configured = Array.isArray(this.injectedConfiguredGroups)
 				? this.injectedConfiguredGroups
@@ -563,6 +583,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadGroupSharedDashboards() {
 			this.loadingGroupDashboards = true
 			const groupIds = this.resolveAdminGroupIds()
@@ -600,6 +621,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadWizardState() {
 			try {
 				const { data } = await api.getSetupWizardState()
@@ -610,14 +632,17 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		openWizard() {
 			this.showWizard = true
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		closeWizard() {
 			this.showWizard = false
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async onWizardCompleted() {
 			this.showWizard = false
 			// REQ-WIZ-002 final scenario: the banner MUST disappear without
@@ -626,6 +651,7 @@ export default {
 			await this.loadWizardState()
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async setGroupDefault(groupId, uuid) {
 			const rows = this.groupSharedDashboards[groupId] || []
 			// Snapshot prior `isDefault` values for rollback.

@@ -72,6 +72,15 @@
 				@widget-right-click="onWidgetRightClick"
 				@tile-edit="openTileEditorForEdit" />
 
+			<!-- Loading shim. The empty-state below previously rendered
+			     during the initial fetch because `activeDashboard` is
+			     null until `loadDashboards()` resolves; the spinner
+			     keeps the "No dashboard yet" CTA out of view while the
+			     user is just waiting on data. -->
+			<div v-else-if="loading" class="mydash-loading">
+				<NcLoadingIcon :size="48" />
+			</div>
+
 			<!-- Empty-state shell. The "Create dashboard" affordance is gated
 			     by the admin `allow_user_dashboards` flag (REQ-ASET-003,
 			     extended). When the flag is off the button MUST be hidden
@@ -158,8 +167,9 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -190,6 +200,7 @@ export default {
 	components: {
 		NcButton,
 		NcEmptyContent,
+		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
 		DashboardGrid,
@@ -217,6 +228,15 @@ export default {
 			from: 'primaryGroupName',
 			default: '',
 		},
+		// Canonical slug-chain path the server resolved for the active
+		// dashboard. Empty string when no dashboard is active OR the
+		// active one has no slug. Read once on mount to bring
+		// `window.location.pathname` in line with what the server
+		// rendered (handles renamed parents / stale bookmarks).
+		injectedDeepLinkPath: {
+			from: 'deepLinkPath',
+			default: '',
+		},
 	},
 	// Inject the typed initial-state snapshot pushed from `src/main.js`
 	// (REQ-INIT-003..005). Defaults match the reader contract so the
@@ -224,6 +244,7 @@ export default {
 	// provider (e.g. Vitest harness) — see DashboardSwitcherSidebar specs.
 	// (Inject keys are defined once below; this comment block was kept
 	// as the historical anchor for the provide/inject contract.)
+	/** @spec openspec/specs/dashboards/spec.md */
 	setup() {
 		// Reactive `canEdit` proxy handed to the grid manager composable.
 		// Wrapped in Vue.observable so the composable's
@@ -242,10 +263,12 @@ export default {
 		// `this` is bound to the component when the callbacks fire.
 		const grid = useGridManager({
 			canEdit: canEditRef,
+			/** @spec openspec/specs/dashboards/spec.md */
 			onEdit(widget) {
 				// `this` is the Vue instance once we bind in `created()`.
 				grid._host?.handleContextMenuEdit(widget)
 			},
+			/** @spec openspec/specs/dashboards/spec.md */
 			onRemove(widget) {
 				grid._host?.handleContextMenuRemove(widget)
 			},
@@ -301,6 +324,7 @@ export default {
 		...mapState(useWidgetStore, ['availableWidgets']),
 		...mapState(useTileStore, ['tiles']),
 
+		/** @spec openspec/specs/dashboards/spec.md */
 		canEdit() {
 			return this.permissionLevel !== 'view_only'
 		},
@@ -312,6 +336,7 @@ export default {
 		 *
 		 * @return {boolean}
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		canEditForContextMenu() {
 			return this.canEdit && this.isEditMode
 		},
@@ -327,15 +352,19 @@ export default {
 		 * right-click, close via outside-click / Cancel) correctly mount
 		 * and unmount the popover.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuVisible() {
 			return this.grid.state.contextMenuOpen
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuTop() {
 			return this.grid.state.contextMenuPosition.y
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuLeft() {
 			return this.grid.state.contextMenuPosition.x
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
 			return this.widgetPlacements.map(p => p.widgetId)
 		},
@@ -346,6 +375,7 @@ export default {
 		 *
 		 * @return {Array<object>} Concatenated group + default dashboards.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		sidebarGroupDashboards() {
 			return [...this.groupSharedDashboards, ...this.defaultGroupDashboards]
 		},
@@ -356,6 +386,7 @@ export default {
 		 *
 		 * @return {Array<object>} Dashboards with `source === 'user'`.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		sidebarUserDashboards() {
 			return this.userDashboards
 		},
@@ -367,6 +398,7 @@ export default {
 		 *
 		 * @return {string}
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		emptyStateDescription() {
 			if (this.allowUserDashboards) {
 				return this.t('mydash', 'Create your first dashboard to get started')
@@ -385,6 +417,7 @@ export default {
 		 *
 		 * @return {string} Label to render, or '' when none.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		primaryGroupLabel() {
 			if (this.primaryGroupName) {
 				return this.primaryGroupName
@@ -406,6 +439,7 @@ export default {
 		 */
 		canEditForContextMenu: {
 			immediate: true,
+			/** @spec openspec/specs/dashboards/spec.md */
 			handler(value) {
 				if (this.canEditRef) {
 					this.canEditRef.value = !!value
@@ -423,14 +457,24 @@ export default {
 		 */
 		'activeDashboard.uuid': {
 			immediate: true,
-			handler(uuid) {
+			/** @spec openspec/specs/dashboards/spec.md */
+			handler(uuid, prevUuid) {
 				if (!uuid) {
 					return
 				}
 				this.recordViewEventDebounced(uuid)
+				// Outbound URL sync — every uuid change pushes a new
+				// history entry so back/forward navigates between
+				// dashboards. The first hydration is `replaceState`
+				// (handled in mounted) so we don't pollute history with
+				// the bootstrap entry.
+				if (prevUuid !== undefined) {
+					this.pushUrlForActiveDashboard()
+				}
 			},
 		},
 	},
+	/** @spec openspec/specs/dashboards/spec.md */
 	async created() {
 		// Bind the host onto the grid composable so its onEdit / onRemove
 		// callbacks can delegate to component methods. The composable was
@@ -459,16 +503,30 @@ export default {
 			console.error('[Views] Failed to load default-dashboard preference:', error)
 		}
 	},
+	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
 		// Attach the document-level click listener (REQ-WDG-016 outside-
 		// click closes popover). Detached in beforeDestroy so we never
 		// leak a listener across mounts.
 		this.grid.attach()
+
+		// Deep-link URL sync — replace the URL in-place so the address
+		// bar reflects whichever dashboard the server actually rendered
+		// (handles renamed parents and stale bookmarked paths). Uses
+		// replaceState rather than pushState so the bootstrap entry
+		// doesn't pollute the back-button history.
+		this.replaceUrlFromInitialState()
+
+		// Browser back / forward → re-resolve the URL and switch.
+		window.addEventListener('popstate', this.handleHistoryPopState)
 	},
+	/** @spec openspec/specs/dashboards/spec.md */
 	beforeDestroy() {
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null
+
+		window.removeEventListener('popstate', this.handleHistoryPopState)
 	},
 	methods: {
 		t,
@@ -495,6 +553,7 @@ export default {
 		 *
 		 * @param {string} uuid The dashboard UUID to record.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		recordViewEventDebounced(uuid) {
 			if (!uuid) {
 				return
@@ -510,6 +569,7 @@ export default {
 
 		...mapActions(useTileStore, ['createTile', 'updateTile', 'deleteTile']),
 
+		/** @spec openspec/specs/dashboards/spec.md */
 		toggleEditMode() {
 			this.isEditMode = !this.isEditMode
 			if (!this.isEditMode) {
@@ -530,6 +590,7 @@ export default {
 		 * @param {MouseEvent} event the contextmenu event
 		 * @param {object} placement the placement under the cursor
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		onWidgetRightClick(event, placement) {
 			this.grid.onWidgetRightClick(event, placement)
 		},
@@ -543,6 +604,7 @@ export default {
 		 *
 		 * @param {object} placement the placement to edit
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		handleContextMenuEdit(placement) {
 			if (placement && placement.type) {
 				this.openCustomWidgetEdit(placement)
@@ -559,6 +621,7 @@ export default {
 		 *
 		 * @param {object} placement the placement to delete
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		async handleContextMenuRemove(placement) {
 			if (!placement?.id) {
 				return
@@ -569,12 +632,14 @@ export default {
 				console.error('[Views] Failed to remove widget via context menu:', error)
 			}
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		openWidgetModal() {
 			if (!this.isEditMode) {
 				this.isEditMode = true
 			}
 			this.isWidgetModalOpen = true
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		closeWidgetModal() {
 			this.isWidgetModalOpen = false
 		},
@@ -585,6 +650,7 @@ export default {
 		 *
 		 * @param {string|null} type registry key, or null for picker flow
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		openCustomWidgetModal(type = null) {
 			if (!this.isEditMode) {
 				this.isEditMode = true
@@ -600,11 +666,13 @@ export default {
 		 *
 		 * @param {object} placement existing placement record with type+content
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		openCustomWidgetEdit(placement) {
 			this.customWidgetEditing = placement
 			this.customWidgetPreselectedType = null
 			this.isCustomWidgetModalOpen = true
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		closeCustomWidgetModal() {
 			this.isCustomWidgetModalOpen = false
 			this.customWidgetPreselectedType = null
@@ -622,6 +690,7 @@ export default {
 		 *
 		 * @param {{type: string, content: object}} payload the widget add/edit payload from AddWidgetModal
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		async saveCustomWidget(payload) {
 			try {
 				if (this.customWidgetEditing?.id) {
@@ -640,41 +709,51 @@ export default {
 				console.error('[Views] Failed to save custom widget:', error)
 			}
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		openConfigModal() {
 			this.configModalMode = 'edit'
 			this.isConfigModalOpen = true
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		openCreateDashboardModal() {
 			this.configModalMode = 'create'
 			this.isConfigModalOpen = true
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		closeConfigModal() {
 			this.isConfigModalOpen = false
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async addWidget(widgetId) {
 			await this.addWidgetToDashboard(widgetId)
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async removeWidget(placementId) {
 			await this.removeWidgetFromDashboard(placementId)
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		openStyleEditor(placement) {
 			this.editingPlacement = placement
 			this.isStyleEditorOpen = true
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		closeStyleEditor() {
 			this.isStyleEditorOpen = false
 			this.editingPlacement = null
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async updateWidgetStyle(placementId, updates) {
 			await this.updateWidgetPlacement(placementId, updates)
 			this.closeStyleEditor()
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteWidget() {
 			if (this.editingPlacement?.id) {
 				await this.removeWidget(this.editingPlacement.id)
 				this.closeStyleEditor()
 			}
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		openTileEditor(tile = null) {
 			if (!this.isEditMode) {
 				this.isEditMode = true
@@ -682,6 +761,7 @@ export default {
 			this.editingTile = tile
 			this.isTileEditorOpen = true
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		openTileEditorForEdit(placement) {
 			const tileData = {
 				id: placement.id,
@@ -695,10 +775,12 @@ export default {
 			}
 			this.openTileEditor(tileData)
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		closeTileEditor() {
 			this.isTileEditorOpen = false
 			this.editingTile = null
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async saveTile(tileData) {
 			try {
 				if (this.editingTile) {
@@ -719,15 +801,18 @@ export default {
 				console.error('[Views] Failed to save tile:', error)
 			}
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteTile() {
 			if (this.editingTile?.id) {
 				await this.removeWidget(this.editingTile.id)
 				this.closeTileEditor()
 			}
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		handleCreateDashboard() {
 			this.openCreateDashboardModal()
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async saveDashboardConfig({ id, name, description, icon }) {
 			try {
 				if (id == null) {
@@ -741,6 +826,7 @@ export default {
 				console.error('Failed to save dashboard:', error)
 			}
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteCurrentDashboard(dashboard) {
 			if (!confirm(this.t('mydash', 'Are you sure you want to delete this dashboard?'))) {
 				return
@@ -774,6 +860,7 @@ export default {
 		 * @param {'group'|'default'|'user'} source Section discriminator.
 		 */
 		// eslint-disable-next-line no-unused-vars
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onSidebarSwitch(id, source) {
 			// `source` is currently informational — `switchDashboard`
 			// resolves any visible dashboard via /api/dashboard/{id}. The
@@ -781,6 +868,128 @@ export default {
 			// without re-touching this view (and so the load-bearing
 			// REQ-SWITCH-002 contract is visible at the call site).
 			await this.switchDashboard(id)
+		},
+
+		/**
+		 * Compute the absolute URL for a slug-chain path. The mydash
+		 * routes mount under whatever prefix `generateUrl` produces
+		 * (typically `/index.php/apps/mydash` or `/apps/mydash` when
+		 * URL rewriting is enabled), so we anchor onto the same prefix
+		 * the API client uses.
+		 *
+		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
+		 * @return {string} Absolute pathname for `history.pushState`.
+		 */
+		/** @spec openspec/specs/dashboards/spec.md */
+		buildDeepLinkUrl(path) {
+			if (!path) {
+				return ''
+			}
+			const prefix = generateUrl('/apps/mydash')
+			const cleanPath = path.startsWith('/') ? path : `/${path}`
+			return `${prefix}${cleanPath}`
+		},
+
+		/**
+		 * Bring the browser URL in line with the deep-link path the
+		 * server pushed via initial state. Runs once on mount; uses
+		 * `replaceState` so the bootstrap entry doesn't pollute the
+		 * back-button history.
+		 */
+		/** @spec openspec/specs/dashboards/spec.md */
+		replaceUrlFromInitialState() {
+			const target = this.buildDeepLinkUrl(this.injectedDeepLinkPath)
+			if (!target) {
+				return
+			}
+			if (window.location.pathname.replace(/\/+$/, '') === target.replace(/\/+$/, '')) {
+				return
+			}
+			try {
+				window.history.replaceState(
+					{ uuid: this.activeDashboard?.uuid ?? null, source: 'mydash-deeplink' },
+					'',
+					target,
+				)
+			} catch (e) {
+				// SecurityError when running outside the page's origin
+				// (jsdom test harnesses, sandboxed iframes). Failure is
+				// non-fatal — the URL just stays out of sync.
+				console.warn('[Views] history.replaceState failed:', e)
+			}
+		},
+
+		/**
+		 * Outbound URL sync — fetch the canonical path for the active
+		 * dashboard and `pushState` it. Called from the
+		 * `activeDashboard.uuid` watcher AFTER the initial hydration
+		 * (the bootstrap render uses `replaceUrlFromInitialState`
+		 * instead). Failures are non-fatal; the URL just stays at its
+		 * previous value while the active dashboard moves on.
+		 */
+		/** @spec openspec/specs/dashboards/spec.md */
+		async pushUrlForActiveDashboard() {
+			const uuid = this.activeDashboard?.uuid
+			if (!uuid) {
+				return
+			}
+			try {
+				const res = await api.getDashboardPath(uuid)
+				const path = res?.data?.path ?? ''
+				const target = this.buildDeepLinkUrl(path)
+				if (!target) {
+					return
+				}
+				if (window.location.pathname === target) {
+					return
+				}
+				window.history.pushState(
+					{ uuid, source: 'mydash-deeplink' },
+					'',
+					target,
+				)
+			} catch (e) {
+				console.warn('[Views] failed to push URL for active dashboard:', e)
+			}
+		},
+
+		/**
+		 * Browser back / forward handler. Strips the mydash route
+		 * prefix off `window.location.pathname` and re-resolves the
+		 * remaining slug-chain via the existing by-path API. The state
+		 * payload's uuid is preferred when present (avoids the
+		 * round-trip), but we fall back to path resolution so external
+		 * navigations (manually pasted URLs that hit popstate) still
+		 * route correctly.
+		 *
+		 * @param {PopStateEvent} event The popstate event.
+		 */
+		/** @spec openspec/specs/dashboards/spec.md */
+		async handleHistoryPopState(event) {
+			const targetUuid = event?.state?.uuid ?? null
+			if (targetUuid && targetUuid === this.activeDashboard?.uuid) {
+				return
+			}
+
+			const prefix = generateUrl('/apps/mydash')
+			const pathname = window.location.pathname
+			let suffix = ''
+			if (pathname.startsWith(prefix)) {
+				suffix = pathname.slice(prefix.length).replace(/^\/+/, '').replace(/\/+$/, '')
+			}
+			if (!suffix) {
+				return
+			}
+
+			try {
+				const res = await api.getDashboardByPath(suffix)
+				const dashboard = res?.data?.dashboard
+				if (dashboard?.id !== undefined && dashboard?.id !== null) {
+					await this.switchDashboard(dashboard.id)
+				}
+			} catch (e) {
+				console.warn('[Views] popstate path resolution failed:', e)
+			}
 		},
 
 		/*
@@ -794,14 +1003,17 @@ export default {
 		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onRowToggleEdit(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.toggleEditMode()
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onRowOpenConfig(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openConfigModal()
 		},
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onRowAddCustomWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openCustomWidgetModal()
@@ -817,6 +1029,7 @@ export default {
 		 * dashboard via the resolver's Step 0.
 		 */
 		// eslint-disable-next-line no-unused-vars
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onRowSetDefault(dashboard, source) {
 			const uuid = dashboard?.uuid ?? ''
 			if (uuid === '') {
@@ -842,6 +1055,7 @@ export default {
 		 * the pin from the dashboard's own configuration without
 		 * having to hunt for the same dashboard's row.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onModalSetDefault({ uuid, isDefault }) {
 			if (!uuid) {
 				return
@@ -865,6 +1079,7 @@ export default {
 		 * round-trip when the per-row action targets the row that is
 		 * already active.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		async maybeSwitchTo(id, source) {
 			if (this.activeDashboard?.id === id) {
 				return
@@ -875,6 +1090,7 @@ export default {
 		 * Sidebar `+ New Dashboard` row handler — opens the create
 		 * dashboard modal flow already used by the topbar config menu.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		onSidebarCreateDashboard() {
 			this.openCreateDashboardModal()
 		},
@@ -885,6 +1101,7 @@ export default {
 		 *
 		 * @param {string|number} id Personal dashboard id to delete.
 		 */
+		/** @spec openspec/specs/dashboards/spec.md */
 		async onSidebarDeleteDashboard(id) {
 			if (!confirm(this.t('mydash', 'Are you sure you want to delete this dashboard?'))) {
 				return
@@ -953,7 +1170,8 @@ export default {
 	min-height: calc(100vh - var(--header-height));
 }
 
-.mydash-empty {
+.mydash-empty,
+.mydash-loading {
 	display: flex;
 	align-items: center;
 	justify-content: center;

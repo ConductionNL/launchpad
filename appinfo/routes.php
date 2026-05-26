@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 return [
 	'routes' => [
+		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
+		// literal '/api/manifest' segment is matched before any wildcard.
+		['name' => 'manifest#index', 'url' => '/api/manifest', 'verb' => 'GET'],
+
 		// Metrics and health
 		['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
 		['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
@@ -456,5 +460,20 @@ return [
 		['name' => 'admin_demo_showcases#destroy',
 		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '[a-z0-9\-]+']],
+
+		// Resolve a dashboard's canonical slug-chain path (used by the
+		// frontend for outbound URL sync after a sidebar switch).
+		// Registered BEFORE the catch-all deep-link route so the literal
+		// `/api/dashboards/{uuid}/path` segment is matched first.
+		['name' => 'dashboard_api#computePath', 'url' => '/api/dashboards/{uuid}/path', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
+		// Deep-link slug-chain → dashboard. MUST be the last route in the
+		// table so every literal `/api/...` and explicit page route is
+		// matched first. The negative-lookahead requirement keeps this
+		// catch-all from swallowing API requests if a future API route is
+		// inadvertently added below.
+		['name' => 'page#deepLink', 'url' => '/{deepLink}', 'verb' => 'GET',
+		 'requirements' => ['deepLink' => '(?!api(?:/|$)).+']],
 	],
 ];

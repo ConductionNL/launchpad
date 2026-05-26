@@ -34,6 +34,9 @@ Default auto-purge list: Tier-A (expired_locks, expired_share_tokens). Returned 
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-CLN-001 Scan CLI Command
 
 Administrators MUST be able to run a CLI command that reports all orphaned items by category WITHOUT deleting.

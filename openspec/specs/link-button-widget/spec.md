@@ -29,6 +29,8 @@ Admin-side state for the createFile flow lives in the existing `mydash_admin_set
 
 ### Requirement: REQ-LBN-001 Renderer with three action types
 
+@e2e exclude renderer with three action types tests click handlers on a placed link-button widget — requires seeded placement; covered by REQ-LBN-001 UI tests
+
 The renderer MUST output a `<button>` whose click handler dispatches based on the `actionType` field of the persisted widget content. The three branches are:
 
 1. `external` → `window.open(url, '_blank', 'noopener,noreferrer')`
@@ -60,6 +62,8 @@ The renderer MUST suppress all click handlers when `isAdmin === true` AND the su
 
 ### Requirement: REQ-LBN-002 Icon resolution
 
+@e2e exclude icon resolution tests IconRenderer dispatch logic — Vitest component scope
+
 The `icon` field of a link-button widget MUST follow the same dual-mode convention as `dashboard-icons` (REQ-ICON-005..007):
 
 - A custom URL (starts with `/` or `http`) MUST render as `<img>` inside the button
@@ -83,6 +87,8 @@ Icon size MUST be 48 px square; the label MUST be vertically stacked below the i
 - AND only the label MUST be visible
 
 ### Requirement: REQ-LBN-003 createFile flow
+
+@e2e exclude createFile flow tests server-side file-creation endpoint — Newman scope; UI trigger covered by REQ-LBN-001
 
 When `actionType === 'createFile'`, click MUST open an inline secondary modal containing:
 
@@ -114,6 +120,8 @@ On Create, the system MUST POST `/api/files/create` with body `{filename: <name>
 - THEN the Create button MUST be `disabled`
 
 ### Requirement: REQ-LBN-004 Server-side file-creation endpoint
+
+@e2e exclude server-side file-creation endpoint tests PHP validator and extension allow-list — Newman scope
 
 The system MUST expose `POST /api/files/create` accepting `{filename: string, dir: string = '/', content: string = ''}`. The endpoint MUST:
 
@@ -149,6 +157,8 @@ Internal exceptions MUST be wrapped; raw exception messages MUST NOT be returned
 
 ### Requirement: REQ-LBN-005 Internal action registry
 
+@e2e exclude internal action registry tests client-side JS singleton — Vitest scope
+
 The system MUST expose a frontend composable `useInternalActions()` returning a singleton `Map<actionId, () => void | Promise<void>>` plus three methods: `register(id, fn)`, `invoke(id)`, and `has(id)`. Other frontend modules MAY register actions at any time. Click on an `internal` link button MUST look up `url` (the action ID) in the map and invoke the registered function. Missing IDs MUST log `console.warn('Unknown internal action: <id>')` but MUST NOT throw.
 
 #### Scenario: Register and invoke an internal action
@@ -166,6 +176,8 @@ The system MUST expose a frontend composable `useInternalActions()` returning a 
 - AND no error MUST propagate to break the page
 
 ### Requirement: REQ-LBN-006 Add/edit form
+
+@e2e exclude add/edit form tests the AddWidgetModal form fields — form open requires widget picker; covered by spec-coverage widget form tests
 
 The link sub-form for `AddWidgetModal` MUST expose six fields:
 
@@ -196,6 +208,8 @@ Validation: `validate()` MUST require `label` AND `url` non-empty and return a n
 
 ### Requirement: REQ-LBN-007 Default styling
 
+@e2e exclude default styling tests CSS variables on a placed widget — visual regression / Vitest scope
+
 When the colour fields are empty, the renderer MUST default to `backgroundColor: var(--color-primary)` and `textColor: var(--color-primary-text)` (Nextcloud theme primary). Hover MUST translate the button up by 2 px and add a soft drop shadow.
 
 #### Scenario: Theme defaults
@@ -213,6 +227,8 @@ When the colour fields are empty, the renderer MUST default to `backgroundColor:
 - AND a soft drop shadow MUST be applied
 
 ### Requirement: REQ-LBLM-001 Display mode configuration
+
+@e2e exclude display mode configuration tests JSON field and CSS class — Vitest scope
 
 The link-button widget MUST support a `displayMode ENUM('button','list')` field on its widget-config record. The field MUST default to `'button'` to preserve backward compatibility with existing single-button placements. When `displayMode = 'button'`, the widget renders a single button using only the first entry from the `links` array (or legacy single-link fields). When `displayMode = 'list'`, the widget renders a full vertical or horizontal list of multiple links per the list rendering requirements.
 
@@ -233,6 +249,8 @@ The link-button widget MUST support a `displayMode ENUM('button','list')` field 
 - THEN the placement MUST have `displayMode = 'list'`
 
 ### Requirement: REQ-LBLM-002 Links array schema
+
+@e2e exclude links array schema tests JSON blob validation — Vitest/Newman scope
 
 The widget placement MUST support a `links JSON` field typed as an array of link objects. Each link object MUST contain:
 
@@ -267,6 +285,8 @@ When `displayMode = 'button'`, only the first entry in the `links` array is used
 
 ### Requirement: REQ-LBLM-003 Action type reuse for list items
 
+@e2e exclude action type reuse tests TypeScript enum — Vitest scope
+
 Each link entry in the `links` array MUST follow the same three action-type specification as the existing single-button widget (from REQ-LBN-001):
 
 1. `'url'` — External link: `window.open(url, '_blank', 'noopener,noreferrer')`
@@ -299,6 +319,8 @@ For `'createFile'` actions, the `value` field MUST contain the file extension (e
 
 ### Requirement: REQ-LBLM-004 Icon resolution per list item
 
+@e2e exclude icon resolution per list item tests IconRenderer dispatch — Vitest scope
+
 Each link entry's `icon` field MUST follow the same dual-mode convention as REQ-LBN-002:
 
 - A URL (starts with `/` or `http`) MUST render as `<img>`
@@ -324,6 +346,8 @@ Icon size MUST be consistent across all list items (24 px square for list mode; 
 - AND only the label MUST be visible
 
 ### Requirement: REQ-LBLM-005 List orientation and spacing
+
+@e2e exclude list orientation and spacing tests CSS flexbox layout — visual regression scope
 
 The widget MUST support `listOrientation ENUM('vertical','horizontal')` (default: `'vertical'`) and `listItemGap ENUM('compact','normal','spacious')` (default: `'normal'`) configuration fields on the placement.
 
@@ -359,6 +383,8 @@ The `listItemGap` values control inter-item spacing:
 - AND `listItemGap` MUST default to `'normal'`
 
 ### Requirement: REQ-LBLM-006 Edit form integration
+
+@e2e exclude edit form integration tests the inline editor inside AddWidgetModal — requires seeded link-button-list placement
 
 The edit form for a link-button-widget placement MUST gain:
 
@@ -401,6 +427,8 @@ The single-link form MUST be reused unchanged inside the list editor modal for c
 
 ### Requirement: REQ-LBLM-007 Validation and constraints
 
+@e2e exclude validation and constraints tests PHP and client-side field validators — Newman + Vitest scope
+
 The system MUST enforce the following validation rules:
 
 - When `displayMode = 'list'`, the `links` field MUST be a non-empty array; if the user tries to save without any links, the form MUST show an error `'At least one link is required for list mode'`.
@@ -427,6 +455,8 @@ The system MUST enforce the following validation rules:
 - AND no error MUST occur
 
 ### Requirement: REQ-LBLM-008 Rendering semantics
+
+@e2e exclude rendering semantics tests a vs button element choice — Vitest snapshot scope
 
 The list-mode renderer MUST:
 
@@ -472,6 +502,8 @@ When icon + label are present, the layout MUST be: icon (left, inline) followed 
 - AND a soft drop shadow MUST be applied (matching single-button hover)
 
 ### Requirement: REQ-LBLM-009 Backward compatibility migration
+
+@e2e exclude backward compatibility migration tests PHP migration script — Newman/migration scope
 
 Existing widget placements created before list-mode support MUST remain valid and render correctly without data migration. Placements lacking a `displayMode` field MUST be treated as `displayMode = 'button'` implicitly. Placements lacking a `links` field MUST use the legacy single-link fields (`url`, `icon`) for rendering.
 

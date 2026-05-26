@@ -10,6 +10,9 @@ Enable version history and one-click restoration for MyDash dashboards. The feat
 
 ## Data Model
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Database Backend (Default)
 
 Each dashboard version snapshot is stored in `oc_mydash_dashboard_versions` with:

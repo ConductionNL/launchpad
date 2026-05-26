@@ -30,6 +30,9 @@ Two admin-config settings are read on demand (created lazily by `IAppConfig`):
 
 ## Requirements
 
+
+@e2e exclude all scenarios test PHP NewsWidgetService RSS-fetch / feed-endpoint — requires live RSS feeds and background-job setup not available in test env
+
 ### Requirement: REQ-NEWS-001 Widget Registration
 
 The system MUST register a new dashboard widget with id `mydash_news` via `OCP\Dashboard\IManager` that appears in the widget picker alongside other discovered Nextcloud dashboard widgets.

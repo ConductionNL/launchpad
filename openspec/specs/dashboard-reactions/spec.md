@@ -10,6 +10,9 @@ Dashboard reactions enable lightweight social feedback via emoji on MyDash dashb
 
 ## Data Model
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### oc_mydash_dashboard_reactions table
 
 Each reaction is stored with the following fields:

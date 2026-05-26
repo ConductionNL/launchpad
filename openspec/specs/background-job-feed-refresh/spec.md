@@ -3,6 +3,9 @@
 ## Purpose
 TBD - created by archiving change background-job-feed-refresh. Update Purpose after archive.
 ## Requirements
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-FRJ-001 Feed Cache Table Schema
 
 The system MUST create a database table `oc_mydash_feed_cache` that stores exactly one row per distinct feed URL across all news-widget placements, persisting fetch metadata and cached items.

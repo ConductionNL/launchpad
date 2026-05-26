@@ -19,6 +19,9 @@ Dashboard bulk operations expose four batch admin endpoints for large-scale mana
 
 All four endpoints accept `?dryRun=true` (or `dryRun: true` in the JSON body) and require Nextcloud admin privileges. Bulk-delete additionally accepts `?cascade=true` (or `cascade: true` in the body) for opt-in subtree deletion.
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Request envelope (all endpoints)
 
 ```json

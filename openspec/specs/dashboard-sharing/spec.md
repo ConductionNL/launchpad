@@ -24,6 +24,9 @@ The unique tuple `(dashboardId, shareType, shareWith)` enforces that a recipient
 
 ## Requirements
 
+
+@e2e exclude all scenarios test PHP DashboardShareService REST API — sharing UI modals not present in v1.0.5
+
 ### Requirement: Owner-only share management (REQ-SHARE-001)
 
 Only the owner of a dashboard MUST be allowed to list, create, update, or delete shares on that dashboard. All share-management endpoints MUST return HTTP 403 for any caller that is not the dashboard owner, including users who themselves have a `full`-level share on the dashboard.

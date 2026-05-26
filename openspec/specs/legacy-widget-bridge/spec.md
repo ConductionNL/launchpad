@@ -22,6 +22,9 @@ Both maps persist for the lifetime of the page. Registration is additive — re-
 
 ## Requirements
 
+
+@e2e exclude purely client-side JavaScript bridge for legacy OCA.Dashboard.register() — no Playwright-observable DOM surface; bridge internals tested by Vitest unit tests
+
 ### Requirement: Intercept legacy widget registration at bootstrap (REQ-LWB-001)
 
 The system MUST intercept calls to `window.OCA.Dashboard.register` and `window.OCA.Dashboard.registerStatus` made by legacy Nextcloud widgets so that their render callbacks can be captured for later mounting by MyDash. Interception is installed once when the bridge singleton is constructed. The system MUST preserve any previously installed `register` / `registerStatus` implementation so that Nextcloud code that depends on the original registrar continues to work.

@@ -62,6 +62,9 @@ Widget configuration is stored in the placement's `widgetContent` JSON:
 
 ## Requirements
 
+
+@e2e exclude all scenarios test PHP /api/people endpoint / IAccountManager — user-directory data not present in test fixture
+
 ### Requirement: Widget registration via dashboard API (REQ-PPL-001)
 
 The system MUST register a widget with id `mydash_people` via `OCP\Dashboard\IManager::registerWidget()` in `appinfo/dashboard.php`. The widget MUST have:

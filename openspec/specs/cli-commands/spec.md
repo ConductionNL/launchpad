@@ -6,6 +6,9 @@ The CLI commands suite establishes a coherent, standardized operator interface f
 
 ## Data Model
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Command Namespace Convention
 
 All MyDash CLI commands MUST use the `mydash:` prefix followed by a verb-noun pattern:

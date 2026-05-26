@@ -14,6 +14,9 @@ Widgets are the primary content blocks on MyDash dashboards. MyDash integrates w
 
 ## Data Model
 
+
+@e2e exclude all 89 scenarios test REST widget-discovery/placement/update/batch API — widget add/edit UI flows are covered by the widget-specific specs (label-widget, text-display-widget, image-widget etc.)
+
 ### Widget Discovery
 Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Each widget provides:
 - **id**: Widget identifier (e.g., `weather_status`, `recommendations`)

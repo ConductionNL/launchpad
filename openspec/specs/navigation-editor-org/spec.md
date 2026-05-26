@@ -12,6 +12,9 @@ The capability owns its own storage (per-language JSON files inside MyDash's `IA
 
 ## Data Model
 
+
+@e2e exclude all scenarios test PHP OrgNavigationService API / IAppData storage — org-nav editor UI not present in v1.0.5
+
 ### Per-language tree storage
 
 Each language file lives at `IAppData('mydash')/org-navigation/{lang}.json` (e.g. `nl.json`, `en.json`). Maximum file size: 5 MB. Files are written wholesale by `OrgNavigationService::setTree()`; per-node CRUD endpoints are intentionally NOT exposed.

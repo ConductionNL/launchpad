@@ -35,6 +35,9 @@ The server enforces a maximum container nesting depth of **3 levels** (REQ-CONT-
 
 ## Requirements
 
+
+@e2e exclude container-widget API and nested-grid scenarios are backend / JS composable — inner GridStack instances cannot be reliably driven headlessly
+
 ### Requirement: REQ-CONT-001 Container widget type registered
 
 The widget registry MUST include a `container` widget type whose `defaultContent` is `{placements: [], backgroundColor: 'transparent', padding: 'medium', title: ''}`. The container widget MUST be selectable from the unified Add Custom Widget picker (REQ-WDG-010 + REQ-WDG-019 EXPECTED_TYPES).

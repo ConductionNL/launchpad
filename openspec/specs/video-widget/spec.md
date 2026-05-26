@@ -30,6 +30,8 @@ The `content` object carries these fields:
 
 ### Requirement: REQ-VID-001 Register Video Widget with Nextcloud Dashboard API
 
+@e2e exclude widget registration tested via widget-in-picker scenario
+
 The system MUST register a video widget with Nextcloud's Dashboard API so it appears in widget discovery and can be added to dashboards.
 
 #### Scenario: Widget is discovered in the widget list
@@ -58,6 +60,8 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 - AND the video widget registration MUST complete without errors
 
 ### Requirement: REQ-VID-002 Store Video Widget Configuration per Placement
+
+@e2e exclude video widget config stored via REST widget-placement API — Newman scope
 
 The widget placement's `widgetContent` JSON MUST store source type, URL/file ID, and display options.
 
@@ -115,6 +119,8 @@ The widget placement's `widgetContent` JSON MUST store source type, URL/file ID,
 
 ### Requirement: REQ-VID-003 Support Multiple Video Source Types
 
+@e2e exclude support multiple video source types tests Vue computed embed-URL logic — Vitest component scope; server-side URL parsing covered by Newman
+
 The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct source types with appropriate rendering logic.
 
 #### Scenario: YouTube URL is normalized to embed form
@@ -149,6 +155,8 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
   - Return the streaming URL if accessible, or throw `AccessDeniedException` if not
 
 ### Requirement: REQ-VID-004 Enforce Admin-Controlled Domain Allowlist
+
+@e2e exclude enforce admin-controlled domain allow-list tests PHP config + IAppConfig — Newman scope
 
 The system MUST prevent embedding videos from arbitrary domains unless explicitly allowed by the administrator.
 
@@ -187,6 +195,8 @@ The system MUST prevent embedding videos from arbitrary domains unless explicitl
 
 ### Requirement: REQ-VID-005 Parse and Validate Video URLs Server-Side
 
+@e2e exclude parse and validate video URLs server-side tests PHP VideoUrlParser — Newman scope
+
 The backend MUST extract video IDs from user-provided URLs and validate format before storage.
 
 #### Scenario: URL parsing endpoint is available
@@ -220,6 +230,8 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 - AND the render MUST jump to 120 seconds on play
 
 ### Requirement: REQ-VID-006 Check File Access Control for Nextcloud Files
+
+@e2e exclude check file ACL tests PHP ACL + streaming endpoint — Newman scope
 
 When `sourceType` is `nc-file`, the system MUST verify the viewing user can read the file before allowing playback.
 
@@ -259,6 +271,8 @@ When `sourceType` is `nc-file`, the system MUST verify the viewing user can read
 
 ### Requirement: REQ-VID-007 Use iframe with CSP-Safe Sandbox Attributes
 
+@e2e exclude iframe with CSP-safe sandbox attributes tests HTML attribute rendering — requires a placed video widget; seeded state not in CI fixture
+
 Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe with strict sandbox restrictions.
 
 #### Scenario: YouTube iframe uses proper sandbox
@@ -293,6 +307,8 @@ Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe wi
 - AND the iframe itself MUST have `width: 100%` and `height: 100%` to fill the container
 
 ### Requirement: REQ-VID-008 Respect Autoplay, Muting, and Loop Settings
+
+@e2e exclude autoplay/muting/loop settings test HTML video attribute rendering — requires a placed video widget
 
 The widget MUST apply user-selected playback options while respecting browser autoplay policies.
 
@@ -330,6 +346,8 @@ The widget MUST apply user-selected playback options while respecting browser au
 
 ### Requirement: REQ-VID-009 Enforce Aspect Ratio via CSS
 
+@e2e exclude aspect ratio CSS tests CSS padding-bottom trick — visual regression scope
+
 The widget MUST apply the configured aspect ratio using modern CSS and fallback techniques.
 
 #### Scenario: Aspect ratio options
@@ -358,6 +376,8 @@ The widget MUST apply the configured aspect ratio using modern CSS and fallback 
 
 ### Requirement: REQ-VID-010 Support No-Cookie YouTube Embedding
 
+@e2e exclude no-cookie YouTube embedding tests URL-transform logic in PHP — Newman scope
+
 The system MUST support an optional admin setting to enable YouTube no-cookie embedding to reduce tracking.
 
 #### Scenario: No-cookie setting default
@@ -385,6 +405,8 @@ The system MUST support an optional admin setting to enable YouTube no-cookie em
 - AND Vimeo/PeerTube render URLs MUST NOT change
 
 ### Requirement: REQ-VID-011 Display Appropriate Empty and Error States
+
+@e2e exclude display appropriate empty and error states tests Vue state inside placed widget — requires seeded placement
 
 The widget MUST show user-friendly messages for missing config, access issues, and invalid domains.
 

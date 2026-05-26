@@ -26,6 +26,9 @@ No new database tables. NC Activity persists events in the existing `oc_activity
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-ACT-001 Extension Registration
 
 The system MUST register a class `\OCA\MyDash\Activity\Extension` that implements `OCP\Activity\IProvider` and is declared in `appinfo/info.xml` under the `<activity>` section with application id `mydash`. The extension MUST be resolvable from the NC DI container at runtime.

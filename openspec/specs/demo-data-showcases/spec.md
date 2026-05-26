@@ -117,6 +117,9 @@ The system maintains a registry of installed showcases by querying existing dash
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-DEMO-001 Bundled showcase ZIP archives
 
 The system MUST ship with exactly 5 showcase ZIP archives under `showcases/{id}/{id}.zip`. Each ZIP MUST contain a valid `export.json` manifest plus a `nl/` locale directory tree. Each `export.json` MUST contain:

@@ -42,6 +42,9 @@ service.
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: REQ-CFLI-001 Archive structure parsing
 
 The system MUST parse a Confluence HTML Export ZIP archive and extract

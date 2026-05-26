@@ -27,6 +27,9 @@ Stale-lock cleanup is performed inline: `DashboardLockService` calls `DashboardL
 
 ## Requirements
 
+
+@e2e exclude all scenarios test PHP DashboardLockService REST API — multi-tab locking race conditions cannot be reliably asserted in Playwright headless
+
 ### Requirement: REQ-LOCK-001 Acquire Dashboard Lock
 
 A user MUST be able to acquire an exclusive write lock on a dashboard. Only one user (or admin) can hold a lock at a time. A second user attempting to acquire MUST receive the existing lock details in a conflict response.

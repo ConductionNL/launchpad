@@ -10,6 +10,9 @@ Dashboard export and import allow MyDash administrators to create versioned snap
 
 ## Data Model
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### ZIP Container Format: `mydash-export-v1.zip`
 
 ```

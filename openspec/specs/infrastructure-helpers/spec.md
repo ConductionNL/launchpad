@@ -20,6 +20,9 @@ This capability MUST contain only helpers that:
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### REQ-INFRA-001: Slug generation and validation
 
 The system MUST provide a static `SlugGenerator` helper that converts arbitrary user-supplied names into URL-safe slugs and validates caller-supplied slugs against the pinned grammar. The slug grammar is `^[a-z0-9_-]+$` (lowercase ASCII alphanumerics, dash, underscore), maximum 128 characters (matching the `slug VARCHAR(128)` database column).

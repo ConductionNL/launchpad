@@ -18,6 +18,8 @@ The `content` object carries the eight fields specified in REQ-QLNK-002. Default
 
 ### Requirement: REQ-QLNK-001 Registration and widget id
 
+@e2e exclude widget registration tested via widget-in-picker scenario
+
 The system MUST register a new dashboard widget with id `mydash_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
 
 #### Scenario: Widget registered and appears in picker
@@ -35,6 +37,8 @@ The system MUST register a new dashboard widget with id `mydash_quicklinks` via 
 - AND users can resize it via the grid-layout resize handles
 
 ### Requirement: REQ-QLNK-002 Per-placement configuration shape
+
+@e2e exclude per-placement configuration shape tests JSON schema — Vitest/Newman scope
 
 The `widgetContent` JSON blob for a quicklinks widget MUST contain all of the following fields:
 
@@ -65,6 +69,8 @@ The form MUST preserve all fields on save; omitted fields MUST be populated with
 
 ### Requirement: REQ-QLNK-003 Icon resolution
 
+@e2e exclude icon resolution tests IconRenderer dispatch — Vitest component scope
+
 Each link's `icon` field MUST follow the same dual-mode convention as link-button-widget (REQ-LBN-002):
 
 - A custom URL (starts with `/` or `http(s)://`) MUST render as `<img>` inside the icon container.
@@ -94,6 +100,8 @@ Icon size is controlled by the `iconSize` field (REQ-QLNK-004); label rendering 
 - THEN the icon container MUST display the fallback "link" icon (MDI `link`)
 
 ### Requirement: REQ-QLNK-004 Icon sizes and shapes
+
+@e2e exclude icon sizes and shapes tests CSS dimension values — requires a placed quicklinks widget; seeded state not in CI fixture
 
 The `iconSize` field MUST map to pixel dimensions as follows:
 
@@ -131,6 +139,8 @@ When `tileBackgroundStyle = 'transparent'`, the shape only affects the icon's ba
 
 ### Requirement: REQ-QLNK-005 Label position control
 
+@e2e exclude label position control tests CSS flex ordering — requires placed widget
+
 When `showLabels: true`, each link MUST display a label. The `labelPosition` field MUST control where and when the label appears:
 
 - `below` → label appears directly below the icon at all times; each link cell occupies `iconSize + label height` vertical space.
@@ -165,6 +175,8 @@ The label text MUST be the link's `label` field, truncated to a sensible max len
 
 ### Requirement: REQ-QLNK-006 Column layout flexibility
 
+@e2e exclude column layout flexibility tests CSS grid layout — requires placed widget
+
 The `columns` field MUST control the layout grid as follows:
 
 - `'auto'` (default) → CSS Flexbox with `flex-wrap: wrap`. Items flow left-to-right, wrapping to the next row when the widget width is exhausted. Item width is elastic based on `iconSize + label area`.
@@ -198,6 +210,8 @@ The renderer MUST ignore invalid values (e.g., `columns: 13` or `columns: 'inval
 - AND log a console warning (optional)
 
 ### Requirement: REQ-QLNK-007 Hover effects
+
+@e2e exclude hover effects tests CSS :hover transitions — requires placed widget and hover simulation
 
 The `hoverEffect` field MUST control the CSS animation when a user hovers over a link:
 
@@ -240,6 +254,8 @@ Effects MUST apply only to the hovered link, not the entire widget.
 - AND only the cursor MUST change to `pointer`
 
 ### Requirement: REQ-QLNK-008 URL sanitisation on save
+
+@e2e exclude URL sanitisation runs on save in PHP — Newman scope; frontend sanitiser tested by Vitest
 
 When the edit form submits, the system MUST validate each link's `url` field. Invalid URLs MUST be rejected with an HTTP 400 response and a user-friendly error message. The validation rules are:
 
@@ -286,6 +302,8 @@ The form MUST display inline validation feedback (red border + error text) on th
 
 ### Requirement: REQ-QLNK-009 Click and navigation
 
+@e2e exclude click and navigation tests window.open + router.push inside a placed widget — requires seeded quicklinks placement
+
 When a user clicks a link in the rendered widget, the system MUST navigate based on the link's `url` and `openInNewTab` fields:
 
 - If `url` starts with `/` (relative, internal Nextcloud URL) and `openInNewTab: false` (or not set and auto-detect resolves to same-tab), navigate in the same tab via `router.push(url)` or `window.location.href = url`.
@@ -322,6 +340,8 @@ Auto-detect for `openInNewTab` when not specified: if the URL is external (`http
 - THEN the system MUST open the URL in a new tab (even though it's internal)
 
 ### Requirement: REQ-QLNK-010 Accessibility
+
+@e2e exclude accessibility tests ARIA role on links inside a placed widget — requires placed widget
 
 Each link in the rendered widget MUST be an HTML `<a>` element (not a `<button>` or `<div>`). The `<a>` MUST have:
 
@@ -360,6 +380,8 @@ Each link in the rendered widget MUST be an HTML `<a>` element (not a `<button>`
 - AND the focus style MUST meet WCAG AA contrast requirements
 
 ### Requirement: REQ-QLNK-011 Empty state and default sizing
+
+@e2e exclude empty state and default sizing tests Vue empty-state component inside placed widget — requires seeded empty placement
 
 When a quicklinks widget has zero links (`links: []`), the renderer MUST display an empty state message. The message MUST be:
 

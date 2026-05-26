@@ -25,6 +25,9 @@ Each upload produces:
 
 ## Requirements
 
+
+@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+
 ### Requirement: Admin-only base64 upload endpoint (REQ-RES-001)
 
 The system MUST expose `POST /api/resources` accepting a raw JSON body of the shape `{base64: 'data:image/<type>;base64,...'}`. The endpoint MUST be admin-only — non-admin requests MUST receive HTTP 403 with `{status: 'error', error: 'forbidden'}`. The endpoint MUST NOT accept multipart form data — only a base64-encoded data URL.

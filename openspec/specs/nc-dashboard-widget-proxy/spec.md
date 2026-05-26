@@ -11,6 +11,9 @@ in on how end users discover and pick a Nextcloud-discovered widget when
 configuring an `nc-widget` placement.
 
 ## Requirements
+
+@e2e exclude NC widget picker UX lives inside the Add Widget modal — widget picker scenarios require real NC widgets to be installed; snapshot covered by wave3 tests
+
 ### Requirement: REQ-NCDP-PICKER NC widget picker UX
 
 The `NcDashboardForm` sub-form's widget picker MUST render as a CSS-grid of cards, NOT a `<select>` dropdown. Each card MUST display:

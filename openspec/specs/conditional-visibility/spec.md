@@ -10,6 +10,9 @@ Conditional visibility allows widget placements to be shown or hidden based on d
 
 ## Data Model
 
+
+@e2e exclude all scenarios test PHP service layer and DB — visibility evaluation is backend-only; no UI surface for rule editing in v1.0.5
+
 ### Conditional Rules (oc_mydash_conditional_rules)
 - **id**: Auto-increment integer primary key
 - **widgetPlacementId**: Foreign key to oc_mydash_widget_placements (INTEGER)

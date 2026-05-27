@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\MyDash\Controller\DashboardApiController;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AnalyticsService;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
@@ -29,6 +30,7 @@ use OCA\MyDash\Service\DashboardVersionService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -49,10 +51,20 @@ class DashboardApiControllerComputePathTest extends TestCase
      */
     private $treeService;
 
+    /**
+     * @var IUserSession&MockObject
+     */
+    private $userSession;
+
     protected function setUp(): void
     {
         $this->request     = $this->createMock(originalClassName: IRequest::class);
         $this->treeService = $this->createMock(originalClassName: DashboardTreeService::class);
+        $this->userSession = $this->createMock(originalClassName: IUserSession::class);
+
+        // Default: return a non-null user (authenticated session).
+        $mockUser = $this->createMock(originalClassName: \OCP\IUser::class);
+        $this->userSession->method('getUser')->willReturn($mockUser);
     }//end setUp()
 
     /**
@@ -68,6 +80,8 @@ class DashboardApiControllerComputePathTest extends TestCase
             versionService: $this->createMock(originalClassName: DashboardVersionService::class),
             analyticsService: $this->createMock(originalClassName: AnalyticsService::class),
             logger: $this->createMock(originalClassName: LoggerInterface::class),
+            userSession: $this->userSession,
+            actionAuth: $this->createMock(originalClassName: ActionAuthService::class),
             userId: $userId,
         );
     }//end makeController()

@@ -106,6 +106,15 @@ class DashboardLockApiController extends Controller
                 data: ['error' => 'Dashboard not found'],
                 statusCode: Http::STATUS_NOT_FOUND
             );
+        } catch (LockForbiddenException $e) {
+            // C3 fix: caller lacks view access to this dashboard.
+            return new JSONResponse(
+                data: [
+                    'error' => $e->getMessage(),
+                    'code'  => LockForbiddenException::ERROR_CODE,
+                ],
+                statusCode: Http::STATUS_FORBIDDEN
+            );
         } catch (LockConflictException $e) {
             return new JSONResponse(
                 data: [

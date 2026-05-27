@@ -60,12 +60,18 @@ class ActionAuthService
     /**
      * Constructor.
      *
-     * @param IAppConfig    $appConfig    IAppConfig for reading/writing the matrix
-     * @param IGroupManager $groupManager Group manager for resolving user groups
+     * @param IAppConfig           $appConfig         IAppConfig for reading/writing
+     *                                                the matrix.
+     * @param IGroupManager        $groupManager      Group manager for admin checks.
+     * @param AdminTemplateService $adminTemplateService Routing resolver — single
+     *                                                source of truth for
+     *                                                `IGroupManager::getUserGroupIds`
+     *                                                (REQ-TMPL-013).
      */
     public function __construct(
         private IAppConfig $appConfig,
         private IGroupManager $groupManager,
+        private AdminTemplateService $adminTemplateService,
     ) {
     }//end __construct()
 
@@ -101,7 +107,9 @@ class ActionAuthService
             );
         }
 
-        $userGroups = $this->groupManager->getUserGroupIds($user);
+        // REQ-TMPL-013: delegate getUserGroupIds to AdminTemplateService —
+        // the single source of truth for group lookups.
+        $userGroups = $this->adminTemplateService->getUserGroupIdsFor(userId: $user->getUID());
 
         // Exclude "admin" from matrix entry before intersection — admin was
         // already checked above; its presence in the entry is a display hint,

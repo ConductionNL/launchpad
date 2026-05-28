@@ -57,8 +57,6 @@
     "metadata-admin.update-field": ["admin"],
     "metadata-admin.delete-field": ["admin"],
     "people-widget.get-users": ["admin"],
-    "resource.get-resource": ["admin"],
-    "resource.list-resources": ["admin"],
     "resource-serve.get-resource": ["admin"],
     "resource-serve.list-resources": ["admin"],
     "rule.get-rules": ["admin"],

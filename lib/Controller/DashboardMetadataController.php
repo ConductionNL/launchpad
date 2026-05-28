@@ -30,6 +30,7 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Exception\InvalidMetadataFieldException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\MetadataService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Controller;
@@ -37,7 +38,9 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Dashboard metadata read/write controller.
@@ -50,19 +53,23 @@ class DashboardMetadataController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest         $request           The HTTP request.
-     * @param MetadataService  $metadataService   The metadata service facade.
-     * @param DashboardMapper  $dashboardMapper   For dashboard lookup.
+     * @param IRequest          $request           The HTTP request.
+     * @param MetadataService   $metadataService   The metadata service facade.
+     * @param DashboardMapper   $dashboardMapper   For dashboard lookup.
      * @param PermissionService $permissionService Authoritative ACL service
-     *                                            (replaces inline canRead /
-     *                                            canWrite helpers — H5).
-     * @param string|null      $userId            The active user id.
+     *                                             (replaces inline canRead /
+     *                                             canWrite helpers — H5).
+     * @param ActionAuthService $actionAuth        ADR-023 action authorization.
+     * @param IUserSession      $userSession       User session (IUser resolution).
+     * @param string|null       $userId            The active user id.
      */
     public function __construct(
         IRequest $request,
         private readonly MetadataService $metadataService,
         private readonly DashboardMapper $dashboardMapper,
         private readonly PermissionService $permissionService,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
         private readonly ?string $userId,
     ) {
         parent::__construct(
@@ -86,6 +93,17 @@ class DashboardMetadataController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-metadata.get-metadata');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $dashboard = $this->loadDashboard(uuid: $uuid);
@@ -131,6 +149,17 @@ class DashboardMetadataController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-metadata.set-metadata');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $dashboard = $this->loadDashboard(uuid: $uuid);

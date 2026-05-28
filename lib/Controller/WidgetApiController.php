@@ -92,8 +92,15 @@ class WidgetApiController extends Controller
     #[NoAdminRequired]
     public function listAvailable(): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.list-available');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
         }
 
         $widgets = $this->widgetService->getAvailableWidgets();
@@ -144,12 +151,19 @@ class WidgetApiController extends Controller
         array $widgets=[],
         int $limit=7
     ): JSONResponse {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
         }
 
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.get-items');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
         }
 
         return ResponseHelper::success(
@@ -476,12 +490,19 @@ class WidgetApiController extends Controller
     #[NoCSRFRequired]
     public function newsItems(int $placementId, ?int $limit=10): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
         }
 
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.news-items');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
         }
 
         $effectiveLimit = $limit;
@@ -539,12 +560,19 @@ class WidgetApiController extends Controller
         string $from='',
         string $to=''
     ): JSONResponse {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
         }
 
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.calendar-events');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
         }
 
         if ($from === '' || $to === '') {

@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use OCA\MyDash\Db\DashboardTranslationMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -32,6 +33,7 @@ use Throwable;
 
 /**
  * Deletes dashboard translation rows for the deleted dashboard.
+ * C4 fix (REQ-CSC-003).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -40,10 +42,14 @@ class TranslationsListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param DashboardTranslationMapper $translationMapper Translation mapper.
+     * @param LoggerInterface            $logger            PSR-3 logger for
+     *                                                      log-and-continue
+     *                                                      failure handling per
+     *                                                      REQ-CSC-006.
      */
     public function __construct(
+        private readonly DashboardTranslationMapper $translationMapper,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -63,15 +69,18 @@ class TranslationsListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-language-content): DELETE FROM
-            // oc_mydash_dash_translations WHERE dashboardUuid = ?.
-            // Stub registered for cascade scaffolding — live cleanup
-            // owned by the language-content subsystem.
+            $deleted = $this->translationMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash TranslationsListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash TranslationsListener: deleted %d translation rows for dashboard %s',
+                    $deleted,
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -79,7 +88,7 @@ class TranslationsListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash TranslationsListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

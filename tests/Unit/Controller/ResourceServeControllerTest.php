@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\MyDash\Controller\ResourceServeController;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\ResourceServeService;
 use OCA\MyDash\Service\ResourceService;
 use OCP\AppFramework\Http;
@@ -58,12 +59,16 @@ class ResourceServeControllerTest extends TestCase
     /** @var IUserSession&MockObject */
     private $userSession;
 
+    /** @var ActionAuthService&MockObject */
+    private $actionAuth;
+
     protected function setUp(): void
     {
         $this->request     = $this->createMock(IRequest::class);
         $this->serve       = $this->createMock(ResourceServeService::class);
         $this->logger      = $this->createMock(LoggerInterface::class);
         $this->userSession = $this->createMock(IUserSession::class);
+        $this->actionAuth  = $this->createMock(ActionAuthService::class);
 
         // Default: a logged-in user — individual tests override as needed.
         $user = $this->createMock(IUser::class);
@@ -72,6 +77,7 @@ class ResourceServeControllerTest extends TestCase
         $this->controller = new ResourceServeController(
             request: $this->request,
             serve: $this->serve,
+            actionAuth: $this->actionAuth,
             logger: $this->logger,
             userSession: $this->userSession,
         );

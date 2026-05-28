@@ -26,13 +26,16 @@ namespace OCA\MyDash\Controller;
 
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\PeopleWidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -43,14 +46,18 @@ class PeopleWidgetController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest            $request HTTP request.
-     * @param PeopleWidgetService $service People widget service.
-     * @param LoggerInterface     $logger  Logger for ResponseHelper::error.
-     * @param string|null         $userId  Active user (null when anonymous).
+     * @param IRequest            $request     HTTP request.
+     * @param PeopleWidgetService $service     People widget service.
+     * @param ActionAuthService   $actionAuth  ADR-023 action authorization.
+     * @param IUserSession        $userSession User session (IUser resolution).
+     * @param LoggerInterface     $logger      Logger for ResponseHelper::error.
+     * @param string|null         $userId      Active user (null when anonymous).
      */
     public function __construct(
         IRequest $request,
         private readonly PeopleWidgetService $service,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -99,6 +106,17 @@ class PeopleWidgetController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'people-widget.get-users');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {

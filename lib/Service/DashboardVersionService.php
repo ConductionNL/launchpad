@@ -456,6 +456,17 @@ class DashboardVersionService
             explicit: true
         );
 
+        // C3 fix: decode the target snapshot and apply it to the DB so the
+        // restore is a real state change, not a no-op.
+        $snapshotJson = (string) $target->getSnapshotJson();
+        $payload      = json_decode($snapshotJson, associative: true);
+        if (is_array($payload) === true) {
+            $this->applySnapshotPayload(
+                dashboard: $dashboard,
+                payload: $payload
+            );
+        }
+
         // Stamp the dashboard's updatedAt so callers that listen on
         // metadata see the restore (REQ-VERS-005 scenario "restore
         // updates the modified timestamp").
@@ -473,7 +484,7 @@ class DashboardVersionService
         }
 
         return [
-            'snapshot' => (string) $target->getSnapshotJson(),
+            'snapshot' => $snapshotJson,
             'version'  => $target,
         ];
     }//end restoreVersion()
@@ -664,6 +675,77 @@ class DashboardVersionService
 
         return $encoded;
     }//end buildDefaultSnapshot()
+
+    /**
+     * Apply a decoded snapshot payload to the dashboard's child tables.
+     *
+     * Replaces the existing widget placements with those stored in the
+     * snapshot. Runs as an all-or-nothing block: any failure is logged
+     * and re-thrown so the caller can surface a 500 rather than leaving
+     * the dashboard in a partial state.
+     *
+     * REQ-VERS-005 (C3 fix): makes restoreVersion() an actual state
+     * restore rather than a no-op that only returns the historical JSON.
+     *
+     * @param Dashboard            $dashboard The target dashboard.
+     * @param array<string, mixed> $payload   Decoded snapshot body.
+     *
+     * @return void
+     *
+     * @throws Throwable When a mapper operation fails.
+     *
+     * @spec openspec/specs/dashboard-versioning/spec.md
+     */
+    private function applySnapshotPayload(Dashboard $dashboard, array $payload): void
+    {
+        $dashboardId = (int) $dashboard->getId();
+        if ($dashboardId === 0) {
+            return;
+        }
+
+        // Wipe current placements and re-insert the historical set.
+        $rawPlacements = $payload['placements'] ?? [];
+        if (is_array($rawPlacements) === false) {
+            $rawPlacements = [];
+        }
+
+        try {
+            $this->placementMapper->deleteByDashboardId(
+                dashboardId: $dashboardId
+            );
+
+            foreach ($rawPlacements as $placementData) {
+                if (is_array($placementData) === false) {
+                    continue;
+                }
+
+                $entity = new \OCA\MyDash\Db\WidgetPlacement();
+                // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+                $entity->setDashboardId($dashboardId);
+
+                foreach ($placementData as $field => $value) {
+                    if ($field === 'id') {
+                        // Do not re-use the old PK — let the DB assign a new one.
+                        continue;
+                    }
+
+                    $setter = 'set'.ucfirst((string) $field);
+                    if (method_exists($entity, $setter) === true) {
+                        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+                        $entity->$setter($value);
+                    }
+                }
+
+                $this->placementMapper->insert(entity: $entity);
+            }//end foreach
+        } catch (Throwable $t) {
+            $this->logger->error(
+                message: 'mydash: applySnapshotPayload failed for dashboard '.$dashboardId,
+                context: ['exception' => $t]
+            );
+            throw $t;
+        }//end try
+    }//end applySnapshotPayload()
 
     /**
      * Owner-or-admin guard used by every public endpoint.

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use OCA\MyDash\Db\DashboardShareMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -32,7 +33,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Soft-revokes public shares for the deleted dashboard.
+ * Deletes share rows for the deleted dashboard. C4 fix (REQ-CSC-003).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -41,10 +42,13 @@ class PublicSharesListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param DashboardShareMapper $shareMapper Share row mapper.
+     * @param LoggerInterface      $logger      PSR-3 logger for
+     *                                          log-and-continue failure
+     *                                          handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly DashboardShareMapper $shareMapper,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -64,16 +68,18 @@ class PublicSharesListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-public-share): UPDATE oc_mydash_public_shares
-            // SET revokedAt = NOW() WHERE dashboardUuid = ?
-            // AND revokedAt IS NULL. Stub registered for cascade
-            // scaffolding — see REQ-CSC-003 scenario "Public shares
-            // are soft-revoked, not hard-deleted".
+            $deleted = $this->shareMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash PublicSharesListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash PublicSharesListener: deleted %d share rows for dashboard %s',
+                    $deleted,
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -81,7 +87,7 @@ class PublicSharesListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash PublicSharesListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

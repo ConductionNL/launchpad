@@ -36,12 +36,14 @@ namespace OCA\MyDash\Controller;
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\AdminSettingMapper;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\OrgNavigationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -90,6 +92,7 @@ class AdminOrgNavigationController extends Controller
      *                                           the position scalar.
      * @param IUserSession         $userSession  Current user session.
      * @param IGroupManager        $groupManager Admin check for write endpoints.
+     * @param ActionAuthService    $actionAuth   ADR-023 action authorization.
      */
     public function __construct(
         IRequest $request,
@@ -97,6 +100,7 @@ class AdminOrgNavigationController extends Controller
         private readonly AdminSettingMapper $settings,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
+        private readonly ActionAuthService $actionAuth,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -147,6 +151,12 @@ class AdminOrgNavigationController extends Controller
         $user = $this->userSession->getUser();
         if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $language = $this->validateLanguage(language: $lang);
@@ -238,6 +248,12 @@ class AdminOrgNavigationController extends Controller
         $user = $this->userSession->getUser();
         if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         return ResponseHelper::success(

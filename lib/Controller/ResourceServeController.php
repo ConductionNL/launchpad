@@ -53,6 +53,7 @@ declare(strict_types=1);
 namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\ResourceServeService;
 use OCA\MyDash\Service\ResourceService;
 use OCP\AppFramework\Controller;
@@ -60,6 +61,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -82,12 +84,14 @@ class ResourceServeController extends Controller
      *
      * @param IRequest             $request     The HTTP request.
      * @param ResourceServeService $serve       Filesystem + formatting helper.
+     * @param ActionAuthService    $actionAuth  ADR-023 action authorization.
      * @param LoggerInterface      $logger      PSR logger.
      * @param IUserSession         $userSession The current user session.
      */
     public function __construct(
         IRequest $request,
         private readonly ResourceServeService $serve,
+        private readonly ActionAuthService $actionAuth,
         private readonly LoggerInterface $logger,
         private readonly IUserSession $userSession,
     ) {
@@ -124,8 +128,15 @@ class ResourceServeController extends Controller
     #[NoAdminRequired]
     public function getResource(string $filename): StreamResponse|JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'resource-serve.get-resource');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         if ($this->isUnsafeFilename(filename: $filename) === true) {
@@ -186,8 +197,15 @@ class ResourceServeController extends Controller
     #[NoAdminRequired]
     public function listResources(): JSONResponse
     {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'resource-serve.list-resources');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $files = $this->serve->listFiles();

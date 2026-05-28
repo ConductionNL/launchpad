@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\MyDash\Listener;
 
 use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCP\Comments\ICommentsManager;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -34,18 +35,27 @@ use Throwable;
 
 /**
  * Deletes Nextcloud comments for the deleted dashboard.
+ * C4 fix (REQ-CSC-003).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
 class CommentsListener implements IEventListener
 {
     /**
+     * Object type constant used when attaching comments to a dashboard.
+     */
+    private const OBJECT_TYPE = 'mydash_dashboard';
+
+    /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param ICommentsManager $commentsManager Nextcloud comments manager.
+     * @param LoggerInterface  $logger          PSR-3 logger for
+     *                                          log-and-continue failure
+     *                                          handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly ICommentsManager $commentsManager,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -65,16 +75,18 @@ class CommentsListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-comments): inject ICommentsManager and call
-            // ICommentsManager::deleteCommentsAtObject('mydash_dashboard',
-            // $event->getDashboardUuid()). Stub registered for cascade
-            // scaffolding — see REQ-CSC-003 scenario "Comments are
-            // removed via ICommentsManager".
+            $this->commentsManager->deleteCommentsAtObject(
+                objectType: self::OBJECT_TYPE,
+                objectId: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash CommentsListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash CommentsListener: deleted comments for dashboard %s',
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -82,7 +94,7 @@ class CommentsListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash CommentsListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

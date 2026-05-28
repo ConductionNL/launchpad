@@ -33,13 +33,16 @@ namespace OCA\MyDash\Controller;
 use Exception;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\DashboardMapper;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\DashboardVersionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -53,6 +56,8 @@ class DashboardVersionApiController extends Controller
      * @param IRequest                $request         NC request.
      * @param DashboardMapper         $dashboardMapper Dashboard row lookup.
      * @param DashboardVersionService $versionService  Version service.
+     * @param ActionAuthService       $actionAuth      ADR-023 action authorization.
+     * @param IUserSession            $userSession     User session (IUser resolution).
      * @param LoggerInterface         $logger          PSR logger.
      * @param string|null             $userId          Current user ID.
      */
@@ -60,6 +65,8 @@ class DashboardVersionApiController extends Controller
         IRequest $request,
         private readonly DashboardMapper $dashboardMapper,
         private readonly DashboardVersionService $versionService,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -83,6 +90,17 @@ class DashboardVersionApiController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-version.list-versions');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {
@@ -123,6 +141,17 @@ class DashboardVersionApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-version.fetch-version');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {
@@ -179,6 +208,17 @@ class DashboardVersionApiController extends Controller
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-version.create-version');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         try {
             $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
         } catch (DoesNotExistException) {
@@ -222,6 +262,17 @@ class DashboardVersionApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-version.restore-version');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {

@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use OCA\MyDash\Db\DashboardVersionMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -32,7 +33,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Deletes version rows + GroupFolder JSON for the deleted dashboard.
+ * Deletes version rows for the deleted dashboard. C4 fix (REQ-CSC-003).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -41,10 +42,13 @@ class VersionsListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param DashboardVersionMapper $versionMapper Version row mapper.
+     * @param LoggerInterface        $logger        PSR-3 logger for
+     *                                              log-and-continue failure
+     *                                              handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly DashboardVersionMapper $versionMapper,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -64,16 +68,18 @@ class VersionsListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-versioning): DELETE FROM
-            // oc_mydash_dashboard_versions WHERE dashboardUuid = ?
-            // and remove the JSON version file under GroupFolder mode.
-            // Stub registered for cascade scaffolding — see REQ-CSC-003
-            // scenario "Versions file is deleted in GroupFolder mode".
+            $deleted = $this->versionMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash VersionsListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash VersionsListener: deleted %d version rows for dashboard %s',
+                    $deleted,
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -81,7 +87,7 @@ class VersionsListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash VersionsListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

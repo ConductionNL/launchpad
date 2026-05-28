@@ -26,14 +26,17 @@ declare(strict_types=1);
 namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\TileService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IL10N;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Controller for tile API endpoints.
@@ -52,14 +55,18 @@ class TileApiController extends Controller
     /**
      * Constructor
      *
-     * @param IRequest    $request     The request.
-     * @param TileService $tileService The tile service.
-     * @param IL10N       $l10n        The localisation helper.
-     * @param string|null $userId      The user ID.
+     * @param IRequest          $request     The request.
+     * @param TileService       $tileService The tile service.
+     * @param ActionAuthService $actionAuth  ADR-023 action authorization.
+     * @param IUserSession      $userSession User session (IUser resolution).
+     * @param IL10N             $l10n        The localisation helper.
+     * @param string|null       $userId      The user ID.
      */
     public function __construct(
         IRequest $request,
         private readonly TileService $tileService,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
         private readonly IL10N $l10n,
         private readonly ?string $userId,
     ) {
@@ -89,6 +96,17 @@ class TileApiController extends Controller
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'tile.index');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $tiles = $this->tileService->getUserTiles(userId: $this->userId);
 
         return ResponseHelper::success(
@@ -108,12 +126,22 @@ class TileApiController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-28
      */
-    // H4 sweep: NoCSRFRequired removed from POST endpoint (deprecated/410 but still a write verb).
     #[NoAdminRequired]
     public function create(): JSONResponse
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'tile.create');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         return $this->goneResponse();
@@ -132,12 +160,22 @@ class TileApiController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-30
      */
-    // H4 sweep: NoCSRFRequired removed from PUT endpoint (deprecated/410 but still a write verb).
     #[NoAdminRequired]
     public function update(): JSONResponse
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'tile.update');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         return $this->goneResponse();
@@ -159,6 +197,17 @@ class TileApiController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'tile.destroy');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         return $this->goneResponse();

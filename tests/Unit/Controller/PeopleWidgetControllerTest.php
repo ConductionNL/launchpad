@@ -25,9 +25,12 @@ namespace Unit\Controller;
 
 use InvalidArgumentException;
 use OCA\MyDash\Controller\PeopleWidgetController;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\PeopleWidgetService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -51,15 +54,27 @@ class PeopleWidgetControllerTest extends TestCase
     private $logger;
 
     /**
+     * @var ActionAuthService&MockObject
+     */
+    private $actionAuth;
+
+    /**
+     * @var IUserSession&MockObject
+     */
+    private $userSession;
+
+    /**
      * @return void
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->request = $this->createMock(originalClassName: IRequest::class);
-        $this->service = $this->createMock(originalClassName: PeopleWidgetService::class);
-        $this->logger  = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->request     = $this->createMock(originalClassName: IRequest::class);
+        $this->service     = $this->createMock(originalClassName: PeopleWidgetService::class);
+        $this->logger      = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->actionAuth  = $this->createMock(originalClassName: ActionAuthService::class);
+        $this->userSession = $this->createMock(originalClassName: IUserSession::class);
     }//end setUp()
 
     /**
@@ -199,9 +214,19 @@ class PeopleWidgetControllerTest extends TestCase
      */
     private function buildController(?string $userId): PeopleWidgetController
     {
+        if ($userId !== null) {
+            $user = $this->createMock(IUser::class);
+            $user->method('getUID')->willReturn($userId);
+            $this->userSession->method('getUser')->willReturn($user);
+        } else {
+            $this->userSession->method('getUser')->willReturn(null);
+        }
+
         return new PeopleWidgetController(
             request: $this->request,
             service: $this->service,
+            actionAuth: $this->actionAuth,
+            userSession: $this->userSession,
             logger: $this->logger,
             userId: $userId,
         );

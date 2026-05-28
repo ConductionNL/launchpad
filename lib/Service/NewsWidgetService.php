@@ -69,6 +69,18 @@ class NewsWidgetService
     private const HARD_ITEM_CEILING = 200;
 
     /**
+     * Maximum accepted feed response size in bytes (1 MB). Rejects
+     * oversized payloads before they reach the XML parser (C1 SSRF
+     * DoS guard — REQ-NEWS-008).
+     */
+    private const MAX_RESPONSE_SIZE_BYTES = 1048576;
+
+    /**
+     * IAppConfig key for the JSON-encoded allow-list of feed hostnames.
+     */
+    private const CONFIG_KEY_ALLOWED_HOSTS = 'news_widget_allowed_feed_hosts';
+
+    /**
      * HTML tags retained by the summary sanitiser (REQ-NEWS-005).
      *
      * @var array<int,string>
@@ -113,6 +125,7 @@ class NewsWidgetService
      *                                               distributed cache used to
      *                                               hold raw feed payloads.
      * @param LoggerInterface       $logger          PSR logger.
+     * @param UrlSafetyValidator    $urlValidator    Shared SSRF / allow-list guard.
      */
     public function __construct(
         private readonly WidgetPlacementMapper $placementMapper,
@@ -120,6 +133,7 @@ class NewsWidgetService
         private readonly IAppConfig $appConfig,
         private readonly ICacheFactory $cacheFactory,
         private readonly LoggerInterface $logger,
+        private readonly UrlSafetyValidator $urlValidator,
     ) {
     }//end __construct()
 
@@ -138,8 +152,9 @@ class NewsWidgetService
      *     feedsFailed: int,
      *     failedUrls: array<int, string>
      * }
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function getItemsForPlacement(int $placementId, int $limit=10): array
     {
         $clamped = $this->clampLimit(limit: $limit);
@@ -194,8 +209,9 @@ class NewsWidgetService
      *     dateFormat: string,
      *     metadataFilter: array{fieldKey: string, value: string}|null
      * }
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function extractNewsConfig(WidgetPlacement $placement): array
     {
         $decoded = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
@@ -271,10 +287,10 @@ class NewsWidgetService
                 continue;
             }
 
+            // C1: accept HTTPS only — plain HTTP leaks feed content in
+            // transit and bypasses the SSRF guard's scheme check.
             $lower = strtolower(string: $candidate);
-            if (str_starts_with(haystack: $lower, needle: 'http://') === true
-                || str_starts_with(haystack: $lower, needle: 'https://') === true
-            ) {
+            if (str_starts_with(haystack: $lower, needle: 'https://') === true) {
                 $out[] = $candidate;
             }
         }
@@ -396,8 +412,9 @@ class NewsWidgetService
      *     feedsFailed: int,
      *     failedUrls: array<int, string>
      * }
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function fetchAndMergeFeeds(array $feedUrls, int $limit=10): array
     {
         if ($feedUrls === []) {
@@ -408,6 +425,18 @@ class NewsWidgetService
         $failedUrls = [];
 
         foreach ($feedUrls as $url) {
+            // C1: SSRF guard — reject non-HTTPS, private IPs, and any host
+            // not in the admin allow-list (default-deny when list is
+            // non-empty; open when list is empty per REQ-NEWS-006).
+            if ($this->urlValidator->isSafe(url: $url) === false) {
+                $this->logger->warning(
+                    message: 'NewsWidget: URL rejected by SSRF guard',
+                    context: ['url' => $url]
+                );
+                $failedUrls[] = $url;
+                continue;
+            }
+
             if ($this->checkAllowList(url: $url) === false) {
                 $this->logger->warning(
                     message: 'NewsWidget: URL skipped by allow-list',
@@ -465,19 +494,22 @@ class NewsWidgetService
      *                            the channel/feed title when present.
      *
      * @return array<int, array<string, mixed>> Parsed items.
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function parseRssFeed(string $feedContent, string $sourceUrl, string $sourceTitle): array
     {
         if (trim(string: $feedContent) === '') {
             return [];
         }
 
+        // C2: LIBXML_NOENT was removed — it resolves (not disables) entities,
+        // enabling XXE. LIBXML_NONET blocks external DTD/entity fetches.
         $previousErrors = libxml_use_internal_errors(use_errors: true);
         $xml            = simplexml_load_string(
             data: $feedContent,
             class_name: SimpleXMLElement::class,
-            options: (LIBXML_NONET | LIBXML_NOENT)
+            options: LIBXML_NONET
         );
         libxml_clear_errors();
         libxml_use_internal_errors(use_errors: $previousErrors);
@@ -560,8 +592,9 @@ class NewsWidgetService
      * @param array<int, array<string, mixed>> $items Items to dedupe.
      *
      * @return array<int, array<string, mixed>> Deduped items.
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function deduplicateItems(array $items): array
     {
         $seen = [];
@@ -599,8 +632,9 @@ class NewsWidgetService
      * @param array<int, array<string, mixed>> $items Items to sort.
      *
      * @return array<int, array<string, mixed>> Sorted items.
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function sortItemsByDate(array $items): array
     {
         $sortable = $items;
@@ -644,8 +678,9 @@ class NewsWidgetService
      * @param string $html Raw summary HTML from a feed item.
      *
      * @return string Sanitised summary HTML.
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function sanitiseSummaryHtml(string $html): string
     {
         if ($html === '') {
@@ -659,11 +694,12 @@ class NewsWidgetService
         // be neutralised; reuse PHP's HTML parser via DOMDocument so we
         // can rewrite href attributes safely without false-positives on
         // body text containing the substring.
+        // C2: LIBXML_NOENT removed — resolves entities (XXE risk).
         $previousErrors = libxml_use_internal_errors(use_errors: true);
         $document       = new DOMDocument();
         $document->loadHTML(
             source: '<?xml encoding="UTF-8"><div>'.$stripped.'</div>',
-            options: (LIBXML_NONET | LIBXML_NOENT)
+            options: LIBXML_NONET
         );
         libxml_clear_errors();
         libxml_use_internal_errors(use_errors: $previousErrors);
@@ -701,44 +737,22 @@ class NewsWidgetService
 
     /**
      * Whether the supplied URL's hostname is permitted by the admin
-     * allow-list. Empty / unset list ⇒ every host allowed
-     * (REQ-NEWS-006).
+     * allow-list. Empty / unset list means all hosts are allowed
+     * (REQ-NEWS-006). Delegates to UrlSafetyValidator.
      *
      * @param string $url Candidate feed URL.
      *
      * @return boolean True when the host is allowed.
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function checkAllowList(string $url): bool
     {
-        $raw = $this->appConfig->getValueString(
-            app: Application::APP_ID,
-            key: 'news_widget_allowed_feed_hosts',
-            default: ''
+        return $this->urlValidator->checkAllowList(
+            url: $url,
+            appId: Application::APP_ID,
+            configKey: self::CONFIG_KEY_ALLOWED_HOSTS
         );
-
-        if (trim(string: $raw) === '') {
-            return true;
-        }
-
-        $decoded = json_decode(json: $raw, associative: true);
-        if (is_array(value: $decoded) === false || $decoded === []) {
-            return true;
-        }
-
-        $host = parse_url(url: $url, component: PHP_URL_HOST);
-        if (is_string(value: $host) === false || $host === '') {
-            return false;
-        }
-
-        $needle = strtolower(string: $host);
-        foreach ($decoded as $allowed) {
-            if (is_string(value: $allowed) === true && strtolower(string: $allowed) === $needle) {
-                return true;
-            }
-        }
-
-        return false;
     }//end checkAllowList()
 
     /**
@@ -754,8 +768,9 @@ class NewsWidgetService
      * @param array{fieldKey: string, value: string} $metadataFilter The filter to apply.
      *
      * @return boolean True when the filter passes (allow fetch); false otherwise.
+     *
+     * @spec openspec/specs/news-widget/spec.md
      */
-    /** @spec openspec/specs/news-widget/spec.md */
     public function checkMetadataFilter(int $dashboardId, array $metadataFilter): bool
     {
         unset($dashboardId);
@@ -815,6 +830,10 @@ class NewsWidgetService
                     'timeout'         => self::FETCH_TIMEOUT_SECONDS,
                     'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
                     'verify'          => true,
+                    // C1/H3: disable redirect-following so an attacker
+                    // cannot chain a public URL to an internal redirect
+                    // target (SSRF via open redirect).
+                    'allow_redirects' => false,
                 ]
             );
 
@@ -828,6 +847,14 @@ class NewsWidgetService
 
             $body = (string) $response->getBody();
             if ($body === '') {
+                return null;
+            }
+
+            // C1: body cap — reject oversized payloads before XML parse.
+            if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
+                $this->logger->warning(
+                    message: 'NewsWidget: feed response exceeds 1MB cap, skipping '.$url
+                );
                 return null;
             }
 

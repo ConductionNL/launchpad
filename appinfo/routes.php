@@ -416,7 +416,7 @@ return [
 		['name' => 'analytics#instanceSummary', 'url' => '/api/admin/analytics/summary', 'verb' => 'GET'],
 		['name' => 'analytics#exportCsv', 'url' => '/api/admin/analytics/export', 'verb' => 'GET'],
 		['name' => 'analytics#dashboardDetail', 'url' => '/api/admin/analytics/dashboards/{uuid}', 'verb' => 'GET',
-		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],,
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Background feed-refresh trigger (REQ-FRJ-010). Admin-only via
 		// runtime `IGroupManager::isAdmin` check inside the controller.

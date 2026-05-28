@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Dashboard Entity
  *
@@ -15,6 +13,8 @@ declare(strict_types=1);
  * @version   GIT:auto
  * @link      https://conduction.nl
  */
+
+declare(strict_types=1);
 
 namespace OCA\MyDash\Db;
 
@@ -627,7 +627,7 @@ class Dashboard extends Entity implements JsonSerializable
     }//end setTargetGroupsArray()
 
     /**
-     * Serialize to JSON.
+     * Serialize to JSON (owner / admin view — full payload).
      *
      * @return array The serialized dashboard.
      */
@@ -670,6 +670,29 @@ class Dashboard extends Entity implements JsonSerializable
             'templatePreviewImage' => $this->templatePreviewImage,
         ];
     }//end jsonSerialize()
+
+    /**
+     * Serialize for a non-owner viewer (M5 — strips internal identity
+     * fields from the public envelope).
+     *
+     * Removes `userId`, `groupId`, `targetGroups`, `templateCategory`,
+     * and `templateDescription` which are internal administration fields
+     * that non-owner consumers have no legitimate use for.
+     *
+     * @return array The serialized dashboard without internal fields.
+     */
+    public function toViewerArray(): array
+    {
+        $full = $this->jsonSerialize();
+        unset(
+            $full['userId'],
+            $full['groupId'],
+            $full['targetGroups'],
+            $full['templateCategory'],
+            $full['templateDescription']
+        );
+        return $full;
+    }//end toViewerArray()
 
     /**
      * Whether comments are effectively enabled on this dashboard

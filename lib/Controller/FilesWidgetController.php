@@ -100,13 +100,11 @@ class FilesWidgetController extends Controller
      * @param string  $cursor      Opaque pagination cursor.
      *
      * @return JSONResponse
-     */
-
+         *
+     * @spec openspec/specs/files-widget/spec.md
+ */
     #[NoAdminRequired]
     #[NoCSRFRequired]
-    /**
-     * @spec openspec/specs/files-widget/spec.md
-     */
     public function contents(
         int $placementId,
         string $currentPath='/',
@@ -174,10 +172,8 @@ class FilesWidgetController extends Controller
      * @param string  $currentPath Sub-path inside the configured folder.
      *
      * @return JSONResponse
-      *
-
+     *
       * @spec openspec/specs/files-widget/spec.md
-
       */
     #[NoAdminRequired]
     public function upload(int $placementId, string $currentPath='/'): JSONResponse
@@ -243,10 +239,8 @@ class FilesWidgetController extends Controller
      *                             configured folder).
      *
      * @return JSONResponse
-      *
-
+     *
       * @spec openspec/specs/files-widget/spec.md
-
       */
     #[NoAdminRequired]
     public function destroy(int $placementId, int $fileId): JSONResponse
@@ -336,10 +330,11 @@ class FilesWidgetController extends Controller
             return null;
         }
 
-        $dashboardId = $placement->getDashboardId();
-        if ($this->permissionService->canViewDashboard(
+        // L2: upload is a write operation — require write-level permission
+        // (canAddWidget), not read-level (canViewDashboard).
+        if ($this->permissionService->canAddWidget(
             userId: $userId,
-            dashboardId: $dashboardId
+            dashboardId: $placement->getDashboardId()
         ) === false
         ) {
             return null;

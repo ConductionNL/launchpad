@@ -118,6 +118,7 @@ class FeedRefreshService
      * @param FeedCacheMapper       $cacheMapper     The feed-cache mapper.
      * @param WidgetPlacementMapper $placementMapper The widget-placement mapper.
      * @param LoggerInterface       $logger          The diagnostic logger.
+     * @param UrlSafetyValidator    $urlValidator    SSRF guard (H3).
      */
     public function __construct(
         private readonly IClientService $clientService,
@@ -126,6 +127,7 @@ class FeedRefreshService
         private readonly FeedCacheMapper $cacheMapper,
         private readonly WidgetPlacementMapper $placementMapper,
         private readonly LoggerInterface $logger,
+        private readonly UrlSafetyValidator $urlValidator,
     ) {
     }//end __construct()
 
@@ -143,8 +145,9 @@ class FeedRefreshService
      * the JSON-decode path.
      *
      * @return string[] The deduplicated, sorted feed URL list.
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
      */
-    /** @spec openspec/specs/background-job-feed-refresh/spec.md */
     public function discoverFeedUrls(): array
     {
         $rawUrls = [];
@@ -197,8 +200,9 @@ class FeedRefreshService
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
      */
-    /** @spec openspec/specs/background-job-feed-refresh/spec.md */
     public function refreshFeed(string $feedUrl): array
     {
         $startedAt = (int) (microtime(as_float: true) * 1000);
@@ -219,6 +223,26 @@ class FeedRefreshService
             );
             return [
                 'status'     => 'skipped',
+                'itemCount'  => count(value: $row->decodeItems()),
+                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
+            ];
+        }
+
+        // H3: SSRF guard — reject URLs that resolve to private/reserved IP
+        // ranges and enforce HTTPS-only. Delegates to UrlSafetyValidator.
+        if ($this->urlValidator->isSafe(url: $feedUrl) === false) {
+            $row->setLastFailureReason('SSRF guard: private/reserved IP or non-HTTPS URL rejected');
+            $row->setLastFetchedAt($now);
+            $this->cacheMapper->update(entity: $row);
+            $this->logger->warning(
+                message: 'Feed URL rejected by SSRF guard — private IP or non-HTTPS',
+                context: [
+                    'app'     => Application::APP_ID,
+                    'feedUrl' => $feedUrl,
+                ]
+            );
+            return [
+                'status'     => 'failed',
                 'itemCount'  => count(value: $row->decodeItems()),
                 'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
             ];
@@ -331,8 +355,9 @@ class FeedRefreshService
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
      */
-    /** @spec openspec/specs/background-job-feed-refresh/spec.md */
     public function refreshAll(?string $onlyUrl=null): array
     {
         $startedAt = (int) (microtime(as_float: true) * 1000);
@@ -520,10 +545,14 @@ class FeedRefreshService
     {
         $previous = libxml_use_internal_errors(use_errors: true);
         try {
+            // C2: LIBXML_NOENT removed — it resolves (not disables) entities,
+            // enabling XXE. LIBXML_NONET blocks external DTD/entity fetches.
+            // L1: LIBXML_NOCDATA removed — it folds CDATA sections into text
+            // nodes, which can mask sanitisation logic on downstream callers.
             $xml = simplexml_load_string(
                 data: $body,
                 class_name: 'SimpleXMLElement',
-                options: (LIBXML_NOCDATA | LIBXML_NONET)
+                options: LIBXML_NONET
             );
             if ($xml === false) {
                 $errors = libxml_get_errors();
@@ -538,7 +567,7 @@ class FeedRefreshService
         } finally {
             libxml_clear_errors();
             libxml_use_internal_errors(use_errors: $previous);
-        }
+        }//end try
 
         $sourceTitle = $this->extractFeedTitle(xml: $xml, feedUrl: $feedUrl);
         $items       = [];

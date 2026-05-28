@@ -27,6 +27,7 @@ namespace OCA\MyDash\Controller;
 use OCA\MyDash\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
 use OCP\IRequest;
@@ -37,6 +38,16 @@ use OCP\IUserSession;
  */
 class PreferencesController extends Controller
 {
+    /**
+     * Maximum allowed byte length for a preference value (M6 — DoS guard).
+     *
+     * Values exceeding this limit are rejected with HTTP 400 to prevent
+     * unbounded database row growth on oc_preferences.
+     *
+     * @var int
+     */
+    private const MAX_VALUE_LENGTH = 8192;
+
     /**
      * Constructor.
      *
@@ -60,10 +71,11 @@ class PreferencesController extends Controller
      *
      * @return JSONResponse `{value: string|null}`.
      *
-     * @NoAdminRequired
-     * @NoCSRFRequired
+     * @spec openspec/specs/admin-settings/spec.md
      */
-    /** @spec openspec/specs/admin-settings/spec.md */
+    // H4: NoCSRFRequired removed — GET reads benefit from CSRF protection
+    // because NC enforces the token on all non-public requests.
+    #[NoAdminRequired]
     public function getPreference(string $key): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -100,10 +112,11 @@ class PreferencesController extends Controller
      *
      * @return JSONResponse `{value: string|null}`.
      *
-     * @NoAdminRequired
-     * @NoCSRFRequired
+     * @spec openspec/specs/admin-settings/spec.md
      */
-    /** @spec openspec/specs/admin-settings/spec.md */
+    // H4: NoCSRFRequired removed — state-mutating endpoint MUST carry CSRF
+    // protection (policy: @NoCSRFRequired is OR-only, per ADR-022).
+    #[NoAdminRequired]
     public function setPreference(string $key, string $value=''): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -114,6 +127,14 @@ class PreferencesController extends Controller
         $safeKey = $this->sanitizeKey(key: $key);
         if ($safeKey === '') {
             return new JSONResponse(data: ['message' => 'Invalid key'], statusCode: Http::STATUS_BAD_REQUEST);
+        }
+
+        // M6: guard against unbounded values that would bloat oc_preferences.
+        if (strlen(string: $value) > self::MAX_VALUE_LENGTH) {
+            return new JSONResponse(
+                data: ['message' => 'Value exceeds maximum length of '.self::MAX_VALUE_LENGTH.' bytes'],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         }
 
         $stored = null;

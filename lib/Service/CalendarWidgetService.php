@@ -37,6 +37,7 @@ namespace OCA\MyDash\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\MyDash\AppInfo\Application;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -113,17 +114,19 @@ class CalendarWidgetService
     /**
      * Constructor.
      *
-     * @param IAppConfig      $appConfig     The app config reader.
-     * @param ICacheFactory   $cacheFactory  Distributed cache factory.
-     * @param IClientService  $clientService HTTP client factory.
-     * @param LoggerInterface $logger        Logger.
-     * @param IManager|null   $calendarMgr   NC Calendar manager (optional).
+     * @param IAppConfig         $appConfig     The app config reader.
+     * @param ICacheFactory      $cacheFactory  Distributed cache factory.
+     * @param IClientService     $clientService HTTP client factory.
+     * @param LoggerInterface    $logger        Logger.
+     * @param UrlSafetyValidator $urlValidator  Shared SSRF / allow-list guard.
+     * @param IManager|null      $calendarMgr   NC Calendar manager (optional).
      */
     public function __construct(
         private readonly IAppConfig $appConfig,
         ICacheFactory $cacheFactory,
         private readonly IClientService $clientService,
         private readonly LoggerInterface $logger,
+        private readonly UrlSafetyValidator $urlValidator,
         private readonly ?IManager $calendarMgr=null,
     ) {
         $this->cache = $cacheFactory->createDistributed(prefix: self::CACHE_NAMESPACE);
@@ -143,8 +146,9 @@ class CalendarWidgetService
      * @param string $to     ISO 8601 end (inclusive).
      *
      * @return array{events: array<int, array<string, mixed>>, failures: array<int, string>}
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function getEvents(array $config, string $from, string $to): array
     {
         $internalCalendars = (array) ($config['internalCalendars'] ?? []);
@@ -199,8 +203,9 @@ class CalendarWidgetService
      * @param string             $to         ISO end.
      *
      * @return array{events: array<int, array<string, mixed>>, failures: array<int, string>}
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function fetchInternalEvents(array $principals, string $from, string $to): array
     {
         $events   = [];
@@ -284,8 +289,9 @@ class CalendarWidgetService
      * @param string             $to   ISO end.
      *
      * @return array{events: array<int, array<string, mixed>>, failures: array<int, string>}
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function fetchExternalIcsEvents(array $urls, string $from, string $to): array
     {
         $events   = [];
@@ -340,87 +346,40 @@ class CalendarWidgetService
     /**
      * Validate an external ICS URL.
      *
-     * Accepts only HTTPS URLs whose hostname resolves to a public IP
-     * (no private/reserved ranges). Returns false on any deviation.
+     * Delegates to {@see UrlSafetyValidator::isSafe()}: accepts only HTTPS
+     * URLs whose hostname resolves exclusively to public IPs.
      *
      * @param string $url The URL to validate.
      *
      * @return bool True when the URL passes all checks.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function validateUrl(string $url): bool
     {
-        $parts = parse_url(url: $url);
-        if (is_array(value: $parts) === false) {
-            return false;
-        }
-
-        if (($parts['scheme'] ?? '') !== 'https') {
-            return false;
-        }
-
-        $host = (string) ($parts['host'] ?? '');
-        if ($host === '') {
-            return false;
-        }
-
-        // Resolve and reject any private/reserved IPs (SSRF guard).
-        $ips = gethostbynamel(hostname: $host);
-        if ($ips === false || $ips === []) {
-            return false;
-        }
-
-        foreach ($ips as $ip) {
-            $publicIp = filter_var(
-                value: $ip,
-                filter: FILTER_VALIDATE_IP,
-                options: (FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
-            );
-            if ($publicIp === false) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->urlValidator->isSafe(url: $url);
     }//end validateUrl()
 
     /**
      * Check whether a URL's host appears in the admin allow-list.
      *
-     * Empty/missing allow-list means all hosts are allowed. Comparison
-     * is case-insensitive and exact (no wildcard subdomain expansion).
+     * Delegates to {@see UrlSafetyValidator::checkAllowList()}. Empty /
+     * missing allow-list means all hosts are allowed. Comparison is
+     * case-insensitive and exact (no wildcard subdomain expansion).
      *
      * @param string $url The URL to check.
      *
      * @return bool True when the host passes the allow-list.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function checkAllowList(string $url): bool
     {
-        $raw = $this->appConfig->getValueString(
-            app: 'mydash',
-            key: self::CONFIG_KEY_ALLOWED_HOSTS,
-            default: ''
+        return $this->urlValidator->checkAllowList(
+            url: $url,
+            appId: Application::APP_ID,
+            configKey: self::CONFIG_KEY_ALLOWED_HOSTS
         );
-
-        if ($raw === '') {
-            return true;
-        }
-
-        $decoded = json_decode(json: $raw, associative: true);
-        if (is_array(value: $decoded) === false || $decoded === []) {
-            return true;
-        }
-
-        $host = (string) parse_url(url: $url, component: PHP_URL_HOST);
-        if ($host === '') {
-            return false;
-        }
-
-        $needle    = strtolower(string: $host);
-        $allowList = array_map(callback: 'strtolower', array: array_map(callback: 'strval', array: $decoded));
-
-        return in_array(needle: $needle, haystack: $allowList, strict: true);
     }//end checkAllowList()
 
     /**
@@ -431,8 +390,9 @@ class CalendarWidgetService
      * @return string The raw ICS body.
      *
      * @throws \RuntimeException When the response is too large or non-2xx.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function fetchIcsBody(string $url): string
     {
         $cacheKey = 'ics_'.md5(string: $url);
@@ -441,14 +401,30 @@ class CalendarWidgetService
             return $cached;
         }
 
+        // M2: re-validate immediately before the HTTP request to close the
+        // DNS-rebinding TOCTOU window — an attacker who flips the DNS record
+        // after the initial validateUrl call is caught here. A full fix would
+        // pin the IP via CURLOPT_RESOLVE, but that requires Guzzle internals.
+        // Double-checking is a practical mitigation that limits the attack
+        // window to the sub-millisecond gap between this check and the
+        // actual TCP connect.
+        if ($this->validateUrl(url: $url) === false) {
+            throw new RuntimeException(
+                message: 'ICS URL failed re-validation (SSRF guard)'
+            );
+        }
+
         $client   = $this->clientService->newClient();
         $response = $client->get(
-                uri: $url,
-                options: [
-                    'timeout'         => self::FETCH_TIMEOUT_SECONDS,
-                    'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
-                ]
-                );
+            uri: $url,
+            options: [
+                'timeout'         => self::FETCH_TIMEOUT_SECONDS,
+                'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
+                // H2: disable redirect-following so an attacker cannot
+                // chain a public URL to an internal redirect target.
+                'allow_redirects' => false,
+            ]
+        );
 
         $body = (string) $response->getBody();
         if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
@@ -482,8 +458,9 @@ class CalendarWidgetService
      * @param string $to   ISO end (inclusive).
      *
      * @return array<int, array<string, mixed>> Normalised event objects.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function parseAndExpandIcs(string $body, string $from, string $to): array
     {
         if (class_exists(class: \Sabre\VObject\Reader::class) === false) {
@@ -523,8 +500,9 @@ class CalendarWidgetService
      * @param object $vevent The sabre VEVENT component.
      *
      * @return array<string, mixed>
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function normalizeVevent(object $vevent): array
     {
         $uid     = (string) ($vevent->UID ?? '');
@@ -623,8 +601,9 @@ class CalendarWidgetService
      * @param array<string, mixed> $raw Raw event from IManager.
      *
      * @return array<string, mixed>
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
      */
-    /** @spec openspec/specs/calendar-widget/spec.md */
     public function normalizeInternalEvent(array $raw): array
     {
         // NC Calendar search results vary across versions; do best-effort mapping.

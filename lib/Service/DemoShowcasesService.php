@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Service;
 
+use DateTime;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
@@ -43,6 +44,8 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
 use OCP\IAppConfig;
 use OCP\IDBConnection;
+use OCP\Lock\ILockingProvider;
+use OCP\Lock\LockedException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -103,6 +106,9 @@ class DemoShowcasesService
      * @param IAppConfig            $appConfig        App config service.
      * @param IManager              $dashboardManager Nextcloud dashboard registry.
      * @param LoggerInterface       $logger           PSR-3 logger.
+     * @param ILockingProvider      $lockingProvider  Advisory lock provider
+     *                                                (M8 — concurrency guard
+     *                                                on installShowcase).
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -111,6 +117,7 @@ class DemoShowcasesService
         private readonly IAppConfig $appConfig,
         private readonly IManager $dashboardManager,
         private readonly LoggerInterface $logger,
+        private readonly ILockingProvider $lockingProvider,
     ) {
     }//end __construct()
 
@@ -137,8 +144,9 @@ class DemoShowcasesService
      * {@see DemoShowcasesService::setDataDirForTesting()}.
      *
      * @return string Absolute filesystem path.
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function getDataDir(): string
     {
         if ($this->dataDirOverride !== null) {
@@ -155,8 +163,9 @@ class DemoShowcasesService
      * the returned list is stable and predictable for the admin UI.
      *
      * @return array<int, array<string, mixed>> Showcase descriptors.
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function getAvailableShowcases(): array
     {
         $result = [];
@@ -183,8 +192,9 @@ class DemoShowcasesService
      *
      * @return array<string, mixed>|null The descriptor, or `null` when
      *                                   the ZIP is missing/malformed.
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function describeShowcase(string $showcaseId): ?array
     {
         $zipPath = $this->getZipPath(showcaseId: $showcaseId);
@@ -234,8 +244,9 @@ class DemoShowcasesService
      *
      * @throws ShowcaseNotFoundException When the showcase ID is unknown.
      * @throws RuntimeException          On ZIP / persistence failures.
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function installShowcase(
         string $showcaseId,
         string $lang='nl',
@@ -250,18 +261,61 @@ class DemoShowcasesService
             );
         }
 
-        $existingUuid = $this->getInstalledUuid(showcaseId: $showcaseId);
-        if ($existingUuid !== '' && $force === false) {
-            return [
-                'installedDashboardUuid' => $existingUuid,
-                'skippedWidgets'         => [],
-                'alreadyInstalled'       => true,
-            ];
+        // M8: acquire an exclusive advisory lock keyed on the showcase ID
+        // before the existence check to serialise concurrent installs.
+        // Two simultaneous admin requests both pass the existence check
+        // before either inserts without this guard.
+        $lockKey = 'mydash-showcase-install-'.$showcaseId;
+        try {
+            $this->lockingProvider->acquireLock(
+                path: $lockKey,
+                type: ILockingProvider::LOCK_EXCLUSIVE
+            );
+        } catch (LockedException $e) {
+            throw new RuntimeException(
+                message: 'Showcase installation already in progress for '.$showcaseId,
+                code: 0,
+                previous: $e
+            );
         }
 
-        if ($existingUuid !== '' && $force === true) {
-            $this->uninstallShowcase(showcaseId: $showcaseId);
+        try {
+            $existingUuid = $this->getInstalledUuid(showcaseId: $showcaseId);
+            if ($existingUuid !== '' && $force === false) {
+                return [
+                    'installedDashboardUuid' => $existingUuid,
+                    'skippedWidgets'         => [],
+                    'alreadyInstalled'       => true,
+                ];
+            }
+
+            if ($existingUuid !== '' && $force === true) {
+                $this->uninstallShowcase(showcaseId: $showcaseId);
+            }
+
+            return $this->doInstallShowcase(
+                showcaseId: $showcaseId,
+                lang: $lang
+            );
+        } finally {
+            $this->lockingProvider->releaseLock(
+                path: $lockKey,
+                type: ILockingProvider::LOCK_EXCLUSIVE
+            );
         }
+    }//end installShowcase()
+
+    /**
+     * Internal install logic (called while lock is held).
+     *
+     * @param string $showcaseId The showcase ID.
+     * @param string $lang       The source language.
+     *
+     * @return array{installedDashboardUuid: string, skippedWidgets: array<int, string>, alreadyInstalled: bool}
+     */
+    private function doInstallShowcase(string $showcaseId, string $lang): array
+    {
+        $zipPath = $this->getZipPath(showcaseId: $showcaseId);
 
         $payload = $this->loadDashboardPayload(zipPath: $zipPath);
         $widgets = (array) ($payload['widgets'] ?? []);
@@ -316,7 +370,7 @@ class DemoShowcasesService
             'skippedWidgets'         => $skipped,
             'alreadyInstalled'       => false,
         ];
-    }//end installShowcase()
+    }//end doInstallShowcase()
 
     /**
      * Uninstall a previously-installed showcase.
@@ -328,8 +382,9 @@ class DemoShowcasesService
      * @param string $showcaseId The showcase ID.
      *
      * @return void
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function uninstallShowcase(string $showcaseId): void
     {
         $existingUuid = $this->getInstalledUuid(showcaseId: $showcaseId);
@@ -360,8 +415,9 @@ class DemoShowcasesService
      * @param string $showcaseId The showcase ID.
      *
      * @return string The UUID, or empty string when not installed.
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function getInstalledUuid(string $showcaseId): string
     {
         return $this->appConfig->getValueString(
@@ -384,8 +440,9 @@ class DemoShowcasesService
      *                                   showcase JSON.
      *
      * @return array{0:array<int,array<string,mixed>>, 1:array<int,string>}
+     *
+     * @spec openspec/specs/demo-data-showcases/spec.md
      */
-    /** @spec openspec/specs/demo-data-showcases/spec.md */
     public function partitionWidgets(array $widgets): array
     {
         $registered = [];
@@ -547,6 +604,7 @@ class DemoShowcasesService
         string $sourceLanguage
     ): Dashboard {
         $dashboard = new Dashboard();
+        $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
         $name        = (string) ($payload['name'] ?? $showcaseId);
         $description = null;
@@ -575,6 +633,8 @@ class DemoShowcasesService
         $dashboard->setSlug('showcase-'.$showcaseId);
         $dashboard->setSortOrder(0);
         $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+        $dashboard->setCreatedAt($now);
+        $dashboard->setUpdatedAt($now);
         // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
         // Surface the showcase + locale in the description tail when the
@@ -614,6 +674,7 @@ class DemoShowcasesService
         array $payload
     ): WidgetPlacement {
         $placement = new WidgetPlacement();
+        $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
         // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
         $placement->setDashboardId($dashboardId);
@@ -625,6 +686,8 @@ class DemoShowcasesService
         $placement->setIsVisible((int) ($payload['isVisible'] ?? 1));
         $placement->setShowTitle((int) ($payload['showTitle'] ?? 1));
         $placement->setSortOrder((int) ($payload['sortOrder'] ?? 0));
+        $placement->setCreatedAt($now);
+        $placement->setUpdatedAt($now);
 
         if (isset($payload['styleConfig']) === true && is_array($payload['styleConfig']) === true) {
             $placement->setStyleConfigArray(config: $payload['styleConfig']);

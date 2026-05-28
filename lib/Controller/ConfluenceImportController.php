@@ -65,10 +65,10 @@ class ConfluenceImportController extends Controller
      *
      * @return JSONResponse The dry-run preview, or an error response.
      *
-     * @NoCSRFRequired
+     * @spec openspec/specs/confluence-html-import/spec.md
      */
+    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
-    /** @spec openspec/specs/confluence-html-import/spec.md */
     public function dryRun(): JSONResponse
     {
         $tmpName = $this->resolveUpload();
@@ -101,10 +101,10 @@ class ConfluenceImportController extends Controller
      *
      * @return JSONResponse The import summary, or an error response.
      *
-     * @NoCSRFRequired
+     * @spec openspec/specs/confluence-html-import/spec.md
      */
+    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
-    /** @spec openspec/specs/confluence-html-import/spec.md */
     public function import(?string $parentUuid=null): JSONResponse
     {
         $tmpName = $this->resolveUpload();
@@ -160,10 +160,4 @@ class ConfluenceImportController extends Controller
 
         return (string) $upload['tmp_name'];
     }//end resolveUpload()
-
-    /**
-     * Verify the current session belongs to a Nextcloud admin.
-     *
-     * @return JSONResponse|null Null when admin; an error response otherwise.
-     */
 }//end class

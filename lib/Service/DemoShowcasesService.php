@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Service;
 
+use DateTime;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
@@ -603,6 +604,7 @@ class DemoShowcasesService
         string $sourceLanguage
     ): Dashboard {
         $dashboard = new Dashboard();
+        $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
         $name        = (string) ($payload['name'] ?? $showcaseId);
         $description = null;
@@ -631,6 +633,8 @@ class DemoShowcasesService
         $dashboard->setSlug('showcase-'.$showcaseId);
         $dashboard->setSortOrder(0);
         $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+        $dashboard->setCreatedAt($now);
+        $dashboard->setUpdatedAt($now);
         // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
         // Surface the showcase + locale in the description tail when the
@@ -670,6 +674,7 @@ class DemoShowcasesService
         array $payload
     ): WidgetPlacement {
         $placement = new WidgetPlacement();
+        $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
         // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
         $placement->setDashboardId($dashboardId);
@@ -681,6 +686,8 @@ class DemoShowcasesService
         $placement->setIsVisible((int) ($payload['isVisible'] ?? 1));
         $placement->setShowTitle((int) ($payload['showTitle'] ?? 1));
         $placement->setSortOrder((int) ($payload['sortOrder'] ?? 0));
+        $placement->setCreatedAt($now);
+        $placement->setUpdatedAt($now);
 
         if (isset($payload['styleConfig']) === true && is_array($payload['styleConfig']) === true) {
             $placement->setStyleConfigArray(config: $payload['styleConfig']);

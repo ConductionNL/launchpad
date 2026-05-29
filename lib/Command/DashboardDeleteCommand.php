@@ -24,11 +24,15 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Command;
 
+use DateTimeImmutable;
+use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Service\CommandService;
 use OCA\MyDash\Service\DashboardTreeService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IUserSession;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,13 +55,17 @@ class DashboardDeleteCommand extends CommandBase
      * @param WidgetPlacementMapper $placementMapper Widget mapper.
      * @param DashboardTreeService  $treeService     Tree service for
      *                                               cascading delete.
+     * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
+     *                                               DashboardDeletedEvent
+     *                                               (SB1 fix, REQ-CSC-001).
      */
     public function __construct(
         CommandService $commandService,
         IUserSession $userSession,
         private readonly DashboardMapper $dashboardMapper,
         private readonly WidgetPlacementMapper $placementMapper,
-        private readonly DashboardTreeService $treeService
+        private readonly DashboardTreeService $treeService,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
         parent::__construct(commandService: $commandService, userSession: $userSession);
     }//end __construct()
@@ -170,6 +178,19 @@ class DashboardDeleteCommand extends CommandBase
         if ($cascade === false) {
             $this->placementMapper->deleteByDashboardId(dashboardId: (int) $dashboard->getId());
             $this->dashboardMapper->delete(entity: $dashboard);
+
+            // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+            // (REQ-CSC-001).
+            if ($this->eventDispatcher !== null && $uuid !== '') {
+                $this->eventDispatcher->dispatchTyped(
+                    new DashboardDeletedEvent(
+                        dashboardUuid: $uuid,
+                        ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
+                        type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                        deletedAt:     new DateTimeImmutable()
+                    )
+                );
+            }
         }
 
         $cascadeNote = '';

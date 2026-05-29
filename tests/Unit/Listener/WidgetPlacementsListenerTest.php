@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Unit\Listener;
 
 use DateTimeImmutable;
+use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Listener\WidgetPlacementsListener;
 use OCP\EventDispatcher\Event;
@@ -43,8 +44,13 @@ class WidgetPlacementsListenerTest extends TestCase
      */
     public function testHandlesDashboardDeletedEventWithoutThrowing(): void
     {
-        $logger   = $this->createMock(originalClassName: LoggerInterface::class);
-        $listener = new WidgetPlacementsListener(logger: $logger);
+        $logger         = $this->createMock(originalClassName: LoggerInterface::class);
+        $placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+        $placementMapper->method('deleteByDashboardUuid')->willReturn(0);
+        $listener = new WidgetPlacementsListener(
+            placementMapper: $placementMapper,
+            logger: $logger
+        );
 
         $event = new DashboardDeletedEvent(
             dashboardUuid: 'abc-123',
@@ -66,8 +72,12 @@ class WidgetPlacementsListenerTest extends TestCase
      */
     public function testIgnoresForeignEventTypes(): void
     {
-        $logger   = $this->createMock(originalClassName: LoggerInterface::class);
-        $listener = new WidgetPlacementsListener(logger: $logger);
+        $logger          = $this->createMock(originalClassName: LoggerInterface::class);
+        $placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+        $listener        = new WidgetPlacementsListener(
+            placementMapper: $placementMapper,
+            logger: $logger
+        );
 
         $foreignEvent = new class extends Event {
         };

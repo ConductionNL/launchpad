@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use OCA\MyDash\Db\MetadataValueMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -31,7 +32,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Deletes metadata values for the deleted dashboard.
+ * Deletes metadata values for the deleted dashboard. C4 fix (REQ-CSC-003).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -40,10 +41,13 @@ class MetadataValuesListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param MetadataValueMapper $metadataMapper Metadata value mapper.
+     * @param LoggerInterface     $logger         PSR-3 logger for
+     *                                            log-and-continue failure
+     *                                            handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly MetadataValueMapper $metadataMapper,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -63,15 +67,18 @@ class MetadataValuesListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-metadata-fields): DELETE FROM
-            // oc_mydash_metadata_values WHERE dashboardUuid = ?.
-            // Stub registered for cascade scaffolding — live cleanup
-            // owned by the metadata-fields subsystem.
+            $deleted = $this->metadataMapper->deleteByDashboard(
+                dashboardUuid: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash MetadataValuesListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash MetadataValuesListener: deleted %d metadata rows for dashboard %s',
+                    $deleted,
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -79,7 +86,7 @@ class MetadataValuesListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash MetadataValuesListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

@@ -27,11 +27,14 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Service;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IDBConnection;
 
 /**
@@ -85,20 +88,26 @@ class DashboardTreeService
     /**
      * Constructor.
      *
-     * @param DashboardMapper       $dashboardMapper The dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper The placement mapper
-     *                                               (used by the cascade
-     *                                               walker — REQ-DASH-005
-     *                                               cascade is reused).
-     * @param IDBConnection         $db              DB connection used by
-     *                                               the cascade-delete
-     *                                               transaction
-     *                                               (REQ-DASH-030).
+     * @param DashboardMapper       $dashboardMapper  The dashboard mapper.
+     * @param WidgetPlacementMapper $placementMapper  The placement mapper
+     *                                                (used by the cascade
+     *                                                walker — REQ-DASH-005
+     *                                                cascade is reused).
+     * @param IDBConnection         $db               DB connection used by
+     *                                                the cascade-delete
+     *                                                transaction
+     *                                                (REQ-DASH-030).
+     * @param IEventDispatcher|null $eventDispatcher  Event dispatcher for
+     *                                                DashboardDeletedEvent.
+     *                                                Nullable for backwards-
+     *                                                compat with existing
+     *                                                test doubles.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
         private readonly WidgetPlacementMapper $placementMapper,
         private readonly IDBConnection $db,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -483,6 +492,8 @@ class DashboardTreeService
                 );
             }
 
+            $deletedAt = new DateTimeImmutable();
+
             // Delete leaves first (descendants reverse order) so that the
             // adjacency-list invariants stay consistent during the walk.
             foreach (array_reverse($descendants) as $child) {
@@ -495,6 +506,19 @@ class DashboardTreeService
 
                 $this->dashboardMapper->delete(entity: $child);
                 $deleted++;
+
+                // SB1 fix: dispatch cascade event for child (REQ-CSC-001).
+                $childUuid = (string) $child->getUuid();
+                if ($this->eventDispatcher !== null && $childUuid !== '') {
+                    $this->eventDispatcher->dispatchTyped(
+                        new DashboardDeletedEvent(
+                            dashboardUuid: $childUuid,
+                            ownerUserId:   (string) ($child->getUserId() ?? $dashboard->getUserId() ?? ''),
+                            type:          (string) ($child->getType() ?? $dashboard->getType() ?? Dashboard::TYPE_USER),
+                            deletedAt:     $deletedAt
+                        )
+                    );
+                }
             }
 
             $rootId = $dashboard->getId();
@@ -506,6 +530,19 @@ class DashboardTreeService
 
             $this->dashboardMapper->delete(entity: $dashboard);
             $deleted++;
+
+            // SB1 fix: dispatch cascade event for root (REQ-CSC-001).
+            $rootUuidForEvent = (string) $dashboard->getUuid();
+            if ($this->eventDispatcher !== null && $rootUuidForEvent !== '') {
+                $this->eventDispatcher->dispatchTyped(
+                    new DashboardDeletedEvent(
+                        dashboardUuid: $rootUuidForEvent,
+                        ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
+                        type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                        deletedAt:     $deletedAt
+                    )
+                );
+            }
 
             $this->db->commit();
         } catch (\Throwable $t) {

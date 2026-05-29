@@ -37,10 +37,12 @@ use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCA\MyDash\Service\DashboardVersionService;
 use OCP\ICache;
 use OCP\ICacheFactory;
+use OCP\IDBConnection;
 use OCP\IGroupManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Unit tests for the dashboard version service.
@@ -427,6 +429,112 @@ class DashboardVersionServiceTest extends TestCase
             )
         );
     }//end testDeleteVersionsForDashboardDelegates()
+
+    // =========================================================================
+    // WF1: restoreVersion transaction envelope (wave-12 regression tests)
+    // =========================================================================
+
+    /**
+     * WF1 regression: restoreVersion wraps DB operations in a transaction
+     * — beginTransaction and commit are both called when $db is provided.
+     *
+     * @return void
+     */
+    public function testRestoreVersionWrapsInTransaction(): void
+    {
+        $dashboard = $this->makeDashboard();
+        $db        = $this->createMock(IDBConnection::class);
+
+        $target = new DashboardVersion();
+        // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $target->setDashboardUuid('d-uuid-1');
+        $target->setVersionNumber(2);
+        $target->setSnapshotJson('{"old":true}');
+        // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+        $this->versionMapper->method('findByDashboardAndVersion')
+            ->willReturn($target);
+        $this->versionMapper->method('findMaxVersionNumber')->willReturn(5);
+        $this->versionMapper->method('insert')->willReturnArgument(0);
+        $this->versionMapper->method('pruneOldVersions');
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+
+        $db->expects($this->once())->method('beginTransaction');
+        $db->expects($this->once())->method('commit');
+        $db->expects($this->never())->method('rollBack');
+
+        $service = new DashboardVersionService(
+            versionMapper:   $this->versionMapper,
+            dashboardMapper: $this->dashboardMapper,
+            placementMapper: $this->placementMapper,
+            groupManager:    $this->groupManager,
+            cacheFactory:    $this->cacheFactory,
+            logger:          $this->createMock(LoggerInterface::class),
+            db:              $db,
+        );
+
+        $service->restoreVersion(
+            dashboard:     $dashboard,
+            versionNumber: 2,
+            restoringUser: 'alice'
+        );
+    }//end testRestoreVersionWrapsInTransaction()
+
+    /**
+     * WF1 regression: restoreVersion rolls back the transaction when a DB
+     * operation throws, so the dashboard is never left in a partial state.
+     *
+     * Uses dashboardMapper->update throwing to simulate a late-stage DB
+     * failure that survives captureSnapshot but aborts before commit.
+     *
+     * @return void
+     */
+    public function testRestoreVersionRollsBackOnFailure(): void
+    {
+        $dashboard = $this->makeDashboard();
+        $db        = $this->createMock(IDBConnection::class);
+
+        $target = new DashboardVersion();
+        // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $target->setDashboardUuid('d-uuid-1');
+        $target->setVersionNumber(2);
+        $target->setSnapshotJson('{}');
+        // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+        $this->versionMapper->method('findByDashboardAndVersion')
+            ->willReturn($target);
+        $this->versionMapper->method('findMaxVersionNumber')->willReturn(5);
+        $this->versionMapper->method('insert')->willReturnArgument(0);
+        $this->versionMapper->method('pruneOldVersions');
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+        $this->placementMapper->method('deleteByDashboardId');
+
+        // Simulate a DB error on the final update (late-stage failure).
+        $this->dashboardMapper->method('update')
+            ->willThrowException(new RuntimeException('DB connection lost'));
+
+        $db->expects($this->once())->method('beginTransaction');
+        $db->expects($this->never())->method('commit');
+        $db->expects($this->once())->method('rollBack');
+
+        $service = new DashboardVersionService(
+            versionMapper:   $this->versionMapper,
+            dashboardMapper: $this->dashboardMapper,
+            placementMapper: $this->placementMapper,
+            groupManager:    $this->groupManager,
+            cacheFactory:    $this->cacheFactory,
+            logger:          $this->createMock(LoggerInterface::class),
+            db:              $db,
+        );
+
+        $this->expectException(RuntimeException::class);
+
+        $service->restoreVersion(
+            dashboard:     $dashboard,
+            versionNumber: 2,
+            restoringUser: 'alice'
+        );
+    }//end testRestoreVersionRollsBackOnFailure()
 
     /**
      * REQ-VERS-009: groupfolder-backed dashboard returns the soft-fail

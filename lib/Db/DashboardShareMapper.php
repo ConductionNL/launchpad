@@ -455,4 +455,32 @@ class DashboardShareMapper extends QBMapper
 
         return $qb->executeStatement();
     }//end deleteByOwnerAndRecipient()
+
+    /**
+     * Delete all shares for a dashboard identified by UUID.
+     *
+     * Uses a subquery to translate the UUID to an integer dashboard_id so
+     * the caller (DashboardDeletedEvent) never has to resolve the ID itself.
+     * Triggered by cascade-event processing (REQ-CSC-003).
+     *
+     * @param string $dashboardUuid The dashboard UUID.
+     *
+     * @return int The number of rows deleted.
+     */
+    public function deleteByDashboardUuid(string $dashboardUuid): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete(delete: $this->getTableName())
+            ->where(
+                $qb->expr()->in(
+                    x: 'dashboard_id',
+                    y: $qb->createFunction(
+                        call: '(SELECT `id` FROM `*PREFIX*mydash_dashboards` WHERE `uuid` = '
+                            .$qb->createNamedParameter(value: $dashboardUuid).')'
+                    )
+                )
+            );
+
+        return $qb->executeStatement();
+    }//end deleteByDashboardUuid()
 }//end class

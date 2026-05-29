@@ -25,10 +25,13 @@ use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardLock;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Exception\LockConflictException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\DashboardLockService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -42,6 +45,10 @@ class DashboardLockApiControllerTest extends TestCase
     private $permissionService;
     /** @var DashboardMapper&MockObject */
     private $dashboardMapper;
+    /** @var ActionAuthService&MockObject */
+    private $actionAuth;
+    /** @var IUserSession&MockObject */
+    private $userSession;
 
     protected function setUp(): void
     {
@@ -49,15 +56,27 @@ class DashboardLockApiControllerTest extends TestCase
         $this->lockService       = $this->createMock(DashboardLockService::class);
         $this->permissionService = $this->createMock(PermissionService::class);
         $this->dashboardMapper   = $this->createMock(DashboardMapper::class);
+        $this->actionAuth        = $this->createMock(ActionAuthService::class);
+        $this->userSession       = $this->createMock(IUserSession::class);
     }
 
     private function makeController(?string $userId='user1'): DashboardLockApiController
     {
+        if ($userId !== null) {
+            $user = $this->createMock(IUser::class);
+            $user->method('getUID')->willReturn($userId);
+            $this->userSession->method('getUser')->willReturn($user);
+        } else {
+            $this->userSession->method('getUser')->willReturn(null);
+        }
+
         return new DashboardLockApiController(
             request: $this->request,
             lockService: $this->lockService,
             permissionService: $this->permissionService,
             dashboardMapper: $this->dashboardMapper,
+            actionAuth: $this->actionAuth,
+            userSession: $this->userSession,
             userId: $userId,
         );
     }

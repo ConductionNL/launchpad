@@ -23,12 +23,15 @@ declare(strict_types=1);
 namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\ActionAuthService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -67,18 +70,22 @@ class ManifestController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest           $request   The HTTP request.
-     * @param ContainerInterface $container The Nextcloud DI container; used to
-     *                                      lazy-load ObjectService so that mydash
-     *                                      degrades gracefully when OpenRegister
-     *                                      is not yet active.
-     * @param LoggerInterface    $logger    PSR logger.
-     * @param string|null        $userId    The authenticated user ID, injected
-     *                                      by the DI container.
+     * @param IRequest           $request     The HTTP request.
+     * @param ContainerInterface $container   The Nextcloud DI container; used to
+     *                                        lazy-load ObjectService so that mydash
+     *                                        degrades gracefully when OpenRegister
+     *                                        is not yet active.
+     * @param ActionAuthService  $actionAuth  ADR-023 action authorization.
+     * @param IUserSession       $userSession User session (IUser resolution).
+     * @param LoggerInterface    $logger      PSR logger.
+     * @param string|null        $userId      The authenticated user ID, injected
+     *                                        by the DI container.
      */
     public function __construct(
         IRequest $request,
         private readonly ContainerInterface $container,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -111,6 +118,17 @@ class ManifestController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'manifest.index');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         // Retrieve ObjectService lazily — OpenRegister may not be enabled on
@@ -169,7 +187,7 @@ class ManifestController extends Controller
                         'schema'   => self::SCHEMA,
                         'owner'    => $userId,
                     ],
-                    'limit' => 500,
+                    'limit'   => 500,
                 ]
             );
 
@@ -187,7 +205,7 @@ class ManifestController extends Controller
                     }
                 }
             }
-        } catch (\RuntimeException|\InvalidArgumentException $e) {
+        } catch (\RuntimeException | \InvalidArgumentException $e) {
             // Narrow catch: only handle recoverable OR API errors. Let
             // unexpected errors propagate so they are visible in the logs.
             $this->logger->error(

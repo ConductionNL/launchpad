@@ -31,12 +31,14 @@ namespace OCA\MyDash\Controller;
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Exception\ForbiddenException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -56,11 +58,14 @@ class TemplateController extends Controller
      * @param IUserSession         $userSession     The current user
      *                                              session (required for
      *                                              the owner check).
+     * @param ActionAuthService    $actionAuth      ADR-023 action
+     *                                              authorization.
      */
     public function __construct(
         IRequest $request,
         private readonly AdminTemplateService $templateService,
         private readonly IUserSession $userSession,
+        private readonly ActionAuthService $actionAuth,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -92,8 +97,15 @@ class TemplateController extends Controller
         ?string $category=null,
         string $sort='name'
     ): JSONResponse {
-        if ($this->userSession->getUser() === null) {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'template.gallery');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $templates = $this->templateService->getGallery(

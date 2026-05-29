@@ -24,14 +24,17 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use DateTimeImmutable;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\DashboardShare;
 use OCA\MyDash\Db\DashboardShareMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Service\DashboardShareService;
 use OCA\MyDash\Service\RoleService;
 use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -69,6 +72,11 @@ class UserDeletedListener implements IEventListener
      *                                               `\OC::$server->getLogger()`).
      * @param RoleService           $roleService     Role-assignment cascade
      *                                               (REQ-ROLE-010).
+     * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
+     *                                               DashboardDeletedEvent
+     *                                               (SB1 fix, REQ-CSC-001).
+     *                                               Nullable for backwards-
+     *                                               compat.
      */
     public function __construct(
         private readonly DashboardShareMapper $shareMapper,
@@ -80,6 +88,7 @@ class UserDeletedListener implements IEventListener
         private readonly IDBConnection $db,
         private readonly LoggerInterface $logger,
         private readonly RoleService $roleService,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -182,6 +191,20 @@ class UserDeletedListener implements IEventListener
                 $this->dashboardMapper->delete(entity: $dashboard);
 
                 $this->db->commit();
+
+                // SB1 fix: dispatch cascade event outside the transaction
+                // so listeners see a committed row (REQ-CSC-001).
+                $deletedUuid = (string) $dashboard->getUuid();
+                if ($this->eventDispatcher !== null && $deletedUuid !== '') {
+                    $this->eventDispatcher->dispatchTyped(
+                        new DashboardDeletedEvent(
+                            dashboardUuid: $deletedUuid,
+                            ownerUserId:   $deletedUserId,
+                            type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                            deletedAt:     new DateTimeImmutable()
+                        )
+                    );
+                }
             }//end if
         } catch (Throwable $t) {
             $this->db->rollBack();

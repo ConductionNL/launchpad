@@ -46,7 +46,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.0</version>
+	<version>1.0.5-unstable.4</version>
 	<licence>agpl</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>MyDash</namespace>
@@ -88,6 +88,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		</install>
 		<post-migration>
 			<step>OCA\MyDash\Repair\InitializeActions</step>
+			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
+			<step>OCA\MyDash\Repair\PurgeOrphanedCascadeData</step>
 		</post-migration>
 	</repair-steps>
 

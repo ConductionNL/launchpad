@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use OCA\MyDash\Db\DashboardLockMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -31,7 +32,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Deletes lock rows for the deleted dashboard.
+ * Deletes lock rows for the deleted dashboard. C4 fix (REQ-CSC-003).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -40,10 +41,13 @@ class LocksListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param DashboardLockMapper $lockMapper Lock row mapper.
+     * @param LoggerInterface     $logger     PSR-3 logger for
+     *                                        log-and-continue failure
+     *                                        handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly DashboardLockMapper $lockMapper,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -63,15 +67,18 @@ class LocksListener implements IEventListener
             return;
         }
 
+        $uuid = $event->getDashboardUuid();
+
         try {
-            // TODO(dashboard-locking): DELETE FROM
-            // oc_mydash_dashboard_locks WHERE dashboardUuid = ?.
-            // Stub registered for cascade scaffolding — live cleanup
-            // owned by the locking subsystem.
+            $deleted = $this->lockMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash LocksListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash LocksListener: deleted %d lock rows for dashboard %s',
+                    $deleted,
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -79,7 +86,7 @@ class LocksListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash LocksListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

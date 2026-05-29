@@ -28,6 +28,7 @@ namespace Unit\Controller;
 use OCA\MyDash\Controller\TemplateController;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Exception\ForbiddenException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -47,14 +48,18 @@ class TemplateControllerTest extends TestCase
     /** @var IUserSession&MockObject */
     private $userSession;
 
+    /** @var ActionAuthService&MockObject */
+    private $actionAuth;
+
     /**
      * @return void
      */
     protected function setUp(): void
     {
-        $this->request     = $this->createMock(IRequest::class);
-        $this->service     = $this->createMock(AdminTemplateService::class);
+        $this->request    = $this->createMock(IRequest::class);
+        $this->service    = $this->createMock(AdminTemplateService::class);
         $this->userSession = $this->createMock(IUserSession::class);
+        $this->actionAuth  = $this->createMock(ActionAuthService::class);
     }//end setUp()
 
     /**
@@ -78,6 +83,7 @@ class TemplateControllerTest extends TestCase
             request: $this->request,
             templateService: $this->service,
             userSession: $this->userSession,
+            actionAuth: $this->actionAuth,
         );
     }//end buildController()
 

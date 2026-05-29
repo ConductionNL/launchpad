@@ -23,6 +23,7 @@ namespace Unit\Controller;
 use InvalidArgumentException;
 use OCA\MyDash\Controller\AdminOrgNavigationController;
 use OCA\MyDash\Db\AdminSettingMapper;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\OrgNavigationService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -50,6 +51,9 @@ class AdminOrgNavigationControllerTest extends TestCase
     /** @var IUserSession&MockObject */
     private $userSession;
 
+    /** @var ActionAuthService&MockObject */
+    private $actionAuth;
+
     private AdminOrgNavigationController $controller;
 
 
@@ -60,13 +64,15 @@ class AdminOrgNavigationControllerTest extends TestCase
         $this->settings     = $this->createMock(AdminSettingMapper::class);
         $this->groupManager = $this->createMock(IGroupManager::class);
         $this->userSession  = $this->createMock(IUserSession::class);
+        $this->actionAuth   = $this->createMock(ActionAuthService::class);
 
         $this->controller = new AdminOrgNavigationController(
             request: $this->request,
             service: $this->service,
             settings: $this->settings,
-            groupManager: $this->groupManager,
             userSession: $this->userSession,
+            groupManager: $this->groupManager,
+            actionAuth: $this->actionAuth,
         );
 
     }//end setUp()

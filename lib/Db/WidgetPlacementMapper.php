@@ -186,6 +186,35 @@ class WidgetPlacementMapper extends QBMapper
     }//end deleteByDashboardId()
 
     /**
+     * Delete all placements for a dashboard identified by UUID.
+     *
+     * Used by the cascade-event listener path where only the UUID is
+     * available (the int ID is not carried by DashboardDeletedEvent).
+     * Executes a sub-select to translate UUID → id so no additional
+     * mapper is required in the listener. C4 fix (REQ-CSC-003).
+     *
+     * @param string $dashboardUuid The dashboard UUID.
+     *
+     * @return int The number of rows deleted.
+     */
+    public function deleteByDashboardUuid(string $dashboardUuid): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->delete(delete: $this->getTableName())
+            ->where(
+                $qb->expr()->in(
+                    x: 'dashboard_id',
+                    y: $qb->createFunction(
+                        call: '(SELECT id FROM `*PREFIX*mydash_dashboards` WHERE `uuid` = '
+                            .$qb->createNamedParameter(value: $dashboardUuid).')'
+                    )
+                )
+            );
+
+        return $qb->executeStatement();
+    }//end deleteByDashboardUuid()
+
+    /**
      * Update grid positions for multiple placements.
      *
      * @param array $updates Array of position updates.

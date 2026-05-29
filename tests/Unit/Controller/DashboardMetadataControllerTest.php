@@ -25,11 +25,14 @@ use OCA\MyDash\Controller\DashboardMetadataController;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Exception\InvalidMetadataFieldException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\MetadataService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -43,6 +46,10 @@ class DashboardMetadataControllerTest extends TestCase
     private PermissionService $permissionService;
     /** @var IRequest&MockObject */
     private IRequest $request;
+    /** @var ActionAuthService&MockObject */
+    private ActionAuthService $actionAuth;
+    /** @var IUserSession&MockObject */
+    private IUserSession $userSession;
 
     protected function setUp(): void
     {
@@ -50,17 +57,29 @@ class DashboardMetadataControllerTest extends TestCase
         $this->dashboardMapper   = $this->createMock(DashboardMapper::class);
         $this->permissionService = $this->createMock(PermissionService::class);
         $this->request           = $this->createMock(IRequest::class);
+        $this->actionAuth        = $this->createMock(ActionAuthService::class);
+        $this->userSession       = $this->createMock(IUserSession::class);
 
         // Default: permission checks allow access (overridden per test where needed).
     }
 
     private function controller(?string $userId): DashboardMetadataController
     {
+        if ($userId !== null) {
+            $user = $this->createMock(IUser::class);
+            $user->method('getUID')->willReturn($userId);
+            $this->userSession->method('getUser')->willReturn($user);
+        } else {
+            $this->userSession->method('getUser')->willReturn(null);
+        }
+
         return new DashboardMetadataController(
             request: $this->request,
             metadataService: $this->metadataService,
             dashboardMapper: $this->dashboardMapper,
             permissionService: $this->permissionService,
+            actionAuth: $this->actionAuth,
+            userSession: $this->userSession,
             userId: $userId,
         );
     }

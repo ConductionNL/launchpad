@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\MyDash\Service;
 
 use DateTime;
+use DateTimeImmutable;
 use Exception;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\AdminSetting;
@@ -33,9 +34,11 @@ use OCA\MyDash\Db\DashboardLockMapper;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -229,6 +232,18 @@ class DashboardService
      *                                                                the original
      *                                                                no- op
      *                                                                behaviour.
+     * @param IEventDispatcher|null             $eventDispatcher      Event
+     *                                                                dispatcher
+     *                                                                for
+     *                                                                DashboardDeletedEvent.
+     *                                                                Nullable
+     *                                                                for
+     *                                                                backwards-
+     *                                                                compat
+     *                                                                with
+     *                                                                existing
+     *                                                                test
+     *                                                                doubles.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -248,6 +263,7 @@ class DashboardService
         private readonly ?DashboardLockMapper $lockMapper=null,
         private readonly ?FooterService $footerService=null,
         private readonly ?RoleFeaturePermissionService $roleFeaturePerm=null,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -624,6 +640,21 @@ class DashboardService
         }
 
         $this->dashboardMapper->delete(entity: $dashboard);
+
+        // SB1 fix: dispatch DashboardDeletedEvent so cascade listeners
+        // (comments, reactions, versions, metadata_values, public_shares,
+        // view_analytics) can clean up their child rows (REQ-CSC-001).
+        if ($this->eventDispatcher !== null && $uuid !== '') {
+            $ownerId = $dashboard->getUserId();
+            $this->eventDispatcher->dispatchTyped(
+                new DashboardDeletedEvent(
+                    dashboardUuid: $uuid,
+                    ownerUserId:   ($ownerId !== null && $ownerId !== '') ? $ownerId : $userId,
+                    type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                    deletedAt:     new DateTimeImmutable()
+                )
+            );
+        }
     }//end deleteDashboard()
 
     /**
@@ -876,6 +907,20 @@ class DashboardService
             dashboardId: $dashboard->getId()
         );
         $this->dashboardMapper->delete(entity: $dashboard);
+
+        // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+        // (REQ-CSC-001). Actor is the admin who performed the delete.
+        $deletedUuid = (string) $dashboard->getUuid();
+        if ($this->eventDispatcher !== null && $deletedUuid !== '') {
+            $this->eventDispatcher->dispatchTyped(
+                new DashboardDeletedEvent(
+                    dashboardUuid: $deletedUuid,
+                    ownerUserId:   $actorUserId,
+                    type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_GROUP_SHARED),
+                    deletedAt:     new DateTimeImmutable()
+                )
+            );
+        }
     }//end deleteGroupShared()
 
     /**

@@ -175,7 +175,7 @@ class DashboardLockApiController extends Controller
         }
 
         try {
-            $this->actionAuth->requireAction($user, 'dashboard-lock.acquire');
+            $this->actionAuth->requireAction($user, 'dashboard-lock.heartbeat');
         } catch (OCSForbiddenException) {
             return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
@@ -233,7 +233,7 @@ class DashboardLockApiController extends Controller
         }
 
         try {
-            $this->actionAuth->requireAction($user, 'dashboard-lock.acquire');
+            $this->actionAuth->requireAction($user, 'dashboard-lock.release');
         } catch (OCSForbiddenException) {
             return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
@@ -355,7 +355,7 @@ class DashboardLockApiController extends Controller
         }
 
         try {
-            $this->actionAuth->requireAction($user, 'dashboard-lock.acquire');
+            $this->actionAuth->requireAction($user, 'dashboard-lock.force-release');
         } catch (OCSForbiddenException) {
             return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }

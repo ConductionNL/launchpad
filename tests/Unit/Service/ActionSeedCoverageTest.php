@@ -4,12 +4,14 @@
  * ActionSeedCoverageTest
  *
  * ADR-023 gate: every action key declared in `lib/actions.seed.json`
- * must have at least one `requireAction(…, 'key')` call wired in a
+ * must have at least one `requireAction(..., 'key')` call wired in a
  * PHP controller file. This prevents seed entries from accumulating
  * without a corresponding enforcement point.
  *
- * Wave-3 C2 — migrated analytics.* and metadata-admin.* to
+ * Wave-3 C2 - migrated analytics.* and metadata-admin.* to
  * requireAction; deleted seed-only resource.* phantoms.
+ * Wave-12 WF - added reverse-direction check: every requireAction() key
+ * used in controllers must exist in actions.seed.json.
  *
  * @category  Test
  * @package   OCA\MyDash\Tests\Unit\Service
@@ -28,11 +30,15 @@ namespace Unit\Service;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Asserts that every key in actions.seed.json is wired to at least one
- * requireAction() call in the controller layer.
+ * Asserts bidirectional coverage between actions.seed.json and the
+ * requireAction() calls in the controller layer:
+ *   1. Every seed key must have a requireAction() call (forward check).
+ *   2. Every requireAction() key in controllers must exist in the seed
+ *      (reverse check - prevents a new endpoint from going ungated).
  */
 class ActionSeedCoverageTest extends TestCase
 {
+
     /**
      * Path to the seed file relative to the project root.
      */
@@ -44,12 +50,40 @@ class ActionSeedCoverageTest extends TestCase
     private const CONTROLLER_DIR = __DIR__.'/../../../lib/Controller';
 
     /**
-     * Every seed key must appear in at least one requireAction() call
-     * inside the Controller directory.
+     * Build the combined PHP source from all controller files.
      *
-     * @return void
+     * @return string All controller PHP source concatenated.
      */
-    public function testAllSeedKeysHaveRequireActionWiring(): void
+    private function buildCombinedControllerSource(): string
+    {
+        $controllerDir = realpath(self::CONTROLLER_DIR);
+        $this->assertNotFalse($controllerDir, 'Controller directory not found');
+
+        $phpFiles = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($controllerDir)
+        );
+
+        $combined = '';
+        foreach ($phpFiles as $file) {
+            if ($file->isFile() === false || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $content = file_get_contents($file->getPathname());
+            if ($content !== false) {
+                $combined .= $content;
+            }
+        }
+
+        return $combined;
+    }//end buildCombinedControllerSource()
+
+    /**
+     * Load and parse actions.seed.json, returning the action keys.
+     *
+     * @return string[] The list of seed action keys.
+     */
+    private function loadSeedKeys(): array
     {
         $seedPath = realpath(self::SEED_FILE);
         $this->assertNotFalse($seedPath, 'actions.seed.json not found');
@@ -60,32 +94,26 @@ class ActionSeedCoverageTest extends TestCase
         $decoded = json_decode($json, associative: true, flags: JSON_THROW_ON_ERROR);
         $this->assertIsArray($decoded['actions'] ?? null, 'actions.seed.json missing "actions" key');
 
-        $seedKeys = array_keys($decoded['actions']);
-        $this->assertNotEmpty($seedKeys, 'Seed has no actions — check seed file');
+        $keys = array_keys($decoded['actions']);
+        $this->assertNotEmpty($keys, 'Seed has no actions - check seed file');
 
-        // Collect all PHP source text from the Controller directory.
-        $controllerDir = realpath(self::CONTROLLER_DIR);
-        $this->assertNotFalse($controllerDir, 'Controller directory not found');
+        return $keys;
+    }//end loadSeedKeys()
 
-        $phpFiles = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($controllerDir)
-        );
-
-        $combinedSource = '';
-        foreach ($phpFiles as $file) {
-            if ($file->isFile() === false || $file->getExtension() !== 'php') {
-                continue;
-            }
-
-            $content = file_get_contents($file->getPathname());
-            if ($content !== false) {
-                $combinedSource .= $content;
-            }
-        }
+    /**
+     * FORWARD: every seed key must appear in at least one requireAction()
+     * call inside the Controller directory.
+     *
+     * @return void
+     */
+    public function testAllSeedKeysHaveRequireActionWiring(): void
+    {
+        $seedKeys       = $this->loadSeedKeys();
+        $combinedSource = $this->buildCombinedControllerSource();
 
         $missing = [];
         foreach ($seedKeys as $key) {
-            // Match requireAction($user, 'key') — single or double quotes.
+            // Match requireAction($user, 'key') - single or double quotes.
             $pattern = '/requireAction\s*\([^,]+,\s*[\'"]' . preg_quote($key, '/') . '[\'"]\s*\)/';
             if (preg_match($pattern, $combinedSource) !== 1) {
                 $missing[] = $key;
@@ -101,4 +129,41 @@ class ActionSeedCoverageTest extends TestCase
             )
         );
     }//end testAllSeedKeysHaveRequireActionWiring()
+
+    /**
+     * REVERSE: every requireAction() key used in controllers must exist
+     * in actions.seed.json. Prevents a new ungated endpoint from slipping
+     * past the ADR-023 gate silently (wave-12 WF fix).
+     *
+     * @return void
+     */
+    public function testAllRequireActionKeysExistInSeed(): void
+    {
+        $seedKeys       = array_flip($this->loadSeedKeys());
+        $combinedSource = $this->buildCombinedControllerSource();
+
+        // Extract every key string passed to requireAction($user, '<key>').
+        preg_match_all(
+            '/requireAction\s*\([^,]+,\s*[\'"]([^\'"]+)[\'"]\s*\)/',
+            $combinedSource,
+            $matches
+        );
+
+        $usedKeys = array_unique($matches[1] ?? []);
+        $orphaned = [];
+        foreach ($usedKeys as $usedKey) {
+            if (array_key_exists($usedKey, $seedKeys) === false) {
+                $orphaned[] = $usedKey;
+            }
+        }
+
+        $this->assertEmpty(
+            $orphaned,
+            sprintf(
+                "The following requireAction() keys used in controllers are missing from actions.seed.json:\n  - %s\n\n"
+                . "Add them to actions.seed.json with appropriate default roles, or fix the action key.",
+                implode("\n  - ", $orphaned)
+            )
+        );
+    }//end testAllRequireActionKeysExistInSeed()
 }//end class

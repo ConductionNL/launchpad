@@ -48,6 +48,7 @@ use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
 use OCP\ICacheFactory;
+use OCP\IDBConnection;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -132,6 +133,14 @@ class DashboardVersionService
      *                                                debounce backing
      *                                                store.
      * @param LoggerInterface        $logger          PSR logger.
+     * @param IDBConnection|null     $db              DB connection used to
+     *                                                wrap restoreVersion
+     *                                                in a transaction
+     *                                                (WF1 fix).
+     *                                                Nullable for
+     *                                                backwards-compat
+     *                                                with existing test
+     *                                                doubles.
      */
     public function __construct(
         private readonly DashboardVersionMapper $versionMapper,
@@ -140,6 +149,7 @@ class DashboardVersionService
         private readonly IGroupManager $groupManager,
         private readonly ICacheFactory $cacheFactory,
         private readonly LoggerInterface $logger,
+        private readonly ?IDBConnection $db=null,
     ) {
     }//end __construct()
 
@@ -446,42 +456,61 @@ class DashboardVersionService
             ];
         }
 
-        // Capture pre-restore state as a new snapshot so the restore
-        // itself is reversible (REQ-VERS-005 design D3).
-        $this->captureSnapshot(
-            dashboard: $dashboard,
-            snapshotJson: $this->buildDefaultSnapshot(dashboard: $dashboard),
-            createdBy: $restoringUser,
-            note: 'pre-restore',
-            explicit: true
-        );
-
-        // C3 fix: decode the target snapshot and apply it to the DB so the
-        // restore is a real state change, not a no-op.
-        $snapshotJson = (string) $target->getSnapshotJson();
-        $payload      = json_decode($snapshotJson, associative: true);
-        if (is_array($payload) === true) {
-            $this->applySnapshotPayload(
-                dashboard: $dashboard,
-                payload: $payload
-            );
+        // WF1 fix: wrap the wipe-and-reinsert in a DB transaction so a
+        // mid-loop insert failure never leaves the dashboard with zero or
+        // partial placements. When no db connection is wired (test doubles)
+        // the operations run without an explicit transaction envelope,
+        // preserving backwards-compat.
+        if ($this->db !== null) {
+            $this->db->beginTransaction();
         }
 
-        // Stamp the dashboard's updatedAt so callers that listen on
-        // metadata see the restore (REQ-VERS-005 scenario "restore
-        // updates the modified timestamp").
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setUpdatedAt(
-            (new DateTime())->format(format: 'Y-m-d H:i:s')
-        );
+        $snapshotJson = '';
         try {
+            // Capture pre-restore state as a new snapshot so the restore
+            // itself is reversible (REQ-VERS-005 design D3).
+            $this->captureSnapshot(
+                dashboard: $dashboard,
+                snapshotJson: $this->buildDefaultSnapshot(dashboard: $dashboard),
+                createdBy: $restoringUser,
+                note: 'pre-restore',
+                explicit: true
+            );
+
+            // C3 fix: decode the target snapshot and apply it to the DB so
+            // the restore is a real state change, not a no-op.
+            $snapshotJson = (string) $target->getSnapshotJson();
+            $payload      = json_decode($snapshotJson, associative: true);
+            if (is_array($payload) === true) {
+                $this->applySnapshotPayload(
+                    dashboard: $dashboard,
+                    payload: $payload
+                );
+            }
+
+            // Stamp the dashboard's updatedAt so callers that listen on
+            // metadata see the restore (REQ-VERS-005 scenario "restore
+            // updates the modified timestamp").
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $dashboard->setUpdatedAt(
+                (new DateTime())->format(format: 'Y-m-d H:i:s')
+            );
             $this->dashboardMapper->update(entity: $dashboard);
+
+            if ($this->db !== null) {
+                $this->db->commit();
+            }
         } catch (Throwable $t) {
-            $this->logger->warning(
-                message: 'mydash: failed to stamp updatedAt during restore',
+            if ($this->db !== null) {
+                $this->db->rollBack();
+            }
+
+            $this->logger->error(
+                message: 'mydash: restoreVersion failed, transaction rolled back',
                 context: ['exception' => $t]
             );
-        }
+            throw $t;
+        }//end try
 
         return [
             'snapshot' => $snapshotJson,

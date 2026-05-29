@@ -497,6 +497,56 @@ class CommentServiceTest extends TestCase
         $this->assertSame([['userId' => 'alice', 'displayName' => 'Alice User']], $resolved);
     }
 
+    public function testResolveMentionDisplayNamesNeverNotifies(): void
+    {
+        $alice = $this->createMock(IUser::class);
+        $alice->method('getUID')->willReturn('alice');
+        $alice->method('getDisplayName')->willReturn('Alice User');
+
+        $this->userManager->method('get')->willReturn($alice);
+
+        // Pure resolver must NEVER touch the notification manager.
+        $this->notificationManager->expects($this->never())->method('createNotification');
+        $this->notificationManager->expects($this->never())->method('notify');
+
+        $resolved = $this->service->resolveMentionDisplayNames(
+            message: '@alice some message'
+        );
+
+        $this->assertSame([['userId' => 'alice', 'displayName' => 'Alice User']], $resolved);
+    }
+
+    public function testSerialisedCommentMentionsDoNotTriggerNotifications(): void
+    {
+        // Verify the C2 fix: serialiseComment uses resolveMentionDisplayNames,
+        // so loading comments must never dispatch notifications.
+        $alice = $this->createMock(IUser::class);
+        $alice->method('getUID')->willReturn('alice');
+        $alice->method('getDisplayName')->willReturn('Alice User');
+
+        $comment = $this->makeComment(
+            id: 42,
+            parentId: 0,
+            author: 'bob',
+            message: '@alice hey',
+            createdAt: new DateTime('2026-01-01T10:00:00+00:00')
+        );
+
+        $this->commentsManager->method('getForObject')->willReturn([$comment]);
+        $this->settingMapper->method('findByKey')
+            ->willThrowException(new DoesNotExistException(msg: 'missing'));
+        $this->userManager->method('get')->willReturn($alice);
+
+        // GET path must never call notify.
+        $this->notificationManager->expects($this->never())->method('createNotification');
+        $this->notificationManager->expects($this->never())->method('notify');
+
+        $thread = $this->service->getCommentsForDashboard(dashboardUuid: 'dash-001');
+
+        $this->assertCount(1, $thread);
+        $this->assertSame('alice', $thread[0]['mentions'][0]['userId']);
+    }
+
     // ==================================================================
     // Cascade entry point (D6)
     // ==================================================================

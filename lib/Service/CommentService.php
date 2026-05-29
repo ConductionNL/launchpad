@@ -319,7 +319,7 @@ class CommentService
 
         $this->commentsManager->save(comment: $comment);
 
-        $this->parseAndResolveMentions(
+        $this->dispatchMentionNotifications(
             message: $trimmed,
             dashboardUuid: $dashboardUuid,
             authorUserId: $userId
@@ -380,7 +380,7 @@ class CommentService
 
         $this->commentsManager->save(comment: $comment);
 
-        $this->parseAndResolveMentions(
+        $this->dispatchMentionNotifications(
             message: $trimmed,
             dashboardUuid: (string) $comment->getObjectId(),
             authorUserId: $currentUserId
@@ -457,31 +457,24 @@ class CommentService
     }//end deleteAllForDashboard()
 
     /**
-     * Parse `@username` mentions from a message, resolve them to
-     * Nextcloud user IDs, and dispatch mention notifications
-     * (REQ-CMNT-006).
+     * Parse `@username` mentions from a message and resolve them to
+     * Nextcloud user IDs and display names (REQ-CMNT-006).
      *
-     * Returns the resolved mention list — `[{userId, displayName}, ...]`.
-     * Unresolved mentions are silently dropped (no error, no
-     * notification) so a typo in `@nonexistent_user` never breaks the
-     * comment write path.
+     * **Pure / side-effect-free.** No notifications are dispatched here.
+     * This method is safe to call from read paths (e.g. `serialiseComment`)
+     * without causing notification spam on every GET.
      *
-     * @param string $message       The message text to parse.
-     * @param string $dashboardUuid The dashboard UUID for the deep-link
-     *                              attached to the notification.
-     * @param string $authorUserId  The author's user ID — used as the
-     *                              notification's "actor" so the
-     *                              recipient knows who mentioned them.
+     * Unresolved mentions are silently dropped (no error) so a typo in
+     * `@nonexistent_user` never breaks the comment read path.
+     *
+     * @param string $message The message text to parse.
      *
      * @return array<int, array{userId: string, displayName: string}>
      *
      * @spec openspec/specs/dashboard-comments/spec.md
      */
-    public function parseAndResolveMentions(
-        string $message,
-        string $dashboardUuid,
-        string $authorUserId
-    ): array {
+    public function resolveMentionDisplayNames(string $message): array
+    {
         $matches = [];
         $count   = preg_match_all(
             pattern: self::MENTION_REGEX,
@@ -489,11 +482,7 @@ class CommentService
             matches: $matches
         );
 
-        if ($count === false) {
-            return [];
-        }
-
-        if ($count < 1) {
+        if ($count === false || $count < 1) {
             return [];
         }
 
@@ -513,13 +502,43 @@ class CommentService
                 continue;
             }
 
-            $resolvedId  = (string) $user->getUID();
-            $displayName = (string) $user->getDisplayName();
-
             $resolved[] = [
-                'userId'      => $resolvedId,
-                'displayName' => $displayName,
+                'userId'      => (string) $user->getUID(),
+                'displayName' => (string) $user->getDisplayName(),
             ];
+        }//end foreach
+
+        return $resolved;
+    }//end resolveMentionDisplayNames()
+
+    /**
+     * Dispatch @mention notifications to all resolved, non-self mentions
+     * in a message (REQ-CMNT-006).
+     *
+     * **Must only be called from write paths** (`createComment`,
+     * `updateComment`). Never call from read paths — doing so would send
+     * a notification on every comment GET.
+     *
+     * @param string $message       The message text to parse.
+     * @param string $dashboardUuid The dashboard UUID for the deep-link
+     *                              attached to the notification.
+     * @param string $authorUserId  The author's user ID — used as the
+     *                              notification's "actor" so the
+     *                              recipient knows who mentioned them.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/dashboard-comments/spec.md
+     */
+    public function dispatchMentionNotifications(
+        string $message,
+        string $dashboardUuid,
+        string $authorUserId
+    ): void {
+        $resolved = $this->resolveMentionDisplayNames(message: $message);
+
+        foreach ($resolved as $mention) {
+            $resolvedId = $mention['userId'];
 
             // Skip self-mentions — no value in pinging yourself.
             if ($resolvedId === $authorUserId) {
@@ -532,8 +551,38 @@ class CommentService
                 dashboardUuid: $dashboardUuid
             );
         }//end foreach
+    }//end dispatchMentionNotifications()
 
-        return $resolved;
+    /**
+     * Parse `@username` mentions from a message, resolve them to
+     * Nextcloud user IDs, and dispatch mention notifications
+     * (REQ-CMNT-006).
+     *
+     * @deprecated Use {@see resolveMentionDisplayNames()} for read paths and
+     *             {@see dispatchMentionNotifications()} for write paths.
+     *             This wrapper exists only for backward compatibility with
+     *             external callers; internal code must not call it.
+     *
+     * @param string $message       The message text to parse.
+     * @param string $dashboardUuid The dashboard UUID.
+     * @param string $authorUserId  The author's user ID.
+     *
+     * @return array<int, array{userId: string, displayName: string}>
+     *
+     * @spec openspec/specs/dashboard-comments/spec.md
+     */
+    public function parseAndResolveMentions(
+        string $message,
+        string $dashboardUuid,
+        string $authorUserId
+    ): array {
+        $this->dispatchMentionNotifications(
+            message: $message,
+            dashboardUuid: $dashboardUuid,
+            authorUserId: $authorUserId
+        );
+
+        return $this->resolveMentionDisplayNames(message: $message);
     }//end parseAndResolveMentions()
 
     /**
@@ -572,10 +621,8 @@ class CommentService
             'createdAt' => $createdAt,
             'updatedAt' => $updatedAt,
             'wasEdited' => $wasEdited,
-            'mentions'  => $this->parseAndResolveMentions(
-                message: (string) $comment->getMessage(),
-                dashboardUuid: (string) $comment->getObjectId(),
-                authorUserId: (string) $comment->getActorId()
+            'mentions'  => $this->resolveMentionDisplayNames(
+                message: (string) $comment->getMessage()
             ),
         ];
     }//end serialiseComment()

@@ -28,13 +28,16 @@ use Exception;
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\DashboardMapper;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\DashboardTranslationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Controller for dashboard translation endpoints (REQ-DASH-038..044).
@@ -55,12 +58,18 @@ class DashboardTranslationApiController extends Controller
      *                                                        mutation).
      * @param DashboardTranslationService $translationService Translation
      *                                                        service.
+     * @param ActionAuthService           $actionAuth         ADR-023 action
+     *                                                        authorization.
+     * @param IUserSession                $userSession        User session
+     *                                                        (IUser resolution).
      * @param string|null                 $userId             The user ID.
      */
     public function __construct(
         IRequest $request,
         private readonly DashboardMapper $dashboardMapper,
         private readonly DashboardTranslationService $translationService,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
         private readonly ?string $userId,
     ) {
         parent::__construct(
@@ -85,6 +94,17 @@ class DashboardTranslationApiController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-translation.list');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $ownerCheck = $this->assertOwner(uuid: $uuid);
@@ -132,6 +152,17 @@ class DashboardTranslationApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-translation.create');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $ownerCheck = $this->assertOwner(uuid: $uuid);
@@ -217,6 +248,17 @@ class DashboardTranslationApiController extends Controller
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-translation.update');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $ownerCheck = $this->assertOwner(uuid: $uuid);
         if ($ownerCheck !== null) {
             return $ownerCheck;
@@ -268,6 +310,17 @@ class DashboardTranslationApiController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-translation.destroy');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $ownerCheck = $this->assertOwner(uuid: $uuid);
@@ -327,6 +380,17 @@ class DashboardTranslationApiController extends Controller
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-translation.set-primary');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $ownerCheck = $this->assertOwner(uuid: $uuid);
         if ($ownerCheck !== null) {
             return $ownerCheck;
@@ -379,6 +443,17 @@ class DashboardTranslationApiController extends Controller
     {
         if ($this->userId === null) {
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'dashboard-translation.resolved');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {

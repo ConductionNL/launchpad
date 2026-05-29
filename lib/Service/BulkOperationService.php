@@ -37,6 +37,7 @@ declare(strict_types=1);
 namespace OCA\MyDash\Service;
 
 use DateTime;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\MyDash\Activity\ActivityPublisher;
 use OCA\MyDash\Activity\Extension;
@@ -44,8 +45,10 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
@@ -123,6 +126,11 @@ class BulkOperationService
      *                                                 reading the
      *                                                 per-request cap.
      * @param LoggerInterface       $logger            Diagnostic logger.
+     * @param IEventDispatcher|null $eventDispatcher   Event dispatcher for
+     *                                                 DashboardDeletedEvent
+     *                                                 (SB1 fix, REQ-CSC-001).
+     *                                                 Nullable for backwards-
+     *                                                 compat.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -133,6 +141,7 @@ class BulkOperationService
         private readonly IGroupManager $groupManager,
         private readonly IAppConfig $appConfig,
         private readonly LoggerInterface $logger,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -223,6 +232,19 @@ class BulkOperationService
                     );
                     $this->dashboardMapper->delete(entity: $dashboard);
                     $deleted++;
+
+                    // SB1 fix: dispatch DashboardDeletedEvent for cascade
+                    // cleanup (REQ-CSC-001).
+                    if ($this->eventDispatcher !== null && $rowUuid !== '') {
+                        $this->eventDispatcher->dispatchTyped(
+                            new DashboardDeletedEvent(
+                                dashboardUuid: $rowUuid,
+                                ownerUserId:   (string) ($dashboard->getUserId() ?? $userId),
+                                type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                                deletedAt:     new DateTimeImmutable()
+                            )
+                        );
+                    }
                 }
             } catch (Throwable $t) {
                 $this->logger->error(

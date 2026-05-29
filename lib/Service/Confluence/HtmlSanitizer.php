@@ -275,11 +275,15 @@ class HtmlSanitizer
     }//end stripDisallowedAttributes()
 
     /**
-     * Detect attributes carrying `javascript:` (or similarly unsafe) URIs.
+     * Detect attributes carrying unsafe URIs (XSS vectors).
      *
-     * Only `href` and `src` are URL-bearing in the allow-list; for those
-     * the value MUST NOT begin with `javascript:` (case-insensitive,
-     * tolerant of leading whitespace).
+     * Only `href` and `src` are URL-bearing in the allow-list.  For those,
+     * the value is accepted only when it is:
+     *   - a relative path (no scheme), OR
+     *   - begins with `http://`, `https://`, or `mailto:`.
+     *
+     * Everything else — including `javascript:`, `data:`, `vbscript:`,
+     * `blob:`, and `file:` — is blocked (REQ-CFLI-012-SEC).
      *
      * @param string $name  The attribute name (lower-cased).
      * @param string $value The attribute value.
@@ -297,6 +301,19 @@ class HtmlSanitizer
             return false;
         }
 
-        return (stripos(haystack: $needle, needle: 'javascript:') === 0);
+        // Allow relative paths — they carry no scheme at all.
+        // preg_match is guaranteed non-false for a valid pattern.
+        if ((bool) preg_match(pattern: '/^(?!(?:[a-zA-Z][a-zA-Z0-9+\-.]*):)/u', subject: $needle)) {
+            return false;
+        }
+
+        // Allow only the safe explicit schemes.
+        if ((bool) preg_match(pattern: '/^(?:https?|mailto):/iu', subject: $needle)) {
+            return false;
+        }
+
+        // Everything else (javascript:, data:, vbscript:, blob:, file:, …)
+        // is rejected.
+        return true;
     }//end isUnsafeUrl()
 }//end class

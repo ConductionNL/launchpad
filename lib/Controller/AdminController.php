@@ -24,6 +24,7 @@ use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
 use OCA\MyDash\Exception\InvalidRoleAssignmentException;
 use OCA\MyDash\Exception\ResourceException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
@@ -40,6 +41,7 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -115,6 +117,7 @@ class AdminController extends Controller
      * @param SetupWizardService   $setupWizardService Setup-wizard
      *                                                 orchestrator
      *                                                 (REQ-WIZ-001..011).
+     * @param ActionAuthService    $actionAuth         ADR-023 action authorization.
      */
     public function __construct(
         IRequest $request,
@@ -128,6 +131,7 @@ class AdminController extends Controller
         private readonly FeedRefreshService $feedRefresh,
         private readonly FooterService $footerService,
         private readonly SetupWizardService $setupWizardService,
+        private readonly ActionAuthService $actionAuth,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -485,7 +489,6 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function export(
         string $scope='site',
@@ -550,7 +553,6 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function import(bool $preserveUuids=false): JSONResponse
     {
@@ -734,6 +736,12 @@ class AdminController extends Controller
             return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
         }
 
+        try {
+            $this->actionAuth->requireAction($user, 'admin.get-my-role');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $userId = (string) $user->getUID();
 
         return ResponseHelper::success(
@@ -805,7 +813,6 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function uploadTemplatePreviewImage(
         string $uuid,

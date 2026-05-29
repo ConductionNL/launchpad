@@ -34,14 +34,17 @@ declare(strict_types=1);
 namespace OCA\MyDash\Service;
 
 use DateTime;
+use DateTimeImmutable;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Exception\ShowcaseNotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IAppConfig;
 use OCP\IDBConnection;
 use OCP\Lock\ILockingProvider;
@@ -109,6 +112,11 @@ class DemoShowcasesService
      * @param ILockingProvider      $lockingProvider  Advisory lock provider
      *                                                (M8 — concurrency guard
      *                                                on installShowcase).
+     * @param IEventDispatcher|null $eventDispatcher  Event dispatcher for
+     *                                                DashboardDeletedEvent
+     *                                                (SB1 fix, REQ-CSC-001).
+     *                                                Nullable for backwards-
+     *                                                compat.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -118,6 +126,7 @@ class DemoShowcasesService
         private readonly IManager $dashboardManager,
         private readonly LoggerInterface $logger,
         private readonly ILockingProvider $lockingProvider,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -397,6 +406,20 @@ class DemoShowcasesService
             $dashId    = (int) $dashboard->getId();
             $this->placementMapper->deleteByDashboardId(dashboardId: $dashId);
             $this->dashboardMapper->delete(entity: $dashboard);
+
+            // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+            // (REQ-CSC-001).
+            $deletedUuid = (string) $dashboard->getUuid();
+            if ($this->eventDispatcher !== null && $deletedUuid !== '') {
+                $this->eventDispatcher->dispatchTyped(
+                    new DashboardDeletedEvent(
+                        dashboardUuid: $deletedUuid,
+                        ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
+                        type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_GROUP_SHARED),
+                        deletedAt:     new DateTimeImmutable()
+                    )
+                );
+            }
         } catch (DoesNotExistException) {
             // The dashboard was deleted out-of-band — clear the marker
             // and proceed.

@@ -29,12 +29,14 @@ namespace OCA\MyDash\Controller;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Exception\InvalidMetadataFieldException;
 use OCA\MyDash\Exception\MetadataFieldHasValuesException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\MetadataService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -45,22 +47,26 @@ use OCP\IUserSession;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Constructor wires
  *  the standard Nextcloud admin trio (group manager + session +
  *  request) plus the capability service.
+ *
+ * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
 class MetadataAdminController extends Controller
 {
     /**
      * Constructor.
      *
-     * @param IRequest        $request         The HTTP request.
-     * @param MetadataService $metadataService The metadata service facade.
-     * @param IGroupManager   $groupManager    Admin checker.
-     * @param IUserSession    $userSession     Current user session.
+     * @param IRequest          $request         The HTTP request.
+     * @param MetadataService   $metadataService The metadata service facade.
+     * @param IGroupManager     $groupManager    Admin checker.
+     * @param IUserSession      $userSession     Current user session.
+     * @param ActionAuthService $actionAuth      ADR-023 action authorization.
      */
     public function __construct(
         IRequest $request,
         private readonly MetadataService $metadataService,
         private readonly IGroupManager $groupManager,
         private readonly IUserSession $userSession,
+        private readonly ActionAuthService $actionAuth,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -109,6 +115,15 @@ class MetadataAdminController extends Controller
             return $guard;
         }
 
+        try {
+            $this->actionAuth->requireAction(
+                $this->userSession->getUser(),
+                'metadata-admin.list-fields'
+            );
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $fields = $this->metadataService->listFields();
 
         return ResponseHelper::success(
@@ -150,6 +165,15 @@ class MetadataAdminController extends Controller
         }
 
         try {
+            $this->actionAuth->requireAction(
+                $this->userSession->getUser(),
+                'metadata-admin.create-field'
+            );
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
+        try {
             $field = $this->metadataService->createFieldDefinition(
                 key: $key,
                 label: $label,
@@ -184,6 +208,15 @@ class MetadataAdminController extends Controller
         $guard = $this->assertAdmin();
         if ($guard !== null) {
             return $guard;
+        }
+
+        try {
+            $this->actionAuth->requireAction(
+                $this->userSession->getUser(),
+                'metadata-admin.get-field'
+            );
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {
@@ -226,6 +259,15 @@ class MetadataAdminController extends Controller
         $guard = $this->assertAdmin();
         if ($guard !== null) {
             return $guard;
+        }
+
+        try {
+            $this->actionAuth->requireAction(
+                $this->userSession->getUser(),
+                'metadata-admin.update-field'
+            );
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         $patch = [];
@@ -288,6 +330,15 @@ class MetadataAdminController extends Controller
         $guard = $this->assertAdmin();
         if ($guard !== null) {
             return $guard;
+        }
+
+        try {
+            $this->actionAuth->requireAction(
+                $this->userSession->getUser(),
+                'metadata-admin.delete-field'
+            );
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
         try {

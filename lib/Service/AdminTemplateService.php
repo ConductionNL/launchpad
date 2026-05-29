@@ -29,15 +29,18 @@ declare(strict_types=1);
 namespace OCA\MyDash\Service;
 
 use DateTime;
+use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Exception\ForbiddenException;
 use OCA\MyDash\Exception\InvalidDataUrlException;
 use OCA\MyDash\Exception\InvalidImageFormatException;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
@@ -80,6 +83,11 @@ class AdminTemplateService
      *                                               Optional so test
      *                                               wiring without a real
      *                                               DB still works.
+     * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
+     *                                               DashboardDeletedEvent
+     *                                               (SB1 fix, REQ-CSC-001).
+     *                                               Nullable for backwards-
+     *                                               compat.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -89,6 +97,7 @@ class AdminTemplateService
         private readonly IUserManager $userManager,
         private readonly ?ResourceService $resourceService=null,
         private readonly ?IDBConnection $db=null,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -385,6 +394,20 @@ class AdminTemplateService
 
         // Delete template.
         $this->dashboardMapper->delete(entity: $template);
+
+        // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+        // (REQ-CSC-001).
+        $deletedUuid = (string) $template->getUuid();
+        if ($this->eventDispatcher !== null && $deletedUuid !== '') {
+            $this->eventDispatcher->dispatchTyped(
+                new DashboardDeletedEvent(
+                    dashboardUuid: $deletedUuid,
+                    ownerUserId:   (string) ($template->getUserId() ?? ''),
+                    type:          Dashboard::TYPE_ADMIN_TEMPLATE,
+                    deletedAt:     new DateTimeImmutable()
+                )
+            );
+        }
     }//end deleteTemplate()
 
     /**

@@ -24,10 +24,13 @@ namespace Unit\Controller;
 use Exception;
 use OCA\MyDash\Controller\RuleApiController;
 use OCA\MyDash\Db\ConditionalRule;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\ConditionalService;
 use OCA\MyDash\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -46,6 +49,12 @@ class RuleApiControllerSecurityTest extends TestCase
     /** @var PermissionService&MockObject */
     private $permissionService;
 
+    /** @var ActionAuthService&MockObject */
+    private $actionAuth;
+
+    /** @var IUserSession&MockObject */
+    private $userSession;
+
     /**
      * Set up shared mocks.
      *
@@ -56,6 +65,8 @@ class RuleApiControllerSecurityTest extends TestCase
         $this->request            = $this->createMock(IRequest::class);
         $this->conditionalService = $this->createMock(ConditionalService::class);
         $this->permissionService  = $this->createMock(PermissionService::class);
+        $this->actionAuth         = $this->createMock(ActionAuthService::class);
+        $this->userSession        = $this->createMock(IUserSession::class);
     }//end setUp()
 
     /**
@@ -67,10 +78,20 @@ class RuleApiControllerSecurityTest extends TestCase
      */
     private function makeController(?string $userId): RuleApiController
     {
+        if ($userId !== null) {
+            $user = $this->createMock(IUser::class);
+            $user->method('getUID')->willReturn($userId);
+            $this->userSession->method('getUser')->willReturn($user);
+        } else {
+            $this->userSession->method('getUser')->willReturn(null);
+        }
+
         return new RuleApiController(
             request: $this->request,
             conditionalService: $this->conditionalService,
             permissionService: $this->permissionService,
+            actionAuth: $this->actionAuth,
+            userSession: $this->userSession,
             userId: $userId,
         );
     }//end makeController()

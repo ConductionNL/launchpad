@@ -36,6 +36,7 @@ namespace OCA\MyDash\Controller;
 
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AnalyticsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -44,25 +45,30 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 
 /**
  * Admin-only controller for dashboard view-analytics endpoints.
+ *
+ * @spec openspec/changes/archive/2026-05-02-dashboard-view-analytics/tasks.md
  */
 class AnalyticsController extends Controller
 {
     /**
      * Constructor.
      *
-     * @param IRequest         $request          The HTTP request.
-     * @param AnalyticsService $analyticsService The analytics
-     *                                           reporting service.
-     *                                           manager (admin guard).
-     *                                           accessor.
+     * @param IRequest          $request          The HTTP request.
+     * @param AnalyticsService  $analyticsService The analytics reporting service.
+     * @param ActionAuthService $actionAuth       ADR-023 action authorization.
+     * @param IUserSession      $userSession      Current user session.
      */
     public function __construct(
         IRequest $request,
         private readonly AnalyticsService $analyticsService,
+        private readonly ActionAuthService $actionAuth,
+        private readonly IUserSession $userSession,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -85,6 +91,16 @@ class AnalyticsController extends Controller
         string $period='30d',
         int $limit=10
     ): JSONResponse {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'analytics.top-dashboards');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
 
         try {
             $rows = $this->analyticsService->getTopDashboards(
@@ -121,6 +137,17 @@ class AnalyticsController extends Controller
         string $uuid,
         string $period='30d'
     ): JSONResponse {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'analytics.dashboard-detail');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         try {
             $rows = $this->analyticsService->getDashboardDetail(
                 dashboardUuid: $uuid,
@@ -160,6 +187,16 @@ class AnalyticsController extends Controller
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function instanceSummary(string $period='30d'): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'analytics.instance-summary');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
 
         try {
             $summary = $this->analyticsService->getInstanceSummary(
@@ -195,6 +232,16 @@ class AnalyticsController extends Controller
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function exportCsv(string $period='30d'): Response
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'analytics.export-csv');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
 
         try {
             $csv = $this->analyticsService->generateCsvExport(

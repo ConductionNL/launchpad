@@ -67,6 +67,7 @@ class AdminControllerSetupWizardTest extends TestCase
             feedRefresh: $this->createMock(\OCA\MyDash\Service\FeedRefreshService::class),
             footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
             setupWizardService: $this->wizardService,
+            actionAuth: $this->createMock(\OCA\MyDash\Service\ActionAuthService::class),
         );
     }
 

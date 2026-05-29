@@ -24,6 +24,7 @@ use OCA\MyDash\Controller\MetadataAdminController;
 use OCA\MyDash\Db\MetadataField;
 use OCA\MyDash\Exception\InvalidMetadataFieldException;
 use OCA\MyDash\Exception\MetadataFieldHasValuesException;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\MetadataService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -45,6 +46,8 @@ class MetadataAdminControllerTest extends TestCase
     private IUserSession $userSession;
     /** @var IRequest&MockObject */
     private IRequest $request;
+    /** @var ActionAuthService&MockObject */
+    private ActionAuthService $actionAuth;
 
     protected function setUp(): void
     {
@@ -52,12 +55,14 @@ class MetadataAdminControllerTest extends TestCase
         $this->groupManager    = $this->createMock(IGroupManager::class);
         $this->userSession     = $this->createMock(IUserSession::class);
         $this->request         = $this->createMock(IRequest::class);
+        $this->actionAuth      = $this->createMock(ActionAuthService::class);
 
         $this->controller = new MetadataAdminController(
             request: $this->request,
             metadataService: $this->metadataService,
             groupManager: $this->groupManager,
             userSession: $this->userSession,
+            actionAuth: $this->actionAuth,
         );
     }
 

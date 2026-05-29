@@ -74,6 +74,55 @@ class HtmlSanitizerTest extends TestCase
         $this->assertStringNotContainsString(needle: 'javascript:', haystack: $result);
     }
 
+    public function testDataUriXssIsStripped(): void
+    {
+        $html   = '<a href="data:text/html,<script>alert(1)</script>">x</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringNotContainsString(needle: 'data:', haystack: $result);
+    }
+
+    public function testVbscriptUrlIsStripped(): void
+    {
+        $html   = '<a href="vbscript:MsgBox(1)">x</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringNotContainsString(needle: 'vbscript:', haystack: $result);
+    }
+
+    public function testBlobUrlIsStripped(): void
+    {
+        $html   = '<a href="blob:https://example.com/abc">x</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringNotContainsString(needle: 'blob:', haystack: $result);
+    }
+
+    public function testFileUrlIsStripped(): void
+    {
+        $html   = '<a href="file:///etc/passwd">x</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringNotContainsString(needle: 'file://', haystack: $result);
+    }
+
+    public function testHttpsUrlIsPreserved(): void
+    {
+        $html   = '<a href="https://example.com/path">link</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringContainsString(needle: 'href="https://example.com/path"', haystack: $result);
+    }
+
+    public function testRelativeUrlIsPreserved(): void
+    {
+        $html   = '<a href="/relative/path">link</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringContainsString(needle: 'href="/relative/path"', haystack: $result);
+    }
+
+    public function testMailtoUrlIsPreserved(): void
+    {
+        $html   = '<a href="mailto:info@example.com">mail</a>';
+        $result = $this->sanitizer->sanitize(html: $html);
+        $this->assertStringContainsString(needle: 'href="mailto:info@example.com"', haystack: $result);
+    }
+
     public function testTablesAndPreformattedBlocksAreKept(): void
     {
         $html   = '<table><thead><tr><th>H</th></tr></thead><tbody><tr><td>cell</td></tr></tbody></table><pre><code class="language-php">echo 1;</code></pre>';

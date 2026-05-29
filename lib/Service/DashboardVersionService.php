@@ -48,6 +48,7 @@ use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
 use OCP\ICacheFactory;
+use OCP\IDBConnection;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -132,6 +133,14 @@ class DashboardVersionService
      *                                                debounce backing
      *                                                store.
      * @param LoggerInterface        $logger          PSR logger.
+     * @param IDBConnection|null     $db              DB connection used to
+     *                                                wrap restoreVersion
+     *                                                in a transaction
+     *                                                (WF1 fix).
+     *                                                Nullable for
+     *                                                backwards-compat
+     *                                                with existing test
+     *                                                doubles.
      */
     public function __construct(
         private readonly DashboardVersionMapper $versionMapper,
@@ -140,6 +149,7 @@ class DashboardVersionService
         private readonly IGroupManager $groupManager,
         private readonly ICacheFactory $cacheFactory,
         private readonly LoggerInterface $logger,
+        private readonly ?IDBConnection $db=null,
     ) {
     }//end __construct()
 
@@ -446,34 +456,64 @@ class DashboardVersionService
             ];
         }
 
-        // Capture pre-restore state as a new snapshot so the restore
-        // itself is reversible (REQ-VERS-005 design D3).
-        $this->captureSnapshot(
-            dashboard: $dashboard,
-            snapshotJson: $this->buildDefaultSnapshot(dashboard: $dashboard),
-            createdBy: $restoringUser,
-            note: 'pre-restore',
-            explicit: true
-        );
-
-        // Stamp the dashboard's updatedAt so callers that listen on
-        // metadata see the restore (REQ-VERS-005 scenario "restore
-        // updates the modified timestamp").
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setUpdatedAt(
-            (new DateTime())->format(format: 'Y-m-d H:i:s')
-        );
-        try {
-            $this->dashboardMapper->update(entity: $dashboard);
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: 'mydash: failed to stamp updatedAt during restore',
-                context: ['exception' => $t]
-            );
+        // WF1 fix: wrap the wipe-and-reinsert in a DB transaction so a
+        // mid-loop insert failure never leaves the dashboard with zero or
+        // partial placements. When no db connection is wired (test doubles)
+        // the operations run without an explicit transaction envelope,
+        // preserving backwards-compat.
+        if ($this->db !== null) {
+            $this->db->beginTransaction();
         }
 
+        $snapshotJson = '';
+        try {
+            // Capture pre-restore state as a new snapshot so the restore
+            // itself is reversible (REQ-VERS-005 design D3).
+            $this->captureSnapshot(
+                dashboard: $dashboard,
+                snapshotJson: $this->buildDefaultSnapshot(dashboard: $dashboard),
+                createdBy: $restoringUser,
+                note: 'pre-restore',
+                explicit: true
+            );
+
+            // C3 fix: decode the target snapshot and apply it to the DB so
+            // the restore is a real state change, not a no-op.
+            $snapshotJson = (string) $target->getSnapshotJson();
+            $payload      = json_decode($snapshotJson, associative: true);
+            if (is_array($payload) === true) {
+                $this->applySnapshotPayload(
+                    dashboard: $dashboard,
+                    payload: $payload
+                );
+            }
+
+            // Stamp the dashboard's updatedAt so callers that listen on
+            // metadata see the restore (REQ-VERS-005 scenario "restore
+            // updates the modified timestamp").
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $dashboard->setUpdatedAt(
+                (new DateTime())->format(format: 'Y-m-d H:i:s')
+            );
+            $this->dashboardMapper->update(entity: $dashboard);
+
+            if ($this->db !== null) {
+                $this->db->commit();
+            }
+        } catch (Throwable $t) {
+            if ($this->db !== null) {
+                $this->db->rollBack();
+            }
+
+            $this->logger->error(
+                message: 'mydash: restoreVersion failed, transaction rolled back',
+                context: ['exception' => $t]
+            );
+            throw $t;
+        }//end try
+
         return [
-            'snapshot' => (string) $target->getSnapshotJson(),
+            'snapshot' => $snapshotJson,
             'version'  => $target,
         ];
     }//end restoreVersion()
@@ -664,6 +704,77 @@ class DashboardVersionService
 
         return $encoded;
     }//end buildDefaultSnapshot()
+
+    /**
+     * Apply a decoded snapshot payload to the dashboard's child tables.
+     *
+     * Replaces the existing widget placements with those stored in the
+     * snapshot. Runs as an all-or-nothing block: any failure is logged
+     * and re-thrown so the caller can surface a 500 rather than leaving
+     * the dashboard in a partial state.
+     *
+     * REQ-VERS-005 (C3 fix): makes restoreVersion() an actual state
+     * restore rather than a no-op that only returns the historical JSON.
+     *
+     * @param Dashboard            $dashboard The target dashboard.
+     * @param array<string, mixed> $payload   Decoded snapshot body.
+     *
+     * @return void
+     *
+     * @throws Throwable When a mapper operation fails.
+     *
+     * @spec openspec/specs/dashboard-versioning/spec.md
+     */
+    private function applySnapshotPayload(Dashboard $dashboard, array $payload): void
+    {
+        $dashboardId = (int) $dashboard->getId();
+        if ($dashboardId === 0) {
+            return;
+        }
+
+        // Wipe current placements and re-insert the historical set.
+        $rawPlacements = $payload['placements'] ?? [];
+        if (is_array($rawPlacements) === false) {
+            $rawPlacements = [];
+        }
+
+        try {
+            $this->placementMapper->deleteByDashboardId(
+                dashboardId: $dashboardId
+            );
+
+            foreach ($rawPlacements as $placementData) {
+                if (is_array($placementData) === false) {
+                    continue;
+                }
+
+                $entity = new \OCA\MyDash\Db\WidgetPlacement();
+                // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+                $entity->setDashboardId($dashboardId);
+
+                foreach ($placementData as $field => $value) {
+                    if ($field === 'id') {
+                        // Do not re-use the old PK — let the DB assign a new one.
+                        continue;
+                    }
+
+                    $setter = 'set'.ucfirst((string) $field);
+                    if (method_exists($entity, $setter) === true) {
+                        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+                        $entity->$setter($value);
+                    }
+                }
+
+                $this->placementMapper->insert(entity: $entity);
+            }//end foreach
+        } catch (Throwable $t) {
+            $this->logger->error(
+                message: 'mydash: applySnapshotPayload failed for dashboard '.$dashboardId,
+                context: ['exception' => $t]
+            );
+            throw $t;
+        }//end try
+    }//end applySnapshotPayload()
 
     /**
      * Owner-or-admin guard used by every public endpoint.

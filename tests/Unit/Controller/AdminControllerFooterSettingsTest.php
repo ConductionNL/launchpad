@@ -24,6 +24,7 @@ namespace Unit\Controller;
 
 use InvalidArgumentException;
 use OCA\MyDash\Controller\AdminController;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AdminSettingsService;
 use OCA\MyDash\Service\AdminTemplateService;
 use OCA\MyDash\Service\ExportService;
@@ -72,6 +73,7 @@ class AdminControllerFooterSettingsTest extends TestCase
             feedRefresh: $this->createMock(\OCA\MyDash\Service\FeedRefreshService::class),
             footerService: $this->footerService,
             setupWizardService: $this->createMock(\OCA\MyDash\Service\SetupWizardService::class),
+            actionAuth: $this->createMock(ActionAuthService::class),
         );
     }
 

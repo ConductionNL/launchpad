@@ -26,14 +26,18 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use DateTimeImmutable;
+use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
  * Recursively dispatches DashboardDeletedEvent for each child.
+ * C4 fix (REQ-CSC-003, REQ-CSC-010).
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
@@ -42,16 +46,28 @@ class TreeListener implements IEventListener
     /**
      * Constructor.
      *
-     * @param LoggerInterface $logger PSR-3 logger for log-and-continue
-     *                                failure handling per REQ-CSC-006.
+     * @param DashboardMapper  $dashboardMapper Dashboard row mapper (read
+     *                                          children by parentUuid).
+     * @param IEventDispatcher $dispatcher      NC event dispatcher for
+     *                                          recursive child dispatch.
+     * @param LoggerInterface  $logger          PSR-3 logger for
+     *                                          log-and-continue failure
+     *                                          handling per REQ-CSC-006.
      */
     public function __construct(
+        private readonly DashboardMapper $dashboardMapper,
+        private readonly IEventDispatcher $dispatcher,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
 
     /**
      * Handle the DashboardDeletedEvent.
+     *
+     * Dispatches a fresh DashboardDeletedEvent for each direct child so the
+     * full listener stack (placements, locks, shares, …) runs for every node
+     * in the tree. The event dispatcher will invoke this listener again for
+     * each child, providing recursive cascade without a manual loop.
      *
      * @param Event $event The event.
      *
@@ -65,17 +81,38 @@ class TreeListener implements IEventListener
             return;
         }
 
+        $uuid      = $event->getDashboardUuid();
+        $deletedAt = $event->getDeletedAt();
+
         try {
-            // TODO(dashboard-tree): query oc_mydash_dashboards for
-            // children WHERE parentUuid = $event->getDashboardUuid()
-            // and dispatch a fresh DashboardDeletedEvent for each
-            // child via IEventDispatcher. Stub registered for cascade
-            // scaffolding — see REQ-CSC-010 scenarios for the cascade
-            // guard and tree-no-op behaviour.
+            $children = $this->dashboardMapper->findByParent(
+                parentUuid: $uuid
+            );
+
+            foreach ($children as $child) {
+                $childUuid = (string) $child->getUuid();
+                if ($childUuid === '') {
+                    continue;
+                }
+
+                $childOwnerId = (string) ($child->getUserId() ?? $event->getOwnerUserId());
+                $childType    = (string) ($child->getType() ?? $event->getType());
+
+                $this->dispatcher->dispatchTyped(
+                    new DashboardDeletedEvent(
+                        dashboardUuid: $childUuid,
+                        ownerUserId:   $childOwnerId,
+                        type:          $childType,
+                        deletedAt:     $deletedAt
+                    )
+                );
+            }//end foreach
+
             $this->logger->debug(
                 message: sprintf(
-                    'mydash TreeListener: stub invoked for dashboard %s',
-                    $event->getDashboardUuid()
+                    'mydash TreeListener: dispatched delete for %d children of dashboard %s',
+                    count($children),
+                    $uuid
                 ),
                 context: ['app' => 'mydash']
             );
@@ -83,7 +120,7 @@ class TreeListener implements IEventListener
             $this->logger->warning(
                 message: sprintf(
                     'mydash TreeListener: failed for dashboard %s: %s',
-                    $event->getDashboardUuid(),
+                    $uuid,
                     $t->getMessage()
                 ),
                 context: ['app' => 'mydash']

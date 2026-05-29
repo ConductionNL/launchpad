@@ -506,6 +506,12 @@ class FeedRefreshService
             'headers'         => $headers,
             // 304 must NOT be treated as an HTTP exception by Guzzle.
             'http_errors'     => false,
+            // C5: disable automatic redirect following to prevent SSRF via
+            // open-redirect. Feed URLs are validated by urlValidator before
+            // the first request; a 302 to an internal host (e.g. cloud
+            // metadata endpoint) would bypass that guard. Mirror the explicit
+            // pattern in NewsWidgetService and CalendarWidgetService.
+            'allow_redirects' => false,
         ];
 
         $proxy = (string) $this->config->getSystemValue('proxy', '');

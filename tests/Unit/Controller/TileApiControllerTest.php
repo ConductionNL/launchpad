@@ -23,10 +23,13 @@ namespace Unit\Controller;
 
 use OCA\MyDash\Controller\TileApiController;
 use OCA\MyDash\Db\Tile;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\TileService;
 use OCP\AppFramework\Http;
 use OCP\IL10N;
 use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -38,20 +41,36 @@ class TileApiControllerTest extends TestCase
     private IRequest $request;
     /** @var IL10N&MockObject */
     private IL10N $l10n;
+    /** @var ActionAuthService&MockObject */
+    private ActionAuthService $actionAuth;
+    /** @var IUserSession&MockObject */
+    private IUserSession $userSession;
 
     protected function setUp(): void
     {
-        $this->tileService = $this->createMock(TileService::class);
-        $this->request     = $this->createMock(IRequest::class);
-        $this->l10n        = $this->createMock(IL10N::class);
+        $this->tileService  = $this->createMock(TileService::class);
+        $this->request      = $this->createMock(IRequest::class);
+        $this->l10n         = $this->createMock(IL10N::class);
+        $this->actionAuth   = $this->createMock(ActionAuthService::class);
+        $this->userSession  = $this->createMock(IUserSession::class);
         $this->l10n->method('t')->willReturnArgument(0);
     }
 
     private function makeController(?string $userId = 'alice'): TileApiController
     {
+        if ($userId !== null) {
+            $user = $this->createMock(IUser::class);
+            $user->method('getUID')->willReturn($userId);
+            $this->userSession->method('getUser')->willReturn($user);
+        } else {
+            $this->userSession->method('getUser')->willReturn(null);
+        }
+
         return new TileApiController(
             request: $this->request,
             tileService: $this->tileService,
+            actionAuth: $this->actionAuth,
+            userSession: $this->userSession,
             l10n: $this->l10n,
             userId: $userId,
         );

@@ -9,7 +9,7 @@
  *
  * launchpad is the proving ground for this pattern because it has no "default
  * home page" — every page is user-specific, making a bundled static manifest
- * meaningless. The pattern is what OpenBuilt-built apps will also use.
+ * meaningless. The pattern is what OpenBuild-built apps will also use.
  *
  * Boot sequence:
  *  1. Vue + Pinia initialised.

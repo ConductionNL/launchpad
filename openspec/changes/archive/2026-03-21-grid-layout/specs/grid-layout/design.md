@@ -160,7 +160,7 @@ The debounce is **not implemented with a timer in the frontend**. Instead, the c
 The API endpoint that receives these saves is:
 
 ```
-PUT /api/mydash/api/dashboard/{id}
+PUT /api/launchpad/api/dashboard/{id}
 Body: { placements: [{ id, gridX, gridY, gridWidth, gridHeight }, ...] }
 ```
 
@@ -170,12 +170,12 @@ Body: { placements: [{ id, gridX, gridY, gridWidth, gridHeight }, ...] }
 
 ## Responsive Behaviour
 
-GridStack is configured without a `minWidth` breakpoint. Column width is fluid: GridStack recalculates pixel widths from the container width divided by `column` count minus margins. The container is `.mydash-container` with `width: 100%` and `overflow: auto`.
+GridStack is configured without a `minWidth` breakpoint. Column width is fluid: GridStack recalculates pixel widths from the container width divided by `column` count minus margins. The container is `.launchpad-container` with `width: 100%` and `overflow: auto`.
 
 The `DashboardGrid` CSS:
 
 ```css
-.mydash-grid {
+.launchpad-grid {
   width: 100%;
   min-height: 400px;
 }
@@ -209,7 +209,7 @@ The backend creates tile placements with `widgetId = 'tile-' + uniqid()` and `ti
 
 ```
 WidgetPlacement (DB entity)
-  table: mydash_widget_placements
+  table: launchpad_widget_placements
   grid columns: grid_x, grid_y, grid_width, grid_height
   ordered by: sort_order ASC, grid_y ASC, grid_x ASC
 
@@ -232,7 +232,7 @@ DashboardApiController.update(id, ...)
 GridStack injects inline `transform: translate(x, y)` and `width`/`height` styles onto `.grid-stack-item` elements. The app applies minimal overrides:
 
 - `.grid-stack-item-content`: `background: var(--color-main-background)`, no border/shadow by default.
-- Conditional border: `:deep(.grid-stack-item-content:has(.mydash-widget))` adds `1px solid var(--color-border)` only for widget (non-tile) cells.
+- Conditional border: `:deep(.grid-stack-item-content:has(.launchpad-widget))` adds `1px solid var(--color-border)` only for widget (non-tile) cells.
 - Drag placeholder: `.grid-stack-placeholder > .placeholder-content` uses `var(--color-primary-element-light)` fill with a dashed `var(--color-primary-element)` border — NL Design System compatible.
 
 All colors use CSS variables from Nextcloud's design system, ensuring compatibility with the nldesign app's token overrides.

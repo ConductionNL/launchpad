@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `LinkButtonForm.vue` covering REQ-LBN-006
@@ -46,7 +46,7 @@ describe('LinkButtonForm', () => {
 			content: {
 				label: 'My Tile',
 				url: 'docx',
-				icon: '/apps/mydash/resource/x.png',
+				icon: '/apps/launchpad/resource/x.png',
 				actionType: 'createFile',
 				backgroundColor: '#112233',
 				textColor: '#ffffff',
@@ -58,7 +58,7 @@ describe('LinkButtonForm', () => {
 		})
 		expect(wrapper.vm.label).toBe('My Tile')
 		expect(wrapper.vm.url).toBe('docx')
-		expect(wrapper.vm.icon).toBe('/apps/mydash/resource/x.png')
+		expect(wrapper.vm.icon).toBe('/apps/launchpad/resource/x.png')
 		expect(wrapper.vm.actionType).toBe('createFile')
 		expect(wrapper.vm.backgroundColor).toBe('#112233')
 		expect(wrapper.vm.textColor).toBe('#ffffff')

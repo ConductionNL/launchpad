@@ -10,13 +10,13 @@ Source examined: `the source codebase-source/showcases/`, `the source codebase-s
 
 **Goals:**
 - Resolve the open question about file format and storage location for bundled showcases.
-- Identify which widget types the reference showcases use (confirming what MyDash must support at install time).
+- Identify which widget types the reference showcases use (confirming what LaunchPad must support at install time).
 - Clarify the idempotency, localization, and asset bundling mechanisms as actually implemented.
 
 **Non-Goals:**
 - Spec edits (follow-up task).
 - Changing which showcases ship (that is a product decision).
-- Mirroring the source app's group-folder-based storage model — MyDash uses a different storage pattern.
+- Mirroring the source app's group-folder-based storage model — LaunchPad uses a different storage pattern.
 
 ---
 
@@ -36,7 +36,7 @@ The two systems are distinct:
 - **`demo-data/`** — product tour content (generic the source app pages, multi-locale `nl/`, `en/`, `de/`, `fr/`). Installed via `importBundledDemoData()`.
 - **`showcases/`** — persona-specific intranet examples (healthcare org, university, municipality, tech company, law firm). Installed by importing the showcase ZIP through the same `importFromZip()` pathway.
 
-**MyDash implication**: MyDash should adopt the ZIP + `export.json` format as the canonical showcase bundle format, not a flat JSON file at `appdata/demo/{id}.json`. The spec's assumed schema is mostly compatible but the delivery artifact is a ZIP, not a bare JSON.
+**LaunchPad implication**: LaunchPad should adopt the ZIP + `export.json` format as the canonical showcase bundle format, not a flat JSON file at `appdata/demo/{id}.json`. The spec's assumed schema is mostly compatible but the delivery artifact is a ZIP, not a bare JSON.
 
 ---
 
@@ -139,7 +139,7 @@ Widget types `calendar`, `welcome`, `recent-activity` referenced in the spec sce
 
 Source: `the source codebase-source/lib/Service/DemoDataService.php:69-78` (`isDemoDataImported` / `markDemoDataImported`), `the source codebase-source/lib/Command/ImportDemoDataCommand.php:69-73`.
 
-**MyDash implication**: The spec's approach (query existing `group_shared` dashboards with `metadata.showcaseId`) is more granular and correct for a multi-showcase system. Adopt it. The source app's single-flag approach is a simplification that only works when there is one "demo dataset" being installed.
+**LaunchPad implication**: The spec's approach (query existing `group_shared` dashboards with `metadata.showcaseId`) is more granular and correct for a multi-showcase system. Adopt it. The source app's single-flag approach is a simplification that only works when there is one "demo dataset" being installed.
 
 ---
 
@@ -149,7 +149,7 @@ Source: `the source codebase-source/lib/Service/DemoDataService.php:69-78` (`isD
 
 The separate `demo-data/` product tour content IS multi-locale: `nl/`, `en/`, `de/`, `fr/` directories exist, but `de/` and `fr/` are marked as non-full (`"full": false`) in `LANGUAGE_META`. English and Dutch are full; German and French are partial stubs.
 
-**MyDash implication**: The spec assumes each showcase ships `{id}-en.json` and `{id}-nl.json`. Reality: showcases are NL-only. The spec's REQ-DEMO-001 scenario "Localized showcase files are provided" and REQ-DEMO-007 localization requirements should be rewritten to reflect that v1 showcases are NL-only, with a language fallback path documented for future expansion. The `?lang=` parameter on the install endpoint can remain for forward compatibility but will always resolve to NL in v1.
+**LaunchPad implication**: The spec assumes each showcase ships `{id}-en.json` and `{id}-nl.json`. Reality: showcases are NL-only. The spec's REQ-DEMO-001 scenario "Localized showcase files are provided" and REQ-DEMO-007 localization requirements should be rewritten to reflect that v1 showcases are NL-only, with a language fallback path documented for future expansion. The `?lang=` parameter on the install endpoint can remain for forward compatibility but will always resolve to NL in v1.
 
 ---
 
@@ -161,7 +161,7 @@ Source: `unzip -l de-bron.zip` shows `nl/_media/locatie.jpg`, `nl/_media/verpleg
 
 The ZIP also contains loose JPEG copies at the root of the showcase directory (e.g., `the source codebase-source/showcases/de-bron/zorgteam.jpg`) — these appear to be build-time artifacts or convenience copies, not the canonical location.
 
-**MyDash implication**: On install, the service must extract `{locale}/_media/` from the ZIP and store the images alongside the installed page data (or in Nextcloud Files). The spec does not currently specify where installed media lands — this needs to be decided.
+**LaunchPad implication**: On install, the service must extract `{locale}/_media/` from the ZIP and store the images alongside the installed page data (or in Nextcloud Files). The spec does not currently specify where installed media lands — this needs to be decided.
 
 ---
 
@@ -185,16 +185,16 @@ The following REQ-DEMO-NNN items need rewriting based on this investigation:
 
 ## Open follow-ups
 
-1. **Media storage on install**: Where do extracted `_media/` images live in MyDash? Options: (a) Nextcloud Files under a shared folder, (b) app-level storage path, (c) DB as blob. Must be decided before implementation.
+1. **Media storage on install**: Where do extracted `_media/` images live in LaunchPad? Options: (a) Nextcloud Files under a shared folder, (b) app-level storage path, (c) DB as blob. Must be decided before implementation.
 
-2. **`file` widget install behavior**: The `file` widget takes a groupfolder-relative path (`"path": "Protocollen/Medicatieprotocol_2026.pdf"`). These files do not exist in a fresh install. Does MyDash skip these silently (like unknown widget types), create placeholder entries, or omit the widget? The skip-on-missing mechanism in REQ-DEMO-005 applies to unknown widget *types*, not to missing *files referenced by known widget types* — a gap in the spec.
+2. **`file` widget install behavior**: The `file` widget takes a groupfolder-relative path (`"path": "Protocollen/Medicatieprotocol_2026.pdf"`). These files do not exist in a fresh install. Does LaunchPad skip these silently (like unknown widget types), create placeholder entries, or omit the widget? The skip-on-missing mechanism in REQ-DEMO-005 applies to unknown widget *types*, not to missing *files referenced by known widget types* — a gap in the spec.
 
 3. **`news` widget cross-page resolution**: The `news` widget references `sourcePath` (e.g., `"sourcePath": "nieuws"`). This is a sibling page path within the same locale tree. When installing a single-page showcase (only `home.json` in the ZIP), the `news` widget's source will resolve to nothing. Either multi-page showcases should be added, or the `news` widget should gracefully show empty state, or the spec should note this caveat.
 
 4. **`people` widget live data**: The `people` widget renders live Nextcloud user directory data. It will work in any installation (it just shows real users filtered by configured criteria), but the showcase's demo filters (e.g., `"selectionMode": "filter", "filters": []`) may show unexpected results in non-demo environments. No spec change needed, but worth noting in the admin UI install confirmation.
 
-5. **`headerRow` layout key**: One showcase (`van-der-berg`) uses `layout.headerRow` (a special full-width row rendered above the main grid). The spec and the schema example omit this. If MyDash adopts the same layout model, `headerRow` needs to be in the layout schema.
+5. **`headerRow` layout key**: One showcase (`van-der-berg`) uses `layout.headerRow` (a special full-width row rendered above the main grid). The spec and the schema example omit this. If LaunchPad adopts the same layout model, `headerRow` needs to be in the layout schema.
 
-6. **Showcase naming for MyDash**: The source showcases use Dutch fictional organization names. MyDash may want locale-neutral IDs (e.g., `healthcare`, `education`, `government`, `technology`, `legal`) with themed content that can be translated. Decide before writing the actual showcase JSON files.
+6. **Showcase naming for LaunchPad**: The source showcases use Dutch fictional organization names. LaunchPad may want locale-neutral IDs (e.g., `healthcare`, `education`, `government`, `technology`, `legal`) with themed content that can be translated. Decide before writing the actual showcase JSON files.
 
-7. **`requiresMinVersion` field in `export.json`**: All 5 export manifests carry `"requiresMinVersion": "0.8.11"`. MyDash should define a minimum app version check at import time and return a clear error if the running version is older.
+7. **`requiresMinVersion` field in `export.json`**: All 5 export manifests carry `"requiresMinVersion": "0.8.11"`. LaunchPad should define a minimum app version check at import time and return a clear error if the running version is older.

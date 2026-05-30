@@ -3,7 +3,7 @@
 ## Tasks
 
 - [ ] Task 1: Confirm `isDefault SMALLINT` already exists on the `Dashboard` entity (no migration) and ensure `jsonSerialize()` emits it as 0|1 — add to the serialiser if missing
-- [ ] Task 2: Add `DashboardMapper::clearGroupDefaults($groupId, ?$exceptUuid = null): int` — `UPDATE oc_mydash_dashboards SET isDefault = 0 WHERE type = 'group_shared' AND groupId = ? AND (uuid <> ? OR ? IS NULL)`, returns affected row count
+- [ ] Task 2: Add `DashboardMapper::clearGroupDefaults($groupId, ?$exceptUuid = null): int` — `UPDATE oc_launchpad_dashboards SET isDefault = 0 WHERE type = 'group_shared' AND groupId = ? AND (uuid <> ? OR ? IS NULL)`, returns affected row count
 - [ ] Task 3: Add `DashboardMapper::setGroupDefaultUuid($groupId, $uuid): int` — `UPDATE ... SET isDefault = 1 WHERE type='group_shared' AND groupId=? AND uuid=?`, returns 0 when the uuid isn't in the group
 - [ ] Task 4: Add `DashboardService::setGroupDefault($groupId, $uuid): void` — admin-only via `IGroupManager::isAdmin`; both mapper calls wrapped in `IDBConnection::beginTransaction()` / `commit()` / `rollBack()`; if `setGroupDefaultUuid` returns 0 throw the HTTP-404 not-found exception and roll back so the existing default is preserved
 - [ ] Task 5: Defense-in-depth — `DashboardService::saveGroupShared` and `updateGroupShared` strip any `isDefault` field from incoming payload/patch before persistence (REQ-DASH-017)

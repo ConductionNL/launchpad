@@ -6,7 +6,7 @@
  * Controller for managing dashboard widgets.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,18 +16,18 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\CalendarWidgetService;
-use OCA\MyDash\Service\NewsWidgetService;
-use OCA\MyDash\Service\PermissionService;
-use OCA\MyDash\Service\RoleFeaturePermissionService;
-use OCA\MyDash\Service\WidgetPlacementService;
-use OCA\MyDash\Service\WidgetService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\CalendarWidgetService;
+use OCA\LaunchPad\Service\NewsWidgetService;
+use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\WidgetPlacementService;
+use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -87,7 +87,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The list of available widgets.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-32
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
      */
     #[NoAdminRequired]
     public function listAvailable(): JSONResponse
@@ -143,7 +143,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The widget items.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -187,7 +187,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The created widget placement.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-34
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
      */
     #[NoAdminRequired]
     public function addWidget(
@@ -299,7 +299,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-15
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
      */
     private function containerDepthExceededResponse(): JSONResponse
     {
@@ -368,7 +368,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The updated widget placement.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-35
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
      */
     #[NoAdminRequired]
     public function updatePlacement(int $placementId): JSONResponse
@@ -433,7 +433,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The removal confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-36
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
      */
     #[NoAdminRequired]
     public function removePlacement(int $placementId): JSONResponse

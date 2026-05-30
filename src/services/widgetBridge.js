@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * @spec openspec/changes/archive/2026-04-24-retrofit-legacy-widget-bridge/tasks.md#task-1
@@ -41,7 +41,7 @@ class WidgetBridge {
 
 		// Override register method
 		window.OCA.Dashboard.register = (appId, callback) => {
-			console.debug('MyDash: Widget registered via callback:', appId)
+			console.debug('LaunchPad: Widget registered via callback:', appId)
 			this.widgetCallbacks.set(appId, callback)
 
 			// Also call original if it exists (for compatibility)
@@ -52,7 +52,7 @@ class WidgetBridge {
 
 		// Override registerStatus method
 		window.OCA.Dashboard.registerStatus = (appId, callback) => {
-			console.debug('MyDash: Status widget registered:', appId)
+			console.debug('LaunchPad: Status widget registered:', appId)
 			this.statusCallbacks.set(appId, callback)
 
 			// Also call original if it exists
@@ -112,9 +112,9 @@ class WidgetBridge {
 			try {
 				container.innerHTML = ''
 				callback(container)
-				console.debug('MyDash: Mounted status widget:', widgetId)
+				console.debug('LaunchPad: Mounted status widget:', widgetId)
 			} catch (error) {
-				console.error('MyDash: Error mounting status widget:', widgetId, error)
+				console.error('LaunchPad: Error mounting status widget:', widgetId, error)
 			}
 		}
 	}

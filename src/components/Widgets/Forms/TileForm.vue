@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,14 +7,14 @@
 	<div class="tile-form">
 		<NcTextField
 			:value="title"
-			:label="t('mydash', 'Title')"
-			:placeholder="t('mydash', 'Tile title')"
+			:label="t('launchpad', 'Title')"
+			:placeholder="t('launchpad', 'Tile title')"
 			required
 			@update:value="updateField('title', $event)" />
 
 		<div class="tile-form__icon-row">
 			<label class="tile-form__icon-label">
-				{{ t('mydash', 'Icon') }}
+				{{ t('launchpad', 'Icon') }}
 			</label>
 			<IconPicker
 				:value="icon"
@@ -24,13 +24,13 @@
 		<NcSelect
 			:value="iconType"
 			:options="iconTypeOptions"
-			:input-label="t('mydash', 'Icon type')"
+			:input-label="t('launchpad', 'Icon type')"
 			:clearable="false"
 			@input="updateField('iconType', $event)" />
 
 		<div class="tile-form__color-row">
 			<label class="tile-form__color-label">
-				{{ t('mydash', 'Background color') }}
+				{{ t('launchpad', 'Background color') }}
 				<input
 					type="color"
 					:value="backgroundColor || '#3b82f6'"
@@ -39,7 +39,7 @@
 			</label>
 
 			<label class="tile-form__color-label">
-				{{ t('mydash', 'Text color') }}
+				{{ t('launchpad', 'Text color') }}
 				<input
 					type="color"
 					:value="textColor || '#ffffff'"
@@ -51,7 +51,7 @@
 		<NcSelect
 			:value="linkType"
 			:options="linkTypeOptions"
-			:input-label="t('mydash', 'Link type')"
+			:input-label="t('launchpad', 'Link type')"
 			:clearable="false"
 			@input="updateField('linkType', $event)" />
 
@@ -153,8 +153,8 @@ export default {
 		/** @spec openspec/specs/tiles/spec.md */
 		linkValueLabel() {
 			return this.linkType === 'app'
-				? t('mydash', 'App route')
-				: t('mydash', 'URL')
+				? t('launchpad', 'App route')
+				: t('launchpad', 'URL')
 		},
 
 		/** @spec openspec/specs/tiles/spec.md */
@@ -214,10 +214,10 @@ export default {
 		validate() {
 			const errors = []
 			if (typeof this.title !== 'string' || this.title.trim() === '') {
-				errors.push(t('mydash', 'Tile title is required'))
+				errors.push(t('launchpad', 'Tile title is required'))
 			}
 			if (typeof this.linkValue !== 'string' || this.linkValue.trim() === '') {
-				errors.push(t('mydash', 'Tile link target is required'))
+				errors.push(t('launchpad', 'Tile link target is required'))
 			}
 			return errors
 		},

@@ -6,7 +6,7 @@
  * Service for managing widget placement CRUD operations.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,11 +16,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 
 /**
  * Service for managing widget placement CRUD operations.
@@ -57,7 +57,7 @@ class PlacementService
      *
      * @return WidgetPlacement The created widget placement.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-34
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
      */
     public function addWidget(
         int $dashboardId,
@@ -137,7 +137,7 @@ class PlacementService
      *
      * @return WidgetPlacement The updated widget placement.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-35
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
      */
     public function updatePlacement(
         int $placementId,
@@ -172,7 +172,7 @@ class PlacementService
      *
      * @return void
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-36
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
      */
     public function removePlacement(int $placementId): void
     {

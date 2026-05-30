@@ -22,7 +22,7 @@ Mark an existing dashboard as the default for a Nextcloud group, and verify memb
 
 ### 1. Find the dashboard you want to default
 
-Open MyDash as the admin and navigate to the group dashboard. Open its cog menu.
+Open LaunchPad as the admin and navigate to the group dashboard. Open its cog menu.
 
 ![Group dashboard cog menu](/screenshots/tutorials/admin/03-group-cog.png)
 

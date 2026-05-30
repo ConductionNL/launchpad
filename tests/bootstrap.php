@@ -8,7 +8,7 @@
  * full DI container, enabling tests to cover code that depends on Nextcloud services.
  *
  * @category Test
- * @package  OCA\MyDash\Tests
+ * @package  OCA\LaunchPad\Tests
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.

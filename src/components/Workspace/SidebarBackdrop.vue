@@ -1,11 +1,11 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div
-		class="mydash-sidebar-backdrop sidebar-backdrop"
+		class="launchpad-sidebar-backdrop sidebar-backdrop"
 		role="presentation"
 		@click="$emit('close')" />
 </template>
@@ -29,7 +29,7 @@
  * this backdrop is paired with it but lives in the shell because the
  * shell owns the `sidebarOpen` state.
  *
- * The element carries both `mydash-sidebar-backdrop` (canonical class
+ * The element carries both `launchpad-sidebar-backdrop` (canonical class
  * used by the shell) and `sidebar-backdrop` (legacy class still
  * referenced by the standalone unit test).
  */
@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style scoped>
-.mydash-sidebar-backdrop {
+.launchpad-sidebar-backdrop {
 	position: fixed;
 	top: 50px;
 	left: 0;

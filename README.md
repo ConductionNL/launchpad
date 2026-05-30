@@ -1,25 +1,25 @@
 <p align="center">
-  <img src="img/app-store.svg" alt="MyDash logo" width="80" height="80">
+  <img src="img/app-store.svg" alt="LaunchPad logo" width="80" height="80">
 </p>
 
-<h1 align="center">MyDash</h1>
+<h1 align="center">LaunchPad</h1>
 
 <p align="center">
   <strong>Customizable multi-dashboard for Nextcloud — drag-and-drop widgets, templates, and smart visibility rules</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/ConductionNL/mydash/releases"><img src="https://img.shields.io/github/v/release/ConductionNL/mydash" alt="Latest release"></a>
-  <a href="https://github.com/ConductionNL/mydash/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License"></a>
-  <a href="https://github.com/ConductionNL/mydash/actions"><img src="https://img.shields.io/github/actions/workflow/status/ConductionNL/mydash/code-quality.yml?label=quality" alt="Code quality"></a>
-  <a href="https://mydash.conduction.nl"><img src="https://img.shields.io/badge/docs-mydash.conduction.nl-green" alt="Documentation"></a>
+  <a href="https://github.com/ConductionNL/launchpad/releases"><img src="https://img.shields.io/github/v/release/ConductionNL/launchpad" alt="Latest release"></a>
+  <a href="https://github.com/ConductionNL/launchpad/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License"></a>
+  <a href="https://github.com/ConductionNL/launchpad/actions"><img src="https://img.shields.io/github/actions/workflow/status/ConductionNL/launchpad/code-quality.yml?label=quality" alt="Code quality"></a>
+  <a href="https://launchpad.conduction.nl"><img src="https://img.shields.io/badge/docs-launchpad.conduction.nl-green" alt="Documentation"></a>
 </p>
 
 ---
 
-MyDash supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
+LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
 
-📚 **[Step-by-step tutorials](https://mydash.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
+📚 **[Step-by-step tutorials](https://launchpad.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
 
 ## Screenshots
 
@@ -65,7 +65,7 @@ MyDash supercharges the Nextcloud dashboard. Create multiple personalized worksp
 
 ```mermaid
 graph TD
-    A[Vue 2 Frontend] -->|REST API| B[MyDash PHP Backend]
+    A[Vue 2 Frontend] -->|REST API| B[LaunchPad PHP Backend]
     B --> C[(PostgreSQL / MySQL)]
     A -->|GridStack.js| D[Drag-and-Drop Grid]
     A -->|Dashboard API| E[Nextcloud Widgets v1/v2]
@@ -77,15 +77,15 @@ graph TD
 
 | Table | Description |
 |-------|-------------|
-| `oc_mydash_dashboards` | Dashboard configurations and ownership |
-| `oc_mydash_widget_placements` | Widget positions, sizes, and styling |
-| `oc_mydash_conditional_rules` | Visibility rules (group, time, date) |
-| `oc_mydash_admin_settings` | Admin templates and global settings |
+| `oc_launchpad_dashboards` | Dashboard configurations and ownership |
+| `oc_launchpad_widget_placements` | Widget positions, sizes, and styling |
+| `oc_launchpad_conditional_rules` | Visibility rules (group, time, date) |
+| `oc_launchpad_admin_settings` | Admin templates and global settings |
 
 ### Directory Structure
 
 ```
-mydash/
+launchpad/
 ├── appinfo/           # Nextcloud app manifest, routes, navigation
 ├── lib/               # PHP backend — controllers, services, mappers, entities
 │   ├── Controller/    # API controllers (dashboard, widget, admin)
@@ -115,19 +115,19 @@ mydash/
 ### From the Nextcloud App Store
 
 1. Go to **Apps** in your Nextcloud instance
-2. Search for **MyDash**
+2. Search for **LaunchPad**
 3. Click **Download and enable**
 
 ### From Source
 
 ```bash
 cd /var/www/html/custom_apps
-git clone https://github.com/ConductionNL/mydash.git
-cd mydash
+git clone https://github.com/ConductionNL/launchpad.git
+cd launchpad
 composer install
 npm install
 npm run build
-php occ app:enable mydash
+php occ app:enable launchpad
 ```
 
 ## Development
@@ -141,7 +141,7 @@ docker compose -f openregister/docker-compose.yml up -d
 ### Frontend development
 
 ```bash
-cd mydash
+cd launchpad
 npm install
 npm run dev        # Watch mode
 npm run build      # Production build
@@ -174,12 +174,12 @@ npm run stylelint       # CSS linting
 
 ## Documentation
 
-Full documentation is available at **[mydash.app](https://mydash.app)**
+Full documentation is available at **[launchpad.app](https://launchpad.app)**
 
 | Page | Description |
 |------|-------------|
-| [GitHub](https://github.com/ConductionNL/mydash) | Source code and issue tracker |
-| [Discussions](https://github.com/ConductionNL/mydash/discussions) | Community Q&A and feature requests |
+| [GitHub](https://github.com/ConductionNL/launchpad) | Source code and issue tracker |
+| [Discussions](https://github.com/ConductionNL/launchpad/discussions) | Community Q&A and feature requests |
 
 ## Standards & Compliance
 
@@ -213,7 +213,7 @@ Dependencies with licenses not on this list will fail CI unless explicitly appro
 
 | Package | Reason |
 |---------|--------|
-| `mydash` | Own package - EUPL-1.2 licensed — approved 2026-03-15 |
+| `launchpad` | Own package - EUPL-1.2 licensed — approved 2026-03-15 |
 
 ## Authors
 

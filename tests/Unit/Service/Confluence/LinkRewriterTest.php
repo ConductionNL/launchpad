@@ -3,16 +3,16 @@
 /**
  * LinkRewriterTest
  *
- * Unit tests for {@see \OCA\MyDash\Service\Confluence\LinkRewriter}
+ * Unit tests for {@see \OCA\LaunchPad\Service\Confluence\LinkRewriter}
  * covering REQ-CFLI-004 (internal-link rewriting + external preservation).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\Confluence
+ * @package   OCA\LaunchPad\Tests\Unit\Service\Confluence
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Service\Confluence;
 
-use OCA\MyDash\Service\Confluence\LinkRewriter;
+use OCA\LaunchPad\Service\Confluence\LinkRewriter;
 use PHPUnit\Framework\TestCase;
 
 class LinkRewriterTest extends TestCase
@@ -40,7 +40,7 @@ class LinkRewriterTest extends TestCase
         $map  = ['page-456' => 'uuid-456'];
         $res  = $this->rewriter->rewrite(html: $html, pageIdToUuid: $map);
         $this->assertStringContainsString(
-            needle: '<a href="/apps/mydash/dashboard/uuid-456">',
+            needle: '<a href="/apps/launchpad/dashboard/uuid-456">',
             haystack: $res['html']
         );
         $this->assertSame(expected: [], actual: $res['warnings']);
@@ -52,7 +52,7 @@ class LinkRewriterTest extends TestCase
         $map  = ['page-789' => 'uuid-789'];
         $res  = $this->rewriter->rewrite(html: $html, pageIdToUuid: $map);
         $this->assertStringContainsString(
-            needle: '/apps/mydash/dashboard/uuid-789',
+            needle: '/apps/launchpad/dashboard/uuid-789',
             haystack: $res['html']
         );
     }

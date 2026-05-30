@@ -6,11 +6,11 @@ status: implemented
 
 ## Purpose
 
-The quicklinks widget is a built-in MyDash widget type that renders a flat, dense grid of icon-and-label shortcuts inside a single placement. Where the link-button widget owns one shortcut per placement and the links widget spreads grouped sections across multiple columns, the quicklinks widget targets the "app launcher" use case: 8–40 frequently used URLs in one widget, with admin-configurable icon size, shape, label position, columns, tile background, and hover effect. Bulk-add via CSV paste is first-class so admins can move dozens of shortcuts off a spreadsheet without typing each row.
+The quicklinks widget is a built-in LaunchPad widget type that renders a flat, dense grid of icon-and-label shortcuts inside a single placement. Where the link-button widget owns one shortcut per placement and the links widget spreads grouped sections across multiple columns, the quicklinks widget targets the "app launcher" use case: 8–40 frequently used URLs in one widget, with admin-configurable icon size, shape, label position, columns, tile background, and hover effect. Bulk-add via CSV paste is first-class so admins can move dozens of shortcuts off a spreadsheet without typing each row.
 
 ## Data Model
 
-Quicklinks placements use the existing `oc_mydash_widget_placements.content` JSON column with the discriminated shape `{type: 'quicklinks', content: {...}}`. No schema migration is required.
+Quicklinks placements use the existing `oc_launchpad_widget_placements.content` JSON column with the discriminated shape `{type: 'quicklinks', content: {...}}`. No schema migration is required.
 
 The `content` object carries the eight fields specified in REQ-QLNK-002. Defaults are populated by the widget registry and the renderer; persisted blobs that omit a field render with the registry default applied.
 
@@ -20,11 +20,11 @@ The `content` object carries the eight fields specified in REQ-QLNK-002. Default
 
 @e2e exclude widget registration tested via widget-in-picker scenario
 
-The system MUST register a new dashboard widget with id `mydash_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
+The system MUST register a new dashboard widget with id `launchpad_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
 
 #### Scenario: Widget registered and appears in picker
 
-- GIVEN the MyDash app has been installed and the widget is properly registered
+- GIVEN the LaunchPad app has been installed and the widget is properly registered
 - WHEN a user opens the widget picker
 - THEN the picker MUST display an entry for `Quicklinks` (or locale-translated equivalent)
 - AND selecting it MUST add a new widget placement with default config
@@ -81,9 +81,9 @@ Icon size is controlled by the `iconSize` field (REQ-QLNK-004); label rendering 
 
 #### Scenario: Custom URL icon renders as image
 
-- GIVEN content `{links: [{label: 'Docs', url: 'https://example.com', icon: '/apps/mydash/resource/docs.png'}]}`
+- GIVEN content `{links: [{label: 'Docs', url: 'https://example.com', icon: '/apps/launchpad/resource/docs.png'}]}`
 - WHEN the widget renders with `iconSize: 'medium'`
-- THEN the icon container MUST display `<img src="/apps/mydash/resource/docs.png">` sized 48 px square
+- THEN the icon container MUST display `<img src="/apps/launchpad/resource/docs.png">` sized 48 px square
 - AND the label `Docs` MUST appear below (or overlay on hover, depending on `labelPosition`)
 
 #### Scenario: MDI icon name renders via IconRenderer

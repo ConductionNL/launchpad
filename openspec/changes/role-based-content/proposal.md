@@ -2,7 +2,7 @@
 
 ## Why
 
-MyDash currently provides no mechanism to restrict which widgets and dashboard features are
+LaunchPad currently provides no mechanism to restrict which widgets and dashboard features are
 visible based on a user's Nextcloud group (role). All authenticated users see the same card
 library and can choose from the same widget catalogue regardless of their job function. IT
 admins cannot enforce governance at the feature level: an employee-role user can add
@@ -90,7 +90,7 @@ features return 403 rather than silently rendering.
   default fallback.
 - `src/store/modules/roleFeaturePermission.js` — Pinia store via `createObjectStore`.
 - `src/views/AdminApp.vue` — new role-permissions section.
-- `lib/Settings/mydash_register.json` — two new schemas + seed data objects.
+- `lib/Settings/launchpad_register.json` — two new schemas + seed data objects.
 - `appinfo/routes.php` — four new admin API routes.
 
 **APIs:**
@@ -101,7 +101,7 @@ features return 403 rather than silently rendering.
 - `POST /api/role-layout-defaults` (admin-only)
 
 **Data:**
-- Two new OpenRegister schemas registered via `mydash_register.json`, imported through
+- Two new OpenRegister schemas registered via `launchpad_register.json`, imported through
   `ConfigurationService::importFromApp()` in the repair step. Idempotent — re-importing with
   `force: false` skips existing objects matched by slug.
 - No migration needed for existing DB tables.

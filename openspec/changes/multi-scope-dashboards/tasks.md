@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [ ] Task 1: Ship the migration adding `groupId VARCHAR(64) NULL` to `oc_mydash_dashboards` plus composite index `idx_mydash_dash_type_group(type, groupId)`; reversible drop in `postSchemaChange` rollback; applied cleanly on sqlite/mysql/postgres
+- [ ] Task 1: Ship the migration adding `groupId VARCHAR(64) NULL` to `oc_launchpad_dashboards` plus composite index `idx_launchpad_dash_type_group(type, groupId)`; reversible drop in `postSchemaChange` rollback; applied cleanly on sqlite/mysql/postgres
 - [ ] Task 2: Extend `Dashboard` entity with `TYPE_GROUP_SHARED` + `SOURCE_USER|SOURCE_GROUP|SOURCE_DEFAULT` constants, `groupId` getter/setter (no named args), and `jsonSerialize()` exposing `groupId` (nullable)
 - [ ] Task 3: Add `DashboardMapper::findByGroup(groupId)` and `DashboardMapper::findVisibleToUser(userId, userGroupIds)` (3 indexed queries — personal/group/default — unioned + deduped by UUID, each row tagged with its `source`)
 - [ ] Task 4: Enforce the `(type='group_shared' XOR groupId IS NULL)` invariant in `DashboardFactory::create()` with `\InvalidArgumentException` on mismatch

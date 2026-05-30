@@ -2,7 +2,7 @@
 
 ## Context
 
-This capability is a MyDash-native invention — not present in the source app. Admins define typed
+This capability is a LaunchPad-native invention — not present in the source app. Admins define typed
 metadata fields; users and widgets store values against them. The spec (`dashboard-metadata-fields`)
 pins the two-table model, CRUD endpoints, type enum, and filter-by-metadata query contract.
 
@@ -34,7 +34,7 @@ tolerance, and cascade semantics that the spec implies but leaves to the impleme
 **Rationale**: Covers all widget-filtering use cases from spec triage.
 
 ### D2: Value encoding strategy
-**Decision**: TEXT column in `oc_mydash_metadata_values.value`. Plain string for scalar types;
+**Decision**: TEXT column in `oc_launchpad_metadata_values.value`. Plain string for scalar types;
 JSON array string for `select`/`multi-select`. `boolean` stored as `"1"`/`"0"`.
 **Alternatives considered**:
 - Typed columns per type — rejected; painful migrations when adding types
@@ -44,7 +44,7 @@ JSON array string for `select`/`multi-select`. `boolean` stored as `"1"`/`"0"`.
 ### D3: Validation failure response
 **Decision**: Type-mismatched value write returns HTTP 422 `{"error":"validation_failed","field":"value","type":"<expected>"}`.
 **Alternatives considered**: HTTP 400 — 422 is more semantically precise per RFC 9110.
-**Rationale**: Consistent with MyDash API error contract.
+**Rationale**: Consistent with LaunchPad API error contract.
 
 ### D4: Orphan-value tolerance
 **Decision**: Deleting a field does NOT auto-delete its values. `MetadataValueService` hides orphaned
@@ -60,11 +60,11 @@ values exist. `?cascade=true` deletes values and the field definition in a trans
 **Alternatives considered**:
 - Always cascade — rejected; matches the philosophy in `dashboard-tree` D5 for consistency
 **Rationale**: Explicit opt-in for destructive operations. Two-step pattern used consistently
-across MyDash delete flows.
+across LaunchPad delete flows.
 
 ### D6: Filter-by-metadata query approach
 **Decision**: Dashboard list endpoint accepts `?meta[fieldSlug]=value` params; translated to
-`INNER JOIN oc_mydash_metadata_values` with `WHERE field_id = ? AND value = ?` per param.
+`INNER JOIN oc_launchpad_metadata_values` with `WHERE field_id = ? AND value = ?` per param.
 **Alternatives considered**:
 - Full-text search across value column — rejected; too broad, breaks type semantics
 - POST body filter — rejected; GET semantics for list queries, bookmarkable URLs

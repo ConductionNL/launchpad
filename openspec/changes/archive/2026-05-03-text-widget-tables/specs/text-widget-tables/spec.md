@@ -379,7 +379,7 @@ When a table is freshly created (empty cells, no user text), the renderer MUST d
 
 - GIVEN `tableData = {headerRow: false, columnAlignments: ["left"], rows: [[{text: ""}]]}`
 - WHEN the widget renders
-- THEN the cell MUST display a translated placeholder text (e.g., `t('mydash', 'Empty table')`)
+- THEN the cell MUST display a translated placeholder text (e.g., `t('launchpad', 'Empty table')`)
 - AND the placeholder text MUST be styled with `color: var(--color-text-maxcontrast)` and `font-style: italic`
 - AND the placeholder MUST NOT be persisted (if the user saves, cell still has `text: ""`)
 

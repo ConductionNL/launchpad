@@ -17,12 +17,12 @@ successes in cleanup and import operations can leave the installation in an inco
 ## Goals / Non-Goals
 
 **Goals:**
-- All MyDash CLI commands registered under the `mydash:` namespace.
+- All LaunchPad CLI commands registered under the `launchpad:` namespace.
 - Consistent global flags across every command.
 - A documented exit-code contract (0–5).
 - Structured JSON output mode for scripting consumers.
 - A log line emitted on completion of every command.
-- Full discoverability via `php occ list mydash`.
+- Full discoverability via `php occ list launchpad`.
 
 **Non-Goals:**
 - Interactive TUI / wizard-style commands.
@@ -32,10 +32,10 @@ successes in cleanup and import operations can leave the installation in an inco
 ## Decisions
 
 ### D1: Namespace and naming convention
-**Decision:** All commands use the `mydash:` prefix with a verb-noun-style suffix separated
-by colons where a sub-domain is needed — e.g. `mydash:dashboard:list`,
-`mydash:cleanup:scan`, `mydash:i18n:export-strings`.
-**Alternatives considered:** Flat names without sub-namespaces (`mydash:list-dashboards`);
+**Decision:** All commands use the `launchpad:` prefix with a verb-noun-style suffix separated
+by colons where a sub-domain is needed — e.g. `launchpad:dashboard:list`,
+`launchpad:cleanup:scan`, `launchpad:i18n:export-strings`.
+**Alternatives considered:** Flat names without sub-namespaces (`launchpad:list-dashboards`);
 no namespace prefix (relying solely on class registration).
 **Rationale:** The colon-separated sub-namespace groups related commands in `occ list` output
 and prevents name collisions as the command surface grows.
@@ -47,7 +47,7 @@ confirmation prompts, error on missing required args).
 **Alternatives considered:** Per-command flag definitions only; use the platform's built-in
 `-q` shorthand exclusively.
 **Rationale:** Uniform flags allow operators to write generic wrapper scripts that apply the
-same flags regardless of which `mydash:*` command they invoke. `--json` is especially
+same flags regardless of which `launchpad:*` command they invoke. `--json` is especially
 important for CI consumers that parse output.
 
 ### D3: Exit-code contract
@@ -73,13 +73,13 @@ the implementing class name.
 
 ### D6: Audit logging
 **Decision:** Every command emits one `INFO` log line on completion:
-`[mydash] cli <cmd> exitCode=N durationMs=M byUser=<uid>`.
+`[launchpad] cli <cmd> exitCode=N durationMs=M byUser=<uid>`.
 **Alternatives considered:** Log only on failure; dedicated audit table.
 **Rationale:** One line per command is low-noise and routes through the platform log backend
 without requiring a separate table migration.
 
 ### D7: Discoverability requirement
-**Decision:** `php occ list mydash` MUST list every `mydash:*` command with a one-line
+**Decision:** `php occ list launchpad` MUST list every `launchpad:*` command with a one-line
 description. Missing description = code review failure.
 **Alternatives considered:** No explicit requirement.
 **Rationale:** An undocumented command is invisible to operators; the description requirement
@@ -96,6 +96,6 @@ enforces discoverability at review time.
 
 ## Open follow-ups
 
-- Define a `mydash:doctor` command for self-checks (database, file-store, lock health).
+- Define a `launchpad:doctor` command for self-checks (database, file-store, lock health).
 - Add `--output-file=<path>` to commands with large binary output to avoid polluting stdout.
-- Evaluate a `mydash:shell` REPL for interactive debugging in production environments.
+- Evaluate a `launchpad:shell` REPL for interactive debugging in production environments.

@@ -5,7 +5,7 @@
 - [x] 1.1 Create `src/components/Widgets/WidgetContextMenu.vue` with three buttons (`Edit`, `Remove`, `Cancel`) and `top` / `left` props
 - [x] 1.2 Style: `position: absolute`, `min-width: 150px`, `z-index: 10000`, NC-themed background, rounded corners, subtle shadow
 - [x] 1.3 Emit `edit`, `remove`, `close` events; each click closes the popover via `closeContextMenu()`
-- [x] 1.4 Use `t('mydash', 'Edit' | 'Remove' | 'Cancel')` for button labels (i18n-ready)
+- [x] 1.4 Use `t('launchpad', 'Edit' | 'Remove' | 'Cancel')` for button labels (i18n-ready)
 
 ## 2. Composable wiring
 

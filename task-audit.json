@@ -33,7 +33,7 @@
     },
     {
       "task": "1.6",
-      "file": "lib/Settings/MyDashAdmin.php",
+      "file": "lib/Settings/LaunchPadAdmin.php",
       "ok": true,
       "note": "allowUserDashboards surfaced in admin page initial state at line 122-131; AdminSettingsService also exposes it"
     },

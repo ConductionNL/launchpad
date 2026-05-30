@@ -6,7 +6,7 @@
  * Migration to add custom_icon column to widget placements.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -44,7 +44,7 @@ class Version001004Date20260204150000 extends SimpleMigrationStep
         $schema = $schemaClosure();
 
         $table = $schema->getTable(
-            'mydash_widget_placements'
+            'launchpad_widget_placements'
         );
 
         if ($table->hasColumn('custom_icon') === false) {

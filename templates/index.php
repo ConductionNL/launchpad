@@ -14,16 +14,16 @@
  * either side would break the workspace boot.
  *
  * @category Template
- * @package  OCA\MyDash
+ * @package  OCA\LaunchPad
  * @author   Conduction b.v. <info@conduction.nl>
  * @license  AGPL-3.0-or-later https://www.gnu.org/licenses/agpl-3.0.html
  * @link     https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 ?>
 
-<div id="app-workspace" class="mydash-workspace">
+<div id="app-workspace" class="launchpad-workspace">
 	<div id="workspace-vue"></div>
 </div>

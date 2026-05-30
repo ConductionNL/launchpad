@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Documentation screenshot capture suite.
  *
  * This spec is *not* a regression test — its only job is to drive the
- * MyDash UI through every flow documented under
+ * LaunchPad UI through every flow documented under
  * `docs/tutorials/{user,admin}/*.md` and write a fresh PNG into
  * `docs/screenshots/tutorials/<track>/<filename>.png` for each step the
  * markdown references.
@@ -61,7 +61,7 @@ async function shoot(page: Page, track: 'user' | 'admin', file: string): Promise
  * Open the slide-in dashboard sidebar.
  */
 async function openSidebar(page: Page): Promise<void> {
-	const toggle = page.locator('.mydash-sidebar-toggle').first()
+	const toggle = page.locator('.launchpad-sidebar-toggle').first()
 	await toggle.click()
 	await expect(page.locator('.dashboard-switcher-sidebar')).toBeVisible()
 }
@@ -84,7 +84,7 @@ async function openCogFor(page: Page, name: string): Promise<void> {
 	await expect(page.getByRole('menuitem').first()).toBeVisible()
 }
 
-// Capture flows are independent — each test re-navigates from `/apps/mydash/`
+// Capture flows are independent — each test re-navigates from `/apps/launchpad/`
 // so a selector miss on one doesn't cascade. Selector misses are the
 // expected first-run failure mode (UI markup drifts faster than docs);
 // failures land per-test in `test-results/` rather than killing the suite.
@@ -93,8 +93,8 @@ test.describe.configure({ mode: 'default' })
 
 test.beforeEach(async ({ page }) => {
 	page.setViewportSize({ width: 1280, height: 800 })
-	await page.goto('/apps/mydash/')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 15_000 })
+	await page.goto('/apps/launchpad/')
+	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 15_000 })
 })
 
 // ---------------------------------------------------------------------------
@@ -291,8 +291,8 @@ test.describe('docs: user track', () => {
 
 		// 08-deep-link-landed: navigate to a known slug and screenshot the landed state
 		const slug = 'newman-validation' // assumed to exist in the seeded test env; adjust as needed
-		await page.goto(`/apps/mydash/${slug}`)
-		await page.waitForSelector('.mydash-sidebar-toggle')
+		await page.goto(`/apps/launchpad/${slug}`)
+		await page.waitForSelector('.launchpad-sidebar-toggle')
 		await shoot(page, 'user', '08-deep-link-landed.png')
 
 		// 08-url-after-switch: switch to a different dashboard via the sidebar
@@ -340,7 +340,7 @@ test.describe('docs: user track', () => {
 
 test.describe('docs: admin track', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/settings/admin/mydash')
+		await page.goto('/settings/admin/launchpad')
 		await page.waitForLoadState('networkidle')
 	})
 
@@ -385,9 +385,9 @@ test.describe('docs: admin track', () => {
 	})
 
 	test('A3 group defaults — admin cog + member view', async ({ page }) => {
-		// Switch back to MyDash workspace as admin to find a group dashboard
-		await page.goto('/apps/mydash/')
-		await page.waitForSelector('.mydash-sidebar-toggle')
+		// Switch back to LaunchPad workspace as admin to find a group dashboard
+		await page.goto('/apps/launchpad/')
+		await page.waitForSelector('.launchpad-sidebar-toggle')
 		await openSidebar(page)
 		const groupRow = page.locator('[data-source="group"], [data-source="default"]').first()
 		if ((await groupRow.count()) > 0) {

@@ -1,54 +1,54 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
-	<div class="mydash-admin">
+	<div class="launchpad-admin">
 		<CnSettingsSection
-			:name="t('mydash', 'MyDash settings')"
-			:description="t('mydash', 'Configure dashboard permissions and defaults')"
-			doc-url="https://mydash.conduction.nl/docs/intro">
+			:name="t('launchpad', 'LaunchPad settings')"
+			:description="t('launchpad', 'Configure dashboard permissions and defaults')"
+			doc-url="https://launchpad.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays visible until the
 			     admin clicks Finish in the wizard; after completion a less
 			     prominent re-run link replaces it (REQ-WIZ-011). -->
 			<div
 				v-if="wizardState && !wizardState.complete"
-				class="mydash-admin__wizard-banner"
+				class="launchpad-admin__wizard-banner"
 				data-test="setup-wizard-banner">
 				<div>
-					<strong>{{ t('mydash', 'Run setup wizard') }}</strong>
+					<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
 					<p>
-						{{ t('mydash', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
+						{{ t('launchpad', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
 					</p>
 				</div>
 				<NcButton
 					type="primary"
 					data-test="setup-wizard-open"
 					@click="openWizard">
-					{{ t('mydash', 'Run setup wizard') }}
+					{{ t('launchpad', 'Run setup wizard') }}
 				</NcButton>
 			</div>
 			<div
 				v-else-if="wizardState && wizardState.complete"
-				class="mydash-admin__wizard-rerun"
+				class="launchpad-admin__wizard-rerun"
 				data-test="setup-wizard-rerun">
 				<NcButton
 					type="tertiary"
 					data-test="setup-wizard-rerun-open"
 					@click="openWizard">
-					{{ t('mydash', 'Run setup wizard again') }}
+					{{ t('launchpad', 'Run setup wizard again') }}
 				</NcButton>
 			</div>
 
 			<!-- Global Settings -->
-			<div class="mydash-admin__section" data-testid="admin-default-settings">
-				<h3>{{ t('mydash', 'Default settings') }}</h3>
+			<div class="launchpad-admin__section" data-testid="admin-default-settings">
+				<h3>{{ t('launchpad', 'Default settings') }}</h3>
 
-				<div class="mydash-admin__field">
+				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultPermissionLevel"
-						:input-label="t('mydash', 'Default permission level')"
+						:input-label="t('launchpad', 'Default permission level')"
 						:options="permissionOptions"
 						label="label"
 						track-by="id"
@@ -66,22 +66,22 @@
 					:checked="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
 					@update:checked="updateSetting('allowUserDashboards', $event)">
-					{{ t('mydash', 'Allow users to create custom dashboards') }}
+					{{ t('launchpad', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
-				<p class="mydash-admin__hint mydash-admin__hint--inline">
-					{{ t('mydash', 'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.') }}
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{ t('launchpad', 'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.') }}
 				</p>
 
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowMultipleDashboards"
 					@update:checked="updateSetting('allowMultipleDashboards', $event)">
-					{{ t('mydash', 'Allow users to have multiple dashboards') }}
+					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
-				<div class="mydash-admin__field">
+				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultGridColumns"
-						:input-label="t('mydash', 'Default grid columns')"
+						:input-label="t('launchpad', 'Default grid columns')"
 						:options="gridColumnOptions"
 						:clearable="false"
 						@input="saveSettings" />
@@ -89,54 +89,54 @@
 			</div>
 
 			<!-- Group priority order (REQ-ASET-012/013/014) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<GroupPriorityOrder :initial-active="configuredGroups" />
 			</div>
 
 			<!-- Template Management -->
-			<div class="mydash-admin__section" data-testid="admin-templates-section">
-				<div class="mydash-admin__section-header">
-					<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
+			<div class="launchpad-admin__section" data-testid="admin-templates-section">
+				<div class="launchpad-admin__section-header">
+					<h3>{{ t('launchpad', 'Dashboard templates') }}</h3>
 					<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
 						<template #icon>
 							<Plus :size="20" />
 						</template>
-						{{ t('mydash', 'Create template') }}
+						{{ t('launchpad', 'Create template') }}
 					</NcButton>
 				</div>
 
-				<p class="mydash-admin__hint">
-					{{ t('mydash', 'Create dashboard templates that will be applied to users based on their groups.') }}
+				<p class="launchpad-admin__hint">
+					{{ t('launchpad', 'Create dashboard templates that will be applied to users based on their groups.') }}
 				</p>
 
-				<div v-if="templates.length === 0" class="mydash-admin__empty">
-					<NcEmptyContent :description="t('mydash', 'No templates yet')">
+				<div v-if="templates.length === 0" class="launchpad-admin__empty">
+					<NcEmptyContent :description="t('launchpad', 'No templates yet')">
 						<template #icon>
 							<ViewDashboard :size="48" />
 						</template>
 					</NcEmptyContent>
 				</div>
 
-				<div v-else class="mydash-admin__templates">
+				<div v-else class="launchpad-admin__templates">
 					<div
 						v-for="template in templates"
 						:key="template.id"
-						class="mydash-admin__template">
-						<div class="mydash-admin__template-info">
+						class="launchpad-admin__template">
+						<div class="launchpad-admin__template-info">
 							<strong>{{ template.name }}</strong>
-							<span v-if="template.isDefault" class="mydash-admin__badge">
-								{{ t('mydash', 'Default') }}
+							<span v-if="template.isDefault" class="launchpad-admin__badge">
+								{{ t('launchpad', 'Default') }}
 							</span>
-							<span class="mydash-admin__template-groups">
+							<span class="launchpad-admin__template-groups">
 								{{ formatTargetGroups(template.targetGroups) }}
 							</span>
 						</div>
-						<div class="mydash-admin__template-actions">
+						<div class="launchpad-admin__template-actions">
 							<NcButton type="secondary" @click="editTemplate(template)">
-								{{ t('mydash', 'Edit') }}
+								{{ t('launchpad', 'Edit') }}
 							</NcButton>
 							<NcButton type="error" @click="deleteTemplate(template)">
-								{{ t('mydash', 'Delete') }}
+								{{ t('launchpad', 'Delete') }}
 							</NcButton>
 						</div>
 					</div>
@@ -144,51 +144,51 @@
 			</div>
 
 			<!-- Group-shared dashboards (REQ-DASH-015..017) -->
-			<div class="mydash-admin__section">
-				<div class="mydash-admin__section-header">
-					<h3>{{ t('mydash', 'Group-shared dashboards') }}</h3>
+			<div class="launchpad-admin__section">
+				<div class="launchpad-admin__section-header">
+					<h3>{{ t('launchpad', 'Group-shared dashboards') }}</h3>
 				</div>
 
-				<p class="mydash-admin__hint">
-					{{ t('mydash', 'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.') }}
+				<p class="launchpad-admin__hint">
+					{{ t('launchpad', 'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.') }}
 				</p>
 
-				<div v-if="loadingGroupDashboards" class="mydash-admin__hint">
-					{{ t('mydash', 'Loading group dashboards…') }}
+				<div v-if="loadingGroupDashboards" class="launchpad-admin__hint">
+					{{ t('launchpad', 'Loading group dashboards…') }}
 				</div>
 
 				<div
 					v-for="(rows, groupId) in groupSharedDashboards"
 					:key="groupId"
-					class="mydash-admin__group">
-					<h4 class="mydash-admin__group-title">
+					class="launchpad-admin__group">
+					<h4 class="launchpad-admin__group-title">
 						{{ groupId }}
 					</h4>
-					<div v-if="rows.length === 0" class="mydash-admin__hint">
-						{{ t('mydash', 'No group-shared dashboards in this group yet.') }}
+					<div v-if="rows.length === 0" class="launchpad-admin__hint">
+						{{ t('launchpad', 'No group-shared dashboards in this group yet.') }}
 					</div>
-					<div v-else class="mydash-admin__templates">
+					<div v-else class="launchpad-admin__templates">
 						<div
 							v-for="dash in rows"
 							:key="dash.uuid"
-							class="mydash-admin__template">
-							<div class="mydash-admin__template-info">
+							class="launchpad-admin__template">
+							<div class="launchpad-admin__template-info">
 								<strong>{{ dash.name }}</strong>
 								<span
 									v-if="dash.isDefault === 1"
-									class="mydash-admin__badge"
+									class="launchpad-admin__badge"
 									data-test="group-default-badge">
-									{{ t('mydash', 'Default') }}
+									{{ t('launchpad', 'Default') }}
 								</span>
 							</div>
-							<div class="mydash-admin__template-actions">
+							<div class="launchpad-admin__template-actions">
 								<NcButton
 									v-if="dash.isDefault !== 1"
 									type="secondary"
 									data-test="set-group-default"
 									:disabled="settingGroupDefault === dash.uuid"
 									@click="setGroupDefault(groupId, dash.uuid)">
-									{{ t('mydash', 'Set as default') }}
+									{{ t('launchpad', 'Set as default') }}
 								</NcButton>
 							</div>
 						</div>
@@ -197,50 +197,50 @@
 			</div>
 
 			<!-- Org-wide navigation editor (REQ-ONAV-001..012) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<OrgNavigationEditor :groups="injectedAllGroups" />
 			</div>
 
 			<!-- Backup & migration (REQ-EXIM-001..010) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<DashboardExportImport />
 			</div>
 
 			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
-			<div class="mydash-admin__section" data-testid="admin-bulk-section">
+			<div class="launchpad-admin__section" data-testid="admin-bulk-section">
 				<DashboardBulkOperations />
 			</div>
 
 			<!-- Confluence HTML import (REQ-CFLI-001..012) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<ConfluenceImport />
 			</div>
 
 			<!-- Dashboard view-analytics (REQ-ANLT-006..010) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<AdminAnalytics />
 			</div>
 
 			<!-- Demo data showcases (REQ-DEMO-001..009) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<AdminDemoData />
 			</div>
 
 			<!-- Role-based widget permissions (REQ-RFP-001..010) -->
-			<div class="mydash-admin__section" data-testid="admin-roles-section">
+			<div class="launchpad-admin__section" data-testid="admin-roles-section">
 				<RolePermissionsSection />
 			</div>
 
 			<!-- Action authorization matrix (ADR-023) -->
-			<div class="mydash-admin__section">
+			<div class="launchpad-admin__section">
 				<ActionAuthMatrix />
 			</div>
 
 			<!-- Info -->
-			<div class="mydash-admin__section">
-				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
+			<div class="launchpad-admin__section">
+				<h3>{{ t('launchpad', 'Setting as default app') }}</h3>
 				<p>
-					{{ t('mydash', 'To make MyDash the default app for users, go to Settings > Administration > Theming and select MyDash as the default app.') }}
+					{{ t('launchpad', 'To make LaunchPad the default app for users, go to Settings > Administration > Theming and select LaunchPad as the default app.') }}
 				</p>
 			</div>
 		</CnSettingsSection>
@@ -256,36 +256,36 @@
 		<!-- Template Editor Modal -->
 		<NcModal
 			v-if="editingTemplate"
-			:name="editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template')"
+			:name="editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template')"
 			size="large"
 			@close="closeTemplateEditor">
-			<div class="mydash-admin__modal">
-				<h2>{{ editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template') }}</h2>
+			<div class="launchpad-admin__modal">
+				<h2>{{ editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template') }}</h2>
 
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Template name') }}</label>
-					<NcTextField v-model="editingTemplate.name" :placeholder="t('mydash', 'My template')" />
+				<div class="launchpad-admin__field">
+					<label>{{ t('launchpad', 'Template name') }}</label>
+					<NcTextField v-model="editingTemplate.name" :placeholder="t('launchpad', 'My template')" />
 				</div>
 
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Description') }}</label>
-					<NcTextField v-model="editingTemplate.description" :placeholder="t('mydash', 'Optional description')" />
+				<div class="launchpad-admin__field">
+					<label>{{ t('launchpad', 'Description') }}</label>
+					<NcTextField v-model="editingTemplate.description" :placeholder="t('launchpad', 'Optional description')" />
 				</div>
 
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Target groups') }}</label>
+				<div class="launchpad-admin__field">
+					<label>{{ t('launchpad', 'Target groups') }}</label>
 					<NcSelectTags
 						v-model="editingTemplate.targetGroups"
 						:options="availableGroups"
 						:multiple="true"
-						:aria-label-combobox="t('mydash', 'Target groups')"
-						:placeholder="t('mydash', 'Select groups (leave empty for all users)')" />
+						:aria-label-combobox="t('launchpad', 'Target groups')"
+						:placeholder="t('launchpad', 'Select groups (leave empty for all users)')" />
 				</div>
 
-				<div class="mydash-admin__field">
+				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="editingTemplate.permissionLevel"
-						:input-label="t('mydash', 'Permission level')"
+						:input-label="t('launchpad', 'Permission level')"
 						:options="permissionOptions"
 						label="label"
 						track-by="id"
@@ -295,15 +295,15 @@
 				<NcCheckboxRadioSwitch
 					:checked="editingTemplate.isDefault"
 					@update:checked="editingTemplate.isDefault = $event">
-					{{ t('mydash', 'Set as default template') }}
+					{{ t('launchpad', 'Set as default template') }}
 				</NcCheckboxRadioSwitch>
 
-				<div class="mydash-admin__modal-actions">
+				<div class="launchpad-admin__modal-actions">
 					<NcButton type="secondary" @click="closeTemplateEditor">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton type="primary" @click="saveTemplate">
-						{{ t('mydash', 'Save') }}
+						{{ t('launchpad', 'Save') }}
 					</NcButton>
 				</div>
 			</div>
@@ -363,7 +363,7 @@ export default {
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
-	// pushes via `MyDashAdmin::getForm()`. Treated as a hint for the
+	// pushes via `LaunchPadAdmin::getForm()`. Treated as a hint for the
 	// initial render only — `loadData()` overwrites with the API truth.
 	inject: {
 		injectedAllGroups: { from: 'allGroups', default: () => [] },
@@ -384,7 +384,7 @@ export default {
 		return {
 			loading: true,
 			settings: {
-				defaultPermissionLevel: { id: 'add_only', label: this.t('mydash', 'Add only') },
+				defaultPermissionLevel: { id: 'add_only', label: this.t('launchpad', 'Add only') },
 				// Default mirrors the spec — admins MUST opt in.
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
@@ -394,9 +394,9 @@ export default {
 			availableGroups: [],
 			editingTemplate: null,
 			permissionOptions: [
-				{ id: 'view_only', label: this.t('mydash', 'View only') },
-				{ id: 'add_only', label: this.t('mydash', 'Add only') },
-				{ id: 'full', label: this.t('mydash', 'Full customization') },
+				{ id: 'view_only', label: this.t('launchpad', 'View only') },
+				{ id: 'add_only', label: this.t('launchpad', 'Add only') },
+				{ id: 'full', label: this.t('launchpad', 'Full customization') },
 			],
 			gridColumnOptions: [6, 8, 12],
 			// REQ-DASH-015..017 — group-shared dashboards listing for the
@@ -534,7 +534,7 @@ export default {
 
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async deleteTemplate(template) {
-			if (!confirm(this.t('mydash', 'Are you sure you want to delete this template?'))) {
+			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this template?'))) {
 				return
 			}
 
@@ -549,7 +549,7 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		formatTargetGroups(groups) {
 			if (!groups || groups.length === 0) {
-				return this.t('mydash', 'All users')
+				return this.t('launchpad', 'All users')
 			}
 			return groups.join(', ')
 		},
@@ -679,7 +679,7 @@ export default {
 					}),
 				}
 				console.error(
-					this.t('mydash', 'Failed to set the group default dashboard'),
+					this.t('launchpad', 'Failed to set the group default dashboard'),
 					error,
 				)
 			} finally {
@@ -691,53 +691,53 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin {
+.launchpad-admin {
 	max-width: 800px;
 }
 
-.mydash-admin__section {
+.launchpad-admin__section {
 	margin-bottom: 32px;
 	padding-bottom: 32px;
 	border-bottom: 1px solid var(--color-border);
 }
 
-.mydash-admin__section h3 {
+.launchpad-admin__section h3 {
 	margin: 0 0 16px;
 }
 
-.mydash-admin__section-header {
+.launchpad-admin__section-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 16px;
 }
 
-.mydash-admin__section-header h3 {
+.launchpad-admin__section-header h3 {
 	margin: 0;
 }
 
-.mydash-admin__hint {
+.launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
 }
 
-.mydash-admin__field {
+.launchpad-admin__field {
 	margin-bottom: 16px;
 }
 
-.mydash-admin__field label {
+.launchpad-admin__field label {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 500;
 }
 
-.mydash-admin__templates {
+.launchpad-admin__templates {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.mydash-admin__template {
+.launchpad-admin__template {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -746,23 +746,23 @@ export default {
 	border-radius: var(--border-radius);
 }
 
-.mydash-admin__template-info {
+.launchpad-admin__template-info {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.mydash-admin__template-groups {
+.launchpad-admin__template-groups {
 	color: var(--color-text-maxcontrast);
 	font-size: 14px;
 }
 
-.mydash-admin__template-actions {
+.launchpad-admin__template-actions {
 	display: flex;
 	gap: 8px;
 }
 
-.mydash-admin__badge {
+.launchpad-admin__badge {
 	display: inline-block;
 	padding: 2px 8px;
 	background: var(--color-primary-element);
@@ -771,23 +771,23 @@ export default {
 	font-size: 12px;
 }
 
-.mydash-admin__empty {
+.launchpad-admin__empty {
 	padding: 48px 0;
 }
 
-.mydash-admin__modal {
+.launchpad-admin__modal {
 	padding: 24px;
 }
 
-.mydash-admin__modal h2 {
+.launchpad-admin__modal h2 {
 	margin: 0 0 24px;
 }
 
-.mydash-admin__group {
+.launchpad-admin__group {
 	margin-bottom: 24px;
 }
 
-.mydash-admin__group-title {
+.launchpad-admin__group-title {
 	margin: 16px 0 8px;
 	font-size: 14px;
 	font-weight: 600;
@@ -796,14 +796,14 @@ export default {
 	letter-spacing: 0.04em;
 }
 
-.mydash-admin__modal-actions {
+.launchpad-admin__modal-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 12px;
 	margin-top: 24px;
 }
 
-.mydash-admin__wizard-banner {
+.launchpad-admin__wizard-banner {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -815,13 +815,13 @@ export default {
 	border-radius: var(--border-radius);
 }
 
-.mydash-admin__wizard-banner p {
+.launchpad-admin__wizard-banner p {
 	margin: 4px 0 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 13px;
 }
 
-.mydash-admin__wizard-rerun {
+.launchpad-admin__wizard-rerun {
 	margin-bottom: 16px;
 	display: flex;
 	justify-content: flex-end;

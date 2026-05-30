@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `QuicklinksWidget.vue` covering REQ-QLNK-001
@@ -121,12 +121,12 @@ describe('QuicklinksWidget', () => {
 
 	it('REQ-QLNK-003: icon URL renders as <img>', () => {
 		const wrapper = mountWidget({
-			links: [{ label: 'L', url: 'https://e', icon: '/apps/mydash/resource/x.png' }],
+			links: [{ label: 'L', url: 'https://e', icon: '/apps/launchpad/resource/x.png' }],
 			iconSize: 'medium',
 		})
 		const img = wrapper.find('.quicklinks-widget__icon img')
 		expect(img.exists()).toBe(true)
-		expect(img.attributes('src')).toBe('/apps/mydash/resource/x.png')
+		expect(img.attributes('src')).toBe('/apps/launchpad/resource/x.png')
 		expect(img.attributes('width')).toBe('48')
 	})
 

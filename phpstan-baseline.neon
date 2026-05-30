@@ -21,7 +21,7 @@ parameters:
 			path: lib/Controller/AdminController.php
 
 		-
-			message: "#^Property OCA\\\\MyDash\\\\Controller\\\\AdminController\\:\\:\\$groupManager is never read, only written\\.$#"
+			message: "#^Property OCA\\\\LaunchPad\\\\Controller\\\\AdminController\\:\\:\\$groupManager is never read, only written\\.$#"
 			count: 1
 			path: lib/Controller/AdminController.php
 
@@ -91,7 +91,7 @@ parameters:
 			path: lib/Controller/FeedController.php
 
 		-
-			message: "#^Access to constant STATUS_UNAUTHORIZED on an unknown class OCA\\\\MyDash\\\\Controller\\\\Http\\.$#"
+			message: "#^Access to constant STATUS_UNAUTHORIZED on an unknown class OCA\\\\LaunchPad\\\\Controller\\\\Http\\.$#"
 			count: 1
 			path: lib/Controller/ManifestController.php
 
@@ -106,7 +106,7 @@ parameters:
 			path: lib/Controller/ResourceController.php
 
 		-
-			message: "#^Property OCA\\\\MyDash\\\\Controller\\\\ResourceController\\:\\:\\$l10n is never read, only written\\.$#"
+			message: "#^Property OCA\\\\LaunchPad\\\\Controller\\\\ResourceController\\:\\:\\$l10n is never read, only written\\.$#"
 			count: 1
 			path: lib/Controller/ResourceController.php
 
@@ -181,92 +181,92 @@ parameters:
 			path: lib/Listener/WidgetPlacementsListener.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardTableBuilder\\:\\:addFooterColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardTableBuilder\\:\\:addFooterColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardTableBuilder\\:\\:addPublicationColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardTableBuilder\\:\\:addPublicationColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardTableBuilder\\:\\:addTemplateDiscoveryColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardTableBuilder\\:\\:addTemplateDiscoveryColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardTableBuilder\\:\\:addTreeColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardTableBuilder\\:\\:addTreeColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardViewsTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardViewsTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardViewsTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\DashboardViewsTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\DashboardViewsTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/DashboardViewsTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\PlacementTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\PlacementTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/PlacementTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\PlacementTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\PlacementTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/PlacementTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\RoleFeaturePermissionTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\RoleFeaturePermissionTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/RoleFeaturePermissionTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\RoleFeaturePermissionTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\RoleFeaturePermissionTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/RoleFeaturePermissionTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\RoleLayoutDefaultTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\RoleLayoutDefaultTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/RoleLayoutDefaultTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\RoleLayoutDefaultTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\RoleLayoutDefaultTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/RoleLayoutDefaultTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\RulesTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\RulesTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/RulesTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\RulesTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\RulesTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/RulesTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\SettingsTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\SettingsTableBuilder\\:\\:addColumns\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/SettingsTableBuilder.php
 
 		-
-			message: "#^Parameter \\$table of method OCA\\\\MyDash\\\\Migration\\\\SettingsTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
+			message: "#^Parameter \\$table of method OCA\\\\LaunchPad\\\\Migration\\\\SettingsTableBuilder\\:\\:addIndexes\\(\\) has invalid type Doctrine\\\\DBAL\\\\Schema\\\\Table\\.$#"
 			count: 1
 			path: lib/Migration/SettingsTableBuilder.php
 

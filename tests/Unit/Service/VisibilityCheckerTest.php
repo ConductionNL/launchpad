@@ -4,7 +4,7 @@
  * VisibilityChecker Test
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -14,9 +14,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\ConditionalRule;
-use OCA\MyDash\Service\RuleEvaluatorService;
-use OCA\MyDash\Service\VisibilityChecker;
+use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Service\RuleEvaluatorService;
+use OCA\LaunchPad\Service\VisibilityChecker;
 use PHPUnit\Framework\TestCase;
 
 class VisibilityCheckerTest extends TestCase

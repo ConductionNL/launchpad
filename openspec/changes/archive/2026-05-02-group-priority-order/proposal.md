@@ -2,11 +2,11 @@
 
 ## Why
 
-Multi-group users currently have no deterministic way to know which group's dashboard set they will see — group iteration order is implementation-defined. Admins also have no way to designate which Nextcloud groups are "in scope" for MyDash at all (today every group is implicitly active). This change gives admins explicit control over both the active set and the priority order, and is the foundation that the `group-routing` change consumes for primary-group resolution (REQ-TMPL-012).
+Multi-group users currently have no deterministic way to know which group's dashboard set they will see — group iteration order is implementation-defined. Admins also have no way to designate which Nextcloud groups are "in scope" for LaunchPad at all (today every group is implicitly active). This change gives admins explicit control over both the active set and the priority order, and is the foundation that the `group-routing` change consumes for primary-group resolution (REQ-TMPL-012).
 
 ## What Changes
 
-- Add a new global admin setting `group_order` to `oc_mydash_admin_settings`, persisted as a JSON string list of Nextcloud group IDs in the order the admin chose.
+- Add a new global admin setting `group_order` to `oc_launchpad_admin_settings`, persisted as a JSON string list of Nextcloud group IDs in the order the admin chose.
 - Add `GET /api/admin/groups` returning `{active, inactive, allKnown}` so the admin UI can render both columns in one round-trip and surface stale (deleted) group IDs.
 - Add `POST /api/admin/groups` accepting `{groups: [id…]}` that **replaces wholesale** (no partial merge — UI sends the full ordered list after every drag).
 - Both endpoints are admin-only via `IGroupManager::isAdmin` (`GET` is also admin-gated because the inactive list reveals every group on the system).
@@ -25,7 +25,7 @@ Multi-group users currently have no deterministic way to know which group's dash
   - `lib/Controller/AdminSettingsController.php` — new `listGroups()` (GET) and `updateGroupOrder()` (POST) actions.
   - `appinfo/routes.php` — register `GET /api/admin/groups` and `POST /api/admin/groups`.
   - `src/views/AdminApp.vue` — new two-list drag-and-drop component (using existing `vuedraggable`).
-- **Data**: one new row in `oc_mydash_admin_settings` (key `group_order`, JSON value, default `[]`). No schema migration needed — the table already accepts arbitrary keys.
+- **Data**: one new row in `oc_launchpad_admin_settings` (key `group_order`, JSON value, default `[]`). No schema migration needed — the table already accepts arbitrary keys.
 - **APIs**: two new endpoints; existing `/api/admin/settings` is untouched.
 - **Dependencies**: no new server deps; frontend uses already-bundled `vuedraggable`.
 - **Downstream**: the `group-routing` change reads `group_order` via `AdminSettingsService::getGroupOrder()` to resolve primary group per REQ-TMPL-012.

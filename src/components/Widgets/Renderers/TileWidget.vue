@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -59,7 +59,7 @@ import { generateUrl } from '@nextcloud/router'
  * BOTH the new inline `placement.content.{title, icon, ...}` shape AND
  * the legacy flat `placement.tileTitle / tileIcon / ...` columns so that
  * dashboards holding tile placements created via the deprecated
- * `oc_mydash_tiles` flow continue to render without a migration step.
+ * `oc_launchpad_tiles` flow continue to render without a migration step.
  *
  * Click is suppressed while the surrounding dashboard is in admin/edit
  * mode, mirroring the close-discipline rules applied across the other

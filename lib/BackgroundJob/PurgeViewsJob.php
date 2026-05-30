@@ -6,31 +6,31 @@
  * Daily background job that purges aggregate view-count rows older
  * than the configured retention window (REQ-ANLT-009). Default
  * window is 365 days; admin override via
- * `mydash.analytics_retention_days` is clamped to `[30, 3650]`.
+ * `launchpad.analytics_retention_days` is clamped to `[30, 3650]`.
  *
  * Logging is intentionally aggregate-only: row count + cutoff date
  * — never any user-attributable identifiers (REQ-ANLT-009 scenario
  * "Purge logs execution"). The job is registered via
- * {@see \OCA\MyDash\AppInfo\Application::register()}.
+ * {@see \OCA\LaunchPad\AppInfo\Application::register()}.
  *
  * @category  BackgroundJob
- * @package   OCA\MyDash\BackgroundJob
+ * @package   OCA\LaunchPad\BackgroundJob
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\BackgroundJob;
+namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\MyDash\Db\DashboardViewMapper;
-use OCA\MyDash\Service\AnalyticsService;
+use OCA\LaunchPad\Db\DashboardViewMapper;
+use OCA\LaunchPad\Service\AnalyticsService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -81,7 +81,7 @@ class PurgeViewsJob extends TimedJob
         $deleted = $this->viewMapper->deleteOlderThan(beforeDate: $cutoff);
 
         $this->logger->info(
-            message: 'mydash analytics purge: deleted '.$deleted.' rows older than '.$cutoff,
+            message: 'launchpad analytics purge: deleted '.$deleted.' rows older than '.$cutoff,
             context: [
                 'rows'      => $deleted,
                 'cutoff'    => $cutoff,

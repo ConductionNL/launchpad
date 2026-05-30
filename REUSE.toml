@@ -1,6 +1,6 @@
 version = 1
 
-# REUSE compliance for MyDash.
+# REUSE compliance for LaunchPad.
 #
 # PHP files carry license + copyright metadata via PHPDoc tags
 # (@license / @copyright / @author) in the main file docblock per

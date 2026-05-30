@@ -6,14 +6,14 @@ status: implemented
 
 ## Purpose
 
-Admin settings provide Nextcloud administrators with global configuration options for the MyDash app. These settings control system-wide behavior such as whether users can create their own dashboards, how many dashboards they can have, default permission levels for new dashboards, and default grid configuration. Settings are stored as key-value pairs in a dedicated database table and are applied as defaults or constraints across the entire MyDash installation.
+Admin settings provide Nextcloud administrators with global configuration options for the LaunchPad app. These settings control system-wide behavior such as whether users can create their own dashboards, how many dashboards they can have, default permission levels for new dashboards, and default grid configuration. Settings are stored as key-value pairs in a dedicated database table and are applied as defaults or constraints across the entire LaunchPad installation.
 
 ## Data Model
 
 
 @e2e exclude all scenarios test REST/service/config API — admin UI reads settings from API; no dedicated Playwright-testable UI flow shipped in v1.0.5
 
-### Admin Settings (oc_mydash_admin_settings)
+### Admin Settings (oc_launchpad_admin_settings)
 Settings are stored as key-value pairs:
 - **id**: Auto-increment integer primary key
 - **settingKey**: Unique string identifier for the setting (STRING)
@@ -28,7 +28,7 @@ Settings are stored as key-value pairs:
 | `allow_multiple_dashboards` | `allowMultipleDashboards` | boolean | `true` | Whether users can have more than one dashboard |
 | `default_permission_level` | `defaultPermissionLevel` | string | `add_only` | Default permission level for user-created dashboards |
 | `default_grid_columns` | `defaultGridColumns` | integer | `12` | Default number of grid columns for new dashboards |
-| `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for MyDash workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
+| `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
 NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts abbreviated camelCase parameter names: `defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`.
 
@@ -163,7 +163,7 @@ Admins MAY always create dashboards regardless of the flag (the `PermissionServi
 - GIVEN admin setting `allow_user_dashboards = '0'`
 - WHEN user "alice" sends `POST /api/dashboard` with body `{"name": "My Test"}`
 - THEN the system MUST return HTTP 403 with `{status: 'error', error: 'personal_dashboards_disabled', message: 'Personal dashboards are not enabled by your administrator'}`
-- AND no row MUST be inserted into `oc_mydash_dashboards`
+- AND no row MUST be inserted into `oc_launchpad_dashboards`
 
 #### Scenario: Flag off blocks fork
 - GIVEN admin setting `allow_user_dashboards = '0'`
@@ -185,10 +185,10 @@ Admins MAY always create dashboards regardless of the flag (the `PermissionServi
 - AND admin toggles `allow_user_dashboards` to `'0'` and back to `'1'`
 - THEN `P1` MUST still exist with all original fields and placements
 - AND `P1.isActive` MUST still be `1` (unchanged)
-- AND no rows in `oc_mydash_dashboards` or `oc_mydash_widget_placements` MUST have been touched
+- AND no rows in `oc_launchpad_dashboards` or `oc_launchpad_widget_placements` MUST have been touched
 
 #### Scenario: Default value when setting is missing
-- GIVEN a fresh MyDash install with no row for `allow_user_dashboards` in `oc_mydash_admin_settings`
+- GIVEN a fresh LaunchPad install with no row for `allow_user_dashboards` in `oc_launchpad_admin_settings`
 - WHEN any code reads the setting (via `DashboardService::getAllowUserDashboards()`, `PermissionService::canCreateDashboard()`, or `AdminSettingsService::getSettings()`)
 - THEN it MUST evaluate to `false` (creation blocked) — the secure default
 
@@ -200,7 +200,7 @@ Admins MAY always create dashboards regardless of the flag (the `PermissionServi
 
 #### Scenario: Frontend hides create affordance when disabled
 - GIVEN `allow_user_dashboards` is set to `false`
-- WHEN user "alice" views the MyDash workspace
+- WHEN user "alice" views the LaunchPad workspace
 - THEN the "Create dashboard…" entry in `DashboardConfigMenu` MUST NOT be rendered
 - AND the empty-state "Create dashboard" button in `Views.vue` MUST NOT be rendered
 - AND the empty-state description MUST read "Personal dashboards are not enabled by your administrator"
@@ -316,7 +316,7 @@ Admin settings MUST be persisted across server restarts and app updates.
 
 #### Scenario: Settings survive app update
 - GIVEN the admin has configured custom settings
-- WHEN the MyDash app is updated to a new version
+- WHEN the LaunchPad app is updated to a new version
 - THEN all previously configured settings MUST be preserved
 - AND new settings introduced in the update MUST use their default values
 
@@ -341,17 +341,17 @@ The admin settings MUST be accessible via a Nextcloud admin panel page.
 #### Scenario: Admin settings page is registered
 - GIVEN a Nextcloud admin user
 - WHEN they navigate to Settings > Administration
-- THEN a "MyDash" entry MUST appear in the admin settings navigation
-- AND clicking it MUST display the MyDash admin settings page
+- THEN a "LaunchPad" entry MUST appear in the admin settings navigation
+- AND clicking it MUST display the LaunchPad admin settings page
 
 #### Scenario: Regular user cannot access admin settings page
 - GIVEN a regular (non-admin) Nextcloud user
 - WHEN they navigate to Settings
-- THEN the "MyDash" entry MUST NOT appear in their settings navigation
+- THEN the "LaunchPad" entry MUST NOT appear in their settings navigation
 - AND direct URL access to the admin settings page MUST return HTTP 403
 
 #### Scenario: Settings form layout
-- GIVEN the admin opens the MyDash admin settings page
+- GIVEN the admin opens the LaunchPad admin settings page
 - THEN the page MUST display:
   - A toggle for "Allow user dashboards" (on/off)
   - A toggle for "Allow multiple dashboards" (on/off)
@@ -429,7 +429,7 @@ The settings API MUST return consistent error responses for various failure scen
 
 ### Requirement: Group order setting (REQ-ASET-012)
 
-The system MUST persist an ordered list of Nextcloud group IDs as the global setting `group_order` (JSON `string[]`, default `[]`). The order MUST be preserved exactly as provided. The setting determines which groups are "active" for MyDash workspace routing (REQ-TMPL-012). Corrupt or unparseable JSON in the database MUST resolve to `[]` at read time without throwing — the resolver and admin UI MUST never see a fatal error from a malformed value.
+The system MUST persist an ordered list of Nextcloud group IDs as the global setting `group_order` (JSON `string[]`, default `[]`). The order MUST be preserved exactly as provided. The setting determines which groups are "active" for LaunchPad workspace routing (REQ-TMPL-012). Corrupt or unparseable JSON in the database MUST resolve to `[]` at read time without throwing — the resolver and admin UI MUST never see a fatal error from a malformed value.
 
 #### Scenario: Persist ordered list
 
@@ -452,7 +452,7 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 
 #### Scenario: Corrupt DB JSON falls back to empty array
 
-- GIVEN the row `group_order` exists in `oc_mydash_admin_settings` with `setting_value = '{not-json'`
+- GIVEN the row `group_order` exists in `oc_launchpad_admin_settings` with `setting_value = '{not-json'`
 - WHEN any caller invokes `AdminSettingsService::getGroupOrder()`
 - THEN the method MUST return `[]`
 - AND MUST NOT throw an exception
@@ -460,7 +460,7 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 
 #### Scenario: Default when setting absent
 
-- GIVEN no `group_order` row has ever been written to `oc_mydash_admin_settings`
+- GIVEN no `group_order` row has ever been written to `oc_launchpad_admin_settings`
 - WHEN `AdminSettingsService::getGroupOrder()` is called
 - THEN it MUST return `[]` (factory default)
 
@@ -567,7 +567,7 @@ The current value of `allow_user_dashboards` MUST be pushed as initial state `al
 
 #### Scenario: Initial state matches setting on the admin page
 - GIVEN admin setting `allow_user_dashboards = '0'`
-- WHEN an admin loads the MyDash admin settings page (`MyDashAdmin::getForm`)
+- WHEN an admin loads the LaunchPad admin settings page (`LaunchPadAdmin::getForm`)
 - THEN the admin initial state MUST include `allowUserDashboards: false`
 
 #### Scenario: Frontend honours the flag
@@ -598,11 +598,11 @@ The current value of `allow_user_dashboards` MUST be pushed as initial state `al
 - REQ-ASET-001 (Retrieve Admin Settings): `AdminSettingsService::getSettings()` in `lib/Service/AdminSettingsService.php` returns all 4 settings with documented defaults. `AdminController::getSettings()` in `lib/Controller/AdminController.php` exposes GET /api/admin/settings. Non-admin access is blocked because AdminController lacks `#[NoAdminRequired]`.
 - REQ-ASET-002 (Update Admin Settings): `AdminSettingsService::updateSettings()` accepts abbreviated camelCase params (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`). `AdminController::updateSettings()` returns `{"status": "ok"}`.
 - REQ-ASET-003 (Allow User Dashboards — runtime gating): `DashboardService::getAllowUserDashboards()` and `DashboardService::assertPersonalDashboardsAllowed()` in `lib/Service/DashboardService.php` are the canonical reader and gate. `DashboardApiController::create()` calls the assert FIRST and returns the stable `{status:'error', error:'personal_dashboards_disabled', message:...}` envelope mapped from `PersonalDashboardsDisabledException` (`lib/Exception/PersonalDashboardsDisabledException.php`). The defense-in-depth `PermissionService::canCreateDashboard()` and `AdminSettingsService::getSettings()` defaults also return `false` so a missing row blocks creation everywhere.
-- REQ-ASET-015 (Initial-state mirror): `PageController::index` and `MyDashAdmin::getForm` both call `DashboardService::getAllowUserDashboards()` and push the value via `InitialStateBuilder::setAllowUserDashboards()`. The frontend reads it via `loadInitialState('workspace' | 'admin')` and provides it down the tree (REQ-INIT-004); `DashboardConfigMenu`, `Views.vue`, and `AdminSettings.vue` inject it. `useDashboardStore.createDashboard` surfaces the 403 envelope as a localised toast via `@nextcloud/dialogs::showError`.
+- REQ-ASET-015 (Initial-state mirror): `PageController::index` and `LaunchPadAdmin::getForm` both call `DashboardService::getAllowUserDashboards()` and push the value via `InitialStateBuilder::setAllowUserDashboards()`. The frontend reads it via `loadInitialState('workspace' | 'admin')` and provides it down the tree (REQ-INIT-004); `DashboardConfigMenu`, `Views.vue`, and `AdminSettings.vue` inject it. `useDashboardStore.createDashboard` surfaces the 403 envelope as a localised toast via `@nextcloud/dialogs::showError`.
 - REQ-ASET-004 (Allow Multiple Dashboards): `PermissionService::canHaveMultipleDashboards()` checks the setting. `DashboardApiController::checkCreatePermissions()` counts existing dashboards and returns 403 if multiples are disallowed.
 - REQ-ASET-005 (Default Permission Level): `DashboardFactory::create()` in `lib/Service/DashboardFactory.php` hardcodes `PERMISSION_FULL` for user-created dashboards. The admin default setting is used as fallback by `PermissionService::getEffectivePermissionLevel()`.
-- REQ-ASET-007 (Settings Persistence): Settings are stored in `oc_mydash_admin_settings` table via `AdminSettingMapper`. Defaults are returned in-code when DB rows are absent.
-- REQ-ASET-008 (Admin Settings UI): `MyDashAdmin` in `lib/Settings/MyDashAdmin.php` implements `ISettings`, `MyDashAdminSection` in `lib/Settings/MyDashAdminSection.php` implements `IIconSection`. Frontend in `src/components/admin/AdminSettings.vue` renders toggles, dropdowns, and save logic.
+- REQ-ASET-007 (Settings Persistence): Settings are stored in `oc_launchpad_admin_settings` table via `AdminSettingMapper`. Defaults are returned in-code when DB rows are absent.
+- REQ-ASET-008 (Admin Settings UI): `LaunchPadAdmin` in `lib/Settings/LaunchPadAdmin.php` implements `ISettings`, `LaunchPadAdminSection` in `lib/Settings/LaunchPadAdminSection.php` implements `IIconSection`. Frontend in `src/components/admin/AdminSettings.vue` renders toggles, dropdowns, and save logic.
 - REQ-ASET-012 (Group order setting): `AdminSettingsService::getGroupOrder()` and `setGroupOrder()` in `lib/Service/AdminSettingsService.php` read/write the `group_order` row via `AdminSettingMapper`. Defensive read returns `[]` on missing or corrupt JSON. `AdminSetting::KEY_GROUP_ORDER` is the canonical constant.
 - REQ-ASET-013 (List groups for admin UI): `AdminSettingsController::listGroups()` in `lib/Controller/AdminSettingsController.php` exposes `GET /api/admin/groups` and assembles the disjoint `{active, inactive, allKnown}` split from `IGroupManager::search('')` and `getGroupOrder()`. Stale (unknown) IDs surface in `active` only.
 - REQ-ASET-014 (Admin guard and payload validation): `AdminSettingsController::assertAdmin()` calls `IGroupManager::isAdmin($userSession->getUser()->getUID())` on both endpoints; `updateGroupOrder()` rejects missing or non-array `groups` keys with HTTP 400 and lets `setGroupOrder` enforce non-empty-string entries (HTTP 400 on `InvalidArgumentException`). Unknown group IDs are tolerated.
@@ -611,7 +611,7 @@ The current value of `allow_user_dashboards` MUST be pushed as initial state `al
 - REQ-ASET-002 validation: No server-side validation for permission level values (any string accepted), grid column range (any integer accepted), or boolean type coercion. Documented as NOTEs in the spec.
 - REQ-ASET-006 default grid columns: `DashboardFactory::create()` hardcodes `gridColumns: 12` and does NOT read the `defaultGridColumns` admin setting. The admin setting exists but is not applied when creating user dashboards.
 - REQ-ASET-003 fork endpoint: The `POST /api/dashboards/{uuid}/fork` route is owned by the separate `fork-current-as-personal` capability and does not yet exist; gating will be added there with the same `PersonalDashboardsDisabledException` envelope.
-- REQ-ASET-008 localization: UI labels use `t('mydash', ...)` translation function but actual Dutch translations are not verified in l10n files.
+- REQ-ASET-008 localization: UI labels use `t('launchpad', ...)` translation function but actual Dutch translations are not verified in l10n files.
 
 **Partial implementations:**
 - REQ-ASET-006 (Default Grid Columns): The setting can be stored and retrieved, but `DashboardFactory::create()` ignores it, hardcoding 12. Template copies correctly use the template's `gridColumns` via `TemplateService::buildDashboardFromTemplate()`.

@@ -1,8 +1,8 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * Vitest configuration for MyDash Vue 2 unit tests.
+ * Vitest configuration for LaunchPad Vue 2 unit tests.
  *
  * Test files live next to the code they cover under
  * `src/<area>/__tests__/<Subject>.spec.js` and run in a jsdom environment
@@ -26,7 +26,7 @@ const vue2 = require('@vitejs/plugin-vue2')
  * tests can mount components without ever loading a stylesheet.
  */
 const cssNoop = {
-	name: 'mydash-css-noop',
+	name: 'launchpad-css-noop',
 	enforce: 'pre',
 	resolveId(id) {
 		// Match any CSS-like resolution (relative, absolute, with or

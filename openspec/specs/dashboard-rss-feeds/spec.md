@@ -10,7 +10,7 @@ Expose a user's accessible dashboards as an RSS 2.0 / Atom feed accessible witho
 
 ## Data Model
 
-Feed tokens are stored in a new `oc_mydash_feed_tokens` table with the following fields:
+Feed tokens are stored in a new `oc_launchpad_feed_tokens` table with the following fields:
 - **id**: Auto-increment integer primary key
 - **userId**: Nextcloud user ID (VARCHAR(64)), for whom this token was issued
 - **token**: URL-safe cryptographically random token string (VARCHAR(64))
@@ -36,9 +36,9 @@ Users MUST be able to request and receive their personal feed token on first cal
 - WHEN she sends `GET /api/feed/token`
 - THEN the system MUST:
   - Generate a 32-byte random token and base64-url-encode it
-  - Insert a record in `oc_mydash_feed_tokens` with `userId='alice'`, the generated token, `createdAt` set to now, `lastUsedAt=NULL`, `revokedAt=NULL`
+  - Insert a record in `oc_launchpad_feed_tokens` with `userId='alice'`, the generated token, `createdAt` set to now, `lastUsedAt=NULL`, `revokedAt=NULL`
   - Return HTTP 200 with JSON body `{"token": "...", "url": "https://example.com/feed/<token>.xml"}`
-- AND the `url` MUST be an absolute URL (e.g., `https://myinstance.example/index.php/apps/mydash/api/feed/<token>.xml`)
+- AND the `url` MUST be an absolute URL (e.g., `https://myinstance.example/index.php/apps/launchpad/api/feed/<token>.xml`)
 
 #### Scenario: Request token when one already exists
 - GIVEN user "alice" has previously issued a token with value "abc...xyz"
@@ -116,7 +116,7 @@ Public clients MUST be able to request and render a feed without Nextcloud sessi
   - Return HTTP 200 with Content-Type `application/rss+xml` or `application/atom+xml`
   - Return a valid RSS 2.0 or Atom feed with one `<item>` (RSS) or `<entry>` (Atom) per dashboard grace can access
   - Set `lastUsedAt` on the token record to now
-- AND the response MUST include a `<title>` tag (e.g., "Grace's MyDash Dashboards") and `<link>` to the MyDash home
+- AND the response MUST include a `<title>` tag (e.g., "Grace's LaunchPad Dashboards") and `<link>` to the LaunchPad home
 
 #### Scenario: Fetch feed with invalid token
 - GIVEN a public client and a token that does not exist in the database
@@ -147,7 +147,7 @@ Each dashboard the token-owner can access MUST appear as a separate `<item>` (RS
   3. "Archived" (pubDate 2026-03-01T...)
 - AND each item MUST carry:
   - `<title>`: dashboard name (e.g., "Work")
-  - `<link>`: absolute deep-link to the dashboard in Nextcloud (e.g., `https://example.com/index.php/apps/mydash#/dashboard/uuid`)
+  - `<link>`: absolute deep-link to the dashboard in Nextcloud (e.g., `https://example.com/index.php/apps/launchpad#/dashboard/uuid`)
   - `<description>`: dashboard description (escaped for XML), or empty string if null
   - `<pubDate>`: dashboard's `updatedAt` timestamp in RFC 2822 format (e.g., "Wed, 20 Apr 2026 14:30:00 +0000")
   - `<guid isPermaLink="false">`: dashboard UUID (ensures feed readers detect updates correctly)
@@ -196,10 +196,10 @@ Feeds MUST include at most N dashboards per feed (admin-configurable), ordered b
 - AND the oldest 25 dashboards MUST NOT appear
 
 #### Scenario: Administrator configures feed cap
-- GIVEN the `mydash.feed_item_cap` config is set to 10 (default: 50)
+- GIVEN the `launchpad.feed_item_cap` config is set to 10 (default: 50)
 - WHEN user "noah" requests /feed/noah_token.xml with 15 accessible dashboards
 - THEN the response MUST include exactly 10 items
-- AND the config value MUST be read from `OCP\IConfig::getAppValue('mydash', 'mydash.feed_item_cap', '50')`
+- AND the config value MUST be read from `OCP\IConfig::getAppValue('launchpad', 'launchpad.feed_item_cap', '50')`
 
 #### Scenario: Feed with fewer than cap dashboards
 - GIVEN user "olivia" has 8 accessible dashboards and the cap is 50
@@ -211,7 +211,7 @@ Feeds MUST include at most N dashboards per feed (admin-configurable), ordered b
 Feeds MUST be off by default; users MUST explicitly opt-in by calling `GET /api/feed/token` to enable feed generation.
 
 #### Scenario: No feed token pre-created for any user
-- GIVEN a fresh MyDash installation with no users having requested feed tokens
+- GIVEN a fresh LaunchPad installation with no users having requested feed tokens
 - WHEN an admin or system process tries to request /feed/any_token.xml
 - THEN the system MUST return HTTP 404 for any token
 
@@ -236,7 +236,7 @@ Feeds MUST be off by default; users MUST explicitly opt-in by calling `GET /api/
 Token format MUST be cryptographically random, URL-safe, and non-enumerable to prevent brute-force attacks.
 
 #### Scenario: Token is cryptographically random
-- GIVEN a MyDash instance with access to `random_bytes()` (PHP 7+)
+- GIVEN a LaunchPad instance with access to `random_bytes()` (PHP 7+)
 - WHEN user "rose" requests a token via `GET /api/feed/token`
 - THEN the generated token MUST be produced by `bin2hex(random_bytes(32))` or equivalent base64-url encoding
 - AND each token MUST be unique across all users (enforced by database UNIQUE constraint on (userId))

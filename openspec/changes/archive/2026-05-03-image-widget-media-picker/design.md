@@ -19,7 +19,7 @@ This spec extends `image-widget` and depends on it being in place. It does not m
 
 **Non-Goals:**
 - Picking files from external storage providers or federated shares.
-- Serving image content directly from the MyDash backend (the platform's own file-serving URL is used).
+- Serving image content directly from the LaunchPad backend (the platform's own file-serving URL is used).
 - Permanent public sharing of the picked file (the image is only visible to users who can already read it).
 - Editing or cropping the picked image.
 
@@ -35,7 +35,7 @@ This spec extends `image-widget` and depends on it being in place. It does not m
 ### D2: File picker integration — platform built-in dialog
 **Decision**: Clicking "Choose from Nextcloud" invokes the platform's built-in file picker dialog, which returns the selected file's node ID.
 **Alternatives considered**:
-- A custom file browser built inside the MyDash edit modal — rejected: duplicates existing platform functionality and requires ongoing maintenance.
+- A custom file browser built inside the LaunchPad edit modal — rejected: duplicates existing platform functionality and requires ongoing maintenance.
 **Rationale**: The built-in picker is already available to all Nextcloud apps, handles federated and local files uniformly, and is familiar to users.
 
 ### D3: Permission-respecting render via server-side check

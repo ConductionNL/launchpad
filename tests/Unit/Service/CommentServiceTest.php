@@ -7,12 +7,12 @@
  * capability (REQ-CMNT-001..009).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,13 +21,13 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use DateTime;
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Exception\CommentForbiddenException;
-use OCA\MyDash\Exception\CommentNotFoundException;
-use OCA\MyDash\Exception\InvalidCommentException;
-use OCA\MyDash\Service\CommentService;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\CommentForbiddenException;
+use OCA\LaunchPad\Exception\CommentNotFoundException;
+use OCA\LaunchPad\Exception\InvalidCommentException;
+use OCA\LaunchPad\Service\CommentService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
@@ -77,7 +77,7 @@ class CommentServiceTest extends TestCase
         $this->settingMapper       = $this->createMock(AdminSettingMapper::class);
 
         $this->urlGenerator->method('linkToRouteAbsolute')
-            ->willReturn('https://nc.example/index.php/apps/mydash/');
+            ->willReturn('https://nc.example/index.php/apps/launchpad/');
 
         $this->service = new CommentService(
             commentsManager: $this->commentsManager,

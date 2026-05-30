@@ -10,7 +10,7 @@ retrofit_extensions:
 
 ## Purpose
 
-Widgets are the primary content blocks on MyDash dashboards. MyDash integrates with the Nextcloud Dashboard Widget API (v1 and v2) via `OCP\Dashboard\IManager::getWidgets()` to discover all registered dashboard widgets across installed Nextcloud apps. Users can add these discovered widgets to their dashboards as "placements" -- records that track the widget's position on the grid, display configuration, and custom styling. Widget placements bridge the Nextcloud widget ecosystem with the MyDash grid layout system.
+Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad integrates with the Nextcloud Dashboard Widget API (v1 and v2) via `OCP\Dashboard\IManager::getWidgets()` to discover all registered dashboard widgets across installed Nextcloud apps. Users can add these discovered widgets to their dashboards as "placements" -- records that track the widget's position on the grid, display configuration, and custom styling. Widget placements bridge the Nextcloud widget ecosystem with the LaunchPad grid layout system.
 
 ## Data Model
 
@@ -25,9 +25,9 @@ Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Eac
 - **url**: Optional widget URL
 - **v2 support**: Whether it supports the v2 API with item loading
 
-### Widget Placements (oc_mydash_widget_placements)
+### Widget Placements (oc_launchpad_widget_placements)
 - **id**: Auto-increment integer primary key (BIGINT)
-- **dashboardId**: Foreign key to oc_mydash_dashboards (BIGINT)
+- **dashboardId**: Foreign key to oc_launchpad_dashboards (BIGINT)
 - **widgetId**: Reference to the Nextcloud widget id (STRING, NOT NULL; for tiles set to `'tile-' + uniqid()`)
 - **gridX**: Grid column position, 0-based (INTEGER, default 0)
 - **gridY**: Grid row position, 0-based (INTEGER, default 0)
@@ -312,7 +312,7 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - GIVEN a placement with `widgetId: "uninstalled_widget"` and no matching widget in the available widgets array
 - WHEN the widget is rendered
 - THEN `WidgetWrapper` MUST receive `widget: null` (from `getWidget()` returning undefined)
-- AND the title MUST fall back to the `t('mydash', 'Widget')` translation
+- AND the title MUST fall back to the `t('launchpad', 'Widget')` translation
 - AND the widget content area MUST handle the null widget gracefully
 
 #### Scenario: Tile placement bypasses WidgetWrapper
@@ -574,7 +574,7 @@ The popover MUST be absolutely positioned at the click coordinates with `min-wid
 
 ### Requirement: nc-widget placement type (REQ-WDG-018)
 
-The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside MyDash. Its persisted content shape MUST be:
+The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside LaunchPad. Its persisted content shape MUST be:
 
 ```jsonc
 {
@@ -654,7 +654,7 @@ The header (above the list area) MUST always render the widget's title + iconUrl
 
 When falling back to the API path, the renderer MUST issue exactly:
 
-`GET /ocs/v2.php/apps/mydash/api/widgets/items?widgets[]={widgetId}&limit=7`
+`GET /ocs/v2.php/apps/launchpad/api/widgets/items?widgets[]={widgetId}&limit=7`
 
 The response MUST be parsed as `{items: {[widgetId]: WidgetItem[]}, meta: {[widgetId]: {iconUrl}}}` (the existing REQ-WDG-002 contract). When the response shape is malformed, the renderer MUST display the empty-state `t('No items available')` and MUST NOT throw.
 
@@ -699,7 +699,7 @@ The tile widget type MUST be selectable from the unified "Add custom widget" pic
 
 #### Scenario: Tile renderer supports legacy and new content shapes
 
-- **GIVEN** a placement created via the deprecated `oc_mydash_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
+- **GIVEN** a placement created via the deprecated `oc_launchpad_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
 - **WHEN** the placement renders via `TileWidget`
 - **THEN** the title and icon MUST display correctly
 - **AND** no console errors MUST occur from the missing `placement.content` field

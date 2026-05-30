@@ -4,7 +4,7 @@
 
 This capability provides version history and restore for dashboard content. The spec
 (`dashboard-versioning`) pins the dual-backend model: `groupfolder` mode delegates to
-`\OCP\Files\Versions\IVersionManager`; `db` mode persists snapshots in `oc_mydash_dashboard_versions`.
+`\OCP\Files\Versions\IVersionManager`; `db` mode persists snapshots in `oc_launchpad_dash_versions`.
 The `contentBackend` column routes to the correct strategy at runtime.
 
 Source confirms the NC interface: `the source codebase-source/lib/Service/PageService.php` lazy-loads
@@ -31,7 +31,7 @@ This design documents strategy dispatch, debounce, restore semantics, and soft-f
 ### D1: Strategy pattern dispatch
 **Decision**: `VersioningService` reads `dashboard->getContentBackend()` and instantiates either
 `DbVersionBackend` or `GroupFolderVersionBackend` at call time. Both implement
-`IVersionBackend` interface defined in MyDash.
+`IVersionBackend` interface defined in LaunchPad.
 **Alternatives considered**:
 - Single code path with conditionals — rejected; grows unwieldy as backends diverge
 - DI container tagging — rejected; backend is per-dashboard, not per-service-lifetime
@@ -39,7 +39,7 @@ This design documents strategy dispatch, debounce, restore semantics, and soft-f
 `list()`, `create()`, `restore()`, and `isSupported()` methods.
 
 ### D2: Debounce implementation
-**Decision**: APCu key `mydash_ver_debounce_{dashboardUuid}` set to `1` with TTL 60 s on every
+**Decision**: APCu key `launchpad_ver_debounce_{dashboardUuid}` set to `1` with TTL 60 s on every
 PUT. Version creation is skipped if the key exists at the start of the request.
 **Source evidence**: `the source codebase-source/lib/Service/PageService.php:~220` — debounce via APCu for
 page-content saves, TTL 60 s.

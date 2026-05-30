@@ -17,8 +17,8 @@ All notable changes to this project will be documented in this file.
   `?format=atom` query fallback) switches to Atom 1.0. Visibility
   reuses `DashboardService::getVisibleToUser()` so private dashboards
   never leak to public feed consumers; item count is capped at the
-  admin-tunable `mydash.feed_item_cap` (default 50). New
-  `oc_mydash_feed_tokens` table with `UNIQUE(user_id)` enforces the
+  admin-tunable `launchpad.feed_item_cap` (default 50). New
+  `oc_launchpad_feed_tokens` table with `UNIQUE(user_id)` enforces the
   one-token-per-user rotation invariant.
 
 ### Changed
@@ -41,7 +41,7 @@ All notable changes to this project will be documented in this file.
   the `moveScale` layout algorithm. Geometry constants (`CELL_HEIGHT = 60`,
   `GRID_MARGIN = 8`, `BREAKPOINTS`) live in
   `src/composables/useGridManager.js` as the single source of truth and
-  are mirrored to the CSS custom property `--mydash-cell-height` at
+  are mirrored to the CSS custom property `--launchpad-cell-height` at
   init time so `calc()` expressions stay in sync. Cell height moved from
   the previously documented 80 px to 60 px to better support multi-row
   info widgets; flip the `CELL_HEIGHT` constant in the composable (single
@@ -68,7 +68,7 @@ All notable changes to this project will be documented in this file.
 
   CI guards (`composer lint:initial-state`, `npm run lint:initial-state`)
   forbid direct `IInitialState::provideInitialState()` calls outside the
-  builder and direct `loadState('mydash', ...)` calls outside the reader.
+  builder and direct `loadState('launchpad', ...)` calls outside the reader.
 
 ## 0.1.0 - Initial Release
 

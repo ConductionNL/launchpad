@@ -85,11 +85,11 @@
 ## 5. CLI Commands
 
 - [ ] Create `lib/Command/DemoShowcasesInstallCommand.php` extending `OCP\Console\Command`:
-  - `php occ mydash:demo-showcases:install <id>` — calls `DemoShowcasesService::installShowcase(id)`, outputs "Installed dashboard {uuid}" or error
+  - `php occ launchpad:demo-showcases:install <id>` — calls `DemoShowcasesService::installShowcase(id)`, outputs "Installed dashboard {uuid}" or error
   - Accept optional `--lang=en|nl` flag (default user's locale or 'en')
   - Output installed dashboard UUID on success
 - [ ] Create `lib/Command/DemoShowcasesListCommand.php`:
-  - `php occ mydash:demo-showcases:list` — calls `getAvailableShowcases()`, outputs table: `ID | Name | Status (Installed/Not installed) | Language`
+  - `php occ launchpad:demo-showcases:list` — calls `getAvailableShowcases()`, outputs table: `ID | Name | Status (Installed/Not installed) | Language`
   - Support `--json` flag for machine parsing
 
 ## 6. Tests

@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,7 +8,7 @@
 		<NcSelect
 			:value="modeOption"
 			:options="modeOptions"
-			:input-label="t('mydash', 'Content type')"
+			:input-label="t('launchpad', 'Content type')"
 			:clearable="false"
 			label="label"
 			@input="onModeChange" />
@@ -17,7 +17,7 @@
 			<NcSelect
 				:value="contentMode"
 				:options="contentModeOptions"
-				:input-label="t('mydash', 'Mode')"
+				:input-label="t('launchpad', 'Mode')"
 				:clearable="false"
 				:reduce="option => option.value"
 				label="label"
@@ -25,7 +25,7 @@
 				@input="updateField('contentMode', $event)" />
 
 			<label class="text-display-form__field">
-				{{ t('mydash', 'Text') }}
+				{{ t('launchpad', 'Text') }}
 				<textarea
 					:value="text"
 					:placeholder="modePlaceholder"
@@ -37,12 +37,12 @@
 
 			<NcTextField
 				:value="fontSize"
-				:label="t('mydash', 'Font Size')"
+				:label="t('launchpad', 'Font Size')"
 				placeholder="14px"
 				@update:value="updateField('fontSize', $event)" />
 
 			<label class="text-display-form__color-label">
-				{{ t('mydash', 'Text Color') }}
+				{{ t('launchpad', 'Text Color') }}
 				<input
 					type="color"
 					:value="color || '#000000'"
@@ -51,7 +51,7 @@
 			</label>
 
 			<label class="text-display-form__color-label">
-				{{ t('mydash', 'Background Color') }}
+				{{ t('launchpad', 'Background Color') }}
 				<input
 					type="color"
 					:value="backgroundColor || '#ffffff'"
@@ -62,7 +62,7 @@
 			<NcSelect
 				:value="textAlign"
 				:options="textAlignOptions"
-				:input-label="t('mydash', 'Alignment')"
+				:input-label="t('launchpad', 'Alignment')"
 				:clearable="false"
 				@input="updateField('textAlign', $event)" />
 		</template>
@@ -102,7 +102,7 @@ const VALID_CONTENT_MODES = Object.freeze(['html', 'markdown'])
  * Exposes the controls described in REQ-TXT-004 (textarea, font size input,
  * two colour pickers, alignment select) and REQ-TXMD-004 (Mode toggle for
  * HTML / Markdown). Validation method `validate()` returns
- * `[t('mydash', 'Text is required')]` when text is empty or whitespace-only —
+ * `[t('launchpad', 'Text is required')]` when text is empty or whitespace-only —
  * matching the AddWidgetModal sub-form contract.
  *
  * Switching modes never mutates the text content (REQ-TXMD-004 scenario
@@ -182,23 +182,23 @@ export default {
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		contentModeOptions() {
 			return [
-				{ value: 'markdown', label: t('mydash', 'Markdown') },
-				{ value: 'html', label: t('mydash', 'HTML') },
+				{ value: 'markdown', label: t('launchpad', 'Markdown') },
+				{ value: 'html', label: t('launchpad', 'HTML') },
 			]
 		},
 
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		modePlaceholder() {
 			return this.contentMode === 'markdown'
-				? t('mydash', 'Markdown — # heading, **bold**, *italic*, [link](url), - list')
-				: t('mydash', 'HTML — <b>bold</b>, <i>italic</i>, <a href="…">link</a>')
+				? t('launchpad', 'Markdown — # heading, **bold**, *italic*, [link](url), - list')
+				: t('launchpad', 'HTML — <b>bold</b>, <i>italic</i>, <a href="…">link</a>')
 		},
 
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		modeOptions() {
 			return [
-				{ id: 'text', label: t('mydash', 'Text') },
-				{ id: 'table', label: t('mydash', 'Table') },
+				{ id: 'text', label: t('launchpad', 'Text') },
+				{ id: 'table', label: t('launchpad', 'Table') },
 			]
 		},
 
@@ -280,7 +280,7 @@ export default {
 				return validateTable(this.tableData)
 			}
 			if (typeof this.text !== 'string' || this.text.trim() === '') {
-				return [t('mydash', 'Text is required')]
+				return [t('launchpad', 'Text is required')]
 			}
 			return []
 		},

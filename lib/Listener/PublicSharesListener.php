@@ -3,30 +3,30 @@
 /**
  * PublicSharesListener
  *
- * Soft-revokes rows in `oc_mydash_public_shares` when a dashboard is
+ * Soft-revokes rows in `oc_launchpad_public_shares` when a dashboard is
  * deleted (sets `revokedAt` rather than hard-deleting, preserving the
  * audit trail). Stub registered as part of the cascade-events
  * scaffolding; the live implementation is owned by the
  * dashboard-public-share follow-up. REQ-CSC-003.
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
-use OCA\MyDash\Db\DashboardShareMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -77,20 +77,20 @@ class PublicSharesListener implements IEventListener
 
             $this->logger->debug(
                 message: sprintf(
-                    'mydash PublicSharesListener: deleted %d share rows for dashboard %s',
+                    'launchpad PublicSharesListener: deleted %d share rows for dashboard %s',
                     $deleted,
                     $uuid
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash PublicSharesListener: failed for dashboard %s: %s',
+                    'launchpad PublicSharesListener: failed for dashboard %s: %s',
                     $uuid,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handle()

@@ -14,7 +14,7 @@ The capability is one widget type, one renderer, one sub-form, one registry entr
 
 ## Data Model
 
-Text placements use the existing `oc_mydash_widget_placements.styleConfig` JSON column with the discriminated shape `{type: 'text', content: {...}}`. No schema migration is required.
+Text placements use the existing `oc_launchpad_widget_placements.styleConfig` JSON column with the discriminated shape `{type: 'text', content: {...}}`. No schema migration is required.
 
 The `content` object carries six fields, all optional except `text` (which is validated by the form):
 
@@ -87,13 +87,13 @@ The renderer MUST apply `fontSize`, `color`, `backgroundColor`, and `textAlign` 
 
 ### Requirement: Empty-content placeholder (REQ-TXT-003)
 
-When `text` is empty, missing, or whitespace-only, the renderer MUST display an italic translated placeholder `t('mydash', 'No text content')` in `var(--color-text-maxcontrast)` colour. The wrapper MUST still occupy the full cell so the widget remains a valid drop target.
+When `text` is empty, missing, or whitespace-only, the renderer MUST display an italic translated placeholder `t('launchpad', 'No text content')` in `var(--color-text-maxcontrast)` colour. The wrapper MUST still occupy the full cell so the widget remains a valid drop target.
 
 #### Scenario: Empty content shows placeholder
 
 - **GIVEN** `content = {text: ''}`
 - **WHEN** the widget renders
-- **THEN** the visible text MUST be the localised value of `t('mydash', 'No text content')`
+- **THEN** the visible text MUST be the localised value of `t('launchpad', 'No text content')`
 - **AND** the placeholder text MUST be styled `font-style: italic` with `color: var(--color-text-maxcontrast)`
 - **AND** the wrapper MUST fill the cell with `width: 100%; height: 100%`
 
@@ -115,13 +115,13 @@ The text sub-form for `AddWidgetModal` MUST expose these controls and validation
 | `backgroundColor` | `<input type="color">` | no |
 | `textAlign` | `<select>` with options `left` / `center` / `right` / `justify` | no |
 
-The component MUST expose a `validate()` method that returns `[t('mydash', 'Text is required')]` when `text.trim() === ''`, and `[]` otherwise. The parent modal disables its `Add` / `Save` button while `validate()` returns a non-empty array.
+The component MUST expose a `validate()` method that returns `[t('launchpad', 'Text is required')]` when `text.trim() === ''`, and `[]` otherwise. The parent modal disables its `Add` / `Save` button while `validate()` returns a non-empty array.
 
 #### Scenario: Form rejects empty text
 
 - **GIVEN** the user opens the text sub-form in add mode
 - **WHEN** they leave the textarea empty and press the modal's Add button
-- **THEN** `validate()` MUST return a non-empty array containing `t('mydash', 'Text is required')`
+- **THEN** `validate()` MUST return a non-empty array containing `t('launchpad', 'Text is required')`
 - **AND** the modal's Add button MUST be disabled
 
 #### Scenario: Form pre-fills in edit mode
@@ -326,7 +326,7 @@ The text-widget edit sub-form MUST display a `Mode` toggle or radio/select group
 
 @e2e exclude system default for new widget content mode tests defaultMode config constant — Vitest scope
 
-The widget registry's `text.defaultContent.contentMode` MUST seed every new text widget with a known-good mode. The shipped default MUST be `'markdown'` (the primary authoring mode). Invalid mode values written through the form MUST be rejected so that placements only ever persist `'html'` or `'markdown'`. A future admin setting (`mydash.text_widget_default_mode`, deferred to the `admin-text-widget-settings` change) MAY override the registry default at runtime.
+The widget registry's `text.defaultContent.contentMode` MUST seed every new text widget with a known-good mode. The shipped default MUST be `'markdown'` (the primary authoring mode). Invalid mode values written through the form MUST be rejected so that placements only ever persist `'html'` or `'markdown'`. A future admin setting (`launchpad.text_widget_default_mode`, deferred to the `admin-text-widget-settings` change) MAY override the registry default at runtime.
 
 #### Scenario: Default is markdown when nothing else applies
 
@@ -807,7 +807,7 @@ When a table is freshly created (empty cells, no user text), the renderer MUST d
 
 - GIVEN `tableData = {headerRow: false, columnAlignments: ["left"], rows: [[{text: ""}]]}`
 - WHEN the widget renders
-- THEN the cell MUST display a translated placeholder text (e.g., `t('mydash', 'Empty table')`)
+- THEN the cell MUST display a translated placeholder text (e.g., `t('launchpad', 'Empty table')`)
 - AND the placeholder text MUST be styled with `color: var(--color-text-maxcontrast)` and `font-style: italic`
 - AND the placeholder MUST NOT be persisted (if the user saves, cell still has `text: ""`)
 

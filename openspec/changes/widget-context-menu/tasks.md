@@ -3,7 +3,7 @@
 ## Tasks
 
 - [ ] Task 1: Create `src/components/Widgets/WidgetContextMenu.vue` with three buttons (`Edit`, `Remove`, `Cancel`) and `top`/`left` props; styled `position:absolute; min-width:150px; z-index:10000`, NC-themed background, rounded corners, subtle shadow
-- [ ] Task 2: Emit `edit`, `remove`, `close` events; each click closes the popover via `closeContextMenu()`; button labels use `t('mydash', 'Edit' | 'Remove' | 'Cancel')`
+- [ ] Task 2: Emit `edit`, `remove`, `close` events; each click closes the popover via `closeContextMenu()`; button labels use `t('launchpad', 'Edit' | 'Remove' | 'Cancel')`
 - [ ] Task 3: Extend `useGridManager.js` with reactive state `contextMenuOpen`, `contextMenuPosition` (`{x, y}`), `selectedWidget`
 - [ ] Task 4: Add `onWidgetRightClick(event, widget)` — early-return when `!canEdit.value`; call `event.preventDefault()`; capture `clientX`/`clientY`; set `selectedWidget` + `contextMenuPosition`; set `contextMenuOpen = true`
 - [ ] Task 5: Add `closeContextMenu()` (sets `contextMenuOpen=false`, clears `selectedWidget`); extend the existing `handleClickOutside` to also close when the click target is outside `.widget-context-menu`; register the single shared document `click` listener in `onMounted`/`onUnmounted`

@@ -2,8 +2,8 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001008Date20260502000000.php` adding `group_id VARCHAR(64) NULL` to `oc_mydash_dashboards`
-- [x] 1.2 Same migration adds composite index `mydash_dash_type_group` on `(type, group_id)` for fast `findByGroup` and `findVisibleToUser` lookups
+- [x] 1.1 Create `lib/Migration/Version001008Date20260502000000.php` adding `group_id VARCHAR(64) NULL` to `oc_launchpad_dashboards`
+- [x] 1.2 Same migration adds composite index `launchpad_dash_type_group` on `(type, group_id)` for fast `findByGroup` and `findVisibleToUser` lookups
 - [x] 1.3 `DashboardTableBuilder` updated so fresh installs include the column + index (matches the migration shape)
 - [ ] 1.4 Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly each time (deferred to deployment QA)
 
@@ -45,7 +45,7 @@
 
 - [ ] 6.1 Add three group-shared seed dashboards to `_registers.json` per the design's Seed Data section (deferred — handled separately by the seed-data-roadmap workstream; ADR-016 mandates it but the registers payload is owned by another change)
 - [ ] 6.2 Each seed includes its placements (deferred with 6.1)
-- [ ] 6.3 Verify seed data applies cleanly via `occ mydash:seed` (deferred with 6.1)
+- [ ] 6.3 Verify seed data applies cleanly via `occ launchpad:seed` (deferred with 6.1)
 
 ## 7. Frontend store
 

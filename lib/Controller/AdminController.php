@@ -6,7 +6,7 @@
  * Controller for admin dashboard template management.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,24 +16,24 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
-use OCA\MyDash\Exception\InvalidRoleAssignmentException;
-use OCA\MyDash\Exception\ResourceException;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\ExportService;
-use OCA\MyDash\Service\FeedRefreshService;
-use OCA\MyDash\Service\FooterService;
-use OCA\MyDash\Service\ImportService;
-use OCA\MyDash\Service\ResourceService;
-use OCA\MyDash\Service\RoleService;
-use OCA\MyDash\Service\SetupWizardService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
+use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
+use OCA\LaunchPad\Exception\ResourceException;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\ExportService;
+use OCA\LaunchPad\Service\FeedRefreshService;
+use OCA\LaunchPad\Service\FooterService;
+use OCA\LaunchPad\Service\ImportService;
+use OCA\LaunchPad\Service\ResourceService;
+use OCA\LaunchPad\Service\RoleService;
+use OCA\LaunchPad\Service\SetupWizardService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -105,7 +105,7 @@ class AdminController extends Controller
      *                                                 (REQ-EXIM-001..003).
      * @param ImportService        $importService      ZIP import service
      *                                                 (REQ-EXIM-004..008).
-     * @param RoleService          $roleService        The MyDash role service
+     * @param RoleService          $roleService        The LaunchPad role service
      *                                                 (REQ-ROLE-001..011).
      * @param FeedRefreshService   $feedRefresh        The background feed
      *                                                 refresh service used by
@@ -172,7 +172,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The list of templates.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function listTemplates(): JSONResponse
@@ -229,7 +229,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The created template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-3
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function createTemplate(
@@ -270,7 +270,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The updated template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-5
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-5
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function updateTemplate(
@@ -312,7 +312,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The deletion confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-6
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function deleteTemplate(int $id): JSONResponse
@@ -331,7 +331,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The admin settings.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-1
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-1
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function getSettings(): JSONResponse
@@ -354,7 +354,7 @@ class AdminController extends Controller
      *
      * @return JSONResponse The update confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function updateSettings(
@@ -719,7 +719,7 @@ class AdminController extends Controller
     }//end deleteRole()
 
     /**
-     * Return the calling user's effective MyDash role and source
+     * Return the calling user's effective LaunchPad role and source
      * (REQ-ROLE-006). Available to any authenticated user.
      *
      * Response shape: `{role: string|null, source: string|null}`.
@@ -917,7 +917,7 @@ class AdminController extends Controller
     /**
      * Persist the storage backend choice from Step 2 (REQ-WIZ-003).
      *
-     * Validates the selection and writes `mydash.content_storage`. The
+     * Validates the selection and writes `launchpad.content_storage`. The
      * GroupFolder option is server-side gated by the `groupfolders` app
      * dependency — selecting it without the app installed returns 400.
      * Admin-only.

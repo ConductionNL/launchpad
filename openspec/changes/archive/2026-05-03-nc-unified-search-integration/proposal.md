@@ -2,11 +2,11 @@
 
 ## Why
 
-Nextcloud's Ctrl+K / Cmd+K unified search is the primary discovery mechanism for users navigating between apps and finding content. MyDash dashboards and widget content currently have no integration with this search, meaning users must navigate explicitly to the MyDash app and browse manually. This change exposes dashboards and widget content to Nextcloud's search provider system, allowing users to find and jump directly to dashboards by name, description, or widget text from the global search bar.
+Nextcloud's Ctrl+K / Cmd+K unified search is the primary discovery mechanism for users navigating between apps and finding content. LaunchPad dashboards and widget content currently have no integration with this search, meaning users must navigate explicitly to the LaunchPad app and browse manually. This change exposes dashboards and widget content to Nextcloud's search provider system, allowing users to find and jump directly to dashboards by name, description, or widget text from the global search bar.
 
 ## What Changes
 
-- Register a new `MyDashSearchProvider` class implementing `OCP\Search\IProvider` in the MyDash app.
+- Register a new `LaunchPadSearchProvider` class implementing `OCP\Search\IProvider` in the LaunchPad app.
 - The provider exposes search results for:
   - Dashboards the user can VIEW whose name or description matches the query.
   - Text-display-widget placements on viewable dashboards whose HTML/markdown content matches the query (with deep-link to the specific widget).
@@ -29,7 +29,7 @@ Nextcloud's Ctrl+K / Cmd+K unified search is the primary discovery mechanism for
 
 **Affected code:**
 
-- `lib/Service/SearchProvider/MyDashSearchProvider.php` — new class implementing `OCP\Search\IProvider` with `search(IUser, ISearchQuery): SearchResult` method.
+- `lib/Service/SearchProvider/LaunchPadSearchProvider.php` — new class implementing `OCP\Search\IProvider` with `search(IUser, ISearchQuery): SearchResult` method.
 - `appinfo/info.xml` — register the search provider via `<types>` declaration.
 - `lib/Service/SearchProvider/DashboardSearchIndexer.php` — optional helper to index searchable dashboard fields and widget content (deferred to follow-up optimization; basic LIKE queries acceptable at 10K-dashboard scale).
 - `src/views/DashboardDetail.vue` — optional: enhance the dashboard detail route to support `#widget-{placementId}` hash fragment for deep-linking from search results (or use GET param `?widgetId=X` as fallback).

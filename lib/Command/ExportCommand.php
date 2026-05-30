@@ -3,28 +3,28 @@
 /**
  * ExportCommand
  *
- * `php occ mydash:export` — write a versioned ZIP archive of one or
+ * `php occ launchpad:export` — write a versioned ZIP archive of one or
  * more dashboards to disk. Implements REQ-EXIM-010.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\ExportService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\ExportService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -35,7 +35,7 @@ use Throwable;
 use ZipArchive;
 
 /**
- * `mydash:export` console command.
+ * `launchpad:export` console command.
  */
 class ExportCommand extends Command
 {
@@ -62,8 +62,8 @@ class ExportCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:export')
-            ->setDescription(description: 'Export MyDash dashboards to a versioned ZIP archive.')
+        $this->setName(name: 'launchpad:export')
+            ->setDescription(description: 'Export LaunchPad dashboards to a versioned ZIP archive.')
             ->addOption(
                 name: 'scope',
                 shortcut: null,

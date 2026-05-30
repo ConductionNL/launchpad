@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 <template>
@@ -8,7 +8,7 @@
 			<img
 				v-if="template.previewImage"
 				:src="template.previewImage"
-				:alt="t('mydash', 'Preview image')"
+				:alt="t('launchpad', 'Preview image')"
 				class="template-card__preview-img">
 			<div v-else class="template-card__preview-placeholder">
 				<span aria-hidden="true">📊</span>
@@ -50,7 +50,7 @@ export default {
 	computed: {
 		/** @spec openspec/specs/admin-templates/spec.md */
 		widgetCountLabel() {
-			return t('mydash', '{count} widgets', {
+			return t('launchpad', '{count} widgets', {
 				count: this.template.widgetCount ?? 0,
 			})
 		},

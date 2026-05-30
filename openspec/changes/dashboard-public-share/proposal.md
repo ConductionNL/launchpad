@@ -6,7 +6,7 @@ Dashboard owners today cannot share a read-only view of their dashboards with ex
 
 ## What Changes
 
-- Add `oc_mydash_public_shares` table with `token` (UNIQUE), `passwordHash` (BCrypt), `expiresAt`, `revokedAt` (soft-delete), `viewCount`, and `lastViewedAt` columns
+- Add `oc_launchpad_public_shares` table with `token` (UNIQUE), `passwordHash` (BCrypt), `expiresAt`, `revokedAt` (soft-delete), `viewCount`, and `lastViewedAt` columns
 - Add `POST /api/dashboards/{uuid}/public-share` (owner-or-admin) to create a share with optional password and expiry; returns `{token, url, passwordRequired, expiresAt}`
 - Add `GET /api/dashboards/{uuid}/public-shares` (owner-or-admin) to list active (non-revoked) shares for a dashboard
 - Add `DELETE /api/dashboards/{uuid}/public-shares/{id}` (owner-or-admin) to soft-revoke a share
@@ -33,7 +33,7 @@ The existing `dashboard-sharing` capability (user-to-user) is unchanged; this is
 
 **Affected code:**
 
-- `lib/Db/PublicShare.php` — new Entity for `oc_mydash_public_shares` with fields: `id`, `dashboardUuid`, `token`, `passwordHash`, `expiresAt`, `createdBy`, `createdAt`, `revokedAt`, `viewCount`, `lastViewedAt`
+- `lib/Db/PublicShare.php` — new Entity for `oc_launchpad_public_shares` with fields: `id`, `dashboardUuid`, `token`, `passwordHash`, `expiresAt`, `createdBy`, `createdAt`, `revokedAt`, `viewCount`, `lastViewedAt`
 - `lib/Db/PublicShareMapper.php` — new Mapper with methods: `findByToken(string $token)`, `findByDashboardUuid(string $uuid)`, `findActiveByDashboardUuid(string $uuid)`, `save()`, `delete()`, `softRevoke(int $id)`, `incrementViewCount(int $id, string $ip)` (with debounce logic)
 - `lib/Service/PublicShareService.php` — new Service with: `createPublicShare(string $uuid, ?string $password, ?string $expiresAt)` (owner-or-admin guard), `listActiveShares(string $uuid)`, `revokeShare(int $id)`, `renderShare(string $token, ?string $password)` (with expiry/revoke checks), `unlockShare(string $token, string $password)` (with throttle guard via `IThrottler`)
 - `lib/Controller/PublicShareController.php` — new Controller (partially public, no `#[NoAdminRequired]` on all methods since some require auth):
@@ -44,7 +44,7 @@ The existing `dashboard-sharing` capability (user-to-user) is unchanged; this is
   - `POST /s/{token}/unlock` — PUBLIC
 - `lib/Service/DashboardService.php` — extend with guard logic for mutations: check if request is public-share bearer (via context/middleware), throw `PublicShareReadOnlyException` (403) if mutating
 - `appinfo/routes.php` — register 5 new routes (3 authenticated, 2 public)
-- `lib/Migration/VersionXXXXDate2026...AddPublicShares.php` — schema migration adding `oc_mydash_public_shares` table with unique index on `token` and composite index on `(dashboardUuid, revokedAt)` for fast active-share queries
+- `lib/Migration/VersionXXXXDate2026...AddPublicShares.php` — schema migration adding `oc_launchpad_public_shares` table with unique index on `token` and composite index on `(dashboardUuid, revokedAt)` for fast active-share queries
 - `src/stores/publicShares.js` — new Vuex/Pinia store module tracking active shares and token state
 - `src/views/DashboardPublicView.vue` — new public share render page (read-only, password unlock modal if needed)
 - `src/views/ShareManagement.vue` — new UI in dashboard settings to create, list, and revoke shares (deferred to follow-up if preferred)

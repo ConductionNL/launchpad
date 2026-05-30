@@ -6,7 +6,7 @@
  * Service for managing conditional rules on widget placements.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,12 +16,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\ConditionalRule;
-use OCA\MyDash\Db\ConditionalRuleMapper;
-use OCA\MyDash\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Db\ConditionalRuleMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 
 /**
  * Service for managing conditional rules on widget placements.
@@ -99,7 +99,7 @@ class ConditionalService
      *
      * @return ConditionalRule[] The list of rules.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-9
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-9
      */
     public function getRules(int $placementId): array
     {
@@ -122,7 +122,7 @@ class ConditionalService
      * @throws \OCP\AppFramework\Db\DoesNotExistException When the rule does
      *                                                     not exist.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-10
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-10
      */
     public function findRule(int $ruleId): ConditionalRule
     {
@@ -139,7 +139,7 @@ class ConditionalService
      *
      * @return ConditionalRule The created rule.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-8
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
      */
     public function addRule(
         int $placementId,
@@ -167,7 +167,7 @@ class ConditionalService
      *
      * @return ConditionalRule The updated rule.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-10
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-10
      */
     public function updateRule(int $ruleId, array $data): ConditionalRule
     {
@@ -195,7 +195,7 @@ class ConditionalService
      *
      * @return void
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-11
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-11
      */
     public function deleteRule(int $ruleId): void
     {

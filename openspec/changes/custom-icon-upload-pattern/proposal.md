@@ -2,7 +2,7 @@
 
 ## Why
 
-MyDash currently lets administrators and users pick a dashboard or tile icon only from a fixed registry of built-in MDI components (per `dashboard-icons`). Real organisations want to brand dashboards with their own logos, departmental icons, or scenario-specific imagery — none of which fit the curated registry. We could split the storage into two columns (`iconName` + `iconUrl`) and a discriminator field, but that triples the surface area of every read path, breaks existing `icon`-aware code, and forces a data migration. Instead we extend the existing `icon` field to accept either a built-in name OR a resource URL, with a single runtime discriminator and a single dual-mode render component. This change formalises the field-format convention, the picker UX, and the renderer contract — the actual upload endpoint is owned by the parallel `resource-uploads` capability.
+LaunchPad currently lets administrators and users pick a dashboard or tile icon only from a fixed registry of built-in MDI components (per `dashboard-icons`). Real organisations want to brand dashboards with their own logos, departmental icons, or scenario-specific imagery — none of which fit the curated registry. We could split the storage into two columns (`iconName` + `iconUrl`) and a discriminator field, but that triples the surface area of every read path, breaks existing `icon`-aware code, and forces a data migration. Instead we extend the existing `icon` field to accept either a built-in name OR a resource URL, with a single runtime discriminator and a single dual-mode render component. This change formalises the field-format convention, the picker UX, and the renderer contract — the actual upload endpoint is owned by the parallel `resource-uploads` capability.
 
 ## What Changes
 
@@ -40,7 +40,7 @@ MyDash currently lets administrators and users pick a dashboard or tile icon onl
 
 **Dependencies:**
 
-- Depends on the parallel `resource-uploads` change for the upload endpoint and resource URL format (`/apps/mydash/resource/{id}`)
+- Depends on the parallel `resource-uploads` change for the upload endpoint and resource URL format (`/apps/launchpad/resource/{id}`)
 - No new composer or npm dependencies
 
 **Migration:**

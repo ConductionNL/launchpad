@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -71,7 +71,7 @@ export default {
 		/** @spec openspec/specs/container-widget/spec.md */
 		unknownLabel() {
 			const type = this.placement?.type || ''
-			return t('mydash', 'Unknown widget type: {type}', { type })
+			return t('launchpad', 'Unknown widget type: {type}', { type })
 		},
 	},
 }

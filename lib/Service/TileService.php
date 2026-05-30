@@ -6,7 +6,7 @@
  * Service for managing tiles.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,11 +16,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\Tile;
-use OCA\MyDash\Db\TileMapper;
+use OCA\LaunchPad\Db\Tile;
+use OCA\LaunchPad\Db\TileMapper;
 
 class TileService
 {
@@ -41,7 +41,7 @@ class TileService
      *
      * @return Tile[] Array of tiles.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-29
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
      */
     public function getUserTiles(string $userId): array
     {
@@ -67,12 +67,12 @@ class TileService
      *                 placements MUST be created via
      *                 `POST /api/dashboards/{uuid}/widgets` with the
      *                 widget content stored inline on the placement; the
-     *                 `oc_mydash_tiles` reusable-entity table is being
+     *                 `oc_launchpad_tiles` reusable-entity table is being
      *                 phased out. This method is preserved for legacy
      *                 callers and migration tooling only and MUST NOT be
      *                 invoked by new code paths.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-28
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-28
      */
     public function createTile(
         string $userId,
@@ -118,7 +118,7 @@ class TileService
      *                 widget-placement update endpoint; the reusable
      *                 tile-entity table is read-only going forward.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-30
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-30
      */
     public function updateTile(int $id, string $userId, array $data): Tile
     {
@@ -181,7 +181,7 @@ class TileService
      *                 migration tooling that needs to clear out legacy
      *                 rows server-side.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-31
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-31
      */
     public function deleteTile(int $id, string $userId): void
     {

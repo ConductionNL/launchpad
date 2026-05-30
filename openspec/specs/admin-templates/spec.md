@@ -6,18 +6,18 @@ status: implemented
 
 ## Purpose
 
-Admin templates allow Nextcloud administrators to create pre-configured dashboards that are automatically distributed to users based on group membership. When a user opens MyDash for the first time (or when a new template targets their group), the system creates a personal copy of the matching template. This copy is an independent dashboard that the user can modify within the limits of the inherited permission level. Templates enable organizations to provide standardized dashboard layouts with compulsory widgets while still allowing user customization where appropriate.
+Admin templates allow Nextcloud administrators to create pre-configured dashboards that are automatically distributed to users based on group membership. When a user opens LaunchPad for the first time (or when a new template targets their group), the system creates a personal copy of the matching template. This copy is an independent dashboard that the user can modify within the limits of the inherited permission level. Templates enable organizations to provide standardized dashboard layouts with compulsory widgets while still allowing user customization where appropriate.
 
 ## Data Model
 
-Admin templates are stored as dashboards in `oc_mydash_dashboards` with `type: "admin_template"`. Additional template-specific fields:
+Admin templates are stored as dashboards in `oc_launchpad_dashboards` with `type: "admin_template"`. Additional template-specific fields:
 - **targetGroups**: JSON string of Nextcloud group IDs (e.g., `["marketing", "all-staff"]`), accessed via `getTargetGroupsArray()`/`setTargetGroupsArray()`
 - **isDefault**: SMALLINT (0/1) flag -- if 1 (true), this template is distributed to all users regardless of group membership
 - **permissionLevel**: One of `view_only`, `add_only`, `full` -- inherited by user copies
 - **userId**: Set to null for admin templates (they are not owned by a specific user)
 - **basedOnTemplate**: Not used for templates themselves; used on user copies to reference the template ID
 
-Templates own their widget placements (in `oc_mydash_widget_placements`) which serve as the blueprint for user copies. The template's placements include `isCompulsory` flags that are copied to user dashboards. When a user copy is created, `TemplateService::createDashboardFromTemplate()` clones all placements from the template to the new user dashboard.
+Templates own their widget placements (in `oc_launchpad_widget_placements`) which serve as the blueprint for user copies. The template's placements include `isCompulsory` flags that are copied to user dashboards. When a user copy is created, `TemplateService::createDashboardFromTemplate()` clones all placements from the template to the new user dashboard.
 
 ## Requirements
 
@@ -185,12 +185,12 @@ Administrators MUST be able to delete templates, with proper cleanup of associat
 
 ### Requirement: Template Distribution on First Access (REQ-TMPL-005)
 
-When a user accesses MyDash for the first time, the system MUST create personal copies of matching templates via the `DashboardResolver` chain.
+When a user accesses LaunchPad for the first time, the system MUST create personal copies of matching templates via the `DashboardResolver` chain.
 
 #### Scenario: First-time user receives default template
 - GIVEN a default template "Company Dashboard" exists with `isDefault: true` and 5 widget placements (3 compulsory)
-- AND user "alice" has never opened MyDash
-- WHEN alice navigates to MyDash (triggers GET /api/dashboard)
+- AND user "alice" has never opened LaunchPad
+- WHEN alice navigates to LaunchPad (triggers GET /api/dashboard)
 - THEN the system MUST create a personal dashboard for alice as a copy of the template
 - AND the copy MUST have `type: "user"` and `userId: "alice"`
 - AND the copy MUST inherit the template's permissionLevel
@@ -201,8 +201,8 @@ When a user accesses MyDash for the first time, the system MUST create personal 
 #### Scenario: First-time user receives group-targeted template
 - GIVEN template "Marketing Dashboard" targets groups ["marketing"]
 - AND user "bob" is a member of the "marketing" group
-- AND bob has never opened MyDash
-- WHEN bob navigates to MyDash
+- AND bob has never opened LaunchPad
+- WHEN bob navigates to LaunchPad
 - THEN the system MUST create a personal copy of "Marketing Dashboard" for bob
 - NOTE: `TemplateService::getApplicableTemplate()` returns only ONE template (the first matching group-targeted template takes priority over the default). Multiple template distribution is NOT implemented.
 
@@ -210,20 +210,20 @@ When a user accesses MyDash for the first time, the system MUST create personal 
 - GIVEN template "Marketing Dashboard" targets groups ["marketing"]
 - AND no default template exists
 - AND user "carol" is only in the "engineering" group
-- WHEN carol navigates to MyDash
+- WHEN carol navigates to LaunchPad
 - THEN the system MUST NOT create any dashboard for carol from the marketing template
 - AND if `allowUserDashboards` is true, the system MUST create a default "My Dashboard" with recommendations and activity widgets
 
 #### Scenario: Template already distributed to user
 - GIVEN user "alice" already has a personal copy of template "Company Dashboard"
-- WHEN alice navigates to MyDash again
+- WHEN alice navigates to LaunchPad again
 - THEN the system MUST NOT create a duplicate copy
 - AND `DashboardResolver::tryGetActiveDashboard()` MUST find her existing dashboard first
 
 #### Scenario: Multiple templates match the user
 - GIVEN templates "Company Dashboard" (default) and "Marketing Dashboard" (targets marketing group)
 - AND user "alice" is in the "marketing" group
-- WHEN alice navigates to MyDash for the first time
+- WHEN alice navigates to LaunchPad for the first time
 - THEN alice MUST receive a copy of "Marketing Dashboard" (group-targeted template takes priority over default)
 - NOTE: Only ONE template per first-access. Group-targeted templates are evaluated first; the default template is the fallback.
 
@@ -329,20 +329,20 @@ Template distribution MUST use Nextcloud's `IGroupManager` API to resolve user g
 - GIVEN template "Marketing Dashboard" targets groups ["marketing"]
 - AND user "alice" was not in the "marketing" group when the template was created
 - AND alice is later added to the "marketing" group
-- WHEN alice opens MyDash for the first time
+- WHEN alice opens LaunchPad for the first time
 - THEN the system MUST distribute the "Marketing Dashboard" template to alice
 - AND group membership MUST be checked at access time, not at template creation time
 
 #### Scenario: User removed from a target group after receiving template
 - GIVEN user "alice" received a copy of "Marketing Dashboard" while in the "marketing" group
 - AND alice is later removed from the "marketing" group
-- WHEN alice continues to use MyDash
+- WHEN alice continues to use LaunchPad
 - THEN alice's copy MUST continue to function normally
 - AND the copy MUST NOT be deleted or revoked
 
 #### Scenario: Template targets non-existent group
 - GIVEN template "Test Dashboard" targets groups ["nonexistent-group"]
-- WHEN any user opens MyDash
+- WHEN any user opens LaunchPad
 - THEN the template MUST NOT match any user (no user is in a non-existent group)
 - AND the system MUST NOT throw errors during group resolution
 
@@ -351,7 +351,7 @@ Template distribution MUST use Nextcloud's `IGroupManager` API to resolve user g
 The admin settings page MUST provide a UI for managing templates.
 
 #### Scenario: Template list in admin settings
-- GIVEN the admin opens the MyDash admin settings page
+- GIVEN the admin opens the LaunchPad admin settings page
 - THEN a template management section MUST be displayed
 - AND all existing templates MUST be listed with their name, target groups, and default status
 
@@ -522,7 +522,7 @@ Any dashboard owner MUST be able to convert their current dashboard into a reusa
 
 ### Requirement: Template Metadata Fields (REQ-TMPL-016)
 
-Admin templates MUST support three new metadata fields for categorization and discovery: `templateCategory` (VARCHAR 64, nullable), `templateDescription` (TEXT, nullable), and `templatePreviewImage` (TEXT, nullable). The fields are stored as nullable columns on `oc_mydash_dashboards` and only meaningful for rows with `type = 'admin_template'`.
+Admin templates MUST support three new metadata fields for categorization and discovery: `templateCategory` (VARCHAR 64, nullable), `templateDescription` (TEXT, nullable), and `templatePreviewImage` (TEXT, nullable). The fields are stored as nullable columns on `oc_launchpad_dashboards` and only meaningful for rows with `type = 'admin_template'`.
 
 #### Scenario: Template metadata in gallery response
 
@@ -567,7 +567,7 @@ Administrators MUST be able to upload a preview image for a template, persisted 
 - THEN the system MUST save the image via the resource-uploads pipeline
 - AND the image MUST be persisted under `<appdata>/resources/` with a high-entropy filename
 - AND the template's `templatePreviewImage` field MUST be updated with the URL
-- AND the response MUST return HTTP 200 with `{"status": "success", "previewImage": "/apps/mydash/resource/<filename>"}`
+- AND the response MUST return HTTP 200 with `{"status": "success", "previewImage": "/apps/launchpad/resource/<filename>"}`
 
 #### Scenario: Non-admin cannot upload preview image
 
@@ -578,7 +578,7 @@ Administrators MUST be able to upload a preview image for a template, persisted 
 
 #### Scenario: Upload replaces previous preview image
 
-- GIVEN a template with `templatePreviewImage: '/apps/mydash/resource/old.png'`
+- GIVEN a template with `templatePreviewImage: '/apps/launchpad/resource/old.png'`
 - WHEN an admin uploads a new image via `POST /api/admin/templates/{uuid}/preview-image`
 - THEN the system MUST overwrite the column with the new URL
 - AND `templatePreviewImage` MUST point to the new image
@@ -597,7 +597,7 @@ Administrators MUST be able to upload a preview image for a template, persisted 
 - THEN the template object MUST include the `previewImage` URL
 - AND the image MUST be immediately accessible (no delay)
 
-> NOTE (D1 — Storage divergence): MyDash stores templates as `type='admin_template'` rows in `oc_mydash_dashboards`. This is a deliberate and permanent divergence from the reference implementation's `/{lang}/_templates/` filesystem-folder convention. Reasons: (1) the existing REQ-TMPL-001..011 capability is already shipped — switching storage models would be a breaking change; (2) `WHERE type='admin_template'` is a single indexed query; the filesystem approach requires a full page-tree walk with path-segment string-matching; (3) DB enum cleanly separates kind from location; (4) MyDash supports DB-backed dashboards that have no GroupFolder and therefore no `_templates/` folder — a cross-backend representation requires the DB type column; (5) ACL equivalence is already provided by the `dashboard-sharing` capability. Do not attempt to converge on the filesystem-folder approach.
+> NOTE (D1 — Storage divergence): LaunchPad stores templates as `type='admin_template'` rows in `oc_launchpad_dashboards`. This is a deliberate and permanent divergence from the reference implementation's `/{lang}/_templates/` filesystem-folder convention. Reasons: (1) the existing REQ-TMPL-001..011 capability is already shipped — switching storage models would be a breaking change; (2) `WHERE type='admin_template'` is a single indexed query; the filesystem approach requires a full page-tree walk with path-segment string-matching; (3) DB enum cleanly separates kind from location; (4) LaunchPad supports DB-backed dashboards that have no GroupFolder and therefore no `_templates/` folder — a cross-backend representation requires the DB type column; (5) ACL equivalence is already provided by the `dashboard-sharing` capability. Do not attempt to converge on the filesystem-folder approach.
 
 ## Non-Functional Requirements
 
@@ -622,7 +622,7 @@ Administrators MUST be able to upload a preview image for a template, persisted 
 - REQ-TMPL-009 (Get Template with Placements): `AdminTemplateService::getTemplateWithPlacements()` returns template + placements.
 - REQ-TMPL-014 (Gallery endpoint): `AdminTemplateService::getGallery()` + `TemplateController::gallery()` expose `GET /api/templates/gallery`. Backed by `DashboardMapper::findAllTemplatesForGallery()` and the composite `(type, template_category)` index added in `Version001012Date20260503000000`.
 - REQ-TMPL-015 (Save-as-template): `AdminTemplateService::saveAsTemplate()` + `TemplateController::saveAsTemplate()` expose `POST /api/dashboards/{uuid}/save-as-template`. Owner-only, transactional, uses `WidgetPlacementMapper::cloneToDashboard()` for the deep copy.
-- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns added to `oc_mydash_dashboards`; serialised via `Dashboard::jsonSerialize()`.
+- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns added to `oc_launchpad_dashboards`; serialised via `Dashboard::jsonSerialize()`.
 - REQ-TMPL-017 (Preview image upload): `AdminTemplateService::uploadPreviewImage()` + `AdminController::uploadTemplatePreviewImage()` expose `POST /api/admin/templates/{uuid}/preview-image`. Reuses `ResourceService::upload()` for storage.
 
 **Not yet implemented:**

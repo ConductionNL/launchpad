@@ -4,25 +4,25 @@
  * CommandService
  *
  * Shared CLI infrastructure (REQ-CLI-006, REQ-CLI-007, REQ-CLI-010).
- * Defines the standard MyDash exit-code contract, the JSON envelope
- * schema, and the audit-log format that every `mydash:*` command MUST
+ * Defines the standard LaunchPad exit-code contract, the JSON envelope
+ * schema, and the audit-log format that every `launchpad:*` command MUST
  * use to remain interoperable with operator tooling.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use Psr\Log\LoggerInterface;
 
@@ -188,11 +188,11 @@ class CommandService
     /**
      * Format an audit-log line per REQ-CLI-010.
      *
-     * Format: `[mydash] cli <command> <args> exitCode=<n>
+     * Format: `[launchpad] cli <command> <args> exitCode=<n>
      * durationMs=<ms> byUser=<uid|cli>`
      *
      * @param string      $command    Full command name without the
-     *                                `mydash:` prefix (e.g.
+     *                                `launchpad:` prefix (e.g.
      *                                `dashboard:list`).
      * @param string      $args       Space-joined argv tail. May be
      *                                truncated to {@see AUDIT_ARGS_MAX}.
@@ -226,7 +226,7 @@ class CommandService
         }
 
         return sprintf(
-            '[mydash] cli %s %s exitCode=%d durationMs=%d byUser=%s',
+            '[launchpad] cli %s %s exitCode=%d durationMs=%d byUser=%s',
             $command,
             $argsClean,
             $exitCode,
@@ -264,7 +264,7 @@ class CommandService
                 byUser: $byUser
             ),
             context: [
-                'app'        => 'mydash',
+                'app'        => 'launchpad',
                 'command'    => $command,
                 'exitCode'   => $exitCode,
                 'durationMs' => $durationMs,

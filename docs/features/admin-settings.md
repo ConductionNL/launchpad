@@ -1,6 +1,6 @@
 # Admin Settings
 
-Admin settings provide Nextcloud administrators with global configuration options for the MyDash app.
+Admin settings provide Nextcloud administrators with global configuration options for the LaunchPad app.
 
 ## Settings
 
@@ -20,10 +20,10 @@ Admin settings provide Nextcloud administrators with global configuration option
 
 ## Notes
 
-- Settings stored as JSON-encoded key-value pairs in `oc_mydash_admin_settings`
+- Settings stored as JSON-encoded key-value pairs in `oc_launchpad_admin_settings`
 - DB uses snake_case keys, API returns camelCase keys
 - Admin-only access enforced
 
 ## Screenshot
 
-![Dashboard Overview](/screenshots/mydash-dashboard-overview.png)
+![Dashboard Overview](/screenshots/launchpad-dashboard-overview.png)

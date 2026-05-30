@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [ ] Task 1: Update `templates/index.php` to render `<div id="app-workspace" class="mydash-workspace"><div id="workspace-vue"></div></div>`; update `WorkspaceController::index` to pass `'id-app-content' => '#app-workspace'` + `'id-app-navigation' => null` to the template; confirm initial-state push (separate `initial-state-contract` change) wires `isAdmin`, `dashboardSource`, `activeDashboardId`, `allowUserDashboards`, `layout`
+- [ ] Task 1: Update `templates/index.php` to render `<div id="app-workspace" class="launchpad-workspace"><div id="workspace-vue"></div></div>`; update `WorkspaceController::index` to pass `'id-app-content' => '#app-workspace'` + `'id-app-navigation' => null` to the template; confirm initial-state push (separate `initial-state-contract` change) wires `isAdmin`, `dashboardSource`, `activeDashboardId`, `allowUserDashboards`, `layout`
 - [ ] Task 2: Refactor `src/views/WorkspaceApp.vue` into the four-region shell (sidebar, hamburger+title strip, toolbar, grid)
 - [ ] Task 3: Add computed `canEdit = isAdmin || dashboardSource === 'user'` (REQ-SHELL-002)
 - [ ] Task 4: Toolbar uses `v-if="canEdit"` (NOT `v-show` — keep DOM clean for non-edit users) per REQ-SHELL-003

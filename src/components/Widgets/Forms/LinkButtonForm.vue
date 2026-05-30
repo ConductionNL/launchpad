@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,7 +8,7 @@
 		<NcSelect
 			:value="displayMode"
 			:options="displayModeOptions"
-			:input-label="t('mydash', 'Display Mode')"
+			:input-label="t('launchpad', 'Display Mode')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -20,15 +20,15 @@
 		<template v-if="!isListMode">
 			<NcTextField
 				:value="label"
-				:label="t('mydash', 'Label')"
-				:placeholder="t('mydash', 'Label')"
+				:label="t('launchpad', 'Label')"
+				:placeholder="t('launchpad', 'Label')"
 				required
 				@update:value="updateField('label', $event)" />
 
 			<NcSelect
 				:value="actionType"
 				:options="actionTypeOptions"
-				:input-label="t('mydash', 'Action Type')"
+				:input-label="t('launchpad', 'Action Type')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -36,22 +36,22 @@
 
 			<NcTextField
 				:value="url"
-				:label="t('mydash', 'URL')"
+				:label="t('launchpad', 'URL')"
 				:placeholder="urlPlaceholder"
 				required
 				@update:value="updateField('url', $event)" />
 
 			<NcTextField
 				:value="icon"
-				:label="t('mydash', 'Upload Icon (optional)')"
-				:placeholder="t('mydash', 'Icon')"
+				:label="t('launchpad', 'Upload Icon (optional)')"
+				:placeholder="t('launchpad', 'Icon')"
 				@update:value="updateField('icon', $event)" />
 		</template>
 
 		<!-- Background + text colours apply to single-button mode AND
 		     to list-mode items that do not declare their own colours. -->
 		<label class="link-button-form__color-label">
-			{{ t('mydash', 'Background Color') }}
+			{{ t('launchpad', 'Background Color') }}
 			<input
 				type="color"
 				:value="backgroundColor || '#0070c0'"
@@ -60,7 +60,7 @@
 		</label>
 
 		<label class="link-button-form__color-label">
-			{{ t('mydash', 'Text Color') }}
+			{{ t('launchpad', 'Text Color') }}
 			<input
 				type="color"
 				:value="textColor || '#ffffff'"
@@ -73,7 +73,7 @@
 			<NcSelect
 				:value="listOrientation"
 				:options="orientationOptions"
-				:input-label="t('mydash', 'List Orientation')"
+				:input-label="t('launchpad', 'List Orientation')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -82,7 +82,7 @@
 			<NcSelect
 				:value="listItemGap"
 				:options="gapOptions"
-				:input-label="t('mydash', 'List Item Spacing')"
+				:input-label="t('launchpad', 'List Item Spacing')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -90,12 +90,12 @@
 
 			<div class="link-button-form__list-editor">
 				<h4 class="link-button-form__list-title">
-					{{ t('mydash', 'Links') }}
+					{{ t('launchpad', 'Links') }}
 				</h4>
 				<p
 					v-if="links.length === 0"
 					class="link-button-form__list-empty">
-					{{ t('mydash', 'No links yet. Click "Add link" to add one.') }}
+					{{ t('launchpad', 'No links yet. Click "Add link" to add one.') }}
 				</p>
 				<ul v-else class="link-button-form__link-list">
 					<li
@@ -107,7 +107,7 @@
 							type="button"
 							class="link-button-form__row-handle"
 							:disabled="index === 0"
-							:aria-label="t('mydash', 'Move link up')"
+							:aria-label="t('launchpad', 'Move link up')"
 							@click="moveLinkUp(index)">
 							{{ '↑' }}
 						</button>
@@ -115,49 +115,49 @@
 							type="button"
 							class="link-button-form__row-handle"
 							:disabled="index === links.length - 1"
-							:aria-label="t('mydash', 'Move link down')"
+							:aria-label="t('launchpad', 'Move link down')"
 							@click="moveLinkDown(index)">
 							{{ '↓' }}
 						</button>
 						<div class="link-button-form__row-fields">
 							<NcTextField
 								:value="link.label"
-								:label="t('mydash', 'Label')"
-								:placeholder="t('mydash', 'Label')"
+								:label="t('launchpad', 'Label')"
+								:placeholder="t('launchpad', 'Label')"
 								required
 								@update:value="updateLinkField(index, 'label', $event)" />
 							<NcSelect
 								:value="link.actionType"
 								:options="actionTypeOptions"
-								:input-label="t('mydash', 'Action Type')"
+								:input-label="t('launchpad', 'Action Type')"
 								:reduce="(option) => option.value"
 								label="label"
 								:clearable="false"
 								@input="updateLinkField(index, 'actionType', $event)" />
 							<NcTextField
 								:value="link.url"
-								:label="t('mydash', 'URL')"
+								:label="t('launchpad', 'URL')"
 								:placeholder="urlPlaceholderFor(link.actionType)"
 								required
 								@update:value="updateLinkField(index, 'url', $event)" />
 							<NcTextField
 								:value="link.icon"
-								:label="t('mydash', 'Icon (optional)')"
-								:placeholder="t('mydash', 'Icon')"
+								:label="t('launchpad', 'Icon (optional)')"
+								:placeholder="t('launchpad', 'Icon')"
 								@update:value="updateLinkField(index, 'icon', $event)" />
 							<NcTextField
 								v-if="link.actionType === 'createFile'"
 								:value="link.value"
-								:label="t('mydash', 'File Extension')"
+								:label="t('launchpad', 'File Extension')"
 								:placeholder="'docx'"
 								@update:value="updateLinkField(index, 'value', $event)" />
 						</div>
 						<button
 							type="button"
 							class="link-button-form__row-remove"
-							:aria-label="t('mydash', 'Remove link')"
+							:aria-label="t('launchpad', 'Remove link')"
 							@click="removeLink(index)">
-							{{ t('mydash', 'Remove') }}
+							{{ t('launchpad', 'Remove') }}
 						</button>
 					</li>
 				</ul>
@@ -166,12 +166,12 @@
 					class="link-button-form__add-link"
 					:disabled="links.length >= MAX_LINKS"
 					@click="addLink">
-					{{ t('mydash', 'Add link') }}
+					{{ t('launchpad', 'Add link') }}
 				</button>
 				<p
 					v-if="links.length >= MAX_LINKS"
 					class="link-button-form__list-hint">
-					{{ t('mydash', 'Maximum of 20 links per list widget') }}
+					{{ t('launchpad', 'Maximum of 20 links per list widget') }}
 				</p>
 			</div>
 		</template>
@@ -318,34 +318,34 @@ export default {
 		/** @spec openspec/specs/link-button-widget/spec.md */
 		actionTypeOptions() {
 			return [
-				{ value: ACTION_TYPES.EXTERNAL, label: t('mydash', 'External Link') },
-				{ value: ACTION_TYPES.INTERNAL, label: t('mydash', 'Internal Function') },
-				{ value: ACTION_TYPES.CREATE_FILE, label: t('mydash', 'Create File') },
+				{ value: ACTION_TYPES.EXTERNAL, label: t('launchpad', 'External Link') },
+				{ value: ACTION_TYPES.INTERNAL, label: t('launchpad', 'Internal Function') },
+				{ value: ACTION_TYPES.CREATE_FILE, label: t('launchpad', 'Create File') },
 			]
 		},
 
 		/** @spec openspec/specs/link-button-widget/spec.md */
 		displayModeOptions() {
 			return [
-				{ value: DISPLAY_MODES.BUTTON, label: t('mydash', 'Single button') },
-				{ value: DISPLAY_MODES.LIST, label: t('mydash', 'List of links') },
+				{ value: DISPLAY_MODES.BUTTON, label: t('launchpad', 'Single button') },
+				{ value: DISPLAY_MODES.LIST, label: t('launchpad', 'List of links') },
 			]
 		},
 
 		/** @spec openspec/specs/link-button-widget/spec.md */
 		orientationOptions() {
 			return [
-				{ value: ORIENTATIONS.VERTICAL, label: t('mydash', 'Vertical (list)') },
-				{ value: ORIENTATIONS.HORIZONTAL, label: t('mydash', 'Horizontal (cards)') },
+				{ value: ORIENTATIONS.VERTICAL, label: t('launchpad', 'Vertical (list)') },
+				{ value: ORIENTATIONS.HORIZONTAL, label: t('launchpad', 'Horizontal (cards)') },
 			]
 		},
 
 		/** @spec openspec/specs/link-button-widget/spec.md */
 		gapOptions() {
 			return [
-				{ value: GAPS.COMPACT, label: t('mydash', 'Compact') },
-				{ value: GAPS.NORMAL, label: t('mydash', 'Normal') },
-				{ value: GAPS.SPACIOUS, label: t('mydash', 'Spacious') },
+				{ value: GAPS.COMPACT, label: t('launchpad', 'Compact') },
+				{ value: GAPS.NORMAL, label: t('launchpad', 'Normal') },
+				{ value: GAPS.SPACIOUS, label: t('launchpad', 'Spacious') },
 			]
 		},
 
@@ -504,7 +504,7 @@ export default {
 			const errors = []
 			if (this.isListMode) {
 				if (!Array.isArray(this.links) || this.links.length === 0) {
-					errors.push(t('mydash', 'At least one link is required for list mode'))
+					errors.push(t('launchpad', 'At least one link is required for list mode'))
 					return errors
 				}
 				let invalidCount = 0
@@ -514,15 +514,15 @@ export default {
 					}
 				}
 				if (invalidCount > 0) {
-					errors.push(t('mydash', 'Each link requires a label and a URL'))
+					errors.push(t('launchpad', 'Each link requires a label and a URL'))
 				}
 				return errors
 			}
 			if (typeof this.label !== 'string' || this.label.trim() === '') {
-				errors.push(t('mydash', 'Label is required'))
+				errors.push(t('launchpad', 'Label is required'))
 			}
 			if (typeof this.url !== 'string' || this.url.trim() === '') {
-				errors.push(t('mydash', 'URL is required'))
+				errors.push(t('launchpad', 'URL is required'))
 			}
 			return errors
 		},

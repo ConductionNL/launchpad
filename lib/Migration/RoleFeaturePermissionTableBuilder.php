@@ -3,23 +3,23 @@
 /**
  * RoleFeaturePermissionTableBuilder
  *
- * Builder for the `mydash_role_feature_perms` schema (REQ-RFP-001..010).
+ * Builder for the `launchpad_role_feat_perms` schema (REQ-RFP-001..010).
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -38,11 +38,11 @@ class RoleFeaturePermissionTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_role_feature_perms') === true) {
+        if ($schema->hasTable(tableName: 'launchpad_role_feat_perms') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_role_feature_perms');
+        $table = $schema->createTable(tableName: 'launchpad_role_feat_perms');
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
@@ -140,7 +140,7 @@ class RoleFeaturePermissionTableBuilder
         $table->setPrimaryKey(columnNames: ['id']);
         $table->addUniqueIndex(
             columnNames: ['group_id'],
-            indexName: 'mydash_rfp_group'
+            indexName: 'launchpad_rfp_group'
         );
     }//end addIndexes()
 }//end class

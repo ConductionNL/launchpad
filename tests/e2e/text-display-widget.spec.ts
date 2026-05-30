@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end test for the `text` widget covering tasks 7.1..7.3
  * of the `text-display-widget` OpenSpec change.
  *
- * NOTE: Playwright infrastructure is not yet wired up in mydash. This file
+ * NOTE: Playwright infrastructure is not yet wired up in launchpad. This file
  * is committed alongside the rest of the change so it runs once the cohort-
  * wide Playwright bootstrap lands. Do not delete — it is the canonical e2e
  * coverage for REQ-TXT-001, REQ-TXT-003, REQ-TXT-004.
@@ -28,7 +28,7 @@ const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 
 test.describe('text-display widget', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/mydash`)
+		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/launchpad`)
 		// Tests assume the user is already authenticated via Playwright
 		// storageState; in CI this is set up by the Hydra harness.
 	})
@@ -83,7 +83,7 @@ test.describe('text-display widget', () => {
 		// exercise the placeholder branch we create the placement directly
 		// via the API and then assert the rendered fallback.
 		await page.evaluate(async () => {
-			await fetch('/index.php/apps/mydash/api/widget-placements', {
+			await fetch('/index.php/apps/launchpad/api/widget-placements', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

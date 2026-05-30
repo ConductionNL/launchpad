@@ -14,13 +14,13 @@ Provide a multi-column dashboard widget that renders a curated grid of link card
 
 @e2e exclude widget registration tested via widget-in-picker scenario in spec-coverage tests
 
-The system MUST register a MyDash dashboard widget with id `mydash_links` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
+The system MUST register a LaunchPad dashboard widget with id `launchpad_links` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the links-widget app is installed and enabled
-- WHEN a user opens the MyDash widget picker dialog
-- THEN the `mydash_links` widget MUST appear in the list with a title (e.g., "Links") and an icon
+- WHEN a user opens the LaunchPad widget picker dialog
+- THEN the `launchpad_links` widget MUST appear in the list with a title (e.g., "Links") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -34,7 +34,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_links` via `O
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `mydash_links` widget MUST still be discoverable in the picker
+- THEN the `launchpad_links` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget metadata is complete
 
@@ -46,7 +46,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_links` via `O
 
 @e2e exclude placement configuration schema tests JSON blob persistence via REST — Newman scope
 
-The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify sections with links, layout preferences, and display options.
+The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify sections with links, layout preferences, and display options.
 
 #### Scenario: Config stores sections array
 
@@ -454,7 +454,7 @@ The system MUST correctly handle link navigation, distinguishing between externa
 
 #### Scenario: Internal link in same window
 
-- GIVEN a link config with `url: '/apps/mydash/dashboard/1'` and openInNewTab=false
+- GIVEN a link config with `url: '/apps/launchpad/dashboard/1'` and openInNewTab=false
 - WHEN the user clicks the link
 - THEN the system MUST navigate to the URL in the same window
 - AND no `rel` attribute is needed

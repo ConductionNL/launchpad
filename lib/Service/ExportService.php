@@ -6,7 +6,7 @@
  * Builds a versioned ZIP archive containing one or more dashboards,
  * their widget placements, referenced metadata field definitions, and
  * any associated assets (icons, widget uploads). The container format
- * is `mydash-export-v1.zip` — see `dashboard-export-import` capability
+ * is `launchpad-export-v1.zip` — see `dashboard-export-import` capability
  * spec REQ-EXIM-001..003 / REQ-EXIM-009 / REQ-EXIM-011.
  *
  * The downstream `confluence-html-import` capability consumes the same
@@ -14,28 +14,28 @@
  * stable.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\StreamResponse;
@@ -45,7 +45,7 @@ use RuntimeException;
 use ZipArchive;
 
 /**
- * Builds versioned MyDash export ZIP archives.
+ * Builds versioned LaunchPad export ZIP archives.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *      Mirrors injected dependencies.
@@ -122,7 +122,7 @@ class ExportService
 
         return $this->streamZipResponse(
             zipPath: $tempPath,
-            filename: 'mydash-export-'.$dashboardUuid.'.zip'
+            filename: 'launchpad-export-'.$dashboardUuid.'.zip'
         );
     }//end exportDashboard()
 
@@ -149,7 +149,7 @@ class ExportService
 
         return $this->streamZipResponse(
             zipPath: $tempPath,
-            filename: 'mydash-export-site-'.gmdate(format: 'Ymd-His').'.zip'
+            filename: 'launchpad-export-site-'.gmdate(format: 'Ymd-His').'.zip'
         );
     }//end exportSite()
 
@@ -178,7 +178,7 @@ class ExportService
             'schemaVersion'  => self::SCHEMA_VERSION,
             'exportedAt'     => $now->format(format: 'Y-m-d\TH:i:s\Z'),
             'exportedBy'     => $currentUserId,
-            'mydashVersion'  => Application::APP_ID.'/v1',
+            'launchpadVersion'  => Application::APP_ID.'/v1',
             'scope'          => $scope,
             'dashboardCount' => $dashboardCount,
             'includedAssets' => ['icons', 'widgetUploads', 'metadataFields'],
@@ -230,7 +230,7 @@ class ExportService
         string $scope,
         string $currentUserId
     ): string {
-        $tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'mydash-export-');
+        $tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-export-');
         if ($tempPath === false) {
             throw new RuntimeException(
                 message: 'Could not allocate temporary file for export.'

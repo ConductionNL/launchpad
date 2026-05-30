@@ -3,7 +3,7 @@
 /**
  * CleanupScanCommand
  *
- * `occ mydash:cleanup:scan` — REQ-CLN-001. Reports the per-category
+ * `occ launchpad:cleanup:scan` — REQ-CLN-001. Reports the per-category
  * orphan counts as a table on stdout. Exits 0 when no orphans exist
  * and 1 when at least one row is found, so CI scripts can use the
  * exit code as a fail signal.
@@ -12,29 +12,29 @@
  * counterpart is {@see CleanupPurgeCommand}.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:cleanup:scan` CLI command.
+ * `launchpad:cleanup:scan` CLI command.
  */
 class CleanupScanCommand extends Command
 {
@@ -58,9 +58,9 @@ class CleanupScanCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:cleanup:scan')
+        $this->setName(name: 'launchpad:cleanup:scan')
             ->setDescription(
-                description: 'Scan MyDash storage for orphans by category. Exits non-zero when any are found.'
+                description: 'Scan LaunchPad storage for orphans by category. Exits non-zero when any are found.'
             );
     }//end configure()
 

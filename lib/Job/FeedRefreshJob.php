@@ -5,31 +5,31 @@
  *
  * Nextcloud `\OCP\BackgroundJob\TimedJob` that periodically rebuilds the
  * feed cache for the news widget (REQ-FRJ-002, REQ-FRJ-007). Reads the
- * admin-tunable `mydash.feed_refresh_interval_seconds` config (clamped
+ * admin-tunable `launchpad.feed_refresh_interval_seconds` config (clamped
  * to [300, 86400] seconds, default 3600), acquires a global cluster
  * lock to prevent concurrent ticks, and delegates the per-feed work to
- * {@see \OCA\MyDash\Service\FeedRefreshService::refreshAll()}. The lock
+ * {@see \OCA\LaunchPad\Service\FeedRefreshService::refreshAll()}. The lock
  * is released in a `finally` block so an unhandled exception cannot
  * leave the lock stuck.
  *
  * @category  Job
- * @package   OCA\MyDash\Job
+ * @package   OCA\LaunchPad\Job
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Job;
+namespace OCA\LaunchPad\Job;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\FeedRefreshService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\FeedRefreshService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
@@ -78,7 +78,7 @@ class FeedRefreshJob extends TimedJob
      *
      * @var string
      */
-    public const LOCK_ID = 'mydash_feed_refresh_running';
+    public const LOCK_ID = 'launchpad_feed_refresh_running';
 
     /**
      * Constructor — clamps the configured interval and registers it

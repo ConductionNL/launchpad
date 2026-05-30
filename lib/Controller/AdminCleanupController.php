@@ -11,30 +11,30 @@
  *
  * Admin enforcement is done at request time via `IGroupManager` and
  * `IUserSession` (mirroring the pattern in
- * {@see \OCA\MyDash\Controller\AdminController::requireAdmin()}). Both
+ * {@see \OCA\LaunchPad\Controller\AdminController::requireAdmin()}). Both
  * unauthenticated and non-admin callers receive HTTP 403 — we
  * deliberately do not differentiate to keep the admin surface from
  * leaking which users exist.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
-use OCA\MyDash\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
+use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;

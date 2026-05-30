@@ -11,12 +11,12 @@
  * of every typed exception's HTTP-status mapping.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -24,17 +24,17 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\ResourceController;
-use OCA\MyDash\Controller\ResourceUploadRequestParser;
-use OCA\MyDash\Exception\CorruptImageException;
-use OCA\MyDash\Exception\FileTooLargeException;
-use OCA\MyDash\Exception\InvalidDataUrlException;
-use OCA\MyDash\Exception\InvalidImageFormatException;
-use OCA\MyDash\Exception\InvalidSvgException;
-use OCA\MyDash\Exception\MimeMismatchException;
-use OCA\MyDash\Exception\StorageFailureException;
-use OCA\MyDash\Exception\UnsupportedMediaTypeException;
-use OCA\MyDash\Service\ResourceService;
+use OCA\LaunchPad\Controller\ResourceController;
+use OCA\LaunchPad\Controller\ResourceUploadRequestParser;
+use OCA\LaunchPad\Exception\CorruptImageException;
+use OCA\LaunchPad\Exception\FileTooLargeException;
+use OCA\LaunchPad\Exception\InvalidDataUrlException;
+use OCA\LaunchPad\Exception\InvalidImageFormatException;
+use OCA\LaunchPad\Exception\InvalidSvgException;
+use OCA\LaunchPad\Exception\MimeMismatchException;
+use OCA\LaunchPad\Exception\StorageFailureException;
+use OCA\LaunchPad\Exception\UnsupportedMediaTypeException;
+use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -185,7 +185,7 @@ class ResourceControllerTest extends TestCase
         $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
         $this->parser->method('extractBase64')->willReturn('data:image/png;base64,xxx');
         $this->service->method('upload')->willReturn([
-            'url'  => '/apps/mydash/resource/resource_abc.png',
+            'url'  => '/apps/launchpad/resource/resource_abc.png',
             'name' => 'resource_abc.png',
             'size' => 1234,
         ]);
@@ -195,7 +195,7 @@ class ResourceControllerTest extends TestCase
         $this->assertSame(Http::STATUS_OK, $response->getStatus());
         $body = $response->getData();
         $this->assertSame('success', $body['status']);
-        $this->assertSame('/apps/mydash/resource/resource_abc.png', $body['url']);
+        $this->assertSame('/apps/launchpad/resource/resource_abc.png', $body['url']);
         $this->assertSame('resource_abc.png', $body['name']);
         $this->assertSame(1234, $body['size']);
     }

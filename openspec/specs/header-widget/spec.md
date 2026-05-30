@@ -6,15 +6,15 @@ status: implemented
 
 ## Purpose
 
-The header widget is a built-in MyDash widget type that drops a full-width banner onto a dashboard with a configurable title, optional subtitle, optional background image (URL or NC file), an optional color overlay, and an optional call-to-action button. It replaces the legacy "header row" prototype with a first-class, typed widget that participates in the same registry, modal, and grid pipeline as every other built-in widget — no special-casing in the dashboard renderer.
+The header widget is a built-in LaunchPad widget type that drops a full-width banner onto a dashboard with a configurable title, optional subtitle, optional background image (URL or NC file), an optional color overlay, and an optional call-to-action button. It replaces the legacy "header row" prototype with a first-class, typed widget that participates in the same registry, modal, and grid pipeline as every other built-in widget — no special-casing in the dashboard renderer.
 
-Persistence is purely client-side: header content lives inside the existing `oc_mydash_widget_placements.content` JSON column under the discriminated shape `{type: 'header', content: {...}}`. There is no migration, no new endpoint, and no new admin setting; the renderer enforces a simple `http(s)` scheme check on user-entered URLs and falls back to the configured solid `backgroundColor` when the chosen image fails to load.
+Persistence is purely client-side: header content lives inside the existing `oc_launchpad_widget_placements.content` JSON column under the discriminated shape `{type: 'header', content: {...}}`. There is no migration, no new endpoint, and no new admin setting; the renderer enforces a simple `http(s)` scheme check on user-entered URLs and falls back to the configured solid `backgroundColor` when the chosen image fails to load.
 
 The capability is one widget type, one renderer (`HeaderWidget.vue`), one sub-form (`HeaderForm.vue`), and one registry entry. It composes with the resource-uploads pipeline (REQ-RES-001..005) to handle file uploads, and with the standard NC core preview route to render images chosen from Nextcloud Files.
 
 ## Data Model
 
-Header placements reuse `oc_mydash_widget_placements.content` (JSON). The `content` object carries the following fields — every field is optional except `title`, and unknown / out-of-range values collapse to documented defaults so a malformed blob never crashes the renderer:
+Header placements reuse `oc_launchpad_widget_placements.content` (JSON). The `content` object carries the following fields — every field is optional except `title`, and unknown / out-of-range values collapse to documented defaults so a malformed blob never crashes the renderer:
 
 - **title** (string, required) — visible heading rendered as `<h2>`
 - **subtitle** (string, optional) — secondary line rendered as `<p>` when non-empty
@@ -36,13 +36,13 @@ Header placements reuse `oc_mydash_widget_placements.content` (JSON). The `conte
 
 @e2e exclude widget registration tests OCP\Dashboard\IManager registration — observed by widget appearing in picker; covered by generic widgets-in-picker test
 
-The system MUST register a MyDash dashboard widget with id `mydash_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
+The system MUST register a LaunchPad dashboard widget with id `launchpad_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the header-widget app is installed and enabled
-- WHEN a user opens the MyDash widget picker dialog
-- THEN the `mydash_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
+- WHEN a user opens the LaunchPad widget picker dialog
+- THEN the `launchpad_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -56,7 +56,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `mydash_header` widget MUST still be discoverable in the picker
+- THEN the `launchpad_header` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
 
@@ -68,7 +68,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 
 @e2e exclude placement configuration tests JSON blob shape — Vitest/Newman scope
 
-The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
+The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
 
 #### Scenario: Config for title and subtitle
 
@@ -217,17 +217,17 @@ The system MUST support three overlay modes for controlling how background image
 
 @e2e exclude external image allow-list tests PHP config + IAppConfig — Newman scope
 
-The system MUST enforce an allow-list of external image hostnames via admin setting `mydash.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
+The system MUST enforce an allow-list of external image hostnames via admin setting `launchpad.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
 
 #### Scenario: Allow-list enabled with allowed domain
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed and loaded
 
 #### Scenario: Allow-list enabled with disallowed domain
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"images.example.com\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://untrusted-site.com/image.jpg"
 - THEN the image MUST NOT load
 - AND the widget MUST fall back to backgroundColor only
@@ -235,7 +235,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 #### Scenario: Empty allow-list allows all domains
 
-- GIVEN mydash.header_widget_allowed_image_domains=null or []
+- GIVEN launchpad.header_widget_allowed_image_domains=null or []
 - WHEN a placement is configured with any external backgroundImageUrl
 - THEN the image MUST be loaded without restriction
 - AND this is the default behavior (zero-config = all allowed)
@@ -249,7 +249,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 #### Scenario: Allow-list hostname matching is case-insensitive
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed (case-insensitive match)
 

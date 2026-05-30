@@ -3,30 +3,30 @@
 /**
  * ReactionsListener
  *
- * Cleans up `oc_mydash_dashboard_reactions` rows when a dashboard is
+ * Cleans up `oc_launchpad_dash_reactions` rows when a dashboard is
  * soft-deleted. Subscribes to {@see DashboardDeletedEvent} via the
  * cascade-events listener registry (REQ-CSC-002, REQ-CSC-003) and
  * delegates the actual delete to {@see ReactionService} so the same
  * code path is reused by every cascade source.
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Service\ReactionService;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Service\ReactionService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -79,20 +79,20 @@ class ReactionsListener implements IEventListener
 
             $this->logger->debug(
                 message: sprintf(
-                    'mydash ReactionsListener: deleted %d reactions for dashboard %s',
+                    'launchpad ReactionsListener: deleted %d reactions for dashboard %s',
                     $deleted,
                     $uuid
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash ReactionsListener: failed for dashboard %s: %s',
+                    'launchpad ReactionsListener: failed for dashboard %s: %s',
                     $uuid,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handle()

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * useNestedGridManager — Vue 2 composable that wraps an inner GridStack
@@ -91,7 +91,7 @@ export function getNestedGridOptions() {
  *
  * @param {object} spec target widget spec — `w`/`h` default to
  *   {@link NESTED_DEFAULT_W} / {@link NESTED_DEFAULT_H}.
- * @param {Array<object>} placements current child placements in MyDash
+ * @param {Array<object>} placements current child placements in LaunchPad
  *   field-name form (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`).
  * @param {object} [options] optional knobs
  * @param {number} [options.viewportRows] visible rows on first paint

@@ -4,26 +4,26 @@
  * DashboardVersionMapper
  *
  * Database mapper for {@see DashboardVersion} entities backing the
- * `oc_mydash_dashboard_versions` table. Handles per-dashboard listing,
+ * `oc_launchpad_dash_versions` table. Handles per-dashboard listing,
  * monotonic versionNumber allocation, retention pruning (50-row limit
  * per dashboard, REQ-VERS-006), and cascade cleanup on dashboard
  * deletion.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
@@ -54,7 +54,7 @@ class DashboardVersionMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dashboard_versions',
+            tableName: 'launchpad_dash_versions',
             entityClass: DashboardVersion::class
         );
     }//end __construct()

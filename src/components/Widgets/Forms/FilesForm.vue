@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,21 +7,21 @@
 	<div class="files-form">
 		<NcTextField
 			:value="folderPath"
-			:label="t('mydash', 'Folder path')"
-			:placeholder="t('mydash', 'e.g. /Documents/Marketing')"
+			:label="t('launchpad', 'Folder path')"
+			:placeholder="t('launchpad', 'e.g. /Documents/Marketing')"
 			required
 			@update:value="updateField('folderPath', $event)" />
 
 		<NcTextField
 			:value="fileIdString"
-			:label="t('mydash', 'Folder ID (optional, preferred)')"
-			:placeholder="t('mydash', 'Numeric file id of the folder')"
+			:label="t('launchpad', 'Folder ID (optional, preferred)')"
+			:placeholder="t('launchpad', 'Numeric file id of the folder')"
 			@update:value="updateFileId" />
 
 		<NcSelect
 			:value="viewMode"
 			:options="viewModeOptions"
-			:input-label="t('mydash', 'View mode')"
+			:input-label="t('launchpad', 'View mode')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -30,7 +30,7 @@
 		<NcSelect
 			:value="sortBy"
 			:options="sortByOptions"
-			:input-label="t('mydash', 'Sort by')"
+			:input-label="t('launchpad', 'Sort by')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -41,7 +41,7 @@
 				type="checkbox"
 				:checked="sortDescending"
 				@change="updateField('sortDescending', $event.target.checked)">
-			{{ t('mydash', 'Sort descending') }}
+			{{ t('launchpad', 'Sort descending') }}
 		</label>
 
 		<label class="files-form__toggle">
@@ -49,13 +49,13 @@
 				type="checkbox"
 				:checked="showThumbnails"
 				@change="updateField('showThumbnails', $event.target.checked)">
-			{{ t('mydash', 'Show thumbnails') }}
+			{{ t('launchpad', 'Show thumbnails') }}
 		</label>
 
 		<NcTextField
 			:value="mimeTypeFilterString"
-			:label="t('mydash', 'MIME type filter (comma separated)')"
-			:placeholder="t('mydash', 'e.g. image/*, application/pdf')"
+			:label="t('launchpad', 'MIME type filter (comma separated)')"
+			:placeholder="t('launchpad', 'e.g. image/*, application/pdf')"
 			@update:value="updateMimeFilter" />
 
 		<label class="files-form__toggle">
@@ -63,7 +63,7 @@
 				type="checkbox"
 				:checked="allowUpload"
 				@change="updateField('allowUpload', $event.target.checked)">
-			{{ t('mydash', 'Allow upload') }}
+			{{ t('launchpad', 'Allow upload') }}
 		</label>
 
 		<label class="files-form__toggle">
@@ -71,7 +71,7 @@
 				type="checkbox"
 				:checked="allowDelete"
 				@change="updateField('allowDelete', $event.target.checked)">
-			{{ t('mydash', 'Allow delete') }}
+			{{ t('launchpad', 'Allow delete') }}
 		</label>
 	</div>
 </template>
@@ -154,19 +154,19 @@ export default {
 		/** @spec openspec/specs/files-widget/spec.md */
 		viewModeOptions() {
 			return [
-				{ value: 'list', label: t('mydash', 'List') },
-				{ value: 'grid', label: t('mydash', 'Grid') },
-				{ value: 'tree', label: t('mydash', 'Tree') },
+				{ value: 'list', label: t('launchpad', 'List') },
+				{ value: 'grid', label: t('launchpad', 'Grid') },
+				{ value: 'tree', label: t('launchpad', 'Tree') },
 			]
 		},
 
 		/** @spec openspec/specs/files-widget/spec.md */
 		sortByOptions() {
 			return [
-				{ value: 'name', label: t('mydash', 'Name') },
-				{ value: 'modified', label: t('mydash', 'Modified') },
-				{ value: 'size', label: t('mydash', 'Size') },
-				{ value: 'type', label: t('mydash', 'Type') },
+				{ value: 'name', label: t('launchpad', 'Name') },
+				{ value: 'modified', label: t('launchpad', 'Modified') },
+				{ value: 'size', label: t('launchpad', 'Size') },
+				{ value: 'type', label: t('launchpad', 'Type') },
 			]
 		},
 
@@ -234,7 +234,7 @@ export default {
 			const hasPath = typeof this.folderPath === 'string' && this.folderPath.trim() !== ''
 			const hasFileId = typeof this.fileId === 'number' && this.fileId > 0
 			if (!hasPath && !hasFileId) {
-				errors.push(t('mydash', 'Folder path or folder id is required'))
+				errors.push(t('launchpad', 'Folder path or folder id is required'))
 			}
 			return errors
 		},

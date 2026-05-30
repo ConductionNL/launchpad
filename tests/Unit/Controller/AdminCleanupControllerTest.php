@@ -9,12 +9,12 @@
  * happy-path purge response shape.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\AdminCleanupController;
-use OCA\MyDash\Db\CleanupResult;
-use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
-use OCA\MyDash\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\Controller\AdminCleanupController;
+use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
+use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;

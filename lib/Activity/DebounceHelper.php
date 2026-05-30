@@ -17,20 +17,20 @@
  * 900-second TTL for deterministic unit tests.
  *
  * @category  Activity
- * @package   OCA\MyDash\Activity
+ * @package   OCA\LaunchPad\Activity
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Activity;
+namespace OCA\LaunchPad\Activity;
 
 /**
  * Per-window debounce guard for Activity emission.
@@ -101,7 +101,7 @@ class DebounceHelper
         string $dashboardUuid
     ): bool {
         $key = sprintf(
-            'mydash_act_react_%s_%s',
+            'launchpad_act_react_%s_%s',
             $actorUserId,
             $dashboardUuid
         );
@@ -122,7 +122,7 @@ class DebounceHelper
         string $eventType
     ): bool {
         $key = sprintf(
-            'mydash_act_global_%s_%s',
+            'launchpad_act_global_%s_%s',
             $dashboardUuid,
             $eventType
         );

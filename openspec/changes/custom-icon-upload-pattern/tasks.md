@@ -10,7 +10,7 @@
 - [ ] Task 6: Picker UX — render a 24×24 live preview via `IconRenderer`; surface loading + error states for upload (spinner during POST, visible error on non-2xx); on upload error leave the previous `v-model` value unchanged (no clobber)
 - [ ] Task 7: Refactor call sites — `DashboardSwitcher`, admin dashboard list/CRUD, link-button widget icon, tile editor — replace ad-hoc icon-or-image branches with `<IconRenderer>` and use `<IconPicker>` in the create/edit forms
 - [ ] Task 8: Grep verification — no remaining `v-if="iconUrl"` / inline `isCustomIconUrl` branches outside `IconRenderer.vue` and `IconPicker.vue`
-- [ ] Task 9: Update the `icon` field docblock on `lib/Db/Dashboard.php` AND the `tileIcon` field docblock on `lib/Db/WidgetPlacement.php` to state the column may hold a registry name, a `/apps/mydash/resource/...` URL, or NULL
+- [ ] Task 9: Update the `icon` field docblock on `lib/Db/Dashboard.php` AND the `tileIcon` field docblock on `lib/Db/WidgetPlacement.php` to state the column may hold a registry name, a `/apps/launchpad/resource/...` URL, or NULL
 - [ ] Task 10: Playwright — switch from built-in to uploaded icon, preview swaps `<svg>` → `<img>`, value persists after save; reverse swap also persists; workspace mixing both kinds of icons across dashboards renders cleanly with no console errors
 - [ ] Task 11: Quality gates — ESLint clean on changed `.vue`/`.js`; `composer check:strict` clean for the touched PHP docblock changes
 - [ ] Task 12: Stylelint clean on any new component `<style>` blocks; `npm run build` produces no new warnings

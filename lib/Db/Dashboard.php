@@ -6,7 +6,7 @@
  * Represents a dashboard entity.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
@@ -82,7 +82,7 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
- *                                        column on `oc_mydash_dashboards`
+ *                                        column on `oc_launchpad_dashboards`
  *                                        that the frontend or service
  *                                        layer reads directly; splitting
  *                                        would break the entity↔DB row
@@ -471,7 +471,7 @@ class Dashboard extends Entity implements JsonSerializable
      * Per-dashboard comments toggle (REQ-CMNT-007).
      *
      * Three legal values:
-     *   - NULL — inherit the global `mydash.comments_enabled_default`
+     *   - NULL — inherit the global `launchpad.comments_enabled_default`
      *     admin setting.
      *   - 1 (SMALLINT) — force comments on regardless of global toggle.
      *   - 0 (SMALLINT) — force comments off regardless of global toggle.
@@ -489,14 +489,14 @@ class Dashboard extends Entity implements JsonSerializable
      * Per-dashboard reactions toggle (REQ-RXN-006).
      *
      * Tri-state SMALLINT NULL column:
-     *   - NULL → follow the global `mydash.reactions_enabled_default`
+     *   - NULL → follow the global `launchpad.reactions_enabled_default`
      *     admin setting
      *   - 1    → reactions force-enabled on this dashboard, overriding
      *     the global setting
      *   - 0    → reactions force-disabled on this dashboard, overriding
      *     the global setting
      *
-     * Resolution lives in {@see \OCA\MyDash\Service\ReactionService}.
+     * Resolution lives in {@see \OCA\LaunchPad\Service\ReactionService}.
      *
      * @var integer|null
      */
@@ -560,7 +560,7 @@ class Dashboard extends Entity implements JsonSerializable
      * The template gallery preview image URL (REQ-TMPL-017).
      *
      * URL produced by the resource-uploads pipeline (typically
-     * `/apps/mydash/resource/<filename>`); stored verbatim. NULL means
+     * `/apps/launchpad/resource/<filename>`); stored verbatim. NULL means
      * "no preview image" — gallery card renders a placeholder. Only
      * meaningful for `admin_template` rows.
      *
@@ -704,7 +704,7 @@ class Dashboard extends Entity implements JsonSerializable
      *  - When NULL → fall back to the supplied global default.
      *
      * @param bool $globalDefault The resolved value of the global
-     *                            `mydash.comments_enabled_default`
+     *                            `launchpad.comments_enabled_default`
      *                            admin setting.
      *
      * @return bool True when comments are effectively enabled.

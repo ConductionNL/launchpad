@@ -6,7 +6,7 @@
  * Service for querying metrics data from the database.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use OCP\IDBConnection;
 use Psr\Log\LoggerInterface;
@@ -45,13 +45,13 @@ class MetricsQueryService
      *
      * @throws \Exception When the database query fails.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-26
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-26
      */
     public function queryDashboardCounts(): array
     {
         $qb = $this->db->getQueryBuilder();
         $qb->select('type', $qb->createFunction('COUNT(*) AS cnt'))
-            ->from('mydash_dashboards')
+            ->from('launchpad_dashboards')
             ->groupBy('type');
 
         $result = $qb->executeQuery();

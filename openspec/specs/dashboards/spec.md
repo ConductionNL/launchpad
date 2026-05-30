@@ -11,11 +11,11 @@ retrofit_extensions:
 
 ## Purpose
 
-Dashboards are the core organizational unit in MyDash. Each user can create and manage multiple personal dashboards, each acting as a container for widget placements, tiles, and layout configuration. Dashboards define the grid structure, permission level, and active state. Only one dashboard can be active per user at a time, serving as their landing page when they open Nextcloud. Dashboards can also be of type `admin_template`, managed by administrators for distribution to users.
+Dashboards are the core organizational unit in LaunchPad. Each user can create and manage multiple personal dashboards, each acting as a container for widget placements, tiles, and layout configuration. Dashboards define the grid structure, permission level, and active state. Only one dashboard can be active per user at a time, serving as their landing page when they open Nextcloud. Dashboards can also be of type `admin_template`, managed by administrators for distribution to users.
 
 ## Data Model
 
-Each dashboard record is stored in the `oc_mydash_dashboards` table with the following fields:
+Each dashboard record is stored in the `oc_launchpad_dashboards` table with the following fields:
 - **id**: Auto-increment integer primary key
 - **uuid**: Unique identifier (UUID v4)
 - **userId**: Nextcloud user ID of the dashboard owner
@@ -73,7 +73,7 @@ Users MUST be able to create new personal dashboards with a name, optional descr
 
 #### Scenario: Dashboard creation creates default placements
 - GIVEN user "alice" has no dashboards and no templates apply
-- WHEN she accesses MyDash for the first time (triggers `tryCreateFromTemplate()`)
+- WHEN she accesses LaunchPad for the first time (triggers `tryCreateFromTemplate()`)
 - THEN the system MUST create a "My Dashboard" with two default placements:
   - "recommendations" widget at (0, 0) with size 6x5
   - "activity" widget at (6, 0) with size 6x5
@@ -648,7 +648,7 @@ The resolver MUST attach a `source` field to the returned dashboard descriptor w
 
 #### Scenario: Empty state when no dashboards exist anywhere
 
-- GIVEN a brand-new MyDash install with no dashboards of any type
+- GIVEN a brand-new LaunchPad install with no dashboards of any type
 - WHEN any user opens the workspace page
 - THEN the resolver MUST return `null`
 - AND the response MUST include `activeDashboardId: ''` in initial state
@@ -730,13 +730,13 @@ The fork operation MUST execute inside a single database transaction. If any par
 
 ### Requirement: REQ-DASH-022 Fork does not duplicate uploaded resources
 
-When cloned placements reference uploaded resources (e.g. `tileIcon` URLs starting with `/apps/mydash/resource/...`, or widget content fields with similar URLs), the fork MUST keep the same URL — it MUST NOT duplicate the underlying resource bytes. Both dashboards then reference the shared resource record.
+When cloned placements reference uploaded resources (e.g. `tileIcon` URLs starting with `/apps/launchpad/resource/...`, or widget content fields with similar URLs), the fork MUST keep the same URL — it MUST NOT duplicate the underlying resource bytes. Both dashboards then reference the shared resource record.
 
 #### Scenario: Shared resource reference
 
-- GIVEN dashboard `S` has a tile placement with `tileIcon = '/apps/mydash/resource/abc123.png'`
+- GIVEN dashboard `S` has a tile placement with `tileIcon = '/apps/launchpad/resource/abc123.png'`
 - WHEN alice forks `S`
-- THEN `F`'s corresponding placement MUST have `tileIcon = '/apps/mydash/resource/abc123.png'` (same URL)
+- THEN `F`'s corresponding placement MUST have `tileIcon = '/apps/launchpad/resource/abc123.png'` (same URL)
 - AND no new file MUST be created in app data
 
 ### Requirement: REQ-DASH-023 Dashboard hierarchy and parent relationship
@@ -1057,18 +1057,18 @@ Deleting a dashboard with children MUST require an explicit `?cascade=true` quer
 
 ### Requirement: REQ-DASH-031 Publication-state schema
 
-The system MUST track dashboard publication state via three new database columns: `publication_status` (string enum), `publish_at` (nullable datetime), and `published_at` (nullable datetime). These columns enable the draft → published → scheduled workflow on top of the existing `oc_mydash_dashboards` table without breaking pre-existing rows.
+The system MUST track dashboard publication state via three new database columns: `publication_status` (string enum), `publish_at` (nullable datetime), and `published_at` (nullable datetime). These columns enable the draft → published → scheduled workflow on top of the existing `oc_launchpad_dashboards` table without breaking pre-existing rows.
 
 #### Scenario: Schema addition and migration backfill
 
-- GIVEN a MyDash instance with existing dashboards before the publication-state migration
+- GIVEN a LaunchPad instance with existing dashboards before the publication-state migration
 - WHEN migration `Version001011Date20260502130000` is applied
-- THEN the schema MUST add three columns to `oc_mydash_dashboards`:
+- THEN the schema MUST add three columns to `oc_launchpad_dashboards`:
   - `publication_status VARCHAR(20) NOT NULL DEFAULT 'published'`
   - `publish_at DATETIME NULL`
   - `published_at DATETIME NULL`
 - AND all existing dashboard rows MUST acquire `publication_status = 'published'` automatically via the column default (no explicit UPDATE statement is needed — design D1)
-- AND a composite index `mydash_dash_user_pubstatus` on `(user_id, publication_status)` MUST be created
+- AND a composite index `launchpad_dash_user_pub` on `(user_id, publication_status)` MUST be created
 - NOTE: New dashboards created after the migration default to `'draft'` via application logic in `DashboardFactory::create()`, NOT via the column default. The column default exists only to backfill pre-existing rows safely.
 
 #### Scenario: Timestamp formats
@@ -1198,7 +1198,7 @@ The publication-state migration MUST preserve the visibility of every dashboard 
 
 #### Scenario: Existing dashboards default to published after migration
 
-- GIVEN a MyDash instance with N existing dashboards before the migration
+- GIVEN a LaunchPad instance with N existing dashboards before the migration
 - WHEN `Version001011Date20260502130000::changeSchema()` runs
 - THEN the `publication_status` column MUST be added with `DEFAULT 'published'`
 - AND every existing row MUST acquire `'published'` via the column default — no explicit `UPDATE` statement is required (design D1)
@@ -1277,7 +1277,7 @@ The Pinia dashboard store MUST track `publicationStatus`, `publishAt`, and `publ
 - REQ-DASH-019 (Persist active-dashboard preference): `POST /api/dashboards/active` → `DashboardApiController::setActiveDashboard()` → `DashboardService::setActivePreference()`. Preference stored under `oc_preferences` key `active_dashboard_uuid`.
 - REQ-DASH-020 (Fork as Personal): `DashboardService::forkAsPersonal()` wraps `WidgetPlacementMapper::cloneToDashboard()` in a single `IDBConnection::beginTransaction` — gated via `assertPersonalDashboardsAllowed()` (REQ-ASET-003) and resolved against the visible-to-user chain (REQ-DASH-013). Endpoint: `POST /api/dashboards/{uuid}/fork` on `DashboardApiController::fork`.
 - REQ-DASH-021 (Fork is transactional): rollback covered by the wide `Throwable` catch in `forkAsPersonal()` — exercised by `DashboardServiceForkTest::testForkRollsBackOnPlacementCloneFailure`.
-- REQ-DASH-022 (Shared resource references): `WidgetPlacementMapper::cloneToDashboard()` copies `tileIcon` and other `/apps/mydash/resource/...` URLs verbatim — no resource bytes are duplicated. Cross-references the resource-uploads change.
+- REQ-DASH-022 (Shared resource references): `WidgetPlacementMapper::cloneToDashboard()` copies `tileIcon` and other `/apps/launchpad/resource/...` URLs verbatim — no resource bytes are duplicated. Cross-references the resource-uploads change.
 - REQ-DASH-023 (Hierarchy + parent relationship): `Dashboard.parentUuid` column added by `Version001010Date20260502120000`; `DashboardService::createDashboard()` and `applyTreeUpdates()` route through `DashboardTreeService::validateParent()` for cycle/depth/parent-existence guards.
 - REQ-DASH-024 (Slug uniqueness): `Dashboard.slug` column added in the same migration; `SlugGenerator::slugify()` derives slugs from names; `DashboardTreeService::validateSlugUnique()` enforces per-parent uniqueness with self-exclusion.
 - REQ-DASH-025 (Computed path + breadcrumbs): `DashboardTreeService::computePath()` and `computeBreadcrumbs()` walk the ancestor chain; the `/api/dashboards/by-path/{path}` endpoint attaches both to the response.

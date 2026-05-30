@@ -2,11 +2,11 @@
 
 ## Why
 
-Today, MyDash admins can create templates and distribute them to groups, but users have no way to **discover and instantiate** templates themselves. Templates exist as administrative snapshots visible only via the first-access distribution chain. Organizations need a self-service gallery where any dashboard owner can browse available templates, understand their purpose (with preview images and descriptions), filter by category, and create their own copy via "save as template" — converting a custom dashboard back into a reusable blueprint. This unblocks workflow-led adoption where teams build their own gold-standard layouts and share them within peer groups.
+Today, LaunchPad admins can create templates and distribute them to groups, but users have no way to **discover and instantiate** templates themselves. Templates exist as administrative snapshots visible only via the first-access distribution chain. Organizations need a self-service gallery where any dashboard owner can browse available templates, understand their purpose (with preview images and descriptions), filter by category, and create their own copy via "save as template" — converting a custom dashboard back into a reusable blueprint. This unblocks workflow-led adoption where teams build their own gold-standard layouts and share them within peer groups.
 
 ## What Changes
 
-- Extend `oc_mydash_dashboards` rows of type `admin_template` with three new columns: `templateCategory` (VARCHAR 64, nullable), `templatePreviewImage` (TEXT, nullable), and `templateDescription` (TEXT, nullable, longer than the existing `description` field).
+- Extend `oc_launchpad_dashboards` rows of type `admin_template` with three new columns: `templateCategory` (VARCHAR 64, nullable), `templatePreviewImage` (TEXT, nullable), and `templateDescription` (TEXT, nullable, longer than the existing `description` field).
 - Expose `GET /api/templates/gallery` returning all `admin_template` dashboards with metadata (`uuid`, `name`, `description`, `category`, `previewImage`, `gridColumns`, `widgetCount`, `lastUpdatedAt`) — no widget tree content (list view only). Supports `?category=<cat>` filtering and `?sort=updatedAt` for recency.
 - Expose `POST /api/dashboards/{uuid}/save-as-template` — owner-only endpoint creating a new `admin_template` with a fresh UUID, deep-copied widget tree, and user-supplied `{name, description, category, previewImage}` metadata.
 - Expose `POST /api/admin/templates/{uuid}/preview-image` (multipart) for admins to upload preview images, persisted via the existing dashboard-icons custom-icon-upload pattern (read prior art in `openspec/changes/custom-icon-upload-pattern/`).

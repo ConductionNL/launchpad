@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -26,9 +26,9 @@
 <template>
 	<section class="dashboard-metadata-panel">
 		<header class="dashboard-metadata-panel__header">
-			<h3>{{ t('mydash', 'Dashboard metadata') }}</h3>
+			<h3>{{ t('launchpad', 'Dashboard metadata') }}</h3>
 			<p v-if="!hasFields" class="dashboard-metadata-panel__empty">
-				{{ t('mydash', 'No metadata fields are configured. Ask an administrator to add some.') }}
+				{{ t('launchpad', 'No metadata fields are configured. Ask an administrator to add some.') }}
 			</p>
 		</header>
 
@@ -55,7 +55,7 @@
 					v-model="localValues[field.key]"
 					class="dashboard-metadata-panel__input">
 					<option value="">
-						{{ t('mydash', '— Choose —') }}
+						{{ t('launchpad', '— Choose —') }}
 					</option>
 					<option
 						v-for="option in (field.options || [])"
@@ -71,13 +71,13 @@
 					v-model="localValues[field.key]"
 					class="dashboard-metadata-panel__input">
 					<option value="">
-						{{ t('mydash', '— Choose —') }}
+						{{ t('launchpad', '— Choose —') }}
 					</option>
 					<option value="1">
-						{{ t('mydash', 'Yes') }}
+						{{ t('launchpad', 'Yes') }}
 					</option>
 					<option value="0">
-						{{ t('mydash', 'No') }}
+						{{ t('launchpad', 'No') }}
 					</option>
 				</select>
 
@@ -109,7 +109,7 @@
 					type="submit"
 					class="dashboard-metadata-panel__save"
 					:disabled="saving">
-					{{ saving ? t('mydash', 'Saving…') : t('mydash', 'Save metadata') }}
+					{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save metadata') }}
 				</button>
 			</div>
 		</form>

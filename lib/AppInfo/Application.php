@@ -3,10 +3,10 @@
 /**
  * Application
  *
- * Main application bootstrap class for MyDash.
+ * Main application bootstrap class for LaunchPad.
  *
  * @category  AppInfo
- * @package   OCA\MyDash\AppInfo
+ * @package   OCA\LaunchPad\AppInfo
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,27 +16,27 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\AppInfo;
+namespace OCA\LaunchPad\AppInfo;
 
-use OCA\MyDash\Activity\DebounceHelper;
-use OCA\MyDash\BackgroundJob\PurgeViewsJob;
-use OCA\MyDash\BackgroundJob\SaltRotationJob;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Job\FeedRefreshJob;
-use OCA\MyDash\Listener\CommentsListener;
-use OCA\MyDash\Listener\GroupDeletedListener;
-use OCA\MyDash\Listener\LocksListener;
-use OCA\MyDash\Listener\MetadataValuesListener;
-use OCA\MyDash\Listener\PublicSharesListener;
-use OCA\MyDash\Listener\ReactionsListener;
-use OCA\MyDash\Listener\TranslationsListener;
-use OCA\MyDash\Listener\TreeListener;
-use OCA\MyDash\Listener\UserDeletedListener;
-use OCA\MyDash\Listener\VersionsListener;
-use OCA\MyDash\Listener\ViewAnalyticsListener;
-use OCA\MyDash\Listener\WidgetPlacementsListener;
-use OCA\MyDash\Notification\Notifier;
-use OCA\MyDash\Search\MyDashSearchProvider;
+use OCA\LaunchPad\Activity\DebounceHelper;
+use OCA\LaunchPad\BackgroundJob\PurgeViewsJob;
+use OCA\LaunchPad\BackgroundJob\SaltRotationJob;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Job\FeedRefreshJob;
+use OCA\LaunchPad\Listener\CommentsListener;
+use OCA\LaunchPad\Listener\GroupDeletedListener;
+use OCA\LaunchPad\Listener\LocksListener;
+use OCA\LaunchPad\Listener\MetadataValuesListener;
+use OCA\LaunchPad\Listener\PublicSharesListener;
+use OCA\LaunchPad\Listener\ReactionsListener;
+use OCA\LaunchPad\Listener\TranslationsListener;
+use OCA\LaunchPad\Listener\TreeListener;
+use OCA\LaunchPad\Listener\UserDeletedListener;
+use OCA\LaunchPad\Listener\VersionsListener;
+use OCA\LaunchPad\Listener\ViewAnalyticsListener;
+use OCA\LaunchPad\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Notification\Notifier;
+use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -59,7 +59,7 @@ use OCP\User\Events\UserDeletedEvent;
  */
 class Application extends App implements IBootstrap
 {
-    public const APP_ID = 'mydash';
+    public const APP_ID = 'launchpad';
 
     /**
      * Constructor
@@ -163,7 +163,7 @@ class Application extends App implements IBootstrap
 
         // Surface dashboards, widget content, and metadata values in
         // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
-        $context->registerSearchProvider(class: MyDashSearchProvider::class);
+        $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
     }//end register()
 
     /**
@@ -186,7 +186,7 @@ class Application extends App implements IBootstrap
         }
 
         // App initialization after all apps are registered.
-        \OCP\Util::addStyle(application: self::APP_ID, file: 'mydash');
+        \OCP\Util::addStyle(application: self::APP_ID, file: 'launchpad');
 
         // Register the dashboard view-analytics background jobs
         // (REQ-ANLT-003 design D2 + REQ-ANLT-009) plus the periodic
@@ -204,7 +204,7 @@ class Application extends App implements IBootstrap
             $context->getServerContainer()
                 ->get(\Psr\Log\LoggerInterface::class)
                 ->warning(
-                    'Failed to register MyDash background jobs: '.$exception->getMessage(),
+                    'Failed to register LaunchPad background jobs: '.$exception->getMessage(),
                     ['app' => self::APP_ID]
                 );
         }

@@ -9,20 +9,20 @@
  * exception strings).
  *
  * @category  Exception
- * @package   OCA\MyDash\Exception
+ * @package   OCA\LaunchPad\Exception
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Exception;
+namespace OCA\LaunchPad\Exception;
 
 use Exception;
 
@@ -32,7 +32,7 @@ use Exception;
  * @SuppressWarnings(PHPMD.NumberOfChildren) The exception hierarchy
  *                                           legitimately covers every
  *                                           dedicated error domain in
- *                                           MyDash (resources, files,
+ *                                           LaunchPad (resources, files,
  *                                           role assignments, dashboard
  *                                           gating). Subclassing here
  *                                           keeps the stable error code

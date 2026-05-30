@@ -4,27 +4,27 @@
  * Version001013Date20260502120000
  *
  * Migration that adds the nullable `comments_enabled` SMALLINT column to
- * `oc_mydash_dashboards` for the dashboard-comments capability. NULL
- * inherits the global `mydash.comments_enabled_default` setting; 1 forces
+ * `oc_launchpad_dashboards` for the dashboard-comments capability. NULL
+ * inherits the global `launchpad.comments_enabled_default` setting; 1 forces
  * comments on for the dashboard; 0 forces comments off. Zero-impact:
  * existing dashboards default to NULL and inherit the global setting.
  * REQ-CMNT-007.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -33,7 +33,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add the nullable `comments_enabled` column to `oc_mydash_dashboards`
+ * Add the nullable `comments_enabled` column to `oc_launchpad_dashboards`
  * (REQ-CMNT-007).
  */
 class Version001013Date20260502120000 extends SimpleMigrationStep
@@ -54,11 +54,11 @@ class Version001013Date20260502120000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboards') === false) {
+        if ($schema->hasTable('launchpad_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable('mydash_dashboards');
+        $table = $schema->getTable('launchpad_dashboards');
 
         if ($table->hasColumn('comments_enabled') === false) {
             $table->addColumn(

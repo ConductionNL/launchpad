@@ -6,7 +6,7 @@
  * Represents an admin setting entity.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
@@ -66,7 +66,7 @@ class AdminSetting extends Entity implements JsonSerializable
      * Setting key for the admin-chosen group priority order
      * (REQ-ASET-012). Persisted as a JSON string list of Nextcloud
      * group IDs in the order the admin chose; corrupt JSON resolves
-     * to `[]` at the service layer (defensive read). MyDash treats
+     * to `[]` at the service layer (defensive read). LaunchPad treats
      * these as in scope for workspace routing.
      *
      * @var string
@@ -78,7 +78,7 @@ class AdminSetting extends Entity implements JsonSerializable
      *
      * Stored as a JSON array of lowercase extensions without dots
      * (e.g. `["txt","md","docx"]`). Default values are returned by
-     * {@see \OCA\MyDash\Service\FileService::getAllowedExtensions()}.
+     * {@see \OCA\LaunchPad\Service\FileService::getAllowedExtensions()}.
      *
      * @var string
      */
@@ -144,7 +144,7 @@ class AdminSetting extends Entity implements JsonSerializable
      * Setting key tracking first-run setup wizard completion (REQ-WIZ-001).
      *
      * Stored as JSON `true` once the admin clicks "Finish" in the wizard or
-     * the `mydash:setup` CLI command runs to completion. Defaults to `false`
+     * the `launchpad:setup` CLI command runs to completion. Defaults to `false`
      * (banner visible) when the row is missing.
      *
      * @var string

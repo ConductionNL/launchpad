@@ -6,7 +6,7 @@
  * Service for applying grid and display updates to widget placements.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,9 +16,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacement;
 
 /**
  * Service for applying grid and display updates to widget placements.

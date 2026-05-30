@@ -6,7 +6,7 @@
  * Validates and resolves dashboard API request parameters and permissions.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IL10N;
 

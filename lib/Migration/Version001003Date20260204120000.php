@@ -6,7 +6,7 @@
  * Migration to add tile configuration fields to widget placements.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -45,11 +45,11 @@ class Version001003Date20260204120000 extends SimpleMigrationStep
 
         // Add tile configuration fields to widget_placements table.
         if ($schema->hasTable(
-            'mydash_widget_placements'
+            'launchpad_widget_placements'
         ) === true
         ) {
             $table = $schema->getTable(
-                'mydash_widget_placements'
+                'launchpad_widget_placements'
             );
 
             // Add tile_type to distinguish between widgets and tiles.

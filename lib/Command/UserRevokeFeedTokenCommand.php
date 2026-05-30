@@ -3,29 +3,29 @@
 /**
  * UserRevokeFeedTokenCommand
  *
- * `mydash:user:revoke-feed-token <uid>` — revoke the RSS feed token
+ * `launchpad:user:revoke-feed-token <uid>` — revoke the RSS feed token
  * for a user (REQ-CLI-004). Depends on the `dashboard-rss-feeds`
  * capability; refuses gracefully when that capability is absent so
  * the command stays safe to ship before the sibling spec lands.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
 use DateTimeImmutable;
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\IDBConnection;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -34,7 +34,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:user:revoke-feed-token` console command.
+ * `launchpad:user:revoke-feed-token` console command.
  */
 class UserRevokeFeedTokenCommand extends CommandBase
 {
@@ -45,7 +45,7 @@ class UserRevokeFeedTokenCommand extends CommandBase
      *
      * @var string
      */
-    private const RSS_TOKEN_TABLE = 'mydash_feed_tokens';
+    private const RSS_TOKEN_TABLE = 'launchpad_feed_tokens';
 
     /**
      * Constructor.
@@ -73,7 +73,7 @@ class UserRevokeFeedTokenCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:user:revoke-feed-token')
+        $this->setName(name: 'launchpad:user:revoke-feed-token')
             ->setDescription(description: 'Revoke a user\'s RSS feed token.')
             ->setHelp(
                 help: implode(
@@ -83,8 +83,8 @@ class UserRevokeFeedTokenCommand extends CommandBase
                         'Depends on the `dashboard-rss-feeds` capability; gracefully fails when absent.',
                         '',
                         'Examples:',
-                        '  php occ mydash:user:revoke-feed-token alice',
-                        '  php occ mydash:user:revoke-feed-token alice --json',
+                        '  php occ launchpad:user:revoke-feed-token alice',
+                        '  php occ launchpad:user:revoke-feed-token alice --json',
                     ]
                 )
             )

@@ -1,11 +1,11 @@
 ---
 sidebar_position: 1
-description: Get started with MyDash, customizable dashboards for Nextcloud. Compose KPI widgets and live charts on top of your OpenRegister data.
+description: Get started with LaunchPad, customizable dashboards for Nextcloud. Compose KPI widgets and live charts on top of your OpenRegister data.
 ---
 
-# MyDash
+# LaunchPad
 
-MyDash provides an enhanced, customizable dashboard experience for Nextcloud.
+LaunchPad provides an enhanced, customizable dashboard experience for Nextcloud.
 
 ## Features
 
@@ -16,4 +16,4 @@ MyDash provides an enhanced, customizable dashboard experience for Nextcloud.
 
 ## Getting Started
 
-Install MyDash from the Nextcloud App Store or enable it in your Nextcloud admin settings.
+Install LaunchPad from the Nextcloud App Store or enable it in your Nextcloud admin settings.

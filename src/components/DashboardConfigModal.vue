@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -17,15 +17,15 @@
 			<div class="dashboard-config__field">
 				<NcTextField
 					:value="form.name"
-					:label="t('mydash', 'Title')"
-					:placeholder="t('mydash', 'My dashboard')"
+					:label="t('launchpad', 'Title')"
+					:placeholder="t('launchpad', 'My dashboard')"
 					data-testid="dashboard-name-input"
 					@update:value="form.name = $event" />
 			</div>
 
 			<div class="dashboard-config__field">
 				<label class="dashboard-config__label" for="dashboard-config-description">
-					{{ t('mydash', 'Description') }}
+					{{ t('launchpad', 'Description') }}
 				</label>
 				<textarea
 					id="dashboard-config-description"
@@ -33,7 +33,7 @@
 					class="dashboard-config__textarea"
 					rows="3"
 					data-testid="dashboard-description-input"
-					:placeholder="t('mydash', 'What is this dashboard for?')" />
+					:placeholder="t('launchpad', 'What is this dashboard for?')" />
 			</div>
 
 			<!-- Icon picker — options are enumerated from the registry so the
@@ -41,7 +41,7 @@
 			     are added or removed (REQ-ICON-003). -->
 			<div class="dashboard-config__field">
 				<label class="dashboard-config__label" for="dashboard-config-icon">
-					{{ t('mydash', 'Icon') }}
+					{{ t('launchpad', 'Icon') }}
 				</label>
 				<div class="dashboard-config__icon-picker">
 					<select
@@ -73,16 +73,16 @@
 					:checked="form.isDefault"
 					type="switch"
 					@update:checked="form.isDefault = $event">
-					<strong>{{ t('mydash', 'Default dashboard') }}</strong>
+					<strong>{{ t('launchpad', 'Default dashboard') }}</strong>
 					<span class="dashboard-config__hint">
-						{{ t('mydash', 'Open this dashboard automatically when visiting MyDash.') }}
+						{{ t('launchpad', 'Open this dashboard automatically when visiting LaunchPad.') }}
 					</span>
 				</NcCheckboxRadioSwitch>
 			</div>
 
 			<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
 				<label class="dashboard-config__label">
-					{{ t('mydash', 'Share with users and groups') }}
+					{{ t('launchpad', 'Share with users and groups') }}
 				</label>
 
 				<NcSelect
@@ -90,8 +90,8 @@
 					:options="shareeOptions"
 					:filterable="false"
 					:loading="shareeLoading"
-					:aria-label-combobox="t('mydash', 'Share with users and groups')"
-					:placeholder="t('mydash', 'Search users and groups…')"
+					:aria-label-combobox="t('launchpad', 'Share with users and groups')"
+					:placeholder="t('launchpad', 'Search users and groups…')"
 					label="displayName"
 					track-by="key"
 					:clearable="false"
@@ -119,7 +119,7 @@
 						<NcSelect
 							:value="permissionOptionFor(share.permissionLevel)"
 							:options="permissionOptions"
-							:input-label="t('mydash', 'Permission level')"
+							:input-label="t('launchpad', 'Permission level')"
 							label="label"
 							track-by="value"
 							:clearable="false"
@@ -127,7 +127,7 @@
 							@input="onShareLevelChange(idx, $event)" />
 						<NcButton
 							type="tertiary"
-							:aria-label="t('mydash', 'Remove share')"
+							:aria-label="t('launchpad', 'Remove share')"
 							@click="onShareRemove(idx)">
 							<template #icon>
 								<Close :size="18" />
@@ -136,10 +136,10 @@
 					</li>
 				</ul>
 				<p v-else class="dashboard-config__hint">
-					{{ t('mydash', 'Not shared with anyone yet.') }}
+					{{ t('launchpad', 'Not shared with anyone yet.') }}
 				</p>
 				<p v-if="sharesDirty" class="dashboard-config__hint dashboard-config__hint--dirty">
-					{{ t('mydash', 'Unsaved changes — click Save to apply.') }}
+					{{ t('launchpad', 'Unsaved changes — click Save to apply.') }}
 				</p>
 			</div>
 
@@ -153,11 +153,11 @@
 					<template #icon>
 						<Delete :size="20" />
 					</template>
-					{{ t('mydash', 'Delete dashboard') }}
+					{{ t('launchpad', 'Delete dashboard') }}
 				</NcButton>
 				<div class="dashboard-config__actions-right">
 					<NcButton type="tertiary" :disabled="saving" @click="$emit('close')">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
 						type="primary"
@@ -288,21 +288,21 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		modalTitle() {
 			return this.isCreate
-				? t('mydash', 'Create dashboard')
-				: t('mydash', 'Dashboard configuration')
+				? t('launchpad', 'Create dashboard')
+				: t('launchpad', 'Dashboard configuration')
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		primaryButtonLabel() {
 			if (this.saving) {
-				return this.isCreate ? t('mydash', 'Creating…') : t('mydash', 'Saving…')
+				return this.isCreate ? t('launchpad', 'Creating…') : t('launchpad', 'Saving…')
 			}
-			return this.isCreate ? t('mydash', 'Create') : t('mydash', 'Save')
+			return this.isCreate ? t('launchpad', 'Create') : t('launchpad', 'Save')
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		permissionOptions() {
 			return PERMISSION_OPTIONS.map(o => ({
 				value: o.value,
-				label: t('mydash', o.label),
+				label: t('launchpad', o.label),
 			}))
 		},
 		selectedPermission: {

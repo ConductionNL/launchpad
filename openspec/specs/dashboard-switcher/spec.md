@@ -145,7 +145,7 @@ Each dashboard item's icon MUST be rendered via the shared `IconRenderer` compon
 
 #### Scenario: Mixed built-in and custom icons
 
-- GIVEN three dashboards with `icon` values `'Star'`, `'/apps/mydash/resource/x.png'`, `null`
+- GIVEN three dashboards with `icon` values `'Star'`, `'/apps/launchpad/resource/x.png'`, `null`
 - WHEN the sidebar renders
 - THEN all three MUST render correctly via `IconRenderer`
 - AND no inline `v-if="iconUrl"` branches MUST exist in the sidebar template
@@ -155,7 +155,7 @@ Each dashboard item's icon MUST be rendered via the shared `IconRenderer` compon
 The sidebar MUST render a dedicated "Add dashboard" card button below the personal-dashboards list (still inside the sidebar's scroll container, NOT in the footer). The card MUST:
 
 - Be a `NcButton` with `type="outline"`, full sidebar width
-- Render a `+` icon and the localised label `t('mydash', 'Add dashboard')`
+- Render a `+` icon and the localised label `t('launchpad', 'Add dashboard')`
 - Be visible only when `allowUserDashboards === true`
 - On click, emit `update:open(false)` then `create-dashboard()` — same event contract the previous inline row used
 
@@ -189,7 +189,7 @@ The sidebar MUST render a persistent footer at the bottom of its viewport (using
 1. A "Powered by" line with two brand logos:
    - Sendent — clickable link to the Sendent site, `target="_blank" rel="noopener noreferrer"`
    - Conduction — clickable link to the Conduction site, same target/rel
-2. A Documentation link directly below the brand row, rendered as an icon + the localised label `t('mydash', 'Documentation')`. The link target MUST match the URL the gear menu's Documentation entry previously used (so behaviour is preserved across the move).
+2. A Documentation link directly below the brand row, rendered as an icon + the localised label `t('launchpad', 'Documentation')`. The link target MUST match the URL the gear menu's Documentation entry previously used (so behaviour is preserved across the move).
 
 A divider rule MUST separate the footer from the dashboards list above.
 

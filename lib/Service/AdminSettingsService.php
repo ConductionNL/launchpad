@@ -6,7 +6,7 @@
  * Service for managing admin settings.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,12 +16,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -42,7 +42,7 @@ class AdminSettingsService
     /**
      * Default link-button-widget createFile extension allow-list
      * (REQ-LBN-004). Mirrored on
-     * {@see \OCA\MyDash\Service\FileService::DEFAULT_ALLOWED_EXTENSIONS}
+     * {@see \OCA\LaunchPad\Service\FileService::DEFAULT_ALLOWED_EXTENSIONS}
      * so the admin UI can render the default before
      * {@see FileService::getAllowedExtensions()} is consulted.
      *
@@ -62,7 +62,7 @@ class AdminSettingsService
      *
      * @return array The settings array.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-1
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-1
      */
     public function getSettings(): array
     {
@@ -106,7 +106,7 @@ class AdminSettingsService
      *
      * @return void
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
      */
     public function updateSettings(
         ?string $defaultPermLevel=null,

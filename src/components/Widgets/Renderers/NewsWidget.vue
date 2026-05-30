@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -10,15 +10,15 @@
 		</div>
 
 		<div v-if="loading" class="news-widget__state news-widget__state--loading">
-			{{ t('mydash', 'Loading news…') }}
+			{{ t('launchpad', 'Loading news…') }}
 		</div>
 
 		<div v-else-if="hasError" class="news-widget__state news-widget__state--error">
-			{{ t('mydash', 'Unable to load news. Please try again later.') }}
+			{{ t('launchpad', 'Unable to load news. Please try again later.') }}
 		</div>
 
 		<div v-else-if="items.length === 0" class="news-widget__state news-widget__state--empty">
-			{{ t('mydash', 'No news yet — try adding feeds in the widget settings') }}
+			{{ t('launchpad', 'No news yet — try adding feeds in the widget settings') }}
 		</div>
 
 		<ul v-else class="news-widget__list">
@@ -192,9 +192,9 @@ export default {
 		/** @spec openspec/specs/news-widget/spec.md */
 		failedBadgeLabel() {
 			if (this.failedCount === 1) {
-				return t('mydash', '1 feed failed')
+				return t('launchpad', '1 feed failed')
 			}
-			return t('mydash', '{count} feeds failed').replace('{count}', String(this.failedCount))
+			return t('launchpad', '{count} feeds failed').replace('{count}', String(this.failedCount))
 		},
 
 		/** @spec openspec/specs/news-widget/spec.md */
@@ -202,7 +202,7 @@ export default {
 			if (this.failedUrls.length === 0) {
 				return ''
 			}
-			return t('mydash', 'Failed: {urls}').replace('{urls}', this.failedUrls.join(', '))
+			return t('launchpad', 'Failed: {urls}').replace('{urls}', this.failedUrls.join(', '))
 		},
 	},
 
@@ -229,7 +229,7 @@ export default {
 			this.hasError = false
 
 			try {
-				const url = generateUrl('/apps/mydash/api/widgets/news/{placementId}/items', {
+				const url = generateUrl('/apps/launchpad/api/widgets/news/{placementId}/items', {
 					placementId: this.placementId,
 				})
 				const response = await axios.get(url, { params: { limit: this.itemLimit } })
@@ -307,18 +307,18 @@ export default {
 			}
 			const diffSeconds = Math.max(0, Math.floor((Date.now() - ts) / 1000))
 			if (diffSeconds < 60) {
-				return t('mydash', 'just now')
+				return t('launchpad', 'just now')
 			}
 			const diffMinutes = Math.floor(diffSeconds / 60)
 			if (diffMinutes < 60) {
-				return t('mydash', '{n} minutes ago').replace('{n}', String(diffMinutes))
+				return t('launchpad', '{n} minutes ago').replace('{n}', String(diffMinutes))
 			}
 			const diffHours = Math.floor(diffMinutes / 60)
 			if (diffHours < 24) {
-				return t('mydash', '{n} hours ago').replace('{n}', String(diffHours))
+				return t('launchpad', '{n} hours ago').replace('{n}', String(diffHours))
 			}
 			const diffDays = Math.floor(diffHours / 24)
-			return t('mydash', '{n} days ago').replace('{n}', String(diffDays))
+			return t('launchpad', '{n} days ago').replace('{n}', String(diffDays))
 		},
 	},
 }

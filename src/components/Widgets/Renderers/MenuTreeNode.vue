@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -18,7 +18,7 @@
 				type="button"
 				class="menu-tree-node__caret"
 				:class="{ 'menu-tree-node__caret--open': expanded }"
-				:aria-label="expanded ? t('mydash', 'Collapse') : t('mydash', 'Expand')"
+				:aria-label="expanded ? t('launchpad', 'Collapse') : t('launchpad', 'Expand')"
 				@click.stop="toggle">
 				<span aria-hidden="true">{{ expanded ? '▾' : '▸' }}</span>
 			</button>

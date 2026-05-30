@@ -8,12 +8,12 @@
  * DELETE /api/sharees/{shareType}/{shareWith} (REQ-SHARE-010).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,9 +23,9 @@ namespace Unit\Controller;
 
 use Exception;
 use InvalidArgumentException;
-use OCA\MyDash\Controller\DashboardShareApiController;
-use OCA\MyDash\Db\DashboardShare;
-use OCA\MyDash\Service\DashboardShareService;
+use OCA\LaunchPad\Controller\DashboardShareApiController;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Service\DashboardShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;

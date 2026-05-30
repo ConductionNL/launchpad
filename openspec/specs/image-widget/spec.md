@@ -6,17 +6,17 @@ status: implemented
 
 ## Purpose
 
-The image widget is a built-in MyDash widget type that lets dashboard authors place a single image — logo, screenshot, branding, or decorative imagery — onto a dashboard cell with proper `object-fit` control, broken-image fallback, optional click-through, and a first-class file-upload UX. It replaces the prior workarounds where users jammed `<img>` tags into the markdown widget or pointed an iframe widget at an image URL.
+The image widget is a built-in LaunchPad widget type that lets dashboard authors place a single image — logo, screenshot, branding, or decorative imagery — onto a dashboard cell with proper `object-fit` control, broken-image fallback, optional click-through, and a first-class file-upload UX. It replaces the prior workarounds where users jammed `<img>` tags into the markdown widget or pointed an iframe widget at an image URL.
 
 The capability is one widget type, one renderer, one sub-form, one registry entry, and a thin client wrapper around the resource-uploads endpoint owned by the `resource-uploads` capability — small enough to be evolved or deprecated independently of the broader widget-rendering machinery.
 
 ## Data Model
 
-Image placements use the existing `oc_mydash_widget_placements.content` JSON column with the discriminated shape `{type: 'image', content: {...}}`. No schema migration is required.
+Image placements use the existing `oc_launchpad_widget_placements.content` JSON column with the discriminated shape `{type: 'image', content: {...}}`. No schema migration is required.
 
 The `content` object carries seven fields:
 
-- **url** (string, required for `sourceType` `url` / `upload`) — the image URL; either a local resource path returned by the resource-uploads endpoint (e.g. `/apps/mydash/resource/abc.png`), an external `http(s)` URL, or (for `sourceType: 'files'`) the Nextcloud core preview URL the form sets when a file is picked
+- **url** (string, required for `sourceType` `url` / `upload`) — the image URL; either a local resource path returned by the resource-uploads endpoint (e.g. `/apps/launchpad/resource/abc.png`), an external `http(s)` URL, or (for `sourceType: 'files'`) the Nextcloud core preview URL the form sets when a file is picked
 - **alt** (string, default `''`) — accessible alt text passed to `<img alt>`
 - **link** (string, default `''`) — optional click-through URL; when non-empty the cell becomes clickable
 - **fit** (string, default `'cover'`) — one of `cover`, `contain`, `fill`, `none`; drives the CSS `object-fit` on the rendered `<img>`
@@ -36,7 +36,7 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 
 #### Scenario: Cover fit fills the cell
 
-- GIVEN content `{url: '/apps/mydash/resource/x.png', fit: 'cover'}`
+- GIVEN content `{url: '/apps/launchpad/resource/x.png', fit: 'cover'}`
 - WHEN the widget renders
 - THEN the `<img>` MUST have inline style `object-fit: cover`
 - AND its width and height MUST be `100%`
@@ -58,7 +58,7 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 
 #### Scenario: Default fit is cover
 
-- GIVEN content `{url: '/apps/mydash/resource/x.png'}` with no `fit` field
+- GIVEN content `{url: '/apps/launchpad/resource/x.png'}` with no `fit` field
 - WHEN the widget renders
 - THEN the `<img>` MUST have `object-fit: cover`
 
@@ -141,8 +141,8 @@ The image sub-form for `AddWidgetModal` MUST expose the following controls: a fi
 #### Scenario: Upload populates URL and preview
 
 - GIVEN the user selects an image file in the file input
-- WHEN the upload POST to `/api/resources` succeeds with response `{url: '/apps/mydash/resource/abc.png'}`
-- THEN `form.url` MUST become `/apps/mydash/resource/abc.png`
+- WHEN the upload POST to `/api/resources` succeeds with response `{url: '/apps/launchpad/resource/abc.png'}`
+- THEN `form.url` MUST become `/apps/launchpad/resource/abc.png`
 - AND the preview thumbnail `<img>` MUST become visible with that `src`
 
 #### Scenario: Direct URL string is also accepted

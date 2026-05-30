@@ -1,12 +1,12 @@
 // @ts-check
 
 /**
- * MyDash documentation site.
+ * LaunchPad documentation site.
  *
  * Built on @conduction/docusaurus-preset for brand defaults (tokens,
  * theme swizzles for Navbar / Footer, four-locale i18n scaffolding,
  * KvK / BTW copyright). Site-specific overrides — locales, sidebar
- * path, mermaid theme, custom prism themes, mydash-only navbar items —
+ * path, mermaid theme, custom prism themes, launchpad-only navbar items —
  * are passed through createConfig() opts.
  */
 
@@ -19,13 +19,13 @@ const { createConfig, baseFooterLinks } = require('@conduction/docusaurus-preset
 const BRAND_THEME = require.resolve('@conduction/docusaurus-preset/theme');
 
 const config = createConfig({
-  title: 'MyDash',
+  title: 'LaunchPad',
   tagline: 'Personal and team dashboards, built directly on your Nextcloud.',
-  url: 'https://mydash.conduction.nl',
+  url: 'https://launchpad.conduction.nl',
   baseUrl: '/',
 
   organizationName: 'ConductionNL',
-  projectName: 'mydash',
+  projectName: 'launchpad',
 
   /* English-only for now. Dutch was dropped on the previous config
      because i18n/nl/ carries stale strings without translated markdown
@@ -41,10 +41,10 @@ const config = createConfig({
     },
   },
 
-  /* The mydash docs source lives at the repo root of `docs/` rather
+  /* The launchpad docs source lives at the repo root of `docs/` rather
      than under a `docs/` subfolder, so we override the preset's default
      `presets:` block to point `docs.path` at './' and disable the blog
-     plugin. customCss carries mydash-specific CSS only — brand tokens
+     plugin. customCss carries launchpad-specific CSS only — brand tokens
      and the theme swizzles are auto-loaded by the brand theme entry in
      `themes:` below. */
   presets: [
@@ -63,7 +63,7 @@ const config = createConfig({
              plus the standard node_modules bucket. */
           exclude: ['**/node_modules/**', 'src/**'],
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/ConductionNL/mydash/tree/main/docs/',
+          editUrl: 'https://github.com/ConductionNL/launchpad/tree/main/docs/',
         },
         blog: false,
         theme: {
@@ -76,10 +76,10 @@ const config = createConfig({
   themes: [BRAND_THEME, '@docusaurus/theme-mermaid'],
 
   /* Brand navbar provides locale dropdown + GitHub by default; we
-     replace items[] with mydash's own (Documentation sidebar link,
-     mydash GitHub link). Object.assign in createConfig is shallow, so
+     replace items[] with launchpad's own (Documentation sidebar link,
+     launchpad GitHub link). Object.assign in createConfig is shallow, so
      items: replaces wholesale — re-include the locale dropdown and
-     add the mydash GitHub repo link explicitly. */
+     add the launchpad GitHub repo link explicitly. */
   navbar: {
     items: [
       {
@@ -89,7 +89,7 @@ const config = createConfig({
         label: 'Documentation',
       },
       {
-        href: 'https://github.com/ConductionNL/mydash',
+        href: 'https://github.com/ConductionNL/launchpad',
         label: 'GitHub',
         position: 'right',
       },
@@ -97,7 +97,7 @@ const config = createConfig({
     ],
   },
 
-  /* MyDash is co-built with Sendent (Outlook/Teams to Nextcloud bridge)
+  /* LaunchPad is co-built with Sendent (Outlook/Teams to Nextcloud bridge)
      so the brand block in the canal-footer renders both Conduction and
      Sendent logos side by side. The triad line below picks up Sendent
      automatically from this same `brands` list. */
@@ -144,7 +144,7 @@ const config = createConfig({
   /* themeConfig is shallow-merged into the preset's defaults
      (colorMode + navbar + footer). prism + mermaid land alongside. */
   themeConfig: {
-    image: 'img/og-mydash.png',
+    image: 'img/og-launchpad.png',
     prism: {
       theme: require('prism-react-renderer/themes/github'),
       darkTheme: require('prism-react-renderer/themes/dracula'),

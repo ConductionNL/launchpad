@@ -10,7 +10,7 @@ status: draft
 
 ### Requirement: REQ-ASET-012 Group order setting
 
-The system MUST persist an ordered list of Nextcloud group IDs as the global setting `group_order` (JSON `string[]`, default `[]`). The order MUST be preserved exactly as provided. The setting determines which groups are "active" for MyDash workspace routing (REQ-TMPL-012). Corrupt or unparseable JSON in the database MUST resolve to `[]` at read time without throwing — the resolver and admin UI MUST never see a fatal error from a malformed value.
+The system MUST persist an ordered list of Nextcloud group IDs as the global setting `group_order` (JSON `string[]`, default `[]`). The order MUST be preserved exactly as provided. The setting determines which groups are "active" for LaunchPad workspace routing (REQ-TMPL-012). Corrupt or unparseable JSON in the database MUST resolve to `[]` at read time without throwing — the resolver and admin UI MUST never see a fatal error from a malformed value.
 
 #### Scenario: Persist ordered list
 
@@ -33,7 +33,7 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 
 #### Scenario: Corrupt DB JSON falls back to empty array
 
-- GIVEN the row `group_order` exists in `oc_mydash_admin_settings` with `setting_value = '{not-json'`
+- GIVEN the row `group_order` exists in `oc_launchpad_admin_settings` with `setting_value = '{not-json'`
 - WHEN any caller invokes `AdminSettingsService::getGroupOrder()`
 - THEN the method MUST return `[]`
 - AND MUST NOT throw an exception
@@ -41,7 +41,7 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 
 #### Scenario: Default when setting absent
 
-- GIVEN no `group_order` row has ever been written to `oc_mydash_admin_settings`
+- GIVEN no `group_order` row has ever been written to `oc_launchpad_admin_settings`
 - WHEN `AdminSettingsService::getGroupOrder()` is called
 - THEN it MUST return `[]` (factory default)
 

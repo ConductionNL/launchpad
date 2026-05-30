@@ -8,7 +8,7 @@
  * matrix values are left untouched.
  *
  * @category Repair
- * @package  OCA\MyDash\Repair
+ * @package  OCA\LaunchPad\Repair
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Repair;
+namespace OCA\LaunchPad\Repair;
 
-use OCA\MyDash\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ActionAuthService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -92,7 +92,7 @@ class InitializeActions implements IRepairStep
 
         if (file_exists(self::SEED_PATH) === false) {
             $output->warning('actions.seed.json not found — matrix left empty (default-deny).');
-            $this->logger->warning('[mydash] ADR-023 seed file missing at '.self::SEED_PATH);
+            $this->logger->warning('[launchpad] ADR-023 seed file missing at '.self::SEED_PATH);
             return;
         }
 
@@ -106,7 +106,7 @@ class InitializeActions implements IRepairStep
             $parsed = json_decode($raw, associative: true, depth: 512, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             $output->warning('actions.seed.json invalid JSON: '.$e->getMessage());
-            $this->logger->error('[mydash] ADR-023 seed malformed: '.$e->getMessage());
+            $this->logger->error('[launchpad] ADR-023 seed malformed: '.$e->getMessage());
             return;
         }
 

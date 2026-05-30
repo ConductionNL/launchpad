@@ -3,10 +3,10 @@
 /**
  * DashboardEntityInterface
  *
- * Interface for MyDash entities that support JSON serialization.
+ * Interface for LaunchPad entities that support JSON serialization.
  *
  * @category  Db
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,12 +16,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 
 /**
- * Interface for MyDash entities that support JSON serialization.
+ * Interface for LaunchPad entities that support JSON serialization.
  */
 interface DashboardEntityInterface extends JsonSerializable
 {

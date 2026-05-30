@@ -1,32 +1,32 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="org-nav-editor">
 		<div class="org-nav-editor__header">
-			<h3>{{ t('mydash', 'Organization navigation') }}</h3>
+			<h3>{{ t('launchpad', 'Organization navigation') }}</h3>
 			<p class="org-nav-editor__hint">
-				{{ t('mydash', 'Build an organisation-wide navigation tree shown next to the dashboard surface. Drag nodes to reorder, click Edit to change properties, and use the group visibility selector to restrict sections to specific Nextcloud groups.') }}
+				{{ t('launchpad', 'Build an organisation-wide navigation tree shown next to the dashboard surface. Drag nodes to reorder, click Edit to change properties, and use the group visibility selector to restrict sections to specific Nextcloud groups.') }}
 			</p>
 		</div>
 
 		<div class="org-nav-editor__controls">
 			<label class="org-nav-editor__field">
-				<span>{{ t('mydash', 'Language') }}</span>
+				<span>{{ t('launchpad', 'Language') }}</span>
 				<select v-model="selectedLanguage" @change="onLanguageChange">
-					<option value="nl">{{ t('mydash', 'Dutch') }}</option>
-					<option value="en">{{ t('mydash', 'English') }}</option>
+					<option value="nl">{{ t('launchpad', 'Dutch') }}</option>
+					<option value="en">{{ t('launchpad', 'English') }}</option>
 				</select>
 			</label>
 			<label class="org-nav-editor__field">
-				<span>{{ t('mydash', 'Position') }}</span>
+				<span>{{ t('launchpad', 'Position') }}</span>
 				<select v-model="selectedPosition" @change="onPositionChange">
-					<option value="hidden">{{ t('mydash', 'Hidden') }}</option>
-					<option value="left">{{ t('mydash', 'Left') }}</option>
-					<option value="right">{{ t('mydash', 'Right') }}</option>
-					<option value="top">{{ t('mydash', 'Top') }}</option>
+					<option value="hidden">{{ t('launchpad', 'Hidden') }}</option>
+					<option value="left">{{ t('launchpad', 'Left') }}</option>
+					<option value="right">{{ t('launchpad', 'Right') }}</option>
+					<option value="top">{{ t('launchpad', 'Top') }}</option>
 				</select>
 			</label>
 		</div>
@@ -45,14 +45,14 @@
 				class="org-nav-editor__add"
 				data-test="org-nav-add-section"
 				@click="addRoot('section')">
-				{{ t('mydash', 'Add section') }}
+				{{ t('launchpad', 'Add section') }}
 			</button>
 			<button
 				type="button"
 				class="org-nav-editor__add"
 				data-test="org-nav-add-link"
 				@click="addRoot('link')">
-				{{ t('mydash', 'Add link') }}
+				{{ t('launchpad', 'Add link') }}
 			</button>
 			<button
 				type="button"
@@ -60,7 +60,7 @@
 				:disabled="saving"
 				data-test="org-nav-save"
 				@click="save">
-				{{ saving ? t('mydash', 'Saving…') : t('mydash', 'Save') }}
+				{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save') }}
 			</button>
 		</div>
 
@@ -82,11 +82,11 @@
 		</ul>
 
 		<p v-if="workingTree.length === 0" class="org-nav-editor__empty">
-			{{ t('mydash', 'No navigation configured. Add a section or link to start building the tree.') }}
+			{{ t('launchpad', 'No navigation configured. Add a section or link to start building the tree.') }}
 		</p>
 
 		<p v-if="successFlag" class="org-nav-editor__success" role="status">
-			{{ t('mydash', 'Navigation saved successfully.') }}
+			{{ t('launchpad', 'Navigation saved successfully.') }}
 		</p>
 	</div>
 </template>
@@ -197,7 +197,7 @@ export default {
 		makeNode(kind) {
 			return {
 				id: this.generateUuid(),
-				label: kind === 'section' ? t('mydash', 'New section') : t('mydash', 'New link'),
+				label: kind === 'section' ? t('launchpad', 'New section') : t('launchpad', 'New link'),
 				icon: null,
 				url: kind === 'section' ? null : '/',
 				openInNewTab: false,

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -95,7 +95,7 @@ return [
 
 		// Dashboard comments endpoints (REQ-CMNT-001..009). Threaded
 		// comments backed by Nextcloud's `ICommentsManager` with
-		// object type `mydash_dashboard`. The literal `/comments`
+		// object type `launchpad_dashboard`. The literal `/comments`
 		// segment disambiguates from the `{groupId}` wildcard below
 		// — both share the `/api/dashboards/{uuid}/...` prefix.
 		['name' => 'dashboardCommentsApi#index',
@@ -355,7 +355,7 @@ return [
 		['name' => 'admin#import', 'url' => '/api/admin/import', 'verb' => 'POST'],
 
 		// People widget (REQ-PPL-003). Paginated user-directory endpoint
-		// for the `people` MyDash widget. Authenticated users only;
+		// for the `people` LaunchPad widget. Authenticated users only;
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 

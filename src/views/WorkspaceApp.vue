@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -36,13 +36,13 @@
 		     (gear) reachable inside Views.vue covers Add Custom
 		     Widget. -->
 		<!-- Title strip is only visible when the sidebar is OPEN.
-		     When closed, the floating sidebar-toggle in mydash-floating-controls
+		     When closed, the floating sidebar-toggle in launchpad-floating-controls
 		     (top-right) is the only entry point — keeps the dashboard surface
 		     uncluttered. -->
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
 				type="tertiary"
-				:aria-label="t('mydash', 'Open menu')"
+				:aria-label="t('launchpad', 'Open menu')"
 				class="workspace-shell__hamburger"
 				@click="toggleSidebar">
 				<template #icon>
@@ -66,20 +66,20 @@
 				ref="viewsRef" />
 			<div v-else class="workspace-shell__empty">
 				<p class="workspace-shell__empty-title">
-					{{ t('mydash', 'No dashboards available') }}
+					{{ t('launchpad', 'No dashboards available') }}
 				</p>
 				<p v-if="injectedAllowUserDashboards" class="workspace-shell__empty-hint">
-					{{ t('mydash', 'Create your first dashboard') }}
+					{{ t('launchpad', 'Create your first dashboard') }}
 				</p>
 				<p v-else class="workspace-shell__empty-hint">
-					{{ t('mydash', 'Contact your administrator') }}
+					{{ t('launchpad', 'Contact your administrator') }}
 				</p>
 				<button
 					v-if="injectedAllowUserDashboards"
 					type="button"
 					class="workspace-shell__empty-cta"
 					@click="onCreateFirstDashboard">
-					{{ t('mydash', 'Create your first dashboard') }}
+					{{ t('launchpad', 'Create your first dashboard') }}
 				</button>
 			</div>
 		</div>
@@ -377,7 +377,7 @@ export default {
 			const store = useDashboardStore()
 			try {
 				await store.createDashboard({
-					name: this.t('mydash', 'My dashboard'),
+					name: this.t('launchpad', 'My dashboard'),
 				})
 			} catch (error) {
 				console.error('[WorkspaceApp] Failed to create first dashboard:', error)
@@ -477,17 +477,17 @@ export default {
 
 <!--
   Global (unscoped) layout rules for the chrome wrapper that wraps the
-  Vue mount point. Nextcloud's `#app-mydash` is a `display: flex` row
+  Vue mount point. Nextcloud's `#app-launchpad` is a `display: flex` row
   container (so apps with a left navigation can sit nav + content side
-  by side). MyDash opts out of the navigation rail (the PageController
+  by side). LaunchPad opts out of the navigation rail (the PageController
   sets `id-app-navigation: null`), so the workspace wrapper must claim
-  the full available width — without this, `.mydash-workspace` collapses
+  the full available width — without this, `.launchpad-workspace` collapses
   to 0px and the dashboard grid renders empty over a blue background.
 -->
 <style>
-.mydash-workspace,
-#app-workspace.mydash-workspace,
-#app-workspace.mydash-workspace #workspace-vue {
+.launchpad-workspace,
+#app-workspace.launchpad-workspace,
+#app-workspace.launchpad-workspace #workspace-vue {
 	flex: 1 1 auto;
 	min-width: 0;
 	width: 100%;

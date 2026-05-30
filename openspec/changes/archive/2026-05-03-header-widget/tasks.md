@@ -10,7 +10,7 @@
 - [ ] 1.2 Register the widget in a boot/lifecycle hook or service provider:
   - Hook into Nextcloud's dashboard widget registration (e.g., in `AppInfo/Bootstrap.php` or a listener on `IManager`)
   - Call `IManager::registerWidget()` with widget metadata
-  - Widget id: `mydash_header`, title: translatable `app.mydash.header_widget_title`, icon: header icon URL
+  - Widget id: `launchpad_header`, title: translatable `app.launchpad.header_widget_title`, icon: header icon URL
 - [ ] 1.3 Create fixture-based PHPUnit tests for `HeaderWidgetService`:
   - `testCheckAllowListMatching` — hostname match, mismatch, case-insensitivity
   - `testCanReadFileSuccess` — user can read file, returns true
@@ -34,14 +34,14 @@
   - Validation: URLs must be HTTP/HTTPS; colors must be valid CSS; overlay opacity 0..1
   - On save: emit `update:widgetContent` with serialized config object
 - [ ] 2.2 Integrate into `WidgetAddEditModal.vue`:
-  - When user selects `mydash_header` widget from picker
+  - When user selects `launchpad_header` widget from picker
   - Display `HeaderWidgetConfig.vue` instead of default generic config panel
 
 ## 3. Placement configuration and schema migration
 
 - [ ] 3.1 Create `lib/Migration/VersionXXXXDate2026...AddHeaderWidgetSettings.php`:
-  - Add app config table entry for `mydash.header_widget_allowed_image_domains` (default `null` or `[]`)
-  - NOTE: All per-placement config stored in `oc_mydash_widget_placements.widgetContent` JSON
+  - Add app config table entry for `launchpad.header_widget_allowed_image_domains` (default `null` or `[]`)
+  - NOTE: All per-placement config stored in `oc_launchpad_widget_placements.widgetContent` JSON
 - [ ] 3.2 Add getter method in `WidgetPlacementService` or factory to safely parse `widgetContent` JSON:
   - `extractHeaderConfig(WidgetPlacement $placement): array` — returns parsed config with defaults (title required; subtitle, backgroundImageUrl, backgroundImageFileId, backgroundColor, overlayMode, overlayOpacity, textColor, textAlign, verticalAlign, height, cta all optional with sensible defaults)
   - Validate and sanitize config (URLs must be HTTP/HTTPS, colors valid CSS, opacity 0..1, heights in [small, medium, large, xlarge], alignments in [left, center, right], verticalAlignments in [top, middle, bottom], overlayModes in [none, tint, gradient-bottom])
@@ -63,7 +63,7 @@
     - Return true if same-origin (always allowed)
   - Return true if both are null (valid state)
 - [ ] 4.2 Implement `HeaderWidgetService::checkAllowList()`:
-  - Read `mydash.header_widget_allowed_image_domains` from `IAppConfig::getValueString()`
+  - Read `launchpad.header_widget_allowed_image_domains` from `IAppConfig::getValueString()`
   - If empty or null, return true (all allowed by default)
   - Otherwise, parse URL, extract hostname (case-insensitive)
   - Check for exact match in allow-list (no wildcard subdomain expansion)
@@ -141,39 +141,39 @@
 ## 7. Internationalization (i18n)
 
 - [ ] 7.1 Add Dutch (nl) and English (en) translation keys:
-  - `app.mydash.header_widget_title` — "Kopbanner" / "Header Banner"
-  - `app.mydash.header_config_title` — "Titel" / "Title"
-  - `app.mydash.header_config_subtitle` — "Ondertitel (optioneel)" / "Subtitle (optional)"
-  - `app.mydash.header_config_image` — "Achtergrondafbeelding" / "Background Image"
-  - `app.mydash.header_config_image_url` — "Afbeeldings-URL" / "Image URL"
-  - `app.mydash.header_config_image_file` — "Bestand uit Nextcloud" / "File from Nextcloud"
-  - `app.mydash.header_config_overlay_mode` — "Overlay-modus" / "Overlay Mode"
-  - `app.mydash.header_config_overlay_color` — "Overlay-kleur" / "Overlay Color"
-  - `app.mydash.header_config_overlay_opacity` — "Doorzichtigheid (0-1)" / "Opacity (0-1)"
-  - `app.mydash.header_config_text_color` — "Tekstkleur" / "Text Color"
-  - `app.mydash.header_config_text_align` — "Tekstuitlijning" / "Text Alignment"
-  - `app.mydash.header_config_vertical_align` — "Verticale uitlijning" / "Vertical Alignment"
-  - `app.mydash.header_config_height` — "Hoogte" / "Height"
-  - `app.mydash.header_config_cta` — "Call-to-Action knop (optioneel)" / "Call-to-Action Button (optional)"
-  - `app.mydash.header_config_cta_label` — "Knoptekst" / "Button Text"
-  - `app.mydash.header_config_cta_url` — "Doel-URL" / "Target URL"
-  - `app.mydash.header_config_cta_style` — "Knopstijl" / "Button Style"
-  - `app.mydash.header_config_overlay_none` — "Geen" / "None"
-  - `app.mydash.header_config_overlay_tint` — "Gekleurde overlay" / "Tinted Overlay"
-  - `app.mydash.header_config_overlay_gradient` — "Gradient aan onderkant" / "Gradient Bottom"
-  - `app.mydash.header_config_height_small` — "Klein (120px)" / "Small (120px)"
-  - `app.mydash.header_config_height_medium` — "Gemiddeld (200px)" / "Medium (200px)"
-  - `app.mydash.header_config_height_large` — "Groot (320px)" / "Large (320px)"
-  - `app.mydash.header_config_height_xlarge` — "Extra groot (480px)" / "Extra Large (480px)"
-  - `app.mydash.header_config_text_align_left` — "Links" / "Left"
-  - `app.mydash.header_config_text_align_center` — "Gecentreerd" / "Center"
-  - `app.mydash.header_config_text_align_right` — "Rechts" / "Right"
-  - `app.mydash.header_config_vertical_align_top` — "Boven" / "Top"
-  - `app.mydash.header_config_vertical_align_middle` — "Midden" / "Middle"
-  - `app.mydash.header_config_vertical_align_bottom` — "Onder" / "Bottom"
-  - `app.mydash.header_config_cta_style_primary` — "Primair" / "Primary"
-  - `app.mydash.header_config_cta_style_secondary` — "Secundair" / "Secondary"
-  - `app.mydash.header_config_cta_style_ghost` — "Transparant" / "Ghost"
+  - `app.launchpad.header_widget_title` — "Kopbanner" / "Header Banner"
+  - `app.launchpad.header_config_title` — "Titel" / "Title"
+  - `app.launchpad.header_config_subtitle` — "Ondertitel (optioneel)" / "Subtitle (optional)"
+  - `app.launchpad.header_config_image` — "Achtergrondafbeelding" / "Background Image"
+  - `app.launchpad.header_config_image_url` — "Afbeeldings-URL" / "Image URL"
+  - `app.launchpad.header_config_image_file` — "Bestand uit Nextcloud" / "File from Nextcloud"
+  - `app.launchpad.header_config_overlay_mode` — "Overlay-modus" / "Overlay Mode"
+  - `app.launchpad.header_config_overlay_color` — "Overlay-kleur" / "Overlay Color"
+  - `app.launchpad.header_config_overlay_opacity` — "Doorzichtigheid (0-1)" / "Opacity (0-1)"
+  - `app.launchpad.header_config_text_color` — "Tekstkleur" / "Text Color"
+  - `app.launchpad.header_config_text_align` — "Tekstuitlijning" / "Text Alignment"
+  - `app.launchpad.header_config_vertical_align` — "Verticale uitlijning" / "Vertical Alignment"
+  - `app.launchpad.header_config_height` — "Hoogte" / "Height"
+  - `app.launchpad.header_config_cta` — "Call-to-Action knop (optioneel)" / "Call-to-Action Button (optional)"
+  - `app.launchpad.header_config_cta_label` — "Knoptekst" / "Button Text"
+  - `app.launchpad.header_config_cta_url` — "Doel-URL" / "Target URL"
+  - `app.launchpad.header_config_cta_style` — "Knopstijl" / "Button Style"
+  - `app.launchpad.header_config_overlay_none` — "Geen" / "None"
+  - `app.launchpad.header_config_overlay_tint` — "Gekleurde overlay" / "Tinted Overlay"
+  - `app.launchpad.header_config_overlay_gradient` — "Gradient aan onderkant" / "Gradient Bottom"
+  - `app.launchpad.header_config_height_small` — "Klein (120px)" / "Small (120px)"
+  - `app.launchpad.header_config_height_medium` — "Gemiddeld (200px)" / "Medium (200px)"
+  - `app.launchpad.header_config_height_large` — "Groot (320px)" / "Large (320px)"
+  - `app.launchpad.header_config_height_xlarge` — "Extra groot (480px)" / "Extra Large (480px)"
+  - `app.launchpad.header_config_text_align_left` — "Links" / "Left"
+  - `app.launchpad.header_config_text_align_center` — "Gecentreerd" / "Center"
+  - `app.launchpad.header_config_text_align_right` — "Rechts" / "Right"
+  - `app.launchpad.header_config_vertical_align_top` — "Boven" / "Top"
+  - `app.launchpad.header_config_vertical_align_middle` — "Midden" / "Middle"
+  - `app.launchpad.header_config_vertical_align_bottom` — "Onder" / "Bottom"
+  - `app.launchpad.header_config_cta_style_primary` — "Primair" / "Primary"
+  - `app.launchpad.header_config_cta_style_secondary` — "Secundair" / "Secondary"
+  - `app.launchpad.header_config_cta_style_ghost` — "Transparant" / "Ghost"
 - [ ] 7.2 Add translation files:
   - `l10n/nl.json` — Dutch translations
   - `l10n/en.json` — English translations (fallback)

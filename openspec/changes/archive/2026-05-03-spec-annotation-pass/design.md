@@ -5,7 +5,7 @@
 This is a mechanical follow-up to an already-completed coverage scan.
 The scan (`openspec/coverage-report.md`, 2026-04-24) emitted
 `coverage-report.json` — a machine-readable classification that the
-`/opsx-annotate mydash` skill consumes.
+`/opsx-annotate launchpad` skill consumes.
 
 Procedure:
 
@@ -40,7 +40,7 @@ the same Requirement. Mark `DashboardResolver`'s copy as a
 "delegating thin wrapper" in its docblock so future readers know
 the authoritative implementation lives in `PermissionService`.
 
-### `MyDashAdmin::getForm` + `MyDashAdminSection::getID`
+### `LaunchPadAdmin::getForm` + `LaunchPadAdminSection::getID`
 
 These are `OCP\Settings\ISettings` / `OCP\Settings\IIconSection`
 interface implementations — required by Nextcloud for admin UI
@@ -50,7 +50,7 @@ behaviour.
 **Proposed call**: treat as **plumbing** (skip annotation). Document
 in the file-level docblock: "Nextcloud admin-UI registration
 boilerplate; behaviour defined by OCP\Settings contracts, not a
-MyDash spec." This matches how `app-versions` handled its
+LaunchPad spec." This matches how `app-versions` handled its
 `Application::__construct` (Nextcloud framework hook, no `@spec`).
 
 ## Format convention

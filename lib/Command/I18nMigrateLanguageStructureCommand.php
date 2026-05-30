@@ -3,31 +3,31 @@
 /**
  * I18nMigrateLanguageStructureCommand
  *
- * `mydash:i18n:migrate-language-structure` — one-time migration from
+ * `launchpad:i18n:migrate-language-structure` — one-time migration from
  * the legacy flat-language storage to the per-language-table layout
  * owned by the `dashboard-language-content` capability (REQ-CLI-005).
  *
  * The command is idempotent — already-migrated rows are skipped — and
  * gracefully refuses with a clear error when the capability is not
- * installed (the `mydash_language_content` table is the marker).
+ * installed (the `launchpad_language_content` table is the marker).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\IDBConnection;
 use OCP\IUserSession;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -36,7 +36,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * `mydash:i18n:migrate-language-structure` console command.
+ * `launchpad:i18n:migrate-language-structure` console command.
  */
 class I18nMigrateLanguageStructureCommand extends CommandBase
 {
@@ -46,7 +46,7 @@ class I18nMigrateLanguageStructureCommand extends CommandBase
      *
      * @var string
      */
-    private const TARGET_TABLE = 'mydash_language_content';
+    private const TARGET_TABLE = 'launchpad_language_content';
 
     /**
      * Constructor.
@@ -72,7 +72,7 @@ class I18nMigrateLanguageStructureCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:i18n:migrate-language-structure')
+        $this->setName(name: 'launchpad:i18n:migrate-language-structure')
             ->setDescription(description: 'Migrate flat-language rows to per-language tables.')
             ->setHelp(
                 help: implode(
@@ -83,8 +83,8 @@ class I18nMigrateLanguageStructureCommand extends CommandBase
                         'Idempotent — already-migrated rows are skipped.',
                         '',
                         'Examples:',
-                        '  php occ mydash:i18n:migrate-language-structure --no-interaction',
-                        '  php occ mydash:i18n:migrate-language-structure --json',
+                        '  php occ launchpad:i18n:migrate-language-structure --no-interaction',
+                        '  php occ launchpad:i18n:migrate-language-structure --json',
                     ]
                 )
             );

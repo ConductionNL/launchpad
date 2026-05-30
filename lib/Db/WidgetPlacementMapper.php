@@ -6,7 +6,7 @@
  * Database mapper for widget placements.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -42,7 +42,7 @@ class WidgetPlacementMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_widget_placements',
+            tableName: 'launchpad_widget_placements',
             entityClass: WidgetPlacement::class
         );
     }//end __construct()
@@ -104,11 +104,11 @@ class WidgetPlacementMapper extends QBMapper
 
     /**
      * Find all placements that reference a given widget id across the
-     * entire instance — used by {@see \OCA\MyDash\Service\FeedRefreshService::discoverFeedUrls()}
+     * entire instance — used by {@see \OCA\LaunchPad\Service\FeedRefreshService::discoverFeedUrls()}
      * to pull every news-widget placement before each refresh tick
      * (REQ-FRJ-003).
      *
-     * @param string $widgetId The widget id (e.g. `'mydash_news'`).
+     * @param string $widgetId The widget id (e.g. `'launchpad_news'`).
      *
      * @return WidgetPlacement[] The matching placements.
      */
@@ -205,7 +205,7 @@ class WidgetPlacementMapper extends QBMapper
                 $qb->expr()->in(
                     x: 'dashboard_id',
                     y: $qb->createFunction(
-                        call: '(SELECT id FROM `*PREFIX*mydash_dashboards` WHERE `uuid` = '
+                        call: '(SELECT id FROM `*PREFIX*launchpad_dashboards` WHERE `uuid` = '
                             .$qb->createNamedParameter(value: $dashboardUuid).')'
                     )
                 )
@@ -286,7 +286,7 @@ class WidgetPlacementMapper extends QBMapper
      * (REQ-DASH-022). The new rows receive fresh `id`, `dashboardId`
      * pointing at the target, and `createdAt` / `updatedAt` set to now.
      *
-     * Used by {@see \OCA\MyDash\Service\DashboardService::forkAsPersonal()}
+     * Used by {@see \OCA\LaunchPad\Service\DashboardService::forkAsPersonal()}
      * inside a single transaction — any DB exception thrown here MUST
      * be left to bubble so the caller can roll back.
      *
@@ -322,7 +322,7 @@ class WidgetPlacementMapper extends QBMapper
             $clone->setSortOrder($row->getSortOrder());
             $clone->setTileType($row->getTileType());
             $clone->setTileTitle($row->getTileTitle());
-            // REQ-DASH-022: same `/apps/mydash/resource/...` URL — no
+            // REQ-DASH-022: same `/apps/launchpad/resource/...` URL — no
             // file is duplicated in app data, both dashboards reference
             // the shared resource record.
             $clone->setTileIcon($row->getTileIcon());
@@ -343,7 +343,7 @@ class WidgetPlacementMapper extends QBMapper
 
     /**
      * Count placement rows whose `dashboard_id` no longer points at
-     * any row in `mydash_dashboards`.
+     * any row in `launchpad_dashboards`.
      *
      * Used by the orphaned-data-cleanup scan path (REQ-CLN-001).
      * Placements are normally cleared by `DashboardService::delete()`;
@@ -359,7 +359,7 @@ class WidgetPlacementMapper extends QBMapper
             ->from(from: $this->getTableName(), alias: 'p')
             ->leftJoin(
                 fromAlias: 'p',
-                join: 'mydash_dashboards',
+                join: 'launchpad_dashboards',
                 alias: 'd',
                 condition: 'd.id = p.dashboard_id'
             )
@@ -374,7 +374,7 @@ class WidgetPlacementMapper extends QBMapper
 
     /**
      * Delete placement rows whose `dashboard_id` no longer points at
-     * any row in `mydash_dashboards`.
+     * any row in `launchpad_dashboards`.
      *
      * Companion to {@see self::countOrphaned()} on the purge path
      * (REQ-CLN-002). Resolves the orphan IDs first via a SELECT and
@@ -389,7 +389,7 @@ class WidgetPlacementMapper extends QBMapper
             ->from(from: $this->getTableName(), alias: 'p')
             ->leftJoin(
                 fromAlias: 'p',
-                join: 'mydash_dashboards',
+                join: 'launchpad_dashboards',
                 alias: 'd',
                 condition: 'd.id = p.dashboard_id'
             )

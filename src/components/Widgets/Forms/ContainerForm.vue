@@ -1,16 +1,16 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="container-form">
 		<p class="container-form__hint">
-			{{ t('mydash', 'A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard.') }}
+			{{ t('launchpad', 'A container holds a sub-grid of child widgets. Add child widgets via the container’s own grid once it is on the dashboard.') }}
 		</p>
 
 		<label class="container-form__color-label">
-			{{ t('mydash', 'Background') }}
+			{{ t('launchpad', 'Background') }}
 			<input
 				type="color"
 				:value="backgroundColorValue"
@@ -21,7 +21,7 @@
 		<NcSelect
 			:value="padding"
 			:options="paddingOptions"
-			:input-label="t('mydash', 'Padding')"
+			:input-label="t('launchpad', 'Padding')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -29,8 +29,8 @@
 
 		<NcTextField
 			:value="title"
-			:label="t('mydash', 'Title (optional)')"
-			:placeholder="t('mydash', 'Title (optional)')"
+			:label="t('launchpad', 'Title (optional)')"
+			:placeholder="t('launchpad', 'Title (optional)')"
 			@update:value="updateField('title', $event)" />
 	</div>
 </template>
@@ -112,10 +112,10 @@ export default {
 		/** @spec openspec/specs/container-widget/spec.md */
 		paddingOptions() {
 			return [
-				{ value: 'none', label: t('mydash', 'None') },
-				{ value: 'small', label: t('mydash', 'Small') },
-				{ value: 'medium', label: t('mydash', 'Medium') },
-				{ value: 'large', label: t('mydash', 'Large') },
+				{ value: 'none', label: t('launchpad', 'None') },
+				{ value: 'small', label: t('launchpad', 'Small') },
+				{ value: 'medium', label: t('launchpad', 'Medium') },
+				{ value: 'large', label: t('launchpad', 'Large') },
 			]
 		},
 

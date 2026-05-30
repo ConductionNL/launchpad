@@ -1,6 +1,6 @@
 # Widgets
 
-Widgets are the primary content blocks on MyDash dashboards. MyDash combines two widget sources:
+Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad combines two widget sources:
 
 - **Nextcloud Dashboard API widgets** — every widget registered by an installed Nextcloud app, exposed via the v1 (`IAPIWidget`) or v2 (`IAPIWidgetV2`) interface, plus the legacy callback-based widgets.
 - **Registry-driven custom widgets** — a curated set of 17 in-app widget types defined in [`src/constants/widgetRegistry.js`](../../src/constants/widgetRegistry.js). Each entry pairs a Vue renderer with an Add Widget sub-form and a `defaultContent` shape.
@@ -31,7 +31,7 @@ This page documents the **registry-driven** catalog. For app-level Dashboard API
 
 ## How widgets are persisted
 
-Every placement is one row in `oc_mydash_widget_placements`:
+Every placement is one row in `oc_launchpad_widget_placements`:
 
 | Column | Stores |
 |---|---|
@@ -143,7 +143,7 @@ A single big call-to-action button. The `displayMode='button'` legacy mode draws
 
 ## nc-widget
 
-A proxy that mounts any Nextcloud Dashboard API widget inside a MyDash placement. Use it to drop the standard "Upcoming events", "Important mail", "Favorites", etc. widgets onto a MyDash dashboard.
+A proxy that mounts any Nextcloud Dashboard API widget inside a LaunchPad placement. Use it to drop the standard "Upcoming events", "Important mail", "Favorites", etc. widgets onto a LaunchPad dashboard.
 
 **Renderer**: [`NcDashboardWidget.vue`](../../src/components/Widgets/Renderers/NcDashboardWidget.vue) · **Form**: [`NcDashboardForm.vue`](../../src/components/Widgets/Forms/NcDashboardForm.vue) · **Spec**: `openspec/changes/nc-dashboard-widget-proxy/`
 
@@ -387,7 +387,7 @@ A recursive sub-grid host. Children live in `content.placements[]` and render th
 
 ## tile
 
-The registry-driven replacement for the deprecated standalone tile-creation flow. The renderer reads from BOTH the new inline `content.{...}` shape AND the legacy flat `placement.tile*` columns, so dashboards holding tile placements created via the deprecated `oc_mydash_tiles` flow keep rendering without a migration step.
+The registry-driven replacement for the deprecated standalone tile-creation flow. The renderer reads from BOTH the new inline `content.{...}` shape AND the legacy flat `placement.tile*` columns, so dashboards holding tile placements created via the deprecated `oc_launchpad_tiles` flow keep rendering without a migration step.
 
 **Renderer**: [`TileWidget.vue`](../../src/components/Widgets/Renderers/TileWidget.vue) · **Form**: [`TileForm.vue`](../../src/components/Widgets/Forms/TileForm.vue) · **Spec**: `openspec/specs/tiles/spec.md`
 

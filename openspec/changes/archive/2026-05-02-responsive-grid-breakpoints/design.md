@@ -2,7 +2,7 @@
 
 ## Context
 
-MyDash uses GridStack 10.3.1 (per `openspec/config.yaml`) initialised on a 12-column grid with `cellHeight: 80` and a small inter-cell margin. REQ-GRID-007 currently asserts only that the grid SHOULD be responsive — there are no concrete breakpoints, no reflow algorithm, and no unit on the geometry constants. In practice the grid stays 12-column even at 480 px viewport, which makes widgets unreadably narrow on tablets and phones.
+LaunchPad uses GridStack 10.3.1 (per `openspec/config.yaml`) initialised on a 12-column grid with `cellHeight: 80` and a small inter-cell margin. REQ-GRID-007 currently asserts only that the grid SHOULD be responsive — there are no concrete breakpoints, no reflow algorithm, and no unit on the geometry constants. In practice the grid stays 12-column even at 480 px viewport, which makes widgets unreadably narrow on tablets and phones.
 
 This change pins down four explicit breakpoints, the `moveScale` reflow algorithm, the cell/margin geometry, and the GridStack major-version dependency — converting an aspirational requirement into a testable one.
 
@@ -53,7 +53,7 @@ This change pins down four explicit breakpoints, the `moveScale` reflow algorith
 **Alternatives considered:**
 
 - Keep 80 px (current `openspec/config.yaml` documented value): more vertical breathing room per row; existing widget designs may already assume 80.
-- Move to 60 px: denser dashboards, better for multi-row info widgets common in MyDash usage.
+- Move to 60 px: denser dashboards, better for multi-row info widgets common in LaunchPad usage.
 
 **Rationale**: 60 px fits the modern dashboard density that recent UX feedback has favoured, but the 80 vs 60 trade-off is a real product call. Tasks 2.1/2.2 hold this open until stakeholder sign-off; if 80 wins the constants and the REQ-GRID-012 height-math scenario flip together (one place each).
 
@@ -70,7 +70,7 @@ This change pins down four explicit breakpoints, the `moveScale` reflow algorith
 
 ### D5: Constants shared from the grid composable, not from a CSS file
 
-**Decision**: Constants live in JS (`useGridManager.js` or equivalent composable) and are mirrored to a CSS custom property `--mydash-cell-height` at init time.
+**Decision**: Constants live in JS (`useGridManager.js` or equivalent composable) and are mirrored to a CSS custom property `--launchpad-cell-height` at init time.
 
 **Rationale**: GridStack reads JS values; CSS `calc()` reads CSS values. Single source-of-truth in JS, with a one-way sync to CSS, prevents the two from drifting. Avoids a SCSS/JS dual-definition that has bitten other capabilities.
 

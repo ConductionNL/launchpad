@@ -5,28 +5,28 @@
  *
  * Builders for the dashboard metadata-fields capability tables
  * (REQ-MDFL-001..008): the global field-definition registry
- * (`mydash_meta_fields`) and the per-dashboard typed value rows
- * (`mydash_meta_values`).
+ * (`launchpad_meta_fields`) and the per-dashboard typed value rows
+ * (`launchpad_meta_values`).
  *
  * Both tables live behind the `dashboard-metadata-fields`
  * capability spec — see `openspec/specs/dashboard-metadata-fields/spec.md`
  * for the canonical column contract and orphan-tolerance rules.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -50,7 +50,7 @@ class MetadataTablesBuilder
     }//end create()
 
     /**
-     * Create the `mydash_meta_fields` registry table.
+     * Create the `launchpad_meta_fields` registry table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -58,11 +58,11 @@ class MetadataTablesBuilder
      */
     private static function createFieldsTable(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_meta_fields') === true) {
+        if ($schema->hasTable('launchpad_meta_fields') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_meta_fields');
+        $table = $schema->createTable('launchpad_meta_fields');
 
         $table->addColumn(
             'id',
@@ -139,16 +139,16 @@ class MetadataTablesBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['field_key'],
-            'mydash_meta_fkey'
+            'launchpad_meta_fkey'
         );
         $table->addIndex(
             ['sort_order'],
-            'mydash_meta_forder'
+            'launchpad_meta_forder'
         );
     }//end createFieldsTable()
 
     /**
-     * Create the `mydash_meta_values` per-dashboard value table.
+     * Create the `launchpad_meta_values` per-dashboard value table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -156,11 +156,11 @@ class MetadataTablesBuilder
      */
     private static function createValuesTable(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_meta_values') === true) {
+        if ($schema->hasTable('launchpad_meta_values') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_meta_values');
+        $table = $schema->createTable('launchpad_meta_values');
 
         $table->addColumn(
             'id',
@@ -198,15 +198,15 @@ class MetadataTablesBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['dashboard_uuid', 'field_id'],
-            'mydash_meta_vunique'
+            'launchpad_meta_vunique'
         );
         $table->addIndex(
             ['dashboard_uuid'],
-            'mydash_meta_vdash'
+            'launchpad_meta_vdash'
         );
         $table->addIndex(
             ['field_id'],
-            'mydash_meta_vfield'
+            'launchpad_meta_vfield'
         );
     }//end createValuesTable()
 }//end class

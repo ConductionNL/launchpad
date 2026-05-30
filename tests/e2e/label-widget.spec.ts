@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end test for the `label` widget covering tasks 6.1..6.3
  * of the `label-widget` OpenSpec change.
  *
- * NOTE: Playwright infrastructure is not yet wired up in mydash. This file
+ * NOTE: Playwright infrastructure is not yet wired up in launchpad. This file
  * is committed alongside the rest of the change so it runs once the cohort-
  * wide Playwright bootstrap lands. Do not delete — it is the canonical e2e
  * coverage for REQ-LBL-001, REQ-LBL-005, REQ-LBL-007.
@@ -23,7 +23,7 @@ const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 
 test.describe('label widget', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/mydash`)
+		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/launchpad`)
 		// Tests assume the user is already authenticated via Playwright
 		// storageState; in CI this is set up by the Hydra harness.
 	})

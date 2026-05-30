@@ -2,7 +2,7 @@
 
 ## Why
 
-Today MyDash has separate code paths for "add a widget" (toolbar dropdown → per-type creator) and "edit a widget" (per-widget edit dialogs scattered across the codebase). Both flows duplicate field definitions, validation logic, and modal chrome. Adding a new widget type today means touching at least three places: the toolbar dropdown, the creation flow, and an ad-hoc edit dialog. This change collapses both flows into a single registry-driven modal whose only job is orchestration (open/close, type switch, edit pre-fill, validation routing). Per-type sub-forms become small components owned by their respective widget capabilities, and one frontend registry becomes the single source of truth for "what widget types exist".
+Today LaunchPad has separate code paths for "add a widget" (toolbar dropdown → per-type creator) and "edit a widget" (per-widget edit dialogs scattered across the codebase). Both flows duplicate field definitions, validation logic, and modal chrome. Adding a new widget type today means touching at least three places: the toolbar dropdown, the creation flow, and an ad-hoc edit dialog. This change collapses both flows into a single registry-driven modal whose only job is orchestration (open/close, type switch, edit pre-fill, validation routing). Per-type sub-forms become small components owned by their respective widget capabilities, and one frontend registry becomes the single source of truth for "what widget types exist".
 
 ## What Changes
 

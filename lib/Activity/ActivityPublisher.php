@@ -3,7 +3,7 @@
 /**
  * ActivityPublisher
  *
- * Single entry point for emitting MyDash events into the Nextcloud
+ * Single entry point for emitting LaunchPad events into the Nextcloud
  * Activity stream (REQ-ACT-003). Wraps `OCP\Activity\IManager::publish()`
  * so call-sites can stay one-liner short and never construct
  * `IEvent` instances themselves.
@@ -14,20 +14,20 @@
  * single row to a single recipient and is the most common entry.
  *
  * @category  Activity
- * @package   OCA\MyDash\Activity
+ * @package   OCA\LaunchPad\Activity
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Activity;
+namespace OCA\LaunchPad\Activity;
 
 use OCP\Activity\IEvent;
 use OCP\Activity\IManager;
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Thin Activity emission service for MyDash.
+ * Thin Activity emission service for LaunchPad.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors NC Activity surface.
  */
@@ -93,7 +93,7 @@ class ActivityPublisher
     ): bool {
         if (in_array(needle: $type, haystack: Extension::ALL_EVENTS, strict: true) === false) {
             $this->logger->warning(
-                message: 'Unknown MyDash activity type rejected',
+                message: 'Unknown LaunchPad activity type rejected',
                 context: [
                     'type'      => $type,
                     'dashboard' => $dashboardUuid,
@@ -124,7 +124,7 @@ class ActivityPublisher
             $this->manager->publish(event: $event);
         } catch (Throwable $e) {
             $this->logger->error(
-                message: 'MyDash Activity publish failed',
+                message: 'LaunchPad Activity publish failed',
                 context: [
                     'type'      => $type,
                     'dashboard' => $dashboardUuid,
@@ -266,7 +266,7 @@ class ActivityPublisher
         ) === false
         ) {
             $this->logger->debug(
-                message: 'MyDash global activity fan-out debounced',
+                message: 'LaunchPad global activity fan-out debounced',
                 context: [
                     'type'      => $type,
                     'dashboard' => $dashboardUuid,

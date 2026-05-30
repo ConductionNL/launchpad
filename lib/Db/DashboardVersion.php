@@ -4,26 +4,26 @@
  * DashboardVersion Entity
  *
  * Represents a single dashboard version snapshot in
- * `oc_mydash_dashboard_versions`. Database-backend versioning rows are
+ * `oc_launchpad_dash_versions`. Database-backend versioning rows are
  * managed by the `dashboard-versioning` capability (REQ-VERS-001..009).
  * Snapshots are the full JSON serialisation of a dashboard's content
  * (widget placements, metadata) at a specific point in time.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;

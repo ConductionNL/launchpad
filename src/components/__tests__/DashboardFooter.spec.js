@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `DashboardFooter.vue` (REQ-FTR-004, REQ-FTR-006,
@@ -15,7 +15,7 @@ import DashboardFooter from '../DashboardFooter.vue'
 describe('DashboardFooter', () => {
 	it('renders nothing when footer prop is null (REQ-FTR-001 disabled)', () => {
 		const wrapper = mount(DashboardFooter, { propsData: { footer: null } })
-		expect(wrapper.find('.mydash-footer').exists()).toBe(false)
+		expect(wrapper.find('.launchpad-footer').exists()).toBe(false)
 	})
 
 	it('renders HTML mode (REQ-FTR-004)', () => {
@@ -30,7 +30,7 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		const html = wrapper.find('.mydash-footer__html')
+		const html = wrapper.find('.launchpad-footer__html')
 		expect(html.exists()).toBe(true)
 		expect(html.html()).toContain('Copyright 2026')
 	})
@@ -53,7 +53,7 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		expect(wrapper.find('.mydash-footer__config--columns').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-footer__config--columns').exists()).toBe(true)
 		expect(wrapper.text()).toContain('ACME')
 		expect(wrapper.text()).toContain('1234 AB Amsterdam')
 		expect(wrapper.text()).toContain('Privacy')
@@ -71,7 +71,7 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		expect(wrapper.find('.mydash-footer__config--inline').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-footer__config--inline').exists()).toBe(true)
 	})
 
 	it('picks locale variant when html is a map (REQ-FTR-007)', () => {
@@ -119,7 +119,7 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		const style = wrapper.find('.mydash-footer').attributes('style') || ''
+		const style = wrapper.find('.launchpad-footer').attributes('style') || ''
 		expect(style).toContain('rgb(26, 26, 26)')
 		expect(style).toContain('rgb(255, 255, 255)')
 	})
@@ -136,6 +136,6 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		expect(wrapper.find('.mydash-footer').exists()).toBe(false)
+		expect(wrapper.find('.launchpad-footer').exists()).toBe(false)
 	})
 })

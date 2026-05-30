@@ -2,7 +2,7 @@
 
 ## 1. Admin configuration
 
-- [ ] 1.1 Add `mydash.text_widget_default_mode` to app config store (e.g., `lib/AppConfig.php` or equivalent Nextcloud IAppConfig usage)
+- [ ] 1.1 Add `launchpad.text_widget_default_mode` to app config store (e.g., `lib/AppConfig.php` or equivalent Nextcloud IAppConfig usage)
 - [ ] 1.2 Default the setting to `'markdown'` (primary mode) if not explicitly set
 - [ ] 1.3 Expose the setting to the Nextcloud admin panel (Settings UI is deferred to follow-up `admin-text-widget-settings` change; only the config backend is required here)
 - [ ] 1.4 Add validation that only `'html'` and `'markdown'` are accepted values; reject or coerce invalid values
@@ -37,7 +37,7 @@
 
 ## 6. AddWidgetModal update
 
-- [ ] 6.1 When the text-widget sub-form is mounted for a NEW widget, pre-populate the Mode toggle with the admin setting `mydash.text_widget_default_mode`
+- [ ] 6.1 When the text-widget sub-form is mounted for a NEW widget, pre-populate the Mode toggle with the admin setting `launchpad.text_widget_default_mode`
 - [ ] 6.2 Allow the user to explicitly select a different mode before adding the widget
 - [ ] 6.3 Pass the selected `contentMode` to the widget creation payload
 
@@ -76,7 +76,7 @@
 - [ ] 10.2 User edits an existing widget, changes Mode from `HTML` to `Markdown`, content (with markdown syntax) is parsed and rendered correctly
 - [ ] 10.3 User enters markdown syntax (`# Heading`, `**bold**`, `[link](url)`) in a markdown-mode widget, saves, and views the rendered HTML output
 - [ ] 10.4 User creates a markdown-mode widget with table syntax, sees the table rendered correctly on the dashboard
-- [ ] 10.5 Admin changes `mydash.text_widget_default_mode` setting to `'html'`, creates a new text-widget, and it defaults to HTML mode (existing widgets unaffected)
+- [ ] 10.5 Admin changes `launchpad.text_widget_default_mode` setting to `'html'`, creates a new text-widget, and it defaults to HTML mode (existing widgets unaffected)
 - [ ] 10.6 Existing widget with `contentMode = 'html'` and HTML content continues to render unchanged after feature is deployed
 
 ## 11. Quality gates

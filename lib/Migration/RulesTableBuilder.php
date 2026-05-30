@@ -6,7 +6,7 @@
  * Builder for the conditional rules database table schema.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -27,7 +27,7 @@ use OCP\DB\Types;
 class RulesTableBuilder
 {
     /**
-     * Create the mydash_conditional_rules table.
+     * Create the launchpad_conditional_rules table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -36,14 +36,14 @@ class RulesTableBuilder
     public static function create(ISchemaWrapper $schema): void
     {
         if ($schema->hasTable(
-            'mydash_conditional_rules'
+            'launchpad_conditional_rules'
         ) === true
         ) {
             return;
         }
 
         $table = $schema->createTable(
-            'mydash_conditional_rules'
+            'launchpad_conditional_rules'
         );
 
         self::addColumns(table: $table);
@@ -121,7 +121,7 @@ class RulesTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addIndex(
             ['widget_placement_id'],
-            'mydash_rule_placement'
+            'launchpad_rule_placement'
         );
     }//end addIndexes()
 }//end class

@@ -6,13 +6,13 @@ status: draft
 
 # Admin Templates — Delta from change `dashboard-templates`
 
-> NOTE (D1 — Storage divergence): MyDash stores templates as `type='admin_template'` rows in
-> `oc_mydash_dashboards`. This is a **deliberate and permanent divergence** from the reference
+> NOTE (D1 — Storage divergence): LaunchPad stores templates as `type='admin_template'` rows in
+> `oc_launchpad_dashboards`. This is a **deliberate and permanent divergence** from the reference
 > implementation's `/{lang}/_templates/` filesystem-folder convention. Reasons: (1) the existing
 > REQ-TMPL-001..011 capability is already shipped — switching storage models is a breaking change;
 > (2) `WHERE type='admin_template'` is a single indexed query; the filesystem approach requires a
 > full page-tree walk with path-segment string-matching; (3) DB enum cleanly separates kind from
-> location; (4) MyDash supports DB-backed dashboards that have no GroupFolder and therefore no
+> location; (4) LaunchPad supports DB-backed dashboards that have no GroupFolder and therefore no
 > `_templates/` folder — a cross-backend representation requires the DB type column; (5) ACL
 > equivalence is already provided by the `dashboard-sharing` capability. Do not attempt to converge
 > on the filesystem-folder approach.
@@ -226,7 +226,7 @@ Administrators MUST be able to upload a preview image for a template via multipa
 
 - REQ-TMPL-014 (Gallery endpoint): No `/api/templates/gallery` endpoint exists.
 - REQ-TMPL-015 (Save-as-template): No `/api/dashboards/{uuid}/save-as-template` endpoint exists.
-- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns do not exist on `oc_mydash_dashboards`.
+- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns do not exist on `oc_launchpad_dashboards`.
 - REQ-TMPL-017 (Preview image upload): No `/api/admin/templates/{uuid}/preview-image` endpoint exists.
 
 ### Standards & References

@@ -18,26 +18,26 @@
  *    user reads the position so the panel knows where to render.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\OrgNavigationService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\OrgNavigationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -61,7 +61,7 @@ class AdminOrgNavigationController extends Controller
 {
     /**
      * Setting key for the global navigation rail position
-     * (REQ-ONAV-004). Stored in `mydash_admin_settings` rather than
+     * (REQ-ONAV-004). Stored in `launchpad_admin_settings` rather than
      * `IAppData` because it is a scalar enum, not a tree.
      *
      * @var string
@@ -300,7 +300,7 @@ class AdminOrgNavigationController extends Controller
     }//end updatePosition()
 
     /**
-     * Validate that a language code is one MyDash supports in v1.
+     * Validate that a language code is one LaunchPad supports in v1.
      *
      * @param string $language The candidate language code.
      *

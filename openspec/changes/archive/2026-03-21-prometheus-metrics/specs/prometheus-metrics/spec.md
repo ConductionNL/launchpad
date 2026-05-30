@@ -26,7 +26,7 @@ The system MUST expose a Prometheus-compatible metrics endpoint accessible to ad
 
 #### Scenario: Metrics endpoint returns valid Prometheus format
 - GIVEN a Nextcloud admin user
-- WHEN they send GET /index.php/apps/mydash/api/metrics
+- WHEN they send GET /index.php/apps/launchpad/api/metrics
 - THEN the system MUST return HTTP 200
 - AND the Content-Type MUST be `text/plain; version=0.0.4; charset=utf-8`
 - AND the body MUST contain metrics in Prometheus text exposition format (lines of `# HELP`, `# TYPE`, and metric values)
@@ -54,18 +54,18 @@ The system MUST expose a Prometheus-compatible metrics endpoint accessible to ad
 The system MUST expose an info metric with version labels.
 
 #### Scenario: Info metric reports versions
-- GIVEN the MyDash app version is "1.2.3", PHP version is "8.2.0", and Nextcloud version is "29.0.0"
+- GIVEN the LaunchPad app version is "1.2.3", PHP version is "8.2.0", and Nextcloud version is "29.0.0"
 - WHEN the metrics endpoint is called
 - THEN the response MUST include:
   ```
-  # HELP mydash_info Application information
-  # TYPE mydash_info gauge
-  mydash_info{version="1.2.3",php_version="8.2.0",nextcloud_version="29.0.0"} 1
+  # HELP launchpad_info Application information
+  # TYPE launchpad_info gauge
+  launchpad_info{version="1.2.3",php_version="8.2.0",nextcloud_version="29.0.0"} 1
   ```
 - AND the value MUST always be 1
 
 #### Scenario: Info metric reads app version from config
-- GIVEN the MyDash app is installed
+- GIVEN the LaunchPad app is installed
 - WHEN the info metric is collected
 - THEN the app version MUST be read from `IConfig::getAppValue(Application::APP_ID, 'installed_version', '0.0.0')`
 - AND PHP version from `PHP_VERSION`
@@ -85,15 +85,15 @@ The system MUST expose an up metric indicating application health.
 - WHEN the metrics endpoint is called
 - THEN the response MUST include:
   ```
-  # HELP mydash_up Whether the application is up
-  # TYPE mydash_up gauge
-  mydash_up 1
+  # HELP launchpad_up Whether the application is up
+  # TYPE launchpad_up gauge
+  launchpad_up 1
   ```
 
 #### Scenario: Up metric always returns 1 if endpoint is reachable
 - GIVEN the metrics endpoint is accessible
 - WHEN the response is generated
-- THEN `mydash_up` MUST be 1 (if the endpoint can respond, the app is up)
+- THEN `launchpad_up` MUST be 1 (if the endpoint can respond, the app is up)
 - NOTE: The current implementation always returns 1. A degraded state (0) would only occur if the endpoint itself cannot respond.
 
 ### REQ-PROM-004: Dashboard Count Metrics
@@ -105,10 +105,10 @@ The system MUST expose dashboard count metrics grouped by type.
 - WHEN the metrics endpoint is called
 - THEN the response MUST include:
   ```
-  # HELP mydash_dashboards_total Total dashboards by type
-  # TYPE mydash_dashboards_total gauge
-  mydash_dashboards_total{type="user"} 50
-  mydash_dashboards_total{type="admin_template"} 5
+  # HELP launchpad_dashboards_total Total dashboards by type
+  # TYPE launchpad_dashboards_total gauge
+  launchpad_dashboards_total{type="user"} 50
+  launchpad_dashboards_total{type="admin_template"} 5
   ```
 
 #### Scenario: Dashboard counts with no dashboards
@@ -116,8 +116,8 @@ The system MUST expose dashboard count metrics grouped by type.
 - WHEN the metrics endpoint is called
 - THEN the response MUST include both types with count 0:
   ```
-  mydash_dashboards_total{type="personal"} 0
-  mydash_dashboards_total{type="template"} 0
+  launchpad_dashboards_total{type="personal"} 0
+  launchpad_dashboards_total{type="template"} 0
   ```
 - NOTE: The fallback labels use "personal" and "template" when no data exists, while actual data uses the DB type values ("user", "admin_template").
 
@@ -127,8 +127,8 @@ The system MUST expose dashboard count metrics grouped by type.
 - THEN the system MUST log a warning
 - AND the response MUST include fallback values:
   ```
-  mydash_dashboards_total{type="personal"} 0
-  mydash_dashboards_total{type="template"} 0
+  launchpad_dashboards_total{type="personal"} 0
+  launchpad_dashboards_total{type="template"} 0
   ```
 - AND the error MUST NOT cause the entire metrics response to fail
 
@@ -141,9 +141,9 @@ The system MUST expose the total number of widget placements.
 - WHEN the metrics endpoint is called
 - THEN the response MUST include:
   ```
-  # HELP mydash_widgets_total Total number of widget placements
-  # TYPE mydash_widgets_total gauge
-  mydash_widgets_total 150
+  # HELP launchpad_widgets_total Total number of widget placements
+  # TYPE launchpad_widgets_total gauge
+  launchpad_widgets_total 150
   ```
 
 #### Scenario: Widget count query failure
@@ -161,9 +161,9 @@ The system MUST expose the total number of tile definitions.
 - WHEN the metrics endpoint is called
 - THEN the response MUST include:
   ```
-  # HELP mydash_tiles_total Total number of tiles
-  # TYPE mydash_tiles_total gauge
-  mydash_tiles_total 25
+  # HELP launchpad_tiles_total Total number of tiles
+  # TYPE launchpad_tiles_total gauge
+  launchpad_tiles_total 25
   ```
 
 #### Scenario: Tile count query failure
@@ -178,7 +178,7 @@ The system MUST expose a health check endpoint for monitoring and container orch
 
 #### Scenario: Healthy status
 - GIVEN the database is accessible
-- WHEN GET /index.php/apps/mydash/api/health is called
+- WHEN GET /index.php/apps/launchpad/api/health is called
 - THEN the system MUST return HTTP 200 with JSON:
   ```json
   {
@@ -248,9 +248,9 @@ The system SHALL expose the number of active users (users with at least one dash
 - WHEN the metrics endpoint is called
 - THEN the response SHOULD include:
   ```
-  # HELP mydash_active_users Users with at least one dashboard
-  # TYPE mydash_active_users gauge
-  mydash_active_users 30
+  # HELP launchpad_active_users Users with at least one dashboard
+  # TYPE launchpad_active_users gauge
+  launchpad_active_users 30
   ```
 - NOTE: This metric is NOT currently implemented.
 
@@ -285,14 +285,14 @@ The metrics endpoint MUST respond quickly to avoid blocking Prometheus scrape in
 - REQ-PROM-002 (Application Info Metric): Version labels from `IConfig::getAppValue()`, `PHP_VERSION`, and system config.
 - REQ-PROM-003 (Application Up Metric): Always returns 1.
 - REQ-PROM-004 (Dashboard Count Metrics): SQL query with GROUP BY type. Fallback to 0 on error.
-- REQ-PROM-005 (Widget Placement Count): `countTable('mydash_widget_placements')`.
-- REQ-PROM-006 (Tile Count): `countTable('mydash_tiles')`.
+- REQ-PROM-005 (Widget Placement Count): `countTable('launchpad_widget_placements')`.
+- REQ-PROM-006 (Tile Count): `countTable('launchpad_tiles')`.
 - REQ-PROM-007 (Health Check): `HealthController::index()` in `lib/Controller/HealthController.php` with database connectivity check.
 - REQ-PROM-008 (Architecture): `MetricsCollector` and `MetricsQueryService` exist as separate service classes alongside the controller.
 
 **Not yet implemented:**
 - REQ-PROM-009 (Active Users): No distinct user count metric.
-- Standard metrics from original spec: `mydash_requests_total` (counter), `mydash_request_duration_seconds` (histogram), `mydash_errors_total` (counter) are NOT implemented. These would require middleware/event listeners to track per-request metrics.
+- Standard metrics from original spec: `launchpad_requests_total` (counter), `launchpad_request_duration_seconds` (histogram), `launchpad_errors_total` (counter) are NOT implemented. These would require middleware/event listeners to track per-request metrics.
 
 ### Standards & References
 - Prometheus text exposition format: https://prometheus.io/docs/instrumenting/exposition_formats/

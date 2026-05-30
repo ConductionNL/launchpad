@@ -6,7 +6,7 @@ description: Take a widget off the dashboard without deleting the dashboard itse
 
 # Remove a widget
 
-Removing a widget deletes its placement row (`oc_mydash_widget_placements`) but doesn't touch the dashboard or the widget's underlying data.
+Removing a widget deletes its placement row (`oc_launchpad_widget_placements`) but doesn't touch the dashboard or the widget's underlying data.
 
 ## Goal
 

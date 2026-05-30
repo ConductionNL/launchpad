@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -27,7 +27,7 @@
 			<IconRenderer
 				:name="value"
 				:size="24"
-				:alt="t('mydash', 'Icon preview')" />
+				:alt="t('launchpad', 'Icon preview')" />
 		</div>
 
 		<select
@@ -36,7 +36,7 @@
 			:disabled="uploading"
 			@change="selectIcon">
 			<option value="" disabled>
-				{{ t('mydash', 'Select icon…') }}
+				{{ t('launchpad', 'Select icon…') }}
 			</option>
 			<option
 				v-for="(_, name) in DASHBOARD_ICONS"
@@ -55,8 +55,8 @@
 				:disabled="uploading"
 				@change="handleFileSelect">
 			<span class="icon-picker__upload-button">
-				<span v-if="uploading">{{ t('mydash', 'Uploading…') }}</span>
-				<span v-else>{{ t('mydash', 'Upload icon') }}</span>
+				<span v-if="uploading">{{ t('launchpad', 'Uploading…') }}</span>
+				<span v-else>{{ t('launchpad', 'Upload icon') }}</span>
 			</span>
 		</label>
 
@@ -151,7 +151,7 @@ export default {
 					if (err instanceof ResourceUploadError && err.message) {
 						this.uploadError = err.message
 					} else {
-						this.uploadError = t('mydash', 'Failed to upload icon')
+						this.uploadError = t('launchpad', 'Failed to upload icon')
 					}
 					console.error('Icon upload failed:', err)
 				} finally {
@@ -161,7 +161,7 @@ export default {
 			}
 
 			reader.onerror = () => {
-				this.uploadError = t('mydash', 'Failed to upload icon')
+				this.uploadError = t('launchpad', 'Failed to upload icon')
 				this.uploading = false
 				this.resetFileInput()
 			}

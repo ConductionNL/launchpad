@@ -6,29 +6,29 @@
  * Service for managing dashboard permissions.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use Exception;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\RoleAssignment;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\AdminSetting;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\AdminSetting;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 
@@ -109,7 +109,7 @@ class PermissionService
      *
      * @return bool Whether the user can edit the dashboard.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-22
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-22
      */
     public function canEditDashboard(string $userId, int $dashboardId): bool
     {
@@ -124,7 +124,7 @@ class PermissionService
             return false;
         }
 
-        // REQ-ROLE-001 / REQ-ROLE-007: MyDash Admin can edit any
+        // REQ-ROLE-001 / REQ-ROLE-007: LaunchPad Admin can edit any
         // dashboard except for the admin-template type which is gated
         // by Nextcloud admin status only (REQ-PERM-011).
         if ($this->roleService->isAdmin(userId: $userId) === true
@@ -192,7 +192,7 @@ class PermissionService
      *
      * @return bool Whether the user can add widgets.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-23
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-23
      */
     public function canAddWidget(string $userId, int $dashboardId): bool
     {
@@ -225,7 +225,7 @@ class PermissionService
      *
      * @return bool Whether the user can remove the widget.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-22
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-22
      */
     public function canRemoveWidget(string $userId, int $placementId): bool
     {
@@ -405,7 +405,7 @@ class PermissionService
      *
      * @return string The effective permission level.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-24
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-24
      */
     public function getEffectivePermissionLevel(
         Dashboard $dashboard,
@@ -416,7 +416,7 @@ class PermissionService
         // the row's persisted `permissionLevel` field (which is kept on
         // the row for forward-compat with future per-tile editing).
         if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
-            // REQ-ROLE-001 / REQ-ROLE-007: NC admin OR a MyDash Admin
+            // REQ-ROLE-001 / REQ-ROLE-007: NC admin OR a LaunchPad Admin
             // role grants full permissions on group_shared dashboards.
             // Editors get full access only when the underlying group
             // membership check (in `resolveAccessLevel`) has already

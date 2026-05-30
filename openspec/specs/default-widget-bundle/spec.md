@@ -65,7 +65,7 @@ columns when `tileType !== null`. The seeded tiles MUST set
 title / icon / link fields.
 
 The `'preset'` sentinel intentionally differs from the legacy
-`'custom'` value used by `oc_mydash_tiles` placements — `'custom'`
+`'custom'` value used by `oc_launchpad_tiles` placements — `'custom'`
 routes through the pre-registry tile path in `DashboardGrid.vue`,
 while `'preset'` keeps the placements on the registry-backed
 `TileWidget` renderer (REQ-WDG-022).
@@ -133,7 +133,7 @@ during the initial `loadDashboards()` call.
 - `src/views/__tests__/Views.loadingState.spec.js` — asserts the
   loading shim renders when `loading=true` and the empty-state
   renders when `loading=false`.
-- `tests/integration/mydash.postman_collection.json` — Newman
+- `tests/integration/launchpad.postman_collection.json` — Newman
   pins the create-response envelope: `placements.length === 4`
   with the per-tile shape and grid coordinates listed in
   REQ-DWB-001 above.

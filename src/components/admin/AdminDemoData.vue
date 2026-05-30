@@ -1,31 +1,31 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
-	<div class="mydash-demo-showcases">
-		<h3>{{ t('mydash', 'Demo data showcases') }}</h3>
+	<div class="launchpad-demo-showcases">
+		<h3>{{ t('launchpad', 'Demo data showcases') }}</h3>
 
-		<p class="mydash-demo-showcases__hint">
-			{{ t('mydash', 'Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.') }}
+		<p class="launchpad-demo-showcases__hint">
+			{{ t('launchpad', 'Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.') }}
 		</p>
 
-		<div v-if="loading" class="mydash-demo-showcases__loading">
-			{{ t('mydash', 'Loading showcases…') }}
+		<div v-if="loading" class="launchpad-demo-showcases__loading">
+			{{ t('launchpad', 'Loading showcases…') }}
 		</div>
 
-		<div v-else-if="error" class="mydash-demo-showcases__error">
+		<div v-else-if="error" class="launchpad-demo-showcases__error">
 			{{ error }}
 		</div>
 
-		<div v-else class="mydash-demo-showcases__grid">
+		<div v-else class="launchpad-demo-showcases__grid">
 			<div
 				v-for="showcase in showcases"
 				:key="showcase.id"
-				class="mydash-demo-showcases__card"
+				class="launchpad-demo-showcases__card"
 				:data-test="'showcase-card-' + showcase.id">
-				<div class="mydash-demo-showcases__thumb">
+				<div class="launchpad-demo-showcases__thumb">
 					<img
 						v-if="showcase.thumbnailUrl"
 						:src="showcase.thumbnailUrl"
@@ -34,28 +34,28 @@
 					<ViewDashboard v-else :size="64" />
 				</div>
 
-				<div class="mydash-demo-showcases__body">
-					<div class="mydash-demo-showcases__title-row">
-						<strong class="mydash-demo-showcases__title">{{ showcase.name }}</strong>
-						<span class="mydash-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+				<div class="launchpad-demo-showcases__body">
+					<div class="launchpad-demo-showcases__title-row">
+						<strong class="launchpad-demo-showcases__title">{{ showcase.name }}</strong>
+						<span class="launchpad-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
 					</div>
 
-					<p class="mydash-demo-showcases__desc">
+					<p class="launchpad-demo-showcases__desc">
 						{{ showcase.description }}
 					</p>
 
-					<div v-if="warnings[showcase.id]" class="mydash-demo-showcases__warning">
-						{{ t('mydash', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
+					<div v-if="warnings[showcase.id]" class="launchpad-demo-showcases__warning">
+						{{ t('launchpad', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
 					</div>
 
-					<div class="mydash-demo-showcases__actions">
+					<div class="launchpad-demo-showcases__actions">
 						<NcButton
 							v-if="!showcase.isInstalled"
 							type="primary"
 							:disabled="busy[showcase.id]"
 							:data-test="'showcase-install-' + showcase.id"
 							@click="install(showcase)">
-							{{ busy[showcase.id] ? t('mydash', 'Installing…') : t('mydash', 'Install') }}
+							{{ busy[showcase.id] ? t('launchpad', 'Installing…') : t('launchpad', 'Install') }}
 						</NcButton>
 						<NcButton
 							v-else
@@ -63,7 +63,7 @@
 							:disabled="busy[showcase.id]"
 							:data-test="'showcase-uninstall-' + showcase.id"
 							@click="confirmUninstall(showcase)">
-							{{ busy[showcase.id] ? t('mydash', 'Uninstalling…') : t('mydash', 'Uninstall') }}
+							{{ busy[showcase.id] ? t('launchpad', 'Uninstalling…') : t('launchpad', 'Uninstall') }}
 						</NcButton>
 					</div>
 				</div>
@@ -108,7 +108,7 @@ export default {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
 			} catch (err) {
-				this.error = this.t('mydash', 'Could not load demo showcases. Please try again.')
+				this.error = this.t('launchpad', 'Could not load demo showcases. Please try again.')
 			} finally {
 				this.loading = false
 			}
@@ -128,11 +128,11 @@ export default {
 				await this.fetch()
 			} catch (err) {
 				if (err.response && err.response.status === 404) {
-					this.error = this.t('mydash', 'Showcase not found.')
+					this.error = this.t('launchpad', 'Showcase not found.')
 				} else if (err.response && err.response.status === 403) {
-					this.error = this.t('mydash', 'You need admin privileges to install showcases.')
+					this.error = this.t('launchpad', 'You need admin privileges to install showcases.')
 				} else {
-					this.error = this.t('mydash', 'Could not install showcase. Please try again.')
+					this.error = this.t('launchpad', 'Could not install showcase. Please try again.')
 				}
 			} finally {
 				this.$set(this.busy, showcase.id, false)
@@ -141,7 +141,7 @@ export default {
 
 		/** @spec openspec/specs/demo-data-showcases/spec.md */
 		async confirmUninstall(showcase) {
-			const message = this.t('mydash', 'Remove the {name} showcase dashboard for all users? You can reinstall it later.', { name: showcase.name })
+			const message = this.t('launchpad', 'Remove the {name} showcase dashboard for all users? You can reinstall it later.', { name: showcase.name })
 			if (window.confirm(message) === false) {
 				return
 			}
@@ -152,7 +152,7 @@ export default {
 				this.$delete(this.warnings, showcase.id)
 				await this.fetch()
 			} catch (err) {
-				this.error = this.t('mydash', 'Could not uninstall showcase. Please try again.')
+				this.error = this.t('launchpad', 'Could not uninstall showcase. Please try again.')
 			} finally {
 				this.$set(this.busy, showcase.id, false)
 			}
@@ -168,29 +168,29 @@ export default {
 </script>
 
 <style scoped>
-.mydash-demo-showcases__hint {
+.launchpad-demo-showcases__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
 }
 
-.mydash-demo-showcases__loading,
-.mydash-demo-showcases__error {
+.launchpad-demo-showcases__loading,
+.launchpad-demo-showcases__error {
 	padding: 16px;
 	color: var(--color-text-maxcontrast);
 }
 
-.mydash-demo-showcases__error {
+.launchpad-demo-showcases__error {
 	color: var(--color-error);
 }
 
-.mydash-demo-showcases__grid {
+.launchpad-demo-showcases__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 	gap: 16px;
 	margin-top: 16px;
 }
 
-.mydash-demo-showcases__card {
+.launchpad-demo-showcases__card {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large);
 	overflow: hidden;
@@ -199,7 +199,7 @@ export default {
 	flex-direction: column;
 }
 
-.mydash-demo-showcases__thumb {
+.launchpad-demo-showcases__thumb {
 	width: 100%;
 	aspect-ratio: 3 / 2;
 	background: var(--color-background-dark);
@@ -209,13 +209,13 @@ export default {
 	overflow: hidden;
 }
 
-.mydash-demo-showcases__thumb img {
+.launchpad-demo-showcases__thumb img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.mydash-demo-showcases__body {
+.launchpad-demo-showcases__body {
 	padding: 12px;
 	display: flex;
 	flex-direction: column;
@@ -223,18 +223,18 @@ export default {
 	flex: 1 1 auto;
 }
 
-.mydash-demo-showcases__title-row {
+.launchpad-demo-showcases__title-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
 }
 
-.mydash-demo-showcases__title {
+.launchpad-demo-showcases__title {
 	font-size: 1rem;
 }
 
-.mydash-demo-showcases__lang-badge {
+.launchpad-demo-showcases__lang-badge {
 	font-size: 0.75rem;
 	font-weight: 600;
 	padding: 2px 6px;
@@ -243,20 +243,20 @@ export default {
 	color: var(--color-text-maxcontrast);
 }
 
-.mydash-demo-showcases__desc {
+.launchpad-demo-showcases__desc {
 	font-size: 0.875rem;
 	color: var(--color-text-maxcontrast);
 	flex: 1 1 auto;
 }
 
-.mydash-demo-showcases__warning {
+.launchpad-demo-showcases__warning {
 	font-size: 0.75rem;
 	padding: 6px 8px;
 	background: var(--color-warning-hover, rgba(255, 200, 0, 0.15));
 	border-radius: var(--border-radius);
 }
 
-.mydash-demo-showcases__actions {
+.launchpad-demo-showcases__actions {
 	display: flex;
 	justify-content: flex-end;
 }

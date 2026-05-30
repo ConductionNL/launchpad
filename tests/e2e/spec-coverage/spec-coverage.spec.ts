@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Gate-19 spec-coverage test suite.
@@ -44,13 +44,13 @@ import { test, expect } from '@playwright/test'
 
 const TS = `md-${Date.now()}`
 
-// Navigate to mydash and wait for the app to hydrate.
+// Navigate to launchpad and wait for the app to hydrate.
 // The sidebar-toggle button is the first stable landmark injected by the Vue
 // bootstrap; we also ensure the sidebar is closed before returning so that
 // the grid and workspace elements are not occluded by the slide-in panel.
-async function gotoMydash(page: Parameters<typeof test>[1] extends never ? never : any) {
-	await page.goto('/index.php/apps/mydash')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? never : any) {
+	await page.goto('/index.php/apps/launchpad')
+	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	// Close sidebar if it happened to be open from a prior test run (or from
 	// a redirect that lands with the sidebar pre-open).
 	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
@@ -61,7 +61,7 @@ async function gotoMydash(page: Parameters<typeof test>[1] extends never ? never
 			await closeBtn.click()
 		} else {
 			// Toggle with the hamburger.
-			await page.locator('.mydash-sidebar-toggle').first().click()
+			await page.locator('.launchpad-sidebar-toggle').first().click()
 		}
 		await page.waitForFunction(() => !document.querySelector('.dashboard-switcher-sidebar.open'), { timeout: 5_000 })
 	}
@@ -69,7 +69,7 @@ async function gotoMydash(page: Parameters<typeof test>[1] extends never ? never
 
 // Open the sidebar and wait for the slide-in transition to settle.
 async function openSidebar(page: any) {
-	const toggle = page.locator('.mydash-sidebar-toggle').first()
+	const toggle = page.locator('.launchpad-sidebar-toggle').first()
 	await toggle.click()
 	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 }
@@ -106,7 +106,7 @@ async function openAddWidgetModal(page: any) {
 
 test.describe('dashboard-switcher sidebar', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e dashboard-switcher::all-three-sections-present
@@ -145,7 +145,7 @@ test.describe('dashboard-switcher sidebar', () => {
 	// @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
 	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({ page }) => {
 		// Check the current admin setting and assert the card visibility matches.
-		const settingsResp = await page.request.get('/index.php/apps/mydash/api/admin/settings')
+		const settingsResp = await page.request.get('/index.php/apps/launchpad/api/admin/settings')
 		const settings = settingsResp.ok() ? await settingsResp.json() : {}
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
@@ -202,7 +202,7 @@ test.describe('divider widget discovery', () => {
 	// @e2e divider-widget::widget-registration-via-imanager
 	// @e2e divider-widget::widget-appears-alongside-standard-widgets
 	test('divider widget appears in the Add-Widget modal picker', async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 		await openAddWidgetModal(page)
 
 		// The modal lists all registered widgets in a <select> / combobox.
@@ -228,7 +228,7 @@ test.describe('divider widget discovery', () => {
 
 test.describe('grid layout initialisation and edit mode', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 		// Ensure the sidebar is fully closed so the grid is not occluded.
 		await page.waitForFunction(
 			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
@@ -244,7 +244,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 		// parent container being visible instead.
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		await expect(page.locator('.mydash-grid').first()).toBeVisible()
+		await expect(page.locator('.launchpad-grid').first()).toBeVisible()
 		// GridStack uses a class like `gs-12` to indicate the column count.
 		const gridClass = await grid.getAttribute('class') ?? ''
 		const hasColumnClass = /gs-\d+/.test(gridClass)
@@ -264,16 +264,16 @@ test.describe('grid layout initialisation and edit mode', () => {
 	})
 
 	// @e2e grid-layout::grid-renders-placements-in-correct-positions
-	test('grid container is a descendant of the mydash workspace', async ({ page }) => {
+	test('grid container is a descendant of the launchpad workspace', async ({ page }) => {
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		const workspace = page.locator('.mydash-workspace')
+		const workspace = page.locator('.launchpad-workspace')
 		await expect(workspace).toBeVisible()
 	})
 
 	// @e2e grid-layout::initialize-grid-with-custom-column-count
 	test('grid column count matches dashboard configuration', async ({ page }) => {
-		const resp = await page.request.get('/index.php/apps/mydash/api/dashboard')
+		const resp = await page.request.get('/index.php/apps/launchpad/api/dashboard')
 		if (!resp.ok()) return
 		const dashData = await resp.json().catch(() => null)
 		if (!dashData) return
@@ -321,7 +321,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 		// For admin the sidebar toggle is always visible (canEdit=true).
 		// The wave3 tests assert exactly 1 floating button for admin which indirectly
 		// verifies the guard — this test just confirms the toggle renders.
-		const ham = page.locator('.mydash-sidebar-toggle')
+		const ham = page.locator('.launchpad-sidebar-toggle')
 		await expect(ham).toBeVisible()
 	})
 })
@@ -332,7 +332,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 
 test.describe('label widget – additional scenarios', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e label-widget::registry-exposes-label-as-a-selectable-widget-type

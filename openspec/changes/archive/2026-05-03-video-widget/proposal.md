@@ -14,9 +14,9 @@ Dashboard users want to embed video content directly on their dashboards — whe
 
 ## What Changes
 
-- Register a new widget `mydash_video` with Nextcloud's Dashboard API via `OCP\Dashboard\IManager`
-- Add global admin setting `mydash.video_widget_allowed_domains` (JSON array, default: `["youtube.com","www.youtube.com","youtu.be","vimeo.com","player.vimeo.com"]`)
-- Add optional admin setting `mydash.video_widget_use_nocookie_youtube` (boolean, default: `false`)
+- Register a new widget `launchpad_video` with Nextcloud's Dashboard API via `OCP\Dashboard\IManager`
+- Add global admin setting `launchpad.video_widget_allowed_domains` (JSON array, default: `["youtube.com","www.youtube.com","youtu.be","vimeo.com","player.vimeo.com"]`)
+- Add optional admin setting `launchpad.video_widget_use_nocookie_youtube` (boolean, default: `false`)
 - Widget placement's `widgetContent` JSON stores:
   - `sourceType`: `'youtube' | 'vimeo' | 'peertube' | 'nc-file'`
   - `videoUrl` (for hosted) or `fileId` (for `nc-file`)
@@ -50,7 +50,7 @@ Dashboard users want to embed video content directly on their dashboards — whe
 - `src/stores/widgets.js` — optional computed property for widget config helpers
 - `appinfo/routes.php` — register two new controller routes
 - `appinfo/info.xml` — declare `video-widget` capability
-- No schema changes to MyDash tables (widget config is stored in existing `widgetContent` JSON)
+- No schema changes to LaunchPad tables (widget config is stored in existing `widgetContent` JSON)
 
 **Affected APIs:**
 

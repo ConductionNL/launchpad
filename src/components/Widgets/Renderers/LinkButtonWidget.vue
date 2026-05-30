@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -106,16 +106,16 @@
 			@click.self="closeModal">
 			<div class="link-button-widget__modal">
 				<h3 :id="modalTitleId" class="link-button-widget__modal-title">
-					{{ t('mydash', 'Create Document') }}
+					{{ t('launchpad', 'Create Document') }}
 				</h3>
 				<label class="link-button-widget__modal-label">
-					{{ t('mydash', 'File Name') }}
+					{{ t('launchpad', 'File Name') }}
 					<input
 						ref="filenameInput"
 						v-model="filenameDraft"
 						type="text"
 						class="link-button-widget__modal-input"
-						:placeholder="t('mydash', 'Enter filename')"
+						:placeholder="t('launchpad', 'Enter filename')"
 						@keyup.enter="onCreateConfirm">
 				</label>
 				<p class="link-button-widget__modal-extension">
@@ -127,14 +127,14 @@
 						class="link-button-widget__modal-cancel"
 						:disabled="isExecuting"
 						@click="closeModal">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</button>
 					<button
 						type="button"
 						class="link-button-widget__modal-create"
 						:disabled="!canCreate || isExecuting"
 						@click="onCreateConfirm">
-						{{ isExecuting ? t('mydash', 'Creating…') : t('mydash', 'Create') }}
+						{{ isExecuting ? t('launchpad', 'Creating…') : t('launchpad', 'Create') }}
 					</button>
 				</div>
 			</div>
@@ -307,7 +307,7 @@ export default {
 
 		/** @spec openspec/specs/link-button-widget/spec.md */
 		displayLabel() {
-			return this.label !== '' ? this.label : t('mydash', 'Link Button')
+			return this.label !== '' ? this.label : t('launchpad', 'Link Button')
 		},
 
 		/** @spec openspec/specs/link-button-widget/spec.md */
@@ -584,7 +584,7 @@ export default {
 
 				try {
 					const response = await axios.post(
-						generateUrl('/apps/mydash/api/files/create'),
+						generateUrl('/apps/launchpad/api/files/create'),
 						{ filename, dir: '/', content: '' },
 					)
 					const data = response?.data
@@ -592,10 +592,10 @@ export default {
 						window.open(data.url, '_blank')
 						this.modalOpen = false
 					} else {
-						showError(t('mydash', 'Failed to create document'))
+						showError(t('launchpad', 'Failed to create document'))
 					}
 				} catch (err) {
-					showError(t('mydash', 'Failed to create document'))
+					showError(t('launchpad', 'Failed to create document'))
 				}
 			} finally {
 				this.isExecuting = false

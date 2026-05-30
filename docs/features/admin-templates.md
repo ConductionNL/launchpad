@@ -24,11 +24,11 @@ Admin templates allow Nextcloud administrators to create pre-configured dashboar
 ## Distribution Flow
 
 1. Admin creates template with target groups and permission level
-2. User opens MyDash for the first time
+2. User opens LaunchPad for the first time
 3. System finds applicable template (group-specific first, then default)
 4. TemplateService creates personal copy with cloned placements
 5. User can customize within permission level constraints
 
 ## Screenshot
 
-![Dashboard Overview](/screenshots/mydash-dashboard-overview.png)
+![Dashboard Overview](/screenshots/launchpad-dashboard-overview.png)

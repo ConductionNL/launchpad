@@ -12,20 +12,20 @@ Dashboards are implemented as a full-stack feature spanning a PHP backend (Nextc
 
 | Class | Namespace | Role |
 |---|---|---|
-| `Dashboard` | `OCA\MyDash\Db` | ORM entity; maps to `oc_mydash_dashboards` |
-| `DashboardMapper` | `OCA\MyDash\Db` | QBMapper subclass; all DB queries for dashboards |
-| `DashboardFactory` | `OCA\MyDash\Service` | Creates new `Dashboard` entities with validated defaults |
-| `DashboardResolver` | `OCA\MyDash\Service` | Resolves the *effective* dashboard for a user (active → fallback → template) |
-| `DashboardService` | `OCA\MyDash\Service` | Orchestrates CRUD and activation; owns the business rules |
-| `TemplateService` | `OCA\MyDash\Service` | Handles admin template matching and copy-on-first-use distribution |
-| `PermissionService` | `OCA\MyDash\Service` | Evaluates create / edit / widget-level permissions against `AdminSetting` |
-| `DashboardApiController` | `OCA\MyDash\Controller` | HTTP layer for user-facing dashboard routes |
-| `AdminController` | `OCA\MyDash\Controller` | HTTP layer for admin template management routes |
-| `ResponseHelper` | `OCA\MyDash\Controller` | Static factory for standard JSON responses (success, error, forbidden, unauthorized) |
-| `DashboardTableBuilder` | `OCA\MyDash\Migration` | Encapsulates the DDL for `oc_mydash_dashboards` |
-| `Version001000Date20240101000000` | `OCA\MyDash\Migration` | Initial migration — calls `DashboardTableBuilder::create()` |
-| `AdminSetting` | `OCA\MyDash\Db` | Entity for key/value admin config (permission defaults, feature flags) |
-| `AdminSettingMapper` | `OCA\MyDash\Db` | Mapper for `oc_mydash_admin_settings` |
+| `Dashboard` | `OCA\LaunchPad\Db` | ORM entity; maps to `oc_launchpad_dashboards` |
+| `DashboardMapper` | `OCA\LaunchPad\Db` | QBMapper subclass; all DB queries for dashboards |
+| `DashboardFactory` | `OCA\LaunchPad\Service` | Creates new `Dashboard` entities with validated defaults |
+| `DashboardResolver` | `OCA\LaunchPad\Service` | Resolves the *effective* dashboard for a user (active → fallback → template) |
+| `DashboardService` | `OCA\LaunchPad\Service` | Orchestrates CRUD and activation; owns the business rules |
+| `TemplateService` | `OCA\LaunchPad\Service` | Handles admin template matching and copy-on-first-use distribution |
+| `PermissionService` | `OCA\LaunchPad\Service` | Evaluates create / edit / widget-level permissions against `AdminSetting` |
+| `DashboardApiController` | `OCA\LaunchPad\Controller` | HTTP layer for user-facing dashboard routes |
+| `AdminController` | `OCA\LaunchPad\Controller` | HTTP layer for admin template management routes |
+| `ResponseHelper` | `OCA\LaunchPad\Controller` | Static factory for standard JSON responses (success, error, forbidden, unauthorized) |
+| `DashboardTableBuilder` | `OCA\LaunchPad\Migration` | Encapsulates the DDL for `oc_launchpad_dashboards` |
+| `Version001000Date20240101000000` | `OCA\LaunchPad\Migration` | Initial migration — calls `DashboardTableBuilder::create()` |
+| `AdminSetting` | `OCA\LaunchPad\Db` | Entity for key/value admin config (permission defaults, feature flags) |
+| `AdminSettingMapper` | `OCA\LaunchPad\Db` | Mapper for `oc_launchpad_admin_settings` |
 
 ### Vue Frontend
 
@@ -47,11 +47,11 @@ Dashboards are implemented as a full-stack feature spanning a PHP backend (Nextc
 ```
 Browser
   └─ api.getDashboards()
-       └─ GET /apps/mydash/api/dashboards
+       └─ GET /apps/launchpad/api/dashboards
             └─ DashboardApiController::list()
                  └─ DashboardService::getUserDashboards(userId)
                       └─ DashboardMapper::findByUserId(userId)
-                           SQL: SELECT * FROM oc_mydash_dashboards
+                           SQL: SELECT * FROM oc_launchpad_dashboards
                                 WHERE user_id = ? AND type = 'user'
                                 ORDER BY created_at ASC
                       └─ returns Dashboard[]
@@ -65,7 +65,7 @@ Browser
 ```
 Browser
   └─ api.getActiveDashboard()
-       └─ GET /apps/mydash/api/dashboard
+       └─ GET /apps/launchpad/api/dashboard
             └─ DashboardApiController::getActive()
                  └─ DashboardService::getEffectiveDashboard(userId)
                       ├─ DashboardResolver::tryGetActiveDashboard(userId)
@@ -102,7 +102,7 @@ Browser
 ```
 Browser
   └─ api.createDashboard({ name })
-       └─ POST /apps/mydash/api/dashboard
+       └─ POST /apps/launchpad/api/dashboard
             └─ DashboardApiController::create(name, description)
                  └─ resolveCreateParams(name, description) — handles both JSON body and individual params
                  └─ checkCreatePermissions(userId)
@@ -115,7 +115,7 @@ Browser
                            → new Dashboard(); sets uuid, type='user', gridColumns=12,
                              permissionLevel='full', isActive=1, createdAt, updatedAt
                       └─ DashboardMapper::deactivateAllForUser(userId)
-                           SQL: UPDATE oc_mydash_dashboards SET is_active=0, updated_at=?
+                           SQL: UPDATE oc_launchpad_dashboards SET is_active=0, updated_at=?
                                 WHERE user_id = ?
                       └─ DashboardMapper::insert(dashboard)
             └─ JSON 201 { dashboard: {...} }
@@ -127,7 +127,7 @@ Browser
 ```
 Browser
   └─ api.updateDashboard(id, { name?, description?, placements? })
-       └─ PUT /apps/mydash/api/dashboard/{id}
+       └─ PUT /apps/launchpad/api/dashboard/{id}
             └─ DashboardApiController::update(id, name, description, placements)
                  └─ PermissionService::canEditDashboard(userId, dashboardId)
                       └─ DashboardMapper::find(id) — checks type != admin_template, userId match,
@@ -147,12 +147,12 @@ Browser
 ```
 Browser
   └─ api.deleteDashboard(id)
-       └─ DELETE /apps/mydash/api/dashboard/{id}
+       └─ DELETE /apps/launchpad/api/dashboard/{id}
             └─ DashboardApiController::delete(id)
                  └─ DashboardService::deleteDashboard(dashboardId, userId)
                       └─ DashboardMapper::find(id) — ownership check
                       └─ WidgetPlacementMapper::deleteByDashboardId(dashboardId)
-                           SQL: DELETE FROM oc_mydash_widget_placements WHERE dashboard_id = ?
+                           SQL: DELETE FROM oc_launchpad_widget_placements WHERE dashboard_id = ?
                       └─ DashboardMapper::delete(dashboard)
             └─ JSON 200 { status: "ok" }
   └─ Views.vue: loadDashboards() refresh
@@ -163,13 +163,13 @@ Browser
 ```
 Browser
   └─ api.activateDashboard(id)
-       └─ POST /apps/mydash/api/dashboard/{id}/activate
+       └─ POST /apps/launchpad/api/dashboard/{id}/activate
             └─ DashboardApiController::activate(id)
                  └─ DashboardService::activateDashboard(dashboardId, userId)
                       └─ DashboardMapper::find(id) — ownership check
                       └─ DashboardMapper::setActive(dashboardId, userId)
                            → deactivateAllForUser(userId)  [SQL bulk UPDATE is_active=0]
-                           → UPDATE oc_mydash_dashboards SET is_active=1, updated_at=?
+                           → UPDATE oc_launchpad_dashboards SET is_active=1, updated_at=?
                              WHERE id=? AND user_id=?
                       └─ dashboard.setIsActive(true)
             └─ JSON 200 { dashboard: {...} }
@@ -180,31 +180,31 @@ Browser
 
 ## Database Schema
 
-### Table: `oc_mydash_dashboards`
+### Table: `oc_launchpad_dashboards`
 
 | Column | Type | Constraints | Default | Notes |
 |---|---|---|---|---|
 | `id` | BIGINT UNSIGNED | NOT NULL, AUTO_INCREMENT, PK | — | Integer primary key |
-| `uuid` | VARCHAR(36) | NOT NULL, UNIQUE INDEX `mydash_dashboard_uuid` | — | UUID v4 |
+| `uuid` | VARCHAR(36) | NOT NULL, UNIQUE INDEX `launchpad_dashboard_uuid` | — | UUID v4 |
 | `name` | VARCHAR(255) | NOT NULL | — | Human-readable label |
 | `description` | TEXT | NULL | — | Optional description |
-| `type` | VARCHAR(20) | NOT NULL, INDEX `mydash_dashboard_type` | `'user'` | `'user'` or `'admin_template'` |
-| `user_id` | VARCHAR(64) | NULL, INDEX `mydash_dashboard_user` | — | NULL for admin templates |
+| `type` | VARCHAR(20) | NOT NULL, INDEX `launchpad_dashboard_type` | `'user'` | `'user'` or `'admin_template'` |
+| `user_id` | VARCHAR(64) | NULL, INDEX `launchpad_dashboard_user` | — | NULL for admin templates |
 | `based_on_template` | BIGINT UNSIGNED | NULL | — | FK reference to parent template id |
 | `grid_columns` | INTEGER | NOT NULL | 12 | Number of grid columns (1–24) |
 | `permission_level` | VARCHAR(20) | NOT NULL | `'full'` | `'view_only'`, `'add_only'`, or `'full'` |
 | `target_groups` | TEXT | NULL | — | JSON-encoded array of Nextcloud group IDs |
 | `is_default` | SMALLINT UNSIGNED | NOT NULL | 0 | Boolean (0/1); only meaningful on admin_template rows |
-| `is_active` | SMALLINT UNSIGNED | NOT NULL, INDEX `mydash_dashboard_active(user_id, is_active)` | 0 | Boolean (0/1); the single active dashboard per user |
+| `is_active` | SMALLINT UNSIGNED | NOT NULL, INDEX `launchpad_dashboard_active(user_id, is_active)` | 0 | Boolean (0/1); the single active dashboard per user |
 | `created_at` | DATETIME | NOT NULL | — | ISO-8601 creation timestamp |
 | `updated_at` | DATETIME | NOT NULL | — | ISO-8601 last-modified timestamp |
 
 **Indexes:**
 - PRIMARY KEY on `id`
-- UNIQUE on `uuid` (`mydash_dashboard_uuid`)
-- INDEX on `user_id` (`mydash_dashboard_user`)
-- INDEX on `type` (`mydash_dashboard_type`)
-- Composite INDEX on `(user_id, is_active)` (`mydash_dashboard_active`)
+- UNIQUE on `uuid` (`launchpad_dashboard_uuid`)
+- INDEX on `user_id` (`launchpad_dashboard_user`)
+- INDEX on `type` (`launchpad_dashboard_type`)
+- Composite INDEX on `(user_id, is_active)` (`launchpad_dashboard_active`)
 
 ---
 
@@ -245,31 +245,31 @@ Widget placements are deleted explicitly before deleting the dashboard (`WidgetP
 
 | File | Description |
 |---|---|
-| `mydash/appinfo/routes.php` | Route definitions for all dashboard endpoints |
-| `mydash/lib/Db/Dashboard.php` | Dashboard entity |
-| `mydash/lib/Db/DashboardMapper.php` | Database mapper |
-| `mydash/lib/Db/AdminSetting.php` | Admin settings entity (keys: feature flags, defaults) |
-| `mydash/lib/Db/AdminSettingMapper.php` | Admin settings mapper |
-| `mydash/lib/Service/DashboardFactory.php` | Entity factory |
-| `mydash/lib/Service/DashboardResolver.php` | Effective-dashboard resolution waterfall |
-| `mydash/lib/Service/DashboardService.php` | Business logic orchestration |
-| `mydash/lib/Service/TemplateService.php` | Admin template matching and copy-on-use distribution |
-| `mydash/lib/Service/PermissionService.php` | Permission evaluation for all dashboard operations |
-| `mydash/lib/Service/AdminTemplateService.php` | CRUD for admin templates |
-| `mydash/lib/Service/AdminSettingsService.php` | Read/write of admin settings |
-| `mydash/lib/Controller/DashboardApiController.php` | User-facing dashboard HTTP controller |
-| `mydash/lib/Controller/AdminController.php` | Admin template and settings HTTP controller |
-| `mydash/lib/Controller/ResponseHelper.php` | Static JSON response factory |
-| `mydash/lib/Migration/DashboardTableBuilder.php` | DDL for `oc_mydash_dashboards` |
-| `mydash/lib/Migration/Version001000Date20240101000000.php` | Initial migration (creates all tables) |
+| `launchpad/appinfo/routes.php` | Route definitions for all dashboard endpoints |
+| `launchpad/lib/Db/Dashboard.php` | Dashboard entity |
+| `launchpad/lib/Db/DashboardMapper.php` | Database mapper |
+| `launchpad/lib/Db/AdminSetting.php` | Admin settings entity (keys: feature flags, defaults) |
+| `launchpad/lib/Db/AdminSettingMapper.php` | Admin settings mapper |
+| `launchpad/lib/Service/DashboardFactory.php` | Entity factory |
+| `launchpad/lib/Service/DashboardResolver.php` | Effective-dashboard resolution waterfall |
+| `launchpad/lib/Service/DashboardService.php` | Business logic orchestration |
+| `launchpad/lib/Service/TemplateService.php` | Admin template matching and copy-on-use distribution |
+| `launchpad/lib/Service/PermissionService.php` | Permission evaluation for all dashboard operations |
+| `launchpad/lib/Service/AdminTemplateService.php` | CRUD for admin templates |
+| `launchpad/lib/Service/AdminSettingsService.php` | Read/write of admin settings |
+| `launchpad/lib/Controller/DashboardApiController.php` | User-facing dashboard HTTP controller |
+| `launchpad/lib/Controller/AdminController.php` | Admin template and settings HTTP controller |
+| `launchpad/lib/Controller/ResponseHelper.php` | Static JSON response factory |
+| `launchpad/lib/Migration/DashboardTableBuilder.php` | DDL for `oc_launchpad_dashboards` |
+| `launchpad/lib/Migration/Version001000Date20240101000000.php` | Initial migration (creates all tables) |
 
 ### Vue Frontend
 
 | File | Description |
 |---|---|
-| `mydash/src/services/api.js` | Axios-based API client for all endpoints |
-| `mydash/src/stores/dashboard.js` | Pinia store: state, getters, and async actions |
-| `mydash/src/views/Views.vue` | Root view; edit mode state machine, modal orchestration |
-| `mydash/src/components/DashboardGrid.vue` | GridStack drag-and-drop grid |
-| `mydash/src/components/DashboardSwitcher.vue` | NcSelect dropdown for switching dashboards |
-| `mydash/src/components/WidgetPicker.vue` | Sidebar with dashboard management actions |
+| `launchpad/src/services/api.js` | Axios-based API client for all endpoints |
+| `launchpad/src/stores/dashboard.js` | Pinia store: state, getters, and async actions |
+| `launchpad/src/views/Views.vue` | Root view; edit mode state machine, modal orchestration |
+| `launchpad/src/components/DashboardGrid.vue` | GridStack drag-and-drop grid |
+| `launchpad/src/components/DashboardSwitcher.vue` | NcSelect dropdown for switching dashboards |
+| `launchpad/src/components/WidgetPicker.vue` | Sidebar with dashboard management actions |

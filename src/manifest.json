@@ -4,5 +4,5 @@
   "dependencies": ["openregister"],
   "menu": [],
   "pages": [],
-  "runtime": { "loadFrom": "mydash/api/manifest" }
+  "runtime": { "loadFrom": "launchpad/api/manifest" }
 }

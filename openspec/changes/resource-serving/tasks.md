@@ -9,7 +9,7 @@
 - [ ] Task 5: Register routes — `GET /resource/{filename}` under the non-OCS `routes` array, `GET /api/resources` under the OCS `ocs` array; both methods carry `#[NoAdminRequired]` (logged-in user only); gate-route-auth + gate-semantic-auth pass
 - [ ] Task 6: PHPUnit — png serve returns bytes + `image/png` + `Cache-Control` header; svg uses `image/svg+xml` (NOT `application/svg+xml`); unknown extension `.bin` → `application/octet-stream`; missing file → 404 (empty body acceptable)
 - [ ] Task 7: PHPUnit — encoded path traversal `..%2F..%2Fetc%2Fpasswd` → 404 with no system file leak; 50MB file → 413 with file NOT read into memory; list returns resources sorted by `modifiedAt desc`; list with no folder returns HTTP 200 `{resources:[]}`
-- [ ] Task 8: Playwright — image widget renders an uploaded resource via `GET /apps/mydash/resource/<filename>`; unauthenticated direct browser fetch redirects to login (no bytes served)
+- [ ] Task 8: Playwright — image widget renders an uploaded resource via `GET /apps/launchpad/resource/<filename>`; unauthenticated direct browser fetch redirects to login (no bytes served)
 - [ ] Task 9: Quality gates — `composer check:strict` (fix any pre-existing issues encountered along the way); OpenAPI updated for `GET /api/resources` (the binary `/resource/{filename}` is intentionally excluded — not API consumer surface); SPDX-in-docblock on every new/modified PHP file; all 10 hydra-gates green
 
 ## Verification

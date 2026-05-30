@@ -8,7 +8,7 @@ status: implemented
 ## Purpose
 
 Each dashboard has a stable, addressable URL based on its
-slug-chain. Visiting `/apps/mydash/{slug-chain}` lands the workspace
+slug-chain. Visiting `/apps/launchpad/{slug-chain}` lands the workspace
 on the matching dashboard; switching dashboards via the sidebar
 pushes a new history entry; the browser back/forward buttons
 navigate between dashboards.
@@ -35,10 +35,10 @@ switching the active dashboard.
 ## URL format
 
 ```
-/apps/mydash/                           → resolver default
-/apps/mydash/{slug}                     → top-level slug
-/apps/mydash/{parent}/{child}           → nested via slug-chain
-/apps/mydash/{parent}/{child}/{grand}   → arbitrarily deep
+/apps/launchpad/                           → resolver default
+/apps/launchpad/{slug}                     → top-level slug
+/apps/launchpad/{parent}/{child}           → nested via slug-chain
+/apps/launchpad/{parent}/{child}/{grand}   → arbitrarily deep
 ```
 
 Slugs use lowercase ASCII letters, digits, and dashes (REQ-DASH-024).
@@ -83,8 +83,8 @@ initial state as `deepLinkPath`.
 
 The frontend reads `deepLinkPath` on mount and replaces the URL via
 `history.replaceState()` to match the canonical form. A user
-visiting `/apps/mydash/old-parent/child` after a parent rename gets
-silently normalised to `/apps/mydash/new-parent/child` without a
+visiting `/apps/launchpad/old-parent/child` after a parent rename gets
+silently normalised to `/apps/launchpad/new-parent/child` without a
 reload.
 
 ### Requirement: REQ-DDL-004 New API endpoint for outbound URL sync
@@ -112,7 +112,7 @@ those are unaddressable.
 1. Fetch the canonical path via `api.getDashboardPath(uuid)`.
 2. If the response path is non-empty, push history:
    ```js
-   history.pushState({ uuid }, '', '/apps/mydash/' + path)
+   history.pushState({ uuid }, '', '/apps/launchpad/' + path)
    ```
 3. If empty path (NULL slug), skip the pushState — no addressable
    URL exists, leaving the URL unchanged.
@@ -126,7 +126,7 @@ subsequent transitions.
 `Views.vue` MUST register a `popstate` listener on mount that:
 
 1. Reads `window.location.pathname`.
-2. Strips the route prefix `/apps/mydash/` to get the slug-chain.
+2. Strips the route prefix `/apps/launchpad/` to get the slug-chain.
 3. Calls `api.getDashboardByPath(path)` to resolve it server-side.
 4. Calls `switchDashboard(uuid)` with the resolved UUID.
 
@@ -136,7 +136,7 @@ before still works because step 3 hits the resolver.
 
 ### Requirement: REQ-DDL-007 API regression check
 
-`tests/integration/mydash.postman_collection.json` MUST include a
+`tests/integration/launchpad.postman_collection.json` MUST include a
 regression check that `GET /api/health` still routes correctly
 after the catch-all is registered. The negative-lookahead pattern
 prevents API shadowing but a misconfiguration (e.g. moving the
@@ -151,10 +151,10 @@ The catch-all route MUST come AFTER every `/api/...` entry in
 - `tests/Unit/Controller/DashboardApiControllerComputePathTest.php` —
   4 cases pinning the canonical-path API (auth, missing UUID, happy
   path, empty path for NULL slug).
-- `tests/integration/mydash.postman_collection.json` — Newman
+- `tests/integration/launchpad.postman_collection.json` — Newman
   asserts the deep-link flow end-to-end:
-  - `GET /apps/mydash/{slug}` returns 200 HTML
-  - `GET /apps/mydash/{stale-slug}` returns 200 (silent fallback,
+  - `GET /apps/launchpad/{slug}` returns 200 HTML
+  - `GET /apps/launchpad/{stale-slug}` returns 200 (silent fallback,
     not 404)
   - `GET /api/health` returns 200 (regression: the catch-all
     didn't shadow the API)

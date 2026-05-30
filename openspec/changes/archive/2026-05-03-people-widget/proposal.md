@@ -4,11 +4,11 @@ A new dashboard widget that displays a directory of Nextcloud users with profile
 
 ## Why
 
-MyDash dashboards need a discoverable people directory as a core widget capability — users want to browse colleagues, see contact info and department, and get nudges for upcoming birthdays. Unlike static directory features, the people widget must be configurable per-placement (some dashboards show only management group, others show all visible users), respect privacy settings (hidden fields are omitted entirely, not nulled), and support efficient pagination for orgs with hundreds of users.
+LaunchPad dashboards need a discoverable people directory as a core widget capability — users want to browse colleagues, see contact info and department, and get nudges for upcoming birthdays. Unlike static directory features, the people widget must be configurable per-placement (some dashboards show only management group, others show all visible users), respect privacy settings (hidden fields are omitted entirely, not nulled), and support efficient pagination for orgs with hundreds of users.
 
 ## What Changes
 
-- **NEW** `POST /appinfo/dashboard.php` registers widget id `mydash_people` via `OCP\Dashboard\IManager::registerWidget()`.
+- **NEW** `POST /appinfo/dashboard.php` registers widget id `launchpad_people` via `OCP\Dashboard\IManager::registerWidget()`.
 - **NEW** `GET /api/people?filters=...&limit=50&offset=0` endpoint returns paginated user list `{users: [{uid, displayName, role, organisation, email, phone, avatarUrl, groups, birthdate|omitted, status?}], total, hasMore}`. Pagination is offset-based (max limit 100).
 - **NEW** per-placement config in `widgetContent JSON`:
   - `layout: 'card'|'grid'|'list'` (default `grid`)
@@ -43,7 +43,7 @@ MyDash dashboards need a discoverable people directory as a core widget capabili
 
 - New files: `appinfo/dashboard.php`, `lib/Controller/PeopleWidgetController.php`, `lib/Service/PeopleWidgetService.php`, `src/components/PeopleWidget.vue`, plus typed exception classes.
 - Routes: one new `GET /api/widgets/people/{placementId}/users` entry in `appinfo/routes.php`.
-- Database: NO new tables — widget placements stored in core `oc_mydash_widget_placements` table with `widgetContent` JSON field.
+- Database: NO new tables — widget placements stored in core `oc_launchpad_widget_placements` table with `widgetContent` JSON field.
 - Frontend: `PeopleWidget.vue` component with layout variants (card/grid/list), search input, pagination, and 60-second cache.
 - Dependencies: uses built-in `OCP\IUserManager`, `OCP\Accounts\IAccountManager`, `OCP\IGroupManager`, no new external libraries.
 

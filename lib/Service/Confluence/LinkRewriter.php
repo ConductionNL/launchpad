@@ -4,28 +4,28 @@
  * LinkRewriter
  *
  * Post-import pass that rewrites internal Confluence `<a href="…">`
- * page links to MyDash dashboard deep links. External URLs (any
+ * page links to LaunchPad dashboard deep links. External URLs (any
  * scheme-prefixed `http(s):`, `mailto:`, etc.) are left untouched.
  * Implements REQ-CFLI-004.
  *
  * @category  Service
- * @package   OCA\MyDash\Service\Confluence
+ * @package   OCA\LaunchPad\Service\Confluence
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\Confluence;
+namespace OCA\LaunchPad\Service\Confluence;
 
 /**
- * Rewrites internal Confluence links to MyDash deep links.
+ * Rewrites internal Confluence links to LaunchPad deep links.
  */
 class LinkRewriter
 {
@@ -68,7 +68,7 @@ class LinkRewriter
                 return $match[0];
             }
 
-            $newHref = '/apps/mydash/dashboard/'.$pageIdToUuid[$baseKey];
+            $newHref = '/apps/launchpad/dashboard/'.$pageIdToUuid[$baseKey];
             return '<a href="'.$newHref.'"'.$rest.'>';
         };
 

@@ -6,13 +6,13 @@ status: implemented
 
 ## Purpose
 
-The menu widget is a built-in MyDash widget type that renders a hierarchical, in-page navigation tree distinct from the application sidebar. It supports up to three levels of nesting and three visual styles — `dropdown`, `megamenu`, and `tree` — so dashboard authors can publish curated link sets that fit the surrounding layout without writing custom Vue code.
+The menu widget is a built-in LaunchPad widget type that renders a hierarchical, in-page navigation tree distinct from the application sidebar. It supports up to three levels of nesting and three visual styles — `dropdown`, `megamenu`, and `tree` — so dashboard authors can publish curated link sets that fit the surrounding layout without writing custom Vue code.
 
 The capability is one widget type, one renderer, one sub-form, one registry entry, and one server-side validator — fully additive to the existing widget infrastructure (no schema migration, no new HTTP routes). Active-item highlighting tracks `window.location.pathname` so the menu mirrors the user's current page out of the box, and external URLs are opened in a new tab with `rel="noopener noreferrer"` to satisfy the standard tab-stealing mitigation.
 
 ## Data Model
 
-Menu placements use the existing `oc_mydash_widget_placements` `content` JSON column with the discriminated shape `{type: 'menu', content: {...}}`. No schema migration is required.
+Menu placements use the existing `oc_launchpad_widget_placements` `content` JSON column with the discriminated shape `{type: 'menu', content: {...}}`. No schema migration is required.
 
 The `content` object carries six fields:
 
@@ -413,7 +413,7 @@ Icon size MUST be 16-24 px (smaller than REQ-LBN-002's 48 px, to fit in a menu l
 
 #### Scenario: Custom URL icon in tree
 
-- GIVEN content `{style: 'tree', items: [{label: 'Custom', icon: '/apps/mydash/icons/custom.svg'}]}`
+- GIVEN content `{style: 'tree', items: [{label: 'Custom', icon: '/apps/launchpad/icons/custom.svg'}]}`
 - WHEN the widget renders
 - THEN the item MUST display the custom SVG icon to the left of "Custom"
 

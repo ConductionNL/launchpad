@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `ContainerWidget.vue` covering REQ-CONT-001
@@ -26,11 +26,11 @@ beforeEach(() => {
 })
 
 describe('ContainerWidget — REQ-CONT-002 inner grid surface', () => {
-	it('renders a `.grid-stack.mydash-container-grid` host div for the inner GridStack', () => {
+	it('renders a `.grid-stack.launchpad-container-grid` host div for the inner GridStack', () => {
 		const wrapper = mount(ContainerWidget, {
 			propsData: { content: { placements: [] } },
 		})
-		const inner = wrapper.find('.mydash-container-grid')
+		const inner = wrapper.find('.launchpad-container-grid')
 		expect(inner.exists()).toBe(true)
 		expect(inner.classes()).toContain('grid-stack')
 	})

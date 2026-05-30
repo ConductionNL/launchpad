@@ -6,7 +6,7 @@
  * Database mapper for conditional rule entities.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
@@ -41,7 +41,7 @@ class ConditionalRuleMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_conditional_rules',
+            tableName: 'launchpad_conditional_rules',
             entityClass: ConditionalRule::class
         );
     }//end __construct()
@@ -125,7 +125,7 @@ class ConditionalRuleMapper extends QBMapper
 
     /**
      * Count conditional-rule rows whose `widget_placement_id` no
-     * longer points at any row in `mydash_widget_placements`.
+     * longer points at any row in `launchpad_widget_placements`.
      *
      * Used by the orphaned-data-cleanup scan path (REQ-CLN-001).
      * Rules are normally cleared by the placement removal flow; a row
@@ -141,7 +141,7 @@ class ConditionalRuleMapper extends QBMapper
             ->from(from: $this->getTableName(), alias: 'r')
             ->leftJoin(
                 fromAlias: 'r',
-                join: 'mydash_widget_placements',
+                join: 'launchpad_widget_placements',
                 alias: 'p',
                 condition: 'p.id = r.widget_placement_id'
             )
@@ -156,7 +156,7 @@ class ConditionalRuleMapper extends QBMapper
 
     /**
      * Delete conditional-rule rows whose `widget_placement_id` no
-     * longer points at any row in `mydash_widget_placements`.
+     * longer points at any row in `launchpad_widget_placements`.
      *
      * Companion to {@see self::countOrphaned()} on the purge path
      * (REQ-CLN-002). Resolves the orphan IDs first via a SELECT and
@@ -171,7 +171,7 @@ class ConditionalRuleMapper extends QBMapper
             ->from(from: $this->getTableName(), alias: 'r')
             ->leftJoin(
                 fromAlias: 'r',
-                join: 'mydash_widget_placements',
+                join: 'launchpad_widget_placements',
                 alias: 'p',
                 condition: 'p.id = r.widget_placement_id'
             )

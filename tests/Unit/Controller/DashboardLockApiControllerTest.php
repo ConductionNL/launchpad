@@ -7,12 +7,12 @@
  * and M2 (conflict 409 must not expose userId).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -20,14 +20,14 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\DashboardLockApiController;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardLock;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Exception\LockConflictException;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\DashboardLockService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Controller\DashboardLockApiController;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardLock;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Exception\LockConflictException;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\DashboardLockService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;

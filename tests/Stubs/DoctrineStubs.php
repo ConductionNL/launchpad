@@ -17,7 +17,7 @@
  * Nextcloud Docker container the real Doctrine classes are already
  * loaded, so the `class_exists` guards turn this into a no-op.
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 

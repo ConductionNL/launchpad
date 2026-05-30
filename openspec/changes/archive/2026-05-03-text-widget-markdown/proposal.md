@@ -11,7 +11,7 @@ The text-display widget currently renders only HTML content. Users who need to a
 - Sanitise all output (both HTML and parsed-markdown) through the same allow-list so XSS vectors are blocked uniformly.
 - Add a UI toggle in the text-widget edit form: `Mode: [HTML | Markdown]`.
 - Existing widgets default to `html` mode (backward compat). New widgets default to `markdown` mode.
-- Introduce an admin setting `mydash.text_widget_default_mode` (string, `'html'` or `'markdown'`) to control the system-wide default for newly-added widgets.
+- Introduce an admin setting `launchpad.text_widget_default_mode` (string, `'html'` or `'markdown'`) to control the system-wide default for newly-added widgets.
 - Support heading shortcuts: `# H1`, `## H2`, ..., `###### H6`.
 - Support inline marks: `**bold**`, `*italic*`, `` `code` ``, `[link text](url)`, `> quote`, `- bullet`, `1. ordered`.
 - Table syntax in markdown MUST render to `<table>` (in-place table editing is out of scope — that is covered by a sibling `text-widget-tables` capability).
@@ -33,13 +33,13 @@ The text-display widget currently renders only HTML content. Users who need to a
 - `lib/Service/TextWidgetService.php` (if it exists, or inline widget rendering) — add markdown parsing logic when `contentMode = 'markdown'`
 - Text-widget Vue template — detect contentMode and route to markdown renderer when applicable
 - `src/components/TextWidgetForm.vue` — add contentMode toggle to edit form
-- `lib/AppConfig.php` or equivalent — add `mydash.text_widget_default_mode` admin setting with default `'markdown'`
+- `lib/AppConfig.php` or equivalent — add `launchpad.text_widget_default_mode` admin setting with default `'markdown'`
 - `src/components/widgets/TextWidget.vue` — extend to handle both HTML and Markdown rendering paths
 - `openspec/specs/text-display-widget/spec.md` (pending promotion to `openspec/specs/`) — will adopt REQ-TXMD-001..007 as a delta change once text-display-widget is promoted
 
 **Affected schemas:**
 
-- `oc_mydash_widget_placements.styleConfig` — add `content.contentMode: 'html' | 'markdown'` field (already a JSON blob, no migration required for schema structure; values are additive)
+- `oc_launchpad_widget_placements.styleConfig` — add `content.contentMode: 'html' | 'markdown'` field (already a JSON blob, no migration required for schema structure; values are additive)
 
 **Dependencies:**
 

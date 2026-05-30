@@ -3,7 +3,7 @@
 ## Shape
 
 One Postman 2.1 collection at
-`tests/integration/mydash.postman_collection.json`. Top-level folders:
+`tests/integration/launchpad.postman_collection.json`. Top-level folders:
 
 - `Health + Metrics`
 - `Dashboards`
@@ -51,7 +51,7 @@ fixtures easy to find with `newman-fixture-*` grep.
 
 ```bash
 npm install -g newman
-newman run tests/integration/mydash.postman_collection.json \
+newman run tests/integration/launchpad.postman_collection.json \
   --env-var base_url=http://nextcloud.local \
   --env-var admin_user=admin \
   --env-var admin_password=admin \

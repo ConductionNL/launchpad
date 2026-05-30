@@ -17,12 +17,12 @@
  *     and triggers `cloneToDashboard` exactly once.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -31,12 +31,12 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\ForbiddenException;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -105,7 +105,7 @@ class AdminTemplateServiceGalleryTest extends TestCase
         $template->setDescription('Original description');
         $template->setTemplateDescription('Long-form gallery description');
         $template->setTemplateCategory('marketing');
-        $template->setTemplatePreviewImage('/apps/mydash/resource/img.png');
+        $template->setTemplatePreviewImage('/apps/launchpad/resource/img.png');
         $template->setGridColumns(12);
         $template->setUpdatedAt('2026-05-01 09:00:00');
         // ID is set internally on insert; here we use reflection-free
@@ -137,7 +137,7 @@ class AdminTemplateServiceGalleryTest extends TestCase
         );
         $this->assertSame(expected: 'marketing', actual: $entry['category']);
         $this->assertSame(
-            expected: '/apps/mydash/resource/img.png',
+            expected: '/apps/launchpad/resource/img.png',
             actual: $entry['previewImage']
         );
         $this->assertSame(expected: 12, actual: $entry['gridColumns']);
@@ -299,7 +299,7 @@ class AdminTemplateServiceGalleryTest extends TestCase
                     actual: $entity->getTemplateDescription()
                 );
                 self::assertSame(
-                    expected: '/apps/mydash/resource/preview.png',
+                    expected: '/apps/launchpad/resource/preview.png',
                     actual: $entity->getTemplatePreviewImage()
                 );
 
@@ -321,7 +321,7 @@ class AdminTemplateServiceGalleryTest extends TestCase
                 'name'         => 'My Template',
                 'description'  => 'A new template',
                 'category'     => 'product',
-                'previewImage' => '/apps/mydash/resource/preview.png',
+                'previewImage' => '/apps/launchpad/resource/preview.png',
             ]
         );
 

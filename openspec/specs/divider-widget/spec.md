@@ -6,7 +6,7 @@ status: implemented
 
 ## Purpose
 
-The divider widget is a lightweight, configurable visual separator for MyDash dashboards. It enables dashboard creators to break up widget sections into logical groups using minimal UI — a horizontal line, whitespace spacer, or centered heading with dividing lines — all rendered client-side with full theme awareness and print support. This capability adds no backend endpoints or data storage; all configuration is stored in the placement's `widgetContent JSON` blob and rendered in-browser.
+The divider widget is a lightweight, configurable visual separator for LaunchPad dashboards. It enables dashboard creators to break up widget sections into logical groups using minimal UI — a horizontal line, whitespace spacer, or centered heading with dividing lines — all rendered client-side with full theme awareness and print support. This capability adds no backend endpoints or data storage; all configuration is stored in the placement's `widgetContent JSON` blob and rendered in-browser.
 
 ## Requirements
 
@@ -15,23 +15,23 @@ The divider widget is a lightweight, configurable visual separator for MyDash da
 The system MUST register a divider widget with the Nextcloud Dashboard Widget API so it appears in the widget picker alongside other dashboard widgets.
 
 #### Scenario: Widget appears in discovery
-- GIVEN the MyDash app is installed and enabled
+- GIVEN the LaunchPad app is installed and enabled
 - WHEN the user opens the "Add Widget" modal on a dashboard
-- THEN the divider widget MUST appear in the widget list with id `mydash_divider`
+- THEN the divider widget MUST appear in the widget list with id `launchpad_divider`
 - AND the widget MUST have a title (e.g., "Divider") and an icon
 - AND the widget MUST NOT fetch any data on discovery — it is fully client-side
 
 #### Scenario: Widget registration via IManager
 - GIVEN `OCP\Dashboard\IManager` is available in the Nextcloud container
-- WHEN the MyDash app boots (appinfo/app.php or service provider)
+- WHEN the LaunchPad app boots (appinfo/app.php or service provider)
 - THEN the app MUST register the divider widget by calling `$manager->registerWidget(new DividerWidgetProvider())`
 - AND the widget provider MUST return widget metadata: id, title, icon URL, and support flag (`supportsV2 = true` for consistency, though no items are loaded)
 
 #### Scenario: Widget appears alongside standard widgets
-- GIVEN the user's Nextcloud has weather_status, notes, and mydash_divider widgets installed
+- GIVEN the user's Nextcloud has weather_status, notes, and launchpad_divider widgets installed
 - WHEN the user opens the widget picker
 - THEN all three widgets MUST be listed and sortable by the user's selection order
-- AND mydash_divider MUST not be marked as requiring special permissions (it is available to all logged-in users)
+- AND launchpad_divider MUST not be marked as requiring special permissions (it is available to all logged-in users)
 
 ### Requirement: REQ-DIV-002 Configure Divider Style
 
@@ -238,6 +238,6 @@ The system MUST render dividers entirely client-side and MUST NOT require any ba
 
 #### Scenario: No migration or schema changes required
 - GIVEN the divider-widget capability is implemented
-- WHEN the MyDash app is upgraded
+- WHEN the LaunchPad app is upgraded
 - THEN no database migrations MUST be created
 - AND existing placements MUST continue to work without modification

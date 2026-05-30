@@ -6,45 +6,45 @@ status: draft
 
 ## Purpose
 
-The Setup Wizard is a multi-step first-run configuration flow for freshly installed MyDash instances. It guides administrators through selecting a storage backend, setting group priority order, installing optional demo data, assigning admin roles, and configuring footer content. The wizard detects first-run state via an admin-setting flag, supports both interactive and non-interactive (CLI) flows, and ensures all choices are persisted immediately so progress is not lost.
+The Setup Wizard is a multi-step first-run configuration flow for freshly installed LaunchPad instances. It guides administrators through selecting a storage backend, setting group priority order, installing optional demo data, assigning admin roles, and configuring footer content. The wizard detects first-run state via an admin-setting flag, supports both interactive and non-interactive (CLI) flows, and ensures all choices are persisted immediately so progress is not lost.
 
 ## Data Model
 
 The setup wizard does not define a new persistent table; it tracks state via existing admin settings and a single new boolean flag:
 
-- **mydash.setup_wizard_complete**: Boolean (default `false`). Set to `true` when the wizard completes via "Finish" button or CLI command.
+- **launchpad.setup_wizard_complete**: Boolean (default `false`). Set to `true` when the wizard completes via "Finish" button or CLI command.
 
 Wizard progress (per-step completion status) is derived heuristically from the state of underlying settings:
 - Step 1 (Welcome): always "done" (no choice to persist)
-- Step 2 (Storage): "done" if `mydash.content_storage` is set; "pending" otherwise
-- Step 3 (Group order): "done" if `mydash.group_priority_order` is set; "pending" otherwise
+- Step 2 (Storage): "done" if `launchpad.content_storage` is set; "pending" otherwise
+- Step 3 (Group order): "done" if `launchpad.group_priority_order` is set; "pending" otherwise
 - Step 4 (Demo data): "done" if at least one demo package has been installed; "pending" otherwise
 - Step 5 (Admin roles): "skipped" if not visited; "done" if a "Dashboard Admin" role assignment exists
-- Step 6 (Footer): "skipped" if not visited; "done" if `mydash.footer_config` is set
+- Step 6 (Footer): "skipped" if not visited; "done" if `launchpad.footer_config` is set
 - Step 7 (Done): "pending" until wizard completes
 
 ## ADDED Requirements
 
 ### Requirement: REQ-WIZ-001 Detect First-Run State via Admin Setting Flag
 
-The system MUST detect whether a MyDash instance is being initialized for the first time by consulting the `mydash.setup_wizard_complete` boolean flag. When the flag is `false`, the admin section MUST display a banner prompting the admin to run the wizard.
+The system MUST detect whether a LaunchPad instance is being initialized for the first time by consulting the `launchpad.setup_wizard_complete` boolean flag. When the flag is `false`, the admin section MUST display a banner prompting the admin to run the wizard.
 
-> NOTE: This is a net-new MyDash capability with no counterpart in the source app. The source ships CLI-only setup via `the source app:setup`; no frontend first-run detection, wizard route, or onboarding component exists in the source. MyDash adds this flag and banner on top of the same underlying service primitives.
+> NOTE: This is a net-new LaunchPad capability with no counterpart in the source app. The source ships CLI-only setup via `the source app:setup`; no frontend first-run detection, wizard route, or onboarding component exists in the source. LaunchPad adds this flag and banner on top of the same underlying service primitives.
 
 #### Scenario: Fresh instance shows banner
-- GIVEN a freshly installed MyDash with `mydash.setup_wizard_complete = false`
-- WHEN an NC admin opens `/apps/mydash/admin/dashboards`
+- GIVEN a freshly installed LaunchPad with `launchpad.setup_wizard_complete = false`
+- WHEN an NC admin opens `/apps/launchpad/admin/dashboards`
 - THEN the page MUST display a prominent banner: "Run setup wizard" with a button linking to the wizard flow
 - AND the banner MUST remain visible until the admin clicks "Finish" in the wizard
 
 #### Scenario: Completed instance hides banner
-- GIVEN a MyDash instance with `mydash.setup_wizard_complete = true`
-- WHEN an NC admin opens `/apps/mydash/admin/dashboards`
+- GIVEN a LaunchPad instance with `launchpad.setup_wizard_complete = true`
+- WHEN an NC admin opens `/apps/launchpad/admin/dashboards`
 - THEN the banner MUST NOT be displayed
 - AND the admin section loads normally
 
 #### Scenario: Banner includes descriptive text
-- GIVEN a fresh MyDash instance showing the setup banner
+- GIVEN a fresh LaunchPad instance showing the setup banner
 - WHEN the admin views the banner
 - THEN the banner MUST include text explaining: "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles."
 - NOTE: Banner style and wording are implementation-specific; requirement mandates presence and visibility only
@@ -56,8 +56,8 @@ The system MUST detect whether a MyDash instance is being initialized for the fi
 
 #### Scenario: Admin can dismiss and re-access banner
 - GIVEN an admin who dismissed the banner or navigated away
-- WHEN the admin returns to `/apps/mydash/admin/dashboards`
-- THEN if `mydash.setup_wizard_complete = false`, the banner MUST reappear
+- WHEN the admin returns to `/apps/launchpad/admin/dashboards`
+- THEN if `launchpad.setup_wizard_complete = false`, the banner MUST reappear
 
 ### Requirement: REQ-WIZ-002 Multi-Step Wizard Flow with 7 Steps
 
@@ -94,7 +94,7 @@ The wizard MUST guide the admin through a linear, skippable sequence of 7 steps,
 #### Scenario: Step 1 has no form; only explanatory text
 - GIVEN Step 1 (Welcome) is displayed
 - WHEN the admin views the step
-- THEN the step MUST show text explaining the wizard's purpose: "Configure your MyDash instance with storage, group ordering, demo data, admin roles, and footer settings."
+- THEN the step MUST show text explaining the wizard's purpose: "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings."
 - AND there are no form fields to fill
 - AND clicking "Next" advances without persisting any choice
 
@@ -108,7 +108,7 @@ The wizard MUST guide the admin through a linear, skippable sequence of 7 steps,
 #### Scenario: Finish button completes wizard
 - GIVEN the admin is on Step 7 with the "Finish" button visible
 - WHEN the admin clicks "Finish"
-- THEN the system MUST set `mydash.setup_wizard_complete = true`
+- THEN the system MUST set `launchpad.setup_wizard_complete = true`
 - AND the wizard modal MUST close
 - AND the admin section MUST reload, banner gone
 
@@ -125,7 +125,7 @@ Step 2 MUST present two radio options: "Database (default)" and "GroupFolder (re
 - GIVEN Step 2 is displayed
 - WHEN the admin views the step
 - THEN two radio buttons MUST be visible:
-  - "Database (default)" — with description "Store dashboard content in MyDash database table"
+  - "Database (default)" — with description "Store dashboard content in LaunchPad database table"
   - "GroupFolder (recommended for org use)" — with description "Store dashboard content in Nextcloud GroupFolders for collaborative access"
 - AND exactly one option MUST be pre-selected (default to "Database")
 
@@ -145,7 +145,7 @@ Step 2 MUST present two radio options: "Database (default)" and "GroupFolder (re
 #### Scenario: Storage choice persists immediately
 - GIVEN Step 2 is displayed with "Database" selected
 - WHEN the admin selects "GroupFolder" and clicks Next
-- THEN the system MUST immediately write `mydash.content_storage = "groupfolder"` to admin settings
+- THEN the system MUST immediately write `launchpad.content_storage = "groupfolder"` to admin settings
 - AND if the admin navigates away (Back, Browser close, etc.), the choice MUST be persisted (not lost)
 
 #### Scenario: Default is Database
@@ -167,7 +167,7 @@ Step 3 MUST embed the existing `group-priority-order` admin UI component, allowi
 #### Scenario: Group order choice persists immediately
 - GIVEN the admin reorders groups in Step 3 (e.g., "engineering" moved above "sales")
 - WHEN the admin clicks Next
-- THEN the system MUST immediately persist the new order to `mydash.group_priority_order`
+- THEN the system MUST immediately persist the new order to `launchpad.group_priority_order`
 - AND navigating away does not lose the change
 
 #### Scenario: Step 3 allows drag-and-drop reordering (existing UI behavior)
@@ -215,14 +215,14 @@ Step 5 MUST allow the admin to optionally assign the "Dashboard Admin" role to o
 - AND Step 5 is displayed
 - WHEN the admin views the step
 - THEN a dropdown or multi-select MUST display all Nextcloud groups
-- AND a description MUST explain: "Assign 'Dashboard Admin' role to a group to delegate MyDash administration to group members."
+- AND a description MUST explain: "Assign 'Dashboard Admin' role to a group to delegate LaunchPad administration to group members."
 
 #### Scenario: Admin can select one group for Dashboard Admin role
 - GIVEN Step 5 is displayed with groups ["engineering", "sales", "marketing"]
 - WHEN the admin selects "engineering"
 - AND clicks "Next"
 - THEN the system MUST call `RoleService::assignRole(groupId="engineering", role="admin", assignedBy=<current-admin>)`
-- AND the role assignment MUST be created in `oc_mydash_role_assignments`
+- AND the role assignment MUST be created in `oc_launchpad_role_assignments`
 
 #### Scenario: Step 5 is skippable
 - GIVEN Step 5 is displayed
@@ -264,7 +264,7 @@ Step 6 MUST allow the admin to optionally open and configure the footer using th
 #### Scenario: Footer edits persist immediately
 - GIVEN the admin edits footer content in Step 6
 - WHEN the admin clicks "Next"
-- THEN the footer configuration MUST be saved to `mydash.footer_config` or equivalent setting
+- THEN the footer configuration MUST be saved to `launchpad.footer_config` or equivalent setting
 - AND navigating away does not lose the changes
 
 #### Scenario: Step 6 is skippable
@@ -288,7 +288,7 @@ The system MUST expose a `GET /api/admin/setup-wizard/state` endpoint that retur
 > NOTE: Auto-launch behaviour (opening the wizard automatically when `setup_wizard_complete = false`) is intentionally SHOULD/MAY, not MUST. CLI-provisioned installs may set settings incrementally mid-`occ` run, meaning an admin who views the page before the CLI command finishes would see `complete = false` with settings partially applied. The banner-link fallback is always available and is the reliable path; auto-launch is a UX convenience for fresh browser sessions only.
 
 #### Scenario: Endpoint returns complete state on fresh instance
-- GIVEN a fresh MyDash instance with `mydash.setup_wizard_complete = false`
+- GIVEN a fresh LaunchPad instance with `launchpad.setup_wizard_complete = false`
 - WHEN an NC admin calls `GET /api/admin/setup-wizard/state`
 - THEN the response MUST be HTTP 200 with JSON:
   ```json
@@ -309,13 +309,13 @@ The system MUST expose a `GET /api/admin/setup-wizard/state` endpoint that retur
 - NOTE: Step 1 is always "done" (no choice required). Steps 2–7 start "pending".
 
 #### Scenario: Endpoint returns recommended step for re-runs
-- GIVEN a MyDash instance with storage backend set but group order not yet set
+- GIVEN a LaunchPad instance with storage backend set but group order not yet set
 - WHEN an NC admin calls `GET /api/admin/setup-wizard/state`
 - THEN the response MUST include `currentRecommendedStep: 3`
 - NOTE: The heuristic picks the first step with status != "done"
 
 #### Scenario: Endpoint returns complete=true when wizard finished
-- GIVEN a MyDash instance with `mydash.setup_wizard_complete = true`
+- GIVEN a LaunchPad instance with `launchpad.setup_wizard_complete = true`
 - WHEN an NC admin calls `GET /api/admin/setup-wizard/state`
 - THEN the response MUST include `complete: true`
 - AND `currentRecommendedStep` MAY be 1 (optional) or reflect the last visited step (implementation choice)
@@ -333,16 +333,16 @@ The system MUST expose a `GET /api/admin/setup-wizard/state` endpoint that retur
 
 ### Requirement: REQ-WIZ-009 Mark Wizard Complete via API Endpoint
 
-The system MUST expose a `POST /api/admin/setup-wizard/complete` endpoint that idempotently sets `mydash.setup_wizard_complete = true` and returns the current wizard state.
+The system MUST expose a `POST /api/admin/setup-wizard/complete` endpoint that idempotently sets `launchpad.setup_wizard_complete = true` and returns the current wizard state.
 
 #### Scenario: Endpoint sets complete flag
-- GIVEN a MyDash instance with `mydash.setup_wizard_complete = false`
+- GIVEN a LaunchPad instance with `launchpad.setup_wizard_complete = false`
 - WHEN an NC admin calls `POST /api/admin/setup-wizard/complete`
-- THEN the system MUST set `mydash.setup_wizard_complete = true`
+- THEN the system MUST set `launchpad.setup_wizard_complete = true`
 - AND the response MUST be HTTP 200 with the current wizard state (same structure as GET endpoint)
 
 #### Scenario: Endpoint is idempotent
-- GIVEN a MyDash instance with `mydash.setup_wizard_complete = true`
+- GIVEN a LaunchPad instance with `launchpad.setup_wizard_complete = true`
 - WHEN an NC admin calls `POST /api/admin/setup-wizard/complete` again
 - THEN the system MUST return HTTP 200
 - AND `complete` in the response MUST be true
@@ -362,7 +362,7 @@ The system MUST expose a `POST /api/admin/setup-wizard/complete` endpoint that i
 
 ### Requirement: REQ-WIZ-010 CLI Command for Non-Interactive Setup (IaC-Friendly)
 
-The system MUST expose a CLI command `php occ mydash:setup` that accepts a `--config=/path/setup.yaml` argument to perform wizard setup non-interactively, ideal for Infrastructure-as-Code deployments.
+The system MUST expose a CLI command `php occ launchpad:setup` that accepts a `--config=/path/setup.yaml` argument to perform wizard setup non-interactively, ideal for Infrastructure-as-Code deployments.
 
 > NOTE: The YAML config schema (fields: `storage_backend`, `group_priority_order`, `demo_packages`, `admin_role_group`, `footer_config`) is formally defined in the `cli-commands` sibling spec. Optional steps (admin roles, footer) may be omitted from the config file entirely; omitting them is equivalent to skipping those steps in the wizard and does not cause an error.
 
@@ -377,18 +377,18 @@ The system MUST expose a CLI command `php occ mydash:setup` that accepts a `--co
     layout: "structured"
     items: [...]
   ```
-- WHEN an admin runs `php occ mydash:setup --config=/tmp/setup.yaml`
+- WHEN an admin runs `php occ launchpad:setup --config=/tmp/setup.yaml`
 - THEN the system MUST:
-  - Set `mydash.content_storage = "groupfolder"` (Step 2)
-  - Set `mydash.group_priority_order = ["engineering", "sales"]` (Step 3)
+  - Set `launchpad.content_storage = "groupfolder"` (Step 2)
+  - Set `launchpad.group_priority_order = ["engineering", "sales"]` (Step 3)
   - Install "engineering-demo" and "sales-demo" (Step 4)
   - Assign "Dashboard Admin" role to "engineering" (Step 5)
-  - Set `mydash.footer_config` with provided config (Step 6)
-  - Set `mydash.setup_wizard_complete = true` (Step 7)
+  - Set `launchpad.footer_config` with provided config (Step 6)
+  - Set `launchpad.setup_wizard_complete = true` (Step 7)
 
 #### Scenario: CLI command validates YAML schema
 - GIVEN a malformed YAML file (e.g., missing required fields)
-- WHEN `php occ mydash:setup --config=/tmp/setup.yaml` is run
+- WHEN `php occ launchpad:setup --config=/tmp/setup.yaml` is run
 - THEN the system MUST output an error: "Invalid setup.yaml: missing field 'storage_backend'"
 - AND the command MUST exit with non-zero status
 - AND no settings are applied
@@ -415,20 +415,20 @@ The system MUST expose a CLI command `php occ mydash:setup` that accepts a `--co
 
 ### Requirement: REQ-WIZ-011 Wizard is Re-Runnable
 
-The wizard MUST be re-runnable even after `mydash.setup_wizard_complete = true`. Re-running MUST NOT undo earlier choices; it MUST re-walk the steps showing current state and allowing updates.
+The wizard MUST be re-runnable even after `launchpad.setup_wizard_complete = true`. Re-running MUST NOT undo earlier choices; it MUST re-walk the steps showing current state and allowing updates.
 
 #### Scenario: Admin can run wizard again after completion
-- GIVEN a MyDash instance with `mydash.setup_wizard_complete = true`
-- WHEN an NC admin navigates to `/apps/mydash/admin` and clicks "Run setup wizard again" (or uses a Re-run button in a separate admin UI section)
+- GIVEN a LaunchPad instance with `launchpad.setup_wizard_complete = true`
+- WHEN an NC admin navigates to `/apps/launchpad/admin` and clicks "Run setup wizard again" (or uses a Re-run button in a separate admin UI section)
 - THEN the wizard modal MUST open
 - AND all step values MUST reflect current settings (storage backend, group order, etc.)
 - AND the admin can make changes
 
 #### Scenario: Re-running from Step 2 updates storage backend
-- GIVEN the instance has `mydash.content_storage = "database"`
+- GIVEN the instance has `launchpad.content_storage = "database"`
 - AND the admin re-runs the wizard and navigates to Step 2
 - WHEN the admin selects "GroupFolder" and clicks Next
-- THEN the system MUST update `mydash.content_storage = "groupfolder"`
+- THEN the system MUST update `launchpad.content_storage = "groupfolder"`
 - AND the previous choice "database" is overwritten (not appended or merged)
 
 #### Scenario: Re-running does not re-install demo packages
@@ -451,7 +451,7 @@ The wizard MUST be re-runnable even after `mydash.setup_wizard_complete = true`.
 - THEN no new action is required; clicking Next immediately advances
 
 #### Scenario: API endpoint reports re-runnable state
-- GIVEN the instance has `mydash.setup_wizard_complete = true`
+- GIVEN the instance has `launchpad.setup_wizard_complete = true`
 - WHEN an NC admin calls `GET /api/admin/setup-wizard/state`
 - THEN the response MUST indicate `complete: true`
 - AND the admin UI MUST show a "Run setup wizard again" button (not a "Run setup wizard" banner)

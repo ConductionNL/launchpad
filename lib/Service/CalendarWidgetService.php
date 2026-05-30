@@ -3,7 +3,7 @@
 /**
  * CalendarWidgetService
  *
- * Aggregates events for the MyDash calendar widget from internal Nextcloud
+ * Aggregates events for the LaunchPad calendar widget from internal Nextcloud
  * Calendar sources (via OCP\Calendar\IManager when available) and external
  * ICS feeds. Recurring events are expanded server-side using sabre/vobject's
  * VCalendar::expand() (bundled with Nextcloud — not vendored separately).
@@ -20,24 +20,24 @@
  * is dropped from the response, but other sources continue to render.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -48,7 +48,7 @@ use RuntimeException;
 use Throwable;
 
 /**
- * Aggregates and normalises calendar events for the MyDash calendar widget.
+ * Aggregates and normalises calendar events for the LaunchPad calendar widget.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Calendar + HTTP + cache +
  *                                                 config + logging are all
@@ -102,7 +102,7 @@ class CalendarWidgetService
      *
      * @var string
      */
-    private const CACHE_NAMESPACE = 'mydash-calendar-ics';
+    private const CACHE_NAMESPACE = 'launchpad-calendar-ics';
 
     /**
      * The distributed ICache instance used to cache raw ICS bodies.
@@ -434,7 +434,7 @@ class CalendarWidgetService
         }
 
         $ttl = $this->appConfig->getValueInt(
-            app: 'mydash',
+            app: 'launchpad',
             key: self::CONFIG_KEY_CACHE_TTL,
             default: self::DEFAULT_CACHE_TTL_SECONDS
         );

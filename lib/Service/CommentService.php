@@ -4,35 +4,35 @@
  * CommentService
  *
  * Business-logic layer for the dashboard-comments capability. Wraps the
- * Nextcloud `ICommentsManager` infrastructure with the MyDash-specific
- * rules: object-type binding (`mydash_dashboard`), one-level-deep
+ * Nextcloud `ICommentsManager` infrastructure with the LaunchPad-specific
+ * rules: object-type binding (`launchpad_dashboard`), one-level-deep
  * threading, author-or-admin mutation guard, soft-delete cascade,
  * mention parsing, and toggle precedence (REQ-CMNT-001..009).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Exception\CommentForbiddenException;
-use OCA\MyDash\Exception\CommentNotFoundException;
-use OCA\MyDash\Exception\InvalidCommentException;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\CommentForbiddenException;
+use OCA\LaunchPad\Exception\CommentNotFoundException;
+use OCA\LaunchPad\Exception\InvalidCommentException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
@@ -65,12 +65,12 @@ use OCP\Notification\IManager as INotificationManager;
 class CommentService
 {
     /**
-     * Object type string used to scope comments to MyDash dashboards
+     * Object type string used to scope comments to LaunchPad dashboards
      * (REQ-CMNT-001 / D2 in design.md).
      *
      * @var string
      */
-    public const OBJECT_TYPE = 'mydash_dashboard';
+    public const OBJECT_TYPE = 'launchpad_dashboard';
 
     /**
      * Notification subject for the @mention event (REQ-CMNT-006).
@@ -119,7 +119,7 @@ class CommentService
     }//end __construct()
 
     /**
-     * Read the global `mydash.comments_enabled_default` setting
+     * Read the global `launchpad.comments_enabled_default` setting
      * (REQ-CMNT-008).
      *
      * Defaults to `true` when the setting is missing — fresh installs
@@ -702,7 +702,7 @@ class CommentService
             )
             ->setLink(
                 link: $this->urlGenerator->linkToRouteAbsolute(
-                    routeName: 'mydash.page.index'
+                    routeName: 'launchpad.page.index'
                 ).'?dashboard='.urlencode(string: $dashboardUuid)
             );
 

@@ -1,13 +1,13 @@
 # Tasks — role-based-content
 
-> **Stage 1-3 complete on build/role-based-content (PR #95).** Native mydash
+> **Stage 1-3 complete on build/role-based-content (PR #95).** Native launchpad
 > persistence used in place of OpenRegister-based design (see PR description).
 > Remaining unchecked tasks below cover deferred Stage 4 + follow-up work.
 
 ## Completed in Stage 1-3 (PR #95)
 
-- [x] 1.1 Add `RoleFeaturePermission` schema to `lib/Settings/mydash_register.json` (REQ-RFP per design)
-- [x] 1.2 Add `RoleLayoutDefault` schema to `lib/Settings/mydash_register.json`
+- [x] 1.1 Add `RoleFeaturePermission` schema to `lib/Settings/launchpad_register.json` (REQ-RFP per design)
+- [x] 1.2 Add `RoleLayoutDefault` schema to `lib/Settings/launchpad_register.json`
 - [x] 2.1 Create `lib/Service/RoleFeaturePermissionService.php` with `getAllowedWidgetIds`, `isWidgetAllowed`, `seedLayoutFromRoleDefaults`, `authorizeAdminObject` (stateless, DI-only per ADR-003)
 - [x] 2.2 Multi-group resolution algorithm (REQ-RFP-005/006) — first-match base + union additional matches + deny-wins
 - [x] 2.3 Fallback chain to `'default'` group then null (REQ-RFP-009)
@@ -33,7 +33,7 @@
 ## Tasks (Stage 4 / follow-up)
 
 - [ ] Task 1: Dedup audit — search `openspec/specs/` for prior widget-level role filtering capability (vs `permissions` and `admin-templates`); grep `openregister/lib/Service/` + `lib/Service/` for `getAllowedWidgetIds`/`widgetPermission`/`roleFilter`; verify `@conduction/nextcloud-vue` does not already expose a role-filtered picker; record findings (even "no overlap") in a comment block at the top of `RoleFeaturePermissionService.php`
-- [ ] Task 2: Seed data — add the 5 RoleFeaturePermission seed objects + 5 RoleLayoutDefault seed objects from design.md to `lib/Settings/mydash_register.json` under `components.objects[]` using the `@self` envelope; verify idempotency (re-running `ConfigurationService::importFromApp()` with `force:false` MUST NOT duplicate)
+- [ ] Task 2: Seed data — add the 5 RoleFeaturePermission seed objects + 5 RoleLayoutDefault seed objects from design.md to `lib/Settings/launchpad_register.json` under `components.objects[]` using the `@self` envelope; verify idempotency (re-running `ConfigurationService::importFromApp()` with `force:false` MUST NOT duplicate)
 - [ ] Task 3: `WidgetController` getItems / per-widget content endpoints call `isWidgetAllowed($userId, $widgetId)` before delegating; return HTTP 403 `{"message":"Not authorized"}` AND write an audit-trail entry on denial (REQ-RFP-001 s.3 + REQ-RFP-006 s.2)
 - [ ] Task 4: Audit-trail entry format — `AuditTrailService` (OpenRegister), `$user->getUID()` (NOT display name per ADR-005), `widgetId`, ISO timestamp, reason string `"role_permission_denied"` or `"interest_without_role"`
 - [ ] Task 5: Frontend hardening — every `await store.action()` wrapped in `try/catch` with user-facing error feedback per ADR-004 (covers card-library + admin UI store calls)

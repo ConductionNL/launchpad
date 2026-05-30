@@ -2,7 +2,7 @@
 
 ## Why
 
-MyDash administrators need efficient tools for large-scale dashboard management: cleaning up obsolete dashboards, reorganizing dashboard hierarchies, updating publication status across templates, and maintaining search indices. Today, these operations require either single-dashboard API calls (tedious for hundreds of items) or direct database manipulation (risky). A dedicated bulk operations API with atomic-per-dashboard semantics, dry-run support, and comprehensive audit trails enables safe, traceable large-scale administration.
+LaunchPad administrators need efficient tools for large-scale dashboard management: cleaning up obsolete dashboards, reorganizing dashboard hierarchies, updating publication status across templates, and maintaining search indices. Today, these operations require either single-dashboard API calls (tedious for hundreds of items) or direct database manipulation (risky). A dedicated bulk operations API with atomic-per-dashboard semantics, dry-run support, and comprehensive audit trails enables safe, traceable large-scale administration.
 
 ## What Changes
 
@@ -11,7 +11,7 @@ MyDash administrators need efficient tools for large-scale dashboard management:
 - Add `POST /api/admin/dashboards/bulk-status` — update publication status (draft/published/scheduled) across multiple dashboards; depends on `dashboard-draft-published` capability; supports future publish dates.
 - Add `POST /api/admin/dashboards/bulk-reindex` — re-index multiple dashboards for unified search; depends on `nc-unified-search-integration` capability.
 - All endpoints accept `?dryRun=true` query param — returns predicted results without mutations.
-- Request limit: max 500 dashboardUuids per request; returns HTTP 400 if exceeded (configurable via `mydash.bulk_operation_max_per_request`).
+- Request limit: max 500 dashboardUuids per request; returns HTTP 400 if exceeded (configurable via `launchpad.bulk_operation_max_per_request`).
 - Idempotency: bulk-delete on already-deleted dashboard = no-op (counted as skipped, listed in errors); bulk-move where parent IS current parent = no-op; bulk-status where status IS current status = no-op.
 - Atomicity: each dashboard's DB write is transactional; batch is NOT atomic (partial success is reported, not rolled back).
 - Audit: single Nextcloud Activity event per bulk operation with operation type, dashboard count, user ID, and duration; per-dashboard activity NOT emitted (avoid spam).
@@ -46,7 +46,7 @@ MyDash administrators need efficient tools for large-scale dashboard management:
 
 **Dependencies:**
 
-- `OCP\IConfig` — for reading `mydash.bulk_operation_max_per_request` (default 500).
+- `OCP\IConfig` — for reading `launchpad.bulk_operation_max_per_request` (default 500).
 - `OCP\Activity\IManager` — for emitting bulk operation activity events.
 - Existing `DashboardMapper`, `PermissionService`, `ActivityService` — no new services.
 - Delegation to `dashboard-tree` capability for cycle checking (via `DashboardTreeService`).
@@ -55,7 +55,7 @@ MyDash administrators need efficient tools for large-scale dashboard management:
 
 **Migration:**
 
-- No new tables or schema changes. All bulk operations work with existing `oc_mydash_dashboards` table and related indices.
+- No new tables or schema changes. All bulk operations work with existing `oc_launchpad_dashboards` table and related indices.
 
 **Security:**
 

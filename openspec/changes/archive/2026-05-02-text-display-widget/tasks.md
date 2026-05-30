@@ -13,7 +13,7 @@
 - [x] 2.3 Emit `<div v-html="sanitizedHtml">` only when `text.trim() !== ''`; otherwise render the placeholder span
 - [x] 2.4 Apply inline style with theme-variable fallbacks per REQ-TXT-002 (`fontSize=14px`, `color=var(--color-main-text)`, `backgroundColor=transparent`, `textAlign=left`)
 - [x] 2.5 Wrap in a flex container that fills 100% width / 100% height with `padding: 16px` and `overflow: auto` per REQ-TXT-005
-- [x] 2.6 Empty-content placeholder uses `t('mydash', 'No text content')`, italic, in `var(--color-text-maxcontrast)`
+- [x] 2.6 Empty-content placeholder uses `t('launchpad', 'No text content')`, italic, in `var(--color-text-maxcontrast)`
 
 ## 3. Sub-form component
 
@@ -21,12 +21,12 @@
 - [x] 3.2 Implement props/emit contract matching the existing AddWidgetModal sub-form pattern (props: `editingWidget`; emit: `update:content` on every input)
 - [x] 3.3 Render textarea (4 rows), text input for fontSize, two `<input type="color">`, and `<select>` for textAlign
 - [x] 3.4 Pre-fill all five fields from `editingWidget.content` on `mounted()`
-- [x] 3.5 Expose `validate()` that returns `[t('mydash', 'Text is required')]` when `text.trim() === ''`, otherwise `[]`
-- [x] 3.6 All labels use translation: `t('mydash', 'Text')`, `t('mydash', 'Font Size')`, `t('mydash', 'Text Color')`, `t('mydash', 'Background Color')`, `t('mydash', 'Alignment')`
+- [x] 3.5 Expose `validate()` that returns `[t('launchpad', 'Text is required')]` when `text.trim() === ''`, otherwise `[]`
+- [x] 3.6 All labels use translation: `t('launchpad', 'Text')`, `t('launchpad', 'Font Size')`, `t('launchpad', 'Text Color')`, `t('launchpad', 'Background Color')`, `t('launchpad', 'Alignment')`
 
 ## 4. Widget registry
 
-- [x] 4.1 Add `text` entry to `src/constants/widgetRegistry.js` with `component: TextDisplayWidget`, `form: TextDisplayForm`, `label: t('mydash', 'Text')`
+- [x] 4.1 Add `text` entry to `src/constants/widgetRegistry.js` with `component: TextDisplayWidget`, `form: TextDisplayForm`, `label: t('launchpad', 'Text')`
 - [x] 4.2 Provide defaults `{text: '', fontSize: '14px', color: '', backgroundColor: '', textAlign: 'left'}`
 - [x] 4.3 Confirm registry entry is consumed by AddWidgetModal's type-picker so `text` appears as a selectable widget type
 
@@ -41,7 +41,7 @@
 - [x] 6.1 `TextDisplayWidget.spec.js` — DOMPurify strips `<script>`, `on*` attributes, and `javascript:` URLs while preserving `<b>`, `<i>`, `<a href>`, `<br>`, `<p>`, `<ul>`, `<li>`
 - [x] 6.2 `TextDisplayWidget.spec.js` — empty and whitespace-only `text` shows the localised placeholder
 - [x] 6.3 `TextDisplayWidget.spec.js` — inline style applies provided values verbatim and falls back to theme variables when fields empty
-- [x] 6.4 `TextDisplayForm.spec.js` — `validate()` returns `[t('mydash', 'Text is required')]` on empty text, `[]` when populated
+- [x] 6.4 `TextDisplayForm.spec.js` — `validate()` returns `[t('launchpad', 'Text is required')]` on empty text, `[]` when populated
 - [x] 6.5 `TextDisplayForm.spec.js` — pre-fills all five fields from `editingWidget.content` on mount
 - [x] 6.6 `TextDisplayForm.spec.js` — emits `update:content` reactively on each input
 

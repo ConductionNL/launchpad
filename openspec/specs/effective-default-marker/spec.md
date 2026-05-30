@@ -9,7 +9,7 @@ status: implemented
 
 The dashboard switcher sidebar marks the user's *effective default
 dashboard* — the dashboard the resolver lands them on when they
-visit `/apps/mydash/` cold — with a small ★ icon and a tooltip.
+visit `/apps/launchpad/` cold — with a small ★ icon and a tooltip.
 
 Without the marker, the only feedback after clicking "Set as
 default" in a row's cog menu was the StarCheck icon inside the menu
@@ -70,7 +70,7 @@ The pin always wins over group fallbacks.
 
 The marker span MUST carry a `title` attribute with the localised
 copy *"Default dashboard — opens automatically when you visit
-MyDash"* and an `aria-label` with the shorter *"Default dashboard"*
+LaunchPad"* and an `aria-label` with the shorter *"Default dashboard"*
 so screen readers announce the marker.
 
 ### Requirement: REQ-EDM-004 Reactive on pin change

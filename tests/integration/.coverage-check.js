@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
-const collection = require(path.join(repoRoot, 'tests/integration/mydash.postman_collection.json'));
+const collection = require(path.join(repoRoot, 'tests/integration/launchpad.postman_collection.json'));
 
 function walk(items, out) {
 	for (const it of items) {
@@ -14,7 +14,7 @@ function walk(items, out) {
 			// Strip leading {{baseUrl}} or http(s)://host placeholder
 			u = u.replace(/^\{\{[A-Za-z0-9_]+\}\}/, '');
 			u = u.replace(/^https?:\/\/[^/]+/, '');
-			u = u.replace(/^\/index\.php\/apps\/mydash/, '');
+			u = u.replace(/^\/index\.php\/apps\/launchpad/, '');
 			u = u.replace(/[?#].*$/, '');
 			// Replace remaining {{var}} placeholders with a generic value so route patterns can match.
 			u = u.replace(/\{\{[A-Za-z0-9_]+\}\}/g, '__VAR__');

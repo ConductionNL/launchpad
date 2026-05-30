@@ -10,12 +10,12 @@ status: draft
 
 ### Requirement: REQ-DASH-038 Translation Schema
 
-The system MUST store per-language content variants for a dashboard in a dedicated `oc_mydash_dashboard_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.
+The system MUST store per-language content variants for a dashboard in a dedicated `oc_launchpad_dashboard_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.
 
 #### Scenario: Translation table structure
 
 - GIVEN the schema migration is applied
-- THEN the `oc_mydash_dashboard_translations` table MUST exist with columns: `id` (auto-increment primary key), `dashboardUuid VARCHAR(36)`, `languageCode VARCHAR(16)`, `name VARCHAR(255)`, `description LONGTEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt DATETIME`, `updatedAt DATETIME`
+- THEN the `oc_launchpad_dashboard_translations` table MUST exist with columns: `id` (auto-increment primary key), `dashboardUuid VARCHAR(36)`, `languageCode VARCHAR(16)`, `name VARCHAR(255)`, `description LONGTEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt DATETIME`, `updatedAt DATETIME`
 - AND a composite unique constraint MUST exist on `(dashboardUuid, languageCode)` to prevent duplicate language variants per dashboard
 
 #### Scenario: Primary variant enforcement
@@ -26,15 +26,15 @@ The system MUST store per-language content variants for a dashboard in a dedicat
 
 #### Scenario: Backwards-compatible backfill
 
-- GIVEN an existing dashboard with widget tree data in `oc_mydash_dashboards`
+- GIVEN an existing dashboard with widget tree data in `oc_launchpad_dashboards`
 - WHEN the schema migration runs
 - THEN the system MUST auto-create a primary translation row with the dashboard's existing `widgetTreeJson`, `name`, `description`, and `languageCode` set to the dashboard owner's Nextcloud locale (`\OCP\IConfig::getUserValue($userId, 'core', 'lang')`, fallback to 'en' if not set)
-- AND the existing widget tree MUST remain in `oc_mydash_dashboards` during the transition period (marked for future deprecation)
+- AND the existing widget tree MUST remain in `oc_launchpad_dashboards` during the transition period (marked for future deprecation)
 
 #### Scenario: Variant isolation from dashboard record
 
 - GIVEN a dashboard and its translation records
-- THEN updates to the dashboard's `name`, `description`, or `widgetTreeJson` fields in `oc_mydash_dashboards` MUST NOT affect the translation records
+- THEN updates to the dashboard's `name`, `description`, or `widgetTreeJson` fields in `oc_launchpad_dashboards` MUST NOT affect the translation records
 - AND all subsequent reads MUST fetch content from the translation table, not the dashboard record
 
 ### Requirement: REQ-DASH-039 Locale Resolution and Primary Fallback
@@ -284,8 +284,8 @@ Existing dashboards without translation rows MUST continue to function as before
 
 - GIVEN the migration has been applied and translation data exists
 - WHEN the migration is rolled back via `postSchemaChange()` in reverse
-- THEN the `oc_mydash_dashboard_translations` table MUST be dropped
-- AND existing dashboard records MUST remain unaffected (the widget tree is still in `oc_mydash_dashboards`)
+- THEN the `oc_launchpad_dashboard_translations` table MUST be dropped
+- AND existing dashboard records MUST remain unaffected (the widget tree is still in `oc_launchpad_dashboards`)
 
 ## UPDATED Requirements
 

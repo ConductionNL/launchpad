@@ -6,13 +6,13 @@ status: implemented
 
 ## Purpose
 
-The link-button widget is a built-in MyDash widget type that lets dashboard authors drop a styled, clickable tile onto a dashboard. The tile dispatches one of three explicit action types — open an external URL in a new tab, invoke a registered in-app workflow, or create a fresh document in the user's Files area. The capability formalises a typed `actionType` enum so the action set can grow safely (no fragile auto-detect-from-extension semantics like the earlier prototype), pairs the renderer with a singleton frontend registry of named internal actions, and pairs the createFile flow with a strictly-validated server endpoint that gates new files behind an admin-configurable extension allow-list.
+The link-button widget is a built-in LaunchPad widget type that lets dashboard authors drop a styled, clickable tile onto a dashboard. The tile dispatches one of three explicit action types — open an external URL in a new tab, invoke a registered in-app workflow, or create a fresh document in the user's Files area. The capability formalises a typed `actionType` enum so the action set can grow safely (no fragile auto-detect-from-extension semantics like the earlier prototype), pairs the renderer with a singleton frontend registry of named internal actions, and pairs the createFile flow with a strictly-validated server endpoint that gates new files behind an admin-configurable extension allow-list.
 
 The capability is one widget type, one renderer, one sub-form, one registry entry, one composable, and one POST endpoint — small enough to ship and evolve independently, but deliberately sized to anchor the future "tile-based action menu" experience that other capabilities will build on top of via the `internal` action registry.
 
 ## Data Model
 
-Link-button placements use the existing `oc_mydash_widget_placements.styleConfig` JSON column with the discriminated shape `{type: 'link', content: {...}}`. No schema migration is required.
+Link-button placements use the existing `oc_launchpad_widget_placements.styleConfig` JSON column with the discriminated shape `{type: 'link', content: {...}}`. No schema migration is required.
 
 The `content` object carries six fields:
 
@@ -23,7 +23,7 @@ The `content` object carries six fields:
 - **backgroundColor** (string, default `var(--color-primary)` when empty) — any CSS colour
 - **textColor** (string, default `var(--color-primary-text)` when empty) — any CSS colour
 
-Admin-side state for the createFile flow lives in the existing `mydash_admin_settings` table under the key `link_create_file_extensions` — a JSON array of lowercase, dot-stripped extensions defaulting to `["txt","md","docx","xlsx","csv","odt"]`.
+Admin-side state for the createFile flow lives in the existing `launchpad_admin_settings` table under the key `link_create_file_extensions` — a JSON array of lowercase, dot-stripped extensions defaulting to `["txt","md","docx","xlsx","csv","odt"]`.
 
 ## Requirements
 
@@ -74,9 +74,9 @@ Icon size MUST be 48 px square; the label MUST be vertically stacked below the i
 
 #### Scenario: Custom URL icon
 
-- GIVEN content `{icon: '/apps/mydash/resource/x.png', label: 'Open'}`
+- GIVEN content `{icon: '/apps/launchpad/resource/x.png', label: 'Open'}`
 - WHEN the widget renders
-- THEN the button MUST contain `<img src="/apps/mydash/resource/x.png">` 48 px tall
+- THEN the button MUST contain `<img src="/apps/launchpad/resource/x.png">` 48 px tall
 - AND the label `Open` MUST appear below the image
 
 #### Scenario: No icon
@@ -330,7 +330,7 @@ Each link entry's `icon` field MUST follow the same dual-mode convention as REQ-
 Icon size MUST be consistent across all list items (24 px square for list mode; 48 px for compact/normal/spacious variants may adjust padding but not icon size). The icon MUST appear inline (left of the label in vertical mode, above in horizontal mode per list orientation).
 
 #### Scenario: Custom icon URL in list item
-- GIVEN a list item with `icon: '/apps/mydash/icons/report.png'` and `label: 'Q4 Report'`
+- GIVEN a list item with `icon: '/apps/launchpad/icons/report.png'` and `label: 'Q4 Report'`
 - WHEN the widget renders in list mode
 - THEN the item MUST show the custom image followed by the label text
 

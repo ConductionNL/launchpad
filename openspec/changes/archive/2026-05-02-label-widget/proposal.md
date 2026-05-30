@@ -42,7 +42,7 @@ Dashboard authors today have only the `text` widget for adding non-data text to 
 
 **Migration:**
 
-- Zero migration impact. Existing widget placements are unaffected. New label placements coexist with all other widget types in the same `oc_mydash_widget_placements.content` JSON column.
+- Zero migration impact. Existing widget placements are unaffected. New label placements coexist with all other widget types in the same `oc_launchpad_widget_placements.content` JSON column.
 
 **Accessibility:**
 

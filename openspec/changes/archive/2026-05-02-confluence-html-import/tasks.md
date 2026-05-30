@@ -11,7 +11,7 @@
 ## 1. Schema and database setup
 
 - [x] 1.1 No new tables required — the importer reuses the existing
-  `mydash_dashboards` and `mydash_widget_placements` tables. Async job
+  `launchpad_dashboards` and `launchpad_widget_placements` tables. Async job
   tracking (REQ-CFLI-008) is deferred to a follow-up alongside the
   background-job runtime.
 - [x] 1.2 N/A (no migration needed)
@@ -54,7 +54,7 @@
 - [x] 4.1 `MediaPath` collection lives on `ParsedArchive::$attachments`
   + `$images`. The actual upload-to-Nextcloud pipeline is deferred to
   a follow-up; the importer reports the would-be asset folder path
-  (`MyDash/Imports/{timestamp}/`) in the result + dry-run payload so the
+  (`LaunchPad/Imports/{timestamp}/`) in the result + dry-run payload so the
   admin sees the destination even before the upload pipeline lands.
 - [x] 4.2 `<ac:image>` elements are converted to `<img src="filename">`
   by the macro renderer; plain `<img>` tags are preserved verbatim by
@@ -128,7 +128,7 @@
 ## 9. CLI command
 
 - [x] 9.1 `lib/Command/ImportConfluenceCommand.php` extending the
-  Symfony `Command` base used by every other MyDash command.
+  Symfony `Command` base used by every other LaunchPad command.
 - [x] 9.2 Options: `--file`, `--parent-path`, `--user`, `--dry-run`.
 - [x] 9.3 `--file` existence + `--parent-path` resolution (via
   `DashboardTreeService::resolvePath`) validated up front.

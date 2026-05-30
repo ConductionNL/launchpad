@@ -9,7 +9,7 @@
 ## 2. Migration — cascade failures table
 
 - [~] 2.1 ~~Create `lib/Migration/VersionXXXXDate2026AddCascadeFailuresTable.php`~~ — DROPPED per spec REQ-CSC-007 ("No failure-recording table migration is required"). The design.md D5 analysis concluded the failures table was over-engineered; the spec was updated to mandate log-and-continue with the orphan-cleanup job identifying stragglers by querying dependent tables directly.
-- [~] 2.2 ~~Add index `idx_mydash_cascade_fail_uuid`~~ — DROPPED (table not created).
+- [~] 2.2 ~~Add index `idx_launchpad_cascade_fail_uuid`~~ — DROPPED (table not created).
 - [~] 2.3 ~~Confirm migration is reversible~~ — N/A (no migration).
 - [~] 2.4 ~~Run migration locally~~ — N/A (no migration).
 
@@ -72,4 +72,4 @@
 - [x] 10.2 SPDX headers in every new PHP file (inside docblock per convention)
 - [x] 10.3 No user-facing strings introduced; `i18n` keys not required for log-only listener stubs
 - [ ] 10.4 `hydra-gates` — runs in CI on PR
-- [~] 10.5 ~~Confirm `oc_mydash_cascade_failures` migration~~ — N/A per task 2 (table dropped).
+- [~] 10.5 ~~Confirm `oc_launchpad_cascade_failures` migration~~ — N/A per task 2 (table dropped).

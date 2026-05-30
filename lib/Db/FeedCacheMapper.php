@@ -4,23 +4,23 @@
  * FeedCacheMapper
  *
  * Database mapper for FeedCache entities (REQ-FRJ-001..012). Covers the
- * `oc_mydash_feed_cache` table — one row per distinct external feed URL.
+ * `oc_launchpad_feed_cache` table — one row per distinct external feed URL.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTimeInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -43,7 +43,7 @@ class FeedCacheMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_feed_cache',
+            tableName: 'launchpad_feed_cache',
             entityClass: FeedCache::class
         );
     }//end __construct()

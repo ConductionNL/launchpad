@@ -6,13 +6,13 @@ status: implemented
 
 ## Purpose
 
-The grid layout system powers the drag-and-drop dashboard experience in MyDash. Built on GridStack 12.x, it provides a 12-column responsive grid that reflows at four explicit viewport breakpoints (1400/1100/768/480 px → 12/8/4/1 cols) where users can position, resize, and rearrange widget placements and tiles. The grid operates in two modes: view mode (static, no interaction) and edit mode (drag-and-drop enabled). Position changes are emitted via Vue events and persisted via the API by the parent component.
+The grid layout system powers the drag-and-drop dashboard experience in LaunchPad. Built on GridStack 12.x, it provides a 12-column responsive grid that reflows at four explicit viewport breakpoints (1400/1100/768/480 px → 12/8/4/1 cols) where users can position, resize, and rearrange widget placements and tiles. The grid operates in two modes: view mode (static, no interaction) and edit mode (drag-and-drop enabled). Position changes are emitted via Vue events and persisted via the API by the parent component.
 
 ## Technical Foundation
 
 - **Library**: GridStack 12.x (range `^12.2.1`, version floor `>= 10.0.0` per REQ-GRID-013)
 - **Grid columns**: 12 at viewports >= 1400 px (configurable per dashboard via `gridColumns`); reflows to 8/4/1 at narrower viewports per REQ-GRID-007
-- **Cell height**: 60 px (fixed; defined as `CELL_HEIGHT` in `src/composables/useGridManager.js`, mirrored to CSS variable `--mydash-cell-height`)
+- **Cell height**: 60 px (fixed; defined as `CELL_HEIGHT` in `src/composables/useGridManager.js`, mirrored to CSS variable `--launchpad-cell-height`)
 - **Margins**: 8 px on all four sides between cells (`GRID_MARGIN`)
 - **Coordinate system**: 0-based (gridX: 0-11 for 12 columns, gridY: 0+)
 - **Float mode**: Enabled (`float: true`) -- items do NOT auto-stack downward; they stay at their exact grid position
@@ -332,7 +332,7 @@ The grid MUST also adapt to the container width while maintaining the active col
 #### Scenario: Minimum grid height
 - GIVEN the dashboard has no widgets or very few widgets
 - WHEN the grid renders
-- THEN the grid container MUST maintain a minimum height of 400px (`.mydash-grid { min-height: 400px }`)
+- THEN the grid container MUST maintain a minimum height of 400px (`.launchpad-grid { min-height: 400px }`)
 
 ### Requirement: Grid Accessibility (REQ-GRID-008)
 
@@ -516,7 +516,7 @@ All "add widget" code paths (toolbar dropdown, keyboard shortcut, drag-from-pick
 - REQ-GRID-001 empty state: No empty state placeholder.
 
 **Recently implemented:**
-- REQ-GRID-007 (Grid Responsiveness): four explicit `columnOpts.breakpoints` entries (1400/1100/768/480 → 12/8/4/1) with `moveScale` reflow. Constants exported from `src/composables/useGridManager.js` and consumed by `DashboardGrid.vue`. Mirrored to CSS via the `--mydash-cell-height` custom property.
+- REQ-GRID-007 (Grid Responsiveness): four explicit `columnOpts.breakpoints` entries (1400/1100/768/480 → 12/8/4/1) with `moveScale` reflow. Constants exported from `src/composables/useGridManager.js` and consumed by `DashboardGrid.vue`. Mirrored to CSS via the `--launchpad-cell-height` custom property.
 - REQ-GRID-012 (Cell geometry constants): `CELL_HEIGHT = 60`, `GRID_MARGIN = 8` shared from the composable.
 - REQ-GRID-013 (GridStack version pin): `package.json` declares `"gridstack": "^12.2.1"` (resolves to 12.6.0); floor `>= 10.0.0`.
 - REQ-GRID-014 (Single placement authority): `placeNewWidget(spec, placements, options)` exported from `src/composables/useGridManager.js`. The dashboard store's `addWidgetToDashboard` and `addTileToDashboard` actions both delegate to it; push-down side effects flow through `applyPushedPlacements` → `updatePlacements`. Architectural enforcement: a Vitest grep guard in `__tests__/useGridManager.spec.js` asserts no other `.js`/`.vue` file under `src/` references `grid.addWidget(`.

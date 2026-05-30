@@ -9,13 +9,13 @@ status: draft
 
 ### Requirement: REQ-HDR-001 Widget registration
 
-The system MUST register a MyDash dashboard widget with id `mydash_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
+The system MUST register a LaunchPad dashboard widget with id `launchpad_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the header-widget app is installed and enabled
-- WHEN a user opens the MyDash widget picker dialog
-- THEN the `mydash_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
+- WHEN a user opens the LaunchPad widget picker dialog
+- THEN the `launchpad_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -29,7 +29,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `mydash_header` widget MUST still be discoverable in the picker
+- THEN the `launchpad_header` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
 
@@ -39,7 +39,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 
 ### Requirement: REQ-HDR-002 Placement configuration structure
 
-The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
+The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
 
 #### Scenario: Config for title and subtitle
 
@@ -182,17 +182,17 @@ The system MUST support three overlay modes for controlling how background image
 
 ### Requirement: REQ-HDR-005 External image allow-list
 
-The system MUST enforce an allow-list of external image hostnames via admin setting `mydash.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
+The system MUST enforce an allow-list of external image hostnames via admin setting `launchpad.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
 
 #### Scenario: Allow-list enabled with allowed domain
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed and loaded
 
 #### Scenario: Allow-list enabled with disallowed domain
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"images.example.com\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://untrusted-site.com/image.jpg"
 - THEN the image MUST NOT load
 - AND the widget MUST fall back to backgroundColor only
@@ -200,7 +200,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 #### Scenario: Empty allow-list allows all domains
 
-- GIVEN mydash.header_widget_allowed_image_domains=null or []
+- GIVEN launchpad.header_widget_allowed_image_domains=null or []
 - WHEN a placement is configured with any external backgroundImageUrl
 - THEN the image MUST be loaded without restriction
 - AND this is the default behavior (zero-config = all allowed)
@@ -214,7 +214,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 #### Scenario: Allow-list hostname matching is case-insensitive
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed (case-insensitive match)
 

@@ -45,5 +45,5 @@ Each method gets a single-line `@spec openspec/changes/retrofit-2026-05-24-dashb
 ## Source
 
 - Coverage report: `openspec/coverage-report.json` generated 2026-05-24
-- Umbrella issue: ConductionNL/mydash#292
+- Umbrella issue: ConductionNL/launchpad#292
 - Bucket: 2a (capability-owned, missing REQ)

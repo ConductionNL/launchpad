@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -328,7 +328,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data?.dashboard ?? null
 			} catch (error) {
 				console.error('Failed to publish dashboard:', error)
-				showError(t('mydash', 'Publish dashboard'))
+				showError(t('launchpad', 'Publish dashboard'))
 				return null
 			}
 		},
@@ -348,7 +348,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data?.dashboard ?? null
 			} catch (error) {
 				console.error('Failed to unpublish dashboard:', error)
-				showError(t('mydash', 'Unpublish dashboard'))
+				showError(t('launchpad', 'Unpublish dashboard'))
 				return null
 			}
 		},
@@ -368,7 +368,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data?.dashboard ?? null
 			} catch (error) {
 				console.error('Failed to schedule dashboard:', error)
-				showError(t('mydash', 'Schedule dashboard'))
+				showError(t('launchpad', 'Schedule dashboard'))
 				return null
 			}
 		},
@@ -470,7 +470,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				// affordance or the call may bypass the UI altogether.
 				if (error?.response?.status === 403
 					&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED) {
-					showError(t('mydash', 'Personal dashboards are not enabled by your administrator'))
+					showError(t('launchpad', 'Personal dashboards are not enabled by your administrator'))
 				}
 				console.error('Failed to create dashboard:', error)
 				throw error
@@ -511,11 +511,11 @@ export const useDashboardStore = defineStore('dashboard', {
 				// caller; we just log here.
 				if (error?.response?.status === 403
 					&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED) {
-					showError(t('mydash', 'Personal dashboards are not enabled by your administrator'))
+					showError(t('launchpad', 'Personal dashboards are not enabled by your administrator'))
 				} else if (error?.response?.status === 404) {
-					showError(t('mydash', 'Dashboard not found'))
+					showError(t('launchpad', 'Dashboard not found'))
 				} else {
-					showError(t('mydash', 'Failed to fork dashboard'))
+					showError(t('launchpad', 'Failed to fork dashboard'))
 				}
 				console.error('Failed to fork dashboard:', error)
 				throw error
@@ -911,7 +911,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return response.data
 			} catch (error) {
-				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				const message = error.response?.data?.error || t('launchpad', 'Operation failed')
 				showError(message)
 				return null
 			}
@@ -935,7 +935,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				await api.removeDashboardReaction(dashboardUuid, emoji)
 				return await this.fetchReactionsSummary(dashboardUuid)
 			} catch (error) {
-				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				const message = error.response?.data?.error || t('launchpad', 'Operation failed')
 				showError(message)
 				return null
 			}
@@ -1038,7 +1038,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return map
 			} catch (error) {
 				const message = error?.response?.data?.message
-					|| t('mydash', 'Failed to update dashboard metadata')
+					|| t('launchpad', 'Failed to update dashboard metadata')
 				console.error('Failed to update dashboard metadata:', error)
 				showError(message)
 				return null

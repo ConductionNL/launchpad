@@ -7,12 +7,12 @@
  * (REQ-ONAV-002, REQ-ONAV-003, REQ-ONAV-004).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,10 +21,10 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\Controller\AdminOrgNavigationController;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\OrgNavigationService;
+use OCA\LaunchPad\Controller\AdminOrgNavigationController;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\OrgNavigationService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;

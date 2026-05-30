@@ -8,7 +8,7 @@ status: draft
 
 ### Requirement: REQ-TXMD-001 Add contentMode field to text-widget config
 
-The text-widget MUST support a new `contentMode` field in its `styleConfig.content` object, with permitted values `'html'` or `'markdown'`. The field is optional; when absent, it defaults to `'html'` (backward compatibility with existing widgets). New widgets MUST receive a default determined by the admin setting `mydash.text_widget_default_mode` (see REQ-TXMD-007).
+The text-widget MUST support a new `contentMode` field in its `styleConfig.content` object, with permitted values `'html'` or `'markdown'`. The field is optional; when absent, it defaults to `'html'` (backward compatibility with existing widgets). New widgets MUST receive a default determined by the admin setting `launchpad.text_widget_default_mode` (see REQ-TXMD-007).
 
 #### Scenario: Existing widgets retain html mode
 
@@ -19,7 +19,7 @@ The text-widget MUST support a new `contentMode` field in its `styleConfig.conte
 
 #### Scenario: New widget receives admin-controlled default
 
-- GIVEN the admin setting `mydash.text_widget_default_mode = 'markdown'`
+- GIVEN the admin setting `launchpad.text_widget_default_mode = 'markdown'`
 - WHEN a user creates a new text-widget via AddWidgetModal
 - THEN the widget's `styleConfig.content.contentMode` MUST be set to `'markdown'`
 - AND subsequent renders MUST parse the text as markdown
@@ -33,7 +33,7 @@ The text-widget MUST support a new `contentMode` field in its `styleConfig.conte
 
 #### Scenario: Explicit html mode overrides admin default
 
-- GIVEN the admin setting `mydash.text_widget_default_mode = 'markdown'`
+- GIVEN the admin setting `launchpad.text_widget_default_mode = 'markdown'`
 - WHEN a user creates a new text-widget and explicitly selects `Mode: HTML` before saving
 - THEN the widget's `contentMode` MUST be set to `'html'` (explicit choice overrides the default)
 
@@ -158,29 +158,29 @@ The text-widget edit sub-form MUST display a `Mode` toggle or radio button group
 
 #### Scenario: New widgets default to admin-controlled mode
 
-- GIVEN the admin setting `mydash.text_widget_default_mode = 'markdown'`
+- GIVEN the admin setting `launchpad.text_widget_default_mode = 'markdown'`
 - WHEN the AddWidgetModal form opens to add a new text-widget
 - THEN the Mode toggle MUST default to `Markdown` (not HTML)
 
 ### Requirement: REQ-TXMD-005 Admin setting for default content mode
 
-The system MUST provide an admin-configurable setting `mydash.text_widget_default_mode` with permitted values `'html'` or `'markdown'`. This setting controls the default `contentMode` for newly-created text-widgets. The setting MUST be stored in Nextcloud's app config (e.g., via `IAppConfig` or equivalent) and MUST default to `'markdown'` (Markdown is the primary mode).
+The system MUST provide an admin-configurable setting `launchpad.text_widget_default_mode` with permitted values `'html'` or `'markdown'`. This setting controls the default `contentMode` for newly-created text-widgets. The setting MUST be stored in Nextcloud's app config (e.g., via `IAppConfig` or equivalent) and MUST default to `'markdown'` (Markdown is the primary mode).
 
 #### Scenario: Setting is read from app config
 
-- GIVEN the admin setting `mydash.text_widget_default_mode` is set to `'html'`
+- GIVEN the admin setting `launchpad.text_widget_default_mode` is set to `'html'`
 - WHEN a new text-widget is created via POST /api/widgets
 - THEN the widget MUST receive `styleConfig.content.contentMode = 'html'`
 
 #### Scenario: Default is markdown if setting is unset
 
-- GIVEN the admin setting `mydash.text_widget_default_mode` is not explicitly configured
+- GIVEN the admin setting `launchpad.text_widget_default_mode` is not explicitly configured
 - WHEN a new text-widget is created
 - THEN the widget MUST receive `contentMode = 'markdown'` (system default)
 
 #### Scenario: Invalid setting values are rejected
 
-- GIVEN an admin attempts to set `mydash.text_widget_default_mode = 'rst'` (invalid value)
+- GIVEN an admin attempts to set `launchpad.text_widget_default_mode = 'rst'` (invalid value)
 - WHEN the value is persisted
 - THEN the system MUST reject the write with a validation error OR silently coerce to `'markdown'`
 - AND no widget creation MUST be affected by the invalid write
@@ -188,7 +188,7 @@ The system MUST provide an admin-configurable setting `mydash.text_widget_defaul
 #### Scenario: Setting affects only new widgets, not existing ones
 
 - GIVEN existing widgets already have `contentMode = 'html'`
-- WHEN the admin changes `mydash.text_widget_default_mode` from `'html'` to `'markdown'`
+- WHEN the admin changes `launchpad.text_widget_default_mode` from `'html'` to `'markdown'`
 - THEN all existing widgets MUST continue to render in their original mode
 - AND only widgets created after the change MUST use the new default
 

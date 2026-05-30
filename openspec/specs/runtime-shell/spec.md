@@ -14,13 +14,13 @@ The shell deliberately holds NO source-of-truth data of its own — every key it
 
 ### Requirement: Single mount point (REQ-SHELL-001)
 
-The system MUST render the workspace Vue app into exactly one DOM element (id `mydash-app`), located inside a `<div id="app-workspace" class="mydash-workspace">` provided by `templates/index.php`. Nextcloud's chrome MUST treat `#app-workspace` as the main content slot (`'id-app-content' => '#app-workspace'`). No left navigation slot MUST be allocated by the chrome (`'id-app-navigation' => null`) — the shell renders its own slide-in sidebar instead.
+The system MUST render the workspace Vue app into exactly one DOM element (id `launchpad-app`), located inside a `<div id="app-workspace" class="launchpad-workspace">` provided by `templates/index.php`. Nextcloud's chrome MUST treat `#app-workspace` as the main content slot (`'id-app-content' => '#app-workspace'`). No left navigation slot MUST be allocated by the chrome (`'id-app-navigation' => null`) — the shell renders its own slide-in sidebar instead.
 
 #### Scenario: Mount point present
 
 - GIVEN the user has navigated to the workspace page
 - WHEN the page HTML is rendered
-- THEN the rendered HTML MUST contain exactly one `<div id="mydash-app">`
+- THEN the rendered HTML MUST contain exactly one `<div id="launchpad-app">`
 - AND it MUST be a child of `<div id="app-workspace">`
 - AND no Nextcloud chrome navigation panel MUST be rendered
 
@@ -54,7 +54,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `m
 
 The shell MUST render, in the title strip:
 
-- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('mydash', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
+- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('launchpad', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
 - The active dashboard's name as a plain `<h1>` (or `<h2>`) text label — NOT as a `<select>` or any other interactive switcher control. Switching between dashboards happens exclusively via the left sidebar (`dashboard-switcher` capability).
 
 The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhere in its surface area.

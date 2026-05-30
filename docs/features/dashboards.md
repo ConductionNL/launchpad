@@ -1,6 +1,6 @@
 # Dashboards
 
-Dashboards are the core organizational unit in MyDash. Each user can create and manage multiple personal dashboards, each acting as a container for widget placements, tiles, and layout configuration.
+Dashboards are the core organizational unit in LaunchPad. Each user can create and manage multiple personal dashboards, each acting as a container for widget placements, tiles, and layout configuration.
 
 ## Features
 
@@ -25,4 +25,4 @@ Dashboards are the core organizational unit in MyDash. Each user can create and 
 
 ## Screenshot
 
-![Dashboard Overview](/screenshots/mydash-dashboard-overview.png)
+![Dashboard Overview](/screenshots/launchpad-dashboard-overview.png)

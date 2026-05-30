@@ -12,12 +12,12 @@
  *  - the exception carries the stable error code + 403 mapping.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -25,16 +25,16 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardFactory;
-use OCA\MyDash\Service\DashboardResolver;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\TemplateService;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardFactory;
+use OCA\LaunchPad\Service\DashboardResolver;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -96,14 +96,14 @@ class DashboardServicePersonalGatingTest extends TestCase
             templateService: $templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $dashResolver,
-            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
+            treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
             groupManager: $groupManager,
             adminTemplateService: $adminTemplateService,
             db: $db,
             config: $config,
             l10nFactory: $l10nFactory,
             logger: $logger,
-            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
+            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
         );
     }//end setUp()
 

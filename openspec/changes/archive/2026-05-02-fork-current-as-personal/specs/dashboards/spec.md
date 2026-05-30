@@ -61,11 +61,11 @@ The fork operation MUST execute inside a single database transaction. If any par
 
 ### Requirement: REQ-DASH-022 Fork does not duplicate uploaded resources
 
-When cloned placements reference uploaded resources (e.g. `tileIcon` URLs starting with `/apps/mydash/resource/...`, or widget content fields with similar URLs), the fork MUST keep the same URL — it MUST NOT duplicate the underlying resource bytes. Both dashboards then reference the shared resource record.
+When cloned placements reference uploaded resources (e.g. `tileIcon` URLs starting with `/apps/launchpad/resource/...`, or widget content fields with similar URLs), the fork MUST keep the same URL — it MUST NOT duplicate the underlying resource bytes. Both dashboards then reference the shared resource record.
 
 #### Scenario: Shared resource reference
 
-- GIVEN dashboard `S` has a tile placement with `tileIcon = '/apps/mydash/resource/abc123.png'`
+- GIVEN dashboard `S` has a tile placement with `tileIcon = '/apps/launchpad/resource/abc123.png'`
 - WHEN alice forks `S`
-- THEN `F`'s corresponding placement MUST have `tileIcon = '/apps/mydash/resource/abc123.png'` (same URL)
+- THEN `F`'s corresponding placement MUST have `tileIcon = '/apps/launchpad/resource/abc123.png'` (same URL)
 - AND no new file MUST be created in app data

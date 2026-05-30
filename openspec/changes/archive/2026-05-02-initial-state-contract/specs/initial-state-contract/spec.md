@@ -15,7 +15,7 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 #### Scenario: Builder writes all keys
 
 - **WHEN** a workspace controller calls every required setter and then `apply()` and the page renders
-- **THEN** the system MUST forward each value to `IInitialState::provideInitialState` so that `loadState('mydash', <key>)` on the JS side returns the exact values set
+- **THEN** the system MUST forward each value to `IInitialState::provideInitialState` so that `loadState('launchpad', <key>)` on the JS side returns the exact values set
 - **AND** the JS bundle MUST receive all 10 workspace keys declared in the Data Model
 
 #### Scenario: Missing required key raises before render
@@ -68,12 +68,12 @@ The Admin page (mounted into `#workspace-admin-vue`) MUST expose exactly these k
 #### Scenario: Schema version mismatch warning
 
 - **WHEN** PHP pushes `_schemaVersion: 2` but the loaded JS bundle was compiled against version `1` and the JS reader runs
-- **THEN** the reader MUST log a console warning of the form `MyDash initial-state schema mismatch: server v2 vs client v1 — refresh recommended`
+- **THEN** the reader MUST log a console warning of the form `LaunchPad initial-state schema mismatch: server v2 vs client v1 — refresh recommended`
 - **AND** the reader MUST still attempt to load known keys (graceful degradation)
 
 ### Requirement: Centralised JS reader for initial state (REQ-INIT-003)
 
-The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialState(page: 'workspace' | 'admin'): InitialState`. The reader MUST call `loadState('mydash', key, default)` for every key declared for `page` in the Data Model, MUST return a typed object with default-filled fields (no `undefined` values), and MUST validate the received `_schemaVersion` against the compiled-in `INITIAL_STATE_SCHEMA_VERSION` constant per REQ-INIT-002. Entry points (`src/main.js`, `src/admin.js`) MUST use the reader; direct `loadState('mydash', ...)` calls outside the reader are forbidden by a JS-side grep lint.
+The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialState(page: 'workspace' | 'admin'): InitialState`. The reader MUST call `loadState('launchpad', key, default)` for every key declared for `page` in the Data Model, MUST return a typed object with default-filled fields (no `undefined` values), and MUST validate the received `_schemaVersion` against the compiled-in `INITIAL_STATE_SCHEMA_VERSION` constant per REQ-INIT-002. Entry points (`src/main.js`, `src/admin.js`) MUST use the reader; direct `loadState('launchpad', ...)` calls outside the reader are forbidden by a JS-side grep lint.
 
 #### Scenario: Reader fills defaults
 
@@ -83,7 +83,7 @@ The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialSta
 
 #### Scenario: Direct loadState rejected
 
-- **WHEN** a Vue component under `src/` calls `loadState('mydash', 'something')` directly
+- **WHEN** a Vue component under `src/` calls `loadState('launchpad', 'something')` directly
 - **THEN** the lint test (grep against `src/`) MUST fail
 - **AND** the failure message MUST direct the developer to use `loadInitialState`
 

@@ -3,7 +3,7 @@
 ## 1. Widget Registration
 
 - [ ] 1.1 Create `lib/Dashboard/DividerWidgetProvider.php` implementing `OCP\Dashboard\IWidgetV2` or `IWidget`
-- [ ] 1.2 Implement `getId()` returning `"mydash_divider"`, `getTitle()` returning localized "Divider", `getOrder()` returning appropriate position in widget list
+- [ ] 1.2 Implement `getId()` returning `"launchpad_divider"`, `getTitle()` returning localized "Divider", `getOrder()` returning appropriate position in widget list
 - [ ] 1.3 Implement `getIconUrl()` returning a divider-themed SVG icon URL
 - [ ] 1.4 Register the widget provider in `appinfo/app.php` or a service provider by injecting `IManager` and calling `registerWidget(new DividerWidgetProvider())`
 - [ ] 1.5 Confirm the divider widget appears in the widget picker when adding widgets to a dashboard
@@ -75,24 +75,24 @@
 ## 10. i18n / Translations
 
 - [ ] 10.1 Add translation keys for the divider widget:
-  - [ ] `mydash.widget.divider.title` — "Divider"
-  - [ ] `mydash.widget.divider.description` — "A visual section break or spacer for organizing dashboard layouts"
-  - [ ] `mydash.config.divider.style` — "Style"
-  - [ ] `mydash.config.divider.style.line` — "Horizontal Line"
-  - [ ] `mydash.config.divider.style.whitespace` — "Whitespace"
-  - [ ] `mydash.config.divider.style.heading-break` — "Heading with Lines"
-  - [ ] `mydash.config.divider.lineColor` — "Line Color"
-  - [ ] `mydash.config.divider.lineThickness` — "Thickness (pixels)"
-  - [ ] `mydash.config.divider.lineStyle` — "Line Style"
-  - [ ] `mydash.config.divider.lineStyle.solid` — "Solid"
-  - [ ] `mydash.config.divider.lineStyle.dashed` — "Dashed"
-  - [ ] `mydash.config.divider.lineStyle.dotted` — "Dotted"
-  - [ ] `mydash.config.divider.whitespaceSize` — "Spacing Size"
-  - [ ] `mydash.config.divider.whitespaceSize.small` — "Small (16px)"
-  - [ ] `mydash.config.divider.whitespaceSize.medium` — "Medium (32px)"
-  - [ ] `mydash.config.divider.whitespaceSize.large` — "Large (64px)"
-  - [ ] `mydash.config.divider.whitespaceSize.xlarge` — "Extra Large (128px)"
-  - [ ] `mydash.config.divider.headingText` — "Heading Text"
+  - [ ] `launchpad.widget.divider.title` — "Divider"
+  - [ ] `launchpad.widget.divider.description` — "A visual section break or spacer for organizing dashboard layouts"
+  - [ ] `launchpad.config.divider.style` — "Style"
+  - [ ] `launchpad.config.divider.style.line` — "Horizontal Line"
+  - [ ] `launchpad.config.divider.style.whitespace` — "Whitespace"
+  - [ ] `launchpad.config.divider.style.heading-break` — "Heading with Lines"
+  - [ ] `launchpad.config.divider.lineColor` — "Line Color"
+  - [ ] `launchpad.config.divider.lineThickness` — "Thickness (pixels)"
+  - [ ] `launchpad.config.divider.lineStyle` — "Line Style"
+  - [ ] `launchpad.config.divider.lineStyle.solid` — "Solid"
+  - [ ] `launchpad.config.divider.lineStyle.dashed` — "Dashed"
+  - [ ] `launchpad.config.divider.lineStyle.dotted` — "Dotted"
+  - [ ] `launchpad.config.divider.whitespaceSize` — "Spacing Size"
+  - [ ] `launchpad.config.divider.whitespaceSize.small` — "Small (16px)"
+  - [ ] `launchpad.config.divider.whitespaceSize.medium` — "Medium (32px)"
+  - [ ] `launchpad.config.divider.whitespaceSize.large` — "Large (64px)"
+  - [ ] `launchpad.config.divider.whitespaceSize.xlarge` — "Extra Large (128px)"
+  - [ ] `launchpad.config.divider.headingText` — "Heading Text"
 - [ ] 10.2 Add translations for both `nl` and `en` in `l10n/nl.json` and `l10n/en.json`
 - [ ] 10.3 Reference these keys in Vue components via `$t()` helper
 

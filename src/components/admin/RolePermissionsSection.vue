@@ -1,58 +1,58 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
-	<div class="mydash-admin__section">
-		<h3>{{ t('mydash', 'Role-based widget permissions') }}</h3>
-		<p class="mydash-admin__hint">
-			{{ t('mydash', 'Restrict which widgets each Nextcloud group can add to their dashboard. Empty list = full catalogue (legacy).') }}
+	<div class="launchpad-admin__section">
+		<h3>{{ t('launchpad', 'Role-based widget permissions') }}</h3>
+		<p class="launchpad-admin__hint">
+			{{ t('launchpad', 'Restrict which widgets each Nextcloud group can add to their dashboard. Empty list = full catalogue (legacy).') }}
 		</p>
 
-		<div v-if="store.error" class="mydash-admin__error" role="alert">
+		<div v-if="store.error" class="launchpad-admin__error" role="alert">
 			{{ store.error }}
 		</div>
 
 		<NcEmptyContent
 			v-if="!store.loading && store.permissions.length === 0"
-			:name="t('mydash', 'No role permissions configured')"
-			:description="t('mydash', 'Add a role-permission row to start filtering the widget catalogue per Nextcloud group.')">
+			:name="t('launchpad', 'No role permissions configured')"
+			:description="t('launchpad', 'Add a role-permission row to start filtering the widget catalogue per Nextcloud group.')">
 			<template #icon>
 				<AccountGroup :size="40" />
 			</template>
 		</NcEmptyContent>
 
-		<div v-else class="mydash-admin__role-list">
+		<div v-else class="launchpad-admin__role-list">
 			<div v-for="row in store.permissions"
 				:key="row.id"
-				class="mydash-admin__role-row">
-				<div class="mydash-admin__role-meta">
+				class="launchpad-admin__role-row">
+				<div class="launchpad-admin__role-meta">
 					<strong>{{ row.name }}</strong>
-					<span class="mydash-admin__role-group">{{ row.groupId }}</span>
+					<span class="launchpad-admin__role-group">{{ row.groupId }}</span>
 				</div>
-				<div class="mydash-admin__role-widgets">
+				<div class="launchpad-admin__role-widgets">
 					<span v-for="wid in row.allowedWidgets"
 						:key="wid"
-						class="mydash-admin__chip">
+						class="launchpad-admin__chip">
 						{{ wid }}
 					</span>
 					<span v-for="wid in row.deniedWidgets"
 						:key="`d-${wid}`"
-						class="mydash-admin__chip mydash-admin__chip--denied">
+						class="launchpad-admin__chip launchpad-admin__chip--denied">
 						{{ wid }}
 					</span>
 				</div>
-				<div class="mydash-admin__role-actions">
+				<div class="launchpad-admin__role-actions">
 					<NcButton type="tertiary"
-						:aria-label="t('mydash', 'Edit')"
+						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
 							<Pencil :size="20" />
 						</template>
 					</NcButton>
 					<NcButton type="tertiary"
-						:aria-label="t('mydash', 'Delete')"
+						:aria-label="t('launchpad', 'Delete')"
 						@click="confirmDelete(row)">
 						<template #icon>
 							<Delete :size="20" />
@@ -66,7 +66,7 @@
 			<template #icon>
 				<Plus :size="20" />
 			</template>
-			{{ t('mydash', 'Add role permission') }}
+			{{ t('launchpad', 'Add role permission') }}
 		</NcButton>
 
 		<RolePermissionEditorModal
@@ -195,7 +195,7 @@ export default {
 		/** @spec openspec/specs/admin-roles/spec.md */
 		async confirmDelete(row) {
 			// eslint-disable-next-line no-alert
-			if (!window.confirm(this.t('mydash', 'Delete role permission for "{group}"?', { group: row.groupId }))) {
+			if (!window.confirm(this.t('launchpad', 'Delete role permission for "{group}"?', { group: row.groupId }))) {
 				return
 			}
 			try {
@@ -209,24 +209,24 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin__hint {
+.launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin: 0 0 var(--default-grid-baseline) 0;
 }
-.mydash-admin__error {
+.launchpad-admin__error {
 	background: var(--color-error);
 	color: var(--color-primary-element-text);
 	padding: var(--default-grid-baseline);
 	border-radius: var(--border-radius);
 	margin-bottom: var(--default-grid-baseline);
 }
-.mydash-admin__role-list {
+.launchpad-admin__role-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	margin-bottom: var(--default-grid-baseline);
 }
-.mydash-admin__role-row {
+.launchpad-admin__role-row {
 	display: flex;
 	align-items: center;
 	gap: var(--default-grid-baseline);
@@ -234,44 +234,44 @@ export default {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 }
-.mydash-admin__role-meta {
+.launchpad-admin__role-meta {
 	display: flex;
 	flex-direction: column;
 	min-width: 200px;
 }
-.mydash-admin__role-group {
+.launchpad-admin__role-group {
 	color: var(--color-text-maxcontrast);
 	font-family: var(--font-face-monospace, monospace);
 	font-size: 0.85em;
 }
-.mydash-admin__role-widgets {
+.launchpad-admin__role-widgets {
 	flex: 1;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 }
-.mydash-admin__chip {
+.launchpad-admin__chip {
 	background: var(--color-background-hover);
 	padding: 2px 8px;
 	border-radius: var(--border-radius);
 	font-size: 0.85em;
 }
-.mydash-admin__chip--denied {
+.launchpad-admin__chip--denied {
 	background: var(--color-error);
 	color: var(--color-primary-element-text);
 }
-.mydash-admin__role-actions {
+.launchpad-admin__role-actions {
 	display: flex;
 	gap: 4px;
 }
-.mydash-admin__editor {
+.launchpad-admin__editor {
 	padding: calc(var(--default-grid-baseline) * 2);
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	min-width: 480px;
 }
-.mydash-admin__editor-actions {
+.launchpad-admin__editor-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--default-grid-baseline);

@@ -9,30 +9,30 @@
  * member or deletes the dashboard when the pool is empty. REQ-SHARE-012.
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
 use DateTimeImmutable;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardShare;
-use OCA\MyDash\Db\DashboardShareMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Service\DashboardShareService;
-use OCA\MyDash\Service\RoleService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\RoleService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\EventDispatcher\IEventListener;
@@ -120,11 +120,11 @@ class UserDeletedListener implements IEventListener
         } catch (Throwable $t) {
             $this->logger->error(
                 message: sprintf(
-                    'mydash UserDeletedListener: failed to cascade role assignment cleanup for user %s: %s',
+                    'launchpad UserDeletedListener: failed to cascade role assignment cleanup for user %s: %s',
                     $userId,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }
 
@@ -212,11 +212,11 @@ class UserDeletedListener implements IEventListener
             // the other dashboards.
             $this->logger->error(
                 message: sprintf(
-                    'mydash UserDeletedListener: failed to handle dashboard %d: %s',
+                    'launchpad UserDeletedListener: failed to handle dashboard %d: %s',
                     $dashboardId,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handleOwnedDashboard()

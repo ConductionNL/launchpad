@@ -2,11 +2,11 @@
 
 ## Why
 
-Today MyDash allows multiple users to simultaneously edit the same dashboard without any coordination mechanism. This creates a "last-write-wins" conflict scenario where concurrent edits overwrite each other silently, leading to data loss and user confusion. A concurrent-edit guard is essential to prevent accidental overwrites when two users open a dashboard for editing in overlapping time windows.
+Today LaunchPad allows multiple users to simultaneously edit the same dashboard without any coordination mechanism. This creates a "last-write-wins" conflict scenario where concurrent edits overwrite each other silently, leading to data loss and user confusion. A concurrent-edit guard is essential to prevent accidental overwrites when two users open a dashboard for editing in overlapping time windows.
 
 ## What Changes
 
-- Add a new table `oc_mydash_dashboard_locks` with `id`, `dashboardUuid`, `userId`, `displayName`, `acquiredAt`, and `lastHeartbeat` fields.
+- Add a new table `oc_launchpad_dashboard_locks` with `id`, `dashboardUuid`, `userId`, `displayName`, `acquiredAt`, and `lastHeartbeat` fields.
 - Default lock TTL: 15 minutes, computed at query time as `lastHeartbeat + 15 min`. No stored expiry column.
 - Add four verbs on a single lock resource URL, plus one admin action:
   - `POST /api/dashboards/{uuid}/lock` — acquires a lock. Returns 200 if granted (re-entrant for same user); 409 with existing lock details if held by another user.
@@ -35,7 +35,7 @@ Today MyDash allows multiple users to simultaneously edit the same dashboard wit
 - `lib/Service/DashboardLockService.php` — new service layer with `acquireLock()`, `heartbeat()` (PUT), `releaseLock()`, `getLockState()`, `forceRelease()` (admin); inline expiry cleanup via `deleteExpiredForDashboard()`; ownership by `userId` only
 - `lib/Controller/DashboardController.php` — four new lock endpoints + one admin endpoint as above
 - `appinfo/routes.php` — register the four verbs on `lock` resource + `force-release` route
-- `lib/Migration/VersionXXXXDate2026...php` — schema migration creating `oc_mydash_dashboard_locks` table
+- `lib/Migration/VersionXXXXDate2026...php` — schema migration creating `oc_launchpad_dashboard_locks` table
 - `src/views/DashboardEdit.vue` (frontend concern, out of scope) — call heartbeat every ~3 minutes while active, DELETE on close
 
 **Affected APIs:**

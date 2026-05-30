@@ -1,12 +1,12 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="nc-dashboard-form">
 		<div class="nc-dashboard-form__field">
-			<span class="nc-dashboard-form__label">{{ t('mydash', 'Pick a widget') }}</span>
+			<span class="nc-dashboard-form__label">{{ t('launchpad', 'Pick a widget') }}</span>
 			<NcWidgetGridPicker
 				v-model="widgetId"
 				:widgets="widgetOptions"
@@ -14,16 +14,16 @@
 		</div>
 
 		<label class="nc-dashboard-form__field">
-			<span class="nc-dashboard-form__label">{{ t('mydash', 'Display Mode') }}</span>
+			<span class="nc-dashboard-form__label">{{ t('launchpad', 'Display Mode') }}</span>
 			<select
 				v-model="displayMode"
 				class="nc-dashboard-form__select"
 				@change="emitContent">
 				<option value="vertical">
-					{{ t('mydash', 'Vertical (list)') }}
+					{{ t('launchpad', 'Vertical (list)') }}
 				</option>
 				<option value="horizontal">
-					{{ t('mydash', 'Horizontal (cards)') }}
+					{{ t('launchpad', 'Horizontal (cards)') }}
 				</option>
 			</select>
 		</label>
@@ -135,7 +135,7 @@ export default {
 		/** @spec openspec/specs/nc-dashboard-widget-proxy/spec.md */
 		validate() {
 			if (typeof this.widgetId !== 'string' || this.widgetId.trim() === '') {
-				return [t('mydash', 'Pick a widget')]
+				return [t('launchpad', 'Pick a widget')]
 			}
 			return []
 		},

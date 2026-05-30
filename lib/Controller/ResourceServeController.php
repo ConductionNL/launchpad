@@ -9,11 +9,11 @@
  *
  * Exposes:
  *
- *  - `GET /apps/mydash/resource/{filename}` — non-OCS plain web route
+ *  - `GET /apps/launchpad/resource/{filename}` — non-OCS plain web route
  *    streaming the resource bytes via a `php://memory` buffer with an
  *    extension-derived `Content-Type` and `Cache-Control: public,
  *    max-age=31536000` (REQ-RES-006).
- *  - `GET /apps/mydash/api/resources` — listing endpoint returning
+ *  - `GET /apps/launchpad/api/resources` — listing endpoint returning
  *    `{status, resources: [{name, url, size, modifiedAt}, …]}` ordered
  *    by `modifiedAt` descending (REQ-RES-007).
  *
@@ -37,25 +37,25 @@
  * own assets).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\ResourceServeService;
-use OCA\MyDash\Service\ResourceService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ResourceServeService;
+use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -102,7 +102,7 @@ class ResourceServeController extends Controller
     }//end __construct()
 
     /**
-     * Handle `GET /apps/mydash/resource/{filename}` — serve raw bytes.
+     * Handle `GET /apps/launchpad/resource/{filename}` — serve raw bytes.
      *
      * Returns a `StreamResponse` with extension-derived `Content-Type`
      * and a one-year immutable `Cache-Control` header. Path traversal

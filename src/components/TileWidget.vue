@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -15,7 +15,7 @@
 		<button
 			v-if="editMode"
 			class="tile-widget__edit"
-			:aria-label="t('mydash', 'Edit tile')"
+			:aria-label="t('launchpad', 'Edit tile')"
 			@click.prevent="$emit('edit')">
 			<span class="icon-settings" />
 		</button>

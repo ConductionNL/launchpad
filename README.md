@@ -63,6 +63,10 @@ MyDash supercharges the Nextcloud dashboard. Create multiple personalized worksp
 
 ## Architecture
 
+See [`docs/architecture.md`](docs/architecture.md) for the full architecture reference, including the app-manifest adoption (ADR-024), the runtime-only OR consumption policy, and the permission model on `oc_mydash_dashboards`.
+
+OR-backed widget development: [`docs/widgets/or-data.md`](docs/widgets/or-data.md).
+
 ```mermaid
 graph TD
     A[Vue 2 Frontend] -->|REST API| B[MyDash PHP Backend]

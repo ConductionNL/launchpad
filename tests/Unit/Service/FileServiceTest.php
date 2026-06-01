@@ -354,4 +354,69 @@ class FileServiceTest extends TestCase
         $stored = $service->setAllowedExtensions(['TXT', '.docx', '..', 'bad/path']);
         $this->assertSame(['txt', 'docx'], $stored);
     }
+
+    // ------------------------------------------------------------------
+    // FILENAME_PATTERN constant tests (task-11)
+    // These tests exercise the public constant directly via preg_match so
+    // they are not confounded by the other guards (null-byte, `..`, slash)
+    // that assertValidFilename() runs before reaching the pattern.
+    // ------------------------------------------------------------------
+
+    /**
+     * @dataProvider allowedFilenameProvider
+     * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
+     */
+    public function testFilenamePatternAllowsValidNames(string $filename): void
+    {
+        $this->assertSame(
+            1,
+            preg_match(FileService::FILENAME_PATTERN, $filename),
+            "Expected FILENAME_PATTERN to allow: {$filename}"
+        );
+    }
+
+    /**
+     * @dataProvider rejectedFilenameProvider
+     * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
+     */
+    public function testFilenamePatternRejectsInvalidNames(string $filename): void
+    {
+        $this->assertSame(
+            0,
+            preg_match(FileService::FILENAME_PATTERN, $filename),
+            "Expected FILENAME_PATTERN to reject: {$filename}"
+        );
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function allowedFilenameProvider(): array
+    {
+        return [
+            'simple json'           => ['dashboard-export.json'],
+            'underscore version'    => ['template_v2.json'],
+            'multi-hyphen'          => ['template-with-dashes.json'],
+            'alphanumeric only'     => ['report2026.txt'],
+            'uppercase letters'     => ['README.md'],
+            'space in name'         => ['my dashboard.json'],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function rejectedFilenameProvider(): array
+    {
+        return [
+            'asterisk wildcard'     => ['evil*.txt'],
+            'pipe character'        => ['foo|bar.txt'],
+            'question mark'         => ['what?.json'],
+            'semicolon'             => ['cmd;rm.sh'],
+            'at sign'               => ['user@host.txt'],
+            'hash'                  => ['#comment.txt'],
+            'dollar sign'           => ['$HOME.txt'],
+            'exclamation mark'      => ['fire!.txt'],
+        ];
+    }
 }

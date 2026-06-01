@@ -1,5 +1,6 @@
 ---
 status: implemented
+or-policy: reviewed-2026-06-01
 ---
 
 # Dashboard Sharing Specification
@@ -7,6 +8,41 @@ status: implemented
 ## Purpose
 
 Dashboard sharing lets a dashboard owner grant read or edit access on a personal (`type: 'user'`) dashboard to specific Nextcloud users or groups. It complements the existing dashboard scopes (`user`, `admin_template`, `group_shared`) by enabling **ad-hoc peer-to-peer collaboration** without needing administrator involvement: any user can decide to share their own dashboard with a colleague or a group, with view, add, or full access. The recipient sees the shared dashboard alongside their own in the dashboard switcher and can act on it according to the share's permission level. Only the owner can manage shares; only the owner can rename, change description, or delete the dashboard.
+
+## Permission model
+
+Permission levels (`view_only` / `add_only` / `full`) live on
+`oc_mydash_dashboards.permissions` and on the `oc_mydash_dashboard_shares`
+rows. This is MyDash's **native** permission model and the primary access
+control mechanism.
+
+**Requirement: MUST NOT declare an install-time dependency on OpenRegister.**
+Dashboard-sharing logic MUST function identically on a Nextcloud installation
+with no OpenRegister present. There MUST be no `require_once` or
+`use OCA\OpenRegister\...` import anywhere in the sharing code path.
+
+## Runtime OR delegation (OPTIONAL)
+
+When OR is enabled at runtime and a dashboard's `permissions.delegate` field
+references an OR-backed object, MyDash MAY at render time call
+`OR /api/objects/{id}/can?action={read|write}` and AND the result with the
+local permission level. **If OR is absent the delegation is silently skipped
+and the local permission level applies.**
+
+| Condition | Effective permission |
+|-----------|---------------------|
+| OR absent | Local `permissionLevel` |
+| OR present, delegate not set | Local `permissionLevel` |
+| OR present, delegate set, OR check passes | `min(local, or_result)` |
+| OR present, delegate set, OR check fails | Denied |
+
+This delegation is **opt-in**: `permissions.delegate` defaults to `null`.
+Operators who do not configure a delegate experience no change in behaviour.
+
+**Default MUST be OFF (no automatic delegation).** Explicit opt-in matches
+the "no install-time OR dep" policy and prevents surprise auth coupling
+(see open design question Q4 in
+`openspec/changes/launchpad-adopt-or-abstractions/design.md`).
 
 ## Concepts
 

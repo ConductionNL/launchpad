@@ -34,134 +34,139 @@ use OCP\AppFramework\Db\Entity;
 class AdminSetting extends Entity implements JsonSerializable
 {
 
-    /**
-     * Setting key for default permission level.
-     *
-     * @var string
-     */
-    public const KEY_DEFAULT_PERMISSION_LEVEL = 'default_permission_level';
+    // ------------------------------------------------------------------
+    // BC string aliases for AdminSettingKey enum values.
+    // These constants remain here so existing call-sites do not need
+    // updating; prefer AdminSettingKey::<CASE>->value in new code.
+    // @see \OCA\MyDash\Db\AdminSettingKey
+    // @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-10
+    // ------------------------------------------------------------------
 
     /**
-     * Setting key for allowing user dashboards.
+     * BC alias for AdminSettingKey::DEFAULT_PERMISSION_LEVEL.
      *
      * @var string
+     *
+     * @see AdminSettingKey::DEFAULT_PERMISSION_LEVEL
      */
-    public const KEY_ALLOW_USER_DASHBOARDS = 'allow_user_dashboards';
+    public const KEY_DEFAULT_PERMISSION_LEVEL = AdminSettingKey::DEFAULT_PERMISSION_LEVEL->value;
 
     /**
-     * Setting key for allowing multiple dashboards.
+     * BC alias for AdminSettingKey::ALLOW_USER_DASHBOARDS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::ALLOW_USER_DASHBOARDS
      */
-    public const KEY_ALLOW_MULTIPLE_DASHBOARDS = 'allow_multiple_dashboards';
+    public const KEY_ALLOW_USER_DASHBOARDS = AdminSettingKey::ALLOW_USER_DASHBOARDS->value;
 
     /**
-     * Setting key for default grid columns.
+     * BC alias for AdminSettingKey::ALLOW_MULTIPLE_DASHBOARDS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::ALLOW_MULTIPLE_DASHBOARDS
      */
-    public const KEY_DEFAULT_GRID_COLUMNS = 'default_grid_columns';
+    public const KEY_ALLOW_MULTIPLE_DASHBOARDS = AdminSettingKey::ALLOW_MULTIPLE_DASHBOARDS->value;
 
     /**
-     * Setting key for the admin-chosen group priority order
-     * (REQ-ASET-012). Persisted as a JSON string list of Nextcloud
-     * group IDs in the order the admin chose; corrupt JSON resolves
-     * to `[]` at the service layer (defensive read). MyDash treats
-     * these as in scope for workspace routing.
+     * BC alias for AdminSettingKey::DEFAULT_GRID_COLUMNS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::DEFAULT_GRID_COLUMNS
      */
-    public const KEY_GROUP_ORDER = 'group_order';
+    public const KEY_DEFAULT_GRID_COLUMNS = AdminSettingKey::DEFAULT_GRID_COLUMNS->value;
 
     /**
-     * Setting key for the link-button-widget createFile extension allow-list.
-     *
-     * Stored as a JSON array of lowercase extensions without dots
-     * (e.g. `["txt","md","docx"]`). Default values are returned by
-     * {@see \OCA\MyDash\Service\FileService::getAllowedExtensions()}.
+     * BC alias for AdminSettingKey::GROUP_ORDER.
      *
      * @var string
+     *
+     * @see AdminSettingKey::GROUP_ORDER
      */
-    public const KEY_LINK_CREATE_FILE_EXTENSIONS = 'link_create_file_extensions';
+    public const KEY_GROUP_ORDER = AdminSettingKey::GROUP_ORDER->value;
 
     /**
-     * Setting key for the global default comments toggle (REQ-CMNT-008).
-     *
-     * Stored as a JSON-encoded boolean. Default is `true` — comments are
-     * enabled across all dashboards unless an admin disables the global
-     * switch or a per-dashboard `commentsEnabled = 0` overrides.
+     * BC alias for AdminSettingKey::LINK_CREATE_FILE_EXTENSIONS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::LINK_CREATE_FILE_EXTENSIONS
      */
-    public const KEY_COMMENTS_ENABLED_DEFAULT = 'comments_enabled_default';
+    public const KEY_LINK_CREATE_FILE_EXTENSIONS = AdminSettingKey::LINK_CREATE_FILE_EXTENSIONS->value;
 
     /**
-     * Setting key for the global footer master toggle (REQ-FTR-001).
-     * Boolean; default `false` (footer hidden out of the box).
+     * BC alias for AdminSettingKey::COMMENTS_ENABLED_DEFAULT.
      *
      * @var string
+     *
+     * @see AdminSettingKey::COMMENTS_ENABLED_DEFAULT
      */
-    public const KEY_FOOTER_ENABLED = 'footer_enabled';
+    public const KEY_COMMENTS_ENABLED_DEFAULT = AdminSettingKey::COMMENTS_ENABLED_DEFAULT->value;
 
     /**
-     * Setting key for the raw HTML footer body (REQ-FTR-002).
-     * String, max 8 KB; sanitised server-side before persistence.
-     * Defaults to empty string when unset.
+     * BC alias for AdminSettingKey::FOOTER_ENABLED.
      *
      * @var string
+     *
+     * @see AdminSettingKey::FOOTER_ENABLED
      */
-    public const KEY_FOOTER_HTML = 'footer_html';
+    public const KEY_FOOTER_ENABLED = AdminSettingKey::FOOTER_ENABLED->value;
 
     /**
-     * Setting key for the structured-mode footer config (REQ-FTR-003).
-     * JSON object with the documented keys
-     * (`logoUrl?, organisation?, address?, links?, legal?, copyrightYear?, layoutMode`).
-     * Defaults to empty object when unset.
+     * BC alias for AdminSettingKey::FOOTER_HTML.
      *
      * @var string
+     *
+     * @see AdminSettingKey::FOOTER_HTML
      */
-    public const KEY_FOOTER_CONFIG = 'footer_config';
+    public const KEY_FOOTER_HTML = AdminSettingKey::FOOTER_HTML->value;
 
     /**
-     * Setting key for the optional footer background-colour override
-     * (REQ-FTR-009). Hex string (`#rrggbb` or `#rgb`) or NULL to fall
-     * back to the NC theme variable.
+     * BC alias for AdminSettingKey::FOOTER_CONFIG.
      *
      * @var string
+     *
+     * @see AdminSettingKey::FOOTER_CONFIG
      */
-    public const KEY_FOOTER_BACKGROUND_COLOR = 'footer_background_color';
+    public const KEY_FOOTER_CONFIG = AdminSettingKey::FOOTER_CONFIG->value;
 
     /**
-     * Setting key for the optional footer text-colour override
-     * (REQ-FTR-009). Hex string (`#rrggbb` or `#rgb`) or NULL to fall
-     * back to the NC theme variable.
+     * BC alias for AdminSettingKey::FOOTER_BACKGROUND_COLOR.
      *
      * @var string
+     *
+     * @see AdminSettingKey::FOOTER_BACKGROUND_COLOR
      */
-    public const KEY_FOOTER_TEXT_COLOR = 'footer_text_color';
+    public const KEY_FOOTER_BACKGROUND_COLOR = AdminSettingKey::FOOTER_BACKGROUND_COLOR->value;
 
     /**
-     * Setting key tracking first-run setup wizard completion (REQ-WIZ-001).
-     *
-     * Stored as JSON `true` once the admin clicks "Finish" in the wizard or
-     * the `mydash:setup` CLI command runs to completion. Defaults to `false`
-     * (banner visible) when the row is missing.
+     * BC alias for AdminSettingKey::FOOTER_TEXT_COLOR.
      *
      * @var string
+     *
+     * @see AdminSettingKey::FOOTER_TEXT_COLOR
      */
-    public const KEY_SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
+    public const KEY_FOOTER_TEXT_COLOR = AdminSettingKey::FOOTER_TEXT_COLOR->value;
 
     /**
-     * Setting key for the dashboard content storage backend (REQ-WIZ-003).
-     *
-     * Stored as a JSON string: either `"database"` (default) or
-     * `"groupfolder"` once the admin completes Step 2. The
-     * `groupfolder-storage-backend` capability is the eventual consumer;
-     * the wizard merely persists the choice.
+     * BC alias for AdminSettingKey::SETUP_WIZARD_COMPLETE.
      *
      * @var string
+     *
+     * @see AdminSettingKey::SETUP_WIZARD_COMPLETE
      */
-    public const KEY_CONTENT_STORAGE = 'content_storage';
+    public const KEY_SETUP_WIZARD_COMPLETE = AdminSettingKey::SETUP_WIZARD_COMPLETE->value;
+
+    /**
+     * BC alias for AdminSettingKey::CONTENT_STORAGE.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::CONTENT_STORAGE
+     */
+    public const KEY_CONTENT_STORAGE = AdminSettingKey::CONTENT_STORAGE->value;
 
     /**
      * The setting key.

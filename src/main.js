@@ -32,6 +32,20 @@ import App from './App.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
 import bundledStub from './manifest.json'
 
+// Tier 1 manifest adoption (ADR-024): register the bundled manifest with
+// nc-vue so the shared shell can read menu/page declarations. The vue-router
+// definition below remains hand-wired (Tier 1 — not yet manifest-driven).
+// Tier 3 (launchpad-manifest-tier-3) will replace hand-wired routes.
+try {
+	// eslint-disable-next-line n/no-unsupported-features/es-syntax
+	const { useAppManifest } = require('@conduction/nextcloud-vue/composables')
+	useAppManifest('mydash', bundledStub)
+} catch {
+	// useAppManifest is available from nc-vue ≥ 1.0.0-beta.57; silently
+	// skip on older local source aliases — the app functions without
+	// manifest registration because vue-router is hand-wired at Tier 1.
+}
+
 import 'gridstack/dist/gridstack.min.css'
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive

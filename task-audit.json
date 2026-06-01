@@ -1,5 +1,23 @@
 {
-  "spec": "openspec/changes/resource-serving",
+  "spec": "openspec/changes/active-dashboard-resolution",
+  "verified": [
+    {"task": "1", "file": "lib/Service/DashboardService.php", "ok": true, "note": "ACTIVE_DASHBOARD_UUID_PREF_KEY constant at line 100; resolveActiveDashboard() at line 1162"},
+    {"task": "2", "file": "lib/Service/DashboardService.php", "ok": true, "note": "7-step chain implemented in resolveActiveDashboard(); findFirstGroupSharedWhere() helper"},
+    {"task": "3", "file": "lib/Service/DashboardService.php", "ok": true, "note": "Stale-pref auto-clear: IConfig::deleteUserValue + logger->warning"},
+    {"task": "4", "file": "lib/Service/DashboardService.php", "ok": true, "note": "setActivePreference() deletes on empty string, setUserValue on non-empty"},
+    {"task": "5", "file": "lib/Controller/DashboardApiController.php", "ok": true, "note": "setActiveDashboard() with #[NoAdminRequired]; route in appinfo/routes.php"},
+    {"task": "6", "file": "lib/Controller/PageController.php", "ok": true, "note": "resolveActiveDashboard() called; activeDashboardId + dashboardSource pushed via InitialStateBuilder"},
+    {"task": "7", "file": "src/stores/dashboard.js", "ok": true, "note": "resolveActive getter mirrors 7-step chain"},
+    {"task": "8", "file": "src/stores/dashboard.js", "ok": true, "note": "switchDashboard() + persistActivePreference() fire-and-forget POST"},
+    {"task": "9", "file": "src/views/Views.vue", "ok": true, "note": "Empty-state with NcEmptyContent + Create dashboard button"},
+    {"task": "10", "file": "tests/Unit/Service/DashboardServiceActiveResolutionTest.php", "ok": true, "note": "12 tests covering all 7 precedence steps"},
+    {"task": "11", "file": "tests/Unit/Controller/DashboardApiControllerActiveTest.php", "ok": true, "note": "5 tests covering setActiveDashboard()"},
+    {"task": "12", "file": "tests/e2e/active-dashboard-resolution.spec.ts", "ok": true, "note": "3 Playwright scenarios"},
+    {"task": "13", "file": "openspec/changes/active-dashboard-resolution/design.md", "ok": true, "note": "design.md with stale-pref rationale; 14 hydra gates green; 17 phpunit tests pass"}
+  ],
+  "stubs": [],
+  "missing_routes": [],
+  "_prev_spec": "openspec/changes/resource-serving",
   "verified": [
     {"task": "1", "file": "lib/Controller/ResourceServeController.php", "ok": true, "note": "getResource() at line 129: path traversal guard (isUnsafeFilename), Content-Type map, Cache-Control header"},
     {"task": "1", "file": "lib/Service/ResourceServeService.php", "ok": true, "note": "findFile(), contentTypeForFilename() with extension map per REQ-RES-006"},

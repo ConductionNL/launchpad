@@ -24,8 +24,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-uploads/tasks.md#task-3
+ * @spec openspec/changes/resource-uploads/tasks.md#task-6
  */
 
 declare(strict_types=1);
@@ -52,6 +52,9 @@ use Throwable;
  * Resource upload + serving controller.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @spec openspec/changes/resource-uploads/tasks.md#task-3
+ * @spec openspec/changes/resource-uploads/tasks.md#task-6
  */
 class ResourceController extends Controller
 {

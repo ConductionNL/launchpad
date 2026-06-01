@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-uploads/tasks.md#task-2
+ * @spec openspec/changes/resource-uploads/tasks.md#task-6
  */
 
 declare(strict_types=1);
@@ -28,6 +28,9 @@ use Exception;
 
 /**
  * Base exception for resource-uploads.
+ *
+ * @spec openspec/changes/resource-uploads/tasks.md#task-2
+ * @spec openspec/changes/resource-uploads/tasks.md#task-6
  *
  * @SuppressWarnings(PHPMD.NumberOfChildren) The exception hierarchy
  *                                           legitimately covers every

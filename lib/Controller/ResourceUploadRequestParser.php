@@ -15,8 +15,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-uploads/tasks.md#task-3
  */
 
 declare(strict_types=1);
@@ -30,6 +29,8 @@ use OCP\IRequest;
 
 /**
  * Parses request bodies for the resource upload endpoint.
+ *
+ * @spec openspec/changes/resource-uploads/tasks.md#task-3
  */
 class ResourceUploadRequestParser
 {

@@ -27,10 +27,21 @@ define('PHPUNIT_RUN', 1);
 // Include Composer's autoloader.
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Bootstrap Nextcloud — since we run inside the Docker container,
-// the full environment (including \OC::$server) is available.
-if (file_exists(__DIR__ . '/../../../lib/base.php')) {
-    require_once __DIR__ . '/../../../lib/base.php';
+// Bootstrap Nextcloud — try the full environment first (Docker container);
+// if NC is not fully installed (CI environments), fall back to OCP stubs.
+$ncBasePhp = __DIR__ . '/../../../lib/base.php';
+$ncInstalled = false;
+if (file_exists($ncBasePhp)) {
+    $configFile = __DIR__ . '/../../../config/config.php';
+    if (is_readable($configFile)) {
+        $CONFIG = [];
+        require $configFile;
+        $ncInstalled = ($CONFIG['installed'] ?? false) === true;
+    }
+}
+
+if ($ncInstalled) {
+    require_once $ncBasePhp;
 } elseif (is_dir(__DIR__ . '/../vendor/nextcloud/ocp/OCP')) {
     // Outside the container we register the OCP stubs from
     // vendor/nextcloud/ocp so unit tests that mock OCP interfaces

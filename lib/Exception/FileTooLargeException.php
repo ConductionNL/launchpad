@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-uploads/tasks.md#task-2
+ * @spec openspec/changes/resource-uploads/tasks.md#task-6
  */
 
 declare(strict_types=1);
@@ -26,6 +26,8 @@ namespace OCA\MyDash\Exception;
 
 /**
  * Decoded payload exceeds the 5 MB hard cap.
+ *
+ * @spec openspec/changes/resource-uploads/tasks.md#task-2
  */
 class FileTooLargeException extends ResourceException
 {

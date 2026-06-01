@@ -7,7 +7,7 @@ status: draft
 
 ## Purpose
 
-The `resource-uploads` capability owns a small mini file API for binary assets that MyDash widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in MyDash's app-data folder (NOT the user's Files), addressed by a stable URL, and uploaded admin-only via a base64-data-URL JSON request. Serving and SVG sanitisation are specified in sibling deltas (`resource-serving` change, `svg-sanitisation` change).
+The `resource-uploads` capability owns a small mini file API for binary assets that LaunchPad widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in LaunchPad's app-data folder (NOT the user's Files), addressed by a stable URL, and uploaded admin-only via a base64-data-URL JSON request. Serving and SVG sanitisation are specified in sibling deltas (`resource-serving` change, `svg-sanitisation` change).
 
 ## Data Model
 
@@ -22,7 +22,7 @@ Resources are flat files in app data — there is no companion DB row. Layout:
 
 Each upload produces:
 - A new file with `resource_<uniqid>.<ext>` name (where `<ext>` is the normalised extension)
-- A stable public URL `/apps/mydash/resource/<filename>` (served by REQ-RES-006, in the `resource-serving` change)
+- A stable public URL `/apps/launchpad/resource/<filename>` (served by REQ-RES-006, in the `resource-serving` change)
 
 ## ADDED Requirements
 
@@ -34,7 +34,7 @@ The system MUST expose `POST /api/resources` accepting a raw JSON body of the sh
 
 - **GIVEN** an authenticated admin user
 - **WHEN** they POST `{"base64": "data:image/png;base64,iVBORw0KGgo..."}` (valid 200×200 PNG)
-- **THEN** the system MUST return HTTP 200 with `{status: 'success', url: '/apps/mydash/resource/resource_<uniqid>.png', name: 'resource_<uniqid>.png', size: <bytes>}`
+- **THEN** the system MUST return HTTP 200 with `{status: 'success', url: '/apps/launchpad/resource/resource_<uniqid>.png', name: 'resource_<uniqid>.png', size: <bytes>}`
 - **AND** a file MUST exist at the corresponding app-data path
 
 #### Scenario: Non-admin rejected

@@ -21,8 +21,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-uploads/tasks.md#task-1
+ * @spec openspec/changes/resource-uploads/tasks.md#task-4
  */
 
 declare(strict_types=1);
@@ -34,6 +34,9 @@ use OCA\MyDash\Exception\MimeMismatchException;
 
 /**
  * Validates that declared raster image type matches the detected MIME.
+ *
+ * @spec openspec/changes/resource-uploads/tasks.md#task-1
+ * @spec openspec/changes/resource-uploads/tasks.md#task-4
  */
 class ImageMimeValidator
 {

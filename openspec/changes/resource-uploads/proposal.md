@@ -1,10 +1,10 @@
 # Resource uploads
 
-A new `resource-uploads` capability owns a small mini file API for binary assets (icons, widget images) that MyDash needs to host directly — separate from the user's Files. Admin-only upload via base64 data URL, raster MIME cross-check, 5 MB cap, app-data folder storage. Serving and SVG sanitisation are split into sibling changes (`resource-serving`, `svg-sanitisation`).
+A new `resource-uploads` capability owns a small mini file API for binary assets (icons, widget images) that LaunchPad needs to host directly — separate from the user's Files. Admin-only upload via base64 data URL, raster MIME cross-check, 5 MB cap, app-data folder storage. Serving and SVG sanitisation are split into sibling changes (`resource-serving`, `svg-sanitisation`).
 
 ## Why
 
-MyDash widgets (image, link-button, custom icons, dashboard icons) need to reference branding assets that the admin controls and that survive deletion of any user. The user's Files folder is the wrong home: per-user, mutable by the owner, deletable, and not addressable by a stable public URL. We need a tiny app-owned file API with a hardened upload path (admin-only, size-capped, MIME-verified) so widgets can render branded icons without inventing per-widget upload code.
+LaunchPad widgets (image, link-button, custom icons, dashboard icons) need to reference branding assets that the admin controls and that survive deletion of any user. The user's Files folder is the wrong home: per-user, mutable by the owner, deletable, and not addressable by a stable public URL. We need a tiny app-owned file API with a hardened upload path (admin-only, size-capped, MIME-verified) so widgets can render branded icons without inventing per-widget upload code.
 
 ## What Changes
 
@@ -18,7 +18,7 @@ MyDash widgets (image, link-button, custom icons, dashboard icons) need to refer
 ## Capabilities
 
 ### New Capabilities
-- `resource-uploads`: Admin-only mini file API for storing branding/icon assets in MyDash's app data, used by image widget, link-button widget, custom-icon-upload pattern, and dashboard icon picker.
+- `resource-uploads`: Admin-only mini file API for storing branding/icon assets in LaunchPad's app data, used by image widget, link-button widget, custom-icon-upload pattern, and dashboard icon picker.
 
 ### Modified Capabilities
 - (none — sibling changes `resource-serving` and `svg-sanitisation` extend this capability via their own delta specs.)
@@ -27,7 +27,7 @@ MyDash widgets (image, link-button, custom icons, dashboard icons) need to refer
 
 - New files: `lib/Controller/ResourceController.php`, `lib/Service/ResourceService.php`, `lib/Service/ImageMimeValidator.php`, plus typed exception classes under `lib/Exception/`.
 - Routes: one new `POST /api/resources` entry in `appinfo/routes.php`.
-- App data: a new `resources/` folder will be auto-created in MyDash's app-data root on first upload — no migration script needed.
+- App data: a new `resources/` folder will be auto-created in LaunchPad's app-data root on first upload — no migration script needed.
 - Frontend: a thin `src/services/resourceService.js` wrapper, consumed by image widget, link-button icon picker, custom-icon-upload pattern, dashboard icon picker.
 - OpenAPI: documented endpoint + envelope.
 - No external dependencies introduced (uses built-in `getimagesizefromstring`).
@@ -53,7 +53,7 @@ The upload pipeline is a coherent surface (one endpoint + storage layer + valida
 - Raster types: cross-check declared type vs `getimagesizefromstring` detected MIME.
 - SVG: route through `SvgSanitiser` (covered in `svg-sanitisation` change).
 - Storage: `IAppData` folder `resources/`, filename `resource_<uniqid>.<ext>`.
-- Response shape standardised: `{status: 'success', url: '/apps/mydash/resource/<filename>', name, size}` (NOT the bare `{url}` shape — consistent with rest of API).
+- Response shape standardised: `{status: 'success', url: '/apps/launchpad/resource/<filename>', name, size}` (NOT the bare `{url}` shape — consistent with rest of API).
 
 ## Notes
 

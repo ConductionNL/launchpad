@@ -24,8 +24,9 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-uploads/tasks.md#task-1
+ * @spec openspec/changes/resource-uploads/tasks.md#task-4
+ * @spec openspec/changes/resource-uploads/tasks.md#task-5
  */
 
 declare(strict_types=1);
@@ -44,6 +45,10 @@ use Throwable;
 
 /**
  * Admin-only base64 upload pipeline for branding assets.
+ *
+ * @spec openspec/changes/resource-uploads/tasks.md#task-1
+ * @spec openspec/changes/resource-uploads/tasks.md#task-4
+ * @spec openspec/changes/resource-uploads/tasks.md#task-5
  */
 class ResourceService
 {

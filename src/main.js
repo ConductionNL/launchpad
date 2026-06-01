@@ -33,6 +33,7 @@ import { loadInitialState } from './utils/loadInitialState.js'
 import bundledStub from './manifest.json'
 
 import 'gridstack/dist/gridstack.min.css'
+import './styles/workspace.css'
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive
 // breakpoints are now generated dynamically by the engine at init time.

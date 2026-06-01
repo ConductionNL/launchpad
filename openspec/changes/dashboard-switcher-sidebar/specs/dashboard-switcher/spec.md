@@ -155,7 +155,7 @@ Each dashboard item's icon MUST be rendered via the shared `IconRenderer` compon
 
 #### Scenario: Mixed built-in and custom icons
 
-- GIVEN three dashboards with `icon` values `'Star'`, `'/apps/mydash/resource/x.png'`, `null`
+- GIVEN three dashboards with `icon` values `'Star'`, `'/apps/launchpad/resource/x.png'`, `null`
 - WHEN the sidebar renders
 - THEN all three MUST render correctly via `IconRenderer`
 - AND no inline `v-if="iconUrl"` branches MUST exist in the sidebar template

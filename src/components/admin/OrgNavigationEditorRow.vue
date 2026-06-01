@@ -6,7 +6,10 @@
 <template>
 	<li class="org-nav-row" :data-test-id="node.id">
 		<div class="org-nav-row__row" :style="{ paddingLeft: indentPx }">
-			<span class="org-nav-row__handle" aria-hidden="true">⋮⋮</span>
+			<span
+				class="org-nav-row__handle"
+				:title="t('mydash', 'Drag to reorder within this level')"
+				:aria-label="t('mydash', 'Drag to reorder')">⋮⋮</span>
 			<input
 				v-model="localLabel"
 				type="text"
@@ -91,7 +94,14 @@
 				:placeholder="t('mydash', 'Group ids, comma separated')"
 				@input="onFreeTextGroupsInput">
 		</div>
-		<ul v-if="hasChildren" class="org-nav-row__children">
+		<draggable
+			v-if="hasChildren"
+			:list="node.children"
+			tag="ul"
+			class="org-nav-row__children"
+			handle=".org-nav-row__handle"
+			ghost-class="org-nav-row__ghost"
+			:animation="150">
 			<OrgNavigationEditorRow
 				v-for="(child, idx) in node.children"
 				:key="child.id"
@@ -106,20 +116,23 @@
 				@move-up="(payload) => $emit('move-up', payload)"
 				@move-down="(payload) => $emit('move-down', payload)"
 				@add-child="(payload) => $emit('add-child', payload)" />
-		</ul>
+		</draggable>
 	</li>
 </template>
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import draggable from 'vuedraggable'
 
 /**
  * OrgNavigationEditorRow — single row inside the admin tree editor.
  *
  * Supports inline editing of label / url / icon / openInNewTab and a
- * group-visibility selector. Reorder is wired through up/down buttons
- * (a future change can layer drag-and-drop on top without touching
- * the controlled-component contract).
+ * group-visibility selector. Child nodes are wrapped in a vuedraggable
+ * list so they can be reordered by dragging the ⋮⋮ handle; the up/down
+ * buttons remain as an accessible fallback. Each list is its own
+ * Sortable with no shared group, so nodes reorder within their level
+ * only (no reparenting — keeps the depth limit intact).
  *
  * Depth enforcement (REQ-ONAV-007): the "Add child" button is
  * disabled when adding would exceed `maxDepth`, with a tooltip
@@ -127,6 +140,10 @@ import { translate as t } from '@nextcloud/l10n'
  */
 export default {
 	name: 'OrgNavigationEditorRow',
+
+	components: {
+		draggable,
+	},
 
 	props: {
 		node: {
@@ -235,6 +252,9 @@ export default {
 	list-style: none;
 	border-bottom: 1px solid var(--color-border, #eee);
 	padding: 8px 0;
+	/* Solid background so a row being dragged doesn't visually bleed
+	   into the rows underneath it. */
+	background-color: var(--color-main-background);
 }
 
 .org-nav-row__row {
@@ -248,6 +268,18 @@ export default {
 	color: var(--color-text-maxcontrast, #888);
 	cursor: grab;
 	font-size: 1.2em;
+	user-select: none;
+}
+
+.org-nav-row__handle:active {
+	cursor: grabbing;
+}
+
+/* Placeholder shown for the dragged row while sorting. */
+.org-nav-row__ghost > .org-nav-row__row {
+	opacity: 0.5;
+	background: var(--color-primary-element-light, var(--color-background-hover, #e3f2fd));
+	border-radius: 4px;
 }
 
 .org-nav-row__label {

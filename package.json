@@ -43,7 +43,8 @@
 		"vue-loader": "^15.11.1",
 		"vue-material-design-icons": "^5.2.0",
 		"vue-router": "^3.6.5",
-		"vue-template-compiler": "^2.7.16"
+		"vue-template-compiler": "^2.7.16",
+		"vuedraggable": "^2.24.3"
 	},
 	"devDependencies": {
 		"@cyclonedx/cyclonedx-npm": "^4.2.1",

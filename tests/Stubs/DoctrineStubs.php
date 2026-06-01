@@ -73,6 +73,20 @@ namespace Doctrine\DBAL\Schema {
     }
 }
 
+namespace Doctrine\DBAL\Query\Expression {
+    if (class_exists(__NAMESPACE__ . '\\ExpressionBuilder', false) === false) {
+        class ExpressionBuilder
+        {
+            public const EQ   = '=';
+            public const NEQ  = '<>';
+            public const LT   = '<';
+            public const LTE  = '<=';
+            public const GT   = '>';
+            public const GTE  = '>=';
+        }
+    }
+}
+
 namespace OC\DB\QueryBuilder\Sharded {
     if (class_exists(__NAMESPACE__ . '\\CrossShardMoveHelper', false) === false) {
         class CrossShardMoveHelper

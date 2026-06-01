@@ -2,7 +2,7 @@
 
 ## Context
 
-MyDash currently has two dashboard scopes:
+LaunchPad currently has two dashboard scopes:
 
 1. **`user`** — personal, user-owned, freely editable. CRUD via `/api/dashboard[s]`.
 2. **`admin_template`** — admin-authored snapshot. On a user's first access, `TemplateService::createDashboardFromTemplate()` clones the template into a new `user`-type dashboard (with `basedOnTemplate` set). Subsequent admin edits do NOT propagate.
@@ -36,7 +36,7 @@ The existing `admin_template` capability is intentionally untouched — it keeps
 
 ### D1: Single column `groupId` instead of reusing `targetGroups` JSON
 
-**Decision**: Add a dedicated nullable `groupId VARCHAR(64)` column on `oc_mydash_dashboards`.
+**Decision**: Add a dedicated nullable `groupId VARCHAR(64)` column on `oc_launchpad_dashboards`.
 
 **Alternatives considered:**
 
@@ -105,9 +105,9 @@ The existing `admin_template` capability is intentionally untouched — it keeps
 ## Data Model Changes
 
 ```
-oc_mydash_dashboards (existing table)
+oc_launchpad_dashboards (existing table)
 + groupId VARCHAR(64) NULL                    -- new column
-+ INDEX idx_mydash_dash_type_group (type, groupId)   -- new composite index
++ INDEX idx_launchpad_dash_type_group (type, groupId)   -- new composite index
 ```
 
 App-level invariant (enforced in `DashboardFactory::create()` and validated in mapper insert):
@@ -153,7 +153,7 @@ The `groupId` path parameter accepts either a real Nextcloud group ID or the lit
 
 Group-shared dashboards in OpenRegister-backed installations require seed records so admin developers can preview the feature locally:
 
-- **Default-group "Welcome" dashboard**: `groupId='default'`, name "Welcome to MyDash", permissionLevel=`view_only`, two placements (announcements widget + activity widget). Targets every user, including those with no group memberships.
+- **Default-group "Welcome" dashboard**: `groupId='default'`, name "Welcome to LaunchPad", permissionLevel=`view_only`, two placements (announcements widget + activity widget). Targets every user, including those with no group memberships.
 - **Marketing-group "Campaigns" dashboard**: `groupId='marketing'`, name "Active Campaigns", permissionLevel=`view_only`, three placements (kpi-tile + chart-widget + recent-activity). Demonstrates a real-group binding.
 - **Engineering-group "Sprint" dashboard**: `groupId='engineering'`, name "Sprint Overview", permissionLevel=`view_only`, four placements (burndown + open-prs + ci-status + recommendations). Demonstrates a denser layout.
 

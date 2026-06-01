@@ -29,13 +29,13 @@ This design document records the decisions made, their rationale, and the result
 ### D1: Throttle scope — IP-global vs per-share-per-IP
 
 **Decision**: IP-global across all share actions, split into two action buckets:
-- `mydash_share_access` — page-render failures, limit 60 req/60 s per IP
-- `mydash_share_password` — wrong-password submissions, limit 10 req/60 s per IP
+- `launchpad_share_access` — page-render failures, limit 60 req/60 s per IP
+- `launchpad_share_password` — wrong-password submissions, limit 10 req/60 s per IP
 
 Both buckets apply regardless of which share token is targeted. This matches the reference implementation.
 
 **Alternatives considered:**
-- **Per-share-per-IP** (the spec's original assumption): the throttle key would include the share token, e.g., `mydash_share_password:{token}`. Rejected for v1 because it requires a custom throttle key instead of NC's stock `IThrottler` action names, adds code complexity, and the "many-shares bypass" attack it prevents is already substantially mitigated by the share-creation endpoint being owner-or-admin only (an anonymous attacker cannot create new shares).
+- **Per-share-per-IP** (the spec's original assumption): the throttle key would include the share token, e.g., `launchpad_share_password:{token}`. Rejected for v1 because it requires a custom throttle key instead of NC's stock `IThrottler` action names, adds code complexity, and the "many-shares bypass" attack it prevents is already substantially mitigated by the share-creation endpoint being owner-or-admin only (an anonymous attacker cannot create new shares).
 
 **Rationale**: NC's `IThrottler` + `BruteForceProtection` are designed around fixed action strings and give administrators a well-understood knob. IP-global throttling reliably stops broad scanning attacks — an attacker trying many share tokens from the same IP hits the ceiling quickly. The NAT collision trade-off is real but acceptable: the threshold (60 general / 10 password per minute) is high enough that legitimate users behind shared NAT are unlikely to collide, and the attack surface for a targeted single-share brute force is limited by the BCrypt cost of password verification. Keeping v1 simple and auditable outweighs the marginal gain of per-share scoping.
 
@@ -44,9 +44,9 @@ Both buckets apply regardless of which share token is targeted. This matches the
 - `the source codebase-source/lib/Controller/PageController.php:106, 196, 270` — `#[AnonRateThrottle(limit: 60, period: 60)]` (general access) and `#[AnonRateThrottle(limit: 10, period: 60)]` (password) — also IP-global
 - `the source codebase-source/lib/Controller/PageController.php:318-323` — `registerBruteForceAttempt()` registers the IP without any per-share scoping
 
-### D2: Throttle action names — `mydash_*` prefix
+### D2: Throttle action names — `launchpad_*` prefix
 
-**Decision**: Use `mydash_share_access` and `mydash_share_password` (not the source app's names).
+**Decision**: Use `launchpad_share_access` and `launchpad_share_password` (not the source app's names).
 
 **Rationale**: Nextcloud's `IThrottler` stores attempt counters keyed by action string. Using an app-prefixed name prevents counter collisions if another app's throttle action happened to share the same string, and makes the counter's origin unambiguous in the NC admin throttle log.
 
@@ -66,14 +66,14 @@ Both buckets apply regardless of which share token is targeted. This matches the
 
 ### D5: Per-IP debouncing of view-count increments (REQ-PSHR-007)
 
-**Decision**: View-count is incremented at most once per `(token, IP)` pair per 60-second window. Implemented via NC `ICache` with TTL 60 s. Key pattern: `mydash_vc_{token}_{ip}`. Matches the spec's existing assumption — no change required to the requirement, only the implementation detail is pinned here.
+**Decision**: View-count is incremented at most once per `(token, IP)` pair per 60-second window. Implemented via NC `ICache` with TTL 60 s. Key pattern: `launchpad_vc_{token}_{ip}`. Matches the spec's existing assumption — no change required to the requirement, only the implementation detail is pinned here.
 
 **Rationale**: Database-level debounce (checking `lastViewedAt`) is not thread-safe under concurrent requests; cache-level TTL keys give atomic set-if-absent semantics without a transaction.
 
 ## Spec changes implied
 
 - **REQ-PSHR-009 (throttle scope)**: rewrite the "Throttle is per-IP per-share" scenario to specify IP-global semantics; remove the `SHOULD be tracked per-share (implementation may vary)` hedge.
-- **REQ-PSHR-009 (action names)**: change any source-app action name references to `mydash_share_access` and `mydash_share_password`; add the concrete limits (60/60 s and 10/60 s).
+- **REQ-PSHR-009 (action names)**: change any source-app action name references to `launchpad_share_access` and `launchpad_share_password`; add the concrete limits (60/60 s and 10/60 s).
 - **REQ-PSHR-009 (response code)**: replace HTTP 503 with HTTP 429 in the throttle-trip scenario.
 - **REQ-PSHR-010 (service-account read)**: add a NOTE specifying that the service-account context must be obtained before any GroupFolder file-system call, and that the anonymous viewer's session MUST NOT be passed to the ACL evaluator.
 

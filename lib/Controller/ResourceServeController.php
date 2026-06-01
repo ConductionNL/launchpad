@@ -38,14 +38,12 @@
  *
  * @category  Controller
  * @package   OCA\MyDash\Controller
- * @author    Conduction b.v. <info@conduction.nl>
- * @copyright 2024 Conduction b.v.
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-serving/tasks.md
  */
 
 declare(strict_types=1);
@@ -122,9 +120,11 @@ class ResourceServeController extends Controller
      *
      * @NoAdminRequired
      * @NoCSRFRequired
-         *
-     * @spec openspec/specs/resource-uploads/spec.md
- */
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-1
+     * @spec openspec/changes/resource-serving/tasks.md#task-2
+     * @spec openspec/changes/resource-serving/tasks.md#task-4
+     */
     #[NoAdminRequired]
     public function getResource(string $filename): StreamResponse|JSONResponse
     {
@@ -191,9 +191,10 @@ class ResourceServeController extends Controller
      *
      * @NoAdminRequired
      * @NoCSRFRequired
-         *
-     * @spec openspec/specs/resource-uploads/spec.md
- */
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-3
+     * @spec openspec/changes/resource-serving/tasks.md#task-4
+     */
     #[NoAdminRequired]
     public function listResources(): JSONResponse
     {

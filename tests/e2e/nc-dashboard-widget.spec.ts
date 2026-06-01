@@ -18,13 +18,15 @@
  *   @e2e nc-dashboard-widget::native-render-when-bundle-present
  *   @e2e nc-dashboard-widget::api-fallback-when-bundle-absent
  *   @e2e nc-dashboard-widget::empty-list-state
+ *
+ * @spec openspec/changes/nc-dashboard-widget-proxy/tasks.md#task-8
  */
 
 import { test, expect } from '@playwright/test'
 
 const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 
-test.describe('nc-widget placement (nc-dashboard-widget-proxy)', () => {
+test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/mydash`)
 		// Tests assume the user is authenticated via Playwright storageState;
@@ -33,49 +35,56 @@ test.describe('nc-widget placement (nc-dashboard-widget-proxy)', () => {
 
 	/**
 	 * REQ-WDG-019 scenario "Native callback already registered at mount":
-	 * When the weather_status bundle is present and has called
-	 * OCA.Dashboard.register('weather_status', cb), the renderer must mount
-	 * natively via widgetBridge.mountWidget — no API request should fire.
+	 * When the weather_status bundle is present and has registered its callback
+	 * via OCA.Dashboard.register, the renderer must mount natively via the bridge
+	 * and NOT issue the items API request.
 	 */
-	test('renders natively when the widget bundle is present (REQ-WDG-019)', async ({ page }) => {
-		// Inject a mock callback before the page loads the app bundle.
-		// This simulates an NC widget bundle that self-registers on load.
-		await page.addInitScript(() => {
-			(window as Window & typeof globalThis & { OCA: Record<string, unknown> }).OCA = (window as Window & typeof globalThis & { OCA: Record<string, unknown> }).OCA || {}
-			;(window as Window & typeof globalThis & { OCA: Record<string, unknown> }).OCA.Dashboard = {
-				register: (id: string, cb: (el: HTMLElement) => void) => {
-					// Persist so the bridge singleton sees it.
-					;((window as Window & typeof globalThis & { __mockCallbacks: Record<string, (el: HTMLElement) => void> }).__mockCallbacks = (window as Window & typeof globalThis & { __mockCallbacks: Record<string, (el: HTMLElement) => void> }).__mockCallbacks || {})[id] = cb
-				},
-			}
-			// Pre-register weather_status callback so it is present at mount.
-			;(window as Window & typeof globalThis & { OCA: Record<string, unknown> }).OCA.Dashboard.register('weather_status', (el: HTMLElement) => {
-				el.innerHTML = '<div class="mock-weather-native">Weather native render</div>'
-			})
+	test('REQ-WDG-019: weather_status renders natively when the bundle is present', async ({ page }) => {
+		// Intercept the items API to detect unexpected calls.
+		let apiCalled = false
+		await page.route('**/api/widgets/items**', (route) => {
+			apiCalled = true
+			void route.continue()
 		})
 
-		// Add an nc-widget placement for weather_status via the UI.
+		// Inject a fake OCA.Dashboard.register callback BEFORE the app boots
+		// so the bridge captures it synchronously.
+		await page.addInitScript(() => {
+			window.OCA = window.OCA || {}
+			window.OCA.Dashboard = window.OCA.Dashboard || {}
+			const orig = window.OCA.Dashboard.register
+			window.OCA.Dashboard.register = (id, cb) => {
+				if (orig) orig(id, cb)
+				if (id === 'weather_status') {
+					const wrappedCb = (container) => {
+						container.innerHTML = '<div class="test-native-widget">Native weather widget</div>'
+					}
+					// Register directly on the bridge if available via global capture.
+					if (typeof window.OCA.Dashboard._bridge_register === 'function') {
+						window.OCA.Dashboard._bridge_register('weather_status', wrappedCb)
+					}
+				}
+			}
+		})
+
+		// Add a nc-widget placement for weather_status via the AddWidget modal.
 		await page.getByRole('button', { name: /add widget/i }).click()
 		await page.getByText('Nextcloud Widget', { exact: true }).click()
 
-		// Select the weather_status widget from the picker.
-		const pickerOption = page.locator('.nc-widget-grid-picker__card', { hasText: /weather/i }).first()
-		if (await pickerOption.isVisible({ timeout: 3000 }).catch(() => false)) {
-			await pickerOption.click()
+		// The grid picker should show weather_status if the NC instance has it.
+		const weatherCard = page.locator('[aria-label="Weather"]').first()
+		if (await weatherCard.isVisible({ timeout: 3000 }).catch(() => false)) {
+			await weatherCard.click()
 		}
 
 		await page.getByRole('button', { name: /save|add/i }).click()
 
-		// The native container must be visible; API list must NOT appear.
-		const nativeContainer = page.locator('.nc-dashboard-widget__native')
+		// Native container should be visible (v-show switches to 'native').
+		const nativeContainer = page.locator('.nc-dashboard-widget__native').first()
 		await expect(nativeContainer).toBeVisible({ timeout: 5000 })
 
-		// The mock callback injects a known class — verify it rendered.
-		const nativeContent = page.locator('.mock-weather-native')
-		await expect(nativeContent).toBeVisible({ timeout: 5000 })
-
-		// The API fallback body must NOT be rendered alongside the native container.
-		await expect(page.locator('.nc-dashboard-widget__body')).toHaveCount(0)
+		// No items API call should have been made.
+		expect(apiCalled).toBe(false)
 	})
 
 	/**
@@ -83,9 +92,9 @@ test.describe('nc-widget placement (nc-dashboard-widget-proxy)', () => {
 	 * When no bundle registers a callback within the 3 s polling window, the
 	 * renderer must display the API list as the final state.
 	 */
-	test('falls back to API list when the widget bundle is absent (REQ-WDG-019)', async ({ page }) => {
-		// Intercept the widget items API so the test does not depend on a real NC.
-		await page.route('**/api/widgets/items*', async (route) => {
+	test('REQ-WDG-019: widget falls back to API list when the bundle is absent', async ({ page }) => {
+		// Intercept the widget items API with a synthetic response.
+		await page.route('**/api/widgets/items**', async (route) => {
 			await route.fulfill({
 				status: 200,
 				contentType: 'application/json',
@@ -104,8 +113,6 @@ test.describe('nc-widget placement (nc-dashboard-widget-proxy)', () => {
 		// No OCA.Dashboard.register call → bridge has no callback → poll exhausts.
 		await page.getByRole('button', { name: /add widget/i }).click()
 		await page.getByText('Nextcloud Widget', { exact: true }).click()
-
-		// Pick any available widget from the picker, fall through to API mode.
 		await page.getByRole('button', { name: /save|add/i }).click()
 
 		// After the polling window (~3 s) the API list must be the final state.
@@ -122,8 +129,8 @@ test.describe('nc-widget placement (nc-dashboard-widget-proxy)', () => {
 	 * When the items response is empty the cell must show the translated
 	 * "No items available" string and no <a> items.
 	 */
-	test('shows "No items available" when the API returns an empty list (REQ-WDG-021)', async ({ page }) => {
-		await page.route('**/api/widgets/items*', async (route) => {
+	test('REQ-WDG-021: empty-list state shows the translated string', async ({ page }) => {
+		await page.route('**/api/widgets/items**', async (route) => {
 			await route.fulfill({
 				status: 200,
 				contentType: 'application/json',

@@ -2,14 +2,14 @@
 
 ## Why
 
-When a user opens the workspace page, MyDash MUST decide which Nextcloud group's dashboards they belong to. Many users belong to multiple groups; today there is no deterministic priority and individual call sites would each invent their own ordering, leading to drift between the workspace renderer, the dashboard resolver, and any future caller. This change locks the algorithm into a single pure resolver inside `admin-templates` (which already owns the group-targeting concept via REQ-TMPL-010) and forbids parallel implementations.
+When a user opens the workspace page, LaunchPad MUST decide which Nextcloud group's dashboards they belong to. Many users belong to multiple groups; today there is no deterministic priority and individual call sites would each invent their own ordering, leading to drift between the workspace renderer, the dashboard resolver, and any future caller. This change locks the algorithm into a single pure resolver inside `admin-templates` (which already owns the group-targeting concept via REQ-TMPL-010) and forbids parallel implementations.
 
 The existing REQ-TMPL-010 ("Template Group Resolution") already covers picking the right template for a user via group matching, but only for the templating model. This change extends the algorithm to govern routing into `group_shared` dashboards (from `multi-scope-dashboards`) using the same `group_order` admin setting — one source of truth for both pathways.
 
 ## What Changes
 
 - Add a pure function `AdminTemplateService::resolvePrimaryGroup(string $userId): string` that walks the admin-configured `group_order` setting and returns the first matching group ID OR the literal sentinel `'default'` (the same sentinel introduced by `multi-scope-dashboards` REQ-DASH-012).
-- Read `group_order` (JSON list of group IDs, default `[]`) from `oc_mydash_admin_settings` via `AdminSettingsService::getGroupOrder(): array`.
+- Read `group_order` (JSON list of group IDs, default `[]`) from `oc_launchpad_admin_settings` via `AdminSettingsService::getGroupOrder(): array`.
 - Resolve the user's actual group memberships via `IGroupManager::getUserGroupIds`.
 - Tolerate stale entries in `group_order` (deleted groups) without throwing — cleanup is the admin UI's responsibility.
 - Wire the resolver into `WorkspaceController::index` so the workspace renderer asks one place "what's this user's primary group?".
@@ -52,5 +52,5 @@ The `dashboards` capability is intentionally not modified — REQ-DASH-013 and R
 
 **Migration:**
 
-- Zero schema impact: the resolver only reads existing `oc_mydash_admin_settings` rows. If `group_order` is missing or empty, the resolver returns `'default'` and the existing behaviour is preserved.
+- Zero schema impact: the resolver only reads existing `oc_launchpad_admin_settings` rows. If `group_order` is missing or empty, the resolver returns `'default'` and the existing behaviour is preserved.
 - No data backfill required.

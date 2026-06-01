@@ -42,6 +42,8 @@ use Throwable;
 
 /**
  * Read-side filesystem + formatting helpers for resource-uploads.
+ *
+ * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeService
 {

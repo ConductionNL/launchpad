@@ -67,6 +67,8 @@ use Throwable;
 
 /**
  * Public read-side controller for uploaded resources.
+ *
+ * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeController extends Controller
 {

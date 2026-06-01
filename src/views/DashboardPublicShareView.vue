@@ -2,35 +2,18 @@
 SPDX-FileCopyrightText: 2026 Conduction B.V.
 SPDX-License-Identifier: EUPL-1.2
 
-Anonymous read-only view of a shared dashboard. Shows a password-unlock modal
-when the share is password-protected. Requires no Nextcloud login.
+Anonymous read-only view of a shared dashboard. Delegates password-unlock
+UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
 	<div class="public-share-view">
-		<!-- Password unlock modal -->
-		<NcDialog v-if="showPasswordModal"
-			:name="t('mydash', 'Password required')"
-			:can-close="false"
-			@submit="submitPassword">
-			<template #default>
-				<p>{{ t('mydash', 'This dashboard is password protected. Enter the password to view it.') }}</p>
-				<NcPasswordField
-					v-model="passwordInput"
-					:label="t('mydash', 'Password')"
-					autocomplete="off"
-					@keyup.enter="submitPassword" />
-				<NcNoteCard v-if="unlockError" type="error">
-					{{ unlockError }}
-				</NcNoteCard>
-			</template>
-			<template #actions>
-				<NcButton type="primary" :disabled="unlocking" @click="submitPassword">
-					{{ t('mydash', 'Unlock') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+		<!-- Password unlock dialog (extracted per ADR-004) -->
+		<PublicSharePasswordDialog v-if="showPasswordModal"
+			:error="unlockError"
+			:loading="unlocking"
+			@unlock="submitPassword" />
 
 		<!-- Loading state -->
 		<div v-else-if="loading" class="public-share-view__loading">
@@ -46,7 +29,7 @@ when the share is password-protected. Requires no Nextcloud login.
 			</NcEmptyContent>
 		</div>
 
-		<!-- Dashboard render -->
+		<!-- Dashboard render (read-only) -->
 		<div v-else-if="dashboard" class="public-share-view__content">
 			<header class="public-share-view__header">
 				<h1>{{ dashboard.title }}</h1>
@@ -55,7 +38,6 @@ when the share is password-protected. Requires no Nextcloud login.
 			<p v-if="dashboard.description" class="public-share-view__description">
 				{{ dashboard.description }}
 			</p>
-			<!-- Widget placements rendered read-only below -->
 			<div class="public-share-view__widgets">
 				<p class="public-share-view__widgets-note">
 					{{ t('mydash', 'Dashboard loaded successfully.') }}
@@ -70,13 +52,10 @@ import { defineComponent, ref, onMounted } from 'vue'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { translate as t } from '@nextcloud/l10n'
-import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
-import NcDialog from '@nextcloud/vue/dist/Components/NcDialog.js'
-import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
-import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
-import NcNoteCard from '@nextcloud/vue/dist/Components/NcNoteCard.js'
+import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
+import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
 import { usePublicShareStore } from '../stores/publicShares.js'
 
 const baseUrl = generateUrl('/apps/mydash')
@@ -85,13 +64,10 @@ export default defineComponent({
 	name: 'DashboardPublicShareView',
 
 	components: {
-		NcButton,
-		NcDialog,
+		AlertCircleIcon,
 		NcEmptyContent,
 		NcLoadingIcon,
-		NcNoteCard,
-		NcPasswordField,
-		AlertCircleIcon,
+		PublicSharePasswordDialog,
 	},
 
 	props: {
@@ -110,7 +86,6 @@ export default defineComponent({
 		const share = ref(null)
 		const error = ref(null)
 		const showPasswordModal = ref(false)
-		const passwordInput = ref('')
 		const unlocking = ref(false)
 		const unlockError = ref(null)
 
@@ -135,7 +110,6 @@ export default defineComponent({
 			} catch (err) {
 				if (err.response?.status === 401 && err.response?.data?.passwordRequired) {
 					if (shareStore.isUnlocked(props.token)) {
-						// Session token stale — force re-unlock.
 						shareStore.clearUnlocked(props.token)
 					}
 					showPasswordModal.value = true
@@ -153,7 +127,7 @@ export default defineComponent({
 			}
 		}
 
-		const submitPassword = async () => {
+		const submitPassword = async (password) => {
 			if (unlocking.value === true) return
 			unlockError.value = null
 			unlocking.value = true
@@ -161,12 +135,12 @@ export default defineComponent({
 			try {
 				const { data } = await axios.post(
 					`${baseUrl}/s/${encodeURIComponent(props.token)}/unlock`,
-					{ password: passwordInput.value }
+					{ password }
 				)
 
 				if (data.access === true) {
 					shareStore.markUnlocked(props.token)
-					await loadShare(passwordInput.value)
+					await loadShare(password)
 				} else {
 					unlockError.value = t('mydash', 'Incorrect password. Please try again.')
 				}
@@ -182,8 +156,7 @@ export default defineComponent({
 		}
 
 		onMounted(async () => {
-			const storedPassword = null // Password not persisted — re-entry required per session.
-			await loadShare(storedPassword)
+			await loadShare()
 		})
 
 		return {
@@ -194,7 +167,6 @@ export default defineComponent({
 			errorTitle,
 			errorDescription,
 			showPasswordModal,
-			passwordInput,
 			unlocking,
 			unlockError,
 			submitPassword,

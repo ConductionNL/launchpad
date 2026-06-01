@@ -1,11 +1,6 @@
 <?xml version="1.0"?>
 <phpmd-baseline>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Activity/Extension.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/AppInfo/Application.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/OrphanedDataCleanupJob.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/PurgeViewsJob.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/BackgroundJob/SaltRotationJob.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/BackgroundJob/SaltRotationJob.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Command/CleanupPurgeCommand.php" method="execute"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Command/CleanupPurgeCommand.php" method="execute"/>
   <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Command/CleanupScanCommand.php"/>
@@ -21,7 +16,6 @@
   <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/AdminController.php" method="__construct"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/AdminController.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Controller/AdminController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminDemoShowcasesController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/AdminDemoShowcasesController.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminOrgNavigationController.php"/>
@@ -44,7 +38,6 @@
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/DashboardTranslationApiController.php" method="create"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/DashboardTranslationApiController.php" method="resolved"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/DashboardTranslationApiController.php" method="resolved"/>
-  <violation rule="PHPMD\Rule\Controversial\Superglobals" file="lib/Controller/FilesWidgetController.php" method="normaliseUploadedFiles"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/MetadataAdminController.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/MetadataAdminController.php" method="updateField"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/MetadataAdminController.php" method="updateField"/>
@@ -73,7 +66,6 @@
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Db/DashboardMapper.php"/>
   <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Db/DashboardShareMapper.php"/>
   <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Db/WidgetPlacementMapper.php"/>
-  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Job/FeedRefreshJob.php"/>
   <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Listener/UserDeletedListener.php" method="__construct"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Listener/UserDeletedListener.php" method="pickNewOwner"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Listener/UserDeletedListener.php" method="pickNewOwner"/>
@@ -171,10 +163,8 @@
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/DashboardTranslationService.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DashboardTreeService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DashboardTreeService.php" method="deleteSubtree"/>
-  <violation rule="PHPMD\Rule\Design\CountInLoopExpression" file="lib/Service/DashboardTreeService.php"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DashboardVersionService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/DashboardVersionService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/DashboardVersionService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/DemoShowcasesService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ExportService.php" method="collectAllDashboards"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ExportService.php" method="collectAllDashboards"/>
@@ -182,11 +172,9 @@
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FeedRefreshService.php" method="refreshAll"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/FeedRefreshService.php" method="parseFeedBody"/>
   <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/FilesWidgetService.php"/>
-  <violation rule="PHPMD\Rule\CleanCode\ErrorControlOperator" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
-  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/FilesWidgetService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/FilesWidgetService.php" method="resolveConfiguredFolder"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/FilesWidgetService.php" method="resolveConfiguredFolder"/>
   <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FooterService.php" method="sanitiseHtml"/>

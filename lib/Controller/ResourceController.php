@@ -41,7 +41,6 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IL10N;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -63,7 +62,6 @@ class ResourceController extends Controller
      * @param ResourceUploadRequestParser $parser          Parses request body.
      * @param IUserSession                $userSession     Session accessor.
      * @param IGroupManager               $groupManager    Admin checker.
-     * @param IL10N                       $l10n            Translator.
      * @param LoggerInterface             $logger          PSR logger.
      */
     public function __construct(
@@ -72,7 +70,6 @@ class ResourceController extends Controller
         private readonly ResourceUploadRequestParser $parser,
         private readonly IUserSession $userSession,
         private readonly IGroupManager $groupManager,
-        private readonly IL10N $l10n,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(

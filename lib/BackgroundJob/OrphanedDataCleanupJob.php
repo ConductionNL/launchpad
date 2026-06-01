@@ -40,6 +40,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Daily auto-purge job.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  */
 class OrphanedDataCleanupJob extends TimedJob
 {

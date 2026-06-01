@@ -48,6 +48,7 @@ use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 use OCP\IURLGenerator;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -272,16 +273,16 @@ class FilesWidgetService
             try {
                 // M3: stream-write to avoid loading the entire file into
                 // memory before handing it to Nextcloud's storage layer.
-                $handle = @fopen(filename: $tmp, mode: 'rb');
+                $handle = fopen(filename: $tmp, mode: 'rb');
                 if ($handle === false) {
-                    throw new \RuntimeException('Cannot open temporary file');
+                    throw new RuntimeException('Cannot open temporary file');
                 }
 
                 $file      = $target->newFile(path: $safeName);
                 $outHandle = $file->fopen(mode: 'w');
                 if ($outHandle === false) {
                     fclose($handle);
-                    throw new \RuntimeException('Cannot open destination file');
+                    throw new RuntimeException('Cannot open destination file');
                 }
 
                 stream_copy_to_stream(from: $handle, to: $outHandle);

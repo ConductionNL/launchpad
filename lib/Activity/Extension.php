@@ -58,6 +58,7 @@ use OCP\L10N\IFactory;
  * MyDash Activity provider.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors event catalogue size.
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)  — $previousEvent required by IProvider interface.
  */
 class Extension implements IProvider
 {

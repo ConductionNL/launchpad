@@ -41,6 +41,9 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Daily salt rotation for the unique-viewer dedup layer.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
+ * @SuppressWarnings(PHPMD.StaticAccess)          — UniqueViewerDedup uses a static factory method.
  */
 class SaltRotationJob extends TimedJob
 {

@@ -424,9 +424,12 @@ class AdminController extends Controller
      *
      * @return JSONResponse Status 200 on success, 400/413 on validation,
      *                      401/403 on guard failure.
-         *
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) — NC reads params from route declaration;
+     *                                                  body uses getParams() for array_key_exists semantics.
+     *
      * @spec openspec/specs/admin-templates/spec.md
- */
+     */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function updateFooterSettings(
         ?bool $footerEnabled=null,

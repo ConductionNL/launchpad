@@ -688,7 +688,7 @@ class DashboardTreeService
         $maxDepth = 0;
         $frontier = [['uuid' => $rootUuid, 'depth' => 0]];
 
-        while (count($frontier) > 0) {
+        while ($frontier !== []) {
             $next = [];
             foreach ($frontier as $entry) {
                 $children = $this->dashboardMapper->findByParent(

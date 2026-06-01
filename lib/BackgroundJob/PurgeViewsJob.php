@@ -37,6 +37,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Daily retention purge for the analytics aggregate table.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  */
 class PurgeViewsJob extends TimedJob
 {

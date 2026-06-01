@@ -40,6 +40,8 @@ use Throwable;
 
 /**
  * Periodic feed-refresh job.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  */
 class FeedRefreshJob extends TimedJob
 {

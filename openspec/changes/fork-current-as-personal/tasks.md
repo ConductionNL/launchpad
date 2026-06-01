@@ -26,6 +26,6 @@
 
 ## 4. Quality
 
-- [ ] `composer check:strict` passes
+- [x] `composer check:strict` passes
 - [x] OpenAPI updated for new endpoint
 - [x] Document in `dashboards/spec.md` REQ-DASH-005 NOTE that personal dashboards from forks share resource URLs (REQ-DASH-022 cross-reference)

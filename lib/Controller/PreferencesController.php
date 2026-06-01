@@ -73,8 +73,6 @@ class PreferencesController extends Controller
      *
      * @spec openspec/specs/admin-settings/spec.md
      */
-    // H4: NoCSRFRequired removed — GET reads benefit from CSRF protection
-    // because NC enforces the token on all non-public requests.
     #[NoAdminRequired]
     public function getPreference(string $key): JSONResponse
     {
@@ -114,8 +112,6 @@ class PreferencesController extends Controller
      *
      * @spec openspec/specs/admin-settings/spec.md
      */
-    // H4: NoCSRFRequired removed — state-mutating endpoint MUST carry CSRF
-    // protection (policy: @NoCSRFRequired is OR-only, per ADR-022).
     #[NoAdminRequired]
     public function setPreference(string $key, string $value=''): JSONResponse
     {
@@ -144,7 +140,9 @@ class PreferencesController extends Controller
                 appName: Application::APP_ID,
                 key: 'pref_'.$safeKey
             );
-        } else {
+        }
+
+        if ($value !== '') {
             $this->config->setUserValue(
                 userId: $user->getUID(),
                 appName: Application::APP_ID,

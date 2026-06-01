@@ -180,7 +180,9 @@ class UserDeletedListener implements IEventListener
                     dashboardId: $dashboardId,
                     dashboardName: (string) $dashboard->getName()
                 );
-            } else {
+            }
+
+            if ($newOwner === null) {
                 // Admin pool empty — delete dashboard, placements, and shares.
                 $this->placementMapper->deleteByDashboardId(
                     dashboardId: $dashboardId

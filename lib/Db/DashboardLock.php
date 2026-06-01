@@ -194,6 +194,8 @@ class DashboardLock extends Entity implements JsonSerializable
      * stable reference without exposing the internal user identifier.
      *
      * @return array The serialized lock without the userId field.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function jsonSerializeConflict(): array
     {

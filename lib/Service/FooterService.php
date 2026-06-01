@@ -245,10 +245,19 @@ class FooterService
         }
 
         if (array_key_exists(key: 'footerHtml', array: $patch) === true) {
-            $raw = $patch['footerHtml'];
+            $raw       = $patch['footerHtml'];
+            $sanitised = '';
+            if ($raw !== null && is_array($raw) === false && is_string($raw) === false) {
+                throw new InvalidArgumentException(
+                    message: 'footerHtml must be a string, NULL, or a variant map'
+                );
+            }
+
             if ($raw === null) {
                 $sanitised = '';
-            } else if (is_array($raw) === true) {
+            }
+
+            if (is_array($raw) === true) {
                 // Language-tagged variant map (REQ-FTR-007). Sanitise
                 // each variant independently.
                 $sanitised = [];
@@ -261,12 +270,10 @@ class FooterService
 
                     $sanitised[$locale] = $this->sanitiseHtml(html: $variant);
                 }
-            } else if (is_string($raw) === true) {
+            }
+
+            if (is_string($raw) === true) {
                 $sanitised = $this->sanitiseHtml(html: $raw);
-            } else {
-                throw new InvalidArgumentException(
-                    message: 'footerHtml must be a string, NULL, or a variant map'
-                );
             }//end if
 
             $this->settingMapper->setSetting(
@@ -440,11 +447,12 @@ class FooterService
                     $rendered .= ' rel="noopener noreferrer" target="_blank"';
                 }
 
+                $closingTag = '>';
                 if (in_array(needle: $tag, haystack: ['br', 'img'], strict: true) === true) {
-                    $rendered .= ' />';
-                } else {
-                    $rendered .= '>';
+                    $closingTag = ' />';
                 }
+
+                $rendered .= $closingTag;
 
                 return $rendered;
             },
@@ -540,10 +548,9 @@ class FooterService
     public function resolveFooterForDashboard(Dashboard $dashboard): ?array
     {
         $rawMode = $dashboard->getDashboardFooterMode();
+        $mode    = $rawMode;
         if ($rawMode === '') {
             $mode = Dashboard::FOOTER_MODE_INHERIT;
-        } else {
-            $mode = $rawMode;
         }
 
         if ($mode === Dashboard::FOOTER_MODE_HIDDEN) {

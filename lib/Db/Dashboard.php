@@ -680,6 +680,8 @@ class Dashboard extends Entity implements JsonSerializable
      * that non-owner consumers have no legitimate use for.
      *
      * @return array The serialized dashboard without internal fields.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function toViewerArray(): array
     {

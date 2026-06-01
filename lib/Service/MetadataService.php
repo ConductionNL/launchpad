@@ -168,11 +168,7 @@ class MetadataService
         $field->setUpdatedAt($now);
         // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
-        if ($options !== null) {
-            $field->setOptionsArray(options: $options);
-        } else {
-            $field->setOptionsArray(options: null);
-        }
+        $field->setOptionsArray(options: $options);
 
         return $this->fieldMapper->insert(entity: $field);
     }//end createFieldDefinition()

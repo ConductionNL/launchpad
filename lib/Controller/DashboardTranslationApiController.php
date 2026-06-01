@@ -497,7 +497,9 @@ class DashboardTranslationApiController extends Controller
                     statusCode: Http::STATUS_NOT_FOUND
                 );
             }
-        } else {
+        }//end if
+
+        if ($hasExplicit === false) {
             $variant = $this->translationService->resolveForLocale(
                 dashboardUuid: $uuid,
                 preferredLanguage: ''

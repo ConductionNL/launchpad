@@ -67,7 +67,6 @@ class ConfluenceImportController extends Controller
      *
      * @spec openspec/specs/confluence-html-import/spec.md
      */
-    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function dryRun(): JSONResponse
     {
@@ -103,7 +102,6 @@ class ConfluenceImportController extends Controller
      *
      * @spec openspec/specs/confluence-html-import/spec.md
      */
-    // H4 sweep: @NoCSRFRequired removed — POST endpoint must carry CSRF protection.
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function import(?string $parentUuid=null): JSONResponse
     {

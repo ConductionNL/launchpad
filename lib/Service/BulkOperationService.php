@@ -226,7 +226,9 @@ class BulkOperationService
                     $deleted += $this->treeService->deleteSubtree(
                         dashboard: $dashboard
                     );
-                } else {
+                }
+
+                if ($cascade === false || $childCount === 0) {
                     $this->placementMapper->deleteByDashboardId(
                         dashboardId: (int) $dashboard->getId()
                     );
@@ -245,7 +247,7 @@ class BulkOperationService
                             )
                         );
                     }
-                }
+                }//end if
             } catch (Throwable $t) {
                 $this->logger->error(
                     message: 'BulkOperationService::bulkDelete failed for uuid',
@@ -865,9 +867,15 @@ class BulkOperationService
             }
 
             $dashboard->setPublishAt(null);
-        } else if ($publicationStatus === Dashboard::STATUS_DRAFT) {
+        }
+
+        if ($publicationStatus === Dashboard::STATUS_DRAFT) {
             $dashboard->setPublishAt(null);
-        } else {
+        }
+
+        if ($publicationStatus !== Dashboard::STATUS_PUBLISHED
+            && $publicationStatus !== Dashboard::STATUS_DRAFT
+        ) {
             // STATUS_SCHEDULED.
             $dashboard->setPublishAt($resolvedPublishAt);
         }

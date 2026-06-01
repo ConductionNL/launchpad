@@ -558,16 +558,16 @@ class CommentService
      * Nextcloud user IDs, and dispatch mention notifications
      * (REQ-CMNT-006).
      *
-     * @deprecated Use {@see resolveMentionDisplayNames()} for read paths and
-     *             {@see dispatchMentionNotifications()} for write paths.
-     *             This wrapper exists only for backward compatibility with
-     *             external callers; internal code must not call it.
-     *
      * @param string $message       The message text to parse.
      * @param string $dashboardUuid The dashboard UUID.
      * @param string $authorUserId  The author's user ID.
      *
      * @return array<int, array{userId: string, displayName: string}>
+     *
+     * @deprecated Use {@see resolveMentionDisplayNames()} for read paths and
+     *             {@see dispatchMentionNotifications()} for write paths.
+     *             This wrapper exists only for backward compatibility with
+     *             external callers; internal code must not call it.
      *
      * @spec openspec/specs/dashboard-comments/spec.md
      */

@@ -311,7 +311,7 @@ class DemoShowcasesService
                 path: $lockKey,
                 type: ILockingProvider::LOCK_EXCLUSIVE
             );
-        }
+        }//end try
     }//end installShowcase()
 
     /**
@@ -427,7 +427,7 @@ class DemoShowcasesService
                 message: 'Showcase dashboard already missing on uninstall',
                 context: ['showcaseId' => $showcaseId, 'uuid' => $existingUuid]
             );
-        }
+        }//end try
 
         $this->clearInstalledMarker(showcaseId: $showcaseId);
     }//end uninstallShowcase()

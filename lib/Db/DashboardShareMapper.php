@@ -210,6 +210,7 @@ class DashboardShareMapper extends QBMapper
             )
         );
 
+        $qb->where($userClause);
         if (count($groupIds) > 0) {
             $groupClause = $qb->expr()->andX(
                 $qb->expr()->eq(
@@ -225,8 +226,6 @@ class DashboardShareMapper extends QBMapper
                 )
             );
             $qb->where($qb->expr()->orX($userClause, $groupClause));
-        } else {
-            $qb->where($userClause);
         }
 
         return $this->findEntities(query: $qb);
@@ -466,6 +465,8 @@ class DashboardShareMapper extends QBMapper
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return int The number of rows deleted.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByDashboardUuid(string $dashboardUuid): int
     {

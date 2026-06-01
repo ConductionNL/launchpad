@@ -303,12 +303,12 @@ class HtmlSanitizer
 
         // Allow relative paths — they carry no scheme at all.
         // preg_match is guaranteed non-false for a valid pattern.
-        if ((bool) preg_match(pattern: '/^(?!(?:[a-zA-Z][a-zA-Z0-9+\-.]*):)/u', subject: $needle)) {
+        if (preg_match(pattern: '/^(?!(?:[a-zA-Z][a-zA-Z0-9+\-.]*):)/u', subject: $needle) === 1) {
             return false;
         }
 
         // Allow only the safe explicit schemes.
-        if ((bool) preg_match(pattern: '/^(?:https?|mailto):/iu', subject: $needle)) {
+        if (preg_match(pattern: '/^(?:https?|mailto):/iu', subject: $needle) === 1) {
             return false;
         }
 

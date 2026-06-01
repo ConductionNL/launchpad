@@ -88,20 +88,22 @@ class DashboardTreeService
     /**
      * Constructor.
      *
-     * @param DashboardMapper       $dashboardMapper  The dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper  The placement mapper
-     *                                                (used by the cascade
-     *                                                walker — REQ-DASH-005
-     *                                                cascade is reused).
-     * @param IDBConnection         $db               DB connection used by
-     *                                                the cascade-delete
-     *                                                transaction
-     *                                                (REQ-DASH-030).
-     * @param IEventDispatcher|null $eventDispatcher  Event dispatcher for
-     *                                                DashboardDeletedEvent.
-     *                                                Nullable for backwards-
-     *                                                compat with existing
-     *                                                test doubles.
+     * @param DashboardMapper       $dashboardMapper The dashboard mapper.
+     * @param WidgetPlacementMapper $placementMapper The placement mapper
+     *                                               (used by the cascade
+     *                                               walker —
+     *                                               REQ-DASH-005 cascade
+     *                                               is reused).
+     * @param IDBConnection         $db              DB connection used by
+     *                                               the cascade-delete
+     *                                               transaction
+     *                                               (REQ-DASH-030).
+     * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
+     *                                               DashboardDeletedEvent.
+     *                                               Nullable for
+     *                                               backwards- compat
+     *                                               with existing test
+     *                                               doubles.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -131,8 +133,9 @@ class DashboardTreeService
      *                                  the assignment would create a
      *                                  cycle, or the resulting depth
      *                                  exceeds the cap.
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function validateParent(
         ?string $movingUuid,
         ?string $newParentUuid
@@ -186,8 +189,9 @@ class DashboardTreeService
      * @return void
      *
      * @throws InvalidArgumentException When the slug is already in use.
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function validateSlugUnique(
         ?string $parentUuid,
         string $slug,
@@ -223,8 +227,9 @@ class DashboardTreeService
      * @param string $uuid The dashboard UUID.
      *
      * @return string The leading-slash path.
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function computePath(string $uuid): string
     {
         $breadcrumbs = $this->computeBreadcrumbs(uuid: $uuid);
@@ -254,8 +259,9 @@ class DashboardTreeService
      * @param string $uuid The dashboard UUID.
      *
      * @return array<int, array{uuid: ?string, name: ?string, slug: ?string}>
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function computeBreadcrumbs(string $uuid): array
     {
         try {
@@ -294,8 +300,9 @@ class DashboardTreeService
      *                     leading/trailing slash).
      *
      * @return Dashboard|null The dashboard at the path, or NULL on miss.
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function resolvePath(string $path): ?Dashboard
     {
         $segments = $this->splitPath(path: $path);
@@ -338,8 +345,9 @@ class DashboardTreeService
      *                                pre-existing malformed cycles.
      *
      * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function buildTree(
         ?string $parentUuid,
         int $depth=0
@@ -402,8 +410,9 @@ class DashboardTreeService
      *                                          DashboardService::getVisibleToUser).
      *
      * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
-    /** @spec openspec/specs/dashboards/spec.md */
     public function getFilteredTree(array $visibleUuids): array
     {
         return $this->buildFilteredTree(
@@ -459,7 +468,7 @@ class DashboardTreeService
                 'sortOrder' => (int) $child->getSortOrder(),
                 'children'  => $childTree,
             ];
-        }
+        }//end foreach
 
         return $nodes;
     }//end buildFilteredTree()
@@ -476,8 +485,9 @@ class DashboardTreeService
      * @param Dashboard $dashboard The root of the subtree to delete.
      *
      * @return int The total number of dashboards removed (root + descendants).
+     *
+     * @spec openspec/specs/dashboard-switcher/spec.md
      */
-    /** @spec openspec/specs/dashboard-switcher/spec.md */
     public function deleteSubtree(Dashboard $dashboard): int
     {
         $rootUuid = (string) $dashboard->getUuid();
@@ -519,7 +529,7 @@ class DashboardTreeService
                         )
                     );
                 }
-            }
+            }//end foreach
 
             $rootId = $dashboard->getId();
             if ($rootId !== null) {

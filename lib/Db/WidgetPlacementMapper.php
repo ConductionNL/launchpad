@@ -196,6 +196,8 @@ class WidgetPlacementMapper extends QBMapper
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return int The number of rows deleted.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByDashboardUuid(string $dashboardUuid): int
     {

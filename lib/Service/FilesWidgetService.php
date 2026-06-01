@@ -454,9 +454,8 @@ class FilesWidgetService
             if ($folderPath !== '') {
                 $normalised = ('/'.trim(string: $folderPath, characters: '/'));
                 try {
-                    if ($normalised === '/') {
-                        $candidate = $userFolder;
-                    } else {
+                    $candidate = $userFolder;
+                    if ($normalised !== '/') {
                         $candidate = $userFolder->get(path: $normalised);
                     }
 
@@ -738,12 +737,11 @@ class FilesWidgetService
             $offset = 0;
         }
 
-        $page = array_slice(array: $items, offset: $offset, length: $limit);
-        $next = ($offset + count($page));
+        $page       = array_slice(array: $items, offset: $offset, length: $limit);
+        $next       = ($offset + count($page));
+        $nextCursor = null;
         if ($next < count($items)) {
             $nextCursor = (string) $next;
-        } else {
-            $nextCursor = null;
         }
 
         return [
@@ -805,10 +803,9 @@ class FilesWidgetService
         }
 
         $extPos = strrpos(haystack: $sanitised, needle: '.');
-        if ($extPos === false || $extPos === 0) {
-            $base = $sanitised;
-            $ext  = '';
-        } else {
+        $base   = $sanitised;
+        $ext    = '';
+        if ($extPos !== false && $extPos !== 0) {
             $base = substr(string: $sanitised, offset: 0, length: $extPos);
             $ext  = substr(string: $sanitised, offset: $extPos);
         }

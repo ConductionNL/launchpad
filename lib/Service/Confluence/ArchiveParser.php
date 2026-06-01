@@ -181,6 +181,13 @@ class ArchiveParser
      */
     private const MAX_TOTAL_BYTES = 104_857_600;
 
+    /**
+     * Collect and categorise all entries from the zip archive.
+     *
+     * @param ZipArchive $zip The open zip archive to inspect.
+     *
+     * @return array{indexHtml: string|null, htmlFiles: array<string, string>, attachments: string[], images: string[]}
+     */
     private function collectEntries(ZipArchive $zip): array
     {
         $indexHtml   = null;
@@ -250,7 +257,7 @@ class ArchiveParser
 
                 $htmlFiles[$name] = $raw;
                 continue;
-            }
+            }//end if
 
             if (str_starts_with(haystack: $lower, needle: 'attachments/') === true) {
                 $attachments[] = $name;

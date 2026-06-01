@@ -183,9 +183,10 @@ class FeedCache extends Entity implements JsonSerializable
 
         if ($encoded === false) {
             $this->setItemsJson(null);
-        } else {
-            $this->setItemsJson($encoded);
+            return;
         }
+
+        $this->setItemsJson($encoded);
     }//end encodeItems()
 
     /**

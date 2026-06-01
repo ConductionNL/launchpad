@@ -53,6 +53,8 @@ class UrlSafetyValidator
      * @param string $url The URL to validate.
      *
      * @return bool True when the URL passes all checks.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function isSafe(string $url): bool
     {
@@ -103,6 +105,8 @@ class UrlSafetyValidator
      *                          array of allowed hostnames.
      *
      * @return bool True when the host passes the allow-list check.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function checkAllowList(string $url, string $appId, string $configKey): bool
     {

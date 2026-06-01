@@ -661,7 +661,9 @@ class DashboardMapper extends QBMapper
 
         if ($parentUuid === null) {
             $qb->where($qb->expr()->isNull(x: 'parent_uuid'));
-        } else {
+        }
+
+        if ($parentUuid !== null) {
             $qb->where(
                 $qb->expr()->eq(
                     x: 'parent_uuid',
@@ -702,7 +704,9 @@ class DashboardMapper extends QBMapper
 
         if ($parentUuid === null) {
             $qb->where($qb->expr()->isNull(x: 'parent_uuid'));
-        } else {
+        }
+
+        if ($parentUuid !== null) {
             $qb->where(
                 $qb->expr()->eq(
                     x: 'parent_uuid',
@@ -935,9 +939,7 @@ class DashboardMapper extends QBMapper
             );
         }
 
-        if ($sortBy === 'updatedAt') {
-            $qb->orderBy(sort: 'updated_at', order: 'DESC');
-        } else {
+        if ($sortBy !== 'updatedAt') {
             // Default: category ASC (NULL last), then name ASC.
             //
             // Nextcloud's `IQueryBuilder::orderBy()` escapes its `sort`
@@ -956,6 +958,10 @@ class DashboardMapper extends QBMapper
             )
                 ->addOrderBy(sort: 'template_category', order: 'ASC')
                 ->addOrderBy(sort: 'name', order: 'ASC');
+        }
+
+        if ($sortBy === 'updatedAt') {
+            $qb->orderBy(sort: 'updated_at', order: 'DESC');
         }//end if
 
         return $this->findEntities(query: $qb);

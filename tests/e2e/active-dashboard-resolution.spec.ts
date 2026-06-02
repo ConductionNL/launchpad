@@ -23,6 +23,7 @@ import { test, expect } from '@playwright/test'
 /**
  * Navigate to the app and wait for the Vue app to hydrate past bootstrap.
  * The sidebar toggle is the first stable landmark the app injects.
+ * @param {any} page Playwright page object
  */
 async function gotoApp(page: any) {
 	await page.goto('/index.php/apps/mydash')

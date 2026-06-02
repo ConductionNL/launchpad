@@ -42,9 +42,9 @@ test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 	test('REQ-WDG-019: weather_status renders natively when the bundle is present', async ({ page }) => {
 		// Intercept the items API to detect unexpected calls.
 		let apiCalled = false
-		await page.route('**/api/widgets/items**', (route) => {
+		await page.route('**/api/widgets/items**', async (route) => {
 			apiCalled = true
-			void route.continue()
+			await route.continue()
 		})
 
 		// Inject a fake OCA.Dashboard.register callback BEFORE the app boots

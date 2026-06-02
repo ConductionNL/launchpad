@@ -289,7 +289,7 @@ export default {
 		/** @spec openspec/specs/nc-dashboard-widget-proxy/spec.md */
 		async loadApiItems() {
 			try {
-				const response = await api.getWidgetItems([this.widgetId])
+				const response = await api.getWidgetItems([this.widgetId], 7)
 				const payload = response?.data
 				let widgetData = null
 				if (payload && typeof payload === 'object') {

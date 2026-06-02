@@ -113,4 +113,17 @@ describe('NcDashboardWidget', () => {
 	it('REQ-WDG-021: extractItems collapses null payload to []', () => {
 		expect(extractItems(null)).toEqual([])
 	})
+
+	it('REQ-WDG-021: API fallback issues request with limit=7', async () => {
+		api.getWidgetItems.mockResolvedValue({ data: { recommendations: { items: [] } } })
+
+		mount(NcDashboardWidget, {
+			propsData: { content: { widgetId: 'recommendations', displayMode: 'vertical' } },
+			provide: { widgets: [{ id: 'recommendations', title: 'Recommended' }] },
+		})
+
+		await flush()
+
+		expect(api.getWidgetItems).toHaveBeenCalledWith(['recommendations'], 7)
+	})
 })

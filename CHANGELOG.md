@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Nextcloud Dashboard widget proxy** (`nc-widget` placement type,
+  REQ-WDG-018..021): any installed Nextcloud Dashboard widget (Mail, Calendar,
+  Talk, Weather, etc.) can now be embedded as a grid cell. Two rendering modes:
+  (1) **native** — the widget's own bundle registers its callback via
+  `OCA.Dashboard.register`; the bridge hands the render container to it for full
+  feature parity with `/dashboard`; (2) **API fallback** — items are fetched via
+  `GET /api/widgets/items?widgets[]=<id>&limit=7` and rendered as a flat 7-item
+  card list. A 200 ms × 15 retries (~3 s) poll detects late-loading bundles and
+  upgrades the cell to native mode without flicker. Display modes: `vertical`
+  (32 px icons, flex-column list) and `horizontal` (120 px cards, 44 px icons,
+  flex-row wrap). Widget picker uses `NcWidgetGridPicker` (icon cards populated
+  from the `widgets` initial-state list). i18n: `nl_NL` + `en_US`.
+
 - **Dashboard-switcher sidebar** (REQ-SWITCH-001..007): a fixed-position
   slide-in left navigation panel (`DashboardSwitcherSidebar.vue`) lists
   every dashboard visible to the user, grouped into three labelled sections

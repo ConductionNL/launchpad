@@ -1,6 +1,21 @@
 {
-  "spec": "openspec/changes/active-dashboard-resolution",
+  "spec": "openspec/changes/nc-dashboard-widget-proxy",
   "verified": [
+    {"task": "1", "file": "src/services/widgetBridge.js", "ok": true},
+    {"task": "2", "file": "src/components/Widgets/Renderers/NcDashboardWidget.vue", "ok": true},
+    {"task": "3", "file": "src/components/Widgets/Renderers/NcDashboardWidget.vue", "ok": true},
+    {"task": "4", "file": "src/components/Widgets/Forms/NcDashboardForm.vue", "ok": true},
+    {"task": "5", "file": "src/constants/widgetRegistry.js", "ok": true},
+    {"task": "6", "file": "src/services/__tests__/widgetBridge.spec.js", "ok": true},
+    {"task": "7", "file": "src/components/Widgets/Renderers/__tests__/NcDashboardWidget.spec.js", "ok": true},
+    {"task": "8", "file": "tests/e2e/nc-dashboard-widget.spec.ts", "ok": true},
+    {"task": "9", "file": "eslint: 0 errors", "ok": true},
+    {"task": "10", "file": "l10n/en.json + l10n/nl.json", "ok": true}
+  ],
+  "stubs": [],
+  "missing_routes": [],
+  "_prev_spec": "openspec/changes/active-dashboard-resolution",
+  "_prev_verified": [
     {"task": "1", "file": "lib/Service/DashboardService.php", "ok": true, "note": "ACTIVE_DASHBOARD_UUID_PREF_KEY constant at line 100; resolveActiveDashboard() at line 1162"},
     {"task": "2", "file": "lib/Service/DashboardService.php", "ok": true, "note": "7-step chain implemented in resolveActiveDashboard(); findFirstGroupSharedWhere() helper"},
     {"task": "3", "file": "lib/Service/DashboardService.php", "ok": true, "note": "Stale-pref auto-clear: IConfig::deleteUserValue + logger->warning"},
@@ -14,22 +29,6 @@
     {"task": "11", "file": "tests/Unit/Controller/DashboardApiControllerActiveTest.php", "ok": true, "note": "5 tests covering setActiveDashboard()"},
     {"task": "12", "file": "tests/e2e/active-dashboard-resolution.spec.ts", "ok": true, "note": "3 Playwright scenarios"},
     {"task": "13", "file": "openspec/changes/active-dashboard-resolution/design.md", "ok": true, "note": "design.md with stale-pref rationale; 14 hydra gates green; 17 phpunit tests pass"}
-  ],
-  "stubs": [],
-  "missing_routes": [],
-  "_prev_spec": "openspec/changes/resource-serving",
-  "_prev_verified": [
-    {"task": "1", "file": "lib/Controller/ResourceServeController.php", "ok": true, "note": "getResource() at line 129: path traversal guard (isUnsafeFilename), Content-Type map, Cache-Control header"},
-    {"task": "1", "file": "lib/Service/ResourceServeService.php", "ok": true, "note": "findFile(), contentTypeForFilename() with extension map per REQ-RES-006"},
-    {"task": "2", "file": "lib/Controller/ResourceServeController.php", "ok": true, "note": "413 guard at line 152: getSize() checked BEFORE getContent(); refuses > ResourceService::MAX_BYTES"},
-    {"task": "3", "file": "lib/Controller/ResourceServeController.php", "ok": true, "note": "listResources() at line 197: returns {status:'success', resources:[...]} sorted by mtime desc; empty folder → HTTP 200 empty array"},
-    {"task": "3", "file": "lib/Service/ResourceServeService.php", "ok": true, "note": "listFiles() returns [] on NotFoundException (never 404)"},
-    {"task": "4", "file": "lib/Controller/ResourceServeController.php", "ok": true, "note": "Cache-busting strategy documented in class docblock and getResource docblock (uniqid suffix makes one-year cache safe)"},
-    {"task": "5", "file": "appinfo/routes.php", "ok": true, "note": "resourceServe#getResource at /resource/{filename} [^/]+ (non-OCS); resourceServe#listResources at /api/resources GET (OCS)"},
-    {"task": "6", "file": "tests/Unit/Controller/ResourceServeControllerTest.php", "ok": true, "note": "testServePngReturnsBytesAndHeaders, testServeSvgUsesImageSvgXmlContentType, testUnknownExtensionFallsBackToOctetStream, testMissingFileReturns404"},
-    {"task": "7", "file": "tests/Unit/Controller/ResourceServeControllerTest.php", "ok": true, "note": "testEncodedPathTraversalReturns404, testOversizeFileRefusedWithoutReadingBytes (expects(never)->method('getContent')), testListReturnsResourcesSortedByModifiedDesc, testListWithNoFolderReturnsEmptyArray"},
-    {"task": "8", "file": "tests/e2e/resource-serve.spec.ts", "ok": true, "note": "Playwright: image widget renders resource via /apps/{appId}/resource/<filename>; unauthenticated fetch redirects to login"},
-    {"task": "9", "file": "lib/Controller/ResourceServeController.php", "ok": true, "note": "14/14 hydra-gates green (--scope-to-diff); phpcs PASS; phpstan PASS; SPDX @license+@copyright in all modified PHP files; no openapi.json in repo (pre-existing: none to update)"}
   ],
   "_prev_stubs": [],
   "_prev_missing_routes": []

@@ -307,6 +307,8 @@ class Dashboard extends Entity implements JsonSerializable
      *
      * The backend never inspects this value; it is stored verbatim and
      * the discriminator + lookup live in `src/constants/dashboardIcons.js`.
+     * No migration is needed — the column already exists on
+     * `oc_launchpad_dashboards`.
      *
      * @var string|null
      */

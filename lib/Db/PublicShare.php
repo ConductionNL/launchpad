@@ -34,6 +34,9 @@
  * @method void        setViewCount(?int $viewCount)
  * @method string|null getLastViewedAt()
  * @method void        setLastViewedAt(?string $lastViewedAt)
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -45,6 +48,27 @@ use OCP\AppFramework\Db\Entity;
 
 /**
  * Public share entity. jsonSerialize() omits passwordHash for security.
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-2
+ *
+ * @method string|null getDashboardUuid()
+ * @method void        setDashboardUuid(?string $dashboardUuid)
+ * @method string|null getToken()
+ * @method void        setToken(?string $token)
+ * @method string|null getPasswordHash()
+ * @method void        setPasswordHash(?string $passwordHash)
+ * @method string|null getExpiresAt()
+ * @method void        setExpiresAt(?string $expiresAt)
+ * @method string|null getCreatedBy()
+ * @method void        setCreatedBy(?string $createdBy)
+ * @method string|null getCreatedAt()
+ * @method void        setCreatedAt(?string $createdAt)
+ * @method string|null getRevokedAt()
+ * @method void        setRevokedAt(?string $revokedAt)
+ * @method int|null    getViewCount()
+ * @method void        setViewCount(?int $viewCount)
+ * @method string|null getLastViewedAt()
+ * @method void        setLastViewedAt(?string $lastViewedAt)
  */
 class PublicShare extends Entity implements JsonSerializable
 {
@@ -136,6 +160,8 @@ class PublicShare extends Entity implements JsonSerializable
      * @param string $url The absolute share URL.
      *
      * @return void
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-2
      */
     public function setUrl(string $url): void
     {
@@ -146,6 +172,8 @@ class PublicShare extends Entity implements JsonSerializable
      * Get the computed public URL.
      *
      * @return string|null
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-2
      */
     public function getUrl(): ?string
     {
@@ -156,6 +184,8 @@ class PublicShare extends Entity implements JsonSerializable
      * Serialize to JSON — passwordHash is excluded.
      *
      * @return array
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-2
      */
     public function jsonSerialize(): array
     {

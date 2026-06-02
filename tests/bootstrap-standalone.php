@@ -6,6 +6,9 @@
  * Uses vendor/nextcloud/ocp stubs so PHPUnit can mock OCP interfaces.
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-10
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);

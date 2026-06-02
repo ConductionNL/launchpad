@@ -15,6 +15,9 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -44,6 +47,8 @@ use Psr\Log\LoggerInterface;
  * Controller for public-share CRUD and anonymous render endpoints.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
  */
 class PublicShareController extends Controller
 {
@@ -150,7 +155,7 @@ class PublicShareController extends Controller
             );
             return new DataResponse(
                 data: array_map(
-                    callback: static fn ($s) => $s->jsonSerialize(),
+                    callback: static fn ($share) => $share->jsonSerialize(),
                     array: $shares
                 )
             );
@@ -234,6 +239,8 @@ class PublicShareController extends Controller
      * @return DataResponse HTTP 200 dashboard payload, 401 if password required, 404 if invalid.
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -295,6 +302,8 @@ class PublicShareController extends Controller
      * @return DataResponse HTTP 200 with {access: bool}, 429 when throttled, 404 when share invalid.
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -312,17 +321,17 @@ class PublicShareController extends Controller
         }
 
         try {
-            $ok     = $this->shareService->unlockShare(
+            $isSuccess = $this->shareService->unlockShare(
                 token: $token,
                 password: $password,
                 ip: $ip
             );
-            $status = Http::STATUS_UNAUTHORIZED;
-            if ($ok === true) {
+            $status    = Http::STATUS_UNAUTHORIZED;
+            if ($isSuccess === true) {
                 $status = Http::STATUS_OK;
             }
 
-            return new DataResponse(data: ['access' => $ok], statusCode: $status);
+            return new DataResponse(data: ['access' => $isSuccess], statusCode: $status);
         } catch (MaxDelayReached) {
             return new DataResponse(
                 data: ['error' => 'Too many attempts'],

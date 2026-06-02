@@ -15,6 +15,9 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-4
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -23,6 +26,8 @@ namespace OCA\MyDash\Exception;
 
 /**
  * Public share not found (or revoked/expired).
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-4
  */
 class ShareNotFoundException extends ResourceException
 {

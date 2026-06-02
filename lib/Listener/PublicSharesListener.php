@@ -15,6 +15,9 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -32,6 +35,8 @@ use Throwable;
  * Soft-revokes public shares for a deleted dashboard.
  *
  * @implements IEventListener<DashboardDeletedEvent>
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
  */
 class PublicSharesListener implements IEventListener
 {

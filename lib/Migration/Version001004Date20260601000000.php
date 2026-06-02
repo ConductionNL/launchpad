@@ -14,6 +14,9 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-1
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -28,6 +31,8 @@ use OCP\Migration\SimpleMigrationStep;
 
 /**
  * Creates the mydash_public_shares table.
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-1
  */
 class Version001004Date20260601000000 extends SimpleMigrationStep
 {
@@ -39,6 +44,11 @@ class Version001004Date20260601000000 extends SimpleMigrationStep
      * @param array   $options       Migration options.
      *
      * @return ISchemaWrapper|null
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-1
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function changeSchema(
         IOutput $output,

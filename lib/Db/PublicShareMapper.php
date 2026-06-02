@@ -15,12 +15,16 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
 namespace OCA\MyDash\Db;
 
+use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -33,6 +37,8 @@ use OCP\IURLGenerator;
  * Mapper for PublicShare entities.
  *
  * @extends QBMapper<PublicShare>
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
  */
 class PublicShareMapper extends QBMapper
 {
@@ -93,6 +99,8 @@ class PublicShareMapper extends QBMapper
      * @return PublicShare
      *
      * @throws DoesNotExistException When no share matches the token.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
      */
     public function findByToken(string $token): PublicShare
     {
@@ -117,6 +125,8 @@ class PublicShareMapper extends QBMapper
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return PublicShare[]
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
      */
     public function findByDashboardUuid(string $dashboardUuid): array
     {
@@ -133,7 +143,7 @@ class PublicShareMapper extends QBMapper
 
         $shares = $this->findEntities(query: $qb);
         return array_map(
-            callback: fn (PublicShare $s) => $this->hydrateUrl(share: $s),
+            callback: fn (PublicShare $share) => $this->hydrateUrl(share: $share),
             array: $shares
         );
     }//end findByDashboardUuid()
@@ -144,10 +154,12 @@ class PublicShareMapper extends QBMapper
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return PublicShare[]
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
      */
     public function findActiveByDashboardUuid(string $dashboardUuid): array
     {
-        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();
         $qb->select(selects: '*')
@@ -172,7 +184,7 @@ class PublicShareMapper extends QBMapper
 
         $shares = $this->findEntities(query: $qb);
         return array_map(
-            callback: fn (PublicShare $s) => $this->hydrateUrl(share: $s),
+            callback: fn (PublicShare $share) => $this->hydrateUrl(share: $share),
             array: $shares
         );
     }//end findActiveByDashboardUuid()
@@ -185,10 +197,12 @@ class PublicShareMapper extends QBMapper
      * @param int $id The share primary key.
      *
      * @return void
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
      */
     public function softRevoke(int $id): void
     {
-        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();
         $qb->update(update: $this->getTableName())
@@ -221,6 +235,10 @@ class PublicShareMapper extends QBMapper
      * @param string $ip    The client IP address.
      *
      * @return void
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function incrementViewCount(int $id, string $token, string $ip): void
     {
@@ -234,7 +252,7 @@ class PublicShareMapper extends QBMapper
 
         $this->cache->set(key: $cacheKey, value: 1, ttl: 60);
 
-        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();
         $qb->update(update: $this->getTableName())
@@ -272,7 +290,7 @@ class PublicShareMapper extends QBMapper
      */
     private function updateLastViewedAt(int $id): void
     {
-        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();
         $qb->update(update: $this->getTableName())
@@ -299,10 +317,12 @@ class PublicShareMapper extends QBMapper
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return int The number of rows updated.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
      */
     public function revokeByDashboardUuid(string $dashboardUuid): int
     {
-        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();
         $qb->update(update: $this->getTableName())

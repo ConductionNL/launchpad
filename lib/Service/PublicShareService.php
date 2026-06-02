@@ -16,6 +16,9 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -31,6 +34,7 @@ use OCA\MyDash\Exception\ShareExpiredException;
 use OCA\MyDash\Exception\ShareNotFoundException;
 use OCA\MyDash\Exception\SharePasswordRequiredException;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\Security\Bruteforce\IThrottler;
 use OCP\Security\Bruteforce\MaxDelayReached;
@@ -42,6 +46,8 @@ use Psr\Log\LoggerInterface;
  * Service for public-share lifecycle management.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
  */
 class PublicShareService
 {
@@ -94,8 +100,12 @@ class PublicShareService
      *
      * @return PublicShare The new share with URL populated.
      *
-     * @throws \OCP\AppFramework\Db\DoesNotExistException When dashboard not found.
-     * @throws \OCP\AppFramework\Http\Response            Via 403 on auth failure.
+     * @throws DoesNotExistException  When dashboard not found.
+     * @throws OCSForbiddenException  Via 403 on auth failure.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function createPublicShare(
         string $dashboardUuid,
@@ -127,13 +137,13 @@ class PublicShareService
         }
 
         if ($expiresAt !== null && $expiresAt !== '') {
-            $parsed = \DateTime::createFromFormat(\DateTime::ATOM, $expiresAt);
+            $parsed = DateTime::createFromFormat(DateTime::ATOM, $expiresAt);
             if ($parsed === false) {
-                $parsed = \DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $expiresAt);
+                $parsed = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $expiresAt);
             }
 
             if ($parsed === false) {
-                $parsed = \DateTime::createFromFormat('Y-m-d H:i:s', $expiresAt);
+                $parsed = DateTime::createFromFormat('Y-m-d H:i:s', $expiresAt);
             }
 
             if ($parsed !== false) {
@@ -143,7 +153,14 @@ class PublicShareService
             }
         }
 
-        return $this->shareMapper->insert(entity: $share);
+        $saved = $this->shareMapper->insert(entity: $share);
+
+        $this->logger->debug(
+            message: sprintf('mydash: public share created for dashboard %s', $dashboardUuid),
+            context: ['app' => 'mydash']
+        );
+
+        return $saved;
     }//end createPublicShare()
 
     /**
@@ -155,6 +172,8 @@ class PublicShareService
      * @return PublicShare[]
      *
      * @throws DoesNotExistException When dashboard not found.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
      */
     public function listActiveShares(string $dashboardUuid, string $callerId): array
     {
@@ -177,8 +196,10 @@ class PublicShareService
      *
      * @return void
      *
-     * @throws DoesNotExistException When dashboard not found.
+     * @throws DoesNotExistException  When dashboard not found.
      * @throws ShareNotFoundException When the share does not belong to this dashboard.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
      */
     public function revokeShare(
         string $dashboardUuid,
@@ -220,8 +241,12 @@ class PublicShareService
      *
      * @return array{share: PublicShare, dashboard: Dashboard}
      *
-     * @throws ShareNotFoundException          When token invalid, revoked, or expired.
-     * @throws SharePasswordRequiredException  When password is required but not supplied.
+     * @throws ShareNotFoundException         When token invalid, revoked, or expired.
+     * @throws SharePasswordRequiredException When password is required but not supplied.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function renderShareContent(
         string $token,
@@ -271,8 +296,12 @@ class PublicShareService
      *
      * @return bool True on success; false on wrong password.
      *
-     * @throws ShareNotFoundException         When token does not exist or is inactive.
-     * @throws MaxDelayReached                When throttle limit is exceeded (429).
+     * @throws ShareNotFoundException When token does not exist or is inactive.
+     * @throws MaxDelayReached        When throttle limit is exceeded (429).
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function unlockShare(
         string $token,
@@ -292,19 +321,19 @@ class PublicShareService
             return true;
         }
 
-        $ok = $this->hasher->verify(
+        $isValid = $this->hasher->verify(
             message: $password,
             hash: (string) $share->getPasswordHash()
         );
 
-        if ($ok === false) {
+        if ($isValid === false) {
             $this->throttler->registerAttempt(
                 action: self::ACTION_SHARE_PASSWORD,
                 ip: $ip
             );
         }
 
-        return $ok;
+        return $isValid;
     }//end unlockShare()
 
     /**
@@ -318,6 +347,9 @@ class PublicShareService
      * @return PublicShare
      *
      * @throws ShareNotFoundException
+     *
+     * @SuppressWarnings(PHPMD.ShortVariable)
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function resolveActiveShare(string $token, string $ip): PublicShare
     {
@@ -340,12 +372,12 @@ class PublicShareService
         }
 
         if ($share->getExpiresAt() !== null) {
-            $expiry = \DateTime::createFromFormat('Y-m-d H:i:s', (string) $share->getExpiresAt());
+            $expiry = DateTime::createFromFormat('Y-m-d H:i:s', (string) $share->getExpiresAt());
             if ($expiry === false) {
-                $expiry = new \DateTime((string) $share->getExpiresAt());
+                $expiry = new DateTime((string) $share->getExpiresAt());
             }
 
-            if ($expiry < new \DateTime()) {
+            if ($expiry < new DateTime()) {
                 $this->throttler->registerAttempt(
                     action: self::ACTION_SHARE_ACCESS,
                     ip: $ip
@@ -368,6 +400,8 @@ class PublicShareService
      * @return void
      *
      * @throws \OCP\AppFramework\OCS\OCSForbiddenException Via 403.
+     *
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
      */
     public function authorizeShareMutation(Dashboard $dashboard, string $userId): void
     {
@@ -375,7 +409,7 @@ class PublicShareService
         $isAdmin = $this->groupManager->isAdmin(userId: $userId);
 
         if ($isOwner === false && $isAdmin === false) {
-            throw new \OCP\AppFramework\OCS\OCSForbiddenException('Not authorized');
+            throw new OCSForbiddenException('Not authorized');
         }
     }//end authorizeShareMutation()
 }//end class

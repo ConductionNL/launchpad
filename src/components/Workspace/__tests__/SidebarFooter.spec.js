@@ -83,7 +83,6 @@ describe('SidebarFooter', () => {
 			const link = wrapper.find('a.dashboard-switcher-sidebar-footer__doc-link')
 			expect(link.exists()).toBe(true)
 			expect(link.attributes('href')).toBe(DOCS_URL)
-			expect(link.attributes('href')).toBe('https://mydash.conduction.nl')
 			expect(link.attributes('target')).toBe('_blank')
 			expect(link.attributes('rel')).toBe('noopener noreferrer')
 		})

@@ -41,6 +41,7 @@ use ZipArchive;
  * @SuppressWarnings(PHPMD.UndefinedVariable)
  *      `preg_match` populates its by-ref `$matches` argument; PHPMD's
  *      flow analysis does not follow PHP by-reference semantics.
+ * @spec                                             openspec/specs/confluence-html-import/spec.md
  */
 class ArchiveParser
 {

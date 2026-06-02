@@ -32,6 +32,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Controller for exposing Prometheus metrics.
+ *
+ * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-25
  */
 class MetricsController extends Controller
 {

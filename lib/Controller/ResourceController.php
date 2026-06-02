@@ -51,6 +51,7 @@ use Throwable;
  * Resource upload + serving controller.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @spec                                           openspec/specs/resource-uploads/spec.md
  */
 class ResourceController extends Controller
 {

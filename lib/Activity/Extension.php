@@ -59,6 +59,7 @@ use OCP\L10N\IFactory;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors event catalogue size.
  * @SuppressWarnings(PHPMD.UnusedFormalParameter)  — $previousEvent required by IProvider interface.
+ * @spec                                           openspec/specs/activity-feed-integration/spec.md
  */
 class Extension implements IProvider
 {
@@ -143,6 +144,7 @@ class Extension implements IProvider
      * @return IEvent The parsed event.
      *
      * @throws UnknownActivityException When the event type is not handled.
+     * @spec   openspec/specs/activity-feed-integration/spec.md
      */
     public function parse(
         $language,
@@ -202,6 +204,7 @@ class Extension implements IProvider
      * @param string $eventType The event type string.
      *
      * @return string The absolute icon URL.
+     * @spec   openspec/specs/activity-feed-integration/spec.md
      */
     public function getIcon(string $eventType): string
     {
@@ -232,6 +235,7 @@ class Extension implements IProvider
      * by `parse()` and by NC Activity's translation layer.
      *
      * @return array<string, array{self: string, other: string}>
+     * @spec   openspec/specs/activity-feed-integration/spec.md
      */
     public function getSubjectTemplates(): array
     {

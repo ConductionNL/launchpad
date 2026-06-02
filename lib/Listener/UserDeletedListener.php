@@ -54,6 +54,7 @@ use Throwable;
  *                                                  group and user services
  *                                                  in one orchestrating
  *                                                  listener.
+ * @spec                                           openspec/specs/dashboard-cascade-events/spec.md
  */
 class UserDeletedListener implements IEventListener
 {

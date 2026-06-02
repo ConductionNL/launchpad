@@ -59,6 +59,7 @@ use Throwable;
  *                                                 placement, session,
  *                                                 logger, and the
  *                                                 underlying service.
+ * @spec                                           openspec/specs/files-widget/spec.md
  */
 class FilesWidgetController extends Controller
 {

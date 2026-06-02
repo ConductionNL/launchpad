@@ -51,6 +51,7 @@ use Throwable;
  *                                                 settings are all
  *                                                 unavoidable for this
  *                                                 capability.
+ * @spec                                           openspec/specs/resource-uploads/spec.md
  */
 class FileService
 {

@@ -64,6 +64,7 @@ use Throwable;
  *  endpoints (list/fetch/create/restore) plus the cascade hook live
  *  here intentionally — splitting risks losing the single-point
  *  permission guard.
+ * @spec                                           openspec/specs/dashboard-versioning/spec.md
  */
 class DashboardVersionService
 {

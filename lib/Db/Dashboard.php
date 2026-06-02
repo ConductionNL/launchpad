@@ -109,6 +109,7 @@ use OCP\AppFramework\Db\Entity;
  *                                        per the admin-templates /
  *                                        dashboard-tree /
  *                                        footer-customization designs.
+ * @spec                                  openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -599,6 +600,7 @@ class Dashboard extends Entity implements JsonSerializable
      * Get target groups as array.
      *
      * @return array The decoded target groups.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function getTargetGroupsArray(): array
     {
@@ -620,6 +622,7 @@ class Dashboard extends Entity implements JsonSerializable
      * @param array $groups The target groups array.
      *
      * @return void
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function setTargetGroupsArray(array $groups): void
     {
@@ -633,6 +636,7 @@ class Dashboard extends Entity implements JsonSerializable
      * Serialize to JSON (owner / admin view — full payload).
      *
      * @return array The serialized dashboard.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function jsonSerialize(): array
     {
@@ -713,6 +717,7 @@ class Dashboard extends Entity implements JsonSerializable
      *                            admin setting.
      *
      * @return bool True when comments are effectively enabled.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function isCommentsEffectivelyEnabled(bool $globalDefault): bool
     {

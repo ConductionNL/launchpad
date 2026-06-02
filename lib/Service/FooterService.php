@@ -62,6 +62,7 @@ use OCA\MyDash\Db\Dashboard;
  * @SuppressWarnings(PHPMD.NPathComplexity)
  *      Same — every conditional in the sanitiser is documented in
  *      REQ-FTR-005 and the test suite covers each branch.
+ * @spec                                             openspec/specs/dashboards/spec.md
  */
 class FooterService
 {

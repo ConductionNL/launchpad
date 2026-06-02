@@ -62,6 +62,7 @@ use Throwable;
  *  the service would duplicate the all-or-nothing guard logic.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Branching mirrors the
  *  per-operation idempotency rules pinned in REQ-BULK-007.
+ * @spec                                             openspec/specs/dashboard-bulk-operations/spec.md
  */
 class BulkOperationService
 {

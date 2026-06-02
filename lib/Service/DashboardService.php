@@ -58,6 +58,7 @@ use Throwable;
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)     `resolveActiveDashboard` fans out the 7-step REQ-DASH-018 chain.
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)     Single source of truth for CRUD + tree + publication + footer.
  * @SuppressWarnings(PHPMD.TooManyMethods)           Mode methods live next to one another for grep-ability.
+ * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardService
 {
@@ -277,6 +278,7 @@ class DashboardService
      * @param string $userId The user ID.
      *
      * @return Dashboard[] The list of personal dashboards.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function getUserDashboards(string $userId): array
     {
@@ -1814,6 +1816,7 @@ class DashboardService
      * @param string $userId The user ID.
      *
      * @return bool Whether the user is an admin.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function isAdmin(string $userId): bool
     {

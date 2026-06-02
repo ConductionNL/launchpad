@@ -31,6 +31,8 @@ use DOMNode;
 
 /**
  * Allow-list HTML sanitiser tuned for Confluence body content.
+ *
+ * @spec openspec/specs/confluence-html-import/spec.md
  */
 class HtmlSanitizer
 {

@@ -44,6 +44,7 @@ use Throwable;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @spec                                             openspec/specs/background-job-feed-refresh/spec.md
  */
 class FeedRefreshService
 {

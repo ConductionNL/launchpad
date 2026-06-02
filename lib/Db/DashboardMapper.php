@@ -38,6 +38,7 @@ use OCP\IDBConnection;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Personal + group-shared
  *  + tree + publication-state + template-discovery query paths converge here
  *  per the cross-cutting `dashboards` table design.
+ * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardMapper extends QBMapper
 {
@@ -63,6 +64,7 @@ class DashboardMapper extends QBMapper
      * @return Dashboard The found dashboard.
      *
      * @throws DoesNotExistException If not found.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function find(int $id): Dashboard
     {
@@ -90,6 +92,7 @@ class DashboardMapper extends QBMapper
      * @return Dashboard The found dashboard.
      *
      * @throws DoesNotExistException If not found.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findByUuid(string $uuid): Dashboard
     {
@@ -112,6 +115,7 @@ class DashboardMapper extends QBMapper
      * @param string $userId The user ID.
      *
      * @return Dashboard[] The list of dashboards.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findByUserId(string $userId): array
     {
@@ -145,6 +149,7 @@ class DashboardMapper extends QBMapper
      * @return Dashboard The active dashboard.
      *
      * @throws DoesNotExistException If no active dashboard exists.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findActiveByUserId(string $userId): Dashboard
     {
@@ -182,6 +187,7 @@ class DashboardMapper extends QBMapper
      * Find all admin templates.
      *
      * @return Dashboard[] The list of admin templates.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findAdminTemplates(): array
     {
@@ -207,6 +213,7 @@ class DashboardMapper extends QBMapper
      * @return Dashboard The default template.
      *
      * @throws DoesNotExistException If no default template exists.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findDefaultTemplate(): Dashboard
     {
@@ -240,6 +247,7 @@ class DashboardMapper extends QBMapper
      * @param string $userId The user ID.
      *
      * @return void
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function deactivateAllForUser(string $userId): void
     {
@@ -275,6 +283,7 @@ class DashboardMapper extends QBMapper
      * @param string $userId      The user ID.
      *
      * @return void
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function setActive(int $dashboardId, string $userId): void
     {
@@ -328,6 +337,7 @@ class DashboardMapper extends QBMapper
      *                        sentinel).
      *
      * @return Dashboard[] The group-shared dashboards in that group.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findByGroup(string $groupId): array
     {
@@ -374,6 +384,7 @@ class DashboardMapper extends QBMapper
      *
      * @return array<int, array{dashboard: Dashboard, source: string}>
      *   List of {dashboard, source} pairs, deduplicated by dashboard UUID.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findVisibleToUser(
         string $userId,
@@ -493,6 +504,7 @@ class DashboardMapper extends QBMapper
      * @param string $groupId The group ID.
      *
      * @return int The number of group-shared dashboards in that group.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function countByGroup(string $groupId): int
     {
@@ -540,6 +552,7 @@ class DashboardMapper extends QBMapper
      *                                will immediately be set to 1).
      *
      * @return int The number of rows affected.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function clearGroupDefaults(
         string $groupId,
@@ -599,6 +612,7 @@ class DashboardMapper extends QBMapper
      * @param string $uuid    The dashboard UUID from the URL.
      *
      * @return int The number of rows affected (0 or 1).
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function setGroupDefaultUuid(
         string $groupId,
@@ -655,6 +669,7 @@ class DashboardMapper extends QBMapper
      * @param string|null $parentUuid The parent UUID (null ⇒ root).
      *
      * @return Dashboard[] The direct children, ordered for tree display.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findByParent(?string $parentUuid): array
     {
@@ -696,6 +711,7 @@ class DashboardMapper extends QBMapper
      * @param string      $slug       The slug to look up (case folded).
      *
      * @return Dashboard|null The matching child, or null when not found.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findChildBySlug(
         ?string $parentUuid,
@@ -745,6 +761,7 @@ class DashboardMapper extends QBMapper
      * @param string $parentUuid The parent UUID.
      *
      * @return int The number of direct children.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function countChildrenByParent(string $parentUuid): int
     {
@@ -782,6 +799,7 @@ class DashboardMapper extends QBMapper
      *
      * @return Dashboard[] The ancestor entities ordered root → parent
      *                     (the child itself is NOT included).
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findAncestors(string $uuid): array
     {
@@ -826,6 +844,7 @@ class DashboardMapper extends QBMapper
      * @param string $ancestorUuid The ancestor dashboard UUID.
      *
      * @return Dashboard[] Every descendant dashboard, breadth-first.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findDescendants(string $ancestorUuid): array
     {
@@ -868,6 +887,7 @@ class DashboardMapper extends QBMapper
      * data on the underlying table. REQ-DASH-034.
      *
      * @return Dashboard[] The due-scheduled dashboards.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findDueScheduled(): array
     {
@@ -916,6 +936,7 @@ class DashboardMapper extends QBMapper
      *                              `'updatedAt'`.
      *
      * @return Dashboard[] The matching admin templates.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findAllTemplatesForGallery(
         ?string $category=null,
@@ -984,6 +1005,7 @@ class DashboardMapper extends QBMapper
      *
      * @return Dashboard|null The owned dashboard, or `null` when no
      *                        match.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function findOwnedByUserAndUuid(
         string $userId,
@@ -1029,6 +1051,7 @@ class DashboardMapper extends QBMapper
      * Clear default flag on all admin templates.
      *
      * @return void
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function clearDefaultTemplates(): void
     {

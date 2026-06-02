@@ -45,6 +45,7 @@ use OCP\AppFramework\Db\Entity;
  * @method void setLastModified(?string $lastModified)
  * @method string|null getItemsJson()
  * @method void setItemsJson(?string $itemsJson)
+ * @spec   openspec/specs/background-job-feed-refresh/spec.md
  */
 class FeedCache extends Entity implements JsonSerializable
 {
@@ -135,6 +136,7 @@ class FeedCache extends Entity implements JsonSerializable
      *
      * @return array<int, array<string, mixed>> The items, or an empty
      *                                          array when null/invalid.
+     * @spec   openspec/specs/background-job-feed-refresh/spec.md
      */
     public function decodeItems(): array
     {
@@ -165,6 +167,7 @@ class FeedCache extends Entity implements JsonSerializable
      * @param array<int, array<string, mixed>> $items The items.
      *
      * @return void
+     * @spec   openspec/specs/background-job-feed-refresh/spec.md
      */
     public function encodeItems(array $items): void
     {
@@ -196,6 +199,7 @@ class FeedCache extends Entity implements JsonSerializable
      * does not need to re-decode them on the client side.
      *
      * @return array The serialized feed-cache row.
+     * @spec   openspec/specs/background-job-feed-refresh/spec.md
      */
     public function jsonSerialize(): array
     {

@@ -50,6 +50,7 @@ use OCP\IUserManager;
  *  projection, birthdate normalisation, and avatar URL construction in one
  *  cohesive unit — splitting would force the controller to weave the same
  *  state across multiple services.
+ * @spec                                             openspec/specs/people-widget/spec.md
  */
 class PeopleWidgetService
 {

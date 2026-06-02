@@ -61,6 +61,7 @@ use OCP\Notification\IManager as INotificationManager;
  *                                                  Nextcloud subsystem
  *                                                  the comment workflow
  *                                                  must integrate with.
+ * @spec                                           openspec/specs/dashboard-comments/spec.md
  */
 class CommentService
 {

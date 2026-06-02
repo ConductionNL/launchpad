@@ -31,6 +31,7 @@ use OCP\IDBConnection;
  * Mapper for DashboardShare entities.
  *
  * @extends QBMapper<DashboardShare>
+ * @spec    openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class DashboardShareMapper extends QBMapper
 {
@@ -56,6 +57,7 @@ class DashboardShareMapper extends QBMapper
      * @return DashboardShare The share.
      *
      * @throws DoesNotExistException When not found.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function find(int $id): DashboardShare
     {
@@ -81,6 +83,7 @@ class DashboardShareMapper extends QBMapper
      * @param int $dashboardId The dashboard ID.
      *
      * @return DashboardShare[] The shares.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findByDashboardId(int $dashboardId): array
     {
@@ -108,6 +111,7 @@ class DashboardShareMapper extends QBMapper
      * @param string $permissionLevel The required permission level.
      *
      * @return DashboardShare[] The shares.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findByDashboardAndLevel(
         int $dashboardId,
@@ -146,6 +150,7 @@ class DashboardShareMapper extends QBMapper
      * @param string $shareWith   The recipient.
      *
      * @return DashboardShare|null The share or null.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findShare(
         int $dashboardId,
@@ -192,6 +197,7 @@ class DashboardShareMapper extends QBMapper
      * @param string[] $groupIds The recipient's group ids.
      *
      * @return DashboardShare[] The shares.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findForRecipient(string $userId, array $groupIds): array
     {
@@ -237,6 +243,7 @@ class DashboardShareMapper extends QBMapper
      * @param int $dashboardId The dashboard ID.
      *
      * @return void
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByDashboardId(int $dashboardId): void
     {
@@ -264,6 +271,7 @@ class DashboardShareMapper extends QBMapper
      * @param string $userId The recipient user ID.
      *
      * @return int The number of rows deleted.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByRecipientUser(string $userId): int
     {
@@ -296,6 +304,7 @@ class DashboardShareMapper extends QBMapper
      *                              to preserve.
      *
      * @return int The number of rows deleted.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteNotIn(int $dashboardId, array $keepKeys): int
     {
@@ -324,6 +333,7 @@ class DashboardShareMapper extends QBMapper
      * be 0 on a healthy install.
      *
      * @return int The number of orphaned share rows.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function countOrphaned(): int
     {
@@ -355,6 +365,7 @@ class DashboardShareMapper extends QBMapper
      * support DELETE…JOIN portably across MySQL/Postgres/SQLite.
      *
      * @return int The number of rows deleted.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteOrphaned(): int
     {
@@ -407,6 +418,7 @@ class DashboardShareMapper extends QBMapper
      * @param string $ownerId   The dashboard owner.
      *
      * @return int The number of rows deleted.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByOwnerAndRecipient(
         string $shareType,

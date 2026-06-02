@@ -43,6 +43,7 @@ use OCP\IUserSession;
  * Controller for dashboard translation endpoints (REQ-DASH-038..044).
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @spec                                         openspec/specs/dashboard-language-content/spec.md
  */
 class DashboardTranslationApiController extends Controller
 {

@@ -34,6 +34,8 @@ use OCA\MyDash\Exception\MimeMismatchException;
 
 /**
  * Validates that declared raster image type matches the detected MIME.
+ *
+ * @spec openspec/specs/resource-uploads/spec.md
  */
 class ImageMimeValidator
 {

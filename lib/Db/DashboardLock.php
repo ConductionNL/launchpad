@@ -41,6 +41,7 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
+ * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class DashboardLock extends Entity implements JsonSerializable
 {
@@ -104,6 +105,7 @@ class DashboardLock extends Entity implements JsonSerializable
      * default — a malformed row should not block a fresh acquire).
      *
      * @return bool True when the lock is stale.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function isExpired(): bool
     {
@@ -125,6 +127,7 @@ class DashboardLock extends Entity implements JsonSerializable
      * Returns 0 (never negative) for an already-expired lock.
      *
      * @return int Seconds remaining, clamped to >= 0.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function expiresIn(): int
     {
@@ -149,6 +152,7 @@ class DashboardLock extends Entity implements JsonSerializable
      * Returns `null` for an entity without `updatedAt`.
      *
      * @return string|null ISO-style timestamp (Y-m-d H:i:s) or null.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function impliedExpiresAt(): ?string
     {
@@ -170,6 +174,7 @@ class DashboardLock extends Entity implements JsonSerializable
      * Serialize to JSON for API responses (REQ-LOCK-004 shape).
      *
      * @return array The serialized lock.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function jsonSerialize(): array
     {

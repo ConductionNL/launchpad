@@ -58,6 +58,7 @@ use Throwable;
  *                                                 generation are both
  *                                                 unavoidable for this
  *                                                 capability.
+ * @spec                                           openspec/specs/files-widget/spec.md
  */
 class FilesWidgetService
 {

@@ -18,6 +18,9 @@
  *
  * @spec openspec/changes/resource-uploads/tasks.md#task-2
  * @spec openspec/changes/resource-uploads/tasks.md#task-6
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);

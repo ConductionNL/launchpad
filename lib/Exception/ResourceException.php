@@ -18,6 +18,9 @@
  *
  * @spec openspec/changes/resource-uploads/tasks.md#task-2
  * @spec openspec/changes/resource-uploads/tasks.md#task-6
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -62,6 +65,8 @@ abstract class ResourceException extends Exception
      * Get the stable error code.
      *
      * @return string The machine-readable error code.
+     *
+     * @spec openspec/changes/resource-uploads/tasks.md#task-2
      */
     public function getErrorCode(): string
     {
@@ -72,6 +77,8 @@ abstract class ResourceException extends Exception
      * Get the HTTP status code for this exception.
      *
      * @return int The HTTP status code.
+     *
+     * @spec openspec/changes/resource-uploads/tasks.md#task-2
      */
     public function getHttpStatus(): int
     {
@@ -85,6 +92,8 @@ abstract class ResourceException extends Exception
      * messages. Subclasses should pass a translatable English string.
      *
      * @return string The display message.
+     *
+     * @spec openspec/changes/resource-uploads/tasks.md#task-2
      */
     public function getDisplayMessage(): string
     {

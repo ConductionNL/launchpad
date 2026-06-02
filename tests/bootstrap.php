@@ -17,6 +17,9 @@
  * @version GIT: <git-id>
  *
  * @link https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -25,24 +28,28 @@ declare(strict_types=1);
 define('PHPUNIT_RUN', 1);
 
 // Include Composer's autoloader.
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 // Bootstrap Nextcloud — try the full environment first (Docker container);
 // if NC is not fully installed (CI environments), fall back to OCP stubs.
-$ncBasePhp = __DIR__ . '/../../../lib/base.php';
+$ncBasePhp   = __DIR__.'/../../../lib/base.php';
 $ncInstalled = false;
-if (file_exists($ncBasePhp)) {
-    $configFile = __DIR__ . '/../../../config/config.php';
-    if (is_readable($configFile)) {
-        $CONFIG = [];
-        require $configFile;
-        $ncInstalled = ($CONFIG['installed'] ?? false) === true;
+if (file_exists($ncBasePhp) === true) {
+    $configFile = __DIR__.'/../../../config/config.php';
+    if (is_readable($configFile) === true) {
+        $CONFIG = null;
+        include $configFile;
+        if (is_array($CONFIG) === false) {
+            $CONFIG = [];
+        }
+
+        $ncInstalled = isset($CONFIG['installed']) === true && $CONFIG['installed'] === true;
     }
 }
 
-if ($ncInstalled) {
-    require_once $ncBasePhp;
-} elseif (is_dir(__DIR__ . '/../vendor/nextcloud/ocp/OCP')) {
+if ($ncInstalled === true) {
+    include_once $ncBasePhp;
+} else if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
     // Outside the container we register the OCP stubs from
     // vendor/nextcloud/ocp so unit tests that mock OCP interfaces
     // (e.g. IInitialState) can still run. These are signature-only
@@ -55,19 +62,17 @@ if ($ncInstalled) {
     // before any mock creation code runs. Loading the stubs first
     // ensures the placeholder classes are in the class table before
     // the autoloader first touches IQueryBuilder.php.
-    require_once __DIR__ . '/Stubs/DoctrineStubs.php';
+    include_once __DIR__.'/Stubs/DoctrineStubs.php';
 
     $ocpLoader = new \Composer\Autoload\ClassLoader();
-    $ocpLoader->addPsr4('OCP\\', __DIR__ . '/../vendor/nextcloud/ocp/OCP/');
+    $ocpLoader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
     $ocpLoader->register();
-}
+}//end if
 
 // Register Test\ namespace for NC test classes.
-$serverTestsLib = __DIR__ . '/../../../tests/lib/';
-if (is_dir($serverTestsLib)) {
+$serverTestsLib = __DIR__.'/../../../tests/lib/';
+if (is_dir($serverTestsLib) === true) {
     $loader = new \Composer\Autoload\ClassLoader();
     $loader->addPsr4('Test\\', $serverTestsLib);
     $loader->register(true);
 }
-
-error_log('[UNIT TEST BOOTSTRAP] Full Nextcloud bootstrap complete - \OC::$server available');

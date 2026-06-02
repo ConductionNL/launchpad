@@ -28,6 +28,8 @@ use OCA\MyDash\Db\WidgetPlacement;
 
 /**
  * Service for managing conditional rules on widget placements.
+ *
+ * @spec openspec/specs/conditional-visibility/spec.md
  */
 class ConditionalService
 {
@@ -45,7 +47,7 @@ class ConditionalService
     ) {
     }//end __construct()
 
-    /*
+    /**
      * Evaluate a single rule.
      *
      * @param ConditionalRule $rule   The rule to evaluate.
@@ -206,4 +208,4 @@ class ConditionalService
         $rule = $this->ruleMapper->find(id: $ruleId);
         $this->ruleMapper->delete(entity: $rule);
     }//end deleteRule()
-    }//end class
+}//end class

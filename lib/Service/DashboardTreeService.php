@@ -43,6 +43,7 @@ use OCP\IDBConnection;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Single source of truth
  *  for cycle/depth/slug/cascade — splitting risks divergent rules between
  *  the create and update paths.
+ * @spec                                           openspec/specs/dashboard-switcher/spec.md
  */
 class DashboardTreeService
 {
@@ -113,7 +114,7 @@ class DashboardTreeService
     ) {
     }//end __construct()
 
-    /*
+    /**
      * Validate that a proposed parent assignment is acceptable.
      *
      * Combines cycle prevention (REQ-DASH-028 — `$newParentUuid` MUST NOT
@@ -391,6 +392,7 @@ class DashboardTreeService
      * @deprecated Use getFilteredTree() for user-facing endpoints to avoid
      *             cross-user enumeration (C1 fix, REQ-PERM-001). Kept for
      *             admin-only internal usage.
+     * @spec       openspec/specs/dashboard-switcher/spec.md
      */
     public function getFullTree(): array
     {
@@ -749,4 +751,4 @@ class DashboardTreeService
 
         return $segments;
     }//end splitPath()
-    }//end class
+}//end class

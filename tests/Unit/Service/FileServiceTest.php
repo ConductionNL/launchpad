@@ -41,18 +41,27 @@ use PHPUnit\Framework\TestCase;
 
 class FileServiceTest extends TestCase
 {
+
     private FileService $service;
 
-    /** @var IRootFolder&MockObject */
+    /**
+     * @var IRootFolder&MockObject
+     */
     private $rootFolder;
 
-    /** @var IURLGenerator&MockObject */
+    /**
+     * @var IURLGenerator&MockObject
+     */
     private $urlGenerator;
 
-    /** @var AdminSettingMapper&MockObject */
+    /**
+     * @var AdminSettingMapper&MockObject
+     */
     private $settingMapper;
 
-    /** @var Folder&MockObject */
+    /**
+     * @var Folder&MockObject
+     */
     private $userFolder;
 
     protected function setUp(): void
@@ -65,9 +74,11 @@ class FileServiceTest extends TestCase
         $this->settingMapper->method('getValue')->willReturn(null);
 
         $this->urlGenerator->method('linkToRouteAbsolute')
-            ->willReturnCallback(static function (string $route, array $args): string {
-                return 'https://nc/files?openfile=' . ($args['openfile'] ?? '');
-            });
+            ->willReturnCallback(
+                    static function (string $route, array $args): string {
+                        return 'https://nc/files?openfile='.($args['openfile'] ?? '');
+                    }
+                    );
 
         $this->rootFolder->method('getUserFolder')->willReturn($this->userFolder);
 
@@ -76,7 +87,7 @@ class FileServiceTest extends TestCase
             urlGenerator: $this->urlGenerator,
             settingMapper: $this->settingMapper,
         );
-    }
+    }//end setUp()
 
     /**
      * REQ-LBN-004 task 6.1: filename traversal sequence rejected.
@@ -89,7 +100,7 @@ class FileServiceTest extends TestCase
             filename: '../../etc/passwd',
             dir: '/'
         );
-    }
+    }//end testPathTraversalIsRejected()
 
     public function testForwardSlashIsRejected(): void
     {
@@ -99,7 +110,7 @@ class FileServiceTest extends TestCase
             filename: 'foo/bar.txt',
             dir: '/'
         );
-    }
+    }//end testForwardSlashIsRejected()
 
     public function testBackslashIsRejected(): void
     {
@@ -109,7 +120,7 @@ class FileServiceTest extends TestCase
             filename: 'foo\\bar.txt',
             dir: '/'
         );
-    }
+    }//end testBackslashIsRejected()
 
     public function testNullByteIsRejected(): void
     {
@@ -119,7 +130,7 @@ class FileServiceTest extends TestCase
             filename: "evil\0.txt",
             dir: '/'
         );
-    }
+    }//end testNullByteIsRejected()
 
     public function testEmptyFilenameIsRejected(): void
     {
@@ -129,7 +140,7 @@ class FileServiceTest extends TestCase
             filename: '',
             dir: '/'
         );
-    }
+    }//end testEmptyFilenameIsRejected()
 
     public function testOversizedFilenameIsRejected(): void
     {
@@ -138,10 +149,10 @@ class FileServiceTest extends TestCase
         // is what fires.
         $this->service->createFile(
             userId: 'alice',
-            filename: str_repeat('a', 252) . '.txt',
+            filename: str_repeat('a', 252).'.txt',
             dir: '/'
         );
-    }
+    }//end testOversizedFilenameIsRejected()
 
     public function testSpecialCharactersAreRejected(): void
     {
@@ -151,7 +162,7 @@ class FileServiceTest extends TestCase
             filename: 'evil*.txt',
             dir: '/'
         );
-    }
+    }//end testSpecialCharactersAreRejected()
 
     public function testDirectoryTraversalIsRejected(): void
     {
@@ -161,7 +172,7 @@ class FileServiceTest extends TestCase
             filename: 'safe.txt',
             dir: '/../etc'
         );
-    }
+    }//end testDirectoryTraversalIsRejected()
 
     public function testDirectoryNullByteIsRejected(): void
     {
@@ -171,7 +182,7 @@ class FileServiceTest extends TestCase
             filename: 'safe.txt',
             dir: "/foo\0bar"
         );
-    }
+    }//end testDirectoryNullByteIsRejected()
 
     /**
      * REQ-LBN-004 task 6.2: extension allow-list — disallowed extension
@@ -185,7 +196,7 @@ class FileServiceTest extends TestCase
             filename: 'foo.exe',
             dir: '/'
         );
-    }
+    }//end testDisallowedExtensionIsRejected()
 
     public function testNoExtensionIsRejected(): void
     {
@@ -195,7 +206,7 @@ class FileServiceTest extends TestCase
             filename: 'README',
             dir: '/'
         );
-    }
+    }//end testNoExtensionIsRejected()
 
     /**
      * REQ-LBN-004 task 6.2: allowed extension passes through to storage.
@@ -218,7 +229,7 @@ class FileServiceTest extends TestCase
         $this->assertSame('success', $result['status']);
         $this->assertSame(42, $result['fileId']);
         $this->assertSame('https://nc/files?openfile=42', $result['url']);
-    }
+    }//end testAllowedExtensionWritesNewFile()
 
     /**
      * REQ-LBN-004 task 6.3: existing file is overwritten and its fileId
@@ -244,7 +255,7 @@ class FileServiceTest extends TestCase
         );
 
         $this->assertSame(99, $result['fileId']);
-    }
+    }//end testExistingFileIsOverwritten()
 
     /**
      * REQ-LBN-004 task 6.4: raw exception messages are NEVER leaked.
@@ -270,7 +281,7 @@ class FileServiceTest extends TestCase
             $this->assertStringNotContainsString('disk full', $e->getMessage());
             $this->assertStringNotContainsString('/var/lib/raw', $e->getMessage());
         }
-    }
+    }//end testStorageFailureIsWrappedNotLeaked()
 
     public function testTargetSubdirectoryAutoCreated(): void
     {
@@ -296,7 +307,7 @@ class FileServiceTest extends TestCase
         );
 
         $this->assertSame(7, $result['fileId']);
-    }
+    }//end testTargetSubdirectoryAutoCreated()
 
     public function testCustomAllowListReplacesDefault(): void
     {
@@ -316,7 +327,7 @@ class FileServiceTest extends TestCase
             filename: 'note.txt',
             dir: '/'
         );
-    }
+    }//end testCustomAllowListReplacesDefault()
 
     public function testGetAllowedExtensionsFallsBackOnEmptyStored(): void
     {
@@ -333,7 +344,7 @@ class FileServiceTest extends TestCase
             FileService::DEFAULT_ALLOWED_EXTENSIONS,
             $service->getAllowedExtensions()
         );
-    }
+    }//end testGetAllowedExtensionsFallsBackOnEmptyStored()
 
     public function testSetAllowedExtensionsNormalisesAndPersists(): void
     {
@@ -353,7 +364,7 @@ class FileServiceTest extends TestCase
 
         $stored = $service->setAllowedExtensions(['TXT', '.docx', '..', 'bad/path']);
         $this->assertSame(['txt', 'docx'], $stored);
-    }
+    }//end testSetAllowedExtensionsNormalisesAndPersists()
 
     // ------------------------------------------------------------------
     // FILENAME_PATTERN constant tests (task-11)
@@ -363,60 +374,78 @@ class FileServiceTest extends TestCase
     // ------------------------------------------------------------------
 
     /**
+     * Verifies FILENAME_PATTERN allows valid filename characters.
+     *
+     * @param string $filename The filename to test against the pattern.
+     *
+     * @return void
+     *
      * @dataProvider allowedFilenameProvider
+     *
      * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
      */
     public function testFilenamePatternAllowsValidNames(string $filename): void
     {
         $this->assertSame(
-            1,
-            preg_match(FileService::FILENAME_PATTERN, $filename),
-            "Expected FILENAME_PATTERN to allow: {$filename}"
+            expected: 1,
+            actual: preg_match(FileService::FILENAME_PATTERN, $filename),
+            message: "Expected FILENAME_PATTERN to allow: {$filename}"
         );
-    }
+    }//end testFilenamePatternAllowsValidNames()
 
     /**
+     * Verifies FILENAME_PATTERN rejects filenames with forbidden characters.
+     *
+     * @param string $filename The filename to test against the pattern.
+     *
+     * @return void
+     *
      * @dataProvider rejectedFilenameProvider
+     *
      * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
      */
     public function testFilenamePatternRejectsInvalidNames(string $filename): void
     {
         $this->assertSame(
-            0,
-            preg_match(FileService::FILENAME_PATTERN, $filename),
-            "Expected FILENAME_PATTERN to reject: {$filename}"
+            expected: 0,
+            actual: preg_match(FileService::FILENAME_PATTERN, $filename),
+            message: "Expected FILENAME_PATTERN to reject: {$filename}"
         );
-    }
+    }//end testFilenamePatternRejectsInvalidNames()
 
     /**
+     * Data provider: valid filenames that FILENAME_PATTERN must accept.
+     *
      * @return array<string, array{string}>
      */
     public static function allowedFilenameProvider(): array
     {
         return [
-            'simple json'           => ['dashboard-export.json'],
-            'underscore version'    => ['template_v2.json'],
-            'multi-hyphen'          => ['template-with-dashes.json'],
-            'alphanumeric only'     => ['report2026.txt'],
-            'uppercase letters'     => ['README.md'],
-            'space in name'         => ['my dashboard.json'],
+            'simple json'        => ['dashboard-export.json'],
+            'underscore version' => ['template_v2.json'],
+            'multi-hyphen'       => ['template-with-dashes.json'],
+            'alphanumeric only'  => ['report2026.txt'],
+            'uppercase letters'  => ['README.md'],
+            'space in name'      => ['my dashboard.json'],
         ];
-    }
+    }//end allowedFilenameProvider()
 
     /**
+     * Data provider: filenames with forbidden characters that FILENAME_PATTERN must reject.
+     *
      * @return array<string, array{string}>
      */
     public static function rejectedFilenameProvider(): array
     {
         return [
-            'asterisk wildcard'     => ['evil*.txt'],
-            'pipe character'        => ['foo|bar.txt'],
-            'question mark'         => ['what?.json'],
-            'semicolon'             => ['cmd;rm.sh'],
-            'at sign'               => ['user@host.txt'],
-            'hash'                  => ['#comment.txt'],
-            'dollar sign'           => ['$HOME.txt'],
-            'exclamation mark'      => ['fire!.txt'],
+            'asterisk wildcard' => ['evil*.txt'],
+            'pipe character'    => ['foo|bar.txt'],
+            'question mark'     => ['what?.json'],
+            'semicolon'         => ['cmd;rm.sh'],
+            'at sign'           => ['user@host.txt'],
+            'hash'              => ['#comment.txt'],
+            'dollar sign'       => ['$HOME.txt'],
+            'exclamation mark'  => ['fire!.txt'],
         ];
-    }
-}
+    }//end rejectedFilenameProvider()
+}//end class

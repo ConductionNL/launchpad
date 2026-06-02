@@ -30,12 +30,18 @@ import { generateUrl } from '@nextcloud/router'
 
 import App from './App.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
+import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import bundledStub from './manifest.json'
 
 import 'gridstack/dist/gridstack.min.css'
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive
 // breakpoints are now generated dynamically by the engine at init time.
+
+// ADR-037: merge per-OpenSpec-change manifest fragments (src/manifest.d/*.json)
+// onto the bundled stub so concurrent same-app builds touch disjoint files and
+// never conflict on the shared manifest. No-op until a real fragment is added.
+const mergedManifest = mergeManifestFragments(bundledStub)
 
 // Global functions
 Vue.mixin({
@@ -66,7 +72,7 @@ const initialState = loadInitialState('workspace')
 // needs it can `inject('runtimeManifest', null)`.
 //
 // NO deep-merge — the API response fully replaces the stub on success.
-const runtimeManifest = Vue.observable({ value: bundledStub })
+const runtimeManifest = Vue.observable({ value: mergedManifest })
 const manifestLoading = Vue.observable({ value: true })
 
 ;(async () => {

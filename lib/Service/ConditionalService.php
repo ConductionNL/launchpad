@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -25,6 +28,8 @@ use OCA\MyDash\Db\WidgetPlacement;
 
 /**
  * Service for managing conditional rules on widget placements.
+ *
+ * @spec openspec/specs/conditional-visibility/spec.md
  */
 class ConditionalService
 {
@@ -49,9 +54,7 @@ class ConditionalService
      * @param string          $userId The user ID.
      *
      * @return bool Whether the rule matches.
-     */
-
-    /**
+     *
      * @spec openspec/specs/conditional-visibility/spec.md
      */
     public function evaluateRule(

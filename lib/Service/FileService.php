@@ -51,6 +51,7 @@ use Throwable;
  *                                                 settings are all
  *                                                 unavoidable for this
  *                                                 capability.
+ * @spec                                           openspec/specs/resource-uploads/spec.md
  */
 class FileService
 {
@@ -249,9 +250,8 @@ class FileService
             $normalised[$token] = $token;
         }
 
-        if (count($normalised) === 0) {
-            $stored = self::DEFAULT_ALLOWED_EXTENSIONS;
-        } else {
+        $stored = self::DEFAULT_ALLOWED_EXTENSIONS;
+        if (count($normalised) > 0) {
             $stored = array_values(array: $normalised);
         }
 

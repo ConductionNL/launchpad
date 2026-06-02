@@ -245,7 +245,7 @@ class BulkOperationService
                             )
                         );
                     }
-                }
+                }//end if
             } catch (Throwable $t) {
                 $this->logger->error(
                     message: 'BulkOperationService::bulkDelete failed for uuid',

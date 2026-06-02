@@ -41,6 +41,7 @@ use ZipArchive;
  * @SuppressWarnings(PHPMD.UndefinedVariable)
  *      `preg_match` populates its by-ref `$matches` argument; PHPMD's
  *      flow analysis does not follow PHP by-reference semantics.
+ * @spec                                             openspec/specs/confluence-html-import/spec.md
  */
 class ArchiveParser
 {
@@ -181,6 +182,13 @@ class ArchiveParser
      */
     private const MAX_TOTAL_BYTES = 104_857_600;
 
+    /**
+     * Collect and categorise all entries from the zip archive.
+     *
+     * @param ZipArchive $zip The open zip archive to inspect.
+     *
+     * @return array{indexHtml: string|null, htmlFiles: array<string, string>, attachments: string[], images: string[]}
+     */
     private function collectEntries(ZipArchive $zip): array
     {
         $indexHtml   = null;

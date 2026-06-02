@@ -150,16 +150,29 @@ npm run build      # Production build
 ### Code quality
 
 ```bash
+# Unified gate (runs all checks below)
+composer check:strict   # lint + phpcs + phpmd + phpstan + tests
+
 # PHP
-composer phpcs          # Check coding standards
+composer phpcs          # Check coding standards (0 errors enforced)
 composer cs:fix         # Auto-fix issues
-composer phpmd          # Mess detection
+composer phpmd          # Mess detection (baseline: phpmd.baseline.xml)
+composer phpstan        # Static analysis (baseline: phpstan-baseline.neon)
 composer phpmetrics     # HTML metrics report
 
 # Frontend
 npm run lint            # ESLint
 npm run stylelint       # CSS linting
 ```
+
+> **Quality gate status** (as of the `launchpad-legacy-quality-cleanup` PR):
+> - PHPCS: 0 errors (all 245 pre-existing errors cleared)
+> - PHPMD: 222 violations baselined; ElseExpression (31) fixed outright.
+>   Remaining debt: StaticAccess (ResponseHelper pattern), complexity.
+>   Tracked in `phpmd.baseline.xml` — burn down in follow-up PRs.
+> - PHPStan: passes with `phpstan-baseline.neon` (286 lines of pre-existing
+>   issues, mostly `AuthorizedAdminSetting` type mismatches and `DataResponse`
+>   generic types). Burn down tracked separately.
 
 ## Tech Stack
 

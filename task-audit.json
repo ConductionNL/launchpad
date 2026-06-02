@@ -13,5 +13,9 @@
     {"task": "10", "file": "l10n/en.json + l10n/nl.json", "ok": true}
   ],
   "stubs": [],
-  "missing_routes": []
+  "missing_routes": [],
+  "open_tasks": [
+    {"task": "7", "note": "PHPMD baseline at 211 violations — StaticAccess (Application::APP_ID), CyclomaticComplexity, LongClass, TooManyMethods, CouplingBetweenObjects require architectural refactoring beyond this PR scope"},
+    {"task": "10", "note": "phpmd.baseline.xml remains until Task 7 complete; phpstan-baseline.neon deleted ✓; phpcs.xml legacy-debt section already absent ✓"}
+  ]
 }

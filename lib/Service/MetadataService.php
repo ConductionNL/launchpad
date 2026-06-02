@@ -50,6 +50,7 @@ use Psr\Log\LoggerInterface;
  *  filter dispatch + multi-shape patch handling drive complexity;
  *  splitting would scatter the capability's invariants across
  *  multiple classes for no readability gain.
+ * @spec                                             openspec/specs/dashboard-metadata-fields/spec.md
  */
 class MetadataService
 {
@@ -103,6 +104,7 @@ class MetadataService
      * @return MetadataField The matching field.
      *
      * @throws DoesNotExistException When missing.
+     * @spec   openspec/specs/dashboard-metadata-fields/spec.md
      */
     public function getField(int $id): MetadataField
     {
@@ -168,11 +170,7 @@ class MetadataService
         $field->setUpdatedAt($now);
         // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
-        if ($options !== null) {
-            $field->setOptionsArray(options: $options);
-        } else {
-            $field->setOptionsArray(options: null);
-        }
+        $field->setOptionsArray(options: $options);
 
         return $this->fieldMapper->insert(entity: $field);
     }//end createFieldDefinition()

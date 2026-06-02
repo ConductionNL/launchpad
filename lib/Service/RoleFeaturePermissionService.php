@@ -367,13 +367,16 @@ class RoleFeaturePermissionService
                 continue;
             }
 
-            $row      = $byGid[$gid];
-            $rowAllow = $row->getAllowedWidgetsDecoded();
-            $rowDeny  = $row->getDeniedWidgetsDecoded();
-            if ($base === null) {
+            $row          = $byGid[$gid];
+            $rowAllow     = $row->getAllowedWidgetsDecoded();
+            $rowDeny      = $row->getDeniedWidgetsDecoded();
+            $isFirstMatch = ($base === null);
+            if ($isFirstMatch === true) {
                 $base    = true;
                 $allowed = $rowAllow;
-            } else {
+            }
+
+            if ($isFirstMatch === false) {
                 $allowed = array_values(
                     array: array_unique(array: array_merge($allowed, $rowAllow))
                 );

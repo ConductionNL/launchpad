@@ -58,6 +58,7 @@ use Throwable;
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)     `resolveActiveDashboard` fans out the 7-step REQ-DASH-018 chain.
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)     Single source of truth for CRUD + tree + publication + footer.
  * @SuppressWarnings(PHPMD.TooManyMethods)           Mode methods live next to one another for grep-ability.
+ * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardService
 {
@@ -277,6 +278,7 @@ class DashboardService
      * @param string $userId The user ID.
      *
      * @return Dashboard[] The list of personal dashboards.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function getUserDashboards(string $userId): array
     {
@@ -645,11 +647,16 @@ class DashboardService
         // (comments, reactions, versions, metadata_values, public_shares,
         // view_analytics) can clean up their child rows (REQ-CSC-001).
         if ($this->eventDispatcher !== null && $uuid !== '') {
-            $ownerId = $dashboard->getUserId();
+            $ownerId         = $dashboard->getUserId();
+            $resolvedOwnerId = $userId;
+            if ($ownerId !== null && $ownerId !== '') {
+                $resolvedOwnerId = $ownerId;
+            }
+
             $this->eventDispatcher->dispatchTyped(
                 new DashboardDeletedEvent(
                     dashboardUuid: $uuid,
-                    ownerUserId:   ($ownerId !== null && $ownerId !== '') ? $ownerId : $userId,
+                    ownerUserId:   $resolvedOwnerId,
                     type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
                     deletedAt:     new DateTimeImmutable()
                 )
@@ -1809,6 +1816,7 @@ class DashboardService
      * @param string $userId The user ID.
      *
      * @return bool Whether the user is an admin.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function isAdmin(string $userId): bool
     {
@@ -1825,6 +1833,8 @@ class DashboardService
      * @param string $groupId The group ID from the URL.
      *
      * @return bool True when the user is in the group or is a NC admin.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function userCanAccessGroup(string $userId, string $groupId): bool
     {
@@ -1989,12 +1999,11 @@ class DashboardService
                 );
             }
 
+            $placements = $this->createDefaultPlacements(
+                dashboardId: $dashboard->getId()
+            );
             if ($seeded > 0) {
                 $placements = $this->placementMapper->findByDashboardId(
-                    dashboardId: $dashboard->getId()
-                );
-            } else {
-                $placements = $this->createDefaultPlacements(
                     dashboardId: $dashboard->getId()
                 );
             }
@@ -2264,10 +2273,9 @@ class DashboardService
             return;
         }
 
+        $newMode = $dashboard->getDashboardFooterMode();
         if ($modeProvided === true) {
             $newMode = $data['dashboardFooterMode'];
-        } else {
-            $newMode = $dashboard->getDashboardFooterMode();
         }
 
         if ($newMode === null || $newMode === '') {
@@ -2283,10 +2291,9 @@ class DashboardService
         }
 
         if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
+            $rawHtml = $dashboard->getDashboardFooterHtml();
             if ($htmlProvided === true) {
                 $rawHtml = $data['dashboardFooterHtml'];
-            } else {
-                $rawHtml = $dashboard->getDashboardFooterHtml();
             }
 
             if ($rawHtml === null || is_string($rawHtml) === false || trim(string: $rawHtml) === '') {

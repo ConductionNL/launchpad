@@ -62,6 +62,7 @@ use Throwable;
  *  the service would duplicate the all-or-nothing guard logic.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Branching mirrors the
  *  per-operation idempotency rules pinned in REQ-BULK-007.
+ * @spec                                             openspec/specs/dashboard-bulk-operations/spec.md
  */
 class BulkOperationService
 {
@@ -226,7 +227,9 @@ class BulkOperationService
                     $deleted += $this->treeService->deleteSubtree(
                         dashboard: $dashboard
                     );
-                } else {
+                }
+
+                if ($cascade === false || $childCount === 0) {
                     $this->placementMapper->deleteByDashboardId(
                         dashboardId: (int) $dashboard->getId()
                     );
@@ -865,9 +868,15 @@ class BulkOperationService
             }
 
             $dashboard->setPublishAt(null);
-        } else if ($publicationStatus === Dashboard::STATUS_DRAFT) {
+        }
+
+        if ($publicationStatus === Dashboard::STATUS_DRAFT) {
             $dashboard->setPublishAt(null);
-        } else {
+        }
+
+        if ($publicationStatus !== Dashboard::STATUS_PUBLISHED
+            && $publicationStatus !== Dashboard::STATUS_DRAFT
+        ) {
             // STATUS_SCHEDULED.
             $dashboard->setPublishAt($resolvedPublishAt);
         }

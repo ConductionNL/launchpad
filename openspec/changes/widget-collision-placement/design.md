@@ -2,7 +2,7 @@
 
 ## Context
 
-MyDash uses GridStack 10.3.1 as the grid engine for dashboard layout. The user can add widgets to a dashboard via three entry points: the toolbar dropdown, a keyboard shortcut, and drag-from-picker. Today, each entry point computes its own placement — some pass `autoPosition: true` to GridStack, some hard-code `(0, 0)`, and a few drop the widget at the cursor position. The result is inconsistent UX: in a densely packed dashboard, "Add widget" sometimes silently overflows the visible viewport (placing the new widget far below the fold), sometimes overlaps existing widgets, and sometimes fails outright when GridStack rejects the position.
+LaunchPad uses GridStack 10.3.1 as the grid engine for dashboard layout. The user can add widgets to a dashboard via three entry points: the toolbar dropdown, a keyboard shortcut, and drag-from-picker. Today, each entry point computes its own placement — some pass `autoPosition: true` to GridStack, some hard-code `(0, 0)`, and a few drop the widget at the cursor position. The result is inconsistent UX: in a densely packed dashboard, "Add widget" sometimes silently overflows the visible viewport (placing the new widget far below the fold), sometimes overlaps existing widgets, and sometimes fails outright when GridStack rejects the position.
 
 REQ-GRID-006 already declares the intent ("widget auto-layout") but does not specify the algorithm or the fallback behaviour when the grid is fully occupied. This change formalises the algorithm so the UX is predictable across browsers, viewport sizes, and dashboard density.
 

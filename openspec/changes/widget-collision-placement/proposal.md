@@ -1,6 +1,6 @@
 # Widget collision placement
 
-When a user adds a new widget to a non-empty dashboard, MyDash MUST decide where to place it without overlapping existing widgets and without dropping it off-grid. This change formalises the algorithm: try GridStack's `autoPosition: true` first; if no fit is found (or the picked slot is below the visible viewport), fall back to top-left `(x:0, y:0)` and push overlapping widgets down by `newH` rows. All add-widget code paths MUST funnel through a single placement helper so the behaviour is testable and auditable.
+When a user adds a new widget to a non-empty dashboard, LaunchPad MUST decide where to place it without overlapping existing widgets and without dropping it off-grid. This change formalises the algorithm: try GridStack's `autoPosition: true` first; if no fit is found (or the picked slot is below the visible viewport), fall back to top-left `(x:0, y:0)` and push overlapping widgets down by `newH` rows. All add-widget code paths MUST funnel through a single placement helper so the behaviour is testable and auditable.
 
 ## Affected code units
 

@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -29,6 +32,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Controller for exposing Prometheus metrics.
+ *
+ * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-25
  */
 class MetricsController extends Controller
 {
@@ -134,17 +139,16 @@ class MetricsController extends Controller
 
             $counts = [];
             foreach ($rows as $row) {
+                $type = 'personal';
                 if ($row['type'] !== null && $row['type'] !== '') {
                     $type = $row['type'];
-                } else {
-                    $type = 'personal';
                 }
 
-                if (isset($counts[$type]) === true) {
-                    $counts[$type] = $counts[$type] + (int) $row['cnt'];
-                } else {
-                    $counts[$type] = (int) $row['cnt'];
+                if (isset($counts[$type]) === false) {
+                    $counts[$type] = 0;
                 }
+
+                $counts[$type] = $counts[$type] + (int) $row['cnt'];
             }
 
             // Ensure both types are reported.

@@ -38,6 +38,7 @@ use OCA\MyDash\Exception\MimeMismatchException;
 /**
  * Validates that declared raster image type matches the detected MIME.
  *
+ * @spec openspec/specs/resource-uploads/spec.md
  * @spec openspec/changes/resource-uploads/tasks.md#task-1
  * @spec openspec/changes/resource-uploads/tasks.md#task-4
  */
@@ -114,7 +115,7 @@ class ImageMimeValidator
             throw new CorruptImageException();
         }
 
-        $detectedMime = ($info['mime'] ?? '');
+        $detectedMime = (string) $info['mime'];
         if ($detectedMime !== $expectedMime) {
             throw new MimeMismatchException();
         }

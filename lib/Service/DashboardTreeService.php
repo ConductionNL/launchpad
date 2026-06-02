@@ -43,6 +43,7 @@ use OCP\IDBConnection;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Single source of truth
  *  for cycle/depth/slug/cascade — splitting risks divergent rules between
  *  the create and update paths.
+ * @spec                                           openspec/specs/dashboard-switcher/spec.md
  */
 class DashboardTreeService
 {
@@ -133,9 +134,7 @@ class DashboardTreeService
      *                                  the assignment would create a
      *                                  cycle, or the resulting depth
      *                                  exceeds the cap.
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function validateParent(
@@ -191,9 +190,7 @@ class DashboardTreeService
      * @return void
      *
      * @throws InvalidArgumentException When the slug is already in use.
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function validateSlugUnique(
@@ -231,9 +228,7 @@ class DashboardTreeService
      * @param string $uuid The dashboard UUID.
      *
      * @return string The leading-slash path.
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function computePath(string $uuid): string
@@ -265,9 +260,7 @@ class DashboardTreeService
      * @param string $uuid The dashboard UUID.
      *
      * @return array<int, array{uuid: ?string, name: ?string, slug: ?string}>
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function computeBreadcrumbs(string $uuid): array
@@ -308,9 +301,7 @@ class DashboardTreeService
      *                     leading/trailing slash).
      *
      * @return Dashboard|null The dashboard at the path, or NULL on miss.
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function resolvePath(string $path): ?Dashboard
@@ -355,9 +346,7 @@ class DashboardTreeService
      *                                pre-existing malformed cycles.
      *
      * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function buildTree(
@@ -403,6 +392,7 @@ class DashboardTreeService
      * @deprecated Use getFilteredTree() for user-facing endpoints to avoid
      *             cross-user enumeration (C1 fix, REQ-PERM-001). Kept for
      *             admin-only internal usage.
+     * @spec       openspec/specs/dashboard-switcher/spec.md
      */
     public function getFullTree(): array
     {
@@ -422,9 +412,7 @@ class DashboardTreeService
      *                                          DashboardService::getVisibleToUser).
      *
      * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboards/spec.md
      */
     public function getFilteredTree(array $visibleUuids): array
@@ -499,9 +487,7 @@ class DashboardTreeService
      * @param Dashboard $dashboard The root of the subtree to delete.
      *
      * @return int The total number of dashboards removed (root + descendants).
-     */
-
-    /**
+     *
      * @spec openspec/specs/dashboard-switcher/spec.md
      */
     public function deleteSubtree(Dashboard $dashboard): int
@@ -704,7 +690,7 @@ class DashboardTreeService
         $maxDepth = 0;
         $frontier = [['uuid' => $rootUuid, 'depth' => 0]];
 
-        while (count($frontier) > 0) {
+        while ($frontier !== []) {
             $next = [];
             foreach ($frontier as $entry) {
                 $children = $this->dashboardMapper->findByParent(

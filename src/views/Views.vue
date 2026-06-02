@@ -533,6 +533,7 @@ export default {
 		...mapActions(useDashboardStore, [
 			'switchDashboard',
 			'createDashboard',
+			'forkDashboard',
 			'loadDashboards',
 			'updatePlacements',
 			'addWidgetToDashboard',
@@ -1087,12 +1088,23 @@ export default {
 			await this.onSidebarSwitch(id, source)
 		},
 		/**
-		 * Sidebar `+ New Dashboard` row handler — opens the create
-		 * dashboard modal flow already used by the topbar config menu.
+		 * Sidebar `+ New Dashboard` handler — forks the active dashboard
+		 * as a personal copy (REQ-DASH-020). The store action handles the
+		 * 403 toast when personal dashboards are disabled (REQ-ASET-003)
+		 * and pushes the new entry to `dashboards` on success.
 		 */
 		/** @spec openspec/specs/dashboards/spec.md */
-		onSidebarCreateDashboard() {
-			this.openCreateDashboardModal()
+		async onSidebarCreateDashboard() {
+			const sourceUuid = this.activeDashboard?.uuid
+			if (!sourceUuid) {
+				return
+			}
+			try {
+				await this.forkDashboard(sourceUuid, null)
+			} catch {
+				// Error surfaces via the store's showError toast; nothing
+				// additional to do here.
+			}
 		},
 		/**
 		 * Sidebar personal-row delete handler. Mirrors the topbar

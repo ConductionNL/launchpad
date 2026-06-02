@@ -113,7 +113,7 @@ class DashboardTreeService
     ) {
     }//end __construct()
 
-    /**
+    /*
      * Validate that a proposed parent assignment is acceptable.
      *
      * Combines cycle prevention (REQ-DASH-028 — `$newParentUuid` MUST NOT
@@ -749,4 +749,4 @@ class DashboardTreeService
 
         return $segments;
     }//end splitPath()
-}//end class
+    }//end class

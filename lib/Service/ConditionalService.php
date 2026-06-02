@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -42,7 +45,7 @@ class ConditionalService
     ) {
     }//end __construct()
 
-    /**
+    /*
      * Evaluate a single rule.
      *
      * @param ConditionalRule $rule   The rule to evaluate.
@@ -203,4 +206,4 @@ class ConditionalService
         $rule = $this->ruleMapper->find(id: $ruleId);
         $this->ruleMapper->delete(entity: $rule);
     }//end deleteRule()
-}//end class
+    }//end class

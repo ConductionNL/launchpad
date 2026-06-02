@@ -56,7 +56,7 @@ The resolver MUST attach a `source` field to the returned dashboard descriptor w
 
 #### Scenario: Empty state when no dashboards exist anywhere
 
-- GIVEN a brand-new MyDash install with no dashboards of any type
+- GIVEN a brand-new LaunchPad install with no dashboards of any type
 - WHEN any user opens the workspace page
 - THEN the resolver MUST return `null`
 - AND the response MUST include `activeDashboardId: ''` in initial state

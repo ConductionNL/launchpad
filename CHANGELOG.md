@@ -6,6 +6,26 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Dashboard-switcher sidebar** (REQ-SWITCH-001..007): a fixed-position
+  slide-in left navigation panel (`DashboardSwitcherSidebar.vue`) lists
+  every dashboard visible to the user, grouped into three labelled sections
+  in fixed order — primary group, default group, and personal ("My
+  Dashboards"). Empty sections collapse entirely. Each row renders its icon
+  via the shared `IconRenderer` (no inline URL branching). Clicking a row
+  emits `update:open(false)` then `switch(id, source)`, where `source` is
+  load-bearing (drives the correct API endpoint in the runtime shell).
+  Personal rows expose a cog menu (`DashboardRowActions`) with Edit /
+  Configure / Add custom widget / Delete entries; the delete action emits
+  `delete-dashboard(id)` without triggering a switch. A dedicated
+  `NcButton` card below the personal list serves as the `+ New Dashboard`
+  affordance when `allowUserDashboards === true`. Slide-in animation is
+  CSS-only (`transform: translateX(-100%) ↔ translateX(0)` over 0.25 s
+  ease). Companion `SidebarBackdrop.vue` provides a click-to-close overlay.
+  A persistent `SidebarFooter` with "Powered by Sendent / Conduction" brand
+  logos and a Documentation link is pinned via `position: sticky; bottom: 0`.
+  Wired in `Views.vue`; Esc closes the sidebar; all string labels translated
+  (`en_US` + `nl_NL`).
+
 - **Per-user RSS / Atom dashboard feeds** (REQ-FEED-001..009): users can
   now opt-in to a personal feed of their accessible dashboards via
   `GET /api/feed/token`. New routes `POST /api/feed/token/regenerate`

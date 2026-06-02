@@ -97,12 +97,12 @@ export default defineComponent({
 			error.value = null
 
 			try {
-				const params = {}
-				if (password) params.password = password
+				const headers = {}
+				if (password) headers['X-Share-Password'] = password
 
 				const { data } = await axios.get(
 					`${baseUrl}/s/${encodeURIComponent(props.token)}`,
-					{ params }
+					{ headers }
 				)
 				dashboard.value = data.dashboard
 				share.value = data.share

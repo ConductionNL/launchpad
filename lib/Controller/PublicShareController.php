@@ -265,9 +265,11 @@ class PublicShareController extends Controller
                 password: $password
             );
 
+            $shareData = $result['share']->jsonSerialize();
+            unset($shareData['createdBy']);
             return new DataResponse(
                 data: [
-                    'share'     => $result['share']->jsonSerialize(),
+                    'share'     => $shareData,
                     'dashboard' => $result['dashboard']->jsonSerialize(),
                 ]
             );

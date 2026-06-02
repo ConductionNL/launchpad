@@ -18,5 +18,9 @@
     {"task": "11", "file": "multiple", "ok": true, "note": "ESLint: 0 errors; PHPCS on Dashboard.php: 0 errors; Vitest: 888/888 pass"}
   ],
   "stubs": [],
-  "missing_routes": []
+  "missing_routes": [],
+  "open_tasks": [
+    {"task": "7", "note": "PHPMD baseline at 211 violations — StaticAccess (Application::APP_ID), CyclomaticComplexity, LongClass, TooManyMethods, CouplingBetweenObjects require architectural refactoring beyond this PR scope"},
+    {"task": "10", "note": "phpmd.baseline.xml remains until Task 7 complete; phpstan-baseline.neon deleted ✓; phpcs.xml legacy-debt section already absent ✓"}
+  ]
 }

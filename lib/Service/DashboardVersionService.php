@@ -44,6 +44,7 @@ use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\DashboardVersion;
 use OCA\MyDash\Db\DashboardVersionMapper;
+use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
@@ -63,6 +64,7 @@ use Throwable;
  *  endpoints (list/fetch/create/restore) plus the cascade hook live
  *  here intentionally — splitting risks losing the single-point
  *  permission guard.
+ * @spec                                           openspec/specs/dashboard-versioning/spec.md
  */
 class DashboardVersionService
 {
@@ -748,7 +750,7 @@ class DashboardVersionService
                     continue;
                 }
 
-                $entity = new \OCA\MyDash\Db\WidgetPlacement();
+                $entity = new WidgetPlacement();
                 // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
                 $entity->setDashboardId($dashboardId);
 

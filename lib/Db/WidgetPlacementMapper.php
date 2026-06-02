@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -30,6 +33,7 @@ use OCP\IDBConnection;
  * Mapper for widget placement entities.
  *
  * @extends QBMapper<WidgetPlacement>
+ * @spec    openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class WidgetPlacementMapper extends QBMapper
 {
@@ -55,6 +59,7 @@ class WidgetPlacementMapper extends QBMapper
      * @return WidgetPlacement The found placement.
      *
      * @throws DoesNotExistException If not found.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function find(int $id): WidgetPlacement
     {
@@ -80,6 +85,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param int $dashboardId The dashboard ID.
      *
      * @return WidgetPlacement[] The list of placements.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findByDashboardId(int $dashboardId): array
     {
@@ -111,6 +117,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param string $widgetId The widget id (e.g. `'mydash_news'`).
      *
      * @return WidgetPlacement[] The matching placements.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findByWidgetId(string $widgetId): array
     {
@@ -134,6 +141,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param string $widgetId    The widget ID.
      *
      * @return WidgetPlacement[] The matching placements.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function findByDashboardAndWidget(
         int $dashboardId,
@@ -167,6 +175,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param int $dashboardId The dashboard ID.
      *
      * @return void
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByDashboardId(int $dashboardId): void
     {
@@ -196,6 +205,8 @@ class WidgetPlacementMapper extends QBMapper
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return int The number of rows deleted.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteByDashboardUuid(string $dashboardUuid): int
     {
@@ -220,6 +231,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param array $updates Array of position updates.
      *
      * @return void
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function updatePositions(array $updates): void
     {
@@ -294,6 +306,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param int $targetDashboardId The destination dashboard ID.
      *
      * @return int The number of placements cloned.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function cloneToDashboard(
         int $sourceDashboardId,
@@ -351,6 +364,7 @@ class WidgetPlacementMapper extends QBMapper
      * or a manual SQL operation.
      *
      * @return int The number of orphaned placement rows.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function countOrphaned(): int
     {
@@ -381,6 +395,7 @@ class WidgetPlacementMapper extends QBMapper
      * then deletes by primary key for portability across drivers.
      *
      * @return int The number of rows deleted.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function deleteOrphaned(): int
     {
@@ -432,6 +447,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param int $dashboardId The dashboard ID.
      *
      * @return int The number of placements (0 when none).
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function countByDashboardId(int $dashboardId): int
     {
@@ -465,6 +481,7 @@ class WidgetPlacementMapper extends QBMapper
      * @param int $dashboardId The dashboard ID.
      *
      * @return int The maximum sort order.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function getMaxSortOrder(int $dashboardId): int
     {

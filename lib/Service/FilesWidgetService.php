@@ -48,6 +48,7 @@ use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 use OCP\IURLGenerator;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -57,6 +58,7 @@ use Throwable;
  *                                                 generation are both
  *                                                 unavoidable for this
  *                                                 capability.
+ * @spec                                           openspec/specs/files-widget/spec.md
  */
 class FilesWidgetService
 {
@@ -272,16 +274,16 @@ class FilesWidgetService
             try {
                 // M3: stream-write to avoid loading the entire file into
                 // memory before handing it to Nextcloud's storage layer.
-                $handle = @fopen(filename: $tmp, mode: 'rb');
+                $handle = fopen(filename: $tmp, mode: 'rb');
                 if ($handle === false) {
-                    throw new \RuntimeException('Cannot open temporary file');
+                    throw new RuntimeException('Cannot open temporary file');
                 }
 
                 $file      = $target->newFile(path: $safeName);
                 $outHandle = $file->fopen(mode: 'w');
                 if ($outHandle === false) {
                     fclose($handle);
-                    throw new \RuntimeException('Cannot open destination file');
+                    throw new RuntimeException('Cannot open destination file');
                 }
 
                 stream_copy_to_stream(from: $handle, to: $outHandle);
@@ -454,9 +456,8 @@ class FilesWidgetService
             if ($folderPath !== '') {
                 $normalised = ('/'.trim(string: $folderPath, characters: '/'));
                 try {
-                    if ($normalised === '/') {
-                        $candidate = $userFolder;
-                    } else {
+                    $candidate = $userFolder;
+                    if ($normalised !== '/') {
                         $candidate = $userFolder->get(path: $normalised);
                     }
 
@@ -738,12 +739,11 @@ class FilesWidgetService
             $offset = 0;
         }
 
-        $page = array_slice(array: $items, offset: $offset, length: $limit);
-        $next = ($offset + count($page));
+        $page       = array_slice(array: $items, offset: $offset, length: $limit);
+        $next       = ($offset + count($page));
+        $nextCursor = null;
         if ($next < count($items)) {
             $nextCursor = (string) $next;
-        } else {
-            $nextCursor = null;
         }
 
         return [
@@ -805,10 +805,9 @@ class FilesWidgetService
         }
 
         $extPos = strrpos(haystack: $sanitised, needle: '.');
-        if ($extPos === false || $extPos === 0) {
-            $base = $sanitised;
-            $ext  = '';
-        } else {
+        $base   = $sanitised;
+        $ext    = '';
+        if ($extPos !== false && $extPos !== 0) {
             $base = substr(string: $sanitised, offset: 0, length: $extPos);
             $ext  = substr(string: $sanitised, offset: $extPos);
         }

@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -90,6 +93,7 @@ use OCP\IUserSession;
  *                                                  admin endpoints, not
  *                                                  nested branching inside
  *                                                  any single method.
+ * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
  */
 class AdminController extends Controller
 {
@@ -424,9 +428,12 @@ class AdminController extends Controller
      *
      * @return JSONResponse Status 200 on success, 400/413 on validation,
      *                      401/403 on guard failure.
-         *
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) — NC reads params from route declaration;
+     *                                                  body uses getParams() for array_key_exists semantics.
+     *
      * @spec openspec/specs/admin-templates/spec.md
- */
+     */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function updateFooterSettings(
         ?bool $footerEnabled=null,

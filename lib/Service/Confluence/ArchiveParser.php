@@ -250,7 +250,7 @@ class ArchiveParser
 
                 $htmlFiles[$name] = $raw;
                 continue;
-            }
+            }//end if
 
             if (str_starts_with(haystack: $lower, needle: 'attachments/') === true) {
                 $attachments[] = $name;

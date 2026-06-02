@@ -1,6 +1,6 @@
 # Fork-current-layout to personal dashboard
 
-When a user is viewing a `group_shared` (or `default`) dashboard and wants to customise it, MyDash MUST allow them to one-click "fork" the current layout into a brand-new personal dashboard. The original group-shared dashboard is untouched; the fork becomes the user's active dashboard immediately.
+When a user is viewing a `group_shared` (or `default`) dashboard and wants to customise it, LaunchPad MUST allow them to one-click "fork" the current layout into a brand-new personal dashboard. The original group-shared dashboard is untouched; the fork becomes the user's active dashboard immediately.
 
 ## Affected code units
 
@@ -24,5 +24,5 @@ Forking is a creation operation but with non-trivial extra semantics (deep-copy 
 
 ## Notes
 
-- Resource references inside placements (e.g. uploaded image URLs) are NOT duplicated — both dashboards reference the same `/apps/mydash/resource/...` URL. Resource lifecycle is the resource-uploads change's concern.
+- Resource references inside placements (e.g. uploaded image URLs) are NOT duplicated — both dashboards reference the same `/apps/launchpad/resource/...` URL. Resource lifecycle is the resource-uploads change's concern.
 - Tile fields on placements ARE copied (tileTitle, tileIcon, etc.) so a fork is a true visual clone.

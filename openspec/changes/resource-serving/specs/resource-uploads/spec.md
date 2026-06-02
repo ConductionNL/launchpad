@@ -10,7 +10,7 @@ status: draft
 
 ### Requirement: Public resource serving endpoint (REQ-RES-006)
 
-The system MUST expose `GET /apps/mydash/resource/{filename}` (a non-OCS, plain web route) returning a `StreamResponse` of the resource bytes. The route MUST be authenticated (any logged-in Nextcloud user) but MUST NOT require admin privileges. The Content-Type header MUST be derived from the file extension via this map:
+The system MUST expose `GET /apps/launchpad/resource/{filename}` (a non-OCS, plain web route) returning a `StreamResponse` of the resource bytes. The route MUST be authenticated (any logged-in Nextcloud user) but MUST NOT require admin privileges. The Content-Type header MUST be derived from the file extension via this map:
 
 | Extension | Content-Type |
 |---|---|
@@ -26,7 +26,7 @@ The response MUST include `Cache-Control: public, max-age=31536000` (one year, i
 #### Scenario: Serve a PNG
 
 - GIVEN an uploaded resource at `<appdata>/resources/resource_abc123.png`
-- WHEN any authenticated user sends `GET /apps/mydash/resource/resource_abc123.png`
+- WHEN any authenticated user sends `GET /apps/launchpad/resource/resource_abc123.png`
 - THEN the system MUST return HTTP 200 with `Content-Type: image/png`
 - AND `Cache-Control: public, max-age=31536000`
 - AND the response body MUST be the file's exact bytes
@@ -45,19 +45,19 @@ The response MUST include `Cache-Control: public, max-age=31536000` (one year, i
 
 #### Scenario: Missing file returns 404
 
-- WHEN GET `/apps/mydash/resource/does-not-exist.png`
+- WHEN GET `/apps/launchpad/resource/does-not-exist.png`
 - THEN the system MUST return HTTP 404
 - AND the response body MAY be empty (no detail leaked)
 
 #### Scenario: Path traversal rejected
 
-- WHEN GET `/apps/mydash/resource/..%2F..%2Fetc%2Fpasswd` (URL-encoded `../../etc/passwd`)
+- WHEN GET `/apps/launchpad/resource/..%2F..%2Fetc%2Fpasswd` (URL-encoded `../../etc/passwd`)
 - THEN the system MUST return HTTP 404 (the route's `{filename}` parameter MUST be treated as a leaf name; any decoded `/` or `..` in it MUST cause a 404 — never a 200 with system file contents)
 
 #### Scenario: Unauthenticated request rejected
 
 - GIVEN an unauthenticated browser session
-- WHEN GET `/apps/mydash/resource/resource_abc123.png`
+- WHEN GET `/apps/launchpad/resource/resource_abc123.png`
 - THEN Nextcloud MUST redirect to login (standard NC auth middleware)
 - AND no resource bytes MUST be served
 
@@ -71,7 +71,7 @@ When the resources folder does not yet exist, the response MUST be `{status: 'su
 
 - GIVEN one resource exists at `<appdata>/resources/resource_abc123.png` with size 12345 bytes
 - WHEN GET `/api/resources`
-- THEN the response MUST contain `resources[0] = {name: 'resource_abc123.png', url: '/apps/mydash/resource/resource_abc123.png', size: 12345, modifiedAt: <ISO timestamp>}`
+- THEN the response MUST contain `resources[0] = {name: 'resource_abc123.png', url: '/apps/launchpad/resource/resource_abc123.png', size: 12345, modifiedAt: <ISO timestamp>}`
 
 #### Scenario: Empty folder returns empty array
 

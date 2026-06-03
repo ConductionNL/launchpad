@@ -1,6 +1,23 @@
 {
-  "spec": "openspec/changes/nc-dashboard-widget-proxy",
+  "spec": "openspec/changes/link-button-widget",
   "verified": [
+    {"task": "1", "file": "lib/Service/FileService.php", "ok": true},
+    {"task": "2", "file": "lib/Service/FileService.php", "ok": true},
+    {"task": "3", "file": "lib/Controller/FileController.php", "ok": true},
+    {"task": "4", "file": "src/components/Widgets/Renderers/LinkButtonWidget.vue", "ok": true},
+    {"task": "5", "file": "src/components/Widgets/Renderers/LinkButtonWidget.vue", "ok": true},
+    {"task": "6", "file": "src/composables/useInternalActions.js", "ok": true},
+    {"task": "7", "file": "src/components/Widgets/Forms/LinkButtonForm.vue", "ok": true},
+    {"task": "8", "file": "src/constants/widgetRegistry.js", "ok": true},
+    {"task": "9", "file": "tests/Unit/Service/FileServiceTest.php", "ok": true},
+    {"task": "10", "file": "src/components/Widgets/Renderers/__tests__/LinkButtonWidget.spec.js", "ok": true},
+    {"task": "11", "file": "tests/e2e/link-button-widget.spec.ts", "ok": false, "note": "Deferred — requires live Nextcloud instance"},
+    {"task": "12", "file": "composer check:strict + l10n/en.json + l10n/nl.json", "ok": true}
+  ],
+  "stubs": [],
+  "missing_routes": [],
+  "_prev_spec": "openspec/changes/nc-dashboard-widget-proxy",
+  "_prev_verified": [
     {"task": "1", "file": "src/services/widgetBridge.js", "ok": true},
     {"task": "2", "file": "src/components/Widgets/Renderers/NcDashboardWidget.vue", "ok": true},
     {"task": "3", "file": "src/components/Widgets/Renderers/NcDashboardWidget.vue", "ok": true},
@@ -12,10 +29,10 @@
     {"task": "9", "file": "eslint: 0 errors", "ok": true},
     {"task": "10", "file": "l10n/en.json + l10n/nl.json", "ok": true}
   ],
-  "stubs": [],
-  "missing_routes": [],
-  "_prev_spec": "openspec/changes/active-dashboard-resolution",
-  "_prev_verified": [
+  "_prev_stubs": [],
+  "_prev_missing_routes": [],
+  "_prev2_spec": "openspec/changes/active-dashboard-resolution",
+  "_prev2_verified": [
     {"task": "1", "file": "lib/Service/DashboardService.php", "ok": true, "note": "ACTIVE_DASHBOARD_UUID_PREF_KEY constant at line 100; resolveActiveDashboard() at line 1162"},
     {"task": "2", "file": "lib/Service/DashboardService.php", "ok": true, "note": "7-step chain implemented in resolveActiveDashboard(); findFirstGroupSharedWhere() helper"},
     {"task": "3", "file": "lib/Service/DashboardService.php", "ok": true, "note": "Stale-pref auto-clear: IConfig::deleteUserValue + logger->warning"},
@@ -30,6 +47,6 @@
     {"task": "12", "file": "tests/e2e/active-dashboard-resolution.spec.ts", "ok": true, "note": "3 Playwright scenarios"},
     {"task": "13", "file": "openspec/changes/active-dashboard-resolution/design.md", "ok": true, "note": "design.md with stale-pref rationale; 14 hydra gates green; 17 phpunit tests pass"}
   ],
-  "_prev_stubs": [],
-  "_prev_missing_routes": []
+  "_prev2_stubs": [],
+  "_prev2_missing_routes": []
 }

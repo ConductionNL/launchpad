@@ -2,20 +2,20 @@
 
 ## Tasks
 
-- [ ] Task 1: Create `lib/Service/InitialStateBuilder.php` with a `Page` enum (`WORKSPACE`, `ADMIN`), constructor accepting `IInitialState` + `Page`, and typed setter methods per page key (`setWidgets`, `setLayout`, `setPrimaryGroup`, `setPrimaryGroupName`, `setIsAdmin`, `setActiveDashboardId`, `setDashboardSource`, `setGroupDashboards`, `setUserDashboards`, `setAllowUserDashboards`, `setAllGroups`, `setConfiguredGroups`)
-- [ ] Task 2: Implement `apply(): void` that validates required keys per page and throws `MissingInitialStateException` (new class under `lib/Exception/`) naming the missing key
-- [ ] Task 3: Add `INITIAL_STATE_SCHEMA_VERSION = 1` constant; push it under key `_schemaVersion` in `apply()`; document the contract in the class docblock with a link to REQ-INIT-002
-- [ ] Task 4: Refactor `lib/Controller/WorkspaceController::index` to construct `InitialStateBuilder(Page::WORKSPACE)`, call all setters, then `apply()`
-- [ ] Task 5: Refactor `lib/Settings/Admin/AdminSettings::getForm` to construct `InitialStateBuilder(Page::ADMIN)`, call all setters, then `apply()`
-- [ ] Task 6: Add a CI lint task (shell or PHPUnit) that greps `provideInitialState` outside `lib/Service/InitialStateBuilder.php` and fails the build if found
-- [ ] Task 7: Create `src/utils/loadInitialState.js` exporting `loadInitialState(page)` with per-page key/default tables mirroring REQ-INIT-002; include an `INITIAL_STATE_SCHEMA_VERSION = 1` constant that must equal the PHP value and emit a console warning when received `_schemaVersion` mismatches
-- [ ] Task 8: Refactor `src/main.js` (workspace entry) to call `loadInitialState('workspace')` and `app.provide(key, value)` for every key
-- [ ] Task 9: Refactor `src/admin.js` (admin entry) to call `loadInitialState('admin')` and `app.provide(key, value)` for every key
-- [ ] Task 10: Add a CI lint task (shell or Vitest) that greps `loadState\(['"]mydash['"]` outside `src/utils/loadInitialState.js` and fails the build if found
-- [ ] Task 11: PHPUnit — builder rejects missing required keys for each page; builder writes all keys with correct values via a stub `IInitialState`; `_schemaVersion` key is always pushed
-- [ ] Task 12: Vitest — reader fills defaults for missing keys (mock `loadState`); reader logs a warning on schema-version mismatch; provide/inject pipe-through works for every workspace key; mutating a component clone of an injected value does not affect siblings (REQ-INIT-005)
-- [ ] Task 13: Wire the CI lint pair (PHP grep + JS grep) into the workflow
-- [ ] Task 14: Quality — `composer check:strict` passes; ESLint clean; class docblock on `InitialStateBuilder` links REQ-INIT-002 and lists all keys for each page; changelog note describing the new contract and how to add a key (spec update + version bump + reader/builder update in the same commit)
+- [x] Task 1: Create `lib/Service/InitialStateBuilder.php` with a `Page` enum (`WORKSPACE`, `ADMIN`), constructor accepting `IInitialState` + `Page`, and typed setter methods per page key (`setWidgets`, `setLayout`, `setPrimaryGroup`, `setPrimaryGroupName`, `setIsAdmin`, `setActiveDashboardId`, `setDashboardSource`, `setGroupDashboards`, `setUserDashboards`, `setAllowUserDashboards`, `setAllGroups`, `setConfiguredGroups`)
+- [x] Task 2: Implement `apply(): void` that validates required keys per page and throws `MissingInitialStateException` (new class under `lib/Exception/`) naming the missing key
+- [x] Task 3: Add `INITIAL_STATE_SCHEMA_VERSION = 1` constant; push it under key `_schemaVersion` in `apply()`; document the contract in the class docblock with a link to REQ-INIT-002
+- [x] Task 4: Refactor `lib/Controller/WorkspaceController::index` to construct `InitialStateBuilder(Page::WORKSPACE)`, call all setters, then `apply()` — implemented in `lib/Controller/PageController.php`
+- [x] Task 5: Refactor `lib/Settings/Admin/AdminSettings::getForm` to construct `InitialStateBuilder(Page::ADMIN)`, call all setters, then `apply()` — implemented in `lib/Settings/MyDashAdmin.php`
+- [x] Task 6: Add a CI lint task (shell or PHPUnit) that greps `provideInitialState` outside `lib/Service/InitialStateBuilder.php` and fails the build if found — implemented as both `scripts/lint-initial-state.php` (wired via `composer check:strict`) and `tests/Unit/Service/InitialStateContractLintTest.php`
+- [x] Task 7: Create `src/utils/loadInitialState.js` exporting `loadInitialState(page)` with per-page key/default tables mirroring REQ-INIT-002; include an `INITIAL_STATE_SCHEMA_VERSION = 1` constant that must equal the PHP value and emit a console warning when received `_schemaVersion` mismatches — note: schema version is `2` (bumped when `allowedWidgets`/`deepLinkPath`/`linkCreateFileExtensions` keys were added)
+- [x] Task 8: Refactor `src/main.js` (workspace entry) to call `loadInitialState('workspace')` and `app.provide(key, value)` for every key
+- [x] Task 9: Refactor `src/admin.js` (admin entry) to call `loadInitialState('admin')` and `app.provide(key, value)` for every key
+- [x] Task 10: Add a CI lint task (shell or Vitest) that greps `loadState\(['"]launchpad['"]` outside `src/utils/loadInitialState.js` and fails the build if found — implemented as `scripts/lint-initial-state.js` wired via `npm run lint:initial-state`
+- [x] Task 11: PHPUnit — builder rejects missing required keys for each page; builder writes all keys with correct values via a stub `IInitialState`; `_schemaVersion` key is always pushed — `tests/Unit/Service/InitialStateBuilderTest.php`
+- [x] Task 12: Vitest — reader fills defaults for missing keys (mock `loadState`); reader logs a warning on schema-version mismatch; provide/inject pipe-through works for every workspace key; mutating a component clone of an injected value does not affect siblings (REQ-INIT-005) — `src/utils/__tests__/loadInitialState.spec.js`
+- [x] Task 13: Wire the CI lint pair (PHP grep + JS grep) into the workflow — PHP: `composer check:strict` already includes `composer lint:initial-state`; JS: added `js-lint` job to `.forgejo/workflows/pre-merge-check-strict.yaml` and added `lint:initial-state` to `npm run lint` in `package.json`
+- [x] Task 14: Quality — `composer check:strict` passes; ESLint clean; class docblock on `InitialStateBuilder` links REQ-INIT-002 and lists all keys for each page; changelog note describing the new contract and how to add a key (spec update + version bump + reader/builder update in the same commit)
 
 ## Verification
 

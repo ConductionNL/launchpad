@@ -36,11 +36,24 @@ jobs:
           path: .hydra
 
       - name: Run all 19 Hydra gates (diff-scoped per ADR-020)
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }} || true
-          bash .hydra/scripts/run-hydra-gates.sh --scope-to-diff --base origin/${{ github.base_ref }} .
+          git fetch origin "$BASE_REF":"$BASE_REF" || true
+          bash .hydra/scripts/run-hydra-gates.sh --scope-to-diff --base "origin/$BASE_REF" .
 
       - name: Gate-19 e2e coverage report (informational)
         if: always()
         run: |
           python3 .hydra/scripts/lib/check_e2e_coverage.py . --mode report || true
+
+  js-lint:
+    runs-on: codeberg-small
+    container:
+      image: node:20-alpine
+    steps:
+      - name: Checkout PR
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Run initial-state JS lint guard (REQ-INIT-003)
+        run: node ./scripts/lint-initial-state.js

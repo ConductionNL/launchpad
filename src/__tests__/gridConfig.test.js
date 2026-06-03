@@ -15,12 +15,12 @@ import {
 } from '../constants/gridConfig.js'
 
 describe('gridConfig constants', () => {
-	it('CELL_HEIGHT should be 80 pixels (no geometry change)', () => {
-		expect(CELL_HEIGHT).toBe(80)
+	it('CELL_HEIGHT should be 60 pixels (REQ-GRID-012)', () => {
+		expect(CELL_HEIGHT).toBe(60)
 	})
 
-	it('GRID_MARGIN should be 12 pixels (no geometry change)', () => {
-		expect(GRID_MARGIN).toBe(12)
+	it('GRID_MARGIN should be 8 pixels (REQ-GRID-012)', () => {
+		expect(GRID_MARGIN).toBe(8)
 	})
 
 	it('GRID_COLUMNS should be 12 (default)', () => {
@@ -66,18 +66,18 @@ describe('gridConfig constants', () => {
 	})
 
 	describe('height math per REQ-GRID-012', () => {
-		it('should calculate correct DOM height for 4-row widget', () => {
+		it('should calculate correct DOM height for 4-row widget at 60px cell / 8px margin', () => {
 			const gridHeight = 4
 			const domHeight = gridHeight * CELL_HEIGHT + (gridHeight - 1) * GRID_MARGIN
-			// (4 * 80) + (3 * 12) = 320 + 36 = 356 px
-			expect(domHeight).toBe(356)
+			// (4 * 60) + (3 * 8) = 240 + 24 = 264 px
+			expect(domHeight).toBe(264)
 		})
 
 		it('should calculate correct DOM height for 1-row widget', () => {
 			const gridHeight = 1
 			const domHeight = gridHeight * CELL_HEIGHT + Math.max(0, gridHeight - 1) * GRID_MARGIN
-			// (1 * 80) + (0 * 12) = 80 px
-			expect(domHeight).toBe(80)
+			// (1 * 60) + (0 * 8) = 60 px
+			expect(domHeight).toBe(60)
 		})
 	})
 })

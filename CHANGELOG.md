@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- **GridStack bumped to v12.x** (REQ-GRID-013): `gridstack` dependency
+  updated from `10.3.1` to `^12.2.1`. Downstream consumers that pin an
+  exact GridStack version or import internal GridStack APIs should update
+  their constraints accordingly. The `columnOpts.breakpoints` / `moveScale`
+  API surface used by this app is stable across v10+.
+
+- **Responsive grid breakpoints** (REQ-GRID-007): the dashboard grid now
+  reflows proportionally at four explicit viewport widths — 12 columns
+  (≥ 1400 px), 8 columns (≥ 1100 px), 4 columns (≥ 768 px), 1 column
+  (≥ 480 px or below). The `moveScale` algorithm preserves relative widget
+  widths on breakpoint changes. Cell height is 60 px; inter-cell margin is
+  8 px. All geometry constants are centralised in `useGridManager.js` and
+  mirrored to the `--mydash-cell-height` CSS custom property at init time.
+
 ### Security
 
 - **SVG upload sanitisation** (REQ-RES-009..013): all SVG uploads are now

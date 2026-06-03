@@ -6,7 +6,7 @@ The `multi-scope-dashboards` change introduced `group_shared` dashboards but lef
 
 ## What Changes
 
-- Reuse the existing `isDefault SMALLINT` column on `oc_mydash_dashboards`; do not add a new column or a `defaultDashboardId` field on a parent table.
+- Reuse the existing `isDefault SMALLINT` column on `oc_launchpad_dashboards`; do not add a new column or a `defaultDashboardId` field on a parent table.
 - Add `DashboardService::setGroupDefault(string $groupId, string $uuid): void` that runs in a single DB transaction (UPDATE all other dashboards in the group to `isDefault=0`, then UPDATE the target to `isDefault=1`) so concurrent calls cannot leave the group in a two-default state.
 - Add admin-only endpoint `POST /api/dashboards/group/{groupId}/default` with body `{"uuid": "..."}` that invokes the service.
 - Reject the call with HTTP 404 when the target uuid does not belong to the given groupId; HTTP 403 for non-admins.
@@ -51,7 +51,7 @@ The `admin-templates` capability is intentionally not modified — REQ-TMPL-008 
 
 **Migration:**
 
-- Zero schema migration required — `isDefault SMALLINT` already exists on `oc_mydash_dashboards` per the original `admin-templates` change.
+- Zero schema migration required — `isDefault SMALLINT` already exists on `oc_launchpad_dashboards` per the original `admin-templates` change.
 - No data backfill required; existing rows already have `isDefault = 0` by default.
 
 **Build order:**

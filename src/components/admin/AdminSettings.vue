@@ -90,7 +90,7 @@
 
 			<!-- Group priority order (REQ-ASET-012/013/014) -->
 			<div class="mydash-admin__section">
-				<GroupPriorityOrder :initial-active="configuredGroups" />
+				<GroupPriorityOrder :key="refreshKey" :initial-active="configuredGroups" />
 			</div>
 
 			<!-- Template Management -->
@@ -200,7 +200,7 @@
 
 			<!-- Org-wide navigation editor (REQ-ONAV-001..012) -->
 			<div class="mydash-admin__section">
-				<OrgNavigationEditor :groups="injectedAllGroups" />
+				<OrgNavigationEditor :key="refreshKey" :groups="injectedAllGroups" />
 			</div>
 
 			<!-- Backup & migration (REQ-EXIM-001..010) -->
@@ -210,7 +210,7 @@
 
 			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
 			<div class="mydash-admin__section" data-testid="admin-bulk-section">
-				<DashboardBulkOperations />
+				<DashboardBulkOperations :key="refreshKey" />
 			</div>
 
 			<!-- Confluence HTML import (REQ-CFLI-001..012) -->
@@ -220,22 +220,22 @@
 
 			<!-- Dashboard view-analytics (REQ-ANLT-006..010) -->
 			<div class="mydash-admin__section">
-				<AdminAnalytics />
+				<AdminAnalytics :key="refreshKey" />
 			</div>
 
 			<!-- Demo data showcases (REQ-DEMO-001..009) -->
 			<div class="mydash-admin__section">
-				<AdminDemoData />
+				<AdminDemoData :key="refreshKey" />
 			</div>
 
 			<!-- Role-based widget permissions (REQ-RFP-001..010) -->
 			<div class="mydash-admin__section" data-testid="admin-roles-section">
-				<RolePermissionsSection />
+				<RolePermissionsSection :key="refreshKey" />
 			</div>
 
 			<!-- Action authorization matrix (ADR-023) -->
 			<div class="mydash-admin__section">
-				<ActionAuthMatrix />
+				<ActionAuthMatrix :key="refreshKey" />
 			</div>
 
 			<!-- Info -->
@@ -416,6 +416,10 @@ export default {
 			// `completed` which triggers a state re-fetch.
 			wizardState: null,
 			showWizard: false,
+			// Bumped after the setup wizard completes to remount the
+			// self-loading child sections so they re-fetch their data
+			// (the wizard may have changed groups, demo data, roles, …).
+			refreshKey: 0,
 		}
 	},
 
@@ -649,10 +653,17 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async onWizardCompleted() {
 			this.showWizard = false
-			// REQ-WIZ-002 final scenario: the banner MUST disappear without
-			// requiring a full page reload. Re-fetch the state so the
-			// reactive guard updates.
-			await this.loadWizardState()
+			// The wizard configures storage, groups, demo data and admin
+			// roles, so the settings sections almost certainly show stale
+			// data now. Refresh everything in place (REQ-WIZ-002 forbids a
+			// full page reload): re-run this page's own loaders and bump
+			// refreshKey to remount the self-loading child sections.
+			this.refreshKey += 1
+			await Promise.all([
+				this.loadData(),
+				this.loadGroupSharedDashboards(),
+				this.loadWizardState(),
+			])
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */

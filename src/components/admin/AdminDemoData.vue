@@ -15,65 +15,76 @@
 			{{ t('mydash', 'Loading showcases…') }}
 		</div>
 
-		<div v-else-if="error" class="mydash-demo-showcases__error">
-			{{ error }}
+		<div v-else-if="loadError" class="mydash-demo-showcases__error">
+			{{ loadError }}
 		</div>
 
-		<div v-else class="mydash-demo-showcases__grid">
-			<div
-				v-for="showcase in showcases"
-				:key="showcase.id"
-				class="mydash-demo-showcases__card"
-				:data-test="'showcase-card-' + showcase.id">
-				<div class="mydash-demo-showcases__thumb">
-					<img
-						v-if="showcase.thumbnailUrl"
-						:src="showcase.thumbnailUrl"
-						:alt="showcase.name"
-						@error="onThumbError($event)">
-					<ViewDashboard v-else :size="64" />
-				</div>
+		<template v-else>
+			<NcNoteCard
+				v-if="actionError"
+				type="error"
+				class="mydash-demo-showcases__action-error"
+				data-test="showcase-action-error">
+				{{ actionError }}
+			</NcNoteCard>
 
-				<div class="mydash-demo-showcases__body">
-					<div class="mydash-demo-showcases__title-row">
-						<strong class="mydash-demo-showcases__title">{{ showcase.name }}</strong>
-						<span class="mydash-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+			<div class="mydash-demo-showcases__grid">
+				<div
+					v-for="showcase in showcases"
+					:key="showcase.id"
+					class="mydash-demo-showcases__card"
+					:data-test="'showcase-card-' + showcase.id">
+					<div class="mydash-demo-showcases__thumb">
+						<img
+							v-if="showcase.thumbnailUrl"
+							:src="showcase.thumbnailUrl"
+							:alt="showcase.name"
+							@error="onThumbError($event)">
+						<ViewDashboard v-else :size="64" />
 					</div>
 
-					<p class="mydash-demo-showcases__desc">
-						{{ showcase.description }}
-					</p>
+					<div class="mydash-demo-showcases__body">
+						<div class="mydash-demo-showcases__title-row">
+							<strong class="mydash-demo-showcases__title">{{ showcase.name }}</strong>
+							<span class="mydash-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+						</div>
 
-					<div v-if="warnings[showcase.id]" class="mydash-demo-showcases__warning">
-						{{ t('mydash', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
-					</div>
+						<p class="mydash-demo-showcases__desc">
+							{{ showcase.description }}
+						</p>
 
-					<div class="mydash-demo-showcases__actions">
-						<NcButton
-							v-if="!showcase.isInstalled"
-							type="primary"
-							:disabled="busy[showcase.id]"
-							:data-test="'showcase-install-' + showcase.id"
-							@click="install(showcase)">
-							{{ busy[showcase.id] ? t('mydash', 'Installing…') : t('mydash', 'Install') }}
-						</NcButton>
-						<NcButton
-							v-else
-							type="error"
-							:disabled="busy[showcase.id]"
-							:data-test="'showcase-uninstall-' + showcase.id"
-							@click="confirmUninstall(showcase)">
-							{{ busy[showcase.id] ? t('mydash', 'Uninstalling…') : t('mydash', 'Uninstall') }}
-						</NcButton>
+						<div v-if="warnings[showcase.id]" class="mydash-demo-showcases__warning">
+							{{ t('mydash', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
+						</div>
+
+						<div class="mydash-demo-showcases__actions">
+							<NcButton
+								v-if="!showcase.isInstalled"
+								type="primary"
+								:disabled="busy[showcase.id]"
+								:data-test="'showcase-install-' + showcase.id"
+								@click="install(showcase)">
+								{{ busy[showcase.id] ? t('mydash', 'Installing…') : t('mydash', 'Install') }}
+							</NcButton>
+							<NcButton
+								v-else
+								type="error"
+								:disabled="busy[showcase.id]"
+								:data-test="'showcase-uninstall-' + showcase.id"
+								@click="confirmUninstall(showcase)">
+								{{ busy[showcase.id] ? t('mydash', 'Uninstalling…') : t('mydash', 'Uninstall') }}
+							</NcButton>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</template>
 	</div>
 </template>
 
 <script>
 import { NcButton } from '@conduction/nextcloud-vue'
+import { NcNoteCard } from '@nextcloud/vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import { api } from '../../services/api.js'
 
@@ -82,13 +93,20 @@ export default {
 
 	components: {
 		NcButton,
+		NcNoteCard,
 		ViewDashboard,
 	},
 
 	data() {
 		return {
 			loading: false,
-			error: '',
+			// Blocks the card grid — when the list itself fails to load
+			// there is nothing to show.
+			loadError: '',
+			// Shown as a dismissible note card above the grid so a failed
+			// install/uninstall does not hide the cards and retrying stays
+			// possible.
+			actionError: '',
 			showcases: [],
 			busy: {},
 			warnings: {},
@@ -103,12 +121,12 @@ export default {
 		/** @spec openspec/specs/demo-data-showcases/spec.md */
 		async fetch() {
 			this.loading = true
-			this.error = ''
+			this.loadError = ''
 			try {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
 			} catch (err) {
-				this.error = this.t('mydash', 'Could not load demo showcases. Please try again.')
+				this.loadError = this.t('mydash', 'Could not load demo showcases. Please try again.')
 			} finally {
 				this.loading = false
 			}
@@ -118,6 +136,7 @@ export default {
 		async install(showcase) {
 			this.$set(this.busy, showcase.id, true)
 			this.$delete(this.warnings, showcase.id)
+			this.actionError = ''
 			try {
 				const response = await api.installDemoShowcase(showcase.id)
 				const skipped = (response.data && response.data.skippedWidgets) || []
@@ -128,11 +147,11 @@ export default {
 				await this.fetch()
 			} catch (err) {
 				if (err.response && err.response.status === 404) {
-					this.error = this.t('mydash', 'Showcase not found.')
+					this.actionError = this.t('mydash', 'Showcase not found.')
 				} else if (err.response && err.response.status === 403) {
-					this.error = this.t('mydash', 'You need admin privileges to install showcases.')
+					this.actionError = this.t('mydash', 'You need admin privileges to install showcases.')
 				} else {
-					this.error = this.t('mydash', 'Could not install showcase. Please try again.')
+					this.actionError = this.t('mydash', 'Could not install showcase. Please try again.')
 				}
 			} finally {
 				this.$set(this.busy, showcase.id, false)
@@ -147,12 +166,13 @@ export default {
 			}
 
 			this.$set(this.busy, showcase.id, true)
+			this.actionError = ''
 			try {
 				await api.uninstallDemoShowcase(showcase.id)
 				this.$delete(this.warnings, showcase.id)
 				await this.fetch()
 			} catch (err) {
-				this.error = this.t('mydash', 'Could not uninstall showcase. Please try again.')
+				this.actionError = this.t('mydash', 'Could not uninstall showcase. Please try again.')
 			} finally {
 				this.$set(this.busy, showcase.id, false)
 			}
@@ -181,6 +201,10 @@ export default {
 
 .mydash-demo-showcases__error {
 	color: var(--color-error);
+}
+
+.mydash-demo-showcases__action-error {
+	margin-top: 16px;
 }
 
 .mydash-demo-showcases__grid {

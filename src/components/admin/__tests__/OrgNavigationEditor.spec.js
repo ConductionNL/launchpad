@@ -151,6 +151,30 @@ describe('OrgNavigationEditor', () => {
 		expect(wrapper.vm.workingTree[0].id).toBe('b')
 	})
 
+	it('REQ-ONAV-007: renders the tree as a draggable list using the handle', async () => {
+		const pinia = createPinia()
+		setActivePinia(pinia)
+		const wrapper = mount(OrgNavigationEditor, { pinia })
+		await flush()
+
+		wrapper.vm.workingTree = [
+			{ id: 'a', label: 'A', url: '/a', children: [] },
+			{ id: 'b', label: 'B', url: '/b', children: [] },
+		]
+		await flush()
+
+		// The list is wrapped in a vuedraggable instance configured to
+		// drag from the ⋮⋮ handle only (so the row inputs stay usable).
+		const draggable = wrapper.findComponent({ name: 'draggable' })
+		expect(draggable.exists()).toBe(true)
+		// vuedraggable v2 reads sortable options (incl. handle) from
+		// $attrs rather than declared props.
+		expect(draggable.vm.$attrs.handle).toBe('.org-nav-row__handle')
+		// Reorder still mutates workingTree in place (shared by the
+		// buttons and vuedraggable's :list binding).
+		expect(wrapper.findAll('.org-nav-row__handle').length).toBe(2)
+	})
+
 	it('REQ-ONAV-004: changing position calls store.updatePosition', async () => {
 		const pinia = createPinia()
 		setActivePinia(pinia)

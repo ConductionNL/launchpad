@@ -2,9 +2,9 @@
 
 ## Context
 
-MyDash is introducing a two-backend storage architecture (DB and GroupFolder) built directly on the pattern proven by the reference implementation, which uses a GroupFolder as its sole persistence layer. The reference implementation provides the ground truth for how a Nextcloud app should behave when its GroupFolder is unreachable, missing, or not yet set up.
+LaunchPad is introducing a two-backend storage architecture (DB and GroupFolder) built directly on the pattern proven by the reference implementation, which uses a GroupFolder as its sole persistence layer. The reference implementation provides the ground truth for how a Nextcloud app should behave when its GroupFolder is unreachable, missing, or not yet set up.
 
-The critical open question is what happens when an administrator switches `mydash.content_storage` from one backend to the other without first running the one-time migration command. Half the dashboard records then live in the old backend while the new backend is active. Two strategies are possible: (a) hard-fail every read that misses in the new backend, or (b) transparently fall back to the old backend for reads.
+The critical open question is what happens when an administrator switches `launchpad.content_storage` from one backend to the other without first running the one-time migration command. Half the dashboard records then live in the old backend while the new backend is active. Two strategies are possible: (a) hard-fail every read that misses in the new backend, or (b) transparently fall back to the old backend for reads.
 
 The reference implementation sheds light on this because it has exactly one backend and must deal with the same class of failure: GroupFolder unreachable, app uninstalled, or setup never completed. Its choices reveal the operational tradeoff between fail-closed safety and read continuity.
 
@@ -28,7 +28,7 @@ A key structural fact from the reference app is that its `the source app_page_in
 
 ### D1: Backend-switch behaviour — hard-fail vs. dual-read
 
-**Decision**: **Hard-fail (option a).** When `mydash.content_storage` is switched to a new backend without running the migration, read operations for dashboards that exist only in the old backend MUST return HTTP 503 with error key `dashboard_content_storage_unavailable`. The API MUST NOT attempt to read from the inactive backend.
+**Decision**: **Hard-fail (option a).** When `launchpad.content_storage` is switched to a new backend without running the migration, read operations for dashboards that exist only in the old backend MUST return HTTP 503 with error key `dashboard_content_storage_unavailable`. The API MUST NOT attempt to read from the inactive backend.
 
 **Alternatives considered:**
 
@@ -36,9 +36,9 @@ A key structural fact from the reference app is that its `the source app_page_in
 
 **Rationale**: The reference implementation's error handling is consistently fail-closed. When `getSharedFolder()` fails — because the GroupFolder is missing or the `groupfolders` app is uninstalled — the resulting exception propagates as HTTP 500 (internal server error) rather than silently degrading. The list endpoint is the one exception: it deliberately returns an empty array instead of an error when the folder is not found (`the source codebase-source/lib/Controller/ApiController.php:209-214`), but this is scoped to the *listing* operation only, where an empty result is semantically valid. Single-page reads throw the exception straight through to a 404/500. The reference app never attempts a cross-store lookup because it has nowhere else to look — but the design choice is clear: known-bad state surfaces immediately rather than being papered over.
 
-For MyDash the consequence is equally clear: an operator who switches backends without migrating has made an incomplete operational change. Surfacing HTTP 503 immediately is the correct signal — it is unambiguous, monitorable, and tells the operator exactly what to do (run the migration command). Silent dual-read would hide the incomplete migration indefinitely and could cause split-brain writes (new dashboards going to the new backend, old ones silently read from the old one, no indication that migration is needed).
+For LaunchPad the consequence is equally clear: an operator who switches backends without migrating has made an incomplete operational change. Surfacing HTTP 503 immediately is the correct signal — it is unambiguous, monitorable, and tells the operator exactly what to do (run the migration command). Silent dual-read would hide the incomplete migration indefinitely and could cause split-brain writes (new dashboards going to the new backend, old ones silently read from the old one, no indication that migration is needed).
 
-The `groupfolder_setup_required` distinction (GroupFolder app not installed vs. GroupFolder folder not yet created) also informs this: the reference app (`the source codebase-source/lib/Service/SetupService.php:79-89`) returns a typed error key (`groupfolders_app_not_enabled`) immediately — it does not substitute a different storage mechanism. MyDash should mirror this granularity.
+The `groupfolder_setup_required` distinction (GroupFolder app not installed vs. GroupFolder folder not yet created) also informs this: the reference app (`the source codebase-source/lib/Service/SetupService.php:79-89`) returns a typed error key (`groupfolders_app_not_enabled`) immediately — it does not substitute a different storage mechanism. LaunchPad should mirror this granularity.
 
 **Source evidence**:
 
@@ -51,9 +51,9 @@ The `groupfolder_setup_required` distinction (GroupFolder app not installed vs. 
 
 ### D2: Pre-setup hard-fail vs. auto-create on first GroupFolder write
 
-**Decision**: The GroupFolder backend MUST attempt auto-creation (`ensureMyDashGroupFolder()`) on the first write when no "MyDash" GroupFolder exists. It MUST NOT auto-create on reads. A read against a non-existent GroupFolder returns HTTP 503.
+**Decision**: The GroupFolder backend MUST attempt auto-creation (`ensureLaunchPadGroupFolder()`) on the first write when no "LaunchPad" GroupFolder exists. It MUST NOT auto-create on reads. A read against a non-existent GroupFolder returns HTTP 503.
 
-**Rationale**: The reference app auto-creates its GroupFolder during the explicit `setupSharedFolder()` step (triggered via the repair step on install, `the source codebase-source/lib/Migration/SetupDemoData.php:34-48`). It does not auto-create on demand during page reads; `getSharedFolder()` throws if the folder does not exist. For writes the reference app delegates creation to the setup flow, not to the write path. MyDash will differ slightly because its GroupFolder backend can be activated by an admin mid-lifecycle rather than only at install. Putting `ensureMyDashGroupFolder()` in the write path (REQ-GFSB-003 already specifies this) matches the spirit of the reference implementation while accommodating the mid-lifecycle activation case.
+**Rationale**: The reference app auto-creates its GroupFolder during the explicit `setupSharedFolder()` step (triggered via the repair step on install, `the source codebase-source/lib/Migration/SetupDemoData.php:34-48`). It does not auto-create on demand during page reads; `getSharedFolder()` throws if the folder does not exist. For writes the reference app delegates creation to the setup flow, not to the write path. LaunchPad will differ slightly because its GroupFolder backend can be activated by an admin mid-lifecycle rather than only at install. Putting `ensureLaunchPadGroupFolder()` in the write path (REQ-GFSB-003 already specifies this) matches the spirit of the reference implementation while accommodating the mid-lifecycle activation case.
 
 **Source evidence**:
 
@@ -64,7 +64,7 @@ The `groupfolder_setup_required` distinction (GroupFolder app not installed vs. 
 
 **Decision**: Keep DB records after migration (option B from REQ-GFSB-008's optional decision point). The migration command MUST NOT delete the source DB content. Deletion can be triggered by a separate `--prune-source` flag.
 
-**Rationale**: The reference app never destroys content on migration — its `migrateResourcesFolders()` and `migrateTemplatesFolders()` helpers only create new structures; they never delete old ones. Given that rolling back from GroupFolder to DB is as simple as flipping `mydash.content_storage` back, keeping DB records gives operators a zero-downtime rollback path. Destroying them would make rollback require restoring from backup.
+**Rationale**: The reference app never destroys content on migration — its `migrateResourcesFolders()` and `migrateTemplatesFolders()` helpers only create new structures; they never delete old ones. Given that rolling back from GroupFolder to DB is as simple as flipping `launchpad.content_storage` back, keeping DB records gives operators a zero-downtime rollback path. Destroying them would make rollback require restoring from backup.
 
 **Source evidence**:
 
@@ -76,16 +76,16 @@ Changes to apply to `specs/groupfolder-storage-backend/spec.md`:
 
 1. **REQ-GFSB-009 Scenario 1 (database-backed dashboard readable during GroupFolder transition)**: Replace the "NOTE" text and the "decide during implementation" hedge with a firm ruling: the system MUST return HTTP 503 with `dashboard_content_storage_unavailable` when the active backend is GroupFolder and the requested dashboard does not exist in the GroupFolder (even if it exists in the DB). Remove the dual-read option from the scenario entirely.
 
-2. **REQ-GFSB-009 — add new scenario**: "Pre-switch migration required" — GIVEN `mydash.content_storage` is about to be switched AND dashboards exist in the current backend, the admin-facing error message in HTTP 503 responses MUST include a reference to the migration command (`mydash:storage:migrate-to-groupfolder`). This ensures the 503 is actionable, not just a raw failure.
+2. **REQ-GFSB-009 — add new scenario**: "Pre-switch migration required" — GIVEN `launchpad.content_storage` is about to be switched AND dashboards exist in the current backend, the admin-facing error message in HTTP 503 responses MUST include a reference to the migration command (`launchpad:storage:migrate-to-groupfolder`). This ensures the 503 is actionable, not just a raw failure.
 
 3. **REQ-GFSB-008 Scenario "Retention policy after migration"**: Change from open decision to resolved: option B (keep DB records). Add: the command MUST accept a `--prune-source` flag that, when passed, deletes the DB content for successfully migrated dashboards. The default (no flag) MUST NOT delete.
 
-4. **REQ-GFSB-003 — add scenario**: "GroupFolder auto-creation does not occur on read" — GIVEN the "MyDash" GroupFolder does not exist AND `mydash.content_storage = 'groupfolder'`, WHEN a read operation is attempted, THEN the system MUST return HTTP 503 without attempting to create the GroupFolder.
+4. **REQ-GFSB-003 — add scenario**: "GroupFolder auto-creation does not occur on read" — GIVEN the "LaunchPad" GroupFolder does not exist AND `launchpad.content_storage = 'groupfolder'`, WHEN a read operation is attempted, THEN the system MUST return HTTP 503 without attempting to create the GroupFolder.
 
 5. **REQ-GFSB-005 Scenario "GroupFolders app becomes unavailable mid-operation"**: Remove the phrase "NOT silently fall back to the database backend" — this already aligns with the decision but the current wording implies fallback is a live option being rejected; after this design is applied, the wording should state the positive: "MUST throw `DashboardContentStorageException` propagated as HTTP 503."
 
 ## Open follow-ups
 
-- **PermissionService `PERMISSION_ALL` fallback**: The reference app grants full permissions when no GroupFolder is found (`the source codebase-source/lib/Service/PermissionService.php:129-131`). This is an open-door for pre-setup state. MyDash's `PermissionService` equivalent should explicitly NOT grant full permissions when the GroupFolder backend is configured but the GroupFolder is missing — that state is HTTP 503 territory, not open-door territory. This is a design detail that needs a spec scenario under REQ-GFSB-005 or a new REQ-GFSB-011.
+- **PermissionService `PERMISSION_ALL` fallback**: The reference app grants full permissions when no GroupFolder is found (`the source codebase-source/lib/Service/PermissionService.php:129-131`). This is an open-door for pre-setup state. LaunchPad's `PermissionService` equivalent should explicitly NOT grant full permissions when the GroupFolder backend is configured but the GroupFolder is missing — that state is HTTP 503 territory, not open-door territory. This is a design detail that needs a spec scenario under REQ-GFSB-005 or a new REQ-GFSB-011.
 
-- **Listing endpoint semantics during transition**: The reference app returns `[]` (empty array) for the page list when the folder is not found. Should MyDash's `GET /api/dashboards` (or `/visible`) return `[]` or HTTP 503 when the active backend is GroupFolder but the folder is unreachable? The current spec says fail-closed (503) for all operations. The reference app makes a list-vs-detail distinction. A separate micro-decision is needed here before implementation starts.
+- **Listing endpoint semantics during transition**: The reference app returns `[]` (empty array) for the page list when the folder is not found. Should LaunchPad's `GET /api/dashboards` (or `/visible`) return `[]` or HTTP 503 when the active backend is GroupFolder but the folder is unreachable? The current spec says fail-closed (503) for all operations. The reference app makes a list-vs-detail distinction. A separate micro-decision is needed here before implementation starts.

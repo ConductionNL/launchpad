@@ -1081,4 +1081,25 @@ class DashboardMapper extends QBMapper
 
         $qb->executeStatement();
     }//end clearDefaultTemplates()
+
+    /**
+     * Fetch every dashboard row (all types, all users).
+     *
+     * Used by the storage-migration command to enumerate all dashboards
+     * whose content must be transferred to the GroupFolder backend.
+     * REQ-GFSB-008.
+     *
+     * @return Dashboard[] All dashboards ordered by id ASC.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-9
+     */
+    public function findAll(): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->orderBy(sort: 'id', order: 'ASC');
+
+        return $this->findEntities(query: $qb);
+    }//end findAll()
 }//end class

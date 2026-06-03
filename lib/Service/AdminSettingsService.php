@@ -80,6 +80,8 @@ class AdminSettingsService
             $storedExt = self::DEFAULT_LINK_CREATE_FILE_EXTENSIONS;
         }
 
+        $storageKey = AdminSetting::KEY_CONTENT_STORAGE;
+
         return [
             'defaultPermissionLevel'   => $settings[$permKey] ?? $permDef,
             // REQ-ASET-003 (extended): default `false` — admins MUST opt in
@@ -88,6 +90,8 @@ class AdminSettingsService
             'allowMultipleDashboards'  => $settings[$multiKey] ?? true,
             'defaultGridColumns'       => $settings[$gridKey] ?? 12,
             'linkCreateFileExtensions' => $storedExt,
+            // REQ-GFSB-006: content storage backend setting (db|groupfolder).
+            'contentStorage'           => $settings[$storageKey] ?? 'db',
         ];
     }//end getSettings()
 
@@ -103,17 +107,25 @@ class AdminSettingsService
      *                                        extension
      *                                        allow-list
      *                                        (REQ-LBN-004).
+     * @param string|null $contentStorage     Storage backend
+     *                                        (`'db'`|`'groupfolder'`).
+     *                                        REQ-GFSB-006.
      *
      * @return void
      *
+     * @throws \InvalidArgumentException When `$contentStorage` is not a valid
+     *                                   backend identifier.
+     *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-7
      */
     public function updateSettings(
         ?string $defaultPermLevel=null,
         ?bool $allowUserDash=null,
         ?bool $allowMultiDash=null,
         ?int $defaultGridCols=null,
-        ?array $linkCreateFileExts=null
+        ?array $linkCreateFileExts=null,
+        ?string $contentStorage=null
     ): void {
         if ($defaultPermLevel !== null) {
             $this->settingMapper->setSetting(
@@ -147,6 +159,21 @@ class AdminSettingsService
             $this->settingMapper->setSetting(
                 key: AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
                 value: $this->normaliseExtensions(input: $linkCreateFileExts)
+            );
+        }
+
+        if ($contentStorage !== null) {
+            // Accept both 'db' (spec) and 'database' (legacy wizard alias).
+            $valid = ['db', 'database', 'groupfolder'];
+            if (in_array(needle: $contentStorage, haystack: $valid, strict: true) === false) {
+                throw new \InvalidArgumentException(
+                    "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
+                );
+            }
+
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_CONTENT_STORAGE,
+                value: $contentStorage
             );
         }
     }//end updateSettings()

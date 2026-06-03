@@ -29,6 +29,7 @@ use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AnalyticsService;
+use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
 use OCA\MyDash\Service\DashboardVersionService;
@@ -216,9 +217,24 @@ class DashboardApiController extends Controller
             return ResponseHelper::unauthorized();
         }
 
-        $result = $this->dashboardService->getEffectiveDashboard(
-            userId: $this->userId
-        );
+        try {
+            $result = $this->dashboardService->getEffectiveDashboard(
+                userId: $this->userId
+            );
+        } catch (DashboardContentStorageException $storageEx) {
+            $this->logger->warning(
+                'mydash: Storage unavailable in getActive: {msg}',
+                ['msg' => $storageEx->getMessage()]
+            );
+            return new JSONResponse(
+                data: [
+                    'error'   => DashboardContentStorageException::ERROR_KEY,
+                    'message' => 'Dashboard content storage is currently unavailable. '
+                        .'Please run launchpad:storage:migrate-to-groupfolder or contact your administrator.',
+                ],
+                statusCode: DashboardContentStorageException::HTTP_STATUS
+            );
+        }
 
         if ($result === null) {
             return ResponseHelper::success(
@@ -273,10 +289,25 @@ class DashboardApiController extends Controller
             return ResponseHelper::unauthorized();
         }
 
-        $result = $this->dashboardService->getDashboardForUser(
-            dashboardId: $id,
-            userId: $this->userId
-        );
+        try {
+            $result = $this->dashboardService->getDashboardForUser(
+                dashboardId: $id,
+                userId: $this->userId
+            );
+        } catch (DashboardContentStorageException $storageEx) {
+            $this->logger->warning(
+                'mydash: Storage unavailable in show: {msg}',
+                ['msg' => $storageEx->getMessage()]
+            );
+            return new JSONResponse(
+                data: [
+                    'error'   => DashboardContentStorageException::ERROR_KEY,
+                    'message' => 'Dashboard content storage is currently unavailable. '
+                        .'Please run launchpad:storage:migrate-to-groupfolder or contact your administrator.',
+                ],
+                statusCode: DashboardContentStorageException::HTTP_STATUS
+            );
+        }
 
         if ($result === null) {
             return ResponseHelper::success(

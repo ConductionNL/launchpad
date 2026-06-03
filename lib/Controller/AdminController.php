@@ -355,10 +355,14 @@ class AdminController extends Controller
      * @param array|null  $linkCreateFileExts link-button-widget createFile
      *                                        extension allow-list
      *                                        (REQ-LBN-004).
+     * @param string|null $contentStorage     Storage backend
+     *                                        (`'db'`|`'groupfolder'`).
+     *                                        REQ-GFSB-006.
      *
-     * @return JSONResponse The update confirmation.
+     * @return JSONResponse The update confirmation or 400 on invalid value.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-7
      */
     #[AuthorizedAdminSetting(Application::APP_ID)]
     public function updateSettings(
@@ -366,7 +370,8 @@ class AdminController extends Controller
         ?bool $allowUserDash=null,
         ?bool $allowMultiDash=null,
         ?int $defaultGridCols=null,
-        ?array $linkCreateFileExts=null
+        ?array $linkCreateFileExts=null,
+        ?string $contentStorage=null
     ): JSONResponse {
         try {
             $this->settingsService->updateSettings(
@@ -374,10 +379,16 @@ class AdminController extends Controller
                 allowUserDash: $allowUserDash,
                 allowMultiDash: $allowMultiDash,
                 defaultGridCols: $defaultGridCols,
-                linkCreateFileExts: $linkCreateFileExts
+                linkCreateFileExts: $linkCreateFileExts,
+                contentStorage: $contentStorage
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);
+        } catch (InvalidArgumentException $e) {
+            return new JSONResponse(
+                data: ['error' => $e->getMessage()],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
         }//end try

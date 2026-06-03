@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- **Widget right-click context menu** (REQ-WDG-015..017): right-clicking any
+  widget placement in edit mode opens a small popover at the cursor with three
+  actions — **Edit** (opens `AddWidgetModal` with the placement pre-loaded),
+  **Remove** (calls the placement-delete endpoint then removes the DOM node),
+  and **Cancel** (no-op close). In view mode the right-click falls through to
+  the browser's native context menu. The popover is clamped so it never
+  overflows the right or bottom viewport edges. A single document-level
+  `click` listener (mounted/unmounted by `useGridManager`) closes the popover
+  on outside interaction; right-clicking a second widget switches the popover
+  rather than stacking. Keyboard navigation (Up/Down/Enter/Esc) is deferred
+  to a follow-up issue.
+
 ### Security
 
 - **SVG upload sanitisation** (REQ-RES-009..013): all SVG uploads are now

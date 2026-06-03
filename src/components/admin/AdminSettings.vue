@@ -123,6 +123,7 @@
 						:key="template.id"
 						class="mydash-admin__template">
 						<div class="mydash-admin__template-info">
+							<IconRenderer :name="template.icon" :size="20" />
 							<strong>{{ template.name }}</strong>
 							<span v-if="template.isDefault" class="mydash-admin__badge">
 								{{ t('mydash', 'Default') }}
@@ -173,6 +174,7 @@
 							:key="dash.uuid"
 							class="mydash-admin__template">
 							<div class="mydash-admin__template-info">
+								<IconRenderer :name="dash.icon" :size="20" />
 								<strong>{{ dash.name }}</strong>
 								<span
 									v-if="dash.isDefault === 1"
@@ -324,6 +326,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import IconRenderer from '../Dashboard/IconRenderer.vue'
 import AdminAnalytics from './AdminAnalytics.vue'
 import GroupPriorityOrder from './GroupPriorityOrder.vue'
 import DashboardExportImport from './DashboardExportImport.vue'
@@ -355,6 +358,7 @@ export default {
 		NcCheckboxRadioSwitch,
 		NcEmptyContent,
 		NcModal,
+		IconRenderer,
 		Plus,
 		SetupWizardModal,
 		ViewDashboard,

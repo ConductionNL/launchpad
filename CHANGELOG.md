@@ -6,6 +6,39 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Nextcloud Dashboard widget proxy** (`nc-widget` placement type,
+  REQ-WDG-018..021): any installed Nextcloud Dashboard widget (Mail, Calendar,
+  Talk, Weather, etc.) can now be embedded as a grid cell. Two rendering modes:
+  (1) **native** — the widget's own bundle registers its callback via
+  `OCA.Dashboard.register`; the bridge hands the render container to it for full
+  feature parity with `/dashboard`; (2) **API fallback** — items are fetched via
+  `GET /api/widgets/items?widgets[]=<id>&limit=7` and rendered as a flat 7-item
+  card list. A 200 ms × 15 retries (~3 s) poll detects late-loading bundles and
+  upgrades the cell to native mode without flicker. Display modes: `vertical`
+  (32 px icons, flex-column list) and `horizontal` (120 px cards, 44 px icons,
+  flex-row wrap). Widget picker uses `NcWidgetGridPicker` (icon cards populated
+  from the `widgets` initial-state list). i18n: `nl_NL` + `en_US`.
+
+- **Dashboard-switcher sidebar** (REQ-SWITCH-001..007): a fixed-position
+  slide-in left navigation panel (`DashboardSwitcherSidebar.vue`) lists
+  every dashboard visible to the user, grouped into three labelled sections
+  in fixed order — primary group, default group, and personal ("My
+  Dashboards"). Empty sections collapse entirely. Each row renders its icon
+  via the shared `IconRenderer` (no inline URL branching). Clicking a row
+  emits `update:open(false)` then `switch(id, source)`, where `source` is
+  load-bearing (drives the correct API endpoint in the runtime shell).
+  Personal rows expose a cog menu (`DashboardRowActions`) with Edit /
+  Configure / Add custom widget / Delete entries; the delete action emits
+  `delete-dashboard(id)` without triggering a switch. A dedicated
+  `NcButton` card below the personal list serves as the `+ New Dashboard`
+  affordance when `allowUserDashboards === true`. Slide-in animation is
+  CSS-only (`transform: translateX(-100%) ↔ translateX(0)` over 0.25 s
+  ease). Companion `SidebarBackdrop.vue` provides a click-to-close overlay.
+  A persistent `SidebarFooter` with "Powered by Sendent / Conduction" brand
+  logos and a Documentation link is pinned via `position: sticky; bottom: 0`.
+  Wired in `Views.vue`; Esc closes the sidebar; all string labels translated
+  (`en_US` + `nl_NL`).
+
 - **Per-user RSS / Atom dashboard feeds** (REQ-FEED-001..009): users can
   now opt-in to a personal feed of their accessible dashboards via
   `GET /api/feed/token`. New routes `POST /api/feed/token/regenerate`

@@ -44,3 +44,14 @@ jobs:
         if: always()
         run: |
           python3 .hydra/scripts/lib/check_e2e_coverage.py . --mode report || true
+
+  js-lint:
+    runs-on: codeberg-small
+    container:
+      image: node:20-alpine
+    steps:
+      - name: Checkout PR
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Run initial-state JS lint guard (REQ-INIT-003)
+        run: node ./scripts/lint-initial-state.js

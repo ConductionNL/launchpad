@@ -12,7 +12,7 @@
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
 		"check:manifest": "node scripts/check-manifest.js",
-		"lint": "eslint src && npm run check:manifest",
+		"lint": "eslint src && npm run check:manifest && npm run lint:initial-state",
 		"lint:fix": "eslint src --fix",
 		"lint:initial-state": "node ./scripts/lint-initial-state.js",
 		"stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",

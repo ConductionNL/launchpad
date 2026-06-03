@@ -149,7 +149,7 @@ Password-protected shares MUST require a POST unlock before rendering via the pu
 #### Scenario: Unlock is throttled to prevent brute-force
 - GIVEN a public share with a password
 - WHEN an attacker sends 11 failed unlock attempts from IP `203.0.113.100` within 60 seconds
-- THEN the system MUST invoke Nextcloud's `IThrottler` service with action `mydash_share_password` (limit: 10 per 60 s, IP-global)
+- THEN the system MUST invoke Nextcloud's `IThrottler` service with action `launchpad_share_password` (limit: 10 per 60 s, IP-global)
 - AND return HTTP 429 (Too Many Requests) on the 11th attempt with `Retry-After` header
 
 #### Scenario: Query param password alternative to header
@@ -233,12 +233,12 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 - WHEN an attacker sends unlock requests with wrong passwords from IP `203.0.113.50`
 - THEN the first 10 attempts MUST return HTTP 401
 - AND the 11th attempt within the 60-second window MUST return HTTP 429
-- NOTE: The throttle action is `mydash_share_password` with limit 10 per 60 s, tracked IP-globally (not per-share). The IThrottler action string contains no token component.
+- NOTE: The throttle action is `launchpad_share_password` with limit 10 per 60 s, tracked IP-globally (not per-share). The IThrottler action string contains no token component.
 
 #### Scenario: Throttle is IP-global across all shares
 - GIVEN two different public shares A and B
 - WHEN IP `203.0.113.50` sends 10 failed unlocks against share A
-- THEN the throttle counter for `mydash_share_password` is IP-global: those 10 attempts count toward share B as well
+- THEN the throttle counter for `launchpad_share_password` is IP-global: those 10 attempts count toward share B as well
 - AND a subsequent failed unlock attempt against share B from the same IP MUST return HTTP 429
 - NOTE: There is no per-share scoping of the throttle. An attacker trying many tokens from the same IP hits the ceiling across all shares simultaneously.
 

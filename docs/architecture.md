@@ -149,11 +149,73 @@ Gherkin-style requirement list:
 10 archived changes under `openspec/changes/archive/` document how each
 capability arrived at its current shape.
 
+## App manifest (ADR-024, Tier 1)
+
+`src/manifest.json` is the single source of truth for MyDash's menu
+entries and page declarations. It is bundled into the webpack output and
+registered at boot via `useAppManifest('mydash', bundledManifest)` in
+`src/main.js`.
+
+At Tier 1 the vue-router definition in `src/main.js` remains hand-wired;
+`src/manifest.json` describes the routes but does not drive them. Tier 3
+(follow-up change `launchpad-manifest-tier-3`) will replace the
+hand-wired router with manifest-driven routing once the dashboard
+`type:"dashboard"` page-type contract is stable in nc-vue.
+
+Validate the manifest at any time with:
+
+```bash
+npm run check:manifest
+```
+
+`npm run lint` calls `check:manifest` automatically. The validator
+blocks any re-introduction of `"openregister"` or `"openconnector"` in
+the `dependencies` array.
+
+## Runtime-only OR consumption policy
+
+MyDash is an **OR-free app** that MAY optionally consume OpenRegister
+data at runtime. This policy has two hard rules:
+
+1. **No install-time OR dependency.** `appinfo/info.xml`, `composer.json`,
+   and `src/manifest.json` MUST NOT list `openregister` or `openconnector`
+   as dependencies. MyDash MUST boot and function fully on a Nextcloud
+   instance with no OR installed.
+
+2. **Feature-detect before every OR call.** Any widget that fetches OR
+   data MUST first call `useOrFeatureDetect()` from
+   `src/composables/useOrFeatureDetect.js` and check
+   `enabled.value === true`. When OR is absent or returns an error the
+   widget MUST render a documented empty state.
+
+See `docs/widgets/or-data.md` for the canonical OR-backed widget pattern
+and `openspec/specs/runtime-or-consumption/spec.md` for the full
+requirements.
+
+## Permission model on `oc_mydash_dashboards`
+
+Dashboard permissions live in two places:
+
+| Column / table | What it governs |
+|---|---|
+| `oc_mydash_dashboards.permissions` | The owner's own default permission level for the dashboard (`view_only` / `add_only` / `full`) |
+| `oc_mydash_dashboard_shares.permissionLevel` | Per-share override for a specific user or group |
+
+`PermissionService::getEffectivePermissionLevel(userId, dashboard)` is
+the single authority that resolves a caller's effective level by merging
+the share row (if any) with the dashboard default and the admin default
+from `oc_mydash_admin_settings`.
+
+**Optional runtime OR delegation** is described in
+`openspec/specs/dashboard-sharing/spec.md`. It is OFF by default and
+requires explicit admin configuration (`permissions.delegate`). When OR
+is absent the delegation is silently skipped and the local level applies.
+
 ## What MyDash explicitly does NOT do
 
-- **No OpenRegister consumption** (ADR-001 / ADR-022 N/A). Dashboards
-  and tiles live in MyDash's own tables. The app is intentionally
-  self-contained.
+- **No hard OpenRegister dependency.** Dashboards and tiles live in
+  MyDash's own tables. Optional runtime OR data consumption follows the
+  policy documented above.
 - **No integration registry** (ADR-019 N/A). MyDash consumes the
   Nextcloud dashboard-widget API; it does not expose an extension
   point for third-party dashboards to register themselves.

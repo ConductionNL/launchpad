@@ -1,5 +1,6 @@
 ---
 status: implemented
+or-policy: reviewed-2026-06-01
 ---
 
 # Admin Templates Specification
@@ -7,6 +8,31 @@ status: implemented
 ## Purpose
 
 Admin templates allow Nextcloud administrators to create pre-configured dashboards that are automatically distributed to users based on group membership. When a user opens MyDash for the first time (or when a new template targets their group), the system creates a personal copy of the matching template. This copy is an independent dashboard that the user can modify within the limits of the inherited permission level. Templates enable organizations to provide standardized dashboard layouts with compulsory widgets while still allowing user customization where appropriate.
+
+## Storage policy
+
+Admin templates and admin settings (including template configuration) persist
+in MyDash's **local tables**: `oc_mydash_dashboards` (template rows with
+`type = 'admin_template'`) and `oc_mydash_admin_settings` (key-value admin
+config). This is a deliberate architectural decision.
+
+**Requirement: MUST NOT store admin templates in OpenRegister.**
+MyDash MUST work standalone — on a fresh Nextcloud installation with no
+OpenRegister present, every template feature MUST function identically.
+Templates MUST NOT be written to, read from, or depend on any OR register,
+schema, or object store.
+
+**Rationale:** (1) The existing REQ-TMPL-001..017 capability is fully shipped
+and database-backed — switching storage models would be a breaking change.
+(2) `WHERE type='admin_template'` is a single indexed query; OR object
+retrieval would require a REST round-trip per template. (3) MyDash supports
+installations without a GroupFolder and therefore without the OR filesystem
+convention. (4) ACL is already provided by the dashboard-sharing capability.
+See the `D1 — Storage divergence` note at the bottom of this spec.
+
+**Exports/imports** of templates are as JSON files using the
+`FILENAME_PATTERN` safe-name regex enforced by `FileService`
+(see `openspec/specs/resource-uploads/spec.md`).
 
 ## Data Model
 

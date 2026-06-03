@@ -54,6 +54,18 @@ All notable changes to this project will be documented in this file.
   `oc_mydash_feed_tokens` table with `UNIQUE(user_id)` enforces the
   one-token-per-user rotation invariant.
 
+- **Unified add/edit modal** (`widget-add-edit-modal`): a single
+  `AddWidgetModal.vue` now handles both "add a widget" and "edit a widget"
+  flows. Per-widget edit dialogs are removed; the unified modal is driven by
+  `widgetRegistry.js` — adding a new widget type only requires a registry
+  entry. The `useWidgetForm` composable owns state management
+  (`resetForm`, `loadEditingWidget`, `validate`, `assembleContent`).
+  Modal closes on Cancel, backdrop click, and Esc without submitting
+  (REQ-WDG-013). Type-switching resets form state with no cross-type field
+  leakage (REQ-WDG-010). Per-type sub-forms expose `validate(): string[]`
+  gating the action button (REQ-WDG-012). The toolbar dropdown and grid
+  renderer both consult the same registry (REQ-WDG-014).
+
 ### Changed
 
 - **GridStack bumped from `^10.3.1` to `^12.2.1`** (resolved 12.6.0). Major

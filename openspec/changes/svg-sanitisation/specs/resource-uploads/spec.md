@@ -18,7 +18,7 @@ The system MUST pass every uploaded SVG (declared `image/svg` or `image/svg+xml`
 - WHEN she sends `POST /api/resources` with body `{"base64": "data:image/svg+xml;base64,<valid sanitisable SVG>"}`
 - THEN the sanitiser MUST return the (possibly modified) SVG string
 - AND `ResourceService` MUST persist the sanitised bytes (NOT the original bytes)
-- AND the response MUST be HTTP 200 with `{status: 'success', url: '/apps/mydash/resource/resource_<uniqid>.svg', ...}`
+- AND the response MUST be HTTP 200 with `{status: 'success', url: '/apps/launchpad/resource/resource_<uniqid>.svg', ...}`
 
 #### Scenario: Sanitiser strips malicious content but accepts upload
 

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Security
+
+- **SVG upload sanitisation** (REQ-RES-009..013): all SVG uploads are now
+  passed through a server-side DOM whitelist sanitiser (`SvgSanitiser`)
+  before persistence. Allowed elements (24) and attributes (50) are declared
+  as conservative whitelists; `<script>`, `<foreignObject>`, `<iframe>`,
+  `on*` event handlers, `javascript:` / `data:` href values, and CSS
+  `expression()` / `url(data:)` constructs are stripped unconditionally.
+  The parser uses `LIBXML_NONET` to block external entity and DTD fetches
+  (XXE protection). Unparseable SVG or fully-stripped documents return
+  HTTP 400 `{error: 'invalid_svg'}` and no file is written. The 5 MB size
+  cap is measured against the sanitised bytes, not the original upload.
+  Existing on-disk SVGs are not retroactively re-sanitised.
+
 ### Added
 
 - **Nextcloud Dashboard widget proxy** (`nc-widget` placement type,

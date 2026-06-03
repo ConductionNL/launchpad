@@ -14,15 +14,15 @@ Dashboard content storage is mediated by the `DashboardContentStorage` interface
 
 ### DbContentStorage (Database Backend)
 
-Persists dashboard content in the `oc_mydash_dashboards` table:
+Persists dashboard content in the `oc_launchpad_dashboards` table:
 - **content**: JSON-encoded string containing the full widget tree, layout metadata, and display settings
 - **Backend**: reads from and writes directly to the dashboard entity via `DashboardMapper`
-- **Default**: used when `mydash.content_storage` admin setting is `'db'` or unset
+- **Default**: used when `launchpad.content_storage` admin setting is `'db'` or unset
 
 ### GroupFolderContentStorage (Managed Folder Backend)
 
-Persists dashboard content as JSON files in a managed Nextcloud GroupFolder named "MyDash":
-- **File structure**: `MyDash/<locale-or-empty>/<dashboard-uuid>.json` (e.g., `MyDash/nl/abc123.json`)
+Persists dashboard content as JSON files in a managed Nextcloud GroupFolder named "LaunchPad":
+- **File structure**: `LaunchPad/<locale-or-empty>/<dashboard-uuid>.json` (e.g., `LaunchPad/nl/abc123.json`)
 - **Locale**: optional; empty string or language code; allows future multi-language dashboard content separation
 - **Permissions**: GroupFolder ACL restricts access to administrators; dashboard-level permissions (from the `dashboards` capability) control user visibility
 - **Access**: via Nextcloud `IRootFolder` API, never direct filesystem paths
@@ -31,7 +31,7 @@ Persists dashboard content as JSON files in a managed Nextcloud GroupFolder name
 ### Admin Setting
 
 A single setting controls the active backend:
-- **Key**: `mydash.content_storage`
+- **Key**: `launchpad.content_storage`
 - **Type**: string enum
 - **Valid values**: `'db'` (default) or `'groupfolder'`
 - **Behavior**: all read/write operations use the configured backend; existing dashboards remain readable in their original backend during a transition period
@@ -75,15 +75,15 @@ The system MUST provide a unified `DashboardContentStorage` interface that abstr
 
 ### Requirement: REQ-GFSB-002 Database Backend Default Behavior
 
-The database backend MUST implement the storage interface using the existing `oc_mydash_dashboards` table, preserving all current behavior for operators who do not opt-in to GroupFolder storage.
+The database backend MUST implement the storage interface using the existing `oc_launchpad_dashboards` table, preserving all current behavior for operators who do not opt-in to GroupFolder storage.
 
 #### Scenario: Database backend is the default
 
-- GIVEN a fresh MyDash installation
-- AND no `mydash.content_storage` admin setting has been explicitly configured
+- GIVEN a fresh LaunchPad installation
+- AND no `launchpad.content_storage` admin setting has been explicitly configured
 - WHEN any dashboard operation occurs
 - THEN the system MUST use `DbContentStorage` automatically
-- AND dashboard content MUST be read from and written to the `content` field in `oc_mydash_dashboards`
+- AND dashboard content MUST be read from and written to the `content` field in `oc_launchpad_dashboards`
 - AND no GroupFolder dependency is invoked
 
 #### Scenario: Database backend reads existing dashboards
@@ -111,14 +111,14 @@ The database backend MUST implement the storage interface using the existing `oc
 
 ### Requirement: REQ-GFSB-003 GroupFolder Backend Auto-Creation and ACL
 
-The GroupFolder backend MUST automatically create a managed GroupFolder named "MyDash" on first use, with restrictive ACL rules ensuring only administrators have file-level access.
+The GroupFolder backend MUST automatically create a managed GroupFolder named "LaunchPad" on first use, with restrictive ACL rules ensuring only administrators have file-level access.
 
 #### Scenario: GroupFolder is auto-created on first write
 
-- GIVEN the `mydash.content_storage` setting is `'groupfolder'`
-- AND no "MyDash" GroupFolder yet exists
+- GIVEN the `launchpad.content_storage` setting is `'groupfolder'`
+- AND no "LaunchPad" GroupFolder yet exists
 - WHEN `GroupFolderContentStorage::write(uuid, {...})` is called for the first time
-- THEN the system MUST create a GroupFolder named "MyDash" via the `groupfolders` app API
+- THEN the system MUST create a GroupFolder named "LaunchPad" via the `groupfolders` app API
 - AND the GroupFolder MUST be created with ACL rules:
   - Administrators: read, write, delete
   - All other users: no default access (dashboard permissions mediate visibility)
@@ -126,14 +126,14 @@ The GroupFolder backend MUST automatically create a managed GroupFolder named "M
 
 #### Scenario: Subsequent writes reuse existing GroupFolder
 
-- GIVEN the "MyDash" GroupFolder already exists with correct ACL rules
+- GIVEN the "LaunchPad" GroupFolder already exists with correct ACL rules
 - WHEN `GroupFolderContentStorage::write(uuid, {...})` is called
 - THEN the system MUST NOT attempt to create the GroupFolder again
 - AND the write MUST proceed directly to persisting the content
 
 #### Scenario: GroupFolder creation is idempotent
 
-- GIVEN `ensureMyDashGroupFolder()` is called twice in rapid succession
+- GIVEN `ensureLaunchPadGroupFolder()` is called twice in rapid succession
 - THEN the system MUST return the same GroupFolder ID both times
 - AND no duplicate GroupFolder MUST be created
 - AND the operation MUST be thread-safe (atomic read-or-create pattern)
@@ -158,25 +158,25 @@ The GroupFolder backend MUST organize dashboard content as JSON files in a struc
 - GIVEN a dashboard UUID "abc-123-def-456" exists
 - AND the system has no locale preference set (or locale is empty)
 - WHEN `GroupFolderContentStorage` resolves the file path
-- THEN the path MUST be `MyDash/abc-123-def-456.json`
+- THEN the path MUST be `LaunchPad/abc-123-def-456.json`
 - AND reading this file MUST return the full dashboard content object
 
 #### Scenario: File path resolution with locale
 
 - GIVEN a dashboard UUID "abc-123-def-456" and a locale preference "nl" (Dutch)
 - WHEN `GroupFolderContentStorage` resolves the file path
-- THEN the path MUST be `MyDash/nl/abc-123-def-456.json`
-- AND the system MUST create the `MyDash/nl/` directory if it does not exist
+- THEN the path MUST be `LaunchPad/nl/abc-123-def-456.json`
+- AND the system MUST create the `LaunchPad/nl/` directory if it does not exist
 - AND reading this file MUST return the locale-specific dashboard content
 
 #### Scenario: Fallback when locale-specific file is missing
 
-- GIVEN a dashboard UUID with a locale preference "nl" but no `MyDash/nl/{uuid}.json` file exists
-- AND a fallback file `MyDash/{uuid}.json` exists
+- GIVEN a dashboard UUID with a locale preference "nl" but no `LaunchPad/nl/{uuid}.json` file exists
+- AND a fallback file `LaunchPad/{uuid}.json` exists
 - WHEN `GroupFolderContentStorage::read()` is called
 - THEN the system MUST:
-  - Attempt to read `MyDash/nl/{uuid}.json` first
-  - Fall back to `MyDash/{uuid}.json` if the locale-specific file does not exist
+  - Attempt to read `LaunchPad/nl/{uuid}.json` first
+  - Fall back to `LaunchPad/{uuid}.json` if the locale-specific file does not exist
   - OR raise `DashboardNotFoundException` if neither exists (decision: implement fallback if operationally useful; document choice)
 - NOTE: Fallback behavior is optional; current implementation can skip this and always require exact locale match
 
@@ -194,7 +194,7 @@ The system MUST verify that the `groupfolders` Nextcloud app is installed before
 
 #### Scenario: GroupFolders app is required but missing
 
-- GIVEN a MyDash instance with `mydash.content_storage = 'groupfolder'`
+- GIVEN a LaunchPad instance with `launchpad.content_storage = 'groupfolder'`
 - AND the `groupfolders` Nextcloud app is not installed
 - WHEN a dashboard read/write/delete operation is attempted
 - THEN the system MUST throw `GroupFoldersNotInstalledException` extending `DashboardContentStorageException`
@@ -225,15 +225,15 @@ The system MUST provide an admin-accessible setting that controls which storage 
 
 #### Scenario: Retrieve current storage backend setting
 
-- GIVEN an administrator navigates to MyDash admin settings
+- GIVEN an administrator navigates to LaunchPad admin settings
 - WHEN the admin fetches `GET /api/admin/settings`
-- THEN the response MUST include `{"mydash.content_storage": "db"}` (or `"groupfolder"` if changed)
+- THEN the response MUST include `{"launchpad.content_storage": "db"}` (or `"groupfolder"` if changed)
 - AND the response MUST include all other admin settings unchanged
 
 #### Scenario: Change storage backend setting
 
-- GIVEN the current setting is `mydash.content_storage = "db"`
-- WHEN the admin sends `PUT /api/admin/settings` with body `{"mydash.content_storage": "groupfolder"}`
+- GIVEN the current setting is `launchpad.content_storage = "db"`
+- WHEN the admin sends `PUT /api/admin/settings` with body `{"launchpad.content_storage": "groupfolder"}`
 - THEN the system MUST validate the value (enum: `db` or `groupfolder`)
 - AND persist the new setting in the admin settings table
 - AND return HTTP 200 with the updated setting
@@ -241,16 +241,16 @@ The system MUST provide an admin-accessible setting that controls which storage 
 
 #### Scenario: Invalid storage backend value is rejected
 
-- GIVEN the admin sends a PUT request with `{"mydash.content_storage": "redis"}`
+- GIVEN the admin sends a PUT request with `{"launchpad.content_storage": "redis"}`
 - WHEN the endpoint processes the request
 - THEN the system MUST reject the value as invalid
-- AND return HTTP 400 with error message `"Invalid value for mydash.content_storage. Must be 'db' or 'groupfolder'."`
+- AND return HTTP 400 with error message `"Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."`
 - AND the setting MUST NOT be changed
 
 #### Scenario: Non-admin cannot change backend setting
 
 - GIVEN a regular user "alice" (non-administrator)
-- WHEN she sends `PUT /api/admin/settings` with body `{"mydash.content_storage": "..."}` (any value)
+- WHEN she sends `PUT /api/admin/settings` with body `{"launchpad.content_storage": "..."}` (any value)
 - THEN the system MUST return HTTP 403 (Forbidden)
 - AND the setting MUST NOT be changed
 
@@ -260,7 +260,7 @@ The system MUST never silently fall back from a configured backend to a differen
 
 #### Scenario: GroupFolder backend is unavailable, no fallback to database
 
-- GIVEN `mydash.content_storage = 'groupfolder'` is configured
+- GIVEN `launchpad.content_storage = 'groupfolder'` is configured
 - AND the GroupFolder is deleted or becomes unreachable (ACL stripped, Nextcloud storage issue)
 - WHEN a user attempts to read or write a dashboard
 - THEN the system MUST NOT attempt to fall back to database storage
@@ -269,7 +269,7 @@ The system MUST never silently fall back from a configured backend to a differen
 
 #### Scenario: Database backend failure does not trigger GroupFolder attempt
 
-- GIVEN `mydash.content_storage = 'db'` is configured
+- GIVEN `launchpad.content_storage = 'db'` is configured
 - AND a database error occurs (e.g., connection lost, table locked)
 - WHEN a dashboard operation fails
 - THEN the system MUST NOT attempt to use GroupFolder as a fallback
@@ -289,8 +289,8 @@ The system MUST provide a console command that migrates all existing dashboards 
 
 #### Scenario: Migration command copies all dashboards
 
-- GIVEN a MyDash instance with 10 dashboards stored in the database
-- WHEN an administrator runs `mydash:storage:migrate-to-groupfolder` via the console
+- GIVEN a LaunchPad instance with 10 dashboards stored in the database
+- WHEN an administrator runs `launchpad:storage:migrate-to-groupfolder` via the console
 - THEN the system MUST:
   - Query all dashboard records via `DashboardMapper::findAll()`
   - For each dashboard, read its content from the database
@@ -333,15 +333,15 @@ Existing dashboards MUST remain readable from their original backend during a tr
 
 #### Scenario: Database-backed dashboard is readable during GroupFolder transition
 
-- GIVEN `mydash.content_storage = 'db'` and dashboard "D1" with content in the database
-- WHEN the operator switches the setting to `mydash.content_storage = 'groupfolder'` but does not run the migration command
+- GIVEN `launchpad.content_storage = 'db'` and dashboard "D1" with content in the database
+- WHEN the operator switches the setting to `launchpad.content_storage = 'groupfolder'` but does not run the migration command
 - AND a user requests `GET /api/dashboard/D1`
 - THEN the system MUST still read from the database (the configured backend is now GroupFolder, but D1 has not been migrated yet)
 - NOTE: This scenario requires the API to attempt both backends in order (try configured, fall back to alternate for read-only). Decide during implementation whether to support this or require migration before switching.
 
 #### Scenario: Create new dashboards with the currently configured backend
 
-- GIVEN `mydash.content_storage = 'groupfolder'` is now configured
+- GIVEN `launchpad.content_storage = 'groupfolder'` is now configured
 - AND a user creates a new dashboard "D2" after switching
 - WHEN the new dashboard is created
 - THEN the system MUST persist its content to the GroupFolder backend, not the database

@@ -1048,6 +1048,26 @@ class DashboardMapper extends QBMapper
     }//end findOwnedByUserAndUuid()
 
     /**
+     * Return every dashboard row without filtering.
+     *
+     * Used by the storage-migration command (REQ-GFSB-008) to enumerate all
+     * dashboards regardless of type, owner, or publication state.
+     *
+     * @return Dashboard[] All dashboard entities.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-9
+     */
+    public function findAll(): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->orderBy(sort: 'id', order: 'ASC');
+
+        return $this->findEntities(query: $qb);
+    }//end findAll()
+
+    /**
      * Clear default flag on all admin templates.
      *
      * @return void

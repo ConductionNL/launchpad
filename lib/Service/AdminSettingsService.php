@@ -26,6 +26,8 @@ use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Service for managing admin settings.
+ *
+ * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-7
  */
 class AdminSettingsService
 {
@@ -80,16 +82,27 @@ class AdminSettingsService
             $storedExt = self::DEFAULT_LINK_CREATE_FILE_EXTENSIONS;
         }
 
+        $storageKey = AdminSetting::KEY_CONTENT_STORAGE;
+
         return [
-            'defaultPermissionLevel'   => $settings[$permKey] ?? $permDef,
+            'defaultPermissionLevel'    => $settings[$permKey] ?? $permDef,
             // REQ-ASET-003 (extended): default `false` — admins MUST opt in
             // to personal dashboard creation.
-            'allowUserDashboards'      => $settings[$userKey] ?? false,
-            'allowMultipleDashboards'  => $settings[$multiKey] ?? true,
-            'defaultGridColumns'       => $settings[$gridKey] ?? 12,
-            'linkCreateFileExtensions' => $storedExt,
+            'allowUserDashboards'       => $settings[$userKey] ?? false,
+            'allowMultipleDashboards'   => $settings[$multiKey] ?? true,
+            'defaultGridColumns'        => $settings[$gridKey] ?? 12,
+            'linkCreateFileExtensions'  => $storedExt,
+            // REQ-GFSB-006: surface active storage backend in admin settings.
+            'launchpad.content_storage' => $settings[$storageKey] ?? 'database',
         ];
     }//end getSettings()
+
+    /**
+     * Valid values for the `launchpad.content_storage` setting (REQ-GFSB-006).
+     *
+     * @var list<string>
+     */
+    public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
     /**
      * Update admin settings.
@@ -103,8 +116,13 @@ class AdminSettingsService
      *                                        extension
      *                                        allow-list
      *                                        (REQ-LBN-004).
+     * @param string|null $contentStorage     Content storage backend
+     *                                        (`database` or `groupfolder`).
+     *                                        REQ-GFSB-006.
      *
      * @return void
+     *
+     * @throws \InvalidArgumentException When `$contentStorage` is not a valid value.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
      */
@@ -113,7 +131,8 @@ class AdminSettingsService
         ?bool $allowUserDash=null,
         ?bool $allowMultiDash=null,
         ?int $defaultGridCols=null,
-        ?array $linkCreateFileExts=null
+        ?array $linkCreateFileExts=null,
+        ?string $contentStorage=null
     ): void {
         if ($defaultPermLevel !== null) {
             $this->settingMapper->setSetting(
@@ -147,6 +166,19 @@ class AdminSettingsService
             $this->settingMapper->setSetting(
                 key: AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
                 value: $this->normaliseExtensions(input: $linkCreateFileExts)
+            );
+        }
+
+        if ($contentStorage !== null) {
+            if (in_array(needle: $contentStorage, haystack: self::VALID_CONTENT_STORAGE_VALUES, strict: true) === false) {
+                throw new \InvalidArgumentException(
+                    message: "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
+                );
+            }
+
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_CONTENT_STORAGE,
+                value: $contentStorage
             );
         }
     }//end updateSettings()

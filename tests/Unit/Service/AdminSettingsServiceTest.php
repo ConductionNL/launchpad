@@ -124,7 +124,9 @@ class AdminSettingsServiceTest extends TestCase
         $this->assertArrayHasKey('allowMultipleDashboards', $settings);
         $this->assertArrayHasKey('defaultGridColumns', $settings);
         $this->assertArrayHasKey('linkCreateFileExtensions', $settings);
-        $this->assertCount(5, $settings);
+        // REQ-GFSB-006: content storage backend key added.
+        $this->assertArrayHasKey('launchpad.content_storage', $settings);
+        $this->assertCount(6, $settings);
     }
 
     public function testUpdateSettingsPersistsLinkCreateFileExtensions(): void

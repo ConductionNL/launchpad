@@ -28,6 +28,7 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Exception\DashboardHasChildrenException;
 use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
 use OCA\MyDash\Service\ActionAuthService;
+use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
 use OCA\MyDash\Service\AnalyticsService;
 use OCA\MyDash\Service\DashboardService;
 use OCA\MyDash\Service\DashboardTreeService;
@@ -1886,4 +1887,36 @@ class DashboardApiController extends Controller
             );
         }
     }//end captureAutomaticSnapshot()
+
+    /**
+     * Build a HTTP 503 response for a storage backend failure (REQ-GFSB-007).
+     *
+     * The error key `dashboard_content_storage_unavailable` is the stable
+     * identifier callers MUST treat as a signal to surface an actionable
+     * message ("Run the migration command or check GroupFolder availability").
+     *
+     * @param DashboardContentStorageException $e The caught exception.
+     *
+     * @return JSONResponse HTTP 503 with the standard error envelope.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-11
+     */
+    protected function storageUnavailableResponse(
+        DashboardContentStorageException $e
+    ): JSONResponse {
+        $this->logger->warning(
+            message: 'mydash: dashboard content storage unavailable',
+            context: ['message' => $e->getMessage(), 'exception' => $e]
+        );
+
+        return new JSONResponse(
+            data: [
+                'error'   => 'dashboard_content_storage_unavailable',
+                'message' => 'The dashboard content storage backend is unavailable. '
+                    .'If you recently changed the backend, run: '
+                    .'php occ mydash:storage:migrate-to-groupfolder',
+            ],
+            statusCode: Http::STATUS_SERVICE_UNAVAILABLE
+        );
+    }//end storageUnavailableResponse()
 }//end class

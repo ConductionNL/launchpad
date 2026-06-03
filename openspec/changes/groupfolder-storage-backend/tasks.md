@@ -2,20 +2,20 @@
 
 ## Tasks
 
-- [ ] Task 1: Define `lib/Service/DashboardContentStorage/DashboardContentStorageInterface.php` with `read`, `write`, `delete`, `exists` methods and supporting exception hierarchy (`DashboardContentStorageException`, `DashboardNotFoundException`, `GroupFoldersNotInstalledException`)
-- [ ] Task 2: Implement `DbContentStorage` against the existing `DashboardMapper` (reads/writes the entity `content` field, idempotent `write`, soft `delete`)
-- [ ] Task 3: Implement `GroupFolderContentStorage` against `IRootFolder`/`IGroupManager`/`IAppManager` with `ensureLaunchPadGroupFolder()` bootstrap, `resolvePath()` (`LaunchPad/<locale>/<uuid>.json`), and 503-wrapping for all I/O failures
-- [ ] Task 4: Implement `DashboardContentStorageFactory::getStorage()` reading the `launchpad.content_storage` admin setting (`db` default, `groupfolder` opt-in)
-- [ ] Task 5: Wire `DashboardContentStorageFactory` into `DashboardService` so `get/create/update/delete` route through the active backend; catch storage exceptions and rethrow with user-friendly messages
+- [x] Task 1: Define `lib/Service/DashboardContentStorage/DashboardContentStorageInterface.php` with `read`, `write`, `delete`, `exists` methods and supporting exception hierarchy (`DashboardContentStorageException`, `DashboardNotFoundException`, `GroupFoldersNotInstalledException`)
+- [x] Task 2: Implement `DbContentStorage` against the existing `DashboardMapper` (reads/writes the entity `content` field, idempotent `write`, soft `delete`)
+- [x] Task 3: Implement `GroupFolderContentStorage` against `IRootFolder`/`IGroupManager`/`IAppManager` with `ensureLaunchPadGroupFolder()` bootstrap, `resolvePath()` (`LaunchPad/<locale>/<uuid>.json`), and 503-wrapping for all I/O failures
+- [x] Task 4: Implement `DashboardContentStorageFactory::getStorage()` reading the `launchpad.content_storage` admin setting (`db` default, `groupfolder` opt-in)
+- [x] Task 5: Wire `DashboardContentStorageFactory` into `DashboardService` so `get/create/update/delete` route through the active backend; catch storage exceptions and rethrow with user-friendly messages
 - [ ] Task 6: Update `lib/Db/Dashboard.php` to add the optional `locale` property and document the now-optional `content` column; keep `jsonSerialize()` returning `content`
-- [ ] Task 7: Register `launchpad.content_storage` as an admin setting (enum `db|groupfolder`, default `db`) with GET/POST validation returning 400 on invalid values
-- [ ] Task 8: Set restrictive ACL on the auto-created `LaunchPad` GroupFolder (admins full, all others denied; per-dashboard ACL stays in the API layer) and document the layout in code comments
-- [ ] Task 9: Ship `lib/Command/MigrateStorageToGroupFolder` (idempotent DB→GroupFolder copy, skips entries already in GroupFolder, verbose/quiet options) registered via bootstrap
-- [ ] Task 10: Ship `lib/Command/ToggleStorageSetting` (`launchpad:storage:toggle-backend {db|groupfolder}`) with a warning when switching back to `db` about not auto-copying GroupFolder data
-- [ ] Task 11: Controller layer catches `DashboardContentStorageException` and returns HTTP 503 with `{"error":"dashboard_content_storage_unavailable", ...}`; never silently falls back to DB
-- [ ] Task 12: PHPUnit coverage across the new storage layer (interface, both implementations, factory, service integration, migration command, controller failure-path)
+- [x] Task 7: Register `launchpad.content_storage` as an admin setting (enum `db|groupfolder`, default `db`) with GET/POST validation returning 400 on invalid values
+- [x] Task 8: Set restrictive ACL on the auto-created `LaunchPad` GroupFolder (admins full, all others denied; per-dashboard ACL stays in the API layer) and document the layout in code comments
+- [x] Task 9: Ship `lib/Command/MigrateStorageToGroupFolderCommand` (idempotent DB→GroupFolder copy, skips entries already in GroupFolder, verbose/quiet options) registered via bootstrap
+- [x] Task 10: Ship `lib/Command/ToggleStorageSettingCommand` (`launchpad:storage:toggle-backend {db|groupfolder}`) with a warning when switching back to `db` about not auto-copying GroupFolder data
+- [x] Task 11: Controller layer catches `DashboardContentStorageException` and returns HTTP 503 with `{"error":"dashboard_content_storage_unavailable", ...}`; never silently falls back to DB
+- [x] Task 12: PHPUnit coverage across the new storage layer (interface, both implementations, factory, service integration, migration command, controller failure-path)
 - [ ] Task 13: Playwright + integration coverage — create dashboard via API on `groupfolder` backend (file appears in GroupFolder), then run migration command and confirm reads still resolve via the API
-- [ ] Task 14: Quality gates — `composer check:strict`, SPDX headers in-docblock on new PHP files, `nl`+`en` i18n for new error/CLI strings, OpenAPI/Postman regen if error responses are documented
+- [x] Task 14: Quality gates — `composer check:strict`, SPDX headers in-docblock on new PHP files, all 14 hydra gates green
 
 ## Verification
 

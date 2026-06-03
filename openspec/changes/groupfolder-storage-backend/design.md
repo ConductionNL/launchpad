@@ -1,5 +1,7 @@
 # Design — GroupFolder storage backend
 
+status: pr-created
+
 ## Context
 
 LaunchPad is introducing a two-backend storage architecture (DB and GroupFolder) built directly on the pattern proven by the reference implementation, which uses a GroupFolder as its sole persistence layer. The reference implementation provides the ground truth for how a Nextcloud app should behave when its GroupFolder is unreachable, missing, or not yet set up.

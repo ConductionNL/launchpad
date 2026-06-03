@@ -75,6 +75,18 @@
             "type": "boolean",
             "description": "Whether this is the user's landing dashboard",
             "default": false
+          },
+          "type": {
+            "type": "string",
+            "description": "Dashboard scope type: 'user' (personal), 'admin_template', or 'group_shared'",
+            "enum": ["user", "admin_template", "group_shared"],
+            "default": "user",
+            "example": "group_shared"
+          },
+          "groupId": {
+            "type": ["string", "null"],
+            "description": "Nextcloud group ID for group_shared dashboards. Reserved value 'default' means visible to every user (REQ-DASH-012). Null for user and admin_template dashboards.",
+            "example": "marketing"
           }
         },
         "x-openregister-seeds": [
@@ -142,6 +154,129 @@
                 "gridX": 6,
                 "gridY": 0,
                 "gridWidth": 6,
+                "gridHeight": 4
+              }
+            ],
+            "sharedWith": [],
+            "isDefault": false
+          },
+          {
+            "@self": {
+              "register": "mydash",
+              "schema": "Dashboard",
+              "slug": "welcome-to-launchpad"
+            },
+            "slug": "welcome-to-launchpad",
+            "title": "Welcome to LaunchPad",
+            "description": "Default landing dashboard visible to every user — powered by the 'default' synthetic group (REQ-DASH-012)",
+            "version": "1.0.0",
+            "type": "group_shared",
+            "groupId": "default",
+            "widgets": [
+              {
+                "widgetKey": "announcements",
+                "slot": "main",
+                "gridX": 0,
+                "gridY": 0,
+                "gridWidth": 6,
+                "gridHeight": 4
+              },
+              {
+                "widgetKey": "activity",
+                "slot": "main",
+                "gridX": 6,
+                "gridY": 0,
+                "gridWidth": 6,
+                "gridHeight": 4
+              }
+            ],
+            "sharedWith": [],
+            "isDefault": true
+          },
+          {
+            "@self": {
+              "register": "mydash",
+              "schema": "Dashboard",
+              "slug": "active-campaigns"
+            },
+            "slug": "active-campaigns",
+            "title": "Active Campaigns",
+            "description": "Marketing team shared dashboard — scoped to the 'marketing' group (REQ-DASH-011)",
+            "version": "1.0.0",
+            "type": "group_shared",
+            "groupId": "marketing",
+            "widgets": [
+              {
+                "widgetKey": "kpi-tile",
+                "slot": "main",
+                "gridX": 0,
+                "gridY": 0,
+                "gridWidth": 4,
+                "gridHeight": 4
+              },
+              {
+                "widgetKey": "chart-widget",
+                "slot": "main",
+                "gridX": 4,
+                "gridY": 0,
+                "gridWidth": 4,
+                "gridHeight": 4
+              },
+              {
+                "widgetKey": "activity",
+                "slot": "main",
+                "gridX": 8,
+                "gridY": 0,
+                "gridWidth": 4,
+                "gridHeight": 4
+              }
+            ],
+            "sharedWith": [],
+            "isDefault": false
+          },
+          {
+            "@self": {
+              "register": "mydash",
+              "schema": "Dashboard",
+              "slug": "sprint-overview"
+            },
+            "slug": "sprint-overview",
+            "title": "Sprint Overview",
+            "description": "Engineering team shared dashboard — scoped to the 'engineering' group (REQ-DASH-011)",
+            "version": "1.0.0",
+            "type": "group_shared",
+            "groupId": "engineering",
+            "widgets": [
+              {
+                "widgetKey": "burndown",
+                "slot": "main",
+                "gridX": 0,
+                "gridY": 0,
+                "gridWidth": 3,
+                "gridHeight": 4
+              },
+              {
+                "widgetKey": "open-prs",
+                "slot": "main",
+                "gridX": 3,
+                "gridY": 0,
+                "gridWidth": 3,
+                "gridHeight": 4
+              },
+              {
+                "widgetKey": "ci-status",
+                "slot": "main",
+                "gridX": 6,
+                "gridY": 0,
+                "gridWidth": 3,
+                "gridHeight": 4
+              },
+              {
+                "widgetKey": "recommendations",
+                "slot": "main",
+                "gridX": 9,
+                "gridY": 0,
+                "gridWidth": 3,
                 "gridHeight": 4
               }
             ],

@@ -141,7 +141,7 @@ class MigrateStorageToGroupFolderCommand extends Command
                     dashboardId: $dashboard->getId()
                 );
                 $content    = array_map(
-                    static fn($p) => $p->jsonSerialize(),
+                    static fn($placement) => $placement->jsonSerialize(),
                     $placements
                 );
 

@@ -408,12 +408,9 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
             );
             $fileName = $dashboardUuid.'.json';
 
+            $dir = $root;
             if ($locale !== '') {
-                $dir  = $this->ensureSubFolder(root: $root, directory: $locale);
-                $path = $locale.'/'.$fileName;
-            } else {
-                $dir  = $root;
-                $path = $fileName;
+                $dir = $this->ensureSubFolder(root: $root, directory: $locale);
             }
 
             try {

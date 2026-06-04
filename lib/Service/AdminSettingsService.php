@@ -166,7 +166,7 @@ class AdminSettingsService
             // Accept both 'db' (spec) and 'database' (legacy wizard alias).
             $valid = ['db', 'database', 'groupfolder'];
             if (in_array(needle: $contentStorage, haystack: $valid, strict: true) === false) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
                 );
             }

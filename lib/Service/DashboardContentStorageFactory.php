@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Service;
 
+use InvalidArgumentException;
 use OCA\MyDash\Db\AdminSettingKey;
 use OCA\MyDash\Db\AdminSettingMapper;
 use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageInterface;
@@ -155,7 +156,7 @@ class DashboardContentStorageFactory
     public function setBackendSetting(string $backend): void
     {
         if (in_array($backend, self::VALID_BACKENDS, strict: true) === false) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     "Invalid value for launchpad.content_storage. Must be '%s' or '%s'.",
                     self::BACKEND_DB,

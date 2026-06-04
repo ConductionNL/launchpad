@@ -256,6 +256,8 @@ class DashboardService
      *                                                                   with existing
      *                                                                   test doubles.
      *                                                                   REQ-GFSB-005.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -2117,7 +2119,7 @@ class DashboardService
             dashboardId: $dashboardId
         );
         $content    = array_map(
-            static fn($p) => $p->jsonSerialize(),
+            static fn($placement) => $placement->jsonSerialize(),
             $placements
         );
         $this->contentStorageFactory->getStorage()->write(

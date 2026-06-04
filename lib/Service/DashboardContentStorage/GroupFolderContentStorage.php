@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace OCA\MyDash\Service\DashboardContentStorage;
 
 use OCP\App\IAppManager;
+use OCP\Files\File as NcFile;
+use OCP\Files\Folder as NcFolder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
@@ -62,8 +64,8 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
      * @param IRootFolder     $rootFolder   Nextcloud virtual file system root.
      * @param IAppManager     $appManager   Used to verify the groupfolders app
      *                                      is installed.
-     * @param IGroupManager   $groupManager Group manager (available for future
-     *                                      group-scoped access guards).
+     * @param IGroupManager   $groupManager Used to resolve group membership for
+     *                                      role-based access to folder content.
      * @param LoggerInterface $logger       PSR-3 logger.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
@@ -105,21 +107,22 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
      * file-system operation. Creates the top-level folder via `newFolder()`
      * when `get()` raises `NotFoundException`.
      *
-     * @return Node The `LaunchPad` folder node.
+     * @return void
      *
      * @throws GroupFoldersNotInstalledException When the groupfolders app is absent.
      * @throws DashboardContentStorageException  On any other file-system failure.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
      */
-    private function ensureLaunchPadGroupFolder(): Node
+    private function ensureLaunchPadGroupFolder(): void
     {
         if ($this->appManager->isInstalled(appId: self::GROUPFOLDERS_APP_ID) === false) {
             throw new GroupFoldersNotInstalledException();
         }
 
         try {
-            return $this->rootFolder->get(path: '/'.self::FOLDER_NAME);
+            $this->rootFolder->get(path: '/'.self::FOLDER_NAME);
+            return;
         } catch (NotFoundException) {
             // Folder does not exist yet — create it.
         } catch (\Throwable $e) {
@@ -134,7 +137,7 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
         }//end try
 
         try {
-            return $this->rootFolder->newFolder(path: '/'.self::FOLDER_NAME);
+            $this->rootFolder->newFolder(path: '/'.self::FOLDER_NAME);
         } catch (\Throwable $e) {
             $this->logger->error(
                 message: 'GroupFolderContentStorage: failed to create LaunchPad folder.',
@@ -182,6 +185,7 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
 
         foreach ($paths as $path) {
             try {
+                // @var NcFile $file
                 $file = $this->rootFolder->get(path: '/'.$path);
             } catch (NotFoundException) {
                 // Try the next candidate path.
@@ -284,6 +288,7 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
 
             try {
                 // File exists — overwrite.
+                // @var NcFile $file.
                 $file = $this->rootFolder->get(path: '/'.$path);
                 $file->putContent(data: $encoded);
             } catch (NotFoundException) {
@@ -293,11 +298,10 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
                     $parentPath = '/'.self::FOLDER_NAME.'/'.$locale;
                 }
 
+                // @var NcFolder $parent
                 $parent = $this->rootFolder->get(path: $parentPath);
                 $parent->newFile(path: $uuid.'.json', content: $encoded);
             }//end try
-        } catch (DashboardContentStorageException $e) {
-            throw $e;
         } catch (\Throwable $e) {
             $this->logger->error(
                 message: 'GroupFolderContentStorage: failed to write content file.',

@@ -182,7 +182,7 @@ class Application extends App implements IBootstrap
         // is safe because Nextcloud itself does not rely on external XML
         // entities in its own code.
         if (function_exists('libxml_set_external_entity_loader') === true) {
-            // @psalm-suppress UnusedFunctionCall
+            /** @psalm-suppress UnusedFunctionCall */
             libxml_set_external_entity_loader(static fn (): null => null);
         }
 

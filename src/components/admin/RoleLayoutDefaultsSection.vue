@@ -62,109 +62,37 @@
 		</NcButton>
 
 		<!-- Editor dialog -->
-		<NcDialog v-if="showEditor"
-			:name="editorRow.id ? t('mydash', 'Edit layout default') : t('mydash', 'Add layout default')"
+		<RoleLayoutDefaultEditorDialog
+			v-if="showEditor"
 			:open="showEditor"
-			@update:open="showEditor = $event">
-			<template #default>
-				<div class="mydash-admin__editor">
-					<NcTextField
-						:value="editorRow.name"
-						:label="t('mydash', 'Name')"
-						:placeholder="t('mydash', 'Manager — analysedashboard')"
-						@update:value="editorRow.name = $event" />
-					<NcTextField
-						:value="editorRow.groupId"
-						:label="t('mydash', 'Group ID')"
-						:placeholder="t('mydash', 'managers')"
-						@update:value="editorRow.groupId = $event" />
-					<NcTextField
-						:value="editorRow.widgetId"
-						:label="t('mydash', 'Widget ID')"
-						:placeholder="t('mydash', 'analytics_dashboard')"
-						@update:value="editorRow.widgetId = $event" />
-					<div class="mydash-admin__editor-row">
-						<NcTextField
-							:value="String(editorRow.gridX)"
-							:label="t('mydash', 'Grid X')"
-							type="number"
-							@update:value="editorRow.gridX = Number($event)" />
-						<NcTextField
-							:value="String(editorRow.gridY)"
-							:label="t('mydash', 'Grid Y')"
-							type="number"
-							@update:value="editorRow.gridY = Number($event)" />
-					</div>
-					<div class="mydash-admin__editor-row">
-						<NcTextField
-							:value="String(editorRow.gridWidth)"
-							:label="t('mydash', 'Width (columns)')"
-							type="number"
-							@update:value="editorRow.gridWidth = Number($event)" />
-						<NcTextField
-							:value="String(editorRow.gridHeight)"
-							:label="t('mydash', 'Height (rows)')"
-							type="number"
-							@update:value="editorRow.gridHeight = Number($event)" />
-					</div>
-					<NcTextField
-						:value="String(editorRow.sortOrder)"
-						:label="t('mydash', 'Sort order')"
-						type="number"
-						@update:value="editorRow.sortOrder = Number($event)" />
-					<NcCheckboxRadioSwitch
-						:checked="Boolean(editorRow.isCompulsory)"
-						@update:checked="editorRow.isCompulsory = $event">
-						{{ t('mydash', 'Compulsory (user cannot remove this widget)') }}
-					</NcCheckboxRadioSwitch>
-					<NcTextField
-						:value="editorRow.description || ''"
-						:label="t('mydash', 'Description (optional)')"
-						@update:value="editorRow.description = $event" />
-				</div>
-			</template>
-			<template #actions>
-				<NcButton :disabled="store.saving" type="tertiary" @click="showEditor = false">
-					{{ t('mydash', 'Cancel') }}
-				</NcButton>
-				<NcButton :disabled="store.saving" type="primary" @click="save">
-					{{ store.saving ? t('mydash', 'Saving…') : t('mydash', 'Save') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+			:row="editorRow"
+			:saving="store.saving"
+			@update:open="showEditor = $event"
+			@update:row="editorRow = $event"
+			@save="save" />
 
 		<!-- Delete confirmation dialog -->
-		<NcDialog v-if="showDeleteDialog"
-			:name="t('mydash', 'Delete layout default')"
+		<RoleLayoutDefaultDeleteDialog
+			v-if="showDeleteDialog"
 			:open="showDeleteDialog"
-			@update:open="showDeleteDialog = $event">
-			<template #default>
-				<p>{{ t('mydash', 'Delete layout default for "{group}" / "{widget}"?', { group: deleteTarget.groupId, widget: deleteTarget.widgetId }) }}</p>
-			</template>
-			<template #actions>
-				<NcButton type="tertiary" @click="showDeleteDialog = false">
-					{{ t('mydash', 'Cancel') }}
-				</NcButton>
-				<NcButton type="error" @click="confirmDelete">
-					{{ t('mydash', 'Delete') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+			:group-id="deleteTarget ? deleteTarget.groupId : ''"
+			:widget-id="deleteTarget ? deleteTarget.widgetId : ''"
+			@update:open="showDeleteDialog = $event"
+			@confirm="confirmDelete" />
 	</div>
 </template>
 
 <script>
 import {
 	NcButton,
-	NcCheckboxRadioSwitch,
-	NcDialog,
 	NcEmptyContent,
-	NcTextField,
 } from '@conduction/nextcloud-vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
+import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
+import RoleLayoutDefaultDeleteDialog from '../../dialogs/RoleLayoutDefaultDeleteDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 
 export default {
@@ -172,14 +100,13 @@ export default {
 
 	components: {
 		NcButton,
-		NcCheckboxRadioSwitch,
-		NcDialog,
 		NcEmptyContent,
-		NcTextField,
 		ViewDashboard,
 		Plus,
 		Pencil,
 		Delete,
+		RoleLayoutDefaultEditorDialog,
+		RoleLayoutDefaultDeleteDialog,
 	},
 
 	/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
@@ -318,19 +245,5 @@ export default {
 .mydash-admin__role-actions {
 	display: flex;
 	gap: 4px;
-}
-.mydash-admin__editor {
-	padding: calc(var(--default-grid-baseline) * 2);
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	min-width: 480px;
-}
-.mydash-admin__editor-row {
-	display: flex;
-	gap: var(--default-grid-baseline);
-}
-.mydash-admin__editor-row > * {
-	flex: 1;
 }
 </style>

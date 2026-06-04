@@ -33,7 +33,6 @@ use OCA\MyDash\Db\RoleLayoutDefault;
 use OCA\MyDash\Db\RoleLayoutDefaultMapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
-use Psr\Log\LoggerInterface;
 
 /**
  * Seed role-feature-permission and role-layout-default rows on first install.
@@ -47,12 +46,10 @@ class SeedRolePermissions implements IRepairStep
      *
      * @param RoleFeaturePermissionMapper $permMapper Permission mapper.
      * @param RoleLayoutDefaultMapper     $defMapper  Layout-default mapper.
-     * @param LoggerInterface             $logger     PSR-3 logger.
      */
     public function __construct(
         private readonly RoleFeaturePermissionMapper $permMapper,
         private readonly RoleLayoutDefaultMapper $defMapper,
-        private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
 

@@ -28,9 +28,7 @@ use OCP\App\IAppManager;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
-use OCP\Files\Node;
 use OCP\Files\NotFoundException;
-use OCP\IGroupManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -56,13 +54,6 @@ class GroupFolderContentStorageTest extends TestCase
     private $appManager;
 
     /**
-     * Group manager mock.
-     *
-     * @var IGroupManager&MockObject
-     */
-    private $groupManager;
-
-    /**
      * PSR-3 logger mock.
      *
      * @var LoggerInterface&MockObject
@@ -83,15 +74,13 @@ class GroupFolderContentStorageTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->rootFolder   = $this->createMock(originalClassName: IRootFolder::class);
-        $this->appManager   = $this->createMock(originalClassName: IAppManager::class);
-        $this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
-        $this->logger       = $this->createMock(originalClassName: LoggerInterface::class);
+        $this->rootFolder = $this->createMock(originalClassName: IRootFolder::class);
+        $this->appManager = $this->createMock(originalClassName: IAppManager::class);
+        $this->logger     = $this->createMock(originalClassName: LoggerInterface::class);
 
         $this->storage = new GroupFolderContentStorage(
             rootFolder: $this->rootFolder,
             appManager: $this->appManager,
-            groupManager: $this->groupManager,
             logger: $this->logger
         );
     }//end setUp()

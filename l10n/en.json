@@ -913,6 +913,27 @@
         "Delete role permission for \"{group}\"?": "Delete role permission for \"{group}\"?",
         "Save Layout": "Save Layout",
         "Layout saved": "Layout saved",
-        "Failed to save layout": "Failed to save layout"
+        "Failed to save layout": "Failed to save layout",
+        "Role-based default layouts": "Role-based default layouts",
+        "Define the default grid positions for each group's widgets. New users whose group has no admin template will receive these positions as their starting layout.": "Define the default grid positions for each group's widgets. New users whose group has no admin template will receive these positions as their starting layout.",
+        "No layout defaults configured": "No layout defaults configured",
+        "Add layout default rows to seed role-based starting dashboards for new users.": "Add layout default rows to seed role-based starting dashboards for new users.",
+        "Add layout default": "Add layout default",
+        "Edit layout default": "Edit layout default",
+        "{x},{y} {w}×{h}": "{x},{y} {w}×{h}",
+        "Compulsory": "Compulsory",
+        "Compulsory (user cannot remove this widget)": "Compulsory (user cannot remove this widget)",
+        "Widget ID": "Widget ID",
+        "Grid X": "Grid X",
+        "Grid Y": "Grid Y",
+        "Width (columns)": "Width (columns)",
+        "Height (rows)": "Height (rows)",
+        "Sort order": "Sort order",
+        "Description (optional)": "Description (optional)",
+        "Delete layout default": "Delete layout default",
+        "Delete layout default for \"{group}\" / \"{widget}\"?": "Delete layout default for \"{group}\" / \"{widget}\"?",
+        "Delete role permission": "Delete role permission",
+        "Delete role permission for group \"{group}\"?": "Delete role permission for group \"{group}\"?",
+        "Saving…": "Saving…"
     }
 }

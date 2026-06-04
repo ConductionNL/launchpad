@@ -1,5 +1,7 @@
 # Design — Role-based dashboard content and defaults
 
+**status: pr-created**
+
 ## Architecture
 
 ### Backend
@@ -59,12 +61,12 @@ unconfigured (all widgets visible). The card library component (`WidgetPicker.vu
 ## Data Model
 
 > All domain data stored in OpenRegister objects. Schemas defined in
-> `lib/Settings/mydash_register.json`, imported via `ConfigurationService::importFromApp()`.
+> `lib/Settings/launchpad_register.json`, imported via `ConfigurationService::importFromApp()`.
 > Schema vocabulary follows schema.org + ADR-011.
 
 ### Schema: RoleFeaturePermission
 
-**Register key:** `mydash`
+**Register key:** `launchpad`
 **Schema key:** `role-feature-permission`
 **schema.org type:** `schema:DefinedTerm` (a term within a classification scheme, here:
 the set of permitted features for a role)
@@ -85,7 +87,7 @@ enforces this: slug = `rfp-{groupId}`.
 
 ### Schema: RoleLayoutDefault
 
-**Register key:** `mydash`
+**Register key:** `launchpad`
 **Schema key:** `role-layout-default`
 **schema.org type:** `schema:ListItem` (an item in an ordered list, here: a widget slot in a
 role's default layout)
@@ -118,7 +120,7 @@ role's default layout)
 [
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-feature-permission",
       "slug": "rfp-medewerkers"
     },
@@ -131,7 +133,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-feature-permission",
       "slug": "rfp-managers"
     },
@@ -144,7 +146,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-feature-permission",
       "slug": "rfp-ict-beheer"
     },
@@ -157,7 +159,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-feature-permission",
       "slug": "rfp-hrm"
     },
@@ -170,7 +172,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-feature-permission",
       "slug": "rfp-default"
     },
@@ -190,7 +192,7 @@ role's default layout)
 [
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-layout-default",
       "slug": "rld-medewerkers-activity"
     },
@@ -203,7 +205,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-layout-default",
       "slug": "rld-medewerkers-recommendations"
     },
@@ -216,7 +218,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-layout-default",
       "slug": "rld-managers-analytics"
     },
@@ -229,7 +231,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-layout-default",
       "slug": "rld-managers-activity"
     },
@@ -242,7 +244,7 @@ role's default layout)
   },
   {
     "@self": {
-      "register": "mydash",
+      "register": "launchpad",
       "schema": "role-layout-default",
       "slug": "rld-ict-beheer-system-monitor"
     },
@@ -279,7 +281,7 @@ rebuilding anything the platform provides for free.
 - `AuthorizationService` and `PropertyRbacHandler` (OpenRegister) already provide general
   RBAC; this change adds *widget-scoped* role filtering on top, which is domain-specific
   logic not present in the platform.
-- `PermissionService` (existing mydash change `permissions`) controls per-dashboard edit
+- `PermissionService` (existing launchpad change `permissions`) controls per-dashboard edit
   permissions (view_only / add_only / full). This change controls *which widgets can be added*,
   which is orthogonal — both checks run independently.
 - `AdminTemplateService` (existing `admin-templates`) distributes full dashboard copies.

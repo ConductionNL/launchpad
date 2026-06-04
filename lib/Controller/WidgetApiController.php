@@ -46,6 +46,8 @@ use Throwable;
  *                                                 generic widget CRUD
  *                                                 share this controller.
  * @SuppressWarnings(PHPMD.LongVariable)
+ *
+ * @spec openspec/changes/role-based-content/tasks.md#task-3
  */
 class WidgetApiController extends Controller
 {

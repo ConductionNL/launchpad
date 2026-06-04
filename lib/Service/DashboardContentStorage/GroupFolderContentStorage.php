@@ -34,12 +34,11 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Service\DashboardContentStorage;
 
+use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -66,13 +65,6 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
     public const FOLDER_NAME = 'LaunchPad';
 
     /**
-     * Groupfolders app ID — used to check installation.
-     *
-     * @var string
-     */
-    private const GROUPFOLDERS_APP_ID = 'groupfolders';
-
-    /**
      * Groupfolders FolderManager service class name (string to avoid hard-dep).
      *
      * @var string
@@ -96,19 +88,15 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
     /**
      * Constructor.
      *
-     * @param IRootFolder        $rootFolder   NC root folder.
-     * @param IGroupManager      $groupManager Group manager (admin ACL).
-     * @param IAppConfig         $appConfig    App config (admin setting read).
-     * @param ContainerInterface $container    Server DI container (lazy-loads
-     *                                         groupfolders FolderManager).
-     * @param LoggerInterface    $logger       PSR logger.
+     * @param IRootFolder        $rootFolder NC root folder.
+     * @param ContainerInterface $container  Server DI container (lazy-loads
+     *                                       groupfolders FolderManager).
+     * @param LoggerInterface    $logger     PSR logger.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
      */
     public function __construct(
         private readonly IRootFolder $rootFolder,
-        private readonly IGroupManager $groupManager,
-        private readonly IAppConfig $appConfig,
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
@@ -201,11 +189,8 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
             $manager->addApplicableGroup(folderId: $id, group: 'admin');
             // Disable the default "all users" group if the method exists.
             if (method_exists($manager, 'setFolderGroup') === true) {
-                $manager->setFolderGroup(
-                    folderId: $id,
-                    group: 'everyone',
-                    permissions: 0
-                );
+                // @phpstan-ignore-next-line — dynamic call on mixed; named params are correct for FolderManager.
+                $manager->setFolderGroup(folderId: $id, group: 'everyone', permissions: 0);
             }
 
             $this->groupFolderId = $id;
@@ -341,8 +326,12 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
 
             foreach ($paths as $path) {
                 try {
-                    $file    = $root->get($path);
-                    $content = $file->getContent();
+                    $node = $root->get($path);
+                    if (($node instanceof File) === false) {
+                        continue;
+                    }
+
+                    $content = $node->getContent();
                     $decoded = json_decode(json: $content, associative: true, flags: JSON_THROW_ON_ERROR);
                     if (is_array($decoded) === true) {
                         return $decoded;
@@ -414,8 +403,14 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
             }
 
             try {
-                $file = $dir->get($fileName);
-                $file->putContent(data: $json);
+                $fileNode = $dir->get($fileName);
+                if (($fileNode instanceof File) === false) {
+                    throw new DashboardContentStorageException(
+                        'GroupFolder path '.$fileName.' exists but is not a file.'
+                    );
+                }
+
+                $fileNode->putContent(data: $json);
             } catch (NotFoundException) {
                 $dir->newFile(path: $fileName, content: $json);
             }

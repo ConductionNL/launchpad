@@ -34,7 +34,6 @@ use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
 use OCA\MyDash\Service\DashboardContentStorage\GroupFolderContentStorage;
-use OCA\MyDash\Service\DashboardContentStorageFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -51,10 +50,9 @@ class MigrateStorageToGroupFolderCommand extends Command
     /**
      * Constructor.
      *
-     * @param DashboardMapper                $dashboardMapper Dashboard mapper.
-     * @param WidgetPlacementMapper          $placementMapper Widget placement mapper.
-     * @param GroupFolderContentStorage      $gfStorage       GroupFolder storage backend.
-     * @param DashboardContentStorageFactory $factory         Storage factory (for reading DB).
+     * @param DashboardMapper           $dashboardMapper Dashboard mapper.
+     * @param WidgetPlacementMapper     $placementMapper Widget placement mapper.
+     * @param GroupFolderContentStorage $gfStorage       GroupFolder storage backend.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-9
      */
@@ -62,7 +60,6 @@ class MigrateStorageToGroupFolderCommand extends Command
         private readonly DashboardMapper $dashboardMapper,
         private readonly WidgetPlacementMapper $placementMapper,
         private readonly GroupFolderContentStorage $gfStorage,
-        private readonly DashboardContentStorageFactory $factory,
     ) {
         parent::__construct();
     }//end __construct()

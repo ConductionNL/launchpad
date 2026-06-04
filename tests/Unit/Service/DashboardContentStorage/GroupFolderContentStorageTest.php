@@ -23,8 +23,6 @@ use OCA\MyDash\Service\DashboardContentStorage\GroupFoldersNotInstalledException
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -39,24 +37,18 @@ class GroupFolderContentStorageTest extends TestCase
 {
 
     private IRootFolder&MockObject $rootFolder;
-    private IGroupManager&MockObject $groupManager;
-    private IAppConfig&MockObject $appConfig;
     private ContainerInterface&MockObject $container;
     private LoggerInterface&MockObject $logger;
     private GroupFolderContentStorage $storage;
 
     protected function setUp(): void
     {
-        $this->rootFolder   = $this->createMock(IRootFolder::class);
-        $this->groupManager = $this->createMock(IGroupManager::class);
-        $this->appConfig    = $this->createMock(IAppConfig::class);
-        $this->container    = $this->createMock(ContainerInterface::class);
-        $this->logger       = $this->createMock(LoggerInterface::class);
+        $this->rootFolder = $this->createMock(IRootFolder::class);
+        $this->container  = $this->createMock(ContainerInterface::class);
+        $this->logger     = $this->createMock(LoggerInterface::class);
 
         $this->storage = new GroupFolderContentStorage(
             rootFolder: $this->rootFolder,
-            groupManager: $this->groupManager,
-            appConfig: $this->appConfig,
             container: $this->container,
             logger: $this->logger,
         );

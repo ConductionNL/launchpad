@@ -33,6 +33,7 @@ export function useOrFeatureDetect() {
 	// Try to use nc-vue's useAppStatus if available; fall back to a one-shot
 	// OCS fetch so the composable works regardless of the nc-vue version.
 	try {
+		// eslint-disable-next-line n/no-missing-require
 		const { useAppStatus } = require('@conduction/nextcloud-vue/composables')
 		const status = useAppStatus('openregister')
 		return {

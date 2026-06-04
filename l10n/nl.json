@@ -913,6 +913,27 @@
         "Delete role permission for \"{group}\"?": "Rolrecht voor \"{group}\" verwijderen?",
         "Save Layout": "Lay-out opslaan",
         "Layout saved": "Lay-out opgeslagen",
-        "Failed to save layout": "Lay-out opslaan mislukt"
+        "Failed to save layout": "Lay-out opslaan mislukt",
+        "Role-based default layouts": "Rolgebaseerde standaardlay-outs",
+        "Define the default grid positions for each group's widgets. New users whose group has no admin template will receive these positions as their starting layout.": "Definieer de standaard rasterposities voor de widgets van elke groep. Nieuwe gebruikers wier groep geen beheerdersjabloon heeft, ontvangen deze posities als startlay-out.",
+        "No layout defaults configured": "Geen standaardlay-outs geconfigureerd",
+        "Add layout default rows to seed role-based starting dashboards for new users.": "Voeg standaardlay-outrijen toe om rolgebaseerde startdashboards voor nieuwe gebruikers te seeden.",
+        "Add layout default": "Standaardlay-out toevoegen",
+        "Edit layout default": "Standaardlay-out bewerken",
+        "{x},{y} {w}×{h}": "{x},{y} {w}×{h}",
+        "Compulsory": "Verplicht",
+        "Compulsory (user cannot remove this widget)": "Verplicht (gebruiker kan dit widget niet verwijderen)",
+        "Widget ID": "Widget-ID",
+        "Grid X": "Raster X",
+        "Grid Y": "Raster Y",
+        "Width (columns)": "Breedte (kolommen)",
+        "Height (rows)": "Hoogte (rijen)",
+        "Sort order": "Sorteervolgorde",
+        "Description (optional)": "Omschrijving (optioneel)",
+        "Delete layout default": "Standaardlay-out verwijderen",
+        "Delete layout default for \"{group}\" / \"{widget}\"?": "Standaardlay-out voor \"{group}\" / \"{widget}\" verwijderen?",
+        "Delete role permission": "Rolrecht verwijderen",
+        "Delete role permission for group \"{group}\"?": "Rolrecht voor groep \"{group}\" verwijderen?",
+        "Saving…": "Opslaan…"
     }
 }

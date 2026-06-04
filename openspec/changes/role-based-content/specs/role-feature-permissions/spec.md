@@ -25,7 +25,7 @@ dashboard copies). All three can apply simultaneously.
 
 ### RoleFeaturePermission
 
-Stored in OpenRegister under register `mydash`, schema `role-feature-permission`.
+Stored in OpenRegister under register `launchpad`, schema `role-feature-permission`.
 One object per Nextcloud group ID (enforced via slug convention `rfp-{groupId}`).
 
 - `name` (string, required) — human-readable label
@@ -39,7 +39,7 @@ One object per Nextcloud group ID (enforced via slug convention `rfp-{groupId}`)
 
 ### RoleLayoutDefault
 
-Stored in OpenRegister under register `mydash`, schema `role-layout-default`.
+Stored in OpenRegister under register `launchpad`, schema `role-layout-default`.
 One object per (groupId, widgetId) pair (slug `rld-{groupId}-{widgetId}`).
 
 - `name` (string, required) — display label
@@ -96,7 +96,7 @@ appear anywhere in the UI and MUST NOT be returned by `GET /api/widgets`.
 
 ### REQ-RFP-002: Role-based default dashboard layout
 
-When a new user opens MyDash for the first time and no admin template matches their group,
+When a new user opens LaunchPad for the first time and no admin template matches their group,
 the system MUST seed their dashboard from the RoleLayoutDefault objects for their primary
 group (resolved via `group_order` priority). Existing personal customisations MUST never be
 overwritten.
@@ -108,7 +108,7 @@ overwritten.
 - AND RoleLayoutDefault objects exist for group `"managers"`:
   - `analytics_dashboard` at (0,0), 8×6, sortOrder 1, isCompulsory true
   - `activity` at (8,0), 4×6, sortOrder 2, isCompulsory false
-- WHEN noor.yilmaz opens MyDash for the first time (no existing dashboard)
+- WHEN noor.yilmaz opens LaunchPad for the first time (no existing dashboard)
 - THEN `DashboardResolver::tryCreateFromTemplate()` MUST call `seedLayoutFromRoleDefaults()`
 - AND the resulting dashboard MUST contain two WidgetPlacement rows matching the
   RoleLayoutDefault objects (gridX, gridY, gridWidth, gridHeight, isCompulsory preserved)
@@ -118,7 +118,7 @@ overwritten.
 
 - GIVEN an IT admin updates the `"managers"` RoleLayoutDefault to add `"user_status"` at
   (0,7), 4×4, sortOrder 3
-- WHEN a new user with group `"managers"` signs in and opens MyDash
+- WHEN a new user with group `"managers"` signs in and opens LaunchPad
 - THEN their seeded dashboard MUST include `"user_status"` at the updated position
 - AND previously created users are unaffected (their existing placements are not touched)
 
@@ -126,7 +126,7 @@ overwritten.
 
 - GIVEN user "sem.de.jong" has an existing personal dashboard with two customised placements
 - AND an IT admin updates the RoleLayoutDefault for sem's group
-- WHEN sem.de.jong reloads MyDash
+- WHEN sem.de.jong reloads LaunchPad
 - THEN sem's existing placements MUST remain unchanged
 - AND the new role defaults MUST NOT overwrite or remove any of sem's personal placements
 - NOTE: `seedLayoutFromRoleDefaults()` is only called during first-creation; it does not
@@ -191,7 +191,7 @@ earlier in the default sort order.
 - GIVEN an IT admin updates the `"managers"` RoleFeaturePermission to raise `"activity"`
   weight to 12 (above `"analytics_dashboard"`)
 - WHEN the admin also updates the corresponding RoleLayoutDefault sortOrder values
-- WHEN a new `"managers"` user opens MyDash after the update
+- WHEN a new `"managers"` user opens LaunchPad after the update
 - THEN `"activity"` MUST appear at sortOrder 1 (first position)
 - AND `"analytics_dashboard"` MUST appear at sortOrder 2
 
@@ -256,7 +256,7 @@ effect within one session refresh.
 #### Scenario: User assigned a role sees only widgets permitted for that role
 
 - GIVEN user "henk.bakker" belongs to group `"medewerkers"` and no other role-priority group
-- WHEN henk opens MyDash
+- WHEN henk opens LaunchPad
 - THEN `GET /api/widgets` MUST return only widgets in the `"medewerkers"` effective set
 - AND no interest expression (bookmarked widget, previous session) MUST expand this set beyond
   what the role permits
@@ -357,7 +357,7 @@ users MUST receive HTTP 403 on all mutation attempts.
 ### REQ-RFP-009: Unconfigured installations retain full backwards-compatibility
 
 When no RoleFeaturePermission objects exist in OpenRegister, `GET /api/widgets` MUST return
-the full widget list unchanged. No change in behaviour for existing MyDash installations that
+the full widget list unchanged. No change in behaviour for existing LaunchPad installations that
 have not configured role-feature-permissions.
 
 #### Scenario: No permissions configured — all widgets visible
@@ -388,14 +388,14 @@ without a separate API call.
 #### Scenario: Initial state includes allowedWidgets for role-configured user
 
 - GIVEN user "noor.yilmaz" has group `"managers"` with `allowedWidgets: ["activity", "analytics_dashboard"]`
-- WHEN the MyDash page loads and `GET /api/settings` or the initial-state endpoint is called
+- WHEN the LaunchPad page loads and `GET /api/settings` or the initial-state endpoint is called
 - THEN the response payload MUST include `"allowedWidgets": ["activity", "analytics_dashboard"]`
 - AND the frontend card library MUST use this list to filter without an additional API call
 
 #### Scenario: Initial state includes null for unconfigured installation
 
 - GIVEN no RoleFeaturePermission objects exist
-- WHEN any user loads MyDash
+- WHEN any user loads LaunchPad
 - THEN the initial-state payload MUST include `"allowedWidgets": null`
 - AND the frontend MUST treat `null` as "no restriction" (show all widgets)
 

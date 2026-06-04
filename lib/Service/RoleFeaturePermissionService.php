@@ -45,7 +45,37 @@ use OCP\IUserManager;
  * tables and exposes the per-user widget allow-list resolver consumed
  * by `WidgetApiController` and `PageController`.
  *
+ * @spec openspec/changes/role-based-content/tasks.md#task-1
  * @spec openspec/changes/role-based-content/tasks.md#task-2
+ *
+ * -----------------------------------------------------------------------
+ * DEDUPLICATION AUDIT (Task 1 — openspec/changes/role-based-content)
+ * -----------------------------------------------------------------------
+ * Searched `openspec/specs/` for prior widget-level role filtering:
+ *   • `permissions` spec (PermissionService) — governs per-dashboard edit
+ *     rights (view_only / add_only / full). Orthogonal to widget visibility.
+ *   • `admin-templates` spec (AdminTemplateService) — distributes full
+ *     dashboard copies to groups. Does NOT restrict which widgets a user
+ *     can add from the card library. Orthogonal.
+ *   → No overlap found.
+ *
+ * Searched `lib/Service/` for `getAllowedWidgetIds`, `widgetPermission`,
+ * `roleFilter`:
+ *   → Zero matches. No existing service duplicates this capability.
+ *
+ * Searched `openregister/lib/Service/` for the same symbols:
+ *   → `AuthorizationService` and `PropertyRbacHandler` provide general
+ *     object-level RBAC. Neither performs widget-scoped filtering per
+ *     group — this is domain-specific to MyDash.
+ *
+ * Verified `@conduction/nextcloud-vue`:
+ *   → No role-filtered picker component exists in the shared library.
+ *     `CnFormDialog` auto-generates from schema but does not filter by
+ *     group membership. No overlap.
+ *
+ * Conclusion: widget-scoped role filtering is genuinely novel in this
+ * codebase. Implementation proceeds without risk of duplicate logic.
+ * -----------------------------------------------------------------------
  *
  * All public methods are stateless — no per-request memoisation. Caller
  * concerns (controllers, other services) inject this directly.

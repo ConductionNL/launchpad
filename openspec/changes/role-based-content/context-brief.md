@@ -1,13 +1,13 @@
 # Context Brief: Role-based dashboard content and defaults
 
-**App:** MyDash — Dashboard system
+**App:** LaunchPad — Dashboard system
 **Spec:** role-based-content
 **Platform:** Nextcloud + OpenRegister
 
 ## Features (6 total, sorted by market demand)
 
 ### role-based feature presence
-**demand: 593** | Category: security | **Coverage: mydash**
+**demand: 593** | Category: security | **Coverage: launchpad**
 
 CAPABILITY: As an IT admin, I want features shown or hidden based on user role, so that staff only see tools relevant to their job. ACCEPTANCE CRITERIA:
 1. GIVEN a user assigned the "employee" role, WHEN they open the dashboard, THEN admin-only widgets are not rendered in the DOM.
@@ -15,15 +15,15 @@ CAPABILITY: As an IT admin, I want features shown or hidden based on user role, 
 3. GIVEN a user without permission for a feature, WHEN they request the feature's URL directly, THEN the response is a 403 and the feature is not exposed.
 
 ### role-based defaults evidence
-**demand: 593** | Category: security | **Coverage: mydash**
+**demand: 593** | Category: security | **Coverage: launchpad**
 
 CAPABILITY: As an IT admin, I want role-based default dashboards seeded from evidence, so that new users see relevant widgets without manual setup. ACCEPTANCE CRITERIA:
-1. GIVEN a user is assigned a role, WHEN they first open mydash, THEN the dashboard loads the role's default widget layout.
+1. GIVEN a user is assigned a role, WHEN they first open launchpad, THEN the dashboard loads the role's default widget layout.
 2. GIVEN an admin updates a role's default layout, WHEN a new user with that role signs in, THEN they receive the updated defaults.
 3. GIVEN a user has customized their dashboard, WHEN role defaults change, THEN their personal customizations are preserved and not overwritten.
 
 ### role-based card library
-**demand: 593** | Category: security | **Coverage: mydash**
+**demand: 593** | Category: security | **Coverage: launchpad**
 
 CAPABILITY: As an IT admin, I want a role-based card library, so that dashboard cards are only visible to users with appropriate permissions. ACCEPTANCE CRITERIA:
 1. GIVEN a card is restricted to the "manager" role, WHEN a user without that role opens the dashboard, THEN the card is not rendered or listed.
@@ -31,26 +31,26 @@ CAPABILITY: As an IT admin, I want a role-based card library, so that dashboard 
 3. GIVEN an admin revokes a role from a user, WHEN that user reloads the dashboard, THEN previously visible role-restricted cards are no longer accessible.
 
 ### role + priority layout
-**demand: 593** | Category: security | **Coverage: mydash**
+**demand: 593** | Category: security | **Coverage: launchpad**
 
 CAPABILITY: As an IT admin, I want dashboard widgets laid out by role and priority, so that staff see their most critical information first. ACCEPTANCE CRITERIA:
-1. GIVEN a user with an assigned role, WHEN they open mydash, THEN widgets are ordered by role-specific priority rules.
-2. GIVEN an admin updates priority weights for a role, WHEN affected users next load mydash, THEN the new ordering is applied.
+1. GIVEN a user with an assigned role, WHEN they open launchpad, THEN widgets are ordered by role-specific priority rules.
+2. GIVEN an admin updates priority weights for a role, WHEN affected users next load launchpad, THEN the new ordering is applied.
 3. GIVEN a user lacks permission for a high-priority widget, WHEN the dashboard renders, THEN that widget is hidden and the next eligible widget takes its slot.
 
 ### role-based > individual personalisation
-**demand: 562** | Category: security | **Coverage: mydash**
+**demand: 562** | Category: security | **Coverage: launchpad**
 
 CAPABILITY: As an IT admin, I want role-based dashboard defaults rather than per-user personalisation, so that governance scales without bespoke configuration per employee. ACCEPTANCE CRITERIA:
-1. GIVEN an admin defines a dashboard layout for a role group, WHEN a user in that group opens MyDash, THEN they see the role's default widgets and arrangement.
-2. GIVEN a user belongs to multiple role groups, WHEN they load MyDash, THEN role precedence rules resolve to a single deterministic layout shown to the user.
-3. GIVEN an admin updates a role-based layout, WHEN affected users reload MyDash, THEN the new layout propagates without requiring per-user reconfiguration.
+1. GIVEN an admin defines a dashboard layout for a role group, WHEN a user in that group opens LaunchPad, THEN they see the role's default widgets and arrangement.
+2. GIVEN a user belongs to multiple role groups, WHEN they load LaunchPad, THEN role precedence rules resolve to a single deterministic layout shown to the user.
+3. GIVEN an admin updates a role-based layout, WHEN affected users reload LaunchPad, THEN the new layout propagates without requiring per-user reconfiguration.
 
 ### role vs interest vs journey
-**demand: 561** | Category: security | **Coverage: mydash**
+**demand: 561** | Category: security | **Coverage: launchpad**
 
 CAPABILITY: As an IT admin, I want to distinguish role, interest, and journey when assigning dashboard access, so that permissions match actual responsibilities. ACCEPTANCE CRITERIA:
-1. GIVEN a user assigned a role, WHEN they open MyDash, THEN they see only widgets permitted for that role.
+1. GIVEN a user assigned a role, WHEN they open LaunchPad, THEN they see only widgets permitted for that role.
 2. GIVEN a user expresses an interest without a matching role, WHEN they request a widget, THEN access is denied and an audit entry is logged.
 3. GIVEN a user is mid-journey across multiple roles, WHEN their active role changes, THEN the dashboard re-renders with the new role's permissions within one session refresh.
 
@@ -1195,7 +1195,7 @@ Proposed
 
 ## Context
 
-Conduction apps (OpenCatalogi, Procest, Pipelinq, MyDash, Decidesk, DocuDesk, ZaakAfhandelApp, Larpingapp, Softwarecatalog, OpenRegister itself) all consume the same set of "things linked to an object" — files, notes, tasks, calendar events, mail, contacts, deck cards, talk conversations, and an expanding catalogue of NC-ecosystem and external services.
+Conduction apps (OpenCatalogi, Procest, Pipelinq, LaunchPad, Decidesk, DocuDesk, ZaakAfhandelApp, Larpingapp, Softwarecatalog, OpenRegister itself) all consume the same set of "things linked to an object" — files, notes, tasks, calendar events, mail, contacts, deck cards, talk conversations, and an expanding catalogue of NC-ecosystem and external services.
 
 Until now this was implemented in two rigid places:
 
@@ -1439,7 +1439,7 @@ Proposed
 
 ## Context
 
-Conduction maintains ~13 Nextcloud apps (decidesk, docudesk, pipelinq, procest, opencatalogi, openconnector, mydash, larpingapp, shillinq/budgetq, zaakafhandelapp, nldesign, softwarecatalog, and the in-flight idea apps). Each app needs features that overlap heavily: objects with schemas, role-based access, audit trails, archival/retention policies, mapping/transformation, relation management, sidebar tabs with notes/tasks/files, dashboard widgets, integrations with NC-native and external services.
+Conduction maintains ~13 Nextcloud apps (decidesk, docudesk, pipelinq, procest, opencatalogi, openconnector, launchpad, larpingapp, shillinq/budgetq, zaakafhandelapp, nldesign, softwarecatalog, and the in-flight idea apps). Each app needs features that overlap heavily: objects with schemas, role-based access, audit trails, archival/retention policies, mapping/transformation, relation management, sidebar tabs with notes/tasks/files, dashboard widgets, integrations with NC-native and external services.
 
 OpenRegister has grown into the **foundation** that provides these as shared abstractions: registers, schemas, objects, RBAC, audit-trail-immutable, archival-destruction-workflow, mappings, relations, object-interactions, and — with ADR-019 — a pluggable integration registry.
 

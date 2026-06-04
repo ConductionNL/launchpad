@@ -233,6 +233,11 @@
 				<RolePermissionsSection :key="refreshKey" />
 			</div>
 
+			<!-- Role-based default layouts (REQ-RFP-002 / task-6) -->
+			<div class="mydash-admin__section" data-testid="admin-layout-defaults-section">
+				<RoleLayoutDefaultsSection :key="refreshKey" />
+			</div>
+
 			<!-- Action authorization matrix (ADR-023) -->
 			<div class="mydash-admin__section">
 				<ActionAuthMatrix :key="refreshKey" />
@@ -337,6 +342,7 @@ import AdminDemoData from './AdminDemoData.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
 import { api } from '../../services/api.js'
 import RolePermissionsSection from './RolePermissionsSection.vue'
+import RoleLayoutDefaultsSection from './RoleLayoutDefaultsSection.vue'
 import ActionAuthMatrix from './ActionAuthMatrix.vue'
 
 export default {
@@ -363,6 +369,7 @@ export default {
 		SetupWizardModal,
 		ViewDashboard,
 		RolePermissionsSection,
+		RoleLayoutDefaultsSection,
 		ActionAuthMatrix,
 	},
 

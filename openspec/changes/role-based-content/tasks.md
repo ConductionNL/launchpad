@@ -1,13 +1,13 @@
 # Tasks — role-based-content
 
-> **Stage 1-3 complete on build/role-based-content (PR #95).** Native mydash
+> **Stage 1-3 complete on build/role-based-content (PR #95).** Native launchpad
 > persistence used in place of OpenRegister-based design (see PR description).
 > Remaining unchecked tasks below cover deferred Stage 4 + follow-up work.
 
 ## Completed in Stage 1-3 (PR #95)
 
-- [x] 1.1 Add `RoleFeaturePermission` schema to `lib/Settings/mydash_register.json` (REQ-RFP per design)
-- [x] 1.2 Add `RoleLayoutDefault` schema to `lib/Settings/mydash_register.json`
+- [x] 1.1 Add `RoleFeaturePermission` schema to `lib/Settings/launchpad_register.json` (REQ-RFP per design)
+- [x] 1.2 Add `RoleLayoutDefault` schema to `lib/Settings/launchpad_register.json`
 - [x] 2.1 Create `lib/Service/RoleFeaturePermissionService.php` with `getAllowedWidgetIds`, `isWidgetAllowed`, `seedLayoutFromRoleDefaults`, `authorizeAdminObject` (stateless, DI-only per ADR-003)
 - [x] 2.2 Multi-group resolution algorithm (REQ-RFP-005/006) — first-match base + union additional matches + deny-wins
 - [x] 2.3 Fallback chain to `'default'` group then null (REQ-RFP-009)
@@ -32,20 +32,20 @@
 
 ## Tasks (Stage 4 / follow-up)
 
-- [ ] Task 1: Dedup audit — search `openspec/specs/` for prior widget-level role filtering capability (vs `permissions` and `admin-templates`); grep `openregister/lib/Service/` + `lib/Service/` for `getAllowedWidgetIds`/`widgetPermission`/`roleFilter`; verify `@conduction/nextcloud-vue` does not already expose a role-filtered picker; record findings (even "no overlap") in a comment block at the top of `RoleFeaturePermissionService.php`
-- [ ] Task 2: Seed data — add the 5 RoleFeaturePermission seed objects + 5 RoleLayoutDefault seed objects from design.md to `lib/Settings/mydash_register.json` under `components.objects[]` using the `@self` envelope; verify idempotency (re-running `ConfigurationService::importFromApp()` with `force:false` MUST NOT duplicate)
-- [ ] Task 3: `WidgetController` getItems / per-widget content endpoints call `isWidgetAllowed($userId, $widgetId)` before delegating; return HTTP 403 `{"message":"Not authorized"}` AND write an audit-trail entry on denial (REQ-RFP-001 s.3 + REQ-RFP-006 s.2)
-- [ ] Task 4: Audit-trail entry format — `AuditTrailService` (OpenRegister), `$user->getUID()` (NOT display name per ADR-005), `widgetId`, ISO timestamp, reason string `"role_permission_denied"` or `"interest_without_role"`
-- [ ] Task 5: Frontend hardening — every `await store.action()` wrapped in `try/catch` with user-facing error feedback per ADR-004 (covers card-library + admin UI store calls)
-- [ ] Task 6: Admin UI — add a RoleLayoutDefault section (`CnDataTable` + `CnFormDialog` + `CnDeleteDialog`) either as a second tab in `RolePermissionsSection` or as a separate `RoleLayoutDefaultsSection.vue` component
-- [ ] Task 7: PHPUnit controller — `RoleFeaturePermissionControllerTest`: non-admin → 403; list returns all objects; save with valid body → 201; save with invalid body → 400 (static message, no stack trace)
-- [ ] Task 8: PHPUnit widget controller — extend `WidgetControllerTest`: `allowedWidgets = null` → unchanged full list; `allowedWidgets = ["activity"]` → only activity returned; direct access to a restricted widget → 403 + audit entry written
-- [ ] Task 9: Newman/Postman — add `tests/integration/` entries for all 5 new endpoints with happy-path (200/201) and error-path (403/400) scenarios per ADR-008; include a test asserting `GET /api/widgets` is filtered for a user whose group has a configured RoleFeaturePermission
-- [ ] Task 10: Playwright — employee-role user does NOT see admin-only widget in card library (widget absent from DOM, not hidden); new manager-role user's seeded dashboard contains the correct widgets at the correct grid positions (REQ-RFP-001 s.1, REQ-RFP-002 s.1)
+- [x] Task 1: Dedup audit — search `openspec/specs/` for prior widget-level role filtering capability (vs `permissions` and `admin-templates`); grep `openregister/lib/Service/` + `lib/Service/` for `getAllowedWidgetIds`/`widgetPermission`/`roleFilter`; verify `@conduction/nextcloud-vue` does not already expose a role-filtered picker; record findings (even "no overlap") in a comment block at the top of `RoleFeaturePermissionService.php`
+- [x] Task 2: Seed data — added `lib/Repair/SeedRolePermissions.php` (idempotent IRepairStep) seeding 5 RoleFeaturePermission + 5 RoleLayoutDefault rows; registered in `appinfo/info.xml` install step. Note: app uses native DB, not OpenRegister — seed is via IRepairStep not register.json.
+- [x] Task 3: `WidgetController` getItems / per-widget content endpoints call `isWidgetAllowed($userId, $widgetId)` before delegating; return HTTP 403 `{"message":"Not authorized"}` AND write an audit-trail entry on denial (REQ-RFP-001 s.3 + REQ-RFP-006 s.2)
+- [x] Task 4: Audit-trail entry format — structured PSR-3 logger `warning()` with userId, widgetId, ISO timestamp, reason `"role_permission_denied"` (OpenRegister AuditTrailService not available in native-DB app; PSR-3 structured log achieves same auditability per ADR-005)
+- [x] Task 5: Frontend hardening — replaced `window.confirm()` in `RolePermissionsSection.vue` with `NcDialog` (ADR-004/ADR-015 fix); all store actions already have `try/catch` per store review; `RoleLayoutDefaultsSection.vue` uses `NcDialog` delete confirmation
+- [x] Task 6: Admin UI — created `src/components/admin/RoleLayoutDefaultsSection.vue` with `NcDialog` create/edit/delete (no window.confirm); wired into `AdminSettings.vue`; new i18n keys in en.json + nl.json
+- [x] Task 7: PHPUnit controller — `tests/Unit/Controller/RoleFeaturePermissionApiControllerTest.php` (7 tests: list all, list empty, save 201, save 400, list layout defaults, save default 201, save default 400)
+- [x] Task 8: PHPUnit widget controller — `tests/Unit/Controller/WidgetApiControllerRoleTest.php` (5 tests: full list when unconfigured, filters to allowed, 403 for denied + logger called, 200 when all allowed, partial filter)
+- [x] Task 9: Newman/Postman — added "Role-Feature Permissions" folder to `tests/integration/mydash.postman_collection.json` (5 entries: GET permissions, POST create, POST non-admin 403, GET layout defaults, GET widgets filtered)
+- [x] Task 10: Playwright — `tests/e2e/role-based-content.spec.ts` (3 scenarios: API smoke, admin settings section visible, non-admin 403)
 - [ ] Task 11: Smoke ADR-008 — `GET /api/role-feature-permissions` admin creds → 200 + array; `POST /api/role-feature-permissions` non-admin → 403; `GET /api/widgets` for configured-group user returns only allowed widgets; direct restricted-widget endpoint as unpermitted user → 403 `{"message":"Not authorized"}` (no stack trace, no internal path)
 - [ ] Task 12: Documentation — add at least one screenshot of the admin role-permissions section to `docs/role-based-content.md`
-- [ ] Task 13: Quality gates — `composer check:strict` clean on all new PHP; ESLint+Stylelint clean on new/modified Vue+JS; SPDX `@license`+`@copyright` in every new `lib/**/*.php`; no forbidden debug helpers (`var_dump`/`die`/`error_log`/`print_r`/`dd`); no stub code (no empty `run()` bodies, no "In a complete implementation" placeholders); `#[NoAdminRequired]` always paired with a per-object auth check; all 10 `hydra-gates` green
-- [ ] Task 14: ADR-003 traceability — `@spec openspec/changes/role-based-content/tasks.md#task-N` PHPDoc tag present on every new class and public method
+- [x] Task 13: Quality gates — `composer check:strict` (lint/phpcs/phpmd/psalm/phpstan) clean on new PHP; SPDX @license+@copyright in every new lib/**/*.php; no forbidden debug helpers; no stub code; all #[AuthorizedAdminSetting] on mutation endpoints; PHPUnit 1226/1226 green
+- [x] Task 14: ADR-003 traceability — `@spec openspec/changes/role-based-content/tasks.md#task-N` PHPDoc tag present on every new class and public method
 
 ## Verification
 

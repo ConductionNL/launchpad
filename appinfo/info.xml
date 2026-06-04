@@ -85,6 +85,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
 		<install>
 			<step>OCA\MyDash\Repair\InitializeActions</step>
+			<!-- role-based-content task-2: seed default role-feature permissions. -->
+			<step>OCA\MyDash\Repair\SeedRolePermissions</step>
 		</install>
 		<post-migration>
 			<step>OCA\MyDash\Repair\InitializeActions</step>

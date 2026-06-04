@@ -25,13 +25,18 @@ declare(strict_types=1);
 define('PHPUNIT_RUN', 1);
 
 // Include Composer's autoloader.
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
-// Bootstrap Nextcloud — since we run inside the Docker container,
-// the full environment (including \OC::$server) is available.
-if (file_exists(__DIR__ . '/../../../lib/base.php')) {
-    require_once __DIR__ . '/../../../lib/base.php';
-} elseif (is_dir(__DIR__ . '/../vendor/nextcloud/ocp/OCP')) {
+// Bootstrap Nextcloud — use full NC environment when explicitly requested
+// (PHPUNIT_USE_NC_BOOTSTRAP=1) or when the environment is pre-configured
+// (e.g. a running NC container). Fall back to OCP stubs otherwise so that
+// unit tests can run in any CI builder container without a live NC install.
+$ncBasePhp = __DIR__.'/../../../lib/base.php';
+$ncUseFull = (file_exists($ncBasePhp) === true)
+    && getenv('PHPUNIT_USE_NC_BOOTSTRAP') === '1';
+if ($ncUseFull === true) {
+    include_once $ncBasePhp;
+} else if (is_dir(__DIR__.'/../vendor/nextcloud/ocp/OCP') === true) {
     // Outside the container we register the OCP stubs from
     // vendor/nextcloud/ocp so unit tests that mock OCP interfaces
     // (e.g. IInitialState) can still run. These are signature-only
@@ -44,19 +49,19 @@ if (file_exists(__DIR__ . '/../../../lib/base.php')) {
     // before any mock creation code runs. Loading the stubs first
     // ensures the placeholder classes are in the class table before
     // the autoloader first touches IQueryBuilder.php.
-    require_once __DIR__ . '/Stubs/DoctrineStubs.php';
+    include_once __DIR__.'/Stubs/DoctrineStubs.php';
 
     $ocpLoader = new \Composer\Autoload\ClassLoader();
-    $ocpLoader->addPsr4('OCP\\', __DIR__ . '/../vendor/nextcloud/ocp/OCP/');
+    $ocpLoader->addPsr4('OCP\\', __DIR__.'/../vendor/nextcloud/ocp/OCP/');
     $ocpLoader->register();
-}
+}//end if
 
 // Register Test\ namespace for NC test classes.
-$serverTestsLib = __DIR__ . '/../../../tests/lib/';
-if (is_dir($serverTestsLib)) {
+$serverTestsLib = __DIR__.'/../../../tests/lib/';
+if (is_dir($serverTestsLib) === true) {
     $loader = new \Composer\Autoload\ClassLoader();
     $loader->addPsr4('Test\\', $serverTestsLib);
     $loader->register(true);
 }
 
-error_log('[UNIT TEST BOOTSTRAP] Full Nextcloud bootstrap complete - \OC::$server available');
+// Bootstrap complete.

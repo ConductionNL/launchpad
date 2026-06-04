@@ -80,12 +80,31 @@
 			@update:denied-widgets-csv="deniedWidgetsCsv = $event"
 			@save="save"
 			@close="closeEditor" />
+
+		<!-- Delete confirmation dialog (ADR-004: no window.confirm) -->
+		<NcDialog v-if="showDeleteDialog"
+			:name="t('mydash', 'Delete role permission')"
+			:open="showDeleteDialog"
+			@update:open="showDeleteDialog = $event">
+			<template #default>
+				<p>{{ t('mydash', 'Delete role permission for group "{group}"?', { group: deleteTarget ? deleteTarget.groupId : '' }) }}</p>
+			</template>
+			<template #actions>
+				<NcButton type="tertiary" @click="showDeleteDialog = false">
+					{{ t('mydash', 'Cancel') }}
+				</NcButton>
+				<NcButton type="error" @click="doDelete">
+					{{ t('mydash', 'Delete') }}
+				</NcButton>
+			</template>
+		</NcDialog>
 	</div>
 </template>
 
 <script>
 import {
 	NcButton,
+	NcDialog,
 	NcEmptyContent,
 } from '@conduction/nextcloud-vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
@@ -100,6 +119,7 @@ export default {
 
 	components: {
 		NcButton,
+		NcDialog,
 		NcEmptyContent,
 		AccountGroup,
 		Plus,
@@ -117,6 +137,8 @@ export default {
 	data() {
 		return {
 			showEditor: false,
+			showDeleteDialog: false,
+			deleteTarget: null,
 			editorRow: this.emptyRow(),
 			allowedWidgetsCsv: '',
 			deniedWidgetsCsv: '',
@@ -192,14 +214,20 @@ export default {
 				console.error('Failed to save role permission', e)
 			}
 		},
-		/** @spec openspec/specs/admin-roles/spec.md */
-		async confirmDelete(row) {
-			// eslint-disable-next-line no-alert
-			if (!window.confirm(this.t('mydash', 'Delete role permission for "{group}"?', { group: row.groupId }))) {
+		/** @spec openspec/changes/role-based-content/tasks.md#task-5 */
+		confirmDelete(row) {
+			this.deleteTarget = row
+			this.showDeleteDialog = true
+		},
+		/** @spec openspec/changes/role-based-content/tasks.md#task-5 */
+		async doDelete() {
+			if (this.deleteTarget === null) {
 				return
 			}
 			try {
-				await this.store.deletePermission(row.id)
+				await this.store.deletePermission(this.deleteTarget.id)
+				this.showDeleteDialog = false
+				this.deleteTarget = null
 			} catch (e) {
 				console.error('Failed to delete role permission', e)
 			}

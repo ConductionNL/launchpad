@@ -348,16 +348,27 @@ class AdminController extends Controller
     /**
      * Update admin settings.
      *
-     * @param string|null $defaultPermLevel        Default permission level.
-     * @param bool|null   $allowUserDash           Allow user dashboards.
-     * @param bool|null   $allowMultiDash          Allow multiple dashboards.
-     * @param int|null    $defaultGridCols         Default grid columns.
-     * @param array|null  $linkCreateFileExts      link-button-widget createFile
-     *                                             extension allow-list
-     *                                             (REQ-LBN-004).
-     * @param string|null $launchpadContentStorage Content storage backend
-     *                                             (`database` or `groupfolder`).
-     *                                             REQ-GFSB-006.
+     * @param string|null $defaultPermLevel            Default permission level.
+     * @param bool|null   $allowUserDash               Allow user dashboards.
+     * @param bool|null   $allowMultiDash              Allow multiple dashboards.
+     * @param int|null    $defaultGridCols             Default grid columns.
+     * @param array|null  $linkCreateFileExts          link-button-widget createFile
+     *                                                 extension allow-list
+     *                                                 (REQ-LBN-004).
+     * @param string|null $launchpadContentStorage     Content storage backend
+     *                                                 (`database` or
+     *                                                 `groupfolder`).
+     *                                                 REQ-GFSB-006.
+     * @param string|null $defaultSharePermissionLevel Org-wide default share
+     *                                                 permission level
+     *                                                 (dashboard-sharing spec).
+     * @param array|null  $forcedShareGroups           Groups every new dashboard
+     *                                                 is force-shared with
+     *                                                 (dashboard-sharing spec).
+     * @param bool|null   $legacyWidgetBridgeEnabled   Enable / disable the
+     *                                                 legacy widget bridge
+     *                                                 (legacy-widget-bridge
+     *                                                 spec).
      *
      * @return JSONResponse The update confirmation.
      *
@@ -370,7 +381,10 @@ class AdminController extends Controller
         ?bool $allowMultiDash=null,
         ?int $defaultGridCols=null,
         ?array $linkCreateFileExts=null,
-        ?string $launchpadContentStorage=null
+        ?string $launchpadContentStorage=null,
+        ?string $defaultSharePermissionLevel=null,
+        ?array $forcedShareGroups=null,
+        ?bool $legacyWidgetBridgeEnabled=null
     ): JSONResponse {
         try {
             $this->settingsService->updateSettings(
@@ -379,7 +393,10 @@ class AdminController extends Controller
                 allowMultiDash: $allowMultiDash,
                 defaultGridCols: $defaultGridCols,
                 linkCreateFileExts: $linkCreateFileExts,
-                contentStorage: $launchpadContentStorage
+                contentStorage: $launchpadContentStorage,
+                defaultSharePermissionLevel: $defaultSharePermissionLevel,
+                forcedShareGroups: $forcedShareGroups,
+                legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);

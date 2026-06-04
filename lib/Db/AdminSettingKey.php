@@ -56,4 +56,7 @@ enum AdminSettingKey: string
     case FOOTER_TEXT_COLOR       = 'footer_text_color';
     case SETUP_WIZARD_COMPLETE   = 'setup_wizard_complete';
     case CONTENT_STORAGE         = 'content_storage';
+    case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
+    case FORCED_SHARE_GROUPS            = 'forced_share_groups';
+    case LEGACY_WIDGET_BRIDGE_ENABLED   = 'legacy_widget_bridge_enabled';
 }//end enum

@@ -169,6 +169,33 @@ class AdminSetting extends Entity implements JsonSerializable
     public const KEY_CONTENT_STORAGE = AdminSettingKey::CONTENT_STORAGE->value;
 
     /**
+     * BC alias for AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL
+     */
+    public const KEY_DEFAULT_SHARE_PERMISSION_LEVEL = AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL->value;
+
+    /**
+     * BC alias for AdminSettingKey::FORCED_SHARE_GROUPS.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FORCED_SHARE_GROUPS
+     */
+    public const KEY_FORCED_SHARE_GROUPS = AdminSettingKey::FORCED_SHARE_GROUPS->value;
+
+    /**
+     * BC alias for AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED
+     */
+    public const KEY_LEGACY_WIDGET_BRIDGE_ENABLED = AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED->value;
+
+    /**
      * The setting key.
      *
      * @var string

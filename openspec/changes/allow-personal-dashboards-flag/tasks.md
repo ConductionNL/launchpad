@@ -21,11 +21,11 @@
 - [x] 3.1 PHPUnit: 403 envelope shape exactly matches REQ-ASET-003 scenario
 - [x] 3.2 PHPUnit: existing personal dashboards remain readable/editable when flag off
 - [x] 3.3 PHPUnit: toggling does not mutate data (assert row counts before/after)
-- [ ] 3.4 Playwright: button visibility matches flag state
-- [ ] 3.5 Playwright: direct API call (bypassing UI) still returns 403
+- [x] 3.4 Playwright: button visibility matches flag state
+- [x] 3.5 Playwright: direct API call (bypassing UI) still returns 403
 
 ## 4. Quality
 
 - [x] 4.1 `composer check:strict` passes
-- [ ] 4.2 OpenAPI updated with the 403 response variant
+- [x] 4.2 OpenAPI updated with the 403 response variant
 - [x] 4.3 Translation file entries for `'Personal dashboards are not enabled by your administrator'`

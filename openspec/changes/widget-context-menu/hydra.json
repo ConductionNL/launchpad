@@ -79,6 +79,16 @@
           "duration_seconds": 143
         }
       ]
+    },
+    {
+      "cycle": 3,
+      "trigger": "build:queued",
+      "started_at": "2026-06-04T04:46:40Z",
+      "ended_at": null,
+      "outcome": "in-flight",
+      "outcome_reason": null,
+      "pattern_tags": [],
+      "stages": []
     }
   ],
   "totals": {

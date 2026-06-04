@@ -36,6 +36,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Widget right-click context menu in edit mode** (REQ-WDG-015..017, issue #36):
+  right-clicking any widget placement in edit mode now opens a small popover at
+  the cursor with three actions — **Edit** (reopens `AddWidgetModal` for the
+  placement), **Remove** (calls the placement-delete path of REQ-WDG-005), and
+  **Cancel** (no-op close). The popover is viewport-clamped so it stays fully
+  on-screen near right and bottom edges (`min-width: 150 px`, `z-index: 10000`).
+  View mode is untouched — right-click falls through to the browser's native
+  context menu. Auto-close on outside click via a single document-level listener
+  managed by `useGridManager.js` on mount/unmount (no listener leak). i18n:
+  `nl_NL` + `en_US` for Edit, Remove, Cancel. Keyboard navigation (Up/Down/Enter/Esc)
+  is deferred to a follow-up change.
+
 - **Nextcloud Dashboard widget proxy** (`nc-widget` placement type,
   REQ-WDG-018..021): any installed Nextcloud Dashboard widget (Mail, Calendar,
   Talk, Weather, etc.) can now be embedded as a grid cell. Two rendering modes:

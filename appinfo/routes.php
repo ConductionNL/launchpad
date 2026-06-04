@@ -348,6 +348,11 @@ return [
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 
+		// Admin conditional-visibility overview (Beheer ▸ Versioning &
+		// Audit). Admin-only via #[AuthorizedAdminSetting]. Literal URL —
+		// no wildcard collision.
+		['name' => 'adminWidgetRules#index', 'url' => '/api/admin/widgets/with-rules', 'verb' => 'GET'],
+
 		// ADR-023 action-authorization matrix. Admin-only via
 		// #[AuthorizedAdminSetting] on the controller methods.
 		['name' => 'actionMatrix#getMatrix', 'url' => '/api/admin/action-matrix', 'verb' => 'GET'],

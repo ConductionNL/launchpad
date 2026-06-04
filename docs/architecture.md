@@ -211,6 +211,49 @@ from `oc_mydash_admin_settings`.
 requires explicit admin configuration (`permissions.delegate`). When OR
 is absent the delegation is silently skipped and the local level applies.
 
+## Information architecture (tabs + sidebar modes)
+
+The UI follows a router-free information architecture (no Vue Router; the
+runtime manifest stays `pages: []`).
+
+**Admin settings — Beheer tabs.** `AdminSettings.vue` is an orchestrator
+only: it renders the setup-wizard banner, the always-visible Default
+settings and Group-shared-dashboards sections, then mounts
+`BeheerTabs.vue` with seven named-slot tabs:
+
+| Tab | Component | Hosts |
+| --- | --- | --- |
+| Templates (default) | `tabs/TemplatesPage.vue` | dashboard-template CRUD |
+| Operations | `tabs/OperationsTab.vue` | health badge, Prometheus metrics, legacy-widget-bridge toggle, export/import, bulk ops, Confluence import |
+| Roles & Permissions | `tabs/RolesPermissionsTab.vue` | role permissions, role layout defaults, action-auth matrix |
+| Versioning & Audit | `tabs/VersioningAuditTab.vue` | conditional-visibility overview, view-analytics |
+| Sharing | `tabs/SharingTab.vue` | org sharing policy, group priority order |
+| Org navigation | `tabs/OrgNavigationTab.vue` | org-wide nav editor |
+| Demo data | `tabs/DemoDataTab.vue` | demo showcase installer |
+
+`BeheerTabs` resolves the active tab with the precedence `?tab=` query →
+`localStorage` (`mydash.admin.activeTab`) → `defaultTab` (Templates). Only
+the active tab's slot is in the DOM.
+
+**Workspace — sidebar mode switch.** `DashboardSwitcherSidebar.vue` gains a
+Dashboards / Catalog mode toggle. `Views.vue` switches its main region
+between the dashboards canvas and `CatalogView.vue` based on the emitted
+`mode-change`; the dashboard store is never unmounted, so returning to the
+canvas restores state without a reload. `CatalogView` groups every
+registered widget by category (Built-in / Custom Tiles / Bridge), with a
+sticky filter strip and per-group collapse state persisted under
+`mydash.catalog.openGroups`.
+
+**Per-widget conditional visibility.** The widget context menu gains a
+"Visibility rules…" item that opens `VisibilityRulesModal.vue`, wrapping the
+existing `/api/widgets/{id}/rules` API. The admin overview is served by
+`GET /api/admin/widgets/with-rules` (`AdminWidgetRulesController`).
+
+**Dashboard sharing.** The per-dashboard `DashboardConfigModal.vue` splits
+into General / Sharing / Default tabs; the sharee picker is reachable only
+from the Sharing tab. A top-bar Share action on the canvas opens the drawer
+directly on the Sharing tab.
+
 ## What MyDash explicitly does NOT do
 
 - **No hard OpenRegister dependency.** Dashboards and tiles live in

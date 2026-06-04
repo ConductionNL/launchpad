@@ -292,6 +292,8 @@ const DEFAULT_MENU_HEIGHT = 132
  *   whether right-click opens the popover.
  * @param {Function} [options.onEdit] called with `(widget)` on Edit click.
  * @param {Function} [options.onRemove] called with `(widget)` on Remove click.
+ * @param {Function} [options.onVisibilityRules] called with `(widget)` on
+ *   "Visibility rules…" click.
  * @param {number} [options.menuWidth] override for clamp width (px)
  * @param {number} [options.menuHeight] override for clamp height (px)
  * @param {{innerWidth: number, innerHeight: number}} [options.viewport] override
@@ -302,6 +304,7 @@ const DEFAULT_MENU_HEIGHT = 132
  *   closeContextMenu: () => void,
  *   triggerEdit: () => void,
  *   triggerRemove: () => void,
+ *   triggerVisibilityRules: () => void,
  *   attach: () => void,
  *   detach: () => void,
  * }}
@@ -312,6 +315,7 @@ export function useGridManager(options = {}) {
 		canEdit,
 		onEdit,
 		onRemove,
+		onVisibilityRules,
 		menuWidth = DEFAULT_MENU_WIDTH,
 		menuHeight = DEFAULT_MENU_HEIGHT,
 		viewport,
@@ -376,6 +380,14 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	function triggerVisibilityRules() {
+		const widget = state.selectedWidget
+		closeContextMenu()
+		if (typeof onVisibilityRules === 'function' && widget) {
+			onVisibilityRules(widget)
+		}
+	}
+
 	function handleDocumentClick(event) {
 		if (!state.contextMenuOpen) {
 			return
@@ -412,6 +424,7 @@ export function useGridManager(options = {}) {
 		closeContextMenu,
 		triggerEdit,
 		triggerRemove,
+		triggerVisibilityRules,
 		attach,
 		detach,
 	}

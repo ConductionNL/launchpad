@@ -84,16 +84,33 @@ class AdminSettingsService
 
         $storageKey = AdminSetting::KEY_CONTENT_STORAGE;
 
+        $sharePermKey   = AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL;
+        $forcedShareKey = AdminSetting::KEY_FORCED_SHARE_GROUPS;
+        $bridgeKey      = AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED;
+
+        $forcedShareGroups = ($settings[$forcedShareKey] ?? null);
+        if (is_array($forcedShareGroups) === false) {
+            $forcedShareGroups = [];
+        }
+
         return [
-            'defaultPermissionLevel'    => $settings[$permKey] ?? $permDef,
+            'defaultPermissionLevel'      => $settings[$permKey] ?? $permDef,
             // REQ-ASET-003 (extended): default `false` — admins MUST opt in
             // to personal dashboard creation.
-            'allowUserDashboards'       => $settings[$userKey] ?? false,
-            'allowMultipleDashboards'   => $settings[$multiKey] ?? true,
-            'defaultGridColumns'        => $settings[$gridKey] ?? 12,
-            'linkCreateFileExtensions'  => $storedExt,
+            'allowUserDashboards'         => $settings[$userKey] ?? false,
+            'allowMultipleDashboards'     => $settings[$multiKey] ?? true,
+            'defaultGridColumns'          => $settings[$gridKey] ?? 12,
+            'linkCreateFileExtensions'    => $storedExt,
             // REQ-GFSB-006: surface active storage backend in admin settings.
-            'launchpad.content_storage' => $settings[$storageKey] ?? 'database',
+            'launchpad.content_storage'   => $settings[$storageKey] ?? 'database',
+            // Dashboard-sharing spec: org-wide share defaults surfaced in
+            // Beheer ▸ Sharing. Default permission level mirrors the
+            // dashboard default; forced-share groups default to none.
+            'defaultSharePermissionLevel' => $settings[$sharePermKey] ?? $permDef,
+            'forcedShareGroups'           => array_values($forcedShareGroups),
+            // Legacy-widget-bridge spec: bridge defaults to ON so existing
+            // bridged placements keep rendering after upgrade.
+            'legacyWidgetBridgeEnabled'   => $settings[$bridgeKey] ?? true,
         ];
     }//end getSettings()
 
@@ -107,22 +124,35 @@ class AdminSettingsService
     /**
      * Update admin settings.
      *
-     * @param string|null $defaultPermLevel   Default permission level.
-     * @param bool|null   $allowUserDash      Allow user dashboards.
-     * @param bool|null   $allowMultiDash     Allow multiple dashboards.
-     * @param int|null    $defaultGridCols    Default grid columns.
-     * @param array|null  $linkCreateFileExts link-button-widget
-     *                                        createFile
-     *                                        extension
-     *                                        allow-list
-     *                                        (REQ-LBN-004).
-     * @param string|null $contentStorage     Content storage backend
-     *                                        (`database` or `groupfolder`).
-     *                                        REQ-GFSB-006.
+     * @param string|null $defaultPermLevel            Default permission level.
+     * @param bool|null   $allowUserDash               Allow user dashboards.
+     * @param bool|null   $allowMultiDash              Allow multiple dashboards.
+     * @param int|null    $defaultGridCols             Default grid columns.
+     * @param array|null  $linkCreateFileExts          link-button-widget
+     *                                                 createFile
+     *                                                 extension
+     *                                                 allow-list
+     *                                                 (REQ-LBN-004).
+     * @param string|null $contentStorage              Content storage backend
+     *                                                 (`database` or
+     *                                                 `groupfolder`).
+     *                                                 REQ-GFSB-006.
+     * @param string|null $defaultSharePermissionLevel Org-wide default share
+     *                                                 permission level
+     *                                                 (dashboard-sharing spec).
+     * @param array|null  $forcedShareGroups           Groups every new dashboard is
+     *                                                 force-shared with
+     *                                                 (dashboard-sharing spec).
+     * @param bool|null   $legacyWidgetBridgeEnabled   Enable / disable the
+     *                                                 legacy widget bridge
+     *                                                 (legacy-widget-bridge
+     *                                                 spec).
      *
      * @return void
      *
-     * @throws \InvalidArgumentException When `$contentStorage` is not a valid value.
+     * @throws \InvalidArgumentException When `$contentStorage` or
+     *                                   `$defaultSharePermissionLevel` is not
+     *                                   a valid value.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
      */
@@ -132,7 +162,10 @@ class AdminSettingsService
         ?bool $allowMultiDash=null,
         ?int $defaultGridCols=null,
         ?array $linkCreateFileExts=null,
-        ?string $contentStorage=null
+        ?string $contentStorage=null,
+        ?string $defaultSharePermissionLevel=null,
+        ?array $forcedShareGroups=null,
+        ?bool $legacyWidgetBridgeEnabled=null
     ): void {
         if ($defaultPermLevel !== null) {
             $this->settingMapper->setSetting(
@@ -181,7 +214,103 @@ class AdminSettingsService
                 value: $contentStorage
             );
         }
+
+        $this->persistSharingAndBridgeSettings(
+            defaultSharePermissionLevel: $defaultSharePermissionLevel,
+            forcedShareGroups: $forcedShareGroups,
+            legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+        );
     }//end updateSettings()
+
+    /**
+     * Persist the dashboard-sharing + legacy-widget-bridge admin settings.
+     *
+     * Extracted from {@see self::updateSettings()} so the main entry point
+     * stays under the cyclomatic-complexity threshold. Each value is only
+     * written when non-null (partial-patch contract).
+     *
+     * @param string|null $defaultSharePermissionLevel Org-wide default share
+     *                                                 permission level.
+     * @param array|null  $forcedShareGroups           Forced-share group ids.
+     * @param bool|null   $legacyWidgetBridgeEnabled   Bridge enable flag.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException When the share permission level is invalid.
+     */
+    private function persistSharingAndBridgeSettings(
+        ?string $defaultSharePermissionLevel,
+        ?array $forcedShareGroups,
+        ?bool $legacyWidgetBridgeEnabled
+    ): void {
+        if ($defaultSharePermissionLevel !== null) {
+            if (in_array(needle: $defaultSharePermissionLevel, haystack: self::VALID_SHARE_PERMISSION_LEVELS, strict: true) === false) {
+                throw new InvalidArgumentException(
+                    message: "Invalid value for defaultSharePermissionLevel. Must be 'view_only', 'add_only' or 'full'."
+                );
+            }
+
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL,
+                value: $defaultSharePermissionLevel
+            );
+        }
+
+        if ($forcedShareGroups !== null) {
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_FORCED_SHARE_GROUPS,
+                value: $this->normaliseGroupList(input: $forcedShareGroups)
+            );
+        }
+
+        if ($legacyWidgetBridgeEnabled !== null) {
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED,
+                value: $legacyWidgetBridgeEnabled
+            );
+        }
+    }//end persistSharingAndBridgeSettings()
+
+    /**
+     * Valid org-wide share permission levels (dashboard-sharing spec). Mirrors
+     * the per-dashboard permission levels on {@see Dashboard}.
+     *
+     * @var list<string>
+     */
+    public const VALID_SHARE_PERMISSION_LEVELS = [
+        Dashboard::PERMISSION_VIEW_ONLY,
+        Dashboard::PERMISSION_ADD_ONLY,
+        Dashboard::PERMISSION_FULL,
+    ];
+
+    /**
+     * Normalise an admin-supplied group-id list: drop non-strings and empty
+     * entries, trim whitespace, and deduplicate while preserving order. Used
+     * for the forced-share-group setting so a hand-crafted request body can
+     * never persist garbage (dashboard-sharing spec).
+     *
+     * @param array<int, mixed> $input The raw group-id list.
+     *
+     * @return list<string> The cleaned, deduplicated group-id list.
+     */
+    private function normaliseGroupList(array $input): array
+    {
+        $result = [];
+        foreach ($input as $entry) {
+            if (is_string($entry) === false) {
+                continue;
+            }
+
+            $trimmed = trim($entry);
+            if ($trimmed === '') {
+                continue;
+            }
+
+            $result[$trimmed] = true;
+        }
+
+        return array_keys($result);
+    }//end normaliseGroupList()
 
     /**
      * Get the persisted admin-chosen group priority order (REQ-ASET-012).

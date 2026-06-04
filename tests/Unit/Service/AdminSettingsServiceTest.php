@@ -24,16 +24,18 @@ use PHPUnit\Framework\TestCase;
 
 class AdminSettingsServiceTest extends TestCase
 {
+
     private AdminSettingsService $service;
+
     private AdminSettingMapper $settingMapper;
 
     protected function setUp(): void
     {
         $this->settingMapper = $this->createMock(AdminSettingMapper::class);
-        $this->service = new AdminSettingsService(
+        $this->service       = new AdminSettingsService(
             settingMapper: $this->settingMapper,
         );
-    }
+    }//end setUp()
 
     public function testGetSettingsReturnsDefaults(): void
     {
@@ -51,16 +53,18 @@ class AdminSettingsServiceTest extends TestCase
             ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
             $settings['linkCreateFileExtensions']
         );
-    }
+    }//end testGetSettingsReturnsDefaults()
 
     public function testGetSettingsReturnsStoredValues(): void
     {
-        $this->settingMapper->method('getAllAsArray')->willReturn([
-            AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL => 'view_only',
-            AdminSetting::KEY_ALLOW_USER_DASHBOARDS => false,
-            AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS => false,
-            AdminSetting::KEY_DEFAULT_GRID_COLUMNS => 6,
-        ]);
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL  => 'view_only',
+                    AdminSetting::KEY_ALLOW_USER_DASHBOARDS     => false,
+                    AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS => false,
+                    AdminSetting::KEY_DEFAULT_GRID_COLUMNS      => 6,
+                ]
+                );
 
         $settings = $this->service->getSettings();
 
@@ -68,13 +72,15 @@ class AdminSettingsServiceTest extends TestCase
         $this->assertFalse($settings['allowUserDashboards']);
         $this->assertFalse($settings['allowMultipleDashboards']);
         $this->assertSame(6, $settings['defaultGridColumns']);
-    }
+    }//end testGetSettingsReturnsStoredValues()
 
     public function testGetSettingsPartialOverride(): void
     {
-        $this->settingMapper->method('getAllAsArray')->willReturn([
-            AdminSetting::KEY_ALLOW_USER_DASHBOARDS => false,
-        ]);
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_ALLOW_USER_DASHBOARDS => false,
+                ]
+                );
 
         $settings = $this->service->getSettings();
 
@@ -82,7 +88,7 @@ class AdminSettingsServiceTest extends TestCase
         $this->assertFalse($settings['allowUserDashboards']);
         $this->assertTrue($settings['allowMultipleDashboards']);
         $this->assertSame(12, $settings['defaultGridColumns']);
-    }
+    }//end testGetSettingsPartialOverride()
 
     public function testUpdateSettingsCallsMapperForEachProvided(): void
     {
@@ -93,7 +99,7 @@ class AdminSettingsServiceTest extends TestCase
             defaultPermLevel: 'full',
             allowUserDash: false,
         );
-    }
+    }//end testUpdateSettingsCallsMapperForEachProvided()
 
     public function testUpdateSettingsSkipsNullValues(): void
     {
@@ -103,7 +109,7 @@ class AdminSettingsServiceTest extends TestCase
         $this->service->updateSettings(
             defaultGridCols: 8,
         );
-    }
+    }//end testUpdateSettingsSkipsNullValues()
 
     public function testUpdateSettingsWithNoValues(): void
     {
@@ -111,7 +117,7 @@ class AdminSettingsServiceTest extends TestCase
             ->method('setSetting');
 
         $this->service->updateSettings();
-    }
+    }//end testUpdateSettingsWithNoValues()
 
     public function testGetSettingsReturnsCamelCaseKeys(): void
     {
@@ -126,8 +132,79 @@ class AdminSettingsServiceTest extends TestCase
         $this->assertArrayHasKey('linkCreateFileExtensions', $settings);
         // REQ-GFSB-006: content storage backend key added.
         $this->assertArrayHasKey('launchpad.content_storage', $settings);
-        $this->assertCount(6, $settings);
-    }
+        // dashboard-sharing + legacy-widget-bridge spec keys.
+        $this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
+        $this->assertArrayHasKey('forcedShareGroups', $settings);
+        $this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
+        $this->assertCount(9, $settings);
+    }//end testGetSettingsReturnsCamelCaseKeys()
+
+    public function testGetSettingsSharingAndBridgeDefaults(): void
+    {
+        $this->settingMapper->method('getAllAsArray')->willReturn([]);
+
+        $settings = $this->service->getSettings();
+
+        // Default share permission mirrors the dashboard default.
+        $this->assertSame(Dashboard::PERMISSION_ADD_ONLY, $settings['defaultSharePermissionLevel']);
+        $this->assertSame([], $settings['forcedShareGroups']);
+        // Bridge defaults ON so existing placements keep rendering.
+        $this->assertTrue($settings['legacyWidgetBridgeEnabled']);
+    }//end testGetSettingsSharingAndBridgeDefaults()
+
+    public function testGetSettingsSharingAndBridgeStoredValues(): void
+    {
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL => 'full',
+                    AdminSetting::KEY_FORCED_SHARE_GROUPS            => ['marketing', 'sales'],
+                    AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED   => false,
+                ]
+                );
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame('full', $settings['defaultSharePermissionLevel']);
+        $this->assertSame(['marketing', 'sales'], $settings['forcedShareGroups']);
+        $this->assertFalse($settings['legacyWidgetBridgeEnabled']);
+    }//end testGetSettingsSharingAndBridgeStoredValues()
+
+    public function testUpdateSettingsPersistsForcedShareGroupsDeduplicated(): void
+    {
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(
+                AdminSetting::KEY_FORCED_SHARE_GROUPS,
+                ['marketing', 'sales']
+            );
+
+        $this->service->updateSettings(
+            forcedShareGroups: [' marketing ', 'sales', 'marketing', '', 42]
+        );
+    }//end testUpdateSettingsPersistsForcedShareGroupsDeduplicated()
+
+    public function testUpdateSettingsPersistsBridgeToggle(): void
+    {
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(
+                AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED,
+                false
+            );
+
+        $this->service->updateSettings(
+            legacyWidgetBridgeEnabled: false
+        );
+    }//end testUpdateSettingsPersistsBridgeToggle()
+
+    public function testUpdateSettingsRejectsInvalidSharePermissionLevel(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->service->updateSettings(
+            defaultSharePermissionLevel: 'not-a-level'
+        );
+    }//end testUpdateSettingsRejectsInvalidSharePermissionLevel()
 
     public function testUpdateSettingsPersistsLinkCreateFileExtensions(): void
     {
@@ -141,7 +218,7 @@ class AdminSettingsServiceTest extends TestCase
         $this->service->updateSettings(
             linkCreateFileExts: ['txt', '.docx', 'BAD/PATH', '']
         );
-    }
+    }//end testUpdateSettingsPersistsLinkCreateFileExtensions()
 
     public function testUpdateSettingsLinkExtensionsFallsBackToDefaultsWhenEmpty(): void
     {
@@ -153,21 +230,22 @@ class AdminSettingsServiceTest extends TestCase
             );
 
         $this->service->updateSettings(linkCreateFileExts: []);
-    }
+    }//end testUpdateSettingsLinkExtensionsFallsBackToDefaultsWhenEmpty()
 
     public function testGetSettingsReturnsStoredLinkCreateFileExtensions(): void
     {
-        $this->settingMapper->method('getAllAsArray')->willReturn([
-            AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS => ['txt', 'md'],
-        ]);
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS => ['txt', 'md'],
+                ]
+                );
 
         $settings = $this->service->getSettings();
 
         $this->assertSame(['txt', 'md'], $settings['linkCreateFileExtensions']);
-    }
+    }//end testGetSettingsReturnsStoredLinkCreateFileExtensions()
 
     // ----- REQ-ASET-012: getGroupOrder / setGroupOrder -----
-
     public function testGetGroupOrderReturnsEmptyWhenRowAbsent(): void
     {
         // REQ-ASET-012 — defensive read: row missing → []
@@ -177,7 +255,7 @@ class AdminSettingsServiceTest extends TestCase
             ->willReturn(null);
 
         $this->assertSame([], $this->service->getGroupOrder());
-    }
+    }//end testGetGroupOrderReturnsEmptyWhenRowAbsent()
 
     public function testGetGroupOrderReturnsEmptyOnCorruptValue(): void
     {
@@ -190,7 +268,7 @@ class AdminSettingsServiceTest extends TestCase
             ->willReturn('{not-json');
 
         $this->assertSame([], $this->service->getGroupOrder());
-    }
+    }//end testGetGroupOrderReturnsEmptyOnCorruptValue()
 
     public function testGetGroupOrderFiltersNonStringEntries(): void
     {
@@ -204,7 +282,7 @@ class AdminSettingsServiceTest extends TestCase
             ['engineering', 'marketing'],
             $this->service->getGroupOrder()
         );
-    }
+    }//end testGetGroupOrderFiltersNonStringEntries()
 
     public function testGetGroupOrderPreservesOrder(): void
     {
@@ -217,7 +295,7 @@ class AdminSettingsServiceTest extends TestCase
             ['zebra', 'alpha', 'marigold'],
             $this->service->getGroupOrder()
         );
-    }
+    }//end testGetGroupOrderPreservesOrder()
 
     public function testSetGroupOrderDeduplicatesPreservingOrder(): void
     {
@@ -228,15 +306,17 @@ class AdminSettingsServiceTest extends TestCase
             ->method('setSetting')
             ->with(
                 $this->equalTo(AdminSetting::KEY_GROUP_ORDER),
-                $this->callback(function ($value) use (&$captured) {
-                    $captured = $value;
-                    return true;
-                })
+                $this->callback(
+                        function ($value) use (&$captured) {
+                            $captured = $value;
+                            return true;
+                        }
+                        )
             );
 
         $this->service->setGroupOrder(['a', 'b', 'a', 'c', 'b']);
         $this->assertSame(['a', 'b', 'c'], $captured);
-    }
+    }//end testSetGroupOrderDeduplicatesPreservingOrder()
 
     public function testSetGroupOrderRejectsNonStringElements(): void
     {
@@ -244,7 +324,7 @@ class AdminSettingsServiceTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->service->setGroupOrder(['engineering', 42, 'marketing']);
-    }
+    }//end testSetGroupOrderRejectsNonStringElements()
 
     public function testSetGroupOrderRejectsEmptyStringElements(): void
     {
@@ -252,7 +332,7 @@ class AdminSettingsServiceTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->service->setGroupOrder(['engineering', '']);
-    }
+    }//end testSetGroupOrderRejectsEmptyStringElements()
 
     public function testSetGroupOrderEmptyArrayPersisted(): void
     {
@@ -263,13 +343,15 @@ class AdminSettingsServiceTest extends TestCase
             ->method('setSetting')
             ->with(
                 $this->equalTo(AdminSetting::KEY_GROUP_ORDER),
-                $this->callback(function ($value) use (&$captured) {
-                    $captured = $value;
-                    return true;
-                })
+                $this->callback(
+                        function ($value) use (&$captured) {
+                            $captured = $value;
+                            return true;
+                        }
+                        )
             );
 
         $this->service->setGroupOrder([]);
         $this->assertSame([], $captured);
-    }
-}
+    }//end testSetGroupOrderEmptyArrayPersisted()
+}//end class

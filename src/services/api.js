@@ -355,6 +355,23 @@ export const api = {
 		return axios.delete(`${baseUrl}/api/rules/${ruleId}`)
 	},
 
+	// Admin conditional-visibility overview (Beheer ▸ Versioning & Audit).
+	/** @spec openspec/specs/conditional-visibility/spec.md */
+	getAdminWidgetsWithRules() {
+		return axios.get(`${baseUrl}/api/admin/widgets/with-rules`)
+	},
+
+	// Operations tab — Prometheus metrics + health (prometheus-metrics spec).
+	/** @spec openspec/specs/prometheus-metrics/spec.md */
+	getMetrics() {
+		return axios.get(`${baseUrl}/api/metrics`, { responseType: 'text' })
+	},
+
+	/** @spec openspec/specs/prometheus-metrics/spec.md */
+	getHealth() {
+		return axios.get(`${baseUrl}/api/health`)
+	},
+
 	// Admin endpoints
 	getAdminTemplates() {
 		return axios.get(`${baseUrl}/api/admin/templates`)

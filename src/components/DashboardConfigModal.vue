@@ -14,6 +14,27 @@
 				{{ modalTitle }}
 			</h2>
 
+			<!-- Tab strip (dashboard-sharing spec). Sharing is no longer a
+			     free-floating field set in the modal body — it lives in its
+			     own Sharing tab. Tabs are hidden in create mode (nothing to
+			     share / pin until the dashboard exists). -->
+			<div v-if="!isCreate" class="dashboard-config__tabs" data-test="config-tabs">
+				<button
+					v-for="tab in tabs"
+					:key="tab.id"
+					type="button"
+					class="dashboard-config__tab"
+					:class="{ 'dashboard-config__tab--active': currentTab === tab.id }"
+					:data-test="`config-tab-${tab.id}`"
+					@click="currentTab = tab.id">
+					{{ tab.label }}
+				</button>
+			</div>
+
+			<div
+				v-show="isCreate || currentTab === 'general'"
+				data-test="config-panel-general"
+				class="dashboard-config__panel">
 			<div class="dashboard-config__field">
 				<NcTextField
 					:value="form.name"
@@ -61,25 +82,39 @@
 						class="dashboard-config__icon-preview" />
 				</div>
 			</div>
+			</div>
+			<!-- /general panel -->
 
 			<!--
-				Wave3.8 — explicit "default dashboard" pin lives in the
-				config modal too (in addition to the per-row cog from
-				wave3.7). Wrapped in `v-if="!isCreate"` because pinning
-				a not-yet-saved dashboard is meaningless.
+				Wave3.8 — explicit "default dashboard" pin. Lives in its own
+				Default tab now (dashboard-sharing spec tab split). Wrapped in
+				`v-if="!isCreate"` because pinning a not-yet-saved dashboard is
+				meaningless.
 			-->
-			<div v-if="!isCreate" class="dashboard-config__field dashboard-config__field--toggle">
-				<NcCheckboxRadioSwitch
-					:checked="form.isDefault"
-					type="switch"
-					@update:checked="form.isDefault = $event">
-					<strong>{{ t('mydash', 'Default dashboard') }}</strong>
-					<span class="dashboard-config__hint">
-						{{ t('mydash', 'Open this dashboard automatically when visiting MyDash.') }}
-					</span>
-				</NcCheckboxRadioSwitch>
+			<div
+				v-show="!isCreate && currentTab === 'default'"
+				data-test="config-panel-default"
+				class="dashboard-config__panel">
+				<div v-if="!isCreate" class="dashboard-config__field dashboard-config__field--toggle">
+					<NcCheckboxRadioSwitch
+						:checked="form.isDefault"
+						type="switch"
+						@update:checked="form.isDefault = $event">
+						<strong>{{ t('mydash', 'Default dashboard') }}</strong>
+						<span class="dashboard-config__hint">
+							{{ t('mydash', 'Open this dashboard automatically when visiting MyDash.') }}
+						</span>
+					</NcCheckboxRadioSwitch>
+				</div>
 			</div>
+			<!-- /default panel -->
 
+			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
+			     per-share permission rows are reachable ONLY from this tab. -->
+			<div
+				v-show="!isCreate && currentTab === 'sharing'"
+				data-test="config-panel-sharing"
+				class="dashboard-config__panel">
 			<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
 				<label class="dashboard-config__label">
 					{{ t('mydash', 'Share with users and groups') }}
@@ -142,6 +177,8 @@
 					{{ t('mydash', 'Unsaved changes — click Save to apply.') }}
 				</p>
 			</div>
+			</div>
+			<!-- /sharing panel -->
 
 			<div class="dashboard-config__actions">
 				<NcButton
@@ -245,12 +282,24 @@ export default {
 			type: String,
 			default: '',
 		},
+
+		/**
+		 * Tab to land on when the modal opens (dashboard-sharing spec). The
+		 * top-bar share action passes `'sharing'` so the share button lands
+		 * directly on the Sharing tab.
+		 */
+		initialTab: {
+			type: String,
+			default: 'general',
+			validator: v => ['general', 'sharing', 'default'].includes(v),
+		},
 	},
 
 	emits: ['close', 'save', 'delete', 'set-default'],
 
 	data() {
 		return {
+			currentTab: this.initialTab || 'general',
 			form: {
 				name: '',
 				description: '',
@@ -279,6 +328,22 @@ export default {
 	computed: {
 		isCreate() {
 			return this.mode === 'create'
+		},
+		/**
+		 * Config-drawer tab descriptors (dashboard-sharing spec). The
+		 * Sharing tab is only offered when the user can manage shares.
+		 *
+		 * @return {Array<{id: string, label: string}>}
+		 */
+		tabs() {
+			const list = [
+				{ id: 'general', label: t('mydash', 'General') },
+			]
+			if (this.canManageShares) {
+				list.push({ id: 'sharing', label: t('mydash', 'Sharing') })
+			}
+			list.push({ id: 'default', label: t('mydash', 'Default') })
+			return list
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		canManageShares() {
@@ -351,6 +416,14 @@ export default {
 					this.shareeOptions = []
 					return
 				}
+				// Land on the requested tab (dashboard-sharing spec: the
+				// top-bar share action opens directly on Sharing). Fall back
+				// to General if the requested tab is the share tab but the
+				// user cannot manage shares.
+				const wanted = this.initialTab || 'general'
+				this.currentTab = (wanted === 'sharing' && !this.canManageShares)
+					? 'general'
+					: wanted
 				if (this.isCreate) {
 					this.form.name = ''
 					this.form.description = ''
@@ -529,6 +602,34 @@ export default {
 	margin: 0;
 	font-size: 20px;
 	font-weight: 600;
+}
+
+.dashboard-config__tabs {
+	display: flex;
+	gap: 4px;
+	border-bottom: 1px solid var(--color-border);
+	margin: 8px 0 16px;
+}
+
+.dashboard-config__tab {
+	background: transparent;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	padding: 8px 14px;
+	cursor: pointer;
+	font: inherit;
+	color: var(--color-text-maxcontrast);
+}
+
+.dashboard-config__tab--active {
+	color: var(--color-main-text);
+	border-bottom-color: var(--color-primary-element);
+	font-weight: 600;
+}
+
+.dashboard-config__panel {
+	display: flex;
+	flex-direction: column;
 }
 
 .dashboard-config__field {

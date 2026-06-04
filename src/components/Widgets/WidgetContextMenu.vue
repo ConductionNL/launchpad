@@ -20,6 +20,14 @@
 		</button>
 		<button
 			type="button"
+			class="widget-context-menu__item"
+			role="menuitem"
+			data-testid="ctx-visibility-rules"
+			@click="onVisibilityRules">
+			{{ t('mydash', 'Visibility rules…') }}
+		</button>
+		<button
+			type="button"
 			class="widget-context-menu__item widget-context-menu__item--danger"
 			role="menuitem"
 			data-testid="ctx-remove"
@@ -77,7 +85,7 @@ export default {
 		},
 	},
 
-	emits: ['edit', 'remove', 'close'],
+	emits: ['edit', 'remove', 'visibility-rules', 'close'],
 
 	computed: {
 		/**
@@ -104,6 +112,12 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		onEdit() {
 			this.$emit('edit')
+			this.$emit('close')
+		},
+
+		/** @spec openspec/specs/conditional-visibility/spec.md */
+		onVisibilityRules() {
+			this.$emit('visibility-rules')
 			this.$emit('close')
 		},
 

@@ -9,9 +9,9 @@
 			:name="t('mydash', 'MyDash settings')"
 			:description="t('mydash', 'Configure dashboard permissions and defaults')"
 			doc-url="https://mydash.conduction.nl/docs/intro">
-			<!-- Setup wizard banner (REQ-WIZ-001). Stays visible until the
-			     admin clicks Finish in the wizard; after completion a less
-			     prominent re-run link replaces it (REQ-WIZ-011). -->
+			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
+			     page, above the Beheer tabs, so the call-to-action is always
+			     the first thing the admin sees regardless of active tab. -->
 			<div
 				v-if="wizardState && !wizardState.complete"
 				class="mydash-admin__wizard-banner"
@@ -41,7 +41,7 @@
 				</NcButton>
 			</div>
 
-			<!-- Global Settings -->
+			<!-- Global Settings — always visible above the tab strip. -->
 			<div class="mydash-admin__section" data-testid="admin-default-settings">
 				<h3>{{ t('mydash', 'Default settings') }}</h3>
 
@@ -56,12 +56,6 @@
 						@input="saveSettings" />
 				</div>
 
-				<!-- REQ-ASET-003 (extended). The toggle is wired to
-				     `PUT /api/admin/settings`. Toggling does NOT mutate
-				     dashboard rows: existing personal dashboards remain
-				     readable and editable; only NEW creations and forks
-				     are blocked. The helper text below makes this clear
-				     to admins so they don't fear data loss. -->
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
@@ -88,63 +82,9 @@
 				</div>
 			</div>
 
-			<!-- Group priority order (REQ-ASET-012/013/014) -->
-			<div class="mydash-admin__section">
-				<GroupPriorityOrder :key="refreshKey" :initial-active="configuredGroups" />
-			</div>
-
-			<!-- Template Management -->
-			<div class="mydash-admin__section" data-testid="admin-templates-section">
-				<div class="mydash-admin__section-header">
-					<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
-					<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
-						<template #icon>
-							<Plus :size="20" />
-						</template>
-						{{ t('mydash', 'Create template') }}
-					</NcButton>
-				</div>
-
-				<p class="mydash-admin__hint">
-					{{ t('mydash', 'Create dashboard templates that will be applied to users based on their groups.') }}
-				</p>
-
-				<div v-if="templates.length === 0" class="mydash-admin__empty">
-					<NcEmptyContent :description="t('mydash', 'No templates yet')">
-						<template #icon>
-							<ViewDashboard :size="48" />
-						</template>
-					</NcEmptyContent>
-				</div>
-
-				<div v-else class="mydash-admin__templates">
-					<div
-						v-for="template in templates"
-						:key="template.id"
-						class="mydash-admin__template">
-						<div class="mydash-admin__template-info">
-							<IconRenderer :name="template.icon" :size="20" />
-							<strong>{{ template.name }}</strong>
-							<span v-if="template.isDefault" class="mydash-admin__badge">
-								{{ t('mydash', 'Default') }}
-							</span>
-							<span class="mydash-admin__template-groups">
-								{{ formatTargetGroups(template.targetGroups) }}
-							</span>
-						</div>
-						<div class="mydash-admin__template-actions">
-							<NcButton type="secondary" @click="editTemplate(template)">
-								{{ t('mydash', 'Edit') }}
-							</NcButton>
-							<NcButton type="error" @click="deleteTemplate(template)">
-								{{ t('mydash', 'Delete') }}
-							</NcButton>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Group-shared dashboards (REQ-DASH-015..017) -->
+			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
+			     tabs because it owns the `set-group-default` /
+			     `group-default-badge` data-test hooks (task 12.2). -->
 			<div class="mydash-admin__section">
 				<div class="mydash-admin__section-header">
 					<h3>{{ t('mydash', 'Group-shared dashboards') }}</h3>
@@ -198,50 +138,36 @@
 				</div>
 			</div>
 
-			<!-- Org-wide navigation editor (REQ-ONAV-001..012) -->
-			<div class="mydash-admin__section">
-				<OrgNavigationEditor :key="refreshKey" :groups="injectedAllGroups" />
-			</div>
-
-			<!-- Backup & migration (REQ-EXIM-001..010) -->
-			<div class="mydash-admin__section">
-				<DashboardExportImport />
-			</div>
-
-			<!-- Bulk dashboard operations (REQ-BULK-001..011) -->
-			<div class="mydash-admin__section" data-testid="admin-bulk-section">
-				<DashboardBulkOperations :key="refreshKey" />
-			</div>
-
-			<!-- Confluence HTML import (REQ-CFLI-001..012) -->
-			<div class="mydash-admin__section">
-				<ConfluenceImport />
-			</div>
-
-			<!-- Dashboard view-analytics (REQ-ANLT-006..010) -->
-			<div class="mydash-admin__section">
-				<AdminAnalytics :key="refreshKey" />
-			</div>
-
-			<!-- Demo data showcases (REQ-DEMO-001..009) -->
-			<div class="mydash-admin__section">
-				<AdminDemoData :key="refreshKey" />
-			</div>
-
-			<!-- Role-based widget permissions (REQ-RFP-001..010) -->
-			<div class="mydash-admin__section" data-testid="admin-roles-section">
-				<RolePermissionsSection :key="refreshKey" />
-			</div>
-
-			<!-- Role-based default layouts (REQ-RFP-002 / task-6) -->
-			<div class="mydash-admin__section" data-testid="admin-layout-defaults-section">
-				<RoleLayoutDefaultsSection :key="refreshKey" />
-			</div>
-
-			<!-- Action authorization matrix (ADR-023) -->
-			<div class="mydash-admin__section">
-				<ActionAuthMatrix :key="refreshKey" />
-			</div>
+			<!-- Beheer tabs — the IA's discrete admin areas. Each tab's
+			     content only renders when active (admin-settings spec). -->
+			<BeheerTabs
+				:tabs="beheerTabs"
+				default-tab="templates"
+				@change="onTabChange">
+				<template #templates>
+					<TemplatesPage />
+				</template>
+				<template #operations>
+					<OperationsTab />
+				</template>
+				<template #roles-permissions>
+					<RolesPermissionsTab />
+				</template>
+				<template #versioning-audit>
+					<VersioningAuditTab />
+				</template>
+				<template #sharing>
+					<SharingTab
+						:groups="injectedAllGroups"
+						:configured-groups="configuredGroups" />
+				</template>
+				<template #org-navigation>
+					<OrgNavigationTab :groups="injectedAllGroups" />
+				</template>
+				<template #demo-data>
+					<DemoDataTab />
+				</template>
+			</BeheerTabs>
 
 			<!-- Info -->
 			<div class="mydash-admin__section">
@@ -252,69 +178,12 @@
 			</div>
 		</CnSettingsSection>
 
-		<!-- Setup wizard modal (REQ-WIZ-002). Mounted lazily so step
-		     components only execute when the admin opens the flow. -->
+		<!-- Setup wizard modal (REQ-WIZ-002). -->
 		<SetupWizardModal
 			v-if="showWizard"
 			data-test="setup-wizard-modal"
 			@close="closeWizard"
 			@completed="onWizardCompleted" />
-
-		<!-- Template Editor Modal -->
-		<NcModal
-			v-if="editingTemplate"
-			:name="editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template')"
-			size="large"
-			@close="closeTemplateEditor">
-			<div class="mydash-admin__modal">
-				<h2>{{ editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template') }}</h2>
-
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Template name') }}</label>
-					<NcTextField v-model="editingTemplate.name" :placeholder="t('mydash', 'My template')" />
-				</div>
-
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Description') }}</label>
-					<NcTextField v-model="editingTemplate.description" :placeholder="t('mydash', 'Optional description')" />
-				</div>
-
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Target groups') }}</label>
-					<NcSelectTags
-						v-model="editingTemplate.targetGroups"
-						:options="availableGroups"
-						:multiple="true"
-						:aria-label-combobox="t('mydash', 'Target groups')"
-						:placeholder="t('mydash', 'Select groups (leave empty for all users)')" />
-				</div>
-
-				<div class="mydash-admin__field">
-					<NcSelect
-						v-model="editingTemplate.permissionLevel"
-						:input-label="t('mydash', 'Permission level')"
-						:options="permissionOptions"
-						label="label"
-						track-by="id"
-						:clearable="false" />
-				</div>
-
-				<NcCheckboxRadioSwitch
-					:checked="editingTemplate.isDefault"
-					@update:checked="editingTemplate.isDefault = $event">
-					{{ t('mydash', 'Set as default template') }}
-				</NcCheckboxRadioSwitch>
-
-				<div class="mydash-admin__modal-actions">
-					<NcButton type="secondary" @click="closeTemplateEditor">
-						{{ t('mydash', 'Cancel') }}
-					</NcButton>
-					<NcButton type="primary" @click="saveTemplate">
-						{{ t('mydash', 'Save') }}
-					</NcButton>
-				</div>
-			</div>
-		</NcModal>
 	</div>
 </template>
 
@@ -323,54 +192,38 @@ import {
 	CnSettingsSection,
 	NcButton,
 	NcSelect,
-	NcSelectTags,
-	NcTextField,
 	NcCheckboxRadioSwitch,
-	NcEmptyContent,
-	NcModal,
 } from '@conduction/nextcloud-vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import IconRenderer from '../Dashboard/IconRenderer.vue'
-import AdminAnalytics from './AdminAnalytics.vue'
-import GroupPriorityOrder from './GroupPriorityOrder.vue'
-import DashboardExportImport from './DashboardExportImport.vue'
-import DashboardBulkOperations from './DashboardBulkOperations.vue'
-import ConfluenceImport from './ConfluenceImport.vue'
-import OrgNavigationEditor from './OrgNavigationEditor.vue'
-import AdminDemoData from './AdminDemoData.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
+import BeheerTabs from './BeheerTabs.vue'
+import TemplatesPage from './tabs/TemplatesPage.vue'
+import OperationsTab from './tabs/OperationsTab.vue'
+import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
+import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
+import SharingTab from './tabs/SharingTab.vue'
+import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
+import DemoDataTab from './tabs/DemoDataTab.vue'
 import { api } from '../../services/api.js'
-import RolePermissionsSection from './RolePermissionsSection.vue'
-import RoleLayoutDefaultsSection from './RoleLayoutDefaultsSection.vue'
-import ActionAuthMatrix from './ActionAuthMatrix.vue'
 
 export default {
 	name: 'AdminSettings',
 
 	components: {
-		AdminAnalytics,
-		AdminDemoData,
 		CnSettingsSection,
-		ConfluenceImport,
-		DashboardBulkOperations,
-		DashboardExportImport,
-		GroupPriorityOrder,
-		OrgNavigationEditor,
 		NcButton,
 		NcSelect,
-		NcSelectTags,
-		NcTextField,
 		NcCheckboxRadioSwitch,
-		NcEmptyContent,
-		NcModal,
 		IconRenderer,
-		Plus,
 		SetupWizardModal,
-		ViewDashboard,
-		RolePermissionsSection,
-		RoleLayoutDefaultsSection,
-		ActionAuthMatrix,
+		BeheerTabs,
+		TemplatesPage,
+		OperationsTab,
+		RolesPermissionsTab,
+		VersioningAuditTab,
+		SharingTab,
+		OrgNavigationTab,
+		DemoDataTab,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
@@ -383,8 +236,6 @@ export default {
 			from: 'allowUserDashboards',
 			default: false,
 		},
-		// Initial seed for the group-priority component (REQ-ASET-013).
-		// `GroupPriorityOrder.loadGroups()` overwrites with API truth.
 		configuredGroups: {
 			from: 'configuredGroups',
 			default: () => [],
@@ -396,38 +247,45 @@ export default {
 			loading: true,
 			settings: {
 				defaultPermissionLevel: { id: 'add_only', label: this.t('mydash', 'Add only') },
-				// Default mirrors the spec — admins MUST opt in.
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
 			},
-			templates: [],
-			availableGroups: [],
-			editingTemplate: null,
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('mydash', 'View only') },
 				{ id: 'add_only', label: this.t('mydash', 'Add only') },
 				{ id: 'full', label: this.t('mydash', 'Full customization') },
 			],
 			gridColumnOptions: [6, 8, 12],
-			// REQ-DASH-015..017 — group-shared dashboards listing for the
-			// "Set as default" UI. Keyed by groupId, value is an array of
-			// dashboard rows (each carrying `isDefault` 0|1).
+			// REQ-DASH-015..017 — group-shared dashboards listing.
 			groupSharedDashboards: {},
 			loadingGroupDashboards: false,
-			// uuid currently being promoted (disables the row's button to
-			// avoid double-clicks during the in-flight call).
 			settingGroupDefault: null,
-			// Setup wizard banner state (REQ-WIZ-001). Keeping it in this
-			// component avoids a dedicated store; the modal emits
-			// `completed` which triggers a state re-fetch.
+			// Setup wizard banner state (REQ-WIZ-001).
 			wizardState: null,
 			showWizard: false,
-			// Bumped after the setup wizard completes to remount the
-			// self-loading child sections so they re-fetch their data
-			// (the wizard may have changed groups, demo data, roles, …).
-			refreshKey: 0,
+			activeTab: 'templates',
 		}
+	},
+
+	computed: {
+		/**
+		 * Ordered Beheer tab descriptors. Labels live here so they stay
+		 * translatable in one place; the slugs match the named slots.
+		 *
+		 * @return {Array<{slug: string, label: string}>}
+		 */
+		beheerTabs() {
+			return [
+				{ slug: 'templates', label: this.t('mydash', 'Templates') },
+				{ slug: 'operations', label: this.t('mydash', 'Operations') },
+				{ slug: 'roles-permissions', label: this.t('mydash', 'Roles & Permissions') },
+				{ slug: 'versioning-audit', label: this.t('mydash', 'Versioning & Audit') },
+				{ slug: 'sharing', label: this.t('mydash', 'Sharing') },
+				{ slug: 'org-navigation', label: this.t('mydash', 'Org navigation') },
+				{ slug: 'demo-data', label: this.t('mydash', 'Demo data') },
+			]
+		},
 	},
 
 	/** @spec openspec/specs/admin-settings/spec.md */
@@ -439,29 +297,25 @@ export default {
 
 	methods: {
 		/** @spec openspec/specs/admin-settings/spec.md */
+		onTabChange(slug) {
+			this.activeTab = slug
+		},
+
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadData() {
 			this.loading = true
 			try {
-				const [settingsRes, templatesRes] = await Promise.all([
-					api.getAdminSettings(),
-					api.getAdminTemplates(),
-				])
-
-				if (settingsRes.data) {
+				const settingsRes = await api.getAdminSettings()
+				const data = settingsRes.data?.data ?? settingsRes.data
+				if (data) {
 					this.settings = {
 						...this.settings,
-						...settingsRes.data,
+						...data,
 						defaultPermissionLevel: this.permissionOptions.find(
-							p => p.id === settingsRes.data.defaultPermissionLevel,
+							p => p.id === data.defaultPermissionLevel,
 						) || this.permissionOptions[1],
 					}
 				}
-
-				this.templates = templatesRes.data || []
-
-				// Load available groups
-				// In a real app, you'd fetch this from OC.getGroups() or an API
-				this.availableGroups = []
 			} catch (error) {
 				console.error('Failed to load admin data:', error)
 			} finally {
@@ -472,13 +326,6 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveSettings() {
 			try {
-				// REQ-ASET-002: the PUT /api/admin/settings endpoint accepts
-				// the abbreviated camelCase parameter names — the long
-				// camelCase forms returned by GET are NOT accepted on
-				// write. Mismatched keys silently no-op (controller leaves
-				// the matching arg null), which would have left the toggle
-				// permanently stuck. REQ-ASET-003 explicitly demands the
-				// admin can flip the flag at runtime.
 				await api.updateAdminSettings({
 					defaultPermLevel: this.settings.defaultPermissionLevel?.id,
 					allowUserDash: this.settings.allowUserDashboards,
@@ -496,84 +343,8 @@ export default {
 			this.saveSettings()
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md */
-		createTemplate() {
-			this.editingTemplate = {
-				id: null,
-				name: '',
-				description: '',
-				targetGroups: [],
-				permissionLevel: this.permissionOptions[1],
-				isDefault: false,
-			}
-		},
-
-		/** @spec openspec/specs/admin-settings/spec.md */
-		editTemplate(template) {
-			this.editingTemplate = {
-				...template,
-				permissionLevel: this.permissionOptions.find(
-					p => p.id === template.permissionLevel,
-				) || this.permissionOptions[1],
-			}
-		},
-
-		/** @spec openspec/specs/admin-settings/spec.md */
-		closeTemplateEditor() {
-			this.editingTemplate = null
-		},
-
-		/** @spec openspec/specs/admin-settings/spec.md */
-		async saveTemplate() {
-			try {
-				const data = {
-					name: this.editingTemplate.name,
-					description: this.editingTemplate.description,
-					targetGroups: this.editingTemplate.targetGroups,
-					permissionLevel: this.editingTemplate.permissionLevel?.id,
-					isDefault: this.editingTemplate.isDefault,
-				}
-
-				if (this.editingTemplate.id) {
-					await api.updateAdminTemplate(this.editingTemplate.id, data)
-				} else {
-					await api.createAdminTemplate(data)
-				}
-
-				await this.loadData()
-				this.closeTemplateEditor()
-			} catch (error) {
-				console.error('Failed to save template:', error)
-			}
-		},
-
-		/** @spec openspec/specs/admin-settings/spec.md */
-		async deleteTemplate(template) {
-			if (!confirm(this.t('mydash', 'Are you sure you want to delete this template?'))) {
-				return
-			}
-
-			try {
-				await api.deleteAdminTemplate(template.id)
-				await this.loadData()
-			} catch (error) {
-				console.error('Failed to delete template:', error)
-			}
-		},
-
-		/** @spec openspec/specs/admin-settings/spec.md */
-		formatTargetGroups(groups) {
-			if (!groups || groups.length === 0) {
-				return this.t('mydash', 'All users')
-			}
-			return groups.join(', ')
-		},
-
 		/**
-		 * Resolve the list of group ids the admin curates: prefer the
-		 * `configuredGroups` initial-state slot (curated order) and fall
-		 * back to the synthetic `'default'` group so the admin always sees
-		 * at least one section. REQ-DASH-015.
+		 * Resolve the list of group ids the admin curates (REQ-DASH-015).
 		 *
 		 * @return {string[]} Group ids to render.
 		 */
@@ -591,10 +362,7 @@ export default {
 		},
 
 		/**
-		 * Fetch group-shared dashboards for every curated group via
-		 * `GET /api/dashboards/group/{groupId}` (REQ-DASH-014). Errors
-		 * for one group MUST NOT abort the others — a missing group is
-		 * common (e.g. the admin removed it but the order was kept).
+		 * Fetch group-shared dashboards for every curated group (REQ-DASH-014).
 		 *
 		 * @return {Promise<void>}
 		 */
@@ -619,20 +387,7 @@ export default {
 		},
 
 		/**
-		 * Promote a group-shared dashboard to the group default
-		 * (REQ-DASH-015). Optimistically flips the in-memory rows
-		 * (target → 1, every other row in the same group → 0) before the
-		 * API call; on 4xx/5xx restores the snapshot so the badge never
-		 * lies.
-		 *
-		 * @param {string} groupId The group id from the row context.
-		 * @param {string} uuid The dashboard uuid to promote.
-		 * @return {Promise<void>}
-		 */
-		/**
-		 * Fetch the wizard state for the banner gate (REQ-WIZ-001,
-		 * REQ-WIZ-008). A failed call is silently swallowed so the rest
-		 * of the admin page stays usable; the banner just doesn't render.
+		 * Fetch the wizard state for the banner gate (REQ-WIZ-001).
 		 *
 		 * @return {Promise<void>}
 		 */
@@ -660,12 +415,6 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async onWizardCompleted() {
 			this.showWizard = false
-			// The wizard configures storage, groups, demo data and admin
-			// roles, so the settings sections almost certainly show stale
-			// data now. Refresh everything in place (REQ-WIZ-002 forbids a
-			// full page reload): re-run this page's own loaders and bump
-			// refreshKey to remount the self-loading child sections.
-			this.refreshKey += 1
 			await Promise.all([
 				this.loadData(),
 				this.loadGroupSharedDashboards(),
@@ -673,12 +422,18 @@ export default {
 			])
 		},
 
+		/**
+		 * Promote a group-shared dashboard to the group default
+		 * (REQ-DASH-015). Optimistic with rollback on failure.
+		 *
+		 * @param {string} groupId The group id from the row context.
+		 * @param {string} uuid The dashboard uuid to promote.
+		 * @return {Promise<void>}
+		 */
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async setGroupDefault(groupId, uuid) {
 			const rows = this.groupSharedDashboards[groupId] || []
-			// Snapshot prior `isDefault` values for rollback.
 			const snapshot = rows.map(d => ({ uuid: d.uuid, isDefault: d.isDefault }))
-			// Optimistic update.
 			this.groupSharedDashboards = {
 				...this.groupSharedDashboards,
 				[groupId]: rows.map(d => ({
@@ -690,9 +445,6 @@ export default {
 			try {
 				await api.setGroupDashboardDefault(groupId, uuid)
 			} catch (error) {
-				// Roll back to the snapshot. Surface the failure via the
-				// console; the parent page already wires Nextcloud
-				// notifications for axios errors at the global level.
 				this.groupSharedDashboards = {
 					...this.groupSharedDashboards,
 					[groupId]: rows.map((d) => {
@@ -714,7 +466,7 @@ export default {
 
 <style scoped>
 .mydash-admin {
-	max-width: 800px;
+	max-width: 900px;
 }
 
 .mydash-admin__section {
@@ -774,16 +526,6 @@ export default {
 	gap: 4px;
 }
 
-.mydash-admin__template-groups {
-	color: var(--color-text-maxcontrast);
-	font-size: 14px;
-}
-
-.mydash-admin__template-actions {
-	display: flex;
-	gap: 8px;
-}
-
 .mydash-admin__badge {
 	display: inline-block;
 	padding: 2px 8px;
@@ -793,16 +535,9 @@ export default {
 	font-size: 12px;
 }
 
-.mydash-admin__empty {
-	padding: 48px 0;
-}
-
-.mydash-admin__modal {
-	padding: 24px;
-}
-
-.mydash-admin__modal h2 {
-	margin: 0 0 24px;
+.mydash-admin__template-actions {
+	display: flex;
+	gap: 8px;
 }
 
 .mydash-admin__group {
@@ -816,13 +551,6 @@ export default {
 	color: var(--color-text-maxcontrast);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
-}
-
-.mydash-admin__modal-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 12px;
-	margin-top: 24px;
 }
 
 .mydash-admin__wizard-banner {

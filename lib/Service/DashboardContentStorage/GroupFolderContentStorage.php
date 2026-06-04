@@ -23,10 +23,11 @@ declare(strict_types=1);
 namespace OCA\MyDash\Service\DashboardContentStorage;
 
 use OCP\App\IAppManager;
+use OCP\Files\File;
+use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
-use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,6 +37,8 @@ use Psr\Log\LoggerInterface;
  * Without a locale the file lives at `LaunchPad/<uuid>.json`; with a locale it
  * lives at `LaunchPad/<locale>/<uuid>.json`. Locale-specific reads fall back to
  * the locale-neutral path when the locale-specific file is absent.
+ *
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity) write() handles all locale/path/conflict branches atomically.
  *
  * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
  */
@@ -59,19 +62,16 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
     /**
      * Constructor.
      *
-     * @param IRootFolder     $rootFolder   Nextcloud virtual file system root.
-     * @param IAppManager     $appManager   Used to verify the groupfolders app
-     *                                      is installed.
-     * @param IGroupManager   $groupManager Group manager (available for future
-     *                                      group-scoped access guards).
-     * @param LoggerInterface $logger       PSR-3 logger.
+     * @param IRootFolder     $rootFolder Nextcloud virtual file system root.
+     * @param IAppManager     $appManager Used to verify the groupfolders app
+     *                                    is installed.
+     * @param LoggerInterface $logger     PSR-3 logger.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
      */
     public function __construct(
         private readonly IRootFolder $rootFolder,
         private readonly IAppManager $appManager,
-        private readonly IGroupManager $groupManager,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
@@ -182,7 +182,7 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
 
         foreach ($paths as $path) {
             try {
-                $file = $this->rootFolder->get(path: '/'.$path);
+                $node = $this->rootFolder->get(path: '/'.$path);
             } catch (NotFoundException) {
                 // Try the next candidate path.
                 continue;
@@ -197,8 +197,12 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
                 );
             }//end try
 
+            if (($node instanceof File) === false) {
+                continue;
+            }
+
             try {
-                $raw     = $file->getContent();
+                $raw     = $node->getContent();
                 $decoded = json_decode(json: $raw, associative: true);
                 if (is_array($decoded) === true) {
                     return $decoded;
@@ -284,8 +288,10 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
 
             try {
                 // File exists — overwrite.
-                $file = $this->rootFolder->get(path: '/'.$path);
-                $file->putContent(data: $encoded);
+                $existingNode = $this->rootFolder->get(path: '/'.$path);
+                if ($existingNode instanceof File) {
+                    $existingNode->putContent(data: $encoded);
+                }
             } catch (NotFoundException) {
                 // File does not exist — determine the parent folder and create it.
                 $parentPath = '/'.self::FOLDER_NAME;
@@ -293,11 +299,11 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
                     $parentPath = '/'.self::FOLDER_NAME.'/'.$locale;
                 }
 
-                $parent = $this->rootFolder->get(path: $parentPath);
-                $parent->newFile(path: $uuid.'.json', content: $encoded);
+                $parentNode = $this->rootFolder->get(path: $parentPath);
+                if ($parentNode instanceof Folder) {
+                    $parentNode->newFile(path: $uuid.'.json', content: $encoded);
+                }
             }//end try
-        } catch (DashboardContentStorageException $e) {
-            throw $e;
         } catch (\Throwable $e) {
             $this->logger->error(
                 message: 'GroupFolderContentStorage: failed to write content file.',

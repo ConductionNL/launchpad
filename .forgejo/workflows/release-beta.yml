@@ -9,5 +9,5 @@ jobs:
   release:
     uses: Conduction/.github/.forgejo/workflows/release-semrel-beta.yml@main
     with:
-      app-name: mydash
+      app-name: launchpad
     secrets: inherit

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="img/app-store.svg" alt="MyDash logo" width="80" height="80">
+  <img src="img/app-store.svg" alt="LaunchPad logo" width="80" height="80">
 </p>
 
-<h1 align="center">MyDash</h1>
+<h1 align="center">LaunchPad</h1>
 
 <p align="center">
   <strong>Customizable multi-dashboard for Nextcloud — drag-and-drop widgets, templates, and smart visibility rules</strong>
@@ -17,7 +17,7 @@
 
 ---
 
-MyDash supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
+LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
 
 📚 **[Step-by-step tutorials](https://mydash.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
 
@@ -69,7 +69,7 @@ OR-backed widget development: [`docs/widgets/or-data.md`](docs/widgets/or-data.m
 
 ```mermaid
 graph TD
-    A[Vue 2 Frontend] -->|REST API| B[MyDash PHP Backend]
+    A[Vue 2 Frontend] -->|REST API| B[LaunchPad PHP Backend]
     B --> C[(PostgreSQL / MySQL)]
     A -->|GridStack.js| D[Drag-and-Drop Grid]
     A -->|Dashboard API| E[Nextcloud Widgets v1/v2]
@@ -119,7 +119,7 @@ mydash/
 ### From the Nextcloud App Store
 
 1. Go to **Apps** in your Nextcloud instance
-2. Search for **MyDash**
+2. Search for **LaunchPad**
 3. Click **Download and enable**
 
 ### From Source

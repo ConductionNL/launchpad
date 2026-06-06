@@ -27,6 +27,8 @@ feature.
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented widget — `launchpad_spend_analytics` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, financeq/procest GraphQL routing, openconnector narrative gating, deep-links, and Specter-sourced rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+
 ### REQ-SAW-001: The system SHALL register a `launchpad_spend_analytics` widget type discoverable via the unified Add Widget modal
 
 The widget MUST appear in `src/constants/widgetRegistry.js` (per the

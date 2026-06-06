@@ -25,6 +25,8 @@ deadline alert, portfolio filter).
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented widget — `launchpad_compliance_audit` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, OR-GraphQL/audit-trail-immutable consumption, docudesk deep-link, and Specter-sourced data rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+
 ### REQ-CAP-001: The system SHALL register a `launchpad_compliance_audit` widget type
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the

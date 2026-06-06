@@ -36,6 +36,8 @@ remote/mobile access + curated app + news access).
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented capability — adds a `mobileReady` registry/manifest field + mobile-breakpoint hide/force-desktop behaviour that is not yet built. Scenarios assert registry/manifest completeness contract, viewport-driven visibility, session-expiry from Specter sources, and curated-app/news sourcing — backend/contract and breakpoint internals belong in unit + Newman. Re-annotate with real UI tests when the capability ships.
+
 ### REQ-MRA-001: Every widget registry entry SHALL declare a `mobileReady` boolean
 
 `src/constants/widgetRegistry.js` entries MUST extend the existing

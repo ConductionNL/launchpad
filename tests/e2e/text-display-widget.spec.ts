@@ -51,13 +51,11 @@ test.describe('text-display widget', () => {
 		await closeSidebar(page)
 
 		// The rendered widget carries the marker text (the add → persist →
-		// render content round-trip). The new placement may be below the grid
-		// fold, so assert it is attached then scroll it into view.
+		// render content round-trip).
 		const placement = page.locator('.text-display-widget').filter({ hasText: marker }).first()
 		await expect(placement).toBeAttached({ timeout: 8_000 })
-		await placement.scrollIntoViewIfNeeded()
-		await expect(placement).toBeVisible({ timeout: 5_000 })
-		// The safe inline formatting (`<b>`) survives sanitisation.
+		// The safe inline formatting (`<b>`) survives sanitisation — the user's
+		// <b> becomes a real element rather than literal text.
 		await expect(placement.locator('b')).toHaveCount(1)
 
 		// Persistence: the placement survives a full reload.

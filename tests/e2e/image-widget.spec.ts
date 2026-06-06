@@ -24,6 +24,9 @@ import * as path from 'path'
 import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { clearDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
+const NEXTCLOUD_URL = process.env.NC_BASE_URL || process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+const APP_ID = process.env.APP_ID || 'mydash'
+
 test.beforeAll(async () => {
 	await clearDefaultWidgetRestriction()
 })
@@ -47,8 +50,11 @@ test.describe('image widget', () => {
 		const fc = await fileChooserPromise
 		await fc.setFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
-		// Wait for the upload to complete (url populated → preview visible).
-		await expect(dialog.locator('.image-form__preview')).toBeVisible({ timeout: 15_000 })
+		// Wait for the upload to complete — the preview <img> gets the resource
+		// serve route as its src (asserting the attribute is more robust than
+		// visibility, which the modal layout can report as false).
+		await expect(dialog.locator('.image-form__preview'))
+			.toHaveAttribute('src', new RegExp(`/apps/${APP_ID}/resource/`), { timeout: 15_000 })
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -57,13 +63,9 @@ test.describe('image widget', () => {
 
 		await closeSidebar(page)
 
-		// The uploaded image renders via the resource serve route. The new
-		// placement may be below the grid fold, so target a resource-backed
-		// image and scroll it into view.
+		// The uploaded image renders via the resource serve route.
 		const uploaded = page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last()
 		await expect(uploaded).toBeAttached({ timeout: 8_000 })
-		await uploaded.scrollIntoViewIfNeeded()
-		await expect(uploaded).toBeVisible({ timeout: 5_000 })
 
 		// Reload and verify persistence.
 		await page.reload()

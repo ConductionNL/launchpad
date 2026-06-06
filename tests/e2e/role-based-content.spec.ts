@@ -21,10 +21,6 @@
 import { test, expect } from '@playwright/test'
 
 const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
-const ADMIN = {
-	user: process.env.NC_ADMIN_USER ?? 'admin',
-	pass: process.env.NC_ADMIN_PASS ?? 'admin',
-}
 
 const ADMIN_URL = `${BASE}/index.php/settings/admin/mydash`
 
@@ -38,28 +34,20 @@ const ADMIN_URL = `${BASE}/index.php/settings/admin/mydash`
  * @spec openspec/changes/role-based-content/tasks.md#task-10
  */
 test('admin settings page contains role-layout-defaults section', async ({ page }) => {
-	// Log in as admin (storageState already carries the admin session, but
-	// the settings page may need a fresh form login in some environments).
-	await page.goto(`${BASE}/index.php/login`)
-	await page.waitForSelector('#user', { timeout: 10_000 }).catch(() => null)
+	// The shared storageState already carries the admin session, so navigate
+	// straight to the MyDash admin settings page (no redundant form login,
+	// which previously hung the test).
+	const resp = await page.goto(ADMIN_URL, { waitUntil: 'domcontentloaded' })
 
-	const userInput = page.locator('#user, input[name="user"]')
-	const passInput = page.locator('#password, input[name="password"]')
-	if (await userInput.isVisible().catch(() => false)) {
-		await userInput.fill(ADMIN.user)
-		await passInput.fill(ADMIN.pass)
-		await page.keyboard.press('Enter')
-		await page.waitForURL(/apps\/dashboard/, { timeout: 15_000 }).catch(() => null)
+	// If the settings page is not reachable in this environment, skip rather
+	// than fail.
+	if (resp && resp.status() >= 400) {
+		test.skip(true, `Admin settings page returned ${resp.status()} in this environment`)
+		return
 	}
 
-	// Navigate to MyDash admin settings.
-	await page.goto(ADMIN_URL)
-	await page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => null)
-
-	// Assert the layout-defaults section data-testid is present.
+	// The MyDash admin settings render a RoleLayoutDefaultsSection carrying the
+	// data-testid below (REQ-RFP-002 / Task 6).
 	const section = page.locator('[data-testid="admin-layout-defaults-section"]')
-	await expect(section).toBeVisible({ timeout: 10_000 }).catch(() => {
-		// If the admin page is not reachable in this test env, skip gracefully.
-		test.skip(true, 'Admin settings page not reachable in this test environment')
-	})
+	await expect(section).toBeVisible({ timeout: 15_000 })
 })

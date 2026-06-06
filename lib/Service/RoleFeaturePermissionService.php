@@ -36,6 +36,7 @@ use OCA\MyDash\Db\RoleLayoutDefaultMapper;
 use OCA\MyDash\Db\WidgetPlacement;
 use OCA\MyDash\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IGroupManager;
 use OCP\IUserManager;
 
 /**
@@ -94,6 +95,10 @@ class RoleFeaturePermissionService
      *                                                          `IGroupManager::getUserGroupIds`
      *                                                          (REQ-TMPL-013).
      * @param IUserManager                $userManager          Nextcloud user manager.
+     * @param IGroupManager               $groupManager         Group manager for the admin
+     *                                                          break-glass bypass (mirrors
+     *                                                          ActionAuthService /
+     *                                                          PermissionService).
      */
     public function __construct(
         private readonly RoleFeaturePermissionMapper $permissionMapper,
@@ -102,6 +107,7 @@ class RoleFeaturePermissionService
         private readonly AdminSettingsService $adminSettings,
         private readonly AdminTemplateService $adminTemplateService,
         private readonly IUserManager $userManager,
+        private readonly IGroupManager $groupManager,
     ) {
     }//end __construct()
 
@@ -371,11 +377,47 @@ class RoleFeaturePermissionService
      */
     public function getAllowedWidgetIds(string $userId): ?array
     {
+        // Admin break-glass: Nextcloud admins are never restricted by the
+        // role-feature-permission allow-list (mirrors the admin short-circuit
+        // in ActionAuthService::requireAction and PermissionService::
+        // resolveAccessLevel). Returning null signals "no restriction" so an
+        // admin can always add any widget to their own dashboard.
+        if ($this->groupManager->isAdmin(userId: $userId) === true) {
+            return null;
+        }
+
         $userGroups = $this->groupIdsForUser(userId: $userId);
         if ($userGroups === []) {
             return $this->fallbackAllowedWidgets();
         }
 
+        $resolved = $this->resolveGroupOrderWidgets(userGroups: $userGroups);
+        if ($resolved === null) {
+            // No group_order match — try the explicit 'default' row.
+            return $this->fallbackAllowedWidgets();
+        }
+
+        $effective = array_values(
+            array: array_diff($resolved['allowed'], $resolved['denied'])
+        );
+        sort(array: $effective);
+        return $effective;
+    }//end getAllowedWidgetIds()
+
+    /**
+     * Walk the configured `group_order` and fold the matching user's
+     * RoleFeaturePermission rows into a base + union allow-set with a
+     * deny-wins overlay (REQ-RFP-005). Returns `null` when none of the
+     * user's `group_order` groups have a permission row, so the caller can
+     * fall back to the explicit `default` row.
+     *
+     * @param array $userGroups The user's group IDs.
+     *
+     * @return array{allowed: array, denied: array}|null The folded allow/deny
+     *                                                    sets, or null on no match.
+     */
+    private function resolveGroupOrderWidgets(array $userGroups): ?array
+    {
         $groupOrder = $this->adminSettings->getGroupOrder();
         $base       = null;
         $allowed    = [];
@@ -389,11 +431,8 @@ class RoleFeaturePermissionService
         }
 
         foreach ($groupOrder as $gid) {
-            if (in_array(needle: $gid, haystack: $userGroups, strict: true) === false) {
-                continue;
-            }
-
-            if (array_key_exists(key: $gid, array: $byGid) === false) {
+            $matchesUser = in_array(needle: $gid, haystack: $userGroups, strict: true);
+            if ($matchesUser === false || array_key_exists(key: $gid, array: $byGid) === false) {
                 continue;
             }
 
@@ -418,16 +457,14 @@ class RoleFeaturePermissionService
         }//end foreach
 
         if ($base === null) {
-            // No group_order match — try the explicit 'default' row.
-            return $this->fallbackAllowedWidgets();
+            return null;
         }
 
-        $effective = array_values(
-            array: array_diff($allowed, $denied)
-        );
-        sort(array: $effective);
-        return $effective;
-    }//end getAllowedWidgetIds()
+        return [
+            'allowed' => $allowed,
+            'denied'  => $denied,
+        ];
+    }//end resolveGroupOrderWidgets()
 
     /**
      * Check whether a specific widget is allowed for the given user.
@@ -445,6 +482,12 @@ class RoleFeaturePermissionService
      */
     public function isWidgetAllowed(string $userId, string $widgetId): bool
     {
+        // Admin break-glass — admins may add any widget regardless of role
+        // configuration (mirrors ActionAuthService / PermissionService).
+        if ($this->groupManager->isAdmin(userId: $userId) === true) {
+            return true;
+        }
+
         $allowed = $this->getAllowedWidgetIds(userId: $userId);
         if ($allowed === null) {
             return true;

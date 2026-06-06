@@ -220,6 +220,7 @@ import DashboardConfigModal from '../components/DashboardConfigModal.vue'
 import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
+import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import CatalogView from './CatalogView.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
@@ -676,11 +677,44 @@ export default {
 		 */
 		/** @spec openspec/specs/dashboards/spec.md */
 		handleContextMenuEdit(placement) {
-			if (placement && placement.type) {
-				this.openCustomWidgetEdit(placement)
+			// Placements only carry `widgetId` — never a `type` field. For
+			// registry-driven custom widgets (label, text, image, link, …)
+			// the `widgetId` IS the registry type key, so resolve the type
+			// from the registry and open the content editor (AddWidgetModal)
+			// with `type` set so `loadEditingWidget` can pre-fill the form.
+			// Stock Nextcloud-widget / tile placements have no registry entry
+			// and fall through to the legacy style editor.
+			const resolvedType = this.resolveWidgetType(placement)
+			if (resolvedType) {
+				this.openCustomWidgetEdit({ ...placement, type: resolvedType })
 				return
 			}
 			this.openStyleEditor(placement)
+		},
+
+		/**
+		 * Resolve the registry type key for a placement from its `widgetId`.
+		 * Returns the type string for registry-driven custom widgets (the
+		 * `widgetId` is the type key) or `null` when the placement is not a
+		 * custom widget (stock NC widget, tile, …) so the caller can fall
+		 * back to the style editor.
+		 *
+		 * @param {object} placement the placement under the cursor
+		 * @return {string|null} the resolved widget type, or null
+		 */
+		/** @spec openspec/specs/dashboards/spec.md */
+		resolveWidgetType(placement) {
+			const widgetId = placement?.widgetId
+			if (typeof widgetId !== 'string' || widgetId === '') {
+				return null
+			}
+			const entry = getWidgetTypeEntry(widgetId)
+			// Only types with a configurable form can be content-edited; the
+			// renderer-only `nc-widget` proxy stays on the style-editor path.
+			if (!entry || !entry.form) {
+				return null
+			}
+			return widgetId
 		},
 
 		/**

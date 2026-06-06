@@ -66,7 +66,7 @@ function hasOverlap(items: Array<{ x: number; y: number; w: number; h: number }>
 
 test.describe('widget collision placement', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/launchpad`)
+		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/mydash`)
 		// Tests assume the user is already authenticated via Playwright
 		// storageState; in CI this is set up by the Hydra harness.
 	})

@@ -26,7 +26,7 @@
  *     npx playwright test tests/e2e/group-shared-dashboards.spec.ts
  */
 
-import { test, expect, type APIRequestContext, type APIResponse } from '@playwright/test'
+import { test, expect, request as pwRequest, type APIRequestContext, type APIResponse } from '@playwright/test'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -38,8 +38,8 @@ const NOMEM = { user: process.env.NC_NONMEMBER_USER  ?? 'nonmember', pass: proce
 type Creds = { user: string; pass: string }
 
 /** Make an API request context authenticated as the given user. */
-async function apiAs(creds: Creds, playwright: { request: { newContext: typeof import('@playwright/test').request.newContext } }): Promise<APIRequestContext> {
-	return playwright.request.newContext({
+async function apiAs(creds: Creds): Promise<APIRequestContext> {
+	return pwRequest.newContext({
 		baseURL: BASE,
 		httpCredentials: { username: creds.user, password: creds.pass },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
@@ -65,9 +65,9 @@ const GROUP_ID = 'e2e-test-group'
 test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 
 	// T1 ── admin creates, member sees it in /visible
-	test('T1: admin creates group-shared dashboard and member sees it in /visible', async ({ request }) => {
-		const adminCtx  = await apiAs(ADMIN, { request })
-		const memberCtx = await apiAs(MEMB,  { request })
+	test('T1: admin creates group-shared dashboard and member sees it in /visible', async () => {
+		const adminCtx  = await apiAs(ADMIN)
+		const memberCtx = await apiAs(MEMB)
 
 		// Admin creates a group-shared dashboard in GROUP_ID.
 		const createRes = await adminCtx.post(
@@ -97,9 +97,9 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 	})
 
 	// T2 ── 0-group user still sees default-group rows
-	test('T2: user with zero group memberships sees default-group dashboards in /visible', async ({ request }) => {
-		const adminCtx  = await apiAs(ADMIN, { request })
-		const nomemCtx  = await apiAs(NOMEM,  { request })
+	test('T2: user with zero group memberships sees default-group dashboards in /visible', async () => {
+		const adminCtx  = await apiAs(ADMIN)
+		const nomemCtx  = await apiAs(NOMEM)
 
 		// Admin creates a default-group dashboard.
 		const createRes = await adminCtx.post(
@@ -128,11 +128,11 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 	})
 
 	// T3 ── non-admin PUT returns 403
-	test('T3: non-admin PUT to group-shared dashboard returns 403', async ({ request }) => {
+	test('T3: non-admin PUT to group-shared dashboard returns 403', async () => {
 		// Ensure the dashboard from T1 was created before this test runs.
 		test.skip(!createdUuid, 'T1 must run first to set createdUuid')
 
-		const memberCtx = await apiAs(MEMB, { request })
+		const memberCtx = await apiAs(MEMB)
 
 		const putRes = await memberCtx.put(
 			`${BASE}/index.php/apps/mydash/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
@@ -144,11 +144,11 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 	})
 
 	// T4 ── admin rename propagates to member on next /visible
-	test('T4: admin rename propagates to member on next /visible call', async ({ request }) => {
+	test('T4: admin rename propagates to member on next /visible call', async () => {
 		test.skip(!createdUuid, 'T1 must run first to set createdUuid')
 
-		const adminCtx  = await apiAs(ADMIN, { request })
-		const memberCtx = await apiAs(MEMB,  { request })
+		const adminCtx  = await apiAs(ADMIN)
+		const memberCtx = await apiAs(MEMB)
 
 		const NEW_NAME = 'E2E Renamed Dashboard'
 

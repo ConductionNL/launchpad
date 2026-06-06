@@ -37,6 +37,7 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { clearDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -44,13 +45,28 @@ import { test, expect } from '@playwright/test'
 
 const TS = `md-${Date.now()}`
 
+// Ensure no restrictive `default` role-feature-permission blocks the admin
+// from adding widgets during this suite (see fixtures helper for the
+// underlying app bug it works around).
+test.beforeAll(async () => {
+	await clearDefaultWidgetRestriction()
+})
+
 // Navigate to mydash and wait for the app to hydrate.
 // The sidebar-toggle button is the first stable landmark injected by the Vue
 // bootstrap; we also ensure the sidebar is closed before returning so that
 // the grid and workspace elements are not occluded by the slide-in panel.
 async function gotoMydash(page: Parameters<typeof test>[1] extends never ? never : any) {
+	// The dev Nextcloud occasionally returns a transient 503 (recurring
+	// needsDbUpgrade blip) right after a write-heavy step; retry the
+	// navigation once so a single blip does not fail an otherwise-green test.
 	await page.goto('/index.php/apps/mydash')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	try {
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	} catch {
+		await page.goto('/index.php/apps/mydash')
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	}
 	// Close sidebar if it happened to be open from a prior test run (or from
 	// a redirect that lands with the sidebar pre-open).
 	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
@@ -267,8 +283,12 @@ test.describe('grid layout initialisation and edit mode', () => {
 	test('grid container is a descendant of the mydash workspace', async ({ page }) => {
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		const workspace = page.locator('.mydash-workspace')
+		// The runtime-shell root renders `.workspace-shell` (the page chrome),
+		// with `.launchpad-workspace` applied to the NC `#app-workspace` host.
+		const workspace = page.locator('.workspace-shell').first()
 		await expect(workspace).toBeVisible()
+		// The grid must live inside that workspace shell.
+		await expect(workspace.locator('.grid-stack').first()).toBeAttached()
 	})
 
 	// @e2e grid-layout::initialize-grid-with-custom-column-count

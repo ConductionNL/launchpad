@@ -42,8 +42,14 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/index.php/apps/mydash')
 		// Wait for the floating sidebar toggle — its presence indicates
-		// the Vue app has hydrated past initial bootstrap.
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 15_000 })
+		// the Vue app has hydrated past initial bootstrap. Retry once to
+		// absorb the dev instance's transient 503 (needsDbUpgrade blip).
+		try {
+			await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		} catch {
+			await page.goto('/index.php/apps/mydash')
+			await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		}
 	})
 
 	test('default state: no leftover popover, sidebar closed, hamburger matches cog style', async ({ page }) => {

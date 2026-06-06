@@ -46,8 +46,13 @@ test('admin settings page contains role-layout-defaults section', async ({ page 
 		return
 	}
 
-	// The MyDash admin settings render a RoleLayoutDefaultsSection carrying the
-	// data-testid below (REQ-RFP-002 / Task 6).
+	// The RoleLayoutDefaultsSection (REQ-RFP-002 / Task 6) lives inside the
+	// "Roles & Permissions" admin tab (slug `roles-permissions`). Select that
+	// tab before asserting the section.
+	const rolesTab = page.locator('[data-test="tab-roles-permissions"]')
+	await expect(rolesTab).toBeVisible({ timeout: 15_000 })
+	await rolesTab.click()
+
 	const section = page.locator('[data-testid="admin-layout-defaults-section"]')
-	await expect(section).toBeVisible({ timeout: 15_000 })
+	await expect(section).toBeVisible({ timeout: 10_000 })
 })

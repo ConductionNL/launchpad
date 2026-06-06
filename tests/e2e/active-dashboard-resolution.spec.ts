@@ -55,58 +55,35 @@ test.describe('active-dashboard-resolution — empty state', () => {
 
 test.describe('active-dashboard-resolution — switchDashboard wires the POST', () => {
 	// @e2e active-dashboard-resolution::switch-dashboard-posts-active-preference
-	test('clicking a sidebar row triggers POST /api/dashboards/active with the dashboard UUID', async ({ page }) => {
-		// Track whether the preference POST was made and with which body.
-		const activePosts: string[] = []
-
-		await page.route('**/api/dashboards/active', (route, request) => {
-			if (request.method() === 'POST') {
-				const body = request.postDataJSON?.() as { uuid?: string } | null
-				if (body?.uuid) {
-					activePosts.push(body.uuid)
-				}
-				route.fulfill({
-					status: 200,
-					contentType: 'application/json',
-					body: JSON.stringify({ status: 'success' }),
-				})
-			} else {
-				route.continue()
-			}
-		})
-
+	test('clicking a sidebar row activates the chosen dashboard server-side', async ({ page }) => {
 		await gotoApp(page)
 
 		// Open the sidebar so the dashboard rows are visible.
 		await page.locator('.mydash-sidebar-toggle').first().click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 
-		// Click the first sidebar row that is NOT already the active dashboard.
-		// A row has data-source attribute set by DashboardSwitcherSidebar.
 		const rows = page.locator('.dashboard-switcher-sidebar__item')
 		const rowCount = await rows.count()
-
-		// Skip the test gracefully when there is only one (or zero) dashboard
-		// in the fixture — there is nothing to switch to.
 		if (rowCount < 2) {
 			test.skip(true, 'Need at least 2 dashboards to test switching')
 			return
 		}
 
-		// Click the second row (index 1) — first is likely already active.
-		const targetRow = rows.nth(1)
-		const targetUuid = await targetRow.getAttribute('data-uuid').catch(() => null)
-		await targetRow.click()
+		// Clicking a row switches the active dashboard. The store persists the
+		// choice server-side via POST /api/dashboard/{id}/activate (the active
+		// preference is owned by that endpoint, not a separate body). Arm the
+		// request listener BEFORE the click.
+		const activatePromise = page.waitForRequest(
+			req => req.method() === 'POST' && /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
+			{ timeout: 8_000 },
+		)
 
-		// After the click the store fires persistActivePreference which issues
-		// POST /api/dashboards/active. We give it up to 5 s to arrive.
-		await page.waitForTimeout(1_000)
+		// Click the second row (index 1) — the first is likely already active.
+		await rows.nth(1).click()
 
-		// Assert the POST was made. The UUID in the body MUST match the row we clicked.
-		expect(activePosts.length).toBeGreaterThan(0)
-		if (targetUuid) {
-			expect(activePosts).toContain(targetUuid)
-		}
+		const req = await activatePromise
+		// The activate POST targets a concrete numeric dashboard id.
+		expect(req.url()).toMatch(/\/api\/dashboard\/\d+\/activate/)
 	})
 })
 

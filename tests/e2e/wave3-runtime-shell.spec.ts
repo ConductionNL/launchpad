@@ -61,10 +61,13 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		const ham = page.locator('.mydash-sidebar-toggle').first()
 		await expect(ham).toBeVisible()
 
-		// PR #111 + PR #113: the floating controls in the top-right host
-		// only the hamburger now — the per-dashboard cog menu moved into
-		// the sidebar header in PR #113.
-		await expect(page.locator('.mydash-floating-controls button')).toHaveCount(1)
+		// PR #111 + PR #113: the floating controls host exactly one
+		// sidebar-toggle hamburger — the per-dashboard cog menu moved into
+		// the sidebar header in PR #113. (A separate top-bar Share action may
+		// also live in the floating controls when the active dashboard is
+		// shareable — that is the dashboard-sharing feature, not the removed
+		// cog menu — so assert the hamburger count specifically.)
+		await expect(page.locator('.mydash-floating-controls .mydash-sidebar-toggle')).toHaveCount(1)
 
 		// PR #111: the literal "Default" group pill is suppressed.
 		await expect(page.locator('.mydash-primary-group-label', { hasText: /^Default$/ }))
@@ -118,14 +121,16 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		await expect(page.locator('.dashboard-switcher-sidebar__delete')).toHaveCount(0)
 	})
 
-	test('PR #113: clicking a sidebar row switches the active dashboard via GET /api/dashboard/{id}', async ({ page }) => {
-		// The full URL pattern includes /index.php for NC's URL rewriting.
-		const showRequest = page.waitForRequest(req =>
-			/\/api\/dashboard\/\d+(?:\?|$)/.test(req.url()) && req.method() === 'GET',
-		)
-
+	test('PR #113: clicking a sidebar row switches the active dashboard server-side', async ({ page }) => {
 		await page.locator('.mydash-sidebar-toggle').click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
+
+		// Switching the active dashboard persists the choice via
+		// POST /api/dashboard/{id}/activate. Arm the listener before clicking.
+		const activateRequest = page.waitForRequest(
+			req => req.method() === 'POST' && /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
+			{ timeout: 8_000 },
+		)
 
 		// Click the second sidebar row (the first is whatever happens to
 		// be currently active — clicking it would be a no-op).
@@ -134,7 +139,7 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		expect(beforeCount).toBeGreaterThan(1)
 		await rows.nth(1).click()
 
-		const req = await showRequest
+		const req = await activateRequest
 		const res = await req.response()
 		expect(res?.status()).toBe(200)
 	})

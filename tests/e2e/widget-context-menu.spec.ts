@@ -37,16 +37,34 @@ import { test, expect } from '@playwright/test'
  */
 async function openInEditMode(page: import('@playwright/test').Page) {
 	await page.goto('/index.php/apps/mydash')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 15_000 })
+	try {
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	} catch {
+		await page.goto('/index.php/apps/mydash')
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	}
 
-	// Open the sidebar to find the Edit toggle for the active dashboard.
-	await page.locator('.mydash-sidebar-toggle').click()
-	await page.waitForSelector('.dashboard-switcher-sidebar', { timeout: 5_000 })
-	await page.locator('[data-testid="row-actions-toggle"]').first().click()
-	await page.locator('[data-testid="action-toggle-edit"]').first().click()
+	// Open the sidebar and enter edit mode for the active personal dashboard
+	// via its per-row cog menu ("Edit dashboard").
+	await page.locator('.mydash-sidebar-toggle').first().click()
+	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+	const activeRow = page.locator(
+		'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+	).first()
+	await activeRow.locator('.dashboard-row-actions button').first().click()
+	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
 
-	// Wait for edit mode class to appear on the grid container.
-	await page.waitForSelector('.mydash-edit-mode', { timeout: 5_000 })
+	// Wait for edit mode class to appear on the grid container, then close the
+	// sidebar so it does not occlude the grid for the right-click assertions.
+	await page.waitForSelector('.mydash-edit-mode', { timeout: 8_000 })
+	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
+	if (await closeBtn.isVisible().catch(() => false)) {
+		await closeBtn.click()
+		await page.waitForFunction(
+			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+			{ timeout: 5_000 },
+		).catch(() => null)
+	}
 }
 
 test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
@@ -112,21 +130,22 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 	})
 
 	test('REQ-WDG-015 + persistence: Remove via context menu persists after reload', async ({ page }) => {
-		// Identify the first widget placement on the grid.
-		const firstPlacement = page.locator('.grid-stack-item').first()
-		await expect(firstPlacement).toBeVisible({ timeout: 5_000 })
+		test.setTimeout(60_000)
 
-		// Capture a stable identifier from the placement element.
-		const gsId = await firstPlacement.getAttribute('gs-id')
+		// Right-click must land on rendered widget CONTENT to open the popover
+		// (a bare grid-cell gap, or a container widget's inner grid, does not
+		// forward the contextmenu). Pick a grid item that holds a simple
+		// widget renderer content element and use its placement id.
+		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.mydash-widget__content') }).first()
+		await expect(placement).toBeVisible({ timeout: 8_000 })
+		const gsId = await placement.getAttribute('gs-id')
 		expect(gsId).toBeTruthy()
 
-		// Right-click to open the context menu.
-		const box = await firstPlacement.boundingBox()
-		if (!box) throw new Error('No bounding box for first grid-stack-item')
-		await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2, { button: 'right' })
+		// Right-click the widget content (not the cell padding) to open the menu.
+		await placement.locator('.mydash-widget__content').first().click({ button: 'right' })
 
 		const menu = page.locator('[data-testid="widget-context-menu"]')
-		await expect(menu).toBeVisible({ timeout: 3_000 })
+		await expect(menu).toBeVisible({ timeout: 5_000 })
 
 		// Click Remove — the popover closes and the widget disappears from the DOM.
 		await page.locator('[data-testid="ctx-remove"]').click()
@@ -134,9 +153,10 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		// The removed widget's grid item must be gone from the DOM.
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0, { timeout: 5_000 })
 
-		// Reload and confirm the placement is absent (DELETE /api/placements/{id} persisted).
-		await page.reload({ waitUntil: 'networkidle' })
-		await page.waitForSelector('.mydash-container', { timeout: 15_000 })
+		// Reload and confirm the placement is absent (DELETE persisted).
+		await page.reload({ waitUntil: 'domcontentloaded' })
+		await page.waitForSelector('.mydash-container', { timeout: 20_000 })
+		await page.waitForTimeout(1_000)
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0)
 	})
 })

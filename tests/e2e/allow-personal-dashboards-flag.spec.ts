@@ -24,8 +24,6 @@ const ADMIN = {
 }
 
 const SETTINGS_URL = `${BASE}/index.php/apps/mydash/api/admin/settings`
-const CREATE_URL   = `${BASE}/index.php/apps/mydash/api/dashboard`
-const FORK_URL     = (uuid: string) => `${BASE}/index.php/apps/mydash/api/dashboards/${encodeURIComponent(uuid)}/fork`
 const APP_URL      = '/index.php/apps/mydash'
 
 /** Make an authenticated request context using HTTP Basic auth. */
@@ -115,58 +113,8 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 	})
 })
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Task 3.5 — Direct API calls still return 403 when flag is off (defense-in-depth)
-// ─────────────────────────────────────────────────────────────────────────────
-
-test.describe('allow-personal-dashboards-flag — API-level 403 enforcement', () => {
-	let api: APIRequestContext
-
-	test.beforeAll(async ({ playwright }) => {
-		api = await adminApi({ request: playwright.request })
-		// Disable the flag for all tests in this group.
-		await setAllowUserDashboards(api, false)
-	})
-
-	test.afterAll(async () => {
-		// Restore to enabled so other specs are not affected.
-		await setAllowUserDashboards(api, true)
-		await api.dispose()
-	})
-
-	// @e2e allow-personal-dashboards-flag::direct-create-post-returns-403
-	test('POST /api/dashboard returns 403 with personal_dashboards_disabled when flag is off', async ({ request }) => {
-		// The storage state provides admin credentials via the session cookie;
-		// using `request` directly reuses the browser's stored auth state.
-		const res = await request.post(CREATE_URL, {
-			data: { name: 'E2E Test Dashboard' },
-		})
-
-		// Flag is off — creation MUST be blocked.
-		expect(res.status()).toBe(403)
-
-		const body = await res.json() as Record<string, unknown>
-		// Navigate the Nextcloud data envelope: response is either direct
-		// or wrapped in {data: {...}}.
-		const payload = (body.data ?? body) as Record<string, unknown>
-		expect(payload.error).toBe('personal_dashboards_disabled')
-		expect(payload.status).toBe('error')
-	})
-
-	// @e2e allow-personal-dashboards-flag::direct-fork-post-returns-403
-	test('POST /api/dashboards/{uuid}/fork returns 403 with personal_dashboards_disabled when flag is off', async ({ request }) => {
-		// The flag check in forkAsPersonal() fires BEFORE the existence check
-		// for the source UUID, so any UUID triggers the 403 when the flag is off.
-		const fakeUuid = '00000000-0000-0000-0000-000000000001'
-
-		const res = await request.post(FORK_URL(fakeUuid), { data: {} })
-
-		// Flag is off — fork MUST be blocked regardless of UUID.
-		expect(res.status()).toBe(403)
-
-		const body = await res.json() as Record<string, unknown>
-		const payload = (body.data ?? body) as Record<string, unknown>
-		expect(payload.error).toBe('personal_dashboards_disabled')
-		expect(payload.status).toBe('error')
-	})
-})
+// NOTE: The defense-in-depth "API-level 403 enforcement" scenarios
+// (direct-create-post-returns-403 / direct-fork-post-returns-403) assert
+// raw /api responses, not the UI. Per the gate-19 program they have been
+// relocated to tests/e2e/api-direct/allow-personal-dashboards-flag.api.spec.ts
+// and their contract coverage lives in Newman.

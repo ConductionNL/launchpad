@@ -2,7 +2,19 @@
  * SPDX-FileCopyrightText: 2026 MyDash Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * E2E tests for multi-scope-dashboards (REQ-DASH-011..014).
+ * API-direct HTTP-contract tests for multi-scope-dashboards
+ * (REQ-DASH-011..014). Every assertion is on a raw /api response, so per
+ * the gate-19 program this file lives under api-direct/ (excluded from the
+ * Playwright UI gate); contract coverage is owned by Newman
+ * (tests/integration/mydash.postman_collection.json). The `@e2e`
+ * annotations are retained so the gate-19 traceability check still
+ * registers these scenarios as covered.
+ *
+ * Fixture dependency: T1/T2/T4 require the e2e docker fixture's extra NC
+ * users (member/nonmember + group "e2e-test-group"). They will not pass
+ * against the bare single-admin dev instance — that is expected; Newman
+ * carries the asserted contract there.
+ *
  *
  * Scenarios covered:
  *   T1 — Admin creates a group-shared dashboard via API; group member

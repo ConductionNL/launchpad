@@ -14,6 +14,13 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { clearDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+
+// Ensure the admin can add widgets (clears any restrictive `default`
+// role-feature-permission — see fixtures helper for the underlying app bug).
+test.beforeAll(async () => {
+	await clearDefaultWidgetRestriction()
+})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -21,7 +28,12 @@ import { test, expect } from '@playwright/test'
 
 async function gotoMydash(page: any) {
 	await page.goto('/index.php/apps/mydash')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	try {
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	} catch {
+		await page.goto('/index.php/apps/mydash')
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	}
 	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
 	if (isSidebarOpen > 0) {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()

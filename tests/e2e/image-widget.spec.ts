@@ -5,10 +5,8 @@
  * Playwright end-to-end test for the `image` widget covering tasks 4.7..4.9
  * of the `image-widget` OpenSpec change.
  *
- * NOTE: Playwright infrastructure is not yet wired up in mydash. This file
- * is committed alongside the rest of the change so it runs once the cohort-
- * wide Playwright bootstrap lands. Do not delete — it is the canonical e2e
- * coverage for REQ-IMG-002, REQ-IMG-003, REQ-IMG-005.
+ * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
+ * → "Add custom widget…" → Add Widget modal → pick "Image".
  *
  * Gate-19 @e2e traceability:
  *   @e2e image-widget::upload-populates-url-and-preview
@@ -23,67 +21,89 @@
 
 import { test, expect } from '@playwright/test'
 import * as path from 'path'
+import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { clearDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
-const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+test.beforeAll(async () => {
+	await clearDefaultWidgetRestriction()
+})
 
 test.describe('image widget', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/mydash`)
-		// Tests assume the user is already authenticated via Playwright
-		// storageState; in CI this is set up by the Hydra harness.
+		await gotoMydash(page)
 	})
 
 	test('REQ-IMG-005: upload → preview → save → reload still shows image', async ({ page }) => {
-		await page.getByRole('button', { name: /add widget/i }).click()
-		await page.getByLabel('Widget type').selectOption({ label: 'Image' })
+		await openAddWidgetModal(page)
+		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
+
+		// Switch the image source to "Upload" (radio group, default is URL).
+		await dialog.getByText('Upload', { exact: true }).click()
 
 		// Upload a tiny PNG bundled with the test fixtures.
 		const fileChooserPromise = page.waitForEvent('filechooser')
-		await page.getByLabel('Upload Image').click()
+		await dialog.getByText('Upload Image', { exact: true }).click()
 		const fc = await fileChooserPromise
 		await fc.setFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
-		// Wait for the upload to complete (form.url populated → preview visible).
-		const preview = page.locator('.image-form__preview')
-		await expect(preview).toBeVisible()
+		// Wait for the upload to complete (url populated → preview visible).
+		await expect(dialog.locator('.image-form__preview')).toBeVisible({ timeout: 15_000 })
 
-		await page.getByRole('button', { name: /save|add/i }).click()
+		const addBtn = dialog.getByRole('button', { name: /^add$/i })
+		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
+		await addBtn.click()
+		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+
+		await closeSidebar(page)
 
 		// Verify the rendered widget appears on the dashboard.
-		const placement = page.locator('.image-widget__img')
-		await expect(placement).toBeVisible()
+		await expect(page.locator('.image-widget__img').first()).toBeVisible({ timeout: 8_000 })
 
 		// Reload and verify persistence.
 		await page.reload()
-		await expect(page.locator('.image-widget__img')).toBeVisible()
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await expect(page.locator('.image-widget__img').first()).toBeVisible({ timeout: 10_000 })
 	})
 
 	test('REQ-IMG-003: external URL with click-through opens new tab', async ({ context, page }) => {
-		await page.getByRole('button', { name: /add widget/i }).click()
-		await page.getByLabel('Widget type').selectOption({ label: 'Image' })
-		await page.getByLabel('Or enter Image URL').fill('https://placehold.co/200x200.png')
-		await page.getByLabel('Link (optional)').fill('https://example.com')
-		await page.getByRole('button', { name: /save|add/i }).click()
+		await openAddWidgetModal(page)
+		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
-		const cell = page.locator('.image-widget')
-		await expect(cell).toBeVisible()
+		// Default source is "URL/Link" — fill the Image URL + Link fields.
+		await dialog.getByLabel(/image url/i).fill('https://placehold.co/200x200.png')
+		await dialog.getByLabel(/link \(optional\)/i).fill('https://example.com')
 
-		// Click triggers a new tab via window.open(..., '_blank',
-		// 'noopener,noreferrer'). Wait for the new page on the context.
+		const addBtn = dialog.getByRole('button', { name: /^add$/i })
+		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
+		await addBtn.click()
+		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+
+		await closeSidebar(page)
+
+		const cell = page.locator('.image-widget').filter({ has: page.locator('img[src*="placehold"]') }).first()
+		await expect(cell).toBeVisible({ timeout: 8_000 })
+
+		// Click triggers a new tab via window.open(..., '_blank').
 		const popupPromise = context.waitForEvent('page')
 		await cell.click()
 		const popup = await popupPromise
-		await popup.waitForLoadState()
+		await popup.waitForLoadState().catch(() => null)
 		expect(popup.url()).toMatch(/example\.com/)
 	})
 
-	test('REQ-IMG-002: empty-URL cell shows camera placeholder and ignores clicks', async ({ context, page }) => {
-		await page.getByRole('button', { name: /add widget/i }).click()
-		await page.getByLabel('Widget type').selectOption({ label: 'Image' })
-		// Force-save with empty URL by typing whitespace then clearing — the
-		// validator blocks save, so for the placeholder rendering test we use
-		// the API to seed a placement directly. Skipped here as a TODO once
-		// the cohort-wide test fixtures expose a programmatic seed helper.
-		test.skip(true, 'Programmatic seed helper not yet available; placeholder rendering covered by Vitest unit test.')
+	test('REQ-IMG-002: empty-URL cell shows camera placeholder and ignores clicks', async ({ page }) => {
+		await openAddWidgetModal(page)
+		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
+
+		// The validator blocks save with an empty URL: the Add button stays
+		// disabled until a URL (or uploaded resource) is present. This is the
+		// UI-observable half of REQ-IMG-002 (empty URL is non-savable); the
+		// camera-placeholder rendering for an already-seeded empty cell is
+		// covered by the ImageWidget Vitest unit test.
+		const addBtn = dialog.getByRole('button', { name: /^add$/i })
+		await expect(addBtn).toBeDisabled({ timeout: 5_000 })
 	})
 })

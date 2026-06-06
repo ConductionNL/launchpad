@@ -29,6 +29,8 @@ case summary, consultation-response summary).
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented widget — `launchpad_ai_assistant` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. All scenarios assert registry/manifest contract, schema validation, openconnector-SSE/MCP-tool routing, and source-absence runtime gating — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+
 ### REQ-ADA-001: The system SHALL register a `launchpad_ai_assistant` widget type
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the

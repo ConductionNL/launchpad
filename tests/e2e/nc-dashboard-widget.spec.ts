@@ -69,15 +69,19 @@ test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 		const placed = await addNcWidget(page)
 		test.skip(!placed, 'No Nextcloud dashboard widgets installed in this instance')
 
-		// The nc-widget renderer mounts a cell that resolves to one of three
-		// final states: native bridge container, API list body, or the empty
-		// state. Any of them proves the proxy rendered (REQ-WDG-019).
+		// The nc-widget renderer mounts a cell that resolves to a final state.
+		// Without an injected native bundle the renderer settles on the API
+		// list body (`__body`, rendered with `v-if` in non-native mode); when a
+		// native bundle registers it instead reveals `__native` (v-show) and
+		// drops `__body`. Assert a visible final state via a poll so either
+		// branch satisfies REQ-WDG-019.
 		const cell = page.locator('.nc-dashboard-widget').first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
-		const resolved = cell.locator(
-			'.nc-dashboard-widget__native, .nc-dashboard-widget__body, .nc-dashboard-widget__empty',
-		)
-		await expect(resolved.first()).toBeVisible({ timeout: 10_000 })
+		await expect.poll(async () => {
+			const bodyVisible = await cell.locator('.nc-dashboard-widget__body').isVisible().catch(() => false)
+			const nativeVisible = await cell.locator('.nc-dashboard-widget__native').isVisible().catch(() => false)
+			return bodyVisible || nativeVisible
+		}, { timeout: 10_000 }).toBe(true)
 	})
 
 	// @e2e nc-dashboard-widget::api-fallback-when-bundle-absent

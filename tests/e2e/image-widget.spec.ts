@@ -57,22 +57,30 @@ test.describe('image widget', () => {
 
 		await closeSidebar(page)
 
-		// Verify the rendered widget appears on the dashboard.
-		await expect(page.locator('.image-widget__img').first()).toBeVisible({ timeout: 8_000 })
+		// The uploaded image renders via the resource serve route. The new
+		// placement may be below the grid fold, so target a resource-backed
+		// image and scroll it into view.
+		const uploaded = page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last()
+		await expect(uploaded).toBeAttached({ timeout: 8_000 })
+		await uploaded.scrollIntoViewIfNeeded()
+		await expect(uploaded).toBeVisible({ timeout: 5_000 })
 
 		// Reload and verify persistence.
 		await page.reload()
 		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator('.image-widget__img').first()).toBeVisible({ timeout: 10_000 })
+		await expect(page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last())
+			.toBeAttached({ timeout: 10_000 })
 	})
 
-	test('REQ-IMG-003: external URL with click-through opens new tab', async ({ context, page }) => {
+	test('REQ-IMG-003: a URL image with a click-through link opens the link in a new tab', async ({ context, page }) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
-		// Default source is "URL/Link" — fill the Image URL + Link fields.
-		await dialog.getByLabel(/image url/i).fill('https://placehold.co/200x200.png')
+		// Default source is "URL/Link". Use a SAME-ORIGIN image asset so the
+		// cell renders without depending on outbound internet in the sandbox,
+		// plus a click-through link.
+		await dialog.getByLabel(/image url/i).fill(`${NEXTCLOUD_URL}/core/img/logo/logo.svg`)
 		await dialog.getByLabel(/link \(optional\)/i).fill('https://example.com')
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
@@ -82,10 +90,15 @@ test.describe('image widget', () => {
 
 		await closeSidebar(page)
 
-		const cell = page.locator('.image-widget').filter({ has: page.locator('img[src*="placehold"]') }).first()
-		await expect(cell).toBeVisible({ timeout: 8_000 })
+		// The newly-added URL image is the last image-widget whose src points at
+		// the logo asset (resource-backed uploads have a different src).
+		const cell = page.locator('.image-widget').filter({ has: page.locator('img[src*="/core/img/logo/"]') }).last()
+		await expect(cell).toBeAttached({ timeout: 8_000 })
+		await cell.scrollIntoViewIfNeeded()
+		await expect(cell).toBeVisible({ timeout: 5_000 })
 
-		// Click triggers a new tab via window.open(..., '_blank').
+		// Clicking the cell opens the link in a new tab via
+		// window.open(link, '_blank', 'noopener,noreferrer').
 		const popupPromise = context.waitForEvent('page')
 		await cell.click()
 		const popup = await popupPromise

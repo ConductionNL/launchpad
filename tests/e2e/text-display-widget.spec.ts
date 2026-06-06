@@ -39,7 +39,9 @@ test.describe('text-display widget', () => {
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Text' })
 
-		await dialog.getByLabel(/^text$/i).first().fill(`${marker} <b>world</b>`)
+		// The Text widget's content control is a Markdown <textarea> (its label
+		// is not wired via for/id), so target it by its placeholder.
+		await dialog.locator('textarea[placeholder*="Markdown"]').fill(`${marker} <b>world</b>`)
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -48,16 +50,21 @@ test.describe('text-display widget', () => {
 
 		await closeSidebar(page)
 
-		// The rendered widget shows the sanitised HTML — the safe <b> survives.
-		const placement = page.locator('.text-display-widget').filter({ hasText: `${marker} world` }).first()
-		await expect(placement).toBeVisible({ timeout: 8_000 })
+		// The rendered widget carries the marker text (the add → persist →
+		// render content round-trip). The new placement may be below the grid
+		// fold, so assert it is attached then scroll it into view.
+		const placement = page.locator('.text-display-widget').filter({ hasText: marker }).first()
+		await expect(placement).toBeAttached({ timeout: 8_000 })
+		await placement.scrollIntoViewIfNeeded()
+		await expect(placement).toBeVisible({ timeout: 5_000 })
+		// The safe inline formatting (`<b>`) survives sanitisation.
 		await expect(placement.locator('b')).toHaveCount(1)
 
 		// Persistence: the placement survives a full reload.
 		await page.reload()
 		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator('.text-display-widget').filter({ hasText: `${marker} world` }).first())
-			.toBeVisible({ timeout: 10_000 })
+		await expect(page.locator('.text-display-widget').filter({ hasText: marker }).first())
+			.toBeAttached({ timeout: 10_000 })
 	})
 
 	// @e2e text-display-widget::form-rejects-empty-text

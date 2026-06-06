@@ -5,9 +5,9 @@
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>mydash</id>
-	<name lang="en">MyDash</name>
-	<name lang="nl">MyDash</name>
+	<id>launchpad</id>
+	<name lang="en">LaunchPad</name>
+	<name lang="nl">LaunchPad</name>
 	<summary lang="en">Drag-and-drop dashboards with templates, tiles, and smart visibility</summary>
 	<summary lang="nl">Drag-and-drop dashboards met templates, tegels en slimme zichtbaarheid</summary>
 	<description lang="en"><![CDATA[MyDash supercharges the Nextcloud dashboard. Create personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams.

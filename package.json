@@ -1,5 +1,5 @@
 {
-	"name": "mydash",
+	"name": "launchpad",
 	"version": "1.0.0",
 	"description": "Enhanced dashboard with grid layout and admin controls for Nextcloud",
 	"main": "src/main.js",

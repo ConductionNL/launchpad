@@ -26,6 +26,8 @@ dossier document from dashboard).
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented widget — `launchpad_file_access` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, Files OCS/WebDAV metadata routing, and Specter-sourced dossier-file rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+
 ### REQ-FAW-001: The system SHALL register a `launchpad_file_access` widget type alongside the existing `files-widget`
 
 The widget MUST appear in `src/constants/widgetRegistry.js` as a

@@ -31,6 +31,8 @@ annotate agenda items on dashboard).
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented widget — `launchpad_meeting_actions` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, DAV calendar reads, decidesk presence/absence gating, and Specter-sourced annotation flows — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+
 ### REQ-MCA-001: The system SHALL register a `launchpad_meeting_actions` widget type distinct from `calendar-widget`
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the

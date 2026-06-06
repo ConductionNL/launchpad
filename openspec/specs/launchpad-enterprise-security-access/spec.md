@@ -28,6 +28,8 @@ enterprise guest/role perms + view-as-another-role).
 
 ## ADDED Requirements
 
+@e2e exclude proposed/unimplemented widget — `launchpad_security_access` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert admin-only registration, schema validation, OR-RBAC GraphQL consumption, SSO/MFA card rendering, and impersonation-preview flows from Specter sources — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+
 ### REQ-ESA-001: The system SHALL register a `launchpad_security_access` widget type
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the

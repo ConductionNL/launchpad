@@ -135,6 +135,10 @@ test.describe('widget collision placement', () => {
 
 	// @e2e grid-layout::positions-survive-reload
 	test('REQ-GRID-005: widget positions survive a page reload', async ({ page }) => {
+		// The shared dashboard accumulates widgets across runs, so a full
+		// re-render can be slow — give this reload-heavy test extra budget.
+		test.setTimeout(60_000)
+
 		await addLabelWidget(page, `reload-${Date.now()}`)
 		// Allow the persistence debounce + network round-trip to settle.
 		await page.waitForTimeout(1_000)
@@ -143,8 +147,8 @@ test.describe('widget collision placement', () => {
 		expect(before.length).toBeGreaterThan(0)
 
 		await page.reload()
-		await page.waitForSelector('.grid-stack', { timeout: 20_000 })
-		await page.waitForTimeout(800)
+		await page.waitForSelector('.grid-stack', { timeout: 30_000 })
+		await page.waitForTimeout(1_500)
 
 		const after = await getGridItems(page)
 		// Every previously-placed widget keeps its exact geometry across reload.

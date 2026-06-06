@@ -130,21 +130,22 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 	})
 
 	test('REQ-WDG-015 + persistence: Remove via context menu persists after reload', async ({ page }) => {
-		// Identify the first widget placement on the grid.
-		const firstPlacement = page.locator('.grid-stack-item').first()
-		await expect(firstPlacement).toBeVisible({ timeout: 5_000 })
+		test.setTimeout(60_000)
 
-		// Capture a stable identifier from the placement element.
-		const gsId = await firstPlacement.getAttribute('gs-id')
+		// Right-click must land on rendered widget CONTENT to open the popover
+		// (a bare grid-cell gap, or a container widget's inner grid, does not
+		// forward the contextmenu). Pick a grid item that holds a simple
+		// widget renderer content element and use its placement id.
+		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.mydash-widget__content') }).first()
+		await expect(placement).toBeVisible({ timeout: 8_000 })
+		const gsId = await placement.getAttribute('gs-id')
 		expect(gsId).toBeTruthy()
 
-		// Right-click to open the context menu.
-		const box = await firstPlacement.boundingBox()
-		if (!box) throw new Error('No bounding box for first grid-stack-item')
-		await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2, { button: 'right' })
+		// Right-click the widget content (not the cell padding) to open the menu.
+		await placement.locator('.mydash-widget__content').first().click({ button: 'right' })
 
 		const menu = page.locator('[data-testid="widget-context-menu"]')
-		await expect(menu).toBeVisible({ timeout: 3_000 })
+		await expect(menu).toBeVisible({ timeout: 5_000 })
 
 		// Click Remove — the popover closes and the widget disappears from the DOM.
 		await page.locator('[data-testid="ctx-remove"]').click()
@@ -152,9 +153,10 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		// The removed widget's grid item must be gone from the DOM.
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0, { timeout: 5_000 })
 
-		// Reload and confirm the placement is absent (DELETE /api/placements/{id} persisted).
-		await page.reload({ waitUntil: 'networkidle' })
-		await page.waitForSelector('.mydash-container', { timeout: 15_000 })
+		// Reload and confirm the placement is absent (DELETE persisted).
+		await page.reload({ waitUntil: 'domcontentloaded' })
+		await page.waitForSelector('.mydash-container', { timeout: 20_000 })
+		await page.waitForTimeout(1_000)
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0)
 	})
 })

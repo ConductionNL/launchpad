@@ -22,10 +22,10 @@
 
 import { test, expect } from '@playwright/test'
 import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
-import { clearDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
-	await clearDefaultWidgetRestriction()
+	await ensureDefaultWidgetRestriction()
 })
 
 test.describe('text-display widget', () => {

@@ -81,12 +81,18 @@ class SeedRolePermissions implements IRepairStep
     {
         $existing = $this->permMapper->findAll();
         if (count(value: $existing) > 0) {
+            $this->logger->debug(
+                message: 'SeedRolePermissions: rows already present, skipping seed.'
+            );
             $output->info(message: 'Role-feature permissions already seeded — skipping.');
             return;
         }
 
         $this->seedPermissions(output: $output);
         $this->seedLayoutDefaults(output: $output);
+        $this->logger->info(
+            message: 'SeedRolePermissions: seeded default role-feature permissions and layout defaults.'
+        );
         $output->info(message: 'Role-feature permissions and layout defaults seeded successfully.');
     }//end run()
 

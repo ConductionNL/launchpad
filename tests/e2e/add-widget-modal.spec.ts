@@ -14,12 +14,12 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { clearDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
-// Ensure the admin can add widgets (clears any restrictive `default`
-// role-feature-permission — see fixtures helper for the underlying app bug).
+// Install a restrictive `default` role-feature-permission; the admin
+// break-glass bypass lets the admin still add widgets (see fixtures helper).
 test.beforeAll(async () => {
-	await clearDefaultWidgetRestriction()
+	await ensureDefaultWidgetRestriction()
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -181,19 +181,83 @@ test.describe('add-widget-modal close discipline', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 test.describe('add-widget-modal edit-mode stale-state', () => {
+	// Full add → edit-mode round-trip on a slow dev instance.
+	test.describe.configure({ timeout: 90_000 })
+
+	test.beforeEach(async ({ page }) => {
+		await gotoMydash(page)
+	})
+
 	// @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
-	test('closing and reopening in edit mode restores the editingWidget content', async () => {
-		// KNOWN APP BUG (flagged 2026-06-06): the AddWidgetModal edit-mode
-		// (content) flow is NOT reachable for a placed custom widget. The
-		// right-click context-menu "Edit" calls Views.handleContextMenuEdit(),
-		// which opens the AddWidgetModal in edit mode ONLY when
-		// `placement.type` is truthy — but placements only carry `widgetId`
-		// (never `type`), so it always falls through to the *style* editor
-		// (WidgetStyleEditor). There is therefore no UI path to reopen the
-		// content modal in edit mode. The editingWidget no-stale-state contract
-		// is covered by the AddWidgetModal Vitest specs; this Playwright
-		// scenario is skipped (with the `@e2e` annotation retained for gate-19
-		// traceability) until the routing bug is fixed.
-		test.skip(true, 'Content edit-mode modal unreachable for placed custom widgets (handleContextMenuEdit branches on placement.type, which is never set). Covered by AddWidgetModal Vitest.')
+	test('right-click Edit reaches the content editor pre-filled with the placement content', async ({ page }) => {
+		// FIXED 2026-06-07: the right-click context-menu "Edit" now resolves
+		// the placement's type from its `widgetId` via the registry and opens
+		// the AddWidgetModal in CONTENT edit mode (was: always fell through to
+		// the style editor because `placement.type` was never set). This drives
+		// the real edit-mode path end-to-end as the admin (under a restrictive
+		// `default` role-feature-permission — see beforeAll).
+		const text = `Modal Edit ${Date.now()}`
+
+		// Add a label widget via the real add flow.
+		await openAddWidgetModal(page)
+		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
+		await addDialog.getByLabel(/label text/i).first().fill(text)
+		const addBtn = addDialog.getByRole('button', { name: /^add$/i })
+		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
+		await addBtn.click()
+		await expect(addDialog).not.toBeVisible({ timeout: 8_000 })
+
+		// Close the sidebar so the placement is interactable.
+		const sidebar = page.locator('.dashboard-switcher-sidebar.open')
+		if (await sidebar.count() > 0) {
+			await page.locator('.mydash-sidebar-toggle').first().click()
+			await page.waitForFunction(
+				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+				{ timeout: 5_000 },
+			)
+		}
+
+		const placement = page.locator('.label-widget').filter({ hasText: text }).first()
+		await expect(placement).toBeVisible({ timeout: 8_000 })
+
+		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
+		// data-testid="cog-edit-dashboard") so the right-click popover is
+		// available, then close the sidebar.
+		if (await page.locator('.mydash-edit-mode').count() === 0) {
+			await openSidebar(page)
+			const activeRow = page.locator(
+				'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+			).first()
+			await activeRow.locator('.dashboard-row-actions button').first().click()
+			await page.locator('[data-testid="cog-edit-dashboard"]').click()
+			await page.waitForSelector('.mydash-edit-mode', { timeout: 8_000 })
+			const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
+			if (await closeBtn.isVisible().catch(() => false)) {
+				await closeBtn.click()
+				await page.waitForFunction(
+					() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+					{ timeout: 5_000 },
+				).catch(() => null)
+			}
+		}
+
+		// Right-click the rendered widget content to open the popover, then Edit.
+		const cell = page.locator('.grid-stack-item').filter({ hasText: text }).first()
+		await expect(cell).toBeVisible({ timeout: 8_000 })
+		await cell.locator('.mydash-widget__content').first().click({ button: 'right' })
+		const menu = page.locator('[data-testid="widget-context-menu"]')
+		await expect(menu).toBeVisible({ timeout: 5_000 })
+		await page.locator('[data-testid="ctx-edit"]').click()
+
+		// The CONTENT editor opens (primary button reads "Save"), pre-filled
+		// with the saved label text — the no-stale-state contract. Previously
+		// this routed to the STYLE editor (no label-text field, no Save button).
+		const editDialog = page.getByRole('dialog', { name: /(edit|add) widget/i }).first()
+		await expect(editDialog).toBeVisible({ timeout: 8_000 })
+		await expect(editDialog.getByLabel(/label text/i).first())
+			.toHaveValue(text, { timeout: 5_000 })
+		await expect(editDialog.getByRole('button', { name: /^save$/i }))
+			.toBeVisible({ timeout: 5_000 })
 	})
 })

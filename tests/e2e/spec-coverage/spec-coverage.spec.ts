@@ -37,7 +37,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { clearDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -45,11 +45,11 @@ import { clearDefaultWidgetRestriction } from '../fixtures/role-feature-permissi
 
 const TS = `md-${Date.now()}`
 
-// Ensure no restrictive `default` role-feature-permission blocks the admin
-// from adding widgets during this suite (see fixtures helper for the
-// underlying app bug it works around).
+// Install a restrictive `default` role-feature-permission and rely on the
+// admin break-glass bypass so the admin can still add any widget during this
+// suite (see fixtures helper for the bypass it proves).
 test.beforeAll(async () => {
-	await clearDefaultWidgetRestriction()
+	await ensureDefaultWidgetRestriction()
 })
 
 // Navigate to mydash and wait for the app to hydrate.

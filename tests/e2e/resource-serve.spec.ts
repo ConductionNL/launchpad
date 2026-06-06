@@ -20,13 +20,13 @@
 import { test, expect } from '@playwright/test'
 import * as path from 'path'
 import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
-import { clearDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 const APP_ID = process.env.APP_ID || 'mydash'
 
 test.beforeAll(async () => {
-	await clearDefaultWidgetRestriction()
+	await ensureDefaultWidgetRestriction()
 })
 
 test.describe('resource-serving', () => {

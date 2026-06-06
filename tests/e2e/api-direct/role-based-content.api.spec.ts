@@ -19,7 +19,7 @@
  * @spec openspec/changes/role-based-content/tasks.md#task-10
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request as pwRequest } from '@playwright/test'
 
 const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
 const ADMIN = {
@@ -36,8 +36,8 @@ const WIDGETS_URL = `${BASE}/index.php/apps/mydash/api/widgets`
  *
  * @e2e role-based-content::employee-role-does-not-see-manager-widget
  */
-test('employee-role user: restricted widget absent from API response', async ({ request }) => {
-	const api = await request.newContext({
+test('employee-role user: restricted widget absent from API response', async () => {
+	const api = await pwRequest.newContext({
 		baseURL: BASE,
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
@@ -76,8 +76,8 @@ test('employee-role user: restricted widget absent from API response', async ({ 
  *
  * @e2e role-based-content::widget-absent-from-dom-not-just-hidden
  */
-test('GET /api/role-feature-permissions accessible by admin (smoke)', async ({ request }) => {
-	const api = await request.newContext({
+test('GET /api/role-feature-permissions accessible by admin (smoke)', async () => {
+	const api = await pwRequest.newContext({
 		baseURL: BASE,
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },

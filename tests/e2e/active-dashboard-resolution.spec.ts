@@ -78,8 +78,13 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 			{ timeout: 8_000 },
 		)
 
-		// Click the second row (index 1) — the first is likely already active.
-		await rows.nth(1).click()
+		// Click a non-active PERSONAL (owned) row — only owned dashboards take
+		// an active flag, so this exercises the real switch + persistence path.
+		const ownedInactiveRow = page.locator(
+			'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
+		).first()
+		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
+		await ownedInactiveRow.click()
 
 		const req = await activatePromise
 		// The activate POST targets a concrete numeric dashboard id.

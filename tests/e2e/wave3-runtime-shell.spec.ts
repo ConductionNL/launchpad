@@ -138,12 +138,17 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 			{ timeout: 8_000 },
 		)
 
-		// Click the second sidebar row (the first is whatever happens to
-		// be currently active — clicking it would be a no-op).
+		// Click a NON-active PERSONAL (owned) dashboard row. The activate
+		// endpoint only persists an active flag for owned dashboards — a
+		// group/default dashboard returns 400 — so target a `data-source="user"`
+		// row that is not already active to assert the 200 success path.
 		const rows = page.locator('.dashboard-switcher-sidebar li.dashboard-switcher-sidebar__item')
-		const beforeCount = await rows.count()
-		expect(beforeCount).toBeGreaterThan(1)
-		await rows.nth(1).click()
+		expect(await rows.count()).toBeGreaterThan(1)
+		const ownedInactiveRow = page.locator(
+			'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
+		).first()
+		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
+		await ownedInactiveRow.click()
 
 		const req = await activateRequest
 		const res = await req.response()

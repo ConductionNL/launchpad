@@ -378,10 +378,10 @@ OCA\LaunchPad\Migration\Version001024Date20260503130000::changeSchema
 OCA\LaunchPad\Notification\Notifier::getID
 OCA\LaunchPad\Notification\Notifier::getName
 OCA\LaunchPad\Notification\Notifier::prepare
-OCA\LaunchPad\Search\LaunchPadSearchProvider::getId
-OCA\LaunchPad\Search\LaunchPadSearchProvider::getName
-OCA\LaunchPad\Search\LaunchPadSearchProvider::getOrder
-OCA\LaunchPad\Search\LaunchPadSearchProvider::search
+OCA\LaunchPad\Search\MyDashSearchProvider::getId
+OCA\LaunchPad\Search\MyDashSearchProvider::getName
+OCA\LaunchPad\Search\MyDashSearchProvider::getOrder
+OCA\LaunchPad\Search\MyDashSearchProvider::search
 OCA\LaunchPad\Service\AdminSettingsService::getGroupOrder
 OCA\LaunchPad\Service\AdminSettingsService::setGroupOrder
 OCA\LaunchPad\Service\AdminTemplateService::resolvePrimaryGroup
@@ -694,6 +694,8 @@ OCA\LaunchPad\Service\WidgetService::getDashboardPlacements
 OCA\LaunchPad\Settings\LaunchPadAdmin::getForm
 OCA\LaunchPad\Settings\LaunchPadAdmin::getSection
 OCA\LaunchPad\Settings\LaunchPadAdmin::getPriority
+OCA\LaunchPad\Settings\LaunchPadAdmin::getName
+OCA\LaunchPad\Settings\LaunchPadAdmin::getAuthorizedAppConfig
 OCA\LaunchPad\Settings\LaunchPadAdminSection::getID
 OCA\LaunchPad\Settings\LaunchPadAdminSection::getName
 OCA\LaunchPad\Settings\LaunchPadAdminSection::getPriority

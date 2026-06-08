@@ -12,6 +12,9 @@
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -80,6 +83,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplateDescription(?string $templateDescription)
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
+ * @method string|null getContent()
+ * @method void setContent(?string $content)
+ * @method string|null getLocale()
+ * @method void setLocale(?string $locale)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
  *                                        column on `oc_launchpad_dashboards`
@@ -106,6 +113,7 @@ use OCP\AppFramework\Db\Entity;
  *                                        per the admin-templates /
  *                                        dashboard-tree /
  *                                        footer-customization designs.
+ * @spec                                  openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class Dashboard extends Entity implements JsonSerializable
 {
@@ -307,6 +315,8 @@ class Dashboard extends Entity implements JsonSerializable
      *
      * The backend never inspects this value; it is stored verbatim and
      * the discriminator + lookup live in `src/constants/dashboardIcons.js`.
+     * No migration is needed — the column already exists on
+     * `oc_launchpad_dashboards`.
      *
      * @var string|null
      */
@@ -569,6 +579,30 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $templatePreviewImage = null;
 
     /**
+     * The serialized dashboard content JSON (REQ-GFSB-002).
+     *
+     * Populated when the `db` storage backend is active; NULL when the
+     * `groupfolder` backend is active (content lives in the GroupFolder
+     * file system in that case). `jsonSerialize()` always surfaces this
+     * field (possibly null) so the API contract is stable regardless of
+     * the active backend.
+     *
+     * @var string|null
+     */
+    protected ?string $content = null;
+
+    /**
+     * Optional locale code associated with the dashboard content (REQ-GFSB-004).
+     *
+     * Used by the GroupFolder backend to route reads/writes to the
+     * locale-specific sub-path `LaunchPad/<locale>/<uuid>.json`. NULL
+     * means locale-neutral storage.
+     *
+     * @var string|null
+     */
+    protected ?string $locale = null;
+
+    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -596,6 +630,7 @@ class Dashboard extends Entity implements JsonSerializable
      * Get target groups as array.
      *
      * @return array The decoded target groups.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function getTargetGroupsArray(): array
     {
@@ -617,6 +652,7 @@ class Dashboard extends Entity implements JsonSerializable
      * @param array $groups The target groups array.
      *
      * @return void
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function setTargetGroupsArray(array $groups): void
     {
@@ -630,6 +666,7 @@ class Dashboard extends Entity implements JsonSerializable
      * Serialize to JSON (owner / admin view — full payload).
      *
      * @return array The serialized dashboard.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function jsonSerialize(): array
     {
@@ -668,8 +705,36 @@ class Dashboard extends Entity implements JsonSerializable
             'templateCategory'     => $this->templateCategory,
             'templateDescription'  => $this->templateDescription,
             'templatePreviewImage' => $this->templatePreviewImage,
+            // REQ-GFSB-002: content field; null when GroupFolder backend is active.
+            'content'              => $this->decodeContent(),
+            'locale'               => $this->locale,
         ];
     }//end jsonSerialize()
+
+    /**
+     * Decode the raw `content` JSON string for API serialisation (REQ-GFSB-002).
+     *
+     * Returns null when the column is null or empty; returns the decoded array
+     * when content is valid JSON; returns null and degrades gracefully when
+     * the stored value is corrupt.
+     *
+     * @return array|null The decoded content, or null.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-6
+     */
+    private function decodeContent(): ?array
+    {
+        if ($this->content === null || $this->content === '') {
+            return null;
+        }
+
+        $decoded = json_decode(json: $this->content, associative: true);
+        if (is_array($decoded) === true) {
+            return $decoded;
+        }
+
+        return null;
+    }//end decodeContent()
 
     /**
      * Serialize for a non-owner viewer (M5 — strips internal identity
@@ -680,6 +745,8 @@ class Dashboard extends Entity implements JsonSerializable
      * that non-owner consumers have no legitimate use for.
      *
      * @return array The serialized dashboard without internal fields.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function toViewerArray(): array
     {
@@ -708,6 +775,7 @@ class Dashboard extends Entity implements JsonSerializable
      *                            admin setting.
      *
      * @return bool True when comments are effectively enabled.
+     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function isCommentsEffectivelyEnabled(bool $globalDefault): bool
     {

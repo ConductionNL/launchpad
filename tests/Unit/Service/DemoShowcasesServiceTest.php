@@ -33,6 +33,7 @@ use OCP\Dashboard\IManager;
 use OCP\Dashboard\IWidget;
 use OCP\IAppConfig;
 use OCP\IDBConnection;
+use OCP\IURLGenerator;
 use OCP\Lock\ILockingProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -62,6 +63,9 @@ class DemoShowcasesServiceTest extends TestCase
     /** @var ILockingProvider&MockObject */
     private $lockingProvider;
 
+    /** @var IURLGenerator&MockObject */
+    private $urlGenerator;
+
     private DemoShowcasesService $service;
 
     private string $fixtureDir;
@@ -76,6 +80,16 @@ class DemoShowcasesServiceTest extends TestCase
         $this->appConfig        = $this->createMock(originalClassName: IAppConfig::class);
         $this->dashboardManager = $this->createMock(originalClassName: IManager::class);
         $this->lockingProvider  = $this->createMock(originalClassName: ILockingProvider::class);
+        $this->urlGenerator     = $this->createMock(originalClassName: IURLGenerator::class);
+
+        // Stand in for IURLGenerator::imagePath() with an opaque sentinel
+        // that echoes the arguments. The real URL shape (static path vs
+        // front-controller route, with or without /index.php/) is the URL
+        // generator's concern and varies per install — the service's only
+        // contract is that it delegates with the right (app, file) pair.
+        $this->urlGenerator->method('imagePath')->willReturnCallback(
+            static fn (string $app, string $file): string => 'imagePath('.$app.','.$file.')'
+        );
 
         $this->service = new DemoShowcasesService(
             dashboardMapper: $this->dashboardMapper,
@@ -85,6 +99,7 @@ class DemoShowcasesServiceTest extends TestCase
             dashboardManager: $this->dashboardManager,
             logger: new NullLogger(),
             lockingProvider: $this->lockingProvider,
+            urlGenerator: $this->urlGenerator,
         );
 
         $this->fixtureDir = sys_get_temp_dir().'/launchpad-showcase-fixture-'.uniqid();
@@ -135,7 +150,12 @@ class DemoShowcasesServiceTest extends TestCase
         $this->assertSame(expected: 'nl', actual: $result['language']);
         $this->assertFalse(condition: $result['isInstalled']);
         $this->assertNull(actual: $result['installedDashboardUuid']);
-        $this->assertStringContainsString(needle: '/img/showcases/de-bron.png', haystack: $result['thumbnailUrl']);
+        // The thumbnail is delegated to IURLGenerator::imagePath() with the
+        // app id and the per-showcase image path — not a hardcoded URL.
+        $this->assertSame(
+            expected: 'imagePath(mydash,showcases/de-bron.png)',
+            actual: $result['thumbnailUrl']
+        );
     }
 
     /**

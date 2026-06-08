@@ -44,6 +44,7 @@ use Throwable;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @spec                                             openspec/specs/background-job-feed-refresh/spec.md
  */
 class FeedRefreshService
 {
@@ -362,10 +363,9 @@ class FeedRefreshService
     {
         $startedAt = (int) (microtime(as_float: true) * 1000);
 
+        $urls = $this->discoverFeedUrls();
         if ($onlyUrl !== null) {
             $urls = [$onlyUrl];
-        } else {
-            $urls = $this->discoverFeedUrls();
         }
 
         if (count(value: $urls) === 0) {
@@ -391,10 +391,9 @@ class FeedRefreshService
             );
             if ($cursor !== '') {
                 $cursorPos = array_search(needle: $cursor, haystack: $urls, strict: true);
-                if ($cursorPos === false) {
-                    // Cursor stale (URL no longer in set) — restart.
-                    $startIndex = 0;
-                } else {
+                // Cursor stale (URL no longer in set) — restart.
+                $startIndex = 0;
+                if ($cursorPos !== false) {
                     $startIndex = ((int) $cursorPos + 1);
                 }
             }
@@ -423,7 +422,9 @@ class FeedRefreshService
                 $processed++;
                 if ($result['status'] === 'ok' || $result['status'] === 'not-modified') {
                     $success++;
-                } else {
+                }
+
+                if ($result['status'] !== 'ok' && $result['status'] !== 'not-modified') {
                     $failure++;
                 }
             } catch (Throwable $exception) {
@@ -451,7 +452,9 @@ class FeedRefreshService
                     Application::APP_ID,
                     self::CONFIG_KEY_CURSOR
                 );
-            } else {
+            }
+
+            if ($endIndex < $urlCount) {
                 // More to do next tick — persist cursor at last URL processed.
                 $lastIndex = ($endIndex - 1);
                 if ($lastIndex >= 0 && $lastIndex < $urlCount) {
@@ -462,7 +465,7 @@ class FeedRefreshService
                     );
                 }
             }
-        }
+        }//end if
 
         return [
             'processedCount' => $processed,
@@ -687,10 +690,9 @@ class FeedRefreshService
             }
         }
 
+        $guid = hash(algo: 'sha256', data: ($title.$pubDate.$feedUrl));
         if ($guidValue !== '') {
             $guid = $guidValue;
-        } else {
-            $guid = hash(algo: 'sha256', data: ($title.$pubDate.$feedUrl));
         }
 
         return [
@@ -748,10 +750,9 @@ class FeedRefreshService
         }
 
         $idValue = trim(string: (string) ($entry->id ?? ''));
+        $guid    = hash(algo: 'sha256', data: ($title.$pubDate.$feedUrl));
         if ($idValue !== '') {
             $guid = $idValue;
-        } else {
-            $guid = hash(algo: 'sha256', data: ($title.$pubDate.$feedUrl));
         }
 
         return [

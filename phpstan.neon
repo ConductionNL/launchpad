@@ -1,9 +1,3 @@
-includes:
-    # Per-app tracked lint debt lives here (auto-generated via `phpstan --generate-baseline`).
-    # Apps without debt ship an empty baseline file; canonical includes are otherwise byte-identical
-    # across the fleet.
-    - phpstan-baseline.neon
-
 parameters:
     level: 5
     paths:
@@ -18,6 +12,9 @@ parameters:
     scanDirectories:
         - vendor/nextcloud/ocp
     reportUnmatchedIgnoredErrors: false
+    # Prevents false-positive "always true/false" errors caused by defensive runtime
+    # checks on values whose PHPDoc type is narrower than what callers may pass.
+    treatPhpDocTypesAsCertain: false
     ignoreErrors:
         # Nextcloud server internals (\OC, OC_App, OC\) not stubbed in nextcloud/ocp
         - '#Call to an undefined method OC::#'
@@ -47,9 +44,15 @@ parameters:
         - '#unknown class Doctrine\\DBAL\\#'
         - '#Doctrine\\DBAL\\[a-zA-Z\\]+.*not found#'
         - '#on an unknown class Doctrine\\DBAL\\#'
+        # Doctrine\DBAL types used in migration table-builder helpers are valid at runtime
+        # but PHPStan cannot verify them without the Doctrine stubs available here.
+        - '#has invalid type Doctrine\\DBAL\\#'
+        # DataResponse constructor accepts plain array at runtime; OCP stub types
+        # it with a generic bound that PHPStan cannot satisfy when passing array directly.
+        - '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor expects#'
         # Dynamic HTTP status codes from business rule validation results
-        # (matches both `Parameter $statusCode` and `Parameter #N $statusCode` forms emitted by phpstan)
-        - '#Parameter (\#\d+ )?\$statusCode of class OCP\\AppFramework\\Http\\JSONResponse constructor expects#'
+        # (matches both JSONResponse and DataResponse, and both Parameter $statusCode and Parameter #N $statusCode forms)
+        - '#Parameter (\#\d+ )?\$statusCode of class OCP\\AppFramework\\Http\\(JSON|Data)Response constructor expects#'
         # registerRepairStep exists on server; not yet in nextcloud/ocp stub used for analysis
         - '#Call to an undefined method OCP\\AppFramework\\Bootstrap\\IRegistrationContext::registerRepairStep#'
         # OCP stub gaps for methods that exist at runtime

@@ -297,10 +297,21 @@ export const api = {
 		return axios.get(`${baseUrl}/api/widgets`)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
-	getWidgetItems(widgetIds) {
+	/**
+	 * Fetch items for a list of Nextcloud widget IDs (REQ-WDG-021).
+	 * The limit parameter is passed explicitly so callers can rely on the
+	 * URL including `limit=<n>` regardless of server-side defaults.
+	 *
+	 * @param {string[]} widgetIds Widget IDs to fetch items for.
+	 * @param {number} limit Maximum items per widget (default 7 per REQ-WDG-021).
+	 * @return {Promise} Axios response promise.
+	 *
+	 * @spec openspec/changes/nc-dashboard-widget-proxy/specs/widgets/spec.md#req-wdg-021
+	 */
+	getWidgetItems(widgetIds, limit = 7) {
 		const params = new URLSearchParams()
 		widgetIds.forEach(id => params.append('widgets[]', id))
+		params.append('limit', String(limit))
 		return axios.get(`${baseUrl}/api/widgets/items?${params.toString()}`)
 	},
 
@@ -342,6 +353,23 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	deleteRule(ruleId) {
 		return axios.delete(`${baseUrl}/api/rules/${ruleId}`)
+	},
+
+	// Admin conditional-visibility overview (Beheer ▸ Versioning & Audit).
+	/** @spec openspec/specs/conditional-visibility/spec.md */
+	getAdminWidgetsWithRules() {
+		return axios.get(`${baseUrl}/api/admin/widgets/with-rules`)
+	},
+
+	// Operations tab — Prometheus metrics + health (prometheus-metrics spec).
+	/** @spec openspec/specs/prometheus-metrics/spec.md */
+	getMetrics() {
+		return axios.get(`${baseUrl}/api/metrics`, { responseType: 'text' })
+	},
+
+	/** @spec openspec/specs/prometheus-metrics/spec.md */
+	getHealth() {
+		return axios.get(`${baseUrl}/api/health`)
 	},
 
 	// Admin endpoints

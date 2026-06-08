@@ -51,15 +51,33 @@ use Throwable;
  *                                                 settings are all
  *                                                 unavoidable for this
  *                                                 capability.
+ * @spec                                           openspec/specs/resource-uploads/spec.md
  */
 class FileService
 {
     /**
      * Strict filename pattern (REQ-LBN-004 task 1.2).
      *
+     * Allowed characters: alphanumeric, underscore, hyphen, period, space.
+     * Anything outside this set — including path separators, null bytes, and
+     * traversal sequences — is blocked by earlier checks in assertValidFilename()
+     * or rejected here by the pattern itself.
+     *
+     * Allowed:  dashboard-export.json  template_v2.json  template-with-dashes.json
+     * Rejected: name.with.two.dots.json (fails because of period — only
+     *           leaf-level dots are permitted; multi-dot names pass the regex
+     *           but are valid per the pattern; `..` is caught before this check),
+     *           ../etc/passwd (caught by the `..` and `/` guards above),
+     *           paths with slashes (caught by `/` guard above),
+     *           paths with leading dots (`.hidden` — dots are allowed by the regex;
+     *           if stricter "no leading dot" semantics are required add a separate
+     *           str_starts_with guard).
+     *
      * @var string
+     *
+     * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
      */
-    private const FILENAME_PATTERN = '/^[a-zA-Z0-9_\-. ]+$/';
+    public const FILENAME_PATTERN = '/^[a-zA-Z0-9_\-. ]+$/';
 
     /**
      * Maximum filename length (REQ-LBN-004 task 1.2).
@@ -249,9 +267,8 @@ class FileService
             $normalised[$token] = $token;
         }
 
-        if (count($normalised) === 0) {
-            $stored = self::DEFAULT_ALLOWED_EXTENSIONS;
-        } else {
+        $stored = self::DEFAULT_ALLOWED_EXTENSIONS;
+        if (count($normalised) > 0) {
             $stored = array_values(array: $normalised);
         }
 

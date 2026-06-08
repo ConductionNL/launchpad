@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
@@ -69,7 +70,7 @@ class ActionMatrixController extends Controller
      *
      * @spec openspec/architecture/adr-023-action-authorization.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getMatrix(): JSONResponse
     {
         $matrix = $this->actionAuth->getMatrix();
@@ -108,7 +109,7 @@ class ActionMatrixController extends Controller
      *
      * @spec openspec/architecture/adr-023-action-authorization.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function setMatrix(): JSONResponse
     {
         $matrix = $this->request->getParam('matrix');

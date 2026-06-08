@@ -1,5 +1,7 @@
 # Design — Role-based dashboard content and defaults
 
+**status: pr-created**
+
 ## Architecture
 
 ### Backend

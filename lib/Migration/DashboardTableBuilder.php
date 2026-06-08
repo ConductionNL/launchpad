@@ -234,6 +234,48 @@ class DashboardTableBuilder
     }//end addIndexes()
 
     /**
+     * Apply the GroupFolder storage backend schema (REQ-GFSB-002) to an
+     * existing `mydash_dashboards` table.
+     *
+     * Adds two nullable columns: `content` (LONGTEXT, JSON blob used by the
+     * `db` storage backend) and `locale` (VARCHAR(16), optional locale code
+     * routing GroupFolder reads/writes to a locale-specific sub-path).
+     * Both columns are nullable — pre-existing rows with no content simply
+     * keep NULL until explicitly written by the storage layer. Idempotent.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-6
+     */
+    public static function addContentStorageColumns($table): void
+    {
+        if ($table->hasColumn('content') === false) {
+            $table->addColumn(
+                'content',
+                Types::TEXT,
+                [
+                    'notnull' => false,
+                    'comment' => 'Dashboard content JSON (used by db storage backend). REQ-GFSB-002.',
+                ]
+            );
+        }
+
+        if ($table->hasColumn('locale') === false) {
+            $table->addColumn(
+                'locale',
+                Types::STRING,
+                [
+                    'notnull' => false,
+                    'length'  => 16,
+                    'comment' => 'Optional locale code for GroupFolder path routing. REQ-GFSB-004.',
+                ]
+            );
+        }
+    }//end addContentStorageColumns()
+
+    /**
      * Apply the dashboard-tree hierarchy schema (REQ-DASH-023..030) to an
      * existing `launchpad_dashboards` table.
      *

@@ -47,6 +47,7 @@ use OCP\Dashboard\IManager;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IAppConfig;
 use OCP\IDBConnection;
+use OCP\IURLGenerator;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
 use Psr\Log\LoggerInterface;
@@ -112,6 +113,10 @@ class DemoShowcasesService
      * @param ILockingProvider      $lockingProvider  Advisory lock provider
      *                                                (M8 — concurrency guard
      *                                                on installShowcase).
+     * @param IURLGenerator         $urlGenerator     URL generator used to
+     *                                                build routed thumbnail
+     *                                                URLs that resolve from
+     *                                                any apps directory.
      * @param IEventDispatcher|null $eventDispatcher  Event dispatcher for
      *                                                DashboardDeletedEvent
      *                                                (SB1 fix, REQ-CSC-001).
@@ -126,6 +131,7 @@ class DemoShowcasesService
         private readonly IManager $dashboardManager,
         private readonly LoggerInterface $logger,
         private readonly ILockingProvider $lockingProvider,
+        private readonly IURLGenerator $urlGenerator,
         private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
@@ -227,7 +233,10 @@ class DemoShowcasesService
             'name'                   => (string) ($manifest['showcaseName'] ?? $showcaseId),
             'description'            => (string) ($manifest['showcaseDescription'] ?? ''),
             'language'               => (string) ($manifest['showcaseLanguage'] ?? 'nl'),
-            'thumbnailUrl'           => '/apps/'.Application::APP_ID.'/img/showcases/'.$showcaseId.'.png',
+            'thumbnailUrl'           => $this->urlGenerator->imagePath(
+                Application::APP_ID,
+                'showcases/'.$showcaseId.'.png'
+            ),
             'isInstalled'            => $installedUuid !== '',
             'installedDashboardUuid' => $installedDashboardId,
         ];
@@ -311,7 +320,7 @@ class DemoShowcasesService
                 path: $lockKey,
                 type: ILockingProvider::LOCK_EXCLUSIVE
             );
-        }
+        }//end try
     }//end installShowcase()
 
     /**
@@ -427,7 +436,7 @@ class DemoShowcasesService
                 message: 'Showcase dashboard already missing on uninstall',
                 context: ['showcaseId' => $showcaseId, 'uuid' => $existingUuid]
             );
-        }
+        }//end try
 
         $this->clearInstalledMarker(showcaseId: $showcaseId);
     }//end uninstallShowcase()

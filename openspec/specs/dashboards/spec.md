@@ -211,6 +211,8 @@ Users MUST be able to delete their own dashboards with proper cascade deletion o
 - THEN the system MUST delete the dashboard
 - AND subsequent GET /api/dashboards MUST return an empty array
 
+- NOTE: Personal dashboards created via REQ-DASH-020 (fork) share uploaded resource URLs (e.g. `tileIcon` values starting with `/apps/mydash/resource/...`) with the dashboard they were forked from. Deleting the fork does NOT delete the shared resource record — the resource lifecycle is managed by the resource-uploads capability independently of dashboard deletion. See REQ-DASH-022 for the full fork-resource contract.
+
 #### Scenario: Delete does not check permission level
 - GIVEN user "alice" has a view-only dashboard id 5 (based on a template with `permissionLevel: "view_only"`)
 - WHEN she sends DELETE /api/dashboard/5

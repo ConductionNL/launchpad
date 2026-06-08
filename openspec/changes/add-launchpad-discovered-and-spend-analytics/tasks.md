@@ -6,7 +6,7 @@
 
 ## Spec authoring
 
-### 1. Author `launchpad-spend-analytics-widget` (consolidated)
+### 1. [x] Author `launchpad-spend-analytics-widget` (consolidated)
 
 - **spec_ref:** `specs/launchpad-spend-analytics-widget/spec.md`
 - **files:** `specs/launchpad-spend-analytics-widget/spec.md`
@@ -20,7 +20,7 @@
   requirement carries ≥3 scenarios.
 - **check:** `python3 -c "import re; s=open('specs/launchpad-spend-analytics-widget/spec.md').read(); assert s.count('### REQ-SAW-') >= 8 and s.count('#### Scenario:') >= 14"` (or equivalent grep)
 
-### 2. Author `launchpad-ai-dashboard-assistant`
+### 2. [x] Author `launchpad-ai-dashboard-assistant`
 
 - **spec_ref:** `specs/launchpad-ai-dashboard-assistant/spec.md`
 - **files:** `specs/launchpad-ai-dashboard-assistant/spec.md`
@@ -33,7 +33,7 @@
 - **check:** scenarios ≥10; no mention of Ollama/Qwen client code in
   launchpad.
 
-### 3. Author `launchpad-compliance-audit-panel`
+### 3. [x] Author `launchpad-compliance-audit-panel`
 
 - **spec_ref:** `specs/launchpad-compliance-audit-panel/spec.md`
 - **files:** `specs/launchpad-compliance-audit-panel/spec.md`
@@ -46,7 +46,7 @@
 - **check:** scenarios ≥10; references ADR-022 audit-trail + archival
   rows.
 
-### 4. Author `launchpad-file-access-widget`
+### 4. [x] Author `launchpad-file-access-widget`
 
 - **spec_ref:** `specs/launchpad-file-access-widget/spec.md`
 - **files:** `specs/launchpad-file-access-widget/spec.md`
@@ -57,7 +57,7 @@
   empty state.
 - **check:** scenarios ≥9; no launchpad file storage.
 
-### 5. Author `launchpad-enterprise-security-access`
+### 5. [x] Author `launchpad-enterprise-security-access`
 
 - **spec_ref:** `specs/launchpad-enterprise-security-access/spec.md`
 - **files:** `specs/launchpad-enterprise-security-access/spec.md`
@@ -69,7 +69,7 @@
   via OR audit-trail), revocation reflection, empty-state.
 - **check:** scenarios ≥10; references ADR-022 RBAC row.
 
-### 6. Author `launchpad-meeting-calendar-actions`
+### 6. [x] Author `launchpad-meeting-calendar-actions`
 
 - **spec_ref:** `specs/launchpad-meeting-calendar-actions/spec.md`
 - **files:** `specs/launchpad-meeting-calendar-actions/spec.md`
@@ -79,7 +79,7 @@
   annotation flow, empty-state, time-window filter.
 - **check:** scenarios ≥10; no launchpad-local calendar storage.
 
-### 7. Author `launchpad-mobile-remote-access`
+### 7. [x] Author `launchpad-mobile-remote-access`
 
 - **spec_ref:** `specs/launchpad-mobile-remote-access/spec.md`
 - **files:** `specs/launchpad-mobile-remote-access/spec.md`
@@ -96,7 +96,7 @@
 
 ## Deduplication check
 
-### 8. Verify no overlap with existing launchpad specs
+### 8. [x] Verify no overlap with existing launchpad specs
 
 - **spec_ref:** all 7 new specs
 - **files:** read-only — confirms each new spec slug does not
@@ -113,7 +113,7 @@
 
 ## Cross-spec consistency
 
-### 9. Verify cross-app data contract is uniform
+### 9. [x] Verify cross-app data contract is uniform
 
 - **spec_ref:** all 7 new specs
 - **files:** read-only
@@ -125,7 +125,7 @@
 - **check:** `grep -L "runtime" specs/launchpad-*/spec.md` returns
   empty (every spec mentions runtime consumption).
 
-### 10. Verify ADR references are correct
+### 10. [x] Verify ADR references are correct
 
 - **spec_ref:** all 7 new specs
 - **files:** read-only

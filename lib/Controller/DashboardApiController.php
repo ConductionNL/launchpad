@@ -14,6 +14,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -25,6 +28,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -57,6 +61,7 @@ use Psr\Log\LoggerInterface;
  *                                                  splitting would
  *                                                  fragment the routing
  *                                                  surface.
+ * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardApiController extends Controller
 {
@@ -160,9 +165,10 @@ class DashboardApiController extends Controller
      * REQ-DASH-013.
      *
      * @return JSONResponse The visible dashboards.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function visible(): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -589,9 +595,10 @@ class DashboardApiController extends Controller
      * other users are not enumerable (C1 fix: REQ-DASH-026 + REQ-PERM-001).
      *
      * @return JSONResponse The nested tree.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function tree(): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -608,7 +615,7 @@ class DashboardApiController extends Controller
         // C1 fix: build the visibility set for the calling user, then ask
         // the tree service for the structural tree filtered to those UUIDs.
         // This prevents cross-user IDOR via UUID enumeration through the tree.
-        $visible = $this->dashboardService->getVisibleToUser(
+        $visible      = $this->dashboardService->getVisibleToUser(
             userId: $this->userId
         );
         $visibleUuids = [];
@@ -644,9 +651,10 @@ class DashboardApiController extends Controller
      *                     to include slashes — see `appinfo/routes.php`).
      *
      * @return JSONResponse The dashboard payload, or a 404 envelope.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function byPath(string $path=''): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -682,7 +690,8 @@ class DashboardApiController extends Controller
         if ($this->permissionService->canViewDashboard(
             userId: $this->userId,
             dashboardId: $dashboardId
-        ) === false) {
+        ) === false
+        ) {
             return new JSONResponse(
                 data: [
                     'status'  => 'error',
@@ -723,9 +732,10 @@ class DashboardApiController extends Controller
      *                      authorised — the empty-path case is a valid
      *                      response shape the caller distinguishes
      *                      client-side).
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function computePath(string $uuid=''): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -761,9 +771,10 @@ class DashboardApiController extends Controller
      * @param int $id The dashboard ID.
      *
      * @return JSONResponse The activated dashboard.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function activate(int $id): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -799,9 +810,10 @@ class DashboardApiController extends Controller
      * @param string $groupId The group ID.
      *
      * @return JSONResponse The list of group-shared dashboards.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function listGroup(string $groupId): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -853,9 +865,10 @@ class DashboardApiController extends Controller
      * @param string|null $description The dashboard description.
      *
      * @return JSONResponse The created dashboard.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function createGroup(
         string $groupId,
         $name=null,
@@ -903,9 +916,10 @@ class DashboardApiController extends Controller
      * @param string $uuid    The dashboard UUID from the URL.
      *
      * @return JSONResponse The dashboard payload.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function getGroup(
         string $groupId,
         string $uuid
@@ -961,9 +975,10 @@ class DashboardApiController extends Controller
      * @param array|null  $placements  Updated placements.
      *
      * @return JSONResponse The updated dashboard.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function updateGroup(
         string $groupId,
         string $uuid,
@@ -1024,9 +1039,10 @@ class DashboardApiController extends Controller
      * @param string $uuid    The dashboard UUID from the URL.
      *
      * @return JSONResponse The status payload.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function deleteGroup(
         string $groupId,
         string $uuid
@@ -1076,9 +1092,10 @@ class DashboardApiController extends Controller
      * @param string|null $uuid    The dashboard UUID from the body.
      *
      * @return JSONResponse The status payload.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function setGroupDefault(
         string $groupId,
         ?string $uuid=null
@@ -1142,9 +1159,10 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse HTTP 200 `{status: 'success'}` on success; 401
      *                      when the session has no user.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function setActiveDashboard(?string $uuid=null): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -1182,9 +1200,10 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse 200 `{status: 'success'}` on success; 401
      *                      when the session has no user.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function setDefaultDashboard(?string $uuid=null): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -1211,9 +1230,10 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse 200 `{uuid: string}` — empty string when no
      *                      pin set; 401 when the session has no user.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function getDefaultDashboard(): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -1263,9 +1283,10 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse The new dashboard payload (201) or an
      *                      appropriate error envelope.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function fork(
         string $uuid,
         ?string $name=null
@@ -1339,9 +1360,10 @@ class DashboardApiController extends Controller
      * @param string $uuid The dashboard UUID from the URL.
      *
      * @return JSONResponse The updated dashboard payload.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function publish(string $uuid): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -1383,9 +1405,10 @@ class DashboardApiController extends Controller
      * @param string $uuid The dashboard UUID from the URL.
      *
      * @return JSONResponse The updated dashboard payload.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function unpublish(string $uuid): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -1434,9 +1457,10 @@ class DashboardApiController extends Controller
      *                               the request body.
      *
      * @return JSONResponse The updated dashboard payload.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function schedule(
         string $uuid,
         ?string $publishAt=null
@@ -1509,9 +1533,10 @@ class DashboardApiController extends Controller
      * @return JSONResponse An empty 204 response on success, 401
      *                      when unauthenticated, 404 when the
      *                      dashboard does not exist.
+     *
+     * @spec openspec/specs/dashboards/spec.md
      */
     #[NoAdminRequired]
-    /** @spec openspec/specs/dashboards/spec.md */
     public function viewEvent(string $uuid): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -1862,4 +1887,36 @@ class DashboardApiController extends Controller
             );
         }
     }//end captureAutomaticSnapshot()
+
+    /**
+     * Build a HTTP 503 response for a storage backend failure (REQ-GFSB-007).
+     *
+     * The error key `dashboard_content_storage_unavailable` is the stable
+     * identifier callers MUST treat as a signal to surface an actionable
+     * message ("Run the migration command or check GroupFolder availability").
+     *
+     * @param DashboardContentStorageException $e The caught exception.
+     *
+     * @return JSONResponse HTTP 503 with the standard error envelope.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-11
+     */
+    protected function storageUnavailableResponse(
+        DashboardContentStorageException $e
+    ): JSONResponse {
+        $this->logger->warning(
+            message: 'mydash: dashboard content storage unavailable',
+            context: ['message' => $e->getMessage(), 'exception' => $e]
+        );
+
+        return new JSONResponse(
+            data: [
+                'error'   => 'dashboard_content_storage_unavailable',
+                'message' => 'The dashboard content storage backend is unavailable. '
+                    .'If you recently changed the backend, run: '
+                    .'php occ mydash:storage:migrate-to-groupfolder',
+            ],
+            statusCode: Http::STATUS_SERVICE_UNAVAILABLE
+        );
+    }//end storageUnavailableResponse()
 }//end class

@@ -35,6 +35,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCA\LaunchPad\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -109,7 +110,7 @@ class AdminCleanupController extends Controller
          *
      * @spec openspec/specs/orphaned-data-cleanup/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function scan(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -165,7 +166,7 @@ class AdminCleanupController extends Controller
          *
      * @spec openspec/specs/orphaned-data-cleanup/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function purge(?array $categories=null, ?bool $dryRun=null): JSONResponse
     {
         $guard = $this->assertAdmin();

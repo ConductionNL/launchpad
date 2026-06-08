@@ -36,6 +36,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\BulkOperationService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -110,7 +111,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkDelete(
         mixed $dashboardUuids=null,
         ?bool $dryRun=null,
@@ -170,7 +171,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkMove(
         mixed $dashboardUuids=null,
         ?string $parentUuid=null,
@@ -229,7 +230,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkStatus(
         mixed $dashboardUuids=null,
         ?string $publicationStatus=null,
@@ -295,7 +296,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkReindex(
         mixed $dashboardUuids=null,
         ?bool $dryRun=null

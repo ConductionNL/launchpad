@@ -155,6 +155,26 @@ return [
 		['name' => 'dashboardLockApi#get', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// Public-share management endpoints (REQ-PSHR-001..003). Owner-or-admin.
+		// Registered BEFORE the wildcard `{id}` personal-scope routes above so the
+		// literal `public-shares` segment wins in the router.
+		['name' => 'publicShare#create',
+		 'url' => '/api/dashboards/{uuid}/public-share', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'publicShare#index',
+		 'url' => '/api/dashboards/{uuid}/public-shares', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'publicShare#destroy',
+		 'url' => '/api/dashboards/{uuid}/public-shares/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
+		// Public (anonymous) share render and unlock (REQ-PSHR-004, REQ-PSHR-005).
+		// Both are #[PublicPage] + #[NoCSRFRequired] on the controller methods.
+		// Registered BEFORE the deep-link catch-all at the bottom.
+		['name' => 'publicShare#show', 'url' => '/s/{token}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
+		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
 		['name' => 'dashboardShareApi#index', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'GET'],
 		['name' => 'dashboardShareApi#create', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'POST'],
@@ -327,6 +347,11 @@ return [
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
+
+		// Admin conditional-visibility overview (Beheer ▸ Versioning &
+		// Audit). Admin-only via #[AuthorizedAdminSetting]. Literal URL —
+		// no wildcard collision.
+		['name' => 'adminWidgetRules#index', 'url' => '/api/admin/widgets/with-rules', 'verb' => 'GET'],
 
 		// ADR-023 action-authorization matrix. Admin-only via
 		// #[AuthorizedAdminSetting] on the controller methods.

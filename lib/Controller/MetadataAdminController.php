@@ -31,6 +31,7 @@ use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Exception\MetadataFieldHasValuesException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\MetadataService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -107,7 +108,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function listFields(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -150,7 +151,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createField(
         string $key='',
         string $label='',
@@ -202,7 +203,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getField(int $id): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -247,7 +248,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateField(
         int $id,
         ?string $label=null,
@@ -324,7 +325,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteField(int $id, bool $cascade=false): JSONResponse
     {
         $guard = $this->assertAdmin();

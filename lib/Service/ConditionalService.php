@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -21,10 +24,15 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Service for managing conditional rules on widget placements.
+ *
+ * @spec openspec/specs/conditional-visibility/spec.md
  */
 class ConditionalService
 {
@@ -34,11 +42,15 @@ class ConditionalService
      * @param ConditionalRuleMapper $ruleMapper        The conditional rule mapper.
      * @param RuleEvaluatorService  $ruleEvaluator     The rule evaluator service.
      * @param VisibilityChecker     $visibilityChecker The visibility checker.
+     * @param WidgetPlacementMapper $placementMapper   The widget placement mapper.
+     * @param DashboardMapper       $dashboardMapper   The dashboard mapper.
      */
     public function __construct(
         private readonly ConditionalRuleMapper $ruleMapper,
         private readonly RuleEvaluatorService $ruleEvaluator,
         private readonly VisibilityChecker $visibilityChecker,
+        private readonly WidgetPlacementMapper $placementMapper,
+        private readonly DashboardMapper $dashboardMapper,
     ) {
     }//end __construct()
 
@@ -49,8 +61,9 @@ class ConditionalService
      * @param string          $userId The user ID.
      *
      * @return bool Whether the rule matches.
+     *
+     * @spec openspec/specs/conditional-visibility/spec.md
      */
-    /** @spec openspec/specs/conditional-visibility/spec.md */
     public function evaluateRule(
         ConditionalRule $rule,
         string $userId
@@ -107,6 +120,83 @@ class ConditionalService
             placementId: $placementId
         );
     }//end getRules()
+
+    /**
+     * Build the admin Versioning & Audit overview of every placement that
+     * carries at least one conditional rule (conditional-visibility spec).
+     *
+     * Each row aggregates the placement's rule count plus include / exclude
+     * breakdown and resolves the owning dashboard's id, name, and widget
+     * type. Placements or dashboards that no longer exist (orphaned rules)
+     * are skipped defensively so a dangling row never breaks the overview.
+     *
+     * @return array<int, array{placementId:int, dashboardId:(int|null),
+     *               dashboardName:(string|null), widgetType:string,
+     *               ruleCount:int, includeCount:int, excludeCount:int}>
+     *               One entry per rule-bearing placement.
+     *
+     * @spec openspec/specs/conditional-visibility/spec.md
+     */
+    public function listAllRules(): array
+    {
+        $rules = $this->ruleMapper->findAll();
+
+        // Aggregate per placement id.
+        $byPlacement = [];
+        foreach ($rules as $rule) {
+            $placementId = $rule->getWidgetPlacementId();
+            if (isset($byPlacement[$placementId]) === false) {
+                $byPlacement[$placementId] = [
+                    'placementId'  => $placementId,
+                    'ruleCount'    => 0,
+                    'includeCount' => 0,
+                    'excludeCount' => 0,
+                ];
+            }
+
+            $byPlacement[$placementId]['ruleCount']++;
+            $counterKey = 'excludeCount';
+            if ($rule->getIsInclude() === true) {
+                $counterKey = 'includeCount';
+            }
+
+            $byPlacement[$placementId][$counterKey]++;
+        }
+
+        $rows = [];
+        foreach ($byPlacement as $placementId => $agg) {
+            try {
+                $placement = $this->placementMapper->find(id: $placementId);
+            } catch (DoesNotExistException) {
+                // Orphaned rule — placement gone. Skip so the overview only
+                // lists live placements.
+                continue;
+            }
+
+            $dashboardId   = $placement->getDashboardId();
+            $dashboardName = null;
+            try {
+                $dashboard     = $this->dashboardMapper->find(id: $dashboardId);
+                $dashboardName = $dashboard->getName();
+            } catch (DoesNotExistException) {
+                // Dashboard gone but placement somehow remains — still list
+                // the placement, just without a resolved name.
+                $dashboardId = null;
+            }
+
+            $rows[] = [
+                'placementId'   => $placementId,
+                'dashboardId'   => $dashboardId,
+                'dashboardName' => $dashboardName,
+                'widgetType'    => $placement->getWidgetId(),
+                'ruleCount'     => $agg['ruleCount'],
+                'includeCount'  => $agg['includeCount'],
+                'excludeCount'  => $agg['excludeCount'],
+            ];
+        }//end foreach
+
+        return $rows;
+    }//end listAllRules()
 
     /**
      * Fetch a single rule by its primary key.

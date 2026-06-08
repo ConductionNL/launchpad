@@ -38,7 +38,6 @@ use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
-use OCP\IL10N;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -79,16 +78,12 @@ class ResourceControllerTest extends TestCase
         $this->groupManager = $this->createMock(IGroupManager::class);
         $this->logger       = $this->createMock(LoggerInterface::class);
 
-        $l10n = $this->createMock(IL10N::class);
-        $l10n->method('t')->willReturnCallback(static fn (string $s): string => $s);
-
         $this->controller = new ResourceController(
             request: $this->request,
             resourceService: $this->service,
             parser: $this->parser,
             userSession: $this->userSession,
             groupManager: $this->groupManager,
-            l10n: $l10n,
             logger: new NullLogger(),
         );
     }//end setUp()
@@ -99,16 +94,12 @@ class ResourceControllerTest extends TestCase
      */
     private function buildController(string $rawBody = ''): ResourceController
     {
-        $l10n = $this->createMock(IL10N::class);
-        $l10n->method('t')->willReturnCallback(static fn (string $s): string => $s);
-
         return new class (
             $this->request,
             $this->service,
             $this->parser,
             $this->userSession,
             $this->groupManager,
-            $l10n,
             $this->logger,
             $rawBody,
         ) extends ResourceController {
@@ -118,7 +109,6 @@ class ResourceControllerTest extends TestCase
                 ResourceUploadRequestParser $parser,
                 IUserSession $userSession,
                 IGroupManager $groupManager,
-                IL10N $l10n,
                 LoggerInterface $logger,
                 private readonly string $fakeBody,
             ) {
@@ -128,7 +118,6 @@ class ResourceControllerTest extends TestCase
                     parser: $parser,
                     userSession: $userSession,
                     groupManager: $groupManager,
-                    l10n: $l10n,
                     logger: $logger,
                 );
             }

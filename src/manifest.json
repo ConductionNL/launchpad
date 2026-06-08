@@ -1,8 +1,61 @@
 {
-  "$schema": "https://raw.githubusercontent.com/ConductionNL/nextcloud-vue/main/src/schemas/app-manifest-v2.schema.json",
-  "version": "1.0.0",
-  "dependencies": ["openregister"],
-  "menu": [],
-  "pages": [],
-  "runtime": { "loadFrom": "launchpad/api/manifest" }
+  "$schema": "https://unpkg.com/@conduction/nextcloud-vue@latest/dist/schemas/app-manifest.schema.json",
+  "version": "0.1.0",
+  "dependencies": [],
+  "menu": [
+    {
+      "id": "dashboards",
+      "label": "launchpad.menu.dashboards",
+      "icon": "icon-dashboard",
+      "route": "/dashboards",
+      "section": "main"
+    },
+    {
+      "id": "admin-templates",
+      "label": "launchpad.menu.adminTemplates",
+      "icon": "icon-template",
+      "route": "/admin/templates",
+      "section": "settings",
+      "permission": "admin"
+    },
+    {
+      "id": "admin-settings",
+      "label": "launchpad.menu.adminSettings",
+      "icon": "icon-settings",
+      "route": "/admin/settings",
+      "section": "settings",
+      "permission": "admin"
+    }
+  ],
+  "pages": [
+    {
+      "id": "dashboard-detail",
+      "route": "/dashboards/:id",
+      "type": "dashboard",
+      "title": "launchpad.pages.dashboard",
+      "config": {
+        "widgets": "@runtime",
+        "layout": "@runtime"
+      }
+    },
+    {
+      "id": "admin-templates-index",
+      "route": "/admin/templates",
+      "type": "index",
+      "title": "launchpad.pages.adminTemplates",
+      "config": {
+        "register": null,
+        "schema": null,
+        "source": "mydash:oc_mydash_admin_settings",
+        "columns": ["key", "value", "scope", "updated"]
+      }
+    },
+    {
+      "id": "admin-settings",
+      "route": "/admin/settings",
+      "type": "custom",
+      "title": "launchpad.pages.adminSettings",
+      "component": "AdminSettingsPage"
+    }
+  ]
 }

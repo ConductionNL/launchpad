@@ -8,8 +8,16 @@
 	"auth": {
 		"type": "basic",
 		"basic": [
-			{ "key": "username", "value": "{{adminUser}}", "type": "string" },
-			{ "key": "password", "value": "{{adminPassword}}", "type": "string" }
+			{
+				"key": "username",
+				"value": "{{adminUser}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{adminPassword}}",
+				"type": "string"
+			}
 		]
 	},
 	"event": [
@@ -26,9 +34,18 @@
 		}
 	],
 	"variable": [
-		{ "key": "baseUrl", "value": "http://localhost:8080" },
-		{ "key": "adminUser", "value": "admin" },
-		{ "key": "adminPassword", "value": "admin" }
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "adminUser",
+			"value": "admin"
+		},
+		{
+			"key": "adminPassword",
+			"value": "admin"
+		}
 	],
 	"item": [
 		{
@@ -39,7 +56,19 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/health", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "health"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"health"
+							]
+						}
 					},
 					"event": [
 						{
@@ -63,7 +92,19 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/metrics", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "metrics"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/metrics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"metrics"
+							]
+						}
 					},
 					"event": [
 						{
@@ -85,9 +126,23 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Accept", "value": "text/html" }
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
 						],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", ""] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								""
+							]
+						}
 					},
 					"event": [
 						{
@@ -109,7 +164,20 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/health/does-not-exist", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "health", "does-not-exist"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/health/does-not-exist",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"health",
+								"does-not-exist"
+							]
+						}
 					},
 					"event": [
 						{
@@ -128,9 +196,23 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Accept", "value": "text/html" }
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
 						],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/newman-deeplink-probe", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "newman-deeplink-probe"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/newman-deeplink-probe",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"newman-deeplink-probe"
+							]
+						}
 					},
 					"event": [
 						{
@@ -139,7 +221,7 @@
 								"type": "text/javascript",
 								"exec": [
 									"// Pins the silent-fallback contract: an unknown slug-chain MUST",
-									"// still render the workspace shell (200 HTML) — bookmarks of",
+									"// still render the workspace shell (200 HTML) \u2014 bookmarks of",
 									"// renamed/deleted dashboards land somewhere instead of breaking.",
 									"pm.test('200 OK (silent fallback for unknown slug)', () => pm.response.to.have.status(200));",
 									"pm.test('returns HTML (page shell)', () => {",
@@ -155,7 +237,19 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/health", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "health"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"health"
+							]
+						}
 					},
 					"event": [
 						{
@@ -164,7 +258,7 @@
 								"type": "text/javascript",
 								"exec": [
 									"// REGRESSION: the deep-link catch-all `/{deepLink}` MUST NOT",
-									"// swallow `/api/...` requests — the negative-lookahead in",
+									"// swallow `/api/...` requests \u2014 the negative-lookahead in",
 									"// `appinfo/routes.php` is the only thing keeping API endpoints",
 									"// reachable. A 200 here proves the route-ordering + regex still hold.",
 									"pm.test('200 OK (API still reachable past the catch-all)', () => pm.response.to.have.status(200));",
@@ -185,12 +279,30 @@
 					"name": "PUT /api/admin/settings (enable personal dashboards)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\"allowUserDash\":true}"
 						},
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "settings"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"settings"
+							]
+						}
 					},
 					"event": [
 						{
@@ -211,13 +323,28 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\"name\":\"newman-fixture-{{$timestamp}}\",\"description\":\"Newman integration fixture\",\"icon\":null}"
 						},
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard"
+							]
+						}
 					},
 					"event": [
 						{
@@ -279,14 +406,32 @@
 					]
 				},
 				{
-					"name": "POST /api/dashboard (empty body — API auto-defaults)",
+					"name": "POST /api/dashboard (empty body \u2014 API auto-defaults)",
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
 						],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard"] }
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard"
+							]
+						}
 					},
 					"event": [
 						{
@@ -298,7 +443,7 @@
 									"// at the controller boundary. So this can come back as 201 (fresh",
 									"// install) OR 400 'Slug must be unique among siblings' (when an",
 									"// earlier admin-named dashboard already occupies the auto-slug).",
-									"// Either is a healthy response — what we're really checking is",
+									"// Either is a healthy response \u2014 what we're really checking is",
 									"// that the dispatcher does NOT 500 on the missing-name path.",
 									"pm.test('2xx or 4xx (no 500)', () => pm.expect([200, 201, 400, 403, 422]).to.include(pm.response.code));",
 									"pm.test('JSON envelope', () => {",
@@ -328,7 +473,21 @@
 					"name": "GET /api/dashboards/{uuid}/path (canonical slug-chain lookup)",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/path", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "path"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/path",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"path"
+							]
+						}
 					},
 					"event": [
 						{
@@ -357,7 +516,21 @@
 					"name": "GET /api/dashboards/missing-uuid/path (404 / 400 envelope)",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/00000000-0000-0000-0000-000000000000/path", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "00000000-0000-0000-0000-000000000000", "path"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/00000000-0000-0000-0000-000000000000/path",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"00000000-0000-0000-0000-000000000000",
+								"path"
+							]
+						}
 					},
 					"event": [
 						{
@@ -365,7 +538,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"// Unknown UUIDs MUST come back as 200 with an empty path —",
+									"// Unknown UUIDs MUST come back as 200 with an empty path \u2014",
 									"// the empty string is a documented `no addressable URL` signal",
 									"// the frontend distinguishes from genuine errors. The endpoint",
 									"// never 404s on unknown uuids.",
@@ -384,9 +557,23 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Accept", "value": "text/html" }
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
 						],
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/{{fixtureDashboardSlug}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "{{fixtureDashboardSlug}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/{{fixtureDashboardSlug}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"{{fixtureDashboardSlug}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -427,7 +614,19 @@
 					"name": "GET /api/dashboards (list)",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards"
+							]
+						}
 					},
 					"event": [
 						{
@@ -446,7 +645,20 @@
 					"name": "GET /api/dashboards/visible",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/visible", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "visible"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/visible",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"visible"
+							]
+						}
 					},
 					"event": [
 						{
@@ -469,9 +681,30 @@
 					"name": "POST /api/dashboards/active (set active)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"uuid\":\"{{fixtureDashboardUuid}}\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/active", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "active"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"uuid\":\"{{fixtureDashboardUuid}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"active"
+							]
+						}
 					},
 					"event": [
 						{
@@ -490,7 +723,20 @@
 					"name": "GET /api/dashboards/tree",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/tree", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "tree"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/tree",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"tree"
+							]
+						}
 					},
 					"event": [
 						{
@@ -509,7 +755,21 @@
 					"name": "GET /api/dashboards/by-path/{path} (404 for unknown)",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/by-path/newman-no-such-path", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "by-path", "newman-no-such-path"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/by-path/newman-no-such-path",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"by-path",
+								"newman-no-such-path"
+							]
+						}
 					},
 					"event": [
 						{
@@ -531,7 +791,19 @@
 					"name": "GET /api/dashboard (getActive)",
 					"request": {
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard"
+							]
+						}
 					},
 					"event": [
 						{
@@ -550,9 +822,30 @@
 					"name": "PUT /api/dashboard/{id} (update fixture)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-fixture-renamed-{{$timestamp}}\",\"description\":\"Updated by Newman\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-fixture-renamed-{{$timestamp}}\",\"description\":\"Updated by Newman\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -574,7 +867,21 @@
 					"name": "POST /api/dashboard/{id}/activate",
 					"request": {
 						"method": "POST",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}/activate", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}", "activate"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/activate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}",
+								"activate"
+							]
+						}
 					},
 					"event": [
 						{
@@ -592,9 +899,30 @@
 					"name": "PUT /api/dashboard/{id} (404 unknown id)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"x\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/99999999", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "99999999"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"x\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/99999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"99999999"
+							]
+						}
 					},
 					"event": [
 						{
@@ -621,9 +949,31 @@
 					"name": "POST /api/dashboards/{uuid}/publish",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/publish", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "publish"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/publish",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"publish"
+							]
+						}
 					},
 					"event": [
 						{
@@ -641,9 +991,31 @@
 					"name": "POST /api/dashboards/{uuid}/unpublish",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/unpublish", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "unpublish"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/unpublish",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"unpublish"
+							]
+						}
 					},
 					"event": [
 						{
@@ -661,9 +1033,31 @@
 					"name": "POST /api/dashboards/{uuid}/schedule",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"publishAt\":\"2099-01-01T00:00:00Z\",\"unpublishAt\":null}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/schedule", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "schedule"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"publishAt\":\"2099-01-01T00:00:00Z\",\"unpublishAt\":null}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/schedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"schedule"
+							]
+						}
 					},
 					"event": [
 						{
@@ -681,9 +1075,31 @@
 					"name": "POST /api/dashboards/{uuid}/fork",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-fork-{{$timestamp}}\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/fork", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "fork"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-fork-{{$timestamp}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/fork",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"fork"
+							]
+						}
 					},
 					"event": [
 						{
@@ -701,9 +1117,31 @@
 					"name": "POST /api/dashboards/{uuid}/publish (404 unknown uuid)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/00000000-0000-0000-0000-000000000000/publish", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "00000000-0000-0000-0000-000000000000", "publish"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/00000000-0000-0000-0000-000000000000/publish",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"00000000-0000-0000-0000-000000000000",
+								"publish"
+							]
+						}
 					},
 					"event": [
 						{
@@ -730,9 +1168,31 @@
 					"name": "POST /api/dashboards/{uuid}/view-event",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/view-event", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "view-event"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/view-event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"view-event"
+							]
+						}
 					},
 					"event": [
 						{
@@ -750,9 +1210,31 @@
 					"name": "POST /api/dashboards/{uuid}/view-event (404 unknown)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/00000000-0000-0000-0000-000000000000/view-event", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "00000000-0000-0000-0000-000000000000", "view-event"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/00000000-0000-0000-0000-000000000000/view-event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"00000000-0000-0000-0000-000000000000",
+								"view-event"
+							]
+						}
 					},
 					"event": [
 						{
@@ -773,7 +1255,24 @@
 			"item": [
 				{
 					"name": "GET /api/dashboards/{uuid}/translations",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "translations"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/translations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"translations"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -791,9 +1290,31 @@
 					"name": "POST /api/dashboards/{uuid}/translations",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"lang\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "translations"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"lang\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/translations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"translations"
+							]
+						}
 					},
 					"event": [
 						{
@@ -811,9 +1332,32 @@
 					"name": "PUT /api/dashboards/{uuid}/translations/{lang}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-nl-updated\",\"description\":\"NL desc updated\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations/nl", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "translations", "nl"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-nl-updated\",\"description\":\"NL desc updated\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/translations/nl",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"translations",
+								"nl"
+							]
+						}
 					},
 					"event": [
 						{
@@ -831,9 +1375,33 @@
 					"name": "POST /api/dashboards/{uuid}/translations/{lang}/set-primary",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations/nl/set-primary", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "translations", "nl", "set-primary"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/translations/nl/set-primary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"translations",
+								"nl",
+								"set-primary"
+							]
+						}
 					},
 					"event": [
 						{
@@ -849,7 +1417,24 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/resolved",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/resolved", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "resolved"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/resolved",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"resolved"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -867,7 +1452,22 @@
 					"name": "DELETE /api/dashboards/{uuid}/translations/{lang}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations/nl", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "translations", "nl"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/translations/nl",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"translations",
+								"nl"
+							]
+						}
 					},
 					"event": [
 						{
@@ -883,7 +1483,24 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/translations (404 unknown uuid)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/00000000-0000-0000-0000-000000000000/translations", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "00000000-0000-0000-0000-000000000000", "translations"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/00000000-0000-0000-0000-000000000000/translations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"00000000-0000-0000-0000-000000000000",
+								"translations"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -907,7 +1524,24 @@
 			"item": [
 				{
 					"name": "GET /api/dashboards/{uuid}/comments",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "comments"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"comments"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -925,9 +1559,31 @@
 					"name": "POST /api/dashboards/{uuid}/comments",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"message\":\"Newman comment {{$timestamp}}\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "comments"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"message\":\"Newman comment {{$timestamp}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"comments"
+							]
+						}
 					},
 					"event": [
 						{
@@ -949,9 +1605,32 @@
 					"name": "PUT /api/dashboards/{uuid}/comments/{id}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"message\":\"Newman comment updated\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments/{{fixtureCommentId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "comments", "{{fixtureCommentId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"message\":\"Newman comment updated\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/comments/{{fixtureCommentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"comments",
+								"{{fixtureCommentId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -969,7 +1648,22 @@
 					"name": "DELETE /api/dashboards/{uuid}/comments/{id}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments/{{fixtureCommentId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "comments", "{{fixtureCommentId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/comments/{{fixtureCommentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"comments",
+								"{{fixtureCommentId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -987,9 +1681,31 @@
 					"name": "POST /api/dashboards/{uuid}/comments (validation: empty body)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "comments"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"comments"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1011,7 +1727,24 @@
 			"item": [
 				{
 					"name": "GET /api/dashboards/group/{groupId}",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/admin", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "admin"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"admin"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1028,9 +1761,31 @@
 					"name": "POST /api/dashboards/group/{groupId} (create group dashboard)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-group-{{$timestamp}}\",\"description\":\"Newman group fixture\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/admin", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "admin"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-group-{{$timestamp}}\",\"description\":\"Newman group fixture\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"admin"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1053,9 +1808,32 @@
 					"name": "POST /api/dashboards/group/{groupId}/default",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"uuid\":\"{{fixtureGroupDashboardUuid}}\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/admin/default", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "admin", "default"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"uuid\":\"{{fixtureGroupDashboardUuid}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/admin/default",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"admin",
+								"default"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1071,7 +1849,25 @@
 				},
 				{
 					"name": "GET /api/dashboards/group/{groupId}/{uuid}",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/admin/{{fixtureGroupDashboardUuid}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "admin", "{{fixtureGroupDashboardUuid}}"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/admin/{{fixtureGroupDashboardUuid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"admin",
+								"{{fixtureGroupDashboardUuid}}"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1088,9 +1884,32 @@
 					"name": "PUT /api/dashboards/group/{groupId}/{uuid}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-group-updated\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/admin/{{fixtureGroupDashboardUuid}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "admin", "{{fixtureGroupDashboardUuid}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-group-updated\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/admin/{{fixtureGroupDashboardUuid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"admin",
+								"{{fixtureGroupDashboardUuid}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1108,7 +1927,22 @@
 					"name": "DELETE /api/dashboards/group/{groupId}/{uuid}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/admin/{{fixtureGroupDashboardUuid}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "admin", "{{fixtureGroupDashboardUuid}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/admin/{{fixtureGroupDashboardUuid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"admin",
+								"{{fixtureGroupDashboardUuid}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1124,7 +1958,24 @@
 				},
 				{
 					"name": "GET /api/dashboards/group/no-such-group (error envelope)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/group/newman-no-such-group", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "group", "newman-no-such-group"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/group/newman-no-such-group",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"group",
+								"newman-no-such-group"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1146,9 +1997,31 @@
 					"name": "POST /api/dashboards/{uuid}/lock (acquire)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/lock", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "lock"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/lock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"lock"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1164,7 +2037,24 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/lock",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/lock", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "lock"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/lock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"lock"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1182,9 +2072,31 @@
 					"name": "PUT /api/dashboards/{uuid}/lock (heartbeat)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/lock", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "lock"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/lock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"lock"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1202,9 +2114,32 @@
 					"name": "POST /api/dashboards/{uuid}/lock/force-release",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/lock/force-release", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "lock", "force-release"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/lock/force-release",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"lock",
+								"force-release"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1222,7 +2157,21 @@
 					"name": "DELETE /api/dashboards/{uuid}/lock (release)",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/lock", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "lock"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/lock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"lock"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1240,9 +2189,31 @@
 					"name": "POST /api/dashboards/{uuid}/lock (404 unknown)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/00000000-0000-0000-0000-000000000000/lock", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "00000000-0000-0000-0000-000000000000", "lock"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/00000000-0000-0000-0000-000000000000/lock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"00000000-0000-0000-0000-000000000000",
+								"lock"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1264,7 +2235,24 @@
 			"item": [
 				{
 					"name": "GET /api/dashboard/{id}/shares",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}/shares", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}", "shares"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/shares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}",
+								"shares"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1282,9 +2270,31 @@
 					"name": "POST /api/dashboard/{id}/shares",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"shareType\":\"user\",\"shareWith\":\"admin\",\"permissionLevel\":\"view\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}/shares", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}", "shares"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"shareType\":\"user\",\"shareWith\":\"admin\",\"permissionLevel\":\"view\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/shares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}",
+								"shares"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1307,9 +2317,31 @@
 					"name": "PUT /api/dashboard/{id}/shares (replace)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"shares\":[]}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}/shares", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}", "shares"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"shares\":[]}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/shares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}",
+								"shares"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1325,7 +2357,28 @@
 				},
 				{
 					"name": "GET /api/sharees (search)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/sharees?search=adm", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "sharees"], "query": [{"key": "search", "value": "adm"}] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/sharees?search=adm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"sharees"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "adm"
+								}
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1343,7 +2396,21 @@
 					"name": "DELETE /api/dashboard/share/{shareId}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/share/{{fixtureShareId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "share", "{{fixtureShareId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/share/{{fixtureShareId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"share",
+								"{{fixtureShareId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1361,7 +2428,21 @@
 					"name": "DELETE /api/sharees/{shareType}/{shareWith}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/sharees/1/admin", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "sharees", "1", "admin"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/sharees/1/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"sharees",
+								"1",
+								"admin"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1377,7 +2458,24 @@
 				},
 				{
 					"name": "GET /api/dashboard/{id}/shares (404 unknown id)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/99999999/shares", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "99999999", "shares"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/99999999/shares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"99999999",
+								"shares"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1400,9 +2498,31 @@
 					"name": "POST /api/dashboards/{uuid}/reactions",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"emoji\":\"👍\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/reactions", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "reactions"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"emoji\":\"\ud83d\udc4d\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/reactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"reactions"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1418,7 +2538,24 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/reactions",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/reactions", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "reactions"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/reactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"reactions"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1434,7 +2571,26 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/reactions/{emoji}/users",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/reactions/%F0%9F%91%8D/users", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "reactions", "%F0%9F%91%8D", "users"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/reactions/%F0%9F%91%8D/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"reactions",
+								"%F0%9F%91%8D",
+								"users"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1451,7 +2607,22 @@
 					"name": "DELETE /api/dashboards/{uuid}/reactions/{emoji}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/reactions/%F0%9F%91%8D", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "reactions", "%F0%9F%91%8D"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/reactions/%F0%9F%91%8D",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"reactions",
+								"%F0%9F%91%8D"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1469,9 +2640,31 @@
 					"name": "POST /api/dashboards/{uuid}/reactions (validation: missing emoji)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/reactions", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "reactions"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/reactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"reactions"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1493,7 +2686,24 @@
 			"item": [
 				{
 					"name": "GET /api/dashboards/{uuid}/versions",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/versions", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "versions"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/versions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"versions"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1512,9 +2722,31 @@
 					"name": "POST /api/dashboards/{uuid}/versions (create)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"label\":\"newman snapshot\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/versions", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "versions"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"label\":\"newman snapshot\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/versions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"versions"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1530,7 +2762,25 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/versions/{versionNumber}",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/versions/{{fixtureVersionNumber}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "versions", "{{fixtureVersionNumber}}"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/versions/{{fixtureVersionNumber}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"versions",
+								"{{fixtureVersionNumber}}"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1547,9 +2797,33 @@
 					"name": "POST /api/dashboards/{uuid}/versions/{versionNumber}/restore",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/versions/{{fixtureVersionNumber}}/restore", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "versions", "{{fixtureVersionNumber}}", "restore"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/versions/{{fixtureVersionNumber}}/restore",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"versions",
+								"{{fixtureVersionNumber}}",
+								"restore"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1565,7 +2839,25 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/versions/9999 (404)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/versions/9999", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "versions", "9999"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/versions/9999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"versions",
+								"9999"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1585,7 +2877,24 @@
 			"item": [
 				{
 					"name": "GET /api/dashboards/{uuid}/metadata",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/metadata", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "metadata"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/metadata",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"metadata"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1603,9 +2912,31 @@
 					"name": "PUT /api/dashboards/{uuid}/metadata",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"values\":{}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/metadata", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "metadata"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"values\":{}}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/metadata",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"metadata"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1621,7 +2952,24 @@
 				},
 				{
 					"name": "GET /api/dashboards/{uuid}/metadata (404 unknown)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/00000000-0000-0000-0000-000000000000/metadata", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "00000000-0000-0000-0000-000000000000", "metadata"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/00000000-0000-0000-0000-000000000000/metadata",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"00000000-0000-0000-0000-000000000000",
+								"metadata"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1641,7 +2989,22 @@
 			"item": [
 				{
 					"name": "GET /api/tiles",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/tiles", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "tiles"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/tiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"tiles"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1659,9 +3022,29 @@
 					"name": "POST /api/tiles (create)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-tile-{{$timestamp}}\",\"icon\":\"folder\",\"link\":\"https://example.com\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/tiles", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "tiles"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-tile-{{$timestamp}}\",\"icon\":\"folder\",\"link\":\"https://example.com\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/tiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"tiles"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1684,9 +3067,30 @@
 					"name": "PUT /api/tiles/{id}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-tile-renamed\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/tiles/{{fixtureTileId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "tiles", "{{fixtureTileId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-tile-renamed\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/tiles/{{fixtureTileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"tiles",
+								"{{fixtureTileId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1704,7 +3108,20 @@
 					"name": "DELETE /api/tiles/{id}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/tiles/{{fixtureTileId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "tiles", "{{fixtureTileId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/tiles/{{fixtureTileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"tiles",
+								"{{fixtureTileId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1722,9 +3139,30 @@
 					"name": "PUT /api/tiles/9999999 (404)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"x\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/tiles/9999999", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "tiles", "9999999"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"x\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/tiles/9999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"tiles",
+								"9999999"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1746,7 +3184,22 @@
 			"item": [
 				{
 					"name": "GET /api/widgets (listAvailable)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1762,7 +3215,23 @@
 				},
 				{
 					"name": "GET /api/widgets/items",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/items", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "items"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"items"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1780,9 +3249,31 @@
 					"name": "POST /api/dashboard/{dashboardId}/widgets (addWidget)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"widgetId\":\"links\",\"gridX\":0,\"gridY\":0,\"gridWidth\":2,\"gridHeight\":2}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}/widgets", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}", "widgets"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"widgetId\":\"links\",\"gridX\":0,\"gridY\":0,\"gridWidth\":2,\"gridHeight\":2}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/widgets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}",
+								"widgets"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1805,9 +3296,31 @@
 					"name": "POST /api/dashboard/{dashboardId}/tile (addTile)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"tileId\":{{fixtureTileId}},\"x\":0,\"y\":0,\"w\":1,\"h\":1}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}/tile", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}", "tile"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"tileId\":{{fixtureTileId}},\"x\":0,\"y\":0,\"w\":1,\"h\":1}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}/tile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}",
+								"tile"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1823,7 +3336,25 @@
 				},
 				{
 					"name": "GET /api/widgets/news/{placementId}/items",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/news/{{fixturePlacementId}}/items", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "news", "{{fixturePlacementId}}", "items"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/news/{{fixturePlacementId}}/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"news",
+								"{{fixturePlacementId}}",
+								"items"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1838,7 +3369,25 @@
 				},
 				{
 					"name": "GET /api/widgets/calendar/{placementId}/events",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/calendar/{{fixturePlacementId}}/events", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "calendar", "{{fixturePlacementId}}", "events"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/calendar/{{fixturePlacementId}}/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"calendar",
+								"{{fixturePlacementId}}",
+								"events"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1855,9 +3404,30 @@
 					"name": "PUT /api/widgets/{placementId} (updatePlacement)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"x\":1,\"y\":1,\"w\":2,\"h\":2,\"widgetContent\":{}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/{{fixturePlacementId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "{{fixturePlacementId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"x\":1,\"y\":1,\"w\":2,\"h\":2,\"widgetContent\":{}}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/{{fixturePlacementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"{{fixturePlacementId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1875,7 +3445,20 @@
 					"name": "DELETE /api/widgets/{placementId} (removePlacement)",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/{{fixturePlacementId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "{{fixturePlacementId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/{{fixturePlacementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"{{fixturePlacementId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1893,9 +3476,30 @@
 					"name": "PUT /api/widgets/9999999 (404 unknown placement)",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/9999999", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "9999999"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/9999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"9999999"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1917,7 +3521,24 @@
 			"item": [
 				{
 					"name": "GET /api/widgets/{placementId}/rules",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/{{fixturePlacementId}}/rules", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "{{fixturePlacementId}}", "rules"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/{{fixturePlacementId}}/rules",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"{{fixturePlacementId}}",
+								"rules"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -1934,9 +3555,31 @@
 					"name": "POST /api/widgets/{placementId}/rules (addRule)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"ruleType\":\"hide\",\"ruleConfig\":{\"groupId\":\"admin\"},\"isInclude\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/{{fixturePlacementId}}/rules", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "{{fixturePlacementId}}", "rules"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"ruleType\":\"hide\",\"ruleConfig\":{\"groupId\":\"admin\"},\"isInclude\":true}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/{{fixturePlacementId}}/rules",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"{{fixturePlacementId}}",
+								"rules"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1959,9 +3602,30 @@
 					"name": "PUT /api/rules/{ruleId}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"type\":\"hide\",\"condition\":{}}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/rules/{{fixtureRuleId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "rules", "{{fixtureRuleId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"type\":\"hide\",\"condition\":{}}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/rules/{{fixtureRuleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"rules",
+								"{{fixtureRuleId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1979,7 +3643,20 @@
 					"name": "DELETE /api/rules/{ruleId}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/rules/{{fixtureRuleId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "rules", "{{fixtureRuleId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/rules/{{fixtureRuleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"rules",
+								"{{fixtureRuleId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -1997,7 +3674,20 @@
 					"name": "DELETE /api/rules/9999999 (404)",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/rules/9999999", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "rules", "9999999"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/rules/9999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"rules",
+								"9999999"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2018,7 +3708,25 @@
 			"item": [
 				{
 					"name": "GET /api/widgets/files/{placementId}/contents",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/files/{{fixturePlacementId}}/contents", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "files", "{{fixturePlacementId}}", "contents"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/files/{{fixturePlacementId}}/contents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"files",
+								"{{fixturePlacementId}}",
+								"contents"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2039,10 +3747,29 @@
 						"body": {
 							"mode": "formdata",
 							"formdata": [
-								{ "key": "file", "type": "text", "value": "newman-stub" }
+								{
+									"key": "file",
+									"type": "text",
+									"value": "newman-stub"
+								}
 							]
 						},
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/files/{{fixturePlacementId}}/upload", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "files", "{{fixturePlacementId}}", "upload"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/files/{{fixturePlacementId}}/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"files",
+								"{{fixturePlacementId}}",
+								"upload"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2060,7 +3787,23 @@
 					"name": "DELETE /api/widgets/files/{placementId}/files/{fileId}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/widgets/files/{{fixturePlacementId}}/files/9999999", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "widgets", "files", "{{fixturePlacementId}}", "files", "9999999"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets/files/{{fixturePlacementId}}/files/9999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets",
+								"files",
+								"{{fixturePlacementId}}",
+								"files",
+								"9999999"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2088,9 +3831,30 @@
 					"name": "POST /api/files/create",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"filename\":\"newman.txt\",\"dir\":\"/\",\"content\":\"newman\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/files/create", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "files", "create"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"filename\":\"newman.txt\",\"dir\":\"/\",\"content\":\"newman\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/files/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"files",
+								"create"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2108,9 +3872,30 @@
 					"name": "POST /api/files/create (validation: missing filename)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/files/create", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "files", "create"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/files/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"files",
+								"create"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2132,7 +3917,22 @@
 			"item": [
 				{
 					"name": "GET /api/resources (list)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/resources", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "resources"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/resources",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"resources"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2150,12 +3950,29 @@
 					"name": "POST /api/resources (upload)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\"base64\":\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=\",\"name\":\"newman-1x1.png\"}"
 						},
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/resources", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "resources"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/resources",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"resources"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2171,7 +3988,22 @@
 				},
 				{
 					"name": "GET /resource/{filename} (404 unknown name)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/resource/newman-no-such-file.png", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "resource", "newman-no-such-file.png"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/resource/newman-no-such-file.png",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"resource",
+								"newman-no-such-file.png"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2191,7 +4023,23 @@
 			"item": [
 				{
 					"name": "GET /api/feed/token",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/feed/token", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "feed", "token"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/feed/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"feed",
+								"token"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2210,9 +4058,31 @@
 					"name": "POST /api/feed/token/regenerate",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/feed/token/regenerate", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "feed", "token", "regenerate"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/feed/token/regenerate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"feed",
+								"token",
+								"regenerate"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2230,7 +4100,28 @@
 				},
 				{
 					"name": "GET /feed/{token}.xml",
-					"request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/xml" }], "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/feed/{{fixtureFeedToken}}.xml", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "feed", "{{fixtureFeedToken}}.xml"] } },
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/xml"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/feed/{{fixtureFeedToken}}.xml",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"feed",
+								"{{fixtureFeedToken}}.xml"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2248,7 +4139,20 @@
 					"name": "DELETE /api/feed/token (revoke)",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/feed/token", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "feed", "token"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/feed/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"feed",
+								"token"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2264,7 +4168,22 @@
 				},
 				{
 					"name": "GET /feed/garbage.xml (404 unknown)",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/feed/newman-no-such-token.xml", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "feed", "newman-no-such-token.xml"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/feed/newman-no-such-token.xml",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"feed",
+								"newman-no-such-token.xml"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2284,7 +4203,23 @@
 			"item": [
 				{
 					"name": "GET /api/templates/gallery",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/templates/gallery", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "templates", "gallery"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/templates/gallery",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"templates",
+								"gallery"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2302,9 +4237,31 @@
 					"name": "POST /api/dashboards/{uuid}/save-as-template",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-template-{{$timestamp}}\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/save-as-template", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards", "{{fixtureDashboardUuid}}", "save-as-template"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-template-{{$timestamp}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards/{{fixtureDashboardUuid}}/save-as-template",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"save-as-template"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2325,7 +4282,32 @@
 			"item": [
 				{
 					"name": "GET /api/people",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/people?limit=10&offset=0", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "people"], "query": [{"key":"limit","value":"10"},{"key":"offset","value":"0"}] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/people?limit=10&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"people"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2349,7 +4331,23 @@
 			"item": [
 				{
 					"name": "GET /api/admin/templates",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2366,9 +4364,30 @@
 					"name": "POST /api/admin/templates (create)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-template-{{$timestamp}}\",\"description\":\"Newman fixture\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-template-{{$timestamp}}\",\"description\":\"Newman fixture\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2394,9 +4413,30 @@
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [{"key":"image","type":"text","value":"newman-stub"}]
+							"formdata": [
+								{
+									"key": "image",
+									"type": "text",
+									"value": "newman-stub"
+								}
+							]
 						},
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates/00000000-0000-0000-0000-000000000000/preview-image", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates", "00000000-0000-0000-0000-000000000000", "preview-image"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates/00000000-0000-0000-0000-000000000000/preview-image",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates",
+								"00000000-0000-0000-0000-000000000000",
+								"preview-image"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2412,7 +4452,24 @@
 				},
 				{
 					"name": "GET /api/admin/templates/{id}",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates/{{fixtureTemplateId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates", "{{fixtureTemplateId}}"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates/{{fixtureTemplateId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates",
+								"{{fixtureTemplateId}}"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2429,9 +4486,31 @@
 					"name": "PUT /api/admin/templates/{id}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"name\":\"newman-template-updated\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates/{{fixtureTemplateId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates", "{{fixtureTemplateId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"newman-template-updated\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates/{{fixtureTemplateId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates",
+								"{{fixtureTemplateId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2449,7 +4528,21 @@
 					"name": "DELETE /api/admin/templates/{id}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates/{{fixtureTemplateId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates", "{{fixtureTemplateId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates/{{fixtureTemplateId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates",
+								"{{fixtureTemplateId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2470,7 +4563,23 @@
 			"item": [
 				{
 					"name": "GET /api/admin/settings",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "settings"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"settings"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2487,9 +4596,30 @@
 					"name": "PUT /api/admin/settings",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "settings"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"settings"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2505,7 +4635,23 @@
 				},
 				{
 					"name": "GET /api/admin/footer-settings",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/footer-settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "footer-settings"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/footer-settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"footer-settings"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2522,9 +4668,30 @@
 					"name": "PUT /api/admin/footer-settings",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/footer-settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "footer-settings"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/footer-settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"footer-settings"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2545,7 +4712,23 @@
 			"item": [
 				{
 					"name": "GET /api/admin/groups",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/groups", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "groups"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"groups"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2562,9 +4745,30 @@
 					"name": "POST /api/admin/groups (updateGroupOrder)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"order\":[\"admin\"]}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/groups", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "groups"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"order\":[\"admin\"]}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"groups"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2585,7 +4789,24 @@
 			"item": [
 				{
 					"name": "GET /api/admin/setup-wizard/state",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/setup-wizard/state", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "setup-wizard", "state"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/setup-wizard/state",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"setup-wizard",
+								"state"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2602,9 +4823,31 @@
 					"name": "POST /api/admin/setup-wizard/storage",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"storage\":\"openregister\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/setup-wizard/storage", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "setup-wizard", "storage"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"storage\":\"openregister\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/setup-wizard/storage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"setup-wizard",
+								"storage"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2622,9 +4865,31 @@
 					"name": "POST /api/admin/setup-wizard/complete",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/setup-wizard/complete", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "setup-wizard", "complete"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/setup-wizard/complete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"setup-wizard",
+								"complete"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2645,7 +4910,23 @@
 			"item": [
 				{
 					"name": "GET /api/admin/roles",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/roles", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "roles"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"roles"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2662,9 +4943,30 @@
 					"name": "POST /api/admin/roles",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"groupId\":\"admin\",\"role\":\"admin\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/roles", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "roles"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"groupId\":\"admin\",\"role\":\"admin\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"roles"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2687,7 +4989,21 @@
 					"name": "DELETE /api/admin/roles/{id}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/roles/{{fixtureRoleId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "roles", "{{fixtureRoleId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/roles/{{fixtureRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"roles",
+								"{{fixtureRoleId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2703,7 +5019,23 @@
 				},
 				{
 					"name": "GET /api/me/role",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/me/role", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "me", "role"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/me/role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"me",
+								"role"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2724,7 +5056,23 @@
 			"item": [
 				{
 					"name": "GET /api/admin/metadata-fields",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/metadata-fields", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "metadata-fields"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/metadata-fields",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"metadata-fields"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2741,9 +5089,30 @@
 					"name": "POST /api/admin/metadata-fields (create)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"slug\":\"newman-field-{{$timestamp}}\",\"label\":\"Newman\",\"type\":\"text\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/metadata-fields", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "metadata-fields"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"slug\":\"newman-field-{{$timestamp}}\",\"label\":\"Newman\",\"type\":\"text\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/metadata-fields",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"metadata-fields"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2764,7 +5133,24 @@
 				},
 				{
 					"name": "GET /api/admin/metadata-fields/{id}",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/metadata-fields/{{fixtureMetadataFieldId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "metadata-fields", "{{fixtureMetadataFieldId}}"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/metadata-fields/{{fixtureMetadataFieldId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"metadata-fields",
+								"{{fixtureMetadataFieldId}}"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2781,9 +5167,31 @@
 					"name": "PUT /api/admin/metadata-fields/{id}",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"label\":\"Newman updated\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/metadata-fields/{{fixtureMetadataFieldId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "metadata-fields", "{{fixtureMetadataFieldId}}"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"label\":\"Newman updated\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/metadata-fields/{{fixtureMetadataFieldId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"metadata-fields",
+								"{{fixtureMetadataFieldId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2801,7 +5209,21 @@
 					"name": "DELETE /api/admin/metadata-fields/{id}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/metadata-fields/{{fixtureMetadataFieldId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "metadata-fields", "{{fixtureMetadataFieldId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/metadata-fields/{{fixtureMetadataFieldId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"metadata-fields",
+								"{{fixtureMetadataFieldId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2822,7 +5244,25 @@
 			"item": [
 				{
 					"name": "GET /api/admin/analytics/dashboards/top",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/analytics/dashboards/top", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "analytics", "dashboards", "top"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/analytics/dashboards/top",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"analytics",
+								"dashboards",
+								"top"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2837,7 +5277,24 @@
 				},
 				{
 					"name": "GET /api/admin/analytics/summary",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/analytics/summary", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "analytics", "summary"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/analytics/summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"analytics",
+								"summary"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2852,7 +5309,24 @@
 				},
 				{
 					"name": "GET /api/admin/analytics/export",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/analytics/export", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "analytics", "export"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/analytics/export",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"analytics",
+								"export"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2867,7 +5341,25 @@
 				},
 				{
 					"name": "GET /api/admin/analytics/dashboards/{uuid}",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/analytics/dashboards/{{fixtureDashboardUuid}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "analytics", "dashboards", "{{fixtureDashboardUuid}}"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/analytics/dashboards/{{fixtureDashboardUuid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"analytics",
+								"dashboards",
+								"{{fixtureDashboardUuid}}"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2887,7 +5379,24 @@
 			"item": [
 				{
 					"name": "GET /api/admin/cleanup/scan",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/cleanup/scan", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "cleanup", "scan"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/cleanup/scan",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"cleanup",
+								"scan"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2904,9 +5413,31 @@
 					"name": "POST /api/admin/cleanup/purge",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"dryRun\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/cleanup/purge", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "cleanup", "purge"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"dryRun\":true}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/cleanup/purge",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"cleanup",
+								"purge"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2927,7 +5458,24 @@
 			"item": [
 				{
 					"name": "GET /api/admin/org-navigation/position",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/org-navigation/position", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "org-navigation", "position"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/org-navigation/position",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"org-navigation",
+								"position"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2944,9 +5492,31 @@
 					"name": "PUT /api/admin/org-navigation/position",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"position\":\"top\"}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/org-navigation/position", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "org-navigation", "position"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"position\":\"top\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/org-navigation/position",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"org-navigation",
+								"position"
+							]
+						}
 					},
 					"event": [
 						{
@@ -2962,7 +5532,23 @@
 				},
 				{
 					"name": "GET /api/admin/org-navigation",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/org-navigation", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "org-navigation"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/org-navigation",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"org-navigation"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -2979,9 +5565,30 @@
 					"name": "PUT /api/admin/org-navigation",
 					"request": {
 						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"items\":[]}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/org-navigation", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "org-navigation"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"items\":[]}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/org-navigation",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"org-navigation"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3004,9 +5611,31 @@
 					"name": "POST /api/admin/dashboards/bulk-delete (dry-run)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"uuids\":[],\"dryRun\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/dashboards/bulk-delete", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "dashboards", "bulk-delete"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"uuids\":[],\"dryRun\":true}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/dashboards/bulk-delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"dashboards",
+								"bulk-delete"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3024,9 +5653,31 @@
 					"name": "POST /api/admin/dashboards/bulk-move (dry-run)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"uuids\":[],\"targetParentUuid\":null,\"dryRun\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/dashboards/bulk-move", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "dashboards", "bulk-move"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"uuids\":[],\"targetParentUuid\":null,\"dryRun\":true}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/dashboards/bulk-move",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"dashboards",
+								"bulk-move"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3044,9 +5695,31 @@
 					"name": "POST /api/admin/dashboards/bulk-status (dry-run)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"uuids\":[],\"status\":\"draft\",\"dryRun\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/dashboards/bulk-status", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "dashboards", "bulk-status"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"uuids\":[],\"status\":\"draft\",\"dryRun\":true}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/dashboards/bulk-status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"dashboards",
+								"bulk-status"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3064,9 +5737,31 @@
 					"name": "POST /api/admin/dashboards/bulk-reindex (dry-run)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{\"uuids\":[],\"dryRun\":true}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/dashboards/bulk-reindex", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "dashboards", "bulk-reindex"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"uuids\":[],\"dryRun\":true}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/dashboards/bulk-reindex",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"dashboards",
+								"bulk-reindex"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3084,9 +5779,31 @@
 					"name": "POST /api/admin/dashboards/bulk-delete (validation: missing body)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/dashboards/bulk-delete", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "dashboards", "bulk-delete"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/dashboards/bulk-delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"dashboards",
+								"bulk-delete"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3108,7 +5825,23 @@
 			"item": [
 				{
 					"name": "GET /api/admin/demo-showcases",
-					"request": { "method": "GET", "url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/demo-showcases", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "demo-showcases"] } },
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/demo-showcases",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"demo-showcases"
+							]
+						}
+					},
 					"event": [
 						{
 							"listen": "test",
@@ -3125,9 +5858,32 @@
 					"name": "POST /api/admin/demo-showcases/{id}/install (404 unknown)",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/demo-showcases/newman-no-such-showcase/install", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "demo-showcases", "newman-no-such-showcase", "install"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/demo-showcases/newman-no-such-showcase/install",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"demo-showcases",
+								"newman-no-such-showcase",
+								"install"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3146,7 +5902,21 @@
 					"name": "DELETE /api/admin/demo-showcases/{id}",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/demo-showcases/newman-no-such-showcase", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "demo-showcases", "newman-no-such-showcase"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/demo-showcases/newman-no-such-showcase",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"demo-showcases",
+								"newman-no-such-showcase"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3169,9 +5939,32 @@
 					"name": "POST /api/admin/import/confluence/dry-run",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/import/confluence/dry-run", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "import", "confluence", "dry-run"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/import/confluence/dry-run",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"import",
+								"confluence",
+								"dry-run"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3189,9 +5982,31 @@
 					"name": "POST /api/admin/import/confluence",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/import/confluence", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "import", "confluence"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/import/confluence",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"import",
+								"confluence"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3217,9 +6032,30 @@
 					"name": "POST /api/admin/export",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/export", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "export"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/export",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"export"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3237,9 +6073,30 @@
 					"name": "POST /api/admin/import",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/import", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "import"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/import",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"import"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3257,9 +6114,31 @@
 					"name": "POST /api/admin/feeds/refresh-now",
 					"request": {
 						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "{}" },
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/feeds/refresh-now", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "feeds", "refresh-now"] }
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/feeds/refresh-now",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"feeds",
+								"refresh-now"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3284,12 +6163,33 @@
 						"auth": {
 							"type": "basic",
 							"basic": [
-								{ "key": "username", "value": "{{memberUser}}", "type": "string" },
-								{ "key": "password", "value": "{{memberPassword}}", "type": "string" }
+								{
+									"key": "username",
+									"value": "{{memberUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{memberPassword}}",
+									"type": "string"
+								}
 							]
 						},
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/settings", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "settings"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"settings"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3312,12 +6212,33 @@
 						"auth": {
 							"type": "basic",
 							"basic": [
-								{ "key": "username", "value": "{{memberUser}}", "type": "string" },
-								{ "key": "password", "value": "{{memberPassword}}", "type": "string" }
+								{
+									"key": "username",
+									"value": "{{memberUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{memberPassword}}",
+									"type": "string"
+								}
 							]
 						},
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/templates", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "admin", "templates"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/admin/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"admin",
+								"templates"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3337,11 +6258,25 @@
 			"name": "Auth - Unauthenticated rejection",
 			"item": [
 				{
-					"name": "GET /api/dashboards (no auth — accept 200 only when prior cookie still bound)",
+					"name": "GET /api/dashboards (no auth \u2014 accept 200 only when prior cookie still bound)",
 					"request": {
-						"auth": { "type": "noauth" },
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "GET",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboards"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboards"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3355,10 +6290,10 @@
 									"// hook from `pm.cookies.jar()` is fire-and-forget async, which",
 									"// means it cannot be relied on to land before the request goes",
 									"// out. Until the suite is split into separate Newman invocations",
-									"// for auth/no-auth, accept the 200 fall-through as well — the test",
+									"// for auth/no-auth, accept the 200 fall-through as well \u2014 the test",
 									"// still flags real auth regressions because a bad-auth path that",
-					            "// 500s or 403s is something we want surfaced. (Real no-auth",
-								    "// rejection coverage is enforced separately by PHPUnit.)",
+									"// 500s or 403s is something we want surfaced. (Real no-auth",
+									"// rejection coverage is enforced separately by PHPUnit.)",
 									"pm.test('no 5xx, no 403', () => pm.expect([200, 302, 401]).to.include(pm.response.code));"
 								]
 							}
@@ -3374,7 +6309,20 @@
 					"name": "DELETE /api/dashboard/{id} (delete fixture)",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3392,7 +6340,20 @@
 					"name": "DELETE /api/dashboard/{id} (404 second delete)",
 					"request": {
 						"method": "DELETE",
-						"url": { "raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboard/{{fixtureDashboardId}}", "host": ["{{baseUrl}}"], "path": ["index.php", "apps", "launchpad", "api", "dashboard", "{{fixtureDashboardId}}"] }
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/dashboard/{{fixtureDashboardId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"dashboard",
+								"{{fixtureDashboardId}}"
+							]
+						}
 					},
 					"event": [
 						{
@@ -3403,6 +6364,209 @@
 									"pm.test('error envelope', () => {",
 									"    pm.expect([400, 403, 404]).to.include(pm.response.code);",
 									"    pm.expect(pm.response.json()).to.satisfy((p) => 'error' in p || 'message' in p);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Role-Feature Permissions",
+			"item": [
+				{
+					"name": "GET /api/role-feature-permissions (admin, happy path)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/role-feature-permissions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"role-feature-permissions"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('response is array', () => { pm.expect(Array.isArray(pm.response.json())).to.be.true; });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/role-feature-permissions (admin, create)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"groupId\":\"test-group\",\"name\":\"Test\",\"allowedWidgets\":[\"activity\"],\"deniedWidgets\":[],\"priorityWeights\":{}}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/role-feature-permissions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"role-feature-permissions"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201 Created', () => pm.response.to.have.status(201));",
+									"const json = pm.response.json();",
+									"pm.test('has groupId', () => pm.expect(json).to.have.property('groupId'));",
+									"pm.environment.set('rfpId', json.id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/role-feature-permissions non-admin \u2192 403",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"groupId\":\"hack\",\"allowedWidgets\":[]}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/role-feature-permissions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"role-feature-permissions"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('403 Forbidden for non-admin', () => pm.response.to.have.status(403));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/role-layout-defaults (admin, happy path)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/role-layout-defaults",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"role-layout-defaults"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('response is array', () => { pm.expect(Array.isArray(pm.response.json())).to.be.true; });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/widgets filtered by role permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/mydash/api/widgets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"mydash",
+								"api",
+								"widgets"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('response is array', () => {",
+									"    const json = pm.response.json();",
+									"    const arr = Array.isArray(json) ? json : (json.data ?? []);",
+									"    pm.expect(Array.isArray(arr)).to.be.true;",
 									"});"
 								]
 							}

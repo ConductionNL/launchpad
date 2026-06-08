@@ -17,7 +17,10 @@
  *
  * @version GIT: <git_id>
  *
- * @link https://github.com/ConductionNL/launchpad
+ * @link https://github.com/ConductionNL/mydash
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -35,6 +38,8 @@ use OCP\IUserSession;
 
 /**
  * Per-user preferences controller.
+ *
+ * @spec openspec/specs/admin-settings/spec.md
  */
 class PreferencesController extends Controller
 {
@@ -73,8 +78,6 @@ class PreferencesController extends Controller
      *
      * @spec openspec/specs/admin-settings/spec.md
      */
-    // H4: NoCSRFRequired removed — GET reads benefit from CSRF protection
-    // because NC enforces the token on all non-public requests.
     #[NoAdminRequired]
     public function getPreference(string $key): JSONResponse
     {
@@ -114,8 +117,6 @@ class PreferencesController extends Controller
      *
      * @spec openspec/specs/admin-settings/spec.md
      */
-    // H4: NoCSRFRequired removed — state-mutating endpoint MUST carry CSRF
-    // protection (policy: @NoCSRFRequired is OR-only, per ADR-022).
     #[NoAdminRequired]
     public function setPreference(string $key, string $value=''): JSONResponse
     {
@@ -144,7 +145,9 @@ class PreferencesController extends Controller
                 appName: Application::APP_ID,
                 key: 'pref_'.$safeKey
             );
-        } else {
+        }
+
+        if ($value !== '') {
             $this->config->setUserValue(
                 userId: $user->getUID(),
                 appName: Application::APP_ID,

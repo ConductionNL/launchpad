@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -34,6 +37,7 @@ use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\ResourceService;
 use OCA\LaunchPad\Service\RoleService;
 use OCA\LaunchPad\Service\SetupWizardService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -90,6 +94,7 @@ use OCP\IUserSession;
  *                                                  admin endpoints, not
  *                                                  nested branching inside
  *                                                  any single method.
+ * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
  */
 class AdminController extends Controller
 {
@@ -174,7 +179,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function listTemplates(): JSONResponse
     {
         $templates = $this->templateService->listTemplates();
@@ -193,7 +198,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getTemplate(int $id): JSONResponse
     {
         try {
@@ -231,7 +236,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createTemplate(
         string $name,
         ?string $description=null,
@@ -272,7 +277,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-5
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateTemplate(
         int $id,
         ?string $name=null,
@@ -314,7 +319,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteTemplate(int $id): JSONResponse
     {
         try {
@@ -333,7 +338,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-1
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getSettings(): JSONResponse
     {
         return ResponseHelper::success(
@@ -344,25 +349,43 @@ class AdminController extends Controller
     /**
      * Update admin settings.
      *
-     * @param string|null $defaultPermLevel   Default permission level.
-     * @param bool|null   $allowUserDash      Allow user dashboards.
-     * @param bool|null   $allowMultiDash     Allow multiple dashboards.
-     * @param int|null    $defaultGridCols    Default grid columns.
-     * @param array|null  $linkCreateFileExts link-button-widget createFile
-     *                                        extension allow-list
-     *                                        (REQ-LBN-004).
+     * @param string|null $defaultPermLevel            Default permission level.
+     * @param bool|null   $allowUserDash               Allow user dashboards.
+     * @param bool|null   $allowMultiDash              Allow multiple dashboards.
+     * @param int|null    $defaultGridCols             Default grid columns.
+     * @param array|null  $linkCreateFileExts          link-button-widget createFile
+     *                                                 extension allow-list
+     *                                                 (REQ-LBN-004).
+     * @param string|null $launchpadContentStorage     Content storage backend
+     *                                                 (`database` or
+     *                                                 `groupfolder`).
+     *                                                 REQ-GFSB-006.
+     * @param string|null $defaultSharePermissionLevel Org-wide default share
+     *                                                 permission level
+     *                                                 (dashboard-sharing spec).
+     * @param array|null  $forcedShareGroups           Groups every new dashboard
+     *                                                 is force-shared with
+     *                                                 (dashboard-sharing spec).
+     * @param bool|null   $legacyWidgetBridgeEnabled   Enable / disable the
+     *                                                 legacy widget bridge
+     *                                                 (legacy-widget-bridge
+     *                                                 spec).
      *
      * @return JSONResponse The update confirmation.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateSettings(
         ?string $defaultPermLevel=null,
         ?bool $allowUserDash=null,
         ?bool $allowMultiDash=null,
         ?int $defaultGridCols=null,
-        ?array $linkCreateFileExts=null
+        ?array $linkCreateFileExts=null,
+        ?string $launchpadContentStorage=null,
+        ?string $defaultSharePermissionLevel=null,
+        ?array $forcedShareGroups=null,
+        ?bool $legacyWidgetBridgeEnabled=null
     ): JSONResponse {
         try {
             $this->settingsService->updateSettings(
@@ -370,10 +393,19 @@ class AdminController extends Controller
                 allowUserDash: $allowUserDash,
                 allowMultiDash: $allowMultiDash,
                 defaultGridCols: $defaultGridCols,
-                linkCreateFileExts: $linkCreateFileExts
+                linkCreateFileExts: $linkCreateFileExts,
+                contentStorage: $launchpadContentStorage,
+                defaultSharePermissionLevel: $defaultSharePermissionLevel,
+                forcedShareGroups: $forcedShareGroups,
+                legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);
+        } catch (\InvalidArgumentException $e) {
+            return new JSONResponse(
+                data: ['error' => $e->getMessage()],
+                statusCode: Http::STATUS_BAD_REQUEST
+            );
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
         }//end try
@@ -391,7 +423,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getFooterSettings(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -424,10 +456,13 @@ class AdminController extends Controller
      *
      * @return JSONResponse Status 200 on success, 400/413 on validation,
      *                      401/403 on guard failure.
-         *
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) — NC reads params from route declaration;
+     *                                                  body uses getParams() for array_key_exists semantics.
+     *
      * @spec openspec/specs/admin-templates/spec.md
- */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+     */
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateFooterSettings(
         ?bool $footerEnabled=null,
         mixed $footerHtml=null,
@@ -489,7 +524,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function export(
         string $scope='site',
         ?string $dashboardUuid=null
@@ -553,7 +588,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function import(bool $preserveUuids=false): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -622,7 +657,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function listRoles(): JSONResponse
     {
 
@@ -649,7 +684,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createRole(
         ?string $userId=null,
         ?string $groupId=null,
@@ -700,7 +735,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteRole(int $id): JSONResponse
     {
 
@@ -765,7 +800,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function refreshFeedsNow(?string $feedUrl=null): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -813,7 +848,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function uploadTemplatePreviewImage(
         string $uuid,
         string $base64=''
@@ -878,7 +913,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getWizardState(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -901,7 +936,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function completeWizard(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -928,7 +963,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function setWizardStorage(?string $storage=null): JSONResponse
     {
         $guard = $this->assertAdmin();

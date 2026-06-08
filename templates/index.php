@@ -25,5 +25,5 @@
 ?>
 
 <div id="app-workspace" class="launchpad-workspace">
-	<div id="workspace-vue"></div>
+    <div id="workspace-vue"></div>
 </div>

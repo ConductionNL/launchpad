@@ -35,6 +35,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -45,6 +46,8 @@ use Throwable;
  *                                                 generic widget CRUD
  *                                                 share this controller.
  * @SuppressWarnings(PHPMD.LongVariable)
+ *
+ * @spec openspec/changes/role-based-content/tasks.md#task-3
  */
 class WidgetApiController extends Controller
 {
@@ -61,6 +64,7 @@ class WidgetApiController extends Controller
      * @param IUserSession                 $userSession            User session, used to resolve the
      *                                                             authenticated IUser for ADR-023 action checks.
      * @param ActionAuthService            $actionAuth             The ADR-023 action authorization service.
+     * @param LoggerInterface              $logger                 PSR-3 logger for role-denial audit entries (Task 4).
      * @param string|null                  $userId                 The user ID.
      */
     public function __construct(
@@ -73,6 +77,7 @@ class WidgetApiController extends Controller
         private readonly RoleFeaturePermissionService $roleFeaturePerm,
         private readonly IUserSession $userSession,
         private readonly ActionAuthService $actionAuth,
+        private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
         parent::__construct(
@@ -143,7 +148,8 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The widget items.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/role-based-content/tasks.md#task-3
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -166,10 +172,49 @@ class WidgetApiController extends Controller
             return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
         }
 
+        // REQ-RFP-001 s.3 / REQ-RFP-006 s.2: deny content requests for
+        // widgets the user's role does not permit. Log each denied widget
+        // as an audit entry (Task 4). If every requested widget is denied,
+        // return HTTP 403 so the caller cannot infer widget existence.
+        $deniedWidgets = [];
+        foreach ($widgets as $widgetId) {
+            if ($this->roleFeaturePerm->isWidgetAllowed(
+                userId: $this->userId,
+                widgetId: (string) $widgetId
+            ) === false
+            ) {
+                $deniedWidgets[] = $widgetId;
+                $this->logger->warning(
+                    message: 'role_permission_denied',
+                    context: [
+                        'userId'    => $this->userId,
+                        'widgetId'  => $widgetId,
+                        'timestamp' => (new \DateTimeImmutable())->format(format: \DateTimeInterface::ATOM),
+                        'reason'    => 'role_permission_denied',
+                        'app'       => Application::APP_ID,
+                    ]
+                );
+            }//end if
+        }//end foreach
+
+        if (count(value: $deniedWidgets) > 0 && count(value: $widgets) === count(value: $deniedWidgets)) {
+            return new JSONResponse(
+                data: ['message' => 'Not authorized'],
+                statusCode: Http::STATUS_FORBIDDEN
+            );
+        }
+
+        $allowedWidgets = array_values(
+            array: array_filter(
+                array: $widgets,
+                callback: fn($w) => in_array(needle: $w, haystack: $deniedWidgets, strict: true) === false
+            )
+        );
+
         return ResponseHelper::success(
             data: $this->widgetService->getWidgetItems(
                 userId: $this->userId,
-                widgetIds: $widgets,
+                widgetIds: $allowedWidgets,
                 limit: $limit
             )
         );

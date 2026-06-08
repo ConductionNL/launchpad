@@ -40,6 +40,9 @@ use Throwable;
 
 /**
  * Periodic feed-refresh job.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
+ * @spec                                          openspec/specs/background-job-feed-refresh/spec.md
  */
 class FeedRefreshJob extends TimedJob
 {

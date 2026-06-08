@@ -32,6 +32,7 @@ use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
@@ -52,6 +53,8 @@ class RoleFeaturePermissionServiceTest extends TestCase
 
     private IUserManager $userManager;
 
+    private IGroupManager $groupManager;
+
     protected function setUp(): void
     {
         $this->permMapper           = $this->createMock(originalClassName: RoleFeaturePermissionMapper::class);
@@ -60,6 +63,11 @@ class RoleFeaturePermissionServiceTest extends TestCase
         $this->adminSettings        = $this->createMock(originalClassName: AdminSettingsService::class);
         $this->adminTemplateService = $this->createMock(originalClassName: AdminTemplateService::class);
         $this->userManager          = $this->createMock(originalClassName: IUserManager::class);
+        $this->groupManager         = $this->createMock(originalClassName: IGroupManager::class);
+
+        // Default: the user under test is NOT an admin so the existing
+        // role-resolution assertions exercise the group-matching path.
+        $this->groupManager->method('isAdmin')->willReturn(false);
 
         $this->service = new RoleFeaturePermissionService(
             permissionMapper: $this->permMapper,
@@ -68,6 +76,7 @@ class RoleFeaturePermissionServiceTest extends TestCase
             adminSettings: $this->adminSettings,
             adminTemplateService: $this->adminTemplateService,
             userManager: $this->userManager,
+            groupManager: $this->groupManager,
         );
     }//end setUp()
 
@@ -191,6 +200,40 @@ class RoleFeaturePermissionServiceTest extends TestCase
             widgetId: 'whatever'
         ));
     }//end testIsWidgetAllowedTrueWhenUnconfigured()
+
+    /**
+     * Admin break-glass: a Nextcloud admin is never restricted by the
+     * role-feature-permission allow-list, even when a restrictive `default`
+     * row exists (the bug — admins were falling back to the demo-seeded
+     * `default` row and getting 403 on their own dashboard).
+     */
+    public function testAdminBypassesDefaultRestriction(): void
+    {
+        $admin = $this->createMock(originalClassName: IGroupManager::class);
+        $admin->method('isAdmin')->willReturn(true);
+
+        $service = new RoleFeaturePermissionService(
+            permissionMapper: $this->permMapper,
+            defaultMapper: $this->defaultMapper,
+            placementMapper: $this->placementMapper,
+            adminSettings: $this->adminSettings,
+            adminTemplateService: $this->adminTemplateService,
+            userManager: $this->userManager,
+            groupManager: $admin,
+        );
+
+        // Even if a restrictive `default` row would be returned, the admin
+        // short-circuit must run first: getAllowedWidgetIds → null (no
+        // restriction) and isWidgetAllowed → true for any widget.
+        $this->permMapper->method('findByGroupId')
+            ->willReturn(value: $this->makePerm(groupId: 'default', allowed: ['activity']));
+
+        $this->assertNull(actual: $service->getAllowedWidgetIds(userId: 'admin'));
+        $this->assertTrue(condition: $service->isWidgetAllowed(
+            userId: 'admin',
+            widgetId: 'links'
+        ));
+    }//end testAdminBypassesDefaultRestriction()
 
     public function testSeedLayoutNoOpWhenDashboardHasPlacements(): void
     {

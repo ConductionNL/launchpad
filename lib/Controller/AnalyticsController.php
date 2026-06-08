@@ -38,6 +38,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -86,7 +87,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function topDashboards(
         string $period='30d',
         int $limit=10
@@ -132,7 +133,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function dashboardDetail(
         string $uuid,
         string $period='30d'
@@ -184,7 +185,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function instanceSummary(string $period='30d'): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -229,7 +230,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function exportCsv(string $period='30d'): Response
     {
         $user = $this->userSession->getUser();

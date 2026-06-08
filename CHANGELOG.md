@@ -4,7 +4,82 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- **GridStack bumped to v12.x** (REQ-GRID-013): `gridstack` dependency
+  updated from `10.3.1` to `^12.2.1`. Downstream consumers that pin an
+  exact GridStack version or import internal GridStack APIs should update
+  their constraints accordingly. The `columnOpts.breakpoints` / `moveScale`
+  API surface used by this app is stable across v10+.
+
+- **Responsive grid breakpoints** (REQ-GRID-007): the dashboard grid now
+  reflows proportionally at four explicit viewport widths — 12 columns
+  (≥ 1400 px), 8 columns (≥ 1100 px), 4 columns (≥ 768 px), 1 column
+  (≥ 480 px or below). The `moveScale` algorithm preserves relative widget
+  widths on breakpoint changes. Cell height is 60 px; inter-cell margin is
+  8 px. All geometry constants are centralised in `useGridManager.js` and
+  mirrored to the `--mydash-cell-height` CSS custom property at init time.
+
+### Security
+
+- **SVG upload sanitisation** (REQ-RES-009..013): all SVG uploads are now
+  passed through a server-side DOM whitelist sanitiser (`SvgSanitiser`)
+  before persistence. Allowed elements (24) and attributes (50) are declared
+  as conservative whitelists; `<script>`, `<foreignObject>`, `<iframe>`,
+  `on*` event handlers, `javascript:` / `data:` href values, and CSS
+  `expression()` / `url(data:)` constructs are stripped unconditionally.
+  The parser uses `LIBXML_NONET` to block external entity and DTD fetches
+  (XXE protection). Unparseable SVG or fully-stripped documents return
+  HTTP 400 `{error: 'invalid_svg'}` and no file is written. The 5 MB size
+  cap is measured against the sanitised bytes, not the original upload.
+  Existing on-disk SVGs are not retroactively re-sanitised.
+
 ### Added
+
+- **Widget right-click context menu in edit mode** (REQ-WDG-015..017, issue #36):
+  right-clicking any widget placement in edit mode now opens a small popover at
+  the cursor with three actions — **Edit** (reopens `AddWidgetModal` for the
+  placement), **Remove** (calls the placement-delete path of REQ-WDG-005), and
+  **Cancel** (no-op close). The popover is viewport-clamped so it stays fully
+  on-screen near right and bottom edges (`min-width: 150 px`, `z-index: 10000`).
+  View mode is untouched — right-click falls through to the browser's native
+  context menu. Auto-close on outside click via a single document-level listener
+  managed by `useGridManager.js` on mount/unmount (no listener leak). i18n:
+  `nl_NL` + `en_US` for Edit, Remove, Cancel. Keyboard navigation (Up/Down/Enter/Esc)
+  is deferred to a follow-up change.
+
+- **Nextcloud Dashboard widget proxy** (`nc-widget` placement type,
+  REQ-WDG-018..021): any installed Nextcloud Dashboard widget (Mail, Calendar,
+  Talk, Weather, etc.) can now be embedded as a grid cell. Two rendering modes:
+  (1) **native** — the widget's own bundle registers its callback via
+  `OCA.Dashboard.register`; the bridge hands the render container to it for full
+  feature parity with `/dashboard`; (2) **API fallback** — items are fetched via
+  `GET /api/widgets/items?widgets[]=<id>&limit=7` and rendered as a flat 7-item
+  card list. A 200 ms × 15 retries (~3 s) poll detects late-loading bundles and
+  upgrades the cell to native mode without flicker. Display modes: `vertical`
+  (32 px icons, flex-column list) and `horizontal` (120 px cards, 44 px icons,
+  flex-row wrap). Widget picker uses `NcWidgetGridPicker` (icon cards populated
+  from the `widgets` initial-state list). i18n: `nl_NL` + `en_US`.
+
+- **Dashboard-switcher sidebar** (REQ-SWITCH-001..007): a fixed-position
+  slide-in left navigation panel (`DashboardSwitcherSidebar.vue`) lists
+  every dashboard visible to the user, grouped into three labelled sections
+  in fixed order — primary group, default group, and personal ("My
+  Dashboards"). Empty sections collapse entirely. Each row renders its icon
+  via the shared `IconRenderer` (no inline URL branching). Clicking a row
+  emits `update:open(false)` then `switch(id, source)`, where `source` is
+  load-bearing (drives the correct API endpoint in the runtime shell).
+  Personal rows expose a cog menu (`DashboardRowActions`) with Edit /
+  Configure / Add custom widget / Delete entries; the delete action emits
+  `delete-dashboard(id)` without triggering a switch. A dedicated
+  `NcButton` card below the personal list serves as the `+ New Dashboard`
+  affordance when `allowUserDashboards === true`. Slide-in animation is
+  CSS-only (`transform: translateX(-100%) ↔ translateX(0)` over 0.25 s
+  ease). Companion `SidebarBackdrop.vue` provides a click-to-close overlay.
+  A persistent `SidebarFooter` with "Powered by Sendent / Conduction" brand
+  logos and a Documentation link is pinned via `position: sticky; bottom: 0`.
+  Wired in `Views.vue`; Esc closes the sidebar; all string labels translated
+  (`en_US` + `nl_NL`).
 
 - **Per-user RSS / Atom dashboard feeds** (REQ-FEED-001..009): users can
   now opt-in to a personal feed of their accessible dashboards via
@@ -20,6 +95,18 @@ All notable changes to this project will be documented in this file.
   admin-tunable `launchpad.feed_item_cap` (default 50). New
   `oc_launchpad_feed_tokens` table with `UNIQUE(user_id)` enforces the
   one-token-per-user rotation invariant.
+
+- **Unified add/edit modal** (`widget-add-edit-modal`): a single
+  `AddWidgetModal.vue` now handles both "add a widget" and "edit a widget"
+  flows. Per-widget edit dialogs are removed; the unified modal is driven by
+  `widgetRegistry.js` — adding a new widget type only requires a registry
+  entry. The `useWidgetForm` composable owns state management
+  (`resetForm`, `loadEditingWidget`, `validate`, `assembleContent`).
+  Modal closes on Cancel, backdrop click, and Esc without submitting
+  (REQ-WDG-013). Type-switching resets form state with no cross-type field
+  leakage (REQ-WDG-010). Per-type sub-forms expose `validate(): string[]`
+  gating the action button (REQ-WDG-012). The toolbar dropdown and grid
+  renderer both consult the same registry (REQ-WDG-014).
 
 ### Changed
 

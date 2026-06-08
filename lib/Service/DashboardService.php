@@ -32,6 +32,8 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardLockMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\DashboardContentStorageFactory;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
@@ -58,6 +60,7 @@ use Throwable;
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)     `resolveActiveDashboard` fans out the 7-step REQ-DASH-018 chain.
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)     Single source of truth for CRUD + tree + publication + footer.
  * @SuppressWarnings(PHPMD.TooManyMethods)           Mode methods live next to one another for grep-ability.
+ * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardService
 {
@@ -130,120 +133,136 @@ class DashboardService
     /**
      * Constructor
      *
-     * @param DashboardMapper                   $dashboardMapper      Dashboard mapper.
-     * @param WidgetPlacementMapper             $placementMapper      Widget placement mapper.
-     * @param AdminSettingMapper                $settingMapper        Admin setting mapper.
-     * @param TemplateService                   $templateService      Template service.
-     * @param DashboardFactory                  $dashboardFactory     Dashboard factory.
-     * @param DashboardResolver                 $dashResolver         Dashboard resolver.
-     * @param DashboardTreeService              $treeService          Tree-aware
-     *                                                                validation
-     *                                                                / cascade
-     *                                                                walker
-     *                                                                (REQ-DASH-023..030).
-     * @param IGroupManager                     $groupManager         Group manager (used for
-     *                                                                `isAdmin` only —
-     *                                                                group membership
-     *                                                                lookups go through the
-     *                                                                routing resolver per
-     *                                                                REQ-TMPL-013).
-     * @param AdminTemplateService              $adminTemplateService Routing resolver
-     *                                                                — single source
-     *                                                                of truth for
-     *                                                                `IGroupManager::getUserGroupIds`
-     *                                                                (REQ-TMPL-013).
-     * @param IDBConnection                     $db                   DB connection (for the
-     *                                                                transactional default
-     *                                                                flip —
-     *                                                                REQ-DASH-015).
-     * @param IConfig                           $config               Nextcloud per-user
-     *                                                                preference
-     *                                                                storage.
-     * @param IFactory                          $l10nFactory          L10N factory used to
-     *                                                                build the "My copy
-     *                                                                of {name}" default
-     *                                                                fork name
-     *                                                                (REQ-DASH-020).
-     * @param LoggerInterface                   $logger               PSR logger.
-     * @param DashboardTranslationService|null  $translationService   Optional
-     *                                                                translation
-     *                                                                service
-     *                                                                for the
-     *                                                                per-language
-     *                                                                content
-     *                                                                variants
-     *                                                                (REQ-DASH-038..044).
-     *                                                                Nullable
-     *                                                                so
-     *                                                                legacy
-     *                                                                test
-     *                                                                doubles
-     *                                                                constructed
-     *                                                                without
-     *                                                                it keep
-     *                                                                working.
-     * @param DashboardLockMapper|null          $lockMapper           Optional lock
-     *                                                                mapper. When
-     *                                                                provided the
-     *                                                                delete path
-     *                                                                cascades the
-     *                                                                row removal
-     *                                                                to the
-     *                                                                editing-lock
-     *                                                                table per
-     *                                                                REQ-LOCK-008.
-     *                                                                Nullable to
-     *                                                                keep the
-     *                                                                constructor
-     *                                                                backwards-
-     *                                                                compatible
-     *                                                                with existing
-     *                                                                unit tests.
-     * @param FooterService|null                $footerService        Optional
-     *                                                                per-dashboard
-     *                                                                footer
-     *                                                                sanitiser
-     *                                                                +
-     *                                                                resolver
-     *                                                                (REQ-FTR-006).
-     *                                                                Nullable
-     *                                                                for
-     *                                                                backwards-
-     *                                                                compat
-     *                                                                with
-     *                                                                existing
-     *                                                                test
-     *                                                                doubles.
-     * @param RoleFeaturePermissionService|null $roleFeaturePerm      Role-default
-     *                                                                layout
-     *                                                                seeding
-     *                                                                (REQ-RFP-002).
-     *                                                                Nullable to
-     *                                                                keep legacy
-     *                                                                PHPUnit
-     *                                                                doubles
-     *                                                                working —
-     *                                                                the
-     *                                                                seedLayoutFromRoleDefaults
-     *                                                                call site
-     *                                                                below guards
-     *                                                                on null and
-     *                                                                degrades to
-     *                                                                the original
-     *                                                                no- op
-     *                                                                behaviour.
-     * @param IEventDispatcher|null             $eventDispatcher      Event
-     *                                                                dispatcher
-     *                                                                for
-     *                                                                DashboardDeletedEvent.
-     *                                                                Nullable
-     *                                                                for
-     *                                                                backwards-
-     *                                                                compat
-     *                                                                with
-     *                                                                existing
-     *                                                                test
-     *                                                                doubles.
+     * @param DashboardMapper                     $dashboardMapper       Dashboard mapper.
+     * @param WidgetPlacementMapper               $placementMapper       Widget placement mapper.
+     * @param AdminSettingMapper                  $settingMapper         Admin setting mapper.
+     * @param TemplateService                     $templateService       Template service.
+     * @param DashboardFactory                    $dashboardFactory      Dashboard factory.
+     * @param DashboardResolver                   $dashResolver          Dashboard resolver.
+     * @param DashboardTreeService                $treeService           Tree-aware
+     *                                                                   validation
+     *                                                                   / cascade
+     *                                                                   walker
+     *                                                                   (REQ-DASH-023..030).
+     * @param IGroupManager                       $groupManager          Group manager (used for
+     *                                                                   `isAdmin` only —
+     *                                                                   group membership
+     *                                                                   lookups go through the
+     *                                                                   routing resolver per
+     *                                                                   REQ-TMPL-013).
+     * @param AdminTemplateService                $adminTemplateService  Routing resolver
+     *                                                                   — single
+     *                                                                   source of truth
+     *                                                                   for
+     *                                                                   `IGroupManager::getUserGroupIds`
+     *                                                                   (REQ-TMPL-013).
+     * @param IDBConnection                       $db                    DB connection (for the
+     *                                                                   transactional default
+     *                                                                   flip —
+     *                                                                   REQ-DASH-015).
+     * @param IConfig                             $config                Nextcloud per-user
+     *                                                                   preference
+     *                                                                   storage.
+     * @param IFactory                            $l10nFactory           L10N factory used to
+     *                                                                   build the "My copy
+     *                                                                   of {name}" default
+     *                                                                   fork name
+     *                                                                   (REQ-DASH-020).
+     * @param LoggerInterface                     $logger                PSR logger.
+     * @param DashboardTranslationService|null    $translationService    Optional
+     *                                                                   translation
+     *                                                                   service
+     *                                                                   for the
+     *                                                                   per-language
+     *                                                                   content
+     *                                                                   variants
+     *                                                                   (REQ-DASH-038..044).
+     *                                                                   Nullable
+     *                                                                   so
+     *                                                                   legacy
+     *                                                                   test
+     *                                                                   doubles
+     *                                                                   constructed
+     *                                                                   without
+     *                                                                   it keep
+     *                                                                   working.
+     * @param DashboardLockMapper|null            $lockMapper            Optional lock
+     *                                                                   mapper. When
+     *                                                                   provided the
+     *                                                                   delete path
+     *                                                                   cascades the
+     *                                                                   row removal
+     *                                                                   to the
+     *                                                                   editing-lock
+     *                                                                   table per
+     *                                                                   REQ-LOCK-008.
+     *                                                                   Nullable to
+     *                                                                   keep the
+     *                                                                   constructor
+     *                                                                   backwards-
+     *                                                                   compatible
+     *                                                                   with existing
+     *                                                                   unit tests.
+     * @param FooterService|null                  $footerService         Optional
+     *                                                                   per-dashboard
+     *                                                                   footer
+     *                                                                   sanitiser
+     *                                                                   +
+     *                                                                   resolver
+     *                                                                   (REQ-FTR-006).
+     *                                                                   Nullable
+     *                                                                   for
+     *                                                                   backwards-
+     *                                                                   compat
+     *                                                                   with
+     *                                                                   existing
+     *                                                                   test
+     *                                                                   doubles.
+     * @param RoleFeaturePermissionService|null   $roleFeaturePerm       Role-default
+     *                                                                   layout
+     *                                                                   seeding
+     *                                                                   (REQ-RFP-002).
+     *                                                                   Nullable to
+     *                                                                   keep legacy
+     *                                                                   PHPUnit
+     *                                                                   doubles
+     *                                                                   working —
+     *                                                                   the
+     *                                                                   seedLayoutFromRoleDefaults
+     *                                                                   call site
+     *                                                                   below guards
+     *                                                                   on null and
+     *                                                                   degrades to
+     *                                                                   the original
+     *                                                                   no- op
+     *                                                                   behaviour.
+     * @param IEventDispatcher|null               $eventDispatcher       Event
+     *                                                                   dispatcher
+     *                                                                   for
+     *                                                                   DashboardDeletedEvent.
+     *                                                                   Nullable
+     *                                                                   for
+     *                                                                   backwards-
+     *                                                                   compat
+     *                                                                   with
+     *                                                                   existing
+     *                                                                   test
+     *                                                                   doubles.
+     * @param DashboardContentStorageFactory|null $contentStorageFactory Factory
+     *                                                                   for the
+     *                                                                   active
+     *                                                                   content
+     *                                                                   storage
+     *                                                                   backend
+     *                                                                   (REQ-GFSB-001).
+     *                                                                   Nullable
+     *                                                                   for
+     *                                                                   backwards-
+     *                                                                   compat
+     *                                                                   with
+     *                                                                   existing
+     *                                                                   test
+     *                                                                   doubles.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -264,6 +283,7 @@ class DashboardService
         private readonly ?FooterService $footerService=null,
         private readonly ?RoleFeaturePermissionService $roleFeaturePerm=null,
         private readonly ?IEventDispatcher $eventDispatcher=null,
+        private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
     ) {
     }//end __construct()
 
@@ -277,6 +297,7 @@ class DashboardService
      * @param string $userId The user ID.
      *
      * @return Dashboard[] The list of personal dashboards.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function getUserDashboards(string $userId): array
     {
@@ -645,11 +666,16 @@ class DashboardService
         // (comments, reactions, versions, metadata_values, public_shares,
         // view_analytics) can clean up their child rows (REQ-CSC-001).
         if ($this->eventDispatcher !== null && $uuid !== '') {
-            $ownerId = $dashboard->getUserId();
+            $ownerId         = $dashboard->getUserId();
+            $resolvedOwnerId = $userId;
+            if ($ownerId !== null && $ownerId !== '') {
+                $resolvedOwnerId = $ownerId;
+            }
+
             $this->eventDispatcher->dispatchTyped(
                 new DashboardDeletedEvent(
                     dashboardUuid: $uuid,
-                    ownerUserId:   ($ownerId !== null && $ownerId !== '') ? $ownerId : $userId,
+                    ownerUserId:   $resolvedOwnerId,
                     type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
                     deletedAt:     new DateTimeImmutable()
                 )
@@ -1809,6 +1835,7 @@ class DashboardService
      * @param string $userId The user ID.
      *
      * @return bool Whether the user is an admin.
+     * @spec   openspec/specs/dashboards/spec.md
      */
     public function isAdmin(string $userId): bool
     {
@@ -1825,6 +1852,8 @@ class DashboardService
      * @param string $groupId The group ID from the URL.
      *
      * @return bool True when the user is in the group or is a NC admin.
+     *
+     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
      */
     public function userCanAccessGroup(string $userId, string $groupId): bool
     {
@@ -1989,12 +2018,11 @@ class DashboardService
                 );
             }
 
+            $placements = $this->createDefaultPlacements(
+                dashboardId: $dashboard->getId()
+            );
             if ($seeded > 0) {
                 $placements = $this->placementMapper->findByDashboardId(
-                    dashboardId: $dashboard->getId()
-                );
-            } else {
-                $placements = $this->createDefaultPlacements(
                     dashboardId: $dashboard->getId()
                 );
             }
@@ -2264,10 +2292,9 @@ class DashboardService
             return;
         }
 
+        $newMode = $dashboard->getDashboardFooterMode();
         if ($modeProvided === true) {
             $newMode = $data['dashboardFooterMode'];
-        } else {
-            $newMode = $dashboard->getDashboardFooterMode();
         }
 
         if ($newMode === null || $newMode === '') {
@@ -2283,10 +2310,9 @@ class DashboardService
         }
 
         if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
+            $rawHtml = $dashboard->getDashboardFooterHtml();
             if ($htmlProvided === true) {
                 $rawHtml = $data['dashboardFooterHtml'];
-            } else {
-                $rawHtml = $dashboard->getDashboardFooterHtml();
             }
 
             if ($rawHtml === null || is_string($rawHtml) === false || trim(string: $rawHtml) === '') {
@@ -2478,4 +2504,82 @@ class DashboardService
 
         return $parsed->format(format: 'Y-m-d H:i:s');
     }//end parseFuturePublishAt()
+
+    /**
+     * Read dashboard content from the active storage backend (REQ-GFSB-001).
+     *
+     * Delegates to the factory-selected backend. When the factory is absent
+     * (e.g. in legacy test doubles) returns an empty array.
+     *
+     * @param string      $uuid   The dashboard UUID.
+     * @param string|null $locale Optional locale code for GroupFolder path routing.
+     *
+     * @return array The decoded content array, or an empty array when unavailable.
+     *
+     * @throws DashboardContentStorageException When the backend is unavailable
+     *                                          or the operation fails.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-5
+     */
+    public function readDashboardContent(string $uuid, ?string $locale=null): array
+    {
+        if ($this->contentStorageFactory === null) {
+            return [];
+        }
+
+        return $this->contentStorageFactory->getStorage()->read(
+            uuid: $uuid,
+            locale: $locale
+        );
+    }//end readDashboardContent()
+
+    /**
+     * Write dashboard content to the active storage backend (REQ-GFSB-001).
+     *
+     * When the factory is absent (e.g. in legacy test doubles) this is a no-op.
+     *
+     * @param string      $uuid    The dashboard UUID.
+     * @param array       $content The content array to persist.
+     * @param string|null $locale  Optional locale code for GroupFolder path routing.
+     *
+     * @return void
+     *
+     * @throws DashboardContentStorageException When the backend is unavailable
+     *                                          or the write fails.
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-5
+     */
+    public function writeDashboardContent(string $uuid, array $content, ?string $locale=null): void
+    {
+        if ($this->contentStorageFactory === null) {
+            return;
+        }
+
+        $this->contentStorageFactory->getStorage()->write(
+            uuid: $uuid,
+            content: $content,
+            locale: $locale
+        );
+    }//end writeDashboardContent()
+
+    /**
+     * Delete dashboard content from the active storage backend (REQ-GFSB-001).
+     *
+     * Called by the cascade delete path to clean up storage alongside the
+     * entity row. When the factory is absent this is a no-op.
+     *
+     * @param string $uuid The dashboard UUID.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-5
+     */
+    public function deleteDashboardContent(string $uuid): void
+    {
+        if ($this->contentStorageFactory === null) {
+            return;
+        }
+
+        $this->contentStorageFactory->getStorage()->delete(uuid: $uuid);
+    }//end deleteDashboardContent()
 }//end class

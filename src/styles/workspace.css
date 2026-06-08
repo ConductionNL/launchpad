@@ -1,0 +1,60 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/**
+ * Workspace shell global layout styles (REQ-SHELL-001..007).
+ *
+ * These rules live outside WorkspaceApp.vue's scoped block because they
+ * must reach elements outside the Vue scope (e.g. the Nextcloud chrome
+ * wrapper `#app-workspace`) and descendant components.
+ *
+ * @spec openspec/changes/runtime-shell/tasks.md#task-8
+ */
+
+/* =========================================================
+   REQ-SHELL-001 — full-width chrome wrapper
+   Nextcloud's `#app-workspace` is a flex row container.
+   MyDash opts out of the navigation rail (PageController sets
+   `id-app-navigation: null`), so the workspace wrapper must
+   claim the full available width or the grid collapses to 0px.
+   ========================================================= */
+.launchpad-workspace,
+#app-workspace.launchpad-workspace,
+#app-workspace.launchpad-workspace #workspace-vue {
+	flex: 1 1 auto;
+	min-width: 0;
+	width: 100%;
+	min-height: 100vh;
+}
+
+/* =========================================================
+   REQ-SHELL-006 — fixed sidebar backdrop
+   Covers the viewport from below the Nextcloud header (50px)
+   to the bottom edge. Clicks on the backdrop close the sidebar;
+   the sidebar panel itself uses @click.stop so its clicks never
+   propagate here.
+   ========================================================= */
+.mydash-sidebar-backdrop {
+	position: fixed;
+	top: 50px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 999;
+	background: rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+}
+
+/* =========================================================
+   REQ-SHELL-005 — empty state container styling
+   Centres the empty-state CTA and message inside the grid area.
+   ========================================================= */
+.workspace-shell__empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+	text-align: center;
+	gap: 12px;
+}
+

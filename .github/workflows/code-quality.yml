@@ -9,7 +9,7 @@ on:
 
 jobs:
   quality:
-    uses: ConductionNL/.github/.github/workflows/quality.yml@main
+    uses: Conduction/.github/.github/workflows/quality.yml@main
     with:
       app-name: launchpad
       php-version: "8.3"
@@ -30,7 +30,7 @@ jobs:
       #
       # Playwright remains disabled — the shared workflow's
       # PHP-built-in-server lifetime is the blocker (cross-repo PR
-      # `ConductionNL/.github#37`). The `tests/e2e/global-setup.ts`
+      # `Conduction/.github#37`). The `tests/e2e/global-setup.ts`
       # `ensureBundleBuilt()` helper is in place so once the shared
       # workflow lands, flipping the gate Just Works.
       enable-phpunit: true

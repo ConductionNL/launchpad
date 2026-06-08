@@ -50,6 +50,7 @@ use OCP\IUserManager;
  *  projection, birthdate normalisation, and avatar URL construction in one
  *  cohesive unit — splitting would force the controller to weave the same
  *  state across multiple services.
+ * @spec                                             openspec/specs/people-widget/spec.md
  */
 class PeopleWidgetService
 {
@@ -525,16 +526,23 @@ class PeopleWidgetService
 
             // Heuristic: 4-digit segment is the year. Position determines
             // whether DMY or YMD ordering applies.
+            if (strlen(string: $parts[2]) !== 4 && strlen(string: $parts[0]) !== 4) {
+                continue;
+            }
+
+            $day   = '';
+            $month = '';
+            $year  = '';
             if (strlen(string: $parts[2]) === 4) {
                 $day   = $parts[0];
                 $month = $parts[1];
                 $year  = $parts[2];
-            } else if (strlen(string: $parts[0]) === 4) {
+            }
+
+            if (strlen(string: $parts[0]) === 4) {
                 $year  = $parts[0];
                 $month = $parts[1];
                 $day   = $parts[2];
-            } else {
-                continue;
             }
 
             if (ctype_digit(text: $year) === false

@@ -34,12 +34,12 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
-	it('REQ-WDG-015: renders three buttons — Edit, Remove, Cancel', () => {
+	it('REQ-WDG-015: renders four items — Edit, Visibility rules…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
-		expect(buttons.length).toBe(3)
+		expect(buttons.length).toBe(4)
 		const labels = buttons.wrappers.map((b) => b.text().trim())
-		expect(labels).toEqual(['Edit', 'Remove', 'Cancel'])
+		expect(labels).toEqual(['Edit', 'Visibility rules…', 'Remove', 'Cancel'])
 	})
 
 	it('REQ-WDG-017: applies top / left from props as fixed positioning', () => {
@@ -60,15 +60,25 @@ describe('WidgetContextMenu', () => {
 
 	it('REQ-WDG-015 edit: clicking Edit emits edit then close (single-instance)', async () => {
 		const wrapper = mountMenu()
-		const editBtn = wrapper.findAll('.widget-context-menu__item').at(0)
+		const editBtn = wrapper.find('[data-testid="ctx-edit"]')
 		await editBtn.trigger('click')
 		expect(wrapper.emitted('edit')).toHaveLength(1)
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
+	it('conditional-visibility: clicking Visibility rules… emits visibility-rules then close', async () => {
+		const wrapper = mountMenu()
+		const btn = wrapper.find('[data-testid="ctx-visibility-rules"]')
+		await btn.trigger('click')
+		expect(wrapper.emitted('visibility-rules')).toHaveLength(1)
+		expect(wrapper.emitted('close')).toHaveLength(1)
+		expect(wrapper.emitted('edit')).toBeFalsy()
+		expect(wrapper.emitted('remove')).toBeFalsy()
+	})
+
 	it('REQ-WDG-015 remove: clicking Remove emits remove then close', async () => {
 		const wrapper = mountMenu()
-		const removeBtn = wrapper.findAll('.widget-context-menu__item').at(1)
+		const removeBtn = wrapper.find('[data-testid="ctx-remove"]')
 		await removeBtn.trigger('click')
 		expect(wrapper.emitted('remove')).toHaveLength(1)
 		expect(wrapper.emitted('close')).toHaveLength(1)
@@ -76,7 +86,7 @@ describe('WidgetContextMenu', () => {
 
 	it('REQ-WDG-015 cancel: clicking Cancel emits close only (no edit, no remove)', async () => {
 		const wrapper = mountMenu()
-		const cancelBtn = wrapper.findAll('.widget-context-menu__item').at(2)
+		const cancelBtn = wrapper.find('[data-testid="ctx-cancel"]')
 		await cancelBtn.trigger('click')
 		expect(wrapper.emitted('close')).toHaveLength(1)
 		expect(wrapper.emitted('edit')).toBeFalsy()

@@ -1,3 +1,7 @@
+---
+status: pr-created
+---
+
 # Design — launchpad-adopt-or-abstractions
 
 ## Reuse analysis

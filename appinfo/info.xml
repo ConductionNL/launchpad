@@ -5,7 +5,7 @@
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>launchpad</id>
+	<id>mydash</id>
 	<name lang="en">LaunchPad</name>
 	<name lang="nl">LaunchPad</name>
 	<summary lang="en">Drag-and-drop dashboards with templates, tiles, and smart visibility</summary>
@@ -46,7 +46,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.4</version>
+	<version>1.0.5-unstable.7</version>
 	<licence>agpl</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -85,6 +85,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
+			<!-- role-based-content task-2: seed default role-feature permissions. -->
+			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
 		</install>
 		<post-migration>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
@@ -119,14 +121,18 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
 		<command>OCA\LaunchPad\Command\DemoShowcasesInstallCommand</command>
 		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
-		<!-- REQ-WIZ-010: setup wizard via `php occ launchpad:setup`. -->
+		<!-- REQ-WIZ-010: setup wizard via `php occ mydash:setup`. -->
 		<command>OCA\LaunchPad\Command\SetupCommand</command>
+		<!-- REQ-GFSB-008: one-time DB→GroupFolder content migration. -->
+		<command>OCA\LaunchPad\Command\MigrateStorageToGroupFolder</command>
+		<!-- REQ-GFSB-010: toggle the active storage backend. -->
+		<command>OCA\LaunchPad\Command\ToggleStorageSetting</command>
 	</commands>
 
 	<navigations>
 		<navigation>
 			<name>LaunchPad</name>
-			<route>launchpad.page.index</route>
+			<route>mydash.page.index</route>
 			<icon>app.svg</icon>
 			<order>-5</order>
 		</navigation>

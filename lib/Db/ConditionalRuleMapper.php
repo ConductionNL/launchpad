@@ -100,6 +100,26 @@ class ConditionalRuleMapper extends QBMapper
     }//end findByPlacementId()
 
     /**
+     * Find every conditional rule in the system, ordered by placement then
+     * creation time. Used by the admin Versioning & Audit overview
+     * (conditional-visibility spec) to enumerate rule-bearing placements.
+     *
+     * @return ConditionalRule[] All conditional rules.
+     *
+     * @spec openspec/specs/conditional-visibility/spec.md
+     */
+    public function findAll(): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->orderBy(sort: 'widget_placement_id', order: 'ASC')
+            ->addOrderBy(sort: 'created_at', order: 'ASC');
+
+        return $this->findEntities(query: $qb);
+    }//end findAll()
+
+    /**
      * Delete all rules for a widget placement.
      *
      * @param int $placementId The placement ID.

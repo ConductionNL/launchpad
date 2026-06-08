@@ -53,6 +53,7 @@ use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use OCP\Lock\ILockingProvider;
@@ -317,6 +318,7 @@ class DashboardCascadeEventDispatchTest extends TestCase
             dashboardManager: $this->createMock(IManager::class),
             logger:           $this->createMock(LoggerInterface::class),
             lockingProvider:  $this->createMock(ILockingProvider::class),
+            urlGenerator:     $this->createMock(IURLGenerator::class),
             eventDispatcher:  $this->eventDispatcher,
         );
 

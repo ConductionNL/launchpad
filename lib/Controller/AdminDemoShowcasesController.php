@@ -34,6 +34,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
 use OCA\LaunchPad\Service\DemoShowcasesService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -103,7 +104,7 @@ class AdminDemoShowcasesController extends Controller
          *
      * @spec openspec/specs/demo-data-showcases/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function index(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -134,7 +135,7 @@ class AdminDemoShowcasesController extends Controller
          *
      * @spec openspec/specs/demo-data-showcases/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function install(
         string $id,
         string $lang='nl',
@@ -197,7 +198,7 @@ class AdminDemoShowcasesController extends Controller
          *
      * @spec openspec/specs/demo-data-showcases/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function destroy(string $id): JSONResponse
     {
         $guard = $this->assertAdmin();

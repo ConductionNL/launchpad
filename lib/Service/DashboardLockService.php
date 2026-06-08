@@ -57,21 +57,24 @@ class DashboardLockService
     /**
      * Constructor
      *
-     * @param DashboardLockMapper $lockMapper         The lock mapper.
-     * @param DashboardMapper     $dashboardMapper    Used to verify the
-     *                                                dashboard exists before
-     *                                                a lock row is written.
-     * @param IUserManager        $userManager        Resolves display names for
-     *                                                new locks.
-     * @param IGroupManager       $groupManager       Admin check for force-release.
-     * @param LoggerInterface     $logger             PSR logger — used for the
-     *                                                force-release audit trail
-     *                                                (REQ-LOCK-006, design D4).
-     * @param PermissionService   $permissionService  Permission resolver — used to
-     *                                                verify the caller has at least
-     *                                                view access before granting or
-     *                                                extending a lock (C3 fix:
-     *                                                REQ-LOCK-001 + REQ-PERM-001).
+     * @param DashboardLockMapper $lockMapper        The lock mapper.
+     * @param DashboardMapper     $dashboardMapper   Used to verify the
+     *                                               dashboard exists
+     *                                               before a lock row
+     *                                               is written.
+     * @param IUserManager        $userManager       Resolves display names for
+     *                                               new locks.
+     * @param IGroupManager       $groupManager      Admin check for force-release.
+     * @param LoggerInterface     $logger            PSR logger — used for
+     *                                               the force-release audit
+     *                                               trail (REQ-LOCK-006,
+     *                                               design D4).
+     * @param PermissionService   $permissionService Permission resolver — used
+     *                                               to verify the caller has at
+     *                                               least view access before
+     *                                               granting or extending a lock
+     *                                               (C3 fix: REQ-LOCK-001 +
+     *                                               REQ-PERM-001).
      */
     public function __construct(
         private readonly DashboardLockMapper $lockMapper,
@@ -108,11 +111,9 @@ class DashboardLockService
      *                                active lock on the dashboard.
      * @throws LockForbiddenException When the caller has no view access
      *                                to the dashboard (C3 fix).
-      *
-
-      * @spec openspec/specs/dashboard-locking/spec.md
-
-      */
+     *
+     * @spec openspec/specs/dashboard-locking/spec.md
+     */
     public function acquireLock(
         string $dashboardUuid,
         string $userId
@@ -131,7 +132,8 @@ class DashboardLockService
         if ($this->permissionService->canViewDashboard(
             userId: $userId,
             dashboardId: $dashboardId
-        ) === false) {
+        ) === false
+        ) {
             throw new LockForbiddenException(
                 message: 'You do not have access to this dashboard'
             );
@@ -192,11 +194,9 @@ class DashboardLockService
      * @throws LockForbiddenException When the caller is not the owner, or
      *                                when the caller has no view access
      *                                (C3 fix).
-      *
-
-      * @spec openspec/specs/dashboard-locking/spec.md
-
-      */
+     *
+     * @spec openspec/specs/dashboard-locking/spec.md
+     */
     public function heartbeat(
         string $dashboardUuid,
         string $userId
@@ -214,7 +214,8 @@ class DashboardLockService
         if ($this->permissionService->canViewDashboard(
             userId: $userId,
             dashboardId: $dashboardId
-        ) === false) {
+        ) === false
+        ) {
             throw new LockForbiddenException(
                 message: 'You do not have access to this dashboard'
             );
@@ -261,11 +262,9 @@ class DashboardLockService
      *
      * @throws LockForbiddenException When the caller is neither the
      *                                owner nor an admin (when allowed).
-      *
-
-      * @spec openspec/specs/dashboard-locking/spec.md
-
-      */
+     *
+     * @spec openspec/specs/dashboard-locking/spec.md
+     */
     public function releaseLock(
         string $dashboardUuid,
         string $userId,
@@ -312,11 +311,9 @@ class DashboardLockService
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return DashboardLock|null The active lock or null.
-      *
-
-      * @spec openspec/specs/dashboard-locking/spec.md
-
-      */
+     *
+     * @spec openspec/specs/dashboard-locking/spec.md
+     */
     public function getLockState(string $dashboardUuid): ?DashboardLock
     {
         // Inline cleanup so the next read is never polluted by a stale
@@ -347,11 +344,9 @@ class DashboardLockService
      * @return void
      *
      * @throws LockForbiddenException When the caller is not an admin.
-      *
-
-      * @spec openspec/specs/dashboard-locking/spec.md
-
-      */
+     *
+     * @spec openspec/specs/dashboard-locking/spec.md
+     */
     public function forceRelease(
         string $dashboardUuid,
         string $adminUserId
@@ -391,11 +386,9 @@ class DashboardLockService
      * @param string $dashboardUuid The dashboard UUID.
      *
      * @return int The number of rows deleted (0 or 1).
-      *
-
-      * @spec openspec/specs/dashboard-locking/spec.md
-
-      */
+     *
+     * @spec openspec/specs/dashboard-locking/spec.md
+     */
     public function cascadeDelete(string $dashboardUuid): int
     {
         return $this->lockMapper->deleteByDashboardUuid(

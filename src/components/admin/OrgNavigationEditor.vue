@@ -64,7 +64,13 @@
 			</button>
 		</div>
 
-		<ul class="org-nav-editor__tree">
+		<draggable
+			:list="workingTree"
+			tag="ul"
+			class="org-nav-editor__tree"
+			handle=".org-nav-row__handle"
+			ghost-class="org-nav-row__ghost"
+			:animation="150">
 			<OrgNavigationEditorRow
 				v-for="(node, idx) in workingTree"
 				:key="node.id"
@@ -79,7 +85,7 @@
 				@move-up="moveUp"
 				@move-down="moveDown"
 				@add-child="addChild" />
-		</ul>
+		</draggable>
 
 		<p v-if="workingTree.length === 0" class="org-nav-editor__empty">
 			{{ t('launchpad', 'No navigation configured. Add a section or link to start building the tree.') }}
@@ -93,6 +99,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import draggable from 'vuedraggable'
 
 import OrgNavigationEditorRow from './OrgNavigationEditorRow.vue'
 import { useOrgNavigationStore, ORG_NAV_POSITIONS } from '../../stores/orgNavigation.js'
@@ -107,17 +114,20 @@ import { useOrgNavigationStore, ORG_NAV_POSITIONS } from '../../stores/orgNaviga
  *     the canonical store state
  *   - on Save, validate basic shape locally and POST to the store
  *
- * The reorder UX is button-based ("move up" / "move down" + Add Child)
- * to avoid a native HTML5 drag-and-drop dependency at this stage. The
- * spec scenario about drag handles is satisfied via the explicit
- * up/down buttons (REQ-ONAV-007); a future change can layer drag-and-
- * drop on top without touching the persistence path.
+ * Reordering supports two equivalent paths (REQ-ONAV-007):
+ * drag-and-drop via each row's ⋮⋮ handle (vuedraggable / SortableJS,
+ * one Sortable per sibling list — see the draggable wrappers here and
+ * in OrgNavigationEditorRow) and explicit "move up" / "move down"
+ * buttons as an accessible fallback. Both reorder within a sibling
+ * list only (no reparenting) and mutate workingTree in place via
+ * vuedraggable's `:list`, leaving the persistence path untouched.
  */
 export default {
 	name: 'OrgNavigationEditor',
 
 	components: {
 		OrgNavigationEditorRow,
+		draggable,
 	},
 
 	props: {

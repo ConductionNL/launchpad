@@ -19,14 +19,15 @@
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
- * @author    Conduction b.v. <info@conduction.nl>
- * @copyright 2024 Conduction b.v.
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-serving/tasks.md
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -44,6 +45,8 @@ use Throwable;
 
 /**
  * Read-side filesystem + formatting helpers for resource-uploads.
+ *
+ * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeService
 {
@@ -83,7 +86,7 @@ class ResourceServeService
      *
      * @return ISimpleFile|null The file, or null if absent / unreadable.
      *
-     * @spec openspec/specs/resource-uploads/spec.md
+     * @spec openspec/changes/resource-serving/tasks.md#task-1
      */
     public function findFile(string $filename): ?ISimpleFile
     {
@@ -109,7 +112,7 @@ class ResourceServeService
      *
      * @return array<int, ISimpleFile> The file entries.
      *
-     * @spec openspec/specs/resource-uploads/spec.md
+     * @spec openspec/changes/resource-serving/tasks.md#task-3
      */
     public function listFiles(): array
     {
@@ -144,7 +147,7 @@ class ResourceServeService
      *
      * @return string The MIME type to send.
      *
-     * @spec openspec/specs/resource-uploads/spec.md
+     * @spec openspec/changes/resource-serving/tasks.md#task-1
      */
     public function contentTypeForFilename(string $filename): string
     {
@@ -164,7 +167,7 @@ class ResourceServeService
      *
      * @return string The ISO-8601 timestamp.
      *
-     * @spec openspec/specs/resource-uploads/spec.md
+     * @spec openspec/changes/resource-serving/tasks.md#task-3
      */
     public function formatTimestamp(int $epoch): string
     {

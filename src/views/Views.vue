@@ -16,6 +16,8 @@
 			:can-edit="canEdit"
 			:default-uuid="defaultDashboardUuid"
 			:is-edit-mode="isEditMode"
+			:mode="workspaceMode"
+			@mode-change="onWorkspaceModeChange"
 			@switch="onSidebarSwitch"
 			@create-dashboard="onSidebarCreateDashboard"
 			@delete-dashboard="onSidebarDeleteDashboard"
@@ -44,6 +46,21 @@
 					<MenuIcon :size="20" />
 				</template>
 			</NcButton>
+			<!-- Top-bar share action (dashboard-sharing spec). Opens the
+			     config drawer directly on the Sharing tab. Shown only when a
+			     dashboard the user can share is active. -->
+			<NcButton
+				v-if="canShareActiveDashboard"
+				type="tertiary"
+				:aria-label="t('mydash', 'Share')"
+				class="mydash-share-action"
+				data-test="dashboard-share-action"
+				@click="openShareDrawer">
+				<template #icon>
+					<ShareVariant :size="20" />
+				</template>
+				{{ t('mydash', 'Share') }}
+			</NcButton>
 			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
 			     `default` sentinel — REQ-TMPL-012 documents the literal
 			     'Default' as the absence of a configured primary group, so
@@ -58,8 +75,14 @@
 			</div>
 		</div>
 
+		<!-- Catalog SUB_PAGE browse view (widgets spec). Rendered in place of
+		     the canvas when the sidebar mode is `catalog`; the dashboard
+		     store stays mounted so returning restores state without a
+		     reload. -->
+		<CatalogView v-if="workspaceMode === 'catalog'" />
+
 		<!-- Main dashboard grid -->
-		<div class="launchpad-container" :class="{ 'launchpad-edit-mode': isEditMode }">
+		<div v-else class="mydash-container" :class="{ 'mydash-edit-mode': isEditMode }">
 			<DashboardGrid
 				v-if="activeDashboard"
 				:placements="widgetPlacements"
@@ -127,6 +150,7 @@
 			:mode="configModalMode"
 			:can-delete="dashboards.length > 1"
 			:default-uuid="defaultDashboardUuid"
+			:initial-tab="configModalInitialTab"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
@@ -160,7 +184,18 @@
 			:left="contextMenuLeft"
 			@edit="grid.triggerEdit()"
 			@remove="grid.triggerRemove()"
+			@visibility-rules="grid.triggerVisibilityRules()"
 			@close="grid.closeContextMenu()" />
+
+		<!-- Per-widget conditional-visibility editor (conditional-visibility
+		     spec). Opened from the context menu's "Visibility rules…" item;
+		     gated on `canEdit` so only dashboard owners reach it. -->
+		<VisibilityRulesModal
+			:open="isVisibilityModalOpen"
+			:placement-id="visibilityPlacementId"
+			@close="closeVisibilityRules"
+			@rule-added="onVisibilityRulesChanged"
+			@rule-removed="onVisibilityRulesChanged" />
 	</div>
 </template>
 
@@ -174,6 +209,7 @@ import { generateUrl } from '@nextcloud/router'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
 import DashboardGrid from '../components/DashboardGrid.vue'
@@ -183,6 +219,9 @@ import TileEditor from '../components/TileEditor.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
 import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
+import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
+import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import CatalogView from './CatalogView.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 
@@ -203,6 +242,7 @@ export default {
 		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
+		ShareVariant,
 		DashboardGrid,
 		WidgetPickerModal,
 		WidgetStyleEditor,
@@ -210,6 +250,8 @@ export default {
 		DashboardConfigModal,
 		AddWidgetModal,
 		WidgetContextMenu,
+		VisibilityRulesModal,
+		CatalogView,
 		DashboardSwitcherSidebar,
 		SidebarBackdrop,
 	},
@@ -272,6 +314,10 @@ export default {
 			onRemove(widget) {
 				grid._host?.handleContextMenuRemove(widget)
 			},
+			/** @spec openspec/specs/conditional-visibility/spec.md */
+			onVisibilityRules(widget) {
+				grid._host?.handleContextMenuVisibilityRules(widget)
+			},
 		})
 
 		return { canEditRef, grid }
@@ -282,6 +328,9 @@ export default {
 			isWidgetModalOpen: false,
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
+			// Tab the config drawer lands on when opened (dashboard-sharing
+			// spec). The top-bar share action sets this to 'sharing'.
+			configModalInitialTab: 'general',
 			isStyleEditorOpen: false,
 			editingPlacement: null,
 			isTileEditorOpen: false,
@@ -292,9 +341,18 @@ export default {
 			isCustomWidgetModalOpen: false,
 			customWidgetPreselectedType: null,
 			customWidgetEditing: null,
+			// Per-widget conditional-visibility editor state. Non-null
+			// `visibilityPlacementId` + `isVisibilityModalOpen` opens the
+			// modal for that placement (conditional-visibility spec).
+			isVisibilityModalOpen: false,
+			visibilityPlacementId: null,
 			// `dashboard-switcher` capability state — controlled here, the
 			// sidebar emits update:open(boolean) via its v-model rebind.
 			sidebarOpen: false,
+			// Workspace region mode (widgets spec: Catalog SUB_PAGE).
+			// `'dashboards'` shows the canvas, `'catalog'` shows the browse
+			// view. The dashboard store is never unmounted on switch.
+			workspaceMode: 'dashboards',
 			// REQ-ANLT-011 — per-uuid debounce ledger. Maps dashboard
 			// UUID → last-send millisecond timestamp so two near-
 			// simultaneous mounts of the same dashboard (multi-tab,
@@ -327,6 +385,18 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		canEdit() {
 			return this.permissionLevel !== 'view_only'
+		},
+		/**
+		 * Whether the top-bar share action should be shown (dashboard-sharing
+		 * spec). Requires an active dashboard the user owns (only owners can
+		 * manage shares — mirrors `DashboardConfigModal.canManageShares`).
+		 *
+		 * @return {boolean}
+		 */
+		/** @spec openspec/specs/dashboard-sharing/spec.md */
+		canShareActiveDashboard() {
+			const dash = this.activeDashboard
+			return !!dash && dash.isOwner !== false && (dash.id ?? null) !== null
 		},
 		/**
 		 * Whether the right-click context menu (REQ-WDG-015) should open
@@ -533,6 +603,7 @@ export default {
 		...mapActions(useDashboardStore, [
 			'switchDashboard',
 			'createDashboard',
+			'forkDashboard',
 			'loadDashboards',
 			'updatePlacements',
 			'addWidgetToDashboard',
@@ -606,11 +677,44 @@ export default {
 		 */
 		/** @spec openspec/specs/dashboards/spec.md */
 		handleContextMenuEdit(placement) {
-			if (placement && placement.type) {
-				this.openCustomWidgetEdit(placement)
+			// Placements only carry `widgetId` — never a `type` field. For
+			// registry-driven custom widgets (label, text, image, link, …)
+			// the `widgetId` IS the registry type key, so resolve the type
+			// from the registry and open the content editor (AddWidgetModal)
+			// with `type` set so `loadEditingWidget` can pre-fill the form.
+			// Stock Nextcloud-widget / tile placements have no registry entry
+			// and fall through to the legacy style editor.
+			const resolvedType = this.resolveWidgetType(placement)
+			if (resolvedType) {
+				this.openCustomWidgetEdit({ ...placement, type: resolvedType })
 				return
 			}
 			this.openStyleEditor(placement)
+		},
+
+		/**
+		 * Resolve the registry type key for a placement from its `widgetId`.
+		 * Returns the type string for registry-driven custom widgets (the
+		 * `widgetId` is the type key) or `null` when the placement is not a
+		 * custom widget (stock NC widget, tile, …) so the caller can fall
+		 * back to the style editor.
+		 *
+		 * @param {object} placement the placement under the cursor
+		 * @return {string|null} the resolved widget type, or null
+		 */
+		/** @spec openspec/specs/dashboards/spec.md */
+		resolveWidgetType(placement) {
+			const widgetId = placement?.widgetId
+			if (typeof widgetId !== 'string' || widgetId === '') {
+				return null
+			}
+			const entry = getWidgetTypeEntry(widgetId)
+			// Only types with a configurable form can be content-edited; the
+			// renderer-only `nc-widget` proxy stays on the style-editor path.
+			if (!entry || !entry.form) {
+				return null
+			}
+			return widgetId
 		},
 
 		/**
@@ -632,6 +736,36 @@ export default {
 				console.error('[Views] Failed to remove widget via context menu:', error)
 			}
 		},
+		/**
+		 * "Visibility rules…" click from the popover
+		 * (conditional-visibility spec). Stores the target placement id and
+		 * opens the editor modal. The popover only fires this when the user
+		 * has `canEdit` (the grid manager early-returns otherwise), so no
+		 * extra gate is needed here.
+		 *
+		 * @param {object} placement the placement whose rules to edit
+		 */
+		/** @spec openspec/specs/conditional-visibility/spec.md */
+		handleContextMenuVisibilityRules(placement) {
+			if (!placement?.id) {
+				return
+			}
+			this.visibilityPlacementId = placement.id
+			this.isVisibilityModalOpen = true
+		},
+
+		/** @spec openspec/specs/conditional-visibility/spec.md */
+		closeVisibilityRules() {
+			this.isVisibilityModalOpen = false
+			this.visibilityPlacementId = null
+		},
+
+		/** @spec openspec/specs/conditional-visibility/spec.md */
+		onVisibilityRulesChanged() {
+			// Rules are evaluated server-side at render; nothing to refetch
+			// here. Hook kept so future live-preview can refresh placements.
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		openWidgetModal() {
 			if (!this.isEditMode) {
@@ -712,6 +846,20 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		openConfigModal() {
 			this.configModalMode = 'edit'
+			this.configModalInitialTab = 'general'
+			this.isConfigModalOpen = true
+		},
+
+		/**
+		 * Top-bar share action (dashboard-sharing spec). Opens the config
+		 * drawer for the active dashboard pre-selected to the Sharing tab.
+		 *
+		 * @return {void}
+		 */
+		/** @spec openspec/specs/dashboard-sharing/spec.md */
+		openShareDrawer() {
+			this.configModalMode = 'edit'
+			this.configModalInitialTab = 'sharing'
 			this.isConfigModalOpen = true
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -859,6 +1007,22 @@ export default {
 		 * @param {string|number} id Dashboard id from the clicked row.
 		 * @param {'group'|'default'|'user'} source Section discriminator.
 		 */
+		/**
+		 * Switch the workspace region between the dashboards canvas and the
+		 * Catalog browse view (widgets spec). The dashboard store is left
+		 * mounted so returning to `dashboards` restores the active dashboard
+		 * and layout without a reload.
+		 *
+		 * @param {string} next the target mode (`'dashboards'` | `'catalog'`)
+		 * @return {void}
+		 */
+		/** @spec openspec/specs/widgets/spec.md */
+		onWorkspaceModeChange(next) {
+			if (next === 'dashboards' || next === 'catalog') {
+				this.workspaceMode = next
+			}
+		},
+
 		// eslint-disable-next-line no-unused-vars
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onSidebarSwitch(id, source) {
@@ -1087,12 +1251,23 @@ export default {
 			await this.onSidebarSwitch(id, source)
 		},
 		/**
-		 * Sidebar `+ New Dashboard` row handler — opens the create
-		 * dashboard modal flow already used by the topbar config menu.
+		 * Sidebar `+ New Dashboard` handler — forks the active dashboard
+		 * as a personal copy (REQ-DASH-020). The store action handles the
+		 * 403 toast when personal dashboards are disabled (REQ-ASET-003)
+		 * and pushes the new entry to `dashboards` on success.
 		 */
 		/** @spec openspec/specs/dashboards/spec.md */
-		onSidebarCreateDashboard() {
-			this.openCreateDashboardModal()
+		async onSidebarCreateDashboard() {
+			const sourceUuid = this.activeDashboard?.uuid
+			if (!sourceUuid) {
+				return
+			}
+			try {
+				await this.forkDashboard(sourceUuid, null)
+			} catch {
+				// Error surfaces via the store's showError toast; nothing
+				// additional to do here.
+			}
 		},
 		/**
 		 * Sidebar personal-row delete handler. Mirrors the topbar

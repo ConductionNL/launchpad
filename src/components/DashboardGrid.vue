@@ -64,11 +64,11 @@ import {
 	DEFAULT_COLUMNS,
 	getColumnOpts,
 	syncCellHeightCssVar,
+	placeNewWidget,
 } from '../composables/useGridManager.js'
 import WidgetWrapper from './WidgetWrapper.vue'
 import TileWidget from './TileWidget.vue'
 import WidgetContextMenu from './Widgets/WidgetContextMenu.vue'
-import { placeNewWidget } from '../utils/widgetPlacement.js'
 
 export default {
 	name: 'DashboardGrid',
@@ -178,16 +178,22 @@ export default {
 
 		/**
 		 * Place a new widget using the collision placement algorithm
-		 * (REQ-GRID-006, REQ-GRID-014). Returns the placement position
-		 * `{x, y, w, h}` for the new widget. Caller MUST persist this
-		 * position via the standard updatePlacements API.
+		 * (REQ-GRID-006, REQ-GRID-014). Delegates to the canonical
+		 * `placeNewWidget` helper from `useGridManager.js` — the single
+		 * placement authority (REQ-GRID-014). Returns `{x, y, w, h, pushed}`
+		 * where `pushed` lists placements whose `gridY` must be updated by
+		 * the caller via the batch persistence path.
 		 *
 		 * @param {object} spec widget spec with optional {w, h} dimensions
-		 * @return {object} placement position {x, y, w, h}
+		 * @return {{ x: number, y: number, w: number, h: number, pushed: Array }} placement result
 		 */
 		/** @spec openspec/specs/grid-layout/spec.md */
 		placeWidget(spec) {
-			return placeNewWidget(spec, this.placements, this.grid, this.viewportRows)
+			return placeNewWidget(spec, this.placements, {
+				gridColumns: this.gridColumns,
+				viewportRows: this.viewportRows,
+				grid: this.grid,
+			})
 		},
 
 		/**

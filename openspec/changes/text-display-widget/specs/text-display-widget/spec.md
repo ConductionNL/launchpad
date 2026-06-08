@@ -1,7 +1,7 @@
 ---
 capability: text-display-widget
 delta: true
-status: draft
+status: pr-created
 ---
 
 # Text-Display Widget — Delta from change `text-display-widget`

@@ -59,6 +59,7 @@ use Throwable;
  *                                                 placement, session,
  *                                                 logger, and the
  *                                                 underlying service.
+ * @spec                                           openspec/specs/files-widget/spec.md
  */
 class FilesWidgetController extends Controller
 {
@@ -364,6 +365,8 @@ class FilesWidgetController extends Controller
      * multi-part (`files[]=...`) submissions.
      *
      * @return list<array{name:string, tmp_name:string, size:int, error:int}>
+     *
+     * @SuppressWarnings(PHPMD.Superglobals) — required for multipart file uploads.
      */
     private function normaliseUploadedFiles(): array
     {

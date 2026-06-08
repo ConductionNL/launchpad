@@ -37,6 +37,7 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -44,13 +45,28 @@ import { test, expect } from '@playwright/test'
 
 const TS = `md-${Date.now()}`
 
-// Navigate to launchpad and wait for the app to hydrate.
+// Install a restrictive `default` role-feature-permission and rely on the
+// admin break-glass bypass so the admin can still add any widget during this
+// suite (see fixtures helper for the bypass it proves).
+test.beforeAll(async () => {
+	await ensureDefaultWidgetRestriction()
+})
+
+// Navigate to mydash and wait for the app to hydrate.
 // The sidebar-toggle button is the first stable landmark injected by the Vue
 // bootstrap; we also ensure the sidebar is closed before returning so that
 // the grid and workspace elements are not occluded by the slide-in panel.
-async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? never : any) {
-	await page.goto('/index.php/apps/launchpad')
-	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+async function gotoMydash(page: Parameters<typeof test>[1] extends never ? never : any) {
+	// The dev Nextcloud occasionally returns a transient 503 (recurring
+	// needsDbUpgrade blip) right after a write-heavy step; retry the
+	// navigation once so a single blip does not fail an otherwise-green test.
+	await page.goto('/index.php/apps/mydash')
+	try {
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	} catch {
+		await page.goto('/index.php/apps/mydash')
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	}
 	// Close sidebar if it happened to be open from a prior test run (or from
 	// a redirect that lands with the sidebar pre-open).
 	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
@@ -169,15 +185,19 @@ test.describe('dashboard-switcher sidebar', () => {
 			return
 		}
 
-		await addCard.click()
-
-		// Clicking "Add dashboard" either fires a POST (creates immediately) or
-		// opens a "Create dashboard" dialog — both are valid create flows.
-		// We wait for whichever happens first: a visible dialog or a successful POST.
+		// Clicking "Add dashboard" either opens a "Create dashboard" dialog or
+		// fires a create POST immediately — the current UI forks the active
+		// dashboard into a new personal one
+		// (POST /api/dashboards/{uuid}/fork). Both are valid create flows, so
+		// arm the request listener BEFORE the click and accept either a
+		// create POST (`…/dashboard` | `…/dashboards`) or a fork POST.
 		const createRequestPromise = page.waitForRequest(
-			req => /\/api\/dashboard(?:s)?$/.test(req.url()) && req.method() === 'POST',
-			{ timeout: 5_000 },
+			req => req.method() === 'POST'
+				&& /\/api\/dashboard(?:s)?(?:\/[0-9a-f-]+\/fork)?(?:\?|$)/.test(req.url()),
+			{ timeout: 8_000 },
 		).catch(() => null)
+
+		await addCard.click()
 
 		const dialogVisible = await page
 			.getByRole('dialog', { name: /create dashboard/i })
@@ -185,7 +205,7 @@ test.describe('dashboard-switcher sidebar', () => {
 			.catch(() => false)
 
 		if (!dialogVisible) {
-			// No dialog — a POST must have fired instead.
+			// No dialog — a create/fork POST must have fired instead.
 			const req = await createRequestPromise
 			expect(req).not.toBeNull()
 		}
@@ -267,8 +287,12 @@ test.describe('grid layout initialisation and edit mode', () => {
 	test('grid container is a descendant of the launchpad workspace', async ({ page }) => {
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		const workspace = page.locator('.launchpad-workspace')
+		// The runtime-shell root renders `.workspace-shell` (the page chrome),
+		// with `.launchpad-workspace` applied to the NC `#app-workspace` host.
+		const workspace = page.locator('.workspace-shell').first()
 		await expect(workspace).toBeVisible()
+		// The grid must live inside that workspace shell.
+		await expect(workspace.locator('.grid-stack').first()).toBeAttached()
 	})
 
 	// @e2e grid-layout::initialize-grid-with-custom-column-count
@@ -431,14 +455,13 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: longWord.slice(0, 10) })
+		const placement = page.locator('.label-widget').filter({ hasText: longWord.slice(0, 10) }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
-		const cell = placement.locator('..').first()
-		const cellBox = await cell.boundingBox().catch(() => null)
-		const textBox = await placement.boundingBox().catch(() => null)
-		if (cellBox && textBox) {
-			expect(textBox.width).toBeLessThanOrEqual(cellBox.width + 4)
-		}
+		// REQ-LBL-003: the long single word must wrap, not overflow — the
+		// rendered content must not be wider than its widget container
+		// (allow a 2px sub-pixel rounding tolerance).
+		const overflowPx = await placement.evaluate((el) => el.scrollWidth - el.clientWidth)
+		expect(overflowPx).toBeLessThanOrEqual(2)
 	})
 
 	// @e2e label-widget::centred-in-cell-with-padding

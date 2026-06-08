@@ -38,6 +38,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\OrgNavigationService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -193,7 +194,7 @@ class AdminOrgNavigationController extends Controller
          *
      * @spec openspec/specs/navigation-editor-org/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateOrgNavigation(
         ?array $tree=null,
         string $lang=OrgNavigationService::DEFAULT_LANGUAGE
@@ -272,7 +273,7 @@ class AdminOrgNavigationController extends Controller
          *
      * @spec openspec/specs/navigation-editor-org/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updatePosition(?string $position=null): JSONResponse
     {
         $guard = $this->assertAdmin();

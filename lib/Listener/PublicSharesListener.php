@@ -3,29 +3,28 @@
 /**
  * PublicSharesListener
  *
- * Soft-revokes rows in `oc_launchpad_public_shares` when a dashboard is
- * deleted (sets `revokedAt` rather than hard-deleting, preserving the
- * audit trail). Stub registered as part of the cascade-events
- * scaffolding; the live implementation is owned by the
- * dashboard-public-share follow-up. REQ-CSC-003.
+ * Soft-revokes public shares when a dashboard is deleted, preserving the
+ * audit trail (revokedAt set to now rather than hard-delete). REQ-CSC-003.
  *
  * @category  Listener
  * @package   OCA\LaunchPad\Listener
- * @author    Conduction b.v. <info@conduction.nl>
- * @copyright 2026 Conduction b.v.
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
- * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
 namespace OCA\LaunchPad\Listener;
 
-use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\PublicShareMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -33,34 +32,34 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Deletes share rows for the deleted dashboard. C4 fix (REQ-CSC-003).
+ * Soft-revokes public shares for a deleted dashboard.
  *
  * @implements IEventListener<DashboardDeletedEvent>
+ *
+ * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
  */
 class PublicSharesListener implements IEventListener
 {
     /**
      * Constructor.
      *
-     * @param DashboardShareMapper $shareMapper Share row mapper.
-     * @param LoggerInterface      $logger      PSR-3 logger for
-     *                                          log-and-continue failure
-     *                                          handling per REQ-CSC-006.
+     * @param PublicShareMapper $shareMapper Public share mapper.
+     * @param LoggerInterface   $logger      PSR-3 logger.
      */
     public function __construct(
-        private readonly DashboardShareMapper $shareMapper,
+        private readonly PublicShareMapper $shareMapper,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
 
     /**
-     * Handle the DashboardDeletedEvent.
+     * Handle the DashboardDeletedEvent by soft-revoking all active shares.
      *
      * @param Event $event The event.
      *
      * @return void
      *
-     * @spec openspec/specs/dashboard-cascade-events/spec.md
+     * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
      */
     public function handle(Event $event): void
     {
@@ -71,14 +70,14 @@ class PublicSharesListener implements IEventListener
         $uuid = $event->getDashboardUuid();
 
         try {
-            $deleted = $this->shareMapper->deleteByDashboardUuid(
+            $count = $this->shareMapper->revokeByDashboardUuid(
                 dashboardUuid: $uuid
             );
 
             $this->logger->debug(
                 message: sprintf(
-                    'launchpad PublicSharesListener: deleted %d share rows for dashboard %s',
-                    $deleted,
+                    'mydash PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
+                    $count,
                     $uuid
                 ),
                 context: ['app' => 'launchpad']

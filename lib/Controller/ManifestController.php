@@ -25,6 +25,7 @@ namespace OCA\MyDash\Controller;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\ActionAuthService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -205,6 +206,17 @@ class ManifestController extends Controller
                     }
                 }
             }
+        } catch (DoesNotExistException $e) {
+            // The 'mydash' register or 'dashboard' schema has not been
+            // provisioned in OpenRegister on this instance yet. That simply
+            // means the user has no dashboards — degrade to an empty manifest
+            // so the frontend renders its "no dashboards yet" CTA instead of a
+            // 500 (OpenRegister surfaces this as DoesNotExistException, which
+            // extends \Exception and so is not a RuntimeException).
+            $this->logger->info(
+                'MyDash: OpenRegister register/schema not provisioned — returning empty manifest. '.$e->getMessage(),
+                ['app' => Application::APP_ID, 'userId' => $userId]
+            );
         } catch (\RuntimeException | \InvalidArgumentException $e) {
             // Narrow catch: only handle recoverable OR API errors. Let
             // unexpected errors propagate so they are visible in the logs.

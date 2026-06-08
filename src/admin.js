@@ -15,6 +15,8 @@ import Vue from 'vue'
 import { PiniaVuePlugin, createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 
+import './services/widgetBridge.js'
+
 import AdminSettings from './components/admin/AdminSettings.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
 

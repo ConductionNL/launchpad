@@ -28,6 +28,8 @@ import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
+import './services/widgetBridge.js'
+
 import App from './App.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'

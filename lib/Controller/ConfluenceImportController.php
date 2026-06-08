@@ -26,6 +26,7 @@ namespace OCA\MyDash\Controller;
 use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\ConfluenceImportService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -68,7 +69,7 @@ class ConfluenceImportController extends Controller
      *
      * @spec openspec/specs/confluence-html-import/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function dryRun(): JSONResponse
     {
         $tmpName = $this->resolveUpload();
@@ -103,7 +104,7 @@ class ConfluenceImportController extends Controller
      *
      * @spec openspec/specs/confluence-html-import/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function import(?string $parentUuid=null): JSONResponse
     {
         $tmpName = $this->resolveUpload();

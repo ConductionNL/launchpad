@@ -155,7 +155,11 @@ class ConditionalService
             }
 
             $byPlacement[$placementId]['ruleCount']++;
-            $counterKey = $rule->getIsInclude() === true ? 'includeCount' : 'excludeCount';
+            $counterKey = 'excludeCount';
+            if ($rule->getIsInclude() === true) {
+                $counterKey = 'includeCount';
+            }
+
             $byPlacement[$placementId][$counterKey]++;
         }
 

@@ -23,6 +23,7 @@ namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\ConditionalService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
@@ -63,7 +64,7 @@ class AdminWidgetRulesController extends Controller
      *
      * @spec openspec/specs/conditional-visibility/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function index(): JSONResponse
     {
         try {

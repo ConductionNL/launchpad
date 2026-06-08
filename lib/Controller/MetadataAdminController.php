@@ -31,6 +31,7 @@ use OCA\MyDash\Exception\InvalidMetadataFieldException;
 use OCA\MyDash\Exception\MetadataFieldHasValuesException;
 use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\MetadataService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -107,7 +108,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function listFields(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -150,7 +151,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function createField(
         string $key='',
         string $label='',
@@ -202,7 +203,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function getField(int $id): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -247,7 +248,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function updateField(
         int $id,
         ?string $label=null,
@@ -324,7 +325,7 @@ class MetadataAdminController extends Controller
          *
      * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function deleteField(int $id, bool $cascade=false): JSONResponse
     {
         $guard = $this->assertAdmin();

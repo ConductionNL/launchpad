@@ -38,6 +38,7 @@ use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Db\AdminSettingMapper;
 use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\OrgNavigationService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -193,7 +194,7 @@ class AdminOrgNavigationController extends Controller
          *
      * @spec openspec/specs/navigation-editor-org/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function updateOrgNavigation(
         ?array $tree=null,
         string $lang=OrgNavigationService::DEFAULT_LANGUAGE
@@ -272,7 +273,7 @@ class AdminOrgNavigationController extends Controller
          *
      * @spec openspec/specs/navigation-editor-org/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function updatePosition(?string $position=null): JSONResponse
     {
         $guard = $this->assertAdmin();

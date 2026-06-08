@@ -35,6 +35,7 @@ namespace OCA\MyDash\Controller;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
 use OCA\MyDash\Service\OrphanedDataCleanupService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -109,7 +110,7 @@ class AdminCleanupController extends Controller
          *
      * @spec openspec/specs/orphaned-data-cleanup/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function scan(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -165,7 +166,7 @@ class AdminCleanupController extends Controller
          *
      * @spec openspec/specs/orphaned-data-cleanup/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function purge(?array $categories=null, ?bool $dryRun=null): JSONResponse
     {
         $guard = $this->assertAdmin();

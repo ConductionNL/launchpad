@@ -38,6 +38,7 @@ use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\AnalyticsService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -86,7 +87,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function topDashboards(
         string $period='30d',
         int $limit=10
@@ -132,7 +133,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function dashboardDetail(
         string $uuid,
         string $period='30d'
@@ -184,7 +185,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function instanceSummary(string $period='30d'): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -229,7 +230,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function exportCsv(string $period='30d'): Response
     {
         $user = $this->userSession->getUser();

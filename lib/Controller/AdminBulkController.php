@@ -36,6 +36,7 @@ use InvalidArgumentException;
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\BulkOperationService;
 use OCA\MyDash\Service\PermissionDeniedException;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -110,7 +111,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function bulkDelete(
         mixed $dashboardUuids=null,
         ?bool $dryRun=null,
@@ -170,7 +171,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function bulkMove(
         mixed $dashboardUuids=null,
         ?string $parentUuid=null,
@@ -229,7 +230,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function bulkStatus(
         mixed $dashboardUuids=null,
         ?string $publicationStatus=null,
@@ -295,7 +296,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function bulkReindex(
         mixed $dashboardUuids=null,
         ?bool $dryRun=null

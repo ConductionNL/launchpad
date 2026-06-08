@@ -36,10 +36,10 @@ use OCA\MyDash\Service\WidgetService;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;
-use OCP\Settings\ISettings;
+use OCP\Settings\IDelegatedSettings;
 use OCP\Util;
 
-class MyDashAdmin implements ISettings
+class MyDashAdmin implements IDelegatedSettings
 {
     /**
      * Constructor.
@@ -159,4 +159,28 @@ class MyDashAdmin implements ISettings
     {
         return 10;
     }//end getPriority()
+
+    /**
+     * Human-readable name of the delegated settings section.
+     *
+     * @return string|null The section name, or null to use the section default.
+     */
+    public function getName(): ?string
+    {
+        return null;
+    }//end getName()
+
+    /**
+     * App config keys an authorized (delegated) admin may manage.
+     *
+     * Returned as a map of appId => list of allowed config keys. MyDash
+     * exposes no delegatable sub-keys yet, so this is intentionally empty;
+     * the attribute still scopes the endpoint to full admins.
+     *
+     * @return array<string,string[]> Map of appId to allowed config keys.
+     */
+    public function getAuthorizedAppConfig(): array
+    {
+        return [];
+    }//end getAuthorizedAppConfig()
 }//end class

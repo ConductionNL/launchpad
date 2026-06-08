@@ -37,6 +37,7 @@ use OCA\MyDash\Service\ImportService;
 use OCA\MyDash\Service\ResourceService;
 use OCA\MyDash\Service\RoleService;
 use OCA\MyDash\Service\SetupWizardService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -178,7 +179,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function listTemplates(): JSONResponse
     {
         $templates = $this->templateService->listTemplates();
@@ -197,7 +198,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function getTemplate(int $id): JSONResponse
     {
         try {
@@ -235,7 +236,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-3
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function createTemplate(
         string $name,
         ?string $description=null,
@@ -276,7 +277,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-5
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function updateTemplate(
         int $id,
         ?string $name=null,
@@ -318,7 +319,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-6
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function deleteTemplate(int $id): JSONResponse
     {
         try {
@@ -337,7 +338,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-1
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function getSettings(): JSONResponse
     {
         return ResponseHelper::success(
@@ -374,7 +375,7 @@ class AdminController extends Controller
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function updateSettings(
         ?string $defaultPermLevel=null,
         ?bool $allowUserDash=null,
@@ -422,7 +423,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function getFooterSettings(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -461,7 +462,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function updateFooterSettings(
         ?bool $footerEnabled=null,
         mixed $footerHtml=null,
@@ -523,7 +524,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function export(
         string $scope='site',
         ?string $dashboardUuid=null
@@ -587,7 +588,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function import(bool $preserveUuids=false): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -656,7 +657,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function listRoles(): JSONResponse
     {
 
@@ -683,7 +684,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function createRole(
         ?string $userId=null,
         ?string $groupId=null,
@@ -734,7 +735,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function deleteRole(int $id): JSONResponse
     {
 
@@ -799,7 +800,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function refreshFeedsNow(?string $feedUrl=null): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -847,7 +848,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function uploadTemplatePreviewImage(
         string $uuid,
         string $base64=''
@@ -912,7 +913,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function getWizardState(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -935,7 +936,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function completeWizard(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -962,7 +963,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function setWizardStorage(?string $storage=null): JSONResponse
     {
         $guard = $this->assertAdmin();

@@ -25,6 +25,7 @@ namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Service\RoleFeaturePermissionService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -62,7 +63,7 @@ class RoleFeaturePermissionApiController extends Controller
          *
      * @spec openspec/specs/admin-roles/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function listPermissions(): JSONResponse
     {
         $rows = $this->service->listPermissions();
@@ -81,7 +82,7 @@ class RoleFeaturePermissionApiController extends Controller
          *
      * @spec openspec/specs/admin-roles/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function savePermission(): JSONResponse
     {
         try {
@@ -110,7 +111,7 @@ class RoleFeaturePermissionApiController extends Controller
          *
      * @spec openspec/specs/admin-roles/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function deletePermission(int $id): JSONResponse
     {
         try {
@@ -131,7 +132,7 @@ class RoleFeaturePermissionApiController extends Controller
          *
      * @spec openspec/specs/admin-roles/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function listLayoutDefaults(): JSONResponse
     {
         $rows = $this->service->listLayoutDefaults();
@@ -147,7 +148,7 @@ class RoleFeaturePermissionApiController extends Controller
          *
      * @spec openspec/specs/admin-roles/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function saveLayoutDefault(): JSONResponse
     {
         try {
@@ -176,7 +177,7 @@ class RoleFeaturePermissionApiController extends Controller
          *
      * @spec openspec/specs/admin-roles/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function deleteLayoutDefault(int $id): JSONResponse
     {
         try {

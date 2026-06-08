@@ -32,11 +32,11 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Controller;
 
-use OCA\MyDash\AppInfo\Application;
 use OCA\MyDash\Exception\ForbiddenException;
 use OCA\MyDash\Exception\ResourceException;
 use OCA\MyDash\Exception\StorageFailureException;
 use OCA\MyDash\Service\ResourceService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -94,7 +94,7 @@ class ResourceController extends Controller
          *
      * @spec openspec/specs/resource-uploads/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function upload(): JSONResponse
     {
         try {

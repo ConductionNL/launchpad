@@ -694,6 +694,8 @@ OCA\MyDash\Service\WidgetService::getDashboardPlacements
 OCA\MyDash\Settings\MyDashAdmin::getForm
 OCA\MyDash\Settings\MyDashAdmin::getSection
 OCA\MyDash\Settings\MyDashAdmin::getPriority
+OCA\MyDash\Settings\MyDashAdmin::getName
+OCA\MyDash\Settings\MyDashAdmin::getAuthorizedAppConfig
 OCA\MyDash\Settings\MyDashAdminSection::getID
 OCA\MyDash\Settings\MyDashAdminSection::getName
 OCA\MyDash\Settings\MyDashAdminSection::getPriority

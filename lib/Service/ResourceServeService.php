@@ -19,14 +19,15 @@
  *
  * @category  Service
  * @package   OCA\MyDash\Service
- * @author    Conduction b.v. <info@conduction.nl>
- * @copyright 2024 Conduction b.v.
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-serving/tasks.md
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -44,6 +45,8 @@ use Throwable;
 
 /**
  * Read-side filesystem + formatting helpers for resource-uploads.
+ *
+ * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeService
 {
@@ -82,6 +85,8 @@ class ResourceServeService
      * @param string $filename The leaf filename.
      *
      * @return ISimpleFile|null The file, or null if absent / unreadable.
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-1
      */
     public function findFile(string $filename): ?ISimpleFile
     {
@@ -106,6 +111,8 @@ class ResourceServeService
      * matching REQ-RES-007's "never a 404" contract.
      *
      * @return array<int, ISimpleFile> The file entries.
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-3
      */
     public function listFiles(): array
     {
@@ -139,6 +146,8 @@ class ResourceServeService
      * @param string $filename The leaf filename.
      *
      * @return string The MIME type to send.
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-1
      */
     public function contentTypeForFilename(string $filename): string
     {
@@ -157,6 +166,8 @@ class ResourceServeService
      * @param int $epoch The Unix epoch (e.g. from ISimpleFile::getMTime()).
      *
      * @return string The ISO-8601 timestamp.
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-3
      */
     public function formatTimestamp(int $epoch): string
     {

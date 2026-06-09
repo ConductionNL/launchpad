@@ -38,14 +38,15 @@
  *
  * @category  Controller
  * @package   OCA\MyDash\Controller
- * @author    Conduction b.v. <info@conduction.nl>
- * @copyright 2024 Conduction b.v.
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * @spec openspec/changes/resource-serving/tasks.md
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -53,18 +54,24 @@ declare(strict_types=1);
 namespace OCA\MyDash\Controller;
 
 use OCA\MyDash\AppInfo\Application;
+use OCA\MyDash\Service\ActionAuthService;
 use OCA\MyDash\Service\ResourceServeService;
 use OCA\MyDash\Service\ResourceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
  * Public read-side controller for uploaded resources.
+ *
+ * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeController extends Controller
 {
@@ -78,14 +85,18 @@ class ResourceServeController extends Controller
     /**
      * Constructor.
      *
-     * @param IRequest             $request The HTTP request.
-     * @param ResourceServeService $serve   Filesystem + formatting helper.
-     * @param LoggerInterface      $logger  PSR logger.
+     * @param IRequest             $request     The HTTP request.
+     * @param ResourceServeService $serve       Filesystem + formatting helper.
+     * @param ActionAuthService    $actionAuth  ADR-023 action authorization.
+     * @param LoggerInterface      $logger      PSR logger.
+     * @param IUserSession         $userSession The current user session.
      */
     public function __construct(
         IRequest $request,
         private readonly ResourceServeService $serve,
+        private readonly ActionAuthService $actionAuth,
         private readonly LoggerInterface $logger,
+        private readonly IUserSession $userSession,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -114,9 +125,25 @@ class ResourceServeController extends Controller
      *
      * @NoAdminRequired
      * @NoCSRFRequired
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-1
+     * @spec openspec/changes/resource-serving/tasks.md#task-2
+     * @spec openspec/changes/resource-serving/tasks.md#task-4
      */
+    #[NoAdminRequired]
     public function getResource(string $filename): StreamResponse|JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'resource-serve.get-resource');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         if ($this->isUnsafeFilename(filename: $filename) === true) {
             return $this->notFoundResponse();
         }
@@ -169,9 +196,24 @@ class ResourceServeController extends Controller
      *
      * @NoAdminRequired
      * @NoCSRFRequired
+     *
+     * @spec openspec/changes/resource-serving/tasks.md#task-3
+     * @spec openspec/changes/resource-serving/tasks.md#task-4
      */
+    #[NoAdminRequired]
     public function listResources(): JSONResponse
     {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'resource-serve.list-resources');
+        } catch (OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+        }
+
         $files = $this->serve->listFiles();
 
         $resources = [];

@@ -34,41 +34,166 @@ use OCP\AppFramework\Db\Entity;
 class AdminSetting extends Entity implements JsonSerializable
 {
 
-    /**
-     * Setting key for default permission level.
-     *
-     * @var string
-     */
-    public const KEY_DEFAULT_PERMISSION_LEVEL = 'default_permission_level';
+    // ------------------------------------------------------------------
+    // BC string aliases for AdminSettingKey enum values.
+    // These constants remain here so existing call-sites do not need
+    // updating; prefer AdminSettingKey::<CASE>->value in new code.
+    // @see \OCA\MyDash\Db\AdminSettingKey
+    // @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-10
+    // ------------------------------------------------------------------
 
     /**
-     * Setting key for allowing user dashboards.
+     * BC alias for AdminSettingKey::DEFAULT_PERMISSION_LEVEL.
      *
      * @var string
+     *
+     * @see AdminSettingKey::DEFAULT_PERMISSION_LEVEL
      */
-    public const KEY_ALLOW_USER_DASHBOARDS = 'allow_user_dashboards';
+    public const KEY_DEFAULT_PERMISSION_LEVEL = AdminSettingKey::DEFAULT_PERMISSION_LEVEL->value;
 
     /**
-     * Setting key for allowing multiple dashboards.
+     * BC alias for AdminSettingKey::ALLOW_USER_DASHBOARDS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::ALLOW_USER_DASHBOARDS
      */
-    public const KEY_ALLOW_MULTIPLE_DASHBOARDS = 'allow_multiple_dashboards';
+    public const KEY_ALLOW_USER_DASHBOARDS = AdminSettingKey::ALLOW_USER_DASHBOARDS->value;
 
     /**
-     * Setting key for default grid columns.
+     * BC alias for AdminSettingKey::ALLOW_MULTIPLE_DASHBOARDS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::ALLOW_MULTIPLE_DASHBOARDS
      */
-    public const KEY_DEFAULT_GRID_COLUMNS = 'default_grid_columns';
+    public const KEY_ALLOW_MULTIPLE_DASHBOARDS = AdminSettingKey::ALLOW_MULTIPLE_DASHBOARDS->value;
 
     /**
-     * Setting key for the ordered list of "active" Nextcloud group IDs that
-     * MyDash treats as in scope for workspace routing (REQ-ASET-012).
+     * BC alias for AdminSettingKey::DEFAULT_GRID_COLUMNS.
      *
      * @var string
+     *
+     * @see AdminSettingKey::DEFAULT_GRID_COLUMNS
      */
-    public const KEY_GROUP_ORDER = 'group_order';
+    public const KEY_DEFAULT_GRID_COLUMNS = AdminSettingKey::DEFAULT_GRID_COLUMNS->value;
+
+    /**
+     * BC alias for AdminSettingKey::GROUP_ORDER.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::GROUP_ORDER
+     */
+    public const KEY_GROUP_ORDER = AdminSettingKey::GROUP_ORDER->value;
+
+    /**
+     * BC alias for AdminSettingKey::LINK_CREATE_FILE_EXTENSIONS.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::LINK_CREATE_FILE_EXTENSIONS
+     */
+    public const KEY_LINK_CREATE_FILE_EXTENSIONS = AdminSettingKey::LINK_CREATE_FILE_EXTENSIONS->value;
+
+    /**
+     * BC alias for AdminSettingKey::COMMENTS_ENABLED_DEFAULT.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::COMMENTS_ENABLED_DEFAULT
+     */
+    public const KEY_COMMENTS_ENABLED_DEFAULT = AdminSettingKey::COMMENTS_ENABLED_DEFAULT->value;
+
+    /**
+     * BC alias for AdminSettingKey::FOOTER_ENABLED.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FOOTER_ENABLED
+     */
+    public const KEY_FOOTER_ENABLED = AdminSettingKey::FOOTER_ENABLED->value;
+
+    /**
+     * BC alias for AdminSettingKey::FOOTER_HTML.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FOOTER_HTML
+     */
+    public const KEY_FOOTER_HTML = AdminSettingKey::FOOTER_HTML->value;
+
+    /**
+     * BC alias for AdminSettingKey::FOOTER_CONFIG.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FOOTER_CONFIG
+     */
+    public const KEY_FOOTER_CONFIG = AdminSettingKey::FOOTER_CONFIG->value;
+
+    /**
+     * BC alias for AdminSettingKey::FOOTER_BACKGROUND_COLOR.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FOOTER_BACKGROUND_COLOR
+     */
+    public const KEY_FOOTER_BACKGROUND_COLOR = AdminSettingKey::FOOTER_BACKGROUND_COLOR->value;
+
+    /**
+     * BC alias for AdminSettingKey::FOOTER_TEXT_COLOR.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FOOTER_TEXT_COLOR
+     */
+    public const KEY_FOOTER_TEXT_COLOR = AdminSettingKey::FOOTER_TEXT_COLOR->value;
+
+    /**
+     * BC alias for AdminSettingKey::SETUP_WIZARD_COMPLETE.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::SETUP_WIZARD_COMPLETE
+     */
+    public const KEY_SETUP_WIZARD_COMPLETE = AdminSettingKey::SETUP_WIZARD_COMPLETE->value;
+
+    /**
+     * BC alias for AdminSettingKey::CONTENT_STORAGE.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::CONTENT_STORAGE
+     */
+    public const KEY_CONTENT_STORAGE = AdminSettingKey::CONTENT_STORAGE->value;
+
+    /**
+     * BC alias for AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL
+     */
+    public const KEY_DEFAULT_SHARE_PERMISSION_LEVEL = AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL->value;
+
+    /**
+     * BC alias for AdminSettingKey::FORCED_SHARE_GROUPS.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::FORCED_SHARE_GROUPS
+     */
+    public const KEY_FORCED_SHARE_GROUPS = AdminSettingKey::FORCED_SHARE_GROUPS->value;
+
+    /**
+     * BC alias for AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED.
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED
+     */
+    public const KEY_LEGACY_WIDGET_BRIDGE_ENABLED = AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED->value;
 
     /**
      * The setting key.

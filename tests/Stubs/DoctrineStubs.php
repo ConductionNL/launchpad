@@ -65,10 +65,38 @@ namespace Doctrine\DBAL\Types {
     }
 }
 
+namespace Doctrine\DBAL\Query\Expression {
+    if (class_exists(__NAMESPACE__ . '\\ExpressionBuilder', false) === false) {
+        class ExpressionBuilder
+        {
+            public const EQ  = '=';
+            public const NEQ = '<>';
+            public const LT  = '<';
+            public const LTE = '<=';
+            public const GT  = '>';
+            public const GTE = '>=';
+        }
+    }
+}
+
 namespace Doctrine\DBAL\Schema {
     if (class_exists(__NAMESPACE__ . '\\Schema', false) === false) {
         class Schema
         {
+        }
+    }
+}
+
+namespace Doctrine\DBAL\Query\Expression {
+    if (class_exists(__NAMESPACE__ . '\\ExpressionBuilder', false) === false) {
+        class ExpressionBuilder
+        {
+            public const EQ   = '=';
+            public const NEQ  = '<>';
+            public const LT   = '<';
+            public const LTE  = '<=';
+            public const GT   = '>';
+            public const GTE  = '>=';
         }
     }
 }

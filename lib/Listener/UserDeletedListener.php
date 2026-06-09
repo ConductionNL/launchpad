@@ -24,24 +24,37 @@ declare(strict_types=1);
 
 namespace OCA\MyDash\Listener;
 
+use DateTimeImmutable;
 use OCA\MyDash\Db\Dashboard;
 use OCA\MyDash\Db\DashboardMapper;
 use OCA\MyDash\Db\DashboardShare;
 use OCA\MyDash\Db\DashboardShareMapper;
 use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\MyDash\Event\DashboardDeletedEvent;
 use OCA\MyDash\Service\DashboardShareService;
+use OCA\MyDash\Service\RoleService;
 use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use OCP\User\Events\UserDeletedEvent;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
  * Handles user deletion: recipient cleanup + ownership transfer / cascade.
  *
  * @implements IEventListener<UserDeletedEvent>
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The retention cascade
+ *                                                  legitimately spans share,
+ *                                                  dashboard, placement,
+ *                                                  group and user services
+ *                                                  in one orchestrating
+ *                                                  listener.
+ * @spec                                           openspec/specs/dashboard-cascade-events/spec.md
  */
 class UserDeletedListener implements IEventListener
 {
@@ -55,6 +68,16 @@ class UserDeletedListener implements IEventListener
      * @param IGroupManager         $groupManager    The group manager.
      * @param IUserManager          $userManager     The user manager.
      * @param IDBConnection         $db              The DB connection.
+     * @param LoggerInterface       $logger          PSR-3 logger (PHP_SAPI-safe;
+     *                                               replaces deprecated
+     *                                               `\OC::$server->getLogger()`).
+     * @param RoleService           $roleService     Role-assignment cascade
+     *                                               (REQ-ROLE-010).
+     * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
+     *                                               DashboardDeletedEvent
+     *                                               (SB1 fix, REQ-CSC-001).
+     *                                               Nullable for backwards-
+     *                                               compat.
      */
     public function __construct(
         private readonly DashboardShareMapper $shareMapper,
@@ -64,6 +87,9 @@ class UserDeletedListener implements IEventListener
         private readonly IGroupManager $groupManager,
         private readonly IUserManager $userManager,
         private readonly IDBConnection $db,
+        private readonly LoggerInterface $logger,
+        private readonly RoleService $roleService,
+        private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
 
@@ -77,6 +103,8 @@ class UserDeletedListener implements IEventListener
      * @param Event $event The event.
      *
      * @return void
+     *
+     * @spec openspec/specs/dashboard-cascade-events/spec.md
      */
     public function handle(Event $event): void
     {
@@ -85,6 +113,21 @@ class UserDeletedListener implements IEventListener
         }
 
         $userId = $event->getUser()->getUID();
+
+        // REQ-ROLE-010: cascade role-assignment cleanup. Best-effort —
+        // logged but never aborts the rest of the pipeline.
+        try {
+            $this->roleService->deleteByUserId(userId: $userId);
+        } catch (Throwable $t) {
+            $this->logger->error(
+                message: sprintf(
+                    'mydash UserDeletedListener: failed to cascade role assignment cleanup for user %s: %s',
+                    $userId,
+                    $t->getMessage()
+                ),
+                context: ['app' => 'mydash']
+            );
+        }
 
         // Step A: remove shares granted TO the deleted user.
         $this->shareMapper->deleteByRecipientUser(userId: $userId);
@@ -138,7 +181,9 @@ class UserDeletedListener implements IEventListener
                     dashboardId: $dashboardId,
                     dashboardName: (string) $dashboard->getName()
                 );
-            } else {
+            }
+
+            if ($newOwner === null) {
                 // Admin pool empty — delete dashboard, placements, and shares.
                 $this->placementMapper->deleteByDashboardId(
                     dashboardId: $dashboardId
@@ -149,12 +194,26 @@ class UserDeletedListener implements IEventListener
                 $this->dashboardMapper->delete(entity: $dashboard);
 
                 $this->db->commit();
+
+                // SB1 fix: dispatch cascade event outside the transaction
+                // so listeners see a committed row (REQ-CSC-001).
+                $deletedUuid = (string) $dashboard->getUuid();
+                if ($this->eventDispatcher !== null && $deletedUuid !== '') {
+                    $this->eventDispatcher->dispatchTyped(
+                        new DashboardDeletedEvent(
+                            dashboardUuid: $deletedUuid,
+                            ownerUserId:   $deletedUserId,
+                            type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                            deletedAt:     new DateTimeImmutable()
+                        )
+                    );
+                }
             }//end if
         } catch (Throwable $t) {
             $this->db->rollBack();
             // Log but do not rethrow — we want to continue processing
             // the other dashboards.
-            \OC::$server->getLogger()->error(
+            $this->logger->error(
                 message: sprintf(
                     'mydash UserDeletedListener: failed to handle dashboard %d: %s',
                     $dashboardId,

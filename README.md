@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="img/app-store.svg" alt="MyDash logo" width="80" height="80">
+  <img src="img/app-store.svg" alt="LaunchPad logo" width="80" height="80">
 </p>
 
-<h1 align="center">MyDash</h1>
+<h1 align="center">LaunchPad</h1>
 
 <p align="center">
   <strong>Customizable multi-dashboard for Nextcloud — drag-and-drop widgets, templates, and smart visibility rules</strong>
@@ -12,12 +12,14 @@
   <a href="https://github.com/ConductionNL/mydash/releases"><img src="https://img.shields.io/github/v/release/ConductionNL/mydash" alt="Latest release"></a>
   <a href="https://github.com/ConductionNL/mydash/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License"></a>
   <a href="https://github.com/ConductionNL/mydash/actions"><img src="https://img.shields.io/github/actions/workflow/status/ConductionNL/mydash/code-quality.yml?label=quality" alt="Code quality"></a>
-  <a href="https://mydash.app"><img src="https://img.shields.io/badge/docs-mydash.app-green" alt="Documentation"></a>
+  <a href="https://mydash.conduction.nl"><img src="https://img.shields.io/badge/docs-mydash.conduction.nl-green" alt="Documentation"></a>
 </p>
 
 ---
 
-MyDash supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
+LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams. It works with every existing Nextcloud dashboard widget out of the box, supporting both the v1 and v2 Dashboard APIs.
+
+📚 **[Step-by-step tutorials](https://mydash.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
 
 ## Screenshots
 
@@ -61,9 +63,13 @@ MyDash supercharges the Nextcloud dashboard. Create multiple personalized worksp
 
 ## Architecture
 
+See [`docs/architecture.md`](docs/architecture.md) for the full architecture reference, including the app-manifest adoption (ADR-024), the runtime-only OR consumption policy, and the permission model on `oc_mydash_dashboards`.
+
+OR-backed widget development: [`docs/widgets/or-data.md`](docs/widgets/or-data.md).
+
 ```mermaid
 graph TD
-    A[Vue 2 Frontend] -->|REST API| B[MyDash PHP Backend]
+    A[Vue 2 Frontend] -->|REST API| B[LaunchPad PHP Backend]
     B --> C[(PostgreSQL / MySQL)]
     A -->|GridStack.js| D[Drag-and-Drop Grid]
     A -->|Dashboard API| E[Nextcloud Widgets v1/v2]
@@ -113,7 +119,7 @@ mydash/
 ### From the Nextcloud App Store
 
 1. Go to **Apps** in your Nextcloud instance
-2. Search for **MyDash**
+2. Search for **LaunchPad**
 3. Click **Download and enable**
 
 ### From Source
@@ -148,16 +154,29 @@ npm run build      # Production build
 ### Code quality
 
 ```bash
+# Unified gate (runs all checks below)
+composer check:strict   # lint + phpcs + phpmd + phpstan + tests
+
 # PHP
-composer phpcs          # Check coding standards
+composer phpcs          # Check coding standards (0 errors enforced)
 composer cs:fix         # Auto-fix issues
-composer phpmd          # Mess detection
+composer phpmd          # Mess detection (baseline: phpmd.baseline.xml)
+composer phpstan        # Static analysis (baseline: phpstan-baseline.neon)
 composer phpmetrics     # HTML metrics report
 
 # Frontend
 npm run lint            # ESLint
 npm run stylelint       # CSS linting
 ```
+
+> **Quality gate status** (as of the `launchpad-legacy-quality-cleanup` PR):
+> - PHPCS: 0 errors (all 245 pre-existing errors cleared)
+> - PHPMD: 222 violations baselined; ElseExpression (31) fixed outright.
+>   Remaining debt: StaticAccess (ResponseHelper pattern), complexity.
+>   Tracked in `phpmd.baseline.xml` — burn down in follow-up PRs.
+> - PHPStan: passes with `phpstan-baseline.neon` (286 lines of pre-existing
+>   issues, mostly `AuthorizedAdminSetting` type mismatches and `DataResponse`
+>   generic types). Burn down tracked separately.
 
 ## Tech Stack
 

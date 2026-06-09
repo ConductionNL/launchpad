@@ -8,9 +8,41 @@
 		<CnSettingsSection
 			:name="t('mydash', 'MyDash settings')"
 			:description="t('mydash', 'Configure dashboard permissions and defaults')"
-			doc-url="https://mydash.app">
-			<!-- Global Settings -->
-			<div class="mydash-admin__section">
+			doc-url="https://mydash.conduction.nl/docs/intro">
+			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
+			     page, above the Beheer tabs, so the call-to-action is always
+			     the first thing the admin sees regardless of active tab. -->
+			<div
+				v-if="wizardState && !wizardState.complete"
+				class="mydash-admin__wizard-banner"
+				data-test="setup-wizard-banner">
+				<div>
+					<strong>{{ t('mydash', 'Run setup wizard') }}</strong>
+					<p>
+						{{ t('mydash', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
+					</p>
+				</div>
+				<NcButton
+					type="primary"
+					data-test="setup-wizard-open"
+					@click="openWizard">
+					{{ t('mydash', 'Run setup wizard') }}
+				</NcButton>
+			</div>
+			<div
+				v-else-if="wizardState && wizardState.complete"
+				class="mydash-admin__wizard-rerun"
+				data-test="setup-wizard-rerun">
+				<NcButton
+					type="tertiary"
+					data-test="setup-wizard-rerun-open"
+					@click="openWizard">
+					{{ t('mydash', 'Run setup wizard again') }}
+				</NcButton>
+			</div>
+
+			<!-- Global Settings — always visible above the tab strip. -->
+			<div class="mydash-admin__section" data-testid="admin-default-settings">
 				<h3>{{ t('mydash', 'Default settings') }}</h3>
 
 				<div class="mydash-admin__field">
@@ -26,9 +58,13 @@
 
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowUserDashboards"
+					data-testid="admin-allow-user-dashboards"
 					@update:checked="updateSetting('allowUserDashboards', $event)">
 					{{ t('mydash', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
+				<p class="mydash-admin__hint mydash-admin__hint--inline">
+					{{ t('mydash', 'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.') }}
+				</p>
 
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowMultipleDashboards"
@@ -46,55 +82,92 @@
 				</div>
 			</div>
 
-			<!-- Template Management -->
+			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
+			     tabs because it owns the `set-group-default` /
+			     `group-default-badge` data-test hooks (task 12.2). -->
 			<div class="mydash-admin__section">
 				<div class="mydash-admin__section-header">
-					<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
-					<NcButton type="primary" @click="createTemplate">
-						<template #icon>
-							<Plus :size="20" />
-						</template>
-						{{ t('mydash', 'Create template') }}
-					</NcButton>
+					<h3>{{ t('mydash', 'Group-shared dashboards') }}</h3>
 				</div>
 
 				<p class="mydash-admin__hint">
-					{{ t('mydash', 'Create dashboard templates that will be applied to users based on their groups.') }}
+					{{ t('mydash', 'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.') }}
 				</p>
 
-				<div v-if="templates.length === 0" class="mydash-admin__empty">
-					<NcEmptyContent :description="t('mydash', 'No templates yet')">
-						<template #icon>
-							<ViewDashboard :size="48" />
-						</template>
-					</NcEmptyContent>
+				<div v-if="loadingGroupDashboards" class="mydash-admin__hint">
+					{{ t('mydash', 'Loading group dashboards…') }}
 				</div>
 
-				<div v-else class="mydash-admin__templates">
-					<div
-						v-for="template in templates"
-						:key="template.id"
-						class="mydash-admin__template">
-						<div class="mydash-admin__template-info">
-							<strong>{{ template.name }}</strong>
-							<span v-if="template.isDefault" class="mydash-admin__badge">
-								{{ t('mydash', 'Default') }}
-							</span>
-							<span class="mydash-admin__template-groups">
-								{{ formatTargetGroups(template.targetGroups) }}
-							</span>
-						</div>
-						<div class="mydash-admin__template-actions">
-							<NcButton type="secondary" @click="editTemplate(template)">
-								{{ t('mydash', 'Edit') }}
-							</NcButton>
-							<NcButton type="error" @click="deleteTemplate(template)">
-								{{ t('mydash', 'Delete') }}
-							</NcButton>
+				<div
+					v-for="(rows, groupId) in groupSharedDashboards"
+					:key="groupId"
+					class="mydash-admin__group">
+					<h4 class="mydash-admin__group-title">
+						{{ groupId }}
+					</h4>
+					<div v-if="rows.length === 0" class="mydash-admin__hint">
+						{{ t('mydash', 'No group-shared dashboards in this group yet.') }}
+					</div>
+					<div v-else class="mydash-admin__templates">
+						<div
+							v-for="dash in rows"
+							:key="dash.uuid"
+							class="mydash-admin__template">
+							<div class="mydash-admin__template-info">
+								<IconRenderer :name="dash.icon" :size="20" />
+								<strong>{{ dash.name }}</strong>
+								<span
+									v-if="dash.isDefault === 1"
+									class="mydash-admin__badge"
+									data-test="group-default-badge">
+									{{ t('mydash', 'Default') }}
+								</span>
+							</div>
+							<div class="mydash-admin__template-actions">
+								<NcButton
+									v-if="dash.isDefault !== 1"
+									type="secondary"
+									data-test="set-group-default"
+									:disabled="settingGroupDefault === dash.uuid"
+									@click="setGroupDefault(groupId, dash.uuid)">
+									{{ t('mydash', 'Set as default') }}
+								</NcButton>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+
+			<!-- Beheer tabs — the IA's discrete admin areas. Each tab's
+			     content only renders when active (admin-settings spec). -->
+			<BeheerTabs
+				:tabs="beheerTabs"
+				default-tab="templates"
+				@change="onTabChange">
+				<template #templates>
+					<TemplatesPage />
+				</template>
+				<template #operations>
+					<OperationsTab />
+				</template>
+				<template #roles-permissions>
+					<RolesPermissionsTab />
+				</template>
+				<template #versioning-audit>
+					<VersioningAuditTab />
+				</template>
+				<template #sharing>
+					<SharingTab
+						:groups="injectedAllGroups"
+						:configured-groups="configuredGroups" />
+				</template>
+				<template #org-navigation>
+					<OrgNavigationTab :groups="injectedAllGroups" />
+				</template>
+				<template #demo-data>
+					<DemoDataTab />
+				</template>
+			</BeheerTabs>
 
 			<!-- Info -->
 			<div class="mydash-admin__section">
@@ -105,76 +178,32 @@
 			</div>
 		</CnSettingsSection>
 
-		<!-- Template Editor Modal -->
-		<NcModal
-			v-if="editingTemplate"
-			:name="editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template')"
-			size="large"
-			@close="closeTemplateEditor">
-			<div class="mydash-admin__modal">
-				<h2>{{ editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template') }}</h2>
-
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Template name') }}</label>
-					<NcTextField v-model="editingTemplate.name" :placeholder="t('mydash', 'My template')" />
-				</div>
-
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Description') }}</label>
-					<NcTextField v-model="editingTemplate.description" :placeholder="t('mydash', 'Optional description')" />
-				</div>
-
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Target groups') }}</label>
-					<NcSelectTags
-						v-model="editingTemplate.targetGroups"
-						:options="availableGroups"
-						:multiple="true"
-						:placeholder="t('mydash', 'Select groups (leave empty for all users)')" />
-				</div>
-
-				<div class="mydash-admin__field">
-					<NcSelect
-						v-model="editingTemplate.permissionLevel"
-						:input-label="t('mydash', 'Permission level')"
-						:options="permissionOptions"
-						label="label"
-						track-by="id"
-						:clearable="false" />
-				</div>
-
-				<NcCheckboxRadioSwitch
-					:checked="editingTemplate.isDefault"
-					@update:checked="editingTemplate.isDefault = $event">
-					{{ t('mydash', 'Set as default template') }}
-				</NcCheckboxRadioSwitch>
-
-				<div class="mydash-admin__modal-actions">
-					<NcButton type="secondary" @click="closeTemplateEditor">
-						{{ t('mydash', 'Cancel') }}
-					</NcButton>
-					<NcButton type="primary" @click="saveTemplate">
-						{{ t('mydash', 'Save') }}
-					</NcButton>
-				</div>
-			</div>
-		</NcModal>
+		<!-- Setup wizard modal (REQ-WIZ-002). -->
+		<SetupWizardModal
+			v-if="showWizard"
+			data-test="setup-wizard-modal"
+			@close="closeWizard"
+			@completed="onWizardCompleted" />
 	</div>
 </template>
 
 <script>
-import { CnSettingsSection } from '@conduction/nextcloud-vue'
 import {
+	CnSettingsSection,
 	NcButton,
 	NcSelect,
-	NcSelectTags,
-	NcTextField,
 	NcCheckboxRadioSwitch,
-	NcEmptyContent,
-	NcModal,
 } from '@conduction/nextcloud-vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import IconRenderer from '../Dashboard/IconRenderer.vue'
+import SetupWizardModal from './SetupWizardModal.vue'
+import BeheerTabs from './BeheerTabs.vue'
+import TemplatesPage from './tabs/TemplatesPage.vue'
+import OperationsTab from './tabs/OperationsTab.vue'
+import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
+import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
+import SharingTab from './tabs/SharingTab.vue'
+import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
+import DemoDataTab from './tabs/DemoDataTab.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -184,13 +213,33 @@ export default {
 		CnSettingsSection,
 		NcButton,
 		NcSelect,
-		NcSelectTags,
-		NcTextField,
 		NcCheckboxRadioSwitch,
-		NcEmptyContent,
-		NcModal,
-		Plus,
-		ViewDashboard,
+		IconRenderer,
+		SetupWizardModal,
+		BeheerTabs,
+		TemplatesPage,
+		OperationsTab,
+		RolesPermissionsTab,
+		VersioningAuditTab,
+		SharingTab,
+		OrgNavigationTab,
+		DemoDataTab,
+	},
+
+	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
+	// pushes via `MyDashAdmin::getForm()`. Treated as a hint for the
+	// initial render only — `loadData()` overwrites with the API truth.
+	inject: {
+		injectedAllGroups: { from: 'allGroups', default: () => [] },
+		injectedConfiguredGroups: { from: 'configuredGroups', default: () => [] },
+		allowUserDashboards: {
+			from: 'allowUserDashboards',
+			default: false,
+		},
+		configuredGroups: {
+			from: 'configuredGroups',
+			default: () => [],
+		},
 	},
 
 	data() {
@@ -198,50 +247,75 @@ export default {
 			loading: true,
 			settings: {
 				defaultPermissionLevel: { id: 'add_only', label: this.t('mydash', 'Add only') },
-				allowUserDashboards: true,
+				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
 			},
-			templates: [],
-			availableGroups: [],
-			editingTemplate: null,
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('mydash', 'View only') },
 				{ id: 'add_only', label: this.t('mydash', 'Add only') },
 				{ id: 'full', label: this.t('mydash', 'Full customization') },
 			],
 			gridColumnOptions: [6, 8, 12],
+			// REQ-DASH-015..017 — group-shared dashboards listing.
+			groupSharedDashboards: {},
+			loadingGroupDashboards: false,
+			settingGroupDefault: null,
+			// Setup wizard banner state (REQ-WIZ-001).
+			wizardState: null,
+			showWizard: false,
+			activeTab: 'templates',
 		}
 	},
 
+	computed: {
+		/**
+		 * Ordered Beheer tab descriptors. Labels live here so they stay
+		 * translatable in one place; the slugs match the named slots.
+		 *
+		 * @return {Array<{slug: string, label: string}>}
+		 */
+		beheerTabs() {
+			return [
+				{ slug: 'templates', label: this.t('mydash', 'Templates') },
+				{ slug: 'operations', label: this.t('mydash', 'Operations') },
+				{ slug: 'roles-permissions', label: this.t('mydash', 'Roles & Permissions') },
+				{ slug: 'versioning-audit', label: this.t('mydash', 'Versioning & Audit') },
+				{ slug: 'sharing', label: this.t('mydash', 'Sharing') },
+				{ slug: 'org-navigation', label: this.t('mydash', 'Org navigation') },
+				{ slug: 'demo-data', label: this.t('mydash', 'Demo data') },
+			]
+		},
+	},
+
+	/** @spec openspec/specs/admin-settings/spec.md */
 	async created() {
 		await this.loadData()
+		await this.loadGroupSharedDashboards()
+		await this.loadWizardState()
 	},
 
 	methods: {
+		/** @spec openspec/specs/admin-settings/spec.md */
+		onTabChange(slug) {
+			this.activeTab = slug
+		},
+
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadData() {
 			this.loading = true
 			try {
-				const [settingsRes, templatesRes] = await Promise.all([
-					api.getAdminSettings(),
-					api.getAdminTemplates(),
-				])
-
-				if (settingsRes.data) {
+				const settingsRes = await api.getAdminSettings()
+				const data = settingsRes.data?.data ?? settingsRes.data
+				if (data) {
 					this.settings = {
 						...this.settings,
-						...settingsRes.data,
+						...data,
 						defaultPermissionLevel: this.permissionOptions.find(
-							p => p.id === settingsRes.data.defaultPermissionLevel,
+							p => p.id === data.defaultPermissionLevel,
 						) || this.permissionOptions[1],
 					}
 				}
-
-				this.templates = templatesRes.data || []
-
-				// Load available groups
-				// In a real app, you'd fetch this from OC.getGroups() or an API
-				this.availableGroups = []
 			} catch (error) {
 				console.error('Failed to load admin data:', error)
 			} finally {
@@ -249,89 +323,142 @@ export default {
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveSettings() {
 			try {
 				await api.updateAdminSettings({
-					defaultPermissionLevel: this.settings.defaultPermissionLevel?.id,
-					allowUserDashboards: this.settings.allowUserDashboards,
-					allowMultipleDashboards: this.settings.allowMultipleDashboards,
-					defaultGridColumns: this.settings.defaultGridColumns,
+					defaultPermLevel: this.settings.defaultPermissionLevel?.id,
+					allowUserDash: this.settings.allowUserDashboards,
+					allowMultiDash: this.settings.allowMultipleDashboards,
+					defaultGridCols: this.settings.defaultGridColumns,
 				})
 			} catch (error) {
 				console.error('Failed to save settings:', error)
 			}
 		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
 		updateSetting(key, value) {
 			this.settings[key] = value
 			this.saveSettings()
 		},
 
-		createTemplate() {
-			this.editingTemplate = {
-				id: null,
-				name: '',
-				description: '',
-				targetGroups: [],
-				permissionLevel: this.permissionOptions[1],
-				isDefault: false,
+		/**
+		 * Resolve the list of group ids the admin curates (REQ-DASH-015).
+		 *
+		 * @return {string[]} Group ids to render.
+		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
+		resolveAdminGroupIds() {
+			const configured = Array.isArray(this.injectedConfiguredGroups)
+				? this.injectedConfiguredGroups
+				: []
+			if (configured.length > 0) {
+				return configured.includes('default')
+					? configured
+					: ['default', ...configured]
 			}
+			return ['default']
 		},
 
-		editTemplate(template) {
-			this.editingTemplate = {
-				...template,
-				permissionLevel: this.permissionOptions.find(
-					p => p.id === template.permissionLevel,
-				) || this.permissionOptions[1],
-			}
+		/**
+		 * Fetch group-shared dashboards for every curated group (REQ-DASH-014).
+		 *
+		 * @return {Promise<void>}
+		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
+		async loadGroupSharedDashboards() {
+			this.loadingGroupDashboards = true
+			const groupIds = this.resolveAdminGroupIds()
+			const next = {}
+			await Promise.all(
+				groupIds.map(async (groupId) => {
+					try {
+						const response = await api.listGroupDashboards(groupId)
+						next[groupId] = Array.isArray(response.data) ? response.data : []
+					} catch (e) {
+						console.warn(`Failed to load group dashboards for ${groupId}:`, e)
+						next[groupId] = []
+					}
+				}),
+			)
+			this.groupSharedDashboards = next
+			this.loadingGroupDashboards = false
 		},
 
-		closeTemplateEditor() {
-			this.editingTemplate = null
-		},
-
-		async saveTemplate() {
+		/**
+		 * Fetch the wizard state for the banner gate (REQ-WIZ-001).
+		 *
+		 * @return {Promise<void>}
+		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
+		async loadWizardState() {
 			try {
-				const data = {
-					name: this.editingTemplate.name,
-					description: this.editingTemplate.description,
-					targetGroups: this.editingTemplate.targetGroups,
-					permissionLevel: this.editingTemplate.permissionLevel?.id,
-					isDefault: this.editingTemplate.isDefault,
-				}
-
-				if (this.editingTemplate.id) {
-					await api.updateAdminTemplate(this.editingTemplate.id, data)
-				} else {
-					await api.createAdminTemplate(data)
-				}
-
-				await this.loadData()
-				this.closeTemplateEditor()
-			} catch (error) {
-				console.error('Failed to save template:', error)
+				const { data } = await api.getSetupWizardState()
+				this.wizardState = data || null
+			} catch (e) {
+				console.warn('Failed to load setup wizard state:', e)
+				this.wizardState = null
 			}
 		},
 
-		async deleteTemplate(template) {
-			if (!confirm(this.t('mydash', 'Are you sure you want to delete this template?'))) {
-				return
-			}
+		/** @spec openspec/specs/admin-settings/spec.md */
+		openWizard() {
+			this.showWizard = true
+		},
 
+		/** @spec openspec/specs/admin-settings/spec.md */
+		closeWizard() {
+			this.showWizard = false
+		},
+
+		/** @spec openspec/specs/admin-settings/spec.md */
+		async onWizardCompleted() {
+			this.showWizard = false
+			await Promise.all([
+				this.loadData(),
+				this.loadGroupSharedDashboards(),
+				this.loadWizardState(),
+			])
+		},
+
+		/**
+		 * Promote a group-shared dashboard to the group default
+		 * (REQ-DASH-015). Optimistic with rollback on failure.
+		 *
+		 * @param {string} groupId The group id from the row context.
+		 * @param {string} uuid The dashboard uuid to promote.
+		 * @return {Promise<void>}
+		 */
+		/** @spec openspec/specs/admin-settings/spec.md */
+		async setGroupDefault(groupId, uuid) {
+			const rows = this.groupSharedDashboards[groupId] || []
+			const snapshot = rows.map(d => ({ uuid: d.uuid, isDefault: d.isDefault }))
+			this.groupSharedDashboards = {
+				...this.groupSharedDashboards,
+				[groupId]: rows.map(d => ({
+					...d,
+					isDefault: d.uuid === uuid ? 1 : 0,
+				})),
+			}
+			this.settingGroupDefault = uuid
 			try {
-				await api.deleteAdminTemplate(template.id)
-				await this.loadData()
+				await api.setGroupDashboardDefault(groupId, uuid)
 			} catch (error) {
-				console.error('Failed to delete template:', error)
+				this.groupSharedDashboards = {
+					...this.groupSharedDashboards,
+					[groupId]: rows.map((d) => {
+						const prev = snapshot.find(s => s.uuid === d.uuid)
+						return prev ? { ...d, isDefault: prev.isDefault } : d
+					}),
+				}
+				console.error(
+					this.t('mydash', 'Failed to set the group default dashboard'),
+					error,
+				)
+			} finally {
+				this.settingGroupDefault = null
 			}
-		},
-
-		formatTargetGroups(groups) {
-			if (!groups || groups.length === 0) {
-				return this.t('mydash', 'All users')
-			}
-			return groups.join(', ')
 		},
 	},
 }
@@ -339,7 +466,7 @@ export default {
 
 <style scoped>
 .mydash-admin {
-	max-width: 800px;
+	max-width: 900px;
 }
 
 .mydash-admin__section {
@@ -399,16 +526,6 @@ export default {
 	gap: 4px;
 }
 
-.mydash-admin__template-groups {
-	color: var(--color-text-maxcontrast);
-	font-size: 14px;
-}
-
-.mydash-admin__template-actions {
-	display: flex;
-	gap: 8px;
-}
-
 .mydash-admin__badge {
 	display: inline-block;
 	padding: 2px 8px;
@@ -418,22 +535,45 @@ export default {
 	font-size: 12px;
 }
 
-.mydash-admin__empty {
-	padding: 48px 0;
+.mydash-admin__template-actions {
+	display: flex;
+	gap: 8px;
 }
 
-.mydash-admin__modal {
-	padding: 24px;
+.mydash-admin__group {
+	margin-bottom: 24px;
 }
 
-.mydash-admin__modal h2 {
-	margin: 0 0 24px;
+.mydash-admin__group-title {
+	margin: 16px 0 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
-.mydash-admin__modal-actions {
+.mydash-admin__wizard-banner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 20px;
+	margin-bottom: 24px;
+	background: var(--color-primary-element-light);
+	border: 1px solid var(--color-primary-element);
+	border-radius: var(--border-radius);
+}
+
+.mydash-admin__wizard-banner p {
+	margin: 4px 0 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
+}
+
+.mydash-admin__wizard-rerun {
+	margin-bottom: 16px;
 	display: flex;
 	justify-content: flex-end;
-	gap: 12px;
-	margin-top: 24px;
 }
 </style>

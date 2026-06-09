@@ -14,7 +14,7 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 
 #### Scenario: Cover fit fills the cell
 
-- GIVEN content `{url: '/apps/mydash/resource/x.png', fit: 'cover'}`
+- GIVEN content `{url: '/apps/launchpad/resource/x.png', fit: 'cover'}`
 - WHEN the widget renders
 - THEN the `<img>` MUST have inline style `object-fit: cover`
 - AND its width and height MUST be `100%`
@@ -36,7 +36,7 @@ The renderer MUST output an `<img :src="url" :alt="alt">` whose CSS `object-fit`
 
 #### Scenario: Default fit is cover
 
-- GIVEN content `{url: '/apps/mydash/resource/x.png'}` with no `fit` field
+- GIVEN content `{url: '/apps/launchpad/resource/x.png'}` with no `fit` field
 - WHEN the widget renders
 - THEN the `<img>` MUST have `object-fit: cover`
 
@@ -115,8 +115,8 @@ The image sub-form for `AddWidgetModal` MUST expose the following controls: a fi
 #### Scenario: Upload populates URL and preview
 
 - GIVEN the user selects an image file in the file input
-- WHEN the upload POST to `/api/resources` succeeds with response `{url: '/apps/mydash/resource/abc.png'}`
-- THEN `form.url` MUST become `/apps/mydash/resource/abc.png`
+- WHEN the upload POST to `/api/resources` succeeds with response `{url: '/apps/launchpad/resource/abc.png'}`
+- THEN `form.url` MUST become `/apps/launchpad/resource/abc.png`
 - AND the preview thumbnail `<img>` MUST become visible with that `src`
 
 #### Scenario: Direct URL string is also accepted

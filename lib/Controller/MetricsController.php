@@ -12,6 +12,9 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -21,6 +24,7 @@ namespace OCA\MyDash\Controller;
 use OCA\MyDash\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\TextPlainResponse;
+use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IRequest;
@@ -28,19 +32,23 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Controller for exposing Prometheus metrics.
+ *
+ * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-25
  */
 class MetricsController extends Controller
 {
     /**
      * Constructor
      *
-     * @param IRequest        $request The request.
-     * @param IConfig         $config  The config service.
-     * @param IDBConnection   $db      The database connection.
-     * @param LoggerInterface $logger  Logger for error reporting.
+     * @param IRequest        $request   The request.
+     * @param IAppConfig      $appConfig The app config service.
+     * @param IConfig         $config    The system config service.
+     * @param IDBConnection   $db        The database connection.
+     * @param LoggerInterface $logger    Logger for error reporting.
      */
     public function __construct(
         IRequest $request,
+        private readonly IAppConfig $appConfig,
         private readonly IConfig $config,
         private readonly IDBConnection $db,
         private readonly LoggerInterface $logger,
@@ -57,12 +65,14 @@ class MetricsController extends Controller
      * @return TextPlainResponse Plain text response with Prometheus metrics.
      *
      * @NoCSRFRequired
+     *
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-25
      */
     public function index(): TextPlainResponse
     {
         $lines = [];
 
-        $appVersion = $this->config->getAppValue(Application::APP_ID, 'installed_version', '0.0.0');
+        $appVersion = $this->appConfig->getValueString(Application::APP_ID, 'installed_version', '0.0.0');
         $phpVersion = PHP_VERSION;
         $ncVersion  = $this->config->getSystemValueString('version', '0.0.0');
 
@@ -129,17 +139,16 @@ class MetricsController extends Controller
 
             $counts = [];
             foreach ($rows as $row) {
+                $type = 'personal';
                 if ($row['type'] !== null && $row['type'] !== '') {
                     $type = $row['type'];
-                } else {
-                    $type = 'personal';
                 }
 
-                if (isset($counts[$type]) === true) {
-                    $counts[$type] = $counts[$type] + (int) $row['cnt'];
-                } else {
-                    $counts[$type] = (int) $row['cnt'];
+                if (isset($counts[$type]) === false) {
+                    $counts[$type] = 0;
                 }
+
+                $counts[$type] = $counts[$type] + (int) $row['cnt'];
             }
 
             // Ensure both types are reported.

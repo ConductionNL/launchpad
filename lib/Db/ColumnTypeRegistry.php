@@ -19,7 +19,32 @@ declare(strict_types=1);
 namespace OCA\MyDash\Db;
 
 /**
- * Registry for database column type definitions.
+ * Registry for database column type definitions used by Doctrine mapper
+ * hydration (`Entity::addType()`).
+ *
+ * **Why these types are intentionally separate from JSON-schema `type`.**
+ *
+ * JSON-schema types (`integer`, `boolean`, `string`) describe the *data
+ * model* — the shape of a value as it would appear in an API response.
+ * These constants model a *rendering choice* — how the OCP Entity layer
+ * should cast a raw database string into the PHP value that matters for
+ * the UI affordance (e.g. an `INTEGER` DB column that should hydrate to a
+ * PHP `int`, or a `SMALLINT` flag that acts as a `bool`).
+ *
+ * The two namespaces overlap by coincidence (`TYPE_INTEGER` / `TYPE_BOOLEAN`
+ * happen to share names with JSON-schema primitives), but:
+ *   - LaunchPad column types are local constants that never leave the PHP
+ *     layer.  JSON-schema types travel in API responses consumed by Vue.
+ *   - A future JSON-schema `type: "dashboard-reference"` would have no
+ *     Doctrine hydration analogue; conversely a DB-level `SMALLINT` flag
+ *     stored as 0/1 is always `TYPE_BOOLEAN` here regardless of its
+ *     JSON-schema representation.
+ *
+ * Do NOT merge or derive these constants from an external type vocabulary
+ * (e.g. OpenRegister's JSON-schema primitives).  Keep them local and stable.
+ *
+ * @see  openspec/changes/launchpad-adopt-or-abstractions/design.md Q6
+ * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-9
  */
 class ColumnTypeRegistry
 {

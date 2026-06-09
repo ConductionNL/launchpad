@@ -3,15 +3,14 @@
 /**
  * ResourceController
  *
- * HTTP entry point for the resource-uploads capability. Exposes a
- * single admin-only `POST /api/resources` endpoint that accepts a
- * raw JSON body of the shape `{base64: 'data:image/<type>;base64,...'}`
- * and returns a standardised `{status, url, name, size}` envelope.
+ * HTTP entry point for the resource-uploads capability. Exposes:
  *
- * The read side of the same capability (REQ-RES-006..008 — public
- * serve + listing) is delivered by `ResourceServeController`, kept in
- * a sibling class so this controller's dependency graph stays under
- * the PHPMD CouplingBetweenObjects limit.
+ * - `POST /api/resources` (admin-only) — accepts a raw JSON body of
+ *   the shape `{base64: 'data:image/<type>;base64,...'}` and returns
+ *   a standardised `{status, url, name, size}` envelope.
+ *
+ * Read/listing routes (`GET /resource/{filename}`, `GET /api/resources`)
+ * are served by {@see ResourceServeController}.
  *
  * All errors are mapped to a `{status: 'error', error: <stable_code>,
  * message: <display>}` envelope — raw exception messages are NEVER
@@ -37,8 +36,10 @@ use OCA\MyDash\Exception\ForbiddenException;
 use OCA\MyDash\Exception\ResourceException;
 use OCA\MyDash\Exception\StorageFailureException;
 use OCA\MyDash\Service\ResourceService;
+use OCA\MyDash\Settings\MyDashAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -47,7 +48,10 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Admin-only resource upload controller.
+ * Resource upload + serving controller.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @spec                                           openspec/specs/resource-uploads/spec.md
  */
 class ResourceController extends Controller
 {
@@ -87,7 +91,10 @@ class ResourceController extends Controller
      *                      envelope with `{status, error, message}`.
      *
      * @NoCSRFRequired
-     */
+         *
+     * @spec openspec/specs/resource-uploads/spec.md
+ */
+    #[AuthorizedAdminSetting(MyDashAdmin::class)]
     public function upload(): JSONResponse
     {
         try {
@@ -167,6 +174,8 @@ class ResourceController extends Controller
      * code reads from the standard PHP input stream.
      *
      * @return string The raw request body.
+     *
+     * @spec openspec/specs/resource-uploads/spec.md
      */
     protected function readRequestBody(): string
     {

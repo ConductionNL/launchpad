@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "spec_slug": "dashboard-switcher-sidebar",
+  "repo": "https://codeberg.org/Conduction/launchpad",
+  "issue": 39,
+  "cycles": [
+    {
+      "cycle": 1,
+      "trigger": "build:queued",
+      "started_at": "2026-06-01T13:41:28Z",
+      "ended_at": "2026-06-01T20:43:00Z",
+      "outcome": "aborted",
+      "outcome_reason": "rebuild:queued \u2014 human wiped prior cycle",
+      "pattern_tags": [],
+      "stages": [
+        {
+          "stage": "build",
+          "persona": "Al Gorithm",
+          "model": "sonnet",
+          "container": "hydra-builder",
+          "started_at": "2026-06-01T11:59:46Z",
+          "ended_at": "2026-06-01T13:41:24Z",
+          "exit_code": 1,
+          "turns_used": 0,
+          "turns_budget": 40,
+          "checks_run": [],
+          "checks_skipped": [],
+          "findings": [
+            {
+              "id": "build-failed",
+              "severity": "CRITICAL",
+              "gate": "builder",
+              "rule": "builder container exited non-zero",
+              "status": "open",
+              "note": "Builder container failed to complete. See logs/pipeline-*/builder-build.jsonl for detail.",
+              "autofixable": false
+            }
+          ],
+          "decisions": [],
+          "verdict": "fail",
+          "duration_seconds": 6098
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "trigger": "build:queued",
+      "started_at": "2026-06-01T21:03:33Z",
+      "ended_at": "2026-06-02T15:30:35Z",
+      "outcome": "done",
+      "outcome_reason": "pipeline complete \u2014 reviews passed and applier passed (if run)",
+      "pattern_tags": [],
+      "stages": [
+        {
+          "stage": "build",
+          "persona": "Al Gorithm",
+          "model": "sonnet",
+          "container": "hydra-builder",
+          "started_at": "2026-06-01T20:44:02Z",
+          "ended_at": "2026-06-01T21:03:27Z",
+          "exit_code": 1,
+          "turns_used": 0,
+          "turns_budget": 40,
+          "checks_run": [],
+          "checks_skipped": [],
+          "findings": [
+            {
+              "id": "build-failed",
+              "severity": "CRITICAL",
+              "gate": "builder",
+              "rule": "builder container exited non-zero",
+              "status": "open",
+              "note": "Builder container failed to complete. See logs/pipeline-*/builder-build.jsonl for detail.",
+              "autofixable": false
+            }
+          ],
+          "decisions": [],
+          "verdict": "fail",
+          "duration_seconds": 1165
+        },
+        {
+          "stage": "applier",
+          "persona": "Axel Pli\u00e9r",
+          "model": "sonnet",
+          "container": "hydra-applier",
+          "started_at": "2026-06-02T15:28:14Z",
+          "ended_at": "2026-06-02T15:30:19Z",
+          "exit_code": 0,
+          "turns_used": 13,
+          "turns_budget": 20,
+          "checks_run": [
+            "hydra.json-consumer"
+          ],
+          "checks_skipped": [],
+          "findings": [],
+          "decisions": [],
+          "verdict": "pass",
+          "duration_seconds": 125
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "runs": 3,
+    "turns_used": 13,
+    "cost_usd": 0.0,
+    "duration_seconds": 7388,
+    "cycles": 2,
+    "by_stage": {
+      "build": {
+        "runs": 2,
+        "turns_used": 0,
+        "cost_usd": 0.0,
+        "duration_seconds": 7263
+      },
+      "applier": {
+        "runs": 1,
+        "turns_used": 13,
+        "cost_usd": 0.0,
+        "duration_seconds": 125
+      }
+    }
+  }
+}

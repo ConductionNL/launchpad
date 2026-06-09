@@ -1,0 +1,22 @@
+{
+  "spec": "openspec/changes/widget-context-menu",
+  "verified": [
+    {"task": "1", "file": "src/components/Widgets/WidgetContextMenu.vue", "ok": true},
+    {"task": "2", "file": "src/components/Widgets/WidgetContextMenu.vue", "ok": true},
+    {"task": "3", "file": "src/composables/useGridManager.js", "ok": true},
+    {"task": "4", "file": "src/composables/useGridManager.js", "ok": true},
+    {"task": "5", "file": "src/composables/useGridManager.js", "ok": true},
+    {"task": "6", "file": "src/composables/useGridManager.js", "ok": true},
+    {"task": "7", "file": "src/views/Views.vue", "ok": true},
+    {"task": "8", "file": "src/composables/__tests__/useGridManager.spec.js", "ok": true},
+    {"task": "9", "file": "src/components/Widgets/__tests__/WidgetContextMenu.spec.js", "ok": true},
+    {"task": "10", "file": "src/composables/__tests__/useGridManager.spec.js", "ok": true},
+    {"task": "11", "file": "tests/e2e/widget-context-menu.spec.ts", "ok": true},
+    {"task": "12", "file": "CHANGELOG.md", "ok": true},
+    {"task": "12", "file": "l10n/en.js", "ok": true},
+    {"task": "12", "file": "l10n/nl.js", "ok": true}
+  ],
+  "stubs": [],
+  "missing_routes": [],
+  "notes": "Task 11 Playwright test committed; runs against a live Nextcloud instance. Keyboard navigation follow-up filed as a separate issue."
+}

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Deferred
+
+- **Admin group-management UI** (`multi-scope-dashboards` Task 13):
+  the admin-facing group-shared CRUD UI was filed as the dedicated
+  follow-up change `openspec/changes/admin-group-management/` so the
+  `multi-scope-dashboards` API + read endpoint slice could ship without
+  UX dependencies. The follow-up adds an eighth Beheer tab
+  (**Group dashboards**) wrapping the existing
+  `/api/dashboards/group/...` endpoints; no new backend semantics.
+
 ### Changed
 
 - **GridStack bumped to v12.x** (REQ-GRID-013): `gridstack` dependency

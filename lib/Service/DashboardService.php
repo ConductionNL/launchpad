@@ -284,6 +284,7 @@ class DashboardService
         private readonly ?RoleFeaturePermissionService $roleFeaturePerm=null,
         private readonly ?IEventDispatcher $eventDispatcher=null,
         private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
+        private readonly ?PublicShareContext $publicShareContext=null,
     ) {
     }//end __construct()
 
@@ -456,6 +457,8 @@ class DashboardService
         int $sortOrder=0,
         bool $seedDefaults=false
     ): Dashboard {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
         // depth checks BEFORE the entity is built so the request is
         // rejected without a partial row in memory.
@@ -546,6 +549,8 @@ class DashboardService
         string $userId,
         array $data
     ): Dashboard {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
@@ -583,6 +588,8 @@ class DashboardService
         string $userId,
         bool $cascade=false
     ): void {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {

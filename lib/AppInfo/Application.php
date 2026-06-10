@@ -37,6 +37,7 @@ use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
+use OCA\LaunchPad\Service\PublicShareContext;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -105,6 +106,15 @@ class Application extends App implements IBootstrap
         $context->registerService(
             name: DebounceHelper::class,
             factory: static fn(): DebounceHelper => new DebounceHelper(),
+            shared: true
+        );
+
+        // Task-7 of dashboard-public-share — request-scoped bearer marker
+        // shared across the entire request so mutation services can
+        // assert read-only context without middleware plumbing.
+        $context->registerService(
+            name: PublicShareContext::class,
+            factory: static fn(): PublicShareContext => new PublicShareContext(),
             shared: true
         );
 

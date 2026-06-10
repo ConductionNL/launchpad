@@ -84,6 +84,15 @@ Settings → LaunchPad settings → **Role-based widget permissions**. Lets admi
 - Edit allowed/denied widget lists (comma-separated free text).
 - Delete a permission.
 
+![Role-based widget permissions section in the LaunchPad admin
+settings](./screenshots/admin-settings.png)
+
+The screenshot above shows the LaunchPad admin settings page — the
+**Role-based widget permissions** section appears below the default-
+settings card and uses the standard `NcAppNavigationCaption`-style row
+layout. Each row exposes the group id, allowed-widget chips, denied-
+widget chips, and an action menu (Edit + Delete via `NcDialog`).
+
 The RoleLayoutDefault rows are managed only via the API for now; an admin
 UI for them lands in a follow-up.
 

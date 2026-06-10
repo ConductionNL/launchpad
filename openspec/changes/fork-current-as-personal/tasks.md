@@ -22,7 +22,7 @@
 - [x] PHPUnit: gating returns 403 when admin setting disabled
 - [x] PHPUnit: 404 on source you cannot read
 - [x] PHPUnit: forking your own personal dashboard works (independent duplicate)
-- [ ] Playwright: fork → switch → edit → original group dashboard untouched
+- [~] Playwright: fork → switch → edit → original group dashboard untouched — **DEFERRED**. Behavioural coverage of fork-and-isolation already lives in 5 PHPUnit tests above (deep-copy preserves all placement fields incl. tile-*/styleConfig, rollback on placement insert failure, gating returns 403 when admin setting disabled, 404 on source you cannot read, forking your own personal dashboard yields an independent duplicate). The missing piece is browser-side cookie isolation + DOM-level isolation between forked + source dashboards, which Playwright is the right tool for; tracked under the gate-19 honest-coverage program so a single Playwright pass picks up the fork e2e alongside the other deferred dashboards specs
 
 ## 4. Quality
 

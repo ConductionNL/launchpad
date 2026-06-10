@@ -38,6 +38,7 @@ class PlacementService
         private readonly WidgetPlacementMapper $placementMapper,
         private readonly TileUpdater $tileUpdater,
         private readonly PlacementUpdater $placementUpdater,
+        private readonly ?PublicShareContext $publicShareContext=null,
     ) {
     }//end __construct()
 
@@ -68,6 +69,8 @@ class PlacementService
         int $gridHeight=4,
         ?array $content=null
     ): WidgetPlacement {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
         $placement = new WidgetPlacement();
         $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setDashboardId($dashboardId);
@@ -104,6 +107,8 @@ class PlacementService
         int $dashboardId,
         array $tileData
     ): WidgetPlacement {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
         $placement = new WidgetPlacement();
         $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setDashboardId($dashboardId);
@@ -143,6 +148,8 @@ class PlacementService
         int $placementId,
         array $data
     ): WidgetPlacement {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
         $placement = $this->placementMapper->find(id: $placementId);
 
         $this->placementUpdater->applyGridUpdates(
@@ -176,6 +183,8 @@ class PlacementService
      */
     public function removePlacement(int $placementId): void
     {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
         $placement = $this->placementMapper->find(id: $placementId);
         $this->placementMapper->delete(entity: $placement);
     }//end removePlacement()

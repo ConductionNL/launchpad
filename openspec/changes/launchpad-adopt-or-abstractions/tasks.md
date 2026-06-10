@@ -21,9 +21,9 @@
   - Changed `private const` → `public const`; added `testFilenamePatternAllowsValidNames` / `testFilenamePatternRejectsInvalidNames` data-provider tests in `FileServiceTest.php`.
 - [x] Task 12: Track Tier-3 graduation prerequisites in this tasks.md only (no code in this change) — dashboard `type:"dashboard"` page-type contract stable in nc-vue, GridStack adapter component shipped in nc-vue or local, admin pages converted from `type:"custom"` to declarative config where possible — and open follow-up opsx change `launchpad-manifest-tier-3` ONLY once prerequisites are met (tracking only here)
   - **Tier-3 prerequisites (as of 2026-06-01, NOT yet met):**
-    - [~] `type:"dashboard"` page-type contract stable in nc-vue (blocked on nc-vue PR #113 merge + release) — deferred to downstream cycle (handoff)
-    - [~] GridStack adapter component shipped in nc-vue or local adapter bridge — deferred to downstream cycle (handoff)
-    - [~] Admin pages (`/admin/settings`) converted from `type:"custom"` to declarative config — deferred to downstream cycle (handoff)
+    - [ ] `type:"dashboard"` page-type contract stable in nc-vue (blocked on nc-vue PR #113 merge + release)
+    - [ ] GridStack adapter component shipped in nc-vue or local adapter bridge
+    - [ ] Admin pages (`/admin/settings`) converted from `type:"custom"` to declarative config
   - **Follow-up change `launchpad-manifest-tier-3`:** do NOT open until all three prerequisites are marked `[x]` above.
 - [x] Task 13: Documentation — update `docs/architecture.md` describing manifest as the single source of truth for routes/menu, the runtime-only OR consumption policy, and the permission model on `oc_launchpad_dashboards`; cross-link the new docs from the app's README
 - [x] Task 14: Verification — `npm run check:manifest` passes; clean Nextcloud install (no OR/OC) boots, renders empty dashboards, and shows graceful empty states for OR-backed widgets; Nextcloud install with OR enabled surfaces OR-backed widget data through the runtime API contract; `composer check:strict` + `npm run lint` + the FILENAME_PATTERN unit test all pass

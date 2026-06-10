@@ -12,7 +12,7 @@
 - [x] Task 8: Register `link` in `src/constants/widgetRegistry.js` with defaults `{label:'', url:'', icon:'', actionType:'external', backgroundColor:'', textColor:''}`
 - [x] Task 9: PHPUnit coverage — filename validation (traversal/special chars/oversize), extension allow-list (allowed 200, disallowed 400), overwrite returns existing `fileId`, no raw exception leakage
 - [x] Task 10: Vitest coverage — three click branches; admin-mode suppression; disabled-while-in-flight; internal-action registry warn-on-miss + register/invoke happy path; form validation + placeholder swap
-- [~] Task 11: Playwright — createFile flow end-to-end (modal opens → POST → opens Files tab); external link opens in `_blank` tab — deferred to downstream cycle (handoff)
+- [ ] Task 11: Playwright — createFile flow end-to-end (modal opens → POST → opens Files tab); external link opens in `_blank` tab
 - [x] Task 12: Quality gates — `composer check:strict`, ESLint clean, OpenAPI updated for `POST /api/files/create`, `nl`+`en` translations for all new UI strings (Link Button, Action Type, External Link, Internal Function, Create File, Background Color, Text Color, Upload Icon (optional), Create Document, File Name, Enter filename, Cancel, Create, Creating…, Failed to create document, Please enter a file name)
 
 ## Verification

@@ -14,7 +14,7 @@
 - [x] Task 10: PHPUnit — mapper coverage (findByGroup empty/nonexistent, findVisibleToUser mixed fixtures + 0-group user + UUID-overlap dedup), controller admin enforcement (403 on mutation by non-admin), last-in-group guard (400, default exempt), invariant guard, permission matrix (incl. regression on personal + admin_template)
 - [x] Task 11: Playwright — admin creates group-shared via API and member sees it on `/visible`; 0-group user still sees default-group rows; non-admin PUT to group-shared dashboard returns 403; admin rename propagates to members on next reload
 - [x] Task 12: Quality gates — `composer check:strict`, ESLint+Stylelint, OpenAPI/Postman regen, `nl`+`en` i18n for new error strings, SPDX-in-docblock on new PHP, all 10 hydra-gates green
-- [~] Task 13: File the follow-up `admin-group-management` change for the admin-facing group-shared CRUD UI and note the deferral in the changelog — deferred to downstream cycle (handoff)
+- [ ] Task 13: File the follow-up `admin-group-management` change for the admin-facing group-shared CRUD UI and note the deferral in the changelog
 
 ## Verification
 

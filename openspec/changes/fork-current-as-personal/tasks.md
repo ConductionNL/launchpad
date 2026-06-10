@@ -22,7 +22,7 @@
 - [x] PHPUnit: gating returns 403 when admin setting disabled
 - [x] PHPUnit: 404 on source you cannot read
 - [x] PHPUnit: forking your own personal dashboard works (independent duplicate)
-- [~] Playwright: fork → switch → edit → original group dashboard untouched — deferred to downstream cycle (handoff)
+- [ ] Playwright: fork → switch → edit → original group dashboard untouched
 
 ## 4. Quality
 

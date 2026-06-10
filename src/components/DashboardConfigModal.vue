@@ -57,30 +57,18 @@
 					:placeholder="t('launchpad', 'What is this dashboard for?')" />
 			</div>
 
-			<!-- Icon picker — options are enumerated from the registry so the
-			     UI stays in lock-step with `DASHBOARD_ICONS` whenever icons
-			     are added or removed (REQ-ICON-003). -->
+			<!-- Icon picker — IconPicker enumerates registry names from
+			     `DASHBOARD_ICONS` AND accepts a custom upload (capability
+			     `custom-icon-upload-pattern`). Same v-model whether the
+			     final value is a registry key or a /apps/launchpad/resource/...
+			     URL (REQ-ICON-003 + REQ-ICON-008..009). -->
 			<div class="dashboard-config__field">
 				<label class="dashboard-config__label" for="dashboard-config-icon">
 					{{ t('launchpad', 'Icon') }}
 				</label>
-				<div class="dashboard-config__icon-picker">
-					<select
-						id="dashboard-config-icon"
-						v-model="form.icon"
-						class="dashboard-config__select">
-						<option
-							v-for="iconName in iconOptions"
-							:key="iconName"
-							:value="iconName">
-							{{ iconName }}
-						</option>
-					</select>
-					<IconRenderer
-						:name="form.icon"
-						:size="24"
-						class="dashboard-config__icon-preview" />
-				</div>
+				<IconPicker
+					:value="form.icon"
+					@input="form.icon = $event" />
 			</div>
 			</div>
 			<!-- /general panel -->
@@ -224,8 +212,8 @@ import Close from 'vue-material-design-icons/Close.vue'
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 
-import IconRenderer from './Dashboard/IconRenderer.vue'
-import { DASHBOARD_ICONS, DEFAULT_ICON } from '../constants/dashboardIcons.js'
+import IconPicker from './Dashboard/IconPicker.vue'
+import { DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '../constants/dashboardIcons.js'
 import { api } from '../services/api.js'
 
 const PERMISSION_OPTIONS = [
@@ -249,7 +237,7 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
-		IconRenderer,
+		IconPicker,
 	},
 
 	props: {
@@ -432,12 +420,17 @@ export default {
 				} else if (this.dashboard) {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
-					// Persisted icon may be NULL/empty/unknown — fall back to
-					// DEFAULT_ICON in the picker so the <select> always has a
-					// matching option (REQ-ICON-002).
-					this.form.icon = (this.dashboard.icon && DASHBOARD_ICONS[this.dashboard.icon])
-						? this.dashboard.icon
-						: DEFAULT_ICON
+					// Persisted icon may be NULL/empty/unknown OR a custom URL
+					// (capability `custom-icon-upload-pattern`). URLs are kept
+					// verbatim — only unknown registry names fall back to
+					// DEFAULT_ICON (REQ-ICON-002 + REQ-ICON-009).
+					if (isCustomIconUrl(this.dashboard.icon)) {
+						this.form.icon = this.dashboard.icon
+					} else if (this.dashboard.icon && DASHBOARD_ICONS[this.dashboard.icon]) {
+						this.form.icon = this.dashboard.icon
+					} else {
+						this.form.icon = DEFAULT_ICON
+					}
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.

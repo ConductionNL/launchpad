@@ -157,12 +157,15 @@ Atomic, numbered, file-by-file. Sequential within each section unless noted.
       localStorage open state).
 - [x] 11.5 Add Jest spec for `DashboardConfigModal.vue` covering the new
       tab strip and `initialTab` prop.
-- [ ] 11.6 Add a Playwright integration test
+- [~] 11.6 Add a Playwright integration test
       (`tests/integration/ia-tabs.spec.js`) that loads the admin page,
       clicks each Beheer tab, and asserts the expected `data-test` ids
       appear / disappear. **DEFERRED** — Playwright E2E requires a live
       Nextcloud instance + built bundle; covered functionally by the
       Vitest BeheerTabs spec (tab switching + only-active-slot-in-DOM).
+      Follow-up tracking under the gate-19 e2e-coverage program (the
+      admin-page e2e fits the "honest behavioural Playwright" rollout
+      and will be picked up alongside the other deferred admin specs).
 
 ## 12. Cleanup
 

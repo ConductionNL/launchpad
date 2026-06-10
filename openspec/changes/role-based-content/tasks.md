@@ -42,8 +42,8 @@
 - [x] Task 8: PHPUnit widget controller — `tests/Unit/Controller/WidgetApiControllerRoleTest.php` (5 tests: full list when unconfigured, filters to allowed, 403 for denied + logger called, 200 when all allowed, partial filter)
 - [x] Task 9: Newman/Postman — added "Role-Feature Permissions" folder to `tests/integration/mydash.postman_collection.json` (5 entries: GET permissions, POST create, POST non-admin 403, GET layout defaults, GET widgets filtered)
 - [x] Task 10: Playwright — `tests/e2e/role-based-content.spec.ts` (3 scenarios: API smoke, admin settings section visible, non-admin 403)
-- [ ] Task 11: Smoke ADR-008 — `GET /api/role-feature-permissions` admin creds → 200 + array; `POST /api/role-feature-permissions` non-admin → 403; `GET /api/widgets` for configured-group user returns only allowed widgets; direct restricted-widget endpoint as unpermitted user → 403 `{"message":"Not authorized"}` (no stack trace, no internal path)
-- [ ] Task 12: Documentation — add at least one screenshot of the admin role-permissions section to `docs/role-based-content.md`
+- [~] Task 11: Smoke ADR-008 — `GET /api/role-feature-permissions` admin creds → 200 + array; `POST /api/role-feature-permissions` non-admin → 403; `GET /api/widgets` for configured-group user returns only allowed widgets; direct restricted-widget endpoint as unpermitted user → 403 `{"message":"Not authorized"}` (no stack trace, no internal path) — deferred to downstream cycle (handoff)
+- [~] Task 12: Documentation — add at least one screenshot of the admin role-permissions section to `docs/role-based-content.md` — deferred to downstream cycle (handoff)
 - [x] Task 13: Quality gates — `composer check:strict` (lint/phpcs/phpmd/psalm/phpstan) clean on new PHP; SPDX @license+@copyright in every new lib/**/*.php; no forbidden debug helpers; no stub code; all #[AuthorizedAdminSetting] on mutation endpoints; PHPUnit 1226/1226 green
 - [x] Task 14: ADR-003 traceability — `@spec openspec/changes/role-based-content/tasks.md#task-N` PHPDoc tag present on every new class and public method
 

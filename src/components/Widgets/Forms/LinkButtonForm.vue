@@ -41,11 +41,17 @@
 				required
 				@update:value="updateField('url', $event)" />
 
-			<NcTextField
-				:value="icon"
-				:label="t('launchpad', 'Upload Icon (optional)')"
-				:placeholder="t('launchpad', 'Icon')"
-				@update:value="updateField('icon', $event)" />
+			<!-- Icon picker — capability `dashboard-icons`. Accepts a
+			     registry name OR a custom upload URL via IconPicker
+			     (REQ-ICON-008 + custom-icon-upload-pattern). -->
+			<div class="link-button-form__icon-field">
+				<label class="link-button-form__icon-label">
+					{{ t('launchpad', 'Icon (optional)') }}
+				</label>
+				<IconPicker
+					:value="icon || null"
+					@input="updateField('icon', $event || '')" />
+			</div>
 		</template>
 
 		<!-- Background + text colours apply to single-button mode AND
@@ -180,6 +186,7 @@
 
 <script>
 import { NcTextField, NcSelect } from '@conduction/nextcloud-vue'
+import IconPicker from '../../Dashboard/IconPicker.vue'
 
 const ACTION_TYPES = Object.freeze({
 	EXTERNAL: 'external',
@@ -258,6 +265,7 @@ export default {
 	components: {
 		NcTextField,
 		NcSelect,
+		IconPicker,
 	},
 
 	props: {

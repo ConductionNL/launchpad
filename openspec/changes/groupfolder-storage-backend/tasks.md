@@ -14,7 +14,7 @@
 - [x] Task 10: Ship `lib/Command/ToggleStorageSetting` (`launchpad:storage:toggle-backend {db|groupfolder}`) with a warning when switching back to `db` about not auto-copying GroupFolder data
 - [x] Task 11: Controller layer catches `DashboardContentStorageException` and returns HTTP 503 with `{"error":"dashboard_content_storage_unavailable", ...}`; never silently falls back to DB
 - [x] Task 12: PHPUnit coverage across the new storage layer (interface, both implementations, factory, service integration, migration command, controller failure-path)
-- [ ] Task 13: Playwright + integration coverage — create dashboard via API on `groupfolder` backend (file appears in GroupFolder), then run migration command and confirm reads still resolve via the API
+- [~] Task 13: Playwright + integration coverage — create dashboard via API on `groupfolder` backend (file appears in GroupFolder), then run migration command and confirm reads still resolve via the API — deferred to downstream cycle (handoff)
 - [x] Task 14: Quality gates — `composer check:strict`, SPDX headers in-docblock on new PHP files, `nl`+`en` i18n for new error/CLI strings, OpenAPI/Postman regen if error responses are documented
 
 ## Verification

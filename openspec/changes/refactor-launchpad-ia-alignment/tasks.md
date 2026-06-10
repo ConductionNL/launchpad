@@ -157,7 +157,7 @@ Atomic, numbered, file-by-file. Sequential within each section unless noted.
       localStorage open state).
 - [x] 11.5 Add Jest spec for `DashboardConfigModal.vue` covering the new
       tab strip and `initialTab` prop.
-- [ ] 11.6 Add a Playwright integration test
+- [~] 11.6 Add a Playwright integration test — deferred to downstream cycle (handoff)
       (`tests/integration/ia-tabs.spec.js`) that loads the admin page,
       clicks each Beheer tab, and asserts the expected `data-test` ids
       appear / disappear. **DEFERRED** — Playwright E2E requires a live

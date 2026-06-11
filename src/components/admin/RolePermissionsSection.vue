@@ -81,30 +81,19 @@
 			@save="save"
 			@close="closeEditor" />
 
-		<!-- Delete confirmation dialog (ADR-004: no window.confirm) -->
-		<NcDialog v-if="showDeleteDialog"
-			:name="t('mydash', 'Delete role permission')"
+		<!-- Delete confirmation dialog (ADR-004: extracted to dialogs/) -->
+		<RolePermissionDeleteDialog
+			v-if="showDeleteDialog"
 			:open="showDeleteDialog"
-			@update:open="showDeleteDialog = $event">
-			<template #default>
-				<p>{{ t('mydash', 'Delete role permission for group "{group}"?', { group: deleteTarget ? deleteTarget.groupId : '' }) }}</p>
-			</template>
-			<template #actions>
-				<NcButton type="tertiary" @click="showDeleteDialog = false">
-					{{ t('mydash', 'Cancel') }}
-				</NcButton>
-				<NcButton type="error" @click="doDelete">
-					{{ t('mydash', 'Delete') }}
-				</NcButton>
-			</template>
-		</NcDialog>
+			:group-id="deleteTarget ? deleteTarget.groupId : ''"
+			@update:open="showDeleteDialog = $event"
+			@confirm="doDelete" />
 	</div>
 </template>
 
 <script>
 import {
 	NcButton,
-	NcDialog,
 	NcEmptyContent,
 } from '@conduction/nextcloud-vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
@@ -112,6 +101,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
+import RolePermissionDeleteDialog from '../../dialogs/RolePermissionDeleteDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 
 export default {
@@ -119,13 +109,13 @@ export default {
 
 	components: {
 		NcButton,
-		NcDialog,
 		NcEmptyContent,
 		AccountGroup,
 		Plus,
 		Pencil,
 		Delete,
 		RolePermissionEditorModal,
+		RolePermissionDeleteDialog,
 	},
 
 	/** @spec openspec/specs/admin-roles/spec.md */

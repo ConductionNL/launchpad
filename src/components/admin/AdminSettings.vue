@@ -167,6 +167,9 @@
 				<template #demo-data>
 					<DemoDataTab />
 				</template>
+				<template #group-dashboards>
+					<GroupDashboardsTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -204,6 +207,7 @@ import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
+import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -224,6 +228,7 @@ export default {
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
+		GroupDashboardsTab,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
@@ -273,6 +278,7 @@ export default {
 		 * Ordered Beheer tab descriptors. Labels live here so they stay
 		 * translatable in one place; the slugs match the named slots.
 		 *
+		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
 		 * @return {Array<{slug: string, label: string}>}
 		 */
 		beheerTabs() {
@@ -284,6 +290,7 @@ export default {
 				{ slug: 'sharing', label: this.t('mydash', 'Sharing') },
 				{ slug: 'org-navigation', label: this.t('mydash', 'Org navigation') },
 				{ slug: 'demo-data', label: this.t('mydash', 'Demo data') },
+				{ slug: 'group-dashboards', label: this.t('launchpad', 'Group dashboards') },
 			]
 		},
 	},

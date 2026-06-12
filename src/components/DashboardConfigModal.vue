@@ -17,22 +17,35 @@
 			<!-- Tab strip (dashboard-sharing spec). Sharing is no longer a
 			     free-floating field set in the modal body — it lives in its
 			     own Sharing tab. Tabs are hidden in create mode (nothing to
-			     share / pin until the dashboard exists). -->
-			<div v-if="!isCreate" class="dashboard-config__tabs" data-test="config-tabs">
-				<button
+			     share / pin until the dashboard exists). Markup + styling
+			     follow the fleet tablist pattern (nc-vue CnTabbedFormDialog /
+			     NC sidebar tabs): justified tabs, icon + label, active
+			     primary underline. -->
+			<ul v-if="!isCreate" class="dashboard-config__tabs" role="tablist" data-test="config-tabs">
+				<li
 					v-for="tab in tabs"
 					:key="tab.id"
-					type="button"
-					class="dashboard-config__tab"
-					:class="{ 'dashboard-config__tab--active': currentTab === tab.id }"
-					:data-test="`config-tab-${tab.id}`"
-					@click="currentTab = tab.id">
-					{{ tab.label }}
-				</button>
-			</div>
+					role="presentation"
+					class="dashboard-config__tab-item">
+					<button
+						type="button"
+						role="tab"
+						:aria-selected="currentTab === tab.id ? 'true' : 'false'"
+						:aria-controls="`config-panel-${tab.id}`"
+						class="dashboard-config__tab"
+						:class="{ 'dashboard-config__tab--active': currentTab === tab.id }"
+						:data-test="`config-tab-${tab.id}`"
+						@click="currentTab = tab.id">
+						<component :is="tab.icon" v-if="tab.icon" :size="16" />
+						<span>{{ tab.label }}</span>
+					</button>
+				</li>
+			</ul>
 
 			<div
 				v-show="isCreate || currentTab === 'general'"
+				id="config-panel-general"
+				role="tabpanel"
 				data-test="config-panel-general"
 				class="dashboard-config__panel">
 			<div class="dashboard-config__field">
@@ -81,6 +94,8 @@
 			-->
 			<div
 				v-show="!isCreate && currentTab === 'default'"
+				id="config-panel-default"
+				role="tabpanel"
 				data-test="config-panel-default"
 				class="dashboard-config__panel">
 				<div v-if="!isCreate" class="dashboard-config__field dashboard-config__field--toggle">
@@ -101,6 +116,8 @@
 			     per-share permission rows are reachable ONLY from this tab. -->
 			<div
 				v-show="!isCreate && currentTab === 'sharing'"
+				id="config-panel-sharing"
+				role="tabpanel"
 				data-test="config-panel-sharing"
 				class="dashboard-config__panel">
 			<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
@@ -211,6 +228,9 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
+import Tune from 'vue-material-design-icons/Tune.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
+import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 
 import IconPicker from './Dashboard/IconPicker.vue'
 import { DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '../constants/dashboardIcons.js'
@@ -237,6 +257,9 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
+		Tune,
+		ShareVariant,
+		StarOutline,
 		IconPicker,
 	},
 
@@ -308,6 +331,11 @@ export default {
 			// Local in-progress edit list; mutations buffer here until Save.
 			localShares: [],
 			shareeOptions: [],
+			// Bounded suggestion list fetched once per modal-open with an
+			// empty query — shown when the picker has no search text so the
+			// dropdown is never blank on focus (parity with the core share
+			// dialog).
+			shareeSuggestions: [],
 			shareeLoading: false,
 			shareeSearchSeq: 0,
 		}
@@ -325,12 +353,12 @@ export default {
 		 */
 		tabs() {
 			const list = [
-				{ id: 'general', label: t('mydash', 'General') },
+				{ id: 'general', label: t('mydash', 'General'), icon: Tune },
 			]
 			if (this.canManageShares) {
-				list.push({ id: 'sharing', label: t('mydash', 'Sharing') })
+				list.push({ id: 'sharing', label: t('mydash', 'Sharing'), icon: ShareVariant })
 			}
-			list.push({ id: 'default', label: t('mydash', 'Default') })
+			list.push({ id: 'default', label: t('mydash', 'Default'), icon: StarOutline })
 			return list
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -402,6 +430,7 @@ export default {
 					this.serverShares = []
 					this.localShares = []
 					this.shareeOptions = []
+					this.shareeSuggestions = []
 					return
 				}
 				// Land on the requested tab (dashboard-sharing spec: the
@@ -438,6 +467,7 @@ export default {
 					this._initialIsDefault = this.form.isDefault
 					if (this.canManageShares) {
 						this.loadShares()
+						this.loadShareeSuggestions()
 					}
 				}
 			},
@@ -463,11 +493,60 @@ export default {
 				this.localShares = []
 			}
 		},
+		/**
+		 * Fetch the bounded empty-query suggestion list once per modal-open.
+		 * Mapped through the same shape as search results so options are
+		 * interchangeable. Errors degrade to an empty list (the picker then
+		 * behaves like the pre-suggestion version).
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async loadShareeSuggestions() {
+			try {
+				const response = await api.searchSharees('')
+				this.shareeSuggestions = this.mapShareeResults(response)
+				if (this.shareeOptions.length === 0) {
+					this.shareeOptions = [...this.shareeSuggestions]
+				}
+			} catch (error) {
+				console.error('Sharee suggestion preload failed:', error)
+				this.shareeSuggestions = []
+			}
+		},
+		/**
+		 * Map a sharee API response to flat picker options.
+		 *
+		 * @param {object} response Axios response from `api.searchSharees`.
+		 * @return {Array<object>} Combined user + group options.
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		mapShareeResults(response) {
+			const users = (response.data?.users || []).map(u => ({
+				key: `user:${u.id}`,
+				shareType: 'user',
+				id: u.id,
+				displayName: u.displayName,
+			}))
+			const groups = (response.data?.groups || []).map(g => ({
+				key: `group:${g.id}`,
+				shareType: 'group',
+				id: g.id,
+				displayName: g.displayName,
+			}))
+			return [...users, ...groups]
+		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onShareeSearch(query) {
 			const trimmed = (query || '').trim()
-			if (trimmed.length < 1) {
-				this.shareeOptions = []
+			if (trimmed.length === 0) {
+				// Cleared input — fall back to the preloaded suggestions.
+				this.shareeOptions = [...this.shareeSuggestions]
+				return
+			}
+			if (trimmed.length === 1) {
+				// Backend blocks 1-char queries (enumeration guard) — keep
+				// whatever is shown rather than flashing an empty list.
 				return
 			}
 			const seq = ++this.shareeSearchSeq
@@ -475,19 +554,7 @@ export default {
 			try {
 				const response = await api.searchSharees(trimmed)
 				if (seq !== this.shareeSearchSeq) return // stale result
-				const users = (response.data?.users || []).map(u => ({
-					key: `user:${u.id}`,
-					shareType: 'user',
-					id: u.id,
-					displayName: u.displayName,
-				}))
-				const groups = (response.data?.groups || []).map(g => ({
-					key: `group:${g.id}`,
-					shareType: 'group',
-					id: g.id,
-					displayName: g.displayName,
-				}))
-				this.shareeOptions = [...users, ...groups]
+				this.shareeOptions = this.mapShareeResults(response)
 			} catch (error) {
 				console.error('Sharee search failed:', error)
 				this.shareeOptions = []
@@ -510,7 +577,9 @@ export default {
 					displayName: option.displayName,
 				})
 			}
-			this.shareeOptions = []
+			// Reset to suggestions so the next open isn't stuck on the
+			// previous search results.
+			this.shareeOptions = [...this.shareeSuggestions]
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		onShareLevelChange(idx, option) {
@@ -597,24 +666,49 @@ export default {
 	font-weight: 600;
 }
 
+/* Fleet tablist design (nc-vue CnTabbedFormDialog / NC sidebar tabs):
+   justified full-width tabs, icon + label, primary underline on the
+   active tab, border underline on hover. */
 .dashboard-config__tabs {
 	display: flex;
-	gap: 4px;
-	border-bottom: 1px solid var(--color-border);
+	justify-content: space-between;
+	list-style: none;
 	margin: 8px 0 16px;
+	padding: 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-config__tab-item {
+	display: flex;
+	flex: 1;
+}
+
+.dashboard-config__tab-item:hover {
+	background-color: var(--color-background-hover);
 }
 
 .dashboard-config__tab {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 	background: transparent;
 	border: 0;
 	border-bottom: 2px solid transparent;
-	padding: 8px 14px;
+	padding: 10px;
 	cursor: pointer;
 	font: inherit;
+	text-align: center;
 	color: var(--color-text-maxcontrast);
 }
 
-.dashboard-config__tab--active {
+.dashboard-config__tab:hover {
+	border-bottom-color: var(--color-border);
+}
+
+.dashboard-config__tab--active,
+.dashboard-config__tab--active:hover {
 	color: var(--color-main-text);
 	border-bottom-color: var(--color-primary-element);
 	font-weight: 600;

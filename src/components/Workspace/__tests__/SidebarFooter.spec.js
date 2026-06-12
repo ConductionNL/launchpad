@@ -45,7 +45,9 @@ describe('SidebarFooter', () => {
 			expect(sendent.attributes('aria-label')).toBe('Sendent')
 			const img = sendent.find('img')
 			expect(img.attributes('alt')).toBe('Sendent')
-			expect(img.attributes('src')).toBe('/apps/launchpad/img/sendent-logo.png')
+			// App id is `mydash` — generating with `launchpad` 404s (no
+			// appswebroots entry for the display name).
+			expect(img.attributes('src')).toBe('/apps/mydash/img/sendent-logo.png')
 		})
 
 		it('renders the Conduction logo wrapped in a target=_blank, rel=noopener noreferrer link', () => {
@@ -58,7 +60,7 @@ describe('SidebarFooter', () => {
 			expect(conduction.attributes('aria-label')).toBe('Conduction')
 			const img = conduction.find('img')
 			expect(img.attributes('alt')).toBe('Conduction')
-			expect(img.attributes('src')).toBe('/apps/launchpad/img/conduction-logo.png')
+			expect(img.attributes('src')).toBe('/apps/mydash/img/conduction-logo.png')
 		})
 
 		it('neither brand link omits rel="noopener noreferrer" (security gate)', () => {

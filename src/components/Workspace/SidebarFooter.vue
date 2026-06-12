@@ -102,11 +102,14 @@ export default {
 		},
 		/** @spec openspec/specs/footer-customization/spec.md */
 		sendentLogo() {
-			return generateFilePath('launchpad', 'img', 'sendent-logo.png')
+			// App Store id is `mydash` (info.xml) — `launchpad` is only the
+			// display name and has no OC.appswebroots entry, so using it
+			// degrades the URL to /img/... and the logo 404s.
+			return generateFilePath('mydash', 'img', 'sendent-logo.png')
 		},
 		/** @spec openspec/specs/footer-customization/spec.md */
 		conductionLogo() {
-			return generateFilePath('launchpad', 'img', 'conduction-logo.png')
+			return generateFilePath('mydash', 'img', 'conduction-logo.png')
 		},
 	},
 

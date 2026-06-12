@@ -41,6 +41,8 @@ use OCP\IUserManager;
  *
  * All endpoints require a logged-in user (#[NoAdminRequired]). Owner checks
  * are delegated to DashboardShareService.
+ *
+ * @spec openspec/specs/dashboard-sharing/spec.md
  */
 class DashboardShareApiController extends Controller
 {
@@ -314,9 +316,11 @@ class DashboardShareApiController extends Controller
         }
 
         $trimmed = trim(string: $query);
-        // M3: raise minimum query length to 2 to limit directory enumeration
-        // from single-character a..z sweeps (consistent with NC share picker).
-        if (strlen(string: $trimmed) < 2) {
+        // M3: single-character a..z sweeps stay blocked (directory
+        // enumeration guard, consistent with NC share picker) — but an
+        // EMPTY query returns a bounded suggestion list so the picker is
+        // never blank on focus (parity with the core share dialog).
+        if (strlen(string: $trimmed) === 1) {
             return new DataResponse(data: ['users' => [], 'groups' => []]);
         }
 

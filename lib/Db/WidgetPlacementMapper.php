@@ -344,6 +344,11 @@ class WidgetPlacementMapper extends QBMapper
             $clone->setTileTextColor($row->getTileTextColor());
             $clone->setTileLinkType($row->getTileLinkType());
             $clone->setTileLinkValue($row->getTileLinkValue());
+            // REQ-DASH-020: `content` carries the widget configuration —
+            // for `nc-widget` rows the `{"widgetId": ...}` JSON that tells
+            // the renderer what to load. Dropping it forks widgets into a
+            // sourceless "No items available" state.
+            $clone->setContent($row->getContent());
             $clone->setCreatedAt($now);
             $clone->setUpdatedAt($now);
 

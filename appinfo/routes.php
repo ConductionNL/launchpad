@@ -175,6 +175,21 @@ return [
 		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 
+		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,
+		// `#[NoAdminRequired]` + service-layer per-dashboard guards. The literal
+		// `kiosk/playlists` segments avoid any wildcard collision.
+		['name' => 'kiosk#index', 'url' => '/api/kiosk/playlists', 'verb' => 'GET'],
+		['name' => 'kiosk#create', 'url' => '/api/kiosk/playlists', 'verb' => 'POST'],
+		['name' => 'kiosk#update', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'PUT',
+		 'requirements' => ['id' => '\d+']],
+		['name' => 'kiosk#destroy', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['id' => '\d+']],
+		// Public (anonymous) kiosk render (REQ-KIOSK-003). #[PublicPage] +
+		// #[NoCSRFRequired] + shared `launchpad_share_access` throttle bucket.
+		// Registered BEFORE the deep-link catch-all at the bottom.
+		['name' => 'kiosk#render', 'url' => '/kiosk/{token}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
 		['name' => 'dashboardShareApi#index', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'GET'],
 		['name' => 'dashboardShareApi#create', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'POST'],

@@ -28,6 +28,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -47,6 +48,9 @@ class PublicShareControllerTest extends TestCase
     /** @var PublicShareService&MockObject */
     private $shareService;
 
+    /** @var PublicShareContext&MockObject */
+    private $shareContext;
+
     /** @var LoggerInterface&MockObject */
     private $logger;
 
@@ -55,6 +59,7 @@ class PublicShareControllerTest extends TestCase
         return new PublicShareController(
             request: $this->request,
             shareService: $this->shareService,
+            shareContext: $this->shareContext,
             logger: $this->logger,
             userId: $userId,
         );
@@ -64,6 +69,7 @@ class PublicShareControllerTest extends TestCase
     {
         $this->request      = $this->createMock(IRequest::class);
         $this->shareService = $this->createMock(PublicShareService::class);
+        $this->shareContext = $this->createMock(PublicShareContext::class);
         $this->logger       = $this->createMock(LoggerInterface::class);
     }
 

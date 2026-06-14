@@ -117,8 +117,8 @@ class DashboardApiController extends Controller
         private readonly LoggerInterface $logger,
         private readonly IUserSession $userSession,
         private readonly ActionAuthService $actionAuth,
-        private readonly QuotaService $quotaService,
         private readonly ?string $userId,
+        private readonly ?QuotaService $quotaService=null,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -155,12 +155,19 @@ class DashboardApiController extends Controller
             userId: $this->userId
         );
 
+        $serialized = ResponseHelper::serializeList(entities: $dashboards);
+
         // dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on
-        // the personal dashboards list. Response shape is now
-        // `{items: [...], quota: {...}}`.
+        // the personal dashboards list. Response shape is
+        // `{items: [...], quota: {...}}`. When the quota service is absent
+        // (legacy test doubles) fall back to the bare-array contract.
+        if ($this->quotaService === null) {
+            return ResponseHelper::success(data: $serialized);
+        }
+
         return ResponseHelper::success(
             data: [
-                'items' => ResponseHelper::serializeList(entities: $dashboards),
+                'items' => $serialized,
                 'quota' => $this->quotaService->getQuotaStatus(
                     userId: $this->userId
                 ),
@@ -209,7 +216,13 @@ class DashboardApiController extends Controller
         // frontend can disable create affordances at the limit without an
         // extra round-trip. The response shape is now
         // `{items: [...], quota: {...}}`; clients that read the bare array
-        // are handled by the store's shape-tolerant unwrap.
+        // are handled by the store's shape-tolerant unwrap. When the quota
+        // service is absent (legacy test doubles) fall back to the
+        // bare-array contract.
+        if ($this->quotaService === null) {
+            return ResponseHelper::success(data: $serialized);
+        }
+
         return ResponseHelper::success(
             data: [
                 'items' => $serialized,

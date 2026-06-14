@@ -147,3 +147,43 @@
 - Demo dashboard seed entry in `demo-data-showcases`.
 - Per-widget Playwright tests, Vitest unit tests.
 - Any test or CI task.
+
+## Implementation status (post-archive note, 2026-06-14)
+
+This `kind: config` change authored the 7 capability specs (all tasks
+above complete) and the specs are synced into `openspec/specs/`. The
+first per-widget implementation chain — **launchpad-spend-analytics-widget
+(REQ-SAW-001..-008)** — has now been BUILT:
+
+- [x] `spend-analytics` widget type registered in
+  `src/constants/widgetRegistry.js` with a soft `requires.graphql`
+  (REQ-SAW-001) + added to the completeness test `EXPECTED_TYPES`.
+- [x] `launchpad_spend_analytics` entry in `src/manifest.json` `widgets[]`
+  with `requires.graphql` and NO sibling app in `dependencies`
+  (REQ-SAW-002).
+- [x] `SpendAnalyticsForm.vue` content contract + `validate()`
+  (REQ-SAW-003).
+- [x] Shared runtime GraphQL client (`src/services/graphqlClient.js`) +
+  `src/services/spendAnalytics.js` data layer (REQ-SAW-004) — renderer
+  routes every cross-app call through the client, never direct axios.
+- [x] `SpendAnalyticsWidget.vue` renderer with per-source empty-states
+  (REQ-SAW-005), summary / trend / top-vendors / top-categories views,
+  locale-aware currency formatting, ≤200 ms debounce, aria-labels.
+- [x] AI narrative via openconnector `local-llm` source — no LLM SDK in
+  launchpad (REQ-SAW-006).
+- [x] Row drill-through deep-links to the owning sibling app
+  (REQ-SAW-007).
+- [x] Vitest coverage: client, data layer, form, renderer (25 new tests).
+- [x] nl + en l10n (domain `launchpad`).
+
+Deferred (still per-widget chains, NOT built here):
+
+- [ ] `attachEvidence` evidence chips via OR object-interactions
+  (REQ-SAW-008) — contract is in the content shape + manifest, but the
+  inline evidence-chip UI + OR object-interactions wiring is deferred to
+  a follow-up chain (depends on the OR integration-registry surface
+  being available on the instance).
+- [ ] The other six widget chains (`ai-dashboard-assistant`,
+  `compliance-audit-panel`, `file-access-widget`,
+  `enterprise-security-access`, `meeting-calendar-actions`,
+  `mobile-remote-access`) remain spec-only.

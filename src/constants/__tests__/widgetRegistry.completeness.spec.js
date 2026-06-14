@@ -50,6 +50,7 @@ const EXPECTED_TYPES = [
 	'news',
 	'people',
 	'quicklinks',
+	'spend-analytics',
 	'text',
 	'tile',
 	'video',

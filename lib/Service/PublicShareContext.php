@@ -79,18 +79,6 @@ class PublicShareContext
     }//end markBearer()
 
     /**
-     * Whether the current request is a public-share bearer (read-only).
-     *
-     * @return boolean True if the request is a bearer; false otherwise.
-     *
-     * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
-     */
-    public function isBearer(): bool
-    {
-        return $this->isBearer;
-    }//end isBearer()
-
-    /**
      * The verified bearer token, or null when not in a bearer context.
      *
      * @return string|null

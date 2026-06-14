@@ -39,6 +39,7 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
@@ -285,6 +286,7 @@ class DashboardService
         private readonly ?IEventDispatcher $eventDispatcher=null,
         private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
         private readonly ?PublicShareContext $publicShareContext=null,
+        private readonly ?QuotaService $quotaService=null,
     ) {
     }//end __construct()
 
@@ -459,6 +461,13 @@ class DashboardService
     ): Dashboard {
         // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
         $this->publicShareContext?->requireMutable();
+        // dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
+        // dashboard quota at the single creation choke point so every
+        // user-initiated surface (REST create, CLI, template
+        // instantiation) is bound. Admin provisioning paths wrap their
+        // calls in QuotaService::runProvisioning() to bypass this
+        // (REQ-QUOTA-004). Runs before any DB write.
+        $this->quotaService?->assertCanCreateDashboard(userId: $userId);
         // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
         // depth checks BEFORE the entity is built so the request is
         // rejected without a partial row in memory.
@@ -1682,6 +1691,12 @@ class DashboardService
         // the stable `personal_dashboards_disabled` envelope no matter
         // what happens with the body.
         $this->assertPersonalDashboardsAllowed();
+
+        // dashboard-quota-limits REQ-QUOTA-002: a fork creates a new
+        // personal-scope dashboard, so it is bound by the per-user
+        // dashboard quota exactly like a plain create. Runs before any DB
+        // write and before the transaction opens.
+        $this->quotaService?->assertCanCreateDashboard(userId: $userId);
 
         // REQ-DASH-020: source must be visible to the user — reuse the
         // visible-to-user resolver so personal / group / default-group

@@ -59,4 +59,6 @@ enum AdminSettingKey: string
     case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
     case FORCED_SHARE_GROUPS            = 'forced_share_groups';
     case LEGACY_WIDGET_BRIDGE_ENABLED   = 'legacy_widget_bridge_enabled';
+    case MAX_DASHBOARDS_PER_USER        = 'max_dashboards_per_user';
+    case MAX_WIDGETS_PER_DASHBOARD      = 'max_widgets_per_dashboard';
 }//end enum

@@ -93,6 +93,13 @@ class AdminSettingsService
             $forcedShareGroups = [];
         }
 
+        // dashboard-quota-limits REQ-QUOTA-001: both quotas default to
+        // `0` (unlimited) so a fresh / upgraded instance behaves exactly
+        // as before. Stored values are clamped on write, so a defensive
+        // clamp on read is belt-and-braces against hand-edited rows.
+        $maxDashKey   = AdminSetting::KEY_MAX_DASHBOARDS_PER_USER;
+        $maxWidgetKey = AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD;
+
         return [
             'defaultPermissionLevel'      => $settings[$permKey] ?? $permDef,
             // REQ-ASET-003 (extended): default `false` — admins MUST opt in
@@ -111,8 +118,61 @@ class AdminSettingsService
             // Legacy-widget-bridge spec: bridge defaults to ON so existing
             // bridged placements keep rendering after upgrade.
             'legacyWidgetBridgeEnabled'   => $settings[$bridgeKey] ?? true,
+            // dashboard-quota-limits REQ-QUOTA-001: numeric governance
+            // quotas. `0` = unlimited (no enforcement).
+            'maxDashboardsPerUser'        => $this->clampQuota($settings[$maxDashKey] ?? 0),
+            'maxWidgetsPerDashboard'      => $this->clampQuota($settings[$maxWidgetKey] ?? 0),
         ];
     }//end getSettings()
+
+    /**
+     * Lower bound for the numeric quota settings (dashboard-quota-limits
+     * REQ-QUOTA-001). `0` means unlimited.
+     *
+     * @var int
+     */
+    public const QUOTA_MIN = 0;
+
+    /**
+     * Upper bound for the numeric quota settings (dashboard-quota-limits
+     * REQ-QUOTA-001). Values above this are clamped down.
+     *
+     * @var int
+     */
+    public const QUOTA_MAX = 10000;
+
+    /**
+     * Clamp an admin-supplied quota value into `[QUOTA_MIN, QUOTA_MAX]`
+     * (dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014).
+     *
+     * Non-integer / non-numeric input collapses to `0` (unlimited) so a
+     * malformed body can never disable an instance by persisting garbage,
+     * and a negative value clamps up to `0` rather than being rejected —
+     * matching the lenient clamp contract the other numeric settings use.
+     *
+     * @param mixed $value The raw value (from the request body or a stored row).
+     *
+     * @return int The clamped non-negative integer.
+     *
+     * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
+     */
+    public function clampQuota(mixed $value): int
+    {
+        if (is_int($value) === false && is_numeric($value) === false) {
+            return self::QUOTA_MIN;
+        }
+
+        $int = (int) $value;
+        if ($int < self::QUOTA_MIN) {
+            return self::QUOTA_MIN;
+        }
+
+        if ($int > self::QUOTA_MAX) {
+            return self::QUOTA_MAX;
+        }
+
+        return $int;
+    }//end clampQuota()
 
     /**
      * Valid values for the `launchpad.content_storage` setting (REQ-GFSB-006).
@@ -147,6 +207,19 @@ class AdminSettingsService
      *                                                 legacy widget bridge
      *                                                 (legacy-widget-bridge
      *                                                 spec).
+     * @param int|null    $maxDashboardsPerUser        Maximum personal
+     *                                                 dashboards per user
+     *                                                 (`0` = unlimited;
+     *                                                 clamped to
+     *                                                 `[0, 10000]`).
+     *                                                 dashboard-quota-limits
+     *                                                 REQ-QUOTA-001.
+     * @param int|null    $maxWidgetsPerDashboard      Maximum placements per
+     *                                                 dashboard (`0` =
+     *                                                 unlimited; clamped to
+     *                                                 `[0, 10000]`).
+     *                                                 dashboard-quota-limits
+     *                                                 REQ-QUOTA-001.
      *
      * @return void
      *
@@ -165,7 +238,9 @@ class AdminSettingsService
         ?string $contentStorage=null,
         ?string $defaultSharePermissionLevel=null,
         ?array $forcedShareGroups=null,
-        ?bool $legacyWidgetBridgeEnabled=null
+        ?bool $legacyWidgetBridgeEnabled=null,
+        ?int $maxDashboardsPerUser=null,
+        ?int $maxWidgetsPerDashboard=null
     ): void {
         if ($defaultPermLevel !== null) {
             $this->settingMapper->setSetting(
@@ -212,6 +287,23 @@ class AdminSettingsService
             $this->settingMapper->setSetting(
                 key: AdminSetting::KEY_CONTENT_STORAGE,
                 value: $contentStorage
+            );
+        }
+
+        // dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
+        // numeric quotas clamped into `[0, 10000]` so a negative or
+        // out-of-range value is never stored.
+        if ($maxDashboardsPerUser !== null) {
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_MAX_DASHBOARDS_PER_USER,
+                value: $this->clampQuota($maxDashboardsPerUser)
+            );
+        }
+
+        if ($maxWidgetsPerDashboard !== null) {
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD,
+                value: $this->clampQuota($maxWidgetsPerDashboard)
             );
         }
 

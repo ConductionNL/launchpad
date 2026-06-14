@@ -268,13 +268,22 @@
 						type="outline"
 						wide
 						data-action="create"
-						:aria-label="t('launchpad', 'Add dashboard')"
+						data-testid="add-dashboard-button"
+						:disabled="dashboardQuotaReached"
+						:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
+						:aria-label="dashboardQuotaReached ? dashboardQuotaTooltip : t('launchpad', 'Add dashboard')"
 						@click="onCreate">
 						<template #icon>
 							<Plus :size="20" />
 						</template>
 						{{ t('launchpad', 'Add dashboard') }}
 					</NcButton>
+					<p
+						v-if="dashboardQuotaReached"
+						class="dashboard-switcher-sidebar__quota-hint"
+						data-testid="dashboard-quota-hint">
+						{{ dashboardQuotaTooltip }}
+					</p>
 				</div>
 			</section>
 		</div>
@@ -433,6 +442,25 @@ export default {
 			type: String,
 			default: 'dashboards',
 			validator: v => ['dashboards', 'catalog'].includes(v),
+		},
+
+		/**
+		 * dashboard-quota-limits REQ-QUOTA-006: when true the user is at
+		 * their per-user dashboard limit, so the "Add dashboard" affordance
+		 * is disabled. Default false ⇒ unlimited instances are unaffected.
+		 */
+		dashboardQuotaReached: {
+			type: Boolean,
+			default: false,
+		},
+
+		/**
+		 * dashboard-quota-limits REQ-QUOTA-006: localised tooltip explaining
+		 * the limit, shown on the disabled "Add dashboard" affordance.
+		 */
+		dashboardQuotaTooltip: {
+			type: String,
+			default: '',
 		},
 	},
 
@@ -606,6 +634,13 @@ export default {
 		 */
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onCreate() {
+			// dashboard-quota-limits REQ-QUOTA-006: belt-and-braces — the
+			// button is already disabled at the limit, but never emit the
+			// create event when over quota even if a stale render slipped
+			// through. The server 409 remains authoritative regardless.
+			if (this.dashboardQuotaReached) {
+				return
+			}
 			this.$emit('update:open', false)
 			this.$emit('create-dashboard')
 		},

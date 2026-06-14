@@ -370,6 +370,16 @@ class AdminController extends Controller
      *                                                 legacy widget bridge
      *                                                 (legacy-widget-bridge
      *                                                 spec).
+     * @param int|null    $maxDashboardsPerUser        Maximum personal
+     *                                                 dashboards per user
+     *                                                 (`0` = unlimited).
+     *                                                 dashboard-quota-limits
+     *                                                 REQ-QUOTA-001.
+     * @param int|null    $maxWidgetsPerDashboard      Maximum placements per
+     *                                                 dashboard (`0` =
+     *                                                 unlimited).
+     *                                                 dashboard-quota-limits
+     *                                                 REQ-QUOTA-001.
      *
      * @return JSONResponse The update confirmation.
      *
@@ -385,7 +395,9 @@ class AdminController extends Controller
         ?string $launchpadContentStorage=null,
         ?string $defaultSharePermissionLevel=null,
         ?array $forcedShareGroups=null,
-        ?bool $legacyWidgetBridgeEnabled=null
+        ?bool $legacyWidgetBridgeEnabled=null,
+        ?int $maxDashboardsPerUser=null,
+        ?int $maxWidgetsPerDashboard=null
     ): JSONResponse {
         try {
             $this->settingsService->updateSettings(
@@ -397,7 +409,9 @@ class AdminController extends Controller
                 contentStorage: $launchpadContentStorage,
                 defaultSharePermissionLevel: $defaultSharePermissionLevel,
                 forcedShareGroups: $forcedShareGroups,
-                legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+                legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
+                maxDashboardsPerUser: $maxDashboardsPerUser,
+                maxWidgetsPerDashboard: $maxWidgetsPerDashboard
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);

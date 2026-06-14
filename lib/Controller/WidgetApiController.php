@@ -21,6 +21,7 @@ namespace OCA\LaunchPad\Controller;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\NewsWidgetService;
@@ -332,6 +333,10 @@ class WidgetApiController extends Controller
                 data: $placement->jsonSerialize(),
                 statusCode: Http::STATUS_CREATED
             );
+        } catch (QuotaExceededException $e) {
+            // dashboard-quota-limits REQ-QUOTA-003: dashboard is at the
+            // widget limit — HTTP 409 with the structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
         }
@@ -401,6 +406,10 @@ class WidgetApiController extends Controller
                 data: $placement->jsonSerialize(),
                 statusCode: Http::STATUS_CREATED
             );
+        } catch (QuotaExceededException $e) {
+            // dashboard-quota-limits REQ-QUOTA-003: tiles are placements
+            // and bound by the widget quota — HTTP 409 structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
         }//end try

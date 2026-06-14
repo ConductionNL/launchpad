@@ -50,6 +50,32 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 - **THEN** "Add custom widget…", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
 - **AND** right-clicking a widget MUST open the widget context menu (REQ-WDG-015)
 
+### Requirement: REQ-SHELL-003 Toolbar contents
+
+When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Add Widget** dropdown button (sourced from the widget type registry — see `widget-add-edit-modal`) and a **Save Layout** button. Selecting an Add Widget option opens the modal pre-filled with that type. The Save Layout button MUST be disabled while a save request is in flight, and on click it MUST call `saveLayout()` which PUTs to `/api/dashboards/{uuid}` with `{layout: layout.value}` then toasts success or error.
+
+#### Scenario: Add-widget dropdown lists all widget types
+
+- GIVEN the widget-type registry contains 5 entries
+- WHEN the user opens the Add Widget dropdown
+- THEN it MUST display 5 menu items, one per registered type
+- AND each item MUST be labelled with the type's translated display name
+
+#### Scenario: Save sends layout to correct endpoint
+
+- GIVEN `dashboardSource: 'user'` and `activeDashboardId: 'abc'`
+- WHEN the user clicks Save
+- THEN the system MUST send `PUT /api/dashboards/abc` with body `{layout: <current widgets>}`
+- AND show a success toast on 200
+- AND show an error toast on 4xx or 5xx
+
+#### Scenario: Save button disabled while in flight
+
+- GIVEN a Save request is in flight
+- WHEN the user attempts to click Save again
+- THEN the button MUST be disabled (HTML `disabled` attribute set)
+- AND no second request MUST fire
+
 ### Requirement: REQ-SHELL-004 Hamburger toggle and active-dashboard label
 
 The shell MUST render, in the title strip:

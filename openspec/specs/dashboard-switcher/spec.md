@@ -118,6 +118,22 @@ Items in the `My Dashboards` section (excluding the `+ New Dashboard` row) MUST 
 - AND MUST NOT emit `switch(...)`
 - AND MUST NOT emit `update:open(false)` (closing decision is up to the parent)
 
+### Requirement: REQ-SWITCH-005 Create-dashboard affordance
+
+When `allowUserDashboards: true`, the `My Dashboards` section MUST end with a row labelled `t('+ New Dashboard')` (with a Plus icon) styled as a primary-coloured action. Clicking it MUST emit `update:open(false)` THEN `create-dashboard()`.
+
+#### Scenario: Create button hidden when feature disabled
+
+- GIVEN `allowUserDashboards: false`
+- WHEN the sidebar renders
+- THEN the `+ New Dashboard` row MUST NOT be present in the DOM
+
+#### Scenario: Create button click
+
+- GIVEN the user clicks `+ New Dashboard`
+- THEN the sidebar MUST emit `update:open(false)`
+- AND THEN MUST emit `create-dashboard` (no payload)
+
 ### Requirement: REQ-SWITCH-006 Slide-in animation
 
 @e2e exclude slide-in animation tests CSS transform values during animation — Playwright cannot assert mid-animation CSS; open/close covered by wave3 tests

@@ -6,6 +6,8 @@ status: draft
 
 # Dashboard Quota Limits — New Capability Specification
 
+@e2e exclude no live-NC Playwright run available in this build context; quota enforcement is covered by PHPUnit (QuotaService + service-wiring + controller 409/envelope tests) and the UI affordance logic by vitest store tests. Re-annotate with real Playwright tests once a live instance is wired (tasks.md Task 10).
+
 ## ADDED Requirements
 
 ### Requirement: REQ-QUOTA-001 Quota Admin Settings

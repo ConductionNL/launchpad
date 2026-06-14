@@ -12,6 +12,8 @@ list response carries an additive `quota` envelope so the UI can disable
 creation affordances at the limit while the server check stays
 authoritative.
 
+@e2e exclude no live-NC Playwright run available in this build context; quota enforcement (under/at/over limit, scope filtering, most-restrictive-wins, grandfathering, provisioning bypass) is covered by PHPUnit (QuotaService + service-wiring + controller 409/envelope tests), and the UI affordance logic (disabled "Add dashboard" / "Add widget", localised tooltip, envelope unwrap, 409 race handling) is covered by vitest store tests. Re-annotate with real Playwright tests once a live instance is wired (tasks.md Task 10).
+
 ## Requirements
 ### Requirement: REQ-QUOTA-001 Quota Admin Settings
 

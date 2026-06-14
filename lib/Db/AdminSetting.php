@@ -196,6 +196,24 @@ class AdminSetting extends Entity implements JsonSerializable
     public const KEY_LEGACY_WIDGET_BRIDGE_ENABLED = AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED->value;
 
     /**
+     * BC alias for AdminSettingKey::MAX_DASHBOARDS_PER_USER (dashboard-quota-limits).
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::MAX_DASHBOARDS_PER_USER
+     */
+    public const KEY_MAX_DASHBOARDS_PER_USER = AdminSettingKey::MAX_DASHBOARDS_PER_USER->value;
+
+    /**
+     * BC alias for AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD (dashboard-quota-limits).
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD
+     */
+    public const KEY_MAX_WIDGETS_PER_DASHBOARD = AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD->value;
+
+    /**
      * The setting key.
      *
      * @var string

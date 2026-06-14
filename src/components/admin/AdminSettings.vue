@@ -80,6 +80,34 @@
 						:clearable="false"
 						@input="saveSettings" />
 				</div>
+
+				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
+				     quotas. `0` = unlimited (no enforcement). -->
+				<div class="launchpad-admin__field" data-testid="admin-quota-dashboards">
+					<NcTextField
+						:value.sync="settings.maxDashboardsPerUser"
+						type="number"
+						min="0"
+						max="10000"
+						:label="t('launchpad', 'Maximum dashboards per user')"
+						@update:value="onQuotaInput('maxDashboardsPerUser', $event)" />
+					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+						{{ t('launchpad', '0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.') }}
+					</p>
+				</div>
+
+				<div class="launchpad-admin__field" data-testid="admin-quota-widgets">
+					<NcTextField
+						:value.sync="settings.maxWidgetsPerDashboard"
+						type="number"
+						min="0"
+						max="10000"
+						:label="t('launchpad', 'Maximum widgets per dashboard')"
+						@update:value="onQuotaInput('maxWidgetsPerDashboard', $event)" />
+					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+						{{ t('launchpad', '0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.') }}
+					</p>
+				</div>
 			</div>
 
 			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
@@ -196,6 +224,7 @@ import {
 	NcButton,
 	NcSelect,
 	NcCheckboxRadioSwitch,
+	NcTextField,
 } from '@conduction/nextcloud-vue'
 import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
@@ -218,6 +247,7 @@ export default {
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,
+		NcTextField,
 		IconRenderer,
 		SetupWizardModal,
 		BeheerTabs,
@@ -255,6 +285,9 @@ export default {
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
+				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
+				maxDashboardsPerUser: 0,
+				maxWidgetsPerDashboard: 0,
 			},
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('launchpad', 'View only') },
@@ -338,6 +371,10 @@ export default {
 					allowUserDash: this.settings.allowUserDashboards,
 					allowMultiDash: this.settings.allowMultipleDashboards,
 					defaultGridCols: this.settings.defaultGridColumns,
+					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
+					// the server clamps into [0, 10000].
+					maxDashboardsPerUser: this.clampQuota(this.settings.maxDashboardsPerUser),
+					maxWidgetsPerDashboard: this.clampQuota(this.settings.maxWidgetsPerDashboard),
 				})
 			} catch (error) {
 				console.error('Failed to save settings:', error)
@@ -347,6 +384,42 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		updateSetting(key, value) {
 			this.settings[key] = value
+			this.saveSettings()
+		},
+
+		/**
+		 * Clamp an admin-entered quota into [0, 10000], coercing blank /
+		 * non-numeric input to 0 (unlimited). Mirrors the server-side clamp
+		 * so the UI never round-trips a value the backend would reject
+		 * (dashboard-quota-limits REQ-QUOTA-001).
+		 *
+		 * @param {*} value the raw input value
+		 * @return {number} the clamped non-negative integer
+		 */
+		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
+		clampQuota(value) {
+			const num = Number.parseInt(value, 10)
+			if (Number.isNaN(num) || num < 0) {
+				return 0
+			}
+			if (num > 10000) {
+				return 10000
+			}
+			return num
+		},
+
+		/**
+		 * Handle a numeric quota field edit: clamp into range, write back
+		 * the normalised value (so the input reflects the clamp), and
+		 * persist (dashboard-quota-limits REQ-QUOTA-001).
+		 *
+		 * @param {string} key the settings key (`maxDashboardsPerUser` | `maxWidgetsPerDashboard`)
+		 * @param {*} value the raw input value
+		 * @return {void}
+		 */
+		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
+		onQuotaInput(key, value) {
+			this.settings[key] = this.clampQuota(value)
 			this.saveSettings()
 		},
 

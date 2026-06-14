@@ -1,13 +1,20 @@
----
-capability: dashboard-quota-limits
-delta: true
-status: draft
----
+# dashboard-quota-limits Specification
 
-# Dashboard Quota Limits — New Capability Specification
+## Purpose
 
-## ADDED Requirements
+Numeric admin-governance quotas for LaunchPad: maximum personal dashboards
+per user and maximum widget placements per dashboard. Both default to `0`
+(unlimited). Enforcement is server-side and fail-closed at a single
+`QuotaService` choke point on every user-initiated creation path, returning
+HTTP 409 with a structured body; admin provisioning is exempt; lowering a
+limit grandfathers existing data (never deletes/hides); and the dashboards
+list response carries an additive `quota` envelope so the UI can disable
+creation affordances at the limit while the server check stays
+authoritative.
 
+@e2e exclude no live-NC Playwright run available in this build context; quota enforcement (under/at/over limit, scope filtering, most-restrictive-wins, grandfathering, provisioning bypass) is covered by PHPUnit (QuotaService + service-wiring + controller 409/envelope tests), and the UI affordance logic (disabled "Add dashboard" / "Add widget", localised tooltip, envelope unwrap, 409 race handling) is covered by vitest store tests. Re-annotate with real Playwright tests once a live instance is wired (tasks.md Task 10).
+
+## Requirements
 ### Requirement: REQ-QUOTA-001 Quota Admin Settings
 
 The system MUST provide two admin settings — `max_dashboards_per_user` and
@@ -191,13 +198,3 @@ disabled affordance is UX, not enforcement.
 
 ---
 
-## Summary of `dashboard-quota-limits` Capability
-
-Six requirements covering the two admin settings (riding the existing admin-settings
-contract), service-layer enforcement of dashboard and widget counts across all
-user-initiated creation paths, an explicit provisioning-path exemption for admin
-rollout, non-destructive grandfathering when limits are lowered, and proactive quota
-surfacing in the UI with the server remaining authoritative. Defaults (`0` = unlimited)
-make the change behaviour-invariant on upgrade.
-
-**Spec version**: draft (2026-06-11)

@@ -27,6 +27,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
 use OCA\LaunchPad\Service\AnalyticsService;
@@ -34,6 +35,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\QuotaService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -116,6 +118,7 @@ class DashboardApiController extends Controller
         private readonly IUserSession $userSession,
         private readonly ActionAuthService $actionAuth,
         private readonly ?string $userId,
+        private readonly ?QuotaService $quotaService=null,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -152,8 +155,23 @@ class DashboardApiController extends Controller
             userId: $this->userId
         );
 
+        $serialized = ResponseHelper::serializeList(entities: $dashboards);
+
+        // dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on
+        // the personal dashboards list. Response shape is
+        // `{items: [...], quota: {...}}`. When the quota service is absent
+        // (legacy test doubles) fall back to the bare-array contract.
+        if ($this->quotaService === null) {
+            return ResponseHelper::success(data: $serialized);
+        }
+
         return ResponseHelper::success(
-            data: ResponseHelper::serializeList(entities: $dashboards)
+            data: [
+                'items' => $serialized,
+                'quota' => $this->quotaService->getQuotaStatus(
+                    userId: $this->userId
+                ),
+            ]
         );
     }//end list()
 
@@ -193,7 +211,26 @@ class DashboardApiController extends Controller
             $serialized[]  = $row;
         }
 
-        return ResponseHelper::success(data: $serialized);
+        // dashboard-quota-limits REQ-QUOTA-006: carry the additive quota
+        // envelope on the unioned listing the store consumes, so the
+        // frontend can disable create affordances at the limit without an
+        // extra round-trip. The response shape is now
+        // `{items: [...], quota: {...}}`; clients that read the bare array
+        // are handled by the store's shape-tolerant unwrap. When the quota
+        // service is absent (legacy test doubles) fall back to the
+        // bare-array contract.
+        if ($this->quotaService === null) {
+            return ResponseHelper::success(data: $serialized);
+        }
+
+        return ResponseHelper::success(
+            data: [
+                'items' => $serialized,
+                'quota' => $this->quotaService->getQuotaStatus(
+                    userId: $this->userId
+                ),
+            ]
+        );
     }//end visible()
 
     /**
@@ -408,6 +445,10 @@ class DashboardApiController extends Controller
                 ],
                 statusCode: Http::STATUS_CREATED
             );
+        } catch (QuotaExceededException $e) {
+            // dashboard-quota-limits REQ-QUOTA-002: the user is at their
+            // dashboard limit — HTTP 409 with the structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
         } catch (InvalidArgumentException $e) {
             // REQ-DASH-023..029: parent / slug / depth / cycle violations
             // surface as HTTP 400 with the validation message verbatim.
@@ -1318,6 +1359,10 @@ class DashboardApiController extends Controller
                 ],
                 statusCode: Http::STATUS_FORBIDDEN
             );
+        } catch (QuotaExceededException $e) {
+            // dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
+            // per-user dashboard quota — HTTP 409 with the structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
         } catch (DoesNotExistException) {
             // REQ-DASH-020: source not visible — 404 without leaking
             // existence (use the canonical message rather than echoing

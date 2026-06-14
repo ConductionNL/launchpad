@@ -995,6 +995,12 @@
         "Bridge": "Bridge",
         "No widgets match this filter": "No widgets match this filter",
         "Catalog": "Catalog",
-        "General": "General"
+        "General": "General",
+        "Maximum dashboards per user": "Maximum dashboards per user",
+        "Maximum widgets per dashboard": "Maximum widgets per dashboard",
+        "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.",
+        "0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.": "0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.",
+        "You have reached the limit of {limit} dashboards": "You have reached the limit of {limit} dashboards",
+        "You have reached the limit of {limit} widgets on this dashboard": "You have reached the limit of {limit} widgets on this dashboard"
     }
 }

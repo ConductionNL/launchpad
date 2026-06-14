@@ -136,8 +136,105 @@ class AdminSettingsServiceTest extends TestCase
         $this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
         $this->assertArrayHasKey('forcedShareGroups', $settings);
         $this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
-        $this->assertCount(9, $settings);
+        // dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
+        $this->assertArrayHasKey('maxDashboardsPerUser', $settings);
+        $this->assertArrayHasKey('maxWidgetsPerDashboard', $settings);
+        $this->assertCount(11, $settings);
     }//end testGetSettingsReturnsCamelCaseKeys()
+
+    // ----- dashboard-quota-limits REQ-QUOTA-001 -----
+
+    public function testGetSettingsQuotaDefaultsUnlimited(): void
+    {
+        // REQ-QUOTA-001 — fresh / upgraded instance defaults both quotas
+        // to 0 (unlimited) so behaviour is invariant on upgrade.
+        $this->settingMapper->method('getAllAsArray')->willReturn([]);
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame(0, $settings['maxDashboardsPerUser']);
+        $this->assertSame(0, $settings['maxWidgetsPerDashboard']);
+    }//end testGetSettingsQuotaDefaultsUnlimited()
+
+    public function testGetSettingsReturnsStoredQuotaValues(): void
+    {
+        // REQ-QUOTA-001 — admin-set values round-trip through getSettings.
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_MAX_DASHBOARDS_PER_USER   => 5,
+                    AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD => 40,
+                ]
+                );
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame(5, $settings['maxDashboardsPerUser']);
+        $this->assertSame(40, $settings['maxWidgetsPerDashboard']);
+    }//end testGetSettingsReturnsStoredQuotaValues()
+
+    public function testGetSettingsClampsCorruptStoredQuota(): void
+    {
+        // REQ-QUOTA-001 — a hand-edited negative / out-of-range / garbage
+        // row is clamped defensively on read.
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_MAX_DASHBOARDS_PER_USER   => -8,
+                    AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD => 99999,
+                ]
+                );
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame(0, $settings['maxDashboardsPerUser']);
+        $this->assertSame(10000, $settings['maxWidgetsPerDashboard']);
+    }//end testGetSettingsClampsCorruptStoredQuota()
+
+    public function testUpdateSettingsPersistsClampedDashboardQuota(): void
+    {
+        // REQ-QUOTA-001 / REQ-ASET-014 — a negative value clamps to 0.
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(
+                AdminSetting::KEY_MAX_DASHBOARDS_PER_USER,
+                0
+            );
+
+        $this->service->updateSettings(maxDashboardsPerUser: -3);
+    }//end testUpdateSettingsPersistsClampedDashboardQuota()
+
+    public function testUpdateSettingsPersistsClampedWidgetQuota(): void
+    {
+        // REQ-QUOTA-001 — an over-range value clamps down to 10000.
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(
+                AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD,
+                10000
+            );
+
+        $this->service->updateSettings(maxWidgetsPerDashboard: 50000);
+    }//end testUpdateSettingsPersistsClampedWidgetQuota()
+
+    public function testUpdateSettingsPersistsBothQuotaValues(): void
+    {
+        // REQ-QUOTA-001 — both keys persisted when supplied.
+        $this->settingMapper->expects($this->exactly(2))
+            ->method('setSetting');
+
+        $this->service->updateSettings(
+            maxDashboardsPerUser: 5,
+            maxWidgetsPerDashboard: 40
+        );
+    }//end testUpdateSettingsPersistsBothQuotaValues()
+
+    public function testClampQuotaCoercesNonNumericToZero(): void
+    {
+        // REQ-QUOTA-001 — non-numeric input collapses to 0 (unlimited).
+        $this->assertSame(0, $this->service->clampQuota('not-a-number'));
+        $this->assertSame(0, $this->service->clampQuota(null));
+        $this->assertSame(7, $this->service->clampQuota('7'));
+        $this->assertSame(10000, $this->service->clampQuota(10001));
+    }//end testClampQuotaCoercesNonNumericToZero()
 
     public function testGetSettingsSharingAndBridgeDefaults(): void
     {

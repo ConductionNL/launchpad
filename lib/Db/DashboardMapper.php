@@ -538,6 +538,53 @@ class DashboardMapper extends QBMapper
     }//end countByGroup()
 
     /**
+     * Count the personal (`user`-type) dashboards owned by a user.
+     *
+     * Mirrors {@see self::findByUserId()} scope filtering — only
+     * `type = 'user'` rows owned by `$userId` are counted, so group- and
+     * admin-scope dashboards routed to the user never inflate the count
+     * (dashboard-quota-limits REQ-QUOTA-002). Used by the quota service as
+     * a cheap live `COUNT(*)` on the indexed owner/type columns instead of
+     * hydrating every entity.
+     *
+     * @param string $userId The owner user ID.
+     *
+     * @return int The number of personal dashboards owned by the user.
+     *
+     * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-002-dashboard-count-enforcement
+     */
+    public function countPersonalByUserId(string $userId): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('*', 'cnt'))
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'user_id',
+                    y: $qb->createNamedParameter(value: $userId)
+                )
+            )
+            ->andWhere(
+                $qb->expr()->eq(
+                    x: 'type',
+                    y: $qb->createNamedParameter(
+                        value: Dashboard::TYPE_USER
+                    )
+                )
+            );
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false || isset($row['cnt']) === false) {
+            return 0;
+        }
+
+        return (int) $row['cnt'];
+    }//end countPersonalByUserId()
+
+    /**
      * Clear default flag on every group-shared dashboard in a group.
      *
      * Issues `UPDATE oc_launchpad_dashboards SET is_default = 0 WHERE

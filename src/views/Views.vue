@@ -15,6 +15,8 @@
 			:allow-user-dashboards="allowUserDashboards"
 			:can-edit="canEdit"
 			:default-uuid="defaultDashboardUuid"
+			:dashboard-quota-reached="dashboardQuotaReached"
+			:dashboard-quota-tooltip="dashboardQuotaTooltip"
 			:is-edit-mode="isEditMode"
 			:mode="workspaceMode"
 			@mode-change="onWorkspaceModeChange"
@@ -378,6 +380,10 @@ export default {
 			'userDashboards',
 			'groupSharedDashboards',
 			'defaultGroupDashboards',
+			// dashboard-quota-limits REQ-QUOTA-006: drive the disabled
+			// create affordance + tooltip from the store getters.
+			'dashboardQuotaReached',
+			'dashboardQuotaTooltip',
 		]),
 		...mapState(useWidgetStore, ['availableWidgets']),
 		...mapState(useTileStore, ['tiles']),

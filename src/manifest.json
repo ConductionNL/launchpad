@@ -2,6 +2,17 @@
   "$schema": "https://unpkg.com/@conduction/nextcloud-vue@latest/dist/schemas/app-manifest.schema.json",
   "version": "0.1.0",
   "dependencies": [],
+  "widgets": [
+    {
+      "id": "launchpad_spend_analytics",
+      "type": "spend-analytics",
+      "label": "launchpad.widgets.spendAnalytics",
+      "icon": "icon-spend-analytics",
+      "requires": {
+        "graphql": ["financeq.transactions", "procest.cases"]
+      }
+    }
+  ],
   "menu": [
     {
       "id": "dashboards",

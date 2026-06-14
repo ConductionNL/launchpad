@@ -70,6 +70,15 @@
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
+ *
+ * REQ-SAW-001..003: The widget type `spend-analytics` MUST be registered with
+ * a renderer reference to `SpendAnalyticsWidget.vue`, a form reference to
+ * `SpendAnalyticsForm.vue`, a `defaultContent` of `{viewMode:'summary',
+ * period:'quarter', filters:{categoryIds:[], departmentIds:[], vendorIds:[]},
+ * drillThroughTarget:'detail-page', attachEvidence:true,
+ * aiInsights:{enabled:false}}`, and a soft `requires.graphql` of at minimum
+ * `['financeq.transactions', 'procest.cases']`. The `requires` clause is a
+ * runtime-source hint only — it MUST NOT appear in `manifest.dependencies`.
  */
 
 import LabelWidget from '../components/Widgets/Renderers/LabelWidget.vue'
@@ -106,6 +115,8 @@ import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue
 import ContainerForm from '../components/Widgets/Forms/ContainerForm.vue'
 import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
 import TileForm from '../components/Widgets/Forms/TileForm.vue'
+import SpendAnalyticsWidget from '../components/Widgets/Renderers/SpendAnalyticsWidget.vue'
+import SpendAnalyticsForm from '../components/Widgets/Forms/SpendAnalyticsForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -114,6 +125,7 @@ import TileForm from '../components/Widgets/Forms/TileForm.vue'
  * @property {object} defaultContent Initial `content` payload for new placements
  * @property {string} displayName Human-readable type name for the type picker
  * @property {string} icon Material Design icon name used in the type picker
+ * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets — names the sibling-app GraphQL schemas the widget reads (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
  */
 
 /** @type {Record<string, WidgetRegistryEntry>} */
@@ -403,6 +415,28 @@ export const widgetRegistry = {
 		},
 		displayName: t('launchpad', 'Tile'),
 		icon: 'ViewGrid',
+	},
+	// REQ-SAW-001/-002/-003: spend-analytics widget — consumes runtime
+	// GraphQL from financeq + procest. The soft `requires.graphql`
+	// declaration names the sibling-app schemas it reads; it MUST NEVER
+	// be promoted to a top-level `manifest.dependencies` entry
+	// (feedback_launchpad-no-or-dependency.md) — the renderer registers
+	// regardless and falls back to an empty-state when a source is
+	// absent at runtime.
+	'spend-analytics': {
+		renderer: SpendAnalyticsWidget,
+		form: SpendAnalyticsForm,
+		defaultContent: {
+			viewMode: 'summary',
+			period: 'quarter',
+			filters: { categoryIds: [], departmentIds: [], vendorIds: [] },
+			drillThroughTarget: 'detail-page',
+			attachEvidence: true,
+			aiInsights: { enabled: false },
+		},
+		requires: { graphql: ['financeq.transactions', 'procest.cases'] },
+		displayName: t('launchpad', 'Spend analytics'),
+		icon: 'ChartLine',
 	},
 }
 

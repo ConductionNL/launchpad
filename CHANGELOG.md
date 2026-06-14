@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- **Dashboard quota limits** (`dashboard-quota-limits`): two
+  admin-configurable numeric quotas — `maxDashboardsPerUser` and
+  `maxWidgetsPerDashboard` — with server-side fail-closed enforcement on
+  every user-initiated creation path (create, duplicate, fork, import,
+  add-widget / add-tile) via a single `QuotaService`. Both default to `0`
+  (unlimited), so behaviour is unchanged on upgrade. Exceeding a limit
+  returns HTTP 409 with a structured `quota_exceeded` body; the dashboards
+  list response carries an additive `quota` envelope so the UI disables the
+  "Add dashboard" / "Add widget" affordances at the limit with a localised
+  tooltip. Lowering a limit never deletes or hides existing data
+  (grandfathering); `allowMultipleDashboards = false` is honoured as an
+  effective limit of 1 (most-restrictive-wins); admin template rollout and
+  compulsory-widget pushes are exempt via an explicit provisioning bypass.
+
 ### Deferred
 
 - **Admin group-management UI** (`multi-scope-dashboards` Task 13):

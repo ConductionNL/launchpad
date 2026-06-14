@@ -1031,7 +1031,13 @@ OC.L10N.register(
     "Delete" : "Delete",
     "Close" : "Close",
     "New dashboard name" : "New dashboard name",
-    "Delete this dashboard? This cannot be undone." : "Delete this dashboard? This cannot be undone."
+    "Delete this dashboard? This cannot be undone." : "Delete this dashboard? This cannot be undone.",
+    "Maximum dashboards per user" : "Maximum dashboards per user",
+    "Maximum widgets per dashboard" : "Maximum widgets per dashboard",
+    "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.",
+    "0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt." : "0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.",
+    "You have reached the limit of {limit} dashboards" : "You have reached the limit of {limit} dashboards",
+    "You have reached the limit of {limit} widgets on this dashboard" : "You have reached the limit of {limit} widgets on this dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

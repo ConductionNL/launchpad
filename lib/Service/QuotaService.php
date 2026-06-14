@@ -145,7 +145,7 @@ class QuotaService
      */
     public function assertCanCreateDashboard(string $userId): void
     {
-        if ($this->provisioningDepth > 0) {
+        if ($this->isProvisioning() === true) {
             return;
         }
 

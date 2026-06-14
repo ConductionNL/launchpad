@@ -1031,7 +1031,13 @@ OC.L10N.register(
     "Delete" : "Verwijderen",
     "Close" : "Sluiten",
     "New dashboard name" : "Nieuwe dashboardnaam",
-    "Delete this dashboard? This cannot be undone." : "Dit dashboard verwijderen? Dit kan niet ongedaan worden gemaakt."
+    "Delete this dashboard? This cannot be undone." : "Dit dashboard verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "Maximum dashboards per user" : "Maximum aantal dashboards per gebruiker",
+    "Maximum widgets per dashboard" : "Maximum aantal widgets per dashboard",
+    "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = onbeperkt. Een limiet verlagen verwijdert nooit bestaande dashboards; het blokkeert alleen nieuwe totdat gebruikers weer onder de limiet zitten.",
+    "0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt." : "0 = onbeperkt. Telt plaatsingen op één dashboard. Uitrol van beheerdersjablonen en verplichte widgets zijn uitgezonderd.",
+    "You have reached the limit of {limit} dashboards" : "Je hebt de limiet van {limit} dashboards bereikt",
+    "You have reached the limit of {limit} widgets on this dashboard" : "Je hebt de limiet van {limit} widgets op dit dashboard bereikt"
 },
 "nplurals=2; plural=(n != 1);"
 );

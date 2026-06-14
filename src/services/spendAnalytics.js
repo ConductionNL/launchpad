@@ -35,7 +35,8 @@ export const SPEND_SOURCES = Object.freeze({
  * "the query MUST include the period filter as a variable").
  */
 export const FINANCE_SPEND_QUERY = `query SpendSummary($period: String!, $categoryIds: [String!], $departmentIds: [String!]) {
-  transactions(period: $period, categoryIds: $categoryIds, departmentIds: $departmentIds) {
+  transactions(period: $period, categoryIds: $categoryIds, departmentIds: $departmentIds)
+  {
     totalAmount
     currency
     category
@@ -47,7 +48,8 @@ export const FINANCE_SPEND_QUERY = `query SpendSummary($period: String!, $catego
  * procest vendor commitment query — committed spend per vendor on cases.
  */
 export const PROCEST_VENDOR_QUERY = `query VendorCommitments($period: String!, $vendorIds: [String!]) {
-  cases(period: $period, vendorIds: $vendorIds) {
+  cases(period: $period, vendorIds: $vendorIds)
+  {
     vendor
     totalCommitted
     caseId
@@ -79,6 +81,7 @@ function toUnavailable(err, app) {
  * @param {string[]} [params.departmentIds] cost-centre filter
  * @return {Promise<object>} `{available, total, currency, byCategory, trend}`
  *   or `{available:false, reason, code}` when financeq is absent/empty
+ * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export async function fetchFinanceSummary({ period, categoryIds = [], departmentIds = [] }) {
 	let data
@@ -131,6 +134,7 @@ export async function fetchFinanceSummary({ period, categoryIds = [], department
  * @param {string[]} [params.vendorIds]  supplier filter
  * @return {Promise<object>} `{available, topVendors}` or
  *   `{available:false, reason, code}` when procest is absent
+ * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export async function fetchVendorCommitments({ period, vendorIds = [] }) {
 	let data
@@ -183,6 +187,7 @@ export const LLM_SOURCE_ALIAS = 'local-llm'
  * @param {number} [params.timeoutMs]  per-call timeout
  * @return {Promise<object>} `{available:true, narrative}` or
  *   `{available:false, reason, code}`
+ * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export async function fetchSpendNarrative({ summary, timeoutMs = 5000 }) {
 	const url = generateUrl('/apps/openconnector/api/sources/{source}/call', { source: LLM_SOURCE_ALIAS })
@@ -222,6 +227,7 @@ export async function fetchSpendNarrative({ summary, timeoutMs = 5000 }) {
  * @param {string} kind   the entity kind segment (e.g. `transaction`)
  * @param {string} id     the entity identifier
  * @return {string} the sibling app's detail URL
+ * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export function resolveDeepLink(app, kind, id) {
 	return generateUrl('/apps/{app}/{kind}/{id}', { app, kind, id: String(id) })

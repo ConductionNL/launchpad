@@ -50,7 +50,9 @@
 
 				<!-- Trend view. -->
 				<section v-if="viewMode === 'trend'" class="spend-analytics-widget__panel">
-					<h3 class="spend-analytics-widget__panel-title">{{ t('launchpad', 'Spend trend') }}</h3>
+					<h3 class="spend-analytics-widget__panel-title">
+						{{ t('launchpad', 'Spend trend') }}
+					</h3>
 					<ul class="spend-analytics-widget__bars">
 						<li v-for="row in finance.trend" :key="row.month" class="spend-analytics-widget__bar-row">
 							<span class="spend-analytics-widget__bar-label">{{ row.month }}</span>
@@ -61,7 +63,9 @@
 
 				<!-- Top categories view. -->
 				<section v-else-if="viewMode === 'top-categories'" class="spend-analytics-widget__panel">
-					<h3 class="spend-analytics-widget__panel-title">{{ t('launchpad', 'Top categories') }}</h3>
+					<h3 class="spend-analytics-widget__panel-title">
+						{{ t('launchpad', 'Top categories') }}
+					</h3>
 					<ul class="spend-analytics-widget__rows">
 						<li
 							v-for="row in finance.byCategory"
@@ -79,7 +83,9 @@
 
 				<!-- Top vendors view (procest-sourced; own empty-state inline). -->
 				<section v-else-if="viewMode === 'top-vendors'" class="spend-analytics-widget__panel">
-					<h3 class="spend-analytics-widget__panel-title">{{ t('launchpad', 'Top vendors') }}</h3>
+					<h3 class="spend-analytics-widget__panel-title">
+						{{ t('launchpad', 'Top vendors') }}
+					</h3>
 					<div v-if="vendorMissing" class="spend-analytics-widget__empty spend-analytics-widget__empty--inline">
 						{{ t('launchpad', 'No vendor data — procest is not installed') }}
 					</div>
@@ -103,11 +109,15 @@
 
 				<!-- AI narrative panel (REQ-SAW-006). -->
 				<section v-if="aiEnabled" class="spend-analytics-widget__panel spend-analytics-widget__ai">
-					<h3 class="spend-analytics-widget__panel-title">{{ t('launchpad', 'AI insight') }}</h3>
+					<h3 class="spend-analytics-widget__panel-title">
+						{{ t('launchpad', 'AI insight') }}
+					</h3>
 					<div v-if="aiUnavailable" class="spend-analytics-widget__empty spend-analytics-widget__empty--inline">
 						{{ t('launchpad', 'AI insight unavailable — the local LLM source is not configured') }}
 					</div>
-					<p v-else-if="aiNarrative" class="spend-analytics-widget__ai-text">{{ aiNarrative }}</p>
+					<p v-else-if="aiNarrative" class="spend-analytics-widget__ai-text">
+						{{ aiNarrative }}
+					</p>
 					<button
 						v-else
 						type="button"
@@ -182,22 +192,27 @@ export default {
 			return this.content?.aiInsights?.enabled === true
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		financeMissing() {
 			return this.finance.available === false
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		financeEmpty() {
 			return this.finance.available === true && this.finance.empty === true
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		vendorMissing() {
 			return this.vendor.available === false
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		vendorEmpty() {
 			return this.vendor.available === true && this.vendor.empty === true
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		periodOptions() {
 			return [
 				{ value: 'month', label: t('launchpad', 'This month') },
@@ -212,6 +227,7 @@ export default {
 			return this.formatAmount(this.finance.total)
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		totalAriaLabel() {
 			return t('launchpad', 'Total spend: {amount}', { amount: this.formattedTotal })
 		},
@@ -219,6 +235,7 @@ export default {
 
 	watch: {
 		// Re-fetch when the view mode changes (top-vendors needs procest).
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		viewMode() {
 			this.scheduleFetch()
 		},
@@ -228,6 +245,7 @@ export default {
 		this.fetchData()
 	},
 
+	/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 	beforeDestroy() {
 		if (this.debounceTimer) {
 			clearTimeout(this.debounceTimer)
@@ -235,7 +253,10 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
+		/**
+		 * @param value
+		 * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
+		 */
 		onPeriodChange(value) {
 			if (PERIODS.includes(value)) {
 				this.period = value
@@ -315,6 +336,9 @@ export default {
 		 * REQ-SAW-007: deep-link a row to the owning sibling app's detail
 		 * surface — launchpad never mirrors a sibling-app page.
 		 *
+		 * @param app
+		 * @param kind
+		 * @param id
 		 * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
 		 */
 		drillTo(app, kind, id) {

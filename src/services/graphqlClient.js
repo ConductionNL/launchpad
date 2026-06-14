@@ -50,6 +50,7 @@ export class GraphQLSourceError extends Error {
 	 * @param {string} code   Stable error enum.
 	 * @param {string} app    The sibling app id the call targeted.
 	 * @param {string} message Human-readable display message.
+	 * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
 	 */
 	constructor(code, app, message) {
 		super(message)
@@ -81,6 +82,7 @@ function resolveGraphqlUrl(app) {
  * @param {object} [params.variables]   query variables
  * @param {number} [params.timeoutMs]   per-operation timeout
  * @return {Promise<object>} the GraphQL `data` object
+ * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export async function queryGraphql({ app, query, variables = {}, timeoutMs = DEFAULT_TIMEOUT_MS }) {
 	if (typeof app !== 'string' || app.trim() === '') {

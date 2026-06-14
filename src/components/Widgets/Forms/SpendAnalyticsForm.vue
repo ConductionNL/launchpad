@@ -157,14 +157,17 @@ export default {
 			]
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		categoryIdsString() {
 			return this.categoryIds.join(', ')
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		departmentIdsString() {
 			return this.departmentIds.join(', ')
 		},
 
+		/** @spec openspec/specs/launchpad-spend-analytics-widget/spec.md */
 		vendorIdsString() {
 			return this.vendorIds.join(', ')
 		},

@@ -67,9 +67,15 @@ describe('SpendAnalyticsWidget (REQ-SAW-004..-007)', () => {
 		fetchVendorCommitments.mockResolvedValue({ available: true, empty: false, topVendors: [{ vendor: 'acme', committed: 50 }] })
 		const wrapper = mount(SpendAnalyticsWidget, { propsData: { content: { viewMode: 'top-vendors', period: 'quarter' } } })
 		await flush()
-		// drillTo assigns window.location.href; assert the resolver is called with the owning app.
+		// jsdom cannot perform real navigation; capture the href assignment.
+		const hrefSetter = vi.fn()
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			value: { set href(v) { hrefSetter(v) } },
+		})
 		wrapper.vm.drillTo('procest', 'vendor', 'acme')
 		expect(resolveDeepLink).toHaveBeenCalledWith('procest', 'vendor', 'acme')
+		expect(hrefSetter).toHaveBeenCalledWith('/apps/procest/vendor/acme')
 	})
 
 	it('formats currency by locale', async () => {

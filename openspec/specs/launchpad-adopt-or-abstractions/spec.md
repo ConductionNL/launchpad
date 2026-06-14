@@ -1,18 +1,8 @@
----
-status: draft
----
-
-# LaunchPad — adopt OR abstractions
+# launchpad-adopt-or-abstractions Specification
 
 ## Purpose
-
-Specify the requirements for LaunchPad's adoption of the
-`@conduction/nextcloud-vue` app-manifest contract and the
-runtime-only consumption pattern for OpenRegister data, while
-explicitly forbidding install-time OR / OC dependencies.
-
-## ADDED Requirements
-
+TBD - created by archiving change launchpad-adopt-or-abstractions. Update Purpose after archive.
+## Requirements
 ### Requirement: LaunchPad MUST ship an architectural manifest at `src/manifest.json`
 
 LaunchPad MUST add `src/manifest.json` conforming to the JSON Schema
@@ -126,9 +116,10 @@ state when OR is absent or returns 5xx.
 
 ### Requirement: LaunchPad widgets MUST pass `?_lang=` when fetching translatable OR data
 
-When a widget fetches an OR object that exposes translatable
-properties, the request URL MUST include the `?_lang={BCP47}` query
-parameter set to the user's current Nextcloud locale.
+Widgets MUST stamp `?_lang={BCP47}` on every OR fetch: when a widget
+fetches an OR object that exposes translatable properties, the request
+URL MUST include the `?_lang={BCP47}` query parameter set to the user's
+current Nextcloud locale.
 
 This is a downstream consumer of
 `openregister/openspec/changes/i18n-api-language-negotiation/`.
@@ -156,10 +147,11 @@ This is a downstream consumer of
 
 ### Requirement: LaunchPad widgets MUST consume `useTenantContext()` from nc-vue when surfacing tenant-scoped OR data
 
-Once the `multi-tenancy-context` change in
-`nextcloud-vue/openspec/changes/` is released in a versioned
-package, LaunchPad widgets MUST adopt the composable to refetch on
-tenant switch and to stamp `X-OpenRegister-Organisation` on writes.
+LaunchPad widgets MUST adopt `useTenantContext()` once it is available:
+once the `multi-tenancy-context` change in
+`nextcloud-vue/openspec/changes/` is released in a versioned package,
+LaunchPad widgets MUST use the composable to refetch on tenant switch
+and to stamp `X-OpenRegister-Organisation` on writes.
 
 #### Scenario: Tenant switch refetches widget data
 
@@ -216,9 +208,9 @@ references an OR object UUID and OR is enabled.
 
 ### Requirement: Admin templates MUST persist in `oc_launchpad_admin_settings`
 
-Admin dashboard templates (the named, exportable dashboard
-configurations admins distribute to groups) MUST persist in the
-local `oc_launchpad_admin_settings` table.
+Admin templates MUST persist locally: admin dashboard templates (the
+named, exportable dashboard configurations admins distribute to groups)
+MUST persist in the local `oc_launchpad_admin_settings` table.
 
 Admin templates MUST NOT be persisted in OR.
 
@@ -260,9 +252,10 @@ independent of JSON-schema `type` semantics.
 
 ### Requirement: AdminSetting keys MUST live under a single typed list
 
-The eight `KEY_*` admin-config keys in `lib/Db/AdminSetting.php`
-MUST be collected into a single `AdminSettingKey` const-list (or
-PHP 8.1 `enum`). Existing constants MAY be kept as aliases for BC.
+AdminSetting keys MUST be unified: the eight `KEY_*` admin-config keys
+in `lib/Db/AdminSetting.php` MUST be collected into a single
+`AdminSettingKey` const-list (or PHP 8.1 `enum`). Existing constants MAY
+be kept as aliases for BC.
 
 #### Scenario: Key list is single-source-of-truth
 
@@ -297,3 +290,4 @@ PHP 8.1 `enum`). Existing constants MAY be kept as aliases for BC.
 - WHEN the regex matches `template_v2.json`
 - THEN the result MUST be a match
 - AND the unit test MUST assert `true`
+

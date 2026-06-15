@@ -26,8 +26,6 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 
 ### Requirement: REQ-SHELL-002 Edit affordances gated by canEdit
 
-@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
-
 `canEdit` (`isAdmin || dashboardSource === 'user'`) MUST gate:
 
 - The per-widget right-click context menu (REQ-WDG-015)
@@ -35,6 +33,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `l
 - The action menu's edit entries: "Add custom widget…", "Save dashboard", "Dashboard configuration…"
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
+@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
 
 #### Scenario: Non-edit user has no edit affordances visible
 
@@ -56,6 +55,7 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 
 #### Scenario: Add-widget dropdown lists all widget types
 
+@e2e exclude registry-driven dropdown contents — covered by Vitest component test
 - GIVEN the widget-type registry contains 5 entries
 - WHEN the user opens the Add Widget dropdown
 - THEN it MUST display 5 menu items, one per registered type
@@ -63,6 +63,7 @@ When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Ad
 
 #### Scenario: Save sends layout to correct endpoint
 
+@e2e exclude PUT request shape/endpoint assertion — covered by Vitest + Newman
 - GIVEN `dashboardSource: 'user'` and `activeDashboardId: 'abc'`
 - WHEN the user clicks Save
 - THEN the system MUST send `PUT /api/dashboards/abc` with body `{layout: <current widgets>}`
@@ -116,9 +117,8 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 
 ### Requirement: Empty state (REQ-SHELL-005)
 
-@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
-
 When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
+@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
 
 #### Scenario: Empty state with creation enabled
 
@@ -138,9 +138,8 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 
 ### Requirement: Sidebar backdrop (REQ-SHELL-006)
 
-@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
-
 When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop that intercepts clicks and closes the sidebar. The backdrop MUST start at the same `top` offset as the Nextcloud header (50 px) and span the rest of the viewport. Clicks on the sidebar itself MUST NOT close the sidebar.
+@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
 
 #### Scenario: Backdrop closes sidebar on click
 
@@ -156,9 +155,8 @@ When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop th
 
 ### Requirement: Lifecycle hooks (REQ-SHELL-007)
 
-@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
-
 The shell MUST register a global `document.click` listener on mount (delegated to the grid composable's `handleClickOutside`) and remove it on unmount. The GridStack instance MUST be initialised after `nextTick()` (so the grid container ref is non-null) and destroyed on unmount.
+@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
 
 #### Scenario: Listener and grid registered after mount
 

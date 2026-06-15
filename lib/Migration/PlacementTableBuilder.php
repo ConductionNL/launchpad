@@ -6,7 +6,7 @@
  * Builder for the widget placements database table schema.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -27,7 +27,7 @@ use OCP\DB\Types;
 class PlacementTableBuilder
 {
     /**
-     * Create the mydash_widget_placements table.
+     * Create the launchpad_widget_placements table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -36,14 +36,14 @@ class PlacementTableBuilder
     public static function create(ISchemaWrapper $schema): void
     {
         if ($schema->hasTable(
-            'mydash_widget_placements'
+            'launchpad_widget_placements'
         ) === true
         ) {
             return;
         }
 
         $table = $schema->createTable(
-            'mydash_widget_placements'
+            'launchpad_widget_placements'
         );
 
         self::addColumns(table: $table);
@@ -194,11 +194,11 @@ class PlacementTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addIndex(
             ['dashboard_id'],
-            'mydash_placement_dashboard'
+            'launchpad_placement_dash'
         );
         $table->addIndex(
             ['widget_id'],
-            'mydash_placement_widget'
+            'launchpad_placement_widget'
         );
     }//end addIndexes()
 }//end class

@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
   -
   - FeedTokenManager
@@ -12,50 +12,50 @@
   -->
 
 <template>
-	<div class="mydash-feed-token">
-		<h3 class="mydash-feed-token__title">
-			{{ t('mydash', 'RSS / Atom feed') }}
+	<div class="launchpad-feed-token">
+		<h3 class="launchpad-feed-token__title">
+			{{ t('launchpad', 'RSS / Atom feed') }}
 		</h3>
-		<p class="mydash-feed-token__description">
-			{{ t('mydash', 'Your personal RSS feed of accessible dashboards.') }}
+		<p class="launchpad-feed-token__description">
+			{{ t('launchpad', 'Your personal RSS feed of accessible dashboards.') }}
 		</p>
 
-		<div v-if="loading" class="mydash-feed-token__loading">
-			{{ t('mydash', 'Loading…') }}
+		<div v-if="loading" class="launchpad-feed-token__loading">
+			{{ t('launchpad', 'Loading…') }}
 		</div>
 
-		<div v-else-if="hasToken" class="mydash-feed-token__active">
-			<div class="mydash-feed-token__url-row">
+		<div v-else-if="hasToken" class="launchpad-feed-token__active">
+			<div class="launchpad-feed-token__url-row">
 				<input
 					ref="urlInput"
 					type="text"
 					readonly
-					class="mydash-feed-token__url"
+					class="launchpad-feed-token__url"
 					:value="feedUrl">
 				<button
 					type="button"
-					class="mydash-feed-token__copy"
+					class="launchpad-feed-token__copy"
 					@click="copyUrl">
-					{{ t('mydash', 'Copy feed URL') }}
+					{{ t('launchpad', 'Copy feed URL') }}
 				</button>
 			</div>
-			<p class="mydash-feed-token__warning">
-				{{ t('mydash', 'Treat this URL as a password — anyone with the link can read your dashboards.') }}
+			<p class="launchpad-feed-token__warning">
+				{{ t('launchpad', 'Treat this URL as a password — anyone with the link can read your dashboards.') }}
 			</p>
-			<div class="mydash-feed-token__actions">
+			<div class="launchpad-feed-token__actions">
 				<button type="button" @click="regenerate">
-					{{ t('mydash', 'Regenerate feed token') }}
+					{{ t('launchpad', 'Regenerate feed token') }}
 				</button>
-				<button type="button" class="mydash-feed-token__revoke" @click="revoke">
-					{{ t('mydash', 'Revoke feed token') }}
+				<button type="button" class="launchpad-feed-token__revoke" @click="revoke">
+					{{ t('launchpad', 'Revoke feed token') }}
 				</button>
 			</div>
 		</div>
 
-		<div v-else class="mydash-feed-token__inactive">
-			<p>{{ t('mydash', 'No feed token issued yet.') }}</p>
+		<div v-else class="launchpad-feed-token__inactive">
+			<p>{{ t('launchpad', 'No feed token issued yet.') }}</p>
 			<button type="button" @click="enable">
-				{{ t('mydash', 'Generate feed token') }}
+				{{ t('launchpad', 'Generate feed token') }}
 			</button>
 		</div>
 	</div>
@@ -93,7 +93,7 @@ export default {
 				const { data } = await api.getFeedToken()
 				this.applyToken(data)
 			} catch (error) {
-				showError(t('mydash', 'Generate feed token'))
+				showError(t('launchpad', 'Generate feed token'))
 			} finally {
 				this.loading = false
 			}
@@ -106,7 +106,7 @@ export default {
 				const { data } = await api.regenerateFeedToken()
 				this.applyToken(data)
 			} catch (error) {
-				showError(t('mydash', 'Regenerate feed token'))
+				showError(t('launchpad', 'Regenerate feed token'))
 			} finally {
 				this.loading = false
 			}
@@ -120,7 +120,7 @@ export default {
 				this.feedUrl = ''
 				this.feedToken = ''
 			} catch (error) {
-				showError(t('mydash', 'Revoke feed token'))
+				showError(t('launchpad', 'Revoke feed token'))
 			} finally {
 				this.loading = false
 			}
@@ -142,12 +142,12 @@ export default {
 			}
 			try {
 				await navigator.clipboard.writeText(this.feedUrl)
-				showSuccess(t('mydash', 'Feed URL copied to clipboard'))
+				showSuccess(t('launchpad', 'Feed URL copied to clipboard'))
 			} catch (error) {
 				if (this.$refs.urlInput) {
 					this.$refs.urlInput.select()
 				}
-				showError(t('mydash', 'Copy feed URL'))
+				showError(t('launchpad', 'Copy feed URL'))
 			}
 		},
 	},
@@ -155,7 +155,7 @@ export default {
 </script>
 
 <style scoped>
-.mydash-feed-token {
+.launchpad-feed-token {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
@@ -164,41 +164,41 @@ export default {
 	border-radius: 8px;
 }
 
-.mydash-feed-token__title {
+.launchpad-feed-token__title {
 	margin: 0;
 	font-size: 16px;
 	font-weight: 600;
 }
 
-.mydash-feed-token__description {
+.launchpad-feed-token__description {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
 }
 
-.mydash-feed-token__url-row {
+.launchpad-feed-token__url-row {
 	display: flex;
 	gap: 8px;
 }
 
-.mydash-feed-token__url {
+.launchpad-feed-token__url {
 	flex: 1;
 	font-family: monospace;
 	font-size: 12px;
 	padding: 6px 8px;
 }
 
-.mydash-feed-token__warning {
+.launchpad-feed-token__warning {
 	color: var(--color-warning);
 	margin: 0;
 	font-size: 12px;
 }
 
-.mydash-feed-token__actions {
+.launchpad-feed-token__actions {
 	display: flex;
 	gap: 8px;
 }
 
-.mydash-feed-token__revoke {
+.launchpad-feed-token__revoke {
 	color: var(--color-error);
 }
 </style>

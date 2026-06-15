@@ -8,7 +8,7 @@
  * Throttling uses IThrottler with IP-global action names per design D1/D2.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,16 +23,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\PublicShare;
-use OCA\MyDash\Db\PublicShareMapper;
-use OCA\MyDash\Exception\ShareExpiredException;
-use OCA\MyDash\Exception\ShareNotFoundException;
-use OCA\MyDash\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\PublicShare;
+use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Exception\ShareExpiredException;
+use OCA\LaunchPad\Exception\ShareNotFoundException;
+use OCA\LaunchPad\Exception\SharePasswordRequiredException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;

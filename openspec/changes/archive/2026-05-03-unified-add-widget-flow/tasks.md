@@ -16,7 +16,7 @@
 
 ## 3. Registry entry
 
-- [x] 3.1 Add `tile` entry to `src/constants/widgetRegistry.js` with `renderer: TileWidget, form: TileForm, defaultContent: {title:'', icon:'', iconType:'class', backgroundColor:'#3b82f6', textColor:'#ffffff', linkType:'app', linkValue:''}, displayName: t('mydash', 'Tile'), icon: 'ViewGrid'`
+- [x] 3.1 Add `tile` entry to `src/constants/widgetRegistry.js` with `renderer: TileWidget, form: TileForm, defaultContent: {title:'', icon:'', iconType:'class', backgroundColor:'#3b82f6', textColor:'#ffffff', linkType:'app', linkValue:''}, displayName: t('launchpad', 'Tile'), icon: 'ViewGrid'`
 - [x] 3.2 Verify `listWidgetTypes(t)` now returns the tile type alongside label/text/image/link/nc-widget
 
 ## 4. Remove old tile creation flow
@@ -54,4 +54,4 @@
 
 ## 9. Rollback plan
 
-- [x] 9.1 If a customer reports breakage on tile placements: the renderer's dual-shape support means rollback is limited to re-enabling the menu entries — the data is intact in `oc_mydash_widget_placements`. Document this in DEVELOPMENT.md.
+- [x] 9.1 If a customer reports breakage on tile placements: the renderer's dual-shape support means rollback is limited to re-enabling the menu entries — the data is intact in `oc_launchpad_widget_placements`. Document this in DEVELOPMENT.md.

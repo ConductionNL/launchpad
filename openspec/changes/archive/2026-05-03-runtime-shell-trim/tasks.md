@@ -2,7 +2,7 @@
 
 ## 1. Remove top toolbar
 
-- [ ] 1.1 Delete the toolbar region (`<div class="mydash-workspace__toolbar">` or equivalent) from `src/views/WorkspaceApp.vue`
+- [ ] 1.1 Delete the toolbar region (`<div class="launchpad-workspace__toolbar">` or equivalent) from `src/views/WorkspaceApp.vue`
 - [ ] 1.2 Remove `saving` local state, `saveLayout()` method, and any related computed/watch hooks now that the manual save button is gone
 - [ ] 1.3 Drop the toolbar CSS grid row from `src/styles/workspace.css`; collapse the 4-region layout to 3 regions (sidebar / title strip / grid)
 - [ ] 1.4 Verify auto-save (REQ-GRID-005, 300ms debounce) still fires on widget moves/resizes — no regression
@@ -15,7 +15,7 @@
 
 ## 3. Restyle hamburger toggle
 
-- [ ] 3.1 Replace the bespoke hamburger button with `<NcButton type="tertiary" :aria-label="t('mydash', 'Open menu')"><template #icon><MenuIcon :size="20" /></template></NcButton>` matching the Nextcloud account-button shape
+- [ ] 3.1 Replace the bespoke hamburger button with `<NcButton type="tertiary" :aria-label="t('launchpad', 'Open menu')"><template #icon><MenuIcon :size="20" /></template></NcButton>` matching the Nextcloud account-button shape
 - [ ] 3.2 Hover/focus/active states inherit from NcButton; drop bespoke CSS
 - [ ] 3.3 Verify keyboard focus ring matches the account button's ring exactly
 

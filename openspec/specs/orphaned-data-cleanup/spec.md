@@ -6,21 +6,21 @@ status: implemented
 
 ## Purpose
 
-Provide administrators with a comprehensive, safe, and auditable mechanism to scan for and remove orphaned MyDash data: expired locks and tokens, widget assets from deleted dashboards, metadata-value rows with missing field definitions, placements with no dashboard, tokens for deleted users, role assignments for deleted users/groups, and translations for deleted dashboards. The capability MUST support dry-run (safe preview), per-category selectivity (scan vs. auto-purge), background automation (daily safe-categories job), and audit trails (activity events). A registry pattern enables adding new cleanup categories without editing central code.
+Provide administrators with a comprehensive, safe, and auditable mechanism to scan for and remove orphaned LaunchPad data: expired locks and tokens, widget assets from deleted dashboards, metadata-value rows with missing field definitions, placements with no dashboard, tokens for deleted users, role assignments for deleted users/groups, and translations for deleted dashboards. The capability MUST support dry-run (safe preview), per-category selectivity (scan vs. auto-purge), background automation (daily safe-categories job), and audit trails (activity events). A registry pattern enables adding new cleanup categories without editing central code.
 
 ## Data Model
 
 Orphaned data exists in multiple tables and file locations. This spec defines what constitutes orphaned and the cleanup strategy for each:
 
-- **expired_locks**: rows in `oc_mydash_dashboard_locks` where `updated_at` is older than `now - LOCK_TIMEOUT` (15 minutes).
-- **expired_share_tokens**: rows in `oc_mydash_dashboard_shares` whose `dashboard_id` no longer points at any row in `oc_mydash_dashboards`. The MyDash share schema has no expiry/revocation columns at the time of writing; the dangling-FK orphan is the only orphan kind shares can currently produce. Future schema additions (revoked_at, expires_at) MAY extend this category without breaking the contract.
-- **orphaned_widget_assets**: files in `MyDash/Imports/*` and `MyDash/icons/*` (Nextcloud file storage) not referenced by any current dashboard or widget config. Optional; may be skipped on installs where the file backend is not provisioned.
-- **orphaned_metadata_values**: rows in `oc_mydash_metadata_values` where `fieldId` does NOT exist in `oc_mydash_metadata_fields`. Optional; available only on installs with the dashboard-metadata-fields feature.
-- **orphaned_widget_placements**: rows in `oc_mydash_widget_placements` whose `dashboard_id` does NOT exist in `oc_mydash_dashboards`.
-- **orphaned_conditional_rules**: rows in `oc_mydash_conditional_rules` whose `widget_placement_id` does NOT exist in `oc_mydash_widget_placements`.
-- **orphaned_feed_tokens**: rows in `oc_mydash_feed_tokens` where `userId` no longer exists in `oc_users`. Optional; available only on installs with the dashboard-rss-feeds feature.
-- **orphaned_role_assignments**: rows in `oc_mydash_role_assignments` where `userId` (or `groupId`) no longer exists in `oc_users` (or `oc_groups`). Optional; available only on installs with the admin-roles feature.
-- **dangling_dashboard_translations**: rows in `oc_mydash_dash_translations` where `dashboardUuid` no longer exists in `oc_mydash_dashboards`. Optional; available only on installs with the dashboard-language-content feature.
+- **expired_locks**: rows in `oc_launchpad_dashboard_locks` where `updated_at` is older than `now - LOCK_TIMEOUT` (15 minutes).
+- **expired_share_tokens**: rows in `oc_launchpad_dashboard_shares` whose `dashboard_id` no longer points at any row in `oc_launchpad_dashboards`. The LaunchPad share schema has no expiry/revocation columns at the time of writing; the dangling-FK orphan is the only orphan kind shares can currently produce. Future schema additions (revoked_at, expires_at) MAY extend this category without breaking the contract.
+- **orphaned_widget_assets**: files in `LaunchPad/Imports/*` and `LaunchPad/icons/*` (Nextcloud file storage) not referenced by any current dashboard or widget config. Optional; may be skipped on installs where the file backend is not provisioned.
+- **orphaned_metadata_values**: rows in `oc_launchpad_metadata_values` where `fieldId` does NOT exist in `oc_launchpad_metadata_fields`. Optional; available only on installs with the dashboard-metadata-fields feature.
+- **orphaned_widget_placements**: rows in `oc_launchpad_widget_placements` whose `dashboard_id` does NOT exist in `oc_launchpad_dashboards`.
+- **orphaned_conditional_rules**: rows in `oc_launchpad_conditional_rules` whose `widget_placement_id` does NOT exist in `oc_launchpad_widget_placements`.
+- **orphaned_feed_tokens**: rows in `oc_launchpad_feed_tokens` where `userId` no longer exists in `oc_users`. Optional; available only on installs with the dashboard-rss-feeds feature.
+- **orphaned_role_assignments**: rows in `oc_launchpad_role_assignments` where `userId` (or `groupId`) no longer exists in `oc_users` (or `oc_groups`). Optional; available only on installs with the admin-roles feature.
+- **dangling_dashboard_translations**: rows in `oc_launchpad_dash_translations` where `dashboardUuid` no longer exists in `oc_launchpad_dashboards`. Optional; available only on installs with the dashboard-language-content feature.
 
 Categories that map to optional features MUST report `isAvailable() === false` on installs where the feature is not present, so the orchestrator can skip them cleanly (REQ-CLN-001 "Scan handles missing tables gracefully") without erroring on a missing-table SQL fault. The shipped four categories (expired_locks, expired_share_tokens, orphaned_widget_placements, orphaned_conditional_rules) are always available because their tables are part of the core schema.
 
@@ -43,8 +43,8 @@ Administrators MUST be able to run a CLI command that reports all orphaned items
 
 #### Scenario: Scan finds orphaned items
 
-- GIVEN a MyDash installation with: 3 expired locks, 2 orphaned share tokens, 1 orphaned widget placement
-- WHEN an administrator runs `php occ mydash:cleanup:scan`
+- GIVEN a LaunchPad installation with: 3 expired locks, 2 orphaned share tokens, 1 orphaned widget placement
+- WHEN an administrator runs `php occ launchpad:cleanup:scan`
 - THEN the system MUST:
   - Query every registered category whose `isAvailable()` returns `true`
   - Display a table with one row per category, showing category name and count
@@ -53,15 +53,15 @@ Administrators MUST be able to run a CLI command that reports all orphaned items
 
 #### Scenario: Scan finds no orphans
 
-- GIVEN a clean MyDash installation with no orphaned data
-- WHEN an administrator runs `php occ mydash:cleanup:scan`
+- GIVEN a clean LaunchPad installation with no orphaned data
+- WHEN an administrator runs `php occ launchpad:cleanup:scan`
 - THEN the system MUST display a table with all categories showing count 0
 - AND return exit code 0 (success, no orphans)
 
 #### Scenario: Scan handles missing tables gracefully
 
-- GIVEN a MyDash installation where a feature (e.g., dashboard-rss-feeds) is not yet enabled
-- WHEN `php occ mydash:cleanup:scan` is run
+- GIVEN a LaunchPad installation where a feature (e.g., dashboard-rss-feeds) is not yet enabled
+- WHEN `php occ launchpad:cleanup:scan` is run
 - THEN the system MUST skip categories whose `CleanupCategoryInterface::isAvailable()` returns `false`
 - AND list the skipped categories under a "Skipped categories" comment line
 - AND return 0 if no other orphans exist
@@ -72,8 +72,8 @@ Administrators MUST be able to run a CLI command to DELETE orphaned items, with 
 
 #### Scenario: Purge all categories with confirmation
 
-- GIVEN a MyDash installation with orphaned data across multiple categories
-- WHEN an administrator runs `php occ mydash:cleanup:purge` (no --yes flag)
+- GIVEN a LaunchPad installation with orphaned data across multiple categories
+- WHEN an administrator runs `php occ launchpad:cleanup:purge` (no --yes flag)
 - THEN the system MUST prompt interactively listing every effective category
 - AND if the user confirms (`y`), delete all orphaned items and display a summary `Purged N items across M categories in Xms.`
 - AND if the user declines, display `Purge cancelled.` and exit 0 without deleting
@@ -81,20 +81,20 @@ Administrators MUST be able to run a CLI command to DELETE orphaned items, with 
 #### Scenario: Purge with --yes flag (non-interactive)
 
 - GIVEN orphaned data exists
-- WHEN an administrator runs `php occ mydash:cleanup:purge --yes`
+- WHEN an administrator runs `php occ launchpad:cleanup:purge --yes`
 - THEN the system MUST delete all orphaned items immediately (no prompt) and exit 0
 
 #### Scenario: Purge specific category
 
 - GIVEN orphaned data across multiple categories
-- WHEN an administrator runs `php occ mydash:cleanup:purge --category=expired_locks --yes`
+- WHEN an administrator runs `php occ launchpad:cleanup:purge --category=expired_locks --yes`
 - THEN the system MUST delete only orphans in `expired_locks`
 - AND display `Purged N items from category 'expired_locks' in Xms.`
 
 #### Scenario: Purge non-existent category
 
 - GIVEN a valid cleanup setup
-- WHEN an administrator runs `php occ mydash:cleanup:purge --category=invalid_category --yes`
+- WHEN an administrator runs `php occ launchpad:cleanup:purge --category=invalid_category --yes`
 - THEN the system MUST display an error naming the invalid category, list valid categories, and return exit code 1
 
 ### Requirement: REQ-CLN-003 Dry-Run Safety Mode
@@ -104,7 +104,7 @@ The purge CLI command MUST support a `--dry-run` flag that reports what WOULD be
 #### Scenario: Purge with dry-run
 
 - GIVEN orphaned data exists
-- WHEN an administrator runs `php occ mydash:cleanup:purge --dry-run --yes`
+- WHEN an administrator runs `php occ launchpad:cleanup:purge --dry-run --yes`
 - THEN the system MUST execute the deletion queries inside a transaction wrapper that is rolled back before commit
 - AND display `DRY-RUN: Would purge N items across M categories in Xms.`
 - AND leave all data untouched
@@ -112,7 +112,7 @@ The purge CLI command MUST support a `--dry-run` flag that reports what WOULD be
 #### Scenario: Dry-run with category filter
 
 - GIVEN orphans in multiple categories
-- WHEN an administrator runs `php occ mydash:cleanup:purge --category=expired_locks --dry-run --yes`
+- WHEN an administrator runs `php occ launchpad:cleanup:purge --category=expired_locks --dry-run --yes`
 - THEN the system MUST report `DRY-RUN: Would purge N items from category 'expired_locks' in Xms.`
 - AND delete nothing
 
@@ -122,7 +122,7 @@ Administrators MUST be able to call an HTTP API endpoint to retrieve scan result
 
 #### Scenario: GET /api/admin/cleanup/scan returns current orphan counts
 
-- GIVEN a MyDash installation with orphans
+- GIVEN a LaunchPad installation with orphans
 - WHEN an administrator (admin role) sends `GET /api/admin/cleanup/scan`
 - THEN the system MUST return HTTP 200 with a JSON body containing `byCategory`, `totalRows`, `durationMs`, `dryRun`, `scannedAt`, `skipped`, `cached`, and `cachedAt` fields
 - AND, when no cache entry is present, perform a fresh scan and return `cached: false`
@@ -186,7 +186,7 @@ The scan and purge results MUST include a per-category breakdown so administrato
 #### Scenario: Scan output shows detailed breakdown
 
 - GIVEN orphaned data in multiple categories
-- WHEN an administrator calls `php occ mydash:cleanup:scan`
+- WHEN an administrator calls `php occ launchpad:cleanup:scan`
 - THEN the output table MUST display one row per category with name and count, in registration order
 - AND a TOTAL row MUST follow with the sum of all categories
 
@@ -202,7 +202,7 @@ A scheduled daily job MUST run and automatically purge a safe-to-auto-purge subs
 
 #### Scenario: Daily cleanup job runs and purges Tier-A categories
 
-- GIVEN the `mydash` app config `cleanup_auto_purge_categories` is empty (factory default)
+- GIVEN the `launchpad` app config `cleanup_auto_purge_categories` is empty (factory default)
 - AND the `OrphanedDataCleanupJob` is registered with a 24-hour interval
 - WHEN the scheduled time arrives
 - THEN the job MUST resolve the auto-purge list via `CategoryRegistryService::getAutoSafeCategoryNames()` (Tier-A)
@@ -220,7 +220,7 @@ A scheduled daily job MUST run and automatically purge a safe-to-auto-purge subs
 
 - GIVEN `cleanup_auto_purge_categories` is set to an empty JSON array (`"[]"`)
 - WHEN the daily job is scheduled to run
-- THEN the job MUST resolve the list to `[]`, log `mydash.cleanup.job_skipped reason=no_categories_enabled`, and return without invoking the orchestrator
+- THEN the job MUST resolve the list to `[]`, log `launchpad.cleanup.job_skipped reason=no_categories_enabled`, and return without invoking the orchestrator
 
 ### Requirement: REQ-CLN-008 Safe-to-Auto-Purge List
 
@@ -228,7 +228,7 @@ The implementation MUST define which categories are safe enough to auto-purge wi
 
 #### Scenario: Default auto-purge list is Tier-A only
 
-- GIVEN a fresh MyDash installation with no `cleanup_auto_purge_categories` config value
+- GIVEN a fresh LaunchPad installation with no `cleanup_auto_purge_categories` config value
 - WHEN the daily job resolves its auto-purge list
 - THEN the system MUST default to `["expired_locks", "expired_share_tokens"]` as returned by `CategoryRegistryService::getAutoSafeCategoryNames()`
 
@@ -244,11 +244,11 @@ Every successful real (non-dry-run) purge that affects at least one row MUST emi
 
 #### Scenario: Purge CLI command emits activity event
 
-- GIVEN an administrator runs `php occ mydash:cleanup:purge --category=expired_locks --yes` and deletes 3 locks
+- GIVEN an administrator runs `php occ launchpad:cleanup:purge --category=expired_locks --yes` and deletes 3 locks
 - WHEN the purge completes
 - THEN the system MUST publish exactly one activity event with:
-  - app: `mydash`
-  - type: `mydash_cleanup_purge`
+  - app: `launchpad`
+  - type: `launchpad_cleanup_purge`
   - subject parameters: `totalRows`, `byCategory`, `durationMs`, `source: 'cli'`
 - AND the event MUST appear in the Nextcloud Activity log visible to admins
 
@@ -272,7 +272,7 @@ Every successful real (non-dry-run) purge that affects at least one row MUST emi
 
 ### Requirement: REQ-CLN-010 Cache Invalidation
 
-Scan results MUST be cached in the distributed cache (`ICacheFactory::createDistributed`) under the key `mydash.cleanup.scan` for `CACHE_TTL_SECONDS` (300s); the cache MUST be invalidated on any successful (non-dry-run) purge. Partial scans (with a non-empty category-name filter) bypass the cache entirely so they cannot pollute the full-set entry.
+Scan results MUST be cached in the distributed cache (`ICacheFactory::createDistributed`) under the key `launchpad.cleanup.scan` for `CACHE_TTL_SECONDS` (300s); the cache MUST be invalidated on any successful (non-dry-run) purge. Partial scans (with a non-empty category-name filter) bypass the cache entirely so they cannot pollute the full-set entry.
 
 #### Scenario: Scan results are cached for 5 minutes
 
@@ -290,7 +290,7 @@ Scan results MUST be cached in the distributed cache (`ICacheFactory::createDist
 
 - GIVEN a cached scan result
 - WHEN an administrator calls `POST /api/admin/cleanup/purge` with `dryRun=false` (success)
-- THEN the cache MUST be cleared immediately (`ICache::remove(key: 'mydash.cleanup.scan')`)
+- THEN the cache MUST be cleared immediately (`ICache::remove(key: 'launchpad.cleanup.scan')`)
 
 #### Scenario: Dry-run purge does NOT invalidate cache
 

@@ -6,7 +6,7 @@
  * Helper for building common JSON responses in controllers.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,8 +19,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use Psr\Log\LoggerInterface;
@@ -100,6 +101,32 @@ class ResponseHelper
             statusCode: $statusCode
         );
     }//end error()
+
+    /**
+     * Build the HTTP 409 response for a quota-exceeded rejection
+     * (dashboard-quota-limits REQ-QUOTA-002 / REQ-QUOTA-003 / design D4).
+     *
+     * Returns the stable machine-readable body
+     * `{"error": "quota_exceeded", "quota": <kind>, "limit": N, "current": N}`
+     * so the frontend and API clients can render a precise message without
+     * string-parsing.
+     *
+     * @param QuotaExceededException $exception The quota exception carrying
+     *                                          the kind, limit, and current
+     *                                          count.
+     *
+     * @return JSONResponse The HTTP 409 Conflict response.
+     *
+     * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-002-dashboard-count-enforcement
+     */
+    public static function quotaExceeded(
+        QuotaExceededException $exception
+    ): JSONResponse {
+        return new JSONResponse(
+            data: $exception->toResponseBody(),
+            statusCode: Http::STATUS_CONFLICT
+        );
+    }//end quotaExceeded()
 
     /**
      * Create a success response.

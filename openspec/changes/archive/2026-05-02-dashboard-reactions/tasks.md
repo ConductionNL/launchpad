@@ -2,11 +2,11 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001014Date20260502120000.php` with `oc_mydash_dashboard_reactions` table: `id (PK)`, `dashboard_uuid VARCHAR(36) NOT NULL`, `user_id VARCHAR(64) NOT NULL`, `emoji VARCHAR(32) NOT NULL`, `reacted_at DATETIME NOT NULL`
-- [x] 1.2 Same migration adds unique constraint `mydash_react_uuid_user_emoji` on `(dashboard_uuid, user_id, emoji)` to prevent duplicate reactions
-- [x] 1.3 Same migration adds index `mydash_react_uuid` on `dashboard_uuid` for fast lookups by dashboard
-- [x] 1.4 Same migration adds index `mydash_react_emoji` on `emoji` for fast lookups of reactors by emoji
-- [x] 1.5 Same migration adds `reactions_enabled SMALLINT NULL` column to `oc_mydash_dashboards`
+- [x] 1.1 Create `lib/Migration/Version001014Date20260502120000.php` with `oc_launchpad_dash_reactions` table: `id (PK)`, `dashboard_uuid VARCHAR(36) NOT NULL`, `user_id VARCHAR(64) NOT NULL`, `emoji VARCHAR(32) NOT NULL`, `reacted_at DATETIME NOT NULL`
+- [x] 1.2 Same migration adds unique constraint `launchpad_react_user_emoji` on `(dashboard_uuid, user_id, emoji)` to prevent duplicate reactions
+- [x] 1.3 Same migration adds index `launchpad_react_uuid` on `dashboard_uuid` for fast lookups by dashboard
+- [x] 1.4 Same migration adds index `launchpad_react_emoji` on `emoji` for fast lookups of reactors by emoji
+- [x] 1.5 Same migration adds `reactions_enabled SMALLINT NULL` column to `oc_launchpad_dashboards`
 - [x] 1.6 Migration is idempotent (uses `hasTable` / `hasColumn` / `hasIndex` guards)
 - [ ] 1.7 Run migration locally against sqlite, mysql, and postgres; verify clean application each time *(manual; deferred)*
 
@@ -32,7 +32,7 @@
 
 ## 4. Admin settings
 
-- [x] 4.1 Define IAppConfig keys `mydash.reactions_enabled_default` (bool, default true) and `mydash.reactions_allowed_emojis` (JSON array, default `["👍","❤️","🎉","😂","🤔","😢"]`) inside `ReactionService` constants — surface in admin UI is a follow-up concern
+- [x] 4.1 Define IAppConfig keys `launchpad.reactions_enabled_default` (bool, default true) and `launchpad.reactions_allowed_emojis` (JSON array, default `["👍","❤️","🎉","😂","🤔","😢"]`) inside `ReactionService` constants — surface in admin UI is a follow-up concern
 - [x] 4.2 Add `ReactionService::isReactionsEnabledByDefault()` and `ReactionService::getAllowedEmojis()` getter methods
 
 ## 5. Service layer

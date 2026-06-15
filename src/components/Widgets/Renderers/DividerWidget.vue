@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -141,12 +141,12 @@ export default {
 			const value = this.content?.headingText
 			return typeof value === 'string' && value.trim() !== ''
 				? value
-				: t('mydash', 'Section')
+				: t('launchpad', 'Section')
 		},
 
 		/** @spec openspec/specs/divider-widget/spec.md */
 		headingAriaLabel() {
-			return t('mydash', '{heading} divider', { heading: this.headingText })
+			return t('launchpad', '{heading} divider', { heading: this.headingText })
 		},
 
 		/** @spec openspec/specs/divider-widget/spec.md */

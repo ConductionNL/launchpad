@@ -12,7 +12,7 @@
  * REQ-DASH-011, REQ-DASH-012, REQ-DASH-013.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Db
+ * @package   OCA\LaunchPad\Tests\Unit\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -24,8 +24,8 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\IDBConnection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

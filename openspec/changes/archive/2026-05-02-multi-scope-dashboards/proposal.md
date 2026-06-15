@@ -2,12 +2,12 @@
 
 ## Why
 
-Today MyDash only supports two dashboard scopes: `user` (personal, user-owned) and `admin_template` (admin-authored snapshot copied per-user on first access). Neither supports the common organisational need to share a single live dashboard with a group of users where edits propagate immediately. Admins currently have to choose between (a) authoring a template that diverges per-user the moment one user edits their copy or (b) asking every user to recreate the same dashboard manually. This change introduces a third scope, `group_shared`, to fill that gap, plus a `'default'` synthetic group sentinel and a single `/api/dashboards/visible` endpoint that unions the three sources so the frontend has one place to ask "what dashboards should this user see?".
+Today LaunchPad only supports two dashboard scopes: `user` (personal, user-owned) and `admin_template` (admin-authored snapshot copied per-user on first access). Neither supports the common organisational need to share a single live dashboard with a group of users where edits propagate immediately. Admins currently have to choose between (a) authoring a template that diverges per-user the moment one user edits their copy or (b) asking every user to recreate the same dashboard manually. This change introduces a third scope, `group_shared`, to fill that gap, plus a `'default'` synthetic group sentinel and a single `/api/dashboards/visible` endpoint that unions the three sources so the frontend has one place to ask "what dashboards should this user see?".
 
 ## What Changes
 
 - Add `Dashboard::TYPE_GROUP_SHARED = 'group_shared'` constant alongside the existing `TYPE_USER` and `TYPE_ADMIN_TEMPLATE`.
-- Add a nullable `groupId VARCHAR(64)` column on `oc_mydash_dashboards`, populated only for `group_shared` records.
+- Add a nullable `groupId VARCHAR(64)` column on `oc_launchpad_dashboards`, populated only for `group_shared` records.
 - Reserve the literal `groupId = 'default'` as a synthetic "visible to every user" sentinel — it is not a real Nextcloud group.
 - Add CRUD endpoints scoped to a group: `GET|POST /api/dashboards/group/{groupId}`, `GET|PUT|DELETE /api/dashboards/group/{groupId}/{uuid}` — admin-only for mutations.
 - Add `GET /api/dashboards/visible` that returns the deduplicated union of personal + group-matching + default-group dashboards, each annotated with a `source` field (`'user' | 'group' | 'default'`) so the frontend knows which endpoint to PUT updates to.

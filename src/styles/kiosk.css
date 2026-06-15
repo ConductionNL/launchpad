@@ -1,0 +1,47 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+
+/**
+ * Kiosk chrome-suppression styles (REQ-KIOSK-001).
+ *
+ * When KioskView mounts it adds `kiosk-mode-active` to <body>. These rules
+ * hide all Nextcloud and LaunchPad chrome (header, app navigation, switcher
+ * sidebar, scrollbars) so the dashboard grid fills the whole viewport on a
+ * wall display. They live outside any scoped Vue block because they must
+ * reach NC chrome elements that are rendered outside the app's Vue tree.
+ *
+ * Read-only enforcement is server-side (public-share REQ-PSHR-006); hiding
+ * edit affordances here is presentation hygiene, not a security control.
+ *
+ * @spec openspec/changes/dashboard-kiosk-mode/specs/dashboard-kiosk-mode/spec.md
+ */
+
+body.kiosk-mode-active #header,
+body.kiosk-mode-active #app-navigation,
+body.kiosk-mode-active .app-navigation,
+body.kiosk-mode-active .launchpad-switcher,
+body.kiosk-mode-active .app-sidebar {
+	display: none !important;
+}
+
+body.kiosk-mode-active #content,
+body.kiosk-mode-active #content-vue,
+body.kiosk-mode-active #app-content,
+body.kiosk-mode-active #app-workspace {
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 100vw !important;
+	height: 100vh !important;
+}
+
+body.kiosk-mode-active {
+	overflow: hidden !important;
+}
+
+/* Suppress edit / drag / resize / context-menu affordances on kiosk surfaces. */
+body.kiosk-mode-active .grid-stack-item .ui-resizable-handle,
+body.kiosk-mode-active .widget-actions,
+body.kiosk-mode-active .dashboard-edit-affordance,
+body.kiosk-mode-active [data-kiosk-hide] {
+	display: none !important;
+	pointer-events: none !important;
+}

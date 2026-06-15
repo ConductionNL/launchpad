@@ -11,7 +11,7 @@
  * `composer lint:spec-annotations`.
  *
  * @category  Tools
- * @package   OCA\MyDash
+ * @package   OCA\LaunchPad
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12

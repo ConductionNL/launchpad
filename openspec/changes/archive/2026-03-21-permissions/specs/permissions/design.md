@@ -8,7 +8,7 @@ The permission system controls what editing operations a user may perform on a d
 
 ## Data Model
 
-### `mydash_dashboards` table
+### `launchpad_dashboards` table
 
 | Column | Type | Notes |
 |---|---|---|
@@ -17,7 +17,7 @@ The permission system controls what editing operations a user may perform on a d
 
 The `permission_level` column is defined in `DashboardTableBuilder::addColumns()` with `default: 'full'`.
 
-### `mydash_widget_placements` table
+### `launchpad_widget_placements` table
 
 | Column | Type | Notes |
 |---|---|---|
@@ -210,7 +210,7 @@ GridStack is initialized with `disableDrag: !editMode` and `disableResize: !edit
 
 ## Admin Settings Involved
 
-Stored in `mydash_admin_settings` table, accessed via `AdminSettingMapper::getValue()`:
+Stored in `launchpad_admin_settings` table, accessed via `AdminSettingMapper::getValue()`:
 
 | Key | Default | Effect on permissions |
 |---|---|---|

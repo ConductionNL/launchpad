@@ -4,12 +4,12 @@
  * DashboardFactory Test
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Service\DashboardFactory;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Service\DashboardFactory;
 use PHPUnit\Framework\TestCase;
 
 class DashboardFactoryTest extends TestCase
@@ -205,7 +205,7 @@ class DashboardFactoryTest extends TestCase
         $this->factory->create(
             userId: null,
             name: 'Bad Dashboard',
-            type: \OCA\MyDash\Db\Dashboard::TYPE_GROUP_SHARED
+            type: \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED
         );
     }
 
@@ -221,7 +221,7 @@ class DashboardFactoryTest extends TestCase
         $this->factory->create(
             userId: 'alice',
             name: 'Bad Dashboard',
-            type: \OCA\MyDash\Db\Dashboard::TYPE_USER,
+            type: \OCA\LaunchPad\Db\Dashboard::TYPE_USER,
             groupId: 'marketing'
         );
     }
@@ -237,11 +237,11 @@ class DashboardFactoryTest extends TestCase
         $dashboard = $this->factory->create(
             userId: null,
             name: 'Marketing Overview',
-            type: \OCA\MyDash\Db\Dashboard::TYPE_GROUP_SHARED,
+            type: \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
             groupId: 'marketing'
         );
 
-        $this->assertSame(\OCA\MyDash\Db\Dashboard::TYPE_GROUP_SHARED, $dashboard->getType());
+        $this->assertSame(\OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED, $dashboard->getType());
         $this->assertSame('marketing', $dashboard->getGroupId());
         $this->assertNull($dashboard->getUserId());
         $this->assertSame(0, $dashboard->getIsActive());
@@ -258,12 +258,12 @@ class DashboardFactoryTest extends TestCase
         $dashboard = $this->factory->create(
             userId: null,
             name: 'Welcome',
-            type: \OCA\MyDash\Db\Dashboard::TYPE_GROUP_SHARED,
-            groupId: \OCA\MyDash\Db\Dashboard::DEFAULT_GROUP_ID
+            type: \OCA\LaunchPad\Db\Dashboard::TYPE_GROUP_SHARED,
+            groupId: \OCA\LaunchPad\Db\Dashboard::DEFAULT_GROUP_ID
         );
 
         $this->assertSame(
-            \OCA\MyDash\Db\Dashboard::DEFAULT_GROUP_ID,
+            \OCA\LaunchPad\Db\Dashboard::DEFAULT_GROUP_ID,
             $dashboard->getGroupId()
         );
     }
@@ -284,7 +284,7 @@ class DashboardFactoryTest extends TestCase
         );
 
         $this->assertSame(
-            \OCA\MyDash\Db\Dashboard::STATUS_DRAFT,
+            \OCA\LaunchPad\Db\Dashboard::STATUS_DRAFT,
             $dashboard->getPublicationStatus()
         );
         $this->assertNull($dashboard->getPublishAt());

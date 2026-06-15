@@ -38,7 +38,7 @@
 - [x] 4.1 `lib/Service/OrphanedDataCleanupService.php` with `CategoryRegistryService`, `ICacheFactory`, `IDBConnection`, `Activity\IManager`, `LoggerInterface`
 - [x] 4.2 `scan(array $categoryNames = []): CleanupResult` — empty list = all; skips unavailable categories; cache hit short-circuits the registry walk
 - [x] 4.3 `purge(array $categoryNames = [], bool $dryRun = false, ?string $userId = null, string $source = 'api'): CleanupResult` — wraps dry-run in transaction + rollback; emits one Activity event on real, non-zero purges; invalidates cache on real purges
-- [x] 4.4 `getCachedScanResult()` reads `mydash.cleanup.scan` from `ICacheFactory::createDistributed`
+- [x] 4.4 `getCachedScanResult()` reads `launchpad.cleanup.scan` from `ICacheFactory::createDistributed`
 - [x] 4.5 `setCachedScanResult()` writes with `CACHE_TTL_SECONDS = 300`
 - [x] 4.6 `invalidateCache()` removes the key
 
@@ -64,11 +64,11 @@
 
 ## 9. Admin settings
 
-- [ ] 9.1 Vue admin UI for cleanup settings — deferred to a follow-up frontend change. The `cleanup_auto_purge_categories` `IAppConfig` key is the durable backend interface; admins can set it today via `occ config:app:set mydash cleanup_auto_purge_categories --value '["expired_locks"]'`.
+- [ ] 9.1 Vue admin UI for cleanup settings — deferred to a follow-up frontend change. The `cleanup_auto_purge_categories` `IAppConfig` key is the durable backend interface; admins can set it today via `occ config:app:set launchpad cleanup_auto_purge_categories --value '["expired_locks"]'`.
 
 ## 10. Activity event emission
 
-- [x] 10.1 `OrphanedDataCleanupService::emitActivityEvent()` publishes one event with type `mydash_cleanup_purge`, subject parameters carrying `totalRows` / `byCategory` / `durationMs` / `source`; dry-run suppressed; zero-row real purges suppressed
+- [x] 10.1 `OrphanedDataCleanupService::emitActivityEvent()` publishes one event with type `launchpad_cleanup_purge`, subject parameters carrying `totalRows` / `byCategory` / `durationMs` / `source`; dry-run suppressed; zero-row real purges suppressed
 
 ## 11. Migration (if needed)
 

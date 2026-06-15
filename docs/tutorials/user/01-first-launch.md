@@ -1,22 +1,22 @@
 ---
 sidebar_position: 1
-title: Open MyDash for the first time
-description: What you see the first time you open MyDash, and what each part of the screen does.
+title: Open LaunchPad for the first time
+description: What you see the first time you open LaunchPad, and what each part of the screen does.
 ---
 
-# Open MyDash for the first time
+# Open LaunchPad for the first time
 
-The very first time you open MyDash, the app creates a personal dashboard for you and seeds it with a default widget bundle so you have something to look at right away. This page is a tour of what's on screen.
+The very first time you open LaunchPad, the app creates a personal dashboard for you and seeds it with a default widget bundle so you have something to look at right away. This page is a tour of what's on screen.
 
 ## Goal
 
-Recognise the parts of the MyDash workspace and know where to find the controls you'll use in every other tutorial.
+Recognise the parts of the LaunchPad workspace and know where to find the controls you'll use in every other tutorial.
 
 ## Steps
 
-### 1. Click the MyDash icon in the Nextcloud app launcher
+### 1. Click the LaunchPad icon in the Nextcloud app launcher
 
-Or visit `/apps/mydash/` directly. After a moment of loading you land on **My Dashboard** with the default widget bundle already in place:
+Or visit `/apps/launchpad/` directly. After a moment of loading you land on **My Dashboard** with the default widget bundle already in place:
 
 ![First-launch overview](/screenshots/tutorials/user/01-first-launch-overview.png)
 
@@ -38,7 +38,7 @@ Three sections, top-down:
 - **MY DASHBOARDS** — your personal dashboards. The currently-active one is highlighted in primary colour.
 - **Powered by** footer — brand attribution, doesn't affect functionality.
 
-A ★ next to a row marks that dashboard as your **default** — the one MyDash opens automatically when you visit `/apps/mydash/` cold. See [Set a default dashboard](07-set-default.md).
+A ★ next to a row marks that dashboard as your **default** — the one LaunchPad opens automatically when you visit `/apps/launchpad/` cold. See [Set a default dashboard](07-set-default.md).
 
 ### 4. Open a dashboard's cog menu
 

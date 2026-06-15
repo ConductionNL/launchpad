@@ -5,15 +5,15 @@
  *
  * REQ-CLI-006 / REQ-CLI-007 / REQ-CLI-010 — verify the exit-code
  * constants are distinct, the JSON envelope conforms to the documented
- * schema, and the audit-log line uses the `[mydash] cli ...` format.
+ * schema, and the audit-log line uses the `[launchpad] cli ...` format.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Service\CommandService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -129,7 +129,7 @@ class CommandServiceTest extends TestCase
         );
 
         $this->assertSame(
-            expected: '[mydash] cli dashboard:list --user=alice --status=published exitCode=0 durationMs=42 byUser=cli',
+            expected: '[launchpad] cli dashboard:list --user=alice --status=published exitCode=0 durationMs=42 byUser=cli',
             actual: $line
         );
     }//end testFormatAuditLineUsesContractFormat()
@@ -161,7 +161,7 @@ class CommandServiceTest extends TestCase
 
     /**
      * REQ-CLI-010 — `audit()` MUST emit exactly one `info`-level log
-     * call carrying the `mydash` app context.
+     * call carrying the `launchpad` app context.
      *
      * @return void
      */
@@ -171,9 +171,9 @@ class CommandServiceTest extends TestCase
         $logger->expects($this->once())
             ->method('info')
             ->with(
-                $this->stringContains('[mydash] cli dashboard:list'),
+                $this->stringContains('[launchpad] cli dashboard:list'),
                 $this->callback(static function (array $context): bool {
-                    return ($context['app'] ?? '') === 'mydash'
+                    return ($context['app'] ?? '') === 'launchpad'
                         && ($context['command'] ?? '') === 'dashboard:list'
                         && ($context['exitCode'] ?? -1) === 0;
                 })

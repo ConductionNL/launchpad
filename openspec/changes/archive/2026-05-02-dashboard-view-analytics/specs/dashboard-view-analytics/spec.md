@@ -12,11 +12,11 @@ The system MUST track dashboard view events in a dedicated relational table with
 
 #### Scenario: Create views table with correct schema
 
-- GIVEN the system has no `oc_mydash_dashboard_views` table
+- GIVEN the system has no `oc_launchpad_dashboard_views` table
 - WHEN the schema migration runs
-- THEN the system MUST create `oc_mydash_dashboard_views` with columns:
+- THEN the system MUST create `oc_launchpad_dashboard_views` with columns:
   - `id` (INT AUTO_INCREMENT, PRIMARY KEY)
-  - `dashboardUuid` (VARCHAR 36, NOT NULL, foreign key reference to `oc_mydash_dashboards.uuid`)
+  - `dashboardUuid` (VARCHAR 36, NOT NULL, foreign key reference to `oc_launchpad_dashboards.uuid`)
   - `viewBucket` (DATE, NOT NULL — calendar date in UTC)
   - `viewCount` (INT DEFAULT 0, NOT NULL)
   - `uniqueViewerCount` (INT DEFAULT 0, NOT NULL)
@@ -51,21 +51,21 @@ The system MUST track dashboard view events in a dedicated relational table with
 
 The system MUST expose an authenticated endpoint that records a view event when a user loads a dashboard.
 
-> **NOTE (MyDash-deliberate):** Unique-viewer deduplication uses a per-`(dashboardUuid, viewerHash)` cache key stored in Nextcloud `ICache`. The cache TTL is set to the number of seconds remaining until the next UTC midnight at the time the entry is written (i.e. `TTL = seconds_until_next_UTC_midnight()`), not a fixed 86400 seconds. This ensures the cache entry expires exactly when the daily salt rotates, keeping cache and salt lifetimes aligned. See REQ-ANLT-003 for the salt approach.
+> **NOTE (LaunchPad-deliberate):** Unique-viewer deduplication uses a per-`(dashboardUuid, viewerHash)` cache key stored in Nextcloud `ICache`. The cache TTL is set to the number of seconds remaining until the next UTC midnight at the time the entry is written (i.e. `TTL = seconds_until_next_UTC_midnight()`), not a fixed 86400 seconds. This ensures the cache entry expires exactly when the daily salt rotates, keeping cache and salt lifetimes aligned. See REQ-ANLT-003 for the salt approach.
 
 #### Scenario: Authenticated user records a view event
 
 - GIVEN a logged-in user "alice" loads a dashboard with UUID "uuid-101"
 - WHEN she sends `POST /api/dashboards/uuid-101/view-event` with body `{}`
 - THEN the system MUST return HTTP 204 (No Content)
-- AND the system MUST increment the view counter in the `oc_mydash_dashboard_views` row for today
+- AND the system MUST increment the view counter in the `oc_launchpad_dashboard_views` row for today
 - AND no response body is returned
 
 #### Scenario: Dedup cache key is per dashboard and viewer hash
 
 - GIVEN user "alice" (userId: 1) posts a view event for dashboard "uuid-101" on 2026-05-01
 - WHEN the system checks for a duplicate within the same UTC day
-- THEN the system MUST use a cache key of the form `mydash_anlt_{dashboardUuid}_{viewerHash}`
+- THEN the system MUST use a cache key of the form `launchpad_anlt_{dashboardUuid}_{viewerHash}`
 - AND the cache entry TTL MUST be set to the number of seconds remaining until the next UTC midnight
 - AND the system MUST NOT use a fixed 86400-second TTL
 
@@ -81,7 +81,7 @@ The system MUST expose an authenticated endpoint that records a view event when 
 - GIVEN no dashboard exists with UUID "uuid-nonexistent"
 - WHEN an authed user sends `POST /api/dashboards/uuid-nonexistent/view-event`
 - THEN the system MUST return HTTP 404 (Not Found)
-- AND no row is created in `oc_mydash_dashboard_views`
+- AND no row is created in `oc_launchpad_dashboard_views`
 
 #### Scenario: Empty request body is valid
 
@@ -94,7 +94,7 @@ The system MUST expose an authenticated endpoint that records a view event when 
 
 The system MUST count unique viewers per day using privacy-preserving hashing with a salt that rotates daily, preventing cross-day user correlation.
 
-> **NOTE (MyDash-deliberate — diverges from static-secret approach):** This requirement intentionally departs from the pattern of computing `sha256(userId || instanceSecret)` using the static Nextcloud instance secret as a salt. A static salt means the same user produces an identical hash for every day, forever; a leak of the analytics table combined with a separate config leak would allow full cross-day re-identification. MyDash instead uses a 32-byte random salt generated at 00:00 UTC by `SaltRotationJob`, stored in `IConfig` under `mydash.analytics_dailysalt`, and **overwritten** (not appended) at each rotation. No salt history is retained. The result: viewer hashes from different days are computationally uncorrelated, and cross-day re-identification from the analytics table alone is infeasible. Same-day unique-viewer counting is unaffected. This is a deliberate privacy improvement, not a limitation.
+> **NOTE (LaunchPad-deliberate — diverges from static-secret approach):** This requirement intentionally departs from the pattern of computing `sha256(userId || instanceSecret)` using the static Nextcloud instance secret as a salt. A static salt means the same user produces an identical hash for every day, forever; a leak of the analytics table combined with a separate config leak would allow full cross-day re-identification. LaunchPad instead uses a 32-byte random salt generated at 00:00 UTC by `SaltRotationJob`, stored in `IConfig` under `launchpad.analytics_dailysalt`, and **overwritten** (not appended) at each rotation. No salt history is retained. The result: viewer hashes from different days are computationally uncorrelated, and cross-day re-identification from the analytics table alone is infeasible. Same-day unique-viewer counting is unaffected. This is a deliberate privacy improvement, not a limitation.
 
 #### Scenario: Same user on same day increments viewCount but not uniqueViewerCount twice
 
@@ -130,18 +130,18 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
 - GIVEN user "diana" (userId: 4) posts a view event for dashboard "uuid-105" on 2026-05-01
 - WHEN the system increments uniqueViewerCount
 - THEN the system MUST:
-  - Read `mydash.analytics_dailysalt` from `IConfig` (populated by `SaltRotationJob`)
+  - Read `launchpad.analytics_dailysalt` from `IConfig` (populated by `SaltRotationJob`)
   - Compute hash = SHA256(userId || dailySalt)
   - Store hash in Nextcloud `ICache` with TTL = seconds until next UTC midnight
-  - NOT store the raw userId or hash in `oc_mydash_dashboard_views`
+  - NOT store the raw userId or hash in `oc_launchpad_dashboard_views`
   - Increment `uniqueViewerCount` only if hash is NOT already in cache
 
 #### Scenario: Salt rotation discards previous salt with no history retained
 
-- GIVEN `SaltRotationJob` ran on 2026-05-01 and stored `dailySalt_A` in `mydash.analytics_dailysalt`
+- GIVEN `SaltRotationJob` ran on 2026-05-01 and stored `dailySalt_A` in `launchpad.analytics_dailysalt`
 - AND viewer hashes for 2026-05-01 were computed using `dailySalt_A`
 - WHEN `SaltRotationJob` runs at 00:00 UTC on 2026-05-02
-- THEN `mydash.analytics_dailysalt` MUST be overwritten with a new 32-byte random value `dailySalt_B`
+- THEN `launchpad.analytics_dailysalt` MUST be overwritten with a new 32-byte random value `dailySalt_B`
 - AND `dailySalt_A` MUST NOT be stored anywhere (no history table, no backup key, no log entry)
 - AND the system MUST NOT be able to reproduce the 2026-05-01 viewer hashes after rotation
 - NOTE: The loss of salt history is deliberate — it makes cross-day re-identification from the analytics table computationally infeasible even if an attacker later obtains the current salt
@@ -152,10 +152,10 @@ The system MUST allow individual users to disable their participation in view-co
 
 #### Scenario: User opts out; their events are ignored
 
-- GIVEN user "eve" (userId: 5) sets their preference `mydash.user_setting.analytics_optout = true`
+- GIVEN user "eve" (userId: 5) sets their preference `launchpad.user_setting.analytics_optout = true`
 - WHEN she loads a dashboard "uuid-106" and posts `POST /api/dashboards/uuid-106/view-event`
 - THEN the system MUST return HTTP 204
-- AND the system MUST NOT increment any counters in `oc_mydash_dashboard_views`
+- AND the system MUST NOT increment any counters in `oc_launchpad_dashboard_views`
 - AND the system MUST NOT add her hash to the cache
 
 #### Scenario: User opts back in; events resume
@@ -181,7 +181,7 @@ The system MUST provide an admin-configurable setting to disable all view-event 
 
 #### Scenario: Global disable turns off all tracking
 
-- GIVEN the admin sets `mydash.analytics_enabled = false`
+- GIVEN the admin sets `launchpad.analytics_enabled = false`
 - WHEN any user sends `POST /api/dashboards/{uuid}/view-event`
 - THEN the system MUST return HTTP 204
 - AND the system MUST NOT increment any counters
@@ -190,15 +190,15 @@ The system MUST provide an admin-configurable setting to disable all view-event 
 #### Scenario: Global re-enable resumes tracking
 
 - GIVEN analytics were previously disabled
-- AND the admin sets `mydash.analytics_enabled = true`
+- AND the admin sets `launchpad.analytics_enabled = true`
 - WHEN a user posts a view event
 - THEN tracking MUST resume as normal
 
 #### Scenario: Default is enabled
 
-- GIVEN a fresh MyDash installation with no explicit setting
+- GIVEN a fresh LaunchPad installation with no explicit setting
 - WHEN a user posts a view event
-- THEN the system MUST treat `mydash.analytics_enabled` as `true` (default)
+- THEN the system MUST treat `launchpad.analytics_enabled` as `true` (default)
 - AND tracking MUST proceed normally
 
 ### Requirement: REQ-ANLT-006 Top Dashboards Query Endpoint
@@ -211,7 +211,7 @@ The system MUST expose an admin-only endpoint that returns the most-viewed dashb
 - WHEN an admin sends `GET /api/admin/analytics/dashboards/top?period=7d&limit=10`
 - THEN the system MUST return HTTP 200 with an array of dashboard objects
 - AND the array MUST be sorted by `viewCount` descending: [100, 50, 30, 20, 10]
-- AND each object MUST include: `dashboardUuid`, `name` (from `oc_mydash_dashboards`), `viewCount` (sum of 7 days), `uniqueViewerCount` (sum of 7 days)
+- AND each object MUST include: `dashboardUuid`, `name` (from `oc_launchpad_dashboards`), `viewCount` (sum of 7 days), `uniqueViewerCount` (sum of 7 days)
 - AND the array MUST contain exactly 5 objects (fewer than the requested limit)
 
 #### Scenario: Limit parameter is respected
@@ -323,7 +323,7 @@ The system MUST expose an admin-only endpoint that returns aggregate statistics 
 
 The system MUST automatically purge view-count rows older than a configurable retention period to prevent unbounded database growth.
 
-> **NOTE:** Default retention is **365 days** (supporting year-over-year comparisons). The valid range is **30–3650 days** inclusive (minimum preserves meaningful chart windows; maximum covers decade-scale compliance without permitting unbounded growth by default). Values outside this range MUST be clamped by the system — implementation may reject or silently clamp, but the effective retention used by `PurgeViewsJob` MUST always fall within [30, 3650]. Table: `oc_mydash_dashboard_views`.
+> **NOTE:** Default retention is **365 days** (supporting year-over-year comparisons). The valid range is **30–3650 days** inclusive (minimum preserves meaningful chart windows; maximum covers decade-scale compliance without permitting unbounded growth by default). Values outside this range MUST be clamped by the system — implementation may reject or silently clamp, but the effective retention used by `PurgeViewsJob` MUST always fall within [30, 3650]. Table: `oc_launchpad_dashboard_views`.
 
 #### Scenario: Default retention is 365 days
 
@@ -334,18 +334,18 @@ The system MUST automatically purge view-count rows older than a configurable re
 
 #### Scenario: Admin can configure retention period
 
-- GIVEN an admin sets `mydash.analytics_retention_days = 90`
+- GIVEN an admin sets `launchpad.analytics_retention_days = 90`
 - WHEN the purge job runs
 - THEN only rows with `viewBucket < CURRENT_DATE - 90 days` MUST be deleted
 - AND the new retention becomes effective on the next job run
 
 #### Scenario: Retention minimum and maximum bounds
 
-- GIVEN the admin attempts to set `mydash.analytics_retention_days = 10` (below minimum 30)
+- GIVEN the admin attempts to set `launchpad.analytics_retention_days = 10` (below minimum 30)
 - THEN the system MUST either:
   - Reject the setting change with an error message, OR
   - Silently clamp to minimum 30 days
-- AND when the admin attempts `mydash.analytics_retention_days = 5000` (above maximum 3650)
+- AND when the admin attempts `launchpad.analytics_retention_days = 5000` (above maximum 3650)
 - THEN the system MUST clamp to maximum 3650 days
 - NOTE: Admins can configure retention between 30 and 3650 days inclusive
 
@@ -406,7 +406,7 @@ The system MUST call the view-event endpoint from the Vue frontend when a dashbo
 
 #### Scenario: Dashboard component calls view-event on mount
 
-- GIVEN a user navigates to a dashboard view in MyDash
+- GIVEN a user navigates to a dashboard view in LaunchPad
 - WHEN the DashboardView.vue component mounts
 - THEN the component MUST call `POST /api/dashboards/{uuid}/view-event` exactly once
 - AND the request MUST be sent asynchronously (not blocking render)
@@ -438,7 +438,7 @@ The system MUST call the view-event endpoint from the Vue frontend when a dashbo
 
 #### Scenario: View-event is not sent if analytics is disabled
 
-- GIVEN the admin has set `mydash.analytics_enabled = false`
+- GIVEN the admin has set `launchpad.analytics_enabled = false`
 - WHEN a user loads a dashboard (and the frontend sees the setting, e.g., via config endpoint)
 - THEN the component MUST NOT call `POST /api/dashboards/{uuid}/view-event`
 - AND no request MUST be sent to the backend

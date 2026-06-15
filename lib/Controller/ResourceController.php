@@ -17,26 +17,26 @@
  * returned to the client.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\Exception\ForbiddenException;
-use OCA\MyDash\Exception\ResourceException;
-use OCA\MyDash\Exception\StorageFailureException;
-use OCA\MyDash\Service\ResourceService;
-use OCA\MyDash\Settings\MyDashAdmin;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Exception\ResourceException;
+use OCA\LaunchPad\Exception\StorageFailureException;
+use OCA\LaunchPad\Service\ResourceService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -74,7 +74,7 @@ class ResourceController extends Controller
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(
-            appName: 'mydash',
+            appName: 'launchpad',
             request: $request
         );
     }//end __construct()
@@ -94,7 +94,7 @@ class ResourceController extends Controller
          *
      * @spec openspec/specs/resource-uploads/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function upload(): JSONResponse
     {
         try {

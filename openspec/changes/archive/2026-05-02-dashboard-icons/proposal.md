@@ -7,7 +7,7 @@ Introduce a new `dashboard-icons` capability that owns the catalogue of icons av
 - `src/constants/dashboardIcons.js` — new module exporting `DASHBOARD_ICONS`, `DEFAULT_ICON`, `getIconComponent(name)`, `isCustomIconUrl(name)`
 - `src/components/Dashboard/IconRenderer.vue` — small component that renders `<component :is>` for built-in icons or `<img>` for URLs
 - `lib/Db/Dashboard.php` — annotate `icon` field convention (NULL or registry name or URL)
-- No DB schema change (the column already exists on `oc_mydash_dashboards`)
+- No DB schema change (the column already exists on `oc_launchpad_dashboards`)
 
 ## Why a new capability
 

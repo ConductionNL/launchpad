@@ -6,10 +6,10 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001010Date20260502120000.php` adding `parent_uuid VARCHAR(36) NULL`, `slug VARCHAR(128) NULL`, `sort_order INT DEFAULT 0` to `oc_mydash_dashboards`
-- [x] 1.2 Add composite index `mydash_dash_parent_slug` on `(parent_uuid, slug)` — siblings must have unique slugs per parent (uniqueness enforced at the service layer for cross-driver NULL semantics)
-- [x] 1.3 Add index `mydash_dash_parent` on `(parent_uuid)` for fast child lookups
-- [x] 1.4 Add index `mydash_dash_sort` on `(parent_uuid, sort_order)` for ordered sibling retrieval
+- [x] 1.1 Create `lib/Migration/Version001010Date20260502120000.php` adding `parent_uuid VARCHAR(36) NULL`, `slug VARCHAR(128) NULL`, `sort_order INT DEFAULT 0` to `oc_launchpad_dashboards`
+- [x] 1.2 Add composite index `launchpad_dash_parent_slug` on `(parent_uuid, slug)` — siblings must have unique slugs per parent (uniqueness enforced at the service layer for cross-driver NULL semantics)
+- [x] 1.3 Add index `launchpad_dash_parent` on `(parent_uuid)` for fast child lookups
+- [x] 1.4 Add index `launchpad_dash_sort` on `(parent_uuid, sort_order)` for ordered sibling retrieval
 - [x] 1.5 Migration is reversible — every column / index addition is `hasColumn` / `hasIndex` guarded
 - [x] 1.6 (deferred — local docker not available in this worktree) Migration runs against sqlite under `composer test:all` via the schema closure path
 

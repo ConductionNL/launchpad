@@ -6,7 +6,7 @@
 
 The `widgets` capability is well-specced for end-user behaviour (REQ-WDG-001 .. REQ-WDG-023) and the widget data contract. During the 2026-05-24 coverage scan, two service classes were flagged as Bucket 2a — they exist and are exercised on every dashboard widget fetch, but no covering REQ describes their contract:
 
-- `lib/Service/WidgetFormatter.php` — 7 methods (1 public `format()`, 6 private apply-* helpers). Already partially annotated (`format()` carries `@spec ...annotate-mydash...task-32`) but the underlying contract for the envelope shape + capability-interface fan-out is not in the spec.
+- `lib/Service/WidgetFormatter.php` — 7 methods (1 public `format()`, 6 private apply-* helpers). Already partially annotated (`format()` carries `@spec ...annotate-launchpad...task-32`) but the underlying contract for the envelope shape + capability-interface fan-out is not in the spec.
 - `lib/Service/WidgetItemLoader.php` — 4 methods (1 public `loadItems()`, 3 private dispatch/load helpers). Already partially annotated (`loadItems()` → task-33). The V2-preferred / V1-fallback dispatch strategy is not in the spec.
 
 ## Approach
@@ -23,7 +23,7 @@ Granularity rationale: the seven formatter methods all collaborate on one envelo
 
 ## Annotation strategy
 
-Add `@spec openspec/changes/archive/2026-05-24-retrofit-widgets/tasks.md#task-N` tags. File-level tags on both files. Per-method tags on the 9 methods covered by this retrofit; existing `@spec ...annotate-mydash...` tags on `format()` and `loadItems()` are LEFT IN PLACE (they reference a different annotation cohort) and the new tags are appended.
+Add `@spec openspec/changes/archive/2026-05-24-retrofit-widgets/tasks.md#task-N` tags. File-level tags on both files. Per-method tags on the 9 methods covered by this retrofit; existing `@spec ...annotate-launchpad...` tags on `format()` and `loadItems()` are LEFT IN PLACE (they reference a different annotation cohort) and the new tags are appended.
 
 ## Notes — observed-but-suspicious
 
@@ -33,5 +33,5 @@ Add `@spec openspec/changes/archive/2026-05-24-retrofit-widgets/tasks.md#task-N`
 ## Source
 
 - Coverage report: `openspec/coverage-report.json` generated 2026-05-24
-- Umbrella issue: ConductionNL/mydash#292
+- Umbrella issue: ConductionNL/launchpad#292
 - Bucket: 2a (capability-owned, missing REQ)

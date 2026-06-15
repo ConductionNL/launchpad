@@ -2,7 +2,7 @@
 
 ## Why
 
-The mydash runtime page chrome — the GridStack mount, the admin/edit toolbar, the save button, the dashboard-name header, the hamburger that toggles the sidebar, and the `canEdit` permission rule — has no formal capability home. It currently lives bundled inside a generic dashboard view component, conflating page-level coordination with dashboard data and the grid surface. The shell coordinates four sibling capabilities (`dashboard-switcher-sidebar`, `widget-add-edit-modal`, `widget-context-menu`, `grid-layout`) and gates editing affordances based on user role and active dashboard scope; it is the page-level orchestrator and warrants its own capability so the page-level interactions (sidebar open/close, save, toolbar visibility, empty state, lifecycle cleanup) can be specified in one place. This is the LAST capability to land — it depends on virtually everything else.
+The launchpad runtime page chrome — the GridStack mount, the admin/edit toolbar, the save button, the dashboard-name header, the hamburger that toggles the sidebar, and the `canEdit` permission rule — has no formal capability home. It currently lives bundled inside a generic dashboard view component, conflating page-level coordination with dashboard data and the grid surface. The shell coordinates four sibling capabilities (`dashboard-switcher-sidebar`, `widget-add-edit-modal`, `widget-context-menu`, `grid-layout`) and gates editing affordances based on user role and active dashboard scope; it is the page-level orchestrator and warrants its own capability so the page-level interactions (sidebar open/close, save, toolbar visibility, empty state, lifecycle cleanup) can be specified in one place. This is the LAST capability to land — it depends on virtually everything else.
 
 ## What Changes
 
@@ -31,7 +31,7 @@ The mydash runtime page chrome — the GridStack mount, the admin/edit toolbar, 
 
 **Affected code:**
 
-- `templates/index.php` — Nextcloud page template: load the runtime bundle and provide `<div id="app-workspace" class="mydash-workspace"><div id="workspace-vue"></div></div>`
+- `templates/index.php` — Nextcloud page template: load the runtime bundle and provide `<div id="app-workspace" class="launchpad-workspace"><div id="workspace-vue"></div></div>`
 - `lib/Controller/WorkspaceController.php` — `GET /` page renderer; pass the new chrome slot ids in the template parameters (initial-state push lives in the separate `initial-state-contract` change)
 - `src/views/WorkspaceApp.vue` — the shell component itself, refactored from a generic dashboard view
 - `src/styles/workspace.css` — global styles for the shell (sidebar backdrop, toolbar, empty state)

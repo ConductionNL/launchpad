@@ -12,7 +12,7 @@
 
 The shell MUST render, in the title strip:
 
-- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('mydash', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
+- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('launchpad', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
 - The active dashboard's name as a plain `<h1>` (or `<h2>`) text label — NOT as a `<select>` or any other interactive switcher control. Switching between dashboards happens exclusively via the left sidebar (`dashboard-switcher` capability).
 
 The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhere in its surface area.

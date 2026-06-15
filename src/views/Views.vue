@@ -1,5 +1,5 @@
 <template>
-	<div id="mydash-app">
+	<div id="launchpad-app">
 		<!-- Slide-in sidebar (REQ-SWITCH-001..007). Wired with Vue 2's
 		     v-model rebind (model: { prop: 'isOpen', event: 'update:open' })
 		     so this template can use plain `v-model` while the sidebar
@@ -15,6 +15,8 @@
 			:allow-user-dashboards="allowUserDashboards"
 			:can-edit="canEdit"
 			:default-uuid="defaultDashboardUuid"
+			:dashboard-quota-reached="dashboardQuotaReached"
+			:dashboard-quota-tooltip="dashboardQuotaTooltip"
 			:is-edit-mode="isEditMode"
 			:mode="workspaceMode"
 			@mode-change="onWorkspaceModeChange"
@@ -36,11 +38,11 @@
 		     destructive + edit actions sit alongside switching. The
 		     hamburger keeps its place (top-right entry point when the
 		     sidebar is closed). -->
-		<div class="mydash-floating-controls">
+		<div class="launchpad-floating-controls">
 			<NcButton
 				type="secondary"
-				:aria-label="t('mydash', 'Dashboards')"
-				class="mydash-sidebar-toggle"
+				:aria-label="t('launchpad', 'Dashboards')"
+				class="launchpad-sidebar-toggle"
 				@click="sidebarOpen = !sidebarOpen">
 				<template #icon>
 					<MenuIcon :size="20" />
@@ -69,8 +71,8 @@
 			     name is resolved. -->
 			<div
 				v-if="primaryGroupLabel && primaryGroupLabel !== 'Default'"
-				class="mydash-primary-group-label"
-				:title="t('mydash', 'Your primary group for shared dashboards')">
+				class="launchpad-primary-group-label"
+				:title="t('launchpad', 'Your primary group for shared dashboards')">
 				{{ primaryGroupLabel }}
 			</div>
 		</div>
@@ -100,7 +102,7 @@
 			     null until `loadDashboards()` resolves; the spinner
 			     keeps the "No dashboard yet" CTA out of view while the
 			     user is just waiting on data. -->
-			<div v-else-if="loading" class="mydash-loading">
+			<div v-else-if="loading" class="launchpad-loading">
 				<NcLoadingIcon :size="48" />
 			</div>
 
@@ -109,16 +111,16 @@
 			     extended). When the flag is off the button MUST be hidden
 			     and the description swapped for a localised explainer so
 			     the workspace never offers an action that would 403. -->
-			<div v-else class="mydash-empty">
+			<div v-else class="launchpad-empty">
 				<NcEmptyContent
-					:name="t('mydash', 'No dashboard yet')"
+					:name="t('launchpad', 'No dashboard yet')"
 					:description="emptyStateDescription">
 					<template #icon>
 						<ViewDashboard :size="64" />
 					</template>
 					<template v-if="allowUserDashboards" #action>
 						<NcButton type="primary" @click="handleCreateDashboard">
-							{{ t('mydash', 'Create dashboard') }}
+							{{ t('launchpad', 'Create dashboard') }}
 						</NcButton>
 					</template>
 				</NcEmptyContent>
@@ -378,6 +380,10 @@ export default {
 			'userDashboards',
 			'groupSharedDashboards',
 			'defaultGroupDashboards',
+			// dashboard-quota-limits REQ-QUOTA-006: drive the disabled
+			// create affordance + tooltip from the store getters.
+			'dashboardQuotaReached',
+			'dashboardQuotaTooltip',
 		]),
 		...mapState(useWidgetStore, ['availableWidgets']),
 		...mapState(useTileStore, ['tiles']),
@@ -471,9 +477,9 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		emptyStateDescription() {
 			if (this.allowUserDashboards) {
-				return this.t('mydash', 'Create your first dashboard to get started')
+				return this.t('launchpad', 'Create your first dashboard to get started')
 			}
-			return this.t('mydash', 'Personal dashboards are not enabled by your administrator')
+			return this.t('launchpad', 'Personal dashboards are not enabled by your administrator')
 		},
 		/**
 		 * Display label for the resolved primary group (REQ-TMPL-012).
@@ -976,7 +982,7 @@ export default {
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteCurrentDashboard(dashboard) {
-			if (!confirm(this.t('mydash', 'Are you sure you want to delete this dashboard?'))) {
+			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this dashboard?'))) {
 				return
 			}
 
@@ -1035,9 +1041,9 @@ export default {
 		},
 
 		/**
-		 * Compute the absolute URL for a slug-chain path. The mydash
+		 * Compute the absolute URL for a slug-chain path. The launchpad
 		 * routes mount under whatever prefix `generateUrl` produces
-		 * (typically `/index.php/apps/mydash` or `/apps/mydash` when
+		 * (typically `/index.php/apps/launchpad` or `/apps/launchpad` when
 		 * URL rewriting is enabled), so we anchor onto the same prefix
 		 * the API client uses.
 		 *
@@ -1049,7 +1055,7 @@ export default {
 			if (!path) {
 				return ''
 			}
-			const prefix = generateUrl('/apps/mydash')
+			const prefix = generateUrl('/apps/launchpad')
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
 		},
@@ -1071,7 +1077,7 @@ export default {
 			}
 			try {
 				window.history.replaceState(
-					{ uuid: this.activeDashboard?.uuid ?? null, source: 'mydash-deeplink' },
+					{ uuid: this.activeDashboard?.uuid ?? null, source: 'launchpad-deeplink' },
 					'',
 					target,
 				)
@@ -1108,7 +1114,7 @@ export default {
 					return
 				}
 				window.history.pushState(
-					{ uuid, source: 'mydash-deeplink' },
+					{ uuid, source: 'launchpad-deeplink' },
 					'',
 					target,
 				)
@@ -1118,7 +1124,7 @@ export default {
 		},
 
 		/**
-		 * Browser back / forward handler. Strips the mydash route
+		 * Browser back / forward handler. Strips the launchpad route
 		 * prefix off `window.location.pathname` and re-resolves the
 		 * remaining slug-chain via the existing by-path API. The state
 		 * payload's uuid is preferred when present (avoids the
@@ -1135,7 +1141,7 @@ export default {
 				return
 			}
 
-			const prefix = generateUrl('/apps/mydash')
+			const prefix = generateUrl('/apps/launchpad')
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {
@@ -1189,7 +1195,7 @@ export default {
 		 * the pin (so the cog shows "Set as default" again on next
 		 * open); clicking on any other row replaces the pin with that
 		 * dashboard's UUID. The new pref takes effect on the next
-		 * page load — visiting `/apps/mydash/` will resolve to this
+		 * page load — visiting `/apps/launchpad/` will resolve to this
 		 * dashboard via the resolver's Step 0.
 		 */
 		// eslint-disable-next-line no-unused-vars
@@ -1278,7 +1284,7 @@ export default {
 		 */
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onSidebarDeleteDashboard(id) {
-			if (!confirm(this.t('mydash', 'Are you sure you want to delete this dashboard?'))) {
+			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this dashboard?'))) {
 				return
 			}
 			try {
@@ -1293,13 +1299,13 @@ export default {
 </script>
 
 <style scoped>
-#mydash-app {
+#launchpad-app {
 	min-height: 100vh;
 	width: 100%;
 	background: transparent;
 }
 
-.mydash-floating-controls {
+.launchpad-floating-controls {
 	position: fixed;
 	top: 80px;
 	right: 44px;
@@ -1309,7 +1315,7 @@ export default {
 	z-index: 1000;
 }
 
-.mydash-sidebar-toggle {
+.launchpad-sidebar-toggle {
 	/* Hint that the sidebar opens from the left even though the toggle
 	   itself lives in the top-right cluster. */
 	margin-right: auto;
@@ -1317,7 +1323,7 @@ export default {
 
 /* Primary-group label (REQ-TMPL-012). Subtle pill that names the
    resolved group whose dashboards drive the workspace. */
-.mydash-primary-group-label {
+.launchpad-primary-group-label {
 	font-size: 12px;
 	font-weight: 500;
 	color: var(--color-text-maxcontrast);
@@ -1329,24 +1335,24 @@ export default {
 
 /* Strip the visible text on the menu trigger button — we want icon-only.
    NcActions renders its aria-label as button text in this version. */
-.mydash-floating-controls :deep(.action-item__menutoggle .button-vue__text) {
+.launchpad-floating-controls :deep(.action-item__menutoggle .button-vue__text) {
 	display: none;
 }
-.mydash-floating-controls :deep(.action-item__menutoggle) {
+.launchpad-floating-controls :deep(.action-item__menutoggle) {
 	width: var(--default-clickable-area, 44px);
 	min-width: var(--default-clickable-area, 44px);
 	padding: 0;
 }
 
-.mydash-container {
+.launchpad-container {
 	flex: 1;
 	padding: 0;
 	overflow: auto;
 	min-height: calc(100vh - var(--header-height));
 }
 
-.mydash-empty,
-.mydash-loading {
+.launchpad-empty,
+.launchpad-loading {
 	display: flex;
 	align-items: center;
 	justify-content: center;

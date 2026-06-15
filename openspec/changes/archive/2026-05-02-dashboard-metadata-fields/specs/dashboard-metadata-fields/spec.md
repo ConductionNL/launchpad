@@ -6,11 +6,11 @@ status: draft
 
 ## Purpose
 
-Dashboard Metadata Fields allow administrators to define custom, queryable attributes that can be attached to every dashboard in a MyDash instance. Once an administrator defines a global registry of field definitions (e.g., "department", "project stage", "audience"), end users populate values for those fields on their dashboards. The field values are then queryable for filtering dashboards in search, widget configuration, and API calls. This capability standardizes what would otherwise be ad-hoc naming conventions and enables the discovery and organization of dashboards at scale.
+Dashboard Metadata Fields allow administrators to define custom, queryable attributes that can be attached to every dashboard in a LaunchPad instance. Once an administrator defines a global registry of field definitions (e.g., "department", "project stage", "audience"), end users populate values for those fields on their dashboards. The field values are then queryable for filtering dashboards in search, widget configuration, and API calls. This capability standardizes what would otherwise be ad-hoc naming conventions and enables the discovery and organization of dashboards at scale.
 
 ## Data Model
 
-### Metadata Field Definition (oc_mydash_metadata_fields)
+### Metadata Field Definition (oc_launchpad_metadata_fields)
 
 Stores the global registry of field definitions:
 
@@ -30,13 +30,13 @@ Stores the global registry of field definitions:
 - **createdAt**: DATETIME
 - **updatedAt**: DATETIME
 
-### Metadata Value (oc_mydash_metadata_values)
+### Metadata Value (oc_launchpad_metadata_values)
 
 Stores field values per dashboard. Each row is a (dashboardUuid, fieldId) pair with a type-encoded value:
 
 - **id**: Auto-increment integer primary key
-- **dashboardUuid**: VARCHAR(36) foreign key to `oc_mydash_dashboards.uuid`
-- **fieldId**: INT foreign key to `oc_mydash_metadata_fields.id` (if field is deleted, the value row becomes orphaned)
+- **dashboardUuid**: VARCHAR(36) foreign key to `oc_launchpad_dashboards.uuid`
+- **fieldId**: INT foreign key to `oc_launchpad_metadata_fields.id` (if field is deleted, the value row becomes orphaned)
 - **value**: TEXT (type-encoded):
   - text: plain string
   - number: decimal string (e.g., "42.5")

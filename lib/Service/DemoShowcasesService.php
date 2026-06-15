@@ -4,8 +4,8 @@
  * DemoShowcasesService
  *
  * Lists, installs, and uninstalls bundled demo "showcase" dashboards
- * shipped with MyDash. Each showcase is delivered as a
- * `mydash-export-v1.zip` archive under `data/demo-showcases/{id}/{id}.zip`
+ * shipped with LaunchPad. Each showcase is delivered as a
+ * `launchpad-export-v1.zip` archive under `data/demo-showcases/{id}/{id}.zip`
  * and is installed as a `group_shared` dashboard scoped to the
  * `default` sentinel group so every user sees it (REQ-DASH-012).
  *
@@ -18,30 +18,30 @@
  * Implements the `demo-data-showcases` capability (REQ-DEMO-001..009).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use DateTimeImmutable;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -283,7 +283,7 @@ class DemoShowcasesService
         // before the existence check to serialise concurrent installs.
         // Two simultaneous admin requests both pass the existence check
         // before either inserts without this guard.
-        $lockKey = 'mydash-showcase-install-'.$showcaseId;
+        $lockKey = 'launchpad-showcase-install-'.$showcaseId;
         try {
             $this->lockingProvider->acquireLock(
                 path: $lockKey,
@@ -465,7 +465,7 @@ class DemoShowcasesService
      * partitions (REQ-DEMO-005).
      *
      * Tile placements (rows where `tileType` is non-null) are always
-     * considered valid — tiles are owned by MyDash itself and do not
+     * considered valid — tiles are owned by LaunchPad itself and do not
      * require a third-party widget registration.
      *
      * @param array<int, mixed> $widgets Widget payloads from the
@@ -493,7 +493,7 @@ class DemoShowcasesService
             $tileType = (string) ($widget['tileType'] ?? '');
 
             // Tile placements bypass the widget registry — they render
-            // through the MyDash tile renderer (REQ-DEMO-005).
+            // through the LaunchPad tile renderer (REQ-DEMO-005).
             if ($tileType !== '') {
                 $valid[] = $widget;
                 continue;
@@ -677,7 +677,7 @@ class DemoShowcasesService
         if ($description === null) {
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $dashboard->setDescription(
-                'MyDash demo showcase ('.$showcaseId.', '.$sourceLanguage.')'
+                'LaunchPad demo showcase ('.$showcaseId.', '.$sourceLanguage.')'
             );
         }
 

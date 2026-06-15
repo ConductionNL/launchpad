@@ -2,7 +2,7 @@
 
 ## Context
 
-The files widget embeds an inline folder browser directly on a MyDash dashboard, allowing users to navigate, open, upload, and delete files without leaving the dashboard context. The widget operates entirely at render time: no background job or pre-cache layer is involved, because file system state changes frequently and a stale listing is worse than the marginal latency of a live read.
+The files widget embeds an inline folder browser directly on a LaunchPad dashboard, allowing users to navigate, open, upload, and delete files without leaving the dashboard context. The widget operates entirely at render time: no background job or pre-cache layer is involved, because file system state changes frequently and a stale listing is worse than the marginal latency of a live read.
 
 Access control is viewer-scoped. Every backend request is evaluated against the viewing user's permissions: files and folders the viewer cannot read are silently absent from the response. Upload and delete actions are similarly gated — the action buttons are rendered only when the placement allows the action AND the viewer holds the required permission on the folder. This means the same widget placement can present differently to different viewers depending on their rights.
 

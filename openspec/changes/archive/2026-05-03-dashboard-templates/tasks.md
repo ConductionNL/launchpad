@@ -2,11 +2,11 @@
 
 ## 1. Schema migration
 
-- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddTemplateMetadataColumns.php` adding three columns to `oc_mydash_dashboards`:
+- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddTemplateMetadataColumns.php` adding three columns to `oc_launchpad_dashboards`:
   - `templateCategory VARCHAR(64) NULL`
   - `templateDescription TEXT NULL`
   - `templatePreviewImage TEXT NULL`
-- [ ] 1.2 Migration adds index `idx_mydash_template_category` on `(templateCategory)` for fast category filtering
+- [ ] 1.2 Migration adds index `idx_launchpad_template_category` on `(templateCategory)` for fast category filtering
 - [ ] 1.3 Confirm migration is reversible (drop columns + index in `postSchemaChange` rollback path)
 - [ ] 1.4 Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly each time
 
@@ -38,7 +38,7 @@
   - Create new Dashboard with `type = 'admin_template'`, fresh UUID, `userId = null`, inherited `gridColumns`
   - Set `templateCategory`, `templateDescription`, `templatePreviewImage` from `$metadata`
   - Deep-copy all placements from source via `WidgetPlacementMapper::copyPlacements(sourceId, newId)`
-  - Throw `\OCA\MyDash\Exception\PermissionException` on ownership mismatch
+  - Throw `\OCA\LaunchPad\Exception\PermissionException` on ownership mismatch
   - Return the new template
 - [ ] 4.3 Add `AdminTemplateService::uploadPreviewImage(string $templateUuid, \Psr\Http\Message\UploadedFileInterface $file): string` that:
   - Ownership check: admin-only via `IGroupManager::isAdmin()`
@@ -46,7 +46,7 @@
   - Store via custom-icon-upload pattern (reuse from `openspec/changes/custom-icon-upload-pattern/`)
   - Update template's `templatePreviewImage` to the new URL
   - Return the new URL
-  - Throw `\OCA\MyDash\Exception\InvalidImageException` on invalid format or upload failure
+  - Throw `\OCA\LaunchPad\Exception\InvalidImageException` on invalid format or upload failure
 
 ## 5. Controller + routes
 

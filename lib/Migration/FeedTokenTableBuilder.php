@@ -4,26 +4,26 @@
  * FeedTokenTableBuilder
  *
  * Builder for the feed-tokens database table schema. Materialises the
- * `oc_mydash_feed_tokens` table that backs the per-user RSS / Atom
+ * `oc_launchpad_feed_tokens` table that backs the per-user RSS / Atom
  * feed-token capability (REQ-FEED-001..009). One row per user
  * (`UNIQUE(user_id)`) plus a fast `token` lookup index for the public
  * `/feed/{token}.xml` endpoint.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -34,7 +34,7 @@ use OCP\DB\Types;
 class FeedTokenTableBuilder
 {
     /**
-     * Create the mydash_feed_tokens table when missing.
+     * Create the launchpad_feed_tokens table when missing.
      *
      * Column layout:
      *  - id           BIGINT PK auto-increment
@@ -50,11 +50,11 @@ class FeedTokenTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_feed_tokens') === true) {
+        if ($schema->hasTable('launchpad_feed_tokens') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_feed_tokens');
+        $table = $schema->createTable('launchpad_feed_tokens');
 
         $table->addColumn(
             'id',
@@ -100,11 +100,11 @@ class FeedTokenTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['user_id'],
-            'mydash_feed_tok_user_uq'
+            'launchpad_feed_tok_user_uq'
         );
         $table->addIndex(
             ['token'],
-            'mydash_feed_tok_tok_idx'
+            'launchpad_feed_tok_tok_idx'
         );
     }//end create()
 }//end class

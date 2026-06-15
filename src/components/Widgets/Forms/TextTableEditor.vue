@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -11,80 +11,80 @@
 					type="checkbox"
 					:checked="value.headerRow"
 					@change="onHeaderRowToggle($event.target.checked)">
-				{{ t('mydash', 'Header row') }}
+				{{ t('launchpad', 'Header row') }}
 			</label>
 
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				@click="onAddRow('above')">
-				{{ t('mydash', 'Add row above') }}
+				{{ t('launchpad', 'Add row above') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				@click="onAddRow('below')">
-				{{ t('mydash', 'Add row below') }}
+				{{ t('launchpad', 'Add row below') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				@click="onAddColumn('left')">
-				{{ t('mydash', 'Add column left') }}
+				{{ t('launchpad', 'Add column left') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				@click="onAddColumn('right')">
-				{{ t('mydash', 'Add column right') }}
+				{{ t('launchpad', 'Add column right') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				:disabled="!hasSelection"
 				@click="onDeleteRow">
-				{{ t('mydash', 'Delete row') }}
+				{{ t('launchpad', 'Delete row') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				:disabled="!hasSelection"
 				@click="onDeleteColumn">
-				{{ t('mydash', 'Delete column') }}
+				{{ t('launchpad', 'Delete column') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				:disabled="!canMerge"
 				@click="onMergeCells">
-				{{ t('mydash', 'Merge cells') }}
+				{{ t('launchpad', 'Merge cells') }}
 			</button>
 			<button
 				type="button"
 				class="text-table-editor__btn"
 				:disabled="!canSplit"
 				@click="onSplitCell">
-				{{ t('mydash', 'Split cell') }}
+				{{ t('launchpad', 'Split cell') }}
 			</button>
 		</div>
 
 		<div class="text-table-editor__alignments">
-			<span class="text-table-editor__hint">{{ t('mydash', 'Column alignment') }}:</span>
+			<span class="text-table-editor__hint">{{ t('launchpad', 'Column alignment') }}:</span>
 			<select
 				v-for="(_, cIdx) in value.columnAlignments"
 				:key="`align-${cIdx}`"
 				class="text-table-editor__align-select"
 				:value="value.columnAlignments[cIdx]"
-				:aria-label="t('mydash', 'Column alignment')"
+				:aria-label="t('launchpad', 'Column alignment')"
 				@change="onAlignmentChange(cIdx, $event.target.value)">
 				<option value="left">
-					{{ t('mydash', 'Left') }}
+					{{ t('launchpad', 'Left') }}
 				</option>
 				<option value="center">
-					{{ t('mydash', 'Center') }}
+					{{ t('launchpad', 'Center') }}
 				</option>
 				<option value="right">
-					{{ t('mydash', 'Right') }}
+					{{ t('launchpad', 'Right') }}
 				</option>
 			</select>
 		</div>
@@ -262,13 +262,13 @@ export default {
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		cellPlaceholder(rIdx) {
 			return this.value.headerRow && rIdx === 0
-				? t('mydash', 'Header')
-				: t('mydash', 'Cell')
+				? t('launchpad', 'Header')
+				: t('launchpad', 'Cell')
 		},
 
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		cellLabel(rIdx, cIdx) {
-			return t('mydash', 'Row {row}, column {col}', { row: rIdx + 1, col: cIdx + 1 })
+			return t('launchpad', 'Row {row}, column {col}', { row: rIdx + 1, col: cIdx + 1 })
 		},
 
 		/** @spec openspec/specs/text-display-widget/spec.md */
@@ -303,7 +303,7 @@ export default {
 			const hasText = row.some((cell) => typeof cell?.text === 'string' && cell.text.trim() !== '')
 			if (hasText) {
 				const proceed = typeof window !== 'undefined' && typeof window.confirm === 'function'
-					? window.confirm(t('mydash', 'This row contains text. Delete?'))
+					? window.confirm(t('launchpad', 'This row contains text. Delete?'))
 					: true
 				if (!proceed) {
 					return
@@ -322,7 +322,7 @@ export default {
 			)
 			if (hasText) {
 				const proceed = typeof window !== 'undefined' && typeof window.confirm === 'function'
-					? window.confirm(t('mydash', 'This column contains text. Delete?'))
+					? window.confirm(t('launchpad', 'This column contains text. Delete?'))
 					: true
 				if (!proceed) {
 					return

@@ -1,4 +1,4 @@
-# MyDash integration tests (Newman / Postman)
+# LaunchPad integration tests (Newman / Postman)
 
 This folder contains the Newman / Postman integration suite that
 exercises every public OCS route declared in
@@ -9,24 +9,24 @@ ADR-008 deliverable for end-to-end API contract coverage.
 
 | File | Purpose |
 |------|---------|
-| `mydash.postman_collection.json` | Postman 2.1 collection. 28 capability folders, 154 requests covering the 131 declared routes plus error-envelope branches. |
+| `launchpad.postman_collection.json` | Postman 2.1 collection. 28 capability folders, 154 requests covering the 131 declared routes plus error-envelope branches. |
 | `local.env.json` | Postman environment template. Set `baseUrl`, `adminUser`, `adminPassword` (and optionally `memberUser` / `memberPassword`). All other variables (`fixtureDashboardId`, `fixtureTileId`, ...) are populated at runtime by the fixture-setup folder. |
 | `.coverage-check.js` | Internal Node script that asserts every route in `appinfo/routes.php` has at least one matching request in the collection. Run with `node tests/integration/.coverage-check.js` — exits non-zero on missing coverage. |
 
 ## How to run
 
-The collection assumes a Nextcloud instance with the MyDash app
+The collection assumes a Nextcloud instance with the LaunchPad app
 installed and reachable on `{{baseUrl}}` with the configured admin
 credentials. The default `local.env.json` points at
 `http://localhost:8080` with `admin:admin`.
 
 ```bash
 # With Newman installed globally
-newman run tests/integration/mydash.postman_collection.json \
+newman run tests/integration/launchpad.postman_collection.json \
   --environment tests/integration/local.env.json
 
 # Or via npx (recommended — no global install required)
-npx --yes newman run tests/integration/mydash.postman_collection.json \
+npx --yes newman run tests/integration/launchpad.postman_collection.json \
   --environment tests/integration/local.env.json
 
 # With Newman installed via composer:
@@ -37,7 +37,7 @@ If the env credentials are different on your local box, use Newman's
 `--env-var` flags to override the defaults inline:
 
 ```bash
-npx newman run tests/integration/mydash.postman_collection.json \
+npx newman run tests/integration/launchpad.postman_collection.json \
   --env-var baseUrl=http://nextcloud.local \
   --env-var adminUser=admin \
   --env-var adminPassword=secret \
@@ -126,7 +126,7 @@ automatically.
 
 Every PR that changes a controller in `lib/Controller/` MUST also
 update the matching request(s) in
-`mydash.postman_collection.json`. The reverse is also true: if you add
+`launchpad.postman_collection.json`. The reverse is also true: if you add
 a route to `appinfo/routes.php`, add a request to the appropriate
 capability folder before merging. Run
 `node tests/integration/.coverage-check.js` locally to verify

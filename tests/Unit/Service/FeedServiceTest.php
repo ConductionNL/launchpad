@@ -8,12 +8,12 @@
  * description escaping, and reverse-chronological ordering.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\FeedToken;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\FeedService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\FeedToken;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\FeedService;
 use OCP\IAppConfig;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -90,7 +90,7 @@ class FeedServiceTest extends TestCase
         $this->l10nFactory->method('get')->willReturn($l10n);
 
         $this->urlGenerator->method('linkToRouteAbsolute')
-            ->willReturn('https://example.test/index.php/apps/mydash/');
+            ->willReturn('https://example.test/index.php/apps/launchpad/');
 
         $this->service = new FeedService(
             dashboardService: $this->dashboardService,
@@ -183,7 +183,7 @@ class FeedServiceTest extends TestCase
 
         $this->dashboardService->method('getVisibleToUser')->willReturn($entries);
         $this->appConfig->method('getValueInt')
-            ->with('mydash', FeedService::CONFIG_KEY_ITEM_CAP, 50)
+            ->with('launchpad', FeedService::CONFIG_KEY_ITEM_CAP, 50)
             ->willReturn(3);
         $this->stubUserManager(displayName: 'Owner Name');
 

@@ -50,7 +50,7 @@ page metadata if needed) and **before** the HTTP response is returned.
 
 **Implication for spec:** The synchronous design means that if a listener throws, the source app logs a
 warning and continues — the folder delete still happens. This matches REQ-CSC-006 (failure
-isolation) but also means the `oc_mydash_cascade_failures` retry table is speculative; the source app
+isolation) but also means the `oc_launchpad_cascade_failures` retry table is speculative; the source app
 does not have one.
 
 ---
@@ -82,8 +82,8 @@ Additionally, `PageService::deletePage()` performs two direct (non-event) cleanu
 
 **What this means for the spec:** The spec's 10-listener list includes several tables (reactions,
 locks, versions, public shares, metadata values, translations, view analytics, tree children) that
-do not exist as separate tables in the source app. MyDash has its own schema which may include more
-tables, but the spec's table list must be validated against MyDash's actual migrations — not
+do not exist as separate tables in the source app. LaunchPad has its own schema which may include more
+tables, but the spec's table list must be validated against LaunchPad's actual migrations — not
 inferred from the source app.
 
 ---
@@ -107,9 +107,9 @@ paths and are not ownership-coupled to NC user accounts in the DB. The page file
 user deletion.
 
 **Implication for spec:** REQ-CSC-004 scenario "Personal dashboards are deleted on user deletion"
-differs from what the source app does. If MyDash dashboards are DB-row-owned by user (likely, given the
-`ownerUserId` on `DashboardDeletedEvent`), then the spec's design is correct for MyDash even
-though it diverges from the source app's filesystem approach. This is a MyDash-specific requirement,
+differs from what the source app does. If LaunchPad dashboards are DB-row-owned by user (likely, given the
+`ownerUserId` on `DashboardDeletedEvent`), then the spec's design is correct for LaunchPad even
+though it diverges from the source app's filesystem approach. This is a LaunchPad-specific requirement,
 not a transcription of the source app behavior.
 
 ---
@@ -129,9 +129,9 @@ the source codebase-source/lib/Listener/
 `Application::register()` registers listeners only for `CommentsEntityEvent`, `PageDeletedEvent`,
 and `UserDeletedEvent`. `GroupDeletedEvent` is not imported or registered.
 
-**Implication for spec:** REQ-CSC-005 (group lifecycle cleanup) is a MyDash-only requirement with
+**Implication for spec:** REQ-CSC-005 (group lifecycle cleanup) is a LaunchPad-only requirement with
 no the source app precedent. It must be designed from scratch. The IConfig JSON-mutation scenarios
-(removing group from `org_navigation_tree` and `group_order`) are MyDash-specific features.
+(removing group from `org_navigation_tree` and `group_order`) are LaunchPad-specific features.
 
 ---
 
@@ -156,10 +156,10 @@ The outer `PageService::deletePage()` wraps the entire dispatch in its own try/c
 Two divergences from spec:
 1. the source app logs at `error` level on listener failure (spec says `warning`). Spec's WARN-level
    requirement is a conscious design choice — it is not derived from the source app behavior.
-2. There is no `oc_the source app_cascade_failures` table. The spec's `oc_mydash_cascade_failures`
+2. There is no `oc_the source app_cascade_failures` table. The spec's `oc_launchpad_cascade_failures`
    table adds complexity that the source app does not carry.
 
-**Recommendation:** Reconsider whether `oc_mydash_cascade_failures` (REQ-CSC-007) is worth the
+**Recommendation:** Reconsider whether `oc_launchpad_cascade_failures` (REQ-CSC-007) is worth the
 migration cost. the source app's log-and-continue approach relies on the orphaned-data cleanup job to
 catch stragglers. If the orphan-cleanup job already handles residual rows, the failures table is
 redundant. If it is kept, consider whether it should be part of this spec or the
@@ -210,23 +210,23 @@ There is no `deletedAt`, no `cascadeStats`, and no per-table counts in the respo
 The following adjustments are recommended when the spec is next edited (do NOT apply during this
 design phase — this section is for the author's reference):
 
-- **REQ-CSC-007 (failure recording table):** Reconsider whether `oc_mydash_cascade_failures` is
+- **REQ-CSC-007 (failure recording table):** Reconsider whether `oc_launchpad_cascade_failures` is
   needed given that the source app's simpler log-and-continue pattern works in practice. If retained,
   clarify that retry logic lives in `orphaned-data-cleanup`, not here.
 
 - **REQ-CSC-003 (listener group, table list):** The 10-table list should be validated against
-  MyDash's actual migration files before implementation. Reactions, locks, versions, public
-  shares, metadata values, translations, and view analytics are all plausible MyDash tables but
+  LaunchPad's actual migration files before implementation. Reactions, locks, versions, public
+  shares, metadata values, translations, and view analytics are all plausible LaunchPad tables but
   are not confirmed from the source app. Only NC comments are confirmed present.
 
 - **REQ-CSC-004 (user lifecycle):** The scenario "Personal dashboards are deleted on user
-  deletion" is a MyDash design choice (dashboard rows are DB-owned), not inherited from the source app.
-  Mark it as MyDash-specific so implementers understand it requires dashboard enumeration logic,
+  deletion" is a LaunchPad design choice (dashboard rows are DB-owned), not inherited from the source app.
+  Mark it as LaunchPad-specific so implementers understand it requires dashboard enumeration logic,
   not a direct port.
 
-- **REQ-CSC-005 (group lifecycle):** Entirely MyDash-specific — no the source app precedent. The
+- **REQ-CSC-005 (group lifecycle):** Entirely LaunchPad-specific — no the source app precedent. The
   `GroupDeletedListener` must be designed from scratch. The IConfig JSON-mutation scenarios
-  (org_navigation_tree, group_order) are valid requirements but need MyDash schema confirmation.
+  (org_navigation_tree, group_order) are valid requirements but need LaunchPad schema confirmation.
 
 - **REQ-CSC-006 (failure isolation):** The log level should be WARN not ERROR per the spec, which
   is a deliberate downgrade from the source app's error-level logging. Add a note that the source app uses
@@ -241,8 +241,8 @@ design phase — this section is for the author's reference):
 
 ## Open follow-ups
 
-1. **MyDash table inventory:** Confirm which of the 10 spec-listed tables actually exist in
-   MyDash's migrations (`oc_mydash_widget_placements`, `oc_mydash_dashboard_reactions`, etc.)
+1. **LaunchPad table inventory:** Confirm which of the 10 spec-listed tables actually exist in
+   LaunchPad's migrations (`oc_launchpad_widget_placements`, `oc_launchpad_dash_reactions`, etc.)
    before writing listener code. At least one spec table (reactions) may be stored differently.
 
 2. **cascadeStats aggregation across tree:** If `TreeListener` dispatches child events
@@ -251,15 +251,15 @@ design phase — this section is for the author's reference):
    leaves the aggregation mechanism unspecified.
 
 3. **Page-lock orphan gap (confirmed from the source app):** the source app does not clean `page_locks` on
-   page delete — only on user delete. Verify that `oc_mydash_dashboard_locks` in MyDash IS
+   page delete — only on user delete. Verify that `oc_launchpad_dashboard_locks` in LaunchPad IS
    cleaned by `LocksListener` on dashboard delete (the spec says yes; confirm the migration and
    table schema support page/dashboard-keyed lookup).
 
-4. **Failure table vs log-only:** Decide before implementation whether `oc_mydash_cascade_failures`
+4. **Failure table vs log-only:** Decide before implementation whether `oc_launchpad_cascade_failures`
    is required. If the `orphaned-data-cleanup` job can identify residual rows without a failures
    table, the migration can be dropped, saving schema complexity.
 
 5. **GroupDeletedListener analytics data:** The spec (REQ-CSC-005) doesn't mention analytics rows
-   associated with a deleted group. If MyDash tracks per-group or group-member analytics,
+   associated with a deleted group. If LaunchPad tracks per-group or group-member analytics,
    `GroupDeletedListener` should also clean those rows (analogous to how `UserDeletedListener`
    cleans analytics by user_hash).

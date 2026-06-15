@@ -3,7 +3,7 @@
 ## 1. Widget registration and setup
 
 - [x] 1.1 Create `src/constants/widgetRegistry.js` entry for `type: 'quicklinks'` with default content shape (REQ-QLNK-002)
-- [x] 1.2 Register the widget in `WidgetController.php` or entry point via `OCP\Dashboard\IManager::registerWidget()` with id `mydash_quicklinks` and default `gridWidth = 4`, `gridHeight = 2` (REQ-QLNK-001)
+- [x] 1.2 Register the widget in `WidgetController.php` or entry point via `OCP\Dashboard\IManager::registerWidget()` with id `launchpad_quicklinks` and default `gridWidth = 4`, `gridHeight = 2` (REQ-QLNK-001)
 - [x] 1.3 Add translation entries in `l10n/en.js` and `l10n/nl.js`: `Quicklinks`, `No quicklinks yet — click the gear icon to add some.`
 
 ## 2. Renderer (QuicklinksWidget.vue)

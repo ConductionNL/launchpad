@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -16,14 +16,14 @@
 						type="text"
 						class="links-form__section-title"
 						:value="section.title"
-						:placeholder="t('mydash', 'Section title')"
+						:placeholder="t('launchpad', 'Section title')"
 						@input="updateSectionTitle(sIdx, $event.target.value)">
 					<div class="links-form__section-actions">
 						<button
 							type="button"
 							class="links-form__btn links-form__btn--small"
 							:disabled="sIdx === 0"
-							:title="t('mydash', 'Move up')"
+							:title="t('launchpad', 'Move up')"
 							@click="moveSection(sIdx, -1)">
 							↑
 						</button>
@@ -31,14 +31,14 @@
 							type="button"
 							class="links-form__btn links-form__btn--small"
 							:disabled="sIdx === sections.length - 1"
-							:title="t('mydash', 'Move down')"
+							:title="t('launchpad', 'Move down')"
 							@click="moveSection(sIdx, 1)">
 							↓
 						</button>
 						<button
 							type="button"
 							class="links-form__btn links-form__btn--danger"
-							:title="t('mydash', 'Delete section')"
+							:title="t('launchpad', 'Delete section')"
 							@click="deleteSection(sIdx)">
 							×
 						</button>
@@ -55,32 +55,32 @@
 							type="text"
 							class="links-form__input"
 							:value="link.label"
-							:placeholder="t('mydash', 'Label')"
+							:placeholder="t('launchpad', 'Label')"
 							@input="updateLink(sIdx, lIdx, 'label', $event.target.value)">
 						<input
 							type="text"
 							class="links-form__input"
 							:value="link.url"
-							:placeholder="t('mydash', 'URL')"
+							:placeholder="t('launchpad', 'URL')"
 							@input="updateLink(sIdx, lIdx, 'url', $event.target.value)">
 						<input
 							type="text"
 							class="links-form__input links-form__input--narrow"
 							:value="link.icon"
-							:placeholder="t('mydash', 'Icon (name or URL)')"
+							:placeholder="t('launchpad', 'Icon (name or URL)')"
 							@input="updateLink(sIdx, lIdx, 'icon', $event.target.value)">
 						<input
 							v-if="showLinkDescriptions"
 							type="text"
 							class="links-form__input"
 							:value="link.description"
-							:placeholder="t('mydash', 'Description (optional)')"
+							:placeholder="t('launchpad', 'Description (optional)')"
 							@input="updateLink(sIdx, lIdx, 'description', $event.target.value)">
 						<button
 							type="button"
 							class="links-form__btn links-form__btn--small"
 							:disabled="lIdx === 0"
-							:title="t('mydash', 'Move up')"
+							:title="t('launchpad', 'Move up')"
 							@click="moveLink(sIdx, lIdx, -1)">
 							↑
 						</button>
@@ -88,14 +88,14 @@
 							type="button"
 							class="links-form__btn links-form__btn--small"
 							:disabled="lIdx === section.links.length - 1"
-							:title="t('mydash', 'Move down')"
+							:title="t('launchpad', 'Move down')"
 							@click="moveLink(sIdx, lIdx, 1)">
 							↓
 						</button>
 						<button
 							type="button"
 							class="links-form__btn links-form__btn--danger"
-							:title="t('mydash', 'Delete link')"
+							:title="t('launchpad', 'Delete link')"
 							@click="deleteLink(sIdx, lIdx)">
 							×
 						</button>
@@ -104,7 +104,7 @@
 						type="button"
 						class="links-form__btn links-form__btn--ghost"
 						@click="addLink(sIdx)">
-						+ {{ t('mydash', 'Add link') }}
+						+ {{ t('launchpad', 'Add link') }}
 					</button>
 				</div>
 			</div>
@@ -112,14 +112,14 @@
 				type="button"
 				class="links-form__btn links-form__btn--ghost"
 				@click="addSection">
-				+ {{ t('mydash', 'Add section') }}
+				+ {{ t('launchpad', 'Add section') }}
 			</button>
 		</div>
 
 		<!-- Layout options panel -->
 		<div class="links-form__options">
 			<label class="links-form__option">
-				<span>{{ t('mydash', 'Columns') }}</span>
+				<span>{{ t('launchpad', 'Columns') }}</span>
 				<input
 					type="number"
 					min="1"
@@ -130,26 +130,26 @@
 			</label>
 
 			<label class="links-form__option">
-				<span>{{ t('mydash', 'Layout') }}</span>
+				<span>{{ t('launchpad', 'Layout') }}</span>
 				<select
 					:value="linkLayout"
 					class="links-form__input"
 					@change="updateOption('linkLayout', $event.target.value)">
-					<option value="card">{{ t('mydash', 'Card') }}</option>
-					<option value="inline">{{ t('mydash', 'Inline') }}</option>
-					<option value="icon-only">{{ t('mydash', 'Icon only') }}</option>
+					<option value="card">{{ t('launchpad', 'Card') }}</option>
+					<option value="inline">{{ t('launchpad', 'Inline') }}</option>
+					<option value="icon-only">{{ t('launchpad', 'Icon only') }}</option>
 				</select>
 			</label>
 
 			<label class="links-form__option">
-				<span>{{ t('mydash', 'Icon size') }}</span>
+				<span>{{ t('launchpad', 'Icon size') }}</span>
 				<select
 					:value="iconSize"
 					class="links-form__input"
 					@change="updateOption('iconSize', $event.target.value)">
-					<option value="small">{{ t('mydash', 'Small (24 px)') }}</option>
-					<option value="medium">{{ t('mydash', 'Medium (40 px)') }}</option>
-					<option value="large">{{ t('mydash', 'Large (64 px)') }}</option>
+					<option value="small">{{ t('launchpad', 'Small (24 px)') }}</option>
+					<option value="medium">{{ t('launchpad', 'Medium (40 px)') }}</option>
+					<option value="large">{{ t('launchpad', 'Large (64 px)') }}</option>
 				</select>
 			</label>
 
@@ -158,7 +158,7 @@
 					type="checkbox"
 					:checked="openInNewTab"
 					@change="updateOption('openInNewTab', $event.target.checked)">
-				<span>{{ t('mydash', 'Open in new tab') }}</span>
+				<span>{{ t('launchpad', 'Open in new tab') }}</span>
 			</label>
 
 			<label class="links-form__option links-form__option--checkbox">
@@ -166,7 +166,7 @@
 					type="checkbox"
 					:checked="showSectionTitles"
 					@change="updateOption('showSectionTitles', $event.target.checked)">
-				<span>{{ t('mydash', 'Show section titles') }}</span>
+				<span>{{ t('launchpad', 'Show section titles') }}</span>
 			</label>
 
 			<label class="links-form__option links-form__option--checkbox">
@@ -175,7 +175,7 @@
 					:checked="showLinkDescriptions"
 					:disabled="linkLayout !== 'card'"
 					@change="updateOption('showLinkDescriptions', $event.target.checked)">
-				<span>{{ t('mydash', 'Show descriptions') }}</span>
+				<span>{{ t('launchpad', 'Show descriptions') }}</span>
 			</label>
 		</div>
 
@@ -217,19 +217,19 @@ function makeEmptySection() {
  */
 function validateUrl(url) {
 	if (typeof url !== 'string' || url.trim() === '') {
-		return t('mydash', 'Link URL is required')
+		return t('launchpad', 'Link URL is required')
 	}
 	const trimmed = url.trim()
 	if (trimmed.startsWith('/')) {
 		if (trimmed.includes('..')) {
-			return t('mydash', 'Invalid URL — use HTTP(S) or relative paths.')
+			return t('launchpad', 'Invalid URL — use HTTP(S) or relative paths.')
 		}
 		return null
 	}
 	if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
 		return null
 	}
-	return t('mydash', 'Invalid URL — use HTTP(S) or relative paths.')
+	return t('launchpad', 'Invalid URL — use HTTP(S) or relative paths.')
 }
 
 /**
@@ -446,7 +446,7 @@ export default {
 				}
 				section.links.forEach((link, lIdx) => {
 					if (typeof link.label !== 'string' || link.label.trim() === '') {
-						const msg = t('mydash', 'Link label is required')
+						const msg = t('launchpad', 'Link label is required')
 						sectionErrors[lIdx] = msg
 						errors.push(msg)
 					}

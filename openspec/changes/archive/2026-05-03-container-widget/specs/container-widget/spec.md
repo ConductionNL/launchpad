@@ -84,7 +84,7 @@ Containers MAY hold containers, but the maximum nesting depth is **3 levels**. T
 - **WHEN** the payload is POSTed
 - **THEN** the server MUST return HTTP 400
 - **AND** the body MUST include `error: 'container_depth_exceeded'` and `maxDepth: 3`
-- **AND** no rows MUST be inserted into `oc_mydash_widget_placements`
+- **AND** no rows MUST be inserted into `oc_launchpad_widget_placements`
 
 ### Requirement: REQ-CONT-007 Form fields
 

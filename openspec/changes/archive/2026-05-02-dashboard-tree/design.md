@@ -3,7 +3,7 @@
 ## Context
 
 This capability adds parent/child hierarchy to dashboards via a `parentUuid` foreign key on
-`oc_mydash_dashboards`. The spec (`dashboard-tree`) pins the data model, API contract, max depth 5,
+`oc_launchpad_dashboards`. The spec (`dashboard-tree`) pins the data model, API contract, max depth 5,
 per-parent slug uniqueness, and cascade-delete guard. Sibling spec `dashboard-cascade-events` owns
 delete propagation; this design covers write-path constraints and read-time breadcrumb derivation.
 
@@ -61,7 +61,7 @@ depth would exceed 5 after the proposed attach.
 - Separate index table (like `PageIndexService` in source) — rejected; over-engineering for ≤5 levels
 **Rationale**: At max depth 5 the ancestor walk is at most 4 additional queries (or 1 recursive CTE).
 `DashboardTreeService::getBreadcrumbs(string $uuid): array` returns ordered ancestor stubs. Results
-MAY be cached in APCu with a 60 s TTL keyed on `mydash_bc_{uuid}`.
+MAY be cached in APCu with a 60 s TTL keyed on `launchpad_bc_{uuid}`.
 
 ### D5: Cascade-delete guard
 **Decision**: Deleting a dashboard with children returns HTTP 409 unless `?force=true` is passed;

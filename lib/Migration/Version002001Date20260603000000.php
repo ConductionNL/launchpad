@@ -11,7 +11,7 @@
  * column routes GroupFolder reads/writes to locale-specific sub-paths.
  *
  * @category Migration
- * @package  OCA\MyDash\Migration
+ * @package  OCA\LaunchPad\Migration
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;

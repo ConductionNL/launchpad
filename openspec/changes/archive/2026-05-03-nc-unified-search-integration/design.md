@@ -4,7 +4,7 @@
 
 Nextcloud ships a platform-wide search surface (Ctrl+K) backed by the `OCP\Search\IProvider`
 contract. Any app registering a provider gains automatic presence in the search dropdown — no
-custom UI or route is needed. MyDash currently has no registered provider, so dashboards and
+custom UI or route is needed. LaunchPad currently has no registered provider, so dashboards and
 widget content are invisible to operators and end-users searching from the global bar.
 
 The integration must stay simple: the unified search fires on keypress, so the response budget
@@ -21,7 +21,7 @@ response is assembled. The existing `canViewDashboard($userId, $dashboard)` help
 ## Goals / Non-Goals
 
 **Goals:**
-- Register a `mydash` search provider visible in the NC Ctrl+K dropdown.
+- Register a `launchpad` search provider visible in the NC Ctrl+K dropdown.
 - Surface dashboard titles, descriptions, and widget body text as search results.
 - Enforce per-result permission filtering before returning results.
 - Return a direct link that opens the matching dashboard.
@@ -44,7 +44,7 @@ produce meaningless results for end-users. Keeping the surface narrow also bound
 ### D2: Search backend
 **Decision:** Execute a live `LIKE %term%` query at search-time via the existing
 `DashboardMapper` and `WidgetMapper`. No index table is created.
-**Alternatives considered:** Nightly job building a `mydash_search_index` table with pre-tokenised
+**Alternatives considered:** Nightly job building a `launchpad_search_index` table with pre-tokenised
 snippets.
 **Rationale:** The `IProvider` contract does not require an index. User dashboard counts are low
 (typically < 100), so a live query is fast enough. An index adds migration surface and cache
@@ -66,15 +66,15 @@ widget body matches. Within each tier, results are ordered by `updatedAt DESC`.
 matches user intuition (a title match is more relevant than a body match).
 
 ### D5: Provider ID and group label
-**Decision:** Register the provider with id `mydash`. The NC search UI derives the dropdown
-group label from the provider id — this will render as "MyDash".
+**Decision:** Register the provider with id `launchpad`. The NC search UI derives the dropdown
+group label from the provider id — this will render as "LaunchPad".
 **Alternatives considered:** `my_dash`, `the source app`, or a localised string id.
-**Rationale:** `mydash` matches the app id used everywhere else in info.xml and routes, keeping
+**Rationale:** `launchpad` matches the app id used everywhere else in info.xml and routes, keeping
 the namespace consistent and avoiding a separate label mapping.
 
 ### D6: Result link target
 **Decision:** Each result's URL is built via
-`linkToRoute('mydash.PageController.view', ['dashboardUuid' => $dashboard->getUuid()])`.
+`linkToRoute('launchpad.PageController.view', ['dashboardUuid' => $dashboard->getUuid()])`.
 **Alternatives considered:** A dedicated `/search-result/{uuid}` redirect route.
 **Rationale:** The page controller route already handles deep-linking to a specific dashboard.
 Adding a redirect layer would be dead weight.
@@ -90,8 +90,8 @@ Adding a redirect layer would be dead weight.
 
 ## Open follow-ups
 
-- Evaluate whether a dedicated `mydash_search_index` table is warranted once widget counts
+- Evaluate whether a dedicated `launchpad_search_index` table is warranted once widget counts
   grow beyond ~1 000 per installation.
 - Add snippet highlighting (bold the matched term) if NC's `SearchResult` API exposes that
   field in a future platform version.
-- Consider exposing a `mydash:search:reindex` CLI command if an index is adopted later.
+- Consider exposing a `launchpad:search:reindex` CLI command if an index is adopted later.

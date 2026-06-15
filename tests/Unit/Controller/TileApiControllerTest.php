@@ -8,12 +8,12 @@
  * GET endpoints continue to serve existing rows for backwards compat.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\TileApiController;
-use OCA\MyDash\Db\Tile;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\TileService;
+use OCA\LaunchPad\Controller\TileApiController;
+use OCA\LaunchPad\Db\Tile;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\TileService;
 use OCP\AppFramework\Http;
 use OCP\IL10N;
 use OCP\IRequest;

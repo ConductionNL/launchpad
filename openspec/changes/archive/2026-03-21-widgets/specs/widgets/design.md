@@ -2,10 +2,10 @@
 
 ## Overview
 
-Widgets in MyDash are a two-layer concept:
+Widgets in LaunchPad are a two-layer concept:
 
-1. **Available widgets** — discovered at runtime from Nextcloud's `OCP\Dashboard\IManager::getWidgets()`. These are PHP objects registered by other Nextcloud apps. MyDash does not own them.
-2. **Widget placements** — records in `mydash_widget_placements` that tie a discovered widget (or a custom tile) to a specific position on a user's dashboard grid.
+1. **Available widgets** — discovered at runtime from Nextcloud's `OCP\Dashboard\IManager::getWidgets()`. These are PHP objects registered by other Nextcloud apps. LaunchPad does not own them.
+2. **Widget placements** — records in `launchpad_widget_placements` that tie a discovered widget (or a custom tile) to a specific position on a user's dashboard grid.
 
 This document describes every PHP class, Vue component, and Pinia store that implements the widget feature, and how they connect.
 
@@ -71,7 +71,7 @@ Components
 ```
 Browser
   api.getAvailableWidgets()
-    → GET /apps/mydash/api/widgets
+    → GET /apps/launchpad/api/widgets
       → WidgetApiController::listAvailable()
           → WidgetService::getAvailableWidgets()
               → IManager::getWidgets()          [Nextcloud DI]
@@ -93,7 +93,7 @@ useWidgetStore.availableWidgets = response.data
 WidgetRenderer::initWidget()
   → loadWidgetItems([widgetId])   [Pinia action]
     → api.getWidgetItems(widgetIds)
-      → GET /apps/mydash/api/widgets/items?widgets[]=foo&widgets[]=bar
+      → GET /apps/launchpad/api/widgets/items?widgets[]=foo&widgets[]=bar
         → WidgetApiController::getItems(widgets, limit)
             → WidgetService::getWidgetItems(userId, widgetIds, limit)
                 → IManager::getWidgets()
@@ -113,7 +113,7 @@ WidgetRenderer.setupStoreSubscription() fires → localWidgetItemsData updated �
 ```
 useDashboardStore::addWidgetToDashboard(widgetId, position)
   → api.addWidget(dashboardId, { widgetId, gridX, gridY, gridWidth, gridHeight })
-    → POST /apps/mydash/api/dashboard/{dashboardId}/widgets
+    → POST /apps/launchpad/api/dashboard/{dashboardId}/widgets
       → WidgetApiController::addWidget(dashboardId, widgetId, gridX, gridY, gridWidth, gridHeight)
           PermissionService::canAddWidget(userId, dashboardId)
             DashboardMapper::find(dashboardId) → check userId === dashboard.userId
@@ -134,7 +134,7 @@ widgetPlacements.push(response.data)
 ```
 useDashboardStore::updateWidgetPlacement(placementId, updates)
   → api.updateWidgetPlacement(placementId, updates)
-    → PUT /apps/mydash/api/widgets/{placementId}
+    → PUT /apps/launchpad/api/widgets/{placementId}
       → WidgetApiController::updatePlacement(placementId)
           PermissionService::canStyleWidget(userId, placementId)
             PlacementMapper::find(placementId) → DashboardMapper::find(dashboardId)
@@ -167,7 +167,7 @@ DashboardGrid → on GridStack 'change' event
     useDashboardStore::updatePlacements(placements)
       widgetPlacements = placements   [optimistic update]
       api.updateDashboard(id, { placements: [...{id,gridX,gridY,gridWidth,gridHeight}] })
-        → PUT /apps/mydash/api/dashboard/{id}
+        → PUT /apps/launchpad/api/dashboard/{id}
           → DashboardApiController::update()
               DashboardService::updateDashboard(...)
                 WidgetPlacementMapper::updatePositions(updates)
@@ -180,7 +180,7 @@ DashboardGrid → on GridStack 'change' event
 useDashboardStore::removeWidgetFromDashboard(placementId)
   check: if compulsory + permissionLevel !== 'full' → abort
   api.removeWidget(placementId)
-    → DELETE /apps/mydash/api/widgets/{placementId}
+    → DELETE /apps/launchpad/api/widgets/{placementId}
       → WidgetApiController::removePlacement(placementId)
           PermissionService::canRemoveWidget(userId, placementId)
             if permissionLevel === view_only → false
@@ -198,12 +198,12 @@ widgetPlacements = widgetPlacements.filter(p => p.id !== placementId)
 
 ## Database Schema
 
-### Table: `mydash_widget_placements`
+### Table: `launchpad_widget_placements`
 
 | Column                | Type        | Nullable | Default  | Notes |
 |-----------------------|-------------|----------|----------|-------|
 | `id`                  | BIGINT UNSIGNED | NO   | AI       | Primary key |
-| `dashboard_id`        | BIGINT UNSIGNED | NO   |          | FK to `mydash_dashboards.id` (cascade on app layer) |
+| `dashboard_id`        | BIGINT UNSIGNED | NO   |          | FK to `launchpad_dashboards.id` (cascade on app layer) |
 | `widget_id`           | VARCHAR(255)| NO       |          | Nextcloud widget id (e.g. `weather_status`) or `tile-<uniqid>` for tiles |
 | `grid_x`              | INTEGER     | NO       | 0        | Zero-based column |
 | `grid_y`              | INTEGER     | NO       | 0        | Zero-based row |
@@ -229,8 +229,8 @@ widgetPlacements = widgetPlacements.filter(p => p.id !== placementId)
 
 **Indexes:**
 - PRIMARY KEY `id`
-- INDEX `mydash_placement_dashboard` on `dashboard_id`
-- INDEX `mydash_placement_widget` on `widget_id`
+- INDEX `launchpad_placement_dash` on `dashboard_id`
+- INDEX `launchpad_placement_widget` on `widget_id`
 
 **Cascade behavior:** Deleting a dashboard cascades placement deletion at the application layer via `WidgetPlacementMapper::deleteByDashboardId()`, called from `DashboardService`. Conditional rules are cascade-deleted at the DB level via the `ConditionalRule` mapper when a placement is deleted.
 
@@ -265,7 +265,7 @@ Both v1 and v2 can coexist. `WidgetItemLoader` prefers v2 when both are present.
 
 ### Single table for widgets and tiles
 
-Rather than a separate `mydash_tile_placements` table, custom tiles are stored as rows in `mydash_widget_placements` with `tile_type = 'custom'` and a synthetic `widget_id` value of the form `tile-<uniqid>`. This simplifies the grid model: `DashboardGrid` operates on a single `placements` array regardless of type, and differentiates by checking `placement.tileType === 'custom'` (PHP) or `placement.widgetId.startsWith('tile-')` (JS).
+Rather than a separate `launchpad_tile_placements` table, custom tiles are stored as rows in `launchpad_widget_placements` with `tile_type = 'custom'` and a synthetic `widget_id` value of the form `tile-<uniqid>`. This simplifies the grid model: `DashboardGrid` operates on a single `placements` array regardless of type, and differentiates by checking `placement.tileType === 'custom'` (PHP) or `placement.widgetId.startsWith('tile-')` (JS).
 
 ### Visibility stored as integer, not enum
 

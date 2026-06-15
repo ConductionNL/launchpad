@@ -227,14 +227,14 @@ NOTE: All four bulk endpoints MUST also apply `#[UserRateThrottle(limit: 5, peri
 - AND the error response MUST indicate the current cap value
 
 #### Scenario: Admin modifies bulk operation cap
-- GIVEN admin sets config `mydash.bulk_operation_max_per_request = 1000` via OCC command or web settings
+- GIVEN admin sets config `launchpad.bulk_operation_max_per_request = 1000` via OCC command or web settings
 - WHEN admin sends bulk-delete with 750 uuids
 - THEN the system MUST accept the request (750 <= 1000)
 - AND no HTTP 400 error MUST be returned
 - AND the new cap MUST apply immediately to all subsequent requests
 
 #### Scenario: Cap of zero or negative is invalid
-- GIVEN admin accidentally sets `mydash.bulk_operation_max_per_request = 0`
+- GIVEN admin accidentally sets `launchpad.bulk_operation_max_per_request = 0`
 - WHEN the system reads the config
 - THEN the system MUST apply a safe default (e.g., 500) as fallback
 - AND log a warning that the configured cap is invalid
@@ -244,7 +244,7 @@ NOTE: All four bulk endpoints MUST also apply `#[UserRateThrottle(limit: 5, peri
 Bulk operations MUST handle idempotent cases gracefully: deleting already-deleted dashboards, moving to the same parent, and setting to the same status result in no-op entries in the response, not errors.
 
 #### Scenario: Delete already-deleted dashboard
-- GIVEN dashboard "uuid-1" is already deleted (row no longer exists in `oc_mydash_dashboards`)
+- GIVEN dashboard "uuid-1" is already deleted (row no longer exists in `oc_launchpad_dashboards`)
 - WHEN admin sends bulk-delete with that uuid
 - THEN the system MUST NOT return an error, but rather count it as `skippedCount` (hard delete on a non-existent row is absorbed silently)
 - AND the response MUST include `{uuid: "uuid-1", reason: "already_deleted"}` in the errors array (for auditability, not rejection)

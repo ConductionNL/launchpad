@@ -13,32 +13,32 @@
  * - `DELETE /api/widgets/files/{placementId}/files/{fileId}` — file
  *   deletion via the trash, dual-gated (REQ-FLS-008).
  *
- * Every typed exception from {@see \OCA\MyDash\Service\FilesWidgetService}
+ * Every typed exception from {@see \OCA\LaunchPad\Service\FilesWidgetService}
  * is mapped to the standardised `{status, error, message}` envelope —
  * raw underlying messages are NEVER returned to the caller.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\FolderNotFoundException;
-use OCA\MyDash\Exception\NoAccessException;
-use OCA\MyDash\Service\FilesWidgetService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\FolderNotFoundException;
+use OCA\LaunchPad\Exception\NoAccessException;
+use OCA\LaunchPad\Service\FilesWidgetService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

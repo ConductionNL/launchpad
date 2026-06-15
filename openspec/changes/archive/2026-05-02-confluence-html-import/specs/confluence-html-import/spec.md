@@ -81,9 +81,9 @@ The system MUST derive the page tree (parent-child relationships, sibling order)
 - AND MUST log a warning for the affected page
 - AND MUST continue processing remaining pages
 
-### Requirement: REQ-CFLI-003 Confluence page → MyDash dashboard conversion
+### Requirement: REQ-CFLI-003 Confluence page → LaunchPad dashboard conversion
 
-The system MUST convert each Confluence page into a MyDash dashboard with the page's `name = <pageTitle>` and a full-width text-display widget containing the page body.
+The system MUST convert each Confluence page into a LaunchPad dashboard with the page's `name = <pageTitle>` and a full-width text-display widget containing the page body.
 
 #### Scenario: Create dashboard from page
 
@@ -133,22 +133,22 @@ The system MUST convert each Confluence page into a MyDash dashboard with the pa
 
 ### Requirement: REQ-CFLI-004 Internal link rewriting
 
-The system MUST rewrite internal Confluence links (`<a href="pageId.html">`) to point to the corresponding imported MyDash dashboard.
+The system MUST rewrite internal Confluence links (`<a href="pageId.html">`) to point to the corresponding imported LaunchPad dashboard.
 
-> **NOTE — MyDash addition:** No link-rewriting code exists in the ported reference. The entire link-rewriting subsystem described here must be built from scratch. The reference leaves internal Confluence `<a href="pageId.html">` links as-is in exported HTML blocks; there is no `pageId→uuid` map and no href-rewrite pass anywhere in the reference codebase.
+> **NOTE — LaunchPad addition:** No link-rewriting code exists in the ported reference. The entire link-rewriting subsystem described here must be built from scratch. The reference leaves internal Confluence `<a href="pageId.html">` links as-is in exported HTML blocks; there is no `pageId→uuid` map and no href-rewrite pass anywhere in the reference codebase.
 
 #### Scenario: Rewrite link to sibling page
 
 - GIVEN a page with `<a href="page-456.html">See Also</a>` where `page-456` was imported as dashboard UUID `uuid-456`
 - WHEN the importer processes the page body
-- THEN the system MUST rewrite the link to `<a href="/apps/mydash/dashboard/uuid-456">See Also</a>`
+- THEN the system MUST rewrite the link to `<a href="/apps/launchpad/dashboard/uuid-456">See Also</a>`
 - AND the dashboard MUST be navigable via the rewritten link
 
 #### Scenario: Cross-space links are rewritten
 
 - GIVEN a page with `<a href="OTHER-SPACE/page-789.html">External Page</a>` where `page-789` was imported as UUID `uuid-789`
 - WHEN the importer processes the link
-- THEN the system MUST rewrite it to `<a href="/apps/mydash/dashboard/uuid-789">External Page</a>`
+- THEN the system MUST rewrite it to `<a href="/apps/launchpad/dashboard/uuid-789">External Page</a>`
 
 #### Scenario: Links to non-existent pages are logged
 
@@ -169,21 +169,21 @@ The system MUST rewrite internal Confluence links (`<a href="pageId.html">`) to 
 
 The system MUST upload Confluence page attachments and shared images to a Nextcloud folder and rewrite `<img src>` attributes to point to the new NC URLs.
 
-> **NOTE — MyDash addition:** The ported reference does NOT upload anything to Nextcloud. It registers `MediaDownload` objects for Storage Format `<ac:image>` elements only, but the resolution is not implemented and no file-write to Nextcloud occurs. Plain HTML `<img src="attachments/...">` tags are not scanned at all. The `MyDash/Imports/{timestamp}/` destination folder and the full upload pipeline described below are new work that must be designed and built.
+> **NOTE — LaunchPad addition:** The ported reference does NOT upload anything to Nextcloud. It registers `MediaDownload` objects for Storage Format `<ac:image>` elements only, but the resolution is not implemented and no file-write to Nextcloud occurs. Plain HTML `<img src="attachments/...">` tags are not scanned at all. The `LaunchPad/Imports/{timestamp}/` destination folder and the full upload pipeline described below are new work that must be designed and built.
 
 #### Scenario: Upload attachment image to NC folder
 
 - GIVEN a page with `<img src="attachments/page-123/diagram.png">` where the file exists in the archive
 - WHEN the importer processes the image
-- THEN the system MUST upload the file to `MyDash/Imports/{importTimestamp}/diagram.png` in Nextcloud
-- AND MUST rewrite `src` to the NC download URL: `https://<nc-domain>/remote.php/dav/files/<user>/MyDash/Imports/{timestamp}/diagram.png` (or equivalent public share URL)
+- THEN the system MUST upload the file to `LaunchPad/Imports/{importTimestamp}/diagram.png` in Nextcloud
+- AND MUST rewrite `src` to the NC download URL: `https://<nc-domain>/remote.php/dav/files/<user>/LaunchPad/Imports/{timestamp}/diagram.png` (or equivalent public share URL)
 - AND the image MUST be accessible in the rendered dashboard widget
 
 #### Scenario: Shared images from images/ directory
 
 - GIVEN a page with `<img src="images/icon.png">` where `images/icon.png` exists in the archive
 - WHEN the importer processes the image
-- THEN the system MUST upload to `MyDash/Imports/{importTimestamp}/icon.png`
+- THEN the system MUST upload to `LaunchPad/Imports/{importTimestamp}/icon.png`
 - AND MUST rewrite `src` to the NC URL
 
 #### Scenario: Missing image files are logged
@@ -204,9 +204,9 @@ The system MUST upload Confluence page attachments and shared images to a Nextcl
 #### Scenario: Each import run uses a new timestamp folder
 
 - GIVEN two consecutive imports of the same Confluence archive
-- WHEN the first import uploads images to `MyDash/Imports/2026-04-01T10-30-00/`
+- WHEN the first import uploads images to `LaunchPad/Imports/2026-04-01T10-30-00/`
 - AND the second import runs later
-- THEN the second import MUST use a new folder: `MyDash/Imports/2026-04-01T10-45-00/`
+- THEN the second import MUST use a new folder: `LaunchPad/Imports/2026-04-01T10-45-00/`
 - AND MUST NOT overwrite files from the first import
 - AND created dashboards from the two runs MUST be independent (per REQ-CFLI-010)
 
@@ -261,7 +261,7 @@ The system MUST process Confluence `<ac:structured-macro>` elements through regi
 
 The system MUST expose a `POST /api/admin/import/confluence/dry-run` endpoint that performs all parsing and validation WITHOUT creating any dashboards or uploading files.
 
-> **NOTE — MyDash addition:** No dry-run path exists in the reference implementation. The reference controller is fully synchronous with a single endpoint and no `dry-run` parameter, flag, or separate route. This is a new endpoint to build.
+> **NOTE — LaunchPad addition:** No dry-run path exists in the reference implementation. The reference controller is fully synchronous with a single endpoint and no `dry-run` parameter, flag, or separate route. This is a new endpoint to build.
 
 #### Scenario: Dry-run returns page count
 
@@ -298,7 +298,7 @@ The system MUST expose a `POST /api/admin/import/confluence/dry-run` endpoint th
 
 The system MUST run imports synchronously for archives with <100 pages and asynchronously (background job) for larger archives, with job tracking and polling support.
 
-> **NOTE — MyDash addition:** The reference controller is fully synchronous — it processes in the request thread and returns a single JSON response. There is no page-count threshold, no background job dispatch, no job-id, and no polling endpoint. The sync/async split and all job-tracking described below must be built from scratch. Note: async jobs must not rely on `ITempManager` temp paths, which are cleaned on request end.
+> **NOTE — LaunchPad addition:** The reference controller is fully synchronous — it processes in the request thread and returns a single JSON response. There is no page-count threshold, no background job dispatch, no job-id, and no polling endpoint. The sync/async split and all job-tracking described below must be built from scratch. Note: async jobs must not rely on `ITempManager` temp paths, which are cleaned on request end.
 
 #### Scenario: Small import runs synchronously
 
@@ -311,7 +311,7 @@ The system MUST run imports synchronously for archives with <100 pages and async
     "createdDashboardCount": 50,
     "skippedPageCount": 0,
     "errors": [],
-    "importLogUrl": "/apps/mydash/admin/import-logs/log-uuid-123"
+    "importLogUrl": "/apps/launchpad/admin/import-logs/log-uuid-123"
   }
   ```
 
@@ -407,9 +407,9 @@ The system MUST allow the same Confluence archive to be imported multiple times,
 #### Scenario: Assets are uploaded to separate timestamped folders
 
 - GIVEN two imports of the same archive run on the same day
-- WHEN the first import uploads images to `MyDash/Imports/2026-04-01T10-30-00/`
+- WHEN the first import uploads images to `LaunchPad/Imports/2026-04-01T10-30-00/`
 - AND the second import runs at `2026-04-01T10-45-00`
-- THEN the second import MUST upload to a new folder: `MyDash/Imports/2026-04-01T10-45-00/`
+- THEN the second import MUST upload to a new folder: `LaunchPad/Imports/2026-04-01T10-45-00/`
 - AND image `src` attributes MUST point to the correct folder for each import
 - AND no file overwrite occurs
 
@@ -422,14 +422,14 @@ The system MUST allow the same Confluence archive to be imported multiple times,
 
 ### Requirement: REQ-CFLI-011 CLI command for headless import
 
-The system MUST expose a Nextcloud OCC command `php occ mydash:import:confluence` for imports via CLI/cron, with options for file path and parent dashboard path.
+The system MUST expose a Nextcloud OCC command `php occ launchpad:import:confluence` for imports via CLI/cron, with options for file path and parent dashboard path.
 
-> **NOTE — MyDash addition:** No `occ mydash:import:confluence` command exists in the reference. The reference contains an `ImportPagesCommand` that operates on the native the source app JSON format only, not on Confluence ZIP archives. The `occ mydash:import:confluence` command must be built from scratch.
+> **NOTE — LaunchPad addition:** No `occ launchpad:import:confluence` command exists in the reference. The reference contains an `ImportPagesCommand` that operates on the native the source app JSON format only, not on Confluence ZIP archives. The `occ launchpad:import:confluence` command must be built from scratch.
 
 #### Scenario: CLI import with file option
 
 - GIVEN an admin with shell access to the Nextcloud server
-- WHEN they run `php occ mydash:import:confluence --file=/tmp/export.zip`
+- WHEN they run `php occ launchpad:import:confluence --file=/tmp/export.zip`
 - THEN the system MUST:
   - Load the ZIP from the specified path
   - Run the full import (synchronous or async, depending on size)
@@ -439,7 +439,7 @@ The system MUST expose a Nextcloud OCC command `php occ mydash:import:confluence
 #### Scenario: CLI import with parent-path option
 
 - GIVEN an admin wanting to import under a specific parent dashboard
-- WHEN they run `php occ mydash:import:confluence --file=/tmp/export.zip --parent-path=/Finance/2026`
+- WHEN they run `php occ launchpad:import:confluence --file=/tmp/export.zip --parent-path=/Finance/2026`
 - THEN the system MUST:
   - Resolve the path `/Finance/2026` to a dashboard UUID (via the path resolution API)
   - Use that UUID as the parent for all root Confluence pages in the import
@@ -447,7 +447,7 @@ The system MUST expose a Nextcloud OCC command `php occ mydash:import:confluence
 
 #### Scenario: CLI import handles missing file gracefully
 
-- GIVEN an admin running `php occ mydash:import:confluence --file=/nonexistent.zip`
+- GIVEN an admin running `php occ launchpad:import:confluence --file=/nonexistent.zip`
 - WHEN the file does not exist
 - THEN the system MUST output `Error: File /nonexistent.zip not found`
 - AND MUST exit with non-zero code
@@ -455,7 +455,7 @@ The system MUST expose a Nextcloud OCC command `php occ mydash:import:confluence
 
 #### Scenario: CLI import supports dry-run flag
 
-- GIVEN an admin running `php occ mydash:import:confluence --file=/tmp/export.zip --dry-run`
+- GIVEN an admin running `php occ launchpad:import:confluence --file=/tmp/export.zip --dry-run`
 - WHEN the `--dry-run` flag is present
 - THEN the system MUST output the dry-run preview (page count, warnings, etc.)
 - AND MUST NOT create any dashboards or files

@@ -15,7 +15,7 @@
 
 ### Template Distribution Flow
 1. Admin creates template with target groups
-2. User opens MyDash -> DashboardResolver checks for applicable template
+2. User opens LaunchPad -> DashboardResolver checks for applicable template
 3. TemplateService.getApplicableTemplate() matches user groups
 4. TemplateService.createDashboardFromTemplate() clones template + placements
 5. User gets independent copy with inherited permission level

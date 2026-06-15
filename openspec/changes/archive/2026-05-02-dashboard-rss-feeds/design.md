@@ -38,7 +38,7 @@ We switch to base64url: shorter, same entropy (256-bit), URL-safe without encodi
 **Rationale**: base64url is the compact, high-entropy, URL-safe standard choice.
 
 ### D2: Storage schema
-**Decision**: Table `oc_mydash_feed_tokens(id, user_id, token, created_at)` with `UNIQUE(user_id)`
+**Decision**: Table `oc_launchpad_feed_tokens(id, user_id, token, created_at)` with `UNIQUE(user_id)`
 and `UNIQUE(token)`. `user_id` unique enforces one-token-per-user at DB level.
 **Source evidence**: `the source codebase-source/lib/Db/FeedToken.php:~25-35` — `user_id` unique index
 confirmed; the delete-before-insert in `generateToken()` is the application-level guarantee.

@@ -1,9 +1,9 @@
 /**
- * MyDash landing page.
+ * LaunchPad landing page.
  *
  * Composes the brand <DetailHero> + <WidgetShelf> from
  * @conduction/docusaurus-preset/components, mirroring the connext page
- * at sites/www/src/pages/apps/mydash.mdx.
+ * at sites/www/src/pages/apps/launchpad.mdx.
  *
  * Written as .js (not .mdx) because the docs site has the docs plugin
  * pointed at `path: './'`, and an MDX file in src/pages/ trips the
@@ -21,7 +21,7 @@ import {
   AppMock,
 } from '@conduction/docusaurus-preset/components';
 
-const MYDASH_ICON = (
+const LAUNCHPAD_ICON = (
   <svg viewBox="0 0 24 24">
     <rect x="3" y="3" width="7" height="9" />
     <rect x="14" y="3" width="7" height="5" />
@@ -35,7 +35,7 @@ const TAGLINE = (
     Personal and team dashboards, built directly on your{' '}
     <span className="next-blue">Nextcloud</span>. No separate BI tool, no extra
     login, no ETL. Whatever you have in{' '}
-    <span className="next-blue">Nextcloud</span>, you can visualise in MyDash.
+    <span className="next-blue">Nextcloud</span>, you can visualise in LaunchPad.
   </>
 );
 
@@ -238,7 +238,7 @@ const WIDGETS = [
   },
   {
     title: 'Calendar from Nextcloud',
-    desc: 'The Nextcloud Calendar dashboard widget lands on MyDash without extra config. Same auth, same source.',
+    desc: 'The Nextcloud Calendar dashboard widget lands on LaunchPad without extra config. Same auth, same source.',
     panel: <CalendarPanel />,
   },
   {
@@ -251,37 +251,37 @@ const WIDGETS = [
 export default function Home() {
   return (
     <Layout
-      title="MyDash, customizable dashboards for Nextcloud workspaces"
+      title="LaunchPad, customizable dashboards for Nextcloud workspaces"
       description="Build customizable dashboards on Nextcloud. Widgets, KPIs, and live charts on top of OpenRegister data with no separate BI stack."
     >
       <main className="marketing-page">
         <DetailHero
-          appId="mydash"
+          appId="launchpad"
           background="cobalt"
           status={{ label: 'Beta', color: 'var(--c-orange-knvb)' }}
           version="v0.9"
           locales="NL · EN"
-          title="MyDash"
+          title="LaunchPad"
           tagline={TAGLINE}
           primaryCta={{
             label: 'Install from app store',
-            href: 'https://apps.nextcloud.com/apps/mydash',
+            href: 'https://apps.nextcloud.com/apps/launchpad',
             tone: 'orange',
           }}
           secondaryCta={{ label: 'Read the docs', href: '/docs/intro' }}
           tertiaryCta={{
             label: 'View on GitHub',
-            href: 'https://github.com/ConductionNL/mydash',
+            href: 'https://github.com/ConductionNL/launchpad',
           }}
           iconColor="var(--c-orange-knvb)"
-          icon={MYDASH_ICON}
-          illustration={<AppMock app="mydash" />}
+          icon={LAUNCHPAD_ICON}
+          illustration={<AppMock app="launchpad" />}
         />
 
         <WidgetShelf
           eyebrow="Widgets we host"
           title="Every Nextcloud app brings its own."
-          lede="MyDash is the surface every other app's widget shows up on. Drop these onto a board, drag to size, share with the team. The widget itself comes from the app that ships it."
+          lede="LaunchPad is the surface every other app's widget shows up on. Drop these onto a board, drag to size, share with the team. The widget itself comes from the app that ships it."
           widgets={WIDGETS}
         />
       </main>

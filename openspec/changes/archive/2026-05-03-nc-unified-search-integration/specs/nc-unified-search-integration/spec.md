@@ -6,33 +6,33 @@ status: draft
 
 ## Purpose
 
-Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanism for content across all installed apps. MyDash dashboards, widgets, and metadata are currently invisible to this search. This specification formalises the integration of MyDash content into Nextcloud's search provider system, allowing users to discover and navigate to dashboards by name, description, widget content, or metadata field values from the global search bar.
+Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanism for content across all installed apps. LaunchPad dashboards, widgets, and metadata are currently invisible to this search. This specification formalises the integration of LaunchPad content into Nextcloud's search provider system, allowing users to discover and navigate to dashboards by name, description, widget content, or metadata field values from the global search bar.
 
 ## ADDED Requirements
 
 ### Requirement: REQ-SRCH-001 Search Provider Registration
 
-The MyDash app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes MyDash dashboards in the unified search results.
+The LaunchPad app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes LaunchPad dashboards in the unified search results.
 
 #### Scenario: Provider is registered and discoverable
-- GIVEN Nextcloud is running with MyDash app installed and enabled
+- GIVEN Nextcloud is running with LaunchPad app installed and enabled
 - WHEN a user presses Ctrl+K to open the unified search bar
-- THEN the MyDash search provider MUST be loaded via the app's bootstrap process
-- AND the provider's `getId()` MUST return `'mydash'`
+- THEN the LaunchPad search provider MUST be loaded via the app's bootstrap process
+- AND the provider's `getId()` MUST return `'launchpad'`
 - AND the provider's `getName()` MUST return the translated string `'Dashboards'` in the user's Nextcloud language
 - AND the provider's `getOrder()` MUST return `50` to position it mid-range (admin-search providers typically have lower order values)
 
 #### Scenario: Provider implements the IProvider contract
-- GIVEN the MyDash app is installed
+- GIVEN the LaunchPad app is installed
 - WHEN Nextcloud's search dispatcher calls the provider interface
 - THEN the provider class MUST implement all required methods: `getId()`, `getName()`, `getOrder()`, `search(IUser, ISearchQuery): SearchResult`
 - AND the methods MUST have correct type hints matching `OCP\Search\IProvider`
 
 #### Scenario: Provider initialization via app bootstrap
-- GIVEN MyDash app info.xml declares `<types><type>search</type></types>`
-- WHEN the MyDash app boots
-- THEN the container MUST register an instance of `MyDashSearchProvider` with the Nextcloud search registry
-- AND the provider instance MUST be reachable at `/apps/mydash/lib/Service/SearchProvider/MyDashSearchProvider.php`
+- GIVEN LaunchPad app info.xml declares `<types><type>search</type></types>`
+- WHEN the LaunchPad app boots
+- THEN the container MUST register an instance of `LaunchPadSearchProvider` with the Nextcloud search registry
+- AND the provider instance MUST be reachable at `/apps/launchpad/lib/Service/SearchProvider/LaunchPadSearchProvider.php`
 
 #### Scenario: Localized provider name
 - GIVEN a Nextcloud instance with language set to Dutch (nl)
@@ -42,7 +42,7 @@ The MyDash app MUST register a search provider implementing Nextcloud's `OCP\Sea
 
 #### Scenario: Provider name appears in search UI
 - GIVEN a user opens the unified search bar (Ctrl+K)
-- WHEN MyDash results are shown
+- WHEN LaunchPad results are shown
 - THEN the search UI MUST display the provider name from `getName()` as a section header
 - NOTE: Nextcloud's search UI typically groups results by provider name.
 
@@ -90,7 +90,7 @@ The search provider MUST find text-display-widget placements on dashboards whose
 - GIVEN user "alice" has a dashboard "Analytics" with a text-display widget containing the markdown `## Budget Proposal for Q2`
 - WHEN she searches for "budget"
 - THEN a search result MUST appear with title "Analytics" and subline indicating a widget match (e.g., "Widget content on Analytics")
-- AND the result `resourceUrl` MUST be `/apps/mydash/dashboard/{dashboardUuid}#widget-{placementId}` to deep-link to the specific widget
+- AND the result `resourceUrl` MUST be `/apps/launchpad/dashboard/{dashboardUuid}#widget-{placementId}` to deep-link to the specific widget
 
 #### Scenario: Multiple text widgets on same dashboard
 - GIVEN user "bob" has a dashboard "Notes" with three text widgets:
@@ -135,10 +135,10 @@ When the `dashboard-metadata-fields` capability is enabled, the search provider 
 - AND user "alice" has a dashboard with a custom metadata field "Year: 2026" and another field "Department: Sales"
 - WHEN she searches for "2026"
 - THEN a result MUST appear with title "Alice's Dashboard" and subline "Metadata: Year = 2026"
-- AND the resourceUrl MUST be `/apps/mydash/dashboard/{dashboardUuid}`
+- AND the resourceUrl MUST be `/apps/launchpad/dashboard/{dashboardUuid}`
 
 #### Scenario: Metadata search falls back gracefully
-- GIVEN the `dashboard-metadata-fields` capability is NOT available in the MyDash app
+- GIVEN the `dashboard-metadata-fields` capability is NOT available in the LaunchPad app
 - WHEN user "bob" performs a search
 - THEN the search provider MUST still return dashboard-name, description, and widget-content results
 - AND no error MUST be thrown about missing metadata fields
@@ -199,8 +199,8 @@ Each SearchResultEntry returned by the provider MUST include a title, subline, t
 - THEN the SearchResultEntry MUST include:
   - `title`: "Sales Dashboard" (dashboard name)
   - `subline`: "Created by Alice • 5 widgets" (formatted via IL10N)
-  - `thumbnailUrl`: a URL to the MyDash dashboard icon (e.g., `/apps/mydash/img/dashboard-icon.svg` or Nextcloud's built-in icon)
-  - `resourceUrl`: `/apps/mydash/dashboard/{uuid}` (absolute or relative, deep-link to the dashboard)
+  - `thumbnailUrl`: a URL to the LaunchPad dashboard icon (e.g., `/apps/launchpad/img/dashboard-icon.svg` or Nextcloud's built-in icon)
+  - `resourceUrl`: `/apps/launchpad/dashboard/{uuid}` (absolute or relative, deep-link to the dashboard)
 
 #### Scenario: Widget content search result entry
 - GIVEN user "bob" has a dashboard "Analytics" with a text widget on widget placement 42
@@ -208,8 +208,8 @@ Each SearchResultEntry returned by the provider MUST include a title, subline, t
 - THEN the SearchResultEntry MUST include:
   - `title`: "Analytics" (parent dashboard name)
   - `subline`: "Widget content on Analytics" (formatted via IL10N)
-  - `thumbnailUrl`: a URL to a widget-type icon (e.g., `/apps/mydash/img/widget-icon.svg` or the text-widget icon)
-  - `resourceUrl`: `/apps/mydash/dashboard/{dashboardUuid}#widget-{placementId}` (hash fragment targets the specific widget)
+  - `thumbnailUrl`: a URL to a widget-type icon (e.g., `/apps/launchpad/img/widget-icon.svg` or the text-widget icon)
+  - `resourceUrl`: `/apps/launchpad/dashboard/{dashboardUuid}#widget-{placementId}` (hash fragment targets the specific widget)
 
 #### Scenario: Metadata field search result entry
 - GIVEN the `dashboard-metadata-fields` capability is enabled
@@ -218,7 +218,7 @@ Each SearchResultEntry returned by the provider MUST include a title, subline, t
   - `title`: dashboard name
   - `subline`: "Metadata: {fieldName} = {fieldValue}" (formatted via IL10N)
   - `thumbnailUrl`: a metadata icon or fallback to dashboard icon
-  - `resourceUrl`: `/apps/mydash/dashboard/{uuid}` (no hash fragment, user lands on main dashboard view)
+  - `resourceUrl`: `/apps/launchpad/dashboard/{uuid}` (no hash fragment, user lands on main dashboard view)
 
 #### Scenario: Icon URL is valid and reachable
 - GIVEN a search result is returned with a `thumbnailUrl`
@@ -333,23 +333,23 @@ When a search query matches no dashboards, widgets, or metadata fields, the prov
 The search provider MUST complete all queries in under 500ms for dashboard libraries up to 10,000 dashboards. Indexed database columns and result capping are the primary mechanisms to achieve this.
 
 #### Scenario: Query completes in <500ms for 1000 dashboards
-- GIVEN a MyDash instance with 1,000 dashboards
+- GIVEN a LaunchPad instance with 1,000 dashboards
 - WHEN user "alice" performs a search query
 - THEN the provider's `search()` method MUST return within 500ms
 - AND the response MUST be complete (all matching results returned or capped per REQ-SRCH-007)
 
 #### Scenario: Query completes in <500ms for 10000 dashboards
-- GIVEN a MyDash instance with 10,000 dashboards
+- GIVEN a LaunchPad instance with 10,000 dashboards
 - WHEN user "bob" performs a search query matching 100+ dashboards
 - THEN the provider's `search()` method MUST return within 500ms
 - AND results MUST be capped to 10 per type to keep response time acceptable
 - AND the database query MUST use indexed columns (`name`, `description`) with LIKE operators
 
 #### Scenario: Indexed columns are present
-- GIVEN the MyDash app is installed and a schema migration has run
+- GIVEN the LaunchPad app is installed and a schema migration has run
 - WHEN the database is queried
-- THEN the `oc_mydash_dashboards.name` column MUST have an index
-- AND the `oc_mydash_dashboards.description` column MUST have an index
+- THEN the `oc_launchpad_dashboards.name` column MUST have an index
+- AND the `oc_launchpad_dashboards.description` column MUST have an index
 - AND LIKE queries on these columns MUST benefit from the index for fast substring search
 - NOTE: Full-text indices are a future optimization (out of scope for this change)
 
@@ -373,14 +373,14 @@ The search provider MUST integrate seamlessly with Nextcloud's built-in search U
 - GIVEN user "alice" opens the unified search (Ctrl+K) and types "marketing"
 - WHEN the "Marketing Dashboard" result appears
 - WHEN she clicks on the result title or thumbnail
-- THEN the browser MUST navigate to `/apps/mydash/dashboard/{uuid}`
-- AND the MyDash app MUST render the dashboard view
+- THEN the browser MUST navigate to `/apps/launchpad/dashboard/{uuid}`
+- AND the LaunchPad app MUST render the dashboard view
 
 #### Scenario: Search result resourceUrl is deep-linked
 - GIVEN a search result for a widget on dashboard "Analytics"
 - WHEN user "bob" clicks the result
-- THEN the browser MUST navigate to `/apps/mydash/dashboard/{dashboardUuid}#widget-{placementId}`
-- AND the MyDash frontend MUST scroll or highlight the widget with placement ID `{placementId}`
+- THEN the browser MUST navigate to `/apps/launchpad/dashboard/{dashboardUuid}#widget-{placementId}`
+- AND the LaunchPad frontend MUST scroll or highlight the widget with placement ID `{placementId}`
 
 #### Scenario: Search result thumbnail is displayed
 - GIVEN a search result is rendered in Nextcloud's search popup
@@ -391,23 +391,23 @@ The search provider MUST integrate seamlessly with Nextcloud's built-in search U
 #### Scenario: Search result appears in the correct section
 - GIVEN the search results include dashboards, files, and contacts
 - WHEN the results are displayed
-- THEN the MyDash results MUST appear under a "Dashboards" section header (from `getName()`)
+- THEN the LaunchPad results MUST appear under a "Dashboards" section header (from `getName()`)
 - AND they MUST NOT be mixed with other app results
 
 ### Requirement: REQ-SRCH-012 Provider Order in Nextcloud Search
 
-The MyDash search provider MUST be positioned at order `50` so that it appears after high-priority admin-search providers but before lower-priority result types in Nextcloud's search UI.
+The LaunchPad search provider MUST be positioned at order `50` so that it appears after high-priority admin-search providers but before lower-priority result types in Nextcloud's search UI.
 
 #### Scenario: Provider order is respected
-- GIVEN Nextcloud has multiple search providers installed (e.g., admin-search at order 10, MyDash at order 50, contacts at order 100)
+- GIVEN Nextcloud has multiple search providers installed (e.g., admin-search at order 10, LaunchPad at order 50, contacts at order 100)
 - WHEN the unified search is opened
-- THEN the results MUST be grouped and displayed in order: admin-search results first, then MyDash results, then contacts
+- THEN the results MUST be grouped and displayed in order: admin-search results first, then LaunchPad results, then contacts
 - AND the order is determined by `getOrder()` returning `50`
 
 #### Scenario: Order does not affect search completeness
 - GIVEN user "alice" searches for a term
 - WHEN the search is performed
-- THEN all matching MyDash results MUST be found regardless of order
+- THEN all matching LaunchPad results MUST be found regardless of order
 - AND the order only affects the visual grouping and ranking in the search UI
 
 ---
@@ -424,10 +424,10 @@ The MyDash search provider MUST be positioned at order `50` so that it appears a
 
 ## ADDED Indexes
 
-- `oc_mydash_dashboards.name` (existing; confirm via schema)
-- `oc_mydash_dashboards.description` (may need to be added if missing)
+- `oc_launchpad_dashboards.name` (existing; confirm via schema)
+- `oc_launchpad_dashboards.description` (may need to be added if missing)
 
 ## ADDED Configuration / Feature Flags
 
-- None; the search provider is always available when MyDash is enabled.
+- None; the search provider is always available when LaunchPad is enabled.
 - If `dashboard-metadata-fields` capability is available, metadata search is enabled; otherwise, graceful degradation.

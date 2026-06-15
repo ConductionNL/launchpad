@@ -4,25 +4,25 @@
  * MetadataValueMapper
  *
  * Database mapper for the per-dashboard typed value rows
- * (`oc_mydash_meta_values`). Owns CRUD plus the upsert helper that
+ * (`oc_launchpad_meta_values`). Owns CRUD plus the upsert helper that
  * collapses insert / update into a single call against the unique
  * (`dashboard_uuid`, `field_id`) pair (REQ-MDFL-005).
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
@@ -45,7 +45,7 @@ class MetadataValueMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_meta_values',
+            tableName: 'launchpad_meta_values',
             entityClass: MetadataValue::class
         );
     }//end __construct()

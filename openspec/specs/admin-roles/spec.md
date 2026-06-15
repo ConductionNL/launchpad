@@ -7,11 +7,11 @@ status: implemented
 
 ## Purpose
 
-Admin Roles provides a built-in role system scoped entirely within MyDash. Organization administrators can delegate dashboard management, widget installation, metadata field configuration, and other MyDash operations to trusted users without granting full Nextcloud system administration rights. Three roles (Dashboard Admin, Dashboard Editor, Dashboard Viewer) map to real organizational needs, and role assignments persist in a new table with support for both individual user and group-based delegation. Effective role resolution ensures the highest privilege wins when a user has multiple group memberships.
+Admin Roles provides a built-in role system scoped entirely within LaunchPad. Organization administrators can delegate dashboard management, widget installation, metadata field configuration, and other LaunchPad operations to trusted users without granting full Nextcloud system administration rights. Three roles (Dashboard Admin, Dashboard Editor, Dashboard Viewer) map to real organizational needs, and role assignments persist in a new table with support for both individual user and group-based delegation. Effective role resolution ensures the highest privilege wins when a user has multiple group memberships.
 
 ## Data Model
 
-Each role assignment is stored in the `oc_mydash_role_assignments` table with the following fields:
+Each role assignment is stored in the `oc_launchpad_role_assignments` table with the following fields:
 
 - **id**: Auto-increment integer primary key
 - **userId**: VARCHAR(64), Nextcloud user ID; NULL if this is a group assignment
@@ -31,23 +31,23 @@ Each role assignment is stored in the `oc_mydash_role_assignments` table with th
 
 ### Requirement: REQ-ROLE-001 Dashboard Admin Role Definition
 
-A Dashboard Admin MUST have full administrative access to MyDash, equivalent to Nextcloud admin status but scoped to MyDash only. A Dashboard Admin MUST be able to manage all dashboards, install demo data, edit organization-level navigation, and define new metadata fields.
+A Dashboard Admin MUST have full administrative access to LaunchPad, equivalent to Nextcloud admin status but scoped to LaunchPad only. A Dashboard Admin MUST be able to manage all dashboards, install demo data, edit organization-level navigation, and define new metadata fields.
 
-NOTE: Admin-roles is a net-new MyDash capability with no source counterpart. The source app has no named-role concept and resolves all permissions from the GroupFolder ACL bitmask alone. The three role names echo the source app's seeded group names for customer recognition, but the underlying mechanism is entirely different — MyDash does not read from those groups at runtime.
+NOTE: Admin-roles is a net-new LaunchPad capability with no source counterpart. The source app has no named-role concept and resolves all permissions from the GroupFolder ACL bitmask alone. The three role names echo the source app's seeded group names for customer recognition, but the underlying mechanism is entirely different — LaunchPad does not read from those groups at runtime.
 
 #### Scenario: NC admin automatically has Dashboard Admin role
 - GIVEN a Nextcloud admin user (admin flag = true)
-- WHEN the system resolves the user's effective MyDash role
+- WHEN the system resolves the user's effective LaunchPad role
 - THEN the user's effective role MUST be "admin"
 - AND the role source MUST be "nc-admin"
-- NOTE: NC admin status is an implicit grant — no explicit assignment record is created in `oc_mydash_role_assignments`
+- NOTE: NC admin status is an implicit grant — no explicit assignment record is created in `oc_launchpad_role_assignments`
 
 #### Scenario: Non-admin user assigned Dashboard Admin role
 - GIVEN a non-admin Nextcloud user "alice"
 - WHEN an NC admin creates a role assignment with `userId = "alice"`, `role = "admin"`
 - THEN alice's effective role becomes "admin"
 - AND the role source MUST be "user-assigned"
-- AND alice gains access to MyDash admin section: `/admin/settings`, `/admin/demo`, `/admin/metadata`, `/admin/roles`
+- AND alice gains access to LaunchPad admin section: `/admin/settings`, `/admin/demo`, `/admin/metadata`, `/admin/roles`
 
 #### Scenario: Dashboard Admin can edit any dashboard
 - GIVEN a user with effective role "admin"
@@ -164,7 +164,7 @@ A Dashboard Viewer MUST have read-only access to all visible dashboards. Dashboa
 
 ### Requirement: REQ-ROLE-004 Persist Role Assignments
 
-Role assignments MUST be stored durably in the `oc_mydash_role_assignments` table with audit trail information.
+Role assignments MUST be stored durably in the `oc_launchpad_role_assignments` table with audit trail information.
 
 #### Scenario: Role assignment is stored with audit fields
 - GIVEN an admin "admin-user" assigns role "editor" to user "bob"
@@ -200,7 +200,7 @@ Role assignments MUST be stored durably in the `oc_mydash_role_assignments` tabl
 
 ### Requirement: REQ-ROLE-005 Resolve Effective Role Per User
 
-The system MUST resolve a user's effective MyDash role using the following deterministic algorithm:
+The system MUST resolve a user's effective LaunchPad role using the following deterministic algorithm:
 
 1. If the user is a Nextcloud admin → effective role is "admin", source is "nc-admin". No assignment lookup required.
 2. Otherwise, check for a direct user assignment (`userId = <user>`). If one exists, it is used as-is — group assignments are NOT consulted, regardless of their rank.
@@ -256,7 +256,7 @@ NOTE: Direct user assignment is the canonical explicit override — if an admin 
 
 ### Requirement: REQ-ROLE-006 Get Current User's Role and Source
 
-Any authenticated user MUST be able to query their own effective MyDash role and learn where that role comes from (NC admin, direct assignment, or group assignment).
+Any authenticated user MUST be able to query their own effective LaunchPad role and learn where that role comes from (NC admin, direct assignment, or group assignment).
 
 #### Scenario: User queries their role via GET /api/me/role
 - GIVEN an authenticated user "alice" with effective role "editor" from a group assignment
@@ -338,7 +338,7 @@ A Dashboard Editor MUST only be able to edit a `group_shared` dashboard if the d
 
 ### Requirement: REQ-ROLE-008 Authorize Viewer Read-Only Access
 
-A Dashboard Viewer MUST NOT be able to perform any mutation on dashboards or MyDash operations. All mutation endpoints MUST return HTTP 403 for any user with effective role "viewer".
+A Dashboard Viewer MUST NOT be able to perform any mutation on dashboards or LaunchPad operations. All mutation endpoints MUST return HTTP 403 for any user with effective role "viewer".
 
 #### Scenario: Viewer cannot create dashboard
 - GIVEN a user "charlie" with role "viewer"
@@ -458,7 +458,7 @@ NOTE: This cascade MUST be implemented via a `GroupDeletedListener` that extends
 - WHEN the "engineering" group is deleted
 - THEN bob's Nextcloud account MUST remain
 - AND bob is removed from the group (standard Nextcloud behavior)
-- AND bob's effective MyDash role MUST be recalculated (likely becomes null if "engineering" was his only role source)
+- AND bob's effective LaunchPad role MUST be recalculated (likely becomes null if "engineering" was his only role source)
 
 #### Scenario: Deletion is not affected by member state
 - GIVEN a group "engineering" with 10 members

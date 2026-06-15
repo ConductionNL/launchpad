@@ -1,18 +1,18 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="divider-form">
 		<p class="divider-form__hint">
-			{{ t('mydash', 'Pick a divider style to break dashboard sections into logical groups.') }}
+			{{ t('launchpad', 'Pick a divider style to break dashboard sections into logical groups.') }}
 		</p>
 
 		<NcSelect
 			:value="style"
 			:options="styleOptions"
-			:input-label="t('mydash', 'Style')"
+			:input-label="t('launchpad', 'Style')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -21,7 +21,7 @@
 		<!-- REQ-DIV-002 line config: color, thickness, line-style. -->
 		<template v-if="style === 'line'">
 			<label class="divider-form__color-label">
-				{{ t('mydash', 'Line color') }}
+				{{ t('launchpad', 'Line color') }}
 				<input
 					type="color"
 					:value="lineColor || '#cccccc'"
@@ -32,7 +32,7 @@
 			<NcTextField
 				type="number"
 				:value="String(lineThickness)"
-				:label="t('mydash', 'Thickness (pixels)')"
+				:label="t('launchpad', 'Thickness (pixels)')"
 				placeholder="1"
 				:min="1"
 				:max="8"
@@ -41,7 +41,7 @@
 			<NcSelect
 				:value="lineStyle"
 				:options="lineStyleOptions"
-				:input-label="t('mydash', 'Line style')"
+				:input-label="t('launchpad', 'Line style')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -53,7 +53,7 @@
 			<NcSelect
 				:value="whitespaceSize"
 				:options="whitespaceSizeOptions"
-				:input-label="t('mydash', 'Spacing size')"
+				:input-label="t('launchpad', 'Spacing size')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -64,13 +64,13 @@
 		<template v-if="style === 'heading-break'">
 			<NcTextField
 				:value="headingText"
-				:label="t('mydash', 'Heading text')"
-				:placeholder="t('mydash', 'Section heading')"
+				:label="t('launchpad', 'Heading text')"
+				:placeholder="t('launchpad', 'Section heading')"
 				required
 				@update:value="updateField('headingText', $event)" />
 
 			<label class="divider-form__color-label">
-				{{ t('mydash', 'Line color') }}
+				{{ t('launchpad', 'Line color') }}
 				<input
 					type="color"
 					:value="lineColor || '#cccccc'"
@@ -81,7 +81,7 @@
 			<NcSelect
 				:value="lineStyle"
 				:options="lineStyleOptions"
-				:input-label="t('mydash', 'Line style')"
+				:input-label="t('launchpad', 'Line style')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -171,28 +171,28 @@ export default {
 		/** @spec openspec/specs/divider-widget/spec.md */
 		styleOptions() {
 			return [
-				{ value: STYLES.LINE, label: t('mydash', 'Horizontal line') },
-				{ value: STYLES.WHITESPACE, label: t('mydash', 'Whitespace') },
-				{ value: STYLES.HEADING_BREAK, label: t('mydash', 'Heading with lines') },
+				{ value: STYLES.LINE, label: t('launchpad', 'Horizontal line') },
+				{ value: STYLES.WHITESPACE, label: t('launchpad', 'Whitespace') },
+				{ value: STYLES.HEADING_BREAK, label: t('launchpad', 'Heading with lines') },
 			]
 		},
 
 		/** @spec openspec/specs/divider-widget/spec.md */
 		lineStyleOptions() {
 			return [
-				{ value: 'solid', label: t('mydash', 'Solid') },
-				{ value: 'dashed', label: t('mydash', 'Dashed') },
-				{ value: 'dotted', label: t('mydash', 'Dotted') },
+				{ value: 'solid', label: t('launchpad', 'Solid') },
+				{ value: 'dashed', label: t('launchpad', 'Dashed') },
+				{ value: 'dotted', label: t('launchpad', 'Dotted') },
 			]
 		},
 
 		/** @spec openspec/specs/divider-widget/spec.md */
 		whitespaceSizeOptions() {
 			return [
-				{ value: 'small', label: t('mydash', 'Small (16px)') },
-				{ value: 'medium', label: t('mydash', 'Medium (32px)') },
-				{ value: 'large', label: t('mydash', 'Large (64px)') },
-				{ value: 'xlarge', label: t('mydash', 'Extra Large (128px)') },
+				{ value: 'small', label: t('launchpad', 'Small (16px)') },
+				{ value: 'medium', label: t('launchpad', 'Medium (32px)') },
+				{ value: 'large', label: t('launchpad', 'Large (64px)') },
+				{ value: 'xlarge', label: t('launchpad', 'Extra Large (128px)') },
 			]
 		},
 
@@ -248,7 +248,7 @@ export default {
 		validate() {
 			if (this.style === STYLES.HEADING_BREAK) {
 				if (typeof this.headingText !== 'string' || this.headingText.trim() === '') {
-					return [t('mydash', 'Heading text is required')]
+					return [t('launchpad', 'Heading text is required')]
 				}
 			}
 			return []

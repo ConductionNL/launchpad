@@ -11,12 +11,12 @@
   - Request body shape (from the controller's method signature +
     docblock)
   - Expected response shape (`ResponseHelper::success`/`error` plain
-    JSON envelopes, not the OCS envelope — MyDash controllers extend
+    JSON envelopes, not the OCS envelope — LaunchPad controllers extend
     plain `Controller`, not `OCSController`)
 
 ## Task 2: Write the collection
 
-- [x] Create `tests/integration/mydash.postman_collection.json`
+- [x] Create `tests/integration/launchpad.postman_collection.json`
   (Postman 2.1 schema) with collection-level basic auth using
   `{{adminUser}}` / `{{adminPassword}}` variables.
 - [x] 28 capability folders (the original six-folder plan was

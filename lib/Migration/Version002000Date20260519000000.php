@@ -3,22 +3,22 @@
 /**
  * Version002000Date20260519000000
  *
- * Migration that copies existing mydash dashboard rows from the
- * `mydash_dashboards` + `mydash_widget_placements` Nextcloud tables into
- * OpenRegister objects (register: `mydash`, schema: `dashboard`) per
+ * Migration that copies existing launchpad dashboard rows from the
+ * `launchpad_dashboards` + `launchpad_widget_placements` Nextcloud tables into
+ * OpenRegister objects (register: `launchpad`, schema: `dashboard`) per
  * ADR-036 Decision 8.
  *
  * ## Strategy
  *
- * mydash is a pre-production app. There are no real user databases with
+ * launchpad is a pre-production app. There are no real user databases with
  * significant live dashboards that need preserving. The migration therefore
  * takes a "best-effort copy then leave old tables in place" approach:
  *
- *   1. Iterate rows in `mydash_dashboards` that have type = 'user' or
+ *   1. Iterate rows in `launchpad_dashboards` that have type = 'user' or
  *      type = 'group_shared'. Admin-template rows are NOT migrated (they
  *      have no equivalent in the v2 OR-backed model yet).
  *   2. For each dashboard, collect its widget placements from
- *      `mydash_widget_placements` and build the v2 `widgets` array
+ *      `launchpad_widget_placements` and build the v2 `widgets` array
  *      (widgetKey = widgetId, grid coords from columns).
  *   3. Save via ObjectService::saveObject(). On any error, log and
  *      continue (non-fatal — the user can recreate dashboards).
@@ -30,10 +30,10 @@
  *
  * After this migration the ManifestController reads exclusively from OR.
  * Dashboards that fail to migrate will not appear in the manifest.
- * Because mydash is pre-production this is acceptable — document in the PR.
+ * Because launchpad is pre-production this is acceptable — document in the PR.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -43,7 +43,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -53,7 +53,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Migrate existing mydash dashboard rows into OpenRegister objects.
+ * Migrate existing launchpad dashboard rows into OpenRegister objects.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -64,7 +64,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
      *
      * @var string
      */
-    private const REGISTER = 'mydash';
+    private const REGISTER = 'launchpad';
 
     /**
      * OpenRegister schema slug.
@@ -111,7 +111,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
     }//end changeSchema()
 
     /**
-     * Copy dashboard rows from mydash tables into OpenRegister.
+     * Copy dashboard rows from launchpad tables into OpenRegister.
      *
      * @param IOutput $output        Migration output.
      * @param Closure $schemaClosure Schema closure (unused).
@@ -130,7 +130,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
 
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
-            $output->info('MyDash migration: OpenRegister not available — skipping dashboard copy.');
+            $output->info('LaunchPad migration: OpenRegister not available — skipping dashboard copy.');
             return;
         }//end try
 
@@ -142,16 +142,16 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
 
             $db = $this->container->get(\OCP\IDBConnection::class);
         } catch (\Throwable $e) {
-            $output->info('MyDash migration: could not get DB connection — skipping dashboard copy.');
+            $output->info('LaunchPad migration: could not get DB connection — skipping dashboard copy.');
             return;
         }//end try
 
         if ($this->legacyTableExists(db: $db) === false) {
-            $output->info('MyDash migration: legacy mydash_dashboards table not found — nothing to migrate.');
+            $output->info('LaunchPad migration: legacy launchpad_dashboards table not found — nothing to migrate.');
             return;
         }
 
-        $output->info('MyDash migration: starting dashboard copy to OpenRegister.');
+        $output->info('LaunchPad migration: starting dashboard copy to OpenRegister.');
 
         $migrated = 0;
         $failed   = 0;
@@ -159,7 +159,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
         try {
             $qb = $db->getQueryBuilder();
             $qb->select('d.*')
-                ->from('mydash_dashboards', 'd')
+                ->from('launchpad_dashboards', 'd')
                 ->where($qb->expr()->neq('d.type', $qb->createNamedParameter('admin_template')))
                 ->setMaxResults(self::MAX_MIGRATE);
 
@@ -190,8 +190,8 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
                 } catch (\Throwable $innerEx) {
                     $failed++;
                     $this->logger->warning(
-                        'MyDash migration: failed to migrate dashboard id='.$row['id'].': '.$innerEx->getMessage(),
-                        ['app' => 'mydash']
+                        'LaunchPad migration: failed to migrate dashboard id='.$row['id'].': '.$innerEx->getMessage(),
+                        ['app' => 'launchpad']
                     );
                 }//end try
 
@@ -200,11 +200,11 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
 
             $result->closeCursor();
         } catch (\Throwable $e) {
-            $output->info('MyDash migration: query failed — '.$e->getMessage());
-            $this->logger->error('MyDash migration error: '.$e->getMessage(), ['app' => 'mydash']);
+            $output->info('LaunchPad migration: query failed — '.$e->getMessage());
+            $this->logger->error('LaunchPad migration error: '.$e->getMessage(), ['app' => 'launchpad']);
         }//end try
 
-        $output->info("MyDash migration complete: {$migrated} migrated, {$failed} failed.");
+        $output->info("LaunchPad migration complete: {$migrated} migrated, {$failed} failed.");
 
     }//end postSchemaChange()
 
@@ -219,7 +219,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
     {
         try {
             $schema = $db->createSchema();
-            return $schema->hasTable('mydash_dashboards');
+            return $schema->hasTable('launchpad_dashboards');
         } catch (\Throwable) {
             return false;
         }//end try
@@ -241,7 +241,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
         try {
             $qb = $db->getQueryBuilder();
             $qb->select('p.*')
-                ->from('mydash_widget_placements', 'p')
+                ->from('launchpad_widget_placements', 'p')
                 ->where($qb->expr()->eq('p.dashboard_id', $qb->createNamedParameter($dashboardId)));
 
             $result    = $qb->executeQuery();
@@ -263,8 +263,8 @@ class Version002000Date20260519000000 extends SimpleMigrationStep
             $result->closeCursor();
         } catch (\Throwable $e) {
             $this->logger->warning(
-                'MyDash migration: could not load placements for dashboard '.$dashboardId.': '.$e->getMessage(),
-                ['app' => 'mydash']
+                'LaunchPad migration: could not load placements for dashboard '.$dashboardId.': '.$e->getMessage(),
+                ['app' => 'launchpad']
             );
         }//end try
 

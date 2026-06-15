@@ -12,8 +12,8 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 
 #### Scenario: Widget is discovered in the widget list
 - GIVEN Nextcloud has the Dashboard Widget API enabled
-- WHEN a user navigates to the dashboard widget picker via MyDash
-- THEN GET /api/widgets MUST include a widget with `id: "mydash_video"`, `title: "Video"`, and an icon
+- WHEN a user navigates to the dashboard widget picker via LaunchPad
+- THEN GET /api/widgets MUST include a widget with `id: "launchpad_video"`, `title: "Video"`, and an icon
 - AND the widget MUST be registered via `OCP\Dashboard\IManager::registerWidget()` in `VideoWidgetProvider`
 - AND the widget MUST implement `OCP\Dashboard\IWidget`
 
@@ -30,7 +30,7 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 - AND the icon file MUST be stored at `img/widgets/video.svg`
 
 #### Scenario: Widget registration occurs on app boot
-- GIVEN the MyDash app is installed and enabled
+- GIVEN the LaunchPad app is installed and enabled
 - WHEN Nextcloud boots and initializes app managers
 - THEN `VideoWidgetProvider::load()` MUST be called by Nextcloud's AppManager
 - AND the video widget registration MUST complete without errors
@@ -131,22 +131,22 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 The system MUST prevent embedding videos from arbitrary domains unless explicitly allowed by the administrator.
 
 #### Scenario: Allowed domains setting exists
-- GIVEN no `mydash.video_widget_allowed_domains` setting is configured
+- GIVEN no `launchpad.video_widget_allowed_domains` setting is configured
 - WHEN the system boots
 - THEN the default allowlist MUST be:
   ```json
   ["youtube.com", "www.youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
   ```
-- AND the admin MUST be able to override this via MyDash admin settings page
+- AND the admin MUST be able to override this via LaunchPad admin settings page
 
 #### Scenario: Widget save rejects disallowed domain
-- GIVEN admin has set `mydash.video_widget_allowed_domains` to only `["youtube.com", "www.youtube.com", "youtu.be"]`
+- GIVEN admin has set `launchpad.video_widget_allowed_domains` to only `["youtube.com", "www.youtube.com", "youtu.be"]`
 - WHEN a user attempts to save a widget with `sourceType: 'vimeo'` and `videoUrl: 'https://vimeo.com/12345'`
 - THEN the backend MUST return HTTP 400 with error message (English): "Domain not allowed by administrator"
 - AND the widget MUST NOT be created/updated
 
 #### Scenario: Admin adds a custom PeerTube instance to allowlist
-- GIVEN admin edits MyDash settings to add `"peertube.example.com"` to the allowed list
+- GIVEN admin edits LaunchPad settings to add `"peertube.example.com"` to the allowed list
 - WHEN a user submits a widget with `sourceType: 'peertube'` and `videoUrl: 'https://peertube.example.com/w/abc123'`
 - THEN the domain check MUST succeed and the widget MUST be saved
 
@@ -339,13 +339,13 @@ The widget MUST apply the configured aspect ratio using modern CSS and fallback 
 The system MUST support an optional admin setting to enable YouTube no-cookie embedding to reduce tracking.
 
 #### Scenario: No-cookie setting default
-- GIVEN `mydash.video_widget_use_nocookie_youtube` is not configured
+- GIVEN `launchpad.video_widget_use_nocookie_youtube` is not configured
 - WHEN a widget with `sourceType: 'youtube'` is created
 - THEN the system MUST use the standard `https://www.youtube.com/embed/ABC123`
 - AND YouTube's tracking cookies MUST be enabled by default
 
 #### Scenario: Admin enables no-cookie mode
-- GIVEN admin sets `mydash.video_widget_use_nocookie_youtube = true`
+- GIVEN admin sets `launchpad.video_widget_use_nocookie_youtube = true`
 - WHEN a widget with `sourceType: 'youtube'` is created
 - THEN the system MUST rewrite the embed URL to: `https://www.youtube-nocookie.com/embed/ABC123`
 - AND the no-cookie domain MUST be used for all subsequent renders
@@ -385,7 +385,7 @@ The widget MUST show user-friendly messages for missing config, access issues, a
 - WHEN the parse endpoint is called
 - THEN it MUST return `{"isValid": false, "error": "Domain not allowed by administrator"}`
 - AND the frontend MUST display this error
-- AND the admin SHOULD be prompted to check MyDash settings
+- AND the admin SHOULD be prompted to check LaunchPad settings
 
 #### Scenario: File not found error
 - GIVEN a widget with `sourceType: 'nc-file'` and the file has been deleted
@@ -415,7 +415,7 @@ The widget MUST show user-friendly messages for missing config, access issues, a
 ## Non-Functional Requirements
 
 - **Performance**: Video URL parsing MUST complete in < 500ms even for external URLs (YouTube, Vimeo). Cached canonical URLs in widget config MUST NOT be re-parsed on every render.
-- **Security**: iframe sandbox MUST prevent form submission, navigation, and plugin execution. File access checks MUST honor Nextcloud ACLs. No tracking pixels or third-party scripts MUST be injected by MyDash itself (YouTube/Vimeo may add their own per their ToS).
+- **Security**: iframe sandbox MUST prevent form submission, navigation, and plugin execution. File access checks MUST honor Nextcloud ACLs. No tracking pixels or third-party scripts MUST be injected by LaunchPad itself (YouTube/Vimeo may add their own per their ToS).
 - **Compatibility**: Widget MUST work with all supported Nextcloud versions and all Dashboard API versions (v1, v2). HTML5 video MUST play in all modern browsers (Chrome, Firefox, Safari, Edge 88+).
 - **Accessibility**: Videos MUST have poster images or title text. Controls MUST be keyboard accessible. Error messages MUST be clear and visible to screen readers.
 - **Localization**: All UI text, error messages, and settings labels MUST support English and Dutch.

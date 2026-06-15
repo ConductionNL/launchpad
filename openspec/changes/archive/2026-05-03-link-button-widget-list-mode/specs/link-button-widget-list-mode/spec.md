@@ -102,7 +102,7 @@ Each link entry's `icon` field MUST follow the same dual-mode convention as REQ-
 Icon size MUST be consistent across all list items (24 px square for list mode; 48 px for compact/normal/spacious variants may adjust padding but not icon size). The icon MUST appear inline (left of the label in vertical mode, above in horizontal mode per list orientation).
 
 #### Scenario: Custom icon URL in list item
-- GIVEN a list item with `icon: '/apps/mydash/icons/report.png'` and `label: 'Q4 Report'`
+- GIVEN a list item with `icon: '/apps/launchpad/icons/report.png'` and `label: 'Q4 Report'`
 - WHEN the widget renders in list mode
 - THEN the item MUST show the custom image followed by the label text
 

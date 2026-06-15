@@ -1,6 +1,6 @@
 # Grid Layout
 
-The grid layout system powers the drag-and-drop dashboard experience in MyDash, built on GridStack 10.3.1.
+The grid layout system powers the drag-and-drop dashboard experience in LaunchPad, built on GridStack 10.3.1.
 
 ## Features
 
@@ -26,4 +26,4 @@ The grid layout system powers the drag-and-drop dashboard experience in MyDash, 
 
 ## Screenshot
 
-![Grid Layout](/screenshots/mydash-dashboard-overview.png)
+![Grid Layout](/screenshots/launchpad-dashboard-overview.png)

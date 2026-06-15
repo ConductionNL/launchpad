@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -22,18 +22,18 @@
 
 		<div class="calendar-widget__body">
 			<div v-if="loading" class="calendar-widget__loading">
-				{{ t('mydash', 'Loading calendars…') }}
+				{{ t('launchpad', 'Loading calendars…') }}
 			</div>
 
 			<div v-else-if="error" class="calendar-widget__error">
-				<p>{{ t('mydash', 'Failed to load events') }}</p>
+				<p>{{ t('launchpad', 'Failed to load events') }}</p>
 				<button type="button" class="calendar-widget__retry" @click="fetchEvents">
-					{{ t('mydash', 'Retry') }}
+					{{ t('launchpad', 'Retry') }}
 				</button>
 			</div>
 
 			<div v-else-if="!hasSources" class="calendar-widget__empty">
-				{{ t('mydash', 'No calendars configured') }}
+				{{ t('launchpad', 'No calendars configured') }}
 			</div>
 
 			<div v-else-if="events.length === 0 && activeMode === 'agenda'" class="calendar-widget__empty">
@@ -210,32 +210,32 @@ export default {
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		headerTitle() {
-			return t('mydash', 'Calendar')
+			return t('launchpad', 'Calendar')
 		},
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		emptyMessage() {
-			return t('mydash', 'No events in the next {N} days')
+			return t('launchpad', 'No events in the next {N} days')
 				.replace('{N}', String(this.daysAhead))
 		},
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		failureSummary() {
 			const count = this.failures.length
-			return t('mydash', '{N} calendar source(s) unavailable')
+			return t('launchpad', '{N} calendar source(s) unavailable')
 				.replace('{N}', String(count))
 		},
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		weekdayHeaders() {
 			return [
-				t('mydash', 'Sun'),
-				t('mydash', 'Mon'),
-				t('mydash', 'Tue'),
-				t('mydash', 'Wed'),
-				t('mydash', 'Thu'),
-				t('mydash', 'Fri'),
-				t('mydash', 'Sat'),
+				t('launchpad', 'Sun'),
+				t('launchpad', 'Mon'),
+				t('launchpad', 'Tue'),
+				t('launchpad', 'Wed'),
+				t('launchpad', 'Thu'),
+				t('launchpad', 'Fri'),
+				t('launchpad', 'Sat'),
 			]
 		},
 
@@ -361,12 +361,12 @@ export default {
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		modeLabel(mode) {
 			if (mode === 'month') {
-				return t('mydash', 'Month')
+				return t('launchpad', 'Month')
 			}
 			if (mode === 'week') {
-				return t('mydash', 'Week')
+				return t('launchpad', 'Week')
 			}
-			return t('mydash', 'Agenda')
+			return t('launchpad', 'Agenda')
 		},
 
 		/**
@@ -401,7 +401,7 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				const url = generateUrl('/apps/mydash/api/widgets/calendar/{id}/events', {
+				const url = generateUrl('/apps/launchpad/api/widgets/calendar/{id}/events', {
 					id: this.placementId,
 				})
 				const response = await axios.get(url, {
@@ -438,7 +438,7 @@ export default {
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		formatTime(event) {
 			if (event.allDay) {
-				return t('mydash', 'All day')
+				return t('launchpad', 'All day')
 			}
 			const start = this.parseDate(event.start)
 			const hh = String(start.getHours()).padStart(2, '0')

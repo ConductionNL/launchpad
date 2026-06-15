@@ -8,16 +8,16 @@
  * The single allowed call site is the InitialStateBuilder::apply() method.
  *
  * Mirrors the JS-side grep lint that scans `src/` for ad-hoc
- * `loadState('mydash', ...)` calls (see TODO: the Vitest counterpart will
+ * `loadState('launchpad', ...)` calls (see TODO: the Vitest counterpart will
  * land with PR #43, `chore/add-vitest-setup`).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -78,7 +78,7 @@ class InitialStateContractLintTest extends TestCase
             [],
             $offenders,
             'Direct provideInitialState() call found outside InitialStateBuilder. '
-            . 'Use OCA\\MyDash\\Service\\InitialStateBuilder instead. Offenders: '
+            . 'Use OCA\\LaunchPad\\Service\\InitialStateBuilder instead. Offenders: '
             . implode(', ', $offenders)
         );
     }

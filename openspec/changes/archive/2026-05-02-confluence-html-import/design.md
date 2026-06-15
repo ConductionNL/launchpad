@@ -156,7 +156,7 @@ uploads the referenced files. The `MediaDownload` mechanism only fires for
   (`MediaDownload` — url, targetFilename, pageSlug only)
 
 Spec REQ-CFLI-005 ("Upload attachment image to NC folder" and the
-`MyDash/Imports/{timestamp}/` folder) describes behaviour that does not exist
+`LaunchPad/Imports/{timestamp}/` folder) describes behaviour that does not exist
 in the current code. Implementing it requires new logic in `ImportService` or a
 dedicated uploader.
 
@@ -192,7 +192,7 @@ There is also no dry-run path (no `dry-run` parameter, no flag, no separate
 endpoint).
 
 The `ImportPagesCommand` CLI command exists but operates on the source native
-JSON format, not Confluence ZIP archives. There is no `occ mydash:import:confluence`
+JSON format, not Confluence ZIP archives. There is no `occ launchpad:import:confluence`
 command.
 
 **Source evidence**:
@@ -202,7 +202,7 @@ command.
   (command name `the source app:import`, no Confluence ZIP support)
 
 Spec REQ-CFLI-007 (dry-run endpoint), REQ-CFLI-008 (async + polling), and
-REQ-CFLI-011 (CLI `occ mydash:import:confluence`) all describe features that
+REQ-CFLI-011 (CLI `occ launchpad:import:confluence`) all describe features that
 do not exist and must be built.
 
 ---
@@ -248,7 +248,7 @@ accumulator, and surfacing it in the response. The skeleton is almost there
 - **REQ-CFLI-005** (image upload): Mark as "new feature to build". The
   `MediaDownload` type exists for Storage Format `<ac:image>` elements but plain
   HTML `<img src="attachments/...">` is not scanned, and no upload to Nextcloud
-  occurs today. The `MyDash/Imports/{timestamp}/` destination folder must be
+  occurs today. The `LaunchPad/Imports/{timestamp}/` destination folder must be
   a new design decision.
 
 - **REQ-CFLI-006** scenarios: Correct the placeholder format from

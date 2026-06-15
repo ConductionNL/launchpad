@@ -2,7 +2,7 @@
 
 ## Why
 
-MyDash today has no first-class way to put a single image on a dashboard. Users currently jam logos, screenshots, branding, and decorative imagery into the markdown widget via `<img>` tags or rely on the iframe widget pointing at an external image URL — both workarounds. Neither path supports proper `object-fit` control, broken-image fallback, click-through to a target URL, or the upload-a-file UX users expect from a dashboard product. Competitor dashboards (Grafana, Microsoft Power BI tiles, and similar) all ship a dedicated image widget. We need parity, with the small UX upgrade that the cell only looks clickable when there is actually a link to click.
+LaunchPad today has no first-class way to put a single image on a dashboard. Users currently jam logos, screenshots, branding, and decorative imagery into the markdown widget via `<img>` tags or rely on the iframe widget pointing at an external image URL — both workarounds. Neither path supports proper `object-fit` control, broken-image fallback, click-through to a target URL, or the upload-a-file UX users expect from a dashboard product. Competitor dashboards (Grafana, Microsoft Power BI tiles, and similar) all ship a dedicated image widget. We need parity, with the small UX upgrade that the cell only looks clickable when there is actually a link to click.
 
 ## What Changes
 
@@ -35,7 +35,7 @@ MyDash today has no first-class way to put a single image on a dashboard. Users 
 
 **Affected APIs:**
 
-- No new MyDash backend routes. The form POSTs to the resource-uploads endpoint owned by the `resource-uploads` capability — see Dependencies below.
+- No new LaunchPad backend routes. The form POSTs to the resource-uploads endpoint owned by the `resource-uploads` capability — see Dependencies below.
 
 **Dependencies:**
 
@@ -44,7 +44,7 @@ MyDash today has no first-class way to put a single image on a dashboard. Users 
 
 **Migration:**
 
-- No database migration. Widget content is stored in the existing `oc_mydash_widget_placements.content` JSON blob. Old placements without `type: 'image'` are unaffected.
+- No database migration. Widget content is stored in the existing `oc_launchpad_widget_placements.content` JSON blob. Old placements without `type: 'image'` are unaffected.
 
 **Out of scope:**
 

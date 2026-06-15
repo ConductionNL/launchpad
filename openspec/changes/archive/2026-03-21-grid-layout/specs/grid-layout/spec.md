@@ -6,7 +6,7 @@ status: reviewed
 
 ## Purpose
 
-The grid layout system powers the drag-and-drop dashboard experience in MyDash. Built on GridStack 10.3.1, it provides a 12-column responsive grid where users can position, resize, and rearrange widget placements and tiles. The grid operates in two modes: view mode (static, no interaction) and edit mode (drag-and-drop enabled). Position changes are emitted via Vue events and persisted via the API by the parent component.
+The grid layout system powers the drag-and-drop dashboard experience in LaunchPad. Built on GridStack 10.3.1, it provides a 12-column responsive grid where users can position, resize, and rearrange widget placements and tiles. The grid operates in two modes: view mode (static, no interaction) and edit mode (drag-and-drop enabled). Position changes are emitted via Vue events and persisted via the API by the parent component.
 
 ## Technical Foundation
 
@@ -259,7 +259,7 @@ The grid MUST adapt to the container width while maintaining the configured colu
 #### Scenario: Minimum grid height
 - GIVEN the dashboard has no widgets or very few widgets
 - WHEN the grid renders
-- THEN the grid container MUST maintain a minimum height of 400px (`.mydash-grid { min-height: 400px }`)
+- THEN the grid container MUST maintain a minimum height of 400px (`.launchpad-grid { min-height: 400px }`)
 
 ### REQ-GRID-008: Grid Accessibility
 

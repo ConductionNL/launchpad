@@ -7,38 +7,39 @@
  * visible-to-user resolution endpoint).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use DateTimeImmutable;
 use Exception;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardLockMapper;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
-use OCA\MyDash\Service\DashboardContentStorageFactory;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Exception\DashboardHasChildrenException;
-use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardLockMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\DashboardContentStorageFactory;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
@@ -284,6 +285,8 @@ class DashboardService
         private readonly ?RoleFeaturePermissionService $roleFeaturePerm=null,
         private readonly ?IEventDispatcher $eventDispatcher=null,
         private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
+        private readonly ?PublicShareContext $publicShareContext=null,
+        private readonly ?QuotaService $quotaService=null,
     ) {
     }//end __construct()
 
@@ -456,6 +459,15 @@ class DashboardService
         int $sortOrder=0,
         bool $seedDefaults=false
     ): Dashboard {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
+        // dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
+        // dashboard quota at the single creation choke point so every
+        // user-initiated surface (REST create, CLI, template
+        // instantiation) is bound. Admin provisioning paths wrap their
+        // calls in QuotaService::runProvisioning() to bypass this
+        // (REQ-QUOTA-004). Runs before any DB write.
+        $this->quotaService?->assertCanCreateDashboard(userId: $userId);
         // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
         // depth checks BEFORE the entity is built so the request is
         // rejected without a partial row in memory.
@@ -511,7 +523,7 @@ class DashboardService
                 );
             } catch (Throwable $t) {
                 $this->logger->warning(
-                    message: 'mydash: failed to seed primary translation: {message}',
+                    message: 'launchpad: failed to seed primary translation: {message}',
                     context: ['message' => $t->getMessage()]
                 );
             }
@@ -546,6 +558,8 @@ class DashboardService
         string $userId,
         array $data
     ): Dashboard {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
@@ -583,6 +597,8 @@ class DashboardService
         string $userId,
         bool $cascade=false
     ): void {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
@@ -1212,7 +1228,7 @@ class DashboardService
         // Step 0 (wave3.7): explicit default — if the user has pinned
         // a default dashboard via the per-row "Set as default" action,
         // it always wins over the auto-overwriting `active_dashboard_uuid`
-        // pref so visiting `/apps/mydash/` consistently opens the same
+        // pref so visiting `/apps/launchpad/` consistently opens the same
         // dashboard regardless of where the user navigated last.
         $defaultUuid = $this->config->getUserValue(
             userId: $userId,
@@ -1233,7 +1249,7 @@ class DashboardService
                 key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
             );
             $this->logger->warning(
-                message: 'mydash: stale default_dashboard_uuid "{uuid}" cleared for user "{user}"',
+                message: 'launchpad: stale default_dashboard_uuid "{uuid}" cleared for user "{user}"',
                 context: ['uuid' => $defaultUuid, 'user' => $userId]
             );
         }
@@ -1258,7 +1274,7 @@ class DashboardService
                 key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
             );
             $this->logger->warning(
-                message: 'mydash: stale active_dashboard_uuid "{uuid}" cleared for user "{user}"',
+                message: 'launchpad: stale active_dashboard_uuid "{uuid}" cleared for user "{user}"',
                 context: ['uuid' => $savedUuid, 'user' => $userId]
             );
         }
@@ -1675,6 +1691,12 @@ class DashboardService
         // the stable `personal_dashboards_disabled` envelope no matter
         // what happens with the body.
         $this->assertPersonalDashboardsAllowed();
+
+        // dashboard-quota-limits REQ-QUOTA-002: a fork creates a new
+        // personal-scope dashboard, so it is bound by the per-user
+        // dashboard quota exactly like a plain create. Runs before any DB
+        // write and before the transaction opens.
+        $this->quotaService?->assertCanCreateDashboard(userId: $userId);
 
         // REQ-DASH-020: source must be visible to the user — reuse the
         // visible-to-user resolver so personal / group / default-group
@@ -2095,7 +2117,7 @@ class DashboardService
      * (REQ-TILE-PLACEMENT) picks them up without a JSON `content`
      * column. The Nextcloud tile uses an `icon-` CSS class (no logo
      * asset is shipped); Conduction and Sendent point at the PNGs in
-     * `mydash/img/` via app-relative URLs that resolve through any
+     * `launchpad/img/` via app-relative URLs that resolve through any
      * Nextcloud overwrite.
      *
      * @param int $dashboardId The dashboard ID to seed.
@@ -2116,7 +2138,7 @@ class DashboardService
                 'sortOrder'  => 0,
                 'tile'       => [
                     'title'           => 'Conduction',
-                    'icon'            => '/apps/mydash/img/conduction-logo.png',
+                    'icon'            => '/apps/launchpad/img/conduction-logo.png',
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',
@@ -2133,7 +2155,7 @@ class DashboardService
                 'sortOrder'  => 1,
                 'tile'       => [
                     'title'           => 'Sendent',
-                    'icon'            => '/apps/mydash/img/sendent-logo.png',
+                    'icon'            => '/apps/launchpad/img/sendent-logo.png',
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',

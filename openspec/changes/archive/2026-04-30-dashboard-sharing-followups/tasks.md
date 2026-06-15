@@ -3,12 +3,12 @@
 ## 1. Notifier service
 
 - [ ] 1.1 Create `lib/Notification/Notifier.php` implementing `OCP\Notification\INotifier`
-  - `getID()` returns `'mydash'`
-  - `getName()` returns `'MyDash'` (translatable)
+  - `getID()` returns `'launchpad'`
+  - `getName()` returns `'LaunchPad'` (translatable)
   - `prepare(INotification, $languageCode)` handles two subjects: `dashboard_shared`, `dashboard_ownership_transferred`
   - For unknown subjects throw `\OCP\Notification\UnknownNotificationException`
-  - Use `IURLGenerator::linkToRouteAbsolute('mydash.page.index')` plus a `?dashboard={uuid}` query for the deep link
-- [ ] 1.2 Use `IFactory::get('mydash')` for translations of the rendered strings:
+  - Use `IURLGenerator::linkToRouteAbsolute('launchpad.page.index')` plus a `?dashboard={uuid}` query for the deep link
+- [ ] 1.2 Use `IFactory::get('launchpad')` for translations of the rendered strings:
   - `dashboard_shared`: rich subject "Alice shared **Marketing Overview** with you" + parsed message "{permissionLevel} access"
   - `dashboard_ownership_transferred`: rich subject "**Marketing Overview** is now yours" + parsed message "Ownership transferred after the previous owner was removed"
 - [ ] 1.3 Register the notifier in `lib/AppInfo/Application.php::register()` via `$context->registerNotifierService(Notifier::class)`
@@ -44,7 +44,7 @@
 ## 4. Revoke-all-for-recipient
 
 - [ ] 4.1 Add `DashboardShareService::revokeAllForRecipient(string $shareType, string $shareWith, string $callerId): int` that:
-  - Joins `oc_mydash_dashboard_shares` to `oc_mydash_dashboards` on `dashboardId = id` filtered to `dashboards.user_id = callerId`
+  - Joins `oc_launchpad_dashboard_shares` to `oc_launchpad_dashboards` on `dashboardId = id` filtered to `dashboards.user_id = callerId`
   - Deletes all matching rows in one statement, returns the affected row count
 - [ ] 4.2 Add `DashboardShareApiController::revokeForRecipient(string $shareType, string $shareWith)`
 - [ ] 4.3 Register route `DELETE /api/sharees/{shareType}/{shareWith}` in `appinfo/routes.php`
@@ -77,7 +77,7 @@
 ## 6. Optional one-shot data hygiene migration
 
 - [ ] 6.1 Create `lib/Migration/Version001006Date20260430130000.php` (`SimpleMigrationStep`)
-- [ ] 6.2 In `postSchemaChange`, gated by an admin setting `mydash.cleanup_orphan_shares = true`:
+- [ ] 6.2 In `postSchemaChange`, gated by an admin setting `launchpad.cleanup_orphan_shares = true`:
   - Find share rows where `share_type='user'` and the `share_with` uid no longer resolves via `IUserManager::get()`
   - Find share rows where `share_type='group'` and the `share_with` group no longer resolves via `IGroupManager::get()`
   - Delete those rows; emit a count to the migration output
@@ -86,6 +86,6 @@
 ## 7. Documentation + telemetry
 
 - [ ] 7.1 Update `docs/sharing.md` (create if missing) with the share lifecycle diagram, including the new ownership-transfer path
-- [ ] 7.2 Add a `mydash_dashboards_orphaned_at_owner_deletion_total` Prometheus counter incremented inside `UserDeletedListener` for each dashboard where the admin pool was empty (we deleted)
-- [ ] 7.3 Add a `mydash_dashboard_ownership_transferred_total` counter for the success branch
+- [ ] 7.2 Add a `launchpad_dashboards_orphaned_at_owner_deletion_total` Prometheus counter incremented inside `UserDeletedListener` for each dashboard where the admin pool was empty (we deleted)
+- [ ] 7.3 Add a `launchpad_dashboard_ownership_transferred_total` counter for the success branch
 - [ ] 7.4 Update `openspec/specs/dashboard-sharing/spec.md` with the new REQ-SHARE-008..013 once the change is archived (this is the post-merge merge step done by `/opsx-archive`)

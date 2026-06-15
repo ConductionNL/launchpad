@@ -2,16 +2,16 @@
 
 ## Why
 
-MyDash users often need to stay informed about industry news, product updates, and organizational announcements. Currently, there is no built-in way to aggregate RSS or Atom feeds directly on the dashboard. Users must either leave the dashboard and open feed readers separately, or manually check multiple sources. A news widget bridges this gap by rendering merged and deduplicated feed items from configurable sources, with optional filtering by dashboard metadata to surface only relevant content on dashboard contexts (e.g., marketing news only on a "marketing" dashboard).
+LaunchPad users often need to stay informed about industry news, product updates, and organizational announcements. Currently, there is no built-in way to aggregate RSS or Atom feeds directly on the dashboard. Users must either leave the dashboard and open feed readers separately, or manually check multiple sources. A news widget bridges this gap by rendering merged and deduplicated feed items from configurable sources, with optional filtering by dashboard metadata to surface only relevant content on dashboard contexts (e.g., marketing news only on a "marketing" dashboard).
 
 ## What Changes
 
-- Register a new dashboard widget with id `mydash_news` via `OCP\Dashboard\IManager` that appears in the widget picker.
+- Register a new dashboard widget with id `launchpad_news` via `OCP\Dashboard\IManager` that appears in the widget picker.
 - Add per-placement configuration stored in `widgetContent JSON` to specify RSS/Atom feed URLs, layout mode, item limit, optional metadata filtering, and presentation preferences (thumbnails, summaries, date format).
 - Implement backend `GET /api/widgets/news/{placementId}/items?limit=N` to return merged, deduplicated feed items with source attribution, sorted by publication date.
 - Integrate with the sibling change `background-job-feed-refresh` (required dependency): this widget reads from a feed-cache table populated by that background job. On cold-start (cache empty), perform a single on-demand fetch; regular updates are delegated to the background job.
-- Cache external feed fetches for 60 minutes using Nextcloud's `ICache`, tunable via admin setting `mydash.news_widget_feed_cache_ttl_seconds`.
-- Enforce an allow-list of feed hosts via admin setting `mydash.news_widget_allowed_feed_hosts` (JSON array of hostnames; empty = all allowed; populated = restricted to those hosts). URLs not matching the allow-list are silently skipped.
+- Cache external feed fetches for 60 minutes using Nextcloud's `ICache`, tunable via admin setting `launchpad.news_widget_feed_cache_ttl_seconds`.
+- Enforce an allow-list of feed hosts via admin setting `launchpad.news_widget_allowed_feed_hosts` (JSON array of hostnames; empty = all allowed; populated = restricted to those hosts). URLs not matching the allow-list are silently skipped.
 - Implement HTML sanitisation for item summaries (allow `<p>`, `<a>`, `<strong>`, `<em>`, `<br>`, `<ul>`, `<ol>`, `<li>`; strip everything else; force `rel="noopener noreferrer"` on links).
 - Support optional metadata filtering: if a widget specifies a `metadataFilter` with fieldKey and value, the widget only fetches items if the dashboard's metadata field (referenced by fieldKey) matches the value. This allows e.g. a "marketing" dashboard to show only marketing-tagged feed items.
 - Provide Vue 3 SFC `NewsWidget.vue` with three layout modes: list (single column), grid (cards), and carousel (horizontal scroll).
@@ -22,7 +22,7 @@ MyDash users often need to stay informed about industry news, product updates, a
 
 ### New Capabilities
 
-- `news-widget` — A new MyDash dashboard widget capability providing merged, deduplicated RSS/Atom feed streams with configurable sources, filtering, and layouts.
+- `news-widget` — A new LaunchPad dashboard widget capability providing merged, deduplicated RSS/Atom feed streams with configurable sources, filtering, and layouts.
 
 ## Impact
 
@@ -33,7 +33,7 @@ MyDash users often need to stay informed about industry news, product updates, a
 - `src/components/widgets/NewsWidget.vue` — three-mode render component (list, grid, carousel).
 - `src/components/widgets/newspicker/NewsWidgetConfig.vue` — placement config UI for feed URLs, layout, filtering preferences.
 - `appinfo/routes.php` — register the new news widget items endpoint.
-- `lib/Migration/VersionXXXXDate2026...AddNewsWidgetSettings.php` — schema migration adding app config settings (`mydash.news_widget_*` keys).
+- `lib/Migration/VersionXXXXDate2026...AddNewsWidgetSettings.php` — schema migration adding app config settings (`launchpad.news_widget_*` keys).
 - `src/stores/widgets.js` — add widget-specific runtime state for cached item data and fetch status per placement.
 
 **Affected APIs:**

@@ -8,12 +8,12 @@
  * idempotent soft-revoke, and resolve-with-touch.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\FeedToken;
-use OCA\MyDash\Db\FeedTokenMapper;
-use OCA\MyDash\Service\FeedTokenService;
+use OCA\LaunchPad\Db\FeedToken;
+use OCA\LaunchPad\Db\FeedTokenMapper;
+use OCA\LaunchPad\Service\FeedTokenService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use PHPUnit\Framework\MockObject\MockObject;

@@ -8,12 +8,12 @@
  * REQ-DASH-017 (PUT MUST NOT mutate isDefault).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,15 +22,15 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use Exception;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardFactory;
-use OCA\MyDash\Service\DashboardResolver;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\TemplateService;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardFactory;
+use OCA\LaunchPad\Service\DashboardResolver;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\TemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -95,14 +95,14 @@ class DashboardServiceDefaultFlagTest extends TestCase
             templateService: $this->templateService,
             dashboardFactory: $this->dashboardFactory,
             dashResolver: $this->dashResolver,
-            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
+            treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
             groupManager: $this->groupManager,
             adminTemplateService: $this->adminTemplateService,
             db: $this->db,
             config: $this->config,
             l10nFactory: $this->l10nFactory,
             logger: $this->logger,
-            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
+            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
         );
     }//end setUp()
 

@@ -4,32 +4,32 @@
  * ReactionService
  *
  * Service that mediates every read and write against the
- * `oc_mydash_dashboard_reactions` table. Owns the global/per-dashboard
+ * `oc_launchpad_dash_reactions` table. Owns the global/per-dashboard
  * toggle resolution, the admin emoji whitelist, idempotent add/remove
  * semantics, and the reactor-pagination shape. REQ-RXN-001..009.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardReaction;
-use OCA\MyDash\Db\DashboardReactionMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardReaction;
+use OCA\LaunchPad\Db\DashboardReactionMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IAppConfig;

@@ -11,14 +11,14 @@
  * offending file. Pure file-grep — no Composer deps required.
  *
  * @category  Tooling
- * @package   OCA\MyDash\Scripts
+ * @package   OCA\LaunchPad\Scripts
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 

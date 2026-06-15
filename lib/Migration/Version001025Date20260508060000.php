@@ -3,13 +3,13 @@
 /**
  * Version001025Date20260508060000
  *
- * Migration to add the `content` JSON column to `mydash_widget_placements`.
+ * Migration to add the `content` JSON column to `launchpad_widget_placements`.
  *
  * The widget registry (`src/constants/widgetRegistry.js`) declares a
  * `defaultContent` blob for each of the 17 custom widget types and the
  * AddWidgetModal collects per-type configuration into a `{type, content}`
  * payload. Every per-widget spec (e.g. `openspec/specs/quicklinks-widget/
- * spec.md`) names `oc_mydash_widget_placements.content` as the storage
+ * spec.md`) names `oc_launchpad_widget_placements.content` as the storage
  * location for that blob; this migration is the one that actually creates
  * the column the specs assume.
  *
@@ -18,7 +18,7 @@
  * content array via `WidgetPlacement::getContentArray()`.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -28,7 +28,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -54,11 +54,11 @@ class Version001025Date20260508060000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_widget_placements') === false) {
+        if ($schema->hasTable('launchpad_widget_placements') === false) {
             return null;
         }
 
-        $table = $schema->getTable('mydash_widget_placements');
+        $table = $schema->getTable('launchpad_widget_placements');
 
         if ($table->hasColumn('content') === false) {
             $table->addColumn(

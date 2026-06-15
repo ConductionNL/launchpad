@@ -8,7 +8,7 @@
  * failure; callers MUST NOT silently fall back to an alternate backend.
  *
  * @category Service
- * @package  OCA\MyDash\Service\DashboardContentStorage
+ * @package  OCA\LaunchPad\Service\DashboardContentStorage
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\DashboardContentStorage;
+namespace OCA\LaunchPad\Service\DashboardContentStorage;
 
 /**
  * Unified interface for dashboard content persistence (REQ-GFSB-001).

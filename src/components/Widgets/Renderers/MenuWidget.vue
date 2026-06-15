@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -19,7 +19,7 @@
 			@keyup.enter="onEmptyStateClick"
 			@keyup.space="onEmptyStateClick">
 			<span class="menu-widget__empty-icon" aria-hidden="true">⚙</span>
-			<span>{{ t('mydash', 'No menu items yet — click the gear icon to add some.') }}</span>
+			<span>{{ t('launchpad', 'No menu items yet — click the gear icon to add some.') }}</span>
 		</div>
 
 		<!-- Tree style -->

@@ -2,7 +2,7 @@
 
 ## Context
 
-Over time, MyDash accumulates stale rows that are no longer referenced by any live entity:
+Over time, LaunchPad accumulates stale rows that are no longer referenced by any live entity:
 widget assets uploaded for a dashboard that was subsequently deleted, locks held by sessions
 that crashed before releasing them, and share tokens whose parent dashboards no longer exist.
 These rows waste storage, pollute admin diagnostics, and — in the case of dangling locks — can
@@ -22,7 +22,7 @@ will be removed, and that a concurrent modification cannot cause a stale-state d
 ## Goals / Non-Goals
 
 **Goals:**
-- A `mydash:cleanup` CLI command that scans for and optionally removes orphaned data.
+- A `launchpad:cleanup` CLI command that scans for and optionally removes orphaned data.
 - An admin UI panel that surfaces the scan results and allows one-click cleanup.
 - A DI-tag registry so capabilities can register detectors without modifying core.
 - Audit emission for every cleanup run.
@@ -37,7 +37,7 @@ will be removed, and that a concurrent modification cannot cause a stale-state d
 
 ### D1: Registry pattern
 **Decision:** Detectors implement a `IOrphanDetector` interface and are registered via DI tag
-`mydash.orphan_detector`. The `OrphanCleanupService` collects all tagged implementations
+`launchpad.orphan_detector`. The `OrphanCleanupService` collects all tagged implementations
 via constructor injection and runs them in sequence.
 **Alternatives considered:** A static list of detector class names in a config file; a database
 registry table.
@@ -55,21 +55,21 @@ process modifies the data between scan and confirm, the checksums diverge and th
 is rejected, preventing stale-state deletions.
 
 ### D3: Per-detector enable/disable
-**Decision:** Each detector is toggled by `mydash.orphan_cleanup_<detector_id>_enabled`
+**Decision:** Each detector is toggled by `launchpad.orphan_cleanup_<detector_id>_enabled`
 (default `true`). Disabled detectors are skipped and listed under `skipped` in the response.
 **Alternatives considered:** Single global toggle; no per-detector control.
 **Rationale:** Some installations legitimately retain certain orphan categories (e.g. assets
 kept for audit). Granular control avoids a global toggle blocking targeted cleanup.
 
 ### D4: Audit emission
-**Decision:** Every run emits Activity event `mydash_orphan_cleanup_run` with
+**Decision:** Every run emits Activity event `launchpad_orphan_cleanup_run` with
 `{detector, scannedCount, removedCount, dryRun}` — including scan-only runs.
 **Alternatives considered:** Log-only; emit only on destructive runs.
 **Rationale:** Admin actions that can remove data must produce a user-attributed, queryable
 audit trail.
 
 ### D5: CLI default to scan-only
-**Decision:** `mydash:cleanup` scans by default; `--apply` triggers deletions;
+**Decision:** `launchpad:cleanup` scans by default; `--apply` triggers deletions;
 `--detector=<id>` isolates a single detector.
 **Alternatives considered:** Default to destructive, require explicit `--dry-run`.
 **Rationale:** An operator who forgets the flag gets a harmless report — not an unexpected

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -46,25 +46,25 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.7</version>
+	<version>1.0.5-unstable.8</version>
 	<licence>agpl</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
-	<namespace>MyDash</namespace>
+	<namespace>LaunchPad</namespace>
 	<documentation>
-		<user>https://github.com/ConductionNL/mydash</user>
-		<admin>https://github.com/ConductionNL/mydash</admin>
-		<developer>https://github.com/ConductionNL/mydash</developer>
+		<user>https://github.com/ConductionNL/launchpad</user>
+		<admin>https://github.com/ConductionNL/launchpad</admin>
+		<developer>https://github.com/ConductionNL/launchpad</developer>
 	</documentation>
 	<category>customization</category>
 	<category>organization</category>
 	<category>dashboard</category>
-	<website>https://github.com/ConductionNL/mydash</website>
-	<discussion>https://github.com/ConductionNL/mydash/discussions</discussion>
-	<bugs>https://github.com/ConductionNL/mydash/issues</bugs>
-	<repository>https://github.com/ConductionNL/mydash</repository>
+	<website>https://github.com/ConductionNL/launchpad</website>
+	<discussion>https://github.com/ConductionNL/launchpad/discussions</discussion>
+	<bugs>https://github.com/ConductionNL/launchpad/issues</bugs>
+	<repository>https://github.com/ConductionNL/launchpad</repository>
 
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/mydash/main/img/app-store.svg</screenshot>
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/mydash/main/img/screenshot.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/app-store.svg</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot.png</screenshot>
 
 	<dependencies>
 		<php min-version="8.3"/>
@@ -78,55 +78,55 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	</types>
 
 	<background-jobs>
-		<job>OCA\MyDash\BackgroundJob\OrphanedDataCleanupJob</job>
+		<job>OCA\LaunchPad\BackgroundJob\OrphanedDataCleanupJob</job>
 	</background-jobs>
 
 	<repair-steps>
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
 		<install>
-			<step>OCA\MyDash\Repair\InitializeActions</step>
+			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- role-based-content task-2: seed default role-feature permissions. -->
-			<step>OCA\MyDash\Repair\SeedRolePermissions</step>
+			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
 		</install>
 		<post-migration>
-			<step>OCA\MyDash\Repair\InitializeActions</step>
+			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
-			<step>OCA\MyDash\Repair\PurgeOrphanedCascadeData</step>
+			<step>OCA\LaunchPad\Repair\PurgeOrphanedCascadeData</step>
 		</post-migration>
 	</repair-steps>
 
 	<settings>
-		<admin>OCA\MyDash\Settings\MyDashAdmin</admin>
-		<admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>
+		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
 	</settings>
 
 	<commands>
 		<!-- REQ-EXIM-010: dashboard export / import via `php occ`. -->
-		<command>OCA\MyDash\Command\ExportCommand</command>
-		<command>OCA\MyDash\Command\ImportCommand</command>
+		<command>OCA\LaunchPad\Command\ExportCommand</command>
+		<command>OCA\LaunchPad\Command\ImportCommand</command>
 		<!-- REQ-CFLI-011: Confluence HTML export importer via `php occ`. -->
-		<command>OCA\MyDash\Command\ImportConfluenceCommand</command>
-		<!-- REQ-CLI-001..011: shared `mydash:` CLI suite (cli-commands). -->
-		<command>OCA\MyDash\Command\DashboardListCommand</command>
-		<command>OCA\MyDash\Command\DashboardShowCommand</command>
-		<command>OCA\MyDash\Command\DashboardDeleteCommand</command>
-		<command>OCA\MyDash\Command\DashboardDebugShareCommand</command>
-		<command>OCA\MyDash\Command\UserRevokeFeedTokenCommand</command>
-		<command>OCA\MyDash\Command\I18nExportStringsCommand</command>
-		<command>OCA\MyDash\Command\I18nMigrateLanguageStructureCommand</command>
-		<command>OCA\MyDash\Command\I18nCopyNavigationCommand</command>
+		<command>OCA\LaunchPad\Command\ImportConfluenceCommand</command>
+		<!-- REQ-CLI-001..011: shared `launchpad:` CLI suite (cli-commands). -->
+		<command>OCA\LaunchPad\Command\DashboardListCommand</command>
+		<command>OCA\LaunchPad\Command\DashboardShowCommand</command>
+		<command>OCA\LaunchPad\Command\DashboardDeleteCommand</command>
+		<command>OCA\LaunchPad\Command\DashboardDebugShareCommand</command>
+		<command>OCA\LaunchPad\Command\UserRevokeFeedTokenCommand</command>
+		<command>OCA\LaunchPad\Command\I18nExportStringsCommand</command>
+		<command>OCA\LaunchPad\Command\I18nMigrateLanguageStructureCommand</command>
+		<command>OCA\LaunchPad\Command\I18nCopyNavigationCommand</command>
 		<!-- REQ-OCLN-001..009: orphaned-data cleanup CLI. -->
-		<command>OCA\MyDash\Command\CleanupScanCommand</command>
-		<command>OCA\MyDash\Command\CleanupPurgeCommand</command>
+		<command>OCA\LaunchPad\Command\CleanupScanCommand</command>
+		<command>OCA\LaunchPad\Command\CleanupPurgeCommand</command>
 		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
-		<command>OCA\MyDash\Command\DemoShowcasesInstallCommand</command>
-		<command>OCA\MyDash\Command\DemoShowcasesListCommand</command>
+		<command>OCA\LaunchPad\Command\DemoShowcasesInstallCommand</command>
+		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
 		<!-- REQ-WIZ-010: setup wizard via `php occ mydash:setup`. -->
-		<command>OCA\MyDash\Command\SetupCommand</command>
+		<command>OCA\LaunchPad\Command\SetupCommand</command>
 		<!-- REQ-GFSB-008: one-time DB→GroupFolder content migration. -->
-		<command>OCA\MyDash\Command\MigrateStorageToGroupFolder</command>
+		<command>OCA\LaunchPad\Command\MigrateStorageToGroupFolder</command>
 		<!-- REQ-GFSB-010: toggle the active storage backend. -->
-		<command>OCA\MyDash\Command\ToggleStorageSetting</command>
+		<command>OCA\LaunchPad\Command\ToggleStorageSetting</command>
 	</commands>
 
 	<navigations>
@@ -139,9 +139,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	</navigations>
 
 	<activity>
-		<!-- REQ-ACT-001: register the MyDash Activity provider that
+		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
 		     surfaces the 13-event catalogue defined in
-		     OCA\MyDash\Activity\Extension. -->
-		<provider>OCA\MyDash\Activity\Extension</provider>
+		     OCA\LaunchPad\Activity\Extension. -->
+		<provider>OCA\LaunchPad\Activity\Extension</provider>
 	</activity>
 </info>

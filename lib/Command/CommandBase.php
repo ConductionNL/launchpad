@@ -3,7 +3,7 @@
 /**
  * CommandBase
  *
- * Abstract base class for every `mydash:*` console command
+ * Abstract base class for every `launchpad:*` console command
  * (REQ-CLI-002, REQ-CLI-008). Provides:
  *   - registration of the three global flags `--quiet|-q`, `--json`,
  *     `--no-interaction|-n`,
@@ -18,22 +18,22 @@
  * `--no-interaction` (Symfony will error on duplicate registration).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\IUserSession;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +43,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 /**
- * Abstract base for MyDash CLI commands (REQ-CLI-002).
+ * Abstract base for LaunchPad CLI commands (REQ-CLI-002).
  */
 abstract class CommandBase extends Command
 {
@@ -63,7 +63,7 @@ abstract class CommandBase extends Command
     }//end __construct()
 
     /**
-     * Wire the three global flags shared by every `mydash:*` command
+     * Wire the three global flags shared by every `launchpad:*` command
      * (REQ-CLI-002), then defer to the child for per-command options.
      *
      * @return void
@@ -309,7 +309,7 @@ abstract class CommandBase extends Command
     }//end writeError()
 
     /**
-     * Strip the canonical `mydash:` prefix from the command name for
+     * Strip the canonical `launchpad:` prefix from the command name for
      * audit-log clarity (REQ-CLI-010).
      *
      * @param string $name The full command name.
@@ -318,7 +318,7 @@ abstract class CommandBase extends Command
      */
     private function stripPrefix(string $name): string
     {
-        if (str_starts_with(haystack: $name, needle: 'mydash:') === true) {
+        if (str_starts_with(haystack: $name, needle: 'launchpad:') === true) {
             return substr(string: $name, offset: 7);
         }
 
@@ -344,7 +344,7 @@ abstract class CommandBase extends Command
 
         $argv = (array) ($_SERVER['argv'] ?? []);
         // Drop the binary path and the command name (first two slots
-        // when invoked via `php occ mydash:foo ...`).
+        // when invoked via `php occ launchpad:foo ...`).
         $tail = array_slice(array: $argv, offset: 2);
 
         return implode(separator: ' ', array: array_map(callback: 'strval', array: $tail));

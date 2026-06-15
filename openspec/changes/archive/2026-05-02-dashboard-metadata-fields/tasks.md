@@ -2,9 +2,9 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001016Date20260502130000.php` creating `oc_mydash_meta_fields` table with columns: `id INT PRIMARY KEY`, `field_key VARCHAR(64) UNIQUE NOT NULL` (column renamed from `key` to avoid SQL reserved word), `label VARCHAR(255) NOT NULL`, `type VARCHAR(20) NOT NULL`, `options TEXT NULL` (JSON-encoded), `required SMALLINT(0/1) DEFAULT 0`, `sort_order INT DEFAULT 0`, `created_at DATETIME`, `updated_at DATETIME`
-- [x] 1.2 Same migration creates `oc_mydash_meta_values` table with columns: `id INT PRIMARY KEY`, `dashboard_uuid VARCHAR(36) NOT NULL`, `field_id INT NOT NULL`, `value TEXT NOT NULL`, composite unique constraint on `(dashboard_uuid, field_id)` (the application-level cascade in `MetadataFieldMapper::deleteWithCascade` removes value rows on field deletion; no DB-level FK is added so SQLite/MySQL/Postgres parity stays intact)
-- [x] 1.3 Add composite indexes: `mydash_meta_fkey` UNIQUE on `field_key`, `mydash_meta_forder` on `sort_order`, `mydash_meta_vunique` UNIQUE on `(dashboard_uuid, field_id)`, `mydash_meta_vdash` on `dashboard_uuid`, `mydash_meta_vfield` on `field_id`
+- [x] 1.1 Create `lib/Migration/Version001016Date20260502130000.php` creating `oc_launchpad_meta_fields` table with columns: `id INT PRIMARY KEY`, `field_key VARCHAR(64) UNIQUE NOT NULL` (column renamed from `key` to avoid SQL reserved word), `label VARCHAR(255) NOT NULL`, `type VARCHAR(20) NOT NULL`, `options TEXT NULL` (JSON-encoded), `required SMALLINT(0/1) DEFAULT 0`, `sort_order INT DEFAULT 0`, `created_at DATETIME`, `updated_at DATETIME`
+- [x] 1.2 Same migration creates `oc_launchpad_meta_values` table with columns: `id INT PRIMARY KEY`, `dashboard_uuid VARCHAR(36) NOT NULL`, `field_id INT NOT NULL`, `value TEXT NOT NULL`, composite unique constraint on `(dashboard_uuid, field_id)` (the application-level cascade in `MetadataFieldMapper::deleteWithCascade` removes value rows on field deletion; no DB-level FK is added so SQLite/MySQL/Postgres parity stays intact)
+- [x] 1.3 Add composite indexes: `launchpad_meta_fkey` UNIQUE on `field_key`, `launchpad_meta_forder` on `sort_order`, `launchpad_meta_vunique` UNIQUE on `(dashboard_uuid, field_id)`, `launchpad_meta_vdash` on `dashboard_uuid`, `launchpad_meta_vfield` on `field_id`
 - [x] 1.4 Migration is idempotent (`hasTable` guards) — schema applies cleanly on the standard sqlite/mysql/postgres backends used by Nextcloud
 
 ## 2. Domain model — Field definitions

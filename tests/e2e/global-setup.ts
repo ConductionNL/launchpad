@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright globalSetup — logs into Nextcloud once and persists the
@@ -24,14 +24,14 @@ import * as fs from 'fs'
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
 const APP_ROOT = path.resolve(__dirname, '..', '..')
-const BUNDLE_PATH = path.join(APP_ROOT, 'js', 'mydash-main.js')
+const BUNDLE_PATH = path.join(APP_ROOT, 'js', 'launchpad-main.js')
 
 /**
- * Ensure the webpack bundle exists before specs hit `/apps/mydash/`.
+ * Ensure the webpack bundle exists before specs hit `/apps/launchpad/`.
  *
  * The shared `ConductionNL/.github/quality.yml` Playwright job runs
  * `npm ci` + `npx playwright install` before the spec run, but never
- * `npm run build`. On a fresh CI VM the `js/mydash-main.js` artefact
+ * `npm run build`. On a fresh CI VM the `js/launchpad-main.js` artefact
  * doesn't exist, so the rendered page loads a 404 script tag and the
  * Vue app never mounts — every selector wait then times out.
  *

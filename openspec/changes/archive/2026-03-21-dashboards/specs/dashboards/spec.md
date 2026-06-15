@@ -6,11 +6,11 @@ status: reviewed
 
 ## Purpose
 
-Dashboards are the core organizational unit in MyDash. Each user can create and manage multiple personal dashboards, each acting as a container for widget placements, tiles, and layout configuration. Dashboards define the grid structure, permission level, and active state. Only one dashboard can be active per user at a time, serving as their landing page when they open Nextcloud. Dashboards can also be of type `admin_template`, managed by administrators for distribution to users.
+Dashboards are the core organizational unit in LaunchPad. Each user can create and manage multiple personal dashboards, each acting as a container for widget placements, tiles, and layout configuration. Dashboards define the grid structure, permission level, and active state. Only one dashboard can be active per user at a time, serving as their landing page when they open Nextcloud. Dashboards can also be of type `admin_template`, managed by administrators for distribution to users.
 
 ## Data Model
 
-Each dashboard record is stored in the `oc_mydash_dashboards` table with the following fields:
+Each dashboard record is stored in the `oc_launchpad_dashboards` table with the following fields:
 - **id**: Auto-increment integer primary key
 - **uuid**: Unique identifier (UUID v4)
 - **userId**: Nextcloud user ID of the dashboard owner
@@ -65,7 +65,7 @@ Users MUST be able to create new personal dashboards with a name, optional descr
 
 #### Scenario: Dashboard creation creates default placements
 - GIVEN user "alice" has no dashboards and no templates apply
-- WHEN she accesses MyDash for the first time (triggers `tryCreateFromTemplate()`)
+- WHEN she accesses LaunchPad for the first time (triggers `tryCreateFromTemplate()`)
 - THEN the system MUST create a "My Dashboard" with two default placements:
   - "recommendations" widget at (0, 0) with size 6x5
   - "activity" widget at (6, 0) with size 6x5

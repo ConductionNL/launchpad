@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -9,7 +9,7 @@
 		:style="wrapperStyle">
 		<div v-if="!hasSource" class="video-widget__placeholder">
 			<VideoIcon :size="48" :fill-color="placeholderColor" />
-			<span class="video-widget__placeholder-label">{{ t('mydash', 'No video URL configured') }}</span>
+			<span class="video-widget__placeholder-label">{{ t('launchpad', 'No video URL configured') }}</span>
 		</div>
 		<div v-else-if="hasError" class="video-widget__placeholder">
 			<VideoIcon :size="48" :fill-color="placeholderColor" />
@@ -236,12 +236,12 @@ export default {
 				return raw
 			}
 			if (this.isFileSource && this.fileId !== null && this.fileStreamingUrl === '') {
-				return t('mydash', 'Video not accessible')
+				return t('launchpad', 'Video not accessible')
 			}
 			if (this.videoLoadFailed) {
-				return t('mydash', 'Video failed to load')
+				return t('launchpad', 'Video failed to load')
 			}
-			return t('mydash', 'Invalid video URL or domain not allowed.')
+			return t('launchpad', 'Invalid video URL or domain not allowed.')
 		},
 
 		/**

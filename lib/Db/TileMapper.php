@@ -6,7 +6,7 @@
  * Database mapper for tile entities.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -38,7 +38,7 @@ class TileMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_tiles',
+            tableName: 'launchpad_tiles',
             entityClass: Tile::class
         );
     }//end __construct()

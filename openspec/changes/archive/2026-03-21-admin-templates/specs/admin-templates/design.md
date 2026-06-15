@@ -40,7 +40,7 @@ PermissionService.getEffectivePermissionLevel()
 
 ## Database Schema
 
-### `oc_mydash_dashboards`
+### `oc_launchpad_dashboards`
 
 Stores both user dashboards and admin templates in the same table, discriminated by the `type` column.
 
@@ -61,16 +61,16 @@ Stores both user dashboards and admin templates in the same table, discriminated
 | `created_at`       | DATETIME  |                                                         |
 | `updated_at`       | DATETIME  |                                                         |
 
-Indexes: `mydash_dashboard_uuid` (unique), `mydash_dashboard_user`, `mydash_dashboard_type`, `mydash_dashboard_active` (user_id + is_active).
+Indexes: `launchpad_dashboard_uuid` (unique), `launchpad_dashboard_user`, `launchpad_dashboard_type`, `launchpad_dashboard_active` (user_id + is_active).
 
-### `oc_mydash_widget_placements`
+### `oc_launchpad_widget_placements`
 
 Holds widget grid positions for both template dashboards and user copies.
 
 | Column             | Type      | Notes                                                         |
 |--------------------|-----------|---------------------------------------------------------------|
 | `id`               | BIGINT PK |                                                               |
-| `dashboard_id`     | BIGINT    | References a row in `mydash_dashboards`.                      |
+| `dashboard_id`     | BIGINT    | References a row in `launchpad_dashboards`.                      |
 | `widget_id`        | VARCHAR   | Nextcloud widget identifier string.                           |
 | `grid_x/y`         | INTEGER   | Grid position.                                                |
 | `grid_width/height`| INTEGER   | Widget dimensions in grid units.                              |
@@ -110,7 +110,7 @@ The invariant "at most one template has `is_default = 1`" is enforced entirely a
 - On `createTemplate(isDefault: true)`: `clearDefaultTemplates()` runs before `insert()`.
 - On `updateTemplate($id, ['isDefault' => true])`: `clearDefaultTemplates()` runs inside `applyTemplateUpdates()` before `update()`.
 - On `updateTemplate($id, ['isDefault' => false])`: only the named template is updated; no other rows are touched.
-- `DashboardMapper::clearDefaultTemplates()` issues: `UPDATE mydash_dashboards SET is_default = 0 WHERE type = 'admin_template'`.
+- `DashboardMapper::clearDefaultTemplates()` issues: `UPDATE launchpad_dashboards SET is_default = 0 WHERE type = 'admin_template'`.
 
 The two-step approach (clear all, then set one) does not use a transaction wrapper; a crash between steps would leave no default template, which is a safe degraded state.
 
@@ -175,8 +175,8 @@ Resolution order:
 
 After `createDashboardFromTemplate` completes:
 
-- The copy is a fully independent row in `mydash_dashboards` with `type = 'user'`.
-- The placement rows are independent rows in `mydash_widget_placements` pointing to the copy's `dashboard_id`.
+- The copy is a fully independent row in `launchpad_dashboards` with `type = 'user'`.
+- The placement rows are independent rows in `launchpad_widget_placements` pointing to the copy's `dashboard_id`.
 - `based_on_template` records the origin but has no cascading behaviour — it is only consulted when resolving the effective `permissionLevel` (see below).
 - Deleting the template does not cascade to copies; `DashboardMapper::delete()` and `WidgetPlacementMapper::deleteByDashboardId()` operate on the template's own row and placements only.
 - Updating or deleting template placements has no effect on existing copies.
@@ -224,5 +224,5 @@ Admin endpoints (`/api/admin/templates/*`, `/api/admin/settings`) are registered
 | `lib/Db/WidgetPlacement.php` | Placement entity including `isCompulsory` flag |
 | `lib/Db/WidgetPlacementMapper.php` | `findByDashboardId`, `deleteByDashboardId` |
 | `lib/Db/AdminSetting.php` | Setting keys: `allow_user_dashboards`, `default_permission_level`, etc. |
-| `lib/Migration/DashboardTableBuilder.php` | DB schema for `mydash_dashboards` |
+| `lib/Migration/DashboardTableBuilder.php` | DB schema for `launchpad_dashboards` |
 | `appinfo/routes.php` | Route definitions for admin template endpoints |

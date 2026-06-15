@@ -3,18 +3,18 @@
 /**
  * DashboardVersion Test
  *
- * Unit tests for the {@see \OCA\MyDash\Db\DashboardVersion} entity
+ * Unit tests for the {@see \OCA\LaunchPad\Db\DashboardVersion} entity
  * (REQ-VERS-001..009). Covers field round-tripping, integer column
  * coercion, and the API serialisation contract that lists MUST NOT
  * include the snapshot body.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Db
+ * @package   OCA\LaunchPad\Tests\Unit\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
-use OCA\MyDash\Db\DashboardVersion;
+use OCA\LaunchPad\Db\DashboardVersion;
 use PHPUnit\Framework\TestCase;
 
 /**

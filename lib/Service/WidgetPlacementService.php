@@ -9,18 +9,18 @@
  * sanity, etc.) should live here so the dispatch is single-responsibility.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 
@@ -59,7 +59,7 @@ class WidgetPlacementService
      *
      * @throws InvalidArgumentException When the depth limit is exceeded.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-15
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
      */
     public function validateContainerDepth(array $content, int $depth=0): void
     {

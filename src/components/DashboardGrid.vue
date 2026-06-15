@@ -1,10 +1,10 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
-	<div ref="gridContainer" class="mydash-grid">
+	<div ref="gridContainer" class="launchpad-grid">
 		<div class="grid-stack">
 			<div
 				v-for="placement in placements"
@@ -407,7 +407,7 @@ export default {
 </script>
 
 <style scoped>
-.mydash-grid {
+.launchpad-grid {
 	width: 100%;
 	min-height: 400px;
 }

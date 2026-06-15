@@ -3,7 +3,7 @@
 /**
  * ExpiredLocksCategory
  *
- * Cleanup category for stale rows in `mydash_dashboard_locks`. A row
+ * Cleanup category for stale rows in `launchpad_dashboard_locks`. A row
  * is considered stale when its `updated_at` is older than the lock
  * TTL (15 minutes; see `DashboardLock::LOCK_TIMEOUT_SECONDS`). The
  * locking service already removes stale rows inline at acquire/get
@@ -14,22 +14,22 @@
  * has no user-visible impact — by definition the holder is gone.
  *
  * @category  Service
- * @package   OCA\MyDash\Service\Cleanup
+ * @package   OCA\LaunchPad\Service\Cleanup
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\Cleanup;
+namespace OCA\LaunchPad\Service\Cleanup;
 
-use OCA\MyDash\Db\DashboardLockMapper;
+use OCA\LaunchPad\Db\DashboardLockMapper;
 
 /**
  * Sweeps expired dashboard editing locks.
@@ -87,7 +87,7 @@ class ExpiredLocksCategory implements CleanupCategoryInterface
     }//end getSafeToPurgeAutomatically()
 
     /**
-     * Always available — `mydash_dashboard_locks` ships in the core
+     * Always available — `launchpad_dashboard_locks` ships in the core
      * schema (Version001005…).
      *
      * @return bool True.

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "spec_slug": "admin-group-management",
+  "repo": "https://codeberg.org/Conduction/launchpad",
+  "issue": null,
+  "cycles": [],
+  "status": "filed",
+  "filed_at": "2026-06-10",
+  "filed_by": "lp-fin8 finisher run",
+  "filed_reason": "Follow-up to multi-scope-dashboards Task 13 — admin-facing group-shared CRUD UI; the parent change shipped the API + read endpoint only and explicitly deferred the admin UI here."
+}

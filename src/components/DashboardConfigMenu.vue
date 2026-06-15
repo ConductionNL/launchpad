@@ -1,11 +1,11 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<NcActions
-		:aria-label="t('mydash', 'Dashboard menu')"
+		:aria-label="t('launchpad', 'Dashboard menu')"
 		:force-menu="true"
 		placement="bottom-end"
 		type="secondary">
@@ -27,7 +27,7 @@
 				<ContentSave v-if="isEditMode" :size="20" />
 				<Pencil v-else :size="20" />
 			</template>
-			{{ isEditMode ? t('mydash', 'Save dashboard') : t('mydash', 'Edit dashboard') }}
+			{{ isEditMode ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit dashboard') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="isActiveOwner && activeDashboardId"
@@ -36,7 +36,7 @@
 			<template #icon>
 				<Tune :size="20" />
 			</template>
-			{{ t('mydash', 'Dashboard configuration…') }}
+			{{ t('launchpad', 'Dashboard configuration…') }}
 		</NcActionButton>
 		<!--
 			REQ-ASET-003 (extended) / REQ-DASH-020: fork the active group or
@@ -52,7 +52,7 @@
 			<template #icon>
 				<ContentCopy :size="20" />
 			</template>
-			{{ t('mydash', 'Fork as personal…') }}
+			{{ t('launchpad', 'Fork as personal…') }}
 		</NcActionButton>
 
 		<!--
@@ -71,7 +71,7 @@
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
 			</template>
-			{{ t('mydash', 'Add custom widget…') }}
+			{{ t('launchpad', 'Add custom widget…') }}
 		</NcActionButton>
 
 		<!-- "Documentation" was removed from this menu — the left

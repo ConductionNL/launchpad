@@ -80,9 +80,8 @@ Before emitting `switch`, the sidebar MUST emit `update:open(false)` so the pare
 
 ### Requirement: REQ-SWITCH-003 Active item highlight
 
-@e2e exclude active item highlight class test requires verifying CSS class on a specific dashboard row — covered indirectly by wave3 switching test; fine-grained class assertion needs known dashboard IDs
-
 The dashboard whose `id === activeDashboardId` MUST receive a visual `.active` class with `--color-primary-element-light` background and `--color-primary` icon tint. At most one item may be active at a time.
+@e2e exclude active item highlight class test requires verifying CSS class on a specific dashboard row — covered indirectly by wave3 switching test; fine-grained class assertion needs known dashboard IDs
 
 #### Scenario: Active highlight follows prop
 
@@ -100,9 +99,8 @@ The dashboard whose `id === activeDashboardId` MUST receive a visual `.active` c
 
 ### Requirement: REQ-SWITCH-004 Personal dashboard delete affordance
 
-@e2e exclude hover reveals delete button tests CSS hover state — not reliably assertable in Playwright without .hover() + immediate screenshot; covered by wave3 deletion test
-
 Items in the `My Dashboards` section (excluding the `+ New Dashboard` row) MUST display a small close-icon delete button on hover (CSS-only `display: none → inline-flex`). Clicking it MUST emit `delete-dashboard(id)` and MUST NOT trigger the row's `switch` event (use `@click.stop`).
+@e2e exclude hover reveals delete button tests CSS hover state — not reliably assertable in Playwright without .hover() + immediate screenshot; covered by wave3 deletion test
 
 #### Scenario: Hover reveals delete button
 
@@ -118,11 +116,28 @@ Items in the `My Dashboards` section (excluding the `+ New Dashboard` row) MUST 
 - AND MUST NOT emit `switch(...)`
 - AND MUST NOT emit `update:open(false)` (closing decision is up to the parent)
 
+### Requirement: REQ-SWITCH-005 Create-dashboard affordance
+
+When `allowUserDashboards: true`, the `My Dashboards` section MUST end with a row labelled `t('+ New Dashboard')` (with a Plus icon) styled as a primary-coloured action. Clicking it MUST emit `update:open(false)` THEN `create-dashboard()`.
+
+#### Scenario: Create button hidden when feature disabled
+
+@e2e exclude conditional DOM presence on a prop flag — covered by Vitest component test
+- GIVEN `allowUserDashboards: false`
+- WHEN the sidebar renders
+- THEN the `+ New Dashboard` row MUST NOT be present in the DOM
+
+#### Scenario: Create button click
+
+@e2e exclude emitted-event assertion — covered by Vitest component test
+- GIVEN the user clicks `+ New Dashboard`
+- THEN the sidebar MUST emit `update:open(false)`
+- AND THEN MUST emit `create-dashboard` (no payload)
+
 ### Requirement: REQ-SWITCH-006 Slide-in animation
 
-@e2e exclude slide-in animation tests CSS transform values during animation — Playwright cannot assert mid-animation CSS; open/close covered by wave3 tests
-
 The sidebar MUST be fixed-position (`top: 50px` to clear the Nextcloud header), `width: 280px`, `z-index: 1500`. Open/close MUST be animated via `transform: translateX(-100%)` ↔ `translateX(0)` over `0.25s ease`. The `.open` CSS class MUST be added when `isOpen === true`.
+@e2e exclude slide-in animation tests CSS transform values during animation — Playwright cannot assert mid-animation CSS; open/close covered by wave3 tests
 
 #### Scenario: Closed state is off-screen
 
@@ -139,13 +154,12 @@ The sidebar MUST be fixed-position (`top: 50px` to clear the Nextcloud header), 
 
 ### Requirement: REQ-SWITCH-007 Icon rendering via shared renderer
 
-@e2e exclude icon rendering via shared IconRenderer component tests that no inline v-if branches exist — source-code assertion, not browser-observable
-
 Each dashboard item's icon MUST be rendered via the shared `IconRenderer` component (from `dashboard-icons` capability). The sidebar MUST NOT branch on `isCustomIconUrl` itself.
+@e2e exclude icon rendering via shared IconRenderer component tests that no inline v-if branches exist — source-code assertion, not browser-observable
 
 #### Scenario: Mixed built-in and custom icons
 
-- GIVEN three dashboards with `icon` values `'Star'`, `'/apps/mydash/resource/x.png'`, `null`
+- GIVEN three dashboards with `icon` values `'Star'`, `'/apps/launchpad/resource/x.png'`, `null`
 - WHEN the sidebar renders
 - THEN all three MUST render correctly via `IconRenderer`
 - AND no inline `v-if="iconUrl"` branches MUST exist in the sidebar template
@@ -155,7 +169,7 @@ Each dashboard item's icon MUST be rendered via the shared `IconRenderer` compon
 The sidebar MUST render a dedicated "Add dashboard" card button below the personal-dashboards list (still inside the sidebar's scroll container, NOT in the footer). The card MUST:
 
 - Be a `NcButton` with `type="outline"`, full sidebar width
-- Render a `+` icon and the localised label `t('mydash', 'Add dashboard')`
+- Render a `+` icon and the localised label `t('launchpad', 'Add dashboard')`
 - Be visible only when `allowUserDashboards === true`
 - On click, emit `update:open(false)` then `create-dashboard()` — same event contract the previous inline row used
 
@@ -189,7 +203,7 @@ The sidebar MUST render a persistent footer at the bottom of its viewport (using
 1. A "Powered by" line with two brand logos:
    - Sendent — clickable link to the Sendent site, `target="_blank" rel="noopener noreferrer"`
    - Conduction — clickable link to the Conduction site, same target/rel
-2. A Documentation link directly below the brand row, rendered as an icon + the localised label `t('mydash', 'Documentation')`. The link target MUST match the URL the gear menu's Documentation entry previously used (so behaviour is preserved across the move).
+2. A Documentation link directly below the brand row, rendered as an icon + the localised label `t('launchpad', 'Documentation')`. The link target MUST match the URL the gear menu's Documentation entry previously used (so behaviour is preserved across the move).
 
 A divider rule MUST separate the footer from the dashboards list above.
 

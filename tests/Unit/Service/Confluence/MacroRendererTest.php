@@ -3,16 +3,16 @@
 /**
  * MacroRendererTest
  *
- * Unit tests for {@see \OCA\MyDash\Service\Confluence\MacroRenderer}
+ * Unit tests for {@see \OCA\LaunchPad\Service\Confluence\MacroRenderer}
  * covering REQ-CFLI-006 (recognised + fallback macro handling).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\Confluence
+ * @package   OCA\LaunchPad\Tests\Unit\Service\Confluence
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Service\Confluence;
 
-use OCA\MyDash\Service\Confluence\MacroRenderer;
+use OCA\LaunchPad\Service\Confluence\MacroRenderer;
 use PHPUnit\Framework\TestCase;
 
 class MacroRendererTest extends TestCase

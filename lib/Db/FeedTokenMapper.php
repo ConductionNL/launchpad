@@ -4,23 +4,23 @@
  * FeedTokenMapper
  *
  * Database mapper for FeedToken entities (REQ-FEED-001..009). Covers the
- * `oc_mydash_feed_tokens` table.
+ * `oc_launchpad_feed_tokens` table.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -43,7 +43,7 @@ class FeedTokenMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_feed_tokens',
+            tableName: 'launchpad_feed_tokens',
             entityClass: FeedToken::class
         );
     }//end __construct()
@@ -147,7 +147,7 @@ class FeedTokenMapper extends QBMapper
     /**
      * Hard-delete every feed-token row for `$userId`, regardless of
      * revoked state. Used by `regenerateToken` because the table's
-     * `mydash_feed_tok_user_uq` unique constraint sits on `user_id`
+     * `launchpad_feed_tok_user_uq` unique constraint sits on `user_id`
      * alone — the soft-revoke pattern (one active + N revoked rows
      * per user) trips it on the next insert. Feed tokens are
      * regenerable user secrets so we drop revoked history rather

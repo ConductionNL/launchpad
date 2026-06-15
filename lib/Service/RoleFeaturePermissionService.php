@@ -4,37 +4,37 @@
  * RoleFeaturePermissionService
  *
  * Stateless service that resolves the effective allowed-widget set for a
- * MyDash user based on their Nextcloud group memberships, the configured
+ * LaunchPad user based on their Nextcloud group memberships, the configured
  * `group_order` priority, and any RoleFeaturePermission rows. Implements
  * the multi-group resolution algorithm from
  * `openspec/changes/role-based-content/design.md` (REQ-RFP-001 ..
  * REQ-RFP-010).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\RoleFeaturePermission;
-use OCA\MyDash\Db\RoleFeaturePermissionMapper;
-use OCA\MyDash\Db\RoleLayoutDefault;
-use OCA\MyDash\Db\RoleLayoutDefaultMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\RoleFeaturePermission;
+use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
+use OCA\LaunchPad\Db\RoleLayoutDefault;
+use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;

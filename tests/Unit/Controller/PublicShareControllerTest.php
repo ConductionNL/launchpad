@@ -8,7 +8,7 @@
  * show (401-password/404/200), unlock (429/200/401).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,12 +23,13 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\PublicShareController;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\PublicShare;
-use OCA\MyDash\Exception\ShareNotFoundException;
-use OCA\MyDash\Exception\SharePasswordRequiredException;
-use OCA\MyDash\Service\PublicShareService;
+use OCA\LaunchPad\Controller\PublicShareController;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\PublicShare;
+use OCA\LaunchPad\Exception\ShareNotFoundException;
+use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Service\PublicShareContext;
+use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -47,6 +48,9 @@ class PublicShareControllerTest extends TestCase
     /** @var PublicShareService&MockObject */
     private $shareService;
 
+    /** @var PublicShareContext&MockObject */
+    private $shareContext;
+
     /** @var LoggerInterface&MockObject */
     private $logger;
 
@@ -55,6 +59,7 @@ class PublicShareControllerTest extends TestCase
         return new PublicShareController(
             request: $this->request,
             shareService: $this->shareService,
+            shareContext: $this->shareContext,
             logger: $this->logger,
             userId: $userId,
         );
@@ -64,6 +69,7 @@ class PublicShareControllerTest extends TestCase
     {
         $this->request      = $this->createMock(IRequest::class);
         $this->shareService = $this->createMock(PublicShareService::class);
+        $this->shareContext = $this->createMock(PublicShareContext::class);
         $this->logger       = $this->createMock(LoggerInterface::class);
     }
 

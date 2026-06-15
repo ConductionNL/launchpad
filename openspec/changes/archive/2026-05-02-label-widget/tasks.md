@@ -3,7 +3,7 @@
 ## 1. Renderer component
 
 - [x] 1.1 Create `src/components/Widgets/Renderers/LabelWidget.vue` with a `<div><span>{{ displayText }}</span></div>` template — interpolation only, never `v-html`
-- [x] 1.2 Implement `displayText` computed: returns `content.text` when `text.trim() !== ''`, else returns `t('mydash', 'Label')`
+- [x] 1.2 Implement `displayText` computed: returns `content.text` when `text.trim() !== ''`, else returns `t('launchpad', 'Label')`
 - [x] 1.3 Implement `wrapperStyle` computed returning `width:100%; height:100%; padding:12px; display:flex; align-items:center; justify-content:center; background-color: <bg or transparent>`
 - [x] 1.4 Implement `spanStyle` computed returning `font-size; font-weight; text-align; color; overflow-wrap: break-word`, falling back to defaults per REQ-LBL-002 when fields are missing
 - [x] 1.5 Default `color` MUST resolve to `var(--color-main-text)` so theming works in both light and dark mode
@@ -13,7 +13,7 @@
 
 - [x] 2.1 Create `src/components/Widgets/Forms/LabelForm.vue` with the six controls listed in REQ-LBL-005 (text input, fontSize text input, color picker, backgroundColor picker, fontWeight select, textAlign select)
 - [x] 2.2 Pre-fill every control from `editingWidget.content` when in edit mode (per REQ-LBL-005)
-- [x] 2.3 Implement `validate()` returning `[t('mydash', 'Label text is required')]` when `text.trim() === ''`, otherwise an empty array
+- [x] 2.3 Implement `validate()` returning `[t('launchpad', 'Label text is required')]` when `text.trim() === ''`, otherwise an empty array
 - [x] 2.4 Wire form input events to `$emit('update:content', {...})` so the parent modal sees live changes
 - [x] 2.5 Use translation keys `Font Weight` and `Alignment` for the two select labels
 
@@ -21,7 +21,7 @@
 
 - [x] 3.1 Add a `label` entry to `src/constants/widgetRegistry.js` with `renderer: LabelWidget`, `form: LabelForm`
 - [x] 3.2 Set `defaultContent: {text: '', fontSize: '16px', color: '', backgroundColor: '', fontWeight: 'bold', textAlign: 'center'}`
-- [x] 3.3 Add an icon and `displayName: t('mydash', 'Label')` so the type appears as a selectable option in the Add Widget modal
+- [x] 3.3 Add an icon and `displayName: t('launchpad', 'Label')` so the type appears as a selectable option in the Add Widget modal
 - [x] 3.4 Verify the `label` type is distinct from `text` in the modal's type-picker UI
 
 ## 4. Translations

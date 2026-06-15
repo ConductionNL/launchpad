@@ -6,7 +6,7 @@
  * Database mapper for dashboard entities.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -51,7 +51,7 @@ class DashboardMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dashboards',
+            tableName: 'launchpad_dashboards',
             entityClass: Dashboard::class
         );
     }//end __construct()
@@ -538,11 +538,58 @@ class DashboardMapper extends QBMapper
     }//end countByGroup()
 
     /**
+     * Count the personal (`user`-type) dashboards owned by a user.
+     *
+     * Mirrors {@see self::findByUserId()} scope filtering — only
+     * `type = 'user'` rows owned by `$userId` are counted, so group- and
+     * admin-scope dashboards routed to the user never inflate the count
+     * (dashboard-quota-limits REQ-QUOTA-002). Used by the quota service as
+     * a cheap live `COUNT(*)` on the indexed owner/type columns instead of
+     * hydrating every entity.
+     *
+     * @param string $userId The owner user ID.
+     *
+     * @return int The number of personal dashboards owned by the user.
+     *
+     * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-002-dashboard-count-enforcement
+     */
+    public function countPersonalByUserId(string $userId): int
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select($qb->func()->count('*', 'cnt'))
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'user_id',
+                    y: $qb->createNamedParameter(value: $userId)
+                )
+            )
+            ->andWhere(
+                $qb->expr()->eq(
+                    x: 'type',
+                    y: $qb->createNamedParameter(
+                        value: Dashboard::TYPE_USER
+                    )
+                )
+            );
+
+        $cursor = $qb->executeQuery();
+        $row    = $cursor->fetch();
+        $cursor->closeCursor();
+
+        if ($row === false || isset($row['cnt']) === false) {
+            return 0;
+        }
+
+        return (int) $row['cnt'];
+    }//end countPersonalByUserId()
+
+    /**
      * Clear default flag on every group-shared dashboard in a group.
      *
-     * Issues `UPDATE oc_mydash_dashboards SET is_default = 0 WHERE
+     * Issues `UPDATE oc_launchpad_dashboards SET is_default = 0 WHERE
      * type = 'group_shared' AND group_id = ? [AND uuid <> ?]`. Used by
-     * {@see \OCA\MyDash\Service\DashboardService::setGroupDefault()} as
+     * {@see \OCA\LaunchPad\Service\DashboardService::setGroupDefault()} as
      * the first half of the transactional flip. REQ-DASH-015.
      *
      * @param string      $groupId    The group ID (real or
@@ -603,7 +650,7 @@ class DashboardMapper extends QBMapper
     /**
      * Set the default flag on a single group-shared dashboard.
      *
-     * Issues `UPDATE oc_mydash_dashboards SET is_default = 1 WHERE
+     * Issues `UPDATE oc_launchpad_dashboards SET is_default = 1 WHERE
      * type = 'group_shared' AND group_id = ? AND uuid = ?`. Returns the
      * row-count affected — `0` when the uuid does not belong to the
      * given group (caller treats as 404). REQ-DASH-015.
@@ -881,7 +928,7 @@ class DashboardMapper extends QBMapper
      * Find every scheduled dashboard whose `publishAt` is past-due.
      *
      * Used by the optional eager-materialisation path in
-     * {@see \OCA\MyDash\Service\DashboardService::materialiseScheduledDashboards()}.
+     * {@see \OCA\LaunchPad\Service\DashboardService::materialiseScheduledDashboards()}.
      * Lazy materialisation in the visibility filter remains the
      * correctness contract — this mapper exists only for cleaner audit
      * data on the underlying table. REQ-DASH-034.

@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -9,7 +9,7 @@
 			{{ titleText }}
 		</h4>
 
-		<div ref="innerGrid" class="grid-stack mydash-container-grid">
+		<div ref="innerGrid" class="grid-stack launchpad-container-grid">
 			<div
 				v-for="(child, index) in children"
 				:key="childKey(child, index)"
@@ -212,7 +212,7 @@ export default {
 
 		/**
 		 * GridStack 'change' callback — translates inner-grid node
-		 * coordinates back into the MyDash field-name form and emits
+		 * coordinates back into the LaunchPad field-name form and emits
 		 * an `update:content` event so the parent placement's content
 		 * blob is updated.
 		 *
@@ -229,7 +229,7 @@ export default {
 				byKey.set(this.childKey(child, 0), child)
 			}
 			const updated = this.children.map((child, index) => {
-				const node = nodes.find(n => n.el && n.el.dataset && n.el.dataset.mydashIndex === String(index))
+				const node = nodes.find(n => n.el && n.el.dataset && n.el.dataset.launchpadIndex === String(index))
 				if (!node) {
 					return child
 				}
@@ -295,7 +295,7 @@ export default {
 	pointer-events: auto;
 }
 
-.mydash-container-grid {
+.launchpad-container-grid {
 	flex: 1;
 	min-height: 0;
 }

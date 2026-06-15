@@ -2,11 +2,11 @@
 
 ## Why
 
-MyDash dashboards are living documents — users arrange widgets, adjust grid layouts, and update configurations over time. Without version history, accidental changes or overzealous reorganization become irreversible, forcing users to reconstruct layouts manually. Groupfolder-backed dashboards (via the sibling `groupfolder-storage-backend` change) enable storing dashboards as JSON files in Nextcloud Files, opening the door to leveraging Nextcloud's native versioning system. Database-backed dashboards (the current default) need a parallel versioning table. This change delivers a unified, backend-agnostic version history API: list versions, restore snapshots, and audit restores — all without requiring the UI or caller to know which storage backend is in use.
+LaunchPad dashboards are living documents — users arrange widgets, adjust grid layouts, and update configurations over time. Without version history, accidental changes or overzealous reorganization become irreversible, forcing users to reconstruct layouts manually. Groupfolder-backed dashboards (via the sibling `groupfolder-storage-backend` change) enable storing dashboards as JSON files in Nextcloud Files, opening the door to leveraging Nextcloud's native versioning system. Database-backed dashboards (the current default) need a parallel versioning table. This change delivers a unified, backend-agnostic version history API: list versions, restore snapshots, and audit restores — all without requiring the UI or caller to know which storage backend is in use.
 
 ## What Changes
 
-- Add `oc_mydash_dashboard_versions` table for database-backed snapshots, with per-dashboard retention (50 most recent).
+- Add `oc_launchpad_dash_versions` table for database-backed snapshots, with per-dashboard retention (50 most recent).
 - Capture automatic snapshots on every successful dashboard content PUT (debounced to at most one per 60 seconds per dashboard).
 - Expose `GET /api/dashboards/{uuid}/versions` → ordered list of version metadata (newest first).
 - Expose `GET /api/dashboards/{uuid}/versions/{versionNumber}` → full snapshot body for restore preview.
@@ -37,7 +37,7 @@ MyDash dashboards are living documents — users arrange widgets, adjust grid la
 - `lib/Service/VersioningStrategy/*.php` — NEW strategy pattern for backend-agnostic versioning (DatabaseVersioningStrategy, FilesVersioningStrategy).
 - `lib/Controller/DashboardVersionController.php` — NEW controller for all version endpoints.
 - `appinfo/routes.php` — register 4 new routes: `GET|POST /api/dashboards/{uuid}/versions`, `GET|POST /api/dashboards/{uuid}/versions/{versionNumber}/restore`.
-- `lib/Migration/VersionXXXXDate2026...AddDashboardVersionsTable.php` — schema migration creating `oc_mydash_dashboard_versions` with retention index.
+- `lib/Migration/VersionXXXXDate2026...AddDashboardVersionsTable.php` — schema migration creating `oc_launchpad_dash_versions` with retention index.
 - `lib/Service/DashboardService.php` — integrate snapshot creation into PUT handler (debounce + call `DashboardVersionService::captureSnapshot()`).
 - `lib/Db/Dashboard.php` — add `contentBackend` field or equivalent to track which versioning mode a dashboard uses (database vs. groupfolder).
 - `src/views/DashboardDetail.vue` — (deferred to follow-up) UI for version list, restore button, version preview modal.

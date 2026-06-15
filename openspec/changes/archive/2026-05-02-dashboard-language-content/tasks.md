@@ -2,9 +2,9 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddDashboardTranslations.php` adding `oc_mydash_dashboard_translations` table with columns: `id`, `dashboardUuid`, `languageCode VARCHAR(16)`, `name`, `description TEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt`, `updatedAt`
+- [x] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddDashboardTranslations.php` adding `oc_launchpad_dashboard_translations` table with columns: `id`, `dashboardUuid`, `languageCode VARCHAR(16)`, `name`, `description TEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt`, `updatedAt`
 - [x] 1.2 Add composite unique index `(dashboardUuid, languageCode)` to enforce one row per language per dashboard
-- [x] 1.3 Add backfill logic: for each row in `oc_mydash_dashboards`, query the owner's Nextcloud locale via `\OCP\IConfig::getUserValue($userId, 'core', 'lang')` (fallback to 'en' if not set), then insert a primary translation row with the existing widget tree, name, description
+- [x] 1.3 Add backfill logic: for each row in `oc_launchpad_dashboards`, query the owner's Nextcloud locale via `\OCP\IConfig::getUserValue($userId, 'core', 'lang')` (fallback to 'en' if not set), then insert a primary translation row with the existing widget tree, name, description
 - [x] 1.4 Confirm migration is reversible (drop table in `postSchemaChange` rollback path)
 - [x] 1.5 Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly and backfill row counts match dashboard count
 

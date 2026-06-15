@@ -4,7 +4,7 @@
 
 - [ ] 1.1 Create `lib/Service/BulkOperationService.php` with dependencies: `DashboardMapper`, `PermissionService`, `IConfig`, `DashboardTreeService` (cycle check), `DashboardStatusService` (status enum validation), `ILogger`
 - [ ] 1.2 Add `BulkOperationService::bulkDelete(array $dashboardUuids, string $userId, bool $dryRun = false): array` — main orchestration
-  - [ ] 1.2a Validate request size: if count($dashboardUuids) > config('mydash.bulk_operation_max_per_request', 500), return HTTP 400 error
+  - [ ] 1.2a Validate request size: if count($dashboardUuids) > config('launchpad.bulk_operation_max_per_request', 500), return HTTP 400 error
   - [ ] 1.2b Check permissions: call `PermissionService::canDeleteDashboard($userId, $uuid)` for EACH uuid; if any fail, return 403 immediately (no mutations)
   - [ ] 1.2c Iterate each uuid, call mapper's soft-delete (or mark isDeleted flag if schema supports); collect `deletedCount`, `skippedCount`, per-uuid errors
   - [ ] 1.2d For already-deleted dashboard: catch exception, count as `skippedCount`, add to errors array with reason "already_deleted"
@@ -111,7 +111,7 @@
 
 ## 5. Configuration
 
-- [ ] 5.1 Add default config entry for `mydash.bulk_operation_max_per_request = 500` in app initialization (e.g., `AppConfig` or `config.php`)
+- [ ] 5.1 Add default config entry for `launchpad.bulk_operation_max_per_request = 500` in app initialization (e.g., `AppConfig` or `config.php`)
 - [ ] 5.2 Document admin-tunable setting in comments (admins can override via OCC command or web config)
 
 ## 6. PHPUnit tests

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `HeaderForm.vue` covering REQ-HDR-002 (placement
@@ -185,7 +185,7 @@ describe('HeaderForm', () => {
 	})
 
 	it('successful upload sets backgroundImageUrl from response', async () => {
-		uploadDataUrl.mockResolvedValue({ url: '/apps/mydash/resource/abc.png' })
+		uploadDataUrl.mockResolvedValue({ url: '/apps/launchpad/resource/abc.png' })
 		const wrapper = mount(HeaderForm, {
 			propsData: { value: { title: 'X' } },
 			stubs: { NcTextField: true },
@@ -194,7 +194,7 @@ describe('HeaderForm', () => {
 		const file = new File(['hi'], 'banner.png', { type: 'image/png' })
 		await wrapper.vm.onFileSelected({ target: { files: [file], value: 'banner.png' } })
 
-		expect(wrapper.vm.backgroundImageUrl).toBe('/apps/mydash/resource/abc.png')
+		expect(wrapper.vm.backgroundImageUrl).toBe('/apps/launchpad/resource/abc.png')
 		expect(wrapper.vm.uploadError).toBe('')
 	})
 

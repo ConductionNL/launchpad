@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,7 +8,7 @@
 		<NcSelect
 			:value="style"
 			:options="styleOptions"
-			:input-label="t('mydash', 'Menu Style')"
+			:input-label="t('launchpad', 'Menu Style')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -18,7 +18,7 @@
 			v-if="style !== 'tree'"
 			:value="orientation"
 			:options="orientationOptions"
-			:input-label="t('mydash', 'Orientation')"
+			:input-label="t('launchpad', 'Orientation')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -27,7 +27,7 @@
 		<NcSelect
 			:value="activeItemHighlight"
 			:options="highlightOptions"
-			:input-label="t('mydash', 'Active Item Highlight')"
+			:input-label="t('launchpad', 'Active Item Highlight')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -38,7 +38,7 @@
 				type="checkbox"
 				:checked="showIcons"
 				@change="updateField('showIcons', $event.target.checked)">
-			{{ t('mydash', 'Show Icons') }}
+			{{ t('launchpad', 'Show Icons') }}
 		</label>
 
 		<label v-if="style === 'tree'" class="menu-form__toggle">
@@ -46,12 +46,12 @@
 				type="checkbox"
 				:checked="expandedByDefault"
 				@change="updateField('expandedByDefault', $event.target.checked)">
-			{{ t('mydash', 'Expanded by Default') }}
+			{{ t('launchpad', 'Expanded by Default') }}
 		</label>
 
 		<div class="menu-form__items">
 			<h4 class="menu-form__items-title">
-				{{ t('mydash', 'Items') }}
+				{{ t('launchpad', 'Items') }}
 			</h4>
 			<MenuItemEditor
 				v-for="(item, idx) in items"
@@ -66,7 +66,7 @@
 				type="button"
 				class="menu-form__add-top"
 				@click="onAddTop">
-				+ {{ t('mydash', 'Add Item') }}
+				+ {{ t('launchpad', 'Add Item') }}
 			</button>
 		</div>
 	</div>
@@ -138,25 +138,25 @@ export default {
 		/** @spec openspec/specs/menu-widget/spec.md */
 		styleOptions() {
 			return [
-				{ value: 'dropdown', label: t('mydash', 'Dropdown') },
-				{ value: 'megamenu', label: t('mydash', 'Megamenu') },
-				{ value: 'tree', label: t('mydash', 'Tree') },
+				{ value: 'dropdown', label: t('launchpad', 'Dropdown') },
+				{ value: 'megamenu', label: t('launchpad', 'Megamenu') },
+				{ value: 'tree', label: t('launchpad', 'Tree') },
 			]
 		},
 		/** @spec openspec/specs/menu-widget/spec.md */
 		orientationOptions() {
 			return [
-				{ value: 'horizontal', label: t('mydash', 'Horizontal') },
-				{ value: 'vertical', label: t('mydash', 'Vertical') },
+				{ value: 'horizontal', label: t('launchpad', 'Horizontal') },
+				{ value: 'vertical', label: t('launchpad', 'Vertical') },
 			]
 		},
 		/** @spec openspec/specs/menu-widget/spec.md */
 		highlightOptions() {
 			return [
-				{ value: 'underline', label: t('mydash', 'Underline') },
-				{ value: 'background', label: t('mydash', 'Background') },
-				{ value: 'left-bar', label: t('mydash', 'Left Bar') },
-				{ value: 'none', label: t('mydash', 'None') },
+				{ value: 'underline', label: t('launchpad', 'Underline') },
+				{ value: 'background', label: t('launchpad', 'Background') },
+				{ value: 'left-bar', label: t('launchpad', 'Left Bar') },
+				{ value: 'none', label: t('launchpad', 'None') },
 			]
 		},
 		/** @spec openspec/specs/menu-widget/spec.md */
@@ -264,7 +264,7 @@ export default {
 			const errors = []
 			const walk = (list, depth) => {
 				if (depth > 3) {
-					errors.push(t('mydash', 'Menu items can nest at most 3 levels deep'))
+					errors.push(t('launchpad', 'Menu items can nest at most 3 levels deep'))
 					return
 				}
 				list.forEach((it) => {

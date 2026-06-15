@@ -6,7 +6,7 @@
  * Migration to add custom tiles feature.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -43,9 +43,9 @@ class Version001001Date20260203000000 extends SimpleMigrationStep
         // Get the schema wrapper.
         $schema = $schemaClosure();
 
-        // Create mydash_tiles table.
-        if ($schema->hasTable('mydash_tiles') === false) {
-            $table = $schema->createTable('mydash_tiles');
+        // Create launchpad_tiles table.
+        if ($schema->hasTable('launchpad_tiles') === false) {
+            $table = $schema->createTable('launchpad_tiles');
 
             $table->addColumn(
                 'id',
@@ -147,7 +147,7 @@ class Version001001Date20260203000000 extends SimpleMigrationStep
             $table->setPrimaryKey(['id']);
             $table->addIndex(
                 ['user_id'],
-                'mydash_tiles_user'
+                'launchpad_tiles_user'
             );
         }//end if
 

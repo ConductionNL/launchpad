@@ -10,7 +10,7 @@ status: draft
 
 ### Requirement: REQ-SHELL-001 Single mount point
 
-The system MUST render the workspace Vue app into exactly one DOM element with id `workspace-vue`, located inside a `<div id="app-workspace" class="mydash-workspace">` provided by `templates/index.php`. Nextcloud's chrome MUST treat `#app-workspace` as the main content slot (`'id-app-content' => '#app-workspace'`). No left navigation slot MUST be allocated by the chrome (`'id-app-navigation' => null`) — the shell renders its own slide-in sidebar instead.
+The system MUST render the workspace Vue app into exactly one DOM element with id `workspace-vue`, located inside a `<div id="app-workspace" class="launchpad-workspace">` provided by `templates/index.php`. Nextcloud's chrome MUST treat `#app-workspace` as the main content slot (`'id-app-content' => '#app-workspace'`). No left navigation slot MUST be allocated by the chrome (`'id-app-navigation' => null`) — the shell renders its own slide-in sidebar instead.
 
 #### Scenario: Mount point present
 

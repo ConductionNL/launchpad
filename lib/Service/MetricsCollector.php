@@ -6,7 +6,7 @@
  * Service for collecting Prometheus metrics in text exposition format.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,9 +16,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\IAppConfig;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;
@@ -49,7 +49,7 @@ class MetricsCollector
      *
      * @return array The lines of Prometheus metrics output.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-25
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-25
      */
     public function collectAll(): array
     {
@@ -60,14 +60,14 @@ class MetricsCollector
         $this->addDashboardMetrics(lines: $lines);
         $this->addCountMetric(
             lines: $lines,
-            tableName: 'mydash_widget_placements',
-            metricName: 'mydash_widgets_total',
+            tableName: 'launchpad_widget_placements',
+            metricName: 'launchpad_widgets_total',
             helpText: 'Total number of widget placements'
         );
         $this->addCountMetric(
             lines: $lines,
-            tableName: 'mydash_tiles',
-            metricName: 'mydash_tiles_total',
+            tableName: 'launchpad_tiles',
+            metricName: 'launchpad_tiles_total',
             helpText: 'Total number of tiles'
         );
 
@@ -90,11 +90,11 @@ class MetricsCollector
             default: '0.0.0'
         );
 
-        $lines[] = '# HELP mydash_info Application information';
-        $lines[] = '# TYPE mydash_info gauge';
+        $lines[] = '# HELP launchpad_info Application information';
+        $lines[] = '# TYPE launchpad_info gauge';
         $label   = 'version="'.$appVersion.'",php_version="'.$phpVersion.'"';
         $label   = $label.',nextcloud_version="'.$ncVersion.'"';
-        $lines[] = 'mydash_info{'.$label.'} 1';
+        $lines[] = 'launchpad_info{'.$label.'} 1';
     }//end addInfoMetric()
 
     /**
@@ -106,9 +106,9 @@ class MetricsCollector
      */
     private function addUpMetric(array &$lines): void
     {
-        $lines[] = '# HELP mydash_up Whether the application is up';
-        $lines[] = '# TYPE mydash_up gauge';
-        $lines[] = 'mydash_up 1';
+        $lines[] = '# HELP launchpad_up Whether the application is up';
+        $lines[] = '# TYPE launchpad_up gauge';
+        $lines[] = 'launchpad_up 1';
     }//end addUpMetric()
 
     /**
@@ -120,18 +120,18 @@ class MetricsCollector
      */
     private function addDashboardMetrics(array &$lines): void
     {
-        $lines[] = '# HELP mydash_dashboards_total Total dashboards by type';
-        $lines[] = '# TYPE mydash_dashboards_total gauge';
+        $lines[] = '# HELP launchpad_dashboards_total Total dashboards by type';
+        $lines[] = '# TYPE launchpad_dashboards_total gauge';
 
         try {
             $counts = $this->queryService->queryDashboardCounts();
             foreach ($counts as $type => $count) {
-                $lines[] = 'mydash_dashboards_total{type="'.$type.'"} '.$count;
+                $lines[] = 'launchpad_dashboards_total{type="'.$type.'"} '.$count;
             }
         } catch (\Exception $e) {
             $this->logger->warning('Could not count dashboards for metrics', ['exception' => $e->getMessage()]);
-            $lines[] = 'mydash_dashboards_total{type="personal"} 0';
-            $lines[] = 'mydash_dashboards_total{type="template"} 0';
+            $lines[] = 'launchpad_dashboards_total{type="personal"} 0';
+            $lines[] = 'launchpad_dashboards_total{type="template"} 0';
         }//end try
     }//end addDashboardMetrics()
 

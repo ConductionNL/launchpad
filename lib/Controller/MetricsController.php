@@ -6,7 +6,7 @@
  * Controller for exposing Prometheus metrics in text exposition format.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,9 +19,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\TextPlainResponse;
 use OCP\IAppConfig;
@@ -66,7 +66,7 @@ class MetricsController extends Controller
      *
      * @NoCSRFRequired
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-25
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-25
      */
     public function index(): TextPlainResponse
     {
@@ -77,8 +77,8 @@ class MetricsController extends Controller
         $ncVersion  = $this->config->getSystemValueString('version', '0.0.0');
 
         // Info gauge.
-        $lines[] = '# HELP mydash_info Application information';
-        $lines[] = '# TYPE mydash_info gauge';
+        $lines[] = '# HELP launchpad_info Application information';
+        $lines[] = '# TYPE launchpad_info gauge';
 
         $labels  = sprintf(
             'version="%s",php_version="%s",nextcloud_version="%s"',
@@ -86,27 +86,27 @@ class MetricsController extends Controller
             $phpVersion,
             $ncVersion
         );
-        $lines[] = 'mydash_info{'.$labels.'} 1';
+        $lines[] = 'launchpad_info{'.$labels.'} 1';
 
         // Up gauge.
-        $lines[] = '# HELP mydash_up Whether the application is up';
-        $lines[] = '# TYPE mydash_up gauge';
-        $lines[] = 'mydash_up 1';
+        $lines[] = '# HELP launchpad_up Whether the application is up';
+        $lines[] = '# TYPE launchpad_up gauge';
+        $lines[] = 'launchpad_up 1';
 
         // Dashboards total by type.
         $this->collectDashboardMetrics(lines: $lines);
 
         // Widgets total.
-        $widgetsTotal = $this->countTable(tableName: 'mydash_widget_placements');
-        $lines[]      = '# HELP mydash_widgets_total Total number of widget placements';
-        $lines[]      = '# TYPE mydash_widgets_total gauge';
-        $lines[]      = 'mydash_widgets_total '.$widgetsTotal;
+        $widgetsTotal = $this->countTable(tableName: 'launchpad_widget_placements');
+        $lines[]      = '# HELP launchpad_widgets_total Total number of widget placements';
+        $lines[]      = '# TYPE launchpad_widgets_total gauge';
+        $lines[]      = 'launchpad_widgets_total '.$widgetsTotal;
 
         // Tiles total.
-        $tilesTotal = $this->countTable(tableName: 'mydash_tiles');
-        $lines[]    = '# HELP mydash_tiles_total Total number of tiles';
-        $lines[]    = '# TYPE mydash_tiles_total gauge';
-        $lines[]    = 'mydash_tiles_total '.$tilesTotal;
+        $tilesTotal = $this->countTable(tableName: 'launchpad_tiles');
+        $lines[]    = '# HELP launchpad_tiles_total Total number of tiles';
+        $lines[]    = '# TYPE launchpad_tiles_total gauge';
+        $lines[]    = 'launchpad_tiles_total '.$tilesTotal;
 
         $body     = implode("\n", $lines)."\n";
         $response = new TextPlainResponse($body);
@@ -124,13 +124,13 @@ class MetricsController extends Controller
      */
     private function collectDashboardMetrics(array &$lines): void
     {
-        $lines[] = '# HELP mydash_dashboards_total Total dashboards by type';
-        $lines[] = '# TYPE mydash_dashboards_total gauge';
+        $lines[] = '# HELP launchpad_dashboards_total Total dashboards by type';
+        $lines[] = '# TYPE launchpad_dashboards_total gauge';
 
         try {
             $qb = $this->db->getQueryBuilder();
             $qb->select('type', $qb->createFunction('COUNT(*) AS cnt'))
-                ->from('mydash_dashboards')
+                ->from('launchpad_dashboards')
                 ->groupBy('type');
 
             $result = $qb->executeQuery();
@@ -161,12 +161,12 @@ class MetricsController extends Controller
             }
 
             foreach ($counts as $type => $count) {
-                $lines[] = 'mydash_dashboards_total{type="'.$type.'"} '.$count;
+                $lines[] = 'launchpad_dashboards_total{type="'.$type.'"} '.$count;
             }
         } catch (\Exception $e) {
             $this->logger->warning('Could not count dashboards for metrics', ['exception' => $e->getMessage()]);
-            $lines[] = 'mydash_dashboards_total{type="personal"} 0';
-            $lines[] = 'mydash_dashboards_total{type="template"} 0';
+            $lines[] = 'launchpad_dashboards_total{type="personal"} 0';
+            $lines[] = 'launchpad_dashboards_total{type="template"} 0';
         }//end try
     }//end collectDashboardMetrics()
 

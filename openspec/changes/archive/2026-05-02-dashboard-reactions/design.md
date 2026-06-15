@@ -3,7 +3,7 @@
 ## Context
 
 This capability adds emoji reactions to dashboards. The spec (`dashboard-reactions`) pins the
-`oc_mydash_dashboard_reactions` table, per-dashboard + global toggles, admin allow-list, idempotent
+`oc_launchpad_dash_reactions` table, per-dashboard + global toggles, admin allow-list, idempotent
 POST, and hide-on-disable behaviour. Deliberately NOT built on `ICommentsManager` — diverging from
 `dashboard-comments`. The source app has no equivalent; the closest NC precedent is Deck's card
 reactions, which also uses a dedicated table. This design covers storage schema, allow-list
@@ -26,7 +26,7 @@ mechanics, toggle semantics, and aggregation query shape.
 ## Decisions
 
 ### D1: Own table over ICommentsManager
-**Decision**: Store reactions in `oc_mydash_dashboard_reactions(id, dashboard_uuid, user_id, emoji,
+**Decision**: Store reactions in `oc_launchpad_dash_reactions(id, dashboard_uuid, user_id, emoji,
 created_at)` with a composite unique index on `(dashboard_uuid, user_id, emoji)`.
 **Alternatives considered**:
 - NC `ICommentsManager` — rejected; designed for text comments, not emoji counts; makes
@@ -44,7 +44,7 @@ and dashboard-centric aggregation (`GROUP BY emoji`). Schema is minimal and stab
 **Rationale**: Idempotent toggle UX; client POSTs freely and trusts returned counts.
 
 ### D3: Allow-list storage
-**Decision**: Admin setting `mydash.reactions_allowed_emojis` (NC `IAppConfig`) stores a JSON
+**Decision**: Admin setting `launchpad.reactions_allowed_emojis` (NC `IAppConfig`) stores a JSON
 array. Default value: `["👍","❤️","🎉","😂","🤔","😢"]`.
 **Alternatives considered**:
 - Hardcoded enum in code — rejected; admin customisation is a spec requirement
@@ -70,7 +70,7 @@ returns HTTP 403. Existing rows are NOT deleted; re-enabling restores everything
 ### D6: Aggregation query shape
 **Decision**: Dashboard detail endpoint includes `reactions` as a pre-aggregated map:
 `{"👍": {"count": 5, "userReacted": true}}`. Computed via single `SELECT emoji, COUNT(*) as count,
-MAX(user_id = ?) as user_reacted FROM oc_mydash_dashboard_reactions WHERE dashboard_uuid = ?
+MAX(user_id = ?) as user_reacted FROM oc_launchpad_dash_reactions WHERE dashboard_uuid = ?
 GROUP BY emoji`.
 **Alternatives considered**:
 - Separate `GET /reactions` endpoint — available for detail use, but summary map baked into

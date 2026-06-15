@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit test for the `Views.vue` initial-load shim.
@@ -129,15 +129,15 @@ describe('Views — initial-load shim', () => {
 	it('renders the loading shim, NOT the empty-state CTA, while loading=true and activeDashboard is null', async () => {
 		const wrapper = await mountViews({ activeDashboard: null, loading: true })
 
-		expect(wrapper.find('.mydash-loading').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-loading').exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).exists()).toBe(true)
-		expect(wrapper.find('.mydash-empty').exists()).toBe(false)
+		expect(wrapper.find('.launchpad-empty').exists()).toBe(false)
 	})
 
 	it('renders the empty-state CTA once loading=false and activeDashboard is still null', async () => {
 		const wrapper = await mountViews({ activeDashboard: null, loading: false })
 
-		expect(wrapper.find('.mydash-loading').exists()).toBe(false)
-		expect(wrapper.find('.mydash-empty').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-loading').exists()).toBe(false)
+		expect(wrapper.find('.launchpad-empty').exists()).toBe(true)
 	})
 })

@@ -1,12 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Widget registry — single source of truth for "what custom widget types
  * exist" on top of the Nextcloud-discovered widget set.
  *
  * Each entry maps a `type` string (the value persisted in
- * `oc_mydash_widget_placements`) to a `{renderer, form, defaultContent,
+ * `oc_launchpad_widget_placements`) to a `{renderer, form, defaultContent,
  * displayName, icon}` descriptor. The Add Widget modal consults this registry
  * to render the type picker and the per-type sub-form, and the dashboard
  * grid uses it to pick the right renderer for a placement.
@@ -70,6 +70,15 @@
  * REQ-WDG-014: The set of supported widget types MUST come from this single
  * registry. Toolbar dropdown, modal type selector, and grid renderer all
  * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
+ *
+ * REQ-SAW-001..003: The widget type `spend-analytics` MUST be registered with
+ * a renderer reference to `SpendAnalyticsWidget.vue`, a form reference to
+ * `SpendAnalyticsForm.vue`, a `defaultContent` of `{viewMode:'summary',
+ * period:'quarter', filters:{categoryIds:[], departmentIds:[], vendorIds:[]},
+ * drillThroughTarget:'detail-page', attachEvidence:true,
+ * aiInsights:{enabled:false}}`, and a soft `requires.graphql` of at minimum
+ * `['financeq.transactions', 'procest.cases']`. The `requires` clause is a
+ * runtime-source hint only — it MUST NOT appear in `manifest.dependencies`.
  */
 
 import LabelWidget from '../components/Widgets/Renderers/LabelWidget.vue'
@@ -106,6 +115,8 @@ import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue
 import ContainerForm from '../components/Widgets/Forms/ContainerForm.vue'
 import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
 import TileForm from '../components/Widgets/Forms/TileForm.vue'
+import SpendAnalyticsWidget from '../components/Widgets/Renderers/SpendAnalyticsWidget.vue'
+import SpendAnalyticsForm from '../components/Widgets/Forms/SpendAnalyticsForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -114,6 +125,7 @@ import TileForm from '../components/Widgets/Forms/TileForm.vue'
  * @property {object} defaultContent Initial `content` payload for new placements
  * @property {string} displayName Human-readable type name for the type picker
  * @property {string} icon Material Design icon name used in the type picker
+ * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets — names the sibling-app GraphQL schemas the widget reads (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
  */
 
 /** @type {Record<string, WidgetRegistryEntry>} */
@@ -129,7 +141,7 @@ export const widgetRegistry = {
 			fontWeight: 'bold',
 			textAlign: 'center',
 		},
-		displayName: t('mydash', 'Label'),
+		displayName: t('launchpad', 'Label'),
 		icon: 'FormatTitle',
 	},
 	text: {
@@ -149,7 +161,7 @@ export const widgetRegistry = {
 			tableMode: false,
 			tableData: null,
 		},
-		displayName: t('mydash', 'Text'),
+		displayName: t('launchpad', 'Text'),
 		icon: 'FormatText',
 	},
 	image: {
@@ -161,7 +173,7 @@ export const widgetRegistry = {
 			link: '',
 			fit: 'cover',
 		},
-		displayName: t('mydash', 'Image'),
+		displayName: t('launchpad', 'Image'),
 		icon: 'Camera',
 	},
 	link: {
@@ -184,7 +196,7 @@ export const widgetRegistry = {
 			listItemGap: 'normal',
 			links: [],
 		},
-		displayName: t('mydash', 'Link Button'),
+		displayName: t('launchpad', 'Link Button'),
 		icon: 'LinkVariant',
 	},
 	'nc-widget': {
@@ -194,7 +206,7 @@ export const widgetRegistry = {
 			widgetId: '',
 			displayMode: 'vertical',
 		},
-		displayName: t('mydash', 'Nextcloud Widget'),
+		displayName: t('launchpad', 'Nextcloud Widget'),
 		icon: 'ViewDashboard',
 	},
 	header: {
@@ -215,7 +227,7 @@ export const widgetRegistry = {
 			height: 'medium',
 			cta: null,
 		},
-		displayName: t('mydash', 'Header Banner'),
+		displayName: t('launchpad', 'Header Banner'),
 		icon: 'ViewHeadline',
 	},
 	divider: {
@@ -229,7 +241,7 @@ export const widgetRegistry = {
 			whitespaceSize: 'medium',
 			headingText: '',
 		},
-		displayName: t('mydash', 'Divider'),
+		displayName: t('launchpad', 'Divider'),
 		icon: 'Minus',
 	},
 	files: {
@@ -246,7 +258,7 @@ export const widgetRegistry = {
 			sortBy: 'name',
 			sortDescending: false,
 		},
-		displayName: t('mydash', 'Files'),
+		displayName: t('launchpad', 'Files'),
 		icon: 'Folder',
 	},
 	people: {
@@ -273,7 +285,7 @@ export const widgetRegistry = {
 				birthdate: true,
 			},
 		},
-		displayName: t('mydash', 'People'),
+		displayName: t('launchpad', 'People'),
 		icon: 'AccountGroup',
 	},
 	quicklinks: {
@@ -289,7 +301,7 @@ export const widgetRegistry = {
 			tileBackgroundStyle: 'transparent',
 			hoverEffect: 'lift',
 		},
-		displayName: t('mydash', 'Quicklinks'),
+		displayName: t('launchpad', 'Quicklinks'),
 		icon: 'Star',
 	},
 	news: {
@@ -305,7 +317,7 @@ export const widgetRegistry = {
 			dateFormat: 'relative',
 			metadataFilter: null,
 		},
-		displayName: t('mydash', 'News'),
+		displayName: t('launchpad', 'News'),
 		icon: 'RssBox',
 	},
 	video: {
@@ -322,7 +334,7 @@ export const widgetRegistry = {
 			aspectRatio: '16:9',
 			posterUrl: '',
 		},
-		displayName: t('mydash', 'Video'),
+		displayName: t('launchpad', 'Video'),
 		icon: 'Video',
 	},
 	calendar: {
@@ -335,7 +347,7 @@ export const widgetRegistry = {
 			daysAhead: 14,
 			colorByCalendar: true,
 		},
-		displayName: t('mydash', 'Calendar'),
+		displayName: t('launchpad', 'Calendar'),
 		icon: 'Calendar',
 	},
 	links: {
@@ -350,7 +362,7 @@ export const widgetRegistry = {
 			showSectionTitles: true,
 			showLinkDescriptions: true,
 		},
-		displayName: t('mydash', 'Links'),
+		displayName: t('launchpad', 'Links'),
 		icon: 'LinkBoxVariant',
 	},
 	menu: {
@@ -364,7 +376,7 @@ export const widgetRegistry = {
 			expandedByDefault: false,
 			activeItemHighlight: 'underline',
 		},
-		displayName: t('mydash', 'Menu'),
+		displayName: t('launchpad', 'Menu'),
 		icon: 'ViewDashboard',
 	},
 	// REQ-CONT-001: container widget — recursive sub-grid host. Children
@@ -380,14 +392,14 @@ export const widgetRegistry = {
 			padding: 'medium',
 			title: '',
 		},
-		displayName: t('mydash', 'Container'),
+		displayName: t('launchpad', 'Container'),
 		icon: 'ViewDashboard',
 	},
 	// REQ-WDG-022 / REQ-TILE-PLACEMENT: tile widget — registry-driven
 	// replacement for the deprecated standalone tile-creation flow. The
 	// renderer reads from BOTH the new inline `content.{...}` shape AND
 	// the legacy flat `placement.tile*` columns so dashboards holding
-	// tile placements created via the deprecated `oc_mydash_tiles` flow
+	// tile placements created via the deprecated `oc_launchpad_tiles` flow
 	// keep rendering without a migration step.
 	tile: {
 		renderer: TileWidget,
@@ -401,8 +413,30 @@ export const widgetRegistry = {
 			linkType: 'app',
 			linkValue: '',
 		},
-		displayName: t('mydash', 'Tile'),
+		displayName: t('launchpad', 'Tile'),
 		icon: 'ViewGrid',
+	},
+	// REQ-SAW-001/-002/-003: spend-analytics widget — consumes runtime
+	// GraphQL from financeq + procest. The soft `requires.graphql`
+	// declaration names the sibling-app schemas it reads; it MUST NEVER
+	// be promoted to a top-level `manifest.dependencies` entry
+	// (feedback_launchpad-no-or-dependency.md) — the renderer registers
+	// regardless and falls back to an empty-state when a source is
+	// absent at runtime.
+	'spend-analytics': {
+		renderer: SpendAnalyticsWidget,
+		form: SpendAnalyticsForm,
+		defaultContent: {
+			viewMode: 'summary',
+			period: 'quarter',
+			filters: { categoryIds: [], departmentIds: [], vendorIds: [] },
+			drillThroughTarget: 'detail-page',
+			attachEvidence: true,
+			aiInsights: { enabled: false },
+		},
+		requires: { graphql: ['financeq.transactions', 'procest.cases'] },
+		displayName: t('launchpad', 'Spend analytics'),
+		icon: 'ChartLine',
 	},
 }
 

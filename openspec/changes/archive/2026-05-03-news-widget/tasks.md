@@ -15,7 +15,7 @@
 - [ ] 1.2 Register the widget in a boot/lifecycle hook or service provider:
   - Hook into Nextcloud's dashboard widget registration (e.g., in `AppInfo/Bootstrap.php` or a listener on `IManager`)
   - Call `IManager::registerWidget()` with a widget provider or inline metadata
-  - Widget id: `mydash_news`, title: translatable `app.mydash.news_widget_title`, icon: feed/newspaper icon URL
+  - Widget id: `launchpad_news`, title: translatable `app.launchpad.news_widget_title`, icon: feed/newspaper icon URL
 - [ ] 1.3 Create fixture-based PHPUnit tests for `NewsWidgetService`:
   - `testFetchAndMergeFeedsSuccess` — mock feed URLs, verify merged array returned
   - `testDeduplicateItemsByGuid` — duplicate items with same guid removed, first occurrence kept
@@ -45,9 +45,9 @@
 ## 3. Placement configuration and schema migration
 
 - [ ] 3.1 Create `lib/Migration/VersionXXXXDate2026...AddNewsWidgetSettings.php`:
-  - Add app config table entries for `mydash.news_widget_feed_cache_ttl_seconds` (default 3600)
-  - Add app config table entries for `mydash.news_widget_allowed_feed_hosts` (default `null` or `[]`)
-  - NOTE: No new `oc_mydash_*` table columns required; all config is stored in placement `widgetContent` JSON
+  - Add app config table entries for `launchpad.news_widget_feed_cache_ttl_seconds` (default 3600)
+  - Add app config table entries for `launchpad.news_widget_allowed_feed_hosts` (default `null` or `[]`)
+  - NOTE: No new `oc_launchpad_*` table columns required; all config is stored in placement `widgetContent` JSON
 - [ ] 3.2 Add getter/setter methods in `WidgetPlacementService` or factory to safely parse `widgetContent` JSON:
   - `extractNewsConfig(WidgetPlacement $placement): array` — returns parsed config with defaults (feedUrls, layout, itemLimit, showThumbnails, showSummary, summaryMaxChars, dateFormat, metadataFilter)
   - Validate and sanitize config (feedUrls must be HTTP/HTTPS, itemLimit 1-50)
@@ -61,7 +61,7 @@
   - For each URL in `feedUrls`:
     - Check allow-list via `checkAllowList($url)`
     - If disallowed, skip and log warning
-    - If allowed, try to fetch from cache key `mydash_news_feed_{placementId}_{urlHash}` (via FeedCacheService if available, else ICache directly)
+    - If allowed, try to fetch from cache key `launchpad_news_feed_{placementId}_{urlHash}` (via FeedCacheService if available, else ICache directly)
     - If cache hit, use cached raw feed content
     - If cache miss, HTTP fetch with 10-second timeout (use `IClientService`)
     - On HTTP 4xx/5xx, log warning, skip URL, record failure for UI badge
@@ -79,7 +79,7 @@
   - Return flat array of item objects
   - Log malformed feeds at INFO level (don't crash widget)
 - [ ] 4.3 Implement `NewsWidgetService::checkAllowList()`:
-  - Read `mydash.news_widget_allowed_feed_hosts` from `IAppConfig::getValueString()`
+  - Read `launchpad.news_widget_allowed_feed_hosts` from `IAppConfig::getValueString()`
   - If empty or null, return true (all allowed)
   - Otherwise, parse URL, extract hostname (case-insensitive)
   - Check for exact match in allow-list (no wildcard subdomain expansion)
@@ -169,9 +169,9 @@
 
 ## 8. Admin settings UI
 
-- [ ] 8.1 Add admin settings form (in MyDash admin panel or central Nextcloud settings):
-  - `mydash.news_widget_feed_cache_ttl_seconds` — text input (number), default 3600, help text "Cache TTL in seconds (60-86400)"
-  - `mydash.news_widget_allowed_feed_hosts` — text area with JSON array format, help text "JSON array of allowed feed hostnames, e.g., `["bbc.com", "example.org"]`. Leave empty to allow all."
+- [ ] 8.1 Add admin settings form (in LaunchPad admin panel or central Nextcloud settings):
+  - `launchpad.news_widget_feed_cache_ttl_seconds` — text input (number), default 3600, help text "Cache TTL in seconds (60-86400)"
+  - `launchpad.news_widget_allowed_feed_hosts` — text area with JSON array format, help text "JSON array of allowed feed hostnames, e.g., `["bbc.com", "example.org"]`. Leave empty to allow all."
   - Validate: cache TTL must be 60-86400; JSON must parse
   - Save via existing Nextcloud admin settings API
 - [ ] 8.2 Add documentation in README or inline comments:

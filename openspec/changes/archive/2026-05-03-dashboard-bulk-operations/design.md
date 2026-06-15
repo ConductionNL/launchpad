@@ -2,7 +2,7 @@
 
 ## Context
 
-This change adds four batch-mutation endpoints (`bulk-delete`, `bulk-move`, `bulk-status`, `bulk-reindex`) and a matching frontend multi-select UI to the MyDash admin panel. Without these, administrators managing hundreds of dashboards must issue single-item API calls or resort to direct database manipulation — neither of which leaves a usable audit trail.
+This change adds four batch-mutation endpoints (`bulk-delete`, `bulk-move`, `bulk-status`, `bulk-reindex`) and a matching frontend multi-select UI to the LaunchPad admin panel. Without these, administrators managing hundreds of dashboards must issue single-item API calls or resort to direct database manipulation — neither of which leaves a usable audit trail.
 
 The source implementation performs bulk delete as a **hard delete** via the Nextcloud Files API (`$folder->delete()` on the NC filesystem node). There is no soft-delete flag, no `deleted_at` column, and no grace period. Recovery is only possible through Nextcloud's system-wide trash bin, which may or may not be enabled on a given installation.
 
@@ -23,14 +23,14 @@ A related question is whether to introduce a **soft-delete grace period** at thi
 **Non-Goals:**
 - Soft-delete or undo/restore functionality (deferred to a future capability if customers request it).
 - Bulk operations for non-admin users (all four endpoints require admin role).
-- Cross-app bulk operations (scoped to `oc_mydash_dashboards` only).
+- Cross-app bulk operations (scoped to `oc_launchpad_dashboards` only).
 - Automatic retry on partial failure (caller is responsible for retrying failed UUIDs).
 
 ## Decisions
 
 ### D1: Delete strategy — hard delete, `cascade=false` default, `?cascade=true` opt-in
 
-**Decision:** Bulk delete removes rows directly from `oc_mydash_dashboards` via the Nextcloud Files API (hard delete, matching the source). Cascade to child dashboards is **not** the default: attempting to delete a parent that has children without `?cascade=true` returns **HTTP 409** with a body indicating how many children block the operation. Passing `?cascade=true` opts in to recursive deletion and the caller bears explicit responsibility for the cascade.
+**Decision:** Bulk delete removes rows directly from `oc_launchpad_dashboards` via the Nextcloud Files API (hard delete, matching the source). Cascade to child dashboards is **not** the default: attempting to delete a parent that has children without `?cascade=true` returns **HTTP 409** with a body indicating how many children block the operation. Passing `?cascade=true` opts in to recursive deletion and the caller bears explicit responsibility for the cascade.
 
 **Alternatives considered:**
 
@@ -49,7 +49,7 @@ A related question is whether to introduce a **soft-delete grace period** at thi
 
 ### D2: Cap on per-request batch size — 500
 
-**Decision:** Each bulk endpoint accepts at most 500 `dashboardUuids` per request. Requests exceeding the cap return HTTP 400 immediately with no mutations. The cap is admin-tunable via `mydash.bulk_operation_max_per_request` (OCC config or web settings); invalid values (zero, negative) fall back to 500 with a warning log.
+**Decision:** Each bulk endpoint accepts at most 500 `dashboardUuids` per request. Requests exceeding the cap return HTTP 400 immediately with no mutations. The cap is admin-tunable via `launchpad.bulk_operation_max_per_request` (OCC config or web settings); invalid values (zero, negative) fall back to 500 with a warning log.
 
 **Rationale:** A cap of 500 is generous enough for any sane organisation-wide operation but prevents an errant admin script from issuing a single request that locks the dashboard table for minutes. The config escape hatch avoids breaking large-org deployments that genuinely need higher limits.
 

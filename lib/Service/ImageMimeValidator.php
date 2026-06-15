@@ -14,23 +14,23 @@
  * validator is invoked.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Exception\CorruptImageException;
-use OCA\MyDash\Exception\MimeMismatchException;
+use OCA\LaunchPad\Exception\CorruptImageException;
+use OCA\LaunchPad\Exception\MimeMismatchException;
 
 /**
  * Validates that declared raster image type matches the detected MIME.

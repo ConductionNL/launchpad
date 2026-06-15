@@ -1,8 +1,8 @@
-# Widgets vs Tiles in MyDash
+# Widgets vs Tiles in LaunchPad
 
 ## Overview
 
-MyDash supports two distinct types of dashboard items: **Widgets** and **Tiles**. Understanding the difference between them is crucial for effective use of the application.
+LaunchPad supports two distinct types of dashboard items: **Widgets** and **Tiles**. Understanding the difference between them is crucial for effective use of the application.
 
 ## Widgets
 
@@ -49,7 +49,7 @@ MyDash supports two distinct types of dashboard items: **Widgets** and **Tiles**
 
 ### Characteristics:
 
-1. **Source**: Created by users through the MyDash interface
+1. **Source**: Created by users through the LaunchPad interface
 2. **Static Content**: Display a title and icon only
 3. **User-Managed**: Users can create, edit, and delete their own tiles
 4. **Simple Links**: Navigate to apps or external URLs
@@ -62,9 +62,9 @@ MyDash supports two distinct types of dashboard items: **Widgets** and **Tiles**
 
 ### Technical Implementation:
 
-- **Backend**: Custom database table (`oc_mydash_tiles`)
+- **Backend**: Custom database table (`oc_launchpad_tiles`)
 - **API**: RESTful API endpoints (`TileApiController`)
-- **Storage**: Persisted in MyDash database
+- **Storage**: Persisted in LaunchPad database
 - **Component**: `TileCard.vue` and `TileWidget.vue`
 
 ### Tile Features:
@@ -108,9 +108,9 @@ MyDash supports two distinct types of dashboard items: **Widgets** and **Tiles**
 | **Interactivity** | Can display lists, buttons | Simple link/button |
 | **Customization** | Limited (styling only) | Full (icon, colors, link) |
 | **Management** | System-managed | User-managed (CRUD) |
-| **API** | Nextcloud Dashboard API | MyDash custom API |
+| **API** | Nextcloud Dashboard API | LaunchPad custom API |
 | **Registration** | Auto-registered by apps | Created via UI |
-| **Database** | No persistence (transient) | Stored in `oc_mydash_tiles` |
+| **Database** | No persistence (transient) | Stored in `oc_launchpad_tiles` |
 
 ## How They Work Together
 
@@ -188,18 +188,18 @@ The "Add to dashboard" panel has two tabs:
 
 ### Widgets:
 
-- `GET /apps/mydash/api/widgets` - List available widgets
-- `GET /apps/mydash/api/widgets/items` - Get widget items
-- `POST /apps/mydash/api/dashboard/{dashboardId}/widgets` - Add widget
-- `PUT /apps/mydash/api/widgets/{placementId}` - Update widget placement
-- `DELETE /apps/mydash/api/widgets/{placementId}` - Remove widget
+- `GET /apps/launchpad/api/widgets` - List available widgets
+- `GET /apps/launchpad/api/widgets/items` - Get widget items
+- `POST /apps/launchpad/api/dashboard/{dashboardId}/widgets` - Add widget
+- `PUT /apps/launchpad/api/widgets/{placementId}` - Update widget placement
+- `DELETE /apps/launchpad/api/widgets/{placementId}` - Remove widget
 
 ### Tiles:
 
-- `GET /apps/mydash/api/tiles` - List user's tiles
-- `POST /apps/mydash/api/tiles` - Create new tile
-- `PUT /apps/mydash/api/tiles/{id}` - Update tile
-- `DELETE /apps/mydash/api/tiles/{id}` - Delete tile
+- `GET /apps/launchpad/api/tiles` - List user's tiles
+- `POST /apps/launchpad/api/tiles` - Create new tile
+- `PUT /apps/launchpad/api/tiles/{id}` - Update tile
+- `DELETE /apps/launchpad/api/tiles/{id}` - Delete tile
 
 ## Best Practices
 
@@ -224,4 +224,4 @@ The "Add to dashboard" panel has two tabs:
 - **Tiles** = Simple, user-created navigation shortcuts
 - Both can coexist on the same dashboard
 - They serve different purposes and complement each other
-- MyDash provides the framework to manage and display both types effectively
+- LaunchPad provides the framework to manage and display both types effectively

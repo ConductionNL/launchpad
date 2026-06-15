@@ -6,7 +6,7 @@
  * Facade for building all database table schemas in migrations.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 
@@ -26,7 +26,7 @@ use OCP\DB\ISchemaWrapper;
 class MigrationTableBuilder
 {
     /**
-     * Create the mydash_dashboards table.
+     * Create the launchpad_dashboards table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -39,7 +39,7 @@ class MigrationTableBuilder
     }//end createDashboardsTable()
 
     /**
-     * Create the mydash_widget_placements table.
+     * Create the launchpad_widget_placements table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -52,7 +52,7 @@ class MigrationTableBuilder
     }//end createWidgetPlacementsTable()
 
     /**
-     * Create the mydash_admin_settings table.
+     * Create the launchpad_admin_settings table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -65,7 +65,7 @@ class MigrationTableBuilder
     }//end createAdminSettingsTable()
 
     /**
-     * Create the mydash_conditional_rules table.
+     * Create the launchpad_conditional_rules table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *

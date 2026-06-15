@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,7 +7,7 @@
 	<div class="image-form">
 		<fieldset class="image-form__source-group">
 			<legend class="image-form__label">
-				{{ t('mydash', 'Image source') }}
+				{{ t('launchpad', 'Image source') }}
 			</legend>
 			<label class="image-form__radio">
 				<input
@@ -15,7 +15,7 @@
 					type="radio"
 					value="url"
 					@change="onSourceChange">
-				{{ t('mydash', 'URL/Link') }}
+				{{ t('launchpad', 'URL/Link') }}
 			</label>
 			<label class="image-form__radio">
 				<input
@@ -23,7 +23,7 @@
 					type="radio"
 					value="upload"
 					@change="onSourceChange">
-				{{ t('mydash', 'Upload') }}
+				{{ t('launchpad', 'Upload') }}
 			</label>
 			<label class="image-form__radio">
 				<input
@@ -31,12 +31,12 @@
 					type="radio"
 					value="files"
 					@change="onSourceChange">
-				{{ t('mydash', 'Pick from Files') }}
+				{{ t('launchpad', 'Pick from Files') }}
 			</label>
 		</fieldset>
 
 		<label v-if="sourceType === 'upload'" class="image-form__field">
-			<span class="image-form__label">{{ t('mydash', 'Upload Image') }}</span>
+			<span class="image-form__label">{{ t('launchpad', 'Upload Image') }}</span>
 			<input
 				type="file"
 				accept="image/*"
@@ -51,8 +51,8 @@
 		<NcTextField
 			v-if="sourceType === 'url'"
 			:value="url"
-			:label="t('mydash', 'Image URL')"
-			:placeholder="t('mydash', 'Enter Image URL')"
+			:label="t('launchpad', 'Image URL')"
+			:placeholder="t('launchpad', 'Enter Image URL')"
 			required
 			@update:value="updateField('url', $event)" />
 
@@ -61,12 +61,12 @@
 				type="button"
 				class="image-form__pick-button"
 				:disabled="picking"
-				:aria-label="t('mydash', 'Pick image from Nextcloud Files')"
+				:aria-label="t('launchpad', 'Pick image from Nextcloud Files')"
 				@click="onPickFromFiles">
-				{{ picking ? t('mydash', 'Opening file picker…') : t('mydash', 'Pick from Files') }}
+				{{ picking ? t('launchpad', 'Opening file picker…') : t('launchpad', 'Pick from Files') }}
 			</button>
 			<div v-if="filePath" class="image-form__file-path" aria-live="polite">
-				{{ t('mydash', 'Selected:') }} {{ filePath }}
+				{{ t('launchpad', 'Selected:') }} {{ filePath }}
 			</div>
 			<div v-if="pickError" class="image-form__error" role="alert">
 				{{ pickError }}
@@ -77,26 +77,26 @@
 			<img
 				class="image-form__preview"
 				:src="url"
-				:alt="alt || t('mydash', 'Image')"
+				:alt="alt || t('launchpad', 'Image')"
 				@error="onPreviewError">
 			<div v-if="previewError" class="image-form__preview-error">
-				{{ t('mydash', 'Image failed to load') }}
+				{{ t('launchpad', 'Image failed to load') }}
 			</div>
 		</div>
 
 		<NcTextField
 			:value="alt"
-			:label="t('mydash', 'Alt Text')"
+			:label="t('launchpad', 'Alt Text')"
 			@update:value="updateField('alt', $event)" />
 
 		<NcTextField
 			:value="link"
-			:label="t('mydash', 'Link (optional)')"
+			:label="t('launchpad', 'Link (optional)')"
 			placeholder="https://example.com"
 			@update:value="updateField('link', $event)" />
 
 		<label class="image-form__field">
-			<span class="image-form__label">{{ t('mydash', 'Fit') }}</span>
+			<span class="image-form__label">{{ t('launchpad', 'Fit') }}</span>
 			<select
 				v-model="fit"
 				class="image-form__select"
@@ -146,7 +146,7 @@ const PICKER_MIME_TYPES = Object.freeze([
  *   - URL text input (visible when sourceType=url).
  *   - File upload `<input type="file" accept="image/*">` (visible when
  *     sourceType=upload) — on change, reads the file as a base64 data
- *     URL and POSTs it to `/apps/mydash/api/resources` via
+ *     URL and POSTs it to `/apps/launchpad/api/resources` via
  *     `uploadDataUrl()`. On success `form.url` is set to the response
  *     `{url}`; on failure an inline error appears under the upload
  *     input and `form.url` is left untouched.
@@ -162,9 +162,9 @@ const PICKER_MIME_TYPES = Object.freeze([
  *   - Live preview thumbnail under the source inputs whenever `url` is
  *     non-empty (the upload pipeline and file picker both set `url`).
  *
- * `validate()` returns `[t('mydash', 'Image URL is required')]` when
+ * `validate()` returns `[t('launchpad', 'Image URL is required')]` when
  * the active source type is `url` or `upload` and `form.url.trim() ===
- * ''`, or `[t('mydash', 'Please pick a file from Files')]` when the
+ * ''`, or `[t('launchpad', 'Please pick a file from Files')]` when the
  * active source type is `files` and `filePath` is empty. Otherwise
  * returns an empty array.
  *
@@ -232,10 +232,10 @@ export default {
 		/** @spec openspec/specs/image-widget/spec.md */
 		fitOptions() {
 			return [
-				{ value: 'cover', label: t('mydash', 'Cover') },
-				{ value: 'contain', label: t('mydash', 'Contain') },
-				{ value: 'fill', label: t('mydash', 'Fill') },
-				{ value: 'none', label: t('mydash', 'None') },
+				{ value: 'cover', label: t('launchpad', 'Cover') },
+				{ value: 'contain', label: t('launchpad', 'Contain') },
+				{ value: 'fill', label: t('launchpad', 'Fill') },
+				{ value: 'none', label: t('launchpad', 'None') },
 			]
 		},
 
@@ -317,12 +317,12 @@ export default {
 				// Per spec we surface a single generic message — the
 				// server already produced a stable code we could branch
 				// on, but the proposal explicitly calls out one string.
-				this.uploadError = t('mydash', 'Failed to upload image')
+				this.uploadError = t('launchpad', 'Failed to upload image')
 				if (err instanceof ResourceUploadError) {
 					// Keep a console hint for admins debugging an
 					// upload regression.
 					// eslint-disable-next-line no-console
-					console.warn('[mydash] image upload failed', err.code, err.message)
+					console.warn('[launchpad] image upload failed', err.code, err.message)
 				}
 			} finally {
 				this.uploading = false
@@ -355,7 +355,7 @@ export default {
 			this.pickError = ''
 			try {
 				const dialogs = await import('@nextcloud/dialogs')
-				const builder = dialogs.getFilePickerBuilder(t('mydash', 'Pick image from Files'))
+				const builder = dialogs.getFilePickerBuilder(t('launchpad', 'Pick image from Files'))
 				const picker = builder
 					.setMultiSelect(false)
 					.setMimeTypeFilter([...PICKER_MIME_TYPES])
@@ -373,7 +373,7 @@ export default {
 					? node.path
 					: (typeof node.displayname === 'string' ? '/' + node.displayname : '')
 				if (fileId === null || filePath === '') {
-					this.pickError = t('mydash', 'Selected file is missing required metadata')
+					this.pickError = t('launchpad', 'Selected file is missing required metadata')
 					return
 				}
 				this.fileId = fileId
@@ -395,9 +395,9 @@ export default {
 				// keep the prior selection and stay silent.
 				const isClosed = err && (err.name === 'FilePickerClosed' || err.constructor?.name === 'FilePickerClosed')
 				if (!isClosed) {
-					this.pickError = t('mydash', 'File picker failed to open')
+					this.pickError = t('launchpad', 'File picker failed to open')
 					// eslint-disable-next-line no-console
-					console.warn('[mydash] file picker failed', err)
+					console.warn('[launchpad] file picker failed', err)
 				}
 			} finally {
 				this.picking = false
@@ -431,12 +431,12 @@ export default {
 		validate() {
 			if (this.sourceType === 'files') {
 				if (typeof this.filePath !== 'string' || this.filePath.trim() === '') {
-					return [t('mydash', 'Please pick a file from Files')]
+					return [t('launchpad', 'Please pick a file from Files')]
 				}
 				return []
 			}
 			if (typeof this.url !== 'string' || this.url.trim() === '') {
-				return [t('mydash', 'Image URL is required')]
+				return [t('launchpad', 'Image URL is required')]
 			}
 			return []
 		},

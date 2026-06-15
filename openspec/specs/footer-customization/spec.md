@@ -13,7 +13,7 @@ Footer Customization provides per-instance branding, legal disclaimers, and cont
 
 @e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
 
-### Admin Footer Settings (oc_mydash_admin_settings extended)
+### Admin Footer Settings (oc_launchpad_admin_settings extended)
 
 Settings are stored as key-value pairs:
 - **footer_enabled**: Boolean (default: `false`) — global master toggle
@@ -24,9 +24,9 @@ Settings are stored as key-value pairs:
 
 Each footer setting MAY contain language-tagged variants as a nested map: `{en: "...", nl: "..."}`. Render logic selects matching viewer locale; falls back to first key if no match.
 
-### Dashboard Footer Fields (oc_mydash_dashboards extended)
+### Dashboard Footer Fields (oc_launchpad_dashboards extended)
 
-Extend `oc_mydash_dashboards` table with:
+Extend `oc_launchpad_dashboards` table with:
 - **dashboardFooterMode**: VARCHAR(16), default `'inherit'` — values: `inherit`, `hidden`, `custom`
 - **dashboardFooterHtml**: LONGTEXT, nullable — dashboard-specific footer HTML (only used if mode='custom'); sanitised identically to global HTML
 
@@ -38,10 +38,10 @@ Invariant: if `dashboardFooterMode = 'custom'`, then `dashboardFooterHtml` MUST 
 
 Administrators MUST be able to globally enable or disable the footer on all dashboards via the `footer_enabled` setting.
 
-> NOTE (MyDash vs source — D1): The source application stores footer content as a single per-language file (`{lang}/footer.json`) on the filesystem. MyDash deliberately departs from this pattern: all five footer settings (`footer_enabled`, `footer_html`, `footer_config`, `footer_background_color`, `footer_text_color`) are stored as admin settings keys, not in the filesystem. This is because MyDash dashboards may be backed by either the database or a GroupFolder; a filesystem-only path is not a universal anchor. Admin settings provide a single authoritative store regardless of the active storage backend (source-confirmed: `FooterService.php:81-168` takes no `pageId` argument and operates on one global footer per language).
+> NOTE (LaunchPad vs source — D1): The source application stores footer content as a single per-language file (`{lang}/footer.json`) on the filesystem. LaunchPad deliberately departs from this pattern: all five footer settings (`footer_enabled`, `footer_html`, `footer_config`, `footer_background_color`, `footer_text_color`) are stored as admin settings keys, not in the filesystem. This is because LaunchPad dashboards may be backed by either the database or a GroupFolder; a filesystem-only path is not a universal anchor. Admin settings provide a single authoritative store regardless of the active storage backend (source-confirmed: `FooterService.php:81-168` takes no `pageId` argument and operates on one global footer per language).
 
 #### Scenario: Footer disabled by default
-- GIVEN a fresh MyDash installation
+- GIVEN a fresh LaunchPad installation
 - WHEN any user views a dashboard
 - THEN the footer MUST NOT be rendered
 - AND `footer_enabled` MUST default to `false` in the settings table
@@ -221,7 +221,7 @@ HTML MUST be sanitised according to a strict allowlist before storage and render
 
 Dashboard owners MUST be able to override the global footer on their own dashboard using three modes: inherit (global), hidden (no footer), or custom (dashboard-specific HTML).
 
-> NOTE (MyDash addition — D2): This entire requirement is a MyDash-original feature with no counterpart in the source. The source application has no per-page footer concept; `FooterController.php` `get()` and `save()` accept no `pageId` or `uniqueId` parameter, and `PageService.php` explicitly excludes `footer.json` from page listings. The two new columns (`dashboardFooterMode VARCHAR(16)` default `'inherit'`, `dashboardFooterHtml MEDIUMTEXT NULL`) are stored on `oc_mydash_dashboards`. Write permission for the override is controlled by dashboard ownership (not GroupFolder ACL — the source's `$languageFolder->isUpdateable()` ACL pattern does not apply here because MyDash write permission is governed by the `admin-roles` capability for global settings and dashboard ownership for per-dashboard fields).
+> NOTE (LaunchPad addition — D2): This entire requirement is a LaunchPad-original feature with no counterpart in the source. The source application has no per-page footer concept; `FooterController.php` `get()` and `save()` accept no `pageId` or `uniqueId` parameter, and `PageService.php` explicitly excludes `footer.json` from page listings. The two new columns (`dashboardFooterMode VARCHAR(16)` default `'inherit'`, `dashboardFooterHtml MEDIUMTEXT NULL`) are stored on `oc_launchpad_dashboards`. Write permission for the override is controlled by dashboard ownership (not GroupFolder ACL — the source's `$languageFolder->isUpdateable()` ACL pattern does not apply here because LaunchPad write permission is governed by the `admin-roles` capability for global settings and dashboard ownership for per-dashboard fields).
 
 #### Scenario: Dashboard with inherit mode (default)
 - GIVEN a dashboard with `dashboardFooterMode = 'inherit'` (or NULL)
@@ -268,7 +268,7 @@ Footer content MUST support language-tagged variants. The footer renderer MUST s
 2. Dashboard's primary language (the `primaryLanguage` field from the `dashboard-language-content` capability), if the viewer's locale key is absent from the variant map.
 3. First key in the variant map, if neither step 1 nor step 2 yields a match.
 
-> NOTE (source-confirmed fallback — D3): The source application stores a single `footer.json` per language root with no multi-language variant map inside it. The three-step fallback chain above is therefore a MyDash addition. Steps 1–3 are the authoritative resolution order; implementations MUST NOT skip step 2 and fall directly to step 3.
+> NOTE (source-confirmed fallback — D3): The source application stores a single `footer.json` per language root with no multi-language variant map inside it. The three-step fallback chain above is therefore a LaunchPad addition. Steps 1–3 are the authoritative resolution order; implementations MUST NOT skip step 2 and fall directly to step 3.
 
 #### Scenario: Single-language footer (default)
 - GIVEN `footer_html = "<p>Welcome</p>"` (plain string, not a map)

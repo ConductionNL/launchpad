@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,12 +8,12 @@
 		<NcSelect
 			:value="viewMode"
 			:options="viewModeOptions"
-			:input-label="t('mydash', 'View Mode')"
+			:input-label="t('launchpad', 'View Mode')"
 			:clearable="false"
 			@input="updateField('viewMode', $event)" />
 
 		<label class="calendar-form__field">
-			<span class="calendar-form__label">{{ t('mydash', 'Internal Calendars (one principal URI per line)') }}</span>
+			<span class="calendar-form__label">{{ t('launchpad', 'Internal Calendars (one principal URI per line)') }}</span>
 			<textarea
 				class="calendar-form__textarea"
 				:value="internalCalendarsText"
@@ -22,7 +22,7 @@
 		</label>
 
 		<label class="calendar-form__field">
-			<span class="calendar-form__label">{{ t('mydash', 'External ICS URLs (one per line)') }}</span>
+			<span class="calendar-form__label">{{ t('launchpad', 'External ICS URLs (one per line)') }}</span>
 			<textarea
 				class="calendar-form__textarea"
 				:value="externalIcsUrlsText"
@@ -33,14 +33,14 @@
 
 		<NcTextField
 			:value="String(daysAhead)"
-			:label="t('mydash', 'Days Ahead')"
+			:label="t('launchpad', 'Days Ahead')"
 			placeholder="14"
 			@update:value="updateNumber('daysAhead', $event)" />
 
 		<NcCheckboxRadioSwitch
 			:checked="colorByCalendar"
 			@update:checked="updateField('colorByCalendar', $event)">
-			{{ t('mydash', 'Color by Calendar') }}
+			{{ t('launchpad', 'Color by Calendar') }}
 		</NcCheckboxRadioSwitch>
 	</div>
 </template>
@@ -174,12 +174,12 @@ export default {
 			const errors = []
 
 			if (this.internalCalendars.length === 0 && this.externalIcsUrls.length === 0) {
-				errors.push(t('mydash', 'At least one calendar source is required'))
+				errors.push(t('launchpad', 'At least one calendar source is required'))
 			}
 
 			for (const url of this.externalIcsUrls) {
 				if (!/^https:\/\/[^\s/]+/i.test(url)) {
-					errors.push(t('mydash', 'External ICS URLs must start with https://'))
+					errors.push(t('launchpad', 'External ICS URLs must start with https://'))
 					break
 				}
 			}

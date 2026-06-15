@@ -3,14 +3,14 @@
 /**
  * InitialStateBuilder
  *
- * Centralises the per-page initial-state contract for MyDash. This is the
+ * Centralises the per-page initial-state contract for LaunchPad. This is the
  * only class allowed to call {@see \OCP\AppFramework\Services\IInitialState::provideInitialState()};
  * a CI grep lint enforces that against `lib/Controller/` and `lib/Settings/`.
  *
  * Construct one builder per render with the destination page, call the
  * typed setters, then `apply()`. `apply()` validates that every required
  * key for the chosen page has been set, throwing
- * {@see \OCA\MyDash\Exception\MissingInitialStateException} when any are
+ * {@see \OCA\LaunchPad\Exception\MissingInitialStateException} when any are
  * missing — the page never renders with a partial payload.
  *
  * The contract version is stamped onto every payload under the key
@@ -19,7 +19,7 @@
  * with the matching constant in `src/utils/loadInitialState.js`. See
  * REQ-INIT-002 for the rules.
  *
- * Workspace page (`#mydash-app`) keys:
+ * Workspace page (`#launchpad-app`) keys:
  *  - widgets             — array of dashboard widget descriptors
  *  - layout              — array of WidgetPlacement rows for the active dashboard
  *  - primaryGroup        — group id of the user's resolved primary group
@@ -31,7 +31,7 @@
  *  - userDashboards      — list of user-scope (personal) dashboards
  *  - allowUserDashboards — admin flag toggling the personal-dashboards UI
  *
- * Admin page (`#mydash-admin-settings`) keys:
+ * Admin page (`#launchpad-admin-settings`) keys:
  *  - allGroups                — every Nextcloud group, for the ordering UI
  *  - configuredGroups         — group ids the admin has explicitly ordered
  *  - widgets                  — every available dashboard widget descriptor
@@ -42,7 +42,7 @@
  * Both payloads always carry `_schemaVersion`.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -51,16 +51,16 @@
  *
  * @link https://conduction.nl/openspec/initial-state-contract REQ-INIT-002
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Exception\MissingInitialStateException;
-use OCA\MyDash\Service\InitialState\Page;
+use OCA\LaunchPad\Exception\MissingInitialStateException;
+use OCA\LaunchPad\Service\InitialState\Page;
 use OCP\AppFramework\Services\IInitialState;
 
 /**

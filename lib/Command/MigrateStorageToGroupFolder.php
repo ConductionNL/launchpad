@@ -9,7 +9,7 @@
  * the `content` column to the GroupFolder backend, and reports progress.
  *
  * @category Command
- * @package  OCA\MyDash\Command
+ * @package  OCA\LaunchPad\Command
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,12 +22,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\CommandService;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFolderContentStorage;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFolderContentStorage;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

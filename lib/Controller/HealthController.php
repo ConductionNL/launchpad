@@ -6,7 +6,7 @@
  * Controller for exposing health check status.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,9 +16,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IDBConnection;
@@ -55,7 +55,7 @@ class HealthController extends Controller
      *
      * @NoCSRFRequired
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-27
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-27
      */
     public function index(): JSONResponse
     {

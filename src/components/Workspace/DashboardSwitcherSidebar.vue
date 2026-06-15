@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -56,11 +56,11 @@
 		:class="{ open: isOpen }"
 		role="navigation"
 		:aria-hidden="ariaHiddenAttr"
-		:aria-label="t('mydash', 'Dashboards')"
+		:aria-label="t('launchpad', 'Dashboards')"
 		@keydown.esc="onEscClose">
 		<div class="dashboard-switcher-sidebar__header">
 			<h2 class="dashboard-switcher-sidebar__title">
-				{{ t('mydash', 'Dashboards') }}
+				{{ t('launchpad', 'Dashboards') }}
 			</h2>
 			<!--
 				Wave3.6 moved the per-dashboard actions out of the header
@@ -73,7 +73,7 @@
 			<button
 				type="button"
 				class="dashboard-switcher-sidebar__close"
-				:aria-label="t('mydash', 'Close')"
+				:aria-label="t('launchpad', 'Close')"
 				@click="onCloseClick">
 				<Close :size="20" />
 			</button>
@@ -129,8 +129,8 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
-							:aria-label="t('mydash', 'Default dashboard')">
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
@@ -161,7 +161,7 @@
 				class="dashboard-switcher-sidebar__section"
 				data-section="default">
 				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('mydash', 'Default') }}
+					{{ t('launchpad', 'Default') }}
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
@@ -182,8 +182,8 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
-							:aria-label="t('mydash', 'Default dashboard')">
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
@@ -214,7 +214,7 @@
 				class="dashboard-switcher-sidebar__section"
 				data-section="user">
 				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('mydash', 'My Dashboards') }}
+					{{ t('launchpad', 'My Dashboards') }}
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
@@ -235,8 +235,8 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
-							:aria-label="t('mydash', 'Default dashboard')">
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
@@ -268,13 +268,22 @@
 						type="outline"
 						wide
 						data-action="create"
-						:aria-label="t('mydash', 'Add dashboard')"
+						data-testid="add-dashboard-button"
+						:disabled="dashboardQuotaReached"
+						:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
+						:aria-label="dashboardQuotaReached ? dashboardQuotaTooltip : t('launchpad', 'Add dashboard')"
 						@click="onCreate">
 						<template #icon>
 							<Plus :size="20" />
 						</template>
-						{{ t('mydash', 'Add dashboard') }}
+						{{ t('launchpad', 'Add dashboard') }}
 					</NcButton>
+					<p
+						v-if="dashboardQuotaReached"
+						class="dashboard-switcher-sidebar__quota-hint"
+						data-testid="dashboard-quota-hint">
+						{{ dashboardQuotaTooltip }}
+					</p>
 				</div>
 			</section>
 		</div>
@@ -434,6 +443,25 @@ export default {
 			default: 'dashboards',
 			validator: v => ['dashboards', 'catalog'].includes(v),
 		},
+
+		/**
+		 * dashboard-quota-limits REQ-QUOTA-006: when true the user is at
+		 * their per-user dashboard limit, so the "Add dashboard" affordance
+		 * is disabled. Default false ⇒ unlimited instances are unaffected.
+		 */
+		dashboardQuotaReached: {
+			type: Boolean,
+			default: false,
+		},
+
+		/**
+		 * dashboard-quota-limits REQ-QUOTA-006: localised tooltip explaining
+		 * the limit, shown on the disabled "Add dashboard" affordance.
+		 */
+		dashboardQuotaTooltip: {
+			type: String,
+			default: '',
+		},
 	},
 
 	emits: [
@@ -469,7 +497,7 @@ export default {
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		primaryGroupHeading() {
-			return this.groupName || t('mydash', 'Dashboards')
+			return this.groupName || t('launchpad', 'Dashboards')
 		},
 
 		/**
@@ -483,7 +511,7 @@ export default {
 
 		/**
 		 * UUID of the row the resolver would land the user on at
-		 * `/apps/mydash/`. Mirrors the backend's resolver precedence
+		 * `/apps/launchpad/`. Mirrors the backend's resolver precedence
 		 * (steps 0..5) up to the group fallback so the star stays in
 		 * sync with what the user will actually see when they navigate
 		 * cold. Personal dashboards (step 6) are intentionally NOT
@@ -544,7 +572,7 @@ export default {
 
 		/**
 		 * Whether `dashboard` is the row the resolver would land the
-		 * user on when they visit `/apps/mydash/`. The sidebar marks it
+		 * user on when they visit `/apps/launchpad/`. The sidebar marks it
 		 * with a star so the effective default is visible at a glance
 		 * instead of buried in the cog menu.
 		 *
@@ -606,6 +634,13 @@ export default {
 		 */
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onCreate() {
+			// dashboard-quota-limits REQ-QUOTA-006: belt-and-braces — the
+			// button is already disabled at the limit, but never emit the
+			// create event when over quota even if a stale render slipped
+			// through. The server 409 remains authoritative regardless.
+			if (this.dashboardQuotaReached) {
+				return
+			}
 			this.$emit('update:open', false)
 			this.$emit('create-dashboard')
 		},

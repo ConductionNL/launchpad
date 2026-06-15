@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,7 +7,7 @@
 	<div class="video-form">
 		<NcTextField
 			:value="videoUrl"
-			:label="t('mydash', 'Video URL')"
+			:label="t('launchpad', 'Video URL')"
 			placeholder="https://www.youtube.com/watch?v=..."
 			required
 			@update:value="onUrlInput" />
@@ -16,18 +16,18 @@
 			{{ detectedSourceLabel }}
 		</div>
 		<div v-else-if="hasUrl" class="video-form__error" role="alert">
-			{{ t('mydash', 'Invalid video URL or domain not allowed.') }}
+			{{ t('launchpad', 'Invalid video URL or domain not allowed.') }}
 		</div>
 
 		<NcTextField
 			v-if="sourceType === 'nc-file'"
 			:value="String(fileId || '')"
-			:label="t('mydash', 'Nextcloud File ID')"
+			:label="t('launchpad', 'Nextcloud File ID')"
 			placeholder="12345"
 			@update:value="onFileIdInput" />
 
 		<label class="video-form__field">
-			<span class="video-form__label">{{ t('mydash', 'Aspect Ratio') }}</span>
+			<span class="video-form__label">{{ t('launchpad', 'Aspect Ratio') }}</span>
 			<select
 				v-model="aspectRatio"
 				class="video-form__select"
@@ -43,10 +43,10 @@
 				type="checkbox"
 				:checked="autoplay"
 				@change="onAutoplayToggle($event.target.checked)">
-			{{ t('mydash', 'Autoplay') }}
+			{{ t('launchpad', 'Autoplay') }}
 		</label>
 		<div v-if="autoplay" class="video-form__hint">
-			{{ t('mydash', 'Autoplay requires muting') }}
+			{{ t('launchpad', 'Autoplay requires muting') }}
 		</div>
 
 		<label class="video-form__checkbox">
@@ -55,7 +55,7 @@
 				:checked="muted"
 				:disabled="autoplay"
 				@change="updateField('muted', $event.target.checked)">
-			{{ t('mydash', 'Muted') }}
+			{{ t('launchpad', 'Muted') }}
 		</label>
 
 		<label class="video-form__checkbox">
@@ -63,7 +63,7 @@
 				type="checkbox"
 				:checked="loop"
 				@change="updateField('loop', $event.target.checked)">
-			{{ t('mydash', 'Loop') }}
+			{{ t('launchpad', 'Loop') }}
 		</label>
 
 		<label class="video-form__checkbox">
@@ -71,12 +71,12 @@
 				type="checkbox"
 				:checked="controls"
 				@change="updateField('controls', $event.target.checked)">
-			{{ t('mydash', 'Show controls') }}
+			{{ t('launchpad', 'Show controls') }}
 		</label>
 
 		<NcTextField
 			:value="posterUrl"
-			:label="t('mydash', 'Poster Image URL (optional)')"
+			:label="t('launchpad', 'Poster Image URL (optional)')"
 			placeholder="https://example.com/poster.jpg"
 			@update:value="updateField('posterUrl', $event)" />
 	</div>
@@ -120,8 +120,8 @@ const DEFAULT_CONTENT = Object.freeze({
  *     muted=true (REQ-VID-008) and disables the muted checkbox.
  *   - Poster Image URL — optional, applied to HTML5 video tag only.
  *
- * `validate()` returns `[t('mydash', 'Video URL is required')]` when the
- * primary URL field is empty and `[t('mydash', 'Invalid video URL or
+ * `validate()` returns `[t('launchpad', 'Video URL is required')]` when the
+ * primary URL field is empty and `[t('launchpad', 'Invalid video URL or
  * domain not allowed.')]` when the URL does not parse to a known source.
  */
 export default {
@@ -178,13 +178,13 @@ export default {
 		detectedSourceLabel() {
 			switch (this.detectedSource) {
 			case 'youtube':
-				return t('mydash', 'Detected: YouTube')
+				return t('launchpad', 'Detected: YouTube')
 			case 'vimeo':
-				return t('mydash', 'Detected: Vimeo')
+				return t('launchpad', 'Detected: Vimeo')
 			case 'peertube':
-				return t('mydash', 'Detected: PeerTube')
+				return t('launchpad', 'Detected: PeerTube')
 			case 'nc-file':
-				return t('mydash', 'Detected: Nextcloud File')
+				return t('launchpad', 'Detected: Nextcloud File')
 			default:
 				return ''
 			}
@@ -287,15 +287,15 @@ export default {
 		validate() {
 			const errors = []
 			if (!this.hasUrl) {
-				errors.push(t('mydash', 'Video URL is required'))
+				errors.push(t('launchpad', 'Video URL is required'))
 				return errors
 			}
 			if (this.detectedSource === null) {
-				errors.push(t('mydash', 'Invalid video URL or domain not allowed.'))
+				errors.push(t('launchpad', 'Invalid video URL or domain not allowed.'))
 				return errors
 			}
 			if (this.detectedSource === 'nc-file' && this.fileId === null) {
-				errors.push(t('mydash', 'Nextcloud file ID is required'))
+				errors.push(t('launchpad', 'Nextcloud file ID is required'))
 			}
 			return errors
 		},

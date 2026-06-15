@@ -1,7 +1,7 @@
 publiccodeYmlVersion: "0.4"
 
-name: MyDash
-url: "https://github.com/ConductionNL/mydash"
+name: LaunchPad
+url: "https://github.com/ConductionNL/launchpad"
 softwareVersion: "1.0.5"
 releaseDate: "2026-05-26"
 developmentStatus: beta
@@ -19,10 +19,10 @@ description:
     shortDescription: >
       Business intelligence dashboard and data visualisation for Nextcloud.
     longDescription: >
-      MyDash is a business intelligence and dashboard application for Nextcloud.
+      LaunchPad is a business intelligence and dashboard application for Nextcloud.
       It enables organisations to create and manage customisable dashboards with
       charts, graphs, and KPI widgets. Data is sourced via GraphQL from Open Register
-      and other connected data sources. MyDash is designed for operational reporting
+      and other connected data sources. LaunchPad is designed for operational reporting
       and monitoring in both government and commercial organisations.
     features:
       - Customisable dashboards with charts and KPI widgets
@@ -34,10 +34,10 @@ description:
     shortDescription: >
       Business intelligence-dashboard en datavisualisatie voor Nextcloud.
     longDescription: >
-      MyDash is een business intelligence- en dashboardtoepassing voor Nextcloud.
+      LaunchPad is een business intelligence- en dashboardtoepassing voor Nextcloud.
       Het stelt organisaties in staat aanpasbare dashboards te maken en te beheren
       met grafieken, diagrammen en KPI-widgets. Gegevens worden via GraphQL
-      opgehaald uit Open Register en andere gekoppelde databronnen. MyDash is
+      opgehaald uit Open Register en andere gekoppelde databronnen. LaunchPad is
       ontworpen voor operationele rapportage en monitoring in zowel overheids- als
       commerciële organisaties.
     features:

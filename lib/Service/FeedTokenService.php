@@ -8,24 +8,24 @@
  * soft-revocation, and the atomic "revoke + reissue" rotation flow.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\FeedToken;
-use OCA\MyDash\Db\FeedTokenMapper;
+use OCA\LaunchPad\Db\FeedToken;
+use OCA\LaunchPad\Db\FeedTokenMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use Psr\Log\LoggerInterface;
@@ -82,7 +82,7 @@ class FeedTokenService
 
         // The findByUserId filter is `revoked_at IS NULL`; the user
         // could still have prior soft-revoked rows that the unique
-        // constraint (`mydash_feed_tok_user_uq`) would block on the
+        // constraint (`launchpad_feed_tok_user_uq`) would block on the
         // next insert. Drop them before creating a fresh active token.
         $this->mapper->deleteAllForUser(userId: $userId);
         return $this->createToken(userId: $userId);
@@ -106,7 +106,7 @@ class FeedTokenService
         try {
             // Hard-delete every existing row for this user (active +
             // any previously soft-revoked) so the next insert doesn't
-            // collide with the `mydash_feed_tok_user_uq` constraint.
+            // collide with the `launchpad_feed_tok_user_uq` constraint.
             // Feed tokens are user secrets — losing revoke history is
             // acceptable; running into a 500 on regenerate is not.
             $this->mapper->deleteAllForUser(userId: $userId);
@@ -118,7 +118,7 @@ class FeedTokenService
             $this->logger->error(
                 message: 'Failed to regenerate feed token',
                 context: [
-                    'app'       => 'mydash',
+                    'app'       => 'launchpad',
                     'userId'    => $userId,
                     'exception' => $exception->getMessage(),
                 ]

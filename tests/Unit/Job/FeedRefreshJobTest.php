@@ -3,17 +3,17 @@
 /**
  * FeedRefreshJobTest
  *
- * Unit tests for the {@see \OCA\MyDash\Job\FeedRefreshJob} TimedJob —
+ * Unit tests for the {@see \OCA\LaunchPad\Job\FeedRefreshJob} TimedJob —
  * interval clamping (REQ-FRJ-002), global lock acquisition and release
  * (REQ-FRJ-007), and graceful skip on a held lock.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Job
+ * @package   OCA\LaunchPad\Tests\Unit\Job
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace Unit\Job;
 
-use OCA\MyDash\Job\FeedRefreshJob;
-use OCA\MyDash\Service\FeedRefreshService;
+use OCA\LaunchPad\Job\FeedRefreshJob;
+use OCA\LaunchPad\Service\FeedRefreshService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IAppConfig;
 use OCP\Lock\ILockingProvider;

@@ -16,12 +16,12 @@ This app is developed using the [nextcloud-docker-dev](https://github.com/julius
 docker compose -f openregister/docker-compose.yml up -d
 
 # Build the frontend
-cd mydash
+cd launchpad
 npm install
 npm run dev
 ```
 
-The app will be available at `http://localhost:8080/apps/mydash`.
+The app will be available at `http://localhost:8080/apps/launchpad`.
 
 ## Frontend Build
 
@@ -33,7 +33,7 @@ npm run build        # Production build
 
 ## Product Page
 
-The product page at [mydash.app](https://mydash.app) is built with [Docusaurus 3](https://docusaurus.io/) and deployed via GitHub Pages.
+The product page at [launchpad.app](https://launchpad.app) is built with [Docusaurus 3](https://docusaurus.io/) and deployed via GitHub Pages.
 
 ### How it works
 
@@ -41,7 +41,7 @@ The product page at [mydash.app](https://mydash.app) is built with [Docusaurus 3
 - Documentation content comes from the `docs/` folder at the project root — **not** duplicated inside `docusaurus/`
 - The Docusaurus config uses `path: '../docs'` to reference the root docs directly
 - Pushing to the `development` branch triggers the GitHub Actions workflow (`.github/workflows/documentation.yml`) which builds and deploys to the `gh-pages` branch
-- GitHub Pages serves the built site at `mydash.app` (configured via `static/CNAME`)
+- GitHub Pages serves the built site at `launchpad.app` (configured via `static/CNAME`)
 
 ### Local preview
 

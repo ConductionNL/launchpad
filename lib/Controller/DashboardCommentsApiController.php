@@ -11,29 +11,29 @@
  *   - DELETE soft-delete with cascade for top-level
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Exception\CommentForbiddenException;
-use OCA\MyDash\Exception\CommentNotFoundException;
-use OCA\MyDash\Exception\InvalidCommentException;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\CommentService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Exception\CommentForbiddenException;
+use OCA\LaunchPad\Exception\CommentNotFoundException;
+use OCA\LaunchPad\Exception\InvalidCommentException;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\CommentService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;

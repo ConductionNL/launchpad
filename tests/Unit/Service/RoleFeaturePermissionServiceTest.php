@@ -9,12 +9,12 @@
  * (REQ-RFP-002 scenario 3).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,15 +22,15 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\RoleFeaturePermission;
-use OCA\MyDash\Db\RoleFeaturePermissionMapper;
-use OCA\MyDash\Db\RoleLayoutDefault;
-use OCA\MyDash\Db\RoleLayoutDefaultMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\RoleFeaturePermission;
+use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
+use OCA\LaunchPad\Db\RoleLayoutDefault;
+use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUser;

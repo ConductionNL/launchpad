@@ -6,17 +6,17 @@ status: draft
 
 ## Purpose
 
-Surface MyDash events in Nextcloud's standard Activity feed so every action on a dashboard — creation, editing, publication, sharing, commenting, locking, and role changes — is visible to the relevant users in their NC notifications and activity stream. This capability defines the NC Activity extension class, all event-type constants, audience-targeting rules, debounce logic, subject/message templates, icon conventions, the cross-capability emission contract, and the unit-test contract. Actual `publishActivity()` call-sites are delegated to the sibling capability that owns each action.
+Surface LaunchPad events in Nextcloud's standard Activity feed so every action on a dashboard — creation, editing, publication, sharing, commenting, locking, and role changes — is visible to the relevant users in their NC notifications and activity stream. This capability defines the NC Activity extension class, all event-type constants, audience-targeting rules, debounce logic, subject/message templates, icon conventions, the cross-capability emission contract, and the unit-test contract. Actual `publishActivity()` call-sites are delegated to the sibling capability that owns each action.
 
 ## Data Model
 
-No new database tables. NC Activity persists events in the existing `oc_activity` table (managed by NC core). Each MyDash event row carries:
+No new database tables. NC Activity persists events in the existing `oc_activity` table (managed by NC core). Each LaunchPad event row carries:
 
-- **app**: `'mydash'`
+- **app**: `'launchpad'`
 - **type**: one of the 13 `Extension::EVENT_*` constants
 - **user**: the NC user ID of the recipient
 - **affecteduser**: the NC user ID of the actor
-- **object_type**: `'mydash_dashboard'`
+- **object_type**: `'launchpad_dashboard'`
 - **object_id**: the dashboard UUID (string)
 - **subject**: translated template key
 - **subjectparams**: JSON-encoded parameter array consumed by NC Activity's translation layer
@@ -28,19 +28,19 @@ No new database tables. NC Activity persists events in the existing `oc_activity
 
 ### Requirement: REQ-ACT-001 Extension Registration
 
-The system MUST register a class `\OCA\MyDash\Activity\Extension` that implements `OCP\Activity\IProvider` and is declared in `appinfo/info.xml` under the `<activity>` section with application id `mydash`. The extension MUST be resolvable from the NC DI container at runtime.
+The system MUST register a class `\OCA\LaunchPad\Activity\Extension` that implements `OCP\Activity\IProvider` and is declared in `appinfo/info.xml` under the `<activity>` section with application id `launchpad`. The extension MUST be resolvable from the NC DI container at runtime.
 
 #### Scenario: Extension resolves from DI container
 
-- GIVEN MyDash is installed and enabled
+- GIVEN LaunchPad is installed and enabled
 - WHEN NC Activity attempts to resolve the registered provider via the DI container
-- THEN it MUST receive an instance of `\OCA\MyDash\Activity\Extension` without error
+- THEN it MUST receive an instance of `\OCA\LaunchPad\Activity\Extension` without error
 
 #### Scenario: Extension is listed in NC Activity admin settings
 
-- GIVEN MyDash is installed
+- GIVEN LaunchPad is installed
 - WHEN an administrator opens NC Settings → Activity
-- THEN the MyDash extension MUST appear as a registered application with its 13 event types visible for per-type opt-out configuration
+- THEN the LaunchPad extension MUST appear as a registered application with its 13 event types visible for per-type opt-out configuration
 
 #### Scenario: Unknown event type does not throw
 
@@ -52,19 +52,19 @@ The system MUST register a class `\OCA\MyDash\Activity\Extension` that implement
 
 - GIVEN any of the 13 known event type strings is passed to `Extension::getIcon()`
 - WHEN the method executes
-- THEN it MUST return a non-empty absolute URL string pointing to an SVG resource served by MyDash
+- THEN it MUST return a non-empty absolute URL string pointing to an SVG resource served by LaunchPad
 
 #### Scenario: `getIcon()` falls back for unknown types
 
 - GIVEN an unknown event type string is passed to `Extension::getIcon()`
 - WHEN the method executes
-- THEN it MUST return the URL to the generic MyDash activity icon (`img/activity/mydash.svg`)
+- THEN it MUST return the URL to the generic LaunchPad activity icon (`img/activity/launchpad.svg`)
 
 ### Requirement: REQ-ACT-002 Event-Type Catalogue
 
-The system MUST define exactly 13 event-type constants on `\OCA\MyDash\Activity\Extension`, grouped in a static `ALL_EVENTS` array, covering the full set of trackable MyDash actions. No event type may be emitted by `ActivityPublisher` unless it is declared in `ALL_EVENTS`.
+The system MUST define exactly 13 event-type constants on `\OCA\LaunchPad\Activity\Extension`, grouped in a static `ALL_EVENTS` array, covering the full set of trackable LaunchPad actions. No event type may be emitted by `ActivityPublisher` unless it is declared in `ALL_EVENTS`.
 
-NOTE: The 13 types split into two groups by origin. Five are direct ports of source-application event types, renamed to the `dashboard_*` prefix: `dashboard_created`, `dashboard_updated`, `dashboard_deleted`, `dashboard_commented`, `dashboard_reacted`. Eight are MyDash-native additions that emerge from sibling capabilities with no source-app counterpart: `dashboard_published`, `dashboard_unpublished`, `dashboard_scheduled` (from `dashboard-draft-published`), `dashboard_shared` (from `dashboard-sharing`), `dashboard_public_share_created` (from `dashboard-public-share`), `dashboard_restored` (from `dashboard-versioning`), `dashboard_lock_overridden` (from `dashboard-locking`), `dashboard_role_changed` (from `admin-roles`). The catalogue is intentionally larger than the source; the additions are deliberate product extensions, not gaps or errors.
+NOTE: The 13 types split into two groups by origin. Five are direct ports of source-application event types, renamed to the `dashboard_*` prefix: `dashboard_created`, `dashboard_updated`, `dashboard_deleted`, `dashboard_commented`, `dashboard_reacted`. Eight are LaunchPad-native additions that emerge from sibling capabilities with no source-app counterpart: `dashboard_published`, `dashboard_unpublished`, `dashboard_scheduled` (from `dashboard-draft-published`), `dashboard_shared` (from `dashboard-sharing`), `dashboard_public_share_created` (from `dashboard-public-share`), `dashboard_restored` (from `dashboard-versioning`), `dashboard_lock_overridden` (from `dashboard-locking`), `dashboard_role_changed` (from `admin-roles`). The catalogue is intentionally larger than the source; the additions are deliberate product extensions, not gaps or errors.
 
 NOTE: `dashboard_viewed` is NOT in the catalogue and MUST NOT be added. View tracking is owned exclusively by the `dashboard-view-analytics` capability. Publishing view events to the Activity stream would flood notification inboxes on widely-shared dashboards with passive, non-actionable data.
 
@@ -96,13 +96,13 @@ NOTE: `dashboard_viewed` is NOT in the catalogue and MUST NOT be added. View tra
 
 ### Requirement: REQ-ACT-003 `publishActivity` Contract
 
-The system MUST provide `\OCA\MyDash\Activity\ActivityPublisher` as the sole entry point for emitting MyDash activity events. It MUST delegate to `OCP\Activity\IManager::publishActivity()` and MUST NOT write to `oc_activity` directly. All fields required by NC Activity (`app`, `type`, `author`, `affecteduser`, `object_type`, `object_id`, `subject`, `message`, `link`, `timestamp`) MUST be set before the call.
+The system MUST provide `\OCA\LaunchPad\Activity\ActivityPublisher` as the sole entry point for emitting LaunchPad activity events. It MUST delegate to `OCP\Activity\IManager::publishActivity()` and MUST NOT write to `oc_activity` directly. All fields required by NC Activity (`app`, `type`, `author`, `affecteduser`, `object_type`, `object_id`, `subject`, `message`, `link`, `timestamp`) MUST be set before the call.
 
 #### Scenario: Correct fields populated on IEvent
 
-- GIVEN `ActivityPublisher::publish('dashboard_updated', 'alice', 'uuid-1', 'Marketing', 'https://nc.example/apps/mydash#uuid-1')` is called
+- GIVEN `ActivityPublisher::publish('dashboard_updated', 'alice', 'uuid-1', 'Marketing', 'https://nc.example/apps/launchpad#uuid-1')` is called
 - WHEN `IManager::publishActivity()` is invoked internally
-- THEN the `IEvent` passed to it MUST have: `app = 'mydash'`, `type = 'dashboard_updated'`, `object_type = 'mydash_dashboard'`, `object_id = 'uuid-1'`, `link = 'https://nc.example/apps/mydash#uuid-1'`
+- THEN the `IEvent` passed to it MUST have: `app = 'launchpad'`, `type = 'dashboard_updated'`, `object_type = 'launchpad_dashboard'`, `object_id = 'uuid-1'`, `link = 'https://nc.example/apps/launchpad#uuid-1'`
 
 #### Scenario: ActivityPublisher never uses static IManager access
 
@@ -254,7 +254,7 @@ The system MUST apply a debounce per `(actorUserId, dashboardUuid)` pair to `das
 
 #### Scenario: Debounce TTL expires and next reaction is allowed
 
-- GIVEN "bob" reacted to dashboard `abc` and the APCu key `mydash_act_react_bob_abc` has expired (TTL 900 s elapsed)
+- GIVEN "bob" reacted to dashboard `abc` and the APCu key `launchpad_act_react_bob_abc` has expired (TTL 900 s elapsed)
 - WHEN "bob" reacts again
 - THEN `allowReaction('bob', 'abc')` MUST return true
 - AND one row MUST be written
@@ -295,12 +295,12 @@ For events on dashboards with `groupId = 'default'`, the system MUST apply a deb
 
 ### Requirement: REQ-ACT-009 User Opt-Out via NC Settings
 
-The system MUST register each of the 13 event types with NC Activity's per-type notification preference system. Users MUST be able to independently disable in-app notifications and email notifications for each type via the standard NC Settings → Activity UI, with no custom MyDash preferences page required.
+The system MUST register each of the 13 event types with NC Activity's per-type notification preference system. Users MUST be able to independently disable in-app notifications and email notifications for each type via the standard NC Settings → Activity UI, with no custom LaunchPad preferences page required.
 
 #### Scenario: Default notification preferences for a new user
 
 - GIVEN a new NC user "frank" with no prior Activity preferences
-- WHEN MyDash emits any activity event addressed to "frank"
+- WHEN LaunchPad emits any activity event addressed to "frank"
 - THEN in-app notification MUST be enabled (default on) for all 13 types
 - AND email notification MUST be disabled (default off) for all 13 types
 
@@ -316,7 +316,7 @@ The system MUST register each of the 13 event types with NC Activity's per-type 
 - GIVEN "frank" has enabled email delivery for `dashboard_shared`
 - WHEN a dashboard is shared with him
 - THEN NC's Activity email job MUST include this event in "frank"'s next digest
-- NOTE: Email sending is NC's responsibility; MyDash only controls whether the row is written with the correct type
+- NOTE: Email sending is NC's responsibility; LaunchPad only controls whether the row is written with the correct type
 
 #### Scenario: Opt-out state is per-user and per-type
 
@@ -350,10 +350,10 @@ The system MUST define a complete set of translated subject and message template
 
 #### Scenario: Missing translation key falls back to English
 
-- GIVEN a user has an NC locale set to a language other than `en` or `nl` that MyDash has not translated
+- GIVEN a user has an NC locale set to a language other than `en` or `nl` that LaunchPad has not translated
 - WHEN their activity row is rendered
 - THEN NC Activity MUST fall back to the English template
-- NOTE: This is NC's standard fallback behaviour; MyDash only needs to provide `en` and `nl`
+- NOTE: This is NC's standard fallback behaviour; LaunchPad only needs to provide `en` and `nl`
 
 #### Scenario: Placeholder substitution does not leave unresolved tokens
 
@@ -390,7 +390,7 @@ Each of the 13 event types has exactly one owning capability responsible for cal
 
 - GIVEN any PHP file in a sibling capability (e.g. `lib/Service/PublicationService.php`)
 - WHEN the file is inspected
-- THEN it MUST NOT contain any direct `oc_activity` SQL or `\OC_DB::` calls for MyDash events
+- THEN it MUST NOT contain any direct `oc_activity` SQL or `\OC_DB::` calls for LaunchPad events
 - AND all event emission MUST go through `ActivityPublisher::publish()` or `ActivityPublisher::publishToRecipients()`
 
 #### Scenario: Emission contract documented in Extension class docblock
@@ -408,7 +408,7 @@ The system MUST include a PHPUnit test class `tests/Unit/Activity/ExtensionTest.
 - GIVEN `ActivityPublisher` is instantiated with a mock `IManager`
 - WHEN `publish($type, 'alice', 'uuid-1', 'Dashboard A', 'https://nc.example/...')` is called for each of the 13 event types
 - THEN the mock `IManager::publishActivity()` MUST be called exactly once per event type
-- AND the `IEvent` passed MUST have `app = 'mydash'`, `type = $type`, `object_type = 'mydash_dashboard'`, `object_id = 'uuid-1'`
+- AND the `IEvent` passed MUST have `app = 'launchpad'`, `type = $type`, `object_type = 'launchpad_dashboard'`, `object_id = 'uuid-1'`
 
 #### Scenario: `Extension::getIcon()` returns non-empty URL for all 13 types
 

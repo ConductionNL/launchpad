@@ -11,15 +11,15 @@ Every dashboard has a stable, friendly URL based on its slug-chain. You can past
 ## URL format
 
 ```
-http://your-nextcloud.example/apps/mydash/<slug-chain>
+http://your-nextcloud.example/apps/launchpad/<slug-chain>
 ```
 
 For nested dashboards (parent → child), the chain reflects the hierarchy:
 
 ```
-/apps/mydash/finance
-/apps/mydash/finance/q1-roadmap
-/apps/mydash/finance/q1-roadmap/details
+/apps/launchpad/finance
+/apps/launchpad/finance/q1-roadmap
+/apps/launchpad/finance/q1-roadmap/details
 ```
 
 The slug for a dashboard is auto-derived from its name when you create it; you can set an explicit slug via [Dashboard configuration](10-rename-or-delete.md).
@@ -40,7 +40,7 @@ Or check **Dashboard configuration…** in the cog menu — the slug is editable
 
 ### 2. Paste the URL into a new tab
 
-Open a new tab and paste `http://localhost:8080/apps/mydash/<slug-chain>`. MyDash loads with that dashboard already active — no extra clicks needed.
+Open a new tab and paste `http://localhost:8080/apps/launchpad/<slug-chain>`. LaunchPad loads with that dashboard already active — no extra clicks needed.
 
 ![Deep-link landing](/screenshots/tutorials/user/08-deep-link-landed.png)
 
@@ -56,9 +56,9 @@ Each switch pushed a history entry. **Back** returns you to the previous dashboa
 
 ## Behaviour notes
 
-- **Stale or unknown slug.** If you visit a URL whose slug-chain doesn't resolve (renamed, deleted, you don't have access), MyDash silently falls back to your default dashboard rather than 404. Old bookmarks always land on something.
-- **Renamed parents.** When a parent dashboard is renamed, the canonical slug-chain for its descendants changes. The server normalises the URL on every load — visiting `/apps/mydash/old-parent/child` lands on the same dashboard, and the address bar updates to `/apps/mydash/new-parent/child` automatically (via `history.replaceState`).
-- **Dashboard with no slug.** Some dashboards have no slug (NULL slug field). They have no addressable URL — the URL bar shows just `/apps/mydash/` and switching to one doesn't push history.
+- **Stale or unknown slug.** If you visit a URL whose slug-chain doesn't resolve (renamed, deleted, you don't have access), LaunchPad silently falls back to your default dashboard rather than 404. Old bookmarks always land on something.
+- **Renamed parents.** When a parent dashboard is renamed, the canonical slug-chain for its descendants changes. The server normalises the URL on every load — visiting `/apps/launchpad/old-parent/child` lands on the same dashboard, and the address bar updates to `/apps/launchpad/new-parent/child` automatically (via `history.replaceState`).
+- **Dashboard with no slug.** Some dashboards have no slug (NULL slug field). They have no addressable URL — the URL bar shows just `/apps/launchpad/` and switching to one doesn't push history.
 
 ## Verification
 

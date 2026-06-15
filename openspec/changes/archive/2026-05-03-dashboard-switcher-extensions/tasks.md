@@ -12,7 +12,7 @@
 
 - [ ] 2.1 Remove the inline `+ New Dashboard` row from inside the personal section's list
 - [ ] 2.2 Add a dedicated `NcButton type="outline"` card below the personal list (still inside the sidebar's scroll container)
-- [ ] 2.3 Card shows `+` icon + `t('mydash', 'Add dashboard')` label
+- [ ] 2.3 Card shows `+` icon + `t('launchpad', 'Add dashboard')` label
 - [ ] 2.4 Card visible only when `allowUserDashboards === true` (same gate as the old inline row)
 - [ ] 2.5 Click emits `update:open(false)` then `create-dashboard()` — same contract as the removed inline row
 

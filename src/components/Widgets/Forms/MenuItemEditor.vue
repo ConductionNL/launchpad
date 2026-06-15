@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -13,31 +13,31 @@
 				type="text"
 				class="menu-item-editor__input"
 				:value="item.label"
-				:placeholder="t('mydash', 'Label')"
+				:placeholder="t('launchpad', 'Label')"
 				@input="emitFieldChange('label', $event.target.value)">
 			<input
 				type="text"
 				class="menu-item-editor__input"
 				:value="item.url"
-				:placeholder="t('mydash', 'URL')"
+				:placeholder="t('launchpad', 'URL')"
 				@input="emitFieldChange('url', $event.target.value)">
 			<input
 				type="text"
 				class="menu-item-editor__input menu-item-editor__input--icon"
 				:value="item.icon"
-				:placeholder="t('mydash', 'Icon')"
+				:placeholder="t('launchpad', 'Icon')"
 				@input="emitFieldChange('icon', $event.target.value)">
 			<button
 				v-if="canAddChildren"
 				type="button"
 				class="menu-item-editor__btn"
 				@click="$emit('add-child', { path })">
-				+ {{ t('mydash', 'Add Children') }}
+				+ {{ t('launchpad', 'Add Children') }}
 			</button>
 			<button
 				type="button"
 				class="menu-item-editor__btn menu-item-editor__btn--danger"
-				:title="t('mydash', 'Remove Item')"
+				:title="t('launchpad', 'Remove Item')"
 				@click="$emit('remove-item', { path })">
 				✕
 			</button>
@@ -105,12 +105,12 @@ export default {
 		/** @spec openspec/specs/menu-widget/spec.md */
 		depthLabel() {
 			if (this.depth === 1) {
-				return t('mydash', 'Level 1')
+				return t('launchpad', 'Level 1')
 			}
 			if (this.depth === 2) {
-				return t('mydash', 'Level 2')
+				return t('launchpad', 'Level 2')
 			}
-			return t('mydash', 'Level 3 - max reached')
+			return t('launchpad', 'Level 3 - max reached')
 		},
 
 		/** @spec openspec/specs/menu-widget/spec.md */

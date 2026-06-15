@@ -3,23 +3,23 @@
 /**
  * RoleLayoutDefaultTableBuilder
  *
- * Builder for the `mydash_role_layout_defaults` schema (REQ-RFP-002).
+ * Builder for the `launchpad_role_layout_def` schema (REQ-RFP-002).
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -38,11 +38,11 @@ class RoleLayoutDefaultTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable(tableName: 'mydash_role_layout_defaults') === true) {
+        if ($schema->hasTable(tableName: 'launchpad_role_layout_def') === true) {
             return;
         }
 
-        $table = $schema->createTable(tableName: 'mydash_role_layout_defaults');
+        $table = $schema->createTable(tableName: 'launchpad_role_layout_def');
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
@@ -175,11 +175,11 @@ class RoleLayoutDefaultTableBuilder
         $table->setPrimaryKey(columnNames: ['id']);
         $table->addUniqueIndex(
             columnNames: ['group_id', 'widget_id'],
-            indexName: 'mydash_rld_group_widget'
+            indexName: 'launchpad_rld_group_widget'
         );
         $table->addIndex(
             columnNames: ['group_id'],
-            indexName: 'mydash_rld_group'
+            indexName: 'launchpad_rld_group'
         );
     }//end addIndexes()
 }//end class

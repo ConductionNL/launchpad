@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,8 +7,8 @@
 	<NcSelect
 		v-model="selectedDashboard"
 		:options="dashboardOptions"
-		:input-label="t('mydash', 'Active dashboard')"
-		:placeholder="t('mydash', 'Select dashboard')"
+		:input-label="t('launchpad', 'Active dashboard')"
+		:placeholder="t('launchpad', 'Select dashboard')"
 		label="label"
 		track-by="id"
 		class="dashboard-switcher"

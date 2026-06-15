@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MyDash PreferencesController.
+ * LaunchPad PreferencesController.
  *
  * Generic per-user key/value preferences, backed by Nextcloud IConfig
  * user values. Used by shared @conduction/nextcloud-vue widgets (e.g.
@@ -9,7 +9,7 @@
  * UI flag cross-device without a bespoke endpoint per feature.
  *
  * @category Controller
- * @package  OCA\MyDash\Controller
+ * @package  OCA\LaunchPad\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2024 Conduction B.V.
@@ -25,9 +25,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

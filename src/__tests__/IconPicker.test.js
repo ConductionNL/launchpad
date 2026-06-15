@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -82,7 +82,7 @@ describe('IconPicker — Upload custom URL (REQ-ICON-008)', () => {
 		global.fetch = vi.fn(() =>
 			Promise.resolve({
 				ok: true,
-				json: () => Promise.resolve({ url: '/apps/mydash/resource/abc.png' }),
+				json: () => Promise.resolve({ url: '/apps/launchpad/resource/abc.png' }),
 			}),
 		)
 
@@ -105,7 +105,7 @@ describe('IconPicker — Upload custom URL (REQ-ICON-008)', () => {
 		await new Promise(resolve => setTimeout(resolve, 50))
 
 		expect(wrapper.emitted('input')).toBeTruthy()
-		expect(wrapper.emitted('input')[0]).toEqual(['/apps/mydash/resource/abc.png'])
+		expect(wrapper.emitted('input')[0]).toEqual(['/apps/launchpad/resource/abc.png'])
 	})
 
 	it('clears error on successful upload', async () => {
@@ -119,7 +119,7 @@ describe('IconPicker — Upload custom URL (REQ-ICON-008)', () => {
 			.mockImplementationOnce(() =>
 				Promise.resolve({
 					ok: true,
-					json: () => Promise.resolve({ url: '/apps/mydash/resource/abc.png' }),
+					json: () => Promise.resolve({ url: '/apps/launchpad/resource/abc.png' }),
 				}),
 			)
 
@@ -230,7 +230,7 @@ describe('IconPicker — Mode switching (REQ-ICON-008)', () => {
 		global.fetch = vi.fn(() =>
 			Promise.resolve({
 				ok: true,
-				json: () => Promise.resolve({ url: '/apps/mydash/resource/abc.png' }),
+				json: () => Promise.resolve({ url: '/apps/launchpad/resource/abc.png' }),
 			}),
 		)
 
@@ -257,19 +257,19 @@ describe('IconPicker — Mode switching (REQ-ICON-008)', () => {
 		await new Promise(resolve => setTimeout(resolve, 50))
 
 		// Verify preview now shows URL
-		expect(wrapper.emitted('input')[0]).toEqual(['/apps/mydash/resource/abc.png'])
+		expect(wrapper.emitted('input')[0]).toEqual(['/apps/launchpad/resource/abc.png'])
 	})
 
 	it('switches from custom URL back to built-in', async () => {
 		const wrapper = mount(IconPicker, {
 			propsData: {
-				value: '/apps/mydash/resource/abc.png',
+				value: '/apps/launchpad/resource/abc.png',
 			},
 		})
 
 		// Verify initial URL render
 		const preview = wrapper.findComponent({ name: 'IconRenderer' })
-		expect(preview.props('name')).toBe('/apps/mydash/resource/abc.png')
+		expect(preview.props('name')).toBe('/apps/launchpad/resource/abc.png')
 
 		// Select a built-in icon
 		const select = wrapper.find('.icon-picker__select')

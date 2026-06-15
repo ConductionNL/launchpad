@@ -1,12 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `ImageForm.vue` covering REQ-IMG-005 and the
  * `image-widget-media-picker` extension (REQ-IMP-001..008):
- *   - validate() returns `[t('mydash', 'Image URL is required')]` when
+ *   - validate() returns `[t('launchpad', 'Image URL is required')]` when
  *     `url` is empty/whitespace and the active source is url/upload.
- *   - validate() returns `[t('mydash', 'Please pick a file from
+ *   - validate() returns `[t('launchpad', 'Please pick a file from
  *     Files')]` when sourceType=files and no file has been picked.
  *   - Successful upload populates `form.url` from the response.
  *   - Failed upload surfaces the inline error and leaves `form.url`
@@ -137,7 +137,7 @@ describe('ImageForm', () => {
 
 	it('REQ-IMG-005: successful upload sets form.url from response', async () => {
 		uploadDataUrl.mockResolvedValueOnce({
-			url: '/apps/mydash/resource/abc.png',
+			url: '/apps/launchpad/resource/abc.png',
 			name: 'abc.png',
 			size: 1024,
 		})
@@ -148,7 +148,7 @@ describe('ImageForm', () => {
 		const file = new Blob(['x'], { type: 'image/png' })
 		await wrapper.vm.onFileSelected({ target: { files: [file], value: '' } })
 		expect(uploadDataUrl).toHaveBeenCalledWith('data:image/png;base64,AAA')
-		expect(wrapper.vm.url).toBe('/apps/mydash/resource/abc.png')
+		expect(wrapper.vm.url).toBe('/apps/launchpad/resource/abc.png')
 		expect(wrapper.vm.uploadError).toBe('')
 	})
 

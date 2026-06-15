@@ -79,6 +79,8 @@
 	],
 	"overrides": {
 		"vue": "^2.7.16",
-		"vue-template-compiler": "^2.7.16"
+		"vue-template-compiler": "^2.7.16",
+		"@vueuse/core": "^10.11.1",
+		"pinia": "^2.1.7"
 	}
 }

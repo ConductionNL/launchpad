@@ -97,7 +97,7 @@ Nextcloud from the user's language preference).
 
 ### Requirement: Tenant context for OR-data widgets (REQ-OR-004)
 
-OR-data widgets that surface tenant-scoped OR data SHOULD consume
+OR-data widgets that surface tenant-scoped OR data MUST consume
 `useTenantContext()` from `@conduction/nextcloud-vue` to pass the active
 tenant scope, once the composable is released as a versioned package
 (tracking: `nextcloud-vue/openspec/changes/multi-tenancy-context`).

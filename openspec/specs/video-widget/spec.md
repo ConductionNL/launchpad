@@ -30,9 +30,8 @@ The `content` object carries these fields:
 
 ### Requirement: REQ-VID-001 Register Video Widget with Nextcloud Dashboard API
 
-@e2e exclude widget registration tested via widget-in-picker scenario
-
 The system MUST register a video widget with Nextcloud's Dashboard API so it appears in widget discovery and can be added to dashboards.
+@e2e exclude widget registration tested via widget-in-picker scenario
 
 #### Scenario: Widget is discovered in the widget list
 - GIVEN Nextcloud has the Dashboard Widget API enabled
@@ -61,9 +60,8 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 
 ### Requirement: REQ-VID-002 Store Video Widget Configuration per Placement
 
-@e2e exclude video widget config stored via REST widget-placement API — Newman scope
-
 The widget placement's `widgetContent` JSON MUST store source type, URL/file ID, and display options.
+@e2e exclude video widget config stored via REST widget-placement API — Newman scope
 
 #### Scenario: Widget stores YouTube URL
 - GIVEN a user adds the video widget to their dashboard
@@ -119,9 +117,8 @@ The widget placement's `widgetContent` JSON MUST store source type, URL/file ID,
 
 ### Requirement: REQ-VID-003 Support Multiple Video Source Types
 
-@e2e exclude support multiple video source types tests Vue computed embed-URL logic — Vitest component scope; server-side URL parsing covered by Newman
-
 The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct source types with appropriate rendering logic.
+@e2e exclude support multiple video source types tests Vue computed embed-URL logic — Vitest component scope; server-side URL parsing covered by Newman
 
 #### Scenario: YouTube URL is normalized to embed form
 - GIVEN a user submits raw YouTube URLs in various formats:
@@ -156,9 +153,8 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 
 ### Requirement: REQ-VID-004 Enforce Admin-Controlled Domain Allowlist
 
-@e2e exclude enforce admin-controlled domain allow-list tests PHP config + IAppConfig — Newman scope
-
 The system MUST prevent embedding videos from arbitrary domains unless explicitly allowed by the administrator.
+@e2e exclude enforce admin-controlled domain allow-list tests PHP config + IAppConfig — Newman scope
 
 #### Scenario: Allowed domains setting exists
 - GIVEN no `launchpad.video_widget_allowed_domains` setting is configured
@@ -195,9 +191,8 @@ The system MUST prevent embedding videos from arbitrary domains unless explicitl
 
 ### Requirement: REQ-VID-005 Parse and Validate Video URLs Server-Side
 
-@e2e exclude parse and validate video URLs server-side tests PHP VideoUrlParser — Newman scope
-
 The backend MUST extract video IDs from user-provided URLs and validate format before storage.
+@e2e exclude parse and validate video URLs server-side tests PHP VideoUrlParser — Newman scope
 
 #### Scenario: URL parsing endpoint is available
 - GIVEN a user is editing a widget config in the frontend
@@ -231,9 +226,8 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 
 ### Requirement: REQ-VID-006 Check File Access Control for Nextcloud Files
 
-@e2e exclude check file ACL tests PHP ACL + streaming endpoint — Newman scope
-
 When `sourceType` is `nc-file`, the system MUST verify the viewing user can read the file before allowing playback.
+@e2e exclude check file ACL tests PHP ACL + streaming endpoint — Newman scope
 
 #### Scenario: File is readable by viewer
 - GIVEN a widget with `sourceType: 'nc-file'` and `fileId: 12345`
@@ -271,9 +265,8 @@ When `sourceType` is `nc-file`, the system MUST verify the viewing user can read
 
 ### Requirement: REQ-VID-007 Use iframe with CSP-Safe Sandbox Attributes
 
-@e2e exclude iframe with CSP-safe sandbox attributes tests HTML attribute rendering — requires a placed video widget; seeded state not in CI fixture
-
 Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe with strict sandbox restrictions.
+@e2e exclude iframe with CSP-safe sandbox attributes tests HTML attribute rendering — requires a placed video widget; seeded state not in CI fixture
 
 #### Scenario: YouTube iframe uses proper sandbox
 - GIVEN a widget with `sourceType: 'youtube'` and canonical URL `https://www.youtube.com/embed/ABC123`
@@ -308,9 +301,8 @@ Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe wi
 
 ### Requirement: REQ-VID-008 Respect Autoplay, Muting, and Loop Settings
 
-@e2e exclude autoplay/muting/loop settings test HTML video attribute rendering — requires a placed video widget
-
 The widget MUST apply user-selected playback options while respecting browser autoplay policies.
+@e2e exclude autoplay/muting/loop settings test HTML video attribute rendering — requires a placed video widget
 
 #### Scenario: Autoplay with muted enforces mute
 - GIVEN a user sets `autoplay: true` and `muted: false`
@@ -346,9 +338,8 @@ The widget MUST apply user-selected playback options while respecting browser au
 
 ### Requirement: REQ-VID-009 Enforce Aspect Ratio via CSS
 
-@e2e exclude aspect ratio CSS tests CSS padding-bottom trick — visual regression scope
-
 The widget MUST apply the configured aspect ratio using modern CSS and fallback techniques.
+@e2e exclude aspect ratio CSS tests CSS padding-bottom trick — visual regression scope
 
 #### Scenario: Aspect ratio options
 - GIVEN a user selects `aspectRatio` from a dropdown
@@ -376,9 +367,8 @@ The widget MUST apply the configured aspect ratio using modern CSS and fallback 
 
 ### Requirement: REQ-VID-010 Support No-Cookie YouTube Embedding
 
-@e2e exclude no-cookie YouTube embedding tests URL-transform logic in PHP — Newman scope
-
 The system MUST support an optional admin setting to enable YouTube no-cookie embedding to reduce tracking.
+@e2e exclude no-cookie YouTube embedding tests URL-transform logic in PHP — Newman scope
 
 #### Scenario: No-cookie setting default
 - GIVEN `launchpad.video_widget_use_nocookie_youtube` is not configured
@@ -406,9 +396,8 @@ The system MUST support an optional admin setting to enable YouTube no-cookie em
 
 ### Requirement: REQ-VID-011 Display Appropriate Empty and Error States
 
-@e2e exclude display appropriate empty and error states tests Vue state inside placed widget — requires seeded placement
-
 The widget MUST show user-friendly messages for missing config, access issues, and invalid domains.
+@e2e exclude display appropriate empty and error states tests Vue state inside placed widget — requires seeded placement
 
 #### Scenario: Empty state - no video configured
 - GIVEN a widget placement with `sourceType: null` or missing `videoUrl`/`fileId`

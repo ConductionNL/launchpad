@@ -35,9 +35,8 @@ The system MUST register a divider widget with the Nextcloud Dashboard Widget AP
 
 ### Requirement: REQ-DIV-002 Configure Divider Style
 
-@e2e exclude configure divider style tests the form fields inside AddWidgetModal for divider — requires opening modal and selecting divider widget; covered by generic widget-in-picker test
-
 The system MUST store placement-level configuration in the `widgetContent JSON` blob to allow dashboard creators to choose between three divider styles: a horizontal line, whitespace spacer, or heading-break.
+@e2e exclude configure divider style tests the form fields inside AddWidgetModal for divider — requires opening modal and selecting divider widget; covered by generic widget-in-picker test
 
 #### Scenario: Line style configuration
 - GIVEN a divider widget is placed on a dashboard
@@ -67,9 +66,8 @@ The system MUST store placement-level configuration in the `widgetContent JSON` 
 
 ### Requirement: REQ-DIV-003 Render Line Divider
 
-@e2e exclude render line divider tests CSS border rendering inside a placed divider widget — requires seeded divider placement
-
 The system MUST render a horizontal line divider when style is `line`, respecting color, thickness, and line-style configuration.
+@e2e exclude render line divider tests CSS border rendering inside a placed divider widget — requires seeded divider placement
 
 #### Scenario: Default line render
 - GIVEN a divider widget with style = `line` and no lineColor specified
@@ -97,9 +95,8 @@ The system MUST render a horizontal line divider when style is `line`, respectin
 
 ### Requirement: REQ-DIV-004 Render Whitespace Divider
 
-@e2e exclude render whitespace divider tests CSS height inside a placed divider — requires seeded placement
-
 The system MUST render a vertical spacer block when style is `whitespace`, respecting the configured size.
+@e2e exclude render whitespace divider tests CSS height inside a placed divider — requires seeded placement
 
 #### Scenario: Default whitespace render
 - GIVEN a divider widget with style = `whitespace` and whitespaceSize = `medium` (default)
@@ -121,9 +118,8 @@ The system MUST render a vertical spacer block when style is `whitespace`, respe
 
 ### Requirement: REQ-DIV-005 Render Heading-Break Divider
 
-@e2e exclude render heading-break divider tests text + border CSS — requires seeded placement
-
 The system MUST render a centered heading with horizontal lines above and below when style is `heading-break`, respecting the optional lineColor configuration.
+@e2e exclude render heading-break divider tests text + border CSS — requires seeded placement
 
 #### Scenario: Default heading-break render
 - GIVEN a divider widget with style = `heading-break`, headingText = "Key Section"
@@ -148,9 +144,8 @@ The system MUST render a centered heading with horizontal lines above and below 
 
 ### Requirement: REQ-DIV-006 Default Widget Sizing
 
-@e2e exclude default widget sizing tests gridWidth/gridHeight defaults — Vitest scope; observable as widget size in grid but requires placed widget
-
 The system MUST set sensible sizing defaults for divider widgets in the widget add modal to minimize their footprint on the dashboard.
+@e2e exclude default widget sizing tests gridWidth/gridHeight defaults — Vitest scope; observable as widget size in grid but requires placed widget
 
 #### Scenario: Divider defaults to gridHeight = 1
 - GIVEN the user is adding a new divider widget to a dashboard
@@ -172,9 +167,8 @@ The system MUST set sensible sizing defaults for divider widgets in the widget a
 
 ### Requirement: REQ-DIV-007 Theme Awareness and Color Inheritance
 
-@e2e exclude theme awareness tests CSS variable inheritance — Vitest/visual-regression scope, not observable from Playwright without design-token setup
-
 The system MUST automatically use the active Nextcloud theme's border color for divider lines by default and MUST support explicit color overrides.
+@e2e exclude theme awareness tests CSS variable inheritance — Vitest/visual-regression scope, not observable from Playwright without design-token setup
 
 #### Scenario: Default theme color
 - GIVEN a divider widget with style = `line` and no lineColor specified
@@ -196,9 +190,8 @@ The system MUST automatically use the active Nextcloud theme's border color for 
 
 ### Requirement: REQ-DIV-008 Print Support and Visibility
 
-@e2e exclude print support tests CSS @media print — not observable in headless Chromium CI
-
 The system MUST ensure divider widgets render visibly on printed dashboards and MUST NOT hide them in print mode.
+@e2e exclude print support tests CSS @media print — not observable in headless Chromium CI
 
 #### Scenario: Line divider prints
 - GIVEN a divider widget with style = `line` on a dashboard
@@ -220,9 +213,8 @@ The system MUST ensure divider widgets render visibly on printed dashboards and 
 
 ### Requirement: REQ-DIV-009 No Backend Endpoints Required
 
-@e2e exclude no backend endpoints — confirmed via spec review; architecture correctness is a code-review gate, not Playwright
-
 The system MUST render dividers entirely client-side and MUST NOT require any backend API endpoints beyond standard widget discovery.
+@e2e exclude no backend endpoints — confirmed via spec review; architecture correctness is a code-review gate, not Playwright
 
 #### Scenario: Divider is rendered without API calls
 - GIVEN a divider widget is placed on a dashboard

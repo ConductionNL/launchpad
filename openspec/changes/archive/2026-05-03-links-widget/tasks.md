@@ -3,8 +3,8 @@
 ## 1. Widget registration
 
 - [ ] 1.1 Register the widget in `AppInfo/Bootstrap.php` or via a listener on Nextcloud's widget discovery:
-  - Call `IManager::registerWidget()` (or equivalent discovery hook) with widget id `mydash_links`
-  - Provide widget metadata: title (translatable `app.mydash.links_widget_title`), icon URL
+  - Call `IManager::registerWidget()` (or equivalent discovery hook) with widget id `launchpad_links`
+  - Provide widget metadata: title (translatable `app.launchpad.links_widget_title`), icon URL
 - [ ] 1.2 Create PHPUnit test:
   - `testLinksWidgetIsRegistered` — verify widget appears in `IManager::getWidgets()`
 
@@ -154,7 +154,7 @@
     - Inline validation feedback (URL format check)
   - Icon preview: show resolved icon (SVG or img) in a small preview area
 - [ ] 5.4 Integrate into `WidgetAddEditModal.vue`:
-  - When user selects `mydash_links` widget from picker
+  - When user selects `launchpad_links` widget from picker
   - Display `LinksWidgetConfig.vue` instead of default generic config panel
   - Pass placement config to component, listen for `update:widgetContent` to update form state
 - [ ] 5.5 Create Playwright test:
@@ -168,28 +168,28 @@
 ## 6. Internationalization (i18n)
 
 - [ ] 6.1 Add Dutch (nl) and English (en) translation keys:
-  - `app.mydash.links_widget_title` — "Links" / "Links"
-  - `app.mydash.links_empty_state` — "Geen links gedefinieerd — klik op het tandwielpictogram om er enkele toe te voegen." / "No links yet — click the gear icon to add some."
-  - `app.mydash.links_column_count` — "Kolommen" / "Columns"
-  - `app.mydash.links_link_layout` — "Lay-out" / "Layout"
-  - `app.mydash.links_icon_size` — "Pictogramgrootte" / "Icon size"
-  - `app.mydash.links_open_new_tab` — "In nieuw tabblad openen" / "Open in new tab"
-  - `app.mydash.links_show_titles` — "Sectietitels weergeven" / "Show section titles"
-  - `app.mydash.links_show_descriptions` — "Beschrijvingen weergeven" / "Show descriptions"
-  - `app.mydash.links_add_section` — "Sectie toevoegen" / "Add section"
-  - `app.mydash.links_add_link` — "Link toevoegen" / "Add link"
-  - `app.mydash.links_section_title` — "Sectietitel" / "Section title"
-  - `app.mydash.links_link_label` — "Label" / "Label"
-  - `app.mydash.links_link_url` — "URL" / "URL"
-  - `app.mydash.links_link_icon` — "Pictogram (naam of URL)" / "Icon (name or URL)"
-  - `app.mydash.links_link_description` — "Beschrijving (optioneel)" / "Description (optional)"
-  - `app.mydash.links_invalid_url` — "Ongeldige URL — gebruik HTTP(S) of relatieve paden." / "Invalid URL — use HTTP(S) or relative paths."
-  - `app.mydash.links_layout_card` — "Kaart" / "Card"
-  - `app.mydash.links_layout_inline` — "Inline" / "Inline"
-  - `app.mydash.links_layout_icon_only` — "Alleen pictogram" / "Icon only"
-  - `app.mydash.links_icon_size_small` — "Klein (24 px)" / "Small (24 px)"
-  - `app.mydash.links_icon_size_medium` — "Normaal (40 px)" / "Medium (40 px)"
-  - `app.mydash.links_icon_size_large` — "Groot (64 px)" / "Large (64 px)"
+  - `app.launchpad.links_widget_title` — "Links" / "Links"
+  - `app.launchpad.links_empty_state` — "Geen links gedefinieerd — klik op het tandwielpictogram om er enkele toe te voegen." / "No links yet — click the gear icon to add some."
+  - `app.launchpad.links_column_count` — "Kolommen" / "Columns"
+  - `app.launchpad.links_link_layout` — "Lay-out" / "Layout"
+  - `app.launchpad.links_icon_size` — "Pictogramgrootte" / "Icon size"
+  - `app.launchpad.links_open_new_tab` — "In nieuw tabblad openen" / "Open in new tab"
+  - `app.launchpad.links_show_titles` — "Sectietitels weergeven" / "Show section titles"
+  - `app.launchpad.links_show_descriptions` — "Beschrijvingen weergeven" / "Show descriptions"
+  - `app.launchpad.links_add_section` — "Sectie toevoegen" / "Add section"
+  - `app.launchpad.links_add_link` — "Link toevoegen" / "Add link"
+  - `app.launchpad.links_section_title` — "Sectietitel" / "Section title"
+  - `app.launchpad.links_link_label` — "Label" / "Label"
+  - `app.launchpad.links_link_url` — "URL" / "URL"
+  - `app.launchpad.links_link_icon` — "Pictogram (naam of URL)" / "Icon (name or URL)"
+  - `app.launchpad.links_link_description` — "Beschrijving (optioneel)" / "Description (optional)"
+  - `app.launchpad.links_invalid_url` — "Ongeldige URL — gebruik HTTP(S) of relatieve paden." / "Invalid URL — use HTTP(S) or relative paths."
+  - `app.launchpad.links_layout_card` — "Kaart" / "Card"
+  - `app.launchpad.links_layout_inline` — "Inline" / "Inline"
+  - `app.launchpad.links_layout_icon_only` — "Alleen pictogram" / "Icon only"
+  - `app.launchpad.links_icon_size_small` — "Klein (24 px)" / "Small (24 px)"
+  - `app.launchpad.links_icon_size_medium` — "Normaal (40 px)" / "Medium (40 px)"
+  - `app.launchpad.links_icon_size_large` — "Groot (64 px)" / "Large (64 px)"
 - [ ] 6.2 Add translation files:
   - `l10n/nl.json` — Dutch translations
   - `l10n/en.json` — English translations (fallback)

@@ -2,7 +2,7 @@
 
 ## Context
 
-The calendar-widget spec (REQ-CAL-001..010) describes a merged calendar view for MyDash that combines internal Nextcloud calendars and external ICS feeds. Several architectural choices were left open in the proposal. This document resolves them based on ground-truth source code from an existing production implementation covering the same problem domain.
+The calendar-widget spec (REQ-CAL-001..010) describes a merged calendar view for LaunchPad that combines internal Nextcloud calendars and external ICS feeds. Several architectural choices were left open in the proposal. This document resolves them based on ground-truth source code from an existing production implementation covering the same problem domain.
 
 Source root examined: `the source codebase-source/`
 
@@ -33,7 +33,7 @@ Source root examined: `the source codebase-source/`
 - `the source codebase-source/lib/Controller/CalendarController.php:105` — date range is capped at 1 year max to prevent unbounded RRULE expansion: `$end = $start->modify('+1 year')`.
 - `the source codebase-source/src/components/CalendarWidget.vue:156-172` — frontend calls the events endpoint and stores `response.data.events`; no client-side expansion logic exists.
 
-**Implication for sabre/vobject dependency**: the source app does **not** vendor sabre/vobject itself (`composer.json` has no sabre dependency). It uses the copy bundled in Nextcloud via the autoloader. MyDash must do the same — import `Sabre\VObject\…` without adding it to `composer.json`.
+**Implication for sabre/vobject dependency**: the source app does **not** vendor sabre/vobject itself (`composer.json` has no sabre dependency). It uses the copy bundled in Nextcloud via the autoloader. LaunchPad must do the same — import `Sabre\VObject\…` without adding it to `composer.json`.
 
 ---
 
@@ -91,8 +91,8 @@ Internal events omit `isExternal` (field absent → falsy in JS). External event
 - No `IAppConfig` read for TTL anywhere in the ICS service.
 
 **Delta vs spec (REQ-CAL-005)**:
-- Spec requires a `placementId` in the cache key (`mydash_calendar_ics_{placementId}_{urlHash}`); source uses URL-only key (shared across placements). Shared-key is more efficient. The spec's per-placement keying would prevent cache reuse. **Recommendation**: adopt the URL-only key pattern from source — update spec scenario "Cache key includes URL hash" to remove the `placementId` component.
-- Spec requires admin-configurable TTL via `IAppConfig`. Source hardcodes it. The spec requirement is worth keeping as a MyDash improvement over the reference implementation.
+- Spec requires a `placementId` in the cache key (`launchpad_calendar_ics_{placementId}_{urlHash}`); source uses URL-only key (shared across placements). Shared-key is more efficient. The spec's per-placement keying would prevent cache reuse. **Recommendation**: adopt the URL-only key pattern from source — update spec scenario "Cache key includes URL hash" to remove the `placementId` component.
+- Spec requires admin-configurable TTL via `IAppConfig`. Source hardcodes it. The spec requirement is worth keeping as a LaunchPad improvement over the reference implementation.
 
 ---
 
@@ -122,7 +122,7 @@ The admin settings page has no ICS allow-list UI; the only whitelist concept in 
 
 - **REQ-CAL-003 response shape**: rename `title` → `summary`; change `source:'internal'|'external'` → `isExternal: bool`; mark `description` as optional; decide whether `calendarId` is required or optional (recommend optional).
 - **REQ-CAL-004 expansion**: add explicit note that sabre/vobject is consumed from NC's bundled copy, not re-vendored; add 1-year range cap as a defensive requirement.
-- **REQ-CAL-005 cache key**: remove `placementId` from cache key pattern — key MUST be `md5($url)` only so placements sharing a URL share one cache entry; keep admin-configurable TTL requirement as a MyDash addition.
+- **REQ-CAL-005 cache key**: remove `placementId` from cache key pattern — key MUST be `md5($url)` only so placements sharing a URL share one cache entry; keep admin-configurable TTL requirement as a LaunchPad addition.
 - **REQ-CAL-006 allow-list**: add HTTPS-only as a hard requirement; add SSRF/private-IP DNS guard as a hard requirement; demote hostname allow-list from MUST to SHOULD (default empty = all HTTPS non-private-IP hosts allowed).
 - **REQ-CAL-007 ACL**: add note that `CLASS:PRIVATE` and `CLASS:CONFIDENTIAL` events are filtered server-side by both `CalendarService` (internal) and `ExternalIcsService` (external) before being returned.
 - **REQ-CAL-003 deduplication**: add a NOTE clarifying that no cross-source UID deduplication is performed; users who add the same feed as both an NC subscription and an external ICS URL will see duplicates.
@@ -134,5 +134,5 @@ The admin settings page has no ICS allow-list UI; the only whitelist concept in 
 1. **`calendarId` in response**: decide whether to include the internal calendar's numeric key in the response (useful for deep-link construction) or omit it. Source omits it; spec currently requires it.
 2. **`description` field**: spec includes it but source omits `DESCRIPTION` mapping entirely. Cost is low (one line in both parsers); confirm whether it is needed for the detail popover use-case.
 3. **DNS-resolution SSRF timing**: `gethostbynamel()` is synchronous and blocking; under a slow DNS server this adds latency before the HTTP fetch. Consider caching the SSRF check result or using async DNS. Not blocking for v1 but worth noting.
-4. **ICS subscription hiding**: source hides NC Calendar ICS subscriptions from the internal calendar picker. MyDash should adopt the same policy and document it clearly in the config UI help text to prevent user confusion.
+4. **ICS subscription hiding**: source hides NC Calendar ICS subscriptions from the internal calendar picker. LaunchPad should adopt the same policy and document it clearly in the config UI help text to prevent user confusion.
 5. **`url` field for internal events**: source deep-links to `/apps/calendar/timeGridDay/{date}` rather than to the specific event. If a more precise per-event deep-link is needed (e.g., via CalDAV href), it requires additional data not returned by `IManager::search()`.

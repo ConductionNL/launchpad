@@ -11,7 +11,7 @@
  * `role-based-content` change.
  *
  * @category Repair
- * @package  OCA\MyDash\Repair
+ * @package  OCA\LaunchPad\Repair
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,13 +24,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Repair;
+namespace OCA\LaunchPad\Repair;
 
 use DateTime;
-use OCA\MyDash\Db\RoleFeaturePermission;
-use OCA\MyDash\Db\RoleFeaturePermissionMapper;
-use OCA\MyDash\Db\RoleLayoutDefault;
-use OCA\MyDash\Db\RoleLayoutDefaultMapper;
+use OCA\LaunchPad\Db\RoleFeaturePermission;
+use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
+use OCA\LaunchPad\Db\RoleLayoutDefault;
+use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;

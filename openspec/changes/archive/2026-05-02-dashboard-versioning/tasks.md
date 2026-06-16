@@ -2,9 +2,9 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001015Date20260502130000.php` adding `oc_mydash_dashboard_versions` table with columns: id (PK), dashboardUuid, versionNumber, snapshotJson (TEXT), createdBy, createdAt, note (delegates to `DashboardVersionTableBuilder`)
-- [x] 1.2 Same migration adds composite unique index `mydash_dvers_uuid_num` on `(dashboardUuid, versionNumber)` for efficient per-dashboard lookups + monotonic enforcement
-- [x] 1.3 Add composite index `mydash_dvers_uuid_ts` on `(dashboardUuid, createdAt)` for fast "newest-first" ordering
+- [x] 1.1 Create `lib/Migration/Version001015Date20260502130000.php` adding `oc_launchpad_dash_versions` table with columns: id (PK), dashboardUuid, versionNumber, snapshotJson (TEXT), createdBy, createdAt, note (delegates to `DashboardVersionTableBuilder`)
+- [x] 1.2 Same migration adds composite unique index `launchpad_dvers_uuid_num` on `(dashboardUuid, versionNumber)` for efficient per-dashboard lookups + monotonic enforcement
+- [x] 1.3 Add composite index `launchpad_dvers_uuid_ts` on `(dashboardUuid, createdAt)` for fast "newest-first" ordering
 - [ ] 1.4 ~~Confirm migration is reversible (drop table in `preSchemaChange` / `postSchemaChange` rollback path)~~ — DEFERRED: NC's SimpleMigrationStep does not support reversal in the same migration class; rollback requires a new migration if needed.
 - [ ] 1.5 ~~Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly each time~~ — DEFERRED: covered by NC's standard schema introspection — no MySQL/Postgres-specific syntax used.
 
@@ -34,7 +34,7 @@
 ## 5. Service layer — version management
 
 - [x] 5.1 Create `lib/Service/DashboardVersionService.php` injecting `DashboardVersionMapper`, `DashboardMapper`, `WidgetPlacementMapper`, `IGroupManager`, `ICacheFactory`, `LoggerInterface`
-- [x] 5.2 Add `captureSnapshot(Dashboard, ?string $snapshotJson, string $createdBy, ?string $note = null, bool $explicit = false): ?DashboardVersion` — debounce via NC `ICacheFactory::createDistributed('mydash_versioning')` keyed `mydash_ver_debounce_{uuid}` with 60 s TTL; explicit calls bypass the debounce.
+- [x] 5.2 Add `captureSnapshot(Dashboard, ?string $snapshotJson, string $createdBy, ?string $note = null, bool $explicit = false): ?DashboardVersion` — debounce via NC `ICacheFactory::createDistributed('launchpad_versioning')` keyed `launchpad_ver_debounce_{uuid}` with 60 s TTL; explicit calls bypass the debounce.
 - [x] 5.3 Add `listVersions(Dashboard, string $requestingUser): array` — owner-or-admin guard, returns `{versions: [...], modeSupported: bool}` envelope
 - [x] 5.4 Add `fetchSnapshot(Dashboard, int $versionNumber, string $requestingUser): DashboardVersion` — guarded; surfaces snapshot body via the entity
 - [x] 5.5 Add `restoreVersion(Dashboard, int $versionNumber, string $restoringUser): array` — captures pre-restore state as new snapshot, stamps dashboard `updatedAt`

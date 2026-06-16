@@ -2,20 +2,20 @@
 
 ## Why
 
-Organizations migrating from Atlassian Confluence or supplementing it with MyDash need a one-shot bulk-import capability that converts their existing Confluence page hierarchies into MyDash dashboards. Manual recreation of hundreds of pages is impractical. This change enables admins to upload a Confluence "HTML Export" archive and automatically generate MyDash dashboards with the page content preserved.
+Organizations migrating from Atlassian Confluence or supplementing it with LaunchPad need a one-shot bulk-import capability that converts their existing Confluence page hierarchies into LaunchPad dashboards. Manual recreation of hundreds of pages is impractical. This change enables admins to upload a Confluence "HTML Export" archive and automatically generate LaunchPad dashboards with the page content preserved.
 
 ## What Changes
 
-- Add a new admin-only import endpoint `POST /api/admin/import/confluence` accepting a multipart Confluence HTML export ZIP file. The importer converts each Confluence page into a MyDash dashboard with:
+- Add a new admin-only import endpoint `POST /api/admin/import/confluence` accepting a multipart Confluence HTML export ZIP file. The importer converts each Confluence page into a LaunchPad dashboard with:
   - Dashboard name = Confluence page title
   - Dashboard parent = parent Confluence page's dashboard (mirroring the Confluence hierarchy, requires `dashboard-tree` capability)
   - Dashboard widget = one full-width text-display widget containing the sanitized page body HTML
 - Add a companion `POST /api/admin/import/confluence/dry-run` endpoint for impact preview (page count, attachment count, warnings, but no database changes).
 - Add a background job system for large imports (>100 pages), returning 202 with job-id and exposing `GET /api/admin/import/confluence/jobs/{jobId}` for polling.
-- Add a CLI command `php occ mydash:import:confluence --file=/path/export.zip [--parent-path=/imports]` for headless/cron imports.
+- Add a CLI command `php occ launchpad:import:confluence --file=/path/export.zip [--parent-path=/imports]` for headless/cron imports.
 - Add sanitization (allow-list: `<p>`, `<h1..h6>`, `<a>`, `<strong>`, `<em>`, `<ul>`, `<ol>`, `<li>`, `<img>`, `<table>`, `<tr>`, `<td>`, `<th>`, `<thead>`, `<tbody>`, `<blockquote>`, `<pre>`, `<code>`, `<br>`; strip macros and Confluence-specific markup).
-- Add image upload: `<img>` references to attachments and shared images are uploaded to Nextcloud folder `MyDash/Imports/{timestamp}/` with src rewritten to NC URLs.
-- Add link rewriting: internal Confluence links (`<a href="pageId.html">`) are rewritten to dashboard deep links (`/apps/mydash/dashboard/{imported-uuid}`).
+- Add image upload: `<img>` references to attachments and shared images are uploaded to Nextcloud folder `LaunchPad/Imports/{timestamp}/` with src rewritten to NC URLs.
+- Add link rewriting: internal Confluence links (`<a href="pageId.html">`) are rewritten to dashboard deep links (`/apps/launchpad/dashboard/{imported-uuid}`).
 - Add error resilience: a single page parse failure does NOT abort the import; failed pages are logged and skipped.
 - Add re-importability: running the importer twice creates new dashboards and new asset folders (no deduplication).
 
@@ -60,7 +60,7 @@ Organizations migrating from Atlassian Confluence or supplementing it with MyDas
 
 **Migration:**
 
-- Zero-impact: no schema changes to existing dashboards. New `oc_mydash_confluence_import_logs` table added for job tracking.
+- Zero-impact: no schema changes to existing dashboards. New `oc_launchpad_confluence_import_logs` table added for job tracking.
 
 ## Success Criteria
 

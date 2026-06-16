@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,19 +7,19 @@
 	<div class="header-form">
 		<NcTextField
 			:value="title"
-			:label="t('mydash', 'Title')"
-			:placeholder="t('mydash', 'Header title')"
+			:label="t('launchpad', 'Title')"
+			:placeholder="t('launchpad', 'Header title')"
 			required
 			@update:value="updateField('title', $event)" />
 
 		<NcTextField
 			:value="subtitle"
-			:label="t('mydash', 'Subtitle (optional)')"
-			:placeholder="t('mydash', 'Optional subtitle')"
+			:label="t('launchpad', 'Subtitle (optional)')"
+			:placeholder="t('launchpad', 'Optional subtitle')"
 			@update:value="updateField('subtitle', $event)" />
 
 		<label class="header-form__field">
-			<span class="header-form__label">{{ t('mydash', 'Upload Background Image') }}</span>
+			<span class="header-form__label">{{ t('launchpad', 'Upload Background Image') }}</span>
 			<input
 				type="file"
 				accept="image/*"
@@ -33,12 +33,12 @@
 
 		<NcTextField
 			:value="backgroundImageUrl"
-			:label="t('mydash', 'Or enter Background Image URL')"
+			:label="t('launchpad', 'Or enter Background Image URL')"
 			placeholder="https://example.com/banner.jpg"
 			@update:value="updateField('backgroundImageUrl', $event)" />
 
 		<label class="header-form__color-label">
-			{{ t('mydash', 'Background Color') }}
+			{{ t('launchpad', 'Background Color') }}
 			<input
 				type="color"
 				:value="backgroundColor || '#0070c0'"
@@ -47,7 +47,7 @@
 		</label>
 
 		<label class="header-form__field">
-			<span class="header-form__label">{{ t('mydash', 'Overlay Mode') }}</span>
+			<span class="header-form__label">{{ t('launchpad', 'Overlay Mode') }}</span>
 			<select
 				v-model="overlayMode"
 				class="header-form__select"
@@ -59,7 +59,7 @@
 		</label>
 
 		<label v-if="overlayMode !== 'none'" class="header-form__color-label">
-			{{ t('mydash', 'Overlay Color') }}
+			{{ t('launchpad', 'Overlay Color') }}
 			<input
 				type="color"
 				:value="overlayColor || '#000000'"
@@ -69,7 +69,7 @@
 
 		<label v-if="overlayMode === 'tint'" class="header-form__field">
 			<span class="header-form__label">
-				{{ t('mydash', 'Overlay Opacity') }} ({{ overlayOpacity.toFixed(2) }})
+				{{ t('launchpad', 'Overlay Opacity') }} ({{ overlayOpacity.toFixed(2) }})
 			</span>
 			<input
 				type="range"
@@ -82,7 +82,7 @@
 		</label>
 
 		<label class="header-form__color-label">
-			{{ t('mydash', 'Text Color') }}
+			{{ t('launchpad', 'Text Color') }}
 			<input
 				type="color"
 				:value="textColor || '#ffffff'"
@@ -91,7 +91,7 @@
 		</label>
 
 		<label class="header-form__field">
-			<span class="header-form__label">{{ t('mydash', 'Text Alignment') }}</span>
+			<span class="header-form__label">{{ t('launchpad', 'Text Alignment') }}</span>
 			<select
 				v-model="textAlign"
 				class="header-form__select"
@@ -103,7 +103,7 @@
 		</label>
 
 		<label class="header-form__field">
-			<span class="header-form__label">{{ t('mydash', 'Vertical Alignment') }}</span>
+			<span class="header-form__label">{{ t('launchpad', 'Vertical Alignment') }}</span>
 			<select
 				v-model="verticalAlign"
 				class="header-form__select"
@@ -115,7 +115,7 @@
 		</label>
 
 		<label class="header-form__field">
-			<span class="header-form__label">{{ t('mydash', 'Height') }}</span>
+			<span class="header-form__label">{{ t('launchpad', 'Height') }}</span>
 			<select
 				v-model="height"
 				class="header-form__select"
@@ -128,23 +128,23 @@
 
 		<fieldset class="header-form__fieldset">
 			<legend class="header-form__legend">
-				{{ t('mydash', 'Call-to-Action Button (optional)') }}
+				{{ t('launchpad', 'Call-to-Action Button (optional)') }}
 			</legend>
 
 			<NcTextField
 				:value="ctaLabel"
-				:label="t('mydash', 'Button Text')"
-				:placeholder="t('mydash', 'Sign up')"
+				:label="t('launchpad', 'Button Text')"
+				:placeholder="t('launchpad', 'Sign up')"
 				@update:value="updateCta('label', $event)" />
 
 			<NcTextField
 				:value="ctaUrl"
-				:label="t('mydash', 'Target URL')"
+				:label="t('launchpad', 'Target URL')"
 				placeholder="https://..."
 				@update:value="updateCta('url', $event)" />
 
 			<label class="header-form__field">
-				<span class="header-form__label">{{ t('mydash', 'Button Style') }}</span>
+				<span class="header-form__label">{{ t('launchpad', 'Button Style') }}</span>
 				<select
 					v-model="ctaStyle"
 					class="header-form__select"
@@ -276,46 +276,46 @@ export default {
 		/** @spec openspec/specs/header-widget/spec.md */
 		overlayModeOptions() {
 			return [
-				{ value: 'none', label: t('mydash', 'None') },
-				{ value: 'tint', label: t('mydash', 'Tinted Overlay') },
-				{ value: 'gradient-bottom', label: t('mydash', 'Gradient Bottom') },
+				{ value: 'none', label: t('launchpad', 'None') },
+				{ value: 'tint', label: t('launchpad', 'Tinted Overlay') },
+				{ value: 'gradient-bottom', label: t('launchpad', 'Gradient Bottom') },
 			]
 		},
 
 		/** @spec openspec/specs/header-widget/spec.md */
 		textAlignOptions() {
 			return [
-				{ value: 'left', label: t('mydash', 'Left') },
-				{ value: 'center', label: t('mydash', 'Center') },
-				{ value: 'right', label: t('mydash', 'Right') },
+				{ value: 'left', label: t('launchpad', 'Left') },
+				{ value: 'center', label: t('launchpad', 'Center') },
+				{ value: 'right', label: t('launchpad', 'Right') },
 			]
 		},
 
 		/** @spec openspec/specs/header-widget/spec.md */
 		verticalAlignOptions() {
 			return [
-				{ value: 'top', label: t('mydash', 'Top') },
-				{ value: 'middle', label: t('mydash', 'Middle') },
-				{ value: 'bottom', label: t('mydash', 'Bottom') },
+				{ value: 'top', label: t('launchpad', 'Top') },
+				{ value: 'middle', label: t('launchpad', 'Middle') },
+				{ value: 'bottom', label: t('launchpad', 'Bottom') },
 			]
 		},
 
 		/** @spec openspec/specs/header-widget/spec.md */
 		heightOptions() {
 			return [
-				{ value: 'small', label: t('mydash', 'Small (120px)') },
-				{ value: 'medium', label: t('mydash', 'Medium (200px)') },
-				{ value: 'large', label: t('mydash', 'Large (320px)') },
-				{ value: 'xlarge', label: t('mydash', 'Extra Large (480px)') },
+				{ value: 'small', label: t('launchpad', 'Small (120px)') },
+				{ value: 'medium', label: t('launchpad', 'Medium (200px)') },
+				{ value: 'large', label: t('launchpad', 'Large (320px)') },
+				{ value: 'xlarge', label: t('launchpad', 'Extra Large (480px)') },
 			]
 		},
 
 		/** @spec openspec/specs/header-widget/spec.md */
 		ctaStyleOptions() {
 			return [
-				{ value: 'primary', label: t('mydash', 'Primary') },
-				{ value: 'secondary', label: t('mydash', 'Secondary') },
-				{ value: 'ghost', label: t('mydash', 'Ghost') },
+				{ value: 'primary', label: t('launchpad', 'Primary') },
+				{ value: 'secondary', label: t('launchpad', 'Secondary') },
+				{ value: 'ghost', label: t('launchpad', 'Ghost') },
 			]
 		},
 
@@ -405,10 +405,10 @@ export default {
 				const result = await uploadDataUrl(dataUrl)
 				this.updateField('backgroundImageUrl', result.url)
 			} catch (err) {
-				this.uploadError = t('mydash', 'Failed to upload image')
+				this.uploadError = t('launchpad', 'Failed to upload image')
 				if (err instanceof ResourceUploadError) {
 					// eslint-disable-next-line no-console
-					console.warn('[mydash] header background upload failed', err.code, err.message)
+					console.warn('[launchpad] header background upload failed', err.code, err.message)
 				}
 			} finally {
 				this.uploading = false
@@ -433,17 +433,17 @@ export default {
 		validate() {
 			const errors = []
 			if (typeof this.title !== 'string' || this.title.trim() === '') {
-				errors.push(t('mydash', 'Title is required'))
+				errors.push(t('launchpad', 'Title is required'))
 			}
 			if (typeof this.backgroundImageUrl === 'string'
 				&& this.backgroundImageUrl.trim() !== ''
 				&& /^https?:\/\//i.test(this.backgroundImageUrl.trim()) === false) {
-				errors.push(t('mydash', 'Background image URL must be HTTP or HTTPS'))
+				errors.push(t('launchpad', 'Background image URL must be HTTP or HTTPS'))
 			}
 			const labelEmpty = typeof this.ctaLabel !== 'string' || this.ctaLabel.trim() === ''
 			const urlEmpty = typeof this.ctaUrl !== 'string' || this.ctaUrl.trim() === ''
 			if (labelEmpty !== urlEmpty) {
-				errors.push(t('mydash', 'Call-to-Action requires both label and URL'))
+				errors.push(t('launchpad', 'Call-to-Action requires both label and URL'))
 			}
 			return errors
 		},

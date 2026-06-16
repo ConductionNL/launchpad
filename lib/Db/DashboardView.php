@@ -3,26 +3,26 @@
 /**
  * DashboardView Entity
  *
- * Represents one daily aggregate row in `mydash_dashboard_views` —
+ * Represents one daily aggregate row in `launchpad_dashboard_views` —
  * the persistent half of the dashboard view-analytics capability
  * (REQ-ANLT-001..003). One entity per `(dashboardUuid, viewBucket)`
  * pair.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;

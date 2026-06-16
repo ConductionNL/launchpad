@@ -1,14 +1,15 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * Vitest unit tests for `WorkspaceApp.vue`. Covers REQ-SHELL-001..007:
+ * Vitest unit tests for `WorkspaceApp.vue`. Covers the runtime-shell:
  *  - REQ-SHELL-002 (canEdit gate),
- *  - REQ-SHELL-003 (toolbar present when canEdit, Save button disabled in-flight),
+ *  - the in-page edit toolbar was removed — editing actions now live in
+ *    the per-dashboard cog menu (DashboardRowActions), so the page chrome
+ *    stays clean (regression-guarded below),
  *  - REQ-SHELL-004 (hamburger as `NcButton type="tertiary"` + active-dashboard label),
  *  - REQ-SHELL-005 (empty-state branch on `allowUserDashboards`),
- *  - REQ-SHELL-006 (SidebarBackdrop rendered when sidebarOpen),
- *  - REQ-SHELL-007 (lifecycle cleanup of the `document.click` listener).
+ *  - REQ-SHELL-006 (SidebarBackdrop rendered when sidebarOpen).
  *
  * The embedded Views.vue child is stubbed because it depends on Pinia
  * stores + GridStack — neither is in scope for runtime-shell unit tests.
@@ -101,65 +102,17 @@ describe('WorkspaceApp', () => {
 		})
 	})
 
-	describe('REQ-SHELL-003: toolbar contents and visibility', () => {
-		it('toolbar is present in DOM for admin on group dashboard (canEdit=true)', () => {
+	describe('edit toolbar removed (actions live in the dashboard cog menu)', () => {
+		it('does not render an in-page edit toolbar even when canEdit=true', () => {
 			const wrapper = mountShell({
 				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: 'd1' },
 			})
-			expect(wrapper.find('.workspace-shell__toolbar').exists()).toBe(true)
-		})
-
-		it('toolbar is present in DOM for non-admin on personal dashboard (canEdit=true)', () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: false, dashboardSource: 'user', activeDashboardId: 'd1' },
-			})
-			expect(wrapper.find('.workspace-shell__toolbar').exists()).toBe(true)
-		})
-
-		it('toolbar is NOT in DOM for non-admin on group dashboard (canEdit=false)', () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: false, dashboardSource: 'group', activeDashboardId: 'd1' },
-			})
-			// v-if removes from DOM entirely — not v-show
+			// The Region-3 toolbar (Add Widget + Save Layout) was removed;
+			// editing actions now live in the per-dashboard cog menu
+			// (DashboardRowActions), so the page chrome stays clean.
 			expect(wrapper.find('.workspace-shell__toolbar').exists()).toBe(false)
-		})
-
-		it('toolbar is NOT in DOM when no active dashboard (empty state)', () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: '' },
-			})
-			expect(wrapper.find('.workspace-shell__toolbar').exists()).toBe(false)
-		})
-
-		it('Save Layout button exists with correct test attribute when canEdit', () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: 'd1' },
-			})
-			expect(wrapper.find('.workspace-shell__save-button').exists()).toBe(true)
-		})
-
-		it('Add Widget button exists with correct data-test attribute when canEdit', () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: 'd1' },
-			})
-			expect(wrapper.find('[data-test="add-widget-toolbar-button"]').exists()).toBe(true)
-		})
-
-		it('Save button is disabled while saving is true', async () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: 'd1' },
-			})
-			wrapper.vm.saving = true
-			await wrapper.vm.$nextTick()
-			const saveBtn = wrapper.find('.workspace-shell__save-button')
-			expect(saveBtn.attributes('disabled')).toBeDefined()
-		})
-
-		it('saving state begins as false (no in-flight request on mount)', () => {
-			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'user', activeDashboardId: 'd1' },
-			})
-			expect(wrapper.vm.saving).toBe(false)
+			expect(wrapper.find('.workspace-shell__save-button').exists()).toBe(false)
+			expect(wrapper.find('[data-test="add-widget-toolbar-button"]').exists()).toBe(false)
 		})
 	})
 
@@ -240,23 +193,6 @@ describe('WorkspaceApp', () => {
 			wrapper.vm.sidebarOpen = true
 			wrapper.vm.closeSidebar()
 			expect(wrapper.vm.sidebarOpen).toBe(false)
-		})
-	})
-
-	describe('REQ-SHELL-007: lifecycle hooks', () => {
-		it('registers document click listener on mount, removes on unmount', async () => {
-			const addSpy = vi.spyOn(document, 'addEventListener')
-			const removeSpy = vi.spyOn(document, 'removeEventListener')
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			await wrapper.vm.$nextTick()
-			const addedHandler = addSpy.mock.calls.find(c => c[0] === 'click')?.[1]
-			expect(typeof addedHandler).toBe('function')
-
-			wrapper.destroy()
-			const removedHandler = removeSpy.mock.calls.find(c => c[0] === 'click')?.[1]
-			expect(removedHandler).toBe(addedHandler)
-			addSpy.mockRestore()
-			removeSpy.mockRestore()
 		})
 	})
 })

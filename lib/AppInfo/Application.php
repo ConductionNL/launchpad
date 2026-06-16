@@ -3,10 +3,10 @@
 /**
  * Application
  *
- * Main application bootstrap class for MyDash.
+ * Main application bootstrap class for LaunchPad.
  *
  * @category  AppInfo
- * @package   OCA\MyDash\AppInfo
+ * @package   OCA\LaunchPad\AppInfo
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,27 +16,28 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\AppInfo;
+namespace OCA\LaunchPad\AppInfo;
 
-use OCA\MyDash\Activity\DebounceHelper;
-use OCA\MyDash\BackgroundJob\PurgeViewsJob;
-use OCA\MyDash\BackgroundJob\SaltRotationJob;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Job\FeedRefreshJob;
-use OCA\MyDash\Listener\CommentsListener;
-use OCA\MyDash\Listener\GroupDeletedListener;
-use OCA\MyDash\Listener\LocksListener;
-use OCA\MyDash\Listener\MetadataValuesListener;
-use OCA\MyDash\Listener\PublicSharesListener;
-use OCA\MyDash\Listener\ReactionsListener;
-use OCA\MyDash\Listener\TranslationsListener;
-use OCA\MyDash\Listener\TreeListener;
-use OCA\MyDash\Listener\UserDeletedListener;
-use OCA\MyDash\Listener\VersionsListener;
-use OCA\MyDash\Listener\ViewAnalyticsListener;
-use OCA\MyDash\Listener\WidgetPlacementsListener;
-use OCA\MyDash\Notification\Notifier;
-use OCA\MyDash\Search\MyDashSearchProvider;
+use OCA\LaunchPad\Activity\DebounceHelper;
+use OCA\LaunchPad\BackgroundJob\PurgeViewsJob;
+use OCA\LaunchPad\BackgroundJob\SaltRotationJob;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Job\FeedRefreshJob;
+use OCA\LaunchPad\Listener\CommentsListener;
+use OCA\LaunchPad\Listener\GroupDeletedListener;
+use OCA\LaunchPad\Listener\LocksListener;
+use OCA\LaunchPad\Listener\MetadataValuesListener;
+use OCA\LaunchPad\Listener\PublicSharesListener;
+use OCA\LaunchPad\Listener\ReactionsListener;
+use OCA\LaunchPad\Listener\TranslationsListener;
+use OCA\LaunchPad\Listener\TreeListener;
+use OCA\LaunchPad\Listener\UserDeletedListener;
+use OCA\LaunchPad\Listener\VersionsListener;
+use OCA\LaunchPad\Listener\ViewAnalyticsListener;
+use OCA\LaunchPad\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Notification\Notifier;
+use OCA\LaunchPad\Search\LaunchPadSearchProvider;
+use OCA\LaunchPad\Service\PublicShareContext;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -59,7 +60,7 @@ use OCP\User\Events\UserDeletedEvent;
  */
 class Application extends App implements IBootstrap
 {
-    public const APP_ID = 'mydash';
+    public const APP_ID = 'launchpad';
 
     /**
      * Constructor
@@ -105,6 +106,15 @@ class Application extends App implements IBootstrap
         $context->registerService(
             name: DebounceHelper::class,
             factory: static fn(): DebounceHelper => new DebounceHelper(),
+            shared: true
+        );
+
+        // Task-7 of dashboard-public-share — request-scoped bearer marker
+        // shared across the entire request so mutation services can
+        // assert read-only context without middleware plumbing.
+        $context->registerService(
+            name: PublicShareContext::class,
+            factory: static fn(): PublicShareContext => new PublicShareContext(),
             shared: true
         );
 
@@ -163,8 +173,77 @@ class Application extends App implements IBootstrap
 
         // Surface dashboards, widget content, and metadata values in
         // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
-        $context->registerSearchProvider(class: MyDashSearchProvider::class);
+        $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
+
+        // Observability (ADR-040): re-point the unchanged /api/health and
+        // /api/metrics routes at thin subclasses of the OpenRegister AppHost
+        // generic controllers, which render the declarative observability block
+        // of src/manifest.json. The factories below are lazy — they reference
+        // no OCA\OpenRegister\… symbol until a request resolves the controller,
+        // so a disabled/absent OpenRegister never fatals NC bootstrap (the route
+        // then surfaces the degraded OR-unavailable state instead). $appId is the
+        // runtime app id `launchpad`; the engine reads the manifest under it and
+        // emits the launchpad_ Prometheus prefix, preserving the contract.
+        $this->registerObservability(context: $context);
     }//end register()
+
+    /**
+     * Wire the AppHost observability controllers (ADR-040).
+     *
+     * Aliases the unchanged `health#index` / `metrics#index` route targets at
+     * the OpenRegister AppHost generic controllers, per the documented leaf
+     * adoption pattern (docs/Technical/declarative-observability.md). The
+     * controller's `$appName` resolves to this leaf's app id, so the engine
+     * loads `src/manifest.json`'s `observability` block under `launchpad` and
+     * renders the `launchpad_`-prefixed Prometheus output. The generic
+     * controllers own the auth posture: health is public (`#[PublicPage]`),
+     * metrics admin-only.
+     *
+     * LaunchPad keeps its own bespoke Dashboard/Preferences/Settings/
+     * AdminSettings boilerplate — entangled with the dashboard lifecycle,
+     * permission matrix and DoS-guarded preferences (see
+     * openspec/changes/adopt-apphost/design.md). The aliases are class-string
+     * registrations, so a disabled/absent OpenRegister never fatals NC
+     * bootstrap; the first request to an aliased route surfaces the degraded
+     * OR-unavailable state instead.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerObservability(IRegistrationContext $context): void
+    {
+        // Health controller. The generic class is referenced only as a string
+        // and instantiated inside the closure, so no OCA\OpenRegister symbol is
+        // touched until a request resolves the controller — keeping NC bootstrap
+        // fatal-free when OpenRegister is disabled/absent. $appName is pinned to
+        // this leaf's runtime app id (`launchpad`) so the engine loads the right
+        // manifest and emits the `launchpad_` prefix, exactly as before adoption.
+        $context->registerService(
+            \OCA\LaunchPad\Controller\HealthController::class,
+            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
+                return new \OCA\LaunchPad\Controller\HealthController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    executor: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
+                );
+            }
+        );
+
+        // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
+        $context->registerService(
+            \OCA\LaunchPad\Controller\MetricsController::class,
+            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
+                return new \OCA\LaunchPad\Controller\MetricsController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    engine: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
+                );
+            }
+        );
+    }//end registerObservability()
 
     /**
      * App initialization after all apps are registered.
@@ -187,7 +266,7 @@ class Application extends App implements IBootstrap
         }
 
         // App initialization after all apps are registered.
-        \OCP\Util::addStyle(application: self::APP_ID, file: 'mydash');
+        \OCP\Util::addStyle(application: self::APP_ID, file: 'launchpad');
 
         // Register the dashboard view-analytics background jobs
         // (REQ-ANLT-003 design D2 + REQ-ANLT-009) plus the periodic
@@ -205,7 +284,7 @@ class Application extends App implements IBootstrap
             $context->getServerContainer()
                 ->get(\Psr\Log\LoggerInterface::class)
                 ->warning(
-                    'Failed to register MyDash background jobs: '.$exception->getMessage(),
+                    'Failed to register LaunchPad background jobs: '.$exception->getMessage(),
                     ['app' => self::APP_ID]
                 );
         }

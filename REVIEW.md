@@ -1,8 +1,8 @@
-# MyDash Review
+# LaunchPad Review
 
 **Date:** 2026-03-21
 **Reviewer:** Claude (automated)
-**App path:** `/home/rubenlinde/nextcloud-docker-dev/workspace/server/apps-extra/mydash`
+**App path:** `/home/rubenlinde/nextcloud-docker-dev/workspace/server/apps-extra/launchpad`
 
 ---
 
@@ -58,7 +58,7 @@ No warnings, no skipped tests.
 
 ## 3. Browser Test Results
 
-### Main Dashboard (`/apps/mydash/`)
+### Main Dashboard (`/apps/launchpad/`)
 
 **Result: RENDERS SUCCESSFULLY with some Vue warnings**
 
@@ -78,7 +78,7 @@ The dashboard loads and displays:
   - Tabs for "Widgets" and "Dashboards"
 - **Documentation** button -- visible alongside Customize
 
-**Console issues (MyDash-specific):**
+**Console issues (LaunchPad-specific):**
 - `[Vue warn]: Invalid prop: type check failed` -- repeated ~15 times across widget items (likely widget item `subtitle` prop receiving wrong type)
 - `[Vue warn]: Duplicate keys detected` -- duplicate key `1773...` in recommended files list
 - `[NcModal] You need either set...` -- NcModal missing required prop
@@ -87,12 +87,12 @@ The dashboard loads and displays:
 
 These are Vue warnings, not blocking errors. The app remains functional.
 
-### Admin Settings (`/settings/admin/mydash`)
+### Admin Settings (`/settings/admin/launchpad`)
 
 **Result: RENDERS CORRECTLY**
 
 The admin settings page displays:
-- **Title:** "MyDash Settings" with external documentation link to mydash.app
+- **Title:** "LaunchPad Settings" with external documentation link to launchpad.app
 - **Subtitle:** "Configure dashboard permissions and defaults"
 - **Default settings section:**
   - Default permission level dropdown (set to "Add only")
@@ -104,7 +104,7 @@ The admin settings page displays:
   - Description: "Create dashboard templates that will be applied to users based on their groups."
   - Empty state: "No templates yet"
 - **Setting as default app section:**
-  - Instructions to set MyDash as default via Theming settings
+  - Instructions to set LaunchPad as default via Theming settings
 
 ---
 
@@ -132,7 +132,7 @@ The admin settings page displays:
 
 | File | Size |
 |------|------|
-| mydash-dashboard-overview.png | 140,246 bytes |
+| launchpad-dashboard-overview.png | 140,246 bytes |
 
 The screenshot is valid (non-zero, confirmed viewable).
 
@@ -160,7 +160,7 @@ None. The app loads, renders, and all tests pass.
 
 5. **`docs/node_modules/` committed or present (LOW):** The `docs/` directory contains a full `node_modules/` tree. If committed to git, this bloats the repository. Should be added to `.gitignore`.
 
-6. **Missing `phpunit-unit.xml` (COSMETIC):** The standard Conduction app pattern uses `phpunit-unit.xml` but MyDash uses `phpunit.xml`. Not a problem functionally, but inconsistent with other apps.
+6. **Missing `phpunit-unit.xml` (COSMETIC):** The standard Conduction app pattern uses `phpunit-unit.xml` but LaunchPad uses `phpunit.xml`. Not a problem functionally, but inconsistent with other apps.
 
 7. **Client Search widget data error (EXPECTED):** The Pipelinq Client Search widget fails to fetch from `/api/objects/228/498` -- this is expected when the referenced register/schema does not exist in the current environment.
 
@@ -181,7 +181,7 @@ None. The app loads, renders, and all tests pass.
 
 **Status: GOOD -- production-ready with minor polish needed**
 
-MyDash is in solid shape. All 9 OpenSpec features have been implemented, spec'd, and archived. The unit test suite is comprehensive (104 tests, 291 assertions, all passing). The dashboard renders correctly with a functional grid layout, widget rendering (both API and legacy callback widgets), tile shortcuts, a customize sidebar, and admin settings with permission controls and template management.
+LaunchPad is in solid shape. All 9 OpenSpec features have been implemented, spec'd, and archived. The unit test suite is comprehensive (104 tests, 291 assertions, all passing). The dashboard renders correctly with a functional grid layout, widget rendering (both API and legacy callback widgets), tile shortcuts, a customize sidebar, and admin settings with permission controls and template management.
 
 The main areas for improvement are:
 - Fix the ~15 Vue prop type warnings to clean up the console

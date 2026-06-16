@@ -1,8 +1,8 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * Centralised JS reader for the per-page MyDash initial-state contract
+ * Centralised JS reader for the per-page LaunchPad initial-state contract
  * (REQ-INIT-003). The matching PHP builder lives at
  * `lib/Service/InitialStateBuilder.php`. Adding, removing, or renaming a
  * key here is a deliberate spec change — bump
@@ -10,7 +10,7 @@
  * and update the per-page table below.
  *
  * This module is the only place in the frontend allowed to call
- * `loadState('mydash', ...)`; a CI grep guard in `package.json`'s
+ * `loadState('launchpad', ...)`; a CI grep guard in `package.json`'s
  * `lint:initial-state` script enforces that.
  */
 
@@ -89,7 +89,7 @@ export function loadInitialState(page) {
 	if (serverVersion !== null && serverVersion !== INITIAL_STATE_SCHEMA_VERSION) {
 		// eslint-disable-next-line no-console
 		console.warn(
-			`MyDash initial-state schema mismatch: server v${serverVersion} vs client v${INITIAL_STATE_SCHEMA_VERSION} — refresh recommended`,
+			`LaunchPad initial-state schema mismatch: server v${serverVersion} vs client v${INITIAL_STATE_SCHEMA_VERSION} — refresh recommended`,
 		)
 	}
 
@@ -107,7 +107,13 @@ export function loadInitialState(page) {
  */
 function readKey(key, fallback) {
 	try {
-		const value = loadState('mydash', key, fallback)
+		// The installed app id is 'mydash' (NC App Store id), so the PHP
+		// side provides initial-state under that namespace. Fall back to
+		// the 'launchpad' namespace for forward compatibility.
+		let value = loadState('mydash', key, undefined)
+		if (value === undefined) {
+			value = loadState('launchpad', key, fallback)
+		}
 		return value === undefined ? fallback : value
 	} catch (e) {
 		return fallback

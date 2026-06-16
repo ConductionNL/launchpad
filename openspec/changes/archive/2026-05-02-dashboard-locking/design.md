@@ -9,17 +9,17 @@ the source app in the same monorepo already ships a working page-lock system who
 may differ significantly from those assumptions.
 
 A deep-read of the source source at tag 0.8.4 was performed to ground-truth the open question.
-The findings below drive the final design choices for the MyDash `DashboardLock` feature.
+The findings below drive the final design choices for the LaunchPad `DashboardLock` feature.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Align the MyDash lock model with the proven the source app approach where it is architecturally sound.
+- Align the LaunchPad lock model with the proven the source app approach where it is architecturally sound.
 - Resolve all six open sub-questions (clientId, expiresAt column, heartbeat endpoint, owner check, admin override, background sweeper) with a clear decision backed by source evidence.
 - Produce a spec-delta list so REQ-LOCK-001..008 can be updated in a single targeted edit pass.
 
 **Non-Goals:**
-- Porting the source lock system directly — MyDash locks dashboards (UUID-keyed), not wiki pages (uniqueId-keyed). The column names and routes differ.
+- Porting the source lock system directly — LaunchPad locks dashboards (UUID-keyed), not wiki pages (uniqueId-keyed). The column names and routes differ.
 - Deciding the frontend implementation details beyond what the backend contract requires.
 
 ## Decisions
@@ -50,7 +50,7 @@ diagnostic information.
 - `the source codebase-source/lib/Migration/Version001001Date20260307000000.php:54-60` — the CREATE TABLE
   statement has columns `created_at` and `updated_at`, with NO `expires_at` column.
 
-**MyDash implication**: The `expiresAt` field in the spec's data model and scenario steps must be
+**LaunchPad implication**: The `expiresAt` field in the spec's data model and scenario steps must be
 replaced with a `lastHeartbeat` field (= `updated_at`) plus an implicit expiry rule
 (`lastHeartbeat + TTL`). The TTL constant lives in `DashboardLockService`, not in the row.
 
@@ -85,7 +85,7 @@ edge case is negligible: any of the user's tabs can extend the lease.
 - `the source codebase-source/lib/Controller/PageLockController.php:48-64` — `acquireLock()` passes only
   `$user->getUID()` and `$user->getDisplayName()` to the service; no request body is parsed.
 
-**MyDash implication**: Remove the `clientId` column from the data model. Remove `clientId` from
+**LaunchPad implication**: Remove the `clientId` column from the data model. Remove `clientId` from
 all request bodies (acquire, heartbeat, release). Update REQ-LOCK-001 scenario "Same user with two
 browser tabs" — tab-2's acquire MUST succeed (re-entrant refresh), not return 409. Remove
 REQ-LOCK-002 "Wrong clientId on alice's own lock" scenario. Update heartbeat and release to use
@@ -115,7 +115,7 @@ DELETE=release) is clean and avoids route proliferation. The 60-second heartbeat
   — heartbeat every 60 seconds confirmed in a comment: `// Every 60 seconds`.
 - `the source codebase-source/src/App.vue:779-780` — PUT target is the same lock URL (no `/heartbeat` suffix).
 
-**MyDash implication**: Replace `POST /api/dashboards/{uuid}/lock/heartbeat` with
+**LaunchPad implication**: Replace `POST /api/dashboards/{uuid}/lock/heartbeat` with
 `PUT /api/dashboards/{uuid}/lock`. Update REQ-LOCK-002 route reference. Update the proposal's
 endpoint table and `appinfo/routes.php` impact section accordingly. The heartbeat cadence note in
 REQ-LOCK-002 and the proposal should change from "every 3 minutes" to "every 60 seconds".
@@ -154,7 +154,7 @@ added later if compliance requirements surface.
   `force-release` endpoint; the admin then sees the lock indicator clear from the UI, after which
   they may enter edit mode themselves via the normal acquire path.
 
-**MyDash implication**: Rename the admin endpoint from `force-acquire` to `force-release` in all
+**LaunchPad implication**: Rename the admin endpoint from `force-acquire` to `force-release` in all
 spec scenarios, the proposal, and the routes impact list. Remove the scenario "Admin steals a lock"
 (simultaneous acquire) and replace with "Admin releases lock, then can acquire normally". Downgrade
 the `OCP\Activity\IManager` dependency to optional/future; use `LoggerInterface` only for the
@@ -191,7 +191,7 @@ stale rows accumulate between accesses.
   'iv_pl_updated')` — the index exists to keep the cleanup DELETE fast.
 - No `IJob` or `BackgroundJob` subclass found anywhere in the source `lib/` tree.
 
-**MyDash implication**: The spec's current note "no background sweeper required for correctness,
+**LaunchPad implication**: The spec's current note "no background sweeper required for correctness,
 though a separate orphaned-data-cleanup spec may purge them" is directionally correct but should be
 updated to document the inline-cleanup approach. The `DashboardLockMapper` must expose a
 `deleteExpiredForDashboard(string $uuid)` method that `DashboardLockService` calls at the start of
@@ -213,7 +213,7 @@ reduces false-positive lock-lost alerts in the UI.
 - `the source codebase-source/lib/Service/PageLockService.php:17` — `private const LOCK_TIMEOUT_MINUTES = 15;`
 - `the source codebase-source/src/App.vue:768` — comment `// Best effort — lock will auto-expire after 15 min`
 
-**MyDash implication**: Change all spec scenario times from "5 minutes / 300 seconds" to
+**LaunchPad implication**: Change all spec scenario times from "5 minutes / 300 seconds" to
 "15 minutes / 900 seconds". Update the heartbeat cadence note to "every 60 seconds (15× safety
 margin)".
 
@@ -221,12 +221,12 @@ margin)".
 
 ## Schema — Resolved Column Set
 
-Based on the source migration (ground-truth), the `oc_mydash_dashboard_locks` table MUST have:
+Based on the source migration (ground-truth), the `oc_launchpad_dashboard_locks` table MUST have:
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | BIGINT UNSIGNED AUTO_INCREMENT | Primary key |
-| `dashboard_uuid` | VARCHAR(36) UNIQUE | References `oc_mydash_dashboards.uuid`; UNIQUE enforces one-lock-per-dashboard atomically |
+| `dashboard_uuid` | VARCHAR(36) UNIQUE | References `oc_launchpad_dashboards.uuid`; UNIQUE enforces one-lock-per-dashboard atomically |
 | `user_id` | VARCHAR(64) | Lock owner |
 | `display_name` | VARCHAR(255) | Cached display name at acquire time |
 | `created_at` | DATETIME | Set on first acquire; never updated |
@@ -260,5 +260,5 @@ The following changes to `specs/dashboard-locking/spec.md` are implied by these 
 1. **Re-entrant same-user acquire UX**: With no `clientId`, the second tab for the same user now gets HTTP 200 (re-entrant) — the frontend must still detect "I'm already editing in another tab" and show an appropriate warning. Mechanism: the frontend can store the `acquiredAt` timestamp; if acquire returns 200 but `acquiredAt` is older than what this tab set, another tab must hold it. Or simply: always show "You may be editing in another tab" on acquire-200 if the tab is freshly opened. Needs a frontend UX decision.
 2. **`force-release` notification to evicted user**: When an admin force-releases a lock, the locked-out user's editor continues heartbeating. On the next PUT (within 60s), the heartbeat returns 409 (lock gone or held by new owner), triggering the "Your edit lock has expired" alert. This is acceptable but could be improved with a push notification via Nextcloud notification API. Defer to a follow-up.
 3. **Background sweeper for orphaned rows**: Inline cleanup handles rows on active dashboards. Locks on dashboards that are never visited after a browser crash will linger until someone opens that dashboard. The `updated_at` index makes a periodic `DELETE WHERE updated_at < now() - 15min` sweep trivially cheap. Wire a Nextcloud background job in a follow-up to prevent unbounded table growth.
-4. **Cascade on dashboard delete (REQ-LOCK-008)**: the source app does not have a cascade example (pages are not deleted the same way). Confirm whether MyDash's `DashboardMapper::delete()` should call `DashboardLockMapper::deleteByDashboardUuid()` explicitly in the service layer, or whether a DB-level ON DELETE CASCADE should be used. Note that Nextcloud's migration framework supports foreign keys on MySQL/Postgres but not SQLite; an application-layer cascade in `DashboardService::delete()` is safer.
-5. **Localization of heartbeat error messages**: The the source app frontend uses `this.t(...)` for error messages but the backend returns plain English strings. Ensure MyDash backend returns translatable error codes (not prose) so the frontend can show localized strings matching the i18n spec.
+4. **Cascade on dashboard delete (REQ-LOCK-008)**: the source app does not have a cascade example (pages are not deleted the same way). Confirm whether LaunchPad's `DashboardMapper::delete()` should call `DashboardLockMapper::deleteByDashboardUuid()` explicitly in the service layer, or whether a DB-level ON DELETE CASCADE should be used. Note that Nextcloud's migration framework supports foreign keys on MySQL/Postgres but not SQLite; an application-layer cascade in `DashboardService::delete()` is safer.
+5. **Localization of heartbeat error messages**: The the source app frontend uses `this.t(...)` for error messages but the backend returns plain English strings. Ensure LaunchPad backend returns translatable error codes (not prose) so the frontend can show localized strings matching the i18n spec.

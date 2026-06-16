@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -31,11 +31,11 @@
 			class="nc-dashboard-widget__body"
 			:class="bodyClass">
 			<div v-if="loading" class="nc-dashboard-widget__loading">
-				{{ t('mydash', 'Loading…') }}
+				{{ t('launchpad', 'Loading…') }}
 			</div>
 
 			<div v-else-if="items.length === 0" class="nc-dashboard-widget__empty">
-				{{ t('mydash', 'No items available') }}
+				{{ t('launchpad', 'No items available') }}
 			</div>
 
 			<template v-else>
@@ -113,7 +113,7 @@ export function extractItems(widgetData) {
 }
 
 /**
- * NcDashboardWidget renders any Nextcloud Dashboard widget inside a MyDash
+ * NcDashboardWidget renders any Nextcloud Dashboard widget inside a LaunchPad
  * grid cell (REQ-WDG-018, REQ-WDG-019, REQ-WDG-020, REQ-WDG-021).
  *
  * Two-mode rendering:
@@ -182,7 +182,7 @@ export default {
 
 		/** @spec openspec/specs/nc-dashboard-widget-proxy/spec.md */
 		widgetTitle() {
-			return this.widgetMeta?.title || this.widgetId || t('mydash', 'Widget')
+			return this.widgetMeta?.title || this.widgetId || t('launchpad', 'Widget')
 		},
 
 		/** @spec openspec/specs/nc-dashboard-widget-proxy/spec.md */
@@ -332,7 +332,6 @@ export default {
 	align-items: center;
 	gap: 8px;
 	padding: 8px 12px;
-	border-bottom: 1px solid var(--color-border);
 	font-weight: bold;
 }
 

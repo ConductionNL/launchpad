@@ -4,24 +4,24 @@
  * Version001005Date20260430000000
  *
  * Migration adding the group_id column and (type, group_id) composite index
- * to mydash_dashboards in support of REQ-DASH-011..014 (multi-scope
+ * to launchpad_dashboards in support of REQ-DASH-011..014 (multi-scope
  * dashboards: group_shared scope plus default-group sentinel).
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -36,7 +36,7 @@ use OCP\Migration\SimpleMigrationStep;
 class Version001005Date20260430000000 extends SimpleMigrationStep
 {
     /**
-     * Add group_id column + composite index to mydash_dashboards.
+     * Add group_id column + composite index to launchpad_dashboards.
      *
      * @param IOutput $output        The migration output handler.
      * @param Closure $schemaClosure The schema closure (returns ISchemaWrapper).
@@ -51,11 +51,11 @@ class Version001005Date20260430000000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboards') === false) {
+        if ($schema->hasTable('launchpad_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable('mydash_dashboards');
+        $table = $schema->getTable('launchpad_dashboards');
 
         if ($table->hasColumn('group_id') === false) {
             $table->addColumn(
@@ -68,10 +68,10 @@ class Version001005Date20260430000000 extends SimpleMigrationStep
             );
         }
 
-        if ($table->hasIndex('mydash_dash_type_group') === false) {
+        if ($table->hasIndex('launchpad_dash_type_group') === false) {
             $table->addIndex(
                 ['type', 'group_id'],
-                'mydash_dash_type_group'
+                'launchpad_dash_type_group'
             );
         }
 

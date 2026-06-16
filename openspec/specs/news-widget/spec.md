@@ -6,13 +6,13 @@ status: implemented
 
 ## Purpose
 
-The news widget aggregates RSS and Atom feed items from one or more configured sources and renders them on a MyDash dashboard. Per-placement configuration controls which feeds are included, the layout mode (list, grid, carousel), an optional item cap, presentation switches (thumbnails, summary, date format), and an optional metadata-based filter that suppresses the widget on dashboards whose metadata does not match. HTML sanitisation, host allow-listing, failure tolerance, and link-security defaults are all enforced server-side; the Vue renderer never re-sanitises and never performs upstream fetches.
+The news widget aggregates RSS and Atom feed items from one or more configured sources and renders them on a LaunchPad dashboard. Per-placement configuration controls which feeds are included, the layout mode (list, grid, carousel), an optional item cap, presentation switches (thumbnails, summary, date format), and an optional metadata-based filter that suppresses the widget on dashboards whose metadata does not match. HTML sanitisation, host allow-listing, failure tolerance, and link-security defaults are all enforced server-side; the Vue renderer never re-sanitises and never performs upstream fetches.
 
 This capability ships the renderer (`NewsWidget.vue`), the placement sub-form (`NewsForm.vue`), the registry entry (`news` in `widgetRegistry.js`), the backend service (`NewsWidgetService`), the controller endpoint (`WidgetApiController::newsItems`), the route (`GET /api/widgets/news/{placementId}/items`), and the i18n strings (en + nl, .json + .js). The sibling `background-job-feed-refresh` capability is not yet on this branch — the widget gracefully degrades to synchronous on-demand fetches and caches the raw feed payload via Nextcloud's `ICache` for `news_widget_feed_cache_ttl_seconds` (default 3600s).
 
 ## Data Model
 
-News widget placements use the existing `oc_mydash_widget_placements.styleConfig` JSON column (no schema migration). The `content` blob has the shape:
+News widget placements use the existing `oc_launchpad_widget_placements.styleConfig` JSON column (no schema migration). The `content` blob has the shape:
 
 - **feedUrls** (`string[]`, default `[]`) — HTTP(S) feed URLs; non-HTTP(S) entries are dropped at parse time.
 - **layout** (`'list' | 'grid' | 'carousel'`, default `'list'`).
@@ -25,8 +25,8 @@ News widget placements use the existing `oc_mydash_widget_placements.styleConfig
 
 Two admin-config settings are read on demand (created lazily by `IAppConfig`):
 
-- `mydash.news_widget_feed_cache_ttl_seconds` (int, default `3600`).
-- `mydash.news_widget_allowed_feed_hosts` (JSON array string, default `''` ⇒ all hosts allowed).
+- `launchpad.news_widget_feed_cache_ttl_seconds` (int, default `3600`).
+- `launchpad.news_widget_allowed_feed_hosts` (JSON array string, default `''` ⇒ all hosts allowed).
 
 ## Requirements
 
@@ -35,19 +35,19 @@ Two admin-config settings are read on demand (created lazily by `IAppConfig`):
 
 ### Requirement: REQ-NEWS-001 Widget Registration
 
-The system MUST register a new dashboard widget with id `mydash_news` via `OCP\Dashboard\IManager` that appears in the widget picker alongside other discovered Nextcloud dashboard widgets.
+The system MUST register a new dashboard widget with id `launchpad_news` via `OCP\Dashboard\IManager` that appears in the widget picker alongside other discovered Nextcloud dashboard widgets.
 
 #### Scenario: Widget registration on bootstrap
-- GIVEN MyDash is installed and enabled
+- GIVEN LaunchPad is installed and enabled
 - WHEN the application bootstraps (AppInfo/Bootstrap.php or equivalent lifecycle hook)
 - THEN the system MUST call `IManager::registerWidget()` with widget metadata
-- AND the widget MUST have id `mydash_news`, translatable title (e.g., `app.mydash.news_widget_title`), and a feed/newspaper icon URL
+- AND the widget MUST have id `launchpad_news`, translatable title (e.g., `app.launchpad.news_widget_title`), and a feed/newspaper icon URL
 - AND the widget MUST support Nextcloud Dashboard Widget API v2 (`IAPIWidgetV2`) for item loading
 
 #### Scenario: Widget picker includes news widget
 - GIVEN a user opens the widget picker dialog
 - WHEN the picker loads available Nextcloud widgets
-- THEN the `mydash_news` widget MUST appear in the list of discovered widgets
+- THEN the `launchpad_news` widget MUST appear in the list of discovered widgets
 - AND it MUST be selectable for placement on any dashboard
 
 #### Scenario: Multiple news widget instances
@@ -59,7 +59,7 @@ The system MUST register a new dashboard widget with id `mydash_news` via `OCP\D
 #### Scenario: Widget metadata is discoverable
 - GIVEN the widget is registered
 - WHEN the frontend fetches `GET /api/widgets`
-- THEN the response MUST include an object with id `mydash_news` and basic metadata (title, icon_url)
+- THEN the response MUST include an object with id `launchpad_news` and basic metadata (title, icon_url)
 
 ### Requirement: REQ-NEWS-002 Per-Placement Configuration
 
@@ -177,10 +177,10 @@ The widget MUST read from a feed-cache table (populated by the `background-job-f
 - AND subsequent requests within TTL MUST use the cache (delegating refresh to background job)
 
 #### Scenario: Cache TTL configuration
-- GIVEN an admin sets `mydash.news_widget_feed_cache_ttl_seconds` to 1800 (30 minutes)
+- GIVEN an admin sets `launchpad.news_widget_feed_cache_ttl_seconds` to 1800 (30 minutes)
 - WHEN a feed is cached
 - THEN the cache entry MUST expire after 1800 seconds
-- AND cache TTL MUST be readable from `IAppConfig::getValueInt('mydash', 'news_widget_feed_cache_ttl_seconds', 3600)`
+- AND cache TTL MUST be readable from `IAppConfig::getValueInt('launchpad', 'news_widget_feed_cache_ttl_seconds', 3600)`
 - AND default TTL MUST be 3600 seconds (60 minutes)
 
 #### Scenario: Dependency on background-job-feed-refresh
@@ -230,13 +230,13 @@ Feed item summaries MUST be sanitised to remove dangerous HTML while preserving 
 An admin setting MUST restrict feed sources to an explicit allow-list of hostnames.
 
 #### Scenario: Allow-list is empty or null (all hosts allowed)
-- GIVEN the admin setting `mydash.news_widget_allowed_feed_hosts` is `null` or `[]`
+- GIVEN the admin setting `launchpad.news_widget_allowed_feed_hosts` is `null` or `[]`
 - WHEN a widget specifies feedUrl "https://any-domain.com/feed"
 - THEN the system MUST accept and fetch from the URL
 - AND no whitelist check failure MUST occur
 
 #### Scenario: Allow-list restricts to specified hosts
-- GIVEN the admin sets `mydash.news_widget_allowed_feed_hosts` to `["bbc.com", "example.org"]`
+- GIVEN the admin sets `launchpad.news_widget_allowed_feed_hosts` to `["bbc.com", "example.org"]`
 - WHEN a widget specifies feedUrl "https://bbc.com/rss"
 - THEN the system MUST allow the fetch
 - AND when feedUrl "https://other-domain.com/feed" is specified

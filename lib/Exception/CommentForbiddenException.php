@@ -10,20 +10,20 @@
  * REQ-CMNT-005, REQ-CMNT-007, REQ-CMNT-009.
  *
  * @category  Exception
- * @package   OCA\MyDash\Exception
+ * @package   OCA\LaunchPad\Exception
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Exception;
+namespace OCA\LaunchPad\Exception;
 
 /**
  * Comment mutation refused (REQ-CMNT-002, REQ-CMNT-004, REQ-CMNT-005,

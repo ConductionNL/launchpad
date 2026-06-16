@@ -49,7 +49,7 @@
 - [x] 4.2 `POST /api/resources` with garbage non-XML payload → HTTP 400 `{error:'invalid_svg'}` and no file on disk
 - [x] 4.3 `POST /api/resources` with 5.5 MB SVG that sanitises down to 4.5 MB → HTTP 200 (size check measured after sanitisation per REQ-RES-009)
 - [x] 4.4 `POST /api/resources` with 4.9 MB SVG that sanitises down to 4.8 MB → HTTP 200 (well under cap)
-- [x] 4.5 Round-trip: upload sanitised SVG, then `GET /apps/mydash/resource/...` returns the sanitised bytes (NOT the original) — covered by `testPersistedBytesAreSanitisedNotOriginal`; the GET side is exercised by ResourceControllerTest in resource-serving (returns whatever bytes were persisted)
+- [x] 4.5 Round-trip: upload sanitised SVG, then `GET /apps/launchpad/resource/...` returns the sanitised bytes (NOT the original) — covered by `testPersistedBytesAreSanitisedNotOriginal`; the GET side is exercised by ResourceControllerTest in resource-serving (returns whatever bytes were persisted)
 
 ## 5. Quality gates
 

@@ -6,11 +6,11 @@ status: reviewed
 
 ## Purpose
 
-Custom tiles are user-created shortcut cards that provide quick access to Nextcloud apps or external URLs. Unlike widgets (which render dynamic content from Nextcloud apps), tiles are simple, static cards with an icon, label, and link. Tiles are first created as reusable entities in the `oc_mydash_tiles` table, then placed onto dashboards via a special tile placement mechanism that stores tile data inline on the placement. This inline-copy model means tile placements are independent snapshots -- changes to the tile definition do NOT propagate to existing placements.
+Custom tiles are user-created shortcut cards that provide quick access to Nextcloud apps or external URLs. Unlike widgets (which render dynamic content from Nextcloud apps), tiles are simple, static cards with an icon, label, and link. Tiles are first created as reusable entities in the `oc_launchpad_tiles` table, then placed onto dashboards via a special tile placement mechanism that stores tile data inline on the placement. This inline-copy model means tile placements are independent snapshots -- changes to the tile definition do NOT propagate to existing placements.
 
 ## Data Model
 
-### Tiles (oc_mydash_tiles)
+### Tiles (oc_launchpad_tiles)
 - **id**: Auto-increment integer primary key
 - **userId**: Nextcloud user ID of the tile creator (STRING, NOT NULL)
 - **title**: Display label for the tile (STRING)
@@ -26,12 +26,12 @@ Custom tiles are user-created shortcut cards that provide quick access to Nextcl
 NOTE: Tiles do NOT have a UUID field. They are identified by their auto-increment integer `id`.
 
 ### Tile Placements
-Tiles are placed on dashboards using the same `oc_mydash_widget_placements` table. The tile data is stored INLINE on the placement (not as a foreign key reference):
+Tiles are placed on dashboards using the same `oc_launchpad_widget_placements` table. The tile data is stored INLINE on the placement (not as a foreign key reference):
 - `widgetId` is set to `'tile-' + uniqid()` (NOT null -- the DB column is NOT NULL)
 - `tileType` is set to `'custom'`
 - `tileTitle`, `tileIcon`, `tileIconType`, `tileBackgroundColor`, `tileTextColor`, `tileLinkType`, `tileLinkValue` are copied from the tile data
 
-This means tile placements store a COPY of the tile configuration at creation time, NOT a reference to the `oc_mydash_tiles` record. Changes to a tile definition in `oc_mydash_tiles` do NOT automatically propagate to existing tile placements.
+This means tile placements store a COPY of the tile configuration at creation time, NOT a reference to the `oc_launchpad_tiles` record. Changes to a tile definition in `oc_launchpad_tiles` do NOT automatically propagate to existing tile placements.
 
 ## Requirements
 
@@ -150,7 +150,7 @@ Users MUST be able to update the properties of their custom tiles with ownership
 #### Scenario: Update tile does NOT reflect on existing placements
 - GIVEN tile id 3 has been placed on 2 of alice's dashboards (tile data was copied inline to placements at creation time)
 - WHEN she updates the tile's title from "My Files" to "Documents" via PUT /api/tiles/3
-- THEN the tile definition in `oc_mydash_tiles` MUST be updated
+- THEN the tile definition in `oc_launchpad_tiles` MUST be updated
 - BUT existing placements MUST NOT be affected (they store a copy of the tile data, not a reference)
 
 #### Scenario: Partial update preserves unspecified fields
@@ -172,7 +172,7 @@ Users MUST be able to delete their custom tile definitions with ownership verifi
 #### Scenario: Delete a tile that is placed on dashboards
 - GIVEN user "alice" has tile id 3 placed on 2 dashboards
 - WHEN she sends DELETE /api/tiles/3
-- THEN the system MUST delete the tile from `oc_mydash_tiles`
+- THEN the system MUST delete the tile from `oc_launchpad_tiles`
 - AND tile placements on dashboards SHOULD also be deleted
 - NOTE: `TileService::deleteTile()` only deletes the tile entity. It does NOT cascade-delete tile placements. Since placements use inline copies (not foreign key references), there is no DB-level cascade.
 

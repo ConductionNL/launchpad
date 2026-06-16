@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -52,7 +52,7 @@
 		<!-- Unknown widget type -->
 		<NcEmptyContent
 			v-else
-			:description="t('mydash', 'Widget not available')">
+			:description="t('launchpad', 'Widget not available')">
 			<template #icon>
 				<AlertCircleOutline :size="48" />
 			</template>

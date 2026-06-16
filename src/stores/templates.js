@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -71,7 +71,7 @@ export const useTemplatesStore = defineStore('templates', {
 					: []
 				return this.galleryTemplates
 			} catch (err) {
-				showError(t('mydash', 'Could not load template gallery'))
+				showError(t('launchpad', 'Could not load template gallery'))
 				throw err
 			} finally {
 				this.loading = false
@@ -106,9 +106,9 @@ export const useTemplatesStore = defineStore('templates', {
 			} catch (err) {
 				const errCode = err?.response?.data?.error
 				if (errCode === 'forbidden') {
-					showError(t('mydash', 'You can only save your own dashboards as templates'))
+					showError(t('launchpad', 'You can only save your own dashboards as templates'))
 				} else {
-					showError(t('mydash', 'Could not save dashboard as template'))
+					showError(t('launchpad', 'Could not save dashboard as template'))
 				}
 				throw err
 			} finally {
@@ -146,7 +146,7 @@ export const useTemplatesStore = defineStore('templates', {
 				}
 				return url
 			} catch (err) {
-				showError(t('mydash', 'Invalid image format'))
+				showError(t('launchpad', 'Invalid image format'))
 				throw err
 			}
 		},

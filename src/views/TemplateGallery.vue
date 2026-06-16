@@ -1,17 +1,17 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 <template>
 	<section class="template-gallery">
 		<header class="template-gallery__header">
-			<h1>{{ t('mydash', 'Template gallery') }}</h1>
+			<h1>{{ t('launchpad', 'Template gallery') }}</h1>
 			<div class="template-gallery__filters">
 				<label>
-					<span>{{ t('mydash', 'Category') }}</span>
+					<span>{{ t('launchpad', 'Category') }}</span>
 					<select :value="store.selectedCategory ?? ''" @change="onCategoryChange">
 						<option value="">
-							{{ t('mydash', 'All categories') }}
+							{{ t('launchpad', 'All categories') }}
 						</option>
 						<option v-for="cat in store.categories" :key="cat" :value="cat">
 							{{ cat }}
@@ -19,23 +19,23 @@
 					</select>
 				</label>
 				<label>
-					<span>{{ t('mydash', 'Sort by') }}</span>
+					<span>{{ t('launchpad', 'Sort by') }}</span>
 					<select :value="store.sortBy" @change="onSortChange">
 						<option value="name">
-							{{ t('mydash', 'Name') }}
+							{{ t('launchpad', 'Name') }}
 						</option>
 						<option value="updatedAt">
-							{{ t('mydash', 'Recently updated') }}
+							{{ t('launchpad', 'Recently updated') }}
 						</option>
 					</select>
 				</label>
 			</div>
 		</header>
 		<p v-if="store.loading">
-			{{ t('mydash', 'Loading…') }}
+			{{ t('launchpad', 'Loading…') }}
 		</p>
 		<p v-else-if="store.galleryTemplates.length === 0">
-			{{ t('mydash', 'No templates available') }}
+			{{ t('launchpad', 'No templates available') }}
 		</p>
 		<div v-else class="template-gallery__grid">
 			<TemplateCard

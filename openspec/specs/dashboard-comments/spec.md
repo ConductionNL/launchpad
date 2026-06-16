@@ -7,24 +7,24 @@ status: implemented
 
 ## Purpose
 
-Dashboards are shared workspaces within teams and organizations. Dashboard Comments adds a threaded discussion surface so users can ask "why is this widget red?" or "we should change this metric next sprint" directly on the dashboard they are looking at. Comments are persisted via Nextcloud's native `ICommentsManager` infrastructure (the same backend used by the file comments and Talk integrations) so administrators get unified comment storage, notifications, and audit trails — and so MyDash does not introduce a redundant comment table.
+Dashboards are shared workspaces within teams and organizations. Dashboard Comments adds a threaded discussion surface so users can ask "why is this widget red?" or "we should change this metric next sprint" directly on the dashboard they are looking at. Comments are persisted via Nextcloud's native `ICommentsManager` infrastructure (the same backend used by the file comments and Talk integrations) so administrators get unified comment storage, notifications, and audit trails — and so LaunchPad does not introduce a redundant comment table.
 
 ## Data Model
 
-Comments are stored in the existing Nextcloud `oc_comments` table via `\OCP\Comments\ICommentsManager`. MyDash binds them with:
+Comments are stored in the existing Nextcloud `oc_comments` table via `\OCP\Comments\ICommentsManager`. LaunchPad binds them with:
 
-- **objectType**: literal string `mydash_dashboard` (never overlaps with `files` or other apps).
+- **objectType**: literal string `launchpad_dashboard` (never overlaps with `files` or other apps).
 - **objectId**: the dashboard UUID (so deleting a dashboard cleanly cascades through `ICommentsManager::deleteCommentsAtObject`).
 - **actorType / actorId**: `users` / Nextcloud user ID of the comment author.
 - **parentId**: `0` for top-level comments; the parent comment ID for replies. Nesting is enforced one level deep at write time (REQ-CMNT-003).
 
-A nullable `comments_enabled SMALLINT UNSIGNED` column on `oc_mydash_dashboards` controls per-dashboard visibility:
+A nullable `comments_enabled SMALLINT UNSIGNED` column on `oc_launchpad_dashboards` controls per-dashboard visibility:
 
-- **NULL** — inherit the global `mydash.comments_enabled_default` admin setting.
+- **NULL** — inherit the global `launchpad.comments_enabled_default` admin setting.
 - **1** — force comments on, regardless of the global toggle.
 - **0** — force comments off, regardless of the global toggle.
 
-The global default is stored in `oc_mydash_admin_settings` under key `comments_enabled_default` (JSON-encoded boolean). Default on fresh install is `true`.
+The global default is stored in `oc_launchpad_admin_settings` under key `comments_enabled_default` (JSON-encoded boolean). Default on fresh install is `true`.
 
 ## Requirements
 
@@ -60,7 +60,7 @@ Users with write permissions MUST be able to post new top-level comments on a da
 #### Scenario: Create a new top-level comment
 - GIVEN user "alice" has write access to dashboard "dash-001"
 - WHEN she sends `POST /api/dashboards/dash-001/comments` with body `{"message": "Need to verify this metric"}`
-- THEN the system MUST create a comment via `ICommentsManager::save()` with objectType `'mydash_dashboard'` and objectId = dashboard UUID
+- THEN the system MUST create a comment via `ICommentsManager::save()` with objectType `'launchpad_dashboard'` and objectId = dashboard UUID
 - AND return HTTP 201 with the full comment object including generated comment id
 - AND the comment MUST appear in subsequent `GET /api/dashboards/dash-001/comments` requests
 
@@ -177,23 +177,23 @@ When a comment message contains `@username` patterns, the system MUST resolve th
 
 ### Requirement: REQ-CMNT-007 Per-Dashboard Comment Toggle
 
-Each dashboard MUST support a nullable `commentsEnabled` field to override the global default setting. When NULL, the dashboard MUST inherit the global `mydash.comments_enabled_default` setting.
+Each dashboard MUST support a nullable `commentsEnabled` field to override the global default setting. When NULL, the dashboard MUST inherit the global `launchpad.comments_enabled_default` setting.
 
 #### Scenario: Dashboard inherits global setting when commentsEnabled IS NULL
 - GIVEN dashboard "dash-001" has `commentsEnabled = NULL`
-- AND global setting `mydash.comments_enabled_default` = true
+- AND global setting `launchpad.comments_enabled_default` = true
 - WHEN user "yolanda" sends `GET /api/dashboards/dash-001/comments`
 - THEN the system MUST return `{enabled: true, comments: [...]}`
 
 #### Scenario: Dashboard forces comments on
 - GIVEN dashboard "dash-002" has `commentsEnabled = 1`
-- AND global setting `mydash.comments_enabled_default` = false
+- AND global setting `launchpad.comments_enabled_default` = false
 - WHEN user "zack" sends `GET /api/dashboards/dash-002/comments`
 - THEN the system MUST return `{enabled: true, comments: [...]}`
 
 #### Scenario: Dashboard forces comments off
 - GIVEN dashboard "dash-003" has `commentsEnabled = 0`
-- AND global setting `mydash.comments_enabled_default` = true
+- AND global setting `launchpad.comments_enabled_default` = true
 - WHEN user "alice" sends `GET /api/dashboards/dash-003/comments`
 - THEN the system MUST return `{enabled: false, comments: []}`
 
@@ -204,10 +204,10 @@ Each dashboard MUST support a nullable `commentsEnabled` field to override the g
 
 ### Requirement: REQ-CMNT-008 Global Comments Setting
 
-Nextcloud admins MUST be able to toggle comment functionality globally via admin setting `mydash.comments_enabled_default`.
+Nextcloud admins MUST be able to toggle comment functionality globally via admin setting `launchpad.comments_enabled_default`.
 
 #### Scenario: Admin toggles global setting to OFF
-- GIVEN admin setting `mydash.comments_enabled_default` = false
+- GIVEN admin setting `launchpad.comments_enabled_default` = false
 - AND dashboard "dash-001" has `commentsEnabled = NULL`
 - THEN `GET /api/dashboards/dash-001/comments` MUST return `enabled: false`
 - AND `POST /api/dashboards/dash-001/comments` MUST return HTTP 403
@@ -217,8 +217,8 @@ Nextcloud admins MUST be able to toggle comment functionality globally via admin
 - THEN dashboard "dash-001" MUST remain enabled (per-dashboard setting takes precedence)
 
 #### Scenario: Default value on fresh install
-- GIVEN a fresh MyDash installation with no admin config
-- THEN `mydash.comments_enabled_default` MUST default to true
+- GIVEN a fresh LaunchPad installation with no admin config
+- THEN `launchpad.comments_enabled_default` MUST default to true
 
 ### Requirement: REQ-CMNT-009 Permission Integration
 

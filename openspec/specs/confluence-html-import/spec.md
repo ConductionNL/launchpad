@@ -7,11 +7,11 @@ status: implemented
 ## Purpose
 
 Organisations migrating from Atlassian Confluence (or supplementing it
-with MyDash) need a one-shot bulk import that converts existing
-Confluence page hierarchies into MyDash dashboards. Manual recreation of
+with LaunchPad) need a one-shot bulk import that converts existing
+Confluence page hierarchies into LaunchPad dashboards. Manual recreation of
 hundreds of pages is impractical. This capability lets a Nextcloud admin
 upload a Confluence "HTML Export" archive and automatically generate
-MyDash dashboards with the page content preserved, the page tree
+LaunchPad dashboards with the page content preserved, the page tree
 mirrored via the `dashboard-tree` capability, and Confluence Storage
 Format macros expanded into safe HTML.
 
@@ -33,11 +33,11 @@ ConfluenceImportService            ─ orchestrates parse → create → backfil
    ├─▶ DashboardFactory            ─ one dashboard per page
    ├─▶ DashboardTreeService        ─ parent + depth + slug uniqueness
    ├─▶ MacroRenderer               ─ <ac:structured-macro> → HTML
-   ├─▶ LinkRewriter                ─ pageId → /apps/mydash/dashboard/{uuid}
+   ├─▶ LinkRewriter                ─ pageId → /apps/launchpad/dashboard/{uuid}
    └─▶ HtmlSanitizer               ─ allow-list filter (REQ-CFLI-012)
 ```
 
-The CLI surface (`occ mydash:import:confluence`) delegates to the same
+The CLI surface (`occ launchpad:import:confluence`) delegates to the same
 service.
 
 ## Requirements
@@ -116,9 +116,9 @@ assign sibling ordering, NOT to define parent-child relationships.
 - THEN the system MUST assign `parentPageId = null` to that page
 - AND treat it as a root page in the destination dashboard hierarchy
 
-### Requirement: REQ-CFLI-003 Confluence page → MyDash dashboard conversion
+### Requirement: REQ-CFLI-003 Confluence page → LaunchPad dashboard conversion
 
-The system MUST convert each Confluence page into a MyDash dashboard
+The system MUST convert each Confluence page into a LaunchPad dashboard
 with the page's `name = <pageTitle>` and a single full-width text-display
 widget containing the sanitised page body.
 
@@ -175,19 +175,19 @@ widget containing the sanitised page body.
 ### Requirement: REQ-CFLI-004 Internal link rewriting
 
 The system MUST rewrite internal Confluence links (`<a href="pageId.html">`)
-to point to the corresponding imported MyDash dashboard.
+to point to the corresponding imported LaunchPad dashboard.
 
 #### Scenario: Rewrite link to sibling page
 
 - GIVEN a page with `<a href="page-456.html">See Also</a>` where `page-456` was imported as dashboard UUID `uuid-456`
 - WHEN the importer's link rewriter runs
-- THEN the system MUST rewrite the link to `<a href="/apps/mydash/dashboard/uuid-456">See Also</a>`
+- THEN the system MUST rewrite the link to `<a href="/apps/launchpad/dashboard/uuid-456">See Also</a>`
 
 #### Scenario: Cross-space links are rewritten
 
 - GIVEN a page with `<a href="OTHER-SPACE/page-789.html">External Page</a>` where `page-789` was imported as UUID `uuid-789`
 - WHEN the importer processes the link
-- THEN the system MUST rewrite it to `<a href="/apps/mydash/dashboard/uuid-789">External Page</a>`
+- THEN the system MUST rewrite it to `<a href="/apps/launchpad/dashboard/uuid-789">External Page</a>`
 
 #### Scenario: Links to non-existent pages are logged
 
@@ -208,7 +208,7 @@ The system MUST preserve `<img src>` references through the import so the
 source filename / URL survives the sanitisation pass and a follow-up
 upload pipeline can rewrite them.
 
-> **Implementation status:** The current importer keeps `<img src>` unchanged (whitelisted by the sanitiser) and converts `<ac:image><ri:attachment ri:filename="x"/></ac:image>` to `<img src="x" alt="x">` so the asset filename is recoverable. The `MyDash/Imports/{timestamp}/` upload pipeline is reported in the import result + dry-run payload as the `assetFolder` field but the actual file write is deferred to a follow-up change (`confluence-attachment-uploads`).
+> **Implementation status:** The current importer keeps `<img src>` unchanged (whitelisted by the sanitiser) and converts `<ac:image><ri:attachment ri:filename="x"/></ac:image>` to `<img src="x" alt="x">` so the asset filename is recoverable. The `LaunchPad/Imports/{timestamp}/` upload pipeline is reported in the import result + dry-run payload as the `assetFolder` field but the actual file write is deferred to a follow-up change (`confluence-attachment-uploads`).
 
 #### Scenario: ac:image becomes a plain img tag
 
@@ -266,7 +266,7 @@ dashboards or uploading files.
 
 - GIVEN a Confluence export with 150 pages and 42 attachments
 - WHEN the admin sends `POST /api/admin/import/confluence/dry-run` with the ZIP file
-- THEN the system MUST parse the archive and return HTTP 200 with `{pageCount: 150, attachmentCount: 42, estimatedDashboards: 150, warnings: [...], assetFolder: "MyDash/Imports/<iso8601>"}`
+- THEN the system MUST parse the archive and return HTTP 200 with `{pageCount: 150, attachmentCount: 42, estimatedDashboards: 150, warnings: [...], assetFolder: "LaunchPad/Imports/<iso8601>"}`
 - AND NO dashboards, widgets, or files MUST be created
 
 #### Scenario: Dry-run surfaces parser warnings
@@ -339,14 +339,14 @@ Confluence page ID).
 
 ### Requirement: REQ-CFLI-011 CLI command for headless import
 
-The system MUST expose a Nextcloud OCC command `php occ mydash:import:confluence`
+The system MUST expose a Nextcloud OCC command `php occ launchpad:import:confluence`
 for imports via CLI / cron, with options for the input file, an
 optional parent path, the importing user, and a dry-run flag.
 
 #### Scenario: CLI import with file option
 
 - GIVEN an admin with shell access to the Nextcloud server
-- WHEN they run `php occ mydash:import:confluence --file=/tmp/export.zip`
+- WHEN they run `php occ launchpad:import:confluence --file=/tmp/export.zip`
 - THEN the system MUST run the synchronous import path
 - AND emit a one-line summary `Imported N dashboards, skipped M, errors: K, asset folder: …`
 - AND exit with code 0 on success, non-zero on failure
@@ -354,20 +354,20 @@ optional parent path, the importing user, and a dry-run flag.
 #### Scenario: CLI import with parent-path option
 
 - GIVEN an admin wants to import under a specific parent dashboard
-- WHEN they run `php occ mydash:import:confluence --file=/tmp/export.zip --parent-path=/finance/2026`
+- WHEN they run `php occ launchpad:import:confluence --file=/tmp/export.zip --parent-path=/finance/2026`
 - THEN the system MUST resolve the slug-chain path via `DashboardTreeService::resolvePath`
 - AND use the resolved UUID as the parent for every root Confluence page
 - AND a missing path MUST exit non-zero with `Parent path not found: …`
 
 #### Scenario: CLI handles missing file gracefully
 
-- GIVEN `php occ mydash:import:confluence --file=/nonexistent.zip`
+- GIVEN `php occ launchpad:import:confluence --file=/nonexistent.zip`
 - WHEN the file does not exist
 - THEN the system MUST output `File not found: …` and exit non-zero
 
 #### Scenario: CLI supports --dry-run
 
-- GIVEN `php occ mydash:import:confluence --file=/tmp/export.zip --dry-run`
+- GIVEN `php occ launchpad:import:confluence --file=/tmp/export.zip --dry-run`
 - WHEN the flag is present
 - THEN the system MUST emit the dry-run preview line and exit code 0
 - AND MUST NOT create any dashboards
@@ -419,7 +419,7 @@ maintain consistency with the text-display widget.
 - REQ-CFLI-001..002 (archive structure + hierarchy): `lib/Service/Confluence/ArchiveParser.php` reads the ZIP via `ZipArchive::RDONLY`, builds the per-page `ParsedPage` records, and overlays breadcrumb + directory hierarchy. `tests/Unit/Service/Confluence/ArchiveParserTest.php`.
 - REQ-CFLI-003 (page → dashboard + body waterfall): `ConfluenceImportService::createDashboardForPage()` + `ArchiveParser::extractBody()`. The text-display widget is created in `buildPlaceholderWidget()` with the documented grid + style defaults.
 - REQ-CFLI-004 (link rewriting): `lib/Service/Confluence/LinkRewriter.php` consumes the `pageId → uuid` map built by `ConfluenceImportService::backfillWidgetContent()`. `tests/Unit/Service/Confluence/LinkRewriterTest.php`.
-- REQ-CFLI-005 (image src preservation): `lib/Service/Confluence/MacroRenderer.php::renderImages()` for `<ac:image>`; the `HtmlSanitizer` allow-list keeps plain `<img>` tags. The `MyDash/Imports/{timestamp}/` upload pipeline is reported in the result `assetFolder` field; the file-write itself is the `confluence-attachment-uploads` follow-up.
+- REQ-CFLI-005 (image src preservation): `lib/Service/Confluence/MacroRenderer.php::renderImages()` for `<ac:image>`; the `HtmlSanitizer` allow-list keeps plain `<img>` tags. The `LaunchPad/Imports/{timestamp}/` upload pipeline is reported in the result `assetFolder` field; the file-write itself is the `confluence-attachment-uploads` follow-up.
 - REQ-CFLI-006 (macro rendering): `lib/Service/Confluence/MacroRenderer.php` handles `code`, `info` / `note` / `warning` / `tip` / `error` / `panel`, `expand`, and the `<div class="confluence-unsupported-macro">` fallback. `tests/Unit/Service/Confluence/MacroRendererTest.php`.
 - REQ-CFLI-007 (dry-run): `POST /api/admin/import/confluence/dry-run` → `ConfluenceImportController::dryRun()` → `ConfluenceImportService::dryRun()`.
 - REQ-CFLI-008 (sync import + async deferred): controller + service path is fully synchronous; async lives in the `confluence-async-import` planned follow-up.

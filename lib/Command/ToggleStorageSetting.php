@@ -9,7 +9,7 @@
  * is not auto-copied from GroupFolder (REQ-GFSB-010).
  *
  * @category Command
- * @package  OCA\MyDash\Command
+ * @package  OCA\LaunchPad\Command
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,10 +22,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\CommandService;
-use OCA\MyDash\Service\SetupWizardService;
+use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Service\SetupWizardService;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

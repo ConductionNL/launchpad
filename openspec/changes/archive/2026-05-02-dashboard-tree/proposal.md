@@ -2,11 +2,11 @@
 
 ## Why
 
-Today MyDash treats all dashboards as a flat list. Users with many dashboards experience cognitive overload — there is no way to organize them into logical groups or categories. Organizations with hierarchical departments or workflows need to mirror that structure in the dashboard interface (e.g., marketing/campaigns/q1, operations/finance/budget, etc.). This change introduces a parent-child hierarchy allowing unlimited nesting, computed path-based URLs, breadcrumb navigation, and a tree view API so the frontend can render collapsible folder structures.
+Today LaunchPad treats all dashboards as a flat list. Users with many dashboards experience cognitive overload — there is no way to organize them into logical groups or categories. Organizations with hierarchical departments or workflows need to mirror that structure in the dashboard interface (e.g., marketing/campaigns/q1, operations/finance/budget, etc.). This change introduces a parent-child hierarchy allowing unlimited nesting, computed path-based URLs, breadcrumb navigation, and a tree view API so the frontend can render collapsible folder structures.
 
 ## What Changes
 
-- Add a nullable `parentUuid VARCHAR(36)` column to `oc_mydash_dashboards`. Root dashboards have `parentUuid = null`. Child dashboards reference their parent by UUID.
+- Add a nullable `parentUuid VARCHAR(36)` column to `oc_launchpad_dashboards`. Root dashboards have `parentUuid = null`. Child dashboards reference their parent by UUID.
 - Add a `slug VARCHAR(128)` column — URL-safe, unique per parent (siblings cannot share the same slug). Auto-generated from `name` on create when not supplied; admin/user can override.
 - Add a `sortOrder INT` column controlling left-to-right sibling ordering. Default 0; ties broken alphabetically by `name`.
 - Compute a `path` on render: slash-joined slug chain from root to this dashboard (e.g. `/marketing/campaigns/q1`). Path is computed, NOT stored.

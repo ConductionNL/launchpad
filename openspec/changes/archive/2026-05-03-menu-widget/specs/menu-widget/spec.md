@@ -369,7 +369,7 @@ Icon size MUST be 16-24 px (smaller than REQ-LBN-002's 48 px, to fit in a menu l
 
 #### Scenario: Custom URL icon in tree
 
-- GIVEN content `{style: 'tree', items: [{label: 'Custom', icon: '/apps/mydash/icons/custom.svg'}]}`
+- GIVEN content `{style: 'tree', items: [{label: 'Custom', icon: '/apps/launchpad/icons/custom.svg'}]}`
 - WHEN the widget renders
 - THEN the item MUST display the custom SVG icon to the left of "Custom"
 

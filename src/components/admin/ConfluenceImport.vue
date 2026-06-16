@@ -1,39 +1,39 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
-	<div class="mydash-confluence-import">
-		<h3>{{ t('mydash', 'Import from Confluence') }}</h3>
+	<div class="launchpad-confluence-import">
+		<h3>{{ t('launchpad', 'Import from Confluence') }}</h3>
 
-		<p class="mydash-confluence-import__hint">
-			{{ t('mydash', 'Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a MyDash dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree.') }}
+		<p class="launchpad-confluence-import__hint">
+			{{ t('launchpad', 'Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a LaunchPad dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree.') }}
 		</p>
 
-		<div class="mydash-confluence-import__row mydash-confluence-import__row--column">
-			<label for="mydash-cfli-file" class="mydash-confluence-import__label">
-				{{ t('mydash', 'Confluence export archive (.zip)') }}
+		<div class="launchpad-confluence-import__row launchpad-confluence-import__row--column">
+			<label for="launchpad-cfli-file" class="launchpad-confluence-import__label">
+				{{ t('launchpad', 'Confluence export archive (.zip)') }}
 			</label>
 			<input
-				id="mydash-cfli-file"
+				id="launchpad-cfli-file"
 				ref="fileInput"
 				type="file"
 				accept=".zip,application/zip"
 				data-test="confluence-import-file"
 				@change="onFileSelected">
 
-			<label for="mydash-cfli-parent" class="mydash-confluence-import__label">
-				{{ t('mydash', 'Optional parent dashboard UUID (root pages will be slotted under this dashboard)') }}
+			<label for="launchpad-cfli-parent" class="launchpad-confluence-import__label">
+				{{ t('launchpad', 'Optional parent dashboard UUID (root pages will be slotted under this dashboard)') }}
 			</label>
 			<input
-				id="mydash-cfli-parent"
+				id="launchpad-cfli-parent"
 				v-model="parentUuid"
 				type="text"
-				class="mydash-confluence-import__text-input"
-				:placeholder="t('mydash', 'Leave empty to import as root dashboards')">
+				class="launchpad-confluence-import__text-input"
+				:placeholder="t('launchpad', 'Leave empty to import as root dashboards')">
 
-			<div class="mydash-confluence-import__actions">
+			<div class="launchpad-confluence-import__actions">
 				<NcButton
 					type="secondary"
 					:disabled="!selectedFile || running"
@@ -42,7 +42,7 @@
 					<template #icon>
 						<Eye :size="20" />
 					</template>
-					{{ running === 'dry-run' ? t('mydash', 'Inspecting…') : t('mydash', 'Dry-run preview') }}
+					{{ running === 'dry-run' ? t('launchpad', 'Inspecting…') : t('launchpad', 'Dry-run preview') }}
 				</NcButton>
 
 				<NcButton
@@ -53,20 +53,20 @@
 					<template #icon>
 						<Upload :size="20" />
 					</template>
-					{{ running === 'import' ? t('mydash', 'Importing…') : t('mydash', 'Import dashboards') }}
+					{{ running === 'import' ? t('launchpad', 'Importing…') : t('launchpad', 'Import dashboards') }}
 				</NcButton>
 			</div>
 
-			<div v-if="dryRunResult" class="mydash-confluence-import__result">
+			<div v-if="dryRunResult" class="launchpad-confluence-import__result">
 				<p>
-					{{ t('mydash', '{pages} pages, {attachments} attachments — would create {dashboards} dashboards.', {
+					{{ t('launchpad', '{pages} pages, {attachments} attachments — would create {dashboards} dashboards.', {
 						pages: dryRunResult.pageCount,
 						attachments: dryRunResult.attachmentCount,
 						dashboards: dryRunResult.estimatedDashboards,
 					}) }}
 				</p>
-				<p v-if="dryRunResult.assetFolder" class="mydash-confluence-import__sub">
-					{{ t('mydash', 'Assets would be uploaded to {folder}', { folder: dryRunResult.assetFolder }) }}
+				<p v-if="dryRunResult.assetFolder" class="launchpad-confluence-import__sub">
+					{{ t('launchpad', 'Assets would be uploaded to {folder}', { folder: dryRunResult.assetFolder }) }}
 				</p>
 				<ul v-if="dryRunResult.warnings && dryRunResult.warnings.length > 0">
 					<li v-for="(w, i) in dryRunResult.warnings" :key="i">
@@ -75,15 +75,15 @@
 				</ul>
 			</div>
 
-			<div v-if="importResult" class="mydash-confluence-import__result">
+			<div v-if="importResult" class="launchpad-confluence-import__result">
 				<p>
-					{{ t('mydash', 'Imported {imported} dashboards, skipped {skipped}.', {
+					{{ t('launchpad', 'Imported {imported} dashboards, skipped {skipped}.', {
 						imported: importResult.createdDashboardCount,
 						skipped: importResult.skippedPageCount,
 					}) }}
 				</p>
-				<p v-if="importResult.assetFolder" class="mydash-confluence-import__sub">
-					{{ t('mydash', 'Assets uploaded to {folder}', { folder: importResult.assetFolder }) }}
+				<p v-if="importResult.assetFolder" class="launchpad-confluence-import__sub">
+					{{ t('launchpad', 'Assets uploaded to {folder}', { folder: importResult.assetFolder }) }}
 				</p>
 				<ul v-if="importResult.errors && importResult.errors.length > 0">
 					<li v-for="(err, i) in importResult.errors" :key="i">
@@ -97,7 +97,7 @@
 				</ul>
 			</div>
 
-			<span v-if="errorMessage" class="mydash-confluence-import__error">
+			<span v-if="errorMessage" class="launchpad-confluence-import__error">
 				{{ errorMessage }}
 			</span>
 		</div>
@@ -151,9 +151,9 @@ export default {
 				this.dryRunResult = response.data
 			} catch (err) {
 				this.errorMessage = err?.response?.data?.error
-					|| this.t('mydash', 'Confluence dry-run failed. Please try again.')
+					|| this.t('launchpad', 'Confluence dry-run failed. Please try again.')
 				// eslint-disable-next-line no-console
-				console.error('mydash confluence dry-run failed', err)
+				console.error('launchpad confluence dry-run failed', err)
 			} finally {
 				this.running = ''
 			}
@@ -172,9 +172,9 @@ export default {
 				this.importResult = response.data
 			} catch (err) {
 				this.errorMessage = err?.response?.data?.error
-					|| this.t('mydash', 'Confluence import failed. Please try again.')
+					|| this.t('launchpad', 'Confluence import failed. Please try again.')
 				// eslint-disable-next-line no-console
-				console.error('mydash confluence import failed', err)
+				console.error('launchpad confluence import failed', err)
 			} finally {
 				this.running = ''
 			}
@@ -184,7 +184,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.mydash-confluence-import {
+.launchpad-confluence-import {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;

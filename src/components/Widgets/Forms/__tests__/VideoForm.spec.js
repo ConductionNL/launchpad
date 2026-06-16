@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `VideoForm.vue` covering REQ-VID-002, REQ-VID-005,

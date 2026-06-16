@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit test for `IconRenderer.vue` covering REQ-ICON-007 — the
@@ -24,11 +24,11 @@ describe('IconRenderer (REQ-ICON-007)', () => {
 
 	it('renders an <img> for a custom URL input', () => {
 		const wrapper = mount(IconRenderer, {
-			propsData: { name: '/apps/mydash/resource/abc.png' },
+			propsData: { name: '/apps/launchpad/resource/abc.png' },
 		})
 		const img = wrapper.find('img')
 		expect(img.exists()).toBe(true)
-		expect(img.attributes('src')).toBe('/apps/mydash/resource/abc.png')
+		expect(img.attributes('src')).toBe('/apps/launchpad/resource/abc.png')
 		expect(wrapper.find('svg').exists()).toBe(false)
 	})
 
@@ -43,7 +43,7 @@ describe('IconRenderer (REQ-ICON-007)', () => {
 	it('propagates the alt prop to the rendered <img> for URL inputs', () => {
 		const wrapper = mount(IconRenderer, {
 			propsData: {
-				name: '/apps/mydash/resource/abc.png',
+				name: '/apps/launchpad/resource/abc.png',
 				alt: 'Marketing',
 			},
 		})
@@ -52,7 +52,7 @@ describe('IconRenderer (REQ-ICON-007)', () => {
 
 	it('falls back to a non-empty default alt when none is supplied', () => {
 		const wrapper = mount(IconRenderer, {
-			propsData: { name: '/apps/mydash/resource/abc.png' },
+			propsData: { name: '/apps/launchpad/resource/abc.png' },
 		})
 		const alt = wrapper.find('img').attributes('alt')
 		expect(typeof alt).toBe('string')
@@ -62,7 +62,7 @@ describe('IconRenderer (REQ-ICON-007)', () => {
 	it('applies the size prop as width/height on <img> for URLs', () => {
 		const wrapper = mount(IconRenderer, {
 			propsData: {
-				name: '/apps/mydash/resource/abc.png',
+				name: '/apps/launchpad/resource/abc.png',
 				size: 32,
 			},
 		})

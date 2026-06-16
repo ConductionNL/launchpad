@@ -15,12 +15,12 @@
  * - persisted content equals sanitised bytes, NOT original (4.5)
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -28,10 +28,10 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Exception\InvalidSvgException;
-use OCA\MyDash\Service\ImageMimeValidator;
-use OCA\MyDash\Service\ResourceService;
-use OCA\MyDash\Service\SvgSanitiser;
+use OCA\LaunchPad\Exception\InvalidSvgException;
+use OCA\LaunchPad\Service\ImageMimeValidator;
+use OCA\LaunchPad\Service\ResourceService;
+use OCA\LaunchPad\Service\SvgSanitiser;
 use OCP\Files\IAppData;
 use OCP\Files\SimpleFS\ISimpleFile;
 use OCP\Files\SimpleFS\ISimpleFolder;
@@ -87,7 +87,7 @@ class ResourceServiceSvgIntegrationTest extends TestCase
             base64DataUrl: $this->dataUrl($svg)
         );
 
-        $this->assertStringStartsWith('/apps/mydash/resource/resource_', $result['url']);
+        $this->assertStringStartsWith('/apps/launchpad/resource/resource_', $result['url']);
         $this->assertStringNotContainsString('<script', $this->persistedBytes);
         $this->assertStringNotContainsString('alert', $this->persistedBytes);
         $this->assertStringContainsString('<circle', $this->persistedBytes);

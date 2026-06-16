@@ -8,12 +8,12 @@
  * cascade, selection rules, and recipient-cleanup.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Listener
+ * @package   OCA\LaunchPad\Tests\Unit\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,14 +21,14 @@ declare(strict_types=1);
 
 namespace Unit\Listener;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardShare;
-use OCA\MyDash\Db\DashboardShareMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Listener\UserDeletedListener;
-use OCA\MyDash\Service\DashboardShareService;
-use OCA\MyDash\Service\RoleService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Listener\UserDeletedListener;
+use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\RoleService;
 use OCP\IDBConnection;
 use OCP\IGroup;
 use OCP\IGroupManager;

@@ -46,7 +46,7 @@ Each tile has `tileType='preset'`. This is required for
 [`WidgetPlacement::jsonSerialize()`](../../lib/Db/WidgetPlacement.php)
 to emit the flat `tile*` fields the renderer reads. The `'preset'`
 sentinel is intentionally distinct from the legacy `'custom'` value
-used by the deprecated `oc_mydash_tiles` table — `'custom'` routes
+used by the deprecated `oc_launchpad_tiles` table — `'custom'` routes
 through the pre-registry tile path in `DashboardGrid.vue`, while
 `'preset'` keeps the placements on the registry-backed `TileWidget`
 renderer.
@@ -61,10 +61,10 @@ now renders `NcLoadingIcon` while `loading=true` and
 
 ```html
 <DashboardGrid v-if="activeDashboard" … />
-<div v-else-if="loading" class="mydash-loading">
+<div v-else-if="loading" class="launchpad-loading">
     <NcLoadingIcon :size="48" />
 </div>
-<div v-else class="mydash-empty">
+<div v-else class="launchpad-empty">
     <NcEmptyContent … />
 </div>
 ```
@@ -75,7 +75,7 @@ group default).
 
 ## Tutorials
 
-- [Open MyDash for the first time](/docs/tutorials/user/first-launch)
+- [Open LaunchPad for the first time](/docs/tutorials/user/first-launch)
 - [Create a new dashboard](/docs/tutorials/user/create-dashboard)
 
 ## Spec reference

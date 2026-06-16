@@ -8,7 +8,7 @@
  * mocked DashboardMapper and LoggerInterface dependencies.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\DashboardContentStorage
+ * @package   OCA\LaunchPad\Tests\Unit\Service\DashboardContentStorage
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 namespace Unit\Service\DashboardContentStorage;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardNotFoundException;
-use OCA\MyDash\Service\DashboardContentStorage\DbContentStorage;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardNotFoundException;
+use OCA\LaunchPad\Service\DashboardContentStorage\DbContentStorage;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

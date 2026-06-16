@@ -27,7 +27,7 @@ admin-side opt-in.
 Sourced from Specter draft `ai-dashboard-assistant` (2 features:
 case summary, consultation-response summary).
 
-## ADDED Requirements
+## Requirements
 
 @e2e exclude proposed/unimplemented widget — `launchpad_ai_assistant` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. All scenarios assert registry/manifest contract, schema validation, openconnector-SSE/MCP-tool routing, and source-absence runtime gating — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
@@ -56,7 +56,7 @@ declaration. The widget MUST NOT add `openconnector` to
 
 ### REQ-ADA-002: The widget content shape SHALL describe the assistant's bounded conversation surface
 
-The placement persists `{type: 'ai-assistant', content: {...}}` with:
+The placement MUST persist `{type: 'ai-assistant', content: {...}}` with:
 
 | Field | Type | Required | Default | Purpose |
 |---|---|---|---|---|

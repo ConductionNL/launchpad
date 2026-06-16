@@ -8,30 +8,30 @@
  * {@see DashboardService::getVisibleToUser()}, filters by the
  * publication-state and ACL rules already applied there, sorts
  * reverse-chronologically by `updatedAt`, caps at the
- * `mydash.feed_item_cap` admin-tunable bound (default 50), and emits
+ * `launchpad.feed_item_cap` admin-tunable bound (default 50), and emits
  * standards-compliant XML.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use Exception;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\FeedToken;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\FeedToken;
 use OCP\IAppConfig;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
@@ -64,7 +64,7 @@ class FeedService
      *
      * @var string
      */
-    public const CONFIG_KEY_ITEM_CAP = 'mydash.feed_item_cap';
+    public const CONFIG_KEY_ITEM_CAP = 'launchpad.feed_item_cap';
 
     /**
      * Default per-feed item cap when no admin override is set.
@@ -197,7 +197,7 @@ class FeedService
         $l10n         = $this->l10nFactory->get(app: Application::APP_ID);
         $ownerName    = $this->getOwnerDisplayName(userId: $userId);
         $channelTitle = sprintf(
-            $l10n->t("%s's MyDash dashboards"),
+            $l10n->t("%s's LaunchPad dashboards"),
             $ownerName
         );
         $channelDesc  = $l10n->t(
@@ -250,12 +250,12 @@ XML;
         $l10n      = $this->l10nFactory->get(app: Application::APP_ID);
         $ownerName = $this->getOwnerDisplayName(userId: $userId);
         $title     = sprintf(
-            $l10n->t("%s's MyDash dashboards"),
+            $l10n->t("%s's LaunchPad dashboards"),
             $ownerName
         );
         $homeUrl   = $this->buildAppHomeUrl();
         $now       = (new DateTime())->format(format: DATE_ATOM);
-        $feedId    = sprintf('urn:mydash:feed:%s', rawurlencode(string: $userId));
+        $feedId    = sprintf('urn:launchpad:feed:%s', rawurlencode(string: $userId));
 
         $entriesXml = '';
         foreach ($dashboards as $dashboard) {
@@ -373,7 +373,7 @@ XML;
             $this->logger->debug(
                 message: 'Feed could not resolve app home URL',
                 context: [
-                    'app'       => 'mydash',
+                    'app'       => 'launchpad',
                     'exception' => $exception->getMessage(),
                 ]
             );
@@ -458,7 +458,7 @@ XML;
         $description = (string) $dashboard->getDescription();
         $updated     = $this->formatAtomDate(timestamp: $dashboard->getUpdatedAt());
         $uuid        = (string) $dashboard->getUuid();
-        $entryId     = sprintf('urn:mydash:dashboard:%s', rawurlencode(string: $uuid));
+        $entryId     = sprintf('urn:launchpad:dashboard:%s', rawurlencode(string: $uuid));
 
         $template = <<<XML
   <entry>

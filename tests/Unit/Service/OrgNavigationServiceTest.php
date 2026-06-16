@@ -15,12 +15,12 @@
  *   - Storage round-trip via mocked IAppData (folder + file).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -29,8 +29,8 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\OrgNavigationService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\OrgNavigationService;
 use OCP\Files\IAppData;
 use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFile;
@@ -103,7 +103,7 @@ class OrgNavigationServiceTest extends TestCase
                     [
                         'id'       => $this->uuid('a.1'),
                         'label'    => 'Child',
-                        'url'      => '/apps/mydash/dashboards',
+                        'url'      => '/apps/launchpad/dashboards',
                         'children' => [],
                     ],
                 ],
@@ -466,8 +466,8 @@ class OrgNavigationServiceTest extends TestCase
             $this->service->sanitiseUrl(url: 'https://example.com/x')
         );
         $this->assertSame(
-            '/apps/mydash/dashboards',
-            $this->service->sanitiseUrl(url: '/apps/mydash/dashboards')
+            '/apps/launchpad/dashboards',
+            $this->service->sanitiseUrl(url: '/apps/launchpad/dashboards')
         );
 
     }//end testSanitiseUrlAcceptsHttpsAndRelativePaths()

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit test for `widgetRegistry.js` covering REQ-LBL-007: importing

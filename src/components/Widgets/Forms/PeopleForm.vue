@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,7 +8,7 @@
 		<NcSelect
 			:value="layout"
 			:options="layoutOptions"
-			:input-label="t('mydash', 'Layout')"
+			:input-label="t('launchpad', 'Layout')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -17,19 +17,19 @@
 		<NcSelect
 			:value="sortBy"
 			:options="sortByOptions"
-			:input-label="t('mydash', 'Sort by')"
+			:input-label="t('launchpad', 'Sort by')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
 			@input="updateField('sortBy', $event)" />
 
 		<label class="people-form__field">
-			{{ t('mydash', 'Group filter (comma-separated, blank for all)') }}
+			{{ t('launchpad', 'Group filter (comma-separated, blank for all)') }}
 			<input
 				type="text"
 				class="people-form__input"
 				:value="groupFilterText"
-				:placeholder="t('mydash', 'e.g. management, product')"
+				:placeholder="t('launchpad', 'e.g. management, product')"
 				@input="updateGroupFilter($event.target.value)">
 		</label>
 
@@ -38,7 +38,7 @@
 				type="checkbox"
 				:checked="excludeDisabled"
 				@change="updateField('excludeDisabled', $event.target.checked)">
-			{{ t('mydash', 'Exclude disabled users') }}
+			{{ t('launchpad', 'Exclude disabled users') }}
 		</label>
 
 		<label class="people-form__field people-form__field--inline">
@@ -46,11 +46,11 @@
 				type="checkbox"
 				:checked="showBirthdays"
 				@change="updateField('showBirthdays', $event.target.checked)">
-			{{ t('mydash', 'Show birthdays') }}
+			{{ t('launchpad', 'Show birthdays') }}
 		</label>
 
 		<label v-if="showBirthdays" class="people-form__field">
-			{{ t('mydash', 'Birthday window (days, 0–30)') }}
+			{{ t('launchpad', 'Birthday window (days, 0–30)') }}
 			<input
 				type="number"
 				class="people-form__input"
@@ -64,7 +64,7 @@
 		</label>
 
 		<label v-if="layout !== 'list'" class="people-form__field">
-			{{ t('mydash', 'Columns') }}
+			{{ t('launchpad', 'Columns') }}
 			<select
 				:value="columns"
 				class="people-form__input"
@@ -189,17 +189,17 @@ export default {
 		/** @spec openspec/specs/people-widget/spec.md */
 		layoutOptions() {
 			return [
-				{ value: 'card', label: t('mydash', 'Card') },
-				{ value: 'grid', label: t('mydash', 'Grid') },
-				{ value: 'list', label: t('mydash', 'List') },
+				{ value: 'card', label: t('launchpad', 'Card') },
+				{ value: 'grid', label: t('launchpad', 'Grid') },
+				{ value: 'list', label: t('launchpad', 'List') },
 			]
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */
 		sortByOptions() {
 			return [
-				{ value: 'displayName', label: t('mydash', 'Display name') },
-				{ value: 'group', label: t('mydash', 'Group') },
+				{ value: 'displayName', label: t('launchpad', 'Display name') },
+				{ value: 'group', label: t('launchpad', 'Group') },
 			]
 		},
 
@@ -278,7 +278,7 @@ export default {
 		updateBirthdayWindow(raw) {
 			const numeric = Number(raw)
 			if (!Number.isFinite(numeric) || numeric < 0 || numeric > 30) {
-				this.birthdayWindowError = t('mydash', 'Must be between 0 and 30')
+				this.birthdayWindowError = t('launchpad', 'Must be between 0 and 30')
 				return
 			}
 			this.birthdayWindowError = ''
@@ -298,13 +298,13 @@ export default {
 			if (typeof this.birthdayWindowDays !== 'number'
 				|| this.birthdayWindowDays < 0
 				|| this.birthdayWindowDays > 30) {
-				errors.push(t('mydash', 'Birthday window must be between 0 and 30'))
+				errors.push(t('launchpad', 'Birthday window must be between 0 and 30'))
 			}
 			if (!['card', 'grid', 'list'].includes(this.layout)) {
-				errors.push(t('mydash', 'Invalid layout'))
+				errors.push(t('launchpad', 'Invalid layout'))
 			}
 			if (!['displayName', 'group'].includes(this.sortBy)) {
-				errors.push(t('mydash', 'Invalid sort key'))
+				errors.push(t('launchpad', 'Invalid sort key'))
 			}
 			return errors
 		},

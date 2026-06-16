@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end test for the responsive grid breakpoints covering
@@ -13,7 +13,7 @@
  *   - Visual regression: a six-widget layout snapshot at each of the four
  *     in-table breakpoints (1500 / 1200 / 900 / 480 px).
  *
- * NOTE: Playwright infrastructure is not yet wired up in mydash. This file
+ * NOTE: Playwright infrastructure is not yet wired up in launchpad. This file
  * is committed alongside the rest of the change so it runs once the cohort-
  * wide Playwright bootstrap lands. Do not delete — it is the canonical e2e
  * coverage for REQ-GRID-007 / REQ-GRID-012 / REQ-GRID-013.

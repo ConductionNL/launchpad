@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Thin wrapper around `POST /api/resources` (REQ-RES-001..005). Posts a

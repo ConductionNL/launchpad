@@ -6,15 +6,15 @@ status: implemented
 
 ## Purpose
 
-Per-language content variants for MyDash dashboards. A single dashboard can carry multiple localised widget trees, names, and descriptions. The viewer's Nextcloud locale (or an explicit `?lang=` query parameter) is matched against the available variants; when no match is found the system falls back to the dashboard's primary variant. Each dashboard MUST have exactly one row marked `isPrimary = 1`. New dashboards auto-seed a primary translation in the owner's current Nextcloud locale.
+Per-language content variants for LaunchPad dashboards. A single dashboard can carry multiple localised widget trees, names, and descriptions. The viewer's Nextcloud locale (or an explicit `?lang=` query parameter) is matched against the available variants; when no match is found the system falls back to the dashboard's primary variant. Each dashboard MUST have exactly one row marked `isPrimary = 1`. New dashboards auto-seed a primary translation in the owner's current Nextcloud locale.
 
 ## Data Model
 
-Per-language variants are stored in a dedicated `oc_mydash_dash_translations` table that is independent from the parent `oc_mydash_dashboards` row. This keeps existing dashboards working unchanged and isolates the translation lifecycle from the dashboard lifecycle.
+Per-language variants are stored in a dedicated `oc_launchpad_dash_translations` table that is independent from the parent `oc_launchpad_dashboards` row. This keeps existing dashboards working unchanged and isolates the translation lifecycle from the dashboard lifecycle.
 
 Columns:
 - **id**: BIGINT auto-increment primary key
-- **dashboardUuid**: VARCHAR(36) — references `oc_mydash_dashboards.uuid`
+- **dashboardUuid**: VARCHAR(36) — references `oc_launchpad_dashboards.uuid`
 - **languageCode**: VARCHAR(16) — normalised ISO 639-1 base code (`nl`, `en`, `de`, `fr`); see normalisation rule below
 - **name**: VARCHAR(255) — localised dashboard name
 - **description**: TEXT — localised description
@@ -23,9 +23,9 @@ Columns:
 - **createdAt** / **updatedAt**: DATETIME
 
 Indexes:
-- `mydash_trans_dash_idx` on `(dashboard_uuid)` — variant lookups by dashboard
-- `mydash_trans_unique_idx` UNIQUE on `(dashboard_uuid, language_code)` — enforces one row per (dashboard, language) pair
-- `mydash_trans_primary_idx` on `(dashboard_uuid, is_primary)` — accelerates primary-variant lookup
+- `launchpad_trans_dash_idx` on `(dashboard_uuid)` — variant lookups by dashboard
+- `launchpad_trans_unique_idx` UNIQUE on `(dashboard_uuid, language_code)` — enforces one row per (dashboard, language) pair
+- `launchpad_trans_primary_idx` on `(dashboard_uuid, is_primary)` — accelerates primary-variant lookup
 
 ## Locale Resolution Strategy
 
@@ -38,12 +38,12 @@ Indexes:
 
 ### Requirement: REQ-DASH-038 Translation Schema
 
-The system MUST store per-language content variants for a dashboard in a dedicated `oc_mydash_dash_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.
+The system MUST store per-language content variants for a dashboard in a dedicated `oc_launchpad_dash_translations` table. Each variant holds a localised widget tree, name, and description, with exactly one row per (dashboard, language) pair.
 
 #### Scenario: Translation table structure
 
 - GIVEN the schema migration is applied
-- THEN the `oc_mydash_dash_translations` table MUST exist with columns: `id` (auto-increment primary key), `dashboardUuid VARCHAR(36)`, `languageCode VARCHAR(16)`, `name VARCHAR(255)`, `description LONGTEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt DATETIME`, `updatedAt DATETIME`
+- THEN the `oc_launchpad_dash_translations` table MUST exist with columns: `id` (auto-increment primary key), `dashboardUuid VARCHAR(36)`, `languageCode VARCHAR(16)`, `name VARCHAR(255)`, `description LONGTEXT`, `widgetTreeJson MEDIUMTEXT`, `isPrimary SMALLINT(0/1)`, `createdAt DATETIME`, `updatedAt DATETIME`
 - AND a composite unique constraint MUST exist on `(dashboardUuid, languageCode)` to prevent duplicate language variants per dashboard
 
 #### Scenario: Primary variant enforcement
@@ -54,15 +54,15 @@ The system MUST store per-language content variants for a dashboard in a dedicat
 
 #### Scenario: Backwards-compatible backfill
 
-- GIVEN an existing dashboard with widget tree data in `oc_mydash_dashboards`
+- GIVEN an existing dashboard with widget tree data in `oc_launchpad_dashboards`
 - WHEN the schema migration runs
 - THEN the system MUST auto-create a primary translation row with the dashboard's existing `widgetTreeJson`, `name`, `description`, and `languageCode` set to the dashboard owner's Nextcloud locale (`\OCP\IConfig::getUserValue($userId, 'core', 'lang')`, fallback to 'en' if not set)
-- AND the existing widget tree MUST remain in `oc_mydash_dashboards` during the transition period (marked for future deprecation)
+- AND the existing widget tree MUST remain in `oc_launchpad_dashboards` during the transition period (marked for future deprecation)
 
 #### Scenario: Variant isolation from dashboard record
 
 - GIVEN a dashboard and its translation records
-- THEN updates to the dashboard's `name`, `description`, or `widgetTreeJson` fields in `oc_mydash_dashboards` MUST NOT affect the translation records
+- THEN updates to the dashboard's `name`, `description`, or `widgetTreeJson` fields in `oc_launchpad_dashboards` MUST NOT affect the translation records
 - AND all subsequent reads MUST fetch content from the translation table, not the dashboard record
 
 ### Requirement: REQ-DASH-039 Locale Resolution and Primary Fallback
@@ -312,8 +312,8 @@ Existing dashboards without translation rows MUST continue to function as before
 
 - GIVEN the migration has been applied and translation data exists
 - WHEN the migration is rolled back via `postSchemaChange()` in reverse
-- THEN the `oc_mydash_dash_translations` table MUST be dropped
-- AND existing dashboard records MUST remain unaffected (the widget tree is still in `oc_mydash_dashboards`)
+- THEN the `oc_launchpad_dash_translations` table MUST be dropped
+- AND existing dashboard records MUST remain unaffected (the widget tree is still in `oc_launchpad_dashboards`)
 
 ## Non-Functional Requirements
 
@@ -324,7 +324,7 @@ Existing dashboards without translation rows MUST continue to function as before
 
 ## Implementation Notes
 
-- REQ-DASH-038 (Translation schema): `lib/Migration/Version001017Date20260502130000.php` + `lib/Migration/DashboardTranslationTableBuilder.php` add the `mydash_dash_translations` table with the unique `(dashboard_uuid, language_code)` index. Entity at `lib/Db/DashboardTranslation.php`; mapper at `lib/Db/DashboardTranslationMapper.php`.
+- REQ-DASH-038 (Translation schema): `lib/Migration/Version001017Date20260502130000.php` + `lib/Migration/DashboardTranslationTableBuilder.php` add the `launchpad_dash_translations` table with the unique `(dashboard_uuid, language_code)` index. Entity at `lib/Db/DashboardTranslation.php`; mapper at `lib/Db/DashboardTranslationMapper.php`.
 - REQ-DASH-039 (Locale resolution): `DashboardTranslationMapper::normaliseLanguageCode()` collapses any locale string to its 2-character base code; `DashboardTranslationService::resolveForLocale()` returns `{translation, isFallback}` or `null`. Strict `?lang=` semantics live in `DashboardTranslationApiController::resolved()`.
 - REQ-DASH-040..043 (CRUD + promote): `DashboardTranslationService::createVariant()`, `updateVariant()`, `deleteVariant()`, `promoteVariantToPrimary()` — last/primary delete guards raise distinguishable sentinel exceptions mapped to HTTP 400 by the controller.
 - REQ-DASH-044 (Backwards compatibility + cascade): `DashboardService::createDashboard()` calls `DashboardTranslationService::seedPrimaryFor()` after insert; `DashboardService::deleteDashboard()` cascades via `DashboardTranslationService::deleteAllForDashboard()` for both single-row and subtree delete paths. Legacy dashboards without translation rows are materialised in-memory by `DashboardTranslationService::materialiseLegacyVariant()`.

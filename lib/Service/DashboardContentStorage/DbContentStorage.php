@@ -7,7 +7,7 @@
  * Stores dashboard content in the `content` column of `oc_mydash_dashboards`.
  *
  * @category Service
- * @package  OCA\MyDash\Service\DashboardContentStorage
+ * @package  OCA\LaunchPad\Service\DashboardContentStorage
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\DashboardContentStorage;
+namespace OCA\LaunchPad\Service\DashboardContentStorage;
 
-use OCA\MyDash\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
 

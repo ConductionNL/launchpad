@@ -3,18 +3,18 @@
 /**
  * ExportServiceTest
  *
- * Unit tests for {@see \OCA\MyDash\Service\ExportService} covering the
+ * Unit tests for {@see \OCA\LaunchPad\Service\ExportService} covering the
  * `dashboard-export-import` capability — REQ-EXIM-001 (manifest + ZIP
  * shape), REQ-EXIM-002 (single-dashboard export), REQ-EXIM-003 (site
  * export with manifest counts).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\ExportService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\ExportService;
 use OCP\IGroupManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

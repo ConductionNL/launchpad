@@ -7,7 +7,7 @@
  * based on the `launchpad.content_storage` admin setting.
  *
  * @category Service
- * @package  OCA\MyDash\Service
+ * @package  OCA\LaunchPad\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageInterface;
-use OCA\MyDash\Service\DashboardContentStorage\DbContentStorage;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFolderContentStorage;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageInterface;
+use OCA\LaunchPad\Service\DashboardContentStorage\DbContentStorage;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFolderContentStorage;
 
 /**
  * Factory for the active DashboardContentStorage backend (REQ-GFSB-004).

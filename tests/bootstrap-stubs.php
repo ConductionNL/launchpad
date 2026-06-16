@@ -7,7 +7,7 @@
  * interfaces without needing a live Nextcloud database.
  *
  * @category Test
- * @package  OCA\MyDash\Tests
+ * @package  OCA\LaunchPad\Tests
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.

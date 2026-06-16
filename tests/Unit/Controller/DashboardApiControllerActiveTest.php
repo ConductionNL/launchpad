@@ -7,12 +7,12 @@
  * `POST /api/dashboards/active` per REQ-DASH-019.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -20,13 +20,13 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\DashboardApiController;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\AnalyticsService;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\DashboardTreeService;
-use OCA\MyDash\Service\DashboardVersionService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Controller\DashboardApiController;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;

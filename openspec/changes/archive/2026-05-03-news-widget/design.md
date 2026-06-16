@@ -2,7 +2,7 @@
 
 ## Context
 
-The news widget aggregates RSS and Atom feed items from one or more configured sources and renders them directly on a MyDash dashboard. Feed data is never fetched at render time: the sibling change `background-job-feed-refresh` owns the scheduled fetch-and-cache cycle, writing items into a server-side cache table. The news widget reads exclusively from that cache, so dashboard page loads are fast even when upstream feed servers are slow or unreachable.
+The news widget aggregates RSS and Atom feed items from one or more configured sources and renders them directly on a LaunchPad dashboard. Feed data is never fetched at render time: the sibling change `background-job-feed-refresh` owns the scheduled fetch-and-cache cycle, writing items into a server-side cache table. The news widget reads exclusively from that cache, so dashboard page loads are fast even when upstream feed servers are slow or unreachable.
 
 Per-placement configuration (stored in `widgetContent` JSON) controls which feed URLs are included, the layout mode, an optional item cap, and an optional metadata filter. When a `metadataFilter` is configured, the widget only surfaces items tagged with a matching value, enabling context-sensitive feeds — for example, a department dashboard that surfaces only items tagged for that department.
 
@@ -50,7 +50,7 @@ HTML sanitisation is applied server-side before items reach the client: only a s
 
 ### D4: Max items per render — admin cap with hard ceiling
 
-**Decision:** Admin setting `mydash.news_widget_max_items_per_render` controls the default maximum returned per API call (default 50). A hard ceiling of 200 is enforced server-side regardless of the admin setting or the `limit` query parameter to prevent out-of-memory conditions on large merged feeds.
+**Decision:** Admin setting `launchpad.news_widget_max_items_per_render` controls the default maximum returned per API call (default 50). A hard ceiling of 200 is enforced server-side regardless of the admin setting or the `limit` query parameter to prevent out-of-memory conditions on large merged feeds.
 
 **Alternatives considered:** No server-side cap — rely on the client's requested `limit`. Allows integrators to accidentally configure unbounded fetches; feeds can contain thousands of entries.
 
@@ -66,7 +66,7 @@ HTML sanitisation is applied server-side before items reach the client: only a s
 
 ### D6: Feed host allow-list
 
-**Decision:** Admin setting `mydash.news_widget_allowed_feed_hosts` (JSON array of hostnames) controls which feed origins are permitted. An empty array means all hosts are allowed. URLs whose hostnames are not on a non-empty list are silently skipped at config-save time, not at fetch time.
+**Decision:** Admin setting `launchpad.news_widget_allowed_feed_hosts` (JSON array of hostnames) controls which feed origins are permitted. An empty array means all hosts are allowed. URLs whose hostnames are not on a non-empty list are silently skipped at config-save time, not at fetch time.
 
 **Alternatives considered:** Block at fetch time in the background job. Cleaner failure surface but the widget config UI would not surface the restriction to the configuring user.
 

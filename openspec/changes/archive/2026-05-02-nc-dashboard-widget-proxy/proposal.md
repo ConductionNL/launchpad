@@ -1,6 +1,6 @@
 # Nextcloud Dashboard widget proxy
 
-A new widget type `nc-widget` that renders any Nextcloud Dashboard widget (Mail, Calendar, Talk, etc.) inside a MyDash grid cell. Two-mode rendering: (1) preferred — use the widget's native callback registered via `OCA.Dashboard.register` (covered by `legacy-widget-bridge`), giving full feature parity with the official `/dashboard` page; (2) fallback — fetch widget items via `IAPIWidget` / `IAPIWidgetV2` and render a flat list. A short polling window catches widgets whose script bundle loads after the workspace.
+A new widget type `nc-widget` that renders any Nextcloud Dashboard widget (Mail, Calendar, Talk, etc.) inside a LaunchPad grid cell. Two-mode rendering: (1) preferred — use the widget's native callback registered via `OCA.Dashboard.register` (covered by `legacy-widget-bridge`), giving full feature parity with the official `/dashboard` page; (2) fallback — fetch widget items via `IAPIWidget` / `IAPIWidgetV2` and render a flat list. A short polling window catches widgets whose script bundle loads after the workspace.
 
 ## Affected code units
 

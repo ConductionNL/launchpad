@@ -2,17 +2,17 @@
 
 ## Context
 
-MyDash's news widget currently fetches external RSS/Atom feeds on-demand at page load. This couples every dashboard render to the availability and latency of upstream feed servers — a single slow or failing feed degrades the whole page. Moving feed retrieval into a periodic background job decouples the widget render from the network call and lets users see cached content in sub-second time.
+LaunchPad's news widget currently fetches external RSS/Atom feeds on-demand at page load. This couples every dashboard render to the availability and latency of upstream feed servers — a single slow or failing feed degrades the whole page. Moving feed retrieval into a periodic background job decouples the widget render from the network call and lets users see cached content in sub-second time.
 
 The reference implementation (see source paths below) provides a battle-tested blueprint: PHP's built-in XML parser, Nextcloud's HTTP client, a single cache table, and a TimedJob that runs on a configurable interval. This design document records the decisions made during porting and the rationale behind each one. Where our implementation diverges from the source, the divergence is explicit.
 
-The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` class, a fetch-and-parse service, and one admin-only REST endpoint. All other capabilities (news-widget render, orphaned-data cleanup) interact with this job through shared mapper interfaces rather than direct coupling.
+The feature spans a new database table (`oc_launchpad_feed_cache`), a `TimedJob` class, a fetch-and-parse service, and one admin-only REST endpoint. All other capabilities (news-widget render, orphaned-data cleanup) interact with this job through shared mapper interfaces rather than direct coupling.
 
 ## Goals / Non-Goals
 
 **Goals:**
 - Refresh all active RSS/Atom feeds asynchronously on a configurable interval (default 60 min).
-- Cache parsed items in `oc_mydash_feed_cache` so the news widget never waits on a live HTTP request.
+- Cache parsed items in `oc_launchpad_feed_cache` so the news widget never waits on a live HTTP request.
 - Use HTTP conditional GET (`If-None-Match` / `If-Modified-Since`) to avoid re-downloading unchanged feeds.
 - Isolate per-feed failures so one bad feed cannot block the rest.
 - Harden against malicious feed content (XXE, oversized bodies, non-HTTP schemes).
@@ -33,7 +33,7 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 **Alternatives considered:**
 - **SimplePie:** Handles RSS 0.91/1.0/2.0, Atom 0.3/1.0, iTunes, and Media RSS extensions with ~10 years of edge-case fixes and robust malformed-feed recovery. Rejected for v1 because the added ~500 KB composer dependency and more complex initialisation are not justified for the target use case (modern RSS 2.0 and Atom 1.0 feeds from corporate intranets). Flag for revisit if customers report parsing regressions on unusual feed variants.
 
-**Rationale:** MyDash's news widget is aimed at intranet and SaaS news sources that publish standard RSS 2.0 or Atom 1.0. The source implementation uses `SimpleXMLElement` successfully across those cases with no SimplePie dependency in `composer.json`. Keeping the parser built-in eliminates a supply-chain dependency and reduces the attack surface. The `FeedParserInterface` abstraction means adopting SimplePie later is a one-class swap, not a refactor.
+**Rationale:** LaunchPad's news widget is aimed at intranet and SaaS news sources that publish standard RSS 2.0 or Atom 1.0. The source implementation uses `SimpleXMLElement` successfully across those cases with no SimplePie dependency in `composer.json`. Keeping the parser built-in eliminates a supply-chain dependency and reduces the attack surface. The `FeedParserInterface` abstraction means adopting SimplePie later is a one-class swap, not a refactor.
 
 **Source evidence:**
 - `the source codebase-source/lib/Service/FeedReaderService.php:751,762,812,847` — `@simplexml_load_string($body, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NONET)` then dispatches to `parseXmlFeed(\SimpleXMLElement $xml)` → `normalizeRssItem()` or `normalizeAtomEntry()`.
@@ -69,7 +69,7 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 
 ### D5: Cache key and TTL — NC `ICache`, 60-minute default (admin-tunable)
 
-**Decision:** Persist parsed feed items in `oc_mydash_feed_cache.itemsJson` (database-backed, not NC `ICache`). The background job refresh interval acts as the effective TTL: default 60 minutes, admin-tunable via `mydash.feed_refresh_interval_seconds` (min 300 s, max 86 400 s). NC `ICache` is used only for transient in-request deduplication if needed, not for primary storage.
+**Decision:** Persist parsed feed items in `oc_launchpad_feed_cache.itemsJson` (database-backed, not NC `ICache`). The background job refresh interval acts as the effective TTL: default 60 minutes, admin-tunable via `launchpad.feed_refresh_interval_seconds` (min 300 s, max 86 400 s). NC `ICache` is used only for transient in-request deduplication if needed, not for primary storage.
 
 **Alternatives considered:**
 - **Match source's 15-minute `CACHE_TTL`:** The source stores in NC `ICache` with a 900-second TTL. Rejected because a shared `ICache` entry is volatile (evicted under memory pressure) and does not survive across PHP processes. Database persistence is more reliable for a background-job pattern where the widget render must always find cached data.
@@ -77,13 +77,13 @@ The feature spans a new database table (`oc_mydash_feed_cache`), a `TimedJob` cl
 **Source evidence:**
 - `the source codebase-source/lib/Service/FeedReaderService.php` — `CACHE_TTL = 900` (15 min) used with `ICacheFactory`-backed cache.
 
-**Rationale:** The proposal explicitly defines `oc_mydash_feed_cache` as the persistence layer and the 60-minute `TimedJob` interval as the refresh cadence. Database storage survives pod restarts and Redis evictions; 60 minutes is appropriate for intranet news that does not change by the minute. Admins who need fresher data can lower the interval to 5 minutes.
+**Rationale:** The proposal explicitly defines `oc_launchpad_feed_cache` as the persistence layer and the 60-minute `TimedJob` interval as the refresh cadence. Database storage survives pod restarts and Redis evictions; 60 minutes is appropriate for intranet news that does not change by the minute. Admins who need fresher data can lower the interval to 5 minutes.
 
 ### D6: Conditional GET — `If-None-Match` + `If-Modified-Since`
 
-**Decision:** Persist `etag` and `lastModified` response headers in `oc_mydash_feed_cache` after each successful 200 fetch. On subsequent fetches, send `If-None-Match` and `If-Modified-Since` headers. On HTTP 304, update only `lastFetchedAt` and skip parse entirely.
+**Decision:** Persist `etag` and `lastModified` response headers in `oc_launchpad_feed_cache` after each successful 200 fetch. On subsequent fetches, send `If-None-Match` and `If-Modified-Since` headers. On HTTP 304, update only `lastFetchedAt` and skip parse entirely.
 
-**Rationale:** Conditional GET is the standard mechanism for feed polling efficiency. It reduces bandwidth and CPU on both sides and signals to feed servers that MyDash is a well-behaved client. The spec (REQ-FRJ-004) requires it; the source does not implement it, so this is a deliberate improvement over the reference.
+**Rationale:** Conditional GET is the standard mechanism for feed polling efficiency. It reduces bandwidth and CPU on both sides and signals to feed servers that LaunchPad is a well-behaved client. The spec (REQ-FRJ-004) requires it; the source does not implement it, so this is a deliberate improvement over the reference.
 
 ### D7: Per-feed isolation — one timeout does not block the rest
 

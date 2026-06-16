@@ -1,12 +1,12 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="news-form">
 		<label class="news-form__label">
-			{{ t('mydash', 'Feed URLs') }}
+			{{ t('launchpad', 'Feed URLs') }}
 		</label>
 		<div
 			v-for="(url, index) in feedUrls"
@@ -14,13 +14,13 @@
 			class="news-form__feed-row">
 			<NcTextField
 				:value="url"
-				:label="t('mydash', 'Feed URL')"
+				:label="t('launchpad', 'Feed URL')"
 				placeholder="https://example.com/feed.xml"
 				@update:value="updateFeedUrl(index, $event)" />
 			<button
 				type="button"
 				class="news-form__feed-remove"
-				:aria-label="t('mydash', 'Remove feed')"
+				:aria-label="t('launchpad', 'Remove feed')"
 				@click="removeFeedUrl(index)">
 				×
 			</button>
@@ -29,13 +29,13 @@
 			type="button"
 			class="news-form__feed-add"
 			@click="addFeedUrl">
-			+ {{ t('mydash', 'Add feed URL') }}
+			+ {{ t('launchpad', 'Add feed URL') }}
 		</button>
 
 		<NcSelect
 			:value="layout"
 			:options="layoutOptions"
-			:input-label="t('mydash', 'Layout')"
+			:input-label="t('launchpad', 'Layout')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -44,31 +44,31 @@
 		<NcTextField
 			:value="String(itemLimit)"
 			type="number"
-			:label="t('mydash', 'Item limit (1–50)')"
+			:label="t('launchpad', 'Item limit (1–50)')"
 			@update:value="updateNumericField('itemLimit', $event, 1, 50)" />
 
 		<NcCheckboxRadioSwitch
 			:checked="showThumbnails"
 			@update:checked="updateField('showThumbnails', $event)">
-			{{ t('mydash', 'Show thumbnails') }}
+			{{ t('launchpad', 'Show thumbnails') }}
 		</NcCheckboxRadioSwitch>
 
 		<NcCheckboxRadioSwitch
 			:checked="showSummary"
 			@update:checked="updateField('showSummary', $event)">
-			{{ t('mydash', 'Show summary') }}
+			{{ t('launchpad', 'Show summary') }}
 		</NcCheckboxRadioSwitch>
 
 		<NcTextField
 			:value="String(summaryMaxChars)"
 			type="number"
-			:label="t('mydash', 'Summary max characters')"
+			:label="t('launchpad', 'Summary max characters')"
 			@update:value="updateNumericField('summaryMaxChars', $event, 0, 5000)" />
 
 		<NcSelect
 			:value="dateFormat"
 			:options="dateFormatOptions"
-			:input-label="t('mydash', 'Date format')"
+			:input-label="t('launchpad', 'Date format')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -77,18 +77,18 @@
 		<NcCheckboxRadioSwitch
 			:checked="metadataFilterEnabled"
 			@update:checked="toggleMetadataFilter">
-			{{ t('mydash', 'Filter by dashboard metadata') }}
+			{{ t('launchpad', 'Filter by dashboard metadata') }}
 		</NcCheckboxRadioSwitch>
 
 		<div v-if="metadataFilterEnabled" class="news-form__metadata">
 			<NcTextField
 				:value="metadataFieldKey"
-				:label="t('mydash', 'Metadata field key')"
+				:label="t('launchpad', 'Metadata field key')"
 				placeholder="department"
 				@update:value="updateMetadataField('fieldKey', $event)" />
 			<NcTextField
 				:value="metadataValue"
-				:label="t('mydash', 'Metadata value to match')"
+				:label="t('launchpad', 'Metadata value to match')"
 				placeholder="marketing"
 				@update:value="updateMetadataField('value', $event)" />
 		</div>
@@ -172,17 +172,17 @@ export default {
 		/** @spec openspec/specs/news-widget/spec.md */
 		layoutOptions() {
 			return [
-				{ value: 'list', label: t('mydash', 'List') },
-				{ value: 'grid', label: t('mydash', 'Grid') },
-				{ value: 'carousel', label: t('mydash', 'Carousel') },
+				{ value: 'list', label: t('launchpad', 'List') },
+				{ value: 'grid', label: t('launchpad', 'Grid') },
+				{ value: 'carousel', label: t('launchpad', 'Carousel') },
 			]
 		},
 
 		/** @spec openspec/specs/news-widget/spec.md */
 		dateFormatOptions() {
 			return [
-				{ value: 'relative', label: t('mydash', 'Relative (2 hours ago)') },
-				{ value: 'absolute', label: t('mydash', 'Absolute (2026-05-01 14:30)') },
+				{ value: 'relative', label: t('launchpad', 'Relative (2 hours ago)') },
+				{ value: 'absolute', label: t('launchpad', 'Absolute (2026-05-01 14:30)') },
 			]
 		},
 
@@ -273,16 +273,16 @@ export default {
 			const errors = []
 			for (const url of this.feedUrls) {
 				if (typeof url !== 'string' || url.trim() === '') {
-					errors.push(t('mydash', 'Empty feed URL — remove it or fill it in'))
+					errors.push(t('launchpad', 'Empty feed URL — remove it or fill it in'))
 					continue
 				}
 				if (!/^https?:\/\//i.test(url.trim())) {
-					errors.push(t('mydash', 'Feed URL must start with http:// or https://'))
+					errors.push(t('launchpad', 'Feed URL must start with http:// or https://'))
 				}
 			}
 			if (this.metadataFilterEnabled) {
 				if (this.metadataFieldKey.trim() === '') {
-					errors.push(t('mydash', 'Metadata field key is required when filter is enabled'))
+					errors.push(t('launchpad', 'Metadata field key is required when filter is enabled'))
 				}
 			}
 			return errors

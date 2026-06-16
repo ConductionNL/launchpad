@@ -8,12 +8,12 @@
  * admin-only guard, parameter validation, and 409 collision wiring.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,12 +21,12 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\AdminController;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\ExportService;
-use OCA\MyDash\Service\FooterService;
-use OCA\MyDash\Service\ImportService;
+use OCA\LaunchPad\Controller\AdminController;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\ExportService;
+use OCA\LaunchPad\Service\FooterService;
+use OCA\LaunchPad\Service\ImportService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -83,11 +83,11 @@ class AdminControllerExportImportTest extends TestCase
             userSession: $this->userSession,
             exportService: $this->exportService,
             importService: $this->importService,
-            roleService: $this->createMock(originalClassName: \OCA\MyDash\Service\RoleService::class),
-            feedRefresh: $this->createMock(originalClassName: \OCA\MyDash\Service\FeedRefreshService::class),
+            roleService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\RoleService::class),
+            feedRefresh: $this->createMock(originalClassName: \OCA\LaunchPad\Service\FeedRefreshService::class),
             footerService: $this->footerService,
-            setupWizardService: $this->createMock(originalClassName: \OCA\MyDash\Service\SetupWizardService::class),
-            actionAuth: $this->createMock(originalClassName: \OCA\MyDash\Service\ActionAuthService::class),
+            setupWizardService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\SetupWizardService::class),
+            actionAuth: $this->createMock(originalClassName: \OCA\LaunchPad\Service\ActionAuthService::class),
         );
     }
 
@@ -178,7 +178,7 @@ class AdminControllerExportImportTest extends TestCase
         // Fake a multipart upload via $_FILES — the controller reads the
         // path straight off it without touching the filesystem (the
         // import service is mocked).
-        $tmpFile = (string) tempnam(directory: sys_get_temp_dir(), prefix: 'mydash-imp-');
+        $tmpFile = (string) tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-imp-');
         file_put_contents(filename: $tmpFile, data: 'placeholder');
         $_FILES['file'] = [
             'name'     => 'archive.zip',

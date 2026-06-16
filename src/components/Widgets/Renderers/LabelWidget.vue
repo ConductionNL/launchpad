@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -44,7 +44,7 @@ export default {
 
 		/** @spec openspec/specs/label-widget/spec.md */
 		displayText() {
-			return this.hasText ? this.text : t('mydash', 'Label')
+			return this.hasText ? this.text : t('launchpad', 'Label')
 		},
 
 		/** @spec openspec/specs/label-widget/spec.md */

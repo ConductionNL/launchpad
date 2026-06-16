@@ -2,13 +2,13 @@
 
 ## Why
 
-Today MyDash performs actions — creating dashboards, publishing them, sharing them, locking them, posting comments, restoring versions — that are invisible to Nextcloud's standard Activity stream. Users and administrators have no timeline of "who did what" across the MyDash workspace, and there is no notification path for events that affect dashboards shared with other users. This change surfaces MyDash events in the standard Nextcloud Activity feed, giving every user a unified notification history alongside Files, Talk, and other NC apps.
+Today LaunchPad performs actions — creating dashboards, publishing them, sharing them, locking them, posting comments, restoring versions — that are invisible to Nextcloud's standard Activity stream. Users and administrators have no timeline of "who did what" across the LaunchPad workspace, and there is no notification path for events that affect dashboards shared with other users. This change surfaces LaunchPad events in the standard Nextcloud Activity feed, giving every user a unified notification history alongside Files, Talk, and other NC apps.
 
 ## What Changes
 
-- Register a new `OCP\Activity\IProvider` implementation (`lib/Activity/Extension.php`) under the application id `mydash`, covering thirteen discrete event types.
+- Register a new `OCP\Activity\IProvider` implementation (`lib/Activity/Extension.php`) under the application id `launchpad`, covering thirteen discrete event types.
 - Define event-type constants (`dashboard_created`, `dashboard_updated`, `dashboard_deleted`, `dashboard_published`, `dashboard_unpublished`, `dashboard_scheduled`, `dashboard_shared`, `dashboard_public_share_created`, `dashboard_commented`, `dashboard_reacted`, `dashboard_restored`, `dashboard_lock_overridden`, `dashboard_role_changed`) in the Extension class — one canonical place.
-- Each emitted Activity event carries `{user, type, subject, message, object_type: 'mydash_dashboard', object_id: <uuid>, link, timestamp}` and is persisted via `OCP\Activity\IManager::publishActivity()`.
+- Each emitted Activity event carries `{user, type, subject, message, object_type: 'launchpad_dashboard', object_id: <uuid>, link, timestamp}` and is persisted via `OCP\Activity\IManager::publishActivity()`.
 - Audience targeting varies by dashboard scope: personal → owner only; user-to-user share → all named recipients; group-shared → all group members resolved via `IGroupManager`; default-group dashboards → all NC users (global events, debounced).
 - Reaction events are debounced per `(user, dashboard)` at most once per 15 minutes. Global (default-group) events share the same debounce pattern to avoid fan-out spam.
 - Users control notification delivery (email / in-app) per event type via the standard NC Activity settings UI — no custom preferences UI required.
@@ -32,19 +32,19 @@ None. Emission call-sites are added inside existing capability implementations b
 - `lib/Activity/Extension.php` — new: registers all 13 event types with NC's `IProvider` interface; provides `parse()`, `getIcon()`, `getUrl()`, and default subject/message templates
 - `lib/Activity/ActivityPublisher.php` — new: thin service wrapper around `IManager::publishActivity()` + audience resolution + debounce; injected wherever emission calls are added
 - `lib/Activity/DebounceHelper.php` — new: APCu-backed per-`(user, dashboard)` 15-minute window guard; also used for global (default-group) fan-out debounce
-- `appinfo/info.xml` — register `\OCA\MyDash\Activity\Extension` under `<activity>`
+- `appinfo/info.xml` — register `\OCA\LaunchPad\Activity\Extension` under `<activity>`
 - `lib/AppInfo/Application.php` — register `ActivityPublisher` and `DebounceHelper` in the DI container
 - `tests/Unit/Activity/ExtensionTest.php` — new PHPUnit test (REQ-ACT-011 contract)
 
 **Affected APIs:**
 
-- No new HTTP endpoints. NC Activity REST API (`/ocs/v2.php/apps/activity/api/v2/activity`) will surface MyDash events automatically once the provider is registered.
+- No new HTTP endpoints. NC Activity REST API (`/ocs/v2.php/apps/activity/api/v2/activity`) will surface LaunchPad events automatically once the provider is registered.
 
 **Dependencies:**
 
 - `OCP\Activity\IProvider` — already available in Nextcloud ≥ 20; no new composer packages required
 - `OCP\Activity\IManager` — already in NC core
-- `OCP\IGroupManager` — already injected elsewhere in MyDash
+- `OCP\IGroupManager` — already injected elsewhere in LaunchPad
 - APCu — assumed available (used elsewhere for rate-limiting)
 
 **Migration:**

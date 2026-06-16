@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,14 +8,14 @@
 		<div
 			v-if="normalisedWidgets.length === 0"
 			class="nc-widget-grid-picker__empty">
-			{{ t('mydash', 'No Nextcloud widgets are installed') }}
+			{{ t('launchpad', 'No Nextcloud widgets are installed') }}
 		</div>
 		<div
 			v-else
 			ref="grid"
 			class="nc-widget-grid-picker__grid"
 			role="radiogroup"
-			:aria-label="t('mydash', 'Pick a widget')">
+			:aria-label="t('launchpad', 'Pick a widget')">
 			<button
 				v-for="(widget, idx) in normalisedWidgets"
 				:key="widget.id"
@@ -46,7 +46,7 @@
 					<span
 						v-if="value === widget.id"
 						class="nc-widget-grid-picker__check"
-						:aria-label="t('mydash', 'Selected')">
+						:aria-label="t('launchpad', 'Selected')">
 						<CheckIcon :size="16" />
 					</span>
 				</span>

@@ -7,12 +7,12 @@
  * resolver. REQ-DASH-038..044 (dashboard-language-content).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,10 +21,10 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use Exception;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardTranslation;
-use OCA\MyDash\Db\DashboardTranslationMapper;
-use OCA\MyDash\Service\DashboardTranslationService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardTranslation;
+use OCA\LaunchPad\Db\DashboardTranslationMapper;
+use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;

@@ -22,30 +22,30 @@
  * is a one-line change.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use Exception;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardVersion;
-use OCA\MyDash\Db\DashboardVersionMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardVersion;
+use OCA\LaunchPad\Db\DashboardVersionMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
 use OCP\ICacheFactory;
@@ -88,7 +88,7 @@ class DashboardVersionService
      *
      * @var string
      */
-    public const CACHE_NAMESPACE = 'mydash_versioning';
+    public const CACHE_NAMESPACE = 'launchpad_versioning';
 
     /**
      * Sentinel error message returned by the permission guard.
@@ -508,7 +508,7 @@ class DashboardVersionService
             }
 
             $this->logger->error(
-                message: 'mydash: restoreVersion failed, transaction rolled back',
+                message: 'launchpad: restoreVersion failed, transaction rolled back',
                 context: ['exception' => $t]
             );
             throw $t;
@@ -588,7 +588,7 @@ class DashboardVersionService
             return $cache->hasKey(key: $this->debounceKey(uuid: $uuid));
         } catch (Throwable $t) {
             $this->logger->debug(
-                message: 'mydash: debounce check failed, allowing snapshot',
+                message: 'launchpad: debounce check failed, allowing snapshot',
                 context: ['exception' => $t]
             );
             return false;
@@ -617,7 +617,7 @@ class DashboardVersionService
             );
         } catch (Throwable $t) {
             $this->logger->debug(
-                message: 'mydash: failed to set debounce key',
+                message: 'launchpad: failed to set debounce key',
                 context: ['exception' => $t]
             );
         }
@@ -632,7 +632,7 @@ class DashboardVersionService
      */
     private function debounceKey(string $uuid): string
     {
-        return 'mydash_ver_debounce_'.$uuid;
+        return 'launchpad_ver_debounce_'.$uuid;
     }//end debounceKey()
 
     /**
@@ -652,7 +652,7 @@ class DashboardVersionService
             );
         } catch (Throwable $t) {
             $this->logger->debug(
-                message: 'mydash: cache factory unavailable',
+                message: 'launchpad: cache factory unavailable',
                 context: ['exception' => $t]
             );
             $this->cache = null;
@@ -688,7 +688,7 @@ class DashboardVersionService
                 }
             } catch (Throwable $t) {
                 $this->logger->debug(
-                    message: 'mydash: failed to load placements for snapshot',
+                    message: 'launchpad: failed to load placements for snapshot',
                     context: ['exception' => $t]
                 );
             }
@@ -771,7 +771,7 @@ class DashboardVersionService
             }//end foreach
         } catch (Throwable $t) {
             $this->logger->error(
-                message: 'mydash: applySnapshotPayload failed for dashboard '.$dashboardId,
+                message: 'launchpad: applySnapshotPayload failed for dashboard '.$dashboardId,
                 context: ['exception' => $t]
             );
             throw $t;

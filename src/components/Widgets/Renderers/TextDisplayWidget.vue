@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -206,12 +206,12 @@ export default {
 
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		placeholderText() {
-			return t('mydash', 'No text content')
+			return t('launchpad', 'No text content')
 		},
 
 		/** @spec openspec/specs/text-display-widget/spec.md */
 		emptyCellPlaceholder() {
-			return t('mydash', 'Empty cell')
+			return t('launchpad', 'Empty cell')
 		},
 
 		/** @spec openspec/specs/text-display-widget/spec.md */

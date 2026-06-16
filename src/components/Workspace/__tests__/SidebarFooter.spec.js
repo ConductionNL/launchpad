@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `SidebarFooter.vue` (capability
@@ -8,7 +8,7 @@
  *  - Sendent + Conduction logos are wrapped in `<a target="_blank"
  *    rel="noopener noreferrer">` (security gate; never omit the rel)
  *  - Documentation link points at the same URL the gear-menu Documentation
- *    entry used before runtime-shell-trim (https://mydash.conduction.nl)
+ *    entry used before runtime-shell-trim (https://launchpad.conduction.nl)
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -45,6 +45,8 @@ describe('SidebarFooter', () => {
 			expect(sendent.attributes('aria-label')).toBe('Sendent')
 			const img = sendent.find('img')
 			expect(img.attributes('alt')).toBe('Sendent')
+			// App id is `mydash` — generating with `launchpad` 404s (no
+			// appswebroots entry for the display name).
 			expect(img.attributes('src')).toBe('/apps/mydash/img/sendent-logo.png')
 		})
 

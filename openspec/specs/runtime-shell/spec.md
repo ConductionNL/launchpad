@@ -14,19 +14,17 @@ The shell deliberately holds NO source-of-truth data of its own — every key it
 
 ### Requirement: Single mount point (REQ-SHELL-001)
 
-The system MUST render the workspace Vue app into exactly one DOM element (id `mydash-app`), located inside a `<div id="app-workspace" class="mydash-workspace">` provided by `templates/index.php`. Nextcloud's chrome MUST treat `#app-workspace` as the main content slot (`'id-app-content' => '#app-workspace'`). No left navigation slot MUST be allocated by the chrome (`'id-app-navigation' => null`) — the shell renders its own slide-in sidebar instead.
+The system MUST render the workspace Vue app into exactly one DOM element (id `launchpad-app`), located inside a `<div id="app-workspace" class="launchpad-workspace">` provided by `templates/index.php`. Nextcloud's chrome MUST treat `#app-workspace` as the main content slot (`'id-app-content' => '#app-workspace'`). No left navigation slot MUST be allocated by the chrome (`'id-app-navigation' => null`) — the shell renders its own slide-in sidebar instead.
 
 #### Scenario: Mount point present
 
 - GIVEN the user has navigated to the workspace page
 - WHEN the page HTML is rendered
-- THEN the rendered HTML MUST contain exactly one `<div id="mydash-app">`
+- THEN the rendered HTML MUST contain exactly one `<div id="launchpad-app">`
 - AND it MUST be a child of `<div id="app-workspace">`
 - AND no Nextcloud chrome navigation panel MUST be rendered
 
 ### Requirement: REQ-SHELL-002 Edit affordances gated by canEdit
-
-@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
 
 `canEdit` (`isAdmin || dashboardSource === 'user'`) MUST gate:
 
@@ -35,6 +33,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `m
 - The action menu's edit entries: "Add custom widget…", "Save dashboard", "Dashboard configuration…"
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
+@e2e exclude edit affordances gated by canEdit requires a non-admin user session — test fixture is single-user admin; canEdit=false scenario not available headlessly
 
 #### Scenario: Non-edit user has no edit affordances visible
 
@@ -50,11 +49,39 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `m
 - **THEN** "Add custom widget…", "Save dashboard", "Dashboard configuration…", and "Documentation" MUST all be present
 - **AND** right-clicking a widget MUST open the widget context menu (REQ-WDG-015)
 
+### Requirement: REQ-SHELL-003 Toolbar contents
+
+When `canEdit` is true, the toolbar MUST render exactly two affordances: an **Add Widget** dropdown button (sourced from the widget type registry — see `widget-add-edit-modal`) and a **Save Layout** button. Selecting an Add Widget option opens the modal pre-filled with that type. The Save Layout button MUST be disabled while a save request is in flight, and on click it MUST call `saveLayout()` which PUTs to `/api/dashboards/{uuid}` with `{layout: layout.value}` then toasts success or error.
+
+#### Scenario: Add-widget dropdown lists all widget types
+
+@e2e exclude registry-driven dropdown contents — covered by Vitest component test
+- GIVEN the widget-type registry contains 5 entries
+- WHEN the user opens the Add Widget dropdown
+- THEN it MUST display 5 menu items, one per registered type
+- AND each item MUST be labelled with the type's translated display name
+
+#### Scenario: Save sends layout to correct endpoint
+
+@e2e exclude PUT request shape/endpoint assertion — covered by Vitest + Newman
+- GIVEN `dashboardSource: 'user'` and `activeDashboardId: 'abc'`
+- WHEN the user clicks Save
+- THEN the system MUST send `PUT /api/dashboards/abc` with body `{layout: <current widgets>}`
+- AND show a success toast on 200
+- AND show an error toast on 4xx or 5xx
+
+#### Scenario: Save button disabled while in flight
+
+- GIVEN a Save request is in flight
+- WHEN the user attempts to click Save again
+- THEN the button MUST be disabled (HTML `disabled` attribute set)
+- AND no second request MUST fire
+
 ### Requirement: REQ-SHELL-004 Hamburger toggle and active-dashboard label
 
 The shell MUST render, in the title strip:
 
-- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('mydash', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
+- A sidebar-toggle button using `NcButton` with `type="tertiary"`, an `aria-label` of `t('launchpad', 'Open menu')`, and a 20-px menu icon. The button's visual treatment (size, hover/focus/active rings) MUST match the Nextcloud account-menu button so the workspace chrome reads as native Nextcloud UI.
 - The active dashboard's name as a plain `<h1>` (or `<h2>`) text label — NOT as a `<select>` or any other interactive switcher control. Switching between dashboards happens exclusively via the left sidebar (`dashboard-switcher` capability).
 
 The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhere in its surface area.
@@ -90,9 +117,8 @@ The shell MUST NOT render a standalone "Active dashboard" select dropdown anywhe
 
 ### Requirement: Empty state (REQ-SHELL-005)
 
-@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
-
 When the resolver returned no active dashboard, the shell MUST render an empty-state UI inside the grid container with: a friendly message ("No dashboards available"), an explanation, and — if `allowUserDashboards` is `true` — a primary "Create your first dashboard" button that calls the create-personal flow. When `allowUserDashboards` is `false` no Create button MUST be shown and the message MUST direct the user to contact their administrator.
+@e2e exclude empty state requires no dashboards — test fixture always has at least one dashboard; empty state cannot be triggered without destructive setup
 
 #### Scenario: Empty state with creation enabled
 
@@ -112,9 +138,8 @@ When the resolver returned no active dashboard, the shell MUST render an empty-s
 
 ### Requirement: Sidebar backdrop (REQ-SHELL-006)
 
-@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
-
 When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop that intercepts clicks and closes the sidebar. The backdrop MUST start at the same `top` offset as the Nextcloud header (50 px) and span the rest of the viewport. Clicks on the sidebar itself MUST NOT close the sidebar.
+@e2e exclude sidebar backdrop close tests a fixed-position overlay click — backdrop behaviour is tested end-to-end via PR #111 wave3 tests
 
 #### Scenario: Backdrop closes sidebar on click
 
@@ -130,9 +155,8 @@ When `sidebarOpen` is `true`, the shell MUST render a fixed-position backdrop th
 
 ### Requirement: Lifecycle hooks (REQ-SHELL-007)
 
-@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
-
 The shell MUST register a global `document.click` listener on mount (delegated to the grid composable's `handleClickOutside`) and remove it on unmount. The GridStack instance MUST be initialised after `nextTick()` (so the grid container ref is non-null) and destroyed on unmount.
+@e2e exclude lifecycle hooks (addEventListener + GridStack destroy) are internal Vue onMounted/onUnmounted calls — not observable from Playwright without page-unload automation
 
 #### Scenario: Listener and grid registered after mount
 

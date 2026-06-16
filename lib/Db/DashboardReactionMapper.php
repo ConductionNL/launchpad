@@ -4,24 +4,24 @@
  * DashboardReactionMapper
  *
  * Database mapper for DashboardReaction entities. Covers the
- * `oc_mydash_dashboard_reactions` table — emoji reactions on
+ * `oc_launchpad_dash_reactions` table — emoji reactions on
  * dashboards. REQ-RXN-001..009.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use Exception;
@@ -46,7 +46,7 @@ class DashboardReactionMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dashboard_reactions',
+            tableName: 'launchpad_dash_reactions',
             entityClass: DashboardReaction::class
         );
     }//end __construct()

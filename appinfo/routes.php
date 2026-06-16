@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -95,7 +95,7 @@ return [
 
 		// Dashboard comments endpoints (REQ-CMNT-001..009). Threaded
 		// comments backed by Nextcloud's `ICommentsManager` with
-		// object type `mydash_dashboard`. The literal `/comments`
+		// object type `launchpad_dashboard`. The literal `/comments`
 		// segment disambiguates from the `{groupId}` wildcard below
 		// — both share the `/api/dashboards/{uuid}/...` prefix.
 		['name' => 'dashboardCommentsApi#index',
@@ -173,6 +173,21 @@ return [
 		['name' => 'publicShare#show', 'url' => '/s/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
+		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+
+		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,
+		// `#[NoAdminRequired]` + service-layer per-dashboard guards. The literal
+		// `kiosk/playlists` segments avoid any wildcard collision.
+		['name' => 'kiosk#index', 'url' => '/api/kiosk/playlists', 'verb' => 'GET'],
+		['name' => 'kiosk#create', 'url' => '/api/kiosk/playlists', 'verb' => 'POST'],
+		['name' => 'kiosk#update', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'PUT',
+		 'requirements' => ['id' => '\d+']],
+		['name' => 'kiosk#destroy', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'DELETE',
+		 'requirements' => ['id' => '\d+']],
+		// Public (anonymous) kiosk render (REQ-KIOSK-003). #[PublicPage] +
+		// #[NoCSRFRequired] + shared `launchpad_share_access` throttle bucket.
+		// Registered BEFORE the deep-link catch-all at the bottom.
+		['name' => 'kiosk#render', 'url' => '/kiosk/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
@@ -380,7 +395,7 @@ return [
 		['name' => 'admin#import', 'url' => '/api/admin/import', 'verb' => 'POST'],
 
 		// People widget (REQ-PPL-003). Paginated user-directory endpoint
-		// for the `people` MyDash widget. Authenticated users only;
+		// for the `people` LaunchPad widget. Authenticated users only;
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 

@@ -2,8 +2,8 @@
 
 - [x] **T01**: Define `Dashboard` entity permission level constants and default — `lib/Db/Dashboard.php`
 - [x] **T02**: Define `WidgetPlacement` entity `is_compulsory` flag (SMALLINT 0/1) — `lib/Db/WidgetPlacement.php`
-- [x] **T03**: Add `permission_level` column (VARCHAR 20, default `'full'`) to `mydash_dashboards` DB schema — `lib/Migration/DashboardTableBuilder.php`
-- [x] **T04**: Add `is_compulsory` column (SMALLINT UNSIGNED, default `0`) to `mydash_widget_placements` DB schema — `lib/Migration/PlacementTableBuilder.php`
+- [x] **T03**: Add `permission_level` column (VARCHAR 20, default `'full'`) to `launchpad_dashboards` DB schema — `lib/Migration/DashboardTableBuilder.php`
+- [x] **T04**: Add `is_compulsory` column (SMALLINT UNSIGNED, default `0`) to `launchpad_widget_placements` DB schema — `lib/Migration/PlacementTableBuilder.php`
 - [x] **T05**: Implement `PermissionService` with `canEditDashboard`, `canAddWidget`, `canRemoveWidget`, `canStyleWidget`, ownership verification, and `getEffectivePermissionLevel` (template-override → own level → global default) — `lib/Service/PermissionService.php`
 - [x] **T06**: Implement `PermissionService::canCreateDashboard` and `canHaveMultipleDashboards` gated by admin settings — `lib/Service/PermissionService.php`
 - [x] **T07**: Enforce `canAddWidget` check (HTTP 403) on `POST /api/dashboard/{dashboardId}/widgets` — `lib/Controller/WidgetApiController.php`

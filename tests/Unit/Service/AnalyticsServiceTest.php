@@ -7,12 +7,12 @@
  * (REQ-ANLT-001..010).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,12 +21,12 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardView;
-use OCA\MyDash\Db\DashboardViewMapper;
-use OCA\MyDash\Service\AnalyticsService;
-use OCA\MyDash\Service\UniqueViewerDedup;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardView;
+use OCA\LaunchPad\Db\DashboardViewMapper;
+use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Service\UniqueViewerDedup;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
 use OCP\IConfig;
@@ -121,7 +121,7 @@ class AnalyticsServiceTest extends TestCase
         $this->appConfig->expects($this->once())
             ->method('setValueInt')
             ->with(
-                $this->equalTo('mydash'),
+                $this->equalTo('launchpad'),
                 $this->equalTo(AnalyticsService::CONFIG_KEY_RETENTION_DAYS),
                 $this->equalTo(30)
             );
@@ -397,14 +397,14 @@ class AnalyticsServiceTest extends TestCase
         ];
 
         foreach ($formulaNames as $name) {
-            $row = new \OCA\MyDash\Db\DashboardView();
+            $row = new \OCA\LaunchPad\Db\DashboardView();
             $row->setDashboardUuid('uuid-formula');
             $row->setViewBucket('2026-05-01');
             $row->setViewCount(1);
             $row->setUniqueViewerCount(1);
             $this->viewMapper->method('findAllInRange')->willReturn([$row]);
 
-            $dashboard = new \OCA\MyDash\Db\Dashboard();
+            $dashboard = new \OCA\LaunchPad\Db\Dashboard();
             $dashboard->setName($name);
             $this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
 
@@ -419,8 +419,8 @@ class AnalyticsServiceTest extends TestCase
                 message: "Formula trigger '{$trigger}' must be prefixed with single-quote in CSV"
             );
             // Reset mock state.
-            $this->viewMapper = $this->createMock(\OCA\MyDash\Db\DashboardViewMapper::class);
-            $this->dashboardMapper = $this->createMock(\OCA\MyDash\Db\DashboardMapper::class);
+            $this->viewMapper = $this->createMock(\OCA\LaunchPad\Db\DashboardViewMapper::class);
+            $this->dashboardMapper = $this->createMock(\OCA\LaunchPad\Db\DashboardMapper::class);
             $this->setUp();
         }
     }

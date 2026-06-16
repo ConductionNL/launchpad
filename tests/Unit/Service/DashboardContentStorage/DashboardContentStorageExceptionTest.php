@@ -6,7 +6,7 @@
  * Verifies the exception hierarchy for the DashboardContentStorage subsystem.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\DashboardContentStorage
+ * @package   OCA\LaunchPad\Tests\Unit\Service\DashboardContentStorage
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,9 +19,9 @@ declare(strict_types=1);
 
 namespace Unit\Service\DashboardContentStorage;
 
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardNotFoundException;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFoldersNotInstalledException;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardNotFoundException;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFoldersNotInstalledException;
 use PHPUnit\Framework\TestCase;
 
 /**

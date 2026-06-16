@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 <template>
@@ -7,41 +7,41 @@
 		v-if="visible"
 		class="save-as-template-modal"
 		role="dialog"
-		:aria-label="t('mydash', 'Save as template')">
+		:aria-label="t('launchpad', 'Save as template')">
 		<div class="save-as-template-modal__backdrop" @click="onCancel" />
 		<div class="save-as-template-modal__panel">
 			<h2 class="save-as-template-modal__title">
-				{{ t('mydash', 'Save as template') }}
+				{{ t('launchpad', 'Save as template') }}
 			</h2>
 			<form @submit.prevent="onSubmit">
 				<label class="save-as-template-modal__field">
-					<span>{{ t('mydash', 'Template name') }}</span>
+					<span>{{ t('launchpad', 'Template name') }}</span>
 					<input
 						v-model="form.name"
 						type="text"
 						required
-						:placeholder="t('mydash', 'Template name')">
+						:placeholder="t('launchpad', 'Template name')">
 				</label>
 				<label class="save-as-template-modal__field">
-					<span>{{ t('mydash', 'Description') }}</span>
+					<span>{{ t('launchpad', 'Description') }}</span>
 					<textarea
 						v-model="form.description"
 						rows="3"
-						:placeholder="t('mydash', 'Describe the template purpose')" />
+						:placeholder="t('launchpad', 'Describe the template purpose')" />
 				</label>
 				<label class="save-as-template-modal__field">
-					<span>{{ t('mydash', 'Category') }}</span>
+					<span>{{ t('launchpad', 'Category') }}</span>
 					<input
 						v-model="form.category"
 						type="text"
-						:placeholder="t('mydash', 'e.g. marketing, engineering')">
+						:placeholder="t('launchpad', 'e.g. marketing, engineering')">
 				</label>
 				<div class="save-as-template-modal__actions">
 					<button type="button" @click="onCancel">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</button>
 					<button type="submit" :disabled="!canSubmit">
-						{{ t('mydash', 'Save as template') }}
+						{{ t('launchpad', 'Save as template') }}
 					</button>
 				</div>
 			</form>

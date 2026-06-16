@@ -30,8 +30,8 @@
 
 ## 4. End-to-end Playwright tests
 
-- [ ] 4.1 Image widget renders an uploaded resource via the served `GET /apps/mydash/resource/<filename>` URL (deferred — no e2e harness in this worktree)
-- [ ] 4.2 Direct browser fetch of `/apps/mydash/resource/<filename>` while unauthenticated redirects to login (no bytes served) (deferred — no e2e harness in this worktree)
+- [ ] 4.1 Image widget renders an uploaded resource via the served `GET /apps/launchpad/resource/<filename>` URL (deferred — no e2e harness in this worktree)
+- [ ] 4.2 Direct browser fetch of `/apps/launchpad/resource/<filename>` while unauthenticated redirects to login (no bytes served) (deferred — no e2e harness in this worktree)
 
 ## 5. Quality gates
 

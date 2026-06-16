@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `LinkButtonWidget.vue` covering REQ-LBN-001
@@ -208,14 +208,14 @@ describe('LinkButtonWidget', () => {
 	it('REQ-LBN-002: custom URL icon renders <img> 48px', () => {
 		const wrapper = mount(LinkButtonWidget, {
 			propsData: {
-				content: { icon: '/apps/mydash/resource/x.png', label: 'Open', url: 'https://e', actionType: 'external' },
+				content: { icon: '/apps/launchpad/resource/x.png', label: 'Open', url: 'https://e', actionType: 'external' },
 			},
 			stubs: { IconRenderer: true },
 		})
 
 		const img = wrapper.find('.link-button-widget__icon img')
 		expect(img.exists()).toBe(true)
-		expect(img.attributes('src')).toBe('/apps/mydash/resource/x.png')
+		expect(img.attributes('src')).toBe('/apps/launchpad/resource/x.png')
 		expect(img.attributes('width')).toBe('48')
 		expect(img.attributes('height')).toBe('48')
 	})
@@ -433,7 +433,7 @@ describe('LinkButtonWidget', () => {
 				content: {
 					displayMode: 'list',
 					links: [
-						{ label: 'A', url: 'https://a', actionType: 'external', icon: '/apps/mydash/resource/x.png' },
+						{ label: 'A', url: 'https://a', actionType: 'external', icon: '/apps/launchpad/resource/x.png' },
 					],
 				},
 			},
@@ -442,7 +442,7 @@ describe('LinkButtonWidget', () => {
 
 		const img = wrapper.find('.link-button-widget__list-icon img')
 		expect(img.exists()).toBe(true)
-		expect(img.attributes('src')).toBe('/apps/mydash/resource/x.png')
+		expect(img.attributes('src')).toBe('/apps/launchpad/resource/x.png')
 		expect(img.attributes('width')).toBe('24')
 	})
 

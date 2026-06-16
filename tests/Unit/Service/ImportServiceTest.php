@@ -3,18 +3,18 @@
 /**
  * ImportServiceTest
  *
- * Unit tests for {@see \OCA\MyDash\Service\ImportService} covering the
+ * Unit tests for {@see \OCA\LaunchPad\Service\ImportService} covering the
  * `dashboard-export-import` capability — REQ-EXIM-005 (UUID collisions),
  * REQ-EXIM-008 (manifest validation), REQ-EXIM-011 (per-dashboard
  * transactional import).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,11 +23,11 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\ImportService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\ImportService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -364,7 +364,7 @@ class ImportServiceTest extends TestCase
      */
     private function makeZip(array $entries): string
     {
-        $path = (string) tempnam(directory: sys_get_temp_dir(), prefix: 'mydash-import-test-');
+        $path = (string) tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-import-test-');
         $zip  = new ZipArchive();
         $zip->open(filename: $path, flags: ZipArchive::OVERWRITE);
         foreach ($entries as $name => $content) {

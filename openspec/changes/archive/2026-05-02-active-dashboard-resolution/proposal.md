@@ -2,7 +2,7 @@
 
 ## Why
 
-Define the deterministic precedence MyDash uses to pick *which* dashboard to render for a user when they open the workspace, given the multi-scope model (`user` / `group_shared` / `default`-group). The existing REQ-DASH-009 ("Dashboard Resolution Chain") covers a one-scope personal-only model. The multi-scope model (introduced by `multi-scope-dashboards` and `default-dashboard-flag`) needs a longer chain that prefers the user's saved preference but falls back through group → default → first. Without a canonical resolver each frontend code path could diverge and pick a different "active" dashboard, producing flicker and confusing users.
+Define the deterministic precedence LaunchPad uses to pick *which* dashboard to render for a user when they open the workspace, given the multi-scope model (`user` / `group_shared` / `default`-group). The existing REQ-DASH-009 ("Dashboard Resolution Chain") covers a one-scope personal-only model. The multi-scope model (introduced by `multi-scope-dashboards` and `default-dashboard-flag`) needs a longer chain that prefers the user's saved preference but falls back through group → default → first. Without a canonical resolver each frontend code path could diverge and pick a different "active" dashboard, producing flicker and confusing users.
 
 ## What Changes
 

@@ -2,18 +2,18 @@
 
 ## Overview
 
-Admin settings give Nextcloud administrators global control over MyDash behaviour. They are stored as JSON-encoded key-value pairs in a dedicated database table (`oc_mydash_admin_settings`) and are read on every relevant operation. There is no in-process cache layer; the mapper reads directly from the database on each call and relies on the database driver's connection pool.
+Admin settings give Nextcloud administrators global control over LaunchPad behaviour. They are stored as JSON-encoded key-value pairs in a dedicated database table (`oc_launchpad_admin_settings`) and are read on every relevant operation. There is no in-process cache layer; the mapper reads directly from the database on each call and relies on the database driver's connection pool.
 
 ---
 
 ## Storage Layer
 
-### Table: `oc_mydash_admin_settings`
+### Table: `oc_launchpad_admin_settings`
 
 | Column | Type | Constraints | Notes |
 |--------|------|-------------|-------|
 | `id` | BIGINT UNSIGNED | PK, auto-increment | Internal row ID |
-| `setting_key` | VARCHAR(255) | NOT NULL, UNIQUE (`mydash_setting_key`) | String identifier for the setting |
+| `setting_key` | VARCHAR(255) | NOT NULL, UNIQUE (`launchpad_setting_key`) | String identifier for the setting |
 | `setting_value` | TEXT | nullable | JSON-encoded value (bool, int, or string) |
 | `updated_at` | DATETIME | NOT NULL | Last write timestamp |
 
@@ -113,8 +113,8 @@ The factory currently hardcodes `grid_columns: 12` and `permission_level: PERMIS
 
 | Method | URL | Auth | Controller method |
 |--------|-----|------|-------------------|
-| `GET` | `/apps/mydash/api/admin/settings` | Admin only | `AdminController::getSettings()` |
-| `PUT` | `/apps/mydash/api/admin/settings` | Admin only | `AdminController::updateSettings()` |
+| `GET` | `/apps/launchpad/api/admin/settings` | Admin only | `AdminController::getSettings()` |
+| `PUT` | `/apps/launchpad/api/admin/settings` | Admin only | `AdminController::updateSettings()` |
 
 Route names: `admin#getSettings`, `admin#updateSettings` (defined in `appinfo/routes.php`).
 
@@ -154,26 +154,26 @@ Registered in `appinfo/info.xml`:
 
 ```xml
 <settings>
-    <admin>OCA\MyDash\Settings\MyDashAdmin</admin>
-    <admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>
+    <admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+    <admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
 </settings>
 ```
 
-`MyDashAdminSection` implements `IIconSection`:
-- ID: `mydash`
-- Name: `MyDash` (localised via `IL10N`)
+`LaunchPadAdminSection` implements `IIconSection`:
+- ID: `launchpad`
+- Name: `LaunchPad` (localised via `IL10N`)
 - Priority: `80`
-- Icon: `img/mydash.svg` (resolved via `IURLGenerator`)
+- Icon: `img/launchpad.svg` (resolved via `IURLGenerator`)
 
-`MyDashAdmin` implements `ISettings`:
-- Section: `mydash`
+`LaunchPadAdmin` implements `ISettings`:
+- Section: `launchpad`
 - Priority: `10`
-- Renders template `templates/settings/admin.php`, which is a single `<div id="mydash-admin-settings"></div>` mount point.
-- Enqueues the compiled asset `mydash-admin` via `Util::addScript()`.
+- Renders template `templates/settings/admin.php`, which is a single `<div id="launchpad-admin-settings"></div>` mount point.
+- Enqueues the compiled asset `launchpad-admin` via `Util::addScript()`.
 
 ### Frontend Entry Point
 
-`src/admin.js` bootstraps a standalone Vue 2 + Pinia app mounted on `#mydash-admin-settings`, rendering `AdminSettings.vue`.
+`src/admin.js` bootstraps a standalone Vue 2 + Pinia app mounted on `#launchpad-admin-settings`, rendering `AdminSettings.vue`.
 
 ### `AdminSettings.vue` Component
 
@@ -202,8 +202,8 @@ The component is a single-file Vue component with no Pinia store; it manages all
 ### API calls (from `src/services/api.js`)
 
 ```js
-api.getAdminSettings()        // GET /apps/mydash/api/admin/settings
-api.updateAdminSettings(data) // PUT /apps/mydash/api/admin/settings
+api.getAdminSettings()        // GET /apps/launchpad/api/admin/settings
+api.updateAdminSettings(data) // PUT /apps/launchpad/api/admin/settings
 ```
 
 ---
@@ -213,5 +213,5 @@ api.updateAdminSettings(data) // PUT /apps/mydash/api/admin/settings
 - **No caching**: Settings are read directly from the database on each enforcement check (no APCu or in-memory layer). For high-traffic installations this could cause noticeable overhead on the `create` endpoint.
 - **No input validation server-side**: Invalid enum values or out-of-range integers are silently accepted and stored. Frontend constrains choices to valid options via dropdown, but the API is unguarded.
 - **No reset endpoint**: Factory reset is achieved by sending a PUT with all default values.
-- **Localisation**: Labels and descriptions in the Vue component use `t('mydash', ...)`. PHP classes use `IL10N::t()`. Dutch translations depend on `l10n/nl.js` and `l10n/nl.php` existing in the app.
+- **Localisation**: Labels and descriptions in the Vue component use `t('launchpad', ...)`. PHP classes use `IL10N::t()`. Dutch translations depend on `l10n/nl.js` and `l10n/nl.php` existing in the app.
 - **Accessibility**: `NcCheckboxRadioSwitch` provides built-in ARIA roles. `NcSelect` wraps `vue-select` with accessible labelling. No additional `aria-*` attributes are added beyond what the library provides.

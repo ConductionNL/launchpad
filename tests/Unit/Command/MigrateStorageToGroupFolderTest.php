@@ -8,7 +8,7 @@
  * handle() loop using mocked DashboardMapper and GroupFolderContentStorage.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Command
+ * @package   OCA\LaunchPad\Tests\Unit\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -21,12 +21,12 @@ declare(strict_types=1);
 
 namespace Unit\Command;
 
-use OCA\MyDash\Command\MigrateStorageToGroupFolder;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\CommandService;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFolderContentStorage;
+use OCA\LaunchPad\Command\MigrateStorageToGroupFolder;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFolderContentStorage;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

@@ -4,12 +4,12 @@ sidebar_position: 3
 
 # Architecture
 
-MyDash is a dashboard container + layout manager for Nextcloud. It lets
+LaunchPad is a dashboard container + layout manager for Nextcloud. It lets
 each user (and each administrator, for the organisation as a whole)
 compose personal dashboards from tiles and legacy Nextcloud widgets,
 arranged on a responsive grid with per-tile conditional visibility.
 
-Unlike thin UI utilities (e.g., app-versions), MyDash owns its own
+Unlike thin UI utilities (e.g., app-versions), LaunchPad owns its own
 domain model — dashboards, placements, tiles, conditional rules — and
 persists everything in its own tables via Doctrine mappers.
 
@@ -267,4 +267,4 @@ directly on the Sharing tab.
   individual actions configured by the admin.
 - **No government-theme targeting** beyond what comes via
   `@conduction/nextcloud-vue` (ADR-010 partial). If Conduction ships
-  NL Design tokens in the wrapper, MyDash inherits them automatically.
+  NL Design tokens in the wrapper, LaunchPad inherits them automatically.

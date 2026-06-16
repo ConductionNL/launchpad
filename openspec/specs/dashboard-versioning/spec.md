@@ -6,7 +6,7 @@ status: implemented
 
 ## Purpose
 
-Enable version history and one-click restoration for MyDash dashboards. The feature delegates storage strategy to the underlying content backend: dashboards stored in Nextcloud Files (via the `groupfolder` backend) use NC's native file versioning; dashboards in the database backend use a dedicated `oc_mydash_dashboard_versions` table. All APIs are backend-agnostic.
+Enable version history and one-click restoration for LaunchPad dashboards. The feature delegates storage strategy to the underlying content backend: dashboards stored in Nextcloud Files (via the `groupfolder` backend) use NC's native file versioning; dashboards in the database backend use a dedicated `oc_launchpad_dash_versions` table. All APIs are backend-agnostic.
 
 ## Data Model
 
@@ -15,7 +15,7 @@ Enable version history and one-click restoration for MyDash dashboards. The feat
 
 ### Database Backend (Default)
 
-Each dashboard version snapshot is stored in `oc_mydash_dashboard_versions` with:
+Each dashboard version snapshot is stored in `oc_launchpad_dash_versions` with:
 - **id**: Auto-increment integer primary key
 - **dashboardUuid**: UUID of the parent dashboard
 - **versionNumber**: INT (auto-incremented per-dashboard, monotonic, starting at 1)
@@ -28,7 +28,7 @@ Each dashboard version snapshot is stored in `oc_mydash_dashboard_versions` with
 
 ### GroupFolder Backend
 
-Versions are stored via `\OCP\IVersionManager` on the dashboard's JSON file in Nextcloud Files. MyDash does NOT manage retention — Nextcloud's own versioning policies apply. If versioning is unavailable, the API gracefully returns `{versions: [], modeSupported: false}` with HTTP 200.
+Versions are stored via `\OCP\IVersionManager` on the dashboard's JSON file in Nextcloud Files. LaunchPad does NOT manage retention — Nextcloud's own versioning policies apply. If versioning is unavailable, the API gracefully returns `{versions: [], modeSupported: false}` with HTTP 200.
 
 ## Requirements
 
@@ -227,7 +227,7 @@ The system MUST automatically prune old snapshots, keeping only the 50 most rece
 
 - GIVEN a groupfolder-backed dashboard with file-versions
 - WHEN versions are created and NC's own retention policy kicks in
-- THEN MyDash MUST NOT independently prune NC file-versions
+- THEN LaunchPad MUST NOT independently prune NC file-versions
 - AND the system MUST respect NC's retention settings
 
 #### Scenario: Pruning does not affect versionNumber sequence
@@ -279,7 +279,7 @@ The system MUST transparently adapt all version endpoints to the dashboard's con
 
 - GIVEN a database-backed dashboard
 - WHEN a user calls GET /api/dashboards/{uuid}/versions
-- THEN the system MUST query oc_mydash_dashboard_versions table
+- THEN the system MUST query oc_launchpad_dash_versions table
 - AND return version objects constructed from DB rows
 - AND each version MUST have a canonical versionNumber (INT)
 
@@ -361,7 +361,7 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 ## Implementation Notes
 
 ### Implemented (this change)
-- REQ-VERS-001 (Snapshot creation on PUT): `DashboardApiController::update()` calls the private `captureAutomaticSnapshot()` after every successful update which delegates to `DashboardVersionService::captureSnapshot()` with `explicit: false`. Debounce keyed `mydash_ver_debounce_{uuid}` (TTL = `DashboardVersionService::DEBOUNCE_SECONDS = 60`) backed by `ICacheFactory::createDistributed('mydash_versioning')`. Failures are log-and-swallow so the user's PUT response is never affected.
+- REQ-VERS-001 (Snapshot creation on PUT): `DashboardApiController::update()` calls the private `captureAutomaticSnapshot()` after every successful update which delegates to `DashboardVersionService::captureSnapshot()` with `explicit: false`. Debounce keyed `launchpad_ver_debounce_{uuid}` (TTL = `DashboardVersionService::DEBOUNCE_SECONDS = 60`) backed by `ICacheFactory::createDistributed('launchpad_versioning')`. Failures are log-and-swallow so the user's PUT response is never affected.
 - REQ-VERS-002 (Explicit snapshot): `POST /api/dashboards/{uuid}/versions` → `DashboardVersionApiController::createVersion()` → `DashboardVersionService::createExplicitSnapshot()`. Calls `captureSnapshot(... explicit: true)` which bypasses the debounce.
 - REQ-VERS-003 (List versions): `GET /api/dashboards/{uuid}/versions` → `DashboardVersionApiController::listVersions()` → `DashboardVersionService::listVersions()`. Returns the `{versions: [...], modeSupported: bool}` envelope ordered newest-first; `DashboardVersion::jsonSerialize()` deliberately omits `snapshotJson` so list responses stay light.
 - REQ-VERS-004 (Fetch snapshot): `GET /api/dashboards/{uuid}/versions/{versionNumber}` → `DashboardVersionApiController::fetchVersion()` → `DashboardVersionService::fetchSnapshot()`. Surfaces the full body alongside the metadata.
@@ -371,7 +371,7 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 - REQ-VERS-009 (Soft-failure tolerance): `listVersions()` returns `{versions: [], modeSupported: false}` for groupfolder-backed dashboards today (the dispatch hook always misses); `fetchSnapshot()` and `restoreVersion()` raise the canonical sentinel `ERR_VERSIONING_UNAVAILABLE` so the controller can map to the soft-fail envelope.
 
 ### Schema and storage
-- Migration `Version001015Date20260502130000` creates `oc_mydash_dashboard_versions` via `DashboardVersionTableBuilder::create()` with columns `id` (BIGINT PK), `dashboard_uuid` (STRING(36)), `version_number` (BIGINT), `snapshot_json` (TEXT — MEDIUMTEXT on MySQL), `created_by` (STRING(64)), `created_at` (DATETIME), `note` (STRING(500) nullable). Indexes: `mydash_dvers_uuid_num` UNIQUE on `(dashboard_uuid, version_number)` and `mydash_dvers_uuid_ts` on `(dashboard_uuid, created_at)`.
+- Migration `Version001015Date20260502130000` creates `oc_launchpad_dash_versions` via `DashboardVersionTableBuilder::create()` with columns `id` (BIGINT PK), `dashboard_uuid` (STRING(36)), `version_number` (BIGINT), `snapshot_json` (TEXT — MEDIUMTEXT on MySQL), `created_by` (STRING(64)), `created_at` (DATETIME), `note` (STRING(500) nullable). Indexes: `launchpad_dvers_uuid_num` UNIQUE on `(dashboard_uuid, version_number)` and `launchpad_dvers_uuid_ts` on `(dashboard_uuid, created_at)`.
 - Cascade cleanup: `DashboardVersionMapper::deleteByDashboardUuid()` and `DashboardVersionService::deleteVersionsForDashboard()` are wired and ready for the sibling cascade-events listener; the dashboard delete path itself does not yet invoke them (future work alongside `dashboard-cascade-events`).
 
 ### Deferred / future work

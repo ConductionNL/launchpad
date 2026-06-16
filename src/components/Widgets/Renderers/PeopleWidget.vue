@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -10,30 +10,30 @@
 				v-model="search"
 				type="search"
 				class="people-widget__search"
-				:placeholder="t('mydash', 'Search by name or email…')">
+				:placeholder="t('launchpad', 'Search by name or email…')">
 			<button
 				type="button"
 				class="people-widget__refresh"
-				:title="t('mydash', 'Refresh')"
-				:aria-label="t('mydash', 'Refresh')"
+				:title="t('launchpad', 'Refresh')"
+				:aria-label="t('launchpad', 'Refresh')"
 				@click="forceRefresh">
 				&#x21bb;
 			</button>
 		</header>
 
 		<div v-if="loading && users.length === 0" class="people-widget__state">
-			{{ t('mydash', 'Loading…') }}
+			{{ t('launchpad', 'Loading…') }}
 		</div>
 
 		<div v-else-if="error" class="people-widget__state people-widget__state--error">
-			<p>{{ t('mydash', 'Failed to load users') }}</p>
+			<p>{{ t('launchpad', 'Failed to load users') }}</p>
 			<button type="button" class="people-widget__retry" @click="forceRefresh">
-				{{ t('mydash', 'Retry') }}
+				{{ t('launchpad', 'Retry') }}
 			</button>
 		</div>
 
 		<div v-else-if="filteredUsers.length === 0" class="people-widget__state">
-			{{ search ? t('mydash', 'No users match your search') : t('mydash', 'No matching users.') }}
+			{{ search ? t('launchpad', 'No users match your search') : t('launchpad', 'No matching users.') }}
 		</div>
 
 		<div
@@ -51,7 +51,7 @@
 					:src="user.avatarUrl"
 					:width="avatarSize"
 					:height="avatarSize"
-					:alt="t('mydash', 'Avatar of {name}', { name: user.displayName })"
+					:alt="t('launchpad', 'Avatar of {name}', { name: user.displayName })"
 					class="people-widget__avatar">
 
 				<div class="people-widget__meta">
@@ -78,7 +78,7 @@
 				class="people-widget__load-more"
 				:disabled="loading"
 				@click="loadMore">
-				{{ loading ? t('mydash', 'Loading…') : t('mydash', 'Load more') }}
+				{{ loading ? t('launchpad', 'Loading…') : t('launchpad', 'Load more') }}
 			</button>
 		</footer>
 	</div>
@@ -265,9 +265,9 @@ export default {
 		formatBirthdayBadge(user) {
 			const days = this.daysToBirthday(user.birthdate)
 			if (days === 0) {
-				return t('mydash', '🎂 today')
+				return t('launchpad', '🎂 today')
 			}
-			return t('mydash', '🎂 in {n} days', { n: days })
+			return t('launchpad', '🎂 in {n} days', { n: days })
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */

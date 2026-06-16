@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -23,7 +23,7 @@
 			</svg>
 			<div v-else class="tile-card__icon">
 				<span v-if="tile.iconType === 'class'" :class="tile.icon" />
-				<img v-else-if="tile.iconType === 'url'" :src="tile.icon" :alt="t('mydash', 'Icon')">
+				<img v-else-if="tile.iconType === 'url'" :src="tile.icon" :alt="t('launchpad', 'Icon')">
 				<span v-else class="tile-card__emoji">{{ tile.icon }}</span>
 			</div>
 			<div class="tile-card__title">

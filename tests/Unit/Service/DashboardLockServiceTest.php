@@ -9,12 +9,12 @@
  * behaviour rather than persistence.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,15 +22,15 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardLock;
-use OCA\MyDash\Db\DashboardLockMapper;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Exception\LockConflictException;
-use OCA\MyDash\Exception\LockForbiddenException;
-use OCA\MyDash\Exception\LockNotFoundException;
-use OCA\MyDash\Service\DashboardLockService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardLock;
+use OCA\LaunchPad\Db\DashboardLockMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Exception\LockConflictException;
+use OCA\LaunchPad\Exception\LockForbiddenException;
+use OCA\LaunchPad\Exception\LockNotFoundException;
+use OCA\LaunchPad\Service\DashboardLockService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -457,7 +457,7 @@ class DashboardLockServiceTest extends TestCase
 
         $defaultDashboard = new Dashboard();
         $defaultDashboard->setId(1);
-        $dashMapper = $this->createMock(originalClassName: \OCA\MyDash\Db\DashboardMapper::class);
+        $dashMapper = $this->createMock(originalClassName: \OCA\LaunchPad\Db\DashboardMapper::class);
         $dashMapper->method('findByUuid')->willReturn($defaultDashboard);
 
         return new DashboardLockService(

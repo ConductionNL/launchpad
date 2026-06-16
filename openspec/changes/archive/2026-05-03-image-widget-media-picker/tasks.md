@@ -2,7 +2,7 @@
 
 ## 1. Schema migration
 
-- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddFilePickerColumns.php` adding `fileId BIGINT NULL` and `filePath VARCHAR(2048) NULL` to `oc_mydash_widget_placements`
+- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddFilePickerColumns.php` adding `fileId BIGINT NULL` and `filePath VARCHAR(2048) NULL` to `oc_launchpad_widget_placements`
 - [ ] 1.2 Migration is reversible (drop columns in `postSchemaChange` rollback path)
 - [ ] 1.3 Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly each time
 

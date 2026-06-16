@@ -8,9 +8,9 @@ status: draft
 
 ### Requirement: REQ-ONAV-001 Org navigation tree storage
 
-The system MUST persist an organisation-wide navigation tree as a **JSON file on the Nextcloud filesystem** at a well-known path within the application's data directory. One file is stored per language: `appdata/mydash/org-navigation-{lang}.json` (e.g., `org-navigation-nl.json`, `org-navigation-en.json`). The implementation MUST NOT use a Nextcloud app-config key for the tree payload. The maximum accepted file size is **5 MB** (enforced on read and write).
+The system MUST persist an organisation-wide navigation tree as a **JSON file on the Nextcloud filesystem** at a well-known path within the application's data directory. One file is stored per language: `appdata/launchpad/org-navigation-{lang}.json` (e.g., `org-navigation-nl.json`, `org-navigation-en.json`). The implementation MUST NOT use a Nextcloud app-config key for the tree payload. The maximum accepted file size is **5 MB** (enforced on read and write).
 
-> **v1 language scope:** MyDash v1 ships with support for `nl` (Dutch) and `en` (English). Both language files are maintained independently; changing one does not affect the other. The API accepts an optional `?lang=` query parameter (default: `nl`). A CLI copy command (`mydash:copy-org-navigation <source> <target>`) is a planned follow-up, not part of v1.
+> **v1 language scope:** LaunchPad v1 ships with support for `nl` (Dutch) and `en` (English). Both language files are maintained independently; changing one does not affect the other. The API accepts an optional `?lang=` query parameter (default: `nl`). A CLI copy command (`launchpad:copy-org-navigation <source> <target>`) is a planned follow-up, not part of v1.
 
 The tree is an ordered array of node objects, each with:
 
@@ -26,13 +26,13 @@ The tree is an ordered array of node objects, each with:
 }
 ```
 
-> **NOTE — MyDash addition:** The `groupVisibility` field is a MyDash-specific design choice. The reference intranet product does not store group visibility in the navigation JSON; it relies on filesystem ACL (GroupFolder read permissions) to filter nodes. Because MyDash stores the tree in application data (not in per-user GroupFolders), no ACL is available to piggyback on. The per-node array approach (`null` = all users, populated array = restrict to listed group IDs) is the deliberate MyDash substitute. The filtering logic is implemented explicitly in `OrgNavigationService.php` using Nextcloud's `IGroupManager`.
+> **NOTE — LaunchPad addition:** The `groupVisibility` field is a LaunchPad-specific design choice. The reference intranet product does not store group visibility in the navigation JSON; it relies on filesystem ACL (GroupFolder read permissions) to filter nodes. Because LaunchPad stores the tree in application data (not in per-user GroupFolders), no ACL is available to piggyback on. The per-node array approach (`null` = all users, populated array = restrict to listed group IDs) is the deliberate LaunchPad substitute. The filtering logic is implemented explicitly in `OrgNavigationService.php` using Nextcloud's `IGroupManager`.
 
-The root level of the tree is an array; each child node follows the same schema recursively. The tree depth (including root) MUST NOT exceed 3 levels. This is a stricter limit than some reference implementations (which are unlimited) and is a deliberate MyDash choice to keep the admin UI manageable.
+The root level of the tree is an array; each child node follows the same schema recursively. The tree depth (including root) MUST NOT exceed 3 levels. This is a stricter limit than some reference implementations (which are unlimited) and is a deliberate LaunchPad choice to keep the admin UI manageable.
 
 #### Scenario: Tree persists to file
 - GIVEN an admin creates and saves an org-nav tree with 2 top-level sections and 3 subsections
-- WHEN the file `appdata/mydash/org-navigation-nl.json` is read
+- WHEN the file `appdata/launchpad/org-navigation-nl.json` is read
 - THEN it MUST contain valid JSON with the persisted tree structure
 
 #### Scenario: Node id is uuid
@@ -96,13 +96,13 @@ Validation rules:
 - The `groupVisibility` field (if present) MUST be either null or a non-empty array of string group ids
 - Return HTTP 403 if the requesting user is not an admin
 
-On success, write the validated tree to `appdata/mydash/org-navigation-{lang}.json` (wholesale file replacement) and return HTTP 200 with the persisted tree (unchanged, not re-filtered). The 3-level depth limit returns HTTP 400 rather than silently truncating — this is intentionally stricter than reference implementations that silently discard excess depth.
+On success, write the validated tree to `appdata/launchpad/org-navigation-{lang}.json` (wholesale file replacement) and return HTTP 200 with the persisted tree (unchanged, not re-filtered). The 3-level depth limit returns HTTP 400 rather than silently truncating — this is intentionally stricter than reference implementations that silently discard excess depth.
 
 #### Scenario: Admin saves valid tree
 - GIVEN an admin provides a valid tree with 2 sections, each with 2 child links
 - WHEN `PUT /api/admin/org-navigation` is called
 - THEN the response MUST be HTTP 200
-- AND the tree MUST be persisted to `appdata/mydash/org-navigation-nl.json` (default language)
+- AND the tree MUST be persisted to `appdata/launchpad/org-navigation-nl.json` (default language)
 
 #### Scenario: Depth exceeded returns 400
 - GIVEN a tree with 4 levels (root → child → grandchild → great-grandchild)
@@ -127,24 +127,24 @@ On success, write the validated tree to `appdata/mydash/org-navigation-{lang}.js
 
 ### Requirement: REQ-ONAV-004 Global position setting
 
-The system MUST support a global Nextcloud app setting `mydash.org_navigation_position` (string, enum: `'left'|'right'|'top'|'hidden'`, default: `'hidden'`). This setting controls where the org-nav rail/drawer is rendered in the UI (if at all).
+The system MUST support a global Nextcloud app setting `launchpad.org_navigation_position` (string, enum: `'left'|'right'|'top'|'hidden'`, default: `'hidden'`). This setting controls where the org-nav rail/drawer is rendered in the UI (if at all).
 
 The setting MUST be configurable by admins via the admin editor (a dropdown or tab set on the navigation editor page). The position is global, not per-user; all users see the same position.
 
 When `position = 'hidden'`, the org-nav rail is not rendered even if the tree is non-empty (effectively opting out).
 
 #### Scenario: Position defaults to hidden
-- GIVEN a new MyDash installation
-- WHEN the app queries `mydash.org_navigation_position`
+- GIVEN a new LaunchPad installation
+- WHEN the app queries `launchpad.org_navigation_position`
 - THEN it MUST return `'hidden'`
 
 #### Scenario: Admin changes position to left
-- GIVEN an admin sets `mydash.org_navigation_position = 'left'`
+- GIVEN an admin sets `launchpad.org_navigation_position = 'left'`
 - WHEN all users refresh the app
 - THEN the org-nav rail MUST appear on the left side
 
 #### Scenario: Position hidden suppresses rail
-- GIVEN `mydash.org_navigation_position = 'hidden'`
+- GIVEN `launchpad.org_navigation_position = 'hidden'`
 - AND the tree is non-empty
 - WHEN the app renders
 - THEN no org-nav rail MUST be visible
@@ -172,8 +172,8 @@ Desktop rendering: panel is a vertical rail (left, right, or top depending on RE
 - AND on expand, the child link MUST appear indented with the document icon and label
 
 #### Scenario: Active item is highlighted
-- GIVEN the tree contains a node with `url: '/apps/mydash/dashboards/sales'`
-- AND the user is currently on the page `/apps/mydash/dashboards/sales/overview`
+- GIVEN the tree contains a node with `url: '/apps/launchpad/dashboards/sales'`
+- AND the user is currently on the page `/apps/launchpad/dashboards/sales/overview`
 - WHEN the panel renders
 - THEN the node MUST have the `active` CSS class (or visual indication of current location)
 
@@ -199,9 +199,9 @@ Each node's `icon` field MUST follow the same dual-mode convention as the link-b
 Icon size MUST be consistently 24 px square across all nav items. The icon MUST appear to the left of the label in the horizontal direction.
 
 #### Scenario: Icon from URL renders as img
-- GIVEN a node with `icon: '/apps/mydash/icons/custom.png'` and `label: 'Portal'`
+- GIVEN a node with `icon: '/apps/launchpad/icons/custom.png'` and `label: 'Portal'`
 - WHEN the panel renders
-- THEN an `<img src="/apps/mydash/icons/custom.png">` element MUST appear left of the label
+- THEN an `<img src="/apps/launchpad/icons/custom.png">` element MUST appear left of the label
 
 #### Scenario: Icon name renders via IconRenderer
 - GIVEN a node with `icon: 'briefcase'` (an MDI name) and `label: 'Business'`
@@ -216,7 +216,7 @@ Icon size MUST be consistently 24 px square across all nav items. The icon MUST 
 
 ### Requirement: REQ-ONAV-007 Drag-and-drop admin editor
 
-The system MUST provide an admin editor UI (accessible at a route like `/apps/mydash/admin/navigation`) with the following features:
+The system MUST provide an admin editor UI (accessible at a route like `/apps/launchpad/admin/navigation`) with the following features:
 
 1. A drag-and-drop tree builder displaying the current org-nav tree (or empty state if none exists)
 2. Per-node controls:
@@ -258,7 +258,7 @@ The system MUST provide an admin editor UI (accessible at a route like `/apps/my
 - GIVEN the user edits the tree (add 2 sections, reorder, set group visibility)
 - WHEN the user clicks Save
 - AND no validation errors occur
-- THEN `PUT /api/admin/org-navigation` MUST be called and the tree written to `appdata/mydash/org-navigation-{lang}.json`
+- THEN `PUT /api/admin/org-navigation` MUST be called and the tree written to `appdata/launchpad/org-navigation-{lang}.json`
 - AND a success message MUST appear
 
 #### Scenario: Save with error prevents persist
@@ -269,13 +269,13 @@ The system MUST provide an admin editor UI (accessible at a route like `/apps/my
 
 ### Requirement: REQ-ONAV-008 Empty tree and no-visible-nodes handling
 
-If the org-nav tree is empty (no nodes), OR if the user has no visible nodes after group-visibility filtering (REQ-ONAV-002), the `OrgNavigationPanel.vue` MUST NOT render any visible content. The rail/drawer MUST not be displayed even if `mydash.org_navigation_position` is set to `'left'`, `'right'`, or `'top'`.
+If the org-nav tree is empty (no nodes), OR if the user has no visible nodes after group-visibility filtering (REQ-ONAV-002), the `OrgNavigationPanel.vue` MUST NOT render any visible content. The rail/drawer MUST not be displayed even if `launchpad.org_navigation_position` is set to `'left'`, `'right'`, or `'top'`.
 
 This prevents visual clutter when the tree is disabled or not yet configured.
 
 #### Scenario: Empty tree renders nothing
-- GIVEN `appdata/mydash/org-navigation-nl.json` contains an empty array `[]`
-- AND `mydash.org_navigation_position = 'left'`
+- GIVEN `appdata/launchpad/org-navigation-nl.json` contains an empty array `[]`
+- AND `launchpad.org_navigation_position = 'left'`
 - WHEN the app renders
 - THEN no org-nav rail MUST be visible
 
@@ -298,26 +298,26 @@ The `OrgNavigationPanel.vue` MUST detect and highlight the currently active node
 
 - The node has a non-null `url` field, AND
 - The current page URL exactly matches the node's `url`, OR
-- The current page URL starts with the node's `url` as a prefix (e.g., current is `/apps/mydash/dashboards/sales/overview`, node's `url` is `/apps/mydash/dashboards/sales`)
+- The current page URL starts with the node's `url` as a prefix (e.g., current is `/apps/launchpad/dashboards/sales/overview`, node's `url` is `/apps/launchpad/dashboards/sales`)
 
 The active node MUST receive an `active` CSS class (or similar visual indicator, e.g., background highlight, bold label, accent border). Parent nodes of an active child MUST be visually indicated as expanded (if collapsed) and may receive a "contains active descendant" style.
 
 #### Scenario: Exact URL match
-- GIVEN a node with `url: '/apps/mydash/policies'`
-- AND the current page is exactly `/apps/mydash/policies`
+- GIVEN a node with `url: '/apps/launchpad/policies'`
+- AND the current page is exactly `/apps/launchpad/policies`
 - WHEN the panel renders
 - THEN the node MUST have the `active` class
 
 #### Scenario: Prefix match
-- GIVEN a node with `url: '/apps/mydash/dashboards'`
-- AND the current page is `/apps/mydash/dashboards/sales/details`
+- GIVEN a node with `url: '/apps/launchpad/dashboards'`
+- AND the current page is `/apps/launchpad/dashboards/sales/details`
 - WHEN the panel renders
 - THEN the node MUST have the `active` class
 
 #### Scenario: Parent auto-expands if child is active
 - GIVEN a section "Dashboards" with a child "Sales Dashboard"
-- AND the child has `url: '/apps/mydash/dashboards/sales'`
-- AND the user is on `/apps/mydash/dashboards/sales`
+- AND the child has `url: '/apps/launchpad/dashboards/sales'`
+- AND the user is on `/apps/launchpad/dashboards/sales`
 - WHEN the panel renders
 - THEN the parent section MUST be expanded (if it was collapsed)
 - AND the child MUST have the `active` class
@@ -353,7 +353,7 @@ Internally, the tree structure and content MUST remain the same; only the contai
 #### Scenario: Desktop rail visible at 800px
 - GIVEN the viewport width is 800 px or greater
 - AND the org-nav tree is non-empty
-- AND `mydash.org_navigation_position = 'left'`
+- AND `launchpad.org_navigation_position = 'left'`
 - WHEN the app renders
 - THEN the full rail MUST appear on the left side
 - AND no hamburger button MUST be visible
@@ -365,7 +365,7 @@ When admin saves an org-nav tree via `PUT /api/admin/org-navigation`, each node'
 - Reject URLs starting with `javascript:` (case-insensitive)
 - Reject URLs starting with `data:` (case-insensitive)
 - Reject URLs starting with `vbscript:` (case-insensitive)
-- Allow all other schemes: `http`, `https`, relative paths (e.g., `/apps/mydash/...`), and fragment-only URLs (e.g., `#section`)
+- Allow all other schemes: `http`, `https`, relative paths (e.g., `/apps/launchpad/...`), and fragment-only URLs (e.g., `#section`)
 
 Return HTTP 400 with a message like `'URL contains a disallowed scheme'` if validation fails. This protects against XSS and other injection attacks via the admin editor.
 
@@ -385,7 +385,7 @@ Return HTTP 400 with a message like `'URL contains a disallowed scheme'` if vali
 - THEN the URL MUST be accepted and persisted
 
 #### Scenario: Relative path allowed
-- GIVEN a node with `url: '/apps/mydash/dashboards/sales'`
+- GIVEN a node with `url: '/apps/launchpad/dashboards/sales'`
 - WHEN the admin saves
 - THEN the URL MUST be accepted
 

@@ -1,9 +1,9 @@
-# MyDash — Overheidsfunctionaliteiten
+# LaunchPad — Overheidsfunctionaliteiten
 
 > Functiepagina voor Nederlandse overheidsorganisaties.
 > Gebruik deze checklist om te toetsen aan uw Programma van Eisen.
 
-**Product:** MyDash
+**Product:** LaunchPad
 **Categorie:** Dashboard & informatievoorziening
 **Licentie:** AGPL (vrije open source)
 **Leverancier:** Conduction B.V.

@@ -10,11 +10,11 @@ status: draft
 
 ### Requirement: REQ-QLNK-001 Registration and widget id
 
-The system MUST register a new dashboard widget with id `mydash_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
+The system MUST register a new dashboard widget with id `launchpad_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
 
 #### Scenario: Widget registered and appears in picker
 
-- GIVEN the MyDash app has been installed and the widget is properly registered
+- GIVEN the LaunchPad app has been installed and the widget is properly registered
 - WHEN a user opens the widget picker
 - THEN the picker MUST display an entry for `Quicklinks` (or locale-translated equivalent)
 - AND selecting it MUST add a new widget placement with default config
@@ -67,9 +67,9 @@ Icon size is controlled by the `iconSize` field (REQ-QLNK-004); label rendering 
 
 #### Scenario: Custom URL icon renders as image
 
-- GIVEN content `{links: [{label: 'Docs', url: 'https://example.com', icon: '/apps/mydash/resource/docs.png'}]}`
+- GIVEN content `{links: [{label: 'Docs', url: 'https://example.com', icon: '/apps/launchpad/resource/docs.png'}]}`
 - WHEN the widget renders with `iconSize: 'medium'`
-- THEN the icon container MUST display `<img src="/apps/mydash/resource/docs.png">` sized 48 px square
+- THEN the icon container MUST display `<img src="/apps/launchpad/resource/docs.png">` sized 48 px square
 - AND the label `Docs` MUST appear below (or overlay on hover, depending on `labelPosition`)
 
 #### Scenario: MDI icon name renders via IconRenderer

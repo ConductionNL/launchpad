@@ -1,6 +1,6 @@
 # Prometheus Metrics
 
-MyDash exposes application metrics in Prometheus text exposition format for monitoring, alerting, and operational dashboards.
+LaunchPad exposes application metrics in Prometheus text exposition format for monitoring, alerting, and operational dashboards.
 
 ## Endpoints
 
@@ -13,11 +13,11 @@ MyDash exposes application metrics in Prometheus text exposition format for moni
 
 | Metric | Type | Description |
 |--------|------|-------------|
-| `mydash_info` | gauge | App version, PHP version, Nextcloud version |
-| `mydash_up` | gauge | Whether the application is up |
-| `mydash_dashboards_total{type}` | gauge | Dashboard count by type |
-| `mydash_widgets_total` | gauge | Total widget placements |
-| `mydash_tiles_total` | gauge | Total tiles |
+| `launchpad_info` | gauge | App version, PHP version, Nextcloud version |
+| `launchpad_up` | gauge | Whether the application is up |
+| `launchpad_dashboards_total{type}` | gauge | Dashboard count by type |
+| `launchpad_widgets_total` | gauge | Total widget placements |
+| `launchpad_tiles_total` | gauge | Total tiles |
 
 ## Health Check Response
 
@@ -33,4 +33,4 @@ MyDash exposes application metrics in Prometheus text exposition format for moni
 
 ## Screenshot
 
-![Dashboard Overview](/screenshots/mydash-dashboard-overview.png)
+![Dashboard Overview](/screenshots/launchpad-dashboard-overview.png)

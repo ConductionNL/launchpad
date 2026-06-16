@@ -2,8 +2,8 @@
 
 - [x] **T01**: Define `Dashboard` entity with `type`, `targetGroups`, `isDefault`, `basedOnTemplate`, `permissionLevel` fields and JSON helpers — `lib/Db/Dashboard.php`
 - [x] **T02**: Define `WidgetPlacement` entity with `isCompulsory`, `isVisible`, grid position, style, tile inline fields — `lib/Db/WidgetPlacement.php`
-- [x] **T03**: Create `mydash_dashboards` database table with all admin-template columns (`type`, `target_groups`, `is_default`, `based_on_template`, `permission_level`) — `lib/Migration/DashboardTableBuilder.php`
-- [x] **T04**: Create `mydash_widget_placements` database table with `is_compulsory`, grid, style, and tile columns — `lib/Migration/PlacementTableBuilder.php`
+- [x] **T03**: Create `launchpad_dashboards` database table with all admin-template columns (`type`, `target_groups`, `is_default`, `based_on_template`, `permission_level`) — `lib/Migration/DashboardTableBuilder.php`
+- [x] **T04**: Create `launchpad_widget_placements` database table with `is_compulsory`, grid, style, and tile columns — `lib/Migration/PlacementTableBuilder.php`
 - [x] **T05**: Write initial migration applying both tables — `lib/Migration/Version001000Date20240101000000.php`
 - [x] **T06**: Implement `DashboardMapper::findAdminTemplates()` — query all rows with `type = 'admin_template'` ordered by name — `lib/Db/DashboardMapper.php`
 - [x] **T07**: Implement `DashboardMapper::findDefaultTemplate()` — query the single row with `type = 'admin_template'` AND `is_default = 1` — `lib/Db/DashboardMapper.php`
@@ -29,6 +29,6 @@
 - [x] **T27**: Implement `AdminController` with `listTemplates`, `getTemplate`, `createTemplate`, `updateTemplate`, `deleteTemplate`, `getSettings`, `updateSettings` actions — `lib/Controller/AdminController.php`
 - [x] **T28**: Register admin template REST routes (`GET/POST /api/admin/templates`, `GET/PUT/DELETE /api/admin/templates/{id}`) in routes file — `appinfo/routes.php`
 - [x] **T29**: Register admin settings routes (`GET/PUT /api/admin/settings`) in routes file — `appinfo/routes.php`
-- [x] **T30**: Register `MyDashAdmin` settings page and `MyDashAdminSection` so the admin UI appears in Nextcloud admin panel — `lib/Settings/MyDashAdmin.php`, `lib/Settings/MyDashAdminSection.php`
+- [x] **T30**: Register `LaunchPadAdmin` settings page and `LaunchPadAdminSection` so the admin UI appears in Nextcloud admin panel — `lib/Settings/LaunchPadAdmin.php`, `lib/Settings/LaunchPadAdminSection.php`
 - [x] **T31**: Implement `AdminSettingsService::getSettings()` and `updateSettings()` reading/writing from `AdminSettingMapper` with defaults — `lib/Service/AdminSettingsService.php`
 - [x] **T32**: Define `AdminSetting` entity with setting key constants (`default_permission_level`, `allow_user_dashboards`, `allow_multiple_dashboards`, `default_grid_columns`) and JSON encode/decode helpers — `lib/Db/AdminSetting.php`

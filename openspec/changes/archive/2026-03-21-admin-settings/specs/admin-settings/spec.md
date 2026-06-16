@@ -6,11 +6,11 @@ status: reviewed
 
 ## Purpose
 
-Admin settings provide Nextcloud administrators with global configuration options for the MyDash app. These settings control system-wide behavior such as whether users can create their own dashboards, how many dashboards they can have, default permission levels for new dashboards, and default grid configuration. Settings are stored as key-value pairs in a dedicated database table and are applied as defaults or constraints across the entire MyDash installation.
+Admin settings provide Nextcloud administrators with global configuration options for the LaunchPad app. These settings control system-wide behavior such as whether users can create their own dashboards, how many dashboards they can have, default permission levels for new dashboards, and default grid configuration. Settings are stored as key-value pairs in a dedicated database table and are applied as defaults or constraints across the entire LaunchPad installation.
 
 ## Data Model
 
-### Admin Settings (oc_mydash_admin_settings)
+### Admin Settings (oc_launchpad_admin_settings)
 Settings are stored as key-value pairs:
 - **id**: Auto-increment integer primary key
 - **settingKey**: Unique string identifier for the setting (STRING)
@@ -165,7 +165,7 @@ When `allowUserDashboards` is false, non-admin users MUST NOT be able to create 
 
 #### Scenario: Frontend hides create button when disabled
 - GIVEN `allowUserDashboards` is set to `false`
-- WHEN user "alice" views the MyDash interface
+- WHEN user "alice" views the LaunchPad interface
 - THEN the "Create Dashboard" button MUST NOT be displayed
 - AND the UI SHOULD display a message such as "Dashboard creation is managed by your administrator"
 
@@ -279,7 +279,7 @@ Admin settings MUST be persisted across server restarts and app updates.
 
 #### Scenario: Settings survive app update
 - GIVEN the admin has configured custom settings
-- WHEN the MyDash app is updated to a new version
+- WHEN the LaunchPad app is updated to a new version
 - THEN all previously configured settings MUST be preserved
 - AND new settings introduced in the update MUST use their default values
 
@@ -304,17 +304,17 @@ The admin settings MUST be accessible via a Nextcloud admin panel page.
 #### Scenario: Admin settings page is registered
 - GIVEN a Nextcloud admin user
 - WHEN they navigate to Settings > Administration
-- THEN a "MyDash" entry MUST appear in the admin settings navigation
-- AND clicking it MUST display the MyDash admin settings page
+- THEN a "LaunchPad" entry MUST appear in the admin settings navigation
+- AND clicking it MUST display the LaunchPad admin settings page
 
 #### Scenario: Regular user cannot access admin settings page
 - GIVEN a regular (non-admin) Nextcloud user
 - WHEN they navigate to Settings
-- THEN the "MyDash" entry MUST NOT appear in their settings navigation
+- THEN the "LaunchPad" entry MUST NOT appear in their settings navigation
 - AND direct URL access to the admin settings page MUST return HTTP 403
 
 #### Scenario: Settings form layout
-- GIVEN the admin opens the MyDash admin settings page
+- GIVEN the admin opens the LaunchPad admin settings page
 - THEN the page MUST display:
   - A toggle for "Allow user dashboards" (on/off)
   - A toggle for "Allow multiple dashboards" (on/off)
@@ -406,14 +406,14 @@ The settings API MUST return consistent error responses for various failure scen
 - REQ-ASET-003 (Allow User Dashboards): `PermissionService::canCreateDashboard()` in `lib/Service/PermissionService.php` checks `AdminSetting::KEY_ALLOW_USER_DASHBOARDS`. `DashboardApiController::checkCreatePermissions()` in `lib/Controller/DashboardApiController.php` returns 403 when disabled.
 - REQ-ASET-004 (Allow Multiple Dashboards): `PermissionService::canHaveMultipleDashboards()` checks the setting. `DashboardApiController::checkCreatePermissions()` counts existing dashboards and returns 403 if multiples are disallowed.
 - REQ-ASET-005 (Default Permission Level): `DashboardFactory::create()` in `lib/Service/DashboardFactory.php` hardcodes `PERMISSION_FULL` for user-created dashboards. The admin default setting is used as fallback by `PermissionService::getEffectivePermissionLevel()`.
-- REQ-ASET-007 (Settings Persistence): Settings are stored in `oc_mydash_admin_settings` table via `AdminSettingMapper`. Defaults are returned in-code when DB rows are absent.
-- REQ-ASET-008 (Admin Settings UI): `MyDashAdmin` in `lib/Settings/MyDashAdmin.php` implements `ISettings`, `MyDashAdminSection` in `lib/Settings/MyDashAdminSection.php` implements `IIconSection`. Frontend in `src/components/admin/AdminSettings.vue` renders toggles, dropdowns, and save logic.
+- REQ-ASET-007 (Settings Persistence): Settings are stored in `oc_launchpad_admin_settings` table via `AdminSettingMapper`. Defaults are returned in-code when DB rows are absent.
+- REQ-ASET-008 (Admin Settings UI): `LaunchPadAdmin` in `lib/Settings/LaunchPadAdmin.php` implements `ISettings`, `LaunchPadAdminSection` in `lib/Settings/LaunchPadAdminSection.php` implements `IIconSection`. Frontend in `src/components/admin/AdminSettings.vue` renders toggles, dropdowns, and save logic.
 
 **Not yet implemented:**
 - REQ-ASET-002 validation: No server-side validation for permission level values (any string accepted), grid column range (any integer accepted), or boolean type coercion. Documented as NOTEs in the spec.
 - REQ-ASET-006 default grid columns: `DashboardFactory::create()` hardcodes `gridColumns: 12` and does NOT read the `defaultGridColumns` admin setting. The admin setting exists but is not applied when creating user dashboards.
 - REQ-ASET-003 frontend UX: The AdminSettings.vue does not show a "Dashboard creation is managed by your administrator" message to non-admin users. Admin-only enforcement relies on controller access control, but the user-facing frontend does not reflect this state.
-- REQ-ASET-008 localization: UI labels use `t('mydash', ...)` translation function but actual Dutch translations are not verified in l10n files.
+- REQ-ASET-008 localization: UI labels use `t('launchpad', ...)` translation function but actual Dutch translations are not verified in l10n files.
 
 **Partial implementations:**
 - REQ-ASET-006 (Default Grid Columns): The setting can be stored and retrieved, but `DashboardFactory::create()` ignores it, hardcoding 12. Template copies correctly use the template's `gridColumns` via `TemplateService::buildDashboardFromTemplate()`.

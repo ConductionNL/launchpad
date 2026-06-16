@@ -19,12 +19,12 @@
  *    for every known event type.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Activity
+ * @package   OCA\LaunchPad\Tests\Unit\Activity
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -32,9 +32,9 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
-use OCA\MyDash\Activity\ActivityPublisher;
-use OCA\MyDash\Activity\DebounceHelper;
-use OCA\MyDash\Activity\Extension;
+use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\DebounceHelper;
+use OCA\LaunchPad\Activity\Extension;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\Activity\IManager;
@@ -210,7 +210,7 @@ class ExtensionTest extends TestCase
                 recipientUserId: 'alice',
                 dashboardUuid: 'uuid-1',
                 dashboardName: 'Dashboard A',
-                dashboardLink: 'https://nc.example/apps/mydash#uuid-1'
+                dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
             );
         }
 
@@ -238,7 +238,7 @@ class ExtensionTest extends TestCase
                 actual: $event->getObjectName()
             );
             $this->assertSame(
-                expected: 'https://nc.example/apps/mydash#uuid-1',
+                expected: 'https://nc.example/apps/launchpad#uuid-1',
                 actual: $event->getLink()
             );
             $this->assertSame(
@@ -267,7 +267,7 @@ class ExtensionTest extends TestCase
             recipientUserId: 'alice',
             dashboardUuid: 'uuid-1',
             dashboardName: 'Dashboard A',
-            dashboardLink: 'https://nc.example/apps/mydash#uuid-1'
+            dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
         );
 
         $this->assertFalse(condition: $result);
@@ -289,7 +289,7 @@ class ExtensionTest extends TestCase
             recipientUserId: 'bob',
             dashboardUuid: 'uuid-1',
             dashboardName: 'Marketing',
-            dashboardLink: 'https://nc.example/apps/mydash#uuid-1'
+            dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
         );
         $second = $publisher->publish(
             type: Extension::EVENT_REACTED,
@@ -297,7 +297,7 @@ class ExtensionTest extends TestCase
             recipientUserId: 'bob',
             dashboardUuid: 'uuid-1',
             dashboardName: 'Marketing',
-            dashboardLink: 'https://nc.example/apps/mydash#uuid-1'
+            dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
         );
 
         $this->assertTrue(condition: $first);
@@ -315,7 +315,7 @@ class ExtensionTest extends TestCase
             recipientUserId: 'bob',
             dashboardUuid: 'uuid-1',
             dashboardName: 'Marketing',
-            dashboardLink: 'https://nc.example/apps/mydash#uuid-1'
+            dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
         );
         $this->assertTrue(condition: $third);
         $this->assertCount(
@@ -502,7 +502,7 @@ class ExtensionTest extends TestCase
         $fallback = $extension->getIcon(eventType: 'totally_unknown');
         $this->assertNotEmpty(actual: $fallback);
         $this->assertStringContainsString(
-            needle: 'mydash.svg',
+            needle: 'launchpad.svg',
             haystack: $fallback
         );
     }//end testGetIconReturnsNonEmptyForAllTypes()

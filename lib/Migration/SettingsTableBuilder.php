@@ -6,7 +6,7 @@
  * Builder for the admin settings database table schema.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -27,7 +27,7 @@ use OCP\DB\Types;
 class SettingsTableBuilder
 {
     /**
-     * Create the mydash_admin_settings table.
+     * Create the launchpad_admin_settings table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -36,14 +36,14 @@ class SettingsTableBuilder
     public static function create(ISchemaWrapper $schema): void
     {
         if ($schema->hasTable(
-            'mydash_admin_settings'
+            'launchpad_admin_settings'
         ) === true
         ) {
             return;
         }
 
         $table = $schema->createTable(
-            'mydash_admin_settings'
+            'launchpad_admin_settings'
         );
 
         self::addColumns(table: $table);
@@ -104,7 +104,7 @@ class SettingsTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['setting_key'],
-            'mydash_setting_key'
+            'launchpad_setting_key'
         );
     }//end addIndexes()
 }//end class

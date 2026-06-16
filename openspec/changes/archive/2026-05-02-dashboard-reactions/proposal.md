@@ -2,13 +2,13 @@
 
 ## Why
 
-Today MyDash dashboards are one-directional: users view content but cannot provide lightweight social feedback. Teams using shared dashboards want emoji reactions (👍, ❤️, 🎉, etc.) to mark useful or appreciated dashboards without full-featured comments. This is a low-friction engagement signal that aligns with modern collaborative tools.
+Today LaunchPad dashboards are one-directional: users view content but cannot provide lightweight social feedback. Teams using shared dashboards want emoji reactions (👍, ❤️, 🎉, etc.) to mark useful or appreciated dashboards without full-featured comments. This is a low-friction engagement signal that aligns with modern collaborative tools.
 
 ## What Changes
 
-- Add a new `oc_mydash_dashboard_reactions` table with schema: `id` (PK), `dashboardUuid VARCHAR(36)`, `userId VARCHAR(64)`, `emoji VARCHAR(32)`, `reactedAt TIMESTAMP`, unique constraint on `(dashboardUuid, userId, emoji)`. Users can react with multiple distinct emojis but cannot duplicate the same emoji on the same dashboard.
-- Add a per-dashboard `reactionsEnabled SMALLINT(0/1) NULL` column to `oc_mydash_dashboards`. NULL = follow global setting; 1 = force on; 0 = force off.
-- Add admin settings: `mydash.reactions_enabled_default` (boolean, default true) for global toggle, and `mydash.reactions_allowed_emojis` (JSON array, default `["👍","❤️","🎉","😂","🤔","😢"]`) for allowed emoji whitelist.
+- Add a new `oc_launchpad_dash_reactions` table with schema: `id` (PK), `dashboardUuid VARCHAR(36)`, `userId VARCHAR(64)`, `emoji VARCHAR(32)`, `reactedAt TIMESTAMP`, unique constraint on `(dashboardUuid, userId, emoji)`. Users can react with multiple distinct emojis but cannot duplicate the same emoji on the same dashboard.
+- Add a per-dashboard `reactionsEnabled SMALLINT(0/1) NULL` column to `oc_launchpad_dashboards`. NULL = follow global setting; 1 = force on; 0 = force off.
+- Add admin settings: `launchpad.reactions_enabled_default` (boolean, default true) for global toggle, and `launchpad.reactions_allowed_emojis` (JSON array, default `["👍","❤️","🎉","😂","🤔","😢"]`) for allowed emoji whitelist.
 - Expose `GET /api/dashboards/{uuid}/reactions` returning `{counts: {emoji: number, ...}, mine: [emoji, ...], enabled: boolean}`.
 - Expose `POST /api/dashboards/{uuid}/reactions` body `{emoji}` to add a reaction (idempotent, 200 not 409).
 - Expose `DELETE /api/dashboards/{uuid}/reactions/{emoji}` to remove calling user's reaction (idempotent 204).

@@ -12,7 +12,7 @@
 - [ ] 1.2 Register the widget in a boot/lifecycle hook or service provider:
   - Hook into Nextcloud's dashboard widget registration (e.g., in `AppInfo/Bootstrap.php` or a listener on `IManager`)
   - Call `IManager::registerWidget()` with a widget provider or inline metadata
-  - Widget id: `mydash_calendar`, title: translatable `app.mydash.calendar_widget_title`, icon: calendar icon URL
+  - Widget id: `launchpad_calendar`, title: translatable `app.launchpad.calendar_widget_title`, icon: calendar icon URL
 - [ ] 1.3 Create fixture-based PHPUnit tests for `CalendarWidgetService`:
   - `testFetchInternalEventsSuccess` — mock `IManager::search()` with sample events
   - `testFetchExternalIcsWithCache` — mock HTTP fetch, verify caching via `ICache`
@@ -40,9 +40,9 @@
 ## 3. Placement configuration and schema migration
 
 - [ ] 3.1 Create `lib/Migration/VersionXXXXDate2026...AddCalendarWidgetSettings.php`:
-  - Add app config table entries for `mydash.calendar_widget_ics_cache_ttl_seconds` (default 1800)
-  - Add app config table entries for `mydash.calendar_widget_allowed_ics_hosts` (default `null` or `[]`)
-  - NOTE: No new `oc_mydash_*` table columns required; all config is stored in placement `widgetContent` JSON
+  - Add app config table entries for `launchpad.calendar_widget_ics_cache_ttl_seconds` (default 1800)
+  - Add app config table entries for `launchpad.calendar_widget_allowed_ics_hosts` (default `null` or `[]`)
+  - NOTE: No new `oc_launchpad_*` table columns required; all config is stored in placement `widgetContent` JSON
 - [ ] 3.2 Add getter/setter methods in `WidgetPlacementService` or factory to safely parse `widgetContent` JSON:
   - `extractCalendarConfig(WidgetPlacement $placement): array` — returns parsed config with defaults (internalCalendars, externalIcsUrls, viewMode, daysAhead, colorByCalendar)
   - Validate and sanitize config (URLs must be HTTP/HTTPS, principals must match pattern)
@@ -56,7 +56,7 @@
   - For each URL in `externalIcsUrls`:
     - Check allow-list via `checkAllowList($url)`
     - If disallowed, skip and log warning
-    - If allowed, try to fetch from cache key `mydash_calendar_ics_{placementId}_{urlHash}`
+    - If allowed, try to fetch from cache key `launchpad_calendar_ics_{placementId}_{urlHash}`
     - If cache hit, use cached raw ICS
     - If cache miss, HTTP fetch with 10-second timeout (use `IClientService`)
     - On HTTP 4xx/5xx, log warning, skip URL (see REQ-CAL-009)
@@ -73,7 +73,7 @@
   - Return flat array of event objects with normalized fields (uid, title, start, end, allDay, location, description, calendarId, calendarName, color, source)
   - Log malformed RRULEs at INFO/WARNING level (don't crash widget)
 - [ ] 4.3 Implement `CalendarWidgetService::checkAllowList()`:
-  - Read `mydash.calendar_widget_allowed_ics_hosts` from `IAppConfig::getValueString()`
+  - Read `launchpad.calendar_widget_allowed_ics_hosts` from `IAppConfig::getValueString()`
   - If empty or null, return true (all allowed)
   - Otherwise, parse URL, extract hostname (case-insensitive)
   - Check for exact match in allow-list (no wildcard subdomain expansion)
@@ -170,7 +170,7 @@
   - Multi-select checkboxes
   - Display calendar name and icon
 - [ ] 8.3 Integrate into `WidgetAddEditModal.vue`:
-  - When user selects `mydash_calendar` widget from picker
+  - When user selects `launchpad_calendar` widget from picker
   - Display `CalendarWidgetConfig.vue` instead of default generic config panel
 - [ ] 8.4 Create Playwright test:
   - `testCalendarWidgetConfigUI` — open config modal, select calendars, set view mode, save
@@ -178,15 +178,15 @@
 ## 9. Internationalization (i18n)
 
 - [ ] 9.1 Add Dutch (nl) and English (en) translation keys:
-  - `app.mydash.calendar_widget_title` — "Kalender" / "Calendar"
-  - `app.mydash.calendar_empty_state` — "Geen evenementen in de komende {N} dagen" / "No events in the next {N} days"
-  - `app.mydash.calendar_no_sources` — "Geen kalenders geconfigureerd" / "No calendars configured"
-  - `app.mydash.calendar_loading` — "Kalenders laden…" / "Loading calendars…"
-  - `app.mydash.calendar_error` — "Fout bij laden evenementen" / "Failed to load events"
-  - `app.mydash.calendar_retry` — "Opnieuw proberen" / "Retry"
-  - `app.mydash.calendar_failure_notice` — "{N} kalenderbron(nen) niet beschikbaar" / "{N} calendar source(s) unavailable"
-  - `app.mydash.calendar_internal` — "Nextcloud" / "Nextcloud"
-  - `app.mydash.calendar_external` — "Extern" / "External"
+  - `app.launchpad.calendar_widget_title` — "Kalender" / "Calendar"
+  - `app.launchpad.calendar_empty_state` — "Geen evenementen in de komende {N} dagen" / "No events in the next {N} days"
+  - `app.launchpad.calendar_no_sources` — "Geen kalenders geconfigureerd" / "No calendars configured"
+  - `app.launchpad.calendar_loading` — "Kalenders laden…" / "Loading calendars…"
+  - `app.launchpad.calendar_error` — "Fout bij laden evenementen" / "Failed to load events"
+  - `app.launchpad.calendar_retry` — "Opnieuw proberen" / "Retry"
+  - `app.launchpad.calendar_failure_notice` — "{N} kalenderbron(nen) niet beschikbaar" / "{N} calendar source(s) unavailable"
+  - `app.launchpad.calendar_internal` — "Nextcloud" / "Nextcloud"
+  - `app.launchpad.calendar_external` — "Extern" / "External"
 - [ ] 9.2 Add translation files (if not using existing JSON structure):
   - `l10n/nl.json` — Dutch translations
   - `l10n/en.json` — English translations (fallback)

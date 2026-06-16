@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `DashboardSwitcherSidebar.vue` (capability
@@ -374,14 +374,14 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [
 					{ id: 'p1', name: 'Star', icon: 'Star' },
-					{ id: 'p2', name: 'Custom', icon: '/apps/mydash/resource/x.png' },
+					{ id: 'p2', name: 'Custom', icon: '/apps/launchpad/resource/x.png' },
 					{ id: 'p3', name: 'Empty', icon: null },
 				],
 			})
 			const stubs = wrapper.findAll('.icon-renderer-stub')
 			expect(stubs.length).toBe(3)
 			expect(stubs.at(0).attributes('data-name')).toBe('Star')
-			expect(stubs.at(1).attributes('data-name')).toBe('/apps/mydash/resource/x.png')
+			expect(stubs.at(1).attributes('data-name')).toBe('/apps/launchpad/resource/x.png')
 			// null becomes the empty attribute
 			expect(stubs.at(2).attributes('data-name')).toBeFalsy()
 		})

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -82,6 +82,16 @@ export const useDashboardStore = defineStore('dashboard', {
 		// {fieldKey: encodedValue} map. Lazily populated on first
 		// `fetchDashboardMetadata(uuid)` call.
 		metadataByDashboard: {},
+		// dashboard-quota-limits REQ-QUOTA-006: the additive quota envelope
+		// carried on the dashboards list response. `0` means unlimited.
+		// `dashboardsUsed` is the user's live personal-dashboard count.
+		// Defaults to all-zero (no quota UI) so unlimited instances render
+		// pixel-identically to before.
+		quota: {
+			maxDashboards: 0,
+			dashboardsUsed: 0,
+			maxWidgetsPerDashboard: 0,
+		},
 	}),
 
 	getters: {
@@ -111,6 +121,50 @@ export const useDashboardStore = defineStore('dashboard', {
 		// 'group'`).
 		groupSharedDashboards: (state) => {
 			return state.dashboards.filter(d => d.source === SOURCE_GROUP)
+		},
+
+		// dashboard-quota-limits REQ-QUOTA-006: whether the user has hit
+		// their personal-dashboard ceiling. `false` when unlimited
+		// (`maxDashboards === 0`), so create affordances stay enabled on
+		// instances that never configured a quota.
+		dashboardQuotaReached: (state) => {
+			const max = state.quota?.maxDashboards ?? 0
+			if (max <= 0) {
+				return false
+			}
+			return (state.quota?.dashboardsUsed ?? 0) >= max
+		},
+
+		// dashboard-quota-limits REQ-QUOTA-006: localised tooltip for the
+		// disabled "New dashboard" affordance. Empty string when not at the
+		// limit (no tooltip needed).
+		dashboardQuotaTooltip: (state) => {
+			const max = state.quota?.maxDashboards ?? 0
+			if (max <= 0 || (state.quota?.dashboardsUsed ?? 0) < max) {
+				return ''
+			}
+			return t('launchpad', 'You have reached the limit of {limit} dashboards', { limit: max })
+		},
+
+		// dashboard-quota-limits REQ-QUOTA-006: whether the active
+		// dashboard has hit its widget ceiling. `false` when unlimited.
+		widgetQuotaReached: (state) => {
+			const max = state.quota?.maxWidgetsPerDashboard ?? 0
+			if (max <= 0) {
+				return false
+			}
+			return (state.widgetPlacements?.length ?? 0) >= max
+		},
+
+		// dashboard-quota-limits REQ-QUOTA-006: localised tooltip for the
+		// disabled "Add widget" affordance. Empty string when not at the
+		// limit.
+		widgetQuotaTooltip: (state) => {
+			const max = state.quota?.maxWidgetsPerDashboard ?? 0
+			if (max <= 0 || (state.widgetPlacements?.length ?? 0) < max) {
+				return ''
+			}
+			return t('launchpad', 'You have reached the limit of {limit} widgets on this dashboard', { limit: max })
 		},
 
 		// REQ-DASH-012 — default-group shared dashboards (`source ===
@@ -232,8 +286,23 @@ export const useDashboardStore = defineStore('dashboard', {
 					console.warn('Falling back to /api/dashboards (visible endpoint failed):', visibleError)
 					response = await api.getDashboards()
 				}
+				// dashboard-quota-limits REQ-QUOTA-006: the list response is
+				// now `{items: [...], quota: {...}}`. Stay tolerant of older
+				// backends that returned a bare array so a version skew never
+				// blanks the dashboard list.
+				const payload = response.data
+				const rows = Array.isArray(payload)
+					? payload
+					: (payload?.items ?? [])
+				if (payload && !Array.isArray(payload) && payload.quota) {
+					this.quota = {
+						maxDashboards: payload.quota.maxDashboards ?? 0,
+						dashboardsUsed: payload.quota.dashboardsUsed ?? 0,
+						maxWidgetsPerDashboard: payload.quota.maxWidgetsPerDashboard ?? 0,
+					}
+				}
 				// Defensive default — older backends may not tag rows.
-				this.dashboards = (response.data || []).map(d => ({
+				this.dashboards = (rows || []).map(d => ({
 					...d,
 					source: d.source ?? SOURCE_USER,
 				}))
@@ -328,7 +397,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data?.dashboard ?? null
 			} catch (error) {
 				console.error('Failed to publish dashboard:', error)
-				showError(t('mydash', 'Publish dashboard'))
+				showError(t('launchpad', 'Publish dashboard'))
 				return null
 			}
 		},
@@ -348,7 +417,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data?.dashboard ?? null
 			} catch (error) {
 				console.error('Failed to unpublish dashboard:', error)
-				showError(t('mydash', 'Unpublish dashboard'))
+				showError(t('launchpad', 'Unpublish dashboard'))
 				return null
 			}
 		},
@@ -368,7 +437,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data?.dashboard ?? null
 			} catch (error) {
 				console.error('Failed to schedule dashboard:', error)
-				showError(t('mydash', 'Schedule dashboard'))
+				showError(t('launchpad', 'Schedule dashboard'))
 				return null
 			}
 		},
@@ -470,7 +539,17 @@ export const useDashboardStore = defineStore('dashboard', {
 				// affordance or the call may bypass the UI altogether.
 				if (error?.response?.status === 403
 					&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED) {
-					showError(t('mydash', 'Personal dashboards are not enabled by your administrator'))
+					showError(t('launchpad', 'Personal dashboards are not enabled by your administrator'))
+				}
+				// dashboard-quota-limits REQ-QUOTA-006 (race case): the UI
+				// affordance may have been stale (limit reached in another
+				// tab). Surface the structured 409 as a clear message and
+				// refresh the quota envelope so the button disables.
+				if (error?.response?.status === 409
+					&& error?.response?.data?.error === 'quota_exceeded') {
+					const limit = error.response.data.limit
+					showError(t('launchpad', 'You have reached the limit of {limit} dashboards', { limit }))
+					this.loadDashboards().catch(() => {})
 				}
 				console.error('Failed to create dashboard:', error)
 				throw error
@@ -511,11 +590,11 @@ export const useDashboardStore = defineStore('dashboard', {
 				// caller; we just log here.
 				if (error?.response?.status === 403
 					&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED) {
-					showError(t('mydash', 'Personal dashboards are not enabled by your administrator'))
+					showError(t('launchpad', 'Personal dashboards are not enabled by your administrator'))
 				} else if (error?.response?.status === 404) {
-					showError(t('mydash', 'Dashboard not found'))
+					showError(t('launchpad', 'Dashboard not found'))
 				} else {
-					showError(t('mydash', 'Failed to fork dashboard'))
+					showError(t('launchpad', 'Failed to fork dashboard'))
 				}
 				console.error('Failed to fork dashboard:', error)
 				throw error
@@ -630,6 +709,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					await this.applyPushedPlacements(placement.pushed)
 				}
 			} catch (error) {
+				this.handleWidgetQuotaError(error)
 				console.error('Failed to add widget:', error)
 			}
 		},
@@ -673,8 +753,29 @@ export const useDashboardStore = defineStore('dashboard', {
 					await this.applyPushedPlacements(placement.pushed)
 				}
 			} catch (error) {
+				this.handleWidgetQuotaError(error)
 				console.error('Failed to add tile:', error)
 				throw error
+			}
+		},
+
+		/**
+		 * dashboard-quota-limits REQ-QUOTA-006 (race case): when a
+		 * placement-creation call returns the structured 409
+		 * `quota_exceeded` body, surface a localised message. The active
+		 * dashboard's widget count is authoritative for the disabled-button
+		 * getter, so no envelope refetch is needed here.
+		 *
+		 * @param {object} error the axios error (may be undefined)
+		 * @return {void}
+		 */
+		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-006-quota-status-surfacing-in-ui */
+		handleWidgetQuotaError(error) {
+			if (error?.response?.status === 409
+				&& error?.response?.data?.error === 'quota_exceeded'
+				&& error?.response?.data?.quota === 'widgets') {
+				const limit = error.response.data.limit
+				showError(t('launchpad', 'You have reached the limit of {limit} widgets on this dashboard', { limit }))
 			}
 		},
 
@@ -911,7 +1012,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return response.data
 			} catch (error) {
-				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				const message = error.response?.data?.error || t('launchpad', 'Operation failed')
 				showError(message)
 				return null
 			}
@@ -935,7 +1036,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				await api.removeDashboardReaction(dashboardUuid, emoji)
 				return await this.fetchReactionsSummary(dashboardUuid)
 			} catch (error) {
-				const message = error.response?.data?.error || t('mydash', 'Operation failed')
+				const message = error.response?.data?.error || t('launchpad', 'Operation failed')
 				showError(message)
 				return null
 			}
@@ -1038,7 +1139,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return map
 			} catch (error) {
 				const message = error?.response?.data?.message
-					|| t('mydash', 'Failed to update dashboard metadata')
+					|| t('launchpad', 'Failed to update dashboard metadata')
 				console.error('Failed to update dashboard metadata:', error)
 				showError(message)
 				return null

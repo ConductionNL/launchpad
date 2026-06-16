@@ -8,7 +8,7 @@
  * either the base or the specific type.
  *
  * @category Service
- * @package  OCA\MyDash\Service\DashboardContentStorage
+ * @package  OCA\LaunchPad\Service\DashboardContentStorage
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\DashboardContentStorage;
+namespace OCA\LaunchPad\Service\DashboardContentStorage;
 
 /**
  * Thrown when a dashboard does not exist in the active storage backend.

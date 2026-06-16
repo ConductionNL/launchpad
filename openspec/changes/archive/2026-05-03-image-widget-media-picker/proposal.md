@@ -34,7 +34,7 @@ The existing image-widget capability (REQ-IMG-001..005) supports two image sourc
 - `lib/Service/ImageWidgetService.php` — new `resolveFilePreviewUrl()` method using `IURLGenerator` to generate preview URLs respecting viewer access.
 - `src/components/widgets/ImageWidget.vue` — extend form to include `sourceType` radio group and conditional file-picker button; add `@nextcloud/dialogs` or vanilla `OCA.Files.FilePicker` integration.
 - `src/components/widgets/ImageWidgetForm.vue` — handle `sourceType = 'files'` branch with file path display and picker invocation.
-- Migration to schema: add `fileId` (BIGINT NULL) and `filePath` (VARCHAR(2048) NULL) columns to `oc_mydash_widget_placements`.
+- Migration to schema: add `fileId` (BIGINT NULL) and `filePath` (VARCHAR(2048) NULL) columns to `oc_launchpad_widget_placements`.
 
 **Affected APIs:**
 
@@ -50,7 +50,7 @@ The existing image-widget capability (REQ-IMG-001..005) supports two image sourc
 
 **Migration:**
 
-- Non-breaking: adds two nullable columns to `oc_mydash_widget_placements`. Existing image-widget placements get `fileId = NULL` and `filePath = NULL`; they continue to work via the `url` field and `sourceType` defaults to `'url'`.
+- Non-breaking: adds two nullable columns to `oc_launchpad_widget_placements`. Existing image-widget placements get `fileId = NULL` and `filePath = NULL`; they continue to work via the `url` field and `sourceType` defaults to `'url'`.
 
 ## Handover Notes
 

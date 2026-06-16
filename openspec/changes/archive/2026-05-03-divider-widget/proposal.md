@@ -2,11 +2,11 @@
 
 ## Why
 
-MyDash dashboards with many widgets can feel visually cluttered without clear section breaks. Dashboard creators need lightweight visual separators to organize widgets into logical groups without adding unnecessary content. A simple divider widget provides the minimal component required to break up sections, with options for a thin line, whitespace, or a heading-based divider to hierarchically structure dashboard layouts.
+LaunchPad dashboards with many widgets can feel visually cluttered without clear section breaks. Dashboard creators need lightweight visual separators to organize widgets into logical groups without adding unnecessary content. A simple divider widget provides the minimal component required to break up sections, with options for a thin line, whitespace, or a heading-based divider to hierarchically structure dashboard layouts.
 
 ## What Changes
 
-- Register a new dashboard widget with id `mydash_divider` via `OCP\Dashboard\IManager` that appears in the widget picker.
+- Register a new dashboard widget with id `launchpad_divider` via `OCP\Dashboard\IManager` that appears in the widget picker.
 - Add per-placement configuration stored in `widgetContent JSON` to specify divider style (`line`, `whitespace`, or `heading-break`), line color/thickness/style, whitespace size, and optional heading text.
 - Implement fully client-side Vue 3 SFC `DividerWidget.vue` with three render modes: a thin horizontal line (themeable), a vertical spacer block, or a centered heading with horizontal lines above and below.
 - Support sensible sizing defaults: dividers default to `gridHeight = 1` (minimal footprint) and `gridWidth = full dashboard width` in the widget add modal.
@@ -19,7 +19,7 @@ MyDash dashboards with many widgets can feel visually cluttered without clear se
 
 ### New Capabilities
 
-- `divider-widget` — A new MyDash dashboard widget capability providing lightweight visual section breaks and spacing controls for organizing dashboard layouts.
+- `divider-widget` — A new LaunchPad dashboard widget capability providing lightweight visual section breaks and spacing controls for organizing dashboard layouts.
 
 ## Impact
 

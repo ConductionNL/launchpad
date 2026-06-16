@@ -6,7 +6,7 @@
  * Service for loading widget items from Nextcloud widget APIs.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use OCP\Dashboard\IAPIWidget;
 use OCP\Dashboard\IAPIWidgetV2;
@@ -40,7 +40,7 @@ class WidgetItemLoader
      *
      * @return array The widget items keyed by widget ID.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
      * @spec openspec/changes/archive/2026-05-24-retrofit-widgets/tasks.md#task-2
      */
     public function loadItems(

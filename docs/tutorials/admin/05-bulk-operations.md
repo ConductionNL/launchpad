@@ -13,7 +13,7 @@ Bulk operations are admin-only and let you act on many dashboards at once instea
 - **Bulk reindex** — refresh the search index entries (rare; useful after a schema change or a search fall-out).
 - **Bulk status** — read a set's publication state without changing anything.
 
-All four sit behind admin endpoints; the UI is in **Admin settings → MyDash → Bulk operations**.
+All four sit behind admin endpoints; the UI is in **Admin settings → LaunchPad → Bulk operations**.
 
 ## When to use this
 
@@ -58,7 +58,7 @@ The action issues `POST /api/admin/dashboards/bulk-move` with the UUIDs and targ
 
 ### 5. Repeat for **Delete** on the empty group
 
-After the move, refilter on `eng-old` (now zero hits if move succeeded), or just delete the group itself outside MyDash via `occ group:delete eng-old`.
+After the move, refilter on `eng-old` (now zero hits if move succeeded), or just delete the group itself outside LaunchPad via `occ group:delete eng-old`.
 
 ## Behaviour notes
 

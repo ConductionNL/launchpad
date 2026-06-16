@@ -3,7 +3,7 @@
 ## Context
 
 The existing `admin-templates` capability (REQ-TMPL-001..011, status: implemented) stores dashboard
-templates as rows in `oc_mydash_dashboards` with `type='admin_template'`. Admins create templates,
+templates as rows in `oc_launchpad_dashboards` with `type='admin_template'`. Admins create templates,
 target them at groups, and users receive personal copies on first access. The full storage model,
 distribution logic, and permission resolution are already live.
 
@@ -16,7 +16,7 @@ The new requirements are REQ-TMPL-012..015; existing REQ-TMPL-001..011 are untou
 A deep-dive into the reference implementation was conducted to understand how it handles templates.
 The reference implementation stores templates as filesystem folders under `/{lang}/_templates/`
 within a GroupFolder, with template membership inferred from path convention rather than a type
-discriminator. This design document records that divergence explicitly and explains why MyDash keeps
+discriminator. This design document records that divergence explicitly and explains why LaunchPad keeps
 its current DB enum approach.
 
 ## Goals / Non-Goals
@@ -25,7 +25,7 @@ its current DB enum approach.
 - Expose `GET /api/templates/gallery` — indexed, fast, list-only (no widget tree in response).
 - Expose `POST /api/dashboards/{uuid}/save-as-template` — owner-only, creates a deep-copied
   `admin_template` row with a fresh UUID.
-- Add three nullable metadata columns to `oc_mydash_dashboards`: `templateCategory VARCHAR(64)`,
+- Add three nullable metadata columns to `oc_launchpad_dashboards`: `templateCategory VARCHAR(64)`,
   `templatePreviewImage TEXT`, `templateDescription TEXT`.
 - Reuse the `custom-icon-upload-pattern` for preview image upload; no parallel mechanism.
 - Keep the gallery query single-pass: `WHERE type='admin_template'` with optional
@@ -45,7 +45,7 @@ its current DB enum approach.
 
 ### D1: Storage model — keep DB type enum, deliberately diverge from reference implementation
 
-**Decision**: Templates remain `type='admin_template'` rows in `oc_mydash_dashboards`. The three new
+**Decision**: Templates remain `type='admin_template'` rows in `oc_launchpad_dashboards`. The three new
 metadata fields are nullable columns on the same table. No filesystem folder convention is
 introduced.
 
@@ -62,17 +62,17 @@ introduced.
   3. The DB enum cleanly separates concerns: one row per dashboard, one `type` column. The filesystem
      path convention conflates location with kind, which makes the invariant harder to enforce and
      test.
-  4. MyDash has two content-storage backends: database rows and groupfolder-backed dashboards (see
+  4. LaunchPad has two content-storage backends: database rows and groupfolder-backed dashboards (see
      the `groupfolder-storage-backend` change). The filesystem `_templates/` approach only makes
      sense in a GroupFolder world. DB-backed dashboards have no GroupFolder and therefore no
      `_templates/` folder; a cross-backend representation requires the DB type column.
   5. The reference implementation's filesystem approach grants templates GroupFolder ACL inheritance
-     "for free". MyDash achieves equivalent access control via the existing `dashboard-sharing`
+     "for free". LaunchPad achieves equivalent access control via the existing `dashboard-sharing`
      capability; no ACL advantage is lost.
 
 **Rationale**: The DB enum approach was the correct design when `admin-templates` was built and
 remains correct here. The reference implementation's path convention is a reasonable fit for a
-purely GroupFolder-backed system with no `type` column; MyDash's architecture differs on both counts.
+purely GroupFolder-backed system with no `type` column; LaunchPad's architecture differs on both counts.
 Recording this as a deliberate divergence rather than a discrepancy ensures future contributors do
 not attempt convergence.
 
@@ -100,7 +100,7 @@ not attempt convergence.
 
 **Decision**: `GET /api/templates/gallery` executes:
 ```sql
-SELECT ... FROM oc_mydash_dashboards
+SELECT ... FROM oc_launchpad_dashboards
 WHERE type = 'admin_template'
 [AND templateCategory = :cat]
 ORDER BY templateCategory IS NULL, templateCategory, name
@@ -144,7 +144,7 @@ categories appear as their own group.
 
 - **Fixed enum** (`marketing`, `engineering`, `hr`, …): Rejected — adding new categories would
   require a schema migration, and customer category needs vary too widely to enumerate in the spec.
-  Free-form is consistent with how MyDash handles other admin-curated labels (e.g., `description`).
+  Free-form is consistent with how LaunchPad handles other admin-curated labels (e.g., `description`).
 
 **Rationale**: Free-form strings give admins immediate flexibility at the cost of no server-enforced
 taxonomy. The gallery UI can suggest existing category values (from a `DISTINCT templateCategory`

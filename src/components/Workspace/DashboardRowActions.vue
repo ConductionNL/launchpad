@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -32,7 +32,7 @@
 
 <template>
 	<NcActions
-		:aria-label="t('mydash', 'Dashboard menu')"
+		:aria-label="t('launchpad', 'Dashboard menu')"
 		:force-menu="true"
 		placement="bottom-end"
 		type="tertiary-no-background"
@@ -50,7 +50,7 @@
 				<ContentSave v-if="showSave" :size="20" />
 				<Pencil v-else :size="20" />
 			</template>
-			{{ showSave ? t('mydash', 'Save dashboard') : t('mydash', 'Edit dashboard') }}
+			{{ showSave ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit dashboard') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="isOwner"
@@ -60,7 +60,7 @@
 			<template #icon>
 				<Tune :size="20" />
 			</template>
-			{{ t('mydash', 'Dashboard configuration…') }}
+			{{ t('launchpad', 'Dashboard configuration…') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="canEdit"
@@ -70,7 +70,7 @@
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
 			</template>
-			{{ t('mydash', 'Add custom widget…') }}
+			{{ t('launchpad', 'Add custom widget…') }}
 		</NcActionButton>
 		<NcActionButton
 			:close-after-click="true"
@@ -80,7 +80,7 @@
 				<StarCheck v-if="isDefault" :size="20" />
 				<Star v-else :size="20" />
 			</template>
-			{{ isDefault ? t('mydash', 'Default dashboard') : t('mydash', 'Set as default') }}
+			{{ isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="isOwner"
@@ -90,7 +90,7 @@
 			<template #icon>
 				<TrashCanOutline :size="20" />
 			</template>
-			{{ t('mydash', 'Delete dashboard') }}
+			{{ t('launchpad', 'Delete dashboard') }}
 		</NcActionButton>
 	</NcActions>
 </template>

@@ -2,17 +2,17 @@
 
 ## Why
 
-MyDash accumulates orphaned data over time: widget assets from deleted dashboards, expired locks and share tokens, metadata-value rows whose field definitions no longer exist, role assignments for deleted users, and other referential integrity issues. Today, there is no standard way to scan for, report on, or safely remove such data, leading to accumulated technical debt and storage waste. A comprehensive scan + purge capability—with safety via dry-run mode, category selectivity, and audit logging—enables administrators to maintain database hygiene without manual SQL or risk of data loss.
+LaunchPad accumulates orphaned data over time: widget assets from deleted dashboards, expired locks and share tokens, metadata-value rows whose field definitions no longer exist, role assignments for deleted users, and other referential integrity issues. Today, there is no standard way to scan for, report on, or safely remove such data, leading to accumulated technical debt and storage waste. A comprehensive scan + purge capability—with safety via dry-run mode, category selectivity, and audit logging—enables administrators to maintain database hygiene without manual SQL or risk of data loss.
 
 ## What Changes
 
-- Add `php occ mydash:cleanup:scan` CLI command — report orphaned items by category (expired_locks, expired_share_tokens, orphaned_widget_assets, orphaned_metadata_values, orphaned_widget_placements, orphaned_feed_tokens, orphaned_role_assignments, dangling_dashboard_translations) as a table; return nonzero exit code if any orphans found (useful for CI).
-- Add `php occ mydash:cleanup:purge [--category=<name>] [--dry-run] [--yes]` CLI command — delete orphaned items; `--category` limits to one category (default all); `--dry-run` reports what WOULD be deleted; `--yes` skips confirmation prompt (interactive otherwise).
+- Add `php occ launchpad:cleanup:scan` CLI command — report orphaned items by category (expired_locks, expired_share_tokens, orphaned_widget_assets, orphaned_metadata_values, orphaned_widget_placements, orphaned_feed_tokens, orphaned_role_assignments, dangling_dashboard_translations) as a table; return nonzero exit code if any orphans found (useful for CI).
+- Add `php occ launchpad:cleanup:purge [--category=<name>] [--dry-run] [--yes]` CLI command — delete orphaned items; `--category` limits to one category (default all); `--dry-run` reports what WOULD be deleted; `--yes` skips confirmation prompt (interactive otherwise).
 - Add `GET /api/admin/cleanup/scan` endpoint (admin-only) — JSON of the scan output; cached with 5-minute TTL.
 - Add `POST /api/admin/cleanup/purge` endpoint (admin-only), body `{categories: [...], dryRun?: boolean}` — triggers purge, returns `{purgedByCategory: {...}, totalRows: N, durationMs: M}`.
 - Add daily background job `OrphanedDataCleanupJob` running at configured time, auto-purging a safe-to-auto-purge subset (default `['expired_locks','expired_share_tokens']`).
-- Add admin settings in Settings > Administration > MyDash: view last cleanup run, configure auto-purge categories and time of day.
-- Emit one NC activity event `mydash_cleanup_purge` per purge run with metadata: categories, totalRows, byUserId, durationMs.
+- Add admin settings in Settings > Administration > LaunchPad: view last cleanup run, configure auto-purge categories and time of day.
+- Emit one NC activity event `launchpad_cleanup_purge` per purge run with metadata: categories, totalRows, byUserId, durationMs.
 - Per-category extensibility via registry pattern — adding new categories requires one class addition, no central edits.
 
 ## Capabilities
@@ -23,7 +23,7 @@ MyDash accumulates orphaned data over time: widget assets from deleted dashboard
 
 ### Modified Capabilities
 
-- None. All other MyDash capabilities remain unchanged.
+- None. All other LaunchPad capabilities remain unchanged.
 
 ## Impact
 
@@ -49,7 +49,7 @@ MyDash accumulates orphaned data over time: widget assets from deleted dashboard
 - `appinfo/backgroundjobs.php` — register cleanup job
 - `lib/Migration/VersionXXXXDate2026...php` — (if needed) any schema changes for cleanup metadata
 - `lib/Service/SettingsService.php` — (update) expose cleanup settings (auto-purge categories, last run timestamp)
-- `lib/Settings/AdminSettings.php` — (update) MyDash admin settings in Nextcloud Settings > Administration
+- `lib/Settings/AdminSettings.php` — (update) LaunchPad admin settings in Nextcloud Settings > Administration
 
 **Affected APIs:**
 

@@ -3,83 +3,54 @@
 /**
  * HealthController
  *
- * Controller for exposing health check status.
+ * Thin leaf subclass of the OpenRegister AppHost GenericHealthController
+ * (ADR-040). All rendering logic — the ADR-006 `{status, app, version, checks}`
+ * shape and the declarative checks read from the `observability.health` block of
+ * `src/manifest.json` — is owned by the engine. This class re-declares `index()`
+ * with the explicit public auth posture (`#[PublicPage]` + `#[NoCSRFRequired]`)
+ * so a session-less monitoring probe can reach `/api/health`, then defers to the
+ * engine. The engine collaborators are injected by the factory in
+ * {@see \OCA\LaunchPad\AppInfo\Application::registerObservability()}.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCP\AppFramework\Controller;
+use OCA\OpenRegister\AppHost\Controller\GenericHealthController;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IDBConnection;
-use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 
 /**
- * Controller for health check endpoint.
+ * Public, declarative health endpoint backed by the AppHost engine.
+ *
+ * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
  */
-class HealthController extends Controller
+class HealthController extends GenericHealthController
 {
     /**
-     * Constructor
+     * GET /api/health — declarative health check (ADR-006), public.
      *
-     * @param IRequest        $request The request.
-     * @param IDBConnection   $db      The database connection.
-     * @param LoggerInterface $logger  Logger for error reporting.
+     * @return JSONResponse `{status, app, version, checks}`.
+     *
+     * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
      */
-    public function __construct(
-        IRequest $request,
-        private readonly IDBConnection $db,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
-
-    /**
-     * Return health check status.
-     *
-     * @return JSONResponse JSON response with health status and checks.
-     *
-     * @NoCSRFRequired
-     *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-27
-     */
+    #[PublicPage]
+    #[NoCSRFRequired]
     public function index(): JSONResponse
     {
-        $checks = [];
-        $status = 'ok';
-
-        // Database check.
-        try {
-            $qb = $this->db->getQueryBuilder();
-            $qb->select($qb->createFunction('1'));
-            $result = $qb->executeQuery();
-            $result->closeCursor();
-            $checks['database'] = 'ok';
-        } catch (\Exception $e) {
-            $checks['database'] = 'error';
-            $status = 'error';
-            $this->logger->error('Health check: database failed', ['exception' => $e->getMessage()]);
-        }
-
-        return new JSONResponse(
-            [
-                'status' => $status,
-                'checks' => $checks,
-            ]
-        );
+        return parent::index();
     }//end index()
 }//end class

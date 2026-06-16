@@ -2,11 +2,11 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001011Date20260502130000.php` adding three columns to `oc_mydash_dashboards`:
+- [x] 1.1 Create `lib/Migration/Version001011Date20260502130000.php` adding three columns to `oc_launchpad_dashboards`:
   - `publication_status VARCHAR(20) NOT NULL DEFAULT 'published'`
   - `publish_at DATETIME NULL`
   - `published_at DATETIME NULL`
-- [x] 1.2 Same migration adds composite index `mydash_dash_user_pubstatus` on `(user_id, publication_status)` for fast filtering
+- [x] 1.2 Same migration adds composite index `launchpad_dash_user_pub` on `(user_id, publication_status)` for fast filtering
 - [x] 1.3 Backfill existing rows: handled implicitly via the column default `'published'` (design D1) — no UPDATE statement required, eliminating partial-update risk on large tables
 - [x] 1.4 Migration is reversible — Nextcloud SimpleMigrationStep handles column drop on rollback via the schema closure
 - [ ] 1.5 Run migration locally against sqlite, mysql, and postgres (deferred — no live DB available in this worktree)

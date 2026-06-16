@@ -1,12 +1,12 @@
 # Tile Tasks
 
-- [x] **T01**: Create `mydash_tiles` migration — adds the tile definition table with columns `id`, `user_id`, `title`, `icon` (VARCHAR 2000), `icon_type`, `background_color`, `text_color`, `link_type`, `link_value`, `created_at`, `updated_at` — `lib/Migration/Version001001Date20260203000000.php`
+- [x] **T01**: Create `launchpad_tiles` migration — adds the tile definition table with columns `id`, `user_id`, `title`, `icon` (VARCHAR 2000), `icon_type`, `background_color`, `text_color`, `link_type`, `link_value`, `created_at`, `updated_at` — `lib/Migration/Version001001Date20260203000000.php`
 
 - [x] **T02**: Increase `icon` column size to 2000 characters to support full SVG path data — `lib/Migration/Version001002Date20260204000000.php`
 
-- [x] **T03**: Add `tile_*` columns to `mydash_widget_placements` — adds `tile_type`, `tile_title`, `tile_icon`, `tile_icon_type`, `tile_background_color`, `tile_text_color`, `tile_link_type`, `tile_link_value` to allow placement rows to carry a full tile snapshot — `lib/Migration/Version001003Date20260204120000.php`
+- [x] **T03**: Add `tile_*` columns to `launchpad_widget_placements` — adds `tile_type`, `tile_title`, `tile_icon`, `tile_icon_type`, `tile_background_color`, `tile_text_color`, `tile_link_type`, `tile_link_value` to allow placement rows to carry a full tile snapshot — `lib/Migration/Version001003Date20260204120000.php`
 
-- [x] **T04**: Add `custom_icon` column to `mydash_widget_placements` — TEXT column supporting large icon values for widget placements — `lib/Migration/Version001004Date20260204150000.php`
+- [x] **T04**: Add `custom_icon` column to `launchpad_widget_placements` — TEXT column supporting large icon values for widget placements — `lib/Migration/Version001004Date20260204150000.php`
 
 - [x] **T05**: Implement `Tile` entity — `OCP\AppFramework\Db\Entity` subclass with all tile fields, typed constructor, and `jsonSerialize()` — `lib/Db/Tile.php`
 

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * useGridManager — combined GridStack configuration + Vue 2 composable.
@@ -55,7 +55,7 @@ import Vue from 'vue'
 
 /**
  * Cell height in pixels. Single source of truth for both the JS init call
- * and the `--mydash-cell-height` CSS custom property.
+ * and the `--launchpad-cell-height` CSS custom property.
  *
  * @type {number}
  */
@@ -104,7 +104,7 @@ export const COLUMN_LAYOUT = 'moveScale'
  *
  * @type {string}
  */
-export const CELL_HEIGHT_CSS_VAR = '--mydash-cell-height'
+export const CELL_HEIGHT_CSS_VAR = '--launchpad-cell-height'
 
 /**
  * Build the `columnOpts` object passed to `GridStack.init`. Returned as a
@@ -123,7 +123,7 @@ export function getColumnOpts() {
 }
 
 /**
- * Mirror the JS `CELL_HEIGHT` value into the CSS `--mydash-cell-height`
+ * Mirror the JS `CELL_HEIGHT` value into the CSS `--launchpad-cell-height`
  * custom property on the document root. No-op when `document` is unavailable.
  *
  * @return {void}
@@ -220,7 +220,7 @@ function scanForEmptySlot(sz, nodes, columns, maxScanRows) {
  *      `gridY = h`.
  *
  * @param {object} spec target widget spec — `w`/`h` default to {@link DEFAULT_W}/{@link DEFAULT_H}
- * @param {Array<object>} placements current placements in MyDash field-name form
+ * @param {Array<object>} placements current placements in LaunchPad field-name form
  *   (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`)
  * @param {object} [options] optional knobs
  * @param {number} [options.gridColumns] column count, defaults to {@link DEFAULT_COLUMNS}
@@ -246,7 +246,7 @@ export function placeNewWidget(spec, placements, options = {}) {
 
 	let primaryHit = null
 	if (options.grid && options.grid.engine) {
-		const probe = { w, h, _id: '__mydash_probe__' }
+		const probe = { w, h, _id: '__launchpad_probe__' }
 		const liveNodes = options.grid.engine.nodes.filter(n => n._id !== probe._id)
 		const found = options.grid.engine.findEmptyPosition(probe, liveNodes, columns)
 		if (found) {

@@ -3,31 +3,31 @@
 /**
  * SetupCommand
  *
- * `php occ mydash:setup --config=/path/setup.yaml` — non-interactive
+ * `php occ launchpad:setup --config=/path/setup.yaml` — non-interactive
  * IaC-friendly entry point for the setup wizard (REQ-WIZ-010). Walks
  * the same step sequence as the Vue modal but reads every choice from
  * a YAML config file. Idempotent: re-running with the same config
  * detects existing values and skips them.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
 use InvalidArgumentException;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\SetupWizardService;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\SetupWizardService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -37,7 +37,7 @@ use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 /**
- * `mydash:setup` console command.
+ * `launchpad:setup` console command.
  */
 class SetupCommand extends Command
 {
@@ -65,9 +65,9 @@ class SetupCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:setup')
+        $this->setName(name: 'launchpad:setup')
             ->setDescription(
-                description: 'Run the MyDash setup wizard non-interactively from a YAML config (REQ-WIZ-010).'
+                description: 'Run the LaunchPad setup wizard non-interactively from a YAML config (REQ-WIZ-010).'
             )
             ->addOption(
                 name: 'config',

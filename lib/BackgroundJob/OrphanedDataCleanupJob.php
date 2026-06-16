@@ -7,31 +7,31 @@
  * of cleanup categories. REQ-CLN-007. The default subset is the
  * Tier-A list returned by
  * {@see CategoryRegistryService::getAutoSafeCategoryNames()}; admins
- * can override the list via the `mydash` app config under the
+ * can override the list via the `launchpad` app config under the
  * `cleanup_auto_purge_categories` key (JSON-encoded array).
  *
- * The job is registered in `OCA\MyDash\AppInfo\Application::register`
+ * The job is registered in `OCA\LaunchPad\AppInfo\Application::register`
  * via `IJobList::add`. Interval is 24 hours.
  *
  * @category  BackgroundJob
- * @package   OCA\MyDash\BackgroundJob
+ * @package   OCA\LaunchPad\BackgroundJob
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\BackgroundJob;
+namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
-use OCA\MyDash\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
+use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJob;
 use OCP\BackgroundJob\TimedJob;
@@ -115,7 +115,7 @@ class OrphanedDataCleanupJob extends TimedJob
 
         if (count(value: $categories) === 0) {
             $this->logger->info(
-                message: 'mydash.cleanup.job_skipped reason=no_categories_enabled'
+                message: 'launchpad.cleanup.job_skipped reason=no_categories_enabled'
             );
             return;
         }
@@ -129,7 +129,7 @@ class OrphanedDataCleanupJob extends TimedJob
 
         $this->logger->info(
             message: sprintf(
-                'mydash.cleanup.job_run rows=%d duration_ms=%d categories=%s',
+                'launchpad.cleanup.job_run rows=%d duration_ms=%d categories=%s',
                 $result->getTotalRows(),
                 $result->getDurationMs(),
                 implode(separator: ',', array: $categories),
@@ -164,7 +164,7 @@ class OrphanedDataCleanupJob extends TimedJob
         if (is_array(value: $decoded) === false) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash.cleanup.job_config_invalid raw=%s',
+                    'launchpad.cleanup.job_config_invalid raw=%s',
                     $raw
                 )
             );

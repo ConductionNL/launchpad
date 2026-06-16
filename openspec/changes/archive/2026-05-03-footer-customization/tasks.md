@@ -2,7 +2,7 @@
 
 ## 1. Schema migration
 
-- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddFooterColumns.php` adding `dashboardFooterMode VARCHAR(16)` and `dashboardFooterHtml LONGTEXT` to `oc_mydash_dashboards`
+- [ ] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddFooterColumns.php` adding `dashboardFooterMode VARCHAR(16)` and `dashboardFooterHtml LONGTEXT` to `oc_launchpad_dashboards`
 - [ ] 1.2 Add default constraint `dashboardFooterMode = 'inherit'` (all existing rows get this value)
 - [ ] 1.3 Add index on `dashboardFooterMode` for fast filtering if needed in future
 - [ ] 1.4 Confirm migration is reversible (drop columns in `postSchemaChange` rollback path)

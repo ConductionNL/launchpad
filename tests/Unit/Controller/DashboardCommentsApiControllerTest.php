@@ -6,12 +6,12 @@
  * Covers M4: ADR-023 action-auth wiring on all four comment endpoints.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -19,12 +19,12 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\DashboardCommentsApiController;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\CommentService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Controller\DashboardCommentsApiController;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\CommentService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;

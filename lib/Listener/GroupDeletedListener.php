@@ -3,11 +3,11 @@
 /**
  * GroupDeletedListener
  *
- * Listens to OCP\Group\Events\GroupDeletedEvent and cascades MyDash
+ * Listens to OCP\Group\Events\GroupDeletedEvent and cascades LaunchPad
  * cleanup for the deleted group.
  *
  * Live coverage:
- *   1. Removes any MyDash role assignments scoped to the deleted group
+ *   1. Removes any LaunchPad role assignments scoped to the deleted group
  *      via RoleService::deleteByGroupId. REQ-ROLE-011.
  *
  * Pending follow-ups (TODO, owned by dashboard-sharing /
@@ -15,31 +15,31 @@
  *   - Enumerate group-shared dashboards owned by the deleted group and
  *     call DashboardService::delete() for each (which dispatches
  *     DashboardDeletedEvent and fires the full cascade).
- *   - Drop the group from `mydash.org_navigation_tree` JSON
+ *   - Drop the group from `launchpad.org_navigation_tree` JSON
  *     groupVisibility arrays.
- *   - Drop the group from the `mydash.group_order` IConfig array.
+ *   - Drop the group from the `launchpad.group_order` IConfig array.
  *   REQ-CSC-005.
  *
  * Failures are best-effort: the listener logs and continues so the
  * Nextcloud group-deletion event chain is never interrupted (REQ-CSC-006).
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
-use OCA\MyDash\Service\RoleService;
+use OCA\LaunchPad\Service\RoleService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\Group\Events\GroupDeletedEvent;
@@ -91,11 +91,11 @@ class GroupDeletedListener implements IEventListener
             // deletion event chain is not interrupted.
             $this->logger->error(
                 message: sprintf(
-                    'mydash GroupDeletedListener: failed to cascade role-assignment cleanup for group %s: %s',
+                    'launchpad GroupDeletedListener: failed to cascade role-assignment cleanup for group %s: %s',
                     $groupId,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handle()

@@ -6,13 +6,13 @@ status: implemented
 
 ## Purpose
 
-The label widget is a built-in MyDash widget type that lets dashboard authors drop a short, single-line, plain-text heading onto a dashboard to title a row of widgets or mark a zone. It is intentionally narrower than the `text` widget (which carries multi-line HTML content via `v-html`): the label widget renders content with Vue interpolation only, eliminating the XSS surface entirely, and ships heading-style defaults (`16px` bold centred) so a freshly added label looks correct without any styling input.
+The label widget is a built-in LaunchPad widget type that lets dashboard authors drop a short, single-line, plain-text heading onto a dashboard to title a row of widgets or mark a zone. It is intentionally narrower than the `text` widget (which carries multi-line HTML content via `v-html`): the label widget renders content with Vue interpolation only, eliminating the XSS surface entirely, and ships heading-style defaults (`16px` bold centred) so a freshly added label looks correct without any styling input.
 
 The capability is one widget type, one renderer, one sub-form, one registry entry — small enough to be evolved or deprecated independently of the broader widget-rendering machinery, and small enough that adding heading semantics (`<h3>`, `aria-level`) later does not entangle it with the `text` widget's content-block semantics.
 
 ## Data Model
 
-Label placements use the existing `oc_mydash_widget_placements.styleConfig` JSON column with the discriminated shape `{type: 'label', content: {...}}`. No schema migration is required.
+Label placements use the existing `oc_launchpad_widget_placements.styleConfig` JSON column with the discriminated shape `{type: 'label', content: {...}}`. No schema migration is required.
 
 The `content` object carries six fields, all optional except `text` (which is validated by the form):
 

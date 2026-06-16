@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,13 +8,13 @@
 		<div class="files-widget__toolbar">
 			<nav
 				class="files-widget__breadcrumb"
-				:aria-label="t('mydash', 'Folder breadcrumb')">
+				:aria-label="t('launchpad', 'Folder breadcrumb')">
 				<button
 					type="button"
 					class="files-widget__crumb files-widget__crumb--root"
 					:aria-current="currentSubPath === '/' ? 'page' : null"
 					@click="navigateTo('/')">
-					{{ t('mydash', 'Root') }}
+					{{ t('launchpad', 'Root') }}
 				</button>
 				<template v-for="(segment, index) in pathSegments">
 					<span
@@ -36,15 +36,15 @@
 				v-model="searchQuery"
 				type="search"
 				class="files-widget__search"
-				:aria-label="t('mydash', 'Search this folder')"
-				:placeholder="t('mydash', 'Search this folder…')">
+				:aria-label="t('launchpad', 'Search this folder')"
+				:placeholder="t('launchpad', 'Search this folder…')">
 
 			<button
 				v-if="canShowUpload"
 				type="button"
 				class="files-widget__upload"
 				@click="triggerUpload">
-				{{ t('mydash', 'Upload File') }}
+				{{ t('launchpad', 'Upload File') }}
 			</button>
 			<input
 				ref="fileInput"
@@ -57,37 +57,37 @@
 		</div>
 
 		<div v-if="loading" class="files-widget__state">
-			{{ t('mydash', 'Loading folder…') }}
+			{{ t('launchpad', 'Loading folder…') }}
 		</div>
 
 		<div
 			v-else-if="errorCode === 'no_access'"
 			class="files-widget__state files-widget__state--no-access">
-			{{ t('mydash', 'You don\'t have access to this folder.') }}
+			{{ t('launchpad', 'You don\'t have access to this folder.') }}
 		</div>
 
 		<div
 			v-else-if="errorCode === 'folder_not_found'"
 			class="files-widget__state files-widget__state--not-found">
-			{{ t('mydash', 'Folder no longer exists.') }}
+			{{ t('launchpad', 'Folder no longer exists.') }}
 		</div>
 
 		<div
 			v-else-if="errorCode"
 			class="files-widget__state files-widget__state--error">
-			{{ t('mydash', 'Failed to load folder contents.') }}
+			{{ t('launchpad', 'Failed to load folder contents.') }}
 			<button
 				type="button"
 				class="files-widget__retry"
 				@click="fetchContents">
-				{{ t('mydash', 'Retry') }}
+				{{ t('launchpad', 'Retry') }}
 			</button>
 		</div>
 
 		<div
 			v-else-if="filteredItems.length === 0 && !searchQuery"
 			class="files-widget__state files-widget__state--empty">
-			{{ t('mydash', 'This folder is empty.') }}
+			{{ t('launchpad', 'This folder is empty.') }}
 		</div>
 
 		<div
@@ -117,9 +117,9 @@
 					v-if="canDeleteItem(item)"
 					type="button"
 					class="files-widget__row-delete"
-					:aria-label="t('mydash', 'Delete {name}', { name: item.name })"
+					:aria-label="t('launchpad', 'Delete {name}', { name: item.name })"
 					@click="confirmDelete(item)">
-					{{ t('mydash', 'Delete') }}
+					{{ t('launchpad', 'Delete') }}
 				</button>
 			</li>
 		</ul>
@@ -129,7 +129,7 @@
 				type="button"
 				class="files-widget__more"
 				@click="loadMore">
-				{{ t('mydash', 'Load more') }}
+				{{ t('launchpad', 'Load more') }}
 			</button>
 		</div>
 
@@ -141,17 +141,17 @@
 			@click.self="cancelDelete">
 			<div class="files-widget__modal">
 				<p>
-					{{ t('mydash', 'Are you sure you want to delete {name}?', { name: confirmTarget.name }) }}
+					{{ t('launchpad', 'Are you sure you want to delete {name}?', { name: confirmTarget.name }) }}
 				</p>
 				<div class="files-widget__modal-actions">
 					<button type="button" @click="cancelDelete">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</button>
 					<button
 						type="button"
 						class="files-widget__modal-confirm"
 						@click="performDelete">
-						{{ t('mydash', 'Delete') }}
+						{{ t('launchpad', 'Delete') }}
 					</button>
 				</div>
 			</div>
@@ -161,7 +161,7 @@
 
 <script>
 /**
- * FilesWidget — inline Nextcloud Files browser as a MyDash widget.
+ * FilesWidget — inline Nextcloud Files browser as a LaunchPad widget.
  *
  * Implements REQ-FLS-003 (folder listing), REQ-FLS-005 (breadcrumb +
  * folder navigation), REQ-FLS-006 (deep-link click-through to the
@@ -278,7 +278,7 @@ export default {
 		/** @spec openspec/specs/files-widget/spec.md */
 		noSearchResultsLabel() {
 			return t(
-				'mydash',
+				'launchpad',
 				'No files matching \'{query}\'',
 				{ query: this.searchQuery },
 			)

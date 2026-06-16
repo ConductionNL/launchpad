@@ -7,7 +7,7 @@
  * and that the BC aliases in AdminSetting match the enum values exactly.
  *
  * @category Test
- * @package  OCA\MyDash\Tests\Unit\Db
+ * @package  OCA\LaunchPad\Tests\Unit\Db
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingKey;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingKey;
 use PHPUnit\Framework\TestCase;
 
 class AdminSettingKeyTest extends TestCase

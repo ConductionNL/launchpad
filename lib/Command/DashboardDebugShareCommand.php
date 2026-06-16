@@ -3,30 +3,30 @@
 /**
  * DashboardDebugShareCommand
  *
- * `mydash:dashboard:debug-share <uuid>` — print sharing, lock,
+ * `launchpad:dashboard:debug-share <uuid>` — print sharing, lock,
  * version, and view diagnostics for a dashboard. Intended for support
  * engineers (REQ-CLI-003).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardShare;
-use OCA\MyDash\Db\DashboardShareMapper;
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputArgument;
@@ -34,7 +34,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:dashboard:debug-share` console command.
+ * `launchpad:dashboard:debug-share` console command.
  */
 class DashboardDebugShareCommand extends CommandBase
 {
@@ -64,7 +64,7 @@ class DashboardDebugShareCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:dashboard:debug-share')
+        $this->setName(name: 'launchpad:dashboard:debug-share')
             ->setDescription(description: 'Dump sharing & lock state for a dashboard.')
             ->setHelp(
                 help: implode(
@@ -73,8 +73,8 @@ class DashboardDebugShareCommand extends CommandBase
                         'Print share rows, lock state, version count and view count for support diagnostics.',
                         '',
                         'Examples:',
-                        '  php occ mydash:dashboard:debug-share a1b2c3d4-... --json',
-                        '  php occ mydash:dashboard:debug-share a1b2c3d4-... | jq .',
+                        '  php occ launchpad:dashboard:debug-share a1b2c3d4-... --json',
+                        '  php occ launchpad:dashboard:debug-share a1b2c3d4-... | jq .',
                     ]
                 )
             )

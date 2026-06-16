@@ -4,28 +4,28 @@
  * FeedCacheTableBuilder
  *
  * Builder for the feed-cache database table schema. Materialises the
- * `oc_mydash_feed_cache` table that backs the background-job feed-refresh
+ * `oc_launchpad_feed_cache` table that backs the background-job feed-refresh
  * capability (REQ-FRJ-001..012). One row per distinct external feed URL
  * (`UNIQUE(feed_url)`) holding fetch metadata (ETag, Last-Modified,
  * lastFetchedAt / lastSuccessAt / lastFailureReason) and the cached
  * normalised items as JSON (capped at 50 items, see
- * {@see \OCA\MyDash\Db\FeedCache::encodeItems()}).
+ * {@see \OCA\LaunchPad\Db\FeedCache::encodeItems()}).
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -36,7 +36,7 @@ use OCP\DB\Types;
 class FeedCacheTableBuilder
 {
     /**
-     * Create the mydash_feed_cache table when missing.
+     * Create the launchpad_feed_cache table when missing.
      *
      * Column layout:
      *  - id                   BIGINT PK auto-increment
@@ -61,11 +61,11 @@ class FeedCacheTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_feed_cache') === true) {
+        if ($schema->hasTable('launchpad_feed_cache') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_feed_cache');
+        $table = $schema->createTable('launchpad_feed_cache');
 
         $table->addColumn(
             'id',
@@ -124,7 +124,7 @@ class FeedCacheTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['feed_url'],
-            'mydash_feed_cache_url_uq',
+            'launchpad_feed_cache_url_uq',
             ['lengths' => [191]]
         );
     }//end create()

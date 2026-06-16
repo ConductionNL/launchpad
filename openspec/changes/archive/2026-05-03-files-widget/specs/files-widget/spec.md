@@ -8,13 +8,13 @@ status: draft
 
 ### Requirement: REQ-FLS-001 Widget registration
 
-The system MUST register a MyDash dashboard widget with id `mydash_files` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
+The system MUST register a LaunchPad dashboard widget with id `launchpad_files` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the files-widget capability is installed and enabled
-- WHEN a user opens the MyDash widget picker dialog
-- THEN the `mydash_files` widget MUST appear in the list with a title (e.g., "Files") and an icon
+- WHEN a user opens the LaunchPad widget picker dialog
+- THEN the `launchpad_files` widget MUST appear in the list with a title (e.g., "Files") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -28,7 +28,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_files` via `O
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `mydash_files` widget MUST still be discoverable in the picker
+- THEN the `launchpad_files` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
 
@@ -38,7 +38,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_files` via `O
 
 ### Requirement: REQ-FLS-002 Placement configuration
 
-The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify the target folder, display mode, filtering, and permission settings.
+The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify the target folder, display mode, filtering, and permission settings.
 
 #### Scenario: Config for folder path
 

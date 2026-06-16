@@ -99,6 +99,8 @@ export default {
 		 * heading. The wrapper still draws its frame for any other
 		 * type AND for these types when the user has set a per-placement
 		 * `customTitle` (which is an explicit opt-in to show chrome).
+		 *
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
 			// `nc-widget` renders its own header (icon + title) inside the

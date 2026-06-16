@@ -2,22 +2,19 @@
  * SPDX-FileCopyrightText: 2026 MyDash Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * End-to-end coverage for the `runtime-shell` capability (REQ-SHELL-001..007).
+ * End-to-end coverage for the `runtime-shell` capability.
  *
- * Covers the canEdit-gated toolbar, the hamburger sidebar toggle, the fixed
- * backdrop, and the empty-state CTA branches. These tests run against a live
- * Nextcloud instance with the mydash app enabled.
+ * Covers the hamburger sidebar toggle, the fixed backdrop, and the
+ * empty-state CTA branches. The in-page edit toolbar was removed — editing
+ * actions now live in the per-dashboard cog menu (DashboardRowActions) — so
+ * the former toolbar / Save-Layout scenarios no longer apply. These tests
+ * run against a live Nextcloud instance with the mydash app enabled.
  *
  * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::admin-sees-toolbar-on-group-dashboard
- *   @e2e runtime-shell::non-admin-group-dashboard-no-toolbar
- *   @e2e runtime-shell::non-admin-personal-dashboard-sees-toolbar
- *   @e2e runtime-shell::non-admin-group-dashboard-static-grid
  *   @e2e runtime-shell::hamburger-toggles-sidebar
  *   @e2e runtime-shell::backdrop-click-closes-sidebar
  *   @e2e runtime-shell::empty-state-with-allow-user-dashboards
  *   @e2e runtime-shell::empty-state-without-allow-user-dashboards
- *   @e2e runtime-shell::save-button-disabled-while-in-flight
  *
  * @spec openspec/changes/runtime-shell/tasks.md#task-9
  * @spec openspec/changes/runtime-shell/tasks.md#task-10
@@ -35,67 +32,6 @@ async function waitForShell(page: ReturnType<typeof test.extend>['page']) {
 	await page.goto(APP_URL)
 	await page.waitForSelector('.mydash-floating-controls, .workspace-shell', { timeout: 15_000 })
 }
-
-test.describe('REQ-SHELL-002 + REQ-SHELL-003: canEdit toolbar visibility (admin)', () => {
-	test.beforeEach(async ({ page }) => {
-		await waitForShell(page)
-	})
-
-	test('admin sees the toolbar regardless of dashboardSource', async ({ page }) => {
-		// Admin user visiting any dashboard should see the edit toolbar.
-		// (The test fixture logs in as admin — see playwright.config.ts.)
-		const toolbar = page.locator('.workspace-shell__toolbar')
-		await expect(toolbar).toBeVisible({ timeout: 5_000 })
-	})
-
-	test('admin toolbar contains Add Widget and Save Layout buttons', async ({ page }) => {
-		const toolbar = page.locator('.workspace-shell__toolbar')
-		await expect(toolbar).toBeVisible()
-
-		// Add Widget button must be present.
-		const addBtn = toolbar.locator('[data-test="add-widget-toolbar-button"]')
-		await expect(addBtn).toBeVisible()
-
-		// Save Layout button must be present.
-		const saveBtn = toolbar.locator('.workspace-shell__save-button')
-		await expect(saveBtn).toBeVisible()
-	})
-
-	test('Save button is enabled by default (no in-flight request on initial load)', async ({ page }) => {
-		const saveBtn = page.locator('.workspace-shell__save-button')
-		await expect(saveBtn).toBeVisible()
-		await expect(saveBtn).not.toBeDisabled()
-	})
-})
-
-test.describe('REQ-SHELL-003: Save button disabled while in flight', () => {
-	test('Save button becomes disabled while a save request is pending', async ({ page }) => {
-		await waitForShell(page)
-
-		const saveBtn = page.locator('.workspace-shell__save-button')
-		await expect(saveBtn).toBeVisible()
-
-		// Intercept the PUT and stall it so we can observe the disabled state.
-		let resolveStall: (() => void) | undefined
-		await page.route(/\/api\/dashboard\//, async (route) => {
-			if (route.request().method() === 'PUT') {
-				await new Promise<void>((resolve) => { resolveStall = resolve })
-				await route.continue()
-			} else {
-				await route.continue()
-			}
-		})
-
-		// Trigger save.
-		await saveBtn.click()
-		// During the stall, the button must be disabled.
-		await expect(saveBtn).toBeDisabled({ timeout: 3_000 })
-
-		// Un-stall the request and verify the button re-enables.
-		resolveStall?.()
-		await expect(saveBtn).not.toBeDisabled({ timeout: 5_000 })
-	})
-})
 
 test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
 	test.beforeEach(async ({ page }) => {

@@ -241,7 +241,7 @@ describe('FilesWidget', () => {
 		await wrapper.find('.files-widget__modal-confirm').trigger('click')
 		await flushPromises()
 
-		expect(axios.delete).toHaveBeenCalledWith('/apps/launchpad/api/widgets/files/7/files/1')
+		expect(axios.delete).toHaveBeenCalledWith('/apps/mydash/api/widgets/files/7/files/1')
 		// Optimistic remove — file should be gone from the listing.
 		expect(wrapper.vm.items.find((item) => item.fileId === 1)).toBeUndefined()
 	})

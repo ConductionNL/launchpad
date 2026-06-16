@@ -13,8 +13,8 @@ import { defineStore } from 'pinia'
 import { generateUrl } from '@nextcloud/router'
 import axios from '@nextcloud/axios'
 
-const PERMS_URL = generateUrl('/apps/launchpad/api/role-feature-permissions')
-const DEFAULTS_URL = generateUrl('/apps/launchpad/api/role-layout-defaults')
+const PERMS_URL = generateUrl('/apps/mydash/api/role-feature-permissions')
+const DEFAULTS_URL = generateUrl('/apps/mydash/api/role-layout-defaults')
 
 export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions', {
 	state: () => ({

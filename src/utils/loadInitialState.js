@@ -107,7 +107,13 @@ export function loadInitialState(page) {
  */
 function readKey(key, fallback) {
 	try {
-		const value = loadState('launchpad', key, fallback)
+		// The installed app id is 'mydash' (NC App Store id), so the PHP
+		// side provides initial-state under that namespace. Fall back to
+		// the 'launchpad' namespace for forward compatibility.
+		let value = loadState('mydash', key, undefined)
+		if (value === undefined) {
+			value = loadState('launchpad', key, fallback)
+		}
 		return value === undefined ? fallback : value
 	} catch (e) {
 		return fallback

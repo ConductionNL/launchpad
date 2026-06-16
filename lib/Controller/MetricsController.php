@@ -4,13 +4,13 @@
  * MetricsController
  *
  * Thin leaf subclass of the OpenRegister AppHost GenericMetricsController
- * (ADR-040). The admin-only posture, the Prometheus 0.0.4 exposition format,
- * the implicit `launchpad_info` / `launchpad_up` metrics, and the declarative
- * `tableCount` metrics read from the `observability.metrics` block of
- * `src/manifest.json` are all owned by the engine. This class exists only so the
- * unchanged `metrics#index` route resolves to a controller in the
- * `OCA\LaunchPad\Controller` namespace; the engine collaborators are injected by
- * the factory in {@see \OCA\LaunchPad\AppInfo\Application}.
+ * (ADR-040). The Prometheus 0.0.4 exposition format, the implicit
+ * `launchpad_info` / `launchpad_up` metrics and the declarative `tableCount`
+ * metrics read from the `observability.metrics` block of `src/manifest.json` are
+ * all owned by the engine. This class re-declares `index()` with `#[NoCSRFRequired]`
+ * (and deliberately WITHOUT `#[NoAdminRequired]`, so Nextcloud keeps the endpoint
+ * admin-only) and defers to the engine. The engine collaborators are injected by
+ * the factory in {@see \OCA\LaunchPad\AppInfo\Application::registerObservability()}.
  *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
@@ -29,12 +29,29 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\OpenRegister\AppHost\Controller\GenericMetricsController;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\TextPlainResponse;
 
 /**
  * Admin-only declarative Prometheus metrics endpoint backed by the AppHost engine.
+ *
+ * No `#[NoAdminRequired]` — the absence of that attribute means Nextcloud
+ * requires an admin session (the ADR-006 metrics posture).
  *
  * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Metrics Endpoint (REQ-PROM-001)
  */
 class MetricsController extends GenericMetricsController
 {
+    /**
+     * GET /api/metrics — declarative Prometheus metrics (admin-only, ADR-006).
+     *
+     * @return TextPlainResponse Prometheus text exposition 0.0.4.
+     *
+     * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Metrics Endpoint (REQ-PROM-001)
+     */
+    #[NoCSRFRequired]
+    public function index(): TextPlainResponse
+    {
+        return parent::index();
+    }//end index()
 }//end class

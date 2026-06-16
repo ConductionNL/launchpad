@@ -190,14 +190,22 @@ class Application extends App implements IBootstrap
     /**
      * Wire the AppHost observability controllers (ADR-040).
      *
-     * Mirrors `OCA\OpenRegister\AppHost\Bootstrap::registerControllers()` for
-     * the health + metrics pair only — LaunchPad keeps its own bespoke
-     * Dashboard/Preferences/Settings/AdminSettings boilerplate (entangled with
-     * the dashboard lifecycle, permission matrix and DoS-guarded preferences;
-     * see openspec/changes/adopt-apphost/design.md). The engine collaborators
-     * are resolved from the leaf container exactly as the engine's own Bootstrap
-     * does, keeping every reference inside the closure so bootstrap stays
-     * fatal-free when OpenRegister is unavailable.
+     * Aliases the unchanged `health#index` / `metrics#index` route targets at
+     * the OpenRegister AppHost generic controllers, per the documented leaf
+     * adoption pattern (docs/Technical/declarative-observability.md). The
+     * controller's `$appName` resolves to this leaf's app id, so the engine
+     * loads `src/manifest.json`'s `observability` block under `launchpad` and
+     * renders the `launchpad_`-prefixed Prometheus output. The generic
+     * controllers own the auth posture: health is public (`#[PublicPage]`),
+     * metrics admin-only.
+     *
+     * LaunchPad keeps its own bespoke Dashboard/Preferences/Settings/
+     * AdminSettings boilerplate — entangled with the dashboard lifecycle,
+     * permission matrix and DoS-guarded preferences (see
+     * openspec/changes/adopt-apphost/design.md). The aliases are class-string
+     * registrations, so a disabled/absent OpenRegister never fatals NC
+     * bootstrap; the first request to an aliased route surfaces the degraded
+     * OR-unavailable state instead.
      *
      * @param IRegistrationContext $context The registration context.
      *
@@ -205,6 +213,12 @@ class Application extends App implements IBootstrap
      */
     private function registerObservability(IRegistrationContext $context): void
     {
+        // Health controller. The generic class is referenced only as a string
+        // and instantiated inside the closure, so no OCA\OpenRegister symbol is
+        // touched until a request resolves the controller — keeping NC bootstrap
+        // fatal-free when OpenRegister is disabled/absent. $appName is pinned to
+        // this leaf's runtime app id (`launchpad`) so the engine loads the right
+        // manifest and emits the `launchpad_` prefix, exactly as before adoption.
         $context->registerService(
             \OCA\LaunchPad\Controller\HealthController::class,
             static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
@@ -217,6 +231,7 @@ class Application extends App implements IBootstrap
             }
         );
 
+        // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
         $context->registerService(
             \OCA\LaunchPad\Controller\MetricsController::class,
             static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {

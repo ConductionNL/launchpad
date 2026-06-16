@@ -7,8 +7,9 @@
 The system MUST expose a Prometheus-compatible metrics endpoint accessible to
 admin users, rendered by the OpenRegister AppHost observability engine
 (`GenericMetricsController`) from the declarative `observability.metrics` block
-in `src/manifest.json`. The `/api/metrics` URL is unchanged; the leaf
-`MetricsController` is a thin subclass of the engine generic.
+in `src/manifest.json`. The `/api/metrics` URL is unchanged; the
+`metrics#index` route target is aliased to the engine generic via a lazy
+factory in `Application::register()`.
 
 #### Scenario: Metrics endpoint returns valid Prometheus format
 - GIVEN a Nextcloud admin user
@@ -41,7 +42,8 @@ in `src/manifest.json`. The `/api/metrics` URL is unchanged; the leaf
 The system MUST expose a **public** health check endpoint for monitoring and
 container orchestration, rendered by the AppHost `GenericHealthController` from
 the declarative `observability.health` block. The `/api/health` URL is
-unchanged; the leaf `HealthController` is a thin subclass of the engine generic.
+unchanged; the `health#index` route target is aliased to the engine generic via
+a lazy factory in `Application::register()`.
 
 #### Scenario: Healthy status
 - GIVEN the database is accessible

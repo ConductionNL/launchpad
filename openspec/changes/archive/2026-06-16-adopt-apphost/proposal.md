@@ -32,13 +32,13 @@ Adopt the AppHost **observability** half, decidesk-style:
   output of the current Health + Metrics controllers (implicit `launchpad_info`
   + `launchpad_up`, plus `tableCount` descriptors for dashboards-by-type,
   widget placements, and tiles over the allowlisted `launchpad_*` own-tables).
-- Re-point the unchanged `/api/health` and `/api/metrics` URLs at thin leaf
-  subclasses of the engine generics (`HealthController extends
-  GenericHealthController`, `MetricsController extends GenericMetricsController`),
-  wired through `Bootstrap`-style factory aliases in `Application::register()`.
-- Delete the bespoke `HealthController`/`MetricsController` bodies, the
-  `MetricsCollector` and `MetricsQueryService` services, and their unit tests
-  once parity is verified.
+- Reduce the `HealthController` / `MetricsController` to thin subclasses of the
+  engine generics (`GenericHealthController` public, `GenericMetricsController`
+  admin) that re-declare only `index()` with the explicit auth attributes and
+  defer to the engine, wired through `Bootstrap`-style lazy factory closures in
+  `Application::register()` that pin `appName` to the `launchpad` runtime id.
+- Delete the orphaned `MetricsCollector` and `MetricsQueryService` services
+  (dead code, no callers) once parity is verified.
 
 The boilerplate half of the AppHost (Settings/Preferences/Dashboard/Init/
 AdminSettings/SettingsSection/DeepLink) is **intentionally out of scope** for

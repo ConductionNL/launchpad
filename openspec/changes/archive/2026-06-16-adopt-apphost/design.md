@@ -41,10 +41,16 @@ lazy (no top-level `OCA\OpenRegister\…` symbol) so a disabled/absent
 OpenRegister never fatals NC bootstrap; the first request to an aliased route
 surfaces a 5xx and health reports the OR-unavailable degraded state.
 
-The thin leaf subclasses (`HealthController extends GenericHealthController`,
-`MetricsController extends GenericMetricsController`) exist only so the
-unchanged route names `health#index` / `metrics#index` resolve to a class in the
-`OCA\LaunchPad\Controller` namespace; their bodies are empty.
+The two leaf controllers are reduced to thin subclasses of the engine generics
+(`HealthController extends GenericHealthController`, `MetricsController extends
+GenericMetricsController`). Each re-declares only `index()` carrying its explicit
+auth attributes (`#[PublicPage]` + `#[NoCSRFRequired]` for health;
+`#[NoCSRFRequired]` and deliberately NO `#[NoAdminRequired]` for metrics) and
+defers the body to `parent::index()`. This keeps the auth posture declared at
+the route's own controller (gate-route-auth + gate-semantic-auth) while all
+rendering stays engine-owned. The `extends` reference is loaded lazily — only
+when a request dispatches the route — so it does not affect unit tests or NC
+bootstrap when OpenRegister is absent.
 
 `$appId` passed to the factories is `Application::APP_ID` = `'launchpad'` — the
 runtime NC app id (mount path `custom_apps/launchpad`, all assets served under

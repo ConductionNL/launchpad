@@ -174,7 +174,61 @@ class Application extends App implements IBootstrap
         // Surface dashboards, widget content, and metadata values in
         // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
         $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
+
+        // Observability (ADR-040): re-point the unchanged /api/health and
+        // /api/metrics routes at thin subclasses of the OpenRegister AppHost
+        // generic controllers, which render the declarative observability block
+        // of src/manifest.json. The factories below are lazy — they reference
+        // no OCA\OpenRegister\… symbol until a request resolves the controller,
+        // so a disabled/absent OpenRegister never fatals NC bootstrap (the route
+        // then surfaces the degraded OR-unavailable state instead). $appId is the
+        // runtime app id `launchpad`; the engine reads the manifest under it and
+        // emits the launchpad_ Prometheus prefix, preserving the contract.
+        $this->registerObservability(context: $context);
     }//end register()
+
+    /**
+     * Wire the AppHost observability controllers (ADR-040).
+     *
+     * Mirrors `OCA\OpenRegister\AppHost\Bootstrap::registerControllers()` for
+     * the health + metrics pair only — LaunchPad keeps its own bespoke
+     * Dashboard/Preferences/Settings/AdminSettings boilerplate (entangled with
+     * the dashboard lifecycle, permission matrix and DoS-guarded preferences;
+     * see openspec/changes/adopt-apphost/design.md). The engine collaborators
+     * are resolved from the leaf container exactly as the engine's own Bootstrap
+     * does, keeping every reference inside the closure so bootstrap stays
+     * fatal-free when OpenRegister is unavailable.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerObservability(IRegistrationContext $context): void
+    {
+        $context->registerService(
+            \OCA\LaunchPad\Controller\HealthController::class,
+            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
+                return new \OCA\LaunchPad\Controller\HealthController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    executor: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
+                );
+            }
+        );
+
+        $context->registerService(
+            \OCA\LaunchPad\Controller\MetricsController::class,
+            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
+                return new \OCA\LaunchPad\Controller\MetricsController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    engine: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
+                );
+            }
+        );
+    }//end registerObservability()
 
     /**
      * App initialization after all apps are registered.

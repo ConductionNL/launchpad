@@ -3,7 +3,13 @@
 /**
  * HealthController
  *
- * Controller for exposing health check status.
+ * Thin leaf subclass of the OpenRegister AppHost GenericHealthController
+ * (ADR-040). All behaviour — the public `#[PublicPage]` posture, the ADR-006
+ * `{status, app, version, checks}` shape, and the declarative checks read from
+ * the `observability.health` block of `src/manifest.json` — is owned by the
+ * engine. This class exists only so the unchanged `health#index` route resolves
+ * to a controller in the `OCA\LaunchPad\Controller` namespace; the engine
+ * collaborators are injected by the factory in {@see \OCA\LaunchPad\AppInfo\Application}.
  *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
@@ -12,74 +18,22 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\AppInfo\Application;
-use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\IDBConnection;
-use OCP\IRequest;
-use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\AppHost\Controller\GenericHealthController;
 
 /**
- * Controller for health check endpoint.
+ * Public, declarative health endpoint backed by the AppHost engine.
+ *
+ * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
  */
-class HealthController extends Controller
+class HealthController extends GenericHealthController
 {
-    /**
-     * Constructor
-     *
-     * @param IRequest        $request The request.
-     * @param IDBConnection   $db      The database connection.
-     * @param LoggerInterface $logger  Logger for error reporting.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly IDBConnection $db,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
-
-    /**
-     * Return health check status.
-     *
-     * @return JSONResponse JSON response with health status and checks.
-     *
-     * @NoCSRFRequired
-     *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-27
-     */
-    public function index(): JSONResponse
-    {
-        $checks = [];
-        $status = 'ok';
-
-        // Database check.
-        try {
-            $qb = $this->db->getQueryBuilder();
-            $qb->select($qb->createFunction('1'));
-            $result = $qb->executeQuery();
-            $result->closeCursor();
-            $checks['database'] = 'ok';
-        } catch (\Exception $e) {
-            $checks['database'] = 'error';
-            $status = 'error';
-            $this->logger->error('Health check: database failed', ['exception' => $e->getMessage()]);
-        }
-
-        return new JSONResponse(
-            [
-                'status' => $status,
-                'checks' => $checks,
-            ]
-        );
-    }//end index()
 }//end class

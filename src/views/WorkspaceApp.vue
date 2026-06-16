@@ -43,38 +43,9 @@
 			</h1>
 		</div>
 
-		<!-- Region 3: edit toolbar (REQ-SHELL-003, REQ-SHELL-002).
-		     Uses v-if (NOT v-show) so non-edit users never see toolbar DOM.
-		     Contains Add Widget dropdown and Save Layout button. The Save
-		     button is disabled while a save request is in flight to prevent
-		     double-submit (REQ-SHELL-003 save-in-flight scenario). -->
-		<div v-if="canEdit && hasActiveDashboard" class="workspace-shell__toolbar">
-			<div class="workspace-shell__add-widget-wrapper">
-				<NcButton
-					type="secondary"
-					data-test="add-widget-toolbar-button"
-					@click="showAddDropdown = !showAddDropdown">
-					{{ t('mydash', 'Add Widget') }}
-				</NcButton>
-				<div v-if="showAddDropdown" class="workspace-shell__widget-dropdown">
-					<button
-						v-for="widget in injectedWidgets"
-						:key="widget.id"
-						type="button"
-						class="workspace-shell__widget-type-item"
-						@click="onAddWidget(widget)">
-						{{ widget.name }}
-					</button>
-				</div>
-			</div>
-			<NcButton
-				type="primary"
-				class="workspace-shell__save-button"
-				:disabled="saving"
-				@click="saveLayout">
-				{{ t('mydash', 'Save Layout') }}
-			</NcButton>
-		</div>
+		<!-- Region 3 (edit toolbar) removed: editing actions (Edit/Save
+		     dashboard, Add custom widget) live in the per-dashboard cog
+		     menu (DashboardRowActions) so the page chrome stays clean. -->
 
 		<!-- Region 4: grid surface (or empty state).
 		     The empty state branches on `allowUserDashboards`
@@ -119,7 +90,6 @@
 <script>
 import { NcButton } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
-import { showSuccess, showError } from '@nextcloud/dialogs'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
 
 import Views from './Views.vue'
@@ -129,7 +99,6 @@ import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
-import { api } from '../services/api.js'
 
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
@@ -218,13 +187,6 @@ export default {
 	data() {
 		return {
 			sidebarOpen: false,
-			// REQ-SHELL-003: true while a save PUT is in flight (disables Save button).
-			saving: false,
-			// REQ-SHELL-003: controls the Add Widget dropdown visibility.
-			showAddDropdown: false,
-			// Click handler kept on `this` so addEventListener and
-			// removeEventListener see the same function reference.
-			outsideClickHandler: null,
 		}
 	},
 
@@ -313,35 +275,6 @@ export default {
 		},
 	},
 
-	/**
-	 * REQ-SHELL-007 — register the document-level click listener after
-	 * `nextTick()` so the grid-container ref is non-null before the
-	 * listener fires.
-	 *
-	 * @spec openspec/changes/runtime-shell/tasks.md#task-7
-	 */
-	mounted() {
-		this.outsideClickHandler = (event) => {
-			this.handleClickOutside(event)
-		}
-		this.$nextTick(() => {
-			document.addEventListener('click', this.outsideClickHandler)
-		})
-	},
-
-	/**
-	 * REQ-SHELL-007 — drop the document listener and close any open
-	 * dropdown so nothing leaks across mounts.
-	 *
-	 * @spec openspec/changes/runtime-shell/tasks.md#task-7
-	 */
-	beforeDestroy() {
-		if (this.outsideClickHandler) {
-			document.removeEventListener('click', this.outsideClickHandler)
-			this.outsideClickHandler = null
-		}
-	},
-
 	methods: {
 		t,
 
@@ -353,69 +286,6 @@ export default {
 		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
 		closeSidebar() {
 			this.sidebarOpen = false
-		},
-
-		/**
-		 * Document-click handler. Closes the Add Widget dropdown when the
-		 * user clicks outside it (REQ-SHELL-003 dismiss flow).
-		 *
-		 * @param {MouseEvent} event the click event
-		 * @return {void}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-7
-		 */
-		handleClickOutside(event) {
-			if (this.showAddDropdown) {
-				const wrapper = this.$el && this.$el.querySelector('.workspace-shell__add-widget-wrapper')
-				if (wrapper && !wrapper.contains(event.target)) {
-					this.showAddDropdown = false
-				}
-			}
-		},
-
-		/**
-		 * Open the widget picker for a selected type. Delegates to the
-		 * embedded Views component so the widget-add-edit-modal capability
-		 * remains the single owner of the type → submit pipeline
-		 * (REQ-SHELL-003).
-		 *
-		 * @param {object} widget widget descriptor from the type registry
-		 * @return {void}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-4
-		 */
-		onAddWidget(widget) {
-			this.showAddDropdown = false
-			if (this.$refs.viewsRef && this.$refs.viewsRef.openCustomWidgetModal) {
-				this.$refs.viewsRef.openCustomWidgetModal(widget)
-			}
-		},
-
-		/**
-		 * Persist the current widget layout to the backend (REQ-SHELL-003,
-		 * REQ-SHELL-005). Routes the PUT by dashboardSource:
-		 * - user dashboards → `PUT /api/dashboard/{uuid}`
-		 * - group/default dashboards → `PUT /api/dashboard/{uuid}` via the
-		 *   same endpoint (admin-gated on the backend side).
-		 * Sets `saving = true` until the response resolves so the Save
-		 * button is disabled during the in-flight request.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/changes/runtime-shell/tasks.md#task-5
-		 */
-		async saveLayout() {
-			if (!this.injectedActiveDashboardId || this.saving) {
-				return
-			}
-			this.saving = true
-			try {
-				const store = useDashboardStore()
-				const layout = store.widgetPlacements || this.injectedLayout
-				await api.updateDashboard(this.injectedActiveDashboardId, { layout })
-				showSuccess(this.t('mydash', 'Layout saved'))
-			} catch (error) {
-				showError(this.t('mydash', 'Failed to save layout'))
-			} finally {
-				this.saving = false
-			}
 		},
 
 		/**

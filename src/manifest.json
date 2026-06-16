@@ -35,7 +35,8 @@
       "title": "launchpad.pages.dashboard",
       "config": {
         "widgets": "@runtime",
-        "layout": "@runtime"
+        "layout": "@runtime",
+        "documentationUrl": "https://launchpad.conduction.nl"
       }
     },
     {
@@ -47,7 +48,8 @@
         "register": null,
         "schema": null,
         "source": "mydash:oc_mydash_admin_settings",
-        "columns": ["key", "value", "scope", "updated"]
+        "columns": ["key", "value", "scope", "updated"],
+        "documentationUrl": "https://launchpad.conduction.nl"
       }
     },
     {

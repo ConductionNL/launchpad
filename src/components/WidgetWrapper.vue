@@ -1,31 +1,31 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div
-		class="mydash-widget"
+		class="launchpad-widget"
 		:data-testid="placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'"
 		:data-widget-id="placement?.widgetId"
 		:style="widgetStyles">
 		<!-- Widget header -->
-		<div v-if="showHeader" class="mydash-widget__header" :style="headerStyles">
-			<div class="mydash-widget__header-left">
+		<div v-if="showHeader" class="launchpad-widget__header" :style="headerStyles">
+			<div class="launchpad-widget__header-left">
 				<img
 					v-if="widgetIconUrl"
 					:src="widgetIconUrl"
 					:alt="widgetTitle"
-					class="mydash-widget__icon">
-				<span v-else-if="widget?.iconClass" :class="widget.iconClass" class="mydash-widget__icon" />
-				<h3 class="mydash-widget__title">
+					class="launchpad-widget__icon">
+				<span v-else-if="widget?.iconClass" :class="widget.iconClass" class="launchpad-widget__icon" />
+				<h3 class="launchpad-widget__title">
 					{{ widgetTitle }}
 				</h3>
 			</div>
-			<div v-if="editMode" class="mydash-widget__actions">
+			<div v-if="editMode" class="launchpad-widget__actions">
 				<NcButton
 					type="tertiary"
-					:aria-label="t('mydash', 'Edit widget')"
+					:aria-label="t('launchpad', 'Edit widget')"
 					data-testid="widget-edit-cog"
 					@click="$emit('edit', placement)">
 					<template #icon>
@@ -36,14 +36,14 @@
 		</div>
 
 		<!-- Widget content -->
-		<div class="mydash-widget__content">
+		<div class="launchpad-widget__content">
 			<WidgetRenderer
 				:widget="widget"
 				:placement="placement" />
 		</div>
 
 		<!-- Widget footer with buttons -->
-		<div v-if="widgetButtons.length > 0" class="mydash-widget__footer">
+		<div v-if="widgetButtons.length > 0" class="launchpad-widget__footer">
 			<NcButton
 				v-for="button in widgetButtons"
 				:key="button.link"
@@ -121,7 +121,7 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetTitle() {
-			return this.placement.customTitle || this.widget?.title || this.t('mydash', 'Widget')
+			return this.placement.customTitle || this.widget?.title || this.t('launchpad', 'Widget')
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -207,14 +207,14 @@ export default {
 </script>
 
 <style scoped>
-.mydash-widget {
+.launchpad-widget {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
 }
 
-.mydash-widget__header {
+.launchpad-widget__header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -222,20 +222,20 @@ export default {
 	flex-shrink: 0;
 }
 
-.mydash-widget__header-left {
+.launchpad-widget__header-left {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	min-width: 0;
 }
 
-.mydash-widget__icon {
+.launchpad-widget__icon {
 	width: 24px;
 	height: 24px;
 	flex-shrink: 0;
 }
 
-.mydash-widget__title {
+.launchpad-widget__title {
 	font-weight: 600;
 	font-size: 14px;
 	margin: 0;
@@ -244,19 +244,19 @@ export default {
 	text-overflow: ellipsis;
 }
 
-.mydash-widget__content {
+.launchpad-widget__content {
 	flex: 1;
 	overflow: auto;
 	min-height: 0;
 }
 
-.mydash-widget__actions {
+.launchpad-widget__actions {
 	display: flex;
 	gap: 4px;
 	flex-shrink: 0;
 }
 
-.mydash-widget__footer {
+.launchpad-widget__footer {
 	display: flex;
 	justify-content: flex-end;
 	padding: 8px 16px;

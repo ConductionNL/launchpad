@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -58,7 +58,7 @@ const VERTICAL_ALIGN_FLEX = Object.freeze({
 })
 
 /**
- * HeaderWidget — full-width banner widget for MyDash dashboards. Renders
+ * HeaderWidget — full-width banner widget for LaunchPad dashboards. Renders
  * a configurable header with title, optional subtitle, optional background
  * image (REQ-HDR-003), optional color overlay (REQ-HDR-004), and optional
  * call-to-action button (REQ-HDR-010).
@@ -378,7 +378,7 @@ export default {
 				return null
 			}
 			if (this.ctaIsExternal) {
-				return `${this.ctaLabel} (${t('mydash', 'opens in new tab')})`
+				return `${this.ctaLabel} (${t('launchpad', 'opens in new tab')})`
 			}
 			return this.ctaLabel
 		},

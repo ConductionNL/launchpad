@@ -3,7 +3,7 @@
 ## Context
 
 The `dashboard-draft-published` change adds a three-state publication workflow
-(`draft` / `published` / `scheduled`) to MyDash dashboards. Before this change,
+(`draft` / `published` / `scheduled`) to LaunchPad dashboards. Before this change,
 every dashboard was implicitly visible to its intended audience as soon as it
 existed. After the change, dashboards begin life as `draft`, are promoted to
 `published` explicitly (or scheduled for automatic promotion), and are hidden from
@@ -12,11 +12,11 @@ non-owners until published.
 The reference source implements the same concept for pages: a new index table
 (`the source app_page_index`) carries a `status` column, pages without a `status` key in
 their JSON resolve to `'published'` at index time, and new template copies are
-seeded as `'draft'`. This design.md confirms where MyDash follows that pattern
+seeded as `'draft'`. This design.md confirms where LaunchPad follows that pattern
 exactly, where it diverges intentionally (column-as-source-of-truth vs.
 JSON-plus-index-table), and what implementation traps to avoid.
 
-The MyDash spec (REQ-DASH-019 through REQ-DASH-025) was drafted after reviewing the
+The LaunchPad spec (REQ-DASH-019 through REQ-DASH-025) was drafted after reviewing the
 source. Most source choices are confirmed below. One meaningful divergence exists in
 the backfill strategy (see D1), which the spec must clarify.
 
@@ -24,9 +24,9 @@ the backfill strategy (see D1), which the spec must clarify.
 
 **Goals:**
 - Confirm the source's lazy-backfill approach (no explicit UPDATE statement) is
-  appropriate for MyDash and matches the spec's intent for REQ-DASH-025.
+  appropriate for LaunchPad and matches the spec's intent for REQ-DASH-025.
 - Pin the authoritative storage location for `publicationStatus` as a typed column
-  on `oc_mydash_dashboards`, not embedded in widgetTree JSON.
+  on `oc_launchpad_dashboards`, not embedded in widgetTree JSON.
 - Confirm template-spawned copies must default to `'draft'` (REQ-DASH-021 /
   REQ-DASH-022 area).
 - Record that scheduled-as-published resolution is a read-time contract, not a
@@ -60,7 +60,7 @@ the column default.
   status is read as `$pageData['status'] ?? 'published'`; pages without a status
   key in their JSON are treated as published at index time.
 
-**Rationale:** MyDash already has rows in `oc_mydash_dashboards` that must become
+**Rationale:** LaunchPad already has rows in `oc_launchpad_dashboards` that must become
 `'published'` after migration. Using `DEFAULT 'published'` on the migration column
 achieves exactly that in one DDL step with no risk of partial-update failures.
 Application code then overrides the default to `'draft'` for every new dashboard
@@ -88,7 +88,7 @@ MUST also receive `publicationStatus = 'draft'` before first save.
   `'draft'` via `$pageData['status'] = 'draft'` before any persistence call.
 - `the source codebase-source/lib/Service/PageService.php:2056-2057` — the service validates
   that `status` is one of `'draft'` or `'published'` at write time; `'scheduled'` is
-  a MyDash addition not present in the source.
+  a LaunchPad addition not present in the source.
 
 **Rationale:** The "create now, share later" contract (proposal.md line 26) requires
 that new content is private by default. Seeding template copies as `'draft'` rather
@@ -97,7 +97,7 @@ exposing a dashboard the admin has not yet reviewed for the target user's contex
 
 ---
 
-### D3: Status canonical home — column on `oc_mydash_dashboards`, not in widgetTree JSON
+### D3: Status canonical home — column on `oc_launchpad_dashboards`, not in widgetTree JSON
 
 **Decision:** `publicationStatus` (and `publishAt` / `publishedAt`) live as typed
 columns on the dashboards table and are the exclusive source of truth. No duplication
@@ -106,7 +106,7 @@ into widgetTree JSON is required or permitted.
 **Alternatives considered:**
 - _Status in widgetTree JSON (mirrors source's page-JSON + index-table pattern)_:
   rejected. The source duplicates status because its index table is a separate
-  read-optimised projection of a JSON document store. MyDash stores dashboards in a
+  read-optimised projection of a JSON document store. LaunchPad stores dashboards in a
   conventional relational table where a typed column is already the primary read
   path, so duplicating into JSON adds complexity with no benefit and would create
   divergence risk between the two copies.
@@ -117,7 +117,7 @@ into widgetTree JSON is required or permitted.
   a workaround for a document-store architecture.
 
 **Rationale:** A typed column enables indexed `WHERE` queries on publication status
-(required for the composite index `idx_mydash_dash_user_pubstatus` in REQ-DASH-019
+(required for the composite index `idx_launchpad_dash_user_pub` in REQ-DASH-019
 and for any future bulk-status endpoint). It also eliminates desync risk.
 
 ---
@@ -140,9 +140,9 @@ table are not misleading.
 
 ---
 
-### D5: Naming hygiene — do not name the new MyDash service `PublicationSettingsService`
+### D5: Naming hygiene — do not name the new LaunchPad service `PublicationSettingsService`
 
-**Decision:** The MyDash service that owns publish / unpublish / schedule transitions
+**Decision:** The LaunchPad service that owns publish / unpublish / schedule transitions
 MUST NOT be named `PublicationSettingsService`. Suggested names:
 `DashboardPublicationService` or `PublicationStateService`.
 
@@ -151,7 +151,7 @@ MUST NOT be named `PublicationSettingsService`. Suggested names:
   MetaVox field names used by the news-widget date-filtering import path. It has no
   connection to draft/published page state.
 
-**Rationale:** When developers cross-reference MyDash code against the source for
+**Rationale:** When developers cross-reference LaunchPad code against the source for
 implementation patterns, a class named identically to a source class in the same
 conceptual area (publication) but with completely different responsibilities would
 cause serious confusion. Using a distinct name eliminates that risk upfront.

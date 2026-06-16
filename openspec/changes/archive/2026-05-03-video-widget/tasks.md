@@ -20,7 +20,7 @@
 ## 3. Video widget provider (Dashboard API registration)
 
 - [ ] 3.1 Create `lib/Dashboard/VideoWidgetProvider.php` implementing `OCP\Dashboard\IWidget`
-- [ ] 3.2 Implement `getId(): string` returning `"mydash_video"`
+- [ ] 3.2 Implement `getId(): string` returning `"launchpad_video"`
 - [ ] 3.3 Implement `getTitle(): string` returning localized "Video" (English/Dutch via `ITranslationManager`)
 - [ ] 3.4 Implement `getOrder(): int` returning a stable sort order (e.g., 40)
 - [ ] 3.5 Implement `getIconClass(): string` returning a Material Design icon class (e.g., `"icon-video"`)
@@ -46,9 +46,9 @@
 
 ## 5. Admin settings for allowed domains and nocookie
 
-- [ ] 5.1 Create or extend app settings UI to expose `mydash.video_widget_allowed_domains` (JSON array editor)
-- [ ] 5.2 Create or extend app settings UI to expose `mydash.video_widget_use_nocookie_youtube` (boolean toggle)
-- [ ] 5.3 Set default for `mydash.video_widget_allowed_domains` to:
+- [ ] 5.1 Create or extend app settings UI to expose `launchpad.video_widget_allowed_domains` (JSON array editor)
+- [ ] 5.2 Create or extend app settings UI to expose `launchpad.video_widget_use_nocookie_youtube` (boolean toggle)
+- [ ] 5.3 Set default for `launchpad.video_widget_allowed_domains` to:
   ```json
   ["youtube.com", "www.youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
   ```
@@ -85,7 +85,7 @@
 - [ ] 7.1 Register `POST /api/widgets/video/parse` in `appinfo/routes.php` pointing to `VideoWidgetController::parse()`
 - [ ] 7.2 Register `GET /api/widgets/video/file/{fileId}` in `appinfo/routes.php` pointing to `VideoWidgetController::getFileUrl()`
 - [ ] 7.3 Both routes marked as `NoCSRFRequired`, `NoAdminRequired`
-- [ ] 7.4 Ensure routes are scoped to `/apps/mydash/` prefix for consistency
+- [ ] 7.4 Ensure routes are scoped to `/apps/launchpad/` prefix for consistency
 
 ## 8. Internationalization (i18n)
 

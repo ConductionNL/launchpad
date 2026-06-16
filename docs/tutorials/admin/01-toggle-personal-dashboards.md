@@ -6,7 +6,7 @@ description: Allow or prevent end users from creating their own personal dashboa
 
 # Enable or disable personal dashboards
 
-The `allow_user_dashboards` flag is the master kill-switch for end-user dashboard creation. When off, MyDash hides the **+ Add dashboard** button, blocks `POST /api/dashboard`, and shows users a localised explainer in the empty state.
+The `allow_user_dashboards` flag is the master kill-switch for end-user dashboard creation. When off, LaunchPad hides the **+ Add dashboard** button, blocks `POST /api/dashboard`, and shows users a localised explainer in the empty state.
 
 ## Goal
 
@@ -18,11 +18,11 @@ Toggle the flag on or off and verify the user UI reflects the change.
 
 ## Steps
 
-### 1. Open MyDash admin settings
+### 1. Open LaunchPad admin settings
 
-Settings menu (avatar) → **Administration settings** → **MyDash** in the left nav.
+Settings menu (avatar) → **Administration settings** → **LaunchPad** in the left nav.
 
-![MyDash admin settings page](/screenshots/tutorials/admin/01-admin-settings.png)
+![LaunchPad admin settings page](/screenshots/tutorials/admin/01-admin-settings.png)
 
 ### 2. Find the **Personal dashboards** section
 
@@ -32,11 +32,11 @@ The section is near the top of the page. The toggle is labelled **Allow users to
 
 ### 3. Flip the toggle
 
-The change persists immediately — no Save button. The flag is stored in `oc_mydash_admin_settings` (key `allow_user_dashboards`).
+The change persists immediately — no Save button. The flag is stored in `oc_launchpad_admin_settings` (key `allow_user_dashboards`).
 
 ### 4. Verify on the user side
 
-Open MyDash as a non-admin user.
+Open LaunchPad as a non-admin user.
 
 - **Toggle on** → **+ Add dashboard** is visible in the sidebar; the empty state shows the standard "Create your first dashboard" CTA.
 - **Toggle off** → button hidden; empty state shows "Personal dashboards are not enabled by your administrator."

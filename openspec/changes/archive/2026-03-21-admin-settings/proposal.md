@@ -1,7 +1,7 @@
 # Admin Settings Specification
 
 ## Problem
-Admin settings provide Nextcloud administrators with global configuration options for the MyDash app. These settings control system-wide behavior such as whether users can create their own dashboards, how many dashboards they can have, default permission levels for new dashboards, and default grid configuration. Settings are stored as key-value pairs in a dedicated database table and are applied as defaults or constraints across the entire MyDash installation.
+Admin settings provide Nextcloud administrators with global configuration options for the LaunchPad app. These settings control system-wide behavior such as whether users can create their own dashboards, how many dashboards they can have, default permission levels for new dashboards, and default grid configuration. Settings are stored as key-value pairs in a dedicated database table and are applied as defaults or constraints across the entire LaunchPad installation.
 
 ## Proposed Solution
 Implement Admin Settings Specification following the detailed specification. Key requirements include:

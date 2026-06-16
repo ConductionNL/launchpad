@@ -1,11 +1,11 @@
-# MyDash — Test Guide
+# LaunchPad — Test Guide
 
 > **Agentic testing (experimental)**: This guide is used by automated browser testing agents. Results are approximate and should be verified manually for critical findings.
 
 ## App Access
 
-- **App URL**: `http://localhost:8080/index.php/apps/mydash`
-- **Admin Settings**: `http://localhost:8080/settings/admin/mydash`
+- **App URL**: `http://localhost:8080/index.php/apps/launchpad`
+- **Admin Settings**: `http://localhost:8080/settings/admin/launchpad`
 - **Login**: admin / admin
 
 ## What to Test
@@ -32,11 +32,11 @@ Read the feature documentation:
 
 ### Navigation Structure
 
-MyDash is a full-screen dashboard app with NO sidebar navigation. Controls are floating in the top-right:
+LaunchPad is a full-screen dashboard app with NO sidebar navigation. Controls are floating in the top-right:
 - **Dashboard Switcher** (dropdown, only when 2+ dashboards)
 - **Customize** (gear icon → toggles edit mode)
 - **Add** (plus icon, only in edit mode → opens widget picker)
-- **Documentation** (book icon → opens mydash.app)
+- **Documentation** (book icon → opens launchpad.app)
 
 ### Testing Flow
 
@@ -53,7 +53,7 @@ MyDash is a full-screen dashboard app with NO sidebar navigation. Controls are f
 
 ### Admin Settings Testing
 
-1. Navigate to `/settings/admin/mydash`
+1. Navigate to `/settings/admin/launchpad`
 2. **Default permission**: Change dropdown (View only / Add only / Full)
 3. **Allow user dashboards**: Toggle checkbox
 4. **Allow multiple dashboards**: Toggle checkbox
@@ -68,7 +68,7 @@ MyDash is a full-screen dashboard app with NO sidebar navigation. Controls are f
 - **Tile editor**: Modal with live preview, icon selector, color pickers, link configuration
 - **Style editor**: Modal for widget title, background color, icon
 - **Dashboard switcher**: Dropdown select to switch between dashboards
-- **Documentation button**: Opens mydash.app in new tab
+- **Documentation button**: Opens launchpad.app in new tab
 
 ## What NOT to Test
 

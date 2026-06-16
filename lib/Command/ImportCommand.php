@@ -3,27 +3,27 @@
 /**
  * ImportCommand
  *
- * `php occ mydash:import` — restore dashboards from a versioned ZIP
+ * `php occ launchpad:import` — restore dashboards from a versioned ZIP
  * archive on disk. Implements REQ-EXIM-010.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
 use InvalidArgumentException;
-use OCA\MyDash\Service\ImportService;
+use OCA\LaunchPad\Service\ImportService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 /**
- * `mydash:import` console command.
+ * `launchpad:import` console command.
  */
 class ImportCommand extends Command
 {
@@ -55,8 +55,8 @@ class ImportCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:import')
-            ->setDescription(description: 'Import MyDash dashboards from a versioned ZIP archive.')
+        $this->setName(name: 'launchpad:import')
+            ->setDescription(description: 'Import LaunchPad dashboards from a versioned ZIP archive.')
             ->addOption(
                 name: 'file',
                 shortcut: 'f',

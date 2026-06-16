@@ -8,12 +8,12 @@
  * (REQ-ROLE-001..011).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,12 +21,12 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\RoleAssignment;
-use OCA\MyDash\Db\RoleAssignmentMapper;
-use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
-use OCA\MyDash\Exception\InvalidRoleAssignmentException;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\RoleService;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\RoleAssignmentMapper;
+use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
+use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;

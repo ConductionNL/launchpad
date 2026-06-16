@@ -1,11 +1,11 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# MyDash end-to-end tests (Playwright)
+# LaunchPad end-to-end tests (Playwright)
 
-This directory holds the spec-derived Playwright suite for the mydash app.
+This directory holds the spec-derived Playwright suite for the launchpad app.
 Each `*.spec.ts` file maps to a single OpenSpec change in
 `openspec/changes/<change>/` — the comment header at the top of every spec
 records which `REQ-*` requirements it covers.
@@ -35,7 +35,7 @@ npm run test:e2e:headed
 | `NC_ADMIN_USER`   | `admin`                  | An admin account that can install widgets and create dashboards.       |
 | `NC_ADMIN_PASS`   | `admin`                  | Password for `NC_ADMIN_USER`.                                          |
 
-The mydash app must be installed and enabled in the target instance.
+The launchpad app must be installed and enabled in the target instance.
 The mounted source must match the branch under test — see the next
 section for why.
 
@@ -53,7 +53,7 @@ section for why.
 
 `playwright.config.ts` then sets `use.storageState` to that file so every
 spec inherits the authenticated session and starts directly inside the
-mydash app via `page.goto('/index.php/apps/mydash')`.
+launchpad app via `page.goto('/index.php/apps/launchpad')`.
 
 `tests/e2e/.auth/` is `.gitignore`d — never commit harvested sessions.
 
@@ -99,16 +99,16 @@ prerequisite, not by spec defects.**
 Every failure traces to the same 500 from `PageController::index()`:
 
 ```
-Class "OCA\MyDash\Service\InitialStateBuilder" not found in
-'/var/www/html/custom_apps/mydash/lib/Controller/PageController.php' line 185
+Class "OCA\LaunchPad\Service\InitialStateBuilder" not found in
+'/var/www/html/custom_apps/launchpad/lib/Controller/PageController.php' line 185
 ```
 
 `InitialStateBuilder` was added by the `initial-state-contract` change
-(merged into `development` via PR #99 commit `dd574c7`). The mydash
+(merged into `development` via PR #99 commit `dd574c7`). The launchpad
 mount in the running container points at the original submodule, which
 is on `feature/replica-spec-proposals` — a branch that **predates** the
 contract introduction. Until the running app sources match the branch
-under test, every spec fails at `page.goto('/index.php/apps/mydash')`
+under test, every spec fails at `page.goto('/index.php/apps/launchpad')`
 because the app itself returns a 500 to authenticated requests.
 
 ### To unblock
@@ -117,14 +117,14 @@ Either:
 
 1. **Switch the mount to `development`** (recommended for CI):
    ```bash
-   cd /home/.../apps-extra/mydash
+   cd /home/.../apps-extra/launchpad
    git checkout development     # carefully — other agents may be on this submodule
    docker exec nextcloud apache2ctl graceful   # clear OPcache
    ```
 
 2. **Run against this worktree directly** by mounting it instead:
    adjust `.github/docker-compose.yml` to bind
-   `/tmp/worktrees/mydash-playwright-wiring` → `/var/www/html/custom_apps/mydash`,
+   `/tmp/worktrees/launchpad-playwright-wiring` → `/var/www/html/custom_apps/launchpad`,
    then restart the container.
 
 The user explicitly asked the wiring task NOT to mutate other working
@@ -144,7 +144,7 @@ likely produce:
   helper. Note the upload case relies on `tests/e2e/fixtures/tiny.png`
   which is created in this PR.
 - **`text-display-widget` (3 cases)** — the third case (`REQ-TXT-003`,
-  empty placeholder) calls `POST /apps/mydash/api/widget-placements` from
+  empty placeholder) calls `POST /apps/launchpad/api/widget-placements` from
   the page context; that endpoint requires CSRF + a writeable dashboard.
   Likely needs a fixture for "default dashboard exists" — flag if it
   fails.

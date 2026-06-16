@@ -7,7 +7,7 @@
  * (conditional-visibility spec).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -17,15 +17,15 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\ConditionalRule;
-use OCA\MyDash\Db\ConditionalRuleMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\ConditionalService;
-use OCA\MyDash\Service\RuleEvaluatorService;
-use OCA\MyDash\Service\VisibilityChecker;
+use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Db\ConditionalRuleMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Service\RuleEvaluatorService;
+use OCA\LaunchPad\Service\VisibilityChecker;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 

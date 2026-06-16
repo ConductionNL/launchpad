@@ -7,7 +7,7 @@ parameters:
     excludePaths:
         - vendor
         - vendor-bin
-        # Apps that ship a verbatim template snapshot under lib/Resources/template/ (e.g. openbuilt).
+        # Apps that ship a verbatim template snapshot under lib/Resources/template/ (e.g. openbuild).
         - lib/Resources/template
     scanDirectories:
         - vendor/nextcloud/ocp
@@ -47,9 +47,6 @@ parameters:
         # Doctrine\DBAL types used in migration table-builder helpers are valid at runtime
         # but PHPStan cannot verify them without the Doctrine stubs available here.
         - '#has invalid type Doctrine\\DBAL\\#'
-        # AuthorizedAdminSetting accepts a plain app-id string at runtime; OCP stub
-        # types it as class-string<IDelegatedSettings> which is overly narrow.
-        - '#Parameter \#1 \$settings of attribute class OCP\\AppFramework\\Http\\Attribute\\AuthorizedAdminSetting constructor expects class-string<OCP\\Settings\\IDelegatedSettings>, string given\.#'
         # DataResponse constructor accepts plain array at runtime; OCP stub types
         # it with a generic bound that PHPStan cannot satisfy when passing array directly.
         - '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor expects#'

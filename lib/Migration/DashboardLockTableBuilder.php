@@ -3,24 +3,24 @@
 /**
  * DashboardLockTableBuilder
  *
- * Builder for the `mydash_dashboard_locks` database table schema. Owns
+ * Builder for the `launchpad_dashboard_locks` database table schema. Owns
  * the column set, primary key and indexes required by REQ-LOCK-001..008.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -31,7 +31,7 @@ use OCP\DB\Types;
 class DashboardLockTableBuilder
 {
     /**
-     * Create the mydash_dashboard_locks table.
+     * Create the launchpad_dashboard_locks table.
      *
      * Schema follows the `dashboard-locking` design (D1, D2):
      *  - `dashboard_uuid` UNIQUE — enforces atomically that only one
@@ -50,11 +50,11 @@ class DashboardLockTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_dashboard_locks') === true) {
+        if ($schema->hasTable('launchpad_dashboard_locks') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_dashboard_locks');
+        $table = $schema->createTable('launchpad_dashboard_locks');
 
         $table->addColumn(
             'id',
@@ -103,15 +103,15 @@ class DashboardLockTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['dashboard_uuid'],
-            'mydash_lock_dash_unique'
+            'launchpad_lock_dash_unique'
         );
         $table->addIndex(
             ['user_id'],
-            'mydash_lock_user_idx'
+            'launchpad_lock_user_idx'
         );
         $table->addIndex(
             ['updated_at'],
-            'mydash_lock_updated_idx'
+            'launchpad_lock_updated_idx'
         );
     }//end create()
 }//end class

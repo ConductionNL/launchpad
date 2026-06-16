@@ -6,7 +6,7 @@
  * Service for checking widget visibility based on conditional rules.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,9 +16,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Db\ConditionalRule;
+use OCA\LaunchPad\Db\ConditionalRule;
 
 /**
  * Service for checking widget visibility based on conditional rules.
@@ -46,7 +46,7 @@ class VisibilityChecker
      *
      * @return bool Whether the widget should be visible.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-13
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-13
      */
     public function checkRules(array $rules, string $userId): bool
     {

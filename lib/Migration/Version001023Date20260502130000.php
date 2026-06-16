@@ -3,7 +3,7 @@
 /**
  * Version001023Date20260502130000
  *
- * Migration that creates the `oc_mydash_feed_cache` table backing the
+ * Migration that creates the `oc_launchpad_feed_cache` table backing the
  * background-job feed-refresh capability (REQ-FRJ-001..012). One row per
  * distinct external feed URL (`UNIQUE(feed_url)`) holding the conditional
  * GET headers, fetch metadata, and the cached normalised items as JSON.
@@ -13,20 +13,20 @@
  * news widget will fall back to its on-demand fetch path.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;

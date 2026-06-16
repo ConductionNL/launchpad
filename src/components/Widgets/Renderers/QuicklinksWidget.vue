@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -12,12 +12,12 @@
 			<button
 				type="button"
 				class="quicklinks-widget__empty-button"
-				:aria-label="t('mydash', 'Open Quicklinks settings')"
+				:aria-label="t('launchpad', 'Open Quicklinks settings')"
 				@click.stop="onEmptyClick">
 				<IconRenderer name="Cog" :size="32" />
 			</button>
 			<p class="quicklinks-widget__empty-text">
-				{{ t('mydash', 'No quicklinks yet — click the gear icon to add some.') }}
+				{{ t('launchpad', 'No quicklinks yet — click the gear icon to add some.') }}
 			</p>
 		</div>
 		<ul v-else class="quicklinks-widget__list" :style="listStyle">
@@ -227,8 +227,8 @@ export default {
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		rootStyle() {
 			return {
-				'--mydash-quicklinks-icon-size': `${this.iconPx}px`,
-				'--mydash-quicklinks-icon-radius': this.iconRadius,
+				'--launchpad-quicklinks-icon-size': `${this.iconPx}px`,
+				'--launchpad-quicklinks-icon-radius': this.iconRadius,
 			}
 		},
 
@@ -317,9 +317,9 @@ export default {
 			}
 			const host = this.extractHostname(url)
 			if (host !== '') {
-				return `${t('mydash', 'Link to')} ${host}`
+				return `${t('launchpad', 'Link to')} ${host}`
 			}
-			return label !== '' ? label : t('mydash', 'Link')
+			return label !== '' ? label : t('launchpad', 'Link')
 		},
 
 		/** @spec openspec/specs/quicklinks-widget/spec.md */

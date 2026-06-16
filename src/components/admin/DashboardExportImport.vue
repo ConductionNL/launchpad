@@ -1,18 +1,18 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
-	<div class="mydash-export-import">
-		<h3>{{ t('mydash', 'Backup, restore & migrate dashboards') }}</h3>
+	<div class="launchpad-export-import">
+		<h3>{{ t('launchpad', 'Backup, restore & migrate dashboards') }}</h3>
 
-		<p class="mydash-export-import__hint">
-			{{ t('mydash', 'Download a versioned ZIP archive of all dashboards in this MyDash instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.') }}
+		<p class="launchpad-export-import__hint">
+			{{ t('launchpad', 'Download a versioned ZIP archive of all dashboards in this LaunchPad instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.') }}
 		</p>
 
 		<!-- Export controls -->
-		<div class="mydash-export-import__row">
+		<div class="launchpad-export-import__row">
 			<NcButton
 				type="primary"
 				:disabled="exporting"
@@ -21,22 +21,22 @@
 				<template #icon>
 					<Download :size="20" />
 				</template>
-				{{ exporting ? t('mydash', 'Exporting…') : t('mydash', 'Download all dashboards') }}
+				{{ exporting ? t('launchpad', 'Exporting…') : t('launchpad', 'Download all dashboards') }}
 			</NcButton>
-			<span v-if="exportError" class="mydash-export-import__error">
+			<span v-if="exportError" class="launchpad-export-import__error">
 				{{ exportError }}
 			</span>
 		</div>
 
-		<hr class="mydash-export-import__divider">
+		<hr class="launchpad-export-import__divider">
 
 		<!-- Import controls -->
-		<div class="mydash-export-import__row mydash-export-import__row--column">
-			<label for="mydash-import-file" class="mydash-export-import__label">
-				{{ t('mydash', 'Import a dashboard archive (.zip)') }}
+		<div class="launchpad-export-import__row launchpad-export-import__row--column">
+			<label for="launchpad-import-file" class="launchpad-export-import__label">
+				{{ t('launchpad', 'Import a dashboard archive (.zip)') }}
 			</label>
 			<input
-				id="mydash-import-file"
+				id="launchpad-import-file"
 				ref="fileInput"
 				type="file"
 				accept=".zip,application/zip"
@@ -46,7 +46,7 @@
 			<NcCheckboxRadioSwitch
 				:checked="preserveUuids"
 				@update:checked="preserveUuids = $event">
-				{{ t('mydash', 'Preserve original dashboard UUIDs (fail on collision)') }}
+				{{ t('launchpad', 'Preserve original dashboard UUIDs (fail on collision)') }}
 			</NcCheckboxRadioSwitch>
 
 			<NcButton
@@ -57,12 +57,12 @@
 				<template #icon>
 					<Upload :size="20" />
 				</template>
-				{{ importing ? t('mydash', 'Importing…') : t('mydash', 'Upload archive') }}
+				{{ importing ? t('launchpad', 'Importing…') : t('launchpad', 'Upload archive') }}
 			</NcButton>
 
-			<div v-if="importResult" class="mydash-export-import__result">
+			<div v-if="importResult" class="launchpad-export-import__result">
 				<p>
-					{{ t('mydash', 'Imported {imported} dashboards, skipped {skipped}.', {
+					{{ t('launchpad', 'Imported {imported} dashboards, skipped {skipped}.', {
 						imported: importResult.importedDashboardCount,
 						skipped: importResult.skippedDashboardCount,
 					}) }}
@@ -74,7 +74,7 @@
 				</ul>
 			</div>
 
-			<span v-if="importError" class="mydash-export-import__error">
+			<span v-if="importError" class="launchpad-export-import__error">
 				{{ importError }}
 			</span>
 		</div>
@@ -118,9 +118,9 @@ export default {
 				const response = await api.exportDashboards({ scope: 'site' })
 				this.downloadBlob(response.data, this.suggestedFilename())
 			} catch (err) {
-				this.exportError = this.t('mydash', 'Export failed. Please try again.')
+				this.exportError = this.t('launchpad', 'Export failed. Please try again.')
 				// eslint-disable-next-line no-console
-				console.error('mydash export failed', err)
+				console.error('launchpad export failed', err)
 			} finally {
 				this.exporting = false
 			}
@@ -150,10 +150,10 @@ export default {
 				if (data && Array.isArray(data.errors)) {
 					this.importResult = data
 				} else {
-					this.importError = this.t('mydash', 'Import failed. Please try again.')
+					this.importError = this.t('launchpad', 'Import failed. Please try again.')
 				}
 				// eslint-disable-next-line no-console
-				console.error('mydash import failed', err)
+				console.error('launchpad import failed', err)
 			} finally {
 				this.importing = false
 			}
@@ -174,14 +174,14 @@ export default {
 		/** @spec openspec/specs/dashboard-export-import/spec.md */
 		suggestedFilename() {
 			const stamp = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14)
-			return `mydash-export-${stamp}.zip`
+			return `launchpad-export-${stamp}.zip`
 		},
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-.mydash-export-import {
+.launchpad-export-import {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;

@@ -9,12 +9,12 @@
  * spec change.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Exception
+ * @package   OCA\LaunchPad\Tests\Unit\Exception
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Exception;
 
-use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use PHPUnit\Framework\TestCase;
 
 /**

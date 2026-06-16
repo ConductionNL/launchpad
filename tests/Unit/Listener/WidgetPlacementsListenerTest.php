@@ -8,12 +8,12 @@
  * ignores foreign event types without throwing.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Listener
+ * @package   OCA\LaunchPad\Tests\Unit\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,9 +22,9 @@ declare(strict_types=1);
 namespace Unit\Listener;
 
 use DateTimeImmutable;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Listener\WidgetPlacementsListener;
 use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

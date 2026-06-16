@@ -2,8 +2,8 @@
 
 ## 1. Backend domain model
 
-- [ ] 1.1 Add global IAppConfig setting `mydash.org_navigation_tree` (JSON string, type `mixed`)
-- [ ] 1.2 Add global IAppConfig setting `mydash.org_navigation_position` (JSON string, default `'hidden'`)
+- [ ] 1.1 Add global IAppConfig setting `launchpad.org_navigation_tree` (JSON string, type `mixed`)
+- [ ] 1.2 Add global IAppConfig setting `launchpad.org_navigation_position` (JSON string, default `'hidden'`)
 - [ ] 1.3 Create `OrgNavigationService` class with methods:
   - `getTree(): array` — return parsed tree from setting (or empty array if not set)
   - `setTree(array $tree): void` — validate and persist tree to setting
@@ -94,7 +94,7 @@
 - [ ] 7.3 Drawer close button (X or back arrow) closes drawer
 - [ ] 7.4 Clicking a tree node in drawer auto-closes drawer and navigates
 - [ ] 7.5 In `src/App.vue`, mount `OrgNavigationPanel` as conditional rail:
-  - Fetch `mydash.org_navigation_position` from store (or query backend)
+  - Fetch `launchpad.org_navigation_position` from store (or query backend)
   - If position = 'hidden', render nothing
   - If position = 'left', render panel in left column (flex order or CSS grid placement)
   - If position = 'right', render panel in right column
@@ -133,14 +133,14 @@
 ## 9. Backend position setting
 
 - [ ] 9.1 In admin editor, add a "Position" dropdown/tab set with options: Left, Right, Top, Hidden
-- [ ] 9.2 On change, call a new endpoint or store method to update `mydash.org_navigation_position`
+- [ ] 9.2 On change, call a new endpoint or store method to update `launchpad.org_navigation_position`
 - [ ] 9.3 Endpoint: `PUT /api/admin/org-navigation/position` (admin-only) — accept JSON `{ "position": "left"|"right"|"top"|"hidden" }`, validate, persist
 - [ ] 9.4 Add PHPUnit test: admin can change position
 - [ ] 9.5 Add PHPUnit test: position defaults to 'hidden'
 
 ## 10. Frontend position integration
 
-- [ ] 10.1 In `src/App.vue`, fetch `mydash.org_navigation_position` from backend on app init or from store
+- [ ] 10.1 In `src/App.vue`, fetch `launchpad.org_navigation_position` from backend on app init or from store
 - [ ] 10.2 Pass position as prop to `OrgNavigationPanel` or use it in conditional layout logic
 - [ ] 10.3 Re-render panel position when setting changes (e.g., after admin saves new position)
 - [ ] 10.4 Test: changing position in admin editor updates panel position in real-time (with page refresh or reactive store)
@@ -197,7 +197,7 @@
 - [ ] 15.6 User clicks a link in the panel, verifies navigation to the correct URL
 - [ ] 15.7 Mobile viewport: hamburger button is visible, clicking opens drawer, selecting a link closes drawer
 - [ ] 15.8 Admin drags a node to reorder, saves, verifies order persists after reload
-- [ ] 15.9 Active item detection: user navigates to `/apps/mydash/dashboards/sales`, verifies the matching node is highlighted
+- [ ] 15.9 Active item detection: user navigates to `/apps/launchpad/dashboards/sales`, verifies the matching node is highlighted
 - [ ] 15.10 Admin deletes a node, saves, verifies it no longer appears
 
 ## 16. Quality gates
@@ -217,5 +217,5 @@
 - [ ] 17.1 Update or create admin documentation explaining how to configure org navigation
 - [ ] 17.2 Add a note in the changelog: "Added organization-wide navigation editor for admin-curated tree of links and sections with group visibility support"
 - [ ] 17.3 Document the API endpoints: `GET /api/admin/org-navigation`, `PUT /api/admin/org-navigation`
-- [ ] 17.4 Document the global settings: `mydash.org_navigation_tree`, `mydash.org_navigation_position`
+- [ ] 17.4 Document the global settings: `launchpad.org_navigation_tree`, `launchpad.org_navigation_position`
 - [ ] 17.5 Add screenshot or animation to docs showing the admin editor UI and the rendered panel

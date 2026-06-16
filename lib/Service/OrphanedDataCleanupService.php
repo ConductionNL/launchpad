@@ -23,24 +23,24 @@
  * and audit policies stay consistent.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\CleanupResult;
-use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCP\Activity\Exceptions\IncompleteActivityException;
 use OCP\Activity\IManager as IActivityManager;
 use OCP\ICache;
@@ -80,14 +80,14 @@ class OrphanedDataCleanupService
      *
      * @var string
      */
-    public const CACHE_KEY_SCAN = 'mydash.cleanup.scan';
+    public const CACHE_KEY_SCAN = 'launchpad.cleanup.scan';
 
     /**
      * Activity event type emitted on every real (non-dry-run) purge.
      *
      * @var string
      */
-    public const ACTIVITY_TYPE = 'mydash_cleanup_purge';
+    public const ACTIVITY_TYPE = 'launchpad_cleanup_purge';
 
     /**
      * Cache instance, lazily resolved via {@see ICacheFactory}.
@@ -275,7 +275,7 @@ class OrphanedDataCleanupService
 
             $this->logger->info(
                 message: sprintf(
-                    'mydash.cleanup.purge source=%s user=%s rows=%d duration_ms=%d categories=%s',
+                    'launchpad.cleanup.purge source=%s user=%s rows=%d duration_ms=%d categories=%s',
                     $source,
                     ($userId ?? 'system'),
                     $result->getTotalRows(),
@@ -386,7 +386,7 @@ class OrphanedDataCleanupService
     {
         if ($this->cache === null) {
             $this->cache = $this->cacheFactory->createDistributed(
-                prefix: 'mydash_cleanup'
+                prefix: 'launchpad_cleanup'
             );
         }
 
@@ -418,7 +418,7 @@ class OrphanedDataCleanupService
                 ->setAffectedUser(affectedUser: ($userId ?? ''))
                 ->setAuthor(author: ($userId ?? ''))
                 ->setSubject(
-                    subject: 'mydash_cleanup_purge',
+                    subject: 'launchpad_cleanup_purge',
                     parameters: [
                         'totalRows'  => $result->getTotalRows(),
                         'byCategory' => $result->getByCategory(),
@@ -427,7 +427,7 @@ class OrphanedDataCleanupService
                     ]
                 )
                 ->setObject(
-                    objectType: 'mydash_cleanup',
+                    objectType: 'launchpad_cleanup',
                     objectId: 0,
                     objectName: $source
                 );
@@ -436,14 +436,14 @@ class OrphanedDataCleanupService
         } catch (IncompleteActivityException $e) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash.cleanup.activity_emit_failed: %s',
+                    'launchpad.cleanup.activity_emit_failed: %s',
                     $e->getMessage()
                 )
             );
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash.cleanup.activity_emit_threw: %s',
+                    'launchpad.cleanup.activity_emit_threw: %s',
                     $t->getMessage()
                 )
             );

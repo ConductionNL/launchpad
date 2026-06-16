@@ -63,7 +63,7 @@ Existing placements are untouched. The `inputMode` field defaults to `'html'` so
 **Rationale**: Parsing and editing are separate concerns. The parser can produce tables even before the editor UX exists; authors can hand-write markdown table syntax in the textarea.
 
 ### D7: Admin default for new widgets
-**Decision**: An admin setting `mydash.text_widget_default_mode` (`'html'` or `'markdown'`, default `'markdown'`) controls which mode is pre-selected when a new text widget is added.
+**Decision**: An admin setting `launchpad.text_widget_default_mode` (`'html'` or `'markdown'`, default `'markdown'`) controls which mode is pre-selected when a new text widget is added.
 **Alternatives considered**:
 - Hard-code the default to `'markdown'` — rejected: organisations already using markdown-aware tools may want `'html'` as the default.
 **Rationale**: Gives administrators control without exposing per-user preferences.

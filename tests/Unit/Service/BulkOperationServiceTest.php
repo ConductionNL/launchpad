@@ -9,12 +9,12 @@
  * envelope shape (delete / move / status / reindex).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,15 +23,15 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Activity\ActivityPublisher;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\DashboardHasChildrenException;
-use OCA\MyDash\Service\BulkOperationService;
-use OCA\MyDash\Service\DashboardTreeService;
-use OCA\MyDash\Service\PermissionDeniedException;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\PermissionDeniedException;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
 use OCP\IGroupManager;

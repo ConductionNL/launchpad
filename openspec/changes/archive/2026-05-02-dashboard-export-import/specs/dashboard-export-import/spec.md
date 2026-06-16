@@ -8,16 +8,16 @@ status: draft
 
 ## Purpose
 
-Dashboard export and import allow MyDash administrators to create versioned snapshots of dashboard configurations, widgets, metadata fields, and associated assets. Snapshots are portable across Nextcloud instances, enabling backup, disaster recovery, template authoring, and cross-instance sharing. This capability defines a standardized ZIP container format, collision handling semantics, and API/CLI endpoints for end-to-end export-import workflows.
+Dashboard export and import allow LaunchPad administrators to create versioned snapshots of dashboard configurations, widgets, metadata fields, and associated assets. Snapshots are portable across Nextcloud instances, enabling backup, disaster recovery, template authoring, and cross-instance sharing. This capability defines a standardized ZIP container format, collision handling semantics, and API/CLI endpoints for end-to-end export-import workflows.
 
 ## Data Model
 
-### ZIP Container Format: `mydash-export-v1.zip`
+### ZIP Container Format: `launchpad-export-v1.zip`
 
 The export container is a ZIP archive with the following structure:
 
 ```
-mydash-export-v1.zip
+launchpad-export-v1.zip
 ├── manifest.json
 ├── dashboards/
 │   ├── <uuid-1>.json
@@ -44,7 +44,7 @@ mydash-export-v1.zip
   "schemaVersion": 1,
   "exportedAt": "2026-05-01T14:32:00Z",
   "exportedBy": "admin",
-  "mydashVersion": "1.0.0",
+  "launchpadVersion": "1.0.0",
   "scope": "site",
   "dashboardCount": 42,
   "includedAssets": ["icons", "widgetUploads", "metadataFields"]
@@ -55,7 +55,7 @@ mydash-export-v1.zip
 - `schemaVersion` (integer): Currently `1`. Required for forward compatibility and migration planning.
 - `exportedAt` (ISO 8601 string): UTC timestamp of export creation.
 - `exportedBy` (string): Nextcloud user ID of the exporting admin.
-- `mydashVersion` (string): MyDash app version at time of export (informational, not enforced on import).
+- `launchpadVersion` (string): LaunchPad app version at time of export (informational, not enforced on import).
 - `scope` (string): Either `"dashboard"` (single dashboard) or `"site"` (all dashboards in instance).
 - `dashboardCount` (integer): Number of dashboards included.
 - `includedAssets` (array of strings): Types of assets packaged (`"icons"`, `"widgetUploads"`, `"metadataFields"`). Informs importer what to expect.
@@ -212,10 +212,10 @@ An admin MUST be able to export all dashboards in the instance in a single opera
 
 ### Requirement: REQ-EXIM-004 Import Endpoint
 
-An admin MUST be able to import a previously exported ZIP archive into the same or a different MyDash instance. The import process MUST validate the ZIP structure, create or update dashboards, handle collisions, and return a summary of imported/skipped records.
+An admin MUST be able to import a previously exported ZIP archive into the same or a different LaunchPad instance. The import process MUST validate the ZIP structure, create or update dashboards, handle collisions, and return a summary of imported/skipped records.
 
 #### Scenario: Import valid ZIP creates new dashboards
-- GIVEN a valid `mydash-export-v1.zip` with 3 dashboards
+- GIVEN a valid `launchpad-export-v1.zip` with 3 dashboards
 - WHEN an admin calls `POST /api/admin/import` with the ZIP file (multipart/form-data, file field)
 - THEN the system MUST return HTTP 200 with JSON response:
   ```json
@@ -396,12 +396,12 @@ The import process MUST validate the ZIP structure, manifest schema, and per-das
 The export format MUST support forward-compatible versioning. Only `schemaVersion: 1` is implemented now; the spec MUST document migration semantics for future versions.
 
 #### Scenario: Current version is schemaVersion 1
-- GIVEN an export created by the current MyDash version
+- GIVEN an export created by the current LaunchPad version
 - WHEN the export ZIP is generated
 - THEN the manifest MUST contain `schemaVersion: 1`
 
 #### Scenario: Version 2 migration path documented
-- GIVEN that a future version of MyDash might export `schemaVersion: 2`
+- GIVEN that a future version of LaunchPad might export `schemaVersion: 2`
 - WHEN the specification is updated
 - THEN the migration process MUST be documented in a future ADR or spec change (e.g., `ADR-XXX: Dashboard Export Schema v2`)
 - AND the importer MUST refuse `schemaVersion: 2` on v1-only instances with HTTP 400
@@ -412,40 +412,40 @@ The export format MUST support forward-compatible versioning. Only `schemaVersio
 - WHEN an unsupported `schemaVersion: 2` ZIP is encountered
 - THEN the import MUST fail cleanly (HTTP 400)
 - AND the instance database MUST remain unchanged
-- AND the user MUST be instructed to upgrade MyDash if they need to import v2 archives
+- AND the user MUST be instructed to upgrade LaunchPad if they need to import v2 archives
 
 ### Requirement: REQ-EXIM-010 CLI Commands for Export and Import
 
 Administrators MUST be able to export and import dashboards via command-line interface for automation, backup scripting, and disaster recovery workflows.
 
 #### Scenario: Export all dashboards via CLI
-- GIVEN an admin runs `php occ mydash:export --scope=site --output=/tmp/mydash-backup.zip`
-- THEN the command MUST create a ZIP archive at `/tmp/mydash-backup.zip`
-- AND the command output MUST display: `"Exported N dashboards to /tmp/mydash-backup.zip"`
+- GIVEN an admin runs `php occ launchpad:export --scope=site --output=/tmp/launchpad-backup.zip`
+- THEN the command MUST create a ZIP archive at `/tmp/launchpad-backup.zip`
+- AND the command output MUST display: `"Exported N dashboards to /tmp/launchpad-backup.zip"`
 - AND the command exit code MUST be `0` (success)
 
 #### Scenario: Export single dashboard via CLI
-- GIVEN an admin runs `php occ mydash:export --scope=dashboard --dashboard-uuid=<uuid> --output=/tmp/single-dashboard.zip`
+- GIVEN an admin runs `php occ launchpad:export --scope=dashboard --dashboard-uuid=<uuid> --output=/tmp/single-dashboard.zip`
 - THEN the command MUST create a ZIP with that single dashboard
 - AND the output MUST display: `"Exported 1 dashboard to /tmp/single-dashboard.zip"`
 
 #### Scenario: CLI export missing required parameters
-- GIVEN an admin runs `php occ mydash:export --scope=site` (missing --output)
+- GIVEN an admin runs `php occ launchpad:export --scope=site` (missing --output)
 - THEN the command MUST return exit code `1` (error)
 - AND the command output MUST display: `"--output parameter is required"`
 
 #### Scenario: Import via CLI with default settings
-- GIVEN an admin runs `php occ mydash:import --file=/tmp/mydash-backup.zip`
+- GIVEN an admin runs `php occ launchpad:import --file=/tmp/launchpad-backup.zip`
 - THEN the command MUST import the ZIP with `preserveUuids=false` (default)
 - AND the output MUST display: `"Imported N dashboards, skipped M, errors: E"`
 
 #### Scenario: Import via CLI with UUID preservation
-- GIVEN an admin runs `php occ mydash:import --file=/tmp/mydash-backup.zip --preserve-uuids`
+- GIVEN an admin runs `php occ launchpad:import --file=/tmp/launchpad-backup.zip --preserve-uuids`
 - THEN the command MUST import with `preserveUuids=true`
 - AND if collisions are detected, the output MUST list them: `"UUID collision: abc-123. Use --no-preserve-uuids to assign new UUIDs."`
 
 #### Scenario: CLI import file not found
-- GIVEN an admin runs `php occ mydash:import --file=/nonexistent/file.zip`
+- GIVEN an admin runs `php occ launchpad:import --file=/nonexistent/file.zip`
 - THEN the command MUST return exit code `1`
 - AND the output MUST display: `"File not found: /nonexistent/file.zip"`
 
@@ -487,7 +487,7 @@ Each dashboard import MUST be wrapped in a database transaction to ensure consis
 - **Security**: Export/import endpoints MUST require Nextcloud admin (`IGroupManager::isAdmin()`) authentication. ZIP parsing MUST validate paths to prevent directory traversal attacks (e.g., `../../../etc/passwd`).
 - **Atomicity**: Each dashboard import MUST be transaction-wrapped. Partial failure of one dashboard MUST NOT affect others in the batch.
 - **Validation**: Manifest schema MUST be validated before any database mutations. Per-dashboard JSON MUST be validated; invalid records skipped and reported.
-- **Compatibility**: Only `schemaVersion: 1` supported on v1.x of MyDash. Future versions MUST provide migration tooling for schema updates.
+- **Compatibility**: Only `schemaVersion: 1` supported on v1.x of LaunchPad. Future versions MUST provide migration tooling for schema updates.
 - **Localization**: All error messages MUST be translatable and support English and Dutch per i18n requirements.
 
 ## Standards & References

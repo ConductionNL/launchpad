@@ -4,7 +4,7 @@
 
 The `navigation-editor-org` spec (REQ-ONAV-001 through REQ-ONAV-012) was drafted assuming that
 the org-wide navigation tree would be stored as a single JSON blob in a Nextcloud app config key
-(`mydash.org_navigation_tree`, max 64 KB). This design document resolves that open question by
+(`launchpad.org_navigation_tree`, max 64 KB). This design document resolves that open question by
 examining how the reference intranet product actually stores and serves its navigation tree.
 
 ## Goals / Non-Goals
@@ -41,11 +41,11 @@ inside a dedicated GroupFolder path, one file per language. Do **not** use a mon
   that do exist (`the source app_lms_tokens` from Version001200, `the source app_page_index` from Version001300)
   serve OAuth tokens and a page-metadata search index, respectively.
 
-**Implication for MyDash:** The spec's `mydash.org_navigation_tree` Nextcloud app-config key and
+**Implication for LaunchPad:** The spec's `launchpad.org_navigation_tree` Nextcloud app-config key and
 64 KB cap are **wrong**. A file-based approach inside a dedicated Nextcloud GroupFolder (or an
 equivalent user-accessible storage location) scales to megabytes and separates concerns cleanly.
-For MyDash's simpler use-case (admin-only tree, no per-user GroupFolder ACL complexity), storing
-`navigation.json` in a well-known Nextcloud app-data folder (e.g. `appdata_<instanceid>/mydash/`)
+For LaunchPad's simpler use-case (admin-only tree, no per-user GroupFolder ACL complexity), storing
+`navigation.json` in a well-known Nextcloud app-data folder (e.g. `appdata_<instanceid>/launchpad/`)
 is equivalent in principle and avoids GroupFolder dependency. The write API must still be
 wholesale-replace per file write, but the file itself is not bounded by the 64 KB app-config limit.
 
@@ -65,11 +65,11 @@ wholesale-replace per file write, but the file itself is not bounded by the 64 K
   (or `all`). This proves trees are independent per-language files, not a single tree with
   language tags embedded in node objects.
 
-**Implication for MyDash:** The spec makes no mention of per-language trees. REQ-ONAV-001 (node
-schema) and REQ-ONAV-003 (PUT API) define a single tree with no language dimension. If MyDash needs
+**Implication for LaunchPad:** The spec makes no mention of per-language trees. REQ-ONAV-001 (node
+schema) and REQ-ONAV-003 (PUT API) define a single tree with no language dimension. If LaunchPad needs
 multi-language org-nav in the future, the storage format must add a language segment. For the
 current scope (NL + EN), the recommended approach is to store two files:
-`appdata/mydash/org-navigation-{lang}.json`. A copy/sync CLI command modelled on
+`appdata/launchpad/org-navigation-{lang}.json`. A copy/sync CLI command modelled on
 `CopyNavigationCommand` should be considered as a follow-up.
 
 ---
@@ -89,8 +89,8 @@ per-node group arrays.
 - The `the source app_page_index` table (`parent_id`, `unique_id`, `language`, `path`, `status`) also
   has no group-visibility column.
 
-**Implication for MyDash:** The spec's `groupVisibility: ["g1","g2"]` per-node array field is a
-**MyDash invention** with no reference-implementation counterpart. This is a valid design choice
+**Implication for LaunchPad:** The spec's `groupVisibility: ["g1","g2"]` per-node array field is a
+**LaunchPad invention** with no reference-implementation counterpart. This is a valid design choice
 for an admin-curated tree that has no corresponding filesystem ACL to piggyback on. The per-node
 array approach (null = all, array = restrict) is simpler than a join table for a tree stored in a
 single JSON file. The spec's approach should be **retained** but the implementation must add
@@ -115,7 +115,7 @@ effect to a PUT-replace. The reference source does not expose per-node CRUD endp
   entire navigation object and calls `saveNavigation()` which overwrites `navigation.json`.
 - No PATCH, no per-node PUT, no DELETE by id.
 
-**Implication for MyDash:** The spec's `PUT /api/admin/org-navigation` wholesale-replace design
+**Implication for LaunchPad:** The spec's `PUT /api/admin/org-navigation` wholesale-replace design
 is **confirmed correct**. The 64 KB limit in REQ-ONAV-001/003 is wrong (see D1); remove it. File
 size is bounded only by practical tree size (hundreds of nodes are well under 1 MB).
 
@@ -133,7 +133,7 @@ block).
 - `the source codebase-source/src/components/NavigationItem.vue:80` — `v-if="level < 3"` hides the
   "Add sub-item" button at level 3 in the editor.
 
-**Implication for MyDash:** The spec's REQ-ONAV-003 returns HTTP 400 on depth violation — that is
+**Implication for LaunchPad:** The spec's REQ-ONAV-003 returns HTTP 400 on depth violation — that is
 a **stricter and safer** approach than silent truncation. Retain the 400 response. The frontend
 depth guard (`v-if="level < 3"`) matches REQ-ONAV-007 exactly.
 
@@ -155,7 +155,7 @@ node's URL or `uniqueId` hash.
   hover/focus, not a URL-match-based active class.
 - No backend route that returns "the active node for the current URL."
 
-**Implication for MyDash:** The spec's REQ-ONAV-009 (client-side URL prefix match for `active`
+**Implication for LaunchPad:** The spec's REQ-ONAV-009 (client-side URL prefix match for `active`
 CSS class) is **confirmed correct**. Nothing needs to change.
 
 ---
@@ -172,8 +172,8 @@ and `v-if` driven, not a separate component or route.
 - `the source codebase-source/src/components/Navigation.vue:489–530` — CSS defines `.mobile-nav` and indent
   classes. No responsive breakpoint JS; toggling is via Vue `data` state (`mobileExpandedItems`).
 
-**Implication for MyDash:** REQ-ONAV-010's 800 px breakpoint + hamburger/drawer is correct in
-principle. The reference uses CSS classes rather than a JS `window.resize` listener; MyDash can
+**Implication for LaunchPad:** REQ-ONAV-010's 800 px breakpoint + hamburger/drawer is correct in
+principle. The reference uses CSS classes rather than a JS `window.resize` listener; LaunchPad can
 use either. No spec change needed.
 
 ---
@@ -183,11 +183,11 @@ use either. No spec change needed.
 The following REQ-ONAV-NNN items contain assumptions that contradict the file-based storage model
 or reference-source evidence and should be rewritten when the spec moves to `review`:
 
-1. **REQ-ONAV-001** — Remove `mydash.org_navigation_tree` app-config key and 64 KB cap. Replace
-   with file-based storage path (e.g. `appdata/mydash/org-navigation-{lang}.json`). Update node
-   schema to add `groupVisibility` explicitly (it is a MyDash addition, not inherited).
+1. **REQ-ONAV-001** — Remove `launchpad.org_navigation_tree` app-config key and 64 KB cap. Replace
+   with file-based storage path (e.g. `appdata/launchpad/org-navigation-{lang}.json`). Update node
+   schema to add `groupVisibility` explicitly (it is a LaunchPad addition, not inherited).
 
-2. **REQ-ONAV-003** — Remove mention of persisting to `mydash.org_navigation_tree`. Reference the
+2. **REQ-ONAV-003** — Remove mention of persisting to `launchpad.org_navigation_tree`. Reference the
    file path from REQ-ONAV-001. Keep HTTP 400 on depth violation (stricter than reference, but
    intentionally so). Remove the 64 KB mention.
 
@@ -196,11 +196,11 @@ or reference-source evidence and should be rewritten when the spec moves to `rev
    define a separate endpoint per language. If single-language-only is acceptable for v1, document
    the constraint explicitly rather than silently ignoring it.
 
-4. **REQ-ONAV-004** — `mydash.org_navigation_position` as an app-config key is fine (it is a
+4. **REQ-ONAV-004** — `launchpad.org_navigation_position` as an app-config key is fine (it is a
    scalar, not a tree). No change needed for this requirement.
 
 5. **REQ-ONAV-002** — Backend group-filtering logic must be added explicitly; it does not come
-   from filesystem ACL in MyDash's architecture (no GroupFolder ACL to piggyback on). The spec
+   from filesystem ACL in LaunchPad's architecture (no GroupFolder ACL to piggyback on). The spec
    already describes this correctly. Confirm the `IGroupManager` dependency is included in the
    service.
 
@@ -208,11 +208,11 @@ or reference-source evidence and should be rewritten when the spec moves to `rev
 
 ## Open follow-ups
 
-- **Multi-language v1 scope:** Decide before implementation whether MyDash v1 ships one tree
+- **Multi-language v1 scope:** Decide before implementation whether LaunchPad v1 ships one tree
   (default language) or two (NL + EN). If two: add `?lang=` to GET/PUT and store two files.
 - **File size practical limit:** With no 64 KB cap, define a practical upper bound in validation
   (e.g. 512 KB or 1000 nodes) to prevent runaway JSON accumulation.
-- **CLI copy command:** Consider a `mydash:copy-org-navigation <source> <target>` OCC command
+- **CLI copy command:** Consider a `launchpad:copy-org-navigation <source> <target>` OCC command
   modelled on `CopyNavigationCommand` for admin workflows.
 - **`groupVisibility` cascade rule edge case:** Spec says hidden parents cascade to children
   (REQ-ONAV-002). Confirm whether a child with explicit `groupVisibility: null` overrides a
@@ -222,6 +222,6 @@ or reference-source evidence and should be rewritten when the spec moves to `rev
   v4). REQ-ONAV-001 requires UUID format. Clarify whether UUIDs are generated client-side (editor)
   or server-side (on POST).
 - **SystemFileService fallback pattern:** Reference uses a system-context file reader for users
-  with restricted GroupFolder ACL. MyDash stores nav in `appdata` (admin-written), so all
+  with restricted GroupFolder ACL. LaunchPad stores nav in `appdata` (admin-written), so all
   authenticated users read the same file — no ACL fallback needed. Confirm and document this
   simplification.

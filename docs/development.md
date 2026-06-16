@@ -1,4 +1,4 @@
-# MyDash — Developer Guide
+# LaunchPad — Developer Guide
 
 ## Branching Strategy
 

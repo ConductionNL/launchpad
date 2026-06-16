@@ -1,8 +1,8 @@
 # Effective default marker
 
 The dashboard switcher sidebar marks the user's *effective default
-dashboard* — the one MyDash opens automatically when they visit
-`/apps/mydash/` cold — with a small ★ icon and a hover tooltip.
+dashboard* — the one LaunchPad opens automatically when they visit
+`/apps/launchpad/` cold — with a small ★ icon and a hover tooltip.
 
 ## What you see
 
@@ -13,7 +13,7 @@ whichever sidebar row is the user's effective default:
 
 The marker carries:
 
-- `title="Default dashboard — opens automatically when you visit MyDash"` — browser tooltip on hover
+- `title="Default dashboard — opens automatically when you visit LaunchPad"` — browser tooltip on hover
 - `aria-label="Default dashboard"` — for screen readers
 - `color: var(--color-warning)` — picks up Nextcloud theme overrides
 

@@ -6,7 +6,7 @@ description: Drag and resize widgets on the grid; the layout snaps and saves aut
 
 # Reposition & resize widgets
 
-The MyDash grid is built on **GridStack** — a 12-column responsive grid where every widget snaps to whole-cell boundaries. Layouts persist as soon as you let go of the mouse.
+The LaunchPad grid is built on **GridStack** — a 12-column responsive grid where every widget snaps to whole-cell boundaries. Layouts persist as soon as you let go of the mouse.
 
 ## Goal
 
@@ -41,7 +41,7 @@ Each widget has a bottom-right corner handle for diagonal resize and edge handle
 
 ### 4. Save the layout
 
-Click **Save dashboard** in the top-right (the cog button switches into save mode while editing). MyDash issues a single `PUT /api/dashboard/{id}` with the new layout.
+Click **Save dashboard** in the top-right (the cog button switches into save mode while editing). LaunchPad issues a single `PUT /api/dashboard/{id}` with the new layout.
 
 ![Save layout](/screenshots/tutorials/user/04-save-layout.png)
 

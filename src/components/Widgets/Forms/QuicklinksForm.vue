@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -9,7 +9,7 @@
 			<NcSelect
 				:value="iconSize"
 				:options="iconSizeOptions"
-				:input-label="t('mydash', 'Icon Size')"
+				:input-label="t('launchpad', 'Icon Size')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -18,7 +18,7 @@
 			<NcSelect
 				:value="iconShape"
 				:options="iconShapeOptions"
-				:input-label="t('mydash', 'Icon Shape')"
+				:input-label="t('launchpad', 'Icon Shape')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -29,13 +29,13 @@
 					type="checkbox"
 					:checked="showLabels"
 					@change="updateOption('showLabels', $event.target.checked)">
-				{{ t('mydash', 'Show Labels') }}
+				{{ t('launchpad', 'Show Labels') }}
 			</label>
 
 			<NcSelect
 				:value="labelPosition"
 				:options="labelPositionOptions"
-				:input-label="t('mydash', 'Label Position')"
+				:input-label="t('launchpad', 'Label Position')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -45,7 +45,7 @@
 			<NcSelect
 				:value="columns"
 				:options="columnsOptions"
-				:input-label="t('mydash', 'Columns')"
+				:input-label="t('launchpad', 'Columns')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -54,7 +54,7 @@
 			<NcSelect
 				:value="tileBackgroundStyle"
 				:options="tileBackgroundOptions"
-				:input-label="t('mydash', 'Tile Background')"
+				:input-label="t('launchpad', 'Tile Background')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -63,7 +63,7 @@
 			<NcSelect
 				:value="hoverEffect"
 				:options="hoverEffectOptions"
-				:input-label="t('mydash', 'Hover Effect')"
+				:input-label="t('launchpad', 'Hover Effect')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
@@ -74,11 +74,11 @@
 			<table class="quicklinks-form__table">
 				<thead>
 					<tr>
-						<th>{{ t('mydash', 'Label') }}</th>
-						<th>{{ t('mydash', 'URL') }}</th>
-						<th>{{ t('mydash', 'Icon') }}</th>
+						<th>{{ t('launchpad', 'Label') }}</th>
+						<th>{{ t('launchpad', 'URL') }}</th>
+						<th>{{ t('launchpad', 'Icon') }}</th>
 						<th v-if="showColorColumn">
-							{{ t('mydash', 'Color (optional)') }}
+							{{ t('launchpad', 'Color (optional)') }}
 						</th>
 						<th />
 					</tr>
@@ -93,7 +93,7 @@
 								v-model="link.label"
 								type="text"
 								class="quicklinks-form__input"
-								:placeholder="t('mydash', 'Label')"
+								:placeholder="t('launchpad', 'Label')"
 								@input="onContentChange">
 						</td>
 						<td>
@@ -107,7 +107,7 @@
 							<small
 								v-if="!isLinkUrlValid(link)"
 								class="quicklinks-form__inline-error">
-								{{ t('mydash', 'Invalid URL') }}
+								{{ t('launchpad', 'Invalid URL') }}
 							</small>
 						</td>
 						<td>
@@ -115,7 +115,7 @@
 								v-model="link.icon"
 								type="text"
 								class="quicklinks-form__input"
-								:placeholder="t('mydash', 'Icon')"
+								:placeholder="t('launchpad', 'Icon')"
 								@input="onContentChange">
 						</td>
 						<td v-if="showColorColumn">
@@ -129,7 +129,7 @@
 							<button
 								type="button"
 								class="quicklinks-form__row-action"
-								:aria-label="t('mydash', 'Delete link')"
+								:aria-label="t('launchpad', 'Delete link')"
 								@click="removeLink(index)">
 								&times;
 							</button>
@@ -143,12 +143,12 @@
 					type="button"
 					class="quicklinks-form__add"
 					@click="addLink">
-					+ {{ t('mydash', 'Add link') }}
+					+ {{ t('launchpad', 'Add link') }}
 				</button>
 			</div>
 
 			<details class="quicklinks-form__bulk">
-				<summary>{{ t('mydash', 'Paste CSV (label,url)') }}</summary>
+				<summary>{{ t('launchpad', 'Paste CSV (label,url)') }}</summary>
 				<textarea
 					v-model="csvDraft"
 					class="quicklinks-form__bulk-input"
@@ -158,7 +158,7 @@
 					type="button"
 					class="quicklinks-form__bulk-apply"
 					@click="applyBulkAdd">
-					{{ t('mydash', 'Add link') }}
+					{{ t('launchpad', 'Add link') }}
 				</button>
 			</details>
 		</div>
@@ -246,30 +246,30 @@ export default {
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		iconSizeOptions() {
 			return [
-				{ value: 'small', label: t('mydash', 'Small') },
-				{ value: 'medium', label: t('mydash', 'Medium') },
-				{ value: 'large', label: t('mydash', 'Large') },
-				{ value: 'xlarge', label: t('mydash', 'Extra Large') },
+				{ value: 'small', label: t('launchpad', 'Small') },
+				{ value: 'medium', label: t('launchpad', 'Medium') },
+				{ value: 'large', label: t('launchpad', 'Large') },
+				{ value: 'xlarge', label: t('launchpad', 'Extra Large') },
 			]
 		},
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		iconShapeOptions() {
 			return [
-				{ value: 'square', label: t('mydash', 'Square') },
-				{ value: 'rounded', label: t('mydash', 'Rounded') },
-				{ value: 'circle', label: t('mydash', 'Circle') },
+				{ value: 'square', label: t('launchpad', 'Square') },
+				{ value: 'rounded', label: t('launchpad', 'Rounded') },
+				{ value: 'circle', label: t('launchpad', 'Circle') },
 			]
 		},
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		labelPositionOptions() {
 			return [
-				{ value: 'below', label: t('mydash', 'Below') },
-				{ value: 'overlay', label: t('mydash', 'Overlay') },
+				{ value: 'below', label: t('launchpad', 'Below') },
+				{ value: 'overlay', label: t('launchpad', 'Overlay') },
 			]
 		},
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		columnsOptions() {
-			const list = [{ value: 'auto', label: t('mydash', 'Auto') }]
+			const list = [{ value: 'auto', label: t('launchpad', 'Auto') }]
 			for (let i = 1; i <= 12; i += 1) {
 				list.push({ value: i, label: String(i) })
 			}
@@ -278,18 +278,18 @@ export default {
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		tileBackgroundOptions() {
 			return [
-				{ value: 'transparent', label: t('mydash', 'Transparent') },
-				{ value: 'solid', label: t('mydash', 'Solid') },
-				{ value: 'gradient', label: t('mydash', 'Gradient') },
+				{ value: 'transparent', label: t('launchpad', 'Transparent') },
+				{ value: 'solid', label: t('launchpad', 'Solid') },
+				{ value: 'gradient', label: t('launchpad', 'Gradient') },
 			]
 		},
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
 		hoverEffectOptions() {
 			return [
-				{ value: 'lift', label: t('mydash', 'Lift') },
-				{ value: 'fade', label: t('mydash', 'Fade') },
-				{ value: 'border', label: t('mydash', 'Border') },
-				{ value: 'none', label: t('mydash', 'None') },
+				{ value: 'lift', label: t('launchpad', 'Lift') },
+				{ value: 'fade', label: t('launchpad', 'Fade') },
+				{ value: 'border', label: t('launchpad', 'Border') },
+				{ value: 'none', label: t('launchpad', 'None') },
 			]
 		},
 		/** @spec openspec/specs/quicklinks-widget/spec.md */
@@ -420,11 +420,11 @@ export default {
 			for (let i = 0; i < this.links.length; i += 1) {
 				const link = this.links[i]
 				if (typeof link?.url !== 'string' || link.url.trim() === '') {
-					errors.push(t('mydash', 'Invalid URL in one or more links'))
+					errors.push(t('launchpad', 'Invalid URL in one or more links'))
 					return errors
 				}
 				if (!validateUrl(link.url)) {
-					errors.push(t('mydash', 'Invalid URL in one or more links'))
+					errors.push(t('launchpad', 'Invalid URL in one or more links'))
 					return errors
 				}
 			}

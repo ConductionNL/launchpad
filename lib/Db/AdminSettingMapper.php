@@ -6,7 +6,7 @@
  * Database mapper for admin setting entities.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -41,7 +41,7 @@ class AdminSettingMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_admin_settings',
+            tableName: 'launchpad_admin_settings',
             entityClass: AdminSetting::class
         );
     }//end __construct()

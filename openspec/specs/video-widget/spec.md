@@ -6,11 +6,11 @@ status: implemented
 
 ## Purpose
 
-Embed video content directly on a MyDash dashboard from four source types: YouTube, Vimeo, self-hosted PeerTube instances, and Nextcloud Files. Hosted-platform embeds use a sandboxed iframe with the canonical embed URL (extracted server-side at save time); internal-file embeds use a native HTML5 `<video>` element backed by an ACL-checked streaming endpoint. An admin-controlled domain allow-list governs which hosted origins may be embedded; an empty list is interpreted as "deny all" to fail safe.
+Embed video content directly on a LaunchPad dashboard from four source types: YouTube, Vimeo, self-hosted PeerTube instances, and Nextcloud Files. Hosted-platform embeds use a sandboxed iframe with the canonical embed URL (extracted server-side at save time); internal-file embeds use a native HTML5 `<video>` element backed by an ACL-checked streaming endpoint. An admin-controlled domain allow-list governs which hosted origins may be embedded; an empty list is interpreted as "deny all" to fail safe.
 
 ## Data Model
 
-Video placements use the existing `oc_mydash_widget_placements.content` JSON column with the discriminated shape `{type: 'video', content: {...}}`. No schema migration is required.
+Video placements use the existing `oc_launchpad_widget_placements.content` JSON column with the discriminated shape `{type: 'video', content: {...}}`. No schema migration is required.
 
 The `content` object carries these fields:
 
@@ -30,14 +30,13 @@ The `content` object carries these fields:
 
 ### Requirement: REQ-VID-001 Register Video Widget with Nextcloud Dashboard API
 
-@e2e exclude widget registration tested via widget-in-picker scenario
-
 The system MUST register a video widget with Nextcloud's Dashboard API so it appears in widget discovery and can be added to dashboards.
+@e2e exclude widget registration tested via widget-in-picker scenario
 
 #### Scenario: Widget is discovered in the widget list
 - GIVEN Nextcloud has the Dashboard Widget API enabled
-- WHEN a user navigates to the dashboard widget picker via MyDash
-- THEN GET /api/widgets MUST include a widget with `id: "mydash_video"`, `title: "Video"`, and an icon
+- WHEN a user navigates to the dashboard widget picker via LaunchPad
+- THEN GET /api/widgets MUST include a widget with `id: "launchpad_video"`, `title: "Video"`, and an icon
 - AND the widget MUST be registered via `OCP\Dashboard\IManager::registerWidget()` in `VideoWidgetProvider`
 - AND the widget MUST implement `OCP\Dashboard\IWidget`
 
@@ -54,16 +53,15 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 - AND the icon file MUST be stored at `img/widgets/video.svg`
 
 #### Scenario: Widget registration occurs on app boot
-- GIVEN the MyDash app is installed and enabled
+- GIVEN the LaunchPad app is installed and enabled
 - WHEN Nextcloud boots and initializes app managers
 - THEN `VideoWidgetProvider::load()` MUST be called by Nextcloud's AppManager
 - AND the video widget registration MUST complete without errors
 
 ### Requirement: REQ-VID-002 Store Video Widget Configuration per Placement
 
-@e2e exclude video widget config stored via REST widget-placement API — Newman scope
-
 The widget placement's `widgetContent` JSON MUST store source type, URL/file ID, and display options.
+@e2e exclude video widget config stored via REST widget-placement API — Newman scope
 
 #### Scenario: Widget stores YouTube URL
 - GIVEN a user adds the video widget to their dashboard
@@ -119,9 +117,8 @@ The widget placement's `widgetContent` JSON MUST store source type, URL/file ID,
 
 ### Requirement: REQ-VID-003 Support Multiple Video Source Types
 
-@e2e exclude support multiple video source types tests Vue computed embed-URL logic — Vitest component scope; server-side URL parsing covered by Newman
-
 The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct source types with appropriate rendering logic.
+@e2e exclude support multiple video source types tests Vue computed embed-URL logic — Vitest component scope; server-side URL parsing covered by Newman
 
 #### Scenario: YouTube URL is normalized to embed form
 - GIVEN a user submits raw YouTube URLs in various formats:
@@ -156,27 +153,26 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 
 ### Requirement: REQ-VID-004 Enforce Admin-Controlled Domain Allowlist
 
+The system MUST prevent embedding videos from arbitrary domains unless explicitly allowed by the administrator.
 @e2e exclude enforce admin-controlled domain allow-list tests PHP config + IAppConfig — Newman scope
 
-The system MUST prevent embedding videos from arbitrary domains unless explicitly allowed by the administrator.
-
 #### Scenario: Allowed domains setting exists
-- GIVEN no `mydash.video_widget_allowed_domains` setting is configured
+- GIVEN no `launchpad.video_widget_allowed_domains` setting is configured
 - WHEN the system boots
 - THEN the default allowlist MUST be:
   ```json
   ["youtube.com", "www.youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
   ```
-- AND the admin MUST be able to override this via MyDash admin settings page
+- AND the admin MUST be able to override this via LaunchPad admin settings page
 
 #### Scenario: Widget save rejects disallowed domain
-- GIVEN admin has set `mydash.video_widget_allowed_domains` to only `["youtube.com", "www.youtube.com", "youtu.be"]`
+- GIVEN admin has set `launchpad.video_widget_allowed_domains` to only `["youtube.com", "www.youtube.com", "youtu.be"]`
 - WHEN a user attempts to save a widget with `sourceType: 'vimeo'` and `videoUrl: 'https://vimeo.com/12345'`
 - THEN the backend MUST return HTTP 400 with error message (English): "Domain not allowed by administrator"
 - AND the widget MUST NOT be created/updated
 
 #### Scenario: Admin adds a custom PeerTube instance to allowlist
-- GIVEN admin edits MyDash settings to add `"peertube.example.com"` to the allowed list
+- GIVEN admin edits LaunchPad settings to add `"peertube.example.com"` to the allowed list
 - WHEN a user submits a widget with `sourceType: 'peertube'` and `videoUrl: 'https://peertube.example.com/w/abc123'`
 - THEN the domain check MUST succeed and the widget MUST be saved
 
@@ -195,9 +191,8 @@ The system MUST prevent embedding videos from arbitrary domains unless explicitl
 
 ### Requirement: REQ-VID-005 Parse and Validate Video URLs Server-Side
 
-@e2e exclude parse and validate video URLs server-side tests PHP VideoUrlParser — Newman scope
-
 The backend MUST extract video IDs from user-provided URLs and validate format before storage.
+@e2e exclude parse and validate video URLs server-side tests PHP VideoUrlParser — Newman scope
 
 #### Scenario: URL parsing endpoint is available
 - GIVEN a user is editing a widget config in the frontend
@@ -231,9 +226,8 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 
 ### Requirement: REQ-VID-006 Check File Access Control for Nextcloud Files
 
-@e2e exclude check file ACL tests PHP ACL + streaming endpoint — Newman scope
-
 When `sourceType` is `nc-file`, the system MUST verify the viewing user can read the file before allowing playback.
+@e2e exclude check file ACL tests PHP ACL + streaming endpoint — Newman scope
 
 #### Scenario: File is readable by viewer
 - GIVEN a widget with `sourceType: 'nc-file'` and `fileId: 12345`
@@ -271,9 +265,8 @@ When `sourceType` is `nc-file`, the system MUST verify the viewing user can read
 
 ### Requirement: REQ-VID-007 Use iframe with CSP-Safe Sandbox Attributes
 
-@e2e exclude iframe with CSP-safe sandbox attributes tests HTML attribute rendering — requires a placed video widget; seeded state not in CI fixture
-
 Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe with strict sandbox restrictions.
+@e2e exclude iframe with CSP-safe sandbox attributes tests HTML attribute rendering — requires a placed video widget; seeded state not in CI fixture
 
 #### Scenario: YouTube iframe uses proper sandbox
 - GIVEN a widget with `sourceType: 'youtube'` and canonical URL `https://www.youtube.com/embed/ABC123`
@@ -308,9 +301,8 @@ Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe wi
 
 ### Requirement: REQ-VID-008 Respect Autoplay, Muting, and Loop Settings
 
-@e2e exclude autoplay/muting/loop settings test HTML video attribute rendering — requires a placed video widget
-
 The widget MUST apply user-selected playback options while respecting browser autoplay policies.
+@e2e exclude autoplay/muting/loop settings test HTML video attribute rendering — requires a placed video widget
 
 #### Scenario: Autoplay with muted enforces mute
 - GIVEN a user sets `autoplay: true` and `muted: false`
@@ -346,9 +338,8 @@ The widget MUST apply user-selected playback options while respecting browser au
 
 ### Requirement: REQ-VID-009 Enforce Aspect Ratio via CSS
 
-@e2e exclude aspect ratio CSS tests CSS padding-bottom trick — visual regression scope
-
 The widget MUST apply the configured aspect ratio using modern CSS and fallback techniques.
+@e2e exclude aspect ratio CSS tests CSS padding-bottom trick — visual regression scope
 
 #### Scenario: Aspect ratio options
 - GIVEN a user selects `aspectRatio` from a dropdown
@@ -376,18 +367,17 @@ The widget MUST apply the configured aspect ratio using modern CSS and fallback 
 
 ### Requirement: REQ-VID-010 Support No-Cookie YouTube Embedding
 
+The system MUST support an optional admin setting to enable YouTube no-cookie embedding to reduce tracking.
 @e2e exclude no-cookie YouTube embedding tests URL-transform logic in PHP — Newman scope
 
-The system MUST support an optional admin setting to enable YouTube no-cookie embedding to reduce tracking.
-
 #### Scenario: No-cookie setting default
-- GIVEN `mydash.video_widget_use_nocookie_youtube` is not configured
+- GIVEN `launchpad.video_widget_use_nocookie_youtube` is not configured
 - WHEN a widget with `sourceType: 'youtube'` is created
 - THEN the system MUST use the standard `https://www.youtube.com/embed/ABC123`
 - AND YouTube's tracking cookies MUST be enabled by default
 
 #### Scenario: Admin enables no-cookie mode
-- GIVEN admin sets `mydash.video_widget_use_nocookie_youtube = true`
+- GIVEN admin sets `launchpad.video_widget_use_nocookie_youtube = true`
 - WHEN a widget with `sourceType: 'youtube'` is created
 - THEN the system MUST rewrite the embed URL to: `https://www.youtube-nocookie.com/embed/ABC123`
 - AND the no-cookie domain MUST be used for all subsequent renders
@@ -406,9 +396,8 @@ The system MUST support an optional admin setting to enable YouTube no-cookie em
 
 ### Requirement: REQ-VID-011 Display Appropriate Empty and Error States
 
-@e2e exclude display appropriate empty and error states tests Vue state inside placed widget — requires seeded placement
-
 The widget MUST show user-friendly messages for missing config, access issues, and invalid domains.
+@e2e exclude display appropriate empty and error states tests Vue state inside placed widget — requires seeded placement
 
 #### Scenario: Empty state - no video configured
 - GIVEN a widget placement with `sourceType: null` or missing `videoUrl`/`fileId`
@@ -429,7 +418,7 @@ The widget MUST show user-friendly messages for missing config, access issues, a
 - WHEN the parse endpoint is called
 - THEN it MUST return `{"isValid": false, "error": "Domain not allowed by administrator"}`
 - AND the frontend MUST display this error
-- AND the admin SHOULD be prompted to check MyDash settings
+- AND the admin SHOULD be prompted to check LaunchPad settings
 
 #### Scenario: File not found error
 - GIVEN a widget with `sourceType: 'nc-file'` and the file has been deleted
@@ -459,7 +448,7 @@ The widget MUST show user-friendly messages for missing config, access issues, a
 ## Non-Functional Requirements
 
 - **Performance**: Video URL parsing MUST complete in < 500ms even for external URLs (YouTube, Vimeo). Cached canonical URLs in widget config MUST NOT be re-parsed on every render.
-- **Security**: iframe sandbox MUST prevent form submission, navigation, and plugin execution. File access checks MUST honor Nextcloud ACLs. No tracking pixels or third-party scripts MUST be injected by MyDash itself (YouTube/Vimeo may add their own per their ToS).
+- **Security**: iframe sandbox MUST prevent form submission, navigation, and plugin execution. File access checks MUST honor Nextcloud ACLs. No tracking pixels or third-party scripts MUST be injected by LaunchPad itself (YouTube/Vimeo may add their own per their ToS).
 - **Compatibility**: Widget MUST work with all supported Nextcloud versions and all Dashboard API versions (v1, v2). HTML5 video MUST play in all modern browsers (Chrome, Firefox, Safari, Edge 88+).
 - **Accessibility**: Videos MUST have poster images or title text. Controls MUST be keyboard accessible. Error messages MUST be clear and visible to screen readers.
 - **Localization**: All UI text, error messages, and settings labels MUST support English and Dutch.

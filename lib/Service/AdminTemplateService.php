@@ -16,7 +16,7 @@
  *     invariant.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -26,19 +26,19 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Exception\ForbiddenException;
-use OCA\MyDash\Exception\InvalidDataUrlException;
-use OCA\MyDash\Exception\InvalidImageFormatException;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Exception\InvalidDataUrlException;
+use OCA\LaunchPad\Exception\InvalidImageFormatException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IDBConnection;
@@ -241,7 +241,7 @@ class AdminTemplateService
      *
      * @return Dashboard[] The list of admin templates.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
      */
     public function listTemplates(): array
     {
@@ -288,7 +288,7 @@ class AdminTemplateService
      *
      * @return Dashboard The created template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-3
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
      */
     public function createTemplate(
         string $name,
@@ -348,7 +348,7 @@ class AdminTemplateService
      *
      * @throws Exception If the dashboard is not an admin template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-5
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-5
      */
     public function updateTemplate(int $id, array $data): Dashboard
     {
@@ -379,7 +379,7 @@ class AdminTemplateService
      *
      * @throws Exception If the dashboard is not an admin template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-6
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
      */
     public function deleteTemplate(int $id): void
     {

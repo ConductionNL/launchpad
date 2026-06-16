@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -16,7 +16,7 @@
 			role="menuitem"
 			data-testid="ctx-edit"
 			@click="onEdit">
-			{{ t('mydash', 'Edit') }}
+			{{ t('launchpad', 'Edit') }}
 		</button>
 		<button
 			type="button"
@@ -32,7 +32,7 @@
 			role="menuitem"
 			data-testid="ctx-remove"
 			@click="onRemove">
-			{{ t('mydash', 'Remove') }}
+			{{ t('launchpad', 'Remove') }}
 		</button>
 		<button
 			type="button"
@@ -40,7 +40,7 @@
 			role="menuitem"
 			data-testid="ctx-cancel"
 			@click="onCancel">
-			{{ t('mydash', 'Cancel') }}
+			{{ t('launchpad', 'Cancel') }}
 		</button>
 	</div>
 </template>

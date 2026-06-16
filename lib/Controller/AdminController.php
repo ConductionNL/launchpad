@@ -6,7 +6,7 @@
  * Controller for admin dashboard template management.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,24 +19,25 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
-use OCA\MyDash\Exception\InvalidRoleAssignmentException;
-use OCA\MyDash\Exception\ResourceException;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\ExportService;
-use OCA\MyDash\Service\FeedRefreshService;
-use OCA\MyDash\Service\FooterService;
-use OCA\MyDash\Service\ImportService;
-use OCA\MyDash\Service\ResourceService;
-use OCA\MyDash\Service\RoleService;
-use OCA\MyDash\Service\SetupWizardService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
+use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
+use OCA\LaunchPad\Exception\ResourceException;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\ExportService;
+use OCA\LaunchPad\Service\FeedRefreshService;
+use OCA\LaunchPad\Service\FooterService;
+use OCA\LaunchPad\Service\ImportService;
+use OCA\LaunchPad\Service\ResourceService;
+use OCA\LaunchPad\Service\RoleService;
+use OCA\LaunchPad\Service\SetupWizardService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -109,7 +110,7 @@ class AdminController extends Controller
      *                                                 (REQ-EXIM-001..003).
      * @param ImportService        $importService      ZIP import service
      *                                                 (REQ-EXIM-004..008).
-     * @param RoleService          $roleService        The MyDash role service
+     * @param RoleService          $roleService        The LaunchPad role service
      *                                                 (REQ-ROLE-001..011).
      * @param FeedRefreshService   $feedRefresh        The background feed
      *                                                 refresh service used by
@@ -176,9 +177,9 @@ class AdminController extends Controller
      *
      * @return JSONResponse The list of templates.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function listTemplates(): JSONResponse
     {
         $templates = $this->templateService->listTemplates();
@@ -197,7 +198,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getTemplate(int $id): JSONResponse
     {
         try {
@@ -233,9 +234,9 @@ class AdminController extends Controller
      *
      * @return JSONResponse The created template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-3
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createTemplate(
         string $name,
         ?string $description=null,
@@ -274,9 +275,9 @@ class AdminController extends Controller
      *
      * @return JSONResponse The updated template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-5
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-5
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateTemplate(
         int $id,
         ?string $name=null,
@@ -316,9 +317,9 @@ class AdminController extends Controller
      *
      * @return JSONResponse The deletion confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-6
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteTemplate(int $id): JSONResponse
     {
         try {
@@ -335,9 +336,9 @@ class AdminController extends Controller
      *
      * @return JSONResponse The admin settings.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-1
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-1
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getSettings(): JSONResponse
     {
         return ResponseHelper::success(
@@ -369,12 +370,22 @@ class AdminController extends Controller
      *                                                 legacy widget bridge
      *                                                 (legacy-widget-bridge
      *                                                 spec).
+     * @param int|null    $maxDashboardsPerUser        Maximum personal
+     *                                                 dashboards per user
+     *                                                 (`0` = unlimited).
+     *                                                 dashboard-quota-limits
+     *                                                 REQ-QUOTA-001.
+     * @param int|null    $maxWidgetsPerDashboard      Maximum placements per
+     *                                                 dashboard (`0` =
+     *                                                 unlimited).
+     *                                                 dashboard-quota-limits
+     *                                                 REQ-QUOTA-001.
      *
      * @return JSONResponse The update confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateSettings(
         ?string $defaultPermLevel=null,
         ?bool $allowUserDash=null,
@@ -384,7 +395,9 @@ class AdminController extends Controller
         ?string $launchpadContentStorage=null,
         ?string $defaultSharePermissionLevel=null,
         ?array $forcedShareGroups=null,
-        ?bool $legacyWidgetBridgeEnabled=null
+        ?bool $legacyWidgetBridgeEnabled=null,
+        ?int $maxDashboardsPerUser=null,
+        ?int $maxWidgetsPerDashboard=null
     ): JSONResponse {
         try {
             $this->settingsService->updateSettings(
@@ -396,7 +409,9 @@ class AdminController extends Controller
                 contentStorage: $launchpadContentStorage,
                 defaultSharePermissionLevel: $defaultSharePermissionLevel,
                 forcedShareGroups: $forcedShareGroups,
-                legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+                legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
+                maxDashboardsPerUser: $maxDashboardsPerUser,
+                maxWidgetsPerDashboard: $maxWidgetsPerDashboard
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);
@@ -422,7 +437,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getFooterSettings(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -461,7 +476,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateFooterSettings(
         ?bool $footerEnabled=null,
         mixed $footerHtml=null,
@@ -523,7 +538,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function export(
         string $scope='site',
         ?string $dashboardUuid=null
@@ -587,7 +602,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function import(bool $preserveUuids=false): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -656,7 +671,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function listRoles(): JSONResponse
     {
 
@@ -683,7 +698,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createRole(
         ?string $userId=null,
         ?string $groupId=null,
@@ -734,7 +749,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteRole(int $id): JSONResponse
     {
 
@@ -753,7 +768,7 @@ class AdminController extends Controller
     }//end deleteRole()
 
     /**
-     * Return the calling user's effective MyDash role and source
+     * Return the calling user's effective LaunchPad role and source
      * (REQ-ROLE-006). Available to any authenticated user.
      *
      * Response shape: `{role: string|null, source: string|null}`.
@@ -799,7 +814,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function refreshFeedsNow(?string $feedUrl=null): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -847,7 +862,7 @@ class AdminController extends Controller
      *
      * @spec openspec/specs/admin-templates/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function uploadTemplatePreviewImage(
         string $uuid,
         string $base64=''
@@ -912,7 +927,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getWizardState(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -935,7 +950,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function completeWizard(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -951,7 +966,7 @@ class AdminController extends Controller
     /**
      * Persist the storage backend choice from Step 2 (REQ-WIZ-003).
      *
-     * Validates the selection and writes `mydash.content_storage`. The
+     * Validates the selection and writes `launchpad.content_storage`. The
      * GroupFolder option is server-side gated by the `groupfolders` app
      * dependency — selecting it without the app installed returns 400.
      * Admin-only.
@@ -962,7 +977,7 @@ class AdminController extends Controller
          *
      * @spec openspec/specs/admin-templates/spec.md
  */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function setWizardStorage(?string $storage=null): JSONResponse
     {
         $guard = $this->assertAdmin();

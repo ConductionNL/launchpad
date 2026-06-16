@@ -10,7 +10,7 @@ status: draft
 
 ### Requirement: REQ-WDG-018 nc-widget placement type
 
-The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside MyDash. Its persisted content shape MUST be:
+The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside LaunchPad. Its persisted content shape MUST be:
 
 ```jsonc
 {
@@ -90,7 +90,7 @@ The header (above the list area) MUST always render the widget's title + iconUrl
 
 When falling back to the API path, the renderer MUST issue exactly:
 
-`GET /ocs/v2.php/apps/mydash/api/widgets/items?widgets[]={widgetId}&limit=7`
+`GET /ocs/v2.php/apps/launchpad/api/widgets/items?widgets[]={widgetId}&limit=7`
 
 The response MUST be parsed as `{items: {[widgetId]: WidgetItem[]}, meta: {[widgetId]: {iconUrl}}}` (the existing REQ-WDG-002 contract). When the response shape is malformed, the renderer MUST display the empty-state `t('No items available')` and MUST NOT throw.
 

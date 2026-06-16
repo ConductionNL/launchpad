@@ -32,7 +32,7 @@
   authoritative implementation.
 - [x] `PermissionService::getEffectivePermissionLevel` — annotated with
   `@spec permissions:REQ-PERM-008`.
-- [x] `MyDashAdmin::getForm` + `MyDashAdminSection::getID` — skipped
+- [x] `LaunchPadAdmin::getForm` + `LaunchPadAdminSection::getID` — skipped
   per design.md; docblock NOTE added on each pointing back at the
   archive of this change.
 

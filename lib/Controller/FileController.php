@@ -10,32 +10,32 @@
  *   `{filename, dir, content}` and returns `{status, fileId, url}`
  *   where `url` deep-links into the Files app at `?openfile=<fileId>`.
  *
- * Every typed exception from {@see \OCA\MyDash\Service\FileService} is
+ * Every typed exception from {@see \OCA\LaunchPad\Service\FileService} is
  * mapped to the standardised `{status, error, message}` error envelope
  * — raw underlying exception messages are NEVER returned to the
  * caller (REQ-LBN-004).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Exception\ForbiddenException;
-use OCA\MyDash\Exception\ResourceException;
-use OCA\MyDash\Exception\StorageFailureException;
-use OCA\MyDash\Service\FileService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Exception\ResourceException;
+use OCA\LaunchPad\Exception\StorageFailureException;
+use OCA\LaunchPad\Service\FileService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

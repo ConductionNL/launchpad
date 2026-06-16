@@ -8,7 +8,7 @@
  * (REQ-GFSB-004).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Service\DashboardContentStorage\DbContentStorage;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFolderContentStorage;
-use OCA\MyDash\Service\DashboardContentStorageFactory;
-use OCA\MyDash\Service\SetupWizardService;
+use OCA\LaunchPad\Service\DashboardContentStorage\DbContentStorage;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFolderContentStorage;
+use OCA\LaunchPad\Service\DashboardContentStorageFactory;
+use OCA\LaunchPad\Service\SetupWizardService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

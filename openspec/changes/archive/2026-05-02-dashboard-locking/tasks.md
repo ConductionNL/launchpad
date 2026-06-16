@@ -8,7 +8,7 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001021Date20260502130000.php` creating `mydash_dashboard_locks` table with columns: `id BIGINT AUTO_INCREMENT PRIMARY KEY`, `dashboard_uuid VARCHAR(36) UNIQUE NOT NULL`, `user_id VARCHAR(64) NOT NULL`, `display_name VARCHAR(255) NOT NULL`, `created_at DATETIME NOT NULL`, `updated_at DATETIME NOT NULL` (no `expiresAt` / no `clientId` per design D1 / D2)
+- [x] 1.1 Create `lib/Migration/Version001021Date20260502130000.php` creating `launchpad_dashboard_locks` table with columns: `id BIGINT AUTO_INCREMENT PRIMARY KEY`, `dashboard_uuid VARCHAR(36) UNIQUE NOT NULL`, `user_id VARCHAR(64) NOT NULL`, `display_name VARCHAR(255) NOT NULL`, `created_at DATETIME NOT NULL`, `updated_at DATETIME NOT NULL` (no `expiresAt` / no `clientId` per design D1 / D2)
 - [x] 1.2 Same migration adds UNIQUE on `(dashboard_uuid)` plus secondary indexes on `user_id` and `updated_at`
 - [x] 1.3 Migration is reversible — Nextcloud's SimpleMigrationStep drops new tables on rollback
 - [ ] 1.4 Run migration locally against sqlite, mysql, and postgres (deferred — CI covers all three engines)

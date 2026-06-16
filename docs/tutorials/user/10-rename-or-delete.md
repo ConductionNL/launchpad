@@ -15,7 +15,7 @@ Change a dashboard's metadata (name, description, icon, slug) — or delete it.
 ## Prerequisites
 
 - You must own the dashboard (or be an admin) to delete it.
-- At least one personal dashboard must remain — MyDash blocks the delete on your last one.
+- At least one personal dashboard must remain — LaunchPad blocks the delete on your last one.
 
 ## Steps
 
@@ -40,7 +40,7 @@ Editable fields:
 
 ### 3a. Rename — change fields and click **Save**
 
-The dashboard updates in place. Slug changes propagate to the URL: if you were viewing `/apps/mydash/old-slug` your address bar updates to the new slug via `history.replaceState`.
+The dashboard updates in place. Slug changes propagate to the URL: if you were viewing `/apps/launchpad/old-slug` your address bar updates to the new slug via `history.replaceState`.
 
 ### 3b. Delete — click the **Delete dashboard** button
 

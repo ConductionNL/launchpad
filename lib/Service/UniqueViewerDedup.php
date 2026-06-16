@@ -20,20 +20,20 @@
  * when the salt rotates.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
@@ -70,7 +70,7 @@ class UniqueViewerDedup
      *
      * @var string
      */
-    public const CACHE_NAMESPACE = 'mydash_anlt';
+    public const CACHE_NAMESPACE = 'launchpad_anlt';
 
     /**
      * Concrete cache instance, lazily resolved from the cache
@@ -157,12 +157,12 @@ class UniqueViewerDedup
     public function getSaltForDate(string $viewBucketDate): string
     {
         $existingSalt = $this->appConfig->getValueString(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_SALT,
             ''
         );
         $existingDate = $this->appConfig->getValueString(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_SALT_DATE,
             ''
         );
@@ -178,7 +178,7 @@ class UniqueViewerDedup
      * Force a salt rotation for the supplied UTC date. Generates a
      * fresh 32-byte random value, overwrites the previous salt with
      * no history kept, and returns the new value. Called eagerly by
-     * the {@see \OCA\MyDash\BackgroundJob\SaltRotationJob} and
+     * the {@see \OCA\LaunchPad\BackgroundJob\SaltRotationJob} and
      * lazily by {@see self::getSaltForDate()} when the persisted
      * date marker is stale.
      *
@@ -192,12 +192,12 @@ class UniqueViewerDedup
     {
         $newSalt = bin2hex(string: random_bytes(length: 32));
         $this->appConfig->setValueString(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_SALT,
             $newSalt
         );
         $this->appConfig->setValueString(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_SALT_DATE,
             $viewBucketDate
         );

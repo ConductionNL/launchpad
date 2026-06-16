@@ -3,24 +3,24 @@
 /**
  * DashboardVersionTableBuilder
  *
- * Builder for the `mydash_dashboard_versions` schema. Created by the
+ * Builder for the `launchpad_dash_versions` schema. Created by the
  * `dashboard-versioning` change (REQ-VERS-001..009).
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -31,7 +31,7 @@ use OCP\DB\Types;
 class DashboardVersionTableBuilder
 {
     /**
-     * Create the mydash_dashboard_versions table.
+     * Create the launchpad_dash_versions table.
      *
      * Columns:
      *   - id              BIGINT PK auto-increment
@@ -44,8 +44,8 @@ class DashboardVersionTableBuilder
      *   - note            STRING(500) NULL
      *
      * Indexes:
-     *   - mydash_dvers_uuid_num : UNIQUE(dashboard_uuid, version_number)
-     *   - mydash_dvers_uuid_ts  : (dashboard_uuid, created_at)
+     *   - launchpad_dvers_uuid_num : UNIQUE(dashboard_uuid, version_number)
+     *   - launchpad_dvers_uuid_ts  : (dashboard_uuid, created_at)
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -53,12 +53,12 @@ class DashboardVersionTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_dashboard_versions') === true) {
+        if ($schema->hasTable('launchpad_dash_versions') === true) {
             return;
         }
 
         $table = $schema->createTable(
-            'mydash_dashboard_versions'
+            'launchpad_dash_versions'
         );
 
         $table->addColumn(
@@ -116,11 +116,11 @@ class DashboardVersionTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['dashboard_uuid', 'version_number'],
-            'mydash_dvers_uuid_num'
+            'launchpad_dvers_uuid_num'
         );
         $table->addIndex(
             ['dashboard_uuid', 'created_at'],
-            'mydash_dvers_uuid_ts'
+            'launchpad_dvers_uuid_ts'
         );
     }//end create()
 }//end class

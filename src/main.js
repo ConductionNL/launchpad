@@ -1,15 +1,15 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Workspace entry point. Implements the ADR-036 Decision 8 runtime-manifest
- * pattern for mydash: a 5-line stub manifest is bundled with the app; at boot
- * the frontend fetches GET /apps/mydash/api/manifest and replaces the stub
+ * pattern for launchpad: a 5-line stub manifest is bundled with the app; at boot
+ * the frontend fetches GET /apps/launchpad/api/manifest and replaces the stub
  * with the per-user manifest assembled from the user's visible dashboards.
  *
- * mydash is the proving ground for this pattern because it has no "default
+ * launchpad is the proving ground for this pattern because it has no "default
  * home page" — every page is user-specific, making a bundled static manifest
- * meaningless. The pattern is what OpenBuilt-built apps will also use.
+ * meaningless. The pattern is what OpenBuild-built apps will also use.
  *
  * Boot sequence:
  *  1. Vue + Pinia initialised.
@@ -34,6 +34,10 @@ import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import bundledStub from './manifest.json'
 import 'gridstack/dist/gridstack.min.css'
 import './styles/workspace.css'
+// REQ-KIOSK-001: chrome-suppression styles, activated by KioskView via the
+// `kiosk-mode-active` body class. Imported globally so the rules are present
+// whenever the kiosk surface mounts.
+import './styles/kiosk.css'
 
 // Tier 1 manifest adoption (ADR-024): register the bundled manifest with
 // nc-vue so the shared shell can read menu/page declarations. The vue-router
@@ -81,7 +85,7 @@ const initialState = loadInitialState('workspace')
 // the runtime-manifest wiring works regardless of the local lib version.
 //
 // The runtime manifest ref is passed as a prop to App.vue; App.vue passes
-// it to CnAppRoot (once mydash migrates to CnAppRoot). For now, the ref is
+// it to CnAppRoot (once launchpad migrates to CnAppRoot). For now, the ref is
 // provided via the root Vue instance's `provide` so any descendant that
 // needs it can `inject('runtimeManifest', null)`.
 //
@@ -91,7 +95,7 @@ const manifestLoading = Vue.observable({ value: true })
 
 ;(async () => {
 	try {
-		const url = generateUrl('/apps/mydash/api/manifest')
+		const url = generateUrl('/apps/launchpad/api/manifest')
 		const response = await axios.get(url)
 
 		if (response && response.status === 200 && response.data
@@ -102,10 +106,10 @@ const manifestLoading = Vue.observable({ value: true })
 		}
 	} catch (err) {
 		// 404, network error, or unauthenticated — fall back to stub silently.
-		// The existing mydash UI works entirely from its Pinia stores and does
+		// The existing launchpad UI works entirely from its Pinia stores and does
 		// not depend on the manifest for page routing, so this is non-fatal.
 		// eslint-disable-next-line no-console
-		console.warn('[mydash] Runtime manifest fetch failed; using stub', err)
+		console.warn('[launchpad] Runtime manifest fetch failed; using stub', err)
 	} finally {
 		manifestLoading.value = false
 	}

@@ -12,7 +12,7 @@
 - [ ] 1.2 Register the widget in `AppInfo/Bootstrap.php` or lifecycle hook:
   - Hook into Nextcloud's dashboard widget registration
   - Call `IManager::registerWidget()` with widget metadata
-  - Widget id: `mydash_files`, title: translatable `app.mydash.files_widget_title`, icon: folder icon URL
+  - Widget id: `launchpad_files`, title: translatable `app.launchpad.files_widget_title`, icon: folder icon URL
 
 - [ ] 1.3 Create PHPUnit tests for `FilesWidgetService`:
   - `testTraverseFolderSuccess` — mock `IRootFolder`, verify file listing
@@ -204,7 +204,7 @@
   - Multi-select or single-select (spec says single root folder per widget)
 
 - [ ] 7.3 Integrate into `WidgetAddEditModal.vue`:
-  - When user selects `mydash_files` widget from picker
+  - When user selects `launchpad_files` widget from picker
   - Display `FilesWidgetConfig.vue` instead of default generic config panel
   - Pass selected widget metadata to config component
 
@@ -254,17 +254,17 @@
 ## 10. Internationalization (i18n)
 
 - [ ] 10.1 Add Dutch (nl) and English (en) translation keys:
-  - `app.mydash.files_widget_title` — "Bestanden" / "Files"
-  - `app.mydash.files_empty_state` — "Deze map is leeg." / "This folder is empty."
-  - `app.mydash.files_no_access` — "Je hebt geen toegang tot deze map." / "You don't have access to this folder."
-  - `app.mydash.files_not_found` — "Map bestaat niet meer." / "Folder no longer exists."
-  - `app.mydash.files_loading` — "Map laden…" / "Loading folder…"
-  - `app.mydash.files_error` — "Fout bij laden van mapinhoud." / "Failed to load folder contents."
-  - `app.mydash.files_retry` — "Opnieuw proberen" / "Retry"
-  - `app.mydash.files_upload_button` — "Bestand uploaden" / "Upload File"
-  - `app.mydash.files_delete_button` — "Verwijderen" / "Delete"
-  - `app.mydash.files_delete_confirm` — "Weet je zeker dat je {name} wilt verwijderen?" / "Are you sure you want to delete {name}?"
-  - `app.mydash.files_search_placeholder` — "Zoeken in deze map…" / "Search this folder…"
+  - `app.launchpad.files_widget_title` — "Bestanden" / "Files"
+  - `app.launchpad.files_empty_state` — "Deze map is leeg." / "This folder is empty."
+  - `app.launchpad.files_no_access` — "Je hebt geen toegang tot deze map." / "You don't have access to this folder."
+  - `app.launchpad.files_not_found` — "Map bestaat niet meer." / "Folder no longer exists."
+  - `app.launchpad.files_loading` — "Map laden…" / "Loading folder…"
+  - `app.launchpad.files_error` — "Fout bij laden van mapinhoud." / "Failed to load folder contents."
+  - `app.launchpad.files_retry` — "Opnieuw proberen" / "Retry"
+  - `app.launchpad.files_upload_button` — "Bestand uploaden" / "Upload File"
+  - `app.launchpad.files_delete_button` — "Verwijderen" / "Delete"
+  - `app.launchpad.files_delete_confirm` — "Weet je zeker dat je {name} wilt verwijderen?" / "Are you sure you want to delete {name}?"
+  - `app.launchpad.files_search_placeholder` — "Zoeken in deze map…" / "Search this folder…"
 
 - [ ] 10.2 Add translation files:
   - `l10n/nl.json` — Dutch translations

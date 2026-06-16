@@ -4,23 +4,23 @@
  * DashboardShareMapper
  *
  * Database mapper for DashboardShare entities. Covers the
- * oc_mydash_dashboard_shares table. REQ-SHARE-001.
+ * oc_launchpad_dashboard_shares table. REQ-SHARE-001.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
@@ -44,7 +44,7 @@ class DashboardShareMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dashboard_shares',
+            tableName: 'launchpad_dashboard_shares',
             entityClass: DashboardShare::class
         );
     }//end __construct()
@@ -324,7 +324,7 @@ class DashboardShareMapper extends QBMapper
 
     /**
      * Count share rows whose `dashboard_id` no longer points at any
-     * row in `mydash_dashboards`.
+     * row in `launchpad_dashboards`.
      *
      * Used by the orphaned-data-cleanup scan path (REQ-CLN-001)
      * to surface the count of dangling shares that survived a manual
@@ -342,7 +342,7 @@ class DashboardShareMapper extends QBMapper
             ->from(from: $this->getTableName(), alias: 's')
             ->leftJoin(
                 fromAlias: 's',
-                join: 'mydash_dashboards',
+                join: 'launchpad_dashboards',
                 alias: 'd',
                 condition: 'd.id = s.dashboard_id'
             )
@@ -357,7 +357,7 @@ class DashboardShareMapper extends QBMapper
 
     /**
      * Delete share rows whose `dashboard_id` no longer points at any
-     * row in `mydash_dashboards`.
+     * row in `launchpad_dashboards`.
      *
      * Companion to {@see self::countOrphaned()} on the purge path
      * (REQ-CLN-002). Resolves the orphan IDs first via a SELECT and
@@ -374,7 +374,7 @@ class DashboardShareMapper extends QBMapper
             ->from(from: $this->getTableName(), alias: 's')
             ->leftJoin(
                 fromAlias: 's',
-                join: 'mydash_dashboards',
+                join: 'launchpad_dashboards',
                 alias: 'd',
                 condition: 'd.id = s.dashboard_id'
             )
@@ -425,10 +425,10 @@ class DashboardShareMapper extends QBMapper
         string $shareWith,
         string $ownerId
     ): int {
-        // Subquery: SELECT id FROM mydash_dashboards WHERE user_id = ownerId.
+        // Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
         $sub = $this->db->getQueryBuilder();
         $sub->select(selects: 'id')
-            ->from(from: 'mydash_dashboards')
+            ->from(from: 'launchpad_dashboards')
             ->where(
                 $sub->expr()->eq(
                     x: 'user_id',
@@ -488,7 +488,7 @@ class DashboardShareMapper extends QBMapper
                 $qb->expr()->in(
                     x: 'dashboard_id',
                     y: $qb->createFunction(
-                        call: '(SELECT `id` FROM `*PREFIX*mydash_dashboards` WHERE `uuid` = '
+                        call: '(SELECT `id` FROM `*PREFIX*launchpad_dashboards` WHERE `uuid` = '
                             .$qb->createNamedParameter(value: $dashboardUuid).')'
                     )
                 )

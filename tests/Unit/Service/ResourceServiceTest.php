@@ -4,12 +4,12 @@
  * ResourceService Test
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -17,14 +17,14 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Exception\FileTooLargeException;
-use OCA\MyDash\Exception\InvalidDataUrlException;
-use OCA\MyDash\Exception\InvalidImageFormatException;
-use OCA\MyDash\Exception\MimeMismatchException;
-use OCA\MyDash\Exception\StorageFailureException;
-use OCA\MyDash\Service\ImageMimeValidator;
-use OCA\MyDash\Service\ResourceService;
-use OCA\MyDash\Service\SvgSanitiser;
+use OCA\LaunchPad\Exception\FileTooLargeException;
+use OCA\LaunchPad\Exception\InvalidDataUrlException;
+use OCA\LaunchPad\Exception\InvalidImageFormatException;
+use OCA\LaunchPad\Exception\MimeMismatchException;
+use OCA\LaunchPad\Exception\StorageFailureException;
+use OCA\LaunchPad\Service\ImageMimeValidator;
+use OCA\LaunchPad\Service\ResourceService;
+use OCA\LaunchPad\Service\SvgSanitiser;
 use OCP\Files\IAppData;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
@@ -125,7 +125,7 @@ class ResourceServiceTest extends TestCase
         );
 
         $this->assertSame('success', 'success'); // sanity
-        $this->assertStringStartsWith('/apps/mydash/resource/resource_', $result['url']);
+        $this->assertStringStartsWith('/apps/launchpad/resource/resource_', $result['url']);
         $this->assertStringEndsWith('.png', $result['url']);
         $this->assertSame(strlen($this->tinyPng()), $result['size']);
     }

@@ -33,7 +33,7 @@
 
 ## 5. Documentation
 
-- [ ] 5.1 Update the `icon` field docblock on `lib/Db/Dashboard.php` to state that the column may hold either a registry name, a `/apps/mydash/resource/...` URL, or NULL — DEFERRED: the `Dashboard::$icon` field itself is added by the parallel `dashboard-icons` change (commit 8d3dcde, not yet on the parent branch). This task will follow the docblock template from REQ-ICON-009 once that change is archived; the spec contract is locked here so the convention is unambiguous.
+- [ ] 5.1 Update the `icon` field docblock on `lib/Db/Dashboard.php` to state that the column may hold either a registry name, a `/apps/launchpad/resource/...` URL, or NULL — DEFERRED: the `Dashboard::$icon` field itself is added by the parallel `dashboard-icons` change (commit 8d3dcde, not yet on the parent branch). This task will follow the docblock template from REQ-ICON-009 once that change is archived; the spec contract is locked here so the convention is unambiguous.
 - [x] 5.2 Update the `tileIcon` field docblock on `lib/Db/WidgetPlacement.php` with the same convention
 
 ## 6. End-to-end tests

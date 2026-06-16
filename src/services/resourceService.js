@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Thin wrapper around `POST /api/resources` (REQ-RES-001..005). Posts a
@@ -50,7 +50,7 @@ export class ResourceUploadError extends Error {
 }
 
 /**
- * Upload a base64 data URL via `POST /apps/mydash/api/resources`.
+ * Upload a base64 data URL via `POST /apps/launchpad/api/resources`.
  *
  * @param {string} dataUrl A `data:image/<type>;base64,<payload>` string.
  * @return {Promise<{url: string, name: string, size: number}>} The
@@ -62,7 +62,7 @@ export class ResourceUploadError extends Error {
  */
 /** @spec openspec/specs/resource-uploads/spec.md */
 export async function uploadDataUrl(dataUrl) {
-	const url = generateUrl('/apps/mydash/api/resources')
+	const url = generateUrl('/apps/launchpad/api/resources')
 
 	let response
 	try {

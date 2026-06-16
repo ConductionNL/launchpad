@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -145,8 +145,8 @@ export default {
 		/** @spec openspec/specs/image-widget/spec.md */
 		placeholderLabel() {
 			return this.loadFailed
-				? t('mydash', 'Image failed to load')
-				: t('mydash', 'No image')
+				? t('launchpad', 'Image failed to load')
+				: t('launchpad', 'No image')
 		},
 
 		/** @spec openspec/specs/image-widget/spec.md */

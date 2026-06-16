@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `dashboardIcons.js` covering REQ-ICON-001 through
@@ -98,7 +98,7 @@ describe('dashboardIcons', () => {
 	describe('REQ-ICON-005: isCustomIconUrl discriminator', () => {
 		it('returns true for absolute paths starting with /', () => {
 			expect(isCustomIconUrl('/foo.svg')).toBe(true)
-			expect(isCustomIconUrl('/apps/mydash/resource/abc.png')).toBe(true)
+			expect(isCustomIconUrl('/apps/launchpad/resource/abc.png')).toBe(true)
 		})
 
 		it('returns true for an https URL', () => {
@@ -136,7 +136,7 @@ describe('dashboardIcons', () => {
 
 	describe('REQ-ICON-006: getIconComponent URL handling', () => {
 		it('returns null for URL inputs (caller must use <img>)', () => {
-			expect(getIconComponent('/apps/mydash/resource/x.png')).toBeNull()
+			expect(getIconComponent('/apps/launchpad/resource/x.png')).toBeNull()
 			expect(getIconComponent('https://example.com/icon.svg')).toBeNull()
 			expect(getIconComponent('http://example.com/icon.png')).toBeNull()
 		})

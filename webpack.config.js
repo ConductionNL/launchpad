@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -14,8 +14,8 @@ webpackConfig.entry = {
 
 webpackConfig.output = {
 	...webpackConfig.output,
-	filename: 'mydash-[name].js',
-	chunkFilename: 'mydash-[name].js?v=[contenthash]',
+	filename: 'launchpad-[name].js',
+	chunkFilename: 'launchpad-[name].js?v=[contenthash]',
 }
 
 // Use local source when available (monorepo dev), otherwise fall back to npm package

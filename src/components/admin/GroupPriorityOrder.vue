@@ -1,14 +1,14 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="group-priority">
 		<div class="group-priority__header">
-			<h3>{{ t('mydash', 'Group priority order') }}</h3>
+			<h3>{{ t('launchpad', 'Group priority order') }}</h3>
 			<p class="group-priority__hint">
-				{{ t('mydash', 'Drag groups between the columns to control which Nextcloud groups MyDash uses, and in what order. The first active group becomes the user\'s primary workspace.') }}
+				{{ t('launchpad', 'Drag groups between the columns to control which Nextcloud groups LaunchPad uses, and in what order. The first active group becomes the user\'s primary workspace.') }}
 			</p>
 		</div>
 
@@ -16,13 +16,13 @@
 			<!-- ACTIVE column -->
 			<div class="group-priority__column" data-column="active">
 				<div class="group-priority__column-header">
-					<h4>{{ t('mydash', 'Active groups') }}</h4>
+					<h4>{{ t('launchpad', 'Active groups') }}</h4>
 					<span class="group-priority__count">{{ active.length }}</span>
 				</div>
 				<NcTextField
 					:value="activeFilter"
-					:label="t('mydash', 'Filter active groups')"
-					:placeholder="t('mydash', 'Filter')"
+					:label="t('launchpad', 'Filter active groups')"
+					:placeholder="t('launchpad', 'Filter')"
 					class="group-priority__filter"
 					@update:value="activeFilter = $event" />
 
@@ -44,17 +44,17 @@
 						<span class="group-priority__handle" aria-hidden="true">⋮⋮</span>
 						<span class="group-priority__label">{{ displayName(id) }}<span
 							v-if="isStale(id)"
-							class="group-priority__stale-affix"> {{ t('mydash', '(removed)') }}</span></span>
+							class="group-priority__stale-affix"> {{ t('launchpad', '(removed)') }}</span></span>
 						<NcButton
 							type="tertiary"
-							:aria-label="t('mydash', 'Move to inactive')"
+							:aria-label="t('launchpad', 'Move to inactive')"
 							class="group-priority__move"
 							@click="moveToInactive(id)">
 							→
 						</NcButton>
 					</li>
 					<li v-if="filteredActive.length === 0" class="group-priority__empty">
-						{{ activeFilter ? t('mydash', 'No matches.') : t('mydash', 'No active groups. Drag groups here from the inactive column.') }}
+						{{ activeFilter ? t('launchpad', 'No matches.') : t('launchpad', 'No active groups. Drag groups here from the inactive column.') }}
 					</li>
 				</ul>
 			</div>
@@ -62,13 +62,13 @@
 			<!-- INACTIVE column -->
 			<div class="group-priority__column" data-column="inactive">
 				<div class="group-priority__column-header">
-					<h4>{{ t('mydash', 'Inactive groups') }}</h4>
+					<h4>{{ t('launchpad', 'Inactive groups') }}</h4>
 					<span class="group-priority__count">{{ inactive.length }}</span>
 				</div>
 				<NcTextField
 					:value="inactiveFilter"
-					:label="t('mydash', 'Filter inactive groups')"
-					:placeholder="t('mydash', 'Filter')"
+					:label="t('launchpad', 'Filter inactive groups')"
+					:placeholder="t('launchpad', 'Filter')"
 					class="group-priority__filter"
 					@update:value="inactiveFilter = $event" />
 
@@ -88,24 +88,24 @@
 						<span class="group-priority__label">{{ displayName(id) }}</span>
 						<NcButton
 							type="tertiary"
-							:aria-label="t('mydash', 'Move to active')"
+							:aria-label="t('launchpad', 'Move to active')"
 							class="group-priority__move"
 							@click="moveToActive(id)">
 							←
 						</NcButton>
 					</li>
 					<li v-if="filteredInactive.length === 0" class="group-priority__empty">
-						{{ inactiveFilter ? t('mydash', 'No matches.') : t('mydash', 'No inactive groups.') }}
+						{{ inactiveFilter ? t('launchpad', 'No matches.') : t('launchpad', 'No inactive groups.') }}
 					</li>
 				</ul>
 			</div>
 		</div>
 
 		<p v-if="loading" class="group-priority__status">
-			{{ t('mydash', 'Loading group list…') }}
+			{{ t('launchpad', 'Loading group list…') }}
 		</p>
 		<p v-else-if="saving" class="group-priority__status">
-			{{ t('mydash', 'Saving…') }}
+			{{ t('launchpad', 'Saving…') }}
 		</p>
 	</div>
 </template>
@@ -204,7 +204,7 @@ export default {
 				this.allKnown = Array.isArray(data.allKnown) ? data.allKnown : []
 			} catch (error) {
 				console.error('Failed to load admin groups:', error)
-				showError(this.t('mydash', 'Failed to load group list.'))
+				showError(this.t('launchpad', 'Failed to load group list.'))
 			} finally {
 				this.loading = false
 			}
@@ -348,10 +348,10 @@ export default {
 			this.saving = true
 			try {
 				await api.updateAdminGroupOrder(this.active)
-				showSuccess(this.t('mydash', 'Group order saved.'))
+				showSuccess(this.t('launchpad', 'Group order saved.'))
 			} catch (error) {
 				console.error('Failed to save group order:', error)
-				showError(this.t('mydash', 'Failed to save group order.'))
+				showError(this.t('launchpad', 'Failed to save group order.'))
 			} finally {
 				this.saving = false
 			}

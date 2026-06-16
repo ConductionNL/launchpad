@@ -14,7 +14,7 @@ jobs:
   triage:
     uses: Conduction/.github/.github/workflows/issue-triage.yml@feature/openspec-project-sync
     with:
-      app-name: mydash
+      app-name: launchpad
       backlog-existing: ${{ github.event_name == 'workflow_dispatch' && inputs.backlog-existing || false }}
     secrets:
       PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}

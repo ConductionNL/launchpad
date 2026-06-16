@@ -2,7 +2,7 @@
 
 - [x] **T01**: Define `ConditionalRule` entity with type constants, `getRuleConfigArray()` / `setRuleConfigArray()`, and `jsonSerialize()` — `lib/Db/ConditionalRule.php`
 
-- [x] **T02**: Create `RulesTableBuilder` to define the `mydash_conditional_rules` schema (id, widget_placement_id, rule_type, rule_config, is_include, created_at) with placement index — `lib/Migration/RulesTableBuilder.php`
+- [x] **T02**: Create `RulesTableBuilder` to define the `launchpad_conditional_rules` schema (id, widget_placement_id, rule_type, rule_config, is_include, created_at) with placement index — `lib/Migration/RulesTableBuilder.php`
 
 - [x] **T03**: Register `createConditionalRulesTable()` in `MigrationTableBuilder` facade — `lib/Migration/MigrationTableBuilder.php`
 

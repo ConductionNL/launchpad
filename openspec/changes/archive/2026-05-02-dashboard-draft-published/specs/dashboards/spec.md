@@ -10,18 +10,18 @@ status: draft
 
 ### Requirement: REQ-DASH-031 Publication-state schema
 
-The system MUST track dashboard publication state via three new database columns: `publication_status` (string enum), `publish_at` (nullable datetime), and `published_at` (nullable datetime). These columns enable the draft → published → scheduled workflow on top of the existing `oc_mydash_dashboards` table without breaking pre-existing rows.
+The system MUST track dashboard publication state via three new database columns: `publication_status` (string enum), `publish_at` (nullable datetime), and `published_at` (nullable datetime). These columns enable the draft → published → scheduled workflow on top of the existing `oc_launchpad_dashboards` table without breaking pre-existing rows.
 
 #### Scenario: Schema addition and migration backfill
 
-- GIVEN a MyDash instance with existing dashboards before the publication-state migration
+- GIVEN a LaunchPad instance with existing dashboards before the publication-state migration
 - WHEN migration `Version001011Date20260502130000` is applied
-- THEN the schema MUST add three columns to `oc_mydash_dashboards`:
+- THEN the schema MUST add three columns to `oc_launchpad_dashboards`:
   - `publication_status VARCHAR(20) NOT NULL DEFAULT 'published'`
   - `publish_at DATETIME NULL`
   - `published_at DATETIME NULL`
 - AND all existing dashboard rows MUST acquire `publication_status = 'published'` automatically via the column default (no explicit UPDATE statement is needed — design D1)
-- AND a composite index `mydash_dash_user_pubstatus` on `(user_id, publication_status)` MUST be created
+- AND a composite index `launchpad_dash_user_pub` on `(user_id, publication_status)` MUST be created
 - NOTE: New dashboards created after the migration default to `'draft'` via application logic in `DashboardFactory::create()`, NOT via the column default. The column default exists only to backfill pre-existing rows safely.
 
 #### Scenario: Timestamp formats
@@ -151,7 +151,7 @@ The publication-state migration MUST preserve the visibility of every dashboard 
 
 #### Scenario: Existing dashboards default to published after migration
 
-- GIVEN a MyDash instance with N existing dashboards before the migration
+- GIVEN a LaunchPad instance with N existing dashboards before the migration
 - WHEN `Version001011Date20260502130000::changeSchema()` runs
 - THEN the `publication_status` column MUST be added with `DEFAULT 'published'`
 - AND every existing row MUST acquire `'published'` via the column default — no explicit `UPDATE` statement is required (design D1)

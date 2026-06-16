@@ -64,23 +64,23 @@ Widget configuration is stored in the placement's `widgetContent` JSON:
 
 ### Requirement: Widget registration via dashboard API (REQ-PPL-001)
 
-The system MUST register a widget with id `mydash_people` via `OCP\Dashboard\IManager::registerWidget()` in `appinfo/dashboard.php`. The widget MUST have:
-- **id**: `mydash_people`
+The system MUST register a widget with id `launchpad_people` via `OCP\Dashboard\IManager::registerWidget()` in `appinfo/dashboard.php`. The widget MUST have:
+- **id**: `launchpad_people`
 - **title**: Translated string (e.g., "People" / "Personen")
 - **icon_url**: Path to SVG icon representing user directory
 - Widget MUST be discoverable via Nextcloud's Dashboard widget discovery mechanism
 
 #### Scenario: Widget is registered on app load
-- **GIVEN** MyDash is installed and enabled
+- **GIVEN** LaunchPad is installed and enabled
 - **WHEN** Nextcloud boots and calls `IManager::getWidgets()`
-- **THEN** widget `mydash_people` MUST appear in the list
+- **THEN** widget `launchpad_people` MUST appear in the list
 - **AND** the widget's title and icon MUST be correctly set
 
 #### Scenario: Widget can be added to a dashboard
 - **GIVEN** a user wants to add a widget
 - **WHEN** they open the widget picker
 - **THEN** "People" (or localized variant) MUST be available
-- **AND** clicking "Add" MUST create a placement with `widgetId: "mydash_people"`
+- **AND** clicking "Add" MUST create a placement with `widgetId: "launchpad_people"`
 
 #### Scenario: Widget icon is valid SVG
 - **GIVEN** the widget's icon_url
@@ -393,7 +393,7 @@ The widget MUST display a user-friendly message when no results are available.
 
 Clicking on a user profile card (or avatar, or name in list view) MUST open Nextcloud's standard user profile page.
 
-**NOTE**: This feature is NOT present in the reference implementation. It must be added fresh in MyDash.
+**NOTE**: This feature is NOT present in the reference implementation. It must be added fresh in LaunchPad.
 
 #### Scenario: Card click opens profile
 - **GIVEN** user "alice" is displayed in card layout
@@ -480,7 +480,7 @@ The widget MUST cache results in memory for 60 seconds per placement. A force-re
 ## Non-Functional Requirements
 
 - **Performance**: `GET /api/people` MUST return within 1 second for orgs with <1000 users. Pagination with limit=50 MUST be efficient (offset-based, max 100 per page).
-- **Compatibility**: Widget MUST work with all Nextcloud versions supported by MyDash (currently 25+).
+- **Compatibility**: Widget MUST work with all Nextcloud versions supported by LaunchPad (currently 25+).
 - **Data integrity**: User list MUST reflect real-time group membership (no stale cache on backend for group-filtered paths).
 - **Accessibility**: Widget MUST support keyboard navigation (Tab through users, Enter to open profile). All fields MUST have accessible labels. Avatar images MUST have alt text.
 - **Localization**: All user-facing strings MUST support English and Dutch (nl/en). Birthday display formatting MUST work with any user's locale.

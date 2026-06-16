@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Pure helpers for the text-widget table mode (REQ-TBLE-001..011).
@@ -279,20 +279,20 @@ export function setCellText(tableData, rIdx, cIdx, text) {
 export function validateTable(tableData) {
 	const errors = []
 	if (!tableData || !Array.isArray(tableData.rows) || tableData.rows.length === 0) {
-		errors.push(t('mydash', 'Table must have at least one row'))
+		errors.push(t('launchpad', 'Table must have at least one row'))
 		return errors
 	}
 	const colCount = Array.isArray(tableData.columnAlignments)
 		? tableData.columnAlignments.length
 		: 0
 	if (colCount === 0) {
-		errors.push(t('mydash', 'Table must have at least one column'))
+		errors.push(t('launchpad', 'Table must have at least one column'))
 		return errors
 	}
 	for (let r = 0; r < tableData.rows.length; r++) {
 		const row = tableData.rows[r]
 		if (!Array.isArray(row) || row.length !== colCount) {
-			errors.push(t('mydash', 'Grid is not rectangular'))
+			errors.push(t('launchpad', 'Grid is not rectangular'))
 			return errors
 		}
 		for (let c = 0; c < row.length; c++) {
@@ -300,7 +300,7 @@ export function validateTable(tableData) {
 			const rowSpan = cell?.rowSpan || 1
 			const colSpan = cell?.colSpan || 1
 			if (r + rowSpan > tableData.rows.length || c + colSpan > colCount) {
-				errors.push(t('mydash', 'Cell span exceeds grid bounds'))
+				errors.push(t('launchpad', 'Cell span exceeds grid bounds'))
 				return errors
 			}
 		}

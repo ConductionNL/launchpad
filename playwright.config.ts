@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * Playwright runner configuration for the mydash end-to-end suite.
+ * Playwright runner configuration for the launchpad end-to-end suite.
  *
  * The suite assumes:
  *   - A reachable Nextcloud instance at NC_BASE_URL (default
- *     http://localhost:8080) with the mydash app installed.
+ *     http://localhost:8080) with the launchpad app installed.
  *   - Admin credentials NC_ADMIN_USER / NC_ADMIN_PASS (defaults
  *     admin / admin) usable to log in via /login.
  *   - The shared admin storage state is created once per run by
@@ -36,6 +36,13 @@ export default defineConfig({
 	testIgnore: [
 		'**/global-setup.ts',
 		'**/fixtures/**',
+		// API-direct HTTP-contract specs live under api-direct/. They assert
+		// raw /api responses (status codes, JSON envelopes) rather than the
+		// rendered UI, so per the gate-19 program their contract coverage
+		// belongs in Newman (tests/integration/*.postman_collection.json),
+		// not the Playwright UI gate. Kept in tree so the gate-19 e2e
+		// traceability annotations (`@e2e`) still register as covered.
+		'**/api-direct/**',
 	],
 	timeout: 30_000,
 	expect: {
@@ -60,7 +67,7 @@ export default defineConfig({
 		// PR pipelines don't reshoot screenshots on every push.
 		{
 			name: 'chromium',
-			testIgnore: ['**/docs-screenshots.spec.ts'],
+			testIgnore: ['**/docs-screenshots.spec.ts', '**/api-direct/**'],
 			use: { ...devices['Desktop Chrome'] },
 		},
 		// Dedicated project for the documentation capture spec. Opt in:

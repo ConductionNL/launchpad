@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
+  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -17,36 +17,49 @@
 			<!-- Tab strip (dashboard-sharing spec). Sharing is no longer a
 			     free-floating field set in the modal body — it lives in its
 			     own Sharing tab. Tabs are hidden in create mode (nothing to
-			     share / pin until the dashboard exists). -->
-			<div v-if="!isCreate" class="dashboard-config__tabs" data-test="config-tabs">
-				<button
+			     share / pin until the dashboard exists). Markup + styling
+			     follow the fleet tablist pattern (nc-vue CnTabbedFormDialog /
+			     NC sidebar tabs): justified tabs, icon + label, active
+			     primary underline. -->
+			<ul v-if="!isCreate" class="dashboard-config__tabs" role="tablist" data-test="config-tabs">
+				<li
 					v-for="tab in tabs"
 					:key="tab.id"
-					type="button"
-					class="dashboard-config__tab"
-					:class="{ 'dashboard-config__tab--active': currentTab === tab.id }"
-					:data-test="`config-tab-${tab.id}`"
-					@click="currentTab = tab.id">
-					{{ tab.label }}
-				</button>
-			</div>
+					role="presentation"
+					class="dashboard-config__tab-item">
+					<button
+						type="button"
+						role="tab"
+						:aria-selected="currentTab === tab.id ? 'true' : 'false'"
+						:aria-controls="`config-panel-${tab.id}`"
+						class="dashboard-config__tab"
+						:class="{ 'dashboard-config__tab--active': currentTab === tab.id }"
+						:data-test="`config-tab-${tab.id}`"
+						@click="currentTab = tab.id">
+						<component :is="tab.icon" v-if="tab.icon" :size="16" />
+						<span>{{ tab.label }}</span>
+					</button>
+				</li>
+			</ul>
 
 			<div
 				v-show="isCreate || currentTab === 'general'"
+				id="config-panel-general"
+				role="tabpanel"
 				data-test="config-panel-general"
 				class="dashboard-config__panel">
 			<div class="dashboard-config__field">
 				<NcTextField
 					:value="form.name"
-					:label="t('mydash', 'Title')"
-					:placeholder="t('mydash', 'My dashboard')"
+					:label="t('launchpad', 'Title')"
+					:placeholder="t('launchpad', 'My dashboard')"
 					data-testid="dashboard-name-input"
 					@update:value="form.name = $event" />
 			</div>
 
 			<div class="dashboard-config__field">
 				<label class="dashboard-config__label" for="dashboard-config-description">
-					{{ t('mydash', 'Description') }}
+					{{ t('launchpad', 'Description') }}
 				</label>
 				<textarea
 					id="dashboard-config-description"
@@ -54,33 +67,21 @@
 					class="dashboard-config__textarea"
 					rows="3"
 					data-testid="dashboard-description-input"
-					:placeholder="t('mydash', 'What is this dashboard for?')" />
+					:placeholder="t('launchpad', 'What is this dashboard for?')" />
 			</div>
 
-			<!-- Icon picker — options are enumerated from the registry so the
-			     UI stays in lock-step with `DASHBOARD_ICONS` whenever icons
-			     are added or removed (REQ-ICON-003). -->
+			<!-- Icon picker — IconPicker enumerates registry names from
+			     `DASHBOARD_ICONS` AND accepts a custom upload (capability
+			     `custom-icon-upload-pattern`). Same v-model whether the
+			     final value is a registry key or a /apps/launchpad/resource/...
+			     URL (REQ-ICON-003 + REQ-ICON-008..009). -->
 			<div class="dashboard-config__field">
 				<label class="dashboard-config__label" for="dashboard-config-icon">
-					{{ t('mydash', 'Icon') }}
+					{{ t('launchpad', 'Icon') }}
 				</label>
-				<div class="dashboard-config__icon-picker">
-					<select
-						id="dashboard-config-icon"
-						v-model="form.icon"
-						class="dashboard-config__select">
-						<option
-							v-for="iconName in iconOptions"
-							:key="iconName"
-							:value="iconName">
-							{{ iconName }}
-						</option>
-					</select>
-					<IconRenderer
-						:name="form.icon"
-						:size="24"
-						class="dashboard-config__icon-preview" />
-				</div>
+				<IconPicker
+					:value="form.icon"
+					@input="form.icon = $event" />
 			</div>
 			</div>
 			<!-- /general panel -->
@@ -93,6 +94,8 @@
 			-->
 			<div
 				v-show="!isCreate && currentTab === 'default'"
+				id="config-panel-default"
+				role="tabpanel"
 				data-test="config-panel-default"
 				class="dashboard-config__panel">
 				<div v-if="!isCreate" class="dashboard-config__field dashboard-config__field--toggle">
@@ -113,11 +116,13 @@
 			     per-share permission rows are reachable ONLY from this tab. -->
 			<div
 				v-show="!isCreate && currentTab === 'sharing'"
+				id="config-panel-sharing"
+				role="tabpanel"
 				data-test="config-panel-sharing"
 				class="dashboard-config__panel">
 			<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
 				<label class="dashboard-config__label">
-					{{ t('mydash', 'Share with users and groups') }}
+					{{ t('launchpad', 'Share with users and groups') }}
 				</label>
 
 				<NcSelect
@@ -125,8 +130,8 @@
 					:options="shareeOptions"
 					:filterable="false"
 					:loading="shareeLoading"
-					:aria-label-combobox="t('mydash', 'Share with users and groups')"
-					:placeholder="t('mydash', 'Search users and groups…')"
+					:aria-label-combobox="t('launchpad', 'Share with users and groups')"
+					:placeholder="t('launchpad', 'Search users and groups…')"
 					label="displayName"
 					track-by="key"
 					:clearable="false"
@@ -154,7 +159,7 @@
 						<NcSelect
 							:value="permissionOptionFor(share.permissionLevel)"
 							:options="permissionOptions"
-							:input-label="t('mydash', 'Permission level')"
+							:input-label="t('launchpad', 'Permission level')"
 							label="label"
 							track-by="value"
 							:clearable="false"
@@ -162,7 +167,7 @@
 							@input="onShareLevelChange(idx, $event)" />
 						<NcButton
 							type="tertiary"
-							:aria-label="t('mydash', 'Remove share')"
+							:aria-label="t('launchpad', 'Remove share')"
 							@click="onShareRemove(idx)">
 							<template #icon>
 								<Close :size="18" />
@@ -171,10 +176,10 @@
 					</li>
 				</ul>
 				<p v-else class="dashboard-config__hint">
-					{{ t('mydash', 'Not shared with anyone yet.') }}
+					{{ t('launchpad', 'Not shared with anyone yet.') }}
 				</p>
 				<p v-if="sharesDirty" class="dashboard-config__hint dashboard-config__hint--dirty">
-					{{ t('mydash', 'Unsaved changes — click Save to apply.') }}
+					{{ t('launchpad', 'Unsaved changes — click Save to apply.') }}
 				</p>
 			</div>
 			</div>
@@ -190,11 +195,11 @@
 					<template #icon>
 						<Delete :size="20" />
 					</template>
-					{{ t('mydash', 'Delete dashboard') }}
+					{{ t('launchpad', 'Delete dashboard') }}
 				</NcButton>
 				<div class="dashboard-config__actions-right">
 					<NcButton type="tertiary" :disabled="saving" @click="$emit('close')">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
 						type="primary"
@@ -223,9 +228,12 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
+import Tune from 'vue-material-design-icons/Tune.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
+import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 
-import IconRenderer from './Dashboard/IconRenderer.vue'
-import { DASHBOARD_ICONS, DEFAULT_ICON } from '../constants/dashboardIcons.js'
+import IconPicker from './Dashboard/IconPicker.vue'
+import { DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '../constants/dashboardIcons.js'
 import { api } from '../services/api.js'
 
 const PERMISSION_OPTIONS = [
@@ -249,7 +257,10 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
-		IconRenderer,
+		Tune,
+		ShareVariant,
+		StarOutline,
+		IconPicker,
 	},
 
 	props: {
@@ -320,6 +331,11 @@ export default {
 			// Local in-progress edit list; mutations buffer here until Save.
 			localShares: [],
 			shareeOptions: [],
+			// Bounded suggestion list fetched once per modal-open with an
+			// empty query — shown when the picker has no search text so the
+			// dropdown is never blank on focus (parity with the core share
+			// dialog).
+			shareeSuggestions: [],
 			shareeLoading: false,
 			shareeSearchSeq: 0,
 		}
@@ -337,12 +353,12 @@ export default {
 		 */
 		tabs() {
 			const list = [
-				{ id: 'general', label: t('mydash', 'General') },
+				{ id: 'general', label: t('mydash', 'General'), icon: Tune },
 			]
 			if (this.canManageShares) {
-				list.push({ id: 'sharing', label: t('mydash', 'Sharing') })
+				list.push({ id: 'sharing', label: t('mydash', 'Sharing'), icon: ShareVariant })
 			}
-			list.push({ id: 'default', label: t('mydash', 'Default') })
+			list.push({ id: 'default', label: t('mydash', 'Default'), icon: StarOutline })
 			return list
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -353,21 +369,21 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		modalTitle() {
 			return this.isCreate
-				? t('mydash', 'Create dashboard')
-				: t('mydash', 'Dashboard configuration')
+				? t('launchpad', 'Create dashboard')
+				: t('launchpad', 'Dashboard configuration')
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		primaryButtonLabel() {
 			if (this.saving) {
-				return this.isCreate ? t('mydash', 'Creating…') : t('mydash', 'Saving…')
+				return this.isCreate ? t('launchpad', 'Creating…') : t('launchpad', 'Saving…')
 			}
-			return this.isCreate ? t('mydash', 'Create') : t('mydash', 'Save')
+			return this.isCreate ? t('launchpad', 'Create') : t('launchpad', 'Save')
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		permissionOptions() {
 			return PERMISSION_OPTIONS.map(o => ({
 				value: o.value,
-				label: t('mydash', o.label),
+				label: t('launchpad', o.label),
 			}))
 		},
 		selectedPermission: {
@@ -414,6 +430,7 @@ export default {
 					this.serverShares = []
 					this.localShares = []
 					this.shareeOptions = []
+					this.shareeSuggestions = []
 					return
 				}
 				// Land on the requested tab (dashboard-sharing spec: the
@@ -432,12 +449,17 @@ export default {
 				} else if (this.dashboard) {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
-					// Persisted icon may be NULL/empty/unknown — fall back to
-					// DEFAULT_ICON in the picker so the <select> always has a
-					// matching option (REQ-ICON-002).
-					this.form.icon = (this.dashboard.icon && DASHBOARD_ICONS[this.dashboard.icon])
-						? this.dashboard.icon
-						: DEFAULT_ICON
+					// Persisted icon may be NULL/empty/unknown OR a custom URL
+					// (capability `custom-icon-upload-pattern`). URLs are kept
+					// verbatim — only unknown registry names fall back to
+					// DEFAULT_ICON (REQ-ICON-002 + REQ-ICON-009).
+					if (isCustomIconUrl(this.dashboard.icon)) {
+						this.form.icon = this.dashboard.icon
+					} else if (this.dashboard.icon && DASHBOARD_ICONS[this.dashboard.icon]) {
+						this.form.icon = this.dashboard.icon
+					} else {
+						this.form.icon = DEFAULT_ICON
+					}
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.
@@ -445,6 +467,7 @@ export default {
 					this._initialIsDefault = this.form.isDefault
 					if (this.canManageShares) {
 						this.loadShares()
+						this.loadShareeSuggestions()
 					}
 				}
 			},
@@ -470,11 +493,60 @@ export default {
 				this.localShares = []
 			}
 		},
+		/**
+		 * Fetch the bounded empty-query suggestion list once per modal-open.
+		 * Mapped through the same shape as search results so options are
+		 * interchangeable. Errors degrade to an empty list (the picker then
+		 * behaves like the pre-suggestion version).
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async loadShareeSuggestions() {
+			try {
+				const response = await api.searchSharees('')
+				this.shareeSuggestions = this.mapShareeResults(response)
+				if (this.shareeOptions.length === 0) {
+					this.shareeOptions = [...this.shareeSuggestions]
+				}
+			} catch (error) {
+				console.error('Sharee suggestion preload failed:', error)
+				this.shareeSuggestions = []
+			}
+		},
+		/**
+		 * Map a sharee API response to flat picker options.
+		 *
+		 * @param {object} response Axios response from `api.searchSharees`.
+		 * @return {Array<object>} Combined user + group options.
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		mapShareeResults(response) {
+			const users = (response.data?.users || []).map(u => ({
+				key: `user:${u.id}`,
+				shareType: 'user',
+				id: u.id,
+				displayName: u.displayName,
+			}))
+			const groups = (response.data?.groups || []).map(g => ({
+				key: `group:${g.id}`,
+				shareType: 'group',
+				id: g.id,
+				displayName: g.displayName,
+			}))
+			return [...users, ...groups]
+		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onShareeSearch(query) {
 			const trimmed = (query || '').trim()
-			if (trimmed.length < 1) {
-				this.shareeOptions = []
+			if (trimmed.length === 0) {
+				// Cleared input — fall back to the preloaded suggestions.
+				this.shareeOptions = [...this.shareeSuggestions]
+				return
+			}
+			if (trimmed.length === 1) {
+				// Backend blocks 1-char queries (enumeration guard) — keep
+				// whatever is shown rather than flashing an empty list.
 				return
 			}
 			const seq = ++this.shareeSearchSeq
@@ -482,19 +554,7 @@ export default {
 			try {
 				const response = await api.searchSharees(trimmed)
 				if (seq !== this.shareeSearchSeq) return // stale result
-				const users = (response.data?.users || []).map(u => ({
-					key: `user:${u.id}`,
-					shareType: 'user',
-					id: u.id,
-					displayName: u.displayName,
-				}))
-				const groups = (response.data?.groups || []).map(g => ({
-					key: `group:${g.id}`,
-					shareType: 'group',
-					id: g.id,
-					displayName: g.displayName,
-				}))
-				this.shareeOptions = [...users, ...groups]
+				this.shareeOptions = this.mapShareeResults(response)
 			} catch (error) {
 				console.error('Sharee search failed:', error)
 				this.shareeOptions = []
@@ -517,7 +577,9 @@ export default {
 					displayName: option.displayName,
 				})
 			}
-			this.shareeOptions = []
+			// Reset to suggestions so the next open isn't stuck on the
+			// previous search results.
+			this.shareeOptions = [...this.shareeSuggestions]
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		onShareLevelChange(idx, option) {
@@ -604,24 +666,49 @@ export default {
 	font-weight: 600;
 }
 
+/* Fleet tablist design (nc-vue CnTabbedFormDialog / NC sidebar tabs):
+   justified full-width tabs, icon + label, primary underline on the
+   active tab, border underline on hover. */
 .dashboard-config__tabs {
 	display: flex;
-	gap: 4px;
-	border-bottom: 1px solid var(--color-border);
+	justify-content: space-between;
+	list-style: none;
 	margin: 8px 0 16px;
+	padding: 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-config__tab-item {
+	display: flex;
+	flex: 1;
+}
+
+.dashboard-config__tab-item:hover {
+	background-color: var(--color-background-hover);
 }
 
 .dashboard-config__tab {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 	background: transparent;
 	border: 0;
 	border-bottom: 2px solid transparent;
-	padding: 8px 14px;
+	padding: 10px;
 	cursor: pointer;
 	font: inherit;
+	text-align: center;
 	color: var(--color-text-maxcontrast);
 }
 
-.dashboard-config__tab--active {
+.dashboard-config__tab:hover {
+	border-bottom-color: var(--color-border);
+}
+
+.dashboard-config__tab--active,
+.dashboard-config__tab--active:hover {
 	color: var(--color-main-text);
 	border-bottom-color: var(--color-primary-element);
 	font-weight: 600;

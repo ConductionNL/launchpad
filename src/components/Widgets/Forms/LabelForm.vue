@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,19 +7,19 @@
 	<div class="label-form">
 		<NcTextField
 			:value="text"
-			:label="t('mydash', 'Label text')"
-			:placeholder="t('mydash', 'Label text')"
+			:label="t('launchpad', 'Label text')"
+			:placeholder="t('launchpad', 'Label text')"
 			required
 			@update:value="updateField('text', $event)" />
 
 		<NcTextField
 			:value="fontSize"
-			:label="t('mydash', 'Font size')"
+			:label="t('launchpad', 'Font size')"
 			placeholder="16px"
 			@update:value="updateField('fontSize', $event)" />
 
 		<label class="label-form__color-label">
-			{{ t('mydash', 'Color') }}
+			{{ t('launchpad', 'Color') }}
 			<input
 				type="color"
 				:value="color || '#000000'"
@@ -28,7 +28,7 @@
 		</label>
 
 		<label class="label-form__color-label">
-			{{ t('mydash', 'Background color') }}
+			{{ t('launchpad', 'Background color') }}
 			<input
 				type="color"
 				:value="backgroundColor || '#ffffff'"
@@ -39,14 +39,14 @@
 		<NcSelect
 			:value="fontWeight"
 			:options="fontWeightOptions"
-			:input-label="t('mydash', 'Font Weight')"
+			:input-label="t('launchpad', 'Font Weight')"
 			:clearable="false"
 			@input="updateField('fontWeight', $event)" />
 
 		<NcSelect
 			:value="textAlign"
 			:options="textAlignOptions"
-			:input-label="t('mydash', 'Alignment')"
+			:input-label="t('launchpad', 'Alignment')"
 			:clearable="false"
 			@input="updateField('textAlign', $event)" />
 	</div>
@@ -69,7 +69,7 @@ const DEFAULT_CONTENT = Object.freeze({
  * or editing a `label` widget placement.
  *
  * Exposes six controls per REQ-LBL-005 and a `validate()` method returning
- * `[t('mydash', 'Label text is required')]` when text is empty/whitespace.
+ * `[t('launchpad', 'Label text is required')]` when text is empty/whitespace.
  */
 export default {
 	name: 'LabelForm',
@@ -157,7 +157,7 @@ export default {
 		/** @spec openspec/specs/label-widget/spec.md */
 		validate() {
 			if (typeof this.text !== 'string' || this.text.trim() === '') {
-				return [t('mydash', 'Label text is required')]
+				return [t('launchpad', 'Label text is required')]
 			}
 			return []
 		},

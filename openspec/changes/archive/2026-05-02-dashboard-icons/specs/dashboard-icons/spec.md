@@ -8,9 +8,9 @@ status: draft
 
 ## Context
 
-MyDash dashboards (and dashboard list items in the switcher sidebar and admin UI) display an icon next to their name. This capability owns the icon vocabulary: a small curated registry of named built-in icons that live in the frontend bundle, plus the lookup/render functions that consumers use. A separate change (`custom-icon-upload-pattern`) extends this capability so the same `icon` field can also hold an uploaded resource URL.
+LaunchPad dashboards (and dashboard list items in the switcher sidebar and admin UI) display an icon next to their name. This capability owns the icon vocabulary: a small curated registry of named built-in icons that live in the frontend bundle, plus the lookup/render functions that consumers use. A separate change (`custom-icon-upload-pattern`) extends this capability so the same `icon` field can also hold an uploaded resource URL.
 
-The icon system has no backend persistence of its own — it operates on the existing `oc_mydash_dashboards.icon` column (and any other column that follows the same convention, e.g. `oc_mydash_widget_placements.tileIcon`).
+The icon system has no backend persistence of its own — it operates on the existing `oc_launchpad_dashboards.icon` column (and any other column that follows the same convention, e.g. `oc_launchpad_widget_placements.tileIcon`).
 
 The `icon` field convention:
 - **NULL or empty string** → render `DEFAULT_ICON`

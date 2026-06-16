@@ -23,6 +23,8 @@ consume OR data at runtime.** OR is never a hard dependency.
 
 ## Requirements
 
+@e2e exclude pure runtime/contract spec — scenarios assert manifest.json/info.xml/composer dependency contents, `useOrFeatureDetect()` composable gating, `?_lang=` query-param construction, tenant-scope headers, @nextcloud/axios usage, and OR-absent/5xx/recovery HTTP behaviour. None is a user-facing UI surface; these are unit-test + Newman concerns (no OR-data widget is shipped in launchpad to drive through the UI).
+
 ### Requirement: No install-time OR dependency (REQ-OR-001)
 
 MyDash MUST NOT declare an install-time dependency on `openregister` or
@@ -95,7 +97,7 @@ Nextcloud from the user's language preference).
 
 ### Requirement: Tenant context for OR-data widgets (REQ-OR-004)
 
-OR-data widgets that surface tenant-scoped OR data SHOULD consume
+OR-data widgets that surface tenant-scoped OR data MUST consume
 `useTenantContext()` from `@conduction/nextcloud-vue` to pass the active
 tenant scope, once the composable is released as a versioned package
 (tracking: `nextcloud-vue/openspec/changes/multi-tenancy-context`).

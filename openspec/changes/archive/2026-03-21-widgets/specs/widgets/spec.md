@@ -6,7 +6,7 @@ status: reviewed
 
 ## Purpose
 
-Widgets are the primary content blocks on MyDash dashboards. MyDash integrates with the Nextcloud Dashboard Widget API (v1 and v2) via `OCP\Dashboard\IManager::getWidgets()` to discover all registered dashboard widgets across installed Nextcloud apps. Users can add these discovered widgets to their dashboards as "placements" -- records that track the widget's position on the grid, display configuration, and custom styling. Widget placements bridge the Nextcloud widget ecosystem with the MyDash grid layout system.
+Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad integrates with the Nextcloud Dashboard Widget API (v1 and v2) via `OCP\Dashboard\IManager::getWidgets()` to discover all registered dashboard widgets across installed Nextcloud apps. Users can add these discovered widgets to their dashboards as "placements" -- records that track the widget's position on the grid, display configuration, and custom styling. Widget placements bridge the Nextcloud widget ecosystem with the LaunchPad grid layout system.
 
 ## Data Model
 
@@ -18,9 +18,9 @@ Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Eac
 - **url**: Optional widget URL
 - **v2 support**: Whether it supports the v2 API with item loading
 
-### Widget Placements (oc_mydash_widget_placements)
+### Widget Placements (oc_launchpad_widget_placements)
 - **id**: Auto-increment integer primary key (BIGINT)
-- **dashboardId**: Foreign key to oc_mydash_dashboards (BIGINT)
+- **dashboardId**: Foreign key to oc_launchpad_dashboards (BIGINT)
 - **widgetId**: Reference to the Nextcloud widget id (STRING, NOT NULL; for tiles set to `'tile-' + uniqid()`)
 - **gridX**: Grid column position, 0-based (INTEGER, default 0)
 - **gridY**: Grid row position, 0-based (INTEGER, default 0)
@@ -305,7 +305,7 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - GIVEN a placement with `widgetId: "uninstalled_widget"` and no matching widget in the available widgets array
 - WHEN the widget is rendered
 - THEN `WidgetWrapper` MUST receive `widget: null` (from `getWidget()` returning undefined)
-- AND the title MUST fall back to the `t('mydash', 'Widget')` translation
+- AND the title MUST fall back to the `t('launchpad', 'Widget')` translation
 - AND the widget content area MUST handle the null widget gracefully
 
 #### Scenario: Tile placement bypasses WidgetWrapper

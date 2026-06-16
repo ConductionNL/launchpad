@@ -41,7 +41,7 @@ The new dashboard is auto-activated, appears at the top of **MY DASHBOARDS** in 
 ## Verification
 
 - The sidebar shows your new dashboard's name, highlighted as active.
-- The URL bar reads `/apps/mydash/<your-slug>` — the slug is auto-derived from the name.
+- The URL bar reads `/apps/launchpad/<your-slug>` — the slug is auto-derived from the name.
 - The grid contains the four default placements (Conduction tile, Sendent tile, Nextcloud tile, Files widget).
 
 ## Common issues

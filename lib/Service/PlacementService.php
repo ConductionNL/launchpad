@@ -6,7 +6,7 @@
  * Service for managing widget placement CRUD operations.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,11 +16,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 
 /**
  * Service for managing widget placement CRUD operations.
@@ -30,14 +30,26 @@ class PlacementService
     /**
      * Constructor
      *
-     * @param WidgetPlacementMapper $placementMapper  Widget placement mapper.
-     * @param TileUpdater           $tileUpdater      Tile updater service.
-     * @param PlacementUpdater      $placementUpdater Placement updater service.
+     * @param WidgetPlacementMapper $placementMapper    Widget placement mapper.
+     * @param TileUpdater           $tileUpdater        Tile updater service.
+     * @param PlacementUpdater      $placementUpdater   Placement updater service.
+     * @param PublicShareContext|null $publicShareContext Public-share bearer
+     *                                                  guard (nullable for
+     *                                                  legacy test doubles).
+     * @param QuotaService|null     $quotaService       Widget-quota enforcer
+     *                                                  (dashboard-quota-limits
+     *                                                  REQ-QUOTA-003).
+     *                                                  Nullable to keep
+     *                                                  existing test doubles
+     *                                                  working — when absent
+     *                                                  no quota is enforced.
      */
     public function __construct(
         private readonly WidgetPlacementMapper $placementMapper,
         private readonly TileUpdater $tileUpdater,
         private readonly PlacementUpdater $placementUpdater,
+        private readonly ?PublicShareContext $publicShareContext=null,
+        private readonly ?QuotaService $quotaService=null,
     ) {
     }//end __construct()
 
@@ -57,7 +69,11 @@ class PlacementService
      *
      * @return WidgetPlacement The created widget placement.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-34
+     * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the
+     *         dashboard is at the configured widget limit
+     *         (dashboard-quota-limits REQ-QUOTA-003).
+     *
+     * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-003-widget-count-enforcement
      */
     public function addWidget(
         int $dashboardId,
@@ -68,6 +84,14 @@ class PlacementService
         int $gridHeight=4,
         ?array $content=null
     ): WidgetPlacement {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
+        // dashboard-quota-limits REQ-QUOTA-003: enforce the per-dashboard
+        // widget quota at the single placement-creation choke point so the
+        // REST add-widget, add-tile, and store paths are all bound.
+        // Admin compulsory-widget pushes wrap their call in
+        // QuotaService::runProvisioning() to bypass this (REQ-QUOTA-004).
+        $this->quotaService?->assertCanAddPlacement(dashboardId: $dashboardId);
         $placement = new WidgetPlacement();
         $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setDashboardId($dashboardId);
@@ -98,12 +122,21 @@ class PlacementService
      *
      * @return WidgetPlacement The created tile placement.
      *
-     * @spec openspec/specs/widgets/spec.md
+     * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the
+     *         dashboard is at the configured widget limit
+     *         (dashboard-quota-limits REQ-QUOTA-003).
+     *
+     * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-003-widget-count-enforcement
      */
     public function addTileFromArray(
         int $dashboardId,
         array $tileData
     ): WidgetPlacement {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
+        // dashboard-quota-limits REQ-QUOTA-003: tiles are placements too —
+        // bind them to the same per-dashboard widget quota choke point.
+        $this->quotaService?->assertCanAddPlacement(dashboardId: $dashboardId);
         $placement = new WidgetPlacement();
         $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setDashboardId($dashboardId);
@@ -137,12 +170,14 @@ class PlacementService
      *
      * @return WidgetPlacement The updated widget placement.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-35
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
      */
     public function updatePlacement(
         int $placementId,
         array $data
     ): WidgetPlacement {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
         $placement = $this->placementMapper->find(id: $placementId);
 
         $this->placementUpdater->applyGridUpdates(
@@ -172,10 +207,12 @@ class PlacementService
      *
      * @return void
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-36
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-36
      */
     public function removePlacement(int $placementId): void
     {
+        // Task-7 of dashboard-public-share — bearer cannot mutate placements.
+        $this->publicShareContext?->requireMutable();
         $placement = $this->placementMapper->find(id: $placementId);
         $this->placementMapper->delete(entity: $placement);
     }//end removePlacement()

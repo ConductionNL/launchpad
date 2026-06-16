@@ -6,7 +6,7 @@
  * Controller for conditional rule API endpoints.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,13 +16,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\ConditionalService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -67,7 +67,7 @@ class RuleApiController extends Controller
      *
      * @return JSONResponse The conditional rules.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-9
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-9
      */
     #[NoAdminRequired]
     public function getRules(int $placementId): JSONResponse
@@ -121,7 +121,7 @@ class RuleApiController extends Controller
      *
      * @return JSONResponse The created rule.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-8
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
      */
     #[NoAdminRequired]
     public function addRule(
@@ -203,7 +203,7 @@ class RuleApiController extends Controller
      *
      * @return JSONResponse The updated rule.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-10
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-10
      */
     #[NoAdminRequired]
     public function updateRule(
@@ -268,7 +268,7 @@ class RuleApiController extends Controller
      *
      * @return JSONResponse The deletion confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-11
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-11
      */
     #[NoAdminRequired]
     public function deleteRule(int $ruleId): JSONResponse

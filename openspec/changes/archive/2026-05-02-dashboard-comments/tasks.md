@@ -2,7 +2,7 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/Version001013Date20260502120000.php` adding `comments_enabled SMALLINT NULL` to `oc_mydash_dashboards`
+- [x] 1.1 Create `lib/Migration/Version001013Date20260502120000.php` adding `comments_enabled SMALLINT NULL` to `oc_launchpad_dashboards`
 - [x] 1.2 Migration only adds a nullable column — reversal is the standard NC `dropColumn` flow; no destructive schema changes
 - [x] 1.3 Migration uses portable Doctrine `Types::SMALLINT` so sqlite, mysql and postgres apply the same DDL
 
@@ -25,7 +25,7 @@
 
 - [x] 4.1 Regex `/@([a-zA-Z0-9_.-]+)/` extracts mentions and lowercases for dedup
 - [x] 4.2 `IUserManager::get()` resolves each unique candidate
-- [x] 4.3 Each resolved user receives a notification with subject `mentioned_in_comment`, parameters `[authorUserId, dashboardUuid]`, link to `mydash.page.index?dashboard={uuid}`
+- [x] 4.3 Each resolved user receives a notification with subject `mentioned_in_comment`, parameters `[authorUserId, dashboardUuid]`, link to `launchpad.page.index?dashboard={uuid}`
 - [x] 4.4 Unresolved mentions silently dropped (no error, no notification); self-mentions appear in payload but skip notification
 - [x] 4.5 i18n entries added in `l10n/en.json`, `l10n/nl.json`, `l10n/en.js`, `l10n/nl.js` for the notification subject and message
 

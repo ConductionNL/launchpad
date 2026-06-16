@@ -1,10 +1,10 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Dashboard icons registry — capability `dashboard-icons`
  *
- * Curated registry of built-in Material Design Icons used across MyDash
+ * Curated registry of built-in Material Design Icons used across LaunchPad
  * dashboard surfaces (sidebar switcher, admin list, tile editor). The
  * `icon` field on a dashboard record may hold one of three values:
  *

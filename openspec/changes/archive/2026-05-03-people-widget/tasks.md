@@ -18,7 +18,7 @@
 - [ ] Compute `daysToBirthday` if `showBirthdays: true` and birthdate is visible
 - [ ] Sort by `displayName` (default), `group`, or stub `recent-activity` (returns error "not yet implemented")
 - [ ] Paginate: return up to `limit` users with `nextCursor` for next page
-- [ ] Avatar URL: NC's standard `/avatar/<userId>?size=64` (size configurable via `mydash.people_widget_avatar_size` app config, default 64)
+- [ ] Avatar URL: NC's standard `/avatar/<userId>?size=64` (size configurable via `launchpad.people_widget_avatar_size` app config, default 64)
 - [ ] Define typed exceptions: `PlacementNotFoundException`, `InvalidGroupFilterException`
 
 ## 2. Frontend
@@ -39,7 +39,7 @@
   - Click on profile → opens `/u/{userId}` in same tab
   - Error handling: "Failed to load users" message with retry button
 
-- [ ] Widget registration: add entry to `appinfo/dashboard.php` registering widget id `mydash_people`
+- [ ] Widget registration: add entry to `appinfo/dashboard.php` registering widget id `launchpad_people`
 
 ## 3. Tests
 

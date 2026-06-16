@@ -5,7 +5,7 @@
 
 ## Context
 
-mydash is Nextcloud's organisation-dashboard surface for end users. The
+launchpad is Nextcloud's organisation-dashboard surface for end users. The
 backlog already covers 88 specs (widget types, governance toggles, AI
 assistant, scheduled exports, BBV templates, ops tooling, compliance
 panels, mobile policy, etc.) and grows each sprint. Without an explicit
@@ -14,24 +14,24 @@ top-level menu item — which would erode the canvas-first experience and
 leave end users navigating a flat list of features instead of a small set
 of destinations.
 
-mydash also has two very different audiences sharing the same app:
+launchpad also has two very different audiences sharing the same app:
 end users who live on the dashboard canvas, and tenant admins who govern
 sharing, routing, retention, compliance, and ops. Both groups need access
 without bleeding into each other's surface.
 
 Sister ADRs in the openregister fleet face the analogous problem on the
-developer/admin side. This ADR captures the IA discipline for mydash so
+developer/admin side. This ADR captures the IA discipline for launchpad so
 that future specs (and the OpenSpec changes that propose them) land in a
 known place by construction.
 
 The full per-spec mapping (placement, parent, rationale) is maintained in
-`/tmp/ia-mydash-openregister.md` (mydash section, table D). This ADR
+`/tmp/ia-launchpad-openregister.md` (launchpad section, table D). This ADR
 captures the rules that produced that mapping so the same logic can be
 re-applied to new specs without re-deriving it.
 
 ## Decision
 
-mydash adopts a fixed top-level navigation of **seven destinations** and
+launchpad adopts a fixed top-level navigation of **seven destinations** and
 applies the rules below to every new spec. Specs do not get menu items —
 they get placements inside this fixed structure.
 
@@ -90,8 +90,8 @@ search pattern. Saved AI outputs flow into Reports.
    does not fit an existing tab, the proposal must justify a new tab
    before adding it.
 
-5. **The AI assistant is a global launcher, not a menu.** mydash AI
-   capabilities (`mydash-ai-dashboard-assistant`,
+5. **The AI assistant is a global launcher, not a menu.** launchpad AI
+   capabilities (`launchpad-ai-dashboard-assistant`,
    `nc-unified-search-integration`) attach to a sidebar pill that is
    present on every page. Saved outputs (summaries, scheduled AI
    reports) flow into the **Reports** menu so users can find them
@@ -109,7 +109,7 @@ search pattern. Saved AI outputs flow into Reports.
 
 7. **Developer/ops surface is inside Beheer, not its own menu.** Unlike
    the openregister fleet (where API & Docs is a separate top-level
-   menu for integrators), mydash has no integrator audience: ops
+   menu for integrators), launchpad has no integrator audience: ops
    tooling (`prometheus-metrics`, `cli-commands`,
    `newman-integration-suite`, `setup-wizard`, `spec-annotation-pass`,
    `legacy-widget-bridge` configuration) lives on the Beheer
@@ -120,7 +120,7 @@ search pattern. Saved AI outputs flow into Reports.
 
 - Every OpenSpec change proposal must declare placement (menu + tab/
   parent) and rationale, mirroring the mapping table convention in
-  `/tmp/ia-mydash-openregister.md` section D.
+  `/tmp/ia-launchpad-openregister.md` section D.
 - A proposal that requires a **new top-level menu** must be argued as
   an ADR amendment (this ADR), not slipped into a feature change.
 - A proposal that requires a **new Beheer tab** must justify the tab
@@ -152,5 +152,5 @@ search pattern. Saved AI outputs flow into Reports.
   Beheer tab require explicit ADR-level review, which is the friction
   this ADR is meant to create.
 - A separate developer-surface menu (the openregister "API & Docs"
-  pattern) is **rejected** for mydash. If integrator demand ever
+  pattern) is **rejected** for launchpad. If integrator demand ever
   emerges, that decision is re-opened as an ADR amendment.

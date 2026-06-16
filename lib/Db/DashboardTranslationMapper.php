@@ -4,25 +4,25 @@
  * DashboardTranslationMapper
  *
  * Database mapper for {@see DashboardTranslation} entities. Owns the
- * oc_mydash_dash_translations table; implements per-language CRUD
+ * oc_launchpad_dash_translations table; implements per-language CRUD
  * plus the locale-resolution lookup. REQ-DASH-038..044 (per-language
  * dashboard content variants).
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
@@ -45,7 +45,7 @@ class DashboardTranslationMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dash_translations',
+            tableName: 'launchpad_dash_translations',
             entityClass: DashboardTranslation::class
         );
     }//end __construct()
@@ -250,7 +250,7 @@ class DashboardTranslationMapper extends QBMapper
      * Delete every translation variant attached to a dashboard.
      *
      * Used by the cascade-delete path in
-     * {@see \OCA\MyDash\Service\DashboardService::deleteDashboard()}.
+     * {@see \OCA\LaunchPad\Service\DashboardService::deleteDashboard()}.
      *
      * @param string $dashboardUuid The dashboard UUID.
      *

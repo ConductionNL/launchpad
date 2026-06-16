@@ -8,24 +8,25 @@
  * admin-guard enforcement, and JSON response shaping.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ConfluenceImportService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ConfluenceImportService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -68,7 +69,7 @@ class ConfluenceImportController extends Controller
      *
      * @spec openspec/specs/confluence-html-import/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function dryRun(): JSONResponse
     {
         $tmpName = $this->resolveUpload();
@@ -103,7 +104,7 @@ class ConfluenceImportController extends Controller
      *
      * @spec openspec/specs/confluence-html-import/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function import(?string $parentUuid=null): JSONResponse
     {
         $tmpName = $this->resolveUpload();

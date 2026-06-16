@@ -11,7 +11,7 @@ jobs:
   quality:
     uses: Conduction/.github/.github/workflows/quality.yml@main
     with:
-      app-name: mydash
+      app-name: launchpad
       php-version: "8.3"
       enable-psalm: true
       enable-phpstan: true

@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `useGridManager.js` covering both halves of the
@@ -11,7 +11,7 @@
  *     flag.
  *   - REQ-GRID-012 (Cell geometry constants): `CELL_HEIGHT === 60`,
  *     `GRID_MARGIN === 8`, and the height-math scenario.
- *   - syncCellHeightCssVar() writes the `--mydash-cell-height` custom
+ *   - syncCellHeightCssVar() writes the `--launchpad-cell-height` custom
  *     property on `:root` from the JS constant.
  *   - REQ-WDG-015..017 (Right-click context menu): edit-mode opens the
  *     popover, view-mode falls through, viewport clamping, swap-not-stack,
@@ -24,7 +24,7 @@
  *     in `src/` (architectural enforcement via grep test).
  *
  * These constants are the single source of truth referenced by
- * `DashboardGrid.vue` and `css/mydash.css`; flipping any value here will
+ * `DashboardGrid.vue` and `css/launchpad.css`; flipping any value here will
  * fail this spec and force an explicit downstream update.
  */
 
@@ -139,8 +139,8 @@ describe('useGridManager — grid configuration', () => {
 			expect(value).toBe(`${CELL_HEIGHT}px`)
 		})
 
-		it('CELL_HEIGHT_CSS_VAR is the documented `--mydash-cell-height` name', () => {
-			expect(CELL_HEIGHT_CSS_VAR).toBe('--mydash-cell-height')
+		it('CELL_HEIGHT_CSS_VAR is the documented `--launchpad-cell-height` name', () => {
+			expect(CELL_HEIGHT_CSS_VAR).toBe('--launchpad-cell-height')
 		})
 	})
 

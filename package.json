@@ -1,5 +1,5 @@
 {
-	"name": "mydash",
+	"name": "launchpad",
 	"version": "1.0.0",
 	"description": "Enhanced dashboard with grid layout and admin controls for Nextcloud",
 	"main": "src/main.js",
@@ -38,7 +38,7 @@
 		"dompurify": "^3.4.1",
 		"gridstack": "^12.2.1",
 		"marked": "^18.0.3",
-		"pinia": "^2.1.7",
+		"pinia": "~2.1.7",
 		"vue": "^2.7.16",
 		"vue-frag": "^1.4.3",
 		"vue-loader": "^15.11.1",
@@ -79,6 +79,8 @@
 	],
 	"overrides": {
 		"vue": "^2.7.16",
-		"vue-template-compiler": "^2.7.16"
+		"vue-template-compiler": "^2.7.16",
+		"@vueuse/core": "~10.11.1",
+		"pinia": "~2.1.7"
 	}
 }

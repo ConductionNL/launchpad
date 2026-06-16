@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -9,18 +9,18 @@
 		class="org-nav"
 		:class="positionClass"
 		role="navigation"
-		:aria-label="t('mydash', 'Organization navigation')">
+		:aria-label="t('launchpad', 'Organization navigation')">
 		<!-- Mobile hamburger (REQ-ONAV-010). Visible only at viewports
 		     below 800px via CSS media query. -->
 		<button
 			type="button"
 			class="org-nav__hamburger"
-			:aria-label="t('mydash', 'Open organization navigation')"
+			:aria-label="t('launchpad', 'Open organization navigation')"
 			@click="openDrawer = true">
 			<span class="org-nav__hamburger-bar" />
 			<span class="org-nav__hamburger-bar" />
 			<span class="org-nav__hamburger-bar" />
-			<span class="org-nav__hamburger-label">{{ t('mydash', 'Navigation') }}</span>
+			<span class="org-nav__hamburger-label">{{ t('launchpad', 'Navigation') }}</span>
 		</button>
 
 		<!-- Desktop rail and mobile drawer share the same template body -->
@@ -31,7 +31,7 @@
 				v-if="openDrawer"
 				type="button"
 				class="org-nav__close"
-				:aria-label="t('mydash', 'Close navigation')"
+				:aria-label="t('launchpad', 'Close navigation')"
 				@click="openDrawer = false">
 				×
 			</button>

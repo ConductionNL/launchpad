@@ -3,17 +3,17 @@
 /**
  * PageController
  *
- * Controller for rendering the main MyDash workspace page (REQ-INIT-001,
+ * Controller for rendering the main LaunchPad workspace page (REQ-INIT-001,
  * REQ-INIT-002). The page-render path constructs an
- * {@see \OCA\MyDash\Service\InitialStateBuilder} for
- * {@see \OCA\MyDash\Service\InitialState\Page::WORKSPACE}, populates every
+ * {@see \OCA\LaunchPad\Service\InitialStateBuilder} for
+ * {@see \OCA\LaunchPad\Service\InitialState\Page::WORKSPACE}, populates every
  * key declared in the spec's Data Model, and applies — direct calls to
  * {@see \OCP\AppFramework\Services\IInitialState::provideInitialState()}
  * are forbidden here (and any other controller) and enforced by the
  * `lint:initial-state` CI guard.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,17 +23,17 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\DashboardTreeService;
-use OCA\MyDash\Service\InitialState\Page;
-use OCA\MyDash\Service\InitialStateBuilder;
-use OCA\MyDash\Service\RoleFeaturePermissionService;
-use OCA\MyDash\Service\WidgetService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\InitialState\Page;
+use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -100,7 +100,7 @@ class PageController extends Controller
     }//end __construct()
 
     /**
-     * Deep-link entry point — `/apps/mydash/{deepLink}`.
+     * Deep-link entry point — `/apps/launchpad/{deepLink}`.
      *
      * Symfony binds the captured slug-chain into `$deepLink`. Delegating
      * to {@see self::index()} keeps the workspace render path single-
@@ -127,7 +127,7 @@ class PageController extends Controller
      * Wires the full workspace initial-state contract into the template via
      * {@see InitialStateBuilder}. Every key declared in REQ-INIT-002 is set
      * before `apply()` runs; missing keys raise
-     * {@see \OCA\MyDash\Exception\MissingInitialStateException} so the page
+     * {@see \OCA\LaunchPad\Exception\MissingInitialStateException} so the page
      * never renders with a partial payload.
      *
      * Deep-link path: when `$deepLink` resolves through the tree service
@@ -149,8 +149,8 @@ class PageController extends Controller
     #[NoCSRFRequired]
     public function index(string $deepLink=''): TemplateResponse
     {
-        Util::addScript(application: Application::APP_ID, file: 'mydash-main');
-        Util::addStyle(application: Application::APP_ID, file: 'mydash');
+        Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
+        Util::addStyle(application: Application::APP_ID, file: 'launchpad');
 
         // Load all widget scripts so legacy widgets can register their callbacks.
         $this->loadWidgetScripts();
@@ -230,7 +230,7 @@ class PageController extends Controller
                     }
                 } catch (Throwable $t) {
                     $this->logger->warning(
-                        message: 'mydash: deep-link resolution failed for path "{path}": {message}',
+                        message: 'launchpad: deep-link resolution failed for path "{path}": {message}',
                         context: [
                             'path'    => $deepLink,
                             'message' => $t->getMessage(),
@@ -240,7 +240,7 @@ class PageController extends Controller
 
                 if ($active === null) {
                     $this->logger->info(
-                        message: 'mydash: deep-link path "{path}" not visible — falling back to default resolver',
+                        message: 'launchpad: deep-link path "{path}" not visible — falling back to default resolver',
                         context: ['path' => $deepLink]
                     );
                 }
@@ -281,7 +281,7 @@ class PageController extends Controller
                 );
             } catch (Throwable $t) {
                 $this->logger->warning(
-                    message: 'mydash: failed to compute path for active dashboard {uuid}: {message}',
+                    message: 'launchpad: failed to compute path for active dashboard {uuid}: {message}',
                     context: [
                         'uuid'    => (string) $activeDashboard->getUuid(),
                         'message' => $t->getMessage(),

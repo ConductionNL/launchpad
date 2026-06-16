@@ -2,9 +2,9 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddDashboardViewsTable.php` creating `oc_mydash_dashboard_views`:
+- [x] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddDashboardViewsTable.php` creating `oc_launchpad_dashboard_views`:
   - `id INT AUTO_INCREMENT PRIMARY KEY`
-  - `dashboardUuid VARCHAR(36) NOT NULL, FOREIGN KEY REFERENCES oc_mydash_dashboards(uuid) ON DELETE CASCADE`
+  - `dashboardUuid VARCHAR(36) NOT NULL, FOREIGN KEY REFERENCES oc_launchpad_dashboards(uuid) ON DELETE CASCADE`
   - `viewBucket DATE NOT NULL`
   - `viewCount INT DEFAULT 0 NOT NULL`
   - `uniqueViewerCount INT DEFAULT 0 NOT NULL`
@@ -41,7 +41,7 @@
   - `getSaltForDate(string $viewBucketDate): string` — retrieves or generates daily salt (stored in ICache with TTL = 25h, timezone UTC)
   - `hashUserForDate(int $userId, string $viewBucketDate): string` — SHA256(userId + salt), returns hex string
   - `isNewUniqueViewer(int $userId, string $viewBucketDate): bool` — checks cache for hash; if not found, adds to cache (TTL 86400s until next UTC midnight) and returns true; otherwise returns false
-  - Cache key format: `mydash_viewer_hash_{viewBucketDate}_{hash}` (prevents collision across dates)
+  - Cache key format: `launchpad_viewer_hash_{viewBucketDate}_{hash}` (prevents collision across dates)
 - [x] 4.2 Test via PHPUnit: dedup identifies first view vs repeat, salt rotates at midnight boundary, cache TTL is correct
 
 ## 5. Analytics service
@@ -51,7 +51,7 @@
     - Skips if opted out or disabled
     - Calls upsertView to increment viewCount
     - Calls UniqueViewerDedup::isNewUniqueViewer() and increments uniqueViewerCount if true
-  - `getTopDashboards(string $period, int $limit): array` — queries top dashboards, joins with `oc_mydash_dashboards` to include name
+  - `getTopDashboards(string $period, int $limit): array` — queries top dashboards, joins with `oc_launchpad_dashboards` to include name
   - `getDashboardDetail(string $dashboardUuid, string $period): array` — queries daily breakdown for one dashboard
   - `getInstanceSummary(string $period): array` — returns totals + top 5
   - `generateCsvExport(string $period): string` — returns CSV text (headers + rows)
@@ -65,8 +65,8 @@
   - Attribute: `#[NoAdminRequired]` (logged-in users only)
   - Extract user ID from `$this->userId`
   - Fetch dashboard to verify existence
-  - Check user setting `mydash.user_setting.analytics_optout`
-  - Check global setting `mydash.analytics_enabled` (default true)
+  - Check user setting `launchpad.user_setting.analytics_optout`
+  - Check global setting `launchpad.analytics_enabled` (default true)
   - Call `AnalyticsService::recordViewEvent($uuid, $userId, $isOptedOut, $isGloballyDisabled)`
   - Return HTTP 204 (empty response)
 - [x] 6.2 Create `lib/Controller/AnalyticsController.php` (new) extending `OCP\AppFramework\Controller` with methods:
@@ -109,7 +109,7 @@
 - [x] 7.1 Create `lib/BackgroundJob/PurgeViewsJob.php` extending `OCP\BackgroundJob\TimedJob`:
   - Constructor sets `$this->setInterval(86400)` (daily)
   - `protected function run($argument)`:
-    - Fetch setting `mydash.analytics_retention_days` (default 365, clamped 30–3650)
+    - Fetch setting `launchpad.analytics_retention_days` (default 365, clamped 30–3650)
     - Compute cutoff date: `CURRENT_DATE - retention_days`
     - Call `DashboardViewMapper::deleteOlderThan($cutoffDate)`
     - Log result: "Purged X rows older than YYYY-MM-DD"
@@ -119,10 +119,10 @@
 ## 8. Configuration defaults
 
 - [x] 8.1 Define default settings in app config (e.g., via migration or in-code):
-  - `mydash.analytics_enabled` → `true`
-  - `mydash.analytics_retention_days` → `365`
-- [x] 8.2 Per-user setting `mydash.user_setting.analytics_optout` → default `false` (user opts in by default)
-  - Stored in `oc_preferences` with key `mydash.analytics_optout` per user
+  - `launchpad.analytics_enabled` → `true`
+  - `launchpad.analytics_retention_days` → `365`
+- [x] 8.2 Per-user setting `launchpad.user_setting.analytics_optout` → default `false` (user opts in by default)
+  - Stored in `oc_preferences` with key `launchpad.analytics_optout` per user
 
 ## 9. Frontend store
 
@@ -177,13 +177,13 @@
 
 ## 12. Configuration UI (optional)
 
-- [x] 12.1 In existing MyDash admin settings view, add "Analytics Settings" section:
-  - Toggle: "Enable view tracking" (sets `mydash.analytics_enabled`)
-  - Input: "Retention period (days)" with spinbox, min 30, max 3650 (sets `mydash.analytics_retention_days`)
+- [x] 12.1 In existing LaunchPad admin settings view, add "Analytics Settings" section:
+  - Toggle: "Enable view tracking" (sets `launchpad.analytics_enabled`)
+  - Input: "Retention period (days)" with spinbox, min 30, max 3650 (sets `launchpad.analytics_retention_days`)
   - Display current retention value and delete cutoff date
   - "Save" button persists changes
 - [x] 12.2 Per-user setting in user preferences view:
-  - Checkbox: "Opt out of dashboard analytics" (toggles `mydash.user_setting.analytics_optout`)
+  - Checkbox: "Opt out of dashboard analytics" (toggles `launchpad.user_setting.analytics_optout`)
   - Help text: "Your dashboard views will not be counted"
 
 ## 13. PHPUnit tests

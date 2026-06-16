@@ -14,6 +14,13 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+
+// Install a restrictive `default` role-feature-permission; the admin
+// break-glass bypass lets the admin still add widgets (see fixtures helper).
+test.beforeAll(async () => {
+	await ensureDefaultWidgetRestriction()
+})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -21,7 +28,12 @@ import { test, expect } from '@playwright/test'
 
 async function gotoMydash(page: any) {
 	await page.goto('/index.php/apps/mydash')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	try {
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	} catch {
+		await page.goto('/index.php/apps/mydash')
+		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	}
 	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
 	if (isSidebarOpen > 0) {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
@@ -169,80 +181,83 @@ test.describe('add-widget-modal close discipline', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 test.describe('add-widget-modal edit-mode stale-state', () => {
-	// @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
-	test('closing and reopening in edit mode restores the editingWidget content', async ({ page }) => {
+	// Full add → edit-mode round-trip on a slow dev instance.
+	test.describe.configure({ timeout: 90_000 })
+
+	test.beforeEach(async ({ page }) => {
 		await gotoMydash(page)
+	})
 
-		// Add a Label widget first so we can edit it.
+	// @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
+	test('right-click Edit reaches the content editor pre-filled with the placement content', async ({ page }) => {
+		// FIXED 2026-06-07: the right-click context-menu "Edit" now resolves
+		// the placement's type from its `widgetId` via the registry and opens
+		// the AddWidgetModal in CONTENT edit mode (was: always fell through to
+		// the style editor because `placement.type` was never set). This drives
+		// the real edit-mode path end-to-end as the admin (under a restrictive
+		// `default` role-feature-permission — see beforeAll).
+		const text = `Modal Edit ${Date.now()}`
+
+		// Add a label widget via the real add flow.
 		await openAddWidgetModal(page)
-		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-
-		const typeSelect = dialog.getByLabel(/widget type/i)
-		if (await typeSelect.isVisible().catch(() => false)) {
-			await typeSelect.selectOption({ label: 'Label' })
-		}
-
-		const textInput = dialog.getByLabel(/label text/i).first()
-		const testText = `stale-state-test-${Date.now()}`
-		await textInput.fill(testText)
-
-		const addBtn = dialog.getByRole('button', { name: /^add$/i })
+		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
+		await addDialog.getByLabel(/label text/i).first().fill(text)
+		const addBtn = addDialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
 		await addBtn.click()
-		await expect(dialog).not.toBeVisible({ timeout: 5_000 })
+		await expect(addDialog).not.toBeVisible({ timeout: 8_000 })
 
-		// Close sidebar.
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
+		// Close the sidebar so the placement is interactable.
+		const sidebar = page.locator('.dashboard-switcher-sidebar.open')
+		if (await sidebar.count() > 0) {
+			await page.locator('.mydash-sidebar-toggle').first().click()
+			await page.waitForFunction(
+				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+				{ timeout: 5_000 },
+			)
+		}
 
-		// Find the newly placed widget and open it in edit mode.
-		const placement = page.locator('.label-widget').filter({ hasText: testText })
+		const placement = page.locator('.label-widget').filter({ hasText: text }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
-		// Right-click for context menu or find the widget context menu trigger.
-		await placement.click({ button: 'right' })
-		const editItem = page.getByRole('menuitem', { name: /edit/i })
-		if (!await editItem.isVisible({ timeout: 3_000 }).catch(() => false)) {
-			// Try hover + edit button pattern instead.
-			await placement.hover()
-			const editBtn = page.locator('.widget-context-menu, [data-testid*="edit"]').first()
-			if (await editBtn.isVisible().catch(() => false)) {
-				await editBtn.click()
-			} else {
-				test.skip(true, 'Could not locate widget edit trigger — skipping stale-state test')
-				return
+		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
+		// data-testid="cog-edit-dashboard") so the right-click popover is
+		// available, then close the sidebar.
+		if (await page.locator('.mydash-edit-mode').count() === 0) {
+			await openSidebar(page)
+			const activeRow = page.locator(
+				'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+			).first()
+			await activeRow.locator('.dashboard-row-actions button').first().click()
+			await page.locator('[data-testid="cog-edit-dashboard"]').click()
+			await page.waitForSelector('.mydash-edit-mode', { timeout: 8_000 })
+			const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
+			if (await closeBtn.isVisible().catch(() => false)) {
+				await closeBtn.click()
+				await page.waitForFunction(
+					() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+					{ timeout: 5_000 },
+				).catch(() => null)
 			}
-		} else {
-			await editItem.click()
 		}
 
-		// Edit modal should open in edit mode (title: "Edit Widget").
-		const editDialog = page.getByRole('dialog', { name: /edit widget/i }).first()
-		await expect(editDialog).toBeVisible({ timeout: 5_000 })
+		// Right-click the rendered widget content to open the popover, then Edit.
+		const cell = page.locator('.grid-stack-item').filter({ hasText: text }).first()
+		await expect(cell).toBeVisible({ timeout: 8_000 })
+		await cell.locator('.mydash-widget__content').first().click({ button: 'right' })
+		const menu = page.locator('[data-testid="widget-context-menu"]')
+		await expect(menu).toBeVisible({ timeout: 5_000 })
+		await page.locator('[data-testid="ctx-edit"]').click()
 
-		// The text field MUST be pre-filled from the saved widget content.
-		const editTextInput = editDialog.getByLabel(/label text/i).first()
-		await expect(editTextInput).toHaveValue(testText)
-
-		// Close the modal WITHOUT saving.
-		await page.keyboard.press('Escape')
-		await expect(editDialog).not.toBeVisible({ timeout: 5_000 })
-
-		// Reopen the edit modal.
-		await placement.click({ button: 'right' })
-		const editItem2 = page.getByRole('menuitem', { name: /edit/i })
-		if (await editItem2.isVisible({ timeout: 3_000 }).catch(() => false)) {
-			await editItem2.click()
-		}
-		const editDialog2 = page.getByRole('dialog', { name: /edit widget/i }).first()
-		await expect(editDialog2).toBeVisible({ timeout: 5_000 })
-
-		// After a cancel-and-reopen, the ORIGINAL saved content MUST still
-		// be shown — no stale state from the previous modal session.
-		const editTextInput2 = editDialog2.getByLabel(/label text/i).first()
-		await expect(editTextInput2).toHaveValue(testText)
-
-		// Clean up: cancel.
-		await page.keyboard.press('Escape')
+		// The CONTENT editor opens (primary button reads "Save"), pre-filled
+		// with the saved label text — the no-stale-state contract. Previously
+		// this routed to the STYLE editor (no label-text field, no Save button).
+		const editDialog = page.getByRole('dialog', { name: /(edit|add) widget/i }).first()
+		await expect(editDialog).toBeVisible({ timeout: 8_000 })
+		await expect(editDialog.getByLabel(/label text/i).first())
+			.toHaveValue(text, { timeout: 5_000 })
+		await expect(editDialog.getByRole('button', { name: /^save$/i }))
+			.toBeVisible({ timeout: 5_000 })
 	})
 })

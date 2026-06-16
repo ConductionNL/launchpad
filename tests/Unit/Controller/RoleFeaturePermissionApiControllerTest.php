@@ -12,7 +12,7 @@
  *  - Save layout default with valid body → 201 (REQ-RFP-008).
  *
  * @category Test
- * @package  OCA\MyDash\Tests\Unit\Controller
+ * @package  OCA\LaunchPad\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,10 +28,10 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\Controller\RoleFeaturePermissionApiController;
-use OCA\MyDash\Db\RoleFeaturePermission;
-use OCA\MyDash\Db\RoleLayoutDefault;
-use OCA\MyDash\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Controller\RoleFeaturePermissionApiController;
+use OCA\LaunchPad\Db\RoleFeaturePermission;
+use OCA\LaunchPad\Db\RoleLayoutDefault;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IRequest;

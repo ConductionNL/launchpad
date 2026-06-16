@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
   -
   - DashboardComments — UI for the dashboard-comments capability
@@ -9,15 +9,15 @@
 -->
 
 <template>
-	<section class="dashboard-comments" :aria-label="t('mydash', 'Comments')">
+	<section class="dashboard-comments" :aria-label="t('launchpad', 'Comments')">
 		<header class="dashboard-comments__header">
 			<h2 class="dashboard-comments__title">
-				{{ t('mydash', 'Comments') }}
+				{{ t('launchpad', 'Comments') }}
 			</h2>
 		</header>
 
 		<p v-if="!commentsEnabled || !thread.enabled" class="dashboard-comments__disabled" role="status">
-			{{ t('mydash', 'Comments are disabled on this dashboard') }}
+			{{ t('launchpad', 'Comments are disabled on this dashboard') }}
 		</p>
 
 		<template v-else>
@@ -26,21 +26,21 @@
 				class="dashboard-comments__form"
 				@submit.prevent="submitTopLevel">
 				<label class="dashboard-comments__label" :for="topLevelInputId">
-					{{ t('mydash', 'Write a comment…') }}
+					{{ t('launchpad', 'Write a comment…') }}
 				</label>
 				<NcTextField
 					:id="topLevelInputId"
 					v-model="topLevelDraft"
-					:placeholder="t('mydash', 'Write a comment…')"
+					:placeholder="t('launchpad', 'Write a comment…')"
 					:disabled="submitting"
-					:label="t('mydash', 'Comment text')"
+					:label="t('launchpad', 'Comment text')"
 					hide-label
 					class="dashboard-comments__input" />
 				<NcButton
 					type="primary"
 					:disabled="!canSubmitTopLevel"
 					native-type="submit">
-					{{ t('mydash', 'Post comment') }}
+					{{ t('launchpad', 'Post comment') }}
 				</NcButton>
 			</form>
 
@@ -62,7 +62,7 @@
 								{{ formatTimestamp(comment.createdAt) }}
 							</time>
 							<span v-if="comment.wasEdited" class="dashboard-comments__edited">
-								{{ t('mydash', 'Edited') }}
+								{{ t('launchpad', 'Edited') }}
 							</span>
 						</header>
 
@@ -72,14 +72,14 @@
 							@submit.prevent="submitEdit(comment)">
 							<NcTextField
 								v-model="editDraft"
-								:label="t('mydash', 'Edit comment')"
+								:label="t('launchpad', 'Edit comment')"
 								hide-label
 								:disabled="submitting" />
 							<NcButton type="primary" native-type="submit">
-								{{ t('mydash', 'Save') }}
+								{{ t('launchpad', 'Save') }}
 							</NcButton>
 							<NcButton @click="cancelEdit">
-								{{ t('mydash', 'Cancel') }}
+								{{ t('launchpad', 'Cancel') }}
 							</NcButton>
 						</form>
 
@@ -92,19 +92,19 @@
 								v-if="canPost"
 								type="tertiary"
 								@click="startReply(comment)">
-								{{ t('mydash', 'Reply') }}
+								{{ t('launchpad', 'Reply') }}
 							</NcButton>
 							<NcButton
 								v-if="canEditComment(comment)"
 								type="tertiary"
 								@click="startEdit(comment)">
-								{{ t('mydash', 'Edit') }}
+								{{ t('launchpad', 'Edit') }}
 							</NcButton>
 							<NcButton
 								v-if="canEditComment(comment)"
 								type="tertiary"
 								@click="confirmDelete(comment)">
-								{{ t('mydash', 'Delete') }}
+								{{ t('launchpad', 'Delete') }}
 							</NcButton>
 						</footer>
 
@@ -114,18 +114,18 @@
 							@submit.prevent="submitReply(comment)">
 							<NcTextField
 								v-model="replyDraft"
-								:label="t('mydash', 'Write a reply…')"
-								:placeholder="t('mydash', 'Write a reply…')"
+								:label="t('launchpad', 'Write a reply…')"
+								:placeholder="t('launchpad', 'Write a reply…')"
 								hide-label
 								:disabled="submitting" />
 							<NcButton
 								type="primary"
 								:disabled="!canSubmitReply"
 								native-type="submit">
-								{{ t('mydash', 'Reply') }}
+								{{ t('launchpad', 'Reply') }}
 							</NcButton>
 							<NcButton @click="cancelReply">
-								{{ t('mydash', 'Cancel reply') }}
+								{{ t('launchpad', 'Cancel reply') }}
 							</NcButton>
 						</form>
 
@@ -144,7 +144,7 @@
 										{{ formatTimestamp(reply.createdAt) }}
 									</time>
 									<span v-if="reply.wasEdited" class="dashboard-comments__edited">
-										{{ t('mydash', 'Edited') }}
+										{{ t('launchpad', 'Edited') }}
 									</span>
 								</header>
 
@@ -154,14 +154,14 @@
 									@submit.prevent="submitEdit(reply)">
 									<NcTextField
 										v-model="editDraft"
-										:label="t('mydash', 'Edit comment')"
+										:label="t('launchpad', 'Edit comment')"
 										hide-label
 										:disabled="submitting" />
 									<NcButton type="primary" native-type="submit">
-										{{ t('mydash', 'Save') }}
+										{{ t('launchpad', 'Save') }}
 									</NcButton>
 									<NcButton @click="cancelEdit">
-										{{ t('mydash', 'Cancel') }}
+										{{ t('launchpad', 'Cancel') }}
 									</NcButton>
 								</form>
 
@@ -174,13 +174,13 @@
 										v-if="canEditComment(reply)"
 										type="tertiary"
 										@click="startEdit(reply)">
-										{{ t('mydash', 'Edit') }}
+										{{ t('launchpad', 'Edit') }}
 									</NcButton>
 									<NcButton
 										v-if="canEditComment(reply)"
 										type="tertiary"
 										@click="confirmDelete(reply)">
-										{{ t('mydash', 'Delete') }}
+										{{ t('launchpad', 'Delete') }}
 									</NcButton>
 								</footer>
 							</li>
@@ -230,7 +230,7 @@ export default {
 			type: String,
 			default: '',
 		},
-		// `true` when the current user is a Nextcloud admin or MyDash
+		// `true` when the current user is a Nextcloud admin or LaunchPad
 		// admin — admins can edit / delete any comment (REQ-CMNT-004,
 		// REQ-CMNT-005).
 		isAdmin: {
@@ -264,7 +264,7 @@ export default {
 
 		/** @spec openspec/specs/dashboard-comments/spec.md */
 		topLevelInputId() {
-			return `mydash-comments-input-${this.dashboardUuid}`
+			return `launchpad-comments-input-${this.dashboardUuid}`
 		},
 
 		/** @spec openspec/specs/dashboard-comments/spec.md */
@@ -330,7 +330,7 @@ export default {
 				this.topLevelDraft = ''
 			} catch (err) {
 				this.topLevelError = err?.response?.data?.error
-					|| t('mydash', 'Failed to post comment')
+					|| t('launchpad', 'Failed to post comment')
 			} finally {
 				this.submitting = false
 			}
@@ -362,7 +362,7 @@ export default {
 				this.cancelReply()
 			} catch (err) {
 				this.topLevelError = err?.response?.data?.error
-					|| t('mydash', 'Failed to post reply')
+					|| t('launchpad', 'Failed to post reply')
 			} finally {
 				this.submitting = false
 			}
@@ -393,7 +393,7 @@ export default {
 				this.cancelEdit()
 			} catch (err) {
 				this.topLevelError = err?.response?.data?.error
-					|| t('mydash', 'Failed to update comment')
+					|| t('launchpad', 'Failed to update comment')
 			} finally {
 				this.submitting = false
 			}
@@ -403,9 +403,9 @@ export default {
 		async confirmDelete(comment) {
 			const isTopLevel = comment.parentId === null || comment.parentId === undefined
 			const message = isTopLevel
-				? `${t('mydash', 'Are you sure you want to delete this comment?')} `
-					+ t('mydash', 'Deleting this top-level comment will also remove all its replies.')
-				: t('mydash', 'Are you sure you want to delete this comment?')
+				? `${t('launchpad', 'Are you sure you want to delete this comment?')} `
+					+ t('launchpad', 'Deleting this top-level comment will also remove all its replies.')
+				: t('launchpad', 'Are you sure you want to delete this comment?')
 			// Use the native confirm so the component stays free of dialog
 			// dependencies; e2e tests intercept it with `dialog.accept()`.
 			// eslint-disable-next-line no-alert
@@ -417,7 +417,7 @@ export default {
 				await this.store.deleteComment(this.dashboardUuid, comment.id)
 			} catch (err) {
 				this.topLevelError = err?.response?.data?.error
-					|| t('mydash', 'Failed to delete comment')
+					|| t('launchpad', 'Failed to delete comment')
 			} finally {
 				this.submitting = false
 			}

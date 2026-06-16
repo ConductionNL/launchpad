@@ -3,17 +3,17 @@
 /**
  * ArchiveParserTest
  *
- * Unit tests for {@see \OCA\MyDash\Service\Confluence\ArchiveParser}
+ * Unit tests for {@see \OCA\LaunchPad\Service\Confluence\ArchiveParser}
  * covering REQ-CFLI-001 (archive structure), REQ-CFLI-002 (hierarchy
  * extraction), REQ-CFLI-003 (body selector waterfall).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\Confluence
+ * @package   OCA\LaunchPad\Tests\Unit\Service\Confluence
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Unit\Service\Confluence;
 
 use InvalidArgumentException;
-use OCA\MyDash\Service\Confluence\ArchiveParser;
+use OCA\LaunchPad\Service\Confluence\ArchiveParser;
 use PHPUnit\Framework\TestCase;
 use ZipArchive;
 

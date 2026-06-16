@@ -24,7 +24,9 @@ Nextcloud ACL enforces visibility.
 Sourced from Specter draft `dashboard-file-access` (1 feature: open
 dossier document from dashboard).
 
-## ADDED Requirements
+## Requirements
+
+@e2e exclude proposed/unimplemented widget — `launchpad_file_access` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, Files OCS/WebDAV metadata routing, and Specter-sourced dossier-file rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
 ### REQ-FAW-001: The system SHALL register a `launchpad_file_access` widget type alongside the existing `files-widget`
 
@@ -53,7 +55,7 @@ always satisfied in practice; the declaration is for completeness.
 
 ### REQ-FAW-002: The widget content shape SHALL describe the source binding mode
 
-The placement persists `{type: 'file-access', content: {...}}` with:
+The placement MUST persist `{type: 'file-access', content: {...}}` with:
 
 | Field | Type | Required | Default | Purpose |
 |---|---|---|---|---|
@@ -138,9 +140,7 @@ same OCS metadata fetch as REQ-FAW-003.
 
 ### REQ-FAW-005: When the viewer lacks access to a referenced file, the widget SHALL render an access-denied row — not surface the file metadata (Specter source)
 
-When a file ID in `fileIds`, an `orObject`-derived file, or a
-`recent` result is not readable by the viewer (Nextcloud ACL
-denies), the row MUST render with a lock icon + the translated
+When a file ID in `fileIds`, an `orObject`-derived file, or a `recent` result is not readable by the viewer (Nextcloud ACL denies), the row MUST render with a lock icon + the translated
 text `t('launchpad', 'No access')`, MUST NOT surface the file's title
 or thumbnail, and MUST NOT allow click-through. The widget MUST
 NOT throw — other rows MUST keep rendering.

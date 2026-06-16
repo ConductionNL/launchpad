@@ -7,8 +7,8 @@
 - [x] **T03**: Implement `jsonSerialize()` on `WidgetPlacement`, conditionally including tile fields when `tileType !== null` — `lib/Db/WidgetPlacement.php`
 - [x] **T04**: Create `PlacementTableBuilder` with core placement columns (id, dashboard_id, widget_id, grid_x/y/width/height, is_compulsory, is_visible, style_config, custom_title, show_title, sort_order, created_at, updated_at) — `lib/Migration/PlacementTableBuilder.php`
 - [x] **T05**: Write initial migration `Version001000` that invokes `PlacementTableBuilder::create()` — `lib/Migration/Version001000Date20240101000000.php`
-- [x] **T06**: Write migration `Version001003` adding tile-specific columns to `mydash_widget_placements` (tile_type, tile_title, tile_icon, tile_icon_type, tile_background_color, tile_text_color, tile_link_type, tile_link_value) — `lib/Migration/Version001003Date20260204120000.php`
-- [x] **T07**: Write migration `Version001004` adding `custom_icon` (TEXT) column to `mydash_widget_placements` — `lib/Migration/Version001004Date20260204150000.php`
+- [x] **T06**: Write migration `Version001003` adding tile-specific columns to `launchpad_widget_placements` (tile_type, tile_title, tile_icon, tile_icon_type, tile_background_color, tile_text_color, tile_link_type, tile_link_value) — `lib/Migration/Version001003Date20260204120000.php`
+- [x] **T07**: Write migration `Version001004` adding `custom_icon` (TEXT) column to `launchpad_widget_placements` — `lib/Migration/Version001004Date20260204150000.php`
 - [x] **T08**: Create `WidgetPlacementMapper` extending `QBMapper<WidgetPlacement>` with `find()`, `findByDashboardId()`, `findByDashboardAndWidget()`, `deleteByDashboardId()` — `lib/Db/WidgetPlacementMapper.php`
 - [x] **T09**: Implement `updatePositions(array $updates)` on `WidgetPlacementMapper` for efficient batch grid saves — `lib/Db/WidgetPlacementMapper.php`
 - [x] **T10**: Implement `getMaxSortOrder(int $dashboardId)` on `WidgetPlacementMapper` for auto-assigning sort order — `lib/Db/WidgetPlacementMapper.php`

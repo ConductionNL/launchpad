@@ -2,7 +2,7 @@
 
 ## Context
 
-The video widget allows dashboard editors to embed video content directly on a MyDash dashboard from four source types: two major hosted platforms, self-hosted open-source video instances, and internal file storage. The widget is a MyDash-native invention — it has no sibling dependency on existing background jobs or external data pipelines.
+The video widget allows dashboard editors to embed video content directly on a LaunchPad dashboard from four source types: two major hosted platforms, self-hosted open-source video instances, and internal file storage. The widget is a LaunchPad-native invention — it has no sibling dependency on existing background jobs or external data pipelines.
 
 Security is the dominant concern for embedded video. Hosted-platform embeds use a sandboxed iframe with a minimal capability set; the embed URL is extracted and canonicalised server-side at save time so the frontend never re-parses raw user-supplied URLs at render time. An admin-controlled domain allow-list governs which hosted origins may be embedded; an empty list means "allow nothing" rather than "allow all", so a freshly cleared setting fails safe.
 
@@ -42,7 +42,7 @@ Internal file storage video is handled differently: a native HTML5 video element
 
 ### D3: Admin domain allow-list — empty means deny-all
 
-**Decision:** Admin setting `mydash.video_widget_allowed_domains` is a JSON array of permitted hostnames for hosted-platform embeds. The default value includes a small set of well-known hostnames. An empty array means no hosted-platform embeds are permitted. A non-existent or null setting is treated as the default, not as "allow all".
+**Decision:** Admin setting `launchpad.video_widget_allowed_domains` is a JSON array of permitted hostnames for hosted-platform embeds. The default value includes a small set of well-known hostnames. An empty array means no hosted-platform embeds are permitted. A non-existent or null setting is treated as the default, not as "allow all".
 
 **Alternatives considered:** Empty value means "allow all" — simpler for administrators who want open embedding. Creates an unsafe default when the setting is accidentally cleared.
 
@@ -68,7 +68,7 @@ Internal file storage video is handled differently: a native HTML5 video element
 
 ### D6: Privacy-preserving mode for applicable hosted platforms — opt-out
 
-**Decision:** Admin setting `mydash.video_widget_use_nocookie_youtube` defaults to `true`. When enabled, the URL parser substitutes the standard domain with the privacy-enhanced equivalent for applicable platforms at save time, so the stored `embedUrl` already reflects the privacy-preserving variant.
+**Decision:** Admin setting `launchpad.video_widget_use_nocookie_youtube` defaults to `true`. When enabled, the URL parser substitutes the standard domain with the privacy-enhanced equivalent for applicable platforms at save time, so the stored `embedUrl` already reflects the privacy-preserving variant.
 
 **Alternatives considered:** Default to `false` (standard domain). Reduces tracking only for admins who discover and enable the setting.
 

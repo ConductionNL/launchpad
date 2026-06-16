@@ -8,7 +8,7 @@
  * #[AuthorizedAdminSetting], so no in-body authorization is required.
  *
  * @category Controller
- * @package  OCA\MyDash\Controller
+ * @package  OCA\LaunchPad\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V. <info@conduction.nl>
@@ -21,10 +21,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
@@ -69,7 +70,7 @@ class ActionMatrixController extends Controller
      *
      * @spec openspec/architecture/adr-023-action-authorization.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function getMatrix(): JSONResponse
     {
         $matrix = $this->actionAuth->getMatrix();
@@ -108,7 +109,7 @@ class ActionMatrixController extends Controller
      *
      * @spec openspec/architecture/adr-023-action-authorization.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function setMatrix(): JSONResponse
     {
         $matrix = $this->request->getParam('matrix');

@@ -13,9 +13,9 @@ Conditional visibility allows widget placements to be shown or hidden based on d
 
 @e2e exclude all scenarios test PHP service layer and DB — visibility evaluation is backend-only; no UI surface for rule editing in v1.0.5
 
-### Conditional Rules (oc_mydash_conditional_rules)
+### Conditional Rules (oc_launchpad_conditional_rules)
 - **id**: Auto-increment integer primary key
-- **widgetPlacementId**: Foreign key to oc_mydash_widget_placements (INTEGER)
+- **widgetPlacementId**: Foreign key to oc_launchpad_widget_placements (INTEGER)
 - **ruleType**: One of `group`, `time`, `date`, `attribute` (STRING)
 - **ruleConfig**: JSON blob containing the rule parameters, varies by ruleType (STRING, nullable). Stored via `json_encode()`, accessed via `getRuleConfigArray()`.
 - **isInclude**: Boolean -- if true, the rule is an inclusion rule (show when matched); if false, it is an exclusion rule (hide when matched)

@@ -26,7 +26,9 @@ local roles/permissions table or post writes to OR's RBAC.
 Sourced from Specter draft `enterprise-security-access` (2 features:
 enterprise guest/role perms + view-as-another-role).
 
-## ADDED Requirements
+## Requirements
+
+@e2e exclude proposed/unimplemented widget — `launchpad_security_access` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert admin-only registration, schema validation, OR-RBAC GraphQL consumption, SSO/MFA card rendering, and impersonation-preview flows from Specter sources — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
 ### REQ-ESA-001: The system SHALL register a `launchpad_security_access` widget type
 
@@ -53,7 +55,7 @@ admin permission per `admin-roles`).
 
 ### REQ-ESA-002: The widget content shape SHALL describe scope + which cards to render
 
-The placement persists `{type: 'security-access', content: {...}}` with:
+The placement MUST persist `{type: 'security-access', content: {...}}` with:
 
 | Field | Type | Required | Default | Purpose |
 |---|---|---|---|---|
@@ -167,8 +169,7 @@ Nextcloud's `Settings → Security` UI for changes.
 
 ### REQ-ESA-006: "View as another role" SHALL be a read-only preview, audited via OR's audit-trail-immutable (Specter source)
 
-When `viewAsEnabled === true`, an admin viewer MAY pick a target
-role from a "View as" control. The dashboard MUST re-render the
+When `viewAsEnabled === true`, an admin viewer MAY pick a target role from a "View as" control, and the dashboard MUST re-render the
 current page applying the target role's `role-based-content`
 conditional rules (per the existing `role-based-content` spec). A
 persistent banner MUST show the assumed role with a one-click "Exit

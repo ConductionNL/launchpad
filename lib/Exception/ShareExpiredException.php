@@ -7,7 +7,7 @@
  * Maps to HTTP 404 per REQ-PSHR-008 (no leaking of expiry vs non-existence).
  *
  * @category  Exception
- * @package   OCA\MyDash\Exception
+ * @package   OCA\LaunchPad\Exception
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -22,7 +22,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Exception;
+namespace OCA\LaunchPad\Exception;
 
 /**
  * Public share has passed its expiry date.

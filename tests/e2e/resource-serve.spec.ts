@@ -19,41 +19,54 @@
 
 import { test, expect } from '@playwright/test'
 import * as path from 'path'
+import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 const APP_ID = process.env.APP_ID || 'mydash'
 
+test.beforeAll(async () => {
+	await ensureDefaultWidgetRestriction()
+})
+
 test.describe('resource-serving', () => {
 	test('REQ-RES-006: image widget renders uploaded resource via GET /apps/<app>/resource/<filename>', async ({ page }) => {
-		// Log in and navigate to the app dashboard.
-		await page.goto(`${NEXTCLOUD_URL}/index.php/apps/${APP_ID}`)
+		await gotoMydash(page)
 
-		// Upload a tiny PNG via the admin resource upload UI.
-		await page.getByRole('button', { name: /add widget/i }).click()
-		await page.getByLabel('Widget type').selectOption({ label: 'Image' })
+		// Upload a tiny PNG via the Image widget upload UI (cog-menu flow).
+		await openAddWidgetModal(page)
+		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
+
+		// Switch the image source to "Upload" (radio, default is URL).
+		await dialog.getByText('Upload', { exact: true }).click()
 
 		const fileChooserPromise = page.waitForEvent('filechooser')
-		await page.getByLabel(/upload image/i).click()
+		await dialog.getByText('Upload Image', { exact: true }).click()
 		const fc = await fileChooserPromise
 		await fc.setFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
-		// Wait for the URL field to be populated with the serve route.
-		const urlInput = page.getByLabel(/image url/i)
-		await expect(urlInput).toHaveValue(new RegExp(`/apps/${APP_ID}/resource/`))
+		// After upload the preview renders with the serve route as its src.
+		const preview = dialog.locator('.image-form__preview')
+		await expect(preview).toBeVisible({ timeout: 15_000 })
+		await expect(preview).toHaveAttribute('src', new RegExp(`/apps/${APP_ID}/resource/`), { timeout: 5_000 })
 
-		await page.getByRole('button', { name: /save|add/i }).click()
+		const addBtn = dialog.getByRole('button', { name: /^add$/i })
+		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
+		await addBtn.click()
+		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+
+		await closeSidebar(page)
 
 		// The widget must render the image using the served URL.
-		const img = page.locator('.image-widget__img')
-		await expect(img).toBeVisible()
-		await expect(img).toHaveAttribute('src', new RegExp(`/apps/${APP_ID}/resource/`))
+		const anyImg = page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).first()
+		await expect(anyImg).toBeVisible({ timeout: 8_000 })
 
-		// Verify the resource URL actually delivers bytes (network-level).
-		const src = await img.getAttribute('src') ?? ''
+		// Verify the resource URL actually delivers image bytes (network-level).
+		const src = await anyImg.getAttribute('src') ?? ''
 		const response = await page.request.get(src)
 		expect(response.status()).toBe(200)
-		const contentType = response.headers()['content-type']
-		expect(contentType).toMatch(/^image\//)
+		expect(response.headers()['content-type']).toMatch(/^image\//)
 	})
 
 	test('REQ-RES-006: unauthenticated direct fetch of resource redirects to login', async ({ browser }) => {

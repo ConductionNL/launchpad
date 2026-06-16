@@ -3,9 +3,9 @@
 /**
  * OrphanedConditionalRulesCategory
  *
- * Cleanup category for rows in `mydash_conditional_rules` whose
+ * Cleanup category for rows in `launchpad_conditional_rules` whose
  * `widget_placement_id` no longer points at any row in
- * `mydash_widget_placements`. REQ-CLN-001.
+ * `launchpad_widget_placements`. REQ-CLN-001.
  *
  * Tier-B (`safeToPurgeAutomatically=false`): conditional rules
  * encode admin-authored visibility logic the user may want to
@@ -13,22 +13,22 @@
  * keeps this category off the auto-purge defaults.
  *
  * @category  Service
- * @package   OCA\MyDash\Service\Cleanup
+ * @package   OCA\LaunchPad\Service\Cleanup
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\Cleanup;
+namespace OCA\LaunchPad\Service\Cleanup;
 
-use OCA\MyDash\Db\ConditionalRuleMapper;
+use OCA\LaunchPad\Db\ConditionalRuleMapper;
 
 /**
  * Sweeps conditional-rule rows whose placement no longer exists.
@@ -84,7 +84,7 @@ class OrphanedConditionalRulesCategory implements CleanupCategoryInterface
     }//end getSafeToPurgeAutomatically()
 
     /**
-     * Always available — `mydash_conditional_rules` ships in the core
+     * Always available — `launchpad_conditional_rules` ships in the core
      * schema.
      *
      * @return bool True.

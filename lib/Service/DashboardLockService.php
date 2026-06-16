@@ -21,28 +21,28 @@
  *    correctness.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\DashboardLock;
-use OCA\MyDash\Db\DashboardLockMapper;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Exception\LockConflictException;
-use OCA\MyDash\Exception\LockForbiddenException;
-use OCA\MyDash\Exception\LockNotFoundException;
+use OCA\LaunchPad\Db\DashboardLock;
+use OCA\LaunchPad\Db\DashboardLockMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Exception\LockConflictException;
+use OCA\LaunchPad\Exception\LockForbiddenException;
+use OCA\LaunchPad\Exception\LockNotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
@@ -291,7 +291,7 @@ class DashboardLockService
             // L2: audit log when an admin overrides another user's lock.
             $this->logger->info(
                 message: sprintf(
-                    'mydash.dashboard_lock.admin_override_release admin=%s dashboard=%s previous_owner=%s',
+                    'launchpad.dashboard_lock.admin_override_release admin=%s dashboard=%s previous_owner=%s',
                     $userId,
                     $dashboardUuid,
                     (string) $existing->getUserId(),
@@ -368,7 +368,7 @@ class DashboardLockService
 
         $this->logger->info(
             message: sprintf(
-                'mydash.dashboard_lock.force_release admin=%s dashboard=%s previous_owner=%s',
+                'launchpad.dashboard_lock.force_release admin=%s dashboard=%s previous_owner=%s',
                 $adminUserId,
                 $dashboardUuid,
                 ($previousOwner ?? 'none'),

@@ -31,7 +31,7 @@
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
 				type="tertiary"
-				:aria-label="t('mydash', 'Open menu')"
+				:aria-label="t('launchpad', 'Open menu')"
 				class="workspace-shell__hamburger"
 				@click="toggleSidebar">
 				<template #icon>
@@ -88,20 +88,20 @@
 				ref="viewsRef" />
 			<div v-else class="workspace-shell__empty">
 				<p class="workspace-shell__empty-title">
-					{{ t('mydash', 'No dashboards available') }}
+					{{ t('launchpad', 'No dashboards available') }}
 				</p>
 				<p v-if="injectedAllowUserDashboards" class="workspace-shell__empty-hint">
-					{{ t('mydash', 'Create your first dashboard') }}
+					{{ t('launchpad', 'Create your first dashboard') }}
 				</p>
 				<p v-else class="workspace-shell__empty-hint">
-					{{ t('mydash', 'Contact your administrator') }}
+					{{ t('launchpad', 'Contact your administrator') }}
 				</p>
 				<button
 					v-if="injectedAllowUserDashboards"
 					type="button"
 					class="workspace-shell__empty-cta"
 					@click="onCreateFirstDashboard">
-					{{ t('mydash', 'Create your first dashboard') }}
+					{{ t('launchpad', 'Create your first dashboard') }}
 				</button>
 			</div>
 		</div>
@@ -430,7 +430,7 @@ export default {
 			const store = useDashboardStore()
 			try {
 				await store.createDashboard({
-					name: this.t('mydash', 'My dashboard'),
+					name: this.t('launchpad', 'My dashboard'),
 				})
 			} catch (error) {
 				console.error('[WorkspaceApp] Failed to create first dashboard:', error)

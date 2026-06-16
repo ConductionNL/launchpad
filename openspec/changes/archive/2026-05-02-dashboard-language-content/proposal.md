@@ -2,11 +2,11 @@
 
 ## Why
 
-Today MyDash dashboards store a single widget tree, name, and description per dashboard. Organisations operating in multi-language environments cannot provide locale-specific content variants without manually maintaining separate dashboards per language. This change introduces per-language content variants, allowing a single dashboard to carry multiple localised widget trees, names, and descriptions, with automatic detection of the viewer's Nextcloud locale.
+Today LaunchPad dashboards store a single widget tree, name, and description per dashboard. Organisations operating in multi-language environments cannot provide locale-specific content variants without manually maintaining separate dashboards per language. This change introduces per-language content variants, allowing a single dashboard to carry multiple localised widget trees, names, and descriptions, with automatic detection of the viewer's Nextcloud locale.
 
 ## What Changes
 
-- Add a new table `oc_mydash_dashboard_translations` to store per-language variants of a dashboard's widget tree, name, and description.
+- Add a new table `oc_launchpad_dashboard_translations` to store per-language variants of a dashboard's widget tree, name, and description.
 - Each dashboard MUST have exactly one variant marked as the primary (`isPrimary = 1`), serving as the fallback when no locale match is found and as the seed for newly-created variants.
 - On dashboard creation, a primary translation is auto-created in the owner's current Nextcloud locale (`\OCP\IConfig::getUserValue($uid, 'core', 'lang')`).
 - Add locale matching with three-tier precedence: exact match first, then language-part match (e.g. `nl-BE` → `nl`), then fallback to primary.
@@ -34,7 +34,7 @@ Today MyDash dashboards store a single widget tree, name, and description per da
 - `lib/Service/DashboardService.php` — locale resolution logic; translation creation/update/deletion with variant seeding
 - `lib/Controller/DashboardController.php` — five new endpoints for translation management; GET /api/dashboards/{uuid} enhanced to include availableLanguages and currentLanguage
 - `appinfo/routes.php` — register five new translation routes
-- `lib/Migration/VersionXXXXDate2026...php` — schema migration adding `oc_mydash_dashboard_translations` table + migration backfill for primary variants from existing widget trees
+- `lib/Migration/VersionXXXXDate2026...php` — schema migration adding `oc_launchpad_dashboard_translations` table + migration backfill for primary variants from existing widget trees
 
 **Affected APIs:**
 
@@ -49,6 +49,6 @@ Today MyDash dashboards store a single widget tree, name, and description per da
 
 **Migration:**
 
-- Zero-impact schema: adds a new table with no constraints on the existing `oc_mydash_dashboards` table.
+- Zero-impact schema: adds a new table with no constraints on the existing `oc_launchpad_dashboards` table.
 - Backfill: For every dashboard, a primary translation row is created with the dashboard's existing `widgetTreeJson` from the parent table, in the owner's locale if available (else 'en' fallback).
-- Existing widget tree data is NOT removed from `oc_mydash_dashboards` initially (kept for backwards compat during a transition period); this is tracked separately for future deprecation.
+- Existing widget tree data is NOT removed from `oc_launchpad_dashboards` initially (kept for backwards compat during a transition period); this is tracked separately for future deprecation.

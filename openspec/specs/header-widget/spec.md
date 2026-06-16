@@ -6,15 +6,15 @@ status: implemented
 
 ## Purpose
 
-The header widget is a built-in MyDash widget type that drops a full-width banner onto a dashboard with a configurable title, optional subtitle, optional background image (URL or NC file), an optional color overlay, and an optional call-to-action button. It replaces the legacy "header row" prototype with a first-class, typed widget that participates in the same registry, modal, and grid pipeline as every other built-in widget — no special-casing in the dashboard renderer.
+The header widget is a built-in LaunchPad widget type that drops a full-width banner onto a dashboard with a configurable title, optional subtitle, optional background image (URL or NC file), an optional color overlay, and an optional call-to-action button. It replaces the legacy "header row" prototype with a first-class, typed widget that participates in the same registry, modal, and grid pipeline as every other built-in widget — no special-casing in the dashboard renderer.
 
-Persistence is purely client-side: header content lives inside the existing `oc_mydash_widget_placements.content` JSON column under the discriminated shape `{type: 'header', content: {...}}`. There is no migration, no new endpoint, and no new admin setting; the renderer enforces a simple `http(s)` scheme check on user-entered URLs and falls back to the configured solid `backgroundColor` when the chosen image fails to load.
+Persistence is purely client-side: header content lives inside the existing `oc_launchpad_widget_placements.content` JSON column under the discriminated shape `{type: 'header', content: {...}}`. There is no migration, no new endpoint, and no new admin setting; the renderer enforces a simple `http(s)` scheme check on user-entered URLs and falls back to the configured solid `backgroundColor` when the chosen image fails to load.
 
 The capability is one widget type, one renderer (`HeaderWidget.vue`), one sub-form (`HeaderForm.vue`), and one registry entry. It composes with the resource-uploads pipeline (REQ-RES-001..005) to handle file uploads, and with the standard NC core preview route to render images chosen from Nextcloud Files.
 
 ## Data Model
 
-Header placements reuse `oc_mydash_widget_placements.content` (JSON). The `content` object carries the following fields — every field is optional except `title`, and unknown / out-of-range values collapse to documented defaults so a malformed blob never crashes the renderer:
+Header placements reuse `oc_launchpad_widget_placements.content` (JSON). The `content` object carries the following fields — every field is optional except `title`, and unknown / out-of-range values collapse to documented defaults so a malformed blob never crashes the renderer:
 
 - **title** (string, required) — visible heading rendered as `<h2>`
 - **subtitle** (string, optional) — secondary line rendered as `<p>` when non-empty
@@ -34,15 +34,14 @@ Header placements reuse `oc_mydash_widget_placements.content` (JSON). The `conte
 
 ### Requirement: REQ-HDR-001 Widget registration
 
+The system MUST register a LaunchPad dashboard widget with id `launchpad_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 @e2e exclude widget registration tests OCP\Dashboard\IManager registration — observed by widget appearing in picker; covered by generic widgets-in-picker test
-
-The system MUST register a MyDash dashboard widget with id `mydash_header` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the header-widget app is installed and enabled
-- WHEN a user opens the MyDash widget picker dialog
-- THEN the `mydash_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
+- WHEN a user opens the LaunchPad widget picker dialog
+- THEN the `launchpad_header` widget MUST appear in the list with a title (e.g., "Header Banner") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -56,7 +55,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `mydash_header` widget MUST still be discoverable in the picker
+- THEN the `launchpad_header` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
 
@@ -66,9 +65,8 @@ The system MUST register a MyDash dashboard widget with id `mydash_header` via `
 
 ### Requirement: REQ-HDR-002 Placement configuration structure
 
+The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
 @e2e exclude placement configuration tests JSON blob shape — Vitest/Newman scope
-
-The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify content, styling, image source, and optional CTA.
 
 #### Scenario: Config for title and subtitle
 
@@ -155,9 +153,8 @@ The system MUST store per-placement widget configuration in the `oc_mydash_widge
 
 ### Requirement: REQ-HDR-003 Image source precedence
 
-@e2e exclude image source precedence tests Vue computed property logic — Vitest component scope
-
 When both `backgroundImageFileId` and `backgroundImageUrl` are present in the configuration, the system MUST apply the following precedence: file ID takes priority over URL.
+@e2e exclude image source precedence tests Vue computed property logic — Vitest component scope
 
 #### Scenario: File ID overrides URL when both set
 
@@ -180,9 +177,8 @@ When both `backgroundImageFileId` and `backgroundImageUrl` are present in the co
 
 ### Requirement: REQ-HDR-004 Overlay rendering modes
 
-@e2e exclude overlay rendering modes tests CSS gradient/tint overlay — visual regression / Vitest snapshot scope
-
 The system MUST support three overlay modes for controlling how background images are layered with colors.
+@e2e exclude overlay rendering modes tests CSS gradient/tint overlay — visual regression / Vitest snapshot scope
 
 #### Scenario: Overlay mode none (no overlay)
 
@@ -215,19 +211,18 @@ The system MUST support three overlay modes for controlling how background image
 
 ### Requirement: REQ-HDR-005 External image allow-list
 
+The system MUST enforce an allow-list of external image hostnames via admin setting `launchpad.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
 @e2e exclude external image allow-list tests PHP config + IAppConfig — Newman scope
-
-The system MUST enforce an allow-list of external image hostnames via admin setting `mydash.header_widget_allowed_image_domains` to prevent loading from untrusted sources.
 
 #### Scenario: Allow-list enabled with allowed domain
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\", \"cdn.trusted.org\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed and loaded
 
 #### Scenario: Allow-list enabled with disallowed domain
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"images.example.com\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"images.example.com\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://untrusted-site.com/image.jpg"
 - THEN the image MUST NOT load
 - AND the widget MUST fall back to backgroundColor only
@@ -235,7 +230,7 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 #### Scenario: Empty allow-list allows all domains
 
-- GIVEN mydash.header_widget_allowed_image_domains=null or []
+- GIVEN launchpad.header_widget_allowed_image_domains=null or []
 - WHEN a placement is configured with any external backgroundImageUrl
 - THEN the image MUST be loaded without restriction
 - AND this is the default behavior (zero-config = all allowed)
@@ -249,15 +244,14 @@ The system MUST enforce an allow-list of external image hostnames via admin sett
 
 #### Scenario: Allow-list hostname matching is case-insensitive
 
-- GIVEN mydash.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
+- GIVEN launchpad.header_widget_allowed_image_domains="[\"Images.Example.COM\"]"
 - WHEN a placement is configured with backgroundImageUrl="https://images.example.com/banner.jpg"
 - THEN the image MUST be allowed (case-insensitive match)
 
 ### Requirement: REQ-HDR-006 File ID image with ACL validation
 
-@e2e exclude file ID image with ACL validation tests PHP ACL + IURLGenerator — Newman scope
-
 The system MUST validate file read permissions when `backgroundImageFileId` is set, falling back to backgroundColor if the user cannot read the file.
+@e2e exclude file ID image with ACL validation tests PHP ACL + IURLGenerator — Newman scope
 
 #### Scenario: User can read file
 
@@ -285,9 +279,8 @@ The system MUST validate file read permissions when `backgroundImageFileId` is s
 
 ### Requirement: REQ-HDR-007 Image load failure graceful fallback
 
-@e2e exclude image load failure graceful fallback tests Vue imgError handler — Vitest scope; requires broken-image URL injection
-
 The system MUST gracefully handle image load failures (404, timeout, invalid URL) by falling back to backgroundColor and continuing to render the widget without error UI.
+@e2e exclude image load failure graceful fallback tests Vue imgError handler — Vitest scope; requires broken-image URL injection
 
 #### Scenario: External image returns 404
 
@@ -313,9 +306,8 @@ The system MUST gracefully handle image load failures (404, timeout, invalid URL
 
 ### Requirement: REQ-HDR-008 Text rendering and styling
 
-@e2e exclude text rendering and styling tests Vue slot rendering + CSS — Vitest snapshot scope
-
 The system MUST render title and subtitle with semantic HTML and configurable styling (color, alignment, vertical positioning).
+@e2e exclude text rendering and styling tests Vue slot rendering + CSS — Vitest snapshot scope
 
 #### Scenario: Title rendered as h2
 
@@ -354,9 +346,8 @@ The system MUST render title and subtitle with semantic HTML and configurable st
 
 ### Requirement: REQ-HDR-009 Height presets and responsive sizing
 
-@e2e exclude height presets and responsive sizing tests CSS calc values — visual regression scope
-
 The system MUST support four height presets (small, medium, large, xlarge) that map to fixed pixel values, and default widgets to full dashboard width.
+@e2e exclude height presets and responsive sizing tests CSS calc values — visual regression scope
 
 #### Scenario: Height small (120px)
 
@@ -393,9 +384,8 @@ The system MUST support four height presets (small, medium, large, xlarge) that 
 
 ### Requirement: REQ-HDR-010 Call-to-action button rendering and navigation
 
-@e2e exclude CTA button rendering and navigation tests a router.push / window.open click handler inside a placed widget — requires seeded header placement
-
 The system MUST render an optional CTA button with configurable style and handle navigation to internal or external URLs.
+@e2e exclude CTA button rendering and navigation tests a router.push / window.open click handler inside a placed widget — requires seeded header placement
 
 #### Scenario: CTA button with primary style
 
@@ -440,9 +430,8 @@ The system MUST render an optional CTA button with configurable style and handle
 
 ### Requirement: REQ-HDR-011 Accessibility for header widgets
 
-@e2e exclude accessibility ARIA attributes are render-time assertions; covered by Vitest snapshot
-
 The system MUST ensure header widgets are accessible to keyboard navigation and screen readers, with proper ARIA labels and semantic HTML.
+@e2e exclude accessibility ARIA attributes are render-time assertions; covered by Vitest snapshot
 
 #### Scenario: Title is keyboard-navigable
 
@@ -481,9 +470,8 @@ The system MUST ensure header widgets are accessible to keyboard navigation and 
 
 ### Requirement: REQ-HDR-012 Print-friendly rendering
 
-@e2e exclude print-friendly rendering tests CSS @media print — not observable in headless Chromium CI
-
 The system MUST render header widgets visibly when printed, including background images and colors, subject to the user's "print backgrounds" browser setting.
+@e2e exclude print-friendly rendering tests CSS @media print — not observable in headless Chromium CI
 
 #### Scenario: Header widget prints with background image
 

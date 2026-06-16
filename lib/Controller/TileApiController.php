@@ -10,10 +10,10 @@
  * legacy clients are explicitly directed at the unified add-widget flow
  * (REQ-WDG-022 / REQ-TILE-PLACEMENT). The read endpoint (`index`) keeps
  * working so admin tooling and migration scripts can still inspect the
- * existing `oc_mydash_tiles` rows during the deprecation window.
+ * existing `oc_launchpad_tiles` rows during the deprecation window.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,11 +23,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\TileService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\TileService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -81,12 +81,12 @@ class TileApiController extends Controller
      *
      * Read-only endpoint kept for backwards compatibility per the
      * DEPRECATED REQ-TILE-001 spec — admin tooling and migration scripts
-     * may still inspect `oc_mydash_tiles` rows during the deprecation
+     * may still inspect `oc_launchpad_tiles` rows during the deprecation
      * window. The write endpoints return HTTP 410 Gone instead.
      *
      * @return JSONResponse The list of tiles.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-29
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -124,7 +124,7 @@ class TileApiController extends Controller
      *
      * @return JSONResponse The HTTP 410 Gone envelope.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-28
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-28
      */
     #[NoAdminRequired]
     public function create(): JSONResponse
@@ -158,7 +158,7 @@ class TileApiController extends Controller
      *
      * @return JSONResponse The HTTP 410 Gone envelope.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-30
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-30
      */
     #[NoAdminRequired]
     public function update(): JSONResponse
@@ -190,7 +190,7 @@ class TileApiController extends Controller
      *
      * @return JSONResponse The HTTP 410 Gone envelope.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-31
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-31
      */
     #[NoAdminRequired]
     public function destroy(): JSONResponse

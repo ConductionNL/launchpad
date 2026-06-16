@@ -3,25 +3,25 @@
 /**
  * DashboardReaction Entity
  *
- * Represents one row in the `oc_mydash_dashboard_reactions` table —
+ * Represents one row in the `oc_launchpad_dash_reactions` table —
  * a single (dashboardUuid, userId, emoji) tuple recording that a user
  * reacted with an emoji to a dashboard. REQ-RXN-001.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use JsonSerializable;

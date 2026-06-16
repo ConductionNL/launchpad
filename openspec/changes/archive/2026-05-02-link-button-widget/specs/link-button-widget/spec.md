@@ -51,9 +51,9 @@ Icon size MUST be 48 px square; the label MUST be vertically stacked below the i
 
 #### Scenario: Custom URL icon
 
-- GIVEN content `{icon: '/apps/mydash/resource/x.png', label: 'Open'}`
+- GIVEN content `{icon: '/apps/launchpad/resource/x.png', label: 'Open'}`
 - WHEN the widget renders
-- THEN the button MUST contain `<img src="/apps/mydash/resource/x.png">` 48 px tall
+- THEN the button MUST contain `<img src="/apps/launchpad/resource/x.png">` 48 px tall
 - AND the label `Open` MUST appear below the image
 
 #### Scenario: No icon

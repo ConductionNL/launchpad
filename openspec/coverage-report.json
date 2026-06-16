@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-05-24T08:33:00Z",
-  "app": "mydash",
+  "app": "launchpad",
   "branch": "feature/newman-backend-bugs",
   "git_commit": "f46ea77",
   "scanner_version": "1",
@@ -13,10 +13,10 @@
     "php_files_skipped_db_migration_exception": 120,
     "php_methods_total": 1075,
     "frontend_files_enumerated": 109,
-    "removed_lines_cache": "/tmp/removed-lines-mydash.txt",
+    "removed_lines_cache": "/tmp/removed-lines-launchpad.txt",
     "removed_lines_cache_bytes": 766702
   },
-  "methodology_note": "App has 1075 PHP methods plus 109 Vue/JS files. Per the SKILL's 'heuristic, not mechanical' guidance, bucket entries are at file granularity with method_count rollups rather than per-method enumeration. mydash uses two annotation conventions: (a) the canonical `@spec openspec/changes/.../tasks.md#task-N` style on 3 files; (b) a REQ-direct `@spec capability:REQ-ID` style on 28 PHP files (68 method-level tags). Both are recorded as `annotated`. Inline `REQ-XXX` references in code comments are recorded as evidence-of-intent but not as formal annotations.",
+  "methodology_note": "App has 1075 PHP methods plus 109 Vue/JS files. Per the SKILL's 'heuristic, not mechanical' guidance, bucket entries are at file granularity with method_count rollups rather than per-method enumeration. launchpad uses two annotation conventions: (a) the canonical `@spec openspec/changes/.../tasks.md#task-N` style on 3 files; (b) a REQ-direct `@spec capability:REQ-ID` style on 28 PHP files (68 method-level tags). Both are recorded as `annotated`. Inline `REQ-XXX` references in code comments are recorded as evidence-of-intent but not as formal annotations.",
   "buckets": {
     "annotated": [
       {"file": "lib/Service/RoleFeaturePermissionService.php", "method_count_annotated": 1, "method_count_total": 12, "spec_tag_style": "tasks.md#task-N", "spec_tag": "openspec/changes/role-based-content/tasks.md#task-2"},
@@ -85,8 +85,8 @@
       {"file": "lib/Service/InitialState/Page.php", "method_count": 0, "reason": "empty class (legacy stub)"},
       {"file": "lib/Service/PermissionDeniedException.php", "method_count": 2, "reason": "domain exception with helper constructors"},
       {"file": "lib/Service/ReactionsDisabledException.php", "method_count": 0, "reason": "marker exception"},
-      {"file": "lib/Settings/MyDashAdmin.php", "method_count": 4, "reason": "Nextcloud ISettings impl: getForm/getSection/getPriority/getPanel"},
-      {"file": "lib/Settings/MyDashAdminSection.php", "method_count": 5, "reason": "Nextcloud IIconSection impl: getID/getName/getIcon/getPriority"}
+      {"file": "lib/Settings/LaunchPadAdmin.php", "method_count": 4, "reason": "Nextcloud ISettings impl: getForm/getSection/getPriority/getPanel"},
+      {"file": "lib/Settings/LaunchPadAdminSection.php", "method_count": 5, "reason": "Nextcloud IIconSection impl: getID/getName/getIcon/getPriority"}
     ],
     "bucket_1": [
       {"file": "lib/Controller/DashboardApiController.php", "method_count_unannotated": 26, "capability": "dashboards", "confidence": 0.95, "signal": "path+name; 6/32 methods already REQ-tagged; remainder are CRUD endpoints DASH spec covers"},
@@ -176,7 +176,7 @@
       {"file": "lib/Service/ImportService.php", "method_count": 12, "capability": "dashboard-export-import", "confidence": 0.95, "signal": "REQ-EXIM import side"},
       {"file": "lib/Controller/MetricsController.php", "method_count_unannotated": 3, "capability": "prometheus-metrics", "confidence": 0.95, "signal": "exact name match"},
       {"file": "lib/Notification/Notifier.php", "method_count": 10, "capability": "dashboard-sharing + dashboard-cascade-events", "confidence": 0.90, "signal": "REQ-SHARE-011 + REQ-CSC notifier"},
-      {"file": "lib/Search/MyDashSearchProvider.php", "method_count": 16, "capability": "nc-unified-search-integration", "confidence": 0.95, "signal": "REQ-SRCH search provider"},
+      {"file": "lib/Search/LaunchPadSearchProvider.php", "method_count": 16, "capability": "nc-unified-search-integration", "confidence": 0.95, "signal": "REQ-SRCH search provider"},
       {"file": "lib/Service/CommandService.php", "method_count": 7, "capability": "cli-commands", "confidence": 0.85, "signal": "shared helpers for CLI commands"},
       {"file": "lib/Command/CommandBase.php", "method_count": 5, "capability": "cli-commands", "confidence": 0.95, "signal": "base class for all commands"},
       {"file": "lib/Command/DashboardListCommand.php", "method_count": 4, "capability": "cli-commands + dashboards", "confidence": 0.95, "signal": "REQ-CLI-002"},
@@ -264,7 +264,7 @@
       {"req": "orphaned-data-cleanup#REQ-CLN-006"},
       {"req": "dashboard-cascade-events#REQ-CSC-007"},
       {"req": "dashboard-cascade-events#REQ-CSC-009"},
-      {"note": "TRUNCATED — 96 REQs total are not referenced in code by their exact REQ-ID. Full list in /tmp/mydash-unimpl-reqs.txt. Reverse-pass via removed-lines cache returned 0 keyword matches because REQ IDs are documentation-only annotations, not code symbols. Many of the 96 are LIKELY IMPLEMENTED but missing the formal REQ-XXX tag — verify case-by-case before deferring."}
+      {"note": "TRUNCATED — 96 REQs total are not referenced in code by their exact REQ-ID. Full list in /tmp/launchpad-unimpl-reqs.txt. Reverse-pass via removed-lines cache returned 0 keyword matches because REQ IDs are documentation-only annotations, not code symbols. Many of the 96 are LIKELY IMPLEMENTED but missing the formal REQ-XXX tag — verify case-by-case before deferring."}
     ],
     "bucket_3b_summary": {
       "total": 96,
@@ -300,7 +300,7 @@
     "Annotation convention is split: REQ-direct (@spec capability:REQ-ID) is the dominant in-tree style; canonical tasks.md#task-N appears on the 3 most-recently-retrofitted files (RoleFeaturePermissionService/Controller, widgetBridge.js). Recommend a small migration change to convert REQ-direct -> canonical tasks.md.",
     "Bucket distribution at file granularity (not per-method). Per the SKILL 'heuristic, not mechanical' guidance, file-level bucketing with method_count rollups is the appropriate fidelity for a 1075-method scan.",
     "Frontend (Vue/JS) bucketing is summary-level — files follow the same path->capability convention; only 1 file (widgetBridge.js) carries formal @spec docblocks but 162 occurrences of inline REQ references confirmed across frontend files.",
-    "No Bucket 3a entries: removed-lines reverse pass found 0 keyword matches because REQ IDs are documentation-only annotations rather than code symbols. The reverse-pass mechanism in SKILL assumes REQ keywords are domain nouns (handleCatalog, registerCatalog) — for mydash, deriving 2-3 keywords from each REQ title and grepping would be more meaningful but was deferred for time.",
+    "No Bucket 3a entries: removed-lines reverse pass found 0 keyword matches because REQ IDs are documentation-only annotations rather than code symbols. The reverse-pass mechanism in SKILL assumes REQ keywords are domain nouns (handleCatalog, registerCatalog) — for launchpad, deriving 2-3 keywords from each REQ title and grepping would be more meaningful but was deferred for time.",
     "No forbidden patterns (var_dump/dd/die/error_log) found in lib/.",
     "No direct SQL ($this->db->query/prepare) found — app cleanly uses Mappers.",
     "Recommended next steps: (1) standardise on tasks.md#task-N annotation style via a retrofit-annotate change; (2) close the 64-file SPDX gap via hydra-gate-spdx mechanical fix; (3) review the 96 'unimplemented' REQs to separate genuinely-deferred from implemented-but-untagged; (4) resolve the orphan manifest-v2-runtime tag."

@@ -3,34 +3,34 @@
 /**
  * DashboardDeleteCommand
  *
- * `mydash:dashboard:delete <uuid> [--cascade]` — delete a dashboard
+ * `launchpad:dashboard:delete <uuid> [--cascade]` — delete a dashboard
  * by UUID. Refuses when children exist unless `--cascade` is set.
  * Confirms unless `--no-interaction` is supplied (REQ-CLI-002,
  * REQ-CLI-003).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
 use DateTimeImmutable;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Service\CommandService;
-use OCA\MyDash\Service\DashboardTreeService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Service\DashboardTreeService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IUserSession;
@@ -42,7 +42,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * `mydash:dashboard:delete` console command.
+ * `launchpad:dashboard:delete` console command.
  */
 class DashboardDeleteCommand extends CommandBase
 {
@@ -79,7 +79,7 @@ class DashboardDeleteCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:dashboard:delete')
+        $this->setName(name: 'launchpad:dashboard:delete')
             ->setDescription(description: 'Delete a dashboard by UUID.')
             ->setHelp(
                 help: implode(
@@ -88,8 +88,8 @@ class DashboardDeleteCommand extends CommandBase
                         'Delete a dashboard. Refuses when children exist unless --cascade is set.',
                         '',
                         'Examples:',
-                        '  php occ mydash:dashboard:delete a1b2c3d4-... --no-interaction',
-                        '  php occ mydash:dashboard:delete a1b2c3d4-... --cascade --no-interaction',
+                        '  php occ launchpad:dashboard:delete a1b2c3d4-... --no-interaction',
+                        '  php occ launchpad:dashboard:delete a1b2c3d4-... --cascade --no-interaction',
                     ]
                 )
             )

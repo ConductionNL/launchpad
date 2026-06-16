@@ -15,7 +15,7 @@
 
 ### Task 2: Create Database Migration
 - [x] **File:** `lib/Migration/Version001009Date20260502120000.php` + `lib/Migration/RoleAssignmentTableBuilder.php`
-- Table: `oc_mydash_role_assignments`
+- Table: `oc_launchpad_role_assignments`
   - Columns: `id`, `user_id` (nullable), `group_id` (nullable), `role`, `assigned_by`, `assigned_at`
   - Indexes: per-column lookup indexes + composite UNIQUE on `(user_id, role)` and `(group_id, role)`
   - XOR constraint enforced at the service layer (RoleService::validateTarget) — DB-level CHECK is not portable across the SQL dialects Nextcloud supports

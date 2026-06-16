@@ -2,7 +2,7 @@
 
 ## 1. Admin-setting flag and banner
 
-- [ ] 1.1 Register `mydash.setup_wizard_complete` as a boolean admin-setting key (default `false`) via `IAppConfig`; document the key alongside other `mydash.*` config keys
+- [ ] 1.1 Register `launchpad.setup_wizard_complete` as a boolean admin-setting key (default `false`) via `IAppConfig`; document the key alongside other `launchpad.*` config keys
 - [ ] 1.2 Read the flag in `AdminController` (or a new `SetupWizardController`) and expose it on the admin page's initial state so the frontend can decide whether to show the banner
 - [ ] 1.3 Implement the "Run setup wizard" banner in `src/views/admin/AdminDashboards.vue`: visible when `setup_wizard_complete = false`, hidden otherwise
 - [ ] 1.4 Clicking the banner button MUST open `SetupWizardModal.vue` at Step 1
@@ -24,13 +24,13 @@
 - [ ] 3.1 Implement Step 2 UI in the wizard: two radio buttons ("Database (default)" / "GroupFolder (recommended for org use)") with descriptions
 - [ ] 3.2 Check via `OCP\App\IAppManager::isInstalled('groupfolders')` in `SetupWizardService::getGroupfolderAvailability()` and expose it in the wizard state; disable the GroupFolder radio when `false`
 - [ ] 3.3 Add a tooltip on the disabled GroupFolder radio: "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option."
-- [ ] 3.4 On clicking Next from Step 2 persist the selected value immediately via `POST /api/admin/settings` to write `mydash.content_storage`
-- [ ] 3.5 Pre-populate the radio on re-run: read current `mydash.content_storage` from the wizard state endpoint
+- [ ] 3.4 On clicking Next from Step 2 persist the selected value immediately via `POST /api/admin/settings` to write `launchpad.content_storage`
+- [ ] 3.5 Pre-populate the radio on re-run: read current `launchpad.content_storage` from the wizard state endpoint
 
 ## 4. Step 3 — Group priority order
 
 - [ ] 4.1 Embed the existing `group-priority-order` admin UI component in Step 3 (import and mount inside wizard modal; do not duplicate it)
-- [ ] 4.2 Confirm the component emits or writes directly to `mydash.group_priority_order` on change; if not, add a thin wrapper that calls the admin settings PUT on Next
+- [ ] 4.2 Confirm the component emits or writes directly to `launchpad.group_priority_order` on change; if not, add a thin wrapper that calls the admin settings PUT on Next
 - [ ] 4.3 Verify Back/Next preserves the order selection (no re-render resets the component state)
 
 ## 5. Step 4 — Demo data
@@ -57,8 +57,8 @@
 ## 8. Backend service and API endpoints
 
 - [ ] 8.1 Create `lib/Service/SetupWizardService.php` with methods:
-  - `getWizardState(): array` — reads `mydash.setup_wizard_complete` and per-step heuristics; returns `{complete, currentRecommendedStep, stepStatuses}`
-  - `markWizardComplete(): array` — idempotently sets `mydash.setup_wizard_complete = true`; returns updated state
+  - `getWizardState(): array` — reads `launchpad.setup_wizard_complete` and per-step heuristics; returns `{complete, currentRecommendedStep, stepStatuses}`
+  - `markWizardComplete(): array` — idempotently sets `launchpad.setup_wizard_complete = true`; returns updated state
   - `getGroupfolderAvailability(): bool` — delegates to `IAppManager::isInstalled('groupfolders')`
 - [ ] 8.2 Add `AdminController::getWizardState()` mapped to `GET /api/admin/setup-wizard/state` (NC-admin only)
 - [ ] 8.3 Add `AdminController::completeWizard()` mapped to `POST /api/admin/setup-wizard/complete` (NC-admin only, idempotent)
@@ -68,7 +68,7 @@
 
 ## 9. CLI command
 
-- [ ] 9.1 Create `lib/Command/SetupCommand.php` implementing `OC\Command\Base` with command name `mydash:setup` and a `--config=` option
+- [ ] 9.1 Create `lib/Command/SetupCommand.php` implementing `OC\Command\Base` with command name `launchpad:setup` and a `--config=` option
 - [ ] 9.2 Parse the YAML file (using Symfony Yaml component, already available in NC) and validate the schema: required key `storage_backend`; optional keys `group_priority_order`, `demo_packages`, `admin_role_group`, `footer_config`
 - [ ] 9.3 Fail fast on invalid YAML: output "Invalid setup.yaml: missing field '…'" and exit 1; no settings applied
 - [ ] 9.4 Execute each step in order, logging progress: "Step N: <name>... done" (verbose by default)
@@ -81,7 +81,7 @@
 - [ ] 10.1 In `AdminDashboards.vue` on page mount: if `setup_wizard_complete = false` AND dashboard count === 0 AND no admin settings have been written → automatically open `SetupWizardModal.vue`
 - [ ] 10.2 Auto-launch MUST only fire once per page load (no loop); if the admin closes the modal, subsequent loads still show the banner but do not auto-open
 - [ ] 10.3 The auto-launch check MUST be client-side only (no backend behavior change required); the banner and state endpoint provide sufficient data
-- [ ] 10.4 Add a Playwright test: fresh install → admin opens `/apps/mydash/admin/dashboards` → wizard opens automatically
+- [ ] 10.4 Add a Playwright test: fresh install → admin opens `/apps/launchpad/admin/dashboards` → wizard opens automatically
 
 ## 11. Quality gates
 

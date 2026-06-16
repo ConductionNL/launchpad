@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -509,7 +509,7 @@ export const api = {
 	// Confluence HTML export importer (REQ-CFLI-001..012). Both endpoints
 	// are admin-only on the server side; the UI gates the controls behind
 	// the same admin check. Dry-run returns the parse preview without
-	// touching the database; the import endpoint creates one MyDash
+	// touching the database; the import endpoint creates one LaunchPad
 	// dashboard per Confluence page.
 	/** @spec openspec/specs/dashboards/spec.md */
 	confluenceImportDryRun(file) {

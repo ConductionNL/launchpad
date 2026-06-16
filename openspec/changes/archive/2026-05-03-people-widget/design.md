@@ -189,7 +189,7 @@ any layout component. The `PersonItem` component renders no click handlers on th
 
 **Avatar decision**: Avatar URLs are generated via `IURLGenerator::linkToRouteAbsolute()` for
 the route `core.avatar.getAvatar` with hardcoded size 128, not the configurable 64 px the
-spec describes. There is no app config key `mydash.people_widget_avatar_size` in the source.
+spec describes. There is no app config key `launchpad.people_widget_avatar_size` in the source.
 The `NcAvatar` component in the frontend then receives the avatar size prop per-layout (80, 44,
 or 64 px) for display, but the actual avatar route always fetches 128 px resolution.
 
@@ -221,9 +221,9 @@ the spec yet — these are deltas to apply in a follow-up task.
 - **REQ-PPL-003** (route): The endpoint is `GET /api/people?userIds=...&filters=...&limit=50&offset=0`, not `/api/widgets/people/{placementId}/users`. There is no `placementId` path param; filter config is passed per-request.
 - **REQ-PPL-004** (privacy): Add a warning that NC scope-based visibility is NOT currently enforced; all `IAccountManager` fields are returned unconditionally. Either implement scope checking or downgrade the MUST to SHOULD for v1 and add a follow-up item.
 - **REQ-PPL-005** (birthday): Rename `daysToBirthday: integer` to `birthdate: string (ISO 8601 or null)`. The backend returns a date string, not a days-countdown. Compute `daysToBirthday` display client-side if needed. Add note about missing Feb-29 guard in `within_next_days` filter operator.
-- **REQ-PPL-007** (avatar): Change default size from 64 px to 128 px (route fetch) / layout-dependent display (80 card / 64 grid / 44 list). Remove `mydash.people_widget_avatar_size` config key — it does not exist.
+- **REQ-PPL-007** (avatar): Change default size from 64 px to 128 px (route fetch) / layout-dependent display (80 card / 64 grid / 44 list). Remove `launchpad.people_widget_avatar_size` config key — it does not exist.
 - **REQ-PPL-008** (layout sizes): Correct avatar sizes to 80/64/44 (card/grid/list). Add `columns` as a per-layout config key (2/3/4 options). Remove birthday-badge overlay requirement — not implemented, move to follow-up.
-- **REQ-PPL-010** (click-through): Mark as NOT implemented in the reference source; must be added fresh in MyDash.
+- **REQ-PPL-010** (click-through): Mark as NOT implemented in the reference source; must be added fresh in LaunchPad.
 - **Field names**: Replace `jobTitle` with `role` (maps to `PROPERTY_ROLE`) and `department` with `organisation` (maps to `PROPERTY_ORGANISATION`). The `PersonItem` falls back `user.organisation || user.department`.
 - **Config shape** (REQ-PPL-002): The actual config uses `selectionMode: 'manual'|'filter'`, `selectedUsers: string[]`, `filters: FilterObject[]`, `filterOperator: 'AND'|'OR'`, `columns: 2|3|4`, `showFields: {...}` — not `cardFields: string[]`. Replace `cardFields` with `showFields` map.
 - **Shared backend cache**: The non-group-filter path uses a 1-hour shared APCu cache that ignores the requesting user. This is a privacy risk when scope-based visibility is eventually enforced. Add to open follow-ups.
@@ -236,6 +236,6 @@ the spec yet — these are deltas to apply in a follow-up task.
 - **Feb-29 birthday**: The `within_next_days` filter operator constructs dates with `new \DateTime($currentYear . '-' . $date->format('m-d'))` — this throws on Feb 29 in non-leap years. Add a guard.
 - **Click-through to `/u/{userId}`**: Not present in the reference source; must be added to `PersonItem.vue`.
 - **Birthday badge overlay**: "🎂 in N days" badge rendering is not present; to be added if desired (spec's REQ-PPL-008 scenario).
-- **Avatar size config**: `mydash.people_widget_avatar_size` app config key is not implemented; decide whether to add it or fix the spec.
+- **Avatar size config**: `launchpad.people_widget_avatar_size` app config key is not implemented; decide whether to add it or fix the spec.
 - **Status integration**: `IUserStatusManager` is already wired and populates `status` in the profile. The spec does not mention status — worth deciding whether to expose it in v1.
 - **Public share access**: The source exposes people data via `GET /api/share/{token}/people` — the spec does not address this route. Decide scope.

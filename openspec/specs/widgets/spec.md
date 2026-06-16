@@ -10,10 +10,9 @@ retrofit_extensions:
 
 ## Purpose
 
-Widgets are the primary content blocks on MyDash dashboards. MyDash integrates with the Nextcloud Dashboard Widget API (v1 and v2) via `OCP\Dashboard\IManager::getWidgets()` to discover all registered dashboard widgets across installed Nextcloud apps. Users can add these discovered widgets to their dashboards as "placements" -- records that track the widget's position on the grid, display configuration, and custom styling. Widget placements bridge the Nextcloud widget ecosystem with the MyDash grid layout system.
+Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad integrates with the Nextcloud Dashboard Widget API (v1 and v2) via `OCP\Dashboard\IManager::getWidgets()` to discover all registered dashboard widgets across installed Nextcloud apps. Users can add these discovered widgets to their dashboards as "placements" -- records that track the widget's position on the grid, display configuration, and custom styling. Widget placements bridge the Nextcloud widget ecosystem with the LaunchPad grid layout system.
 
 ## Data Model
-
 
 @e2e exclude all 89 scenarios test REST widget-discovery/placement/update/batch API — widget add/edit UI flows are covered by the widget-specific specs (label-widget, text-display-widget, image-widget etc.)
 
@@ -25,9 +24,9 @@ Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Eac
 - **url**: Optional widget URL
 - **v2 support**: Whether it supports the v2 API with item loading
 
-### Widget Placements (oc_mydash_widget_placements)
+### Widget Placements (oc_launchpad_widget_placements)
 - **id**: Auto-increment integer primary key (BIGINT)
-- **dashboardId**: Foreign key to oc_mydash_dashboards (BIGINT)
+- **dashboardId**: Foreign key to oc_launchpad_dashboards (BIGINT)
 - **widgetId**: Reference to the Nextcloud widget id (STRING, NOT NULL; for tiles set to `'tile-' + uniqid()`)
 - **gridX**: Grid column position, 0-based (INTEGER, default 0)
 - **gridY**: Grid row position, 0-based (INTEGER, default 0)
@@ -44,9 +43,7 @@ Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Eac
 - **tileTitle**, **tileIcon**, **tileIconType**, **tileBackgroundColor**, **tileTextColor**, **tileLinkType**, **tileLinkValue**: Tile-specific fields stored directly on the placement (nullable STRING)
 - **createdAt**: Timestamp string (DATETIME)
 - **updatedAt**: Timestamp string (DATETIME)
-
 ## Requirements
-
 ### Requirement: Discover Available Widgets (REQ-WDG-001)
 
 The system MUST provide an API to list all Nextcloud dashboard widgets available for placement.
@@ -312,7 +309,7 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - GIVEN a placement with `widgetId: "uninstalled_widget"` and no matching widget in the available widgets array
 - WHEN the widget is rendered
 - THEN `WidgetWrapper` MUST receive `widget: null` (from `getWidget()` returning undefined)
-- AND the title MUST fall back to the `t('mydash', 'Widget')` translation
+- AND the title MUST fall back to the `t('launchpad', 'Widget')` translation
 - AND the widget content area MUST handle the null widget gracefully
 
 #### Scenario: Tile placement bypasses WidgetWrapper
@@ -574,7 +571,7 @@ The popover MUST be absolutely positioned at the click coordinates with `min-wid
 
 ### Requirement: nc-widget placement type (REQ-WDG-018)
 
-The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside MyDash. Its persisted content shape MUST be:
+The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside LaunchPad. Its persisted content shape MUST be:
 
 ```jsonc
 {
@@ -654,7 +651,7 @@ The header (above the list area) MUST always render the widget's title + iconUrl
 
 When falling back to the API path, the renderer MUST issue exactly:
 
-`GET /ocs/v2.php/apps/mydash/api/widgets/items?widgets[]={widgetId}&limit=7`
+`GET /ocs/v2.php/apps/launchpad/api/widgets/items?widgets[]={widgetId}&limit=7`
 
 The response MUST be parsed as `{items: {[widgetId]: WidgetItem[]}, meta: {[widgetId]: {iconUrl}}}` (the existing REQ-WDG-002 contract). When the response shape is malformed, the renderer MUST display the empty-state `t('No items available')` and MUST NOT throw.
 
@@ -699,7 +696,7 @@ The tile widget type MUST be selectable from the unified "Add custom widget" pic
 
 #### Scenario: Tile renderer supports legacy and new content shapes
 
-- **GIVEN** a placement created via the deprecated `oc_mydash_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
+- **GIVEN** a placement created via the deprecated `oc_launchpad_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
 - **WHEN** the placement renders via `TileWidget`
 - **THEN** the title and icon MUST display correctly
 - **AND** no console errors MUST occur from the missing `placement.content` field
@@ -737,6 +734,197 @@ When a new widget capability lands, the EXPECTED_TYPES constant MUST be updated 
 - **GIVEN** a new widget type added to the registry without a `form` field (set to `null`)
 - **WHEN** `npm test` runs
 - **THEN** the test MUST fail with a clear message naming the type and the missing field
+
+### Requirement: REQ-WDG-018 nc-widget placement type
+
+The widget registry MUST include the type `nc-widget` representing a Nextcloud Dashboard widget rendered inside LaunchPad. Its persisted content shape MUST be:
+
+```jsonc
+{
+  "type": "nc-widget",
+  "content": {
+    "widgetId": "string (required, e.g. 'weather_status')",
+    "displayMode": "'vertical' | 'horizontal' (default 'vertical')"
+  }
+}
+```
+
+The renderer MUST be `NcDashboardWidget.vue`. The form MUST present (a) a `<select>` populated from `IManager::getWidgets()` (REQ-WDG-001 — passed in via initial state) and (b) a display-mode `<select>`.
+
+#### Scenario: Form picker lists discovered widgets
+
+- GIVEN initial state `widgets = [{id:'weather_status', title:'Weather'}, {id:'recommendations', title:'Recommended'}]`
+- WHEN the user opens the nc-widget sub-form
+- THEN the picker `<select>` MUST list both options
+- AND validation MUST require a widgetId before Add is enabled
+
+### Requirement: REQ-WDG-019 Two-mode rendering with bridge polling
+
+The renderer MUST attempt native-callback rendering (REQ-LWB-002 mountWidget) immediately on mount. If no callback is registered for the `widgetId`, the renderer MUST fall back to the API list path (REQ-WDG-002 widget items) AND start a polling watcher that re-checks for the callback every 200 ms for up to 15 retries (~3 s total). If the callback registers within the polling window, the renderer MUST switch to native-callback mode (cancelling the in-flight or completed API render).
+
+#### Scenario: Native callback already registered at mount
+
+- GIVEN a Nextcloud widget bundle has registered its callback before the workspace mounts
+- AND a placement of type `nc-widget` with `widgetId = 'notes'` mounts
+- WHEN the renderer's `onMounted` runs
+- THEN it MUST mount via `widgetBridge.mountWidget('notes', containerEl, {...})`
+- AND it MUST NOT issue any `GET /api/widgets/items` request
+
+#### Scenario: Callback registers late within the polling window
+
+- GIVEN no callback for `'notes'` is registered when the renderer mounts
+- AND the `notes` bundle finishes loading 1 second later and registers
+- WHEN the renderer mounts
+- THEN it MUST start the API fallback (issue the items request)
+- AND simultaneously start the 200-ms polling loop
+- WHEN the poll detects the registration on the next tick
+- THEN the renderer MUST switch to native-callback mode (mount via `widgetBridge.mountWidget`)
+- AND any pending or completed API list MUST be hidden (no flicker between modes)
+
+#### Scenario: Callback never registers full API fallback
+
+- GIVEN no callback for `'weather_status'` is registered within 3 seconds
+- WHEN the polling loop reaches retry 15 (~3 s elapsed)
+- THEN polling MUST stop
+- AND the API list MUST remain rendered as the final state
+- AND no further callback checks MUST occur
+
+### Requirement: REQ-WDG-020 Display modes
+
+The API list MUST render in one of two display modes:
+
+- **`vertical`** — flex-column list, 32 px square icon left, title + subtitle right; ellipsis overflow; 8 px gap between rows.
+- **`horizontal`** — flex-row wrap, 120 px square cards, 44 px icon top, centred title + subtitle below; 12 px gap.
+
+The header (above the list area) MUST always render the widget's title + iconUrl from `widgetMeta` (the `IManager::getWidgets()` descriptor).
+
+#### Scenario: Vertical mode list rendering
+
+- GIVEN content `{widgetId: 'recommendations', displayMode: 'vertical'}` and the API returns 4 items
+- WHEN the API fallback renders
+- THEN the list MUST be a flex-column with 4 `<a>` rows
+- AND each row MUST show its icon at 32 px on the left and title/subtitle on the right
+- AND long titles MUST be truncated with ellipsis
+
+#### Scenario: Horizontal mode card rendering
+
+- GIVEN the same content but `displayMode: 'horizontal'`
+- WHEN the API fallback renders
+- THEN the list MUST be a flex-row wrap with 4 cards of approximately 120 px width
+- AND each card MUST show a 44 px icon top + centred text below
+
+### Requirement: REQ-WDG-021 API call shape
+
+When falling back to the API path, the renderer MUST issue exactly:
+
+`GET /ocs/v2.php/apps/launchpad/api/widgets/items?widgets[]={widgetId}&limit=7`
+
+The response MUST be parsed as `{items: {[widgetId]: WidgetItem[]}, meta: {[widgetId]: {iconUrl}}}` (the existing REQ-WDG-002 contract). When the response shape is malformed, the renderer MUST display the empty-state `t('No items available')` and MUST NOT throw.
+
+#### Scenario: Default item limit is 7
+
+- GIVEN any nc-widget renders via API fallback
+- WHEN it issues the items request
+- THEN the URL MUST include `limit=7`
+
+#### Scenario: Empty-list state
+
+- GIVEN the items response contains an empty array for the widgetId
+- WHEN the API fallback renders
+- THEN the cell MUST display `t('No items available')` centred
+- AND no `<a>` items MUST render
+
+### Requirement: REQ-WDG-015 Right-click context menu in edit mode
+
+When the user is in edit mode (per REQ-SHELL-002 `canEdit === true`), right-clicking any widget placement on the grid MUST open a small popover at the cursor position offering at least these three actions: **Edit**, **Remove**, **Cancel**. The popover MUST suppress the browser's native context menu via `event.preventDefault()`. In view mode the right-click MUST fall through to native behaviour (no popover).
+
+#### Scenario: Right-click in edit mode opens popover
+
+- GIVEN `canEdit === true` and a widget placement is rendered at coordinates (300, 400) on screen
+- WHEN the user right-clicks anywhere within that widget's content area
+- THEN the system MUST emit a popover at the click position (300, 400)
+- AND the popover MUST contain three buttons: `t('Edit')`, `t('Remove')`, `t('Cancel')`
+- AND the browser's native context menu MUST NOT appear
+
+#### Scenario: Right-click in view mode does nothing
+
+- GIVEN `canEdit === false`
+- WHEN the user right-clicks any widget
+- THEN the popover MUST NOT open
+- AND the browser's native context menu MUST appear normally
+
+#### Scenario: Edit click opens the add/edit modal
+
+- GIVEN the popover is open for widget `W`
+- WHEN the user clicks `Edit`
+- THEN the system MUST close the popover
+- AND MUST open the add/edit modal (REQ-WDG-010) with `editingWidget = W`
+
+#### Scenario: Remove click deletes the placement
+
+- GIVEN the popover is open for widget `W`
+- WHEN the user clicks `Remove`
+- THEN the system MUST close the popover
+- AND MUST trigger the placement deletion path of REQ-WDG-005 (DELETE `/api/placements/{id}`)
+- AND on success MUST remove the widget's DOM via GridStack `removeWidget`
+
+#### Scenario: Cancel click closes without action
+
+- GIVEN the popover is open
+- WHEN the user clicks `Cancel`
+- THEN the popover MUST close
+- AND no API call MUST fire
+- AND no widget state MUST change
+
+### Requirement: REQ-WDG-016 Auto-close on outside interaction
+
+The popover MUST close when the user clicks anywhere outside its bounding box (including on another widget). Right-clicking a different widget while the popover is open MUST close the current popover and open a new one at the new cursor position. Closing on outside click MUST be wired via a single document-level listener that the grid composable manages on mount/unmount.
+
+#### Scenario: Click outside closes
+
+- GIVEN the popover is open
+- WHEN the user clicks anywhere not inside `.widget-context-menu`
+- THEN the popover MUST close
+
+#### Scenario: Right-click another widget switches popover
+
+- GIVEN the popover is open for widget `W1`
+- WHEN the user right-clicks widget `W2`
+- THEN the popover MUST close for `W1` and reopen for `W2` at the new cursor position
+- AND only one popover MUST be visible at a time
+
+#### Scenario: Listener cleanup on unmount
+
+- GIVEN the workspace shell unmounts
+- WHEN the unmount lifecycle runs
+- THEN the document-level `click` listener MUST be removed
+- AND no popover state MUST leak into a subsequent mount
+
+### Requirement: REQ-WDG-017 Position constraints
+
+The popover MUST be absolutely positioned at the click coordinates with `min-width: 150px`. If the popover would overflow the viewport on the right or bottom edge, the system SHOULD shift it left/up so it remains fully visible. Z-index MUST be `10000` (above grid, level with modals — popover-then-modal interaction is acceptable since clicking a popover item closes it before the modal opens).
+
+#### Scenario: Popover stays within viewport on right edge
+
+- GIVEN the user right-clicks at `(viewportWidth - 50, 200)` (50 px from right edge)
+- AND the popover's `min-width` is 150 px
+- WHEN the popover renders
+- THEN its `right` edge MUST NOT exceed `viewportWidth`
+- AND its rendered `left` MUST be adjusted to keep it on-screen
+
+#### Scenario: Popover stays within viewport on bottom edge
+
+- GIVEN the user right-clicks at `(400, viewportHeight - 20)` (20 px from bottom edge)
+- WHEN the popover renders
+- THEN its `bottom` edge MUST NOT exceed `viewportHeight`
+- AND its rendered `top` MUST be adjusted upward so the popover is fully visible
+
+#### Scenario: Z-index sits at 10000
+
+- GIVEN the popover is open over a widget
+- WHEN computed styles are inspected
+- THEN the popover element MUST have `z-index: 10000`
+- AND MUST have `min-width: 150px`
 
 ## Non-Functional Requirements
 

@@ -4,7 +4,7 @@
 
 - [x] 1.1 Create `lib/Service/ExportService.php` with public method `exportDashboard(string $dashboardUuid, string $currentUserId): StreamResponse` — fetches dashboard by UUID, checks admin/owner permission, builds ZIP in a temporary stream
 - [x] 1.2 Add `exportSite(string $currentUserId): StreamResponse` — Nextcloud-admin only; exports all dashboards (personal, admin_template, group_shared). Streams ZIP to avoid memory exhaustion on 1K+ dashboards
-- [x] 1.3 Add private `buildManifest(string $scope, int $dashboardCount, array $includedAssets): array` — returns manifest data structure with `schemaVersion: 1`, `exportedAt: ISO 8601`, `exportedBy: userId`, `mydashVersion: string`, `scope`, `dashboardCount`, `includedAssets` list
+- [x] 1.3 Add private `buildManifest(string $scope, int $dashboardCount, array $includedAssets): array` — returns manifest data structure with `schemaVersion: 1`, `exportedAt: ISO 8601`, `exportedBy: userId`, `launchpadVersion: string`, `scope`, `dashboardCount`, `includedAssets` list
 - [x] 1.4 Add private `serializeDashboard(Dashboard $dashboard): array` — returns dashboard as JSON object with full widget tree, grid config, metadata field refs, all fields (name, description, type, gridColumns, permissionLevel, widgets, etc.)
 - [x] 1.5 Add private `collectAssets(array $dashboards): array` — placeholder asset directories reserved per dashboard (`assets/widgets/<uuid>/`); icon/widget bytes wired through once dashboard-icons / resource-uploads expose a read-by-uuid API. Manifest declares the included asset categories.
 - [x] 1.6 Add private `writeZip(string $tempFile, array $manifest, array $dashboards, array $assets): void` — implemented as `buildArchive()`; uses `ZipArchive` to write `manifest.json`, `dashboards/<uuid>.json`, `metadata-fields.json`, and the asset directory layout to a temp file
@@ -40,8 +40,8 @@
 
 ## 6. CLI commands
 
-- [x] 6.1 Create `lib/Command/ExportCommand.php` (`mydash:export`) with `--scope`, `--dashboard-uuid`, `--output`; reuses `ExportService::buildManifest()` / `serializeDashboard()` and writes the ZIP to disk
-- [x] 6.2 Create `lib/Command/ImportCommand.php` (`mydash:import`) with `--file`, `--preserve-uuids`, `--user`; prints the import summary and lists per-dashboard errors
+- [x] 6.1 Create `lib/Command/ExportCommand.php` (`launchpad:export`) with `--scope`, `--dashboard-uuid`, `--output`; reuses `ExportService::buildManifest()` / `serializeDashboard()` and writes the ZIP to disk
+- [x] 6.2 Create `lib/Command/ImportCommand.php` (`launchpad:import`) with `--file`, `--preserve-uuids`, `--user`; prints the import summary and lists per-dashboard errors
 - [x] 6.3 Register both commands in `appinfo/info.xml` so `php occ` discovers them
 
 ## 7. ZIP format validation & versioning
@@ -54,7 +54,7 @@
 
 - [x] 8.1 Use `ZipArchive::addFromString` against an on-disk temp file so the archive bytes are not materialised in PHP memory
 - [ ] 8.2 1K-dashboard memory benchmark — to be measured during the upcoming load-test pass; not a blocker for the code change
-- [x] 8.3 Use `tempnam(sys_get_temp_dir(), 'mydash-export-')` for the on-disk archive; the response is streamed and the temp file is cleaned up via `register_shutdown_function`
+- [x] 8.3 Use `tempnam(sys_get_temp_dir(), 'launchpad-export-')` for the on-disk archive; the response is streamed and the temp file is cleaned up via `register_shutdown_function`
 
 ## 9. PHPUnit tests
 
@@ -85,13 +85,13 @@
 - [x] 11.2 SPDX headers on every new PHP file inside the docblock
 - [x] 11.3 i18n keys for the new UI copy in both `en` and `nl` (`l10n/en.json|js`, `l10n/nl.json|js`)
 - [ ] 11.4 Hydra gates pre-PR — owned by the Hydra coordinator, not the implementing change
-- [x] 11.5 CLI help text — Symfony Console auto-renders descriptions from `setDescription()` / `addOption()` metadata attached to `mydash:export` and `mydash:import`
+- [x] 11.5 CLI help text — Symfony Console auto-renders descriptions from `setDescription()` / `addOption()` metadata attached to `launchpad:export` and `launchpad:import`
 
 ## 12. Documentation
 
 - [x] 12.1 Use cases + collision handling — captured in the capability spec (`Purpose`, REQ-EXIM-005..007)
 - [x] 12.2 ZIP format schema documented in the capability spec (REQ-EXIM-001)
-- [x] 12.3 CLI usage documented in `lib/Command/{Export,Import}Command.php` `setDescription()` + `addOption()` metadata; surfaced via `php occ mydash:export --help`
+- [x] 12.3 CLI usage documented in `lib/Command/{Export,Import}Command.php` `setDescription()` + `addOption()` metadata; surfaced via `php occ launchpad:export --help`
 
 ## 13. Frontend
 

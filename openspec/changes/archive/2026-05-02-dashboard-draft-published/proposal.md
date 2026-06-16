@@ -2,7 +2,7 @@
 
 ## Why
 
-Today MyDash dashboards are either in an unpublished (draft, invisible) or published (shared) state. There is no notion of scheduling a dashboard for future publication, or of preserving audit history when a dashboard transitions from draft to published. This change introduces a publication-state workflow (`draft` / `published` / `scheduled`) so users can:
+Today LaunchPad dashboards are either in an unpublished (draft, invisible) or published (shared) state. There is no notion of scheduling a dashboard for future publication, or of preserving audit history when a dashboard transitions from draft to published. This change introduces a publication-state workflow (`draft` / `published` / `scheduled`) so users can:
 
 - Create dashboards and keep them private until ready (draft state)
 - Publish dashboards to their intended audience (published state)
@@ -13,7 +13,7 @@ The change preserves backward compatibility: existing dashboards are backfilled 
 
 ## What Changes
 
-- Add `publicationStatus ENUM('draft','published','scheduled') NOT NULL DEFAULT 'draft'` column on `oc_mydash_dashboards`.
+- Add `publicationStatus ENUM('draft','published','scheduled') NOT NULL DEFAULT 'draft'` column on `oc_launchpad_dashboards`.
 - Add `publishAt TIMESTAMP NULL` — required when `publicationStatus = 'scheduled'`; ignored otherwise.
 - Add `publishedAt TIMESTAMP NULL` — set automatically when transitioning to `published`; preserved when unpublishing.
 - A dashboard in `draft` state is visible ONLY to its owner and to Nextcloud admins, never in `GET /api/dashboards/visible` for other viewers.
@@ -57,7 +57,7 @@ The change preserves backward compatibility: existing dashboards are backfilled 
 
 **Dependencies:**
 
-- `OCP\Activity\IManager` — for audit logging (already used elsewhere in MyDash)
+- `OCP\Activity\IManager` — for audit logging (already used elsewhere in LaunchPad)
 - No new composer or npm dependencies
 
 **Migration:**

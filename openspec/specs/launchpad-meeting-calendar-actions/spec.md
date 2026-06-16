@@ -29,7 +29,9 @@ rendering per `feedback_launchpad-no-or-dependency.md`.
 Sourced from Specter draft `meeting-calendar-actions` (1 feature:
 annotate agenda items on dashboard).
 
-## ADDED Requirements
+## Requirements
+
+@e2e exclude proposed/unimplemented widget — `launchpad_meeting_actions` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, DAV calendar reads, decidesk presence/absence gating, and Specter-sourced annotation flows — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
 ### REQ-MCA-001: The system SHALL register a `launchpad_meeting_actions` widget type distinct from `calendar-widget`
 
@@ -58,7 +60,7 @@ types fulfil different use-cases (broad calendar view vs governance
 
 ### REQ-MCA-002: The widget content shape SHALL describe the source bindings and timeline window
 
-The placement persists `{type: 'meeting-actions', content: {...}}` with:
+The placement MUST persist `{type: 'meeting-actions', content: {...}}` with:
 
 | Field | Type | Required | Default | Purpose |
 |---|---|---|---|---|
@@ -135,8 +137,7 @@ inline info chip:
 
 ### REQ-MCA-005: Agenda-item annotations SHALL persist on the agenda-item object in decidesk — never in a launchpad table (Specter acceptance)
 
-When the viewer adds, edits, or deletes an annotation on an agenda
-item, the widget MUST issue a GraphQL mutation against decidesk's
+When the viewer adds, edits, or deletes an annotation on an agenda item, the widget MUST issue a GraphQL mutation against decidesk's
 agenda-item mutation endpoint. launchpad MUST NOT define an annotations
 table, MUST NOT store annotation text in placement content, and
 MUST NOT mirror annotation state.

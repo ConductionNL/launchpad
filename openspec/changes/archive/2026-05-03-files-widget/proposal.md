@@ -2,11 +2,11 @@
 
 ## Why
 
-MyDash users frequently need to access files stored in Nextcloud without leaving the dashboard. Currently, they must navigate away to the Files app to browse, preview, or upload files. A files widget embedded directly on the dashboard bridges this gap by providing an inline folder browser with configurable display modes, permission-aware access control, and simple upload/delete capabilities. This reduces context switching and accelerates common file-management workflows.
+LaunchPad users frequently need to access files stored in Nextcloud without leaving the dashboard. Currently, they must navigate away to the Files app to browse, preview, or upload files. A files widget embedded directly on the dashboard bridges this gap by providing an inline folder browser with configurable display modes, permission-aware access control, and simple upload/delete capabilities. This reduces context switching and accelerates common file-management workflows.
 
 ## What Changes
 
-- Register a new dashboard widget with id `mydash_files` via `OCP\Dashboard\IManager` that appears in the widget picker.
+- Register a new dashboard widget with id `launchpad_files` via `OCP\Dashboard\IManager` that appears in the widget picker.
 - Add per-placement configuration stored in `widgetContent JSON` to specify the target folder (via absolute NC path or persistent fileId), display mode (list/grid/tree), filtering options, and access controls (upload/delete).
 - Implement backend `GET /api/widgets/files/{placementId}/contents?cursor=&limit=50` to return paginated directory listings with per-file metadata (name, size, modified, mime type, thumbnails, permissions).
 - Enforce view-time ACL: only files and folders the VIEWING user can read are listed. Return HTTP 403 with `{error: "no_access"}` if the configured folder is unreadable.
@@ -22,7 +22,7 @@ MyDash users frequently need to access files stored in Nextcloud without leaving
 
 ### New Capabilities
 
-- `files-widget` — A new MyDash dashboard widget capability providing inline Nextcloud Files folder browsing with permission-aware access control, upload/delete, and multiple display modes.
+- `files-widget` — A new LaunchPad dashboard widget capability providing inline Nextcloud Files folder browsing with permission-aware access control, upload/delete, and multiple display modes.
 
 ## Impact
 

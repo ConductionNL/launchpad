@@ -3,24 +3,24 @@
 /**
  * DashboardTranslationTableBuilder
  *
- * Builder for the oc_mydash_dash_translations database table schema
+ * Builder for the oc_launchpad_dash_translations database table schema
  * — per-language content variants for dashboards. REQ-DASH-038.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -31,7 +31,7 @@ use OCP\DB\Types;
 class DashboardTranslationTableBuilder
 {
     /**
-     * Create the mydash_dash_translations table.
+     * Create the launchpad_dash_translations table.
      *
      * Idempotent — returns immediately when the table already exists.
      *
@@ -41,12 +41,12 @@ class DashboardTranslationTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_dash_translations') === true) {
+        if ($schema->hasTable('launchpad_dash_translations') === true) {
             return;
         }
 
         $table = $schema->createTable(
-            'mydash_dash_translations'
+            'launchpad_dash_translations'
         );
 
         $table->addColumn(
@@ -93,7 +93,7 @@ class DashboardTranslationTableBuilder
             Types::TEXT,
             [
                 'notnull' => false,
-                'comment' => 'Localised widget tree JSON — mirrors oc_mydash_dashboards shape.',
+                'comment' => 'Localised widget tree JSON — mirrors oc_launchpad_dashboards shape.',
             ]
         );
         $table->addColumn(
@@ -120,15 +120,15 @@ class DashboardTranslationTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addIndex(
             ['dashboard_uuid'],
-            'mydash_trans_dash_idx'
+            'launchpad_trans_dash_idx'
         );
         $table->addUniqueIndex(
             ['dashboard_uuid', 'language_code'],
-            'mydash_trans_unique_idx'
+            'launchpad_trans_unique_idx'
         );
         $table->addIndex(
             ['dashboard_uuid', 'is_primary'],
-            'mydash_trans_primary_idx'
+            'launchpad_trans_primary_idx'
         );
     }//end create()
 }//end class

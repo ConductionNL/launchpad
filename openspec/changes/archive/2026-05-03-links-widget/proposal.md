@@ -2,11 +2,11 @@
 
 ## Why
 
-MyDash users often need to organize and present collections of related links (e.g., to tools, documents, external resources, or internal app shortcuts) in a curated, visually grouped manner. The existing link-button-widget handles single action buttons; the upcoming link-button-widget-list-mode extends that widget with a simple list view. This proposal adds a NEW widget type optimized for "link directory" layouts: a multi-column grid of link cards organized into named sections, with configurable icons, descriptions, and display styles. Users need this capability to create organized link hubs on their dashboards without resorting to external iframes or multiple single-button widgets.
+LaunchPad users often need to organize and present collections of related links (e.g., to tools, documents, external resources, or internal app shortcuts) in a curated, visually grouped manner. The existing link-button-widget handles single action buttons; the upcoming link-button-widget-list-mode extends that widget with a simple list view. This proposal adds a NEW widget type optimized for "link directory" layouts: a multi-column grid of link cards organized into named sections, with configurable icons, descriptions, and display styles. Users need this capability to create organized link hubs on their dashboards without resorting to external iframes or multiple single-button widgets.
 
 ## What Changes
 
-- Register a new dashboard widget with id `mydash_links` via `OCP\Dashboard\IManager` that appears in the widget picker.
+- Register a new dashboard widget with id `launchpad_links` via `OCP\Dashboard\IManager` that appears in the widget picker.
 - Add per-placement configuration stored in `widgetContent JSON` to specify sections (each with title and array of links), column layout, and display mode preferences.
 - Implement fully static rendering (no backend data endpoint required — all configuration is provided at placement edit time).
 - Provide Vue 3 SFC `LinksWidget.vue` with three link layout modes: `card` (icon + label + description), `inline` (flat rows of icon + label), and `icon-only` (grid of icons with hover tooltips).
@@ -22,7 +22,7 @@ MyDash users often need to organize and present collections of related links (e.
 
 ### New Capabilities
 
-- `links-widget` — A new MyDash dashboard widget capability providing a multi-column curated link grid organized into named sections with configurable layout, icon resolution, and edit UI.
+- `links-widget` — A new LaunchPad dashboard widget capability providing a multi-column curated link grid organized into named sections with configurable layout, icon resolution, and edit UI.
 
 ## Impact
 

@@ -7,12 +7,12 @@
  * ResourceServeController (REQ-RES-006..008).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -20,8 +20,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Service\ResourceServeService;
-use OCA\MyDash\Service\ResourceService;
+use OCA\LaunchPad\Service\ResourceServeService;
+use OCA\LaunchPad\Service\ResourceService;
 use OCP\Files\IAppData;
 use OCP\Files\NotFoundException;
 use OCP\Files\SimpleFS\ISimpleFile;

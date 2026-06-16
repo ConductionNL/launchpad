@@ -4,11 +4,11 @@
 
 ## Context
 
-MyDash's dashboard grid renders widgets from two Nextcloud widget eras. Modern widgets implement `IAPIWidget` / `IAPIWidgetV2` and are covered by the existing `widgets` capability (discovery via `OCP\Dashboard\IManager`, placement CRUD, item loading). Legacy widgets predate that interface and instead call `window.OCA.Dashboard.register(appId, callback)` from their own bootstrap script. To render a legacy widget MyDash has to capture its callback at registration time and invoke it later against a DOM container.
+LaunchPad's dashboard grid renders widgets from two Nextcloud widget eras. Modern widgets implement `IAPIWidget` / `IAPIWidgetV2` and are covered by the existing `widgets` capability (discovery via `OCP\Dashboard\IManager`, placement CRUD, item loading). Legacy widgets predate that interface and instead call `window.OCA.Dashboard.register(appId, callback)` from their own bootstrap script. To render a legacy widget LaunchPad has to capture its callback at registration time and invoke it later against a DOM container.
 
 `src/services/widgetBridge.js` does exactly this: it monkey-patches `window.OCA.Dashboard.register` and `registerStatus` on construction, stores captured callbacks in two Maps, and exposes `mountWidget` / `mountStatusWidget` / `hasWidgetCallback` / `getRegisteredWidgetIds` for `WidgetRenderer.vue` to use when it decides which rendering path to take.
 
-The code has existed for the lifetime of MyDash without a spec. This retrofit pins the observed behaviour as four REQs under a new `legacy-widget-bridge` capability so future changes to the bridge amend a baseline rather than rediscovering it.
+The code has existed for the lifetime of LaunchPad without a spec. This retrofit pins the observed behaviour as four REQs under a new `legacy-widget-bridge` capability so future changes to the bridge amend a baseline rather than rediscovering it.
 
 ## Approach — what was written
 

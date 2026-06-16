@@ -2,18 +2,18 @@
 
 ## What it does
 
-MyDash can restrict which dashboard widgets a user can add to their dashboard
+LaunchPad can restrict which dashboard widgets a user can add to their dashboard
 based on their Nextcloud group(s). When a user belongs to multiple groups,
 the effective allowed-widget set is resolved deterministically via the
 admin-configured `group_order` priority list, with a deny-wins rule for
 cross-group conflicts.
 
-For new users (no admin template applies), MyDash can also seed a starter
+For new users (no admin template applies), LaunchPad can also seed a starter
 dashboard layout from per-group `RoleLayoutDefault` rows so the first-paint
 experience is tailored to their role.
 
 When **no** RoleFeaturePermission rows exist for any of a user's groups,
-MyDash behaves exactly as before — the full widget catalogue is shown
+LaunchPad behaves exactly as before — the full widget catalogue is shown
 (REQ-RFP-009 backwards-compat).
 
 ## Key concepts
@@ -34,7 +34,7 @@ One row per Nextcloud group. Fields:
 ### RoleLayoutDefault
 
 One row per `(groupId, widgetId)` combination. Captures the seed grid
-position and size for one widget when MyDash creates a fresh dashboard for a
+position and size for one widget when LaunchPad creates a fresh dashboard for a
 user in that group and no admin template matches.
 
 | Field | Type | Notes |
@@ -47,7 +47,7 @@ user in that group and no admin template matches.
 
 ## Multi-group resolution
 
-Users often belong to multiple groups. MyDash walks the configured
+Users often belong to multiple groups. LaunchPad walks the configured
 `group_order` (set in admin settings) and:
 
 1. Picks the first group in `group_order` that the user belongs to AND has a
@@ -56,7 +56,7 @@ Users often belong to multiple groups. MyDash walks the configured
 2. Subsequent groups in `group_order` that the user is also in widen the
    base set (union of their `allowedWidgets`).
 3. ANY group's `deniedWidgets` is removed from the final set (deny-wins).
-4. If no `group_order` group matched, MyDash falls back to the row whose
+4. If no `group_order` group matched, LaunchPad falls back to the row whose
    `groupId` is exactly `default`.
 5. If no `default` row exists either, returns null = no restriction (the
    full catalogue is shown).
@@ -76,13 +76,22 @@ Walk: managers matches first → base = `['analytics', 'activity',
 
 ## Admin UI
 
-Settings → MyDash settings → **Role-based widget permissions**. Lets admins:
+Settings → LaunchPad settings → **Role-based widget permissions**. Lets admins:
 
 - See all configured RoleFeaturePermission rows with allowed/denied widget
   chips.
 - Add a new permission for a Nextcloud group.
 - Edit allowed/denied widget lists (comma-separated free text).
 - Delete a permission.
+
+![Role-based widget permissions section in the LaunchPad admin
+settings](./screenshots/admin-settings.png)
+
+The screenshot above shows the LaunchPad admin settings page — the
+**Role-based widget permissions** section appears below the default-
+settings card and uses the standard `NcAppNavigationCaption`-style row
+layout. Each row exposes the group id, allowed-widget chips, denied-
+widget chips, and an action menu (Edit + Delete via `NcDialog`).
 
 The RoleLayoutDefault rows are managed only via the API for now; an admin
 UI for them lands in a follow-up.
@@ -118,8 +127,8 @@ The workspace page now ships `allowedWidgets` in its initial state
 
 Migration `Version001007Date20260501120000` creates two tables:
 
-- `mydash_role_feature_perms` — one row per group, unique on `group_id`
-- `mydash_role_layout_defaults` — one row per `(group_id, widget_id)`,
+- `launchpad_role_feat_perms` — one row per group, unique on `group_id`
+- `launchpad_role_layout_def` — one row per `(group_id, widget_id)`,
   unique on the combination
 
 Both tables are empty on first migration; nothing is seeded. Existing users

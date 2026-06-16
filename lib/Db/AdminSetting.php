@@ -6,7 +6,7 @@
  * Represents an admin setting entity.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
@@ -38,7 +38,7 @@ class AdminSetting extends Entity implements JsonSerializable
     // BC string aliases for AdminSettingKey enum values.
     // These constants remain here so existing call-sites do not need
     // updating; prefer AdminSettingKey::<CASE>->value in new code.
-    // @see \OCA\MyDash\Db\AdminSettingKey
+    // @see \OCA\LaunchPad\Db\AdminSettingKey
     // @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-10
     // ------------------------------------------------------------------
 
@@ -194,6 +194,24 @@ class AdminSetting extends Entity implements JsonSerializable
      * @see AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED
      */
     public const KEY_LEGACY_WIDGET_BRIDGE_ENABLED = AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED->value;
+
+    /**
+     * BC alias for AdminSettingKey::MAX_DASHBOARDS_PER_USER (dashboard-quota-limits).
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::MAX_DASHBOARDS_PER_USER
+     */
+    public const KEY_MAX_DASHBOARDS_PER_USER = AdminSettingKey::MAX_DASHBOARDS_PER_USER->value;
+
+    /**
+     * BC alias for AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD (dashboard-quota-limits).
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD
+     */
+    public const KEY_MAX_WIDGETS_PER_DASHBOARD = AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD->value;
 
     /**
      * The setting key.

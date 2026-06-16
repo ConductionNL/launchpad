@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -22,7 +22,7 @@
 			     type, no editing widget). REQ-WDG-010. -->
 			<div v-if="showTypeSelect" class="add-widget-modal__type">
 				<label class="add-widget-modal__type-label" :for="typeSelectId">
-					{{ t('mydash', 'Widget type') }}
+					{{ t('launchpad', 'Widget type') }}
 				</label>
 				<select
 					:id="typeSelectId"
@@ -53,7 +53,7 @@
 					@update:content="onContentUpdate" />
 			</div>
 			<div v-else class="add-widget-modal__empty">
-				{{ t('mydash', 'No widget types available') }}
+				{{ t('launchpad', 'No widget types available') }}
 			</div>
 
 			<!-- Action buttons. REQ-WDG-013 close discipline: cancel emits
@@ -61,7 +61,7 @@
 			     active sub-form's validate() returns errors (REQ-WDG-012). -->
 			<div class="add-widget-modal__actions">
 				<NcButton type="tertiary" @click="onCancel">
-					{{ t('mydash', 'Cancel') }}
+					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
 				<NcButton
 					type="primary"
@@ -209,8 +209,8 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		modalTitle() {
 			return this.editingWidget
-				? t('mydash', 'Edit Widget')
-				: t('mydash', 'Add Widget')
+				? t('launchpad', 'Edit Widget')
+				: t('launchpad', 'Add Widget')
 		},
 
 		/**
@@ -220,7 +220,7 @@ export default {
 		 */
 		/** @spec openspec/specs/widgets/spec.md */
 		submitLabel() {
-			return this.editingWidget ? t('mydash', 'Save') : t('mydash', 'Add')
+			return this.editingWidget ? t('launchpad', 'Save') : t('launchpad', 'Add')
 		},
 
 		/**

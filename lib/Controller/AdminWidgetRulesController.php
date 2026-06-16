@@ -6,7 +6,7 @@
  * Admin-only overview of conditional visibility rules across all dashboards.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -19,10 +19,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ConditionalService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
@@ -63,7 +64,7 @@ class AdminWidgetRulesController extends Controller
      *
      * @spec openspec/specs/conditional-visibility/spec.md
      */
-    #[AuthorizedAdminSetting(Application::APP_ID)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function index(): JSONResponse
     {
         try {

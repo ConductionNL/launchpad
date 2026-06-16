@@ -1,12 +1,12 @@
 ---
 sidebar_position: 7
 title: Set a default dashboard
-description: Pin one dashboard so MyDash opens to it automatically.
+description: Pin one dashboard so LaunchPad opens to it automatically.
 ---
 
 # Set a default dashboard
 
-When you visit `/apps/mydash/` cold (no specific dashboard URL) MyDash needs to pick one to land you on. The default-resolution chain is:
+When you visit `/apps/launchpad/` cold (no specific dashboard URL) LaunchPad needs to pick one to land you on. The default-resolution chain is:
 
 1. **Your pin** — the dashboard you marked **Default dashboard** in the cog menu.
 2. Your primary group's default dashboard (if your admin set one).
@@ -37,11 +37,11 @@ The sidebar redraws with a small star to the left of the dashboard name on the p
 
 ![Sidebar with star marker](/screenshots/tutorials/user/07-default-marker.png)
 
-The marker carries a tooltip on hover: *"Default dashboard — opens automatically when you visit MyDash"*. Screen readers announce the same string via `aria-label`.
+The marker carries a tooltip on hover: *"Default dashboard — opens automatically when you visit LaunchPad"*. Screen readers announce the same string via `aria-label`.
 
 ### 4. Verify on next cold-load
 
-Close the tab. Visit `/apps/mydash/` from scratch. You land on the pinned dashboard.
+Close the tab. Visit `/apps/launchpad/` from scratch. You land on the pinned dashboard.
 
 ## Behaviour notes
 
@@ -55,7 +55,7 @@ Close the tab. Visit `/apps/mydash/` from scratch. You land on the pinned dashbo
 
 | Symptom | Fix |
 |---|---|
-| Star doesn't appear after clicking | Reload the page once. If it's still missing, check that your environment is running development-branch mydash (the marker shipped recently). |
+| Star doesn't appear after clicking | Reload the page once. If it's still missing, check that your environment is running development-branch launchpad (the marker shipped recently). |
 | The star is on the wrong row after a rename | The pin is by UUID, which is stable across renames — so this shouldn't happen. If it does, clear and re-pin. |
 
 ## Reference

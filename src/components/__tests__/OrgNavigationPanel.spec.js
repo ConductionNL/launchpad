@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Vitest unit tests for `OrgNavigationPanel.vue` and the recursive
@@ -115,24 +115,24 @@ describe('OrgNavigationItem', () => {
 
 	it('REQ-ONAV-009: exact URL match marks node as active', () => {
 		const wrapper = mountItem(
-			{ id: 'x', label: 'Hub', url: '/apps/mydash/hub', children: [] },
-			'/apps/mydash/hub',
+			{ id: 'x', label: 'Hub', url: '/apps/launchpad/hub', children: [] },
+			'/apps/launchpad/hub',
 		)
 		expect(wrapper.classes('org-nav-item--active')).toBe(true)
 	})
 
 	it('REQ-ONAV-009: prefix URL match marks node as active', () => {
 		const wrapper = mountItem(
-			{ id: 'x', label: 'Hub', url: '/apps/mydash/hub', children: [] },
-			'/apps/mydash/hub/details',
+			{ id: 'x', label: 'Hub', url: '/apps/launchpad/hub', children: [] },
+			'/apps/launchpad/hub/details',
 		)
 		expect(wrapper.classes('org-nav-item--active')).toBe(true)
 	})
 
 	it('REQ-ONAV-009: non-matching URL does not mark node as active', () => {
 		const wrapper = mountItem(
-			{ id: 'x', label: 'Hub', url: '/apps/mydash/hub', children: [] },
-			'/apps/mydash/hubris',
+			{ id: 'x', label: 'Hub', url: '/apps/launchpad/hub', children: [] },
+			'/apps/launchpad/hubris',
 		)
 		expect(wrapper.classes('org-nav-item--active')).toBe(false)
 	})

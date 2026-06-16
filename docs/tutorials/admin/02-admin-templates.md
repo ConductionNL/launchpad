@@ -6,12 +6,12 @@ description: Build a dashboard centrally and roll it out to every user (or to a 
 
 # Create an admin template dashboard
 
-An **admin template** is a dashboard the admin authors and assigns to one or more groups. The first time a member of an assigned group opens MyDash, they get a personal copy of the template's layout. Their copy is independent — they can edit, add, and remove widgets without affecting the template or other users.
+An **admin template** is a dashboard the admin authors and assigns to one or more groups. The first time a member of an assigned group opens LaunchPad, they get a personal copy of the template's layout. Their copy is independent — they can edit, add, and remove widgets without affecting the template or other users.
 
 ## When to use this
 
 - You want every member of a group to start with the same dashboard (KPIs, mandatory tools, brand tiles).
-- You're rolling out MyDash for the first time and don't want users to face an empty grid.
+- You're rolling out LaunchPad for the first time and don't want users to face an empty grid.
 - You manage a multi-tenant Nextcloud where each tenant gets a different starting layout.
 
 ## Goal
@@ -25,9 +25,9 @@ Author a template, assign it to a group, and verify a member of that group lands
 
 ## Steps
 
-### 1. Open MyDash admin settings
+### 1. Open LaunchPad admin settings
 
-Avatar → **Administration settings** → **MyDash**.
+Avatar → **Administration settings** → **LaunchPad**.
 
 ### 2. Scroll to **Admin templates**
 
@@ -51,13 +51,13 @@ Optional fields:
 
 ### 4. Save and edit the template's layout
 
-Saving creates the template row. Click **Edit layout** on the new template — MyDash opens a regular dashboard editor scoped to the template. Add widgets, position them, configure them — exactly like editing a personal dashboard.
+Saving creates the template row. Click **Edit layout** on the new template — LaunchPad opens a regular dashboard editor scoped to the template. Add widgets, position them, configure them — exactly like editing a personal dashboard.
 
 ![Edit template layout](/screenshots/tutorials/admin/02-template-edit.png)
 
 ### 5. Verify with a test user
 
-`occ user:add testuser` (or pick an existing member of the assigned group). Log in as that user and open MyDash. The first visit clones the template into a personal dashboard named **My Dashboard** (default) — visible in **MY DASHBOARDS** in the sidebar.
+`occ user:add testuser` (or pick an existing member of the assigned group). Log in as that user and open LaunchPad. The first visit clones the template into a personal dashboard named **My Dashboard** (default) — visible in **MY DASHBOARDS** in the sidebar.
 
 ![Test user lands on cloned template](/screenshots/tutorials/admin/02-test-user-view.png)
 
@@ -73,7 +73,7 @@ Saving creates the template row. Click **Edit layout** on the new template — M
 | Symptom | Fix |
 |---|---|
 | Test user sees the empty state, not the template | The user isn't actually in the assigned group, or the group isn't in the priority list. Check `occ user:info`. |
-| Template's compulsory widget shows up but user can remove it | Check the compulsory flag is set on that placement (`isCompulsory=1` in `oc_mydash_widget_placements`). |
+| Template's compulsory widget shows up but user can remove it | Check the compulsory flag is set on that placement (`isCompulsory=1` in `oc_launchpad_widget_placements`). |
 | Template edits aren't propagating | Expected. Templates are clone-on-first-login, not live. |
 
 ## Reference

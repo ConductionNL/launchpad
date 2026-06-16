@@ -8,12 +8,12 @@
  * with a 403 (REQ-PERM-001).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,11 +22,11 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use Exception;
-use OCA\MyDash\Controller\RuleApiController;
-use OCA\MyDash\Db\ConditionalRule;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\ConditionalService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\Controller\RuleApiController;
+use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ConditionalService;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
@@ -137,7 +137,7 @@ class RuleApiControllerSecurityTest extends TestCase
             ->expects($this->once())
             ->method('verifyPlacementOwnership')
             ->with(userId: 'alice', placementId: 7)
-            ->willReturn($this->createMock(\OCA\MyDash\Db\WidgetPlacement::class));
+            ->willReturn($this->createMock(\OCA\LaunchPad\Db\WidgetPlacement::class));
 
         $updatedRule = $this->makeRule(placementId: 7);
         $this->conditionalService
@@ -222,7 +222,7 @@ class RuleApiControllerSecurityTest extends TestCase
             ->expects($this->once())
             ->method('verifyPlacementOwnership')
             ->with(userId: 'alice', placementId: 7)
-            ->willReturn($this->createMock(\OCA\MyDash\Db\WidgetPlacement::class));
+            ->willReturn($this->createMock(\OCA\LaunchPad\Db\WidgetPlacement::class));
 
         $this->conditionalService
             ->expects($this->once())

@@ -13,7 +13,7 @@
  *    only allowed items returned.
  *
  * @category Test
- * @package  OCA\MyDash\Tests\Unit\Controller
+ * @package  OCA\LaunchPad\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -28,14 +28,14 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\WidgetApiController;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\CalendarWidgetService;
-use OCA\MyDash\Service\NewsWidgetService;
-use OCA\MyDash\Service\PermissionService;
-use OCA\MyDash\Service\RoleFeaturePermissionService;
-use OCA\MyDash\Service\WidgetPlacementService;
-use OCA\MyDash\Service\WidgetService;
+use OCA\LaunchPad\Controller\WidgetApiController;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\CalendarWidgetService;
+use OCA\LaunchPad\Service\NewsWidgetService;
+use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\WidgetPlacementService;
+use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;

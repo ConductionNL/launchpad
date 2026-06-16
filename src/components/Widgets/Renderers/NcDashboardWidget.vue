@@ -332,7 +332,6 @@ export default {
 	align-items: center;
 	gap: 8px;
 	padding: 8px 12px;
-	border-bottom: 1px solid var(--color-border);
 	font-weight: bold;
 }
 

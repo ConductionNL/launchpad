@@ -144,7 +144,9 @@ export default {
 
 .tile-widget__icon {
 	font-size: 64px;
-	width: 64px;
+	width: auto;
+	min-width: 64px;
+	max-width: 80%;
 	height: 64px;
 	display: flex;
 	align-items: center;
@@ -164,8 +166,9 @@ export default {
 }
 
 .tile-widget__icon img {
-	width: 100%;
 	height: 100%;
+	width: auto;
+	max-width: 100%;
 	object-fit: contain;
 	filter: none;
 	background: transparent !important;

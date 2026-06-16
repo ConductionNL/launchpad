@@ -174,7 +174,76 @@ class Application extends App implements IBootstrap
         // Surface dashboards, widget content, and metadata values in
         // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
         $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
+
+        // Observability (ADR-040): re-point the unchanged /api/health and
+        // /api/metrics routes at thin subclasses of the OpenRegister AppHost
+        // generic controllers, which render the declarative observability block
+        // of src/manifest.json. The factories below are lazy — they reference
+        // no OCA\OpenRegister\… symbol until a request resolves the controller,
+        // so a disabled/absent OpenRegister never fatals NC bootstrap (the route
+        // then surfaces the degraded OR-unavailable state instead). $appId is the
+        // runtime app id `launchpad`; the engine reads the manifest under it and
+        // emits the launchpad_ Prometheus prefix, preserving the contract.
+        $this->registerObservability(context: $context);
     }//end register()
+
+    /**
+     * Wire the AppHost observability controllers (ADR-040).
+     *
+     * Aliases the unchanged `health#index` / `metrics#index` route targets at
+     * the OpenRegister AppHost generic controllers, per the documented leaf
+     * adoption pattern (docs/Technical/declarative-observability.md). The
+     * controller's `$appName` resolves to this leaf's app id, so the engine
+     * loads `src/manifest.json`'s `observability` block under `launchpad` and
+     * renders the `launchpad_`-prefixed Prometheus output. The generic
+     * controllers own the auth posture: health is public (`#[PublicPage]`),
+     * metrics admin-only.
+     *
+     * LaunchPad keeps its own bespoke Dashboard/Preferences/Settings/
+     * AdminSettings boilerplate — entangled with the dashboard lifecycle,
+     * permission matrix and DoS-guarded preferences (see
+     * openspec/changes/adopt-apphost/design.md). The aliases are class-string
+     * registrations, so a disabled/absent OpenRegister never fatals NC
+     * bootstrap; the first request to an aliased route surfaces the degraded
+     * OR-unavailable state instead.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerObservability(IRegistrationContext $context): void
+    {
+        // Health controller. The generic class is referenced only as a string
+        // and instantiated inside the closure, so no OCA\OpenRegister symbol is
+        // touched until a request resolves the controller — keeping NC bootstrap
+        // fatal-free when OpenRegister is disabled/absent. $appName is pinned to
+        // this leaf's runtime app id (`launchpad`) so the engine loads the right
+        // manifest and emits the `launchpad_` prefix, exactly as before adoption.
+        $context->registerService(
+            \OCA\LaunchPad\Controller\HealthController::class,
+            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
+                return new \OCA\LaunchPad\Controller\HealthController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    executor: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
+                );
+            }
+        );
+
+        // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
+        $context->registerService(
+            \OCA\LaunchPad\Controller\MetricsController::class,
+            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
+                return new \OCA\LaunchPad\Controller\MetricsController(
+                    appName: self::APP_ID,
+                    request: $c->get(\OCP\IRequest::class),
+                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    engine: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
+                );
+            }
+        );
+    }//end registerObservability()
 
     /**
      * App initialization after all apps are registered.

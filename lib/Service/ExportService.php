@@ -175,13 +175,13 @@ class ExportService
         );
 
         return [
-            'schemaVersion'  => self::SCHEMA_VERSION,
-            'exportedAt'     => $now->format(format: 'Y-m-d\TH:i:s\Z'),
-            'exportedBy'     => $currentUserId,
-            'launchpadVersion'  => Application::APP_ID.'/v1',
-            'scope'          => $scope,
-            'dashboardCount' => $dashboardCount,
-            'includedAssets' => ['icons', 'widgetUploads', 'metadataFields'],
+            'schemaVersion'    => self::SCHEMA_VERSION,
+            'exportedAt'       => $now->format(format: 'Y-m-d\TH:i:s\Z'),
+            'exportedBy'       => $currentUserId,
+            'launchpadVersion' => Application::APP_ID.'/v1',
+            'scope'            => $scope,
+            'dashboardCount'   => $dashboardCount,
+            'includedAssets'   => ['icons', 'widgetUploads', 'metadataFields'],
         ];
     }//end buildManifest()
 

@@ -264,6 +264,15 @@ class DashboardService
      *                                                                   existing
      *                                                                   test
      *                                                                   doubles.
+     * @param PublicShareContext|null             $publicShareContext    Optional public-share
+     *                                                                   bearer context; when
+     *                                                                   present a share bearer
+     *                                                                   cannot mutate dashboards
+     *                                                                   (dashboard-public-share).
+     * @param QuotaService|null                   $quotaService          Optional quota-enforcement
+     *                                                                   service gating per-user
+     *                                                                   dashboard creation
+     *                                                                   (dashboard-quota-limits).
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -461,7 +470,7 @@ class DashboardService
     ): Dashboard {
         // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
         $this->publicShareContext?->requireMutable();
-        // dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
+        // Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
         // dashboard quota at the single creation choke point so every
         // user-initiated surface (REST create, CLI, template
         // instantiation) is bound. Admin provisioning paths wrap their
@@ -1692,7 +1701,7 @@ class DashboardService
         // what happens with the body.
         $this->assertPersonalDashboardsAllowed();
 
-        // dashboard-quota-limits REQ-QUOTA-002: a fork creates a new
+        // Dashboard-quota-limits REQ-QUOTA-002: a fork creates a new
         // personal-scope dashboard, so it is bound by the per-user
         // dashboard quota exactly like a plain create. Runs before any DB
         // write and before the transaction opens.

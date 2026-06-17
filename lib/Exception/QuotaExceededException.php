@@ -74,14 +74,14 @@ class QuotaExceededException extends ResourceException
     /**
      * The configured limit that was reached.
      *
-     * @var int
+     * @var integer
      */
     private int $limit;
 
     /**
      * The current count at the time of rejection.
      *
-     * @var int
+     * @var integer
      */
     private int $current;
 

@@ -4,6 +4,10 @@ parameters:
         - lib
     bootstrapFiles:
         - phpstan-bootstrap.php
+    stubFiles:
+        # AppHost engine base classes live in the sibling openregister app and are
+        # not in vendor/ here; stub them so "extends unknown class" resolves (ADR-040).
+        - tests/phpstan/apphost.stub
     excludePaths:
         - vendor
         - vendor-bin

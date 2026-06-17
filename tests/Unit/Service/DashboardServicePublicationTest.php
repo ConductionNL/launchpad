@@ -154,7 +154,7 @@ class DashboardServicePublicationTest extends TestCase
             ->method('update')
             ->willReturnArgument(0);
 
-        $result = $this->service->publish(uuid: 'd-uuid-1', userId: 'alice');
+        $result = $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'alice');
 
         $this->assertSame(
             Dashboard::STATUS_PUBLISHED,
@@ -182,7 +182,7 @@ class DashboardServicePublicationTest extends TestCase
         $this->dashboardMapper->expects($this->never())
             ->method('update');
 
-        $result = $this->service->publish(uuid: 'd-uuid-1', userId: 'alice');
+        $result = $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'alice');
 
         $this->assertSame('2026-03-20 14:30:00', $result->getPublishedAt());
     }//end testPublishIsIdempotent()
@@ -205,7 +205,7 @@ class DashboardServicePublicationTest extends TestCase
             DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
         );
 
-        $this->service->publish(uuid: 'd-uuid-1', userId: 'bob');
+        $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'bob');
     }//end testPublishForbiddenForNonOwnerNonAdmin()
 
     /**
@@ -222,7 +222,7 @@ class DashboardServicePublicationTest extends TestCase
         $this->dashboardMapper->method('update')->willReturnArgument(0);
         $this->groupManager->method('isAdmin')->willReturn(true);
 
-        $result = $this->service->publish(
+        $result = $this->service->publishDashboard(
             uuid: 'd-uuid-1',
             userId: 'root'
         );

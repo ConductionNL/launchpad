@@ -41,7 +41,6 @@ use OCP\IURLGenerator;
  */
 class KioskPlaylistMapper extends QBMapper
 {
-
     /**
      * Constructor.
      *

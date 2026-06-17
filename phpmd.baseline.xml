@@ -1,0 +1,228 @@
+<?xml version="1.0"?>
+<phpmd-baseline>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/AppInfo/Application.php" method="register"/>
+  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/AppInfo/Application.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/AppInfo/Application.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Command/CleanupPurgeCommand.php" method="execute"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Command/CleanupPurgeCommand.php" method="execute"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Command/CleanupScanCommand.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Command/DashboardDeleteCommand.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Command/DashboardDeleteCommand.php" method="handle"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Command/DashboardDeleteCommand.php" method="handle"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Command/DashboardListCommand.php" method="handle"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Command/DashboardListCommand.php" method="handle"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Command/DashboardListCommand.php" method="handle"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Command/DashboardListCommand.php" method="collect"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Command/DashboardListCommand.php" method="collect"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Command/MigrateStorageToGroupFolder.php" method="handle"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Command/SetupCommand.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/AdminController.php" method="__construct"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/AdminController.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/AdminController.php" method="updateSettings"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminDemoShowcasesController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/AdminDemoShowcasesController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminOrgNavigationController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminSettingsController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AdminWidgetRulesController.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/AnalyticsController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/AnalyticsController.php"/>
+  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Controller/DashboardApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\TooManyMethods" file="lib/Controller/DashboardApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/DashboardApiController.php" method="__construct"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/DashboardApiController.php" method="create"/>
+  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Controller/DashboardApiController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardCommentsApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/DashboardLockApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/DashboardMetadataController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardMetadataController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardReactionApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/DashboardTranslationApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Controller/DashboardTranslationApiController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/DashboardTranslationApiController.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/DashboardTranslationApiController.php" method="create"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/DashboardTranslationApiController.php" method="resolved"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/DashboardTranslationApiController.php" method="resolved"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/MetadataAdminController.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/MetadataAdminController.php" method="updateField"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/MetadataAdminController.php" method="updateField"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/MetadataAdminController.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/PageController.php" method="__construct"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/PageController.php" method="index"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/PageController.php" method="index"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/PageController.php" method="index"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/PageController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/PeopleWidgetController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/RoleFeaturePermissionApiController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/RuleApiController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Controller/RuleApiController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/TileApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Controller/WidgetApiController.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Controller/WidgetApiController.php" method="__construct"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Controller/WidgetApiController.php"/>
+  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="lib/Controller/WidgetApiController.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Controller/WidgetApiController.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/WidgetApiController.php" method="addWidget"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/WidgetApiController.php" method="addWidget"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Controller/WidgetApiController.php" method="addWidget"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Controller/WidgetApiController.php" method="calendarEvents"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Controller/WidgetApiController.php" method="calendarEvents"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Db/CleanupResult.php"/>
+  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Db/DashboardMapper.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Db/DashboardMapper.php"/>
+  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Db/DashboardShareMapper.php"/>
+  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Db/WidgetPlacementMapper.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Listener/UserDeletedListener.php" method="__construct"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Listener/UserDeletedListener.php" method="pickNewOwner"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Listener/UserDeletedListener.php" method="pickNewOwner"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Migration/DashboardTableBuilder.php" method="addColumns"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/MigrationTableBuilder.php"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Migration/PlacementTableBuilder.php" method="addColumns"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Migration/RoleLayoutDefaultTableBuilder.php" method="addColumns"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001000Date20240101000000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001000Date20240101000000.php"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Migration/Version001001Date20260203000000.php" method="changeSchema"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001001Date20260203000000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001002Date20260204000000.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Migration/Version001003Date20260204120000.php" method="changeSchema"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Migration/Version001003Date20260204120000.php" method="changeSchema"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Migration/Version001003Date20260204120000.php" method="changeSchema"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001003Date20260204120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001004Date20260204150000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001005Date20260430000000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001005Date20260430120000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001005Date20260430120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001006Date20260430130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001006Date20260502000000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001007Date20260501120000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001007Date20260501120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001008Date20260502000000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001009Date20260502120000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001009Date20260502120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001010Date20260502120000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001010Date20260502120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001011Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001011Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001012Date20260503000000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001012Date20260503000000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001013Date20260502120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001014Date20260502120000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001015Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001015Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001016Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001016Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001017Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001017Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001019Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001019Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001020Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001020Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001021Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001021Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001023Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001023Date20260502130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001024Date20260503130000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version001024Date20260503130000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version001025Date20260508060000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version002000Date20260519000000.php"/>
+  <violation rule="PHPMD\Rule\UnusedFormalParameter" file="lib/Migration/Version002001Date20260603000000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Migration/Version002001Date20260603000000.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Search/LaunchPadSearchProvider.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/AdminSettingsService.php" method="updateSettings"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/AdminSettingsService.php" method="updateSettings"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Service/AdminSettingsService.php" method="updateSettings"/>
+  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/AdminSettingsService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\MissingImport" file="lib/Service/AdminSettingsService.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/AdminTemplateService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/AdminTemplateService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/AdminTemplateService.php" method="applyTemplateUpdates"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/AdminTemplateService.php" method="applyTemplateUpdates"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/AnalyticsService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/BulkOperationService.php" method="bulkDelete"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/BulkOperationService.php" method="bulkDelete"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/BulkOperationService.php" method="bulkDelete"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/BulkOperationService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/BulkOperationService.php" method="bulkMove"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/BulkOperationService.php" method="bulkMove"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/BulkOperationService.php" method="bulkStatus"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/BulkOperationService.php" method="bulkStatus"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/BulkOperationService.php" method="bulkStatus"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/CalendarWidgetService.php"/>
+  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/CleanupCategoryInterface.php" method="getSafeToPurgeAutomatically"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/Cleanup/CleanupCategoryInterface.php"/>
+  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/ExpiredLocksCategory.php" method="getSafeToPurgeAutomatically"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/Cleanup/ExpiredLocksCategory.php"/>
+  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/OrphanedConditionalRulesCategory.php" method="getSafeToPurgeAutomatically"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/Cleanup/OrphanedConditionalRulesCategory.php"/>
+  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/OrphanedSharesCategory.php" method="getSafeToPurgeAutomatically"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/Cleanup/OrphanedSharesCategory.php"/>
+  <violation rule="PHPMD\Rule\Naming\BooleanGetMethodName" file="lib/Service/Cleanup/OrphanedWidgetPlacementsCategory.php" method="getSafeToPurgeAutomatically"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/Cleanup/OrphanedWidgetPlacementsCategory.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/ConditionalService.php"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/Confluence/ArchiveParser.php" method="collectEntries"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/ConfluenceImportService.php"/>
+  <violation rule="PHPMD\Rule\Design\LongParameterList" file="lib/Service/DashboardFactory.php" method="create"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/DashboardFactory.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/DashboardLockService.php"/>
+  <violation rule="PHPMD\Rule\Naming\LongVariable" file="lib/Service/DashboardService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/DashboardService.php"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DashboardService.php" method="deleteDashboard"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/DashboardService.php" method="deleteDashboard"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DashboardService.php" method="resolveActiveDashboard"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/DashboardService.php" method="resolveActiveDashboard"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/DashboardService.php" method="seedDefaultWidgets"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/DashboardService.php" method="applyFooterUpdates"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/DashboardService.php"/>
+  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="lib/Service/DashboardTranslationService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/DashboardTranslationService.php"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DashboardTreeService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/DashboardTreeService.php" method="deleteSubtree"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/DashboardVersionService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/DashboardVersionService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/DemoShowcasesService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/ExportService.php" method="collectAllDashboards"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/ExportService.php" method="collectAllDashboards"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FeedRefreshService.php" method="refreshFeed"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FeedRefreshService.php" method="refreshAll"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/FeedRefreshService.php" method="parseFeedBody"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/FilesWidgetService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FilesWidgetService.php" method="uploadFiles"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/FilesWidgetService.php" method="resolveConfiguredFolder"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/FilesWidgetService.php" method="resolveConfiguredFolder"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/FooterService.php" method="sanitiseHtml"/>
+  <violation rule="PHPMD\Rule\Design\LongMethod" file="lib/Service/ImportService.php" method="buildEntity"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/MetadataService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MetadataService.php" method="filterDashboards"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/MetadataService.php" method="filterDashboards"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/MetadataService.php" method="assertOptionsShape"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/NewsWidgetService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/NewsWidgetService.php" method="parseRssFeed"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/NewsWidgetService.php" method="parseRssFeed"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/NewsWidgetService.php" method="fetchFeedPayload"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseAtomEntry"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseAtomEntry"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseRssItem"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseRssItem"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/OrphanedDataCleanupService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/OrphanedDataCleanupService.php" method="purge"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/OrphanedDataCleanupService.php"/>
+  <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/PeopleWidgetService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/PeopleWidgetService.php" method="resolveCandidates"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/PeopleWidgetService.php" method="resolveCandidates"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/PeopleWidgetService.php" method="normaliseToIsoDate"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/PeopleWidgetService.php" method="normaliseToIsoDate"/>
+  <violation rule="PHPMD\Rule\Design\WeightedMethodCount" file="lib/Service/RoleFeaturePermissionService.php"/>
+  <violation rule="PHPMD\Rule\Design\CouplingBetweenObjects" file="lib/Service/RoleFeaturePermissionService.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/RoleFeaturePermissionService.php" method="savePermission"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/RoleFeaturePermissionService.php" method="savePermission"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/RoleFeaturePermissionService.php" method="saveLayoutDefault"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/RoleFeaturePermissionService.php" method="saveLayoutDefault"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/RoleService.php" method="validateTarget"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/SvgSanitiser.php" method="cleanElement"/>
+  <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/SvgSanitiser.php" method="cleanElement"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/WidgetPlacementService.php" method="validateContainerDepth"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Settings/LaunchPadAdmin.php"/>
+</phpmd-baseline>

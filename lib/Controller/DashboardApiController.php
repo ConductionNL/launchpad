@@ -106,6 +106,10 @@ class DashboardApiController extends Controller
      * @param ActionAuthService       $actionAuth        The ADR-023 action
      *                                                   authorization service.
      * @param string|null             $userId            The user ID.
+     * @param QuotaService|null       $quotaService      The quota-enforcement
+     *                                                   service used to gate
+     *                                                   dashboard creation
+     *                                                   (dashboard-quota-limits).
      */
     public function __construct(
         IRequest $request,
@@ -157,7 +161,7 @@ class DashboardApiController extends Controller
 
         $serialized = ResponseHelper::serializeList(entities: $dashboards);
 
-        // dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on
+        // Dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on
         // the personal dashboards list. Response shape is
         // `{items: [...], quota: {...}}`. When the quota service is absent
         // (legacy test doubles) fall back to the bare-array contract.
@@ -211,7 +215,7 @@ class DashboardApiController extends Controller
             $serialized[]  = $row;
         }
 
-        // dashboard-quota-limits REQ-QUOTA-006: carry the additive quota
+        // Dashboard-quota-limits REQ-QUOTA-006: carry the additive quota
         // envelope on the unioned listing the store consumes, so the
         // frontend can disable create affordances at the limit without an
         // extra round-trip. The response shape is now
@@ -446,7 +450,7 @@ class DashboardApiController extends Controller
                 statusCode: Http::STATUS_CREATED
             );
         } catch (QuotaExceededException $e) {
-            // dashboard-quota-limits REQ-QUOTA-002: the user is at their
+            // Dashboard-quota-limits REQ-QUOTA-002: the user is at their
             // dashboard limit — HTTP 409 with the structured body.
             return ResponseHelper::quotaExceeded(exception: $e);
         } catch (InvalidArgumentException $e) {
@@ -1360,7 +1364,7 @@ class DashboardApiController extends Controller
                 statusCode: Http::STATUS_FORBIDDEN
             );
         } catch (QuotaExceededException $e) {
-            // dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
+            // Dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
             // per-user dashboard quota — HTTP 409 with the structured body.
             return ResponseHelper::quotaExceeded(exception: $e);
         } catch (DoesNotExistException) {
@@ -1423,7 +1427,7 @@ class DashboardApiController extends Controller
         }
 
         try {
-            $dashboard = $this->dashboardService->publish(
+            $dashboard = $this->dashboardService->publishDashboard(
                 uuid: $uuid,
                 userId: $this->userId
             );
@@ -1906,7 +1910,7 @@ class DashboardApiController extends Controller
      * life regression, not a data-integrity bug. We log + swallow.
      *
      * @param \OCA\LaunchPad\Db\Dashboard $dashboard The dashboard that was
-     *                                            just updated.
+     *                                               just updated.
      *
      * @return void
      */

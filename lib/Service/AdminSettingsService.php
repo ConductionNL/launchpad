@@ -93,7 +93,7 @@ class AdminSettingsService
             $forcedShareGroups = [];
         }
 
-        // dashboard-quota-limits REQ-QUOTA-001: both quotas default to
+        // Dashboard-quota-limits REQ-QUOTA-001: both quotas default to
         // `0` (unlimited) so a fresh / upgraded instance behaves exactly
         // as before. Stored values are clamped on write, so a defensive
         // clamp on read is belt-and-braces against hand-edited rows.
@@ -118,10 +118,10 @@ class AdminSettingsService
             // Legacy-widget-bridge spec: bridge defaults to ON so existing
             // bridged placements keep rendering after upgrade.
             'legacyWidgetBridgeEnabled'   => $settings[$bridgeKey] ?? true,
-            // dashboard-quota-limits REQ-QUOTA-001: numeric governance
+            // Dashboard-quota-limits REQ-QUOTA-001: numeric governance
             // quotas. `0` = unlimited (no enforcement).
-            'maxDashboardsPerUser'        => $this->clampQuota($settings[$maxDashKey] ?? 0),
-            'maxWidgetsPerDashboard'      => $this->clampQuota($settings[$maxWidgetKey] ?? 0),
+            'maxDashboardsPerUser'        => $this->clampQuota(value: $settings[$maxDashKey] ?? 0),
+            'maxWidgetsPerDashboard'      => $this->clampQuota(value: $settings[$maxWidgetKey] ?? 0),
         ];
     }//end getSettings()
 
@@ -290,20 +290,20 @@ class AdminSettingsService
             );
         }
 
-        // dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
+        // Dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
         // numeric quotas clamped into `[0, 10000]` so a negative or
         // out-of-range value is never stored.
         if ($maxDashboardsPerUser !== null) {
             $this->settingMapper->setSetting(
                 key: AdminSetting::KEY_MAX_DASHBOARDS_PER_USER,
-                value: $this->clampQuota($maxDashboardsPerUser)
+                value: $this->clampQuota(value: $maxDashboardsPerUser)
             );
         }
 
         if ($maxWidgetsPerDashboard !== null) {
             $this->settingMapper->setSetting(
                 key: AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD,
-                value: $this->clampQuota($maxWidgetsPerDashboard)
+                value: $this->clampQuota(value: $maxWidgetsPerDashboard)
             );
         }
 

@@ -1499,7 +1499,7 @@ class DashboardService
         $dashboard->setUpdatedAt($now);
 
         return $this->dashboardMapper->update(entity: $dashboard);
-    }//end publish()
+    }//end publishDashboard()
 
     /**
      * Transition a dashboard back to `draft` while preserving

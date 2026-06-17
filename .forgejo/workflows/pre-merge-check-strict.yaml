@@ -28,11 +28,15 @@ jobs:
           apt-get update
           # nodejs is required by the JS-based actions/checkout that runs next;
           # php:8.3-cli ships no node, so without this the checkout step exits 127.
-          apt-get install -y --no-install-recommends git unzip libzip-dev libonig-dev libxslt1-dev python3 nodejs ca-certificates
+          apt-get install -y --no-install-recommends git unzip python3 nodejs curl ca-certificates
+          # Precompiled PHP extensions (seconds) instead of docker-php-ext-install,
+          # which compiles from source (~1m) and overran the tiny runner's time limit.
           # ext-xsl is required by the edgedesign/phpqa dev dependency in composer.lock.
-          docker-php-ext-install zip mbstring xsl > /dev/null
-          php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');"
-          php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          curl -sSLf -o /usr/local/bin/install-php-extensions \
+            https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions
+          chmod +x /usr/local/bin/install-php-extensions
+          install-php-extensions zip mbstring xsl
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
           composer --version
           php -v | head -1
           node --version

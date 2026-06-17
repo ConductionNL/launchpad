@@ -17,7 +17,7 @@ jobs:
     name: l10n translation parity (nl/de/fr/es/it)
     runs-on: codeberg-small
     container:
-      image: code.forgejo.org/oci/ci-node:22
+      image: node:20-alpine
     steps:
       - name: Checkout
         uses: https://code.forgejo.org/actions/checkout@v4

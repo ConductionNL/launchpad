@@ -334,12 +334,12 @@ class WidgetApiController extends Controller
                 statusCode: Http::STATUS_CREATED
             );
         } catch (QuotaExceededException $e) {
-            // dashboard-quota-limits REQ-QUOTA-003: dashboard is at the
+            // Dashboard-quota-limits REQ-QUOTA-003: dashboard is at the
             // widget limit — HTTP 409 with the structured body.
             return ResponseHelper::quotaExceeded(exception: $e);
         } catch (\Exception $e) {
             return ResponseHelper::error(exception: $e);
-        }
+        }//end try
     }//end addWidget()
 
     /**
@@ -407,7 +407,7 @@ class WidgetApiController extends Controller
                 statusCode: Http::STATUS_CREATED
             );
         } catch (QuotaExceededException $e) {
-            // dashboard-quota-limits REQ-QUOTA-003: tiles are placements
+            // Dashboard-quota-limits REQ-QUOTA-003: tiles are placements
             // and bound by the widget quota — HTTP 409 structured body.
             return ResponseHelper::quotaExceeded(exception: $e);
         } catch (\Exception $e) {

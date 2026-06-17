@@ -30,19 +30,20 @@ class PlacementService
     /**
      * Constructor
      *
-     * @param WidgetPlacementMapper $placementMapper    Widget placement mapper.
-     * @param TileUpdater           $tileUpdater        Tile updater service.
-     * @param PlacementUpdater      $placementUpdater   Placement updater service.
+     * @param WidgetPlacementMapper   $placementMapper    Widget placement mapper.
+     * @param TileUpdater             $tileUpdater        Tile updater service.
+     * @param PlacementUpdater        $placementUpdater   Placement updater service.
      * @param PublicShareContext|null $publicShareContext Public-share bearer
-     *                                                  guard (nullable for
-     *                                                  legacy test doubles).
-     * @param QuotaService|null     $quotaService       Widget-quota enforcer
-     *                                                  (dashboard-quota-limits
-     *                                                  REQ-QUOTA-003).
-     *                                                  Nullable to keep
-     *                                                  existing test doubles
-     *                                                  working — when absent
-     *                                                  no quota is enforced.
+     *                                                    guard (nullable for
+     *                                                    legacy test doubles).
+     * @param QuotaService|null       $quotaService       Widget-quota enforcer
+     *                                                    (dashboard-quota-limits
+     *                                                    REQ-QUOTA-003).
+     *                                                    Nullable to keep
+     *                                                    existing test doubles
+     *                                                    working — when
+     *                                                    absent no quota is
+     *                                                    enforced.
      */
     public function __construct(
         private readonly WidgetPlacementMapper $placementMapper,
@@ -86,7 +87,7 @@ class PlacementService
     ): WidgetPlacement {
         // Task-7 of dashboard-public-share — bearer cannot mutate placements.
         $this->publicShareContext?->requireMutable();
-        // dashboard-quota-limits REQ-QUOTA-003: enforce the per-dashboard
+        // Dashboard-quota-limits REQ-QUOTA-003: enforce the per-dashboard
         // widget quota at the single placement-creation choke point so the
         // REST add-widget, add-tile, and store paths are all bound.
         // Admin compulsory-widget pushes wrap their call in
@@ -134,7 +135,7 @@ class PlacementService
     ): WidgetPlacement {
         // Task-7 of dashboard-public-share — bearer cannot mutate placements.
         $this->publicShareContext?->requireMutable();
-        // dashboard-quota-limits REQ-QUOTA-003: tiles are placements too —
+        // Dashboard-quota-limits REQ-QUOTA-003: tiles are placements too —
         // bind them to the same per-dashboard widget quota choke point.
         $this->quotaService?->assertCanAddPlacement(dashboardId: $dashboardId);
         $placement = new WidgetPlacement();

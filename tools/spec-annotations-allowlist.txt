@@ -754,3 +754,21 @@ OCA\LaunchPad\Db\WidgetPlacement::getContentArray
 # Content blob accessor, covered by the placement column migration REQ.
 OCA\LaunchPad\Db\WidgetPlacement::setContentArray
 # Content blob mutator, covered by the placement column migration REQ.
+# NC ISearchProvider interface implementation, no discrete spec REQ.
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getId
+# NC ISearchProvider interface implementation, no discrete spec REQ.
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getName
+# NC ISearchProvider interface implementation, no discrete spec REQ.
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getOrder
+# NC ISearchProvider interface implementation, no discrete spec REQ.
+OCA\LaunchPad\Search\LaunchPadSearchProvider::search
+# Internal provisioning guard, covered by the dashboard-quota-limits REQ.
+OCA\LaunchPad\Service\QuotaService::isProvisioning
+# Accessor on quota-exceeded exception, covered by the dashboard-quota-limits REQ.
+OCA\LaunchPad\Exception\QuotaExceededException::getQuota
+# Accessor on quota-exceeded exception, covered by the dashboard-quota-limits REQ.
+OCA\LaunchPad\Exception\QuotaExceededException::getLimit
+# Accessor on quota-exceeded exception, covered by the dashboard-quota-limits REQ.
+OCA\LaunchPad\Exception\QuotaExceededException::getCurrent
+# Error-response serialiser for the quota exception, covered by the dashboard-quota-limits REQ.
+OCA\LaunchPad\Exception\QuotaExceededException::toResponseBody

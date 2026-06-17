@@ -4,6 +4,12 @@ parameters:
         - lib
     bootstrapFiles:
         - phpstan-bootstrap.php
+    scanFiles:
+        # AppHost engine base classes live in the sibling openregister app and are
+        # not in vendor/ here. scanFiles (not stubFiles) registers these symbols so
+        # the leaf Health/Metrics controllers' "extends unknown class" resolves,
+        # WITHOUT phpstan analysing/reporting the skeleton file itself (ADR-040).
+        - tests/phpstan/apphost-symbols.php
     excludePaths:
         - vendor
         - vendor-bin

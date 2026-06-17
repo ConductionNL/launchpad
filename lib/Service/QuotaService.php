@@ -45,13 +45,14 @@ use Throwable;
  */
 class QuotaService
 {
+
     /**
      * Provisioning-context depth. Greater than zero means the current call
      * stack is inside an admin provisioning path and quota asserts are
      * bypassed (REQ-QUOTA-004). A counter (not a bool) so nested
      * provisioning calls compose correctly.
      *
-     * @var int
+     * @var integer
      */
     private int $provisioningDepth = 0;
 
@@ -89,9 +90,9 @@ class QuotaService
      * The depth counter is always decremented (even on throw) so a failing
      * provisioning call can never leave the service permanently bypassed.
      *
-     * @template T
-     *
      * @param callable():T $work The provisioning work to run unguarded.
+     *
+     * @template T
      *
      * @return T The callable's return value.
      *

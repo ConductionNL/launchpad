@@ -22,16 +22,19 @@ jobs:
       # not be pulled, so this job failed at setup on every PR and never ran.
       image: php:8.3-cli
     steps:
-      - name: Install toolchain (git, unzip, composer, php-ext, python3)
+      - name: Install toolchain (git, unzip, composer, php-ext, node, python3)
         run: |
           set -eu
           apt-get update
-          apt-get install -y --no-install-recommends git unzip libzip-dev libonig-dev python3 ca-certificates
+          # nodejs is required by the JS-based actions/checkout that runs next;
+          # php:8.3-cli ships no node, so without this the checkout step exits 127.
+          apt-get install -y --no-install-recommends git unzip libzip-dev libonig-dev python3 nodejs ca-certificates
           docker-php-ext-install zip mbstring > /dev/null
           php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');"
           php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
           composer --version
           php -v | head -1
+          node --version
 
       - name: Checkout PR
         uses: https://code.forgejo.org/actions/checkout@v4

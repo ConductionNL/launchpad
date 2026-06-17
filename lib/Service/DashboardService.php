@@ -1467,7 +1467,7 @@ class DashboardService
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    public function publish(string $uuid, string $userId): Dashboard
+    public function publishDashboard(string $uuid, string $userId): Dashboard
     {
         $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
         $this->assertOwnerOrAdmin(

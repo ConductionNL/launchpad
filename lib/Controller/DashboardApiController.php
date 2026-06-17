@@ -1427,7 +1427,7 @@ class DashboardApiController extends Controller
         }
 
         try {
-            $dashboard = $this->dashboardService->publish(
+            $dashboard = $this->dashboardService->publishDashboard(
                 uuid: $uuid,
                 userId: $this->userId
             );

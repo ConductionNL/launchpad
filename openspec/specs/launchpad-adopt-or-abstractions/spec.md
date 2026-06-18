@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # launchpad-adopt-or-abstractions Specification
 
 ## Purpose
-TBD - created by archiving change launchpad-adopt-or-abstractions. Update Purpose after archive.
+Keeps LaunchPad installable and runnable without OpenRegister or OpenConnector while letting its widgets consume OR data when present. It mandates an architectural manifest, forbids install-time OR/OC dependencies, requires runtime feature-detection with documented empty states, locale and tenant-context stamping on OR fetches, a local-first dashboard permission model, and several code-hygiene rules (typed admin-setting keys, a named filename-pattern constant, and documented column-type constants).
 ## Requirements
 ### Requirement: LaunchPad MUST ship an architectural manifest at `src/manifest.json`
 

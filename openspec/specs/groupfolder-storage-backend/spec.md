@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # groupfolder-storage-backend Specification
 
 ## Purpose
-TBD - created by archiving change groupfolder-storage-backend. Update Purpose after archive.
+Abstracts dashboard content storage behind a unified read/write/delete interface so operators can choose between the default database backend and an optional Nextcloud GroupFolder backend. The GroupFolder backend stores dashboards as human-readable JSON files in an auto-created, admin-restricted folder, fails closed without silent fallback, and ships a one-time migration command — all transparently to existing API clients.
 ## Requirements
 ### Requirement: REQ-GFSB-001 Storage Interface Abstraction
 

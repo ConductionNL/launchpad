@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-mobile-remote-access
 
 **Status:** proposed

@@ -1,6 +1,6 @@
 ---
 capability: dashboard-comments
-status: implemented
+status: done
 ---
 
 # Dashboard Comments Specification

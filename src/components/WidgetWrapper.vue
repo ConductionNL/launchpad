@@ -23,15 +23,24 @@
 				</h3>
 			</div>
 			<div v-if="editMode" class="launchpad-widget__actions">
-				<NcButton
+				<NcActions
+					:aria-label="t('launchpad', 'Widget menu')"
+					:force-menu="true"
+					placement="bottom-end"
 					type="tertiary"
-					:aria-label="t('launchpad', 'Edit widget')"
-					data-testid="widget-edit-cog"
-					@click="$emit('edit', placement)">
+					data-testid="widget-edit-cog">
 					<template #icon>
 						<Cog :size="20" />
 					</template>
-				</NcButton>
+					<NcActionButton :close-after-click="true" @click="$emit('edit', placement)">
+						<template #icon><Pencil :size="20" /></template>
+						{{ t('launchpad', 'Edit widget') }}
+					</NcActionButton>
+					<NcActionButton :close-after-click="true" @click="$emit('remove', placement.id)">
+						<template #icon><Delete :size="20" /></template>
+						{{ t('launchpad', 'Delete widget') }}
+					</NcActionButton>
+				</NcActions>
 			</div>
 		</div>
 
@@ -56,8 +65,10 @@
 </template>
 
 <script>
-import { NcButton } from '@conduction/nextcloud-vue'
+import { NcButton, NcActions, NcActionButton } from '@conduction/nextcloud-vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Delete from 'vue-material-design-icons/Delete.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 
 export default {
@@ -65,7 +76,11 @@ export default {
 
 	components: {
 		NcButton,
+		NcActions,
+		NcActionButton,
 		Cog,
+		Pencil,
+		Delete,
 		WidgetRenderer,
 	},
 

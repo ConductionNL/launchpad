@@ -145,7 +145,8 @@
 							@open-config="onRowOpenConfig(dashboard, 'group')"
 							@add-custom-widget="onRowAddCustomWidget(dashboard, 'group')"
 							@delete="onRowDelete(dashboard, 'group')"
-							@set-default="onRowSetDefault(dashboard, 'group')" />
+							@set-default="onRowSetDefault(dashboard, 'group')"
+							@share="onRowShare(dashboard, 'group')" />
 					</li>
 				</ul>
 			</section>
@@ -198,7 +199,8 @@
 							@open-config="onRowOpenConfig(dashboard, 'default')"
 							@add-custom-widget="onRowAddCustomWidget(dashboard, 'default')"
 							@delete="onRowDelete(dashboard, 'default')"
-							@set-default="onRowSetDefault(dashboard, 'default')" />
+							@set-default="onRowSetDefault(dashboard, 'default')"
+							@share="onRowShare(dashboard, 'default')" />
 					</li>
 				</ul>
 			</section>
@@ -251,7 +253,8 @@
 							@open-config="onRowOpenConfig(dashboard, 'user')"
 							@add-custom-widget="onRowAddCustomWidget(dashboard, 'user')"
 							@delete="onRowDelete(dashboard, 'user')"
-							@set-default="onRowSetDefault(dashboard, 'user')" />
+							@set-default="onRowSetDefault(dashboard, 'user')"
+							@share="onRowShare(dashboard, 'user')" />
 					</li>
 				</ul>
 
@@ -482,6 +485,9 @@ export default {
 		// wave3.7 — `(dashboard, source)`. The host pins this row as
 		// the user's default via `POST /api/dashboards/default`.
 		'set-default',
+		// `(dashboard, source)`. The host switches to this row then opens
+		// the share drawer (dashboard-sharing spec).
+		'share-dashboard',
 	],
 
 	computed: {
@@ -626,6 +632,11 @@ export default {
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onRowSetDefault(dashboard, source) {
 			this.$emit('set-default', dashboard, source)
+		},
+
+		/** Per-row Share — the host switches to the row then opens the share drawer. */
+		onRowShare(dashboard, source) {
+			this.$emit('share-dashboard', dashboard, source)
 		},
 
 		/**

@@ -11,18 +11,26 @@
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
 			'--tile-text-color': tile.textColor || '#ffffff'
 		}">
-		<!-- Edit button in edit mode — same tertiary cog as the OpenBuild /
-		     nc-vue dashboard editor (no dark circle); inherits the tile text
-		     colour so it stays visible on coloured tiles. -->
-		<div v-if="editMode" class="tile-widget__edit">
-			<NcButton
-				type="tertiary"
-				:aria-label="t('launchpad', 'Edit tile')"
-				@click.prevent="$emit('edit')">
+		<!-- Edit menu in edit mode — a tertiary cog opening an action menu
+		     (Edit / Delete), matching the dashboard + widget cog pattern. -->
+		<div v-if="editMode" class="tile-widget__edit" @click.prevent.stop>
+			<NcActions
+				:aria-label="t('launchpad', 'Tile menu')"
+				:force-menu="true"
+				placement="bottom-end"
+				type="tertiary">
 				<template #icon>
 					<Cog :size="20" />
 				</template>
-			</NcButton>
+				<NcActionButton :close-after-click="true" @click="$emit('edit')">
+					<template #icon><Pencil :size="20" /></template>
+					{{ t('launchpad', 'Edit tile') }}
+				</NcActionButton>
+				<NcActionButton :close-after-click="true" @click="$emit('remove')">
+					<template #icon><Delete :size="20" /></template>
+					{{ t('launchpad', 'Delete tile') }}
+				</NcActionButton>
+			</NcActions>
 		</div>
 
 		<a
@@ -58,16 +66,23 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
-import { NcButton } from '@conduction/nextcloud-vue'
+import { NcActions, NcActionButton } from '@conduction/nextcloud-vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Delete from 'vue-material-design-icons/Delete.vue'
 
 export default {
 	name: 'TileWidget',
 
 	components: {
-		NcButton,
+		NcActions,
+		NcActionButton,
 		Cog,
+		Pencil,
+		Delete,
 	},
+
+	emits: ['edit', 'remove'],
 
 	props: {
 		tile: {

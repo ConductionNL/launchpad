@@ -26,7 +26,8 @@
 			@toggle-edit="onRowToggleEdit"
 			@open-config="onRowOpenConfig"
 			@add-custom-widget="onRowAddCustomWidget"
-			@set-default="onRowSetDefault" />
+			@set-default="onRowSetDefault"
+			@share-dashboard="onRowShare" />
 		<SidebarBackdrop
 			v-if="sidebarOpen"
 			@close="sidebarOpen = false" />
@@ -48,21 +49,10 @@
 					<MenuIcon :size="20" />
 				</template>
 			</NcButton>
-			<!-- Top-bar share action (dashboard-sharing spec). Opens the
-			     config drawer directly on the Sharing tab. Shown only when a
-			     dashboard the user can share is active. -->
-			<NcButton
-				v-if="canShareActiveDashboard"
-				type="tertiary"
-				:aria-label="t('mydash', 'Share')"
-				class="mydash-share-action"
-				data-test="dashboard-share-action"
-				@click="openShareDrawer">
-				<template #icon>
-					<ShareVariant :size="20" />
-				</template>
-				{{ t('mydash', 'Share') }}
-			</NcButton>
+			<!-- Top-bar Share action was moved into the per-dashboard cog
+			     menu (DashboardRowActions → "Share…") so all dashboard actions
+			     live in one place. -->
+
 			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
 			     `default` sentinel — REQ-TMPL-012 documents the literal
 			     'Default' as the absence of a configured primary group, so
@@ -95,7 +85,8 @@
 				@widget-remove="removeWidget"
 				@widget-edit="openStyleEditor"
 				@widget-right-click="onWidgetRightClick"
-				@tile-edit="openTileEditorForEdit" />
+				@tile-edit="openTileEditorForEdit"
+				@tile-remove="removeWidget" />
 
 			<!-- Loading shim. The empty-state below previously rendered
 			     during the initial fetch because `activeDashboard` is
@@ -211,7 +202,6 @@ import { generateUrl } from '@nextcloud/router'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
-import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
 import DashboardGrid from '../components/DashboardGrid.vue'
@@ -244,7 +234,6 @@ export default {
 		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
-		ShareVariant,
 		DashboardGrid,
 		WidgetPickerModal,
 		WidgetStyleEditor,
@@ -1182,6 +1171,11 @@ export default {
 		async onRowOpenConfig(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openConfigModal()
+		},
+		/** Per-row Share — switch to the row then open the config drawer on the Sharing tab. */
+		async onRowShare(dashboard, source) {
+			await this.maybeSwitchTo(dashboard.id, source)
+			this.openShareDrawer()
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onRowAddCustomWidget(dashboard, source) {

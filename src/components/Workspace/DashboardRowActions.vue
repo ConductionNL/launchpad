@@ -85,6 +85,16 @@
 		<NcActionButton
 			v-if="isOwner"
 			:close-after-click="true"
+			data-testid="cog-share"
+			@click="$emit('share')">
+			<template #icon>
+				<ShareVariant :size="20" />
+			</template>
+			{{ t('launchpad', 'Share…') }}
+		</NcActionButton>
+		<NcActionButton
+			v-if="isOwner"
+			:close-after-click="true"
 			data-testid="cog-delete"
 			@click="$emit('delete')">
 			<template #icon>
@@ -106,6 +116,7 @@ import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 export default {
 	name: 'DashboardRowActions',
@@ -121,6 +132,7 @@ export default {
 		TrashCanOutline,
 		Star,
 		StarCheck,
+		ShareVariant,
 	},
 
 	props: {
@@ -168,7 +180,7 @@ export default {
 		},
 	},
 
-	emits: ['toggle-edit', 'open-config', 'add-custom-widget', 'delete', 'set-default'],
+	emits: ['toggle-edit', 'open-config', 'add-custom-widget', 'delete', 'set-default', 'share'],
 
 	computed: {
 		/*

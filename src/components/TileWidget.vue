@@ -11,14 +11,19 @@
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
 			'--tile-text-color': tile.textColor || '#ffffff'
 		}">
-		<!-- Edit button in edit mode -->
-		<button
-			v-if="editMode"
-			class="tile-widget__edit"
-			:aria-label="t('launchpad', 'Edit tile')"
-			@click.prevent="$emit('edit')">
-			<span class="icon-settings" />
-		</button>
+		<!-- Edit button in edit mode — same tertiary cog as the OpenBuild /
+		     nc-vue dashboard editor (no dark circle); inherits the tile text
+		     colour so it stays visible on coloured tiles. -->
+		<div v-if="editMode" class="tile-widget__edit">
+			<NcButton
+				type="tertiary"
+				:aria-label="t('launchpad', 'Edit tile')"
+				@click.prevent="$emit('edit')">
+				<template #icon>
+					<Cog :size="20" />
+				</template>
+			</NcButton>
+		</div>
 
 		<a
 			:href="tileUrl"
@@ -53,9 +58,16 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import { NcButton } from '@conduction/nextcloud-vue'
+import Cog from 'vue-material-design-icons/Cog.vue'
 
 export default {
 	name: 'TileWidget',
+
+	components: {
+		NcButton,
+		Cog,
+	},
 
 	props: {
 		tile: {
@@ -196,29 +208,14 @@ export default {
 
 .tile-widget__edit {
 	position: absolute;
-	top: 8px;
-	right: 8px;
-	width: 32px;
-	height: 32px;
-	border: none;
-	border-radius: 50%;
-	background: rgba(0, 0, 0, 0.5) !important;
-	cursor: pointer;
+	top: 4px;
+	right: 4px;
 	z-index: 10;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background 0.2s ease;
 }
 
-.tile-widget__edit:hover {
-	background: rgba(0, 0, 0, 0.7) !important;
-}
-
-.tile-widget__edit .icon-settings {
-	filter: brightness(0) invert(1);
-	background-size: 20px;
-	width: 20px;
-	height: 20px;
+/* Tertiary cog matching the OpenBuild / nc-vue dashboard editor; tint the
+   icon with the tile's own text colour so it reads on any tile background. */
+.tile-widget__edit :deep(.button-vue) {
+	color: var(--tile-text-color, #ffffff) !important;
 }
 </style>

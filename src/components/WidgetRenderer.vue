@@ -65,77 +65,12 @@
 import { NcDashboardWidget, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import { mapActions, storeToRefs } from 'pinia'
-import { generateUrl } from '@nextcloud/router'
 import { useWidgetStore } from '../stores/widgets.js'
 import { useTileStore } from '../stores/tiles.js'
 import { widgetBridge } from '../services/widgetBridge.js'
 import TileWidget from './TileWidget.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
-import {
-	fetchFinanceSummary,
-	fetchVendorCommitments,
-	fetchSpendNarrative,
-	resolveDeepLink,
-} from '../services/spendAnalytics.js'
-
-/**
- * Data adapter for the nc-vue `CnPeopleWidget` (`cnPeopleSource.fetchPeople`).
- * Maps the component's request to launchpad's `/apps/mydash/api/people`
- * endpoint and returns the `{ users, total, hasMore }` shape it expects. Axios
- * is lazy-imported (keeps it out of the vitest css-no-op transform path).
- *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
- * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
- */
-async function fetchPeoplePage(args = {}) {
-	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
-		import('@nextcloud/axios'),
-		import('@nextcloud/router'),
-	])
-	const params = new URLSearchParams()
-	if (args.filters !== undefined) {
-		params.append('filters', JSON.stringify(args.filters || []))
-	}
-	if (args.excludeDisabled !== undefined) {
-		params.append('excludeDisabled', args.excludeDisabled ? '1' : '0')
-	}
-	if (args.sortBy) {
-		params.append('sortBy', String(args.sortBy))
-	}
-	params.append('limit', String(args.limit ?? 50))
-	params.append('offset', String(args.offset ?? 0))
-	const url = `${genUrl('/apps/mydash/api/people')}?${params.toString()}`
-	const response = await axios.get(url)
-	const data = response?.data || {}
-	return {
-		users: Array.isArray(data.users) ? data.users : [],
-		total: typeof data.total === 'number' ? data.total : 0,
-		hasMore: data.hasMore === true,
-	}
-}
-
-/**
- * Data adapter for the nc-vue `CnCalendarWidget` (`cnCalendarSource.fetchEvents`).
- * Maps the component's `{ from, to }` request to launchpad's per-placement
- * calendar endpoint and returns the `{ events, failures }` shape it expects.
- *
- * @param {string|number} placementId the widget placement id.
- * @param {object} args `{ from, to }` ISO date strings.
- * @return {Promise<{events: object[], failures: object[]}>} the events payload.
- */
-async function fetchCalendarEvents(placementId, args = {}) {
-	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
-		import('@nextcloud/axios'),
-		import('@nextcloud/router'),
-	])
-	const url = genUrl('/apps/mydash/api/widgets/calendar/{placementId}/events', { placementId })
-	const response = await axios.get(url, { params: { from: args.from, to: args.to } })
-	const data = response?.data || {}
-	return {
-		events: Array.isArray(data.events) ? data.events : [],
-		failures: Array.isArray(data.failures) ? data.failures : [],
-	}
-}
+import { buildWidgetDataProvide, buildRendererExtraProps } from '../services/widgetDataAdapters.js'
 
 export default {
 	name: 'WidgetRenderer',
@@ -169,16 +104,7 @@ export default {
 	 * @return {object} the injected data-source adapters.
 	 */
 	provide() {
-		return {
-			cnPeopleSource: { fetchPeople: fetchPeoplePage },
-			cnCalendarSource: { fetchEvents: (args) => fetchCalendarEvents(this.placement?.id, args) },
-			cnSpendAnalyticsSource: {
-				fetchSummary: fetchFinanceSummary,
-				fetchVendorCommitments,
-				fetchNarrative: fetchSpendNarrative,
-				resolveDeepLink,
-			},
-		}
+		return buildWidgetDataProvide(() => this.placement?.id)
 	},
 
 	data() {
@@ -222,19 +148,7 @@ export default {
 		 * @return {object} extra props for `<component :is>` (empty for most types).
 		 */
 		rendererProps() {
-			if (this.placement?.widgetId === 'news') {
-				return {
-					itemsEndpoint: (placementId) => generateUrl(
-						'/apps/mydash/api/widgets/news/{placementId}/items',
-						{ placementId },
-					),
-				}
-			}
-			if (this.placement?.widgetId === 'files') {
-				// Point CnFilesWidget at launchpad's own files-widget endpoints.
-				return { apiBase: '/apps/mydash' }
-			}
-			return {}
+			return buildRendererExtraProps(this.placement?.widgetId)
 		},
 
 		isTileWidget() {

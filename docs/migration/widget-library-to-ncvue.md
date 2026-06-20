@@ -185,3 +185,37 @@ Menu, Container, Video, and `TileForm → CnDashTileWidgetForm` (rename).
 2. nc-vue: enhancements (Calendar views, Container depth) + the 4 forms, each with barrel export + doc + test.
 3. nc-vue: wire the static drop-ins into the barrel + docs; publish a beta.
 4. launchpad: add the data-source adapters (people/calendar/spend/news/files/nc), rewire `widgetRegistry.js`, delete local copies, verify.
+
+---
+
+## Slices 2–3 — DONE (committed on branches)
+
+**nc-vue** branch `feat/widget-library-exports` (commit `e91b1ab1`):
+- Exported the 17 renderers + 18 forms via `src/components/index.js` + `src/index.js`.
+- Created the 4 missing forms (`CnPeopleWidgetForm`, `CnCalendarWidgetForm`,
+  `CnSpendAnalyticsWidgetForm`, `CnNcDashboardWidgetForm`).
+- A doc page per export (`check:docs` green incl. prop coverage), regenerated
+  docgen partials, updated jsdoc baselines (`check:jsdoc` green), rollup build green.
+- Fixed pre-existing doc debt on `CnDetailPage` / `CnActionsBar`.
+
+**launchpad** branch `feat/widget-library-consumption` (commit `fda6bd06`):
+- `widgetRegistry.js` now sources the **9 presentational renderers + all 18 forms**
+  from `@conduction/nextcloud-vue` (aliased to the historical names).
+- Deleted the 9 local renderers + 18 forms + 5 orphaned helpers + their tests
+  (~64 files); updated the vitest stub + AddWidgetModal/ContainerWidget specs.
+- Full vitest green (571), build green, **live-verified end-to-end**: adding a
+  Label widget renders via nc-vue's `CnLabelWidgetForm → CnLabelWidget`.
+- Verified locally by injecting the freshly-built nc-vue dist into `node_modules`.
+
+## Remaining (release mechanics + a follow-up slice)
+
+1. **Publish** (CI/release — cannot be done from a dev shell): merge the nc-vue
+   branch → publish a `@conduction/nextcloud-vue` beta containing the widget library.
+2. **Bump + merge launchpad**: set launchpad's `@conduction/nextcloud-vue` dep to
+   that beta, then merge `feat/widget-library-consumption` to `development`. (Its CI
+   build fails until the dep is bumped — that's expected; do not merge before the publish.)
+3. **Data-widget adapter slice** (kept local for now, no regression): migrate the
+   remaining renderers (news, files, people, spend-analytics, nc-widget) by wiring
+   their nc-vue `dataSource` / `cn*Source` / `*Endpoint` to launchpad's endpoints;
+   enhance `CnCalendarWidget` with month/week views before migrating `calendar`;
+   decide LinkButton internal-action handling (events vs registry) before migrating `link`.

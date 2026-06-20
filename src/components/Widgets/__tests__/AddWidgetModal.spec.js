@@ -98,7 +98,7 @@ describe('AddWidgetModal', () => {
 				},
 			},
 		})
-		const sub = wrapper.findComponent({ name: 'LabelForm' })
+		const sub = wrapper.findComponent({ name: 'CnLabelWidgetForm' })
 		expect(sub.exists()).toBe(true)
 		expect(sub.vm.text).toBe('Pre-filled')
 		expect(sub.vm.fontSize).toBe('20px')
@@ -111,7 +111,7 @@ describe('AddWidgetModal', () => {
 		// registered we cannot literally switch types yet — instead we
 		// invoke the handler with a fresh reset and assert content goes
 		// back to defaults.
-		const sub = wrapper.findComponent({ name: 'LabelForm' })
+		const sub = wrapper.findComponent({ name: 'CnLabelWidgetForm' })
 		sub.vm.text = 'dirty'
 		sub.vm.$emit('update:content', { ...sub.vm.assembledContent })
 		await wrapper.vm.$nextTick()
@@ -132,7 +132,7 @@ describe('AddWidgetModal', () => {
 
 	it('REQ-WDG-012: action button enables once required field is filled', async () => {
 		const wrapper = mountModal()
-		const sub = wrapper.findComponent({ name: 'LabelForm' })
+		const sub = wrapper.findComponent({ name: 'CnLabelWidgetForm' })
 		sub.vm.updateField('text', 'Hello')
 		await wrapper.vm.$nextTick()
 		const submit = wrapper.findAll('button').wrappers.find((b) => b.text().trim() === 'Add')
@@ -141,7 +141,7 @@ describe('AddWidgetModal', () => {
 
 	it('REQ-WDG-010: submit emits {type, content} containing only active type fields', async () => {
 		const wrapper = mountModal()
-		const sub = wrapper.findComponent({ name: 'LabelForm' })
+		const sub = wrapper.findComponent({ name: 'CnLabelWidgetForm' })
 		sub.vm.updateField('text', 'Hello')
 		await wrapper.vm.$nextTick()
 		wrapper.vm.onSubmit()

@@ -81,42 +81,53 @@
  * runtime-source hint only — it MUST NOT appear in `manifest.dependencies`.
  */
 
-import LabelWidget from '../components/Widgets/Renderers/LabelWidget.vue'
-import LabelForm from '../components/Widgets/Forms/LabelForm.vue'
-import TextDisplayWidget from '../components/Widgets/Renderers/TextDisplayWidget.vue'
-import TextDisplayForm from '../components/Widgets/Forms/TextDisplayForm.vue'
-import ImageWidget from '../components/Widgets/Renderers/ImageWidget.vue'
-import ImageForm from '../components/Widgets/Forms/ImageForm.vue'
+// Widget renderers + config forms are sourced from the shared
+// @conduction/nextcloud-vue library wherever the component is a drop-in
+// (aliased to the historical local names so the registry map below is
+// unchanged). Presentational renderers (label/text/image/header/divider/
+// video/quicklinks/links/menu) and ALL config forms move to the library;
+// data-driven renderers that call launchpad's own endpoints (link-button,
+// nc-widget, files, people, news, calendar, spend-analytics, container, tile)
+// stay local for now (they need a data-source adapter / carry app-specific
+// behaviour) — see docs/migration/widget-library-to-ncvue.md.
+import {
+	CnLabelWidget as LabelWidget,
+	CnTextWidget as TextDisplayWidget,
+	CnImageWidget as ImageWidget,
+	CnHeaderWidget as HeaderWidget,
+	CnDividerWidget as DividerWidget,
+	CnVideoWidget as VideoWidget,
+	CnQuicklinksWidget as QuicklinksWidget,
+	CnLinksWidget as LinksWidget,
+	CnMenuWidget as MenuWidget,
+	CnLabelWidgetForm as LabelForm,
+	CnTextWidgetForm as TextDisplayForm,
+	CnImageWidgetForm as ImageForm,
+	CnLinkButtonWidgetForm as LinkButtonForm,
+	CnNcDashboardWidgetForm as NcDashboardForm,
+	CnHeaderWidgetForm as HeaderForm,
+	CnDividerWidgetForm as DividerForm,
+	CnFilesWidgetForm as FilesForm,
+	CnPeopleWidgetForm as PeopleForm,
+	CnQuicklinksWidgetForm as QuicklinksForm,
+	CnNewsWidgetForm as NewsForm,
+	CnVideoWidgetForm as VideoForm,
+	CnCalendarWidgetForm as CalendarForm,
+	CnLinksWidgetForm as LinksForm,
+	CnMenuWidgetForm as MenuForm,
+	CnContainerWidgetForm as ContainerForm,
+	CnDashTileWidgetForm as TileForm,
+	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
+} from '@conduction/nextcloud-vue'
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.vue'
-import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
-import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
-import HeaderWidget from '../components/Widgets/Renderers/HeaderWidget.vue'
-import HeaderForm from '../components/Widgets/Forms/HeaderForm.vue'
-import DividerWidget from '../components/Widgets/Renderers/DividerWidget.vue'
-import DividerForm from '../components/Widgets/Forms/DividerForm.vue'
 import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
-import FilesForm from '../components/Widgets/Forms/FilesForm.vue'
 import PeopleWidget from '../components/Widgets/Renderers/PeopleWidget.vue'
-import PeopleForm from '../components/Widgets/Forms/PeopleForm.vue'
-import QuicklinksWidget from '../components/Widgets/Renderers/QuicklinksWidget.vue'
-import QuicklinksForm from '../components/Widgets/Forms/QuicklinksForm.vue'
 import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
-import NewsForm from '../components/Widgets/Forms/NewsForm.vue'
-import VideoWidget from '../components/Widgets/Renderers/VideoWidget.vue'
-import VideoForm from '../components/Widgets/Forms/VideoForm.vue'
 import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
-import CalendarForm from '../components/Widgets/Forms/CalendarForm.vue'
-import LinksWidget from '../components/Widgets/Renderers/LinksWidget.vue'
-import LinksForm from '../components/Widgets/Forms/LinksForm.vue'
-import MenuWidget from '../components/Widgets/Renderers/MenuWidget.vue'
-import MenuForm from '../components/Widgets/Forms/MenuForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
-import ContainerForm from '../components/Widgets/Forms/ContainerForm.vue'
 import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
-import TileForm from '../components/Widgets/Forms/TileForm.vue'
 import SpendAnalyticsWidget from '../components/Widgets/Renderers/SpendAnalyticsWidget.vue'
-import SpendAnalyticsForm from '../components/Widgets/Forms/SpendAnalyticsForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

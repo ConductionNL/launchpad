@@ -29,6 +29,85 @@ export const NcContent = stub('NcContent')
 export const NcDashboardWidget = stub('NcDashboardWidget')
 export const NcCheckboxRadioSwitch = stub('NcCheckboxRadioSwitch')
 export const NcLoadingIcon = stub('NcLoadingIcon')
+export const CnWidgetWrapper = stub('CnWidgetWrapper')
+
+// Dashboard widget library (v2) — renderers + config forms now sourced from
+// @conduction/nextcloud-vue and aliased in widgetRegistry.js. Stubbed here so
+// the registry's `renderer`/`form` entries are valid component objects.
+// Renders an identifiable element so registry-dispatch tests (e.g.
+// ContainerWidget recursive dispatch) can assert the child rendered.
+export const CnLabelWidget = { name: 'CnLabelWidget', render: (h) => h('div', { class: 'cn-label-widget' }) }
+export const CnTextWidget = stub('CnTextWidget')
+export const CnImageWidget = stub('CnImageWidget')
+export const CnHeaderWidget = stub('CnHeaderWidget')
+export const CnDividerWidget = stub('CnDividerWidget')
+export const CnVideoWidget = stub('CnVideoWidget')
+export const CnQuicklinksWidget = stub('CnQuicklinksWidget')
+export const CnLinksWidget = stub('CnLinksWidget')
+export const CnMenuWidget = stub('CnMenuWidget')
+// Functional contract stub (data + updateField + assembledContent + validate +
+// emits update:content) so CnAddWidgetModal logic tests can drive a sub-form.
+export const CnLabelWidgetForm = {
+	name: 'CnLabelWidgetForm',
+	props: {
+		editingWidget: { type: Object, default: null },
+		value: { type: Object, default: () => ({}) },
+	},
+	data() {
+		const initial = this.editingWidget?.content || this.value || {}
+		return {
+			text: initial.text ?? '',
+			fontSize: initial.fontSize ?? '16px',
+			color: initial.color ?? '',
+			backgroundColor: initial.backgroundColor ?? '',
+			fontWeight: initial.fontWeight ?? 'bold',
+			textAlign: initial.textAlign ?? 'center',
+		}
+	},
+	computed: {
+		assembledContent() {
+			return {
+				text: this.text,
+				fontSize: this.fontSize,
+				color: this.color,
+				backgroundColor: this.backgroundColor,
+				fontWeight: this.fontWeight,
+				textAlign: this.textAlign,
+			}
+		},
+	},
+	methods: {
+		updateField(field, val) {
+			this[field] = val
+			this.$emit('update:content', this.assembledContent)
+		},
+		validate() {
+			return (typeof this.text === 'string' && this.text.trim() !== '')
+				? []
+				: ['Label text is required']
+		},
+	},
+	render(h) {
+		return h('div', { class: 'cn-label-widget-form' })
+	},
+}
+export const CnTextWidgetForm = stub('CnTextWidgetForm')
+export const CnImageWidgetForm = stub('CnImageWidgetForm')
+export const CnLinkButtonWidgetForm = stub('CnLinkButtonWidgetForm')
+export const CnNcDashboardWidgetForm = stub('CnNcDashboardWidgetForm')
+export const CnHeaderWidgetForm = stub('CnHeaderWidgetForm')
+export const CnDividerWidgetForm = stub('CnDividerWidgetForm')
+export const CnFilesWidgetForm = stub('CnFilesWidgetForm')
+export const CnPeopleWidgetForm = stub('CnPeopleWidgetForm')
+export const CnQuicklinksWidgetForm = stub('CnQuicklinksWidgetForm')
+export const CnNewsWidgetForm = stub('CnNewsWidgetForm')
+export const CnVideoWidgetForm = stub('CnVideoWidgetForm')
+export const CnCalendarWidgetForm = stub('CnCalendarWidgetForm')
+export const CnLinksWidgetForm = stub('CnLinksWidgetForm')
+export const CnMenuWidgetForm = stub('CnMenuWidgetForm')
+export const CnContainerWidgetForm = stub('CnContainerWidgetForm')
+export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
+export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 
 export default {
 	NcModal,
@@ -42,4 +121,32 @@ export default {
 	NcDashboardWidget,
 	NcCheckboxRadioSwitch,
 	NcLoadingIcon,
+	CnWidgetWrapper,
+	CnLabelWidget,
+	CnTextWidget,
+	CnImageWidget,
+	CnHeaderWidget,
+	CnDividerWidget,
+	CnVideoWidget,
+	CnQuicklinksWidget,
+	CnLinksWidget,
+	CnMenuWidget,
+	CnLabelWidgetForm,
+	CnTextWidgetForm,
+	CnImageWidgetForm,
+	CnLinkButtonWidgetForm,
+	CnNcDashboardWidgetForm,
+	CnHeaderWidgetForm,
+	CnDividerWidgetForm,
+	CnFilesWidgetForm,
+	CnPeopleWidgetForm,
+	CnQuicklinksWidgetForm,
+	CnNewsWidgetForm,
+	CnVideoWidgetForm,
+	CnCalendarWidgetForm,
+	CnLinksWidgetForm,
+	CnMenuWidgetForm,
+	CnContainerWidgetForm,
+	CnDashTileWidgetForm,
+	CnSpendAnalyticsWidgetForm,
 }

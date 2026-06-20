@@ -39,6 +39,27 @@
 		     hamburger keeps its place (top-right entry point when the
 		     sidebar is closed). -->
 		<div class="launchpad-floating-controls">
+			<!-- Active-dashboard cog: the same per-dashboard action menu that
+			     sits on every sidebar row (DashboardRowActions), but bound to
+			     the currently active dashboard so the user can Edit / Configure
+			     / Add widget / Set default / Delete it directly from the
+			     top-right cluster without opening the sidebar first. Reuses the
+			     existing onRow* handlers; `maybeSwitchTo` is a no-op because the
+			     target is already active. -->
+			<DashboardRowActions
+				v-if="activeDashboard"
+				:dashboard="activeDashboard"
+				:source="activeDashboardSource"
+				:can-edit="canEdit"
+				:default-uuid="defaultDashboardUuid"
+				:is-edit-mode="isEditMode"
+				:active-dashboard-id="activeDashboard.id"
+				class="mydash-active-dashboard-cog"
+				@toggle-edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
+				@open-config="onRowOpenConfig(activeDashboard, activeDashboardSource)"
+				@add-custom-widget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
+				@set-default="onRowSetDefault(activeDashboard, activeDashboardSource)"
+				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
 				type="secondary"
 				:aria-label="t('launchpad', 'Dashboards')"
@@ -225,6 +246,7 @@ import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import CatalogView from './CatalogView.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 
 // Stores
@@ -255,6 +277,7 @@ export default {
 		VisibilityRulesModal,
 		CatalogView,
 		DashboardSwitcherSidebar,
+		DashboardRowActions,
 		SidebarBackdrop,
 	},
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -454,6 +477,32 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		sidebarGroupDashboards() {
 			return [...this.groupSharedDashboards, ...this.defaultGroupDashboards]
+		},
+		/**
+		 * Section discriminator for the currently active dashboard, so the
+		 * top-right active-dashboard cog (DashboardRowActions) gates its
+		 * owner-only entries (Configure / Delete) exactly like the matching
+		 * sidebar row. Resolved by locating the active id in the same buckets
+		 * the sidebar renders; falls back to the dashboard's own `isOwner`
+		 * flag when the record is not in any bucket yet.
+		 *
+		 * @return {'group'|'default'|'user'} The active dashboard's source.
+		 */
+		/** @spec openspec/specs/dashboard-switcher/spec.md */
+		activeDashboardSource() {
+			const id = this.activeDashboard?.id
+			if (id != null) {
+				if (this.userDashboards?.some(d => d.id === id)) {
+					return 'user'
+				}
+				if (this.defaultGroupDashboards?.some(d => d.id === id)) {
+					return 'default'
+				}
+				if (this.groupSharedDashboards?.some(d => d.id === id)) {
+					return 'group'
+				}
+			}
+			return this.activeDashboard?.isOwner === false ? 'group' : 'user'
 		},
 		/**
 		 * Personal dashboards for the sidebar's `userDashboards` prop.

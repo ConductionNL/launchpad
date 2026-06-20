@@ -45,6 +45,9 @@ export const CnVideoWidget = stub('CnVideoWidget')
 export const CnQuicklinksWidget = stub('CnQuicklinksWidget')
 export const CnLinksWidget = stub('CnLinksWidget')
 export const CnMenuWidget = stub('CnMenuWidget')
+export const CnPeopleWidget = stub('CnPeopleWidget')
+export const CnNewsWidget = stub('CnNewsWidget')
+export const CnSpendAnalyticsWidget = stub('CnSpendAnalyticsWidget')
 // Functional contract stub (data + updateField + assembledContent + validate +
 // emits update:content) so CnAddWidgetModal logic tests can drive a sub-form.
 export const CnLabelWidgetForm = {
@@ -131,6 +134,9 @@ export default {
 	CnQuicklinksWidget,
 	CnLinksWidget,
 	CnMenuWidget,
+	CnPeopleWidget,
+	CnNewsWidget,
+	CnSpendAnalyticsWidget,
 	CnLabelWidgetForm,
 	CnTextWidgetForm,
 	CnImageWidgetForm,

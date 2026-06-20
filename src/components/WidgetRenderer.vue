@@ -14,7 +14,8 @@
 			:is="registryEntry.renderer"
 			v-if="registryEntry"
 			:content="placement.content || {}"
-			:placement="placement" />
+			:placement="placement"
+			v-bind="rendererProps" />
 
 		<!-- Custom Tile Widget (legacy path: widgetId === 'tile-{id}') -->
 		<TileWidget
@@ -64,11 +65,54 @@
 import { NcDashboardWidget, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import { mapActions, storeToRefs } from 'pinia'
+import { generateUrl } from '@nextcloud/router'
 import { useWidgetStore } from '../stores/widgets.js'
 import { useTileStore } from '../stores/tiles.js'
 import { widgetBridge } from '../services/widgetBridge.js'
 import TileWidget from './TileWidget.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import {
+	fetchFinanceSummary,
+	fetchVendorCommitments,
+	fetchSpendNarrative,
+	resolveDeepLink,
+} from '../services/spendAnalytics.js'
+
+/**
+ * Data adapter for the nc-vue `CnPeopleWidget` (`cnPeopleSource.fetchPeople`).
+ * Maps the component's request to launchpad's `/apps/mydash/api/people`
+ * endpoint and returns the `{ users, total, hasMore }` shape it expects. Axios
+ * is lazy-imported (keeps it out of the vitest css-no-op transform path).
+ *
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
+ * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
+ */
+async function fetchPeoplePage(args = {}) {
+	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
+		import('@nextcloud/axios'),
+		import('@nextcloud/router'),
+	])
+	const params = new URLSearchParams()
+	if (args.filters !== undefined) {
+		params.append('filters', JSON.stringify(args.filters || []))
+	}
+	if (args.excludeDisabled !== undefined) {
+		params.append('excludeDisabled', args.excludeDisabled ? '1' : '0')
+	}
+	if (args.sortBy) {
+		params.append('sortBy', String(args.sortBy))
+	}
+	params.append('limit', String(args.limit ?? 50))
+	params.append('offset', String(args.offset ?? 0))
+	const url = `${genUrl('/apps/mydash/api/people')}?${params.toString()}`
+	const response = await axios.get(url)
+	const data = response?.data || {}
+	return {
+		users: Array.isArray(data.users) ? data.users : [],
+		total: typeof data.total === 'number' ? data.total : 0,
+		hasMore: data.hasMore === true,
+	}
+}
 
 export default {
 	name: 'WidgetRenderer',
@@ -90,6 +134,27 @@ export default {
 			type: Object,
 			required: true,
 		},
+	},
+
+	/**
+	 * Provide the data-source adapters the nc-vue data widgets inject
+	 * (`cnPeopleSource` / `cnSpendAnalyticsSource`), bridging them to
+	 * launchpad's existing endpoints/services so the shared renderers stay
+	 * app-agnostic. News uses the `itemsEndpoint` prop instead (see
+	 * `rendererProps`).
+	 *
+	 * @return {object} the injected data-source adapters.
+	 */
+	provide() {
+		return {
+			cnPeopleSource: { fetchPeople: fetchPeoplePage },
+			cnSpendAnalyticsSource: {
+				fetchSummary: fetchFinanceSummary,
+				fetchVendorCommitments,
+				fetchNarrative: fetchSpendNarrative,
+				resolveDeepLink,
+			},
+		}
 	},
 
 	data() {
@@ -123,6 +188,25 @@ export default {
 				return null
 			}
 			return entry
+		},
+
+		/**
+		 * Per-widget-type extra props bound onto the registry renderer.
+		 * nc-vue's CnNewsWidget pulls items from a consumer-supplied
+		 * `itemsEndpoint` builder pointing at launchpad's news endpoint.
+		 *
+		 * @return {object} extra props for `<component :is>` (empty for most types).
+		 */
+		rendererProps() {
+			if (this.placement?.widgetId === 'news') {
+				return {
+					itemsEndpoint: (placementId) => generateUrl(
+						'/apps/mydash/api/widgets/news/{placementId}/items',
+						{ placementId },
+					),
+				}
+			}
+			return {}
 		},
 
 		isTileWidget() {

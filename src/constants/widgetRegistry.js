@@ -84,12 +84,19 @@
 // Widget renderers + config forms are sourced from the shared
 // @conduction/nextcloud-vue library wherever the component is a drop-in
 // (aliased to the historical local names so the registry map below is
-// unchanged). Presentational renderers (label/text/image/header/divider/
-// video/quicklinks/links/menu) and ALL config forms move to the library;
-// data-driven renderers that call launchpad's own endpoints (link-button,
-// nc-widget, files, people, news, calendar, spend-analytics, container, tile)
-// stay local for now (they need a data-source adapter / carry app-specific
-// behaviour) — see docs/migration/widget-library-to-ncvue.md.
+// unchanged). Migrated to the library: the presentational renderers
+// (label/text/image/header/divider/video/quicklinks/links/menu), ALL config
+// forms, AND the data-driven people/news/spend-analytics renderers (their data
+// is bridged via WidgetRenderer's `cnPeopleSource`/`cnSpendAnalyticsSource`
+// provide() + the news `itemsEndpoint` prop).
+// Still local — genuine blockers needing nc-vue feature work before migrating
+// without regression (see docs/migration/widget-library-to-ncvue.md):
+//   - calendar      → CnCalendarWidget lacks month/week views (regression)
+//   - link-button   → internal-action registry + create-file modal is host-side
+//   - nc-widget     → native OCA.Dashboard bridge / mount path
+//   - files         → upload/delete + endpoint contract to verify
+//   - container     → REQ-CONT max-nesting-depth guard not enforced upstream
+//   - tile          → rendered via the separate tile placement path
 import {
 	CnLabelWidget as LabelWidget,
 	CnTextWidget as TextDisplayWidget,
@@ -100,6 +107,9 @@ import {
 	CnQuicklinksWidget as QuicklinksWidget,
 	CnLinksWidget as LinksWidget,
 	CnMenuWidget as MenuWidget,
+	CnPeopleWidget as PeopleWidget,
+	CnNewsWidget as NewsWidget,
+	CnSpendAnalyticsWidget as SpendAnalyticsWidget,
 	CnLabelWidgetForm as LabelForm,
 	CnTextWidgetForm as TextDisplayForm,
 	CnImageWidgetForm as ImageForm,
@@ -122,12 +132,9 @@ import {
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
-import PeopleWidget from '../components/Widgets/Renderers/PeopleWidget.vue'
-import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
 import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
-import SpendAnalyticsWidget from '../components/Widgets/Renderers/SpendAnalyticsWidget.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

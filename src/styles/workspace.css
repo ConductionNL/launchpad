@@ -23,7 +23,12 @@
 	flex: 1 1 auto;
 	min-width: 0;
 	width: 100%;
-	min-height: 100vh;
+	/* Fill the available content area exactly (#content is overflow:clip and
+	   sized to the viewport). `min-height: 0` lets descendant flex children
+	   shrink below their content so the grid's own overflow:auto can scroll,
+	   instead of the shell growing unbounded and clipping out of #content. */
+	height: 100%;
+	min-height: 0;
 }
 
 /* =========================================================

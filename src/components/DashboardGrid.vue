@@ -24,7 +24,8 @@
 						v-if="isTilePlacement(placement)"
 						:tile="getTileData(placement)"
 						:edit-mode="editMode"
-						@edit="$emit('tile-edit', placement)" />
+						@edit="$emit('tile-edit', placement)"
+						@remove="$emit('widget-remove', placement.id)" />
 
 					<!-- Render Widget with wrapper for widget placements. -->
 					<WidgetWrapper

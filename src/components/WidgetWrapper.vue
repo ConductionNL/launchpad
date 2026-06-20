@@ -3,70 +3,62 @@
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
+<!--
+	WidgetWrapper — per-placement widget chrome.
+
+	Renders the shared nc-vue `CnWidgetWrapper` (header, content, footer,
+	styleConfig) so launchpad widgets match the OpenBuild widget surface, and
+	overlays the single shared `WidgetEditCog` (Edit / Delete) in edit mode.
+	The wrapper's own overflow actions menu is suppressed (`:show-refresh` /
+	`:show-request-feature` false, no action-items) so the gear cog is the only
+	affordance.
+-->
+
 <template>
 	<div
 		class="launchpad-widget"
+		:class="{ 'launchpad-widget--editing': editMode }"
 		:data-testid="placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'"
-		:data-widget-id="placement?.widgetId"
-		:style="widgetStyles">
-		<!-- Widget header -->
-		<div v-if="showHeader" class="launchpad-widget__header" :style="headerStyles">
-			<div class="launchpad-widget__header-left">
-				<img
-					v-if="widgetIconUrl"
-					:src="widgetIconUrl"
-					:alt="widgetTitle"
-					class="launchpad-widget__icon">
-				<span v-else-if="widget?.iconClass" :class="widget.iconClass" class="launchpad-widget__icon" />
-				<h3 class="launchpad-widget__title">
-					{{ widgetTitle }}
-				</h3>
-			</div>
-			<div v-if="editMode" class="launchpad-widget__actions">
-				<NcButton
-					type="tertiary"
-					:aria-label="t('launchpad', 'Edit widget')"
-					data-testid="widget-edit-cog"
-					@click="$emit('edit', placement)">
-					<template #icon>
-						<Cog :size="20" />
-					</template>
-				</NcButton>
-			</div>
-		</div>
-
-		<!-- Widget content -->
-		<div class="launchpad-widget__content">
+		:data-widget-id="placement?.widgetId">
+		<CnWidgetWrapper
+			class="launchpad-widget__wrapper"
+			:title="widgetTitle"
+			:show-title="showHeader"
+			:icon-url="widgetIconUrl"
+			:icon-class="widget && widget.iconClass ? widget.iconClass : null"
+			:style-config="styleConfig"
+			:buttons="widgetButtons"
+			:borderless="isChromelessFrame"
+			:flush="isChromelessFrame"
+			:show-refresh="false"
+			:show-request-feature="false">
 			<WidgetRenderer
 				:widget="widget"
 				:placement="placement" />
-		</div>
+		</CnWidgetWrapper>
 
-		<!-- Widget footer with buttons -->
-		<div v-if="widgetButtons.length > 0" class="launchpad-widget__footer">
-			<NcButton
-				v-for="button in widgetButtons"
-				:key="button.link"
-				type="tertiary"
-				:href="button.link">
-				{{ button.text }}
-			</NcButton>
-		</div>
+		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
+		     shown in edit mode. Sits top-right over the wrapper's header area. -->
+		<WidgetEditCog
+			v-if="editMode"
+			class="launchpad-widget__cog"
+			@edit="$emit('edit', placement)"
+			@remove="$emit('remove', placement.id)" />
 	</div>
 </template>
 
 <script>
-import { NcButton } from '@conduction/nextcloud-vue'
-import Cog from 'vue-material-design-icons/Cog.vue'
+import { CnWidgetWrapper } from '@conduction/nextcloud-vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import WidgetEditCog from './WidgetEditCog.vue'
 
 export default {
 	name: 'WidgetWrapper',
 
 	components: {
-		NcButton,
-		Cog,
+		CnWidgetWrapper,
 		WidgetRenderer,
+		WidgetEditCog,
 	},
 
 	props: {
@@ -93,28 +85,24 @@ export default {
 
 		/**
 		 * Widget types that own their entire visual surface — labels,
-		 * dividers, header banners, and the registry-driven `tile` are
-		 * "chrome-less": rendering a "Widget"-titled wrapper above them
-		 * is visual noise that competes with the renderer's own
-		 * heading. The wrapper still draws its frame for any other
-		 * type AND for these types when the user has set a per-placement
-		 * `customTitle` (which is an explicit opt-in to show chrome).
+		 * dividers, header banners, the registry-driven `tile`, and the NC
+		 * Dashboard API widget (which renders its own header + title). They
+		 * keep a borderless / flush wrapper (no frame, no wrapper header) so
+		 * the renderer paints edge to edge; the edit cog still overlays on top.
 		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			// `nc-widget` renders its own header (icon + title) inside the
-			// NcDashboardWidget renderer, so the wrapper header would
-			// duplicate it.
 			return ['label', 'divider', 'header', 'tile', 'nc-widget'].includes(this.placement?.widgetId)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
+		isChromelessFrame() {
+			return this.isTileWidget || this.isChromelessType
+		},
+
+		/** @spec openspec/specs/widgets/spec.md */
 		showHeader() {
-			// Tiles (legacy `tile-{id}` widgetId) render directly with no
-			// wrapper. Registry-driven chrome-less types keep the wrapper
-			// frame but skip the header row unless the user supplied a
-			// `customTitle` override.
 			if (this.isTileWidget) {
 				return false
 			}
@@ -149,122 +137,26 @@ export default {
 		styleConfig() {
 			return this.placement.styleConfig || {}
 		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		widgetStyles() {
-			const styles = {}
-
-			// Tiles should fill the entire grid cell without padding.
-			if (this.isTileWidget) {
-				return {
-					padding: '0',
-					background: 'transparent',
-				}
-			}
-
-			if (this.styleConfig.backgroundColor) {
-				styles.backgroundColor = this.styleConfig.backgroundColor
-			}
-
-			if (this.styleConfig.borderStyle && this.styleConfig.borderStyle !== 'none') {
-				styles.border = `${this.styleConfig.borderWidth || 1}px ${this.styleConfig.borderStyle} ${this.styleConfig.borderColor || 'var(--color-border)'}`
-			}
-
-			if (this.styleConfig.borderRadius !== undefined) {
-				styles.borderRadius = `${this.styleConfig.borderRadius}px`
-			}
-
-			if (this.styleConfig.padding) {
-				const p = this.styleConfig.padding
-				styles.padding = `${p.top || 0}px ${p.right || 0}px ${p.bottom || 0}px ${p.left || 0}px`
-			}
-
-			return styles
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		headerStyles() {
-			const styles = {}
-
-			if (this.styleConfig.headerStyle) {
-				if (this.styleConfig.headerStyle.backgroundColor) {
-					styles.backgroundColor = this.styleConfig.headerStyle.backgroundColor
-				}
-				if (this.styleConfig.headerStyle.textColor) {
-					styles.color = this.styleConfig.headerStyle.textColor
-				}
-			}
-
-			return styles
-		},
-	},
-
-	methods: {
-		/** @spec openspec/specs/widgets/spec.md */
-		hexToRgba(hex, opacity) {
-			if (!hex) return 'transparent'
-			const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-			if (!result) return hex
-			return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})`
-		},
 	},
 }
 </script>
 
 <style scoped>
 .launchpad-widget {
+	position: relative;
 	height: 100%;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
 }
 
-.launchpad-widget__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 12px 16px;
-	flex-shrink: 0;
+.launchpad-widget__wrapper {
+	height: 100%;
 }
 
-.launchpad-widget__header-left {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	min-width: 0;
-}
-
-.launchpad-widget__icon {
-	width: 24px;
-	height: 24px;
-	flex-shrink: 0;
-}
-
-.launchpad-widget__title {
-	font-weight: 600;
-	font-size: 14px;
-	margin: 0;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.launchpad-widget__content {
-	flex: 1;
-	overflow: auto;
-	min-height: 0;
-}
-
-.launchpad-widget__actions {
-	display: flex;
-	gap: 4px;
-	flex-shrink: 0;
-}
-
-.launchpad-widget__footer {
-	display: flex;
-	justify-content: flex-end;
-	padding: 8px 16px;
-	flex-shrink: 0;
+/* The shared cog overlays the wrapper's top-right (the header's action area
+   when a header is shown, otherwise over the content). */
+.launchpad-widget__cog {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 10;
 }
 </style>

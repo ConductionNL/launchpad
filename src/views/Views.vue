@@ -18,8 +18,6 @@
 			:dashboard-quota-reached="dashboardQuotaReached"
 			:dashboard-quota-tooltip="dashboardQuotaTooltip"
 			:is-edit-mode="isEditMode"
-			:mode="workspaceMode"
-			@mode-change="onWorkspaceModeChange"
 			@switch="onSidebarSwitch"
 			@create-dashboard="onSidebarCreateDashboard"
 			@delete-dashboard="onSidebarDeleteDashboard"
@@ -98,14 +96,8 @@
 			</div>
 		</div>
 
-		<!-- Catalog SUB_PAGE browse view (widgets spec). Rendered in place of
-		     the canvas when the sidebar mode is `catalog`; the dashboard
-		     store stays mounted so returning restores state without a
-		     reload. -->
-		<CatalogView v-if="workspaceMode === 'catalog'" />
-
 		<!-- Main dashboard grid -->
-		<div v-else class="mydash-container" :class="{ 'mydash-edit-mode': isEditMode }">
+		<div class="mydash-container" :class="{ 'mydash-edit-mode': isEditMode }">
 			<DashboardGrid
 				v-if="activeDashboard"
 				:placements="widgetPlacements"
@@ -244,7 +236,6 @@ import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
-import CatalogView from './CatalogView.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
@@ -275,7 +266,6 @@ export default {
 		AddWidgetModal,
 		WidgetContextMenu,
 		VisibilityRulesModal,
-		CatalogView,
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
@@ -374,10 +364,6 @@ export default {
 			// `dashboard-switcher` capability state — controlled here, the
 			// sidebar emits update:open(boolean) via its v-model rebind.
 			sidebarOpen: false,
-			// Workspace region mode (widgets spec: Catalog SUB_PAGE).
-			// `'dashboards'` shows the canvas, `'catalog'` shows the browse
-			// view. The dashboard store is never unmounted on switch.
-			workspaceMode: 'dashboards',
 			// REQ-ANLT-011 — per-uuid debounce ledger. Maps dashboard
 			// UUID → last-send millisecond timestamp so two near-
 			// simultaneous mounts of the same dashboard (multi-tab,
@@ -1062,22 +1048,6 @@ export default {
 		 * @param {string|number} id Dashboard id from the clicked row.
 		 * @param {'group'|'default'|'user'} source Section discriminator.
 		 */
-		/**
-		 * Switch the workspace region between the dashboards canvas and the
-		 * Catalog browse view (widgets spec). The dashboard store is left
-		 * mounted so returning to `dashboards` restores the active dashboard
-		 * and layout without a reload.
-		 *
-		 * @param {string} next the target mode (`'dashboards'` | `'catalog'`)
-		 * @return {void}
-		 */
-		/** @spec openspec/specs/widgets/spec.md */
-		onWorkspaceModeChange(next) {
-			if (next === 'dashboards' || next === 'catalog') {
-				this.workspaceMode = next
-			}
-		},
-
 		// eslint-disable-next-line no-unused-vars
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onSidebarSwitch(id, source) {

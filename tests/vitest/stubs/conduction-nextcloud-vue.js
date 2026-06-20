@@ -39,6 +39,7 @@ export const CnWidgetWrapper = stub('CnWidgetWrapper')
 export const CnLabelWidget = { name: 'CnLabelWidget', render: (h) => h('div', { class: 'cn-label-widget' }) }
 export const CnTextWidget = stub('CnTextWidget')
 export const CnImageWidget = stub('CnImageWidget')
+export const CnLinkButtonWidget = stub('CnLinkButtonWidget')
 export const CnHeaderWidget = stub('CnHeaderWidget')
 export const CnDividerWidget = stub('CnDividerWidget')
 export const CnVideoWidget = stub('CnVideoWidget')
@@ -135,6 +136,7 @@ export default {
 	CnQuicklinksWidget,
 	CnLinksWidget,
 	CnMenuWidget,
+	CnLinkButtonWidget,
 	CnPeopleWidget,
 	CnNewsWidget,
 	CnSpendAnalyticsWidget,

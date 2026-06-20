@@ -90,9 +90,10 @@
 // WidgetRenderer's `cnPeopleSource`/`cnSpendAnalyticsSource` provide() + the
 // news `itemsEndpoint` prop), AND calendar (CnCalendarWidget gained month/week
 // views; bridged via `cnCalendarSource`).
+// `link` rendering uses CnLinkButtonWidget via the thin LinkButtonHost wrapper
+// (host keeps the internal-action registry + create-file modal).
 // Still local — genuine blockers needing nc-vue feature work before migrating
 // without regression (see docs/migration/widget-library-to-ncvue.md):
-//   - link-button   → internal-action registry + create-file modal is host-side
 //   - nc-widget     → native OCA.Dashboard bridge / mount path
 //   - files         → upload/delete + endpoint contract to verify
 //   - container     → REQ-CONT max-nesting-depth guard not enforced upstream
@@ -130,7 +131,10 @@ import {
 	CnDashTileWidgetForm as TileForm,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
-import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.vue'
+// `link` rendering is delegated to CnLinkButtonWidget; LinkButtonHost is the
+// thin launchpad wrapper that supplies the host-side internal-action registry
+// dispatch + the create-file modal (see the file for details).
+import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'

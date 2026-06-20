@@ -114,6 +114,29 @@ async function fetchPeoplePage(args = {}) {
 	}
 }
 
+/**
+ * Data adapter for the nc-vue `CnCalendarWidget` (`cnCalendarSource.fetchEvents`).
+ * Maps the component's `{ from, to }` request to launchpad's per-placement
+ * calendar endpoint and returns the `{ events, failures }` shape it expects.
+ *
+ * @param {string|number} placementId the widget placement id.
+ * @param {object} args `{ from, to }` ISO date strings.
+ * @return {Promise<{events: object[], failures: object[]}>} the events payload.
+ */
+async function fetchCalendarEvents(placementId, args = {}) {
+	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
+		import('@nextcloud/axios'),
+		import('@nextcloud/router'),
+	])
+	const url = genUrl('/apps/mydash/api/widgets/calendar/{placementId}/events', { placementId })
+	const response = await axios.get(url, { params: { from: args.from, to: args.to } })
+	const data = response?.data || {}
+	return {
+		events: Array.isArray(data.events) ? data.events : [],
+		failures: Array.isArray(data.failures) ? data.failures : [],
+	}
+}
+
 export default {
 	name: 'WidgetRenderer',
 
@@ -148,6 +171,7 @@ export default {
 	provide() {
 		return {
 			cnPeopleSource: { fetchPeople: fetchPeoplePage },
+			cnCalendarSource: { fetchEvents: (args) => fetchCalendarEvents(this.placement?.id, args) },
 			cnSpendAnalyticsSource: {
 				fetchSummary: fetchFinanceSummary,
 				fetchVendorCommitments,

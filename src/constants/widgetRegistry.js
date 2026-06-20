@@ -86,12 +86,12 @@
 // (aliased to the historical local names so the registry map below is
 // unchanged). Migrated to the library: the presentational renderers
 // (label/text/image/header/divider/video/quicklinks/links/menu), ALL config
-// forms, AND the data-driven people/news/spend-analytics renderers (their data
-// is bridged via WidgetRenderer's `cnPeopleSource`/`cnSpendAnalyticsSource`
-// provide() + the news `itemsEndpoint` prop).
+// forms, the data-driven people/news/spend-analytics renderers (bridged via
+// WidgetRenderer's `cnPeopleSource`/`cnSpendAnalyticsSource` provide() + the
+// news `itemsEndpoint` prop), AND calendar (CnCalendarWidget gained month/week
+// views; bridged via `cnCalendarSource`).
 // Still local — genuine blockers needing nc-vue feature work before migrating
 // without regression (see docs/migration/widget-library-to-ncvue.md):
-//   - calendar      → CnCalendarWidget lacks month/week views (regression)
 //   - link-button   → internal-action registry + create-file modal is host-side
 //   - nc-widget     → native OCA.Dashboard bridge / mount path
 //   - files         → upload/delete + endpoint contract to verify
@@ -110,6 +110,7 @@ import {
 	CnPeopleWidget as PeopleWidget,
 	CnNewsWidget as NewsWidget,
 	CnSpendAnalyticsWidget as SpendAnalyticsWidget,
+	CnCalendarWidget as CalendarWidget,
 	CnLabelWidgetForm as LabelForm,
 	CnTextWidgetForm as TextDisplayForm,
 	CnImageWidgetForm as ImageForm,
@@ -132,7 +133,6 @@ import {
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.vue'
 import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
-import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
 

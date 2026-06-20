@@ -41,6 +41,7 @@ export const CnTextWidget = stub('CnTextWidget')
 export const CnImageWidget = stub('CnImageWidget')
 export const CnLinkButtonWidget = stub('CnLinkButtonWidget')
 export const CnFilesWidget = stub('CnFilesWidget')
+export const CnNcWidgetWidget = stub('CnNcWidgetWidget')
 export const CnHeaderWidget = stub('CnHeaderWidget')
 export const CnDividerWidget = stub('CnDividerWidget')
 export const CnVideoWidget = stub('CnVideoWidget')
@@ -139,6 +140,7 @@ export default {
 	CnMenuWidget,
 	CnLinkButtonWidget,
 	CnFilesWidget,
+	CnNcWidgetWidget,
 	CnPeopleWidget,
 	CnNewsWidget,
 	CnSpendAnalyticsWidget,

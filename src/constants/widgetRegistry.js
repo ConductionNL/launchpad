@@ -93,10 +93,11 @@
 // `link` rendering uses CnLinkButtonWidget via the thin LinkButtonHost wrapper
 // (host keeps the internal-action registry + create-file modal).
 // `files` uses CnFilesWidget pointed at launchpad's backend via its `apiBase`
-// prop (set in WidgetRenderer.rendererProps).
+// prop (set in WidgetRenderer.rendererProps). `nc-widget` uses CnNcWidgetWidget
+// (native OCA.Dashboard fast-path + core OCS items API — no launchpad proxy;
+// live-verified against the dashboard's NC widgets).
 // Still local — genuine blockers needing nc-vue feature work before migrating
 // without regression (see docs/migration/widget-library-to-ncvue.md):
-//   - nc-widget     → native OCA.Dashboard bridge / mount path
 //   - container     → nc-vue dispatches children via its own (different-shape) registry
 //   - tile          → rendered via the separate tile placement path
 import {
@@ -114,6 +115,7 @@ import {
 	CnSpendAnalyticsWidget as SpendAnalyticsWidget,
 	CnCalendarWidget as CalendarWidget,
 	CnFilesWidget as FilesWidget,
+	CnNcWidgetWidget as NcDashboardWidget,
 	CnLabelWidgetForm as LabelForm,
 	CnTextWidgetForm as TextDisplayForm,
 	CnImageWidgetForm as ImageForm,
@@ -137,7 +139,6 @@ import {
 // thin launchpad wrapper that supplies the host-side internal-action registry
 // dispatch + the create-file modal (see the file for details).
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
-import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
 

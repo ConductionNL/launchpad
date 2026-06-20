@@ -413,13 +413,14 @@ class RecordingEvent implements IEvent
     /**
      * Store the object identity tuple.
      *
-     * @param string  $objectType The object type identifier.
-     * @param integer $objectId   The numeric primary key.
-     * @param string  $objectName The human-readable name slot.
+     * @param string         $objectType The object type identifier.
+     * @param string|integer $objectId   The primary key (NC34 IEvent widened
+     *                                   this to string|int).
+     * @param string         $objectName The human-readable name slot.
      *
      * @return self
      */
-    public function setObject(string $objectType, int $objectId, string $objectName=''): self
+    public function setObject(string $objectType, string|int $objectId, string $objectName=''): self
     {
         $this->objectType = $objectType;
         $this->objectId   = $objectId;

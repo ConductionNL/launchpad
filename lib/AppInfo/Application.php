@@ -23,7 +23,6 @@ use OCA\LaunchPad\BackgroundJob\PurgeViewsJob;
 use OCA\LaunchPad\BackgroundJob\SaltRotationJob;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Job\FeedRefreshJob;
-use OCA\LaunchPad\Listener\CommentsListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
@@ -133,10 +132,6 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: DashboardDeletedEvent::class,
             listener: WidgetPlacementsListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: CommentsListener::class
         );
         $context->registerEventListener(
             event: DashboardDeletedEvent::class,

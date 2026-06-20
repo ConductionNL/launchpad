@@ -408,17 +408,6 @@ export const api = {
 		return axios.get(`${baseUrl}/api/templates/gallery`, { params })
 	},
 
-	// Save a personal dashboard as an admin template (REQ-TMPL-015).
-	// Body: `{name, description?, category?, previewImage?}`. Owner-only;
-	// 403 envelope when caller does not own the source dashboard.
-	/** @spec openspec/specs/dashboards/spec.md */
-	saveDashboardAsTemplate(dashboardUuid, metadata = {}) {
-		return axios.post(
-			`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/save-as-template`,
-			metadata,
-		)
-	},
-
 	// Upload an admin template preview image (REQ-TMPL-017). Admin-only.
 	// Body: `{base64: 'data:image/<type>;base64,<bytes>'}`. Reuses the
 	// resource-uploads pipeline so the same MIME / size validation applies.
@@ -536,29 +525,6 @@ export const api = {
 		})
 	},
 
-	// Dashboard comments (REQ-CMNT-001..009). Threaded comments backed by
-	// Nextcloud's ICommentsManager. The `enabled` field on the GET
-	// response carries the effective per-dashboard / global toggle.
-	/** @spec openspec/specs/dashboards/spec.md */
-	listDashboardComments(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	createDashboardComment(uuid, payload) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`, payload)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateDashboardComment(uuid, id, payload) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`, payload)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	deleteDashboardComment(uuid, id) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`)
-	},
-
 	// Dashboard metadata-fields admin CRUD (REQ-MDFL-001..003).
 	getMetadataFields() {
 		return axios.get(`${baseUrl}/api/admin/metadata-fields`)
@@ -592,24 +558,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	updateDashboardMetadata(uuid, metadata) {
 		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`, { metadata })
-	},
-
-	// REQ-FEED-001..003 — per-user RSS / Atom feed-token management.
-	// `getFeedToken` issues-or-returns the existing token; `regenerate`
-	// atomically rotates; `revoke` soft-revokes (idempotent — 204 even
-	// when no token exists).
-	getFeedToken() {
-		return axios.get(`${baseUrl}/api/feed/token`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	regenerateFeedToken() {
-		return axios.post(`${baseUrl}/api/feed/token/regenerate`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	revokeFeedToken() {
-		return axios.delete(`${baseUrl}/api/feed/token`)
 	},
 
 	// Org-wide navigation editor (REQ-ONAV-001..012). The GET endpoint

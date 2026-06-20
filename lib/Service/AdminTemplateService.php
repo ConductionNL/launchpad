@@ -31,12 +31,10 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use DateTimeImmutable;
 use Exception;
-use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\InvalidDataUrlException;
 use OCA\LaunchPad\Exception\InvalidImageFormatException;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -45,7 +43,6 @@ use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use RuntimeException;
-use Throwable;
 
 /**
  * Service for admin template CRUD operations and primary-group routing.
@@ -523,112 +520,6 @@ class AdminTemplateService
 
         return $result;
     }//end getGallery()
-
-    /**
-     * Save an existing personal dashboard as a new admin template
-     * (REQ-TMPL-015).
-     *
-     * Owner-only deep-copy: validates that `$dashboardUuid` belongs to
-     * `$userId` and is a `type = 'user'` row, then creates a new
-     * `type = 'admin_template'` row with a fresh UUID, inherited
-     * `gridColumns`, the supplied `{name, description, category,
-     * previewImage}` metadata, `userId = null`, `isActive = 0`,
-     * `isDefault = 0`, and `basedOnTemplate = null` (templates do NOT
-     * chain — REQ-TMPL-015 D3). All widget placements are byte-for-byte
-     * cloned via {@see WidgetPlacementMapper::cloneToDashboard()} inside
-     * a single transaction.
-     *
-     * @param string $userId        The acting user (must own the source).
-     * @param string $dashboardUuid The source personal dashboard UUID.
-     * @param array  $metadata      Required: `name`. Optional:
-     *                              `description`, `category`,
-     *                              `previewImage`.
-     *
-     * @return Dashboard The newly created admin template.
-     *
-     * @throws ForbiddenException    When the source is not owned by
-     *                               `$userId` or is not a `user` row.
-     * @throws DoesNotExistException When the source UUID does not exist
-     *                               at all (caller still maps to 403 to
-     *                               avoid leaking existence).
-     * @throws Throwable             On any DB error — the transaction is
-     *                               rolled back before rethrowing.
-     *
-     * @spec openspec/specs/admin-templates/spec.md
-     */
-    public function saveAsTemplate(
-        string $userId,
-        string $dashboardUuid,
-        array $metadata
-    ): Dashboard {
-        $name = trim((string) ($metadata['name'] ?? ''));
-        if ($name === '') {
-            throw new InvalidArgumentException(
-                message: 'Template name is required'
-            );
-        }
-
-        $source = $this->dashboardMapper->findOwnedByUserAndUuid(
-            userId: $userId,
-            uuid: $dashboardUuid
-        );
-        if ($source === null) {
-            throw new ForbiddenException(
-                message: 'You can only save your own dashboards as templates'
-            );
-        }
-
-        $now      = (new DateTime())->format(format: 'Y-m-d H:i:s');
-        $template = new Dashboard();
-        $template->setUuid($this->generateUuid());
-        $template->setName($name);
-        $template->setDescription($metadata['description'] ?? null);
-        $template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
-        $template->setUserId(null);
-        $template->setGridColumns((int) $source->getGridColumns());
-        $template->setPermissionLevel(Dashboard::PERMISSION_ADD_ONLY);
-        $template->setTargetGroupsArray([]);
-        $template->setIsDefault(0);
-        $template->setIsActive(0);
-        $template->setBasedOnTemplate(null);
-        $template->setTemplateCategory(
-            $this->normaliseStringMeta(value: $metadata['category'] ?? null)
-        );
-        $template->setTemplateDescription(
-            $this->normaliseStringMeta(value: $metadata['description'] ?? null)
-        );
-        $template->setTemplatePreviewImage(
-            $this->normaliseStringMeta(value: $metadata['previewImage'] ?? null)
-        );
-        $template->setCreatedAt($now);
-        $template->setUpdatedAt($now);
-
-        $useTransaction = ($this->db !== null);
-        if ($useTransaction === true) {
-            $this->db->beginTransaction();
-        }
-
-        try {
-            $persisted = $this->dashboardMapper->insert(entity: $template);
-
-            $this->placementMapper->cloneToDashboard(
-                sourceDashboardId: (int) $source->getId(),
-                targetDashboardId: (int) $persisted->getId()
-            );
-
-            if ($useTransaction === true) {
-                $this->db->commit();
-            }
-
-            return $persisted;
-        } catch (Throwable $t) {
-            if ($useTransaction === true) {
-                $this->db->rollBack();
-            }
-
-            throw $t;
-        }
-    }//end saveAsTemplate()
 
     /**
      * Upload a preview image for an admin template (REQ-TMPL-017).

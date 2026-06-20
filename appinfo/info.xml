@@ -46,7 +46,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.8</version>
+	<version>1.0.5-unstable.9</version>
 	<licence>agpl</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -111,7 +111,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\LaunchPad\Command\DashboardShowCommand</command>
 		<command>OCA\LaunchPad\Command\DashboardDeleteCommand</command>
 		<command>OCA\LaunchPad\Command\DashboardDebugShareCommand</command>
-		<command>OCA\LaunchPad\Command\UserRevokeFeedTokenCommand</command>
 		<command>OCA\LaunchPad\Command\I18nExportStringsCommand</command>
 		<command>OCA\LaunchPad\Command\I18nMigrateLanguageStructureCommand</command>
 		<command>OCA\LaunchPad\Command\I18nCopyNavigationCommand</command>

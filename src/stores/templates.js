@@ -79,44 +79,6 @@ export const useTemplatesStore = defineStore('templates', {
 		},
 
 		/**
-		 * Save a personal dashboard as a new admin template
-		 * (REQ-TMPL-015). Refreshes the gallery on success so the new
-		 * entry shows up without an extra round-trip from the caller.
-		 *
-		 * @param {string} dashboardUuid Source dashboard UUID.
-		 * @param {object} metadata `{name, description?, category?,
-		 *                           previewImage?}`.
-		 * @return {Promise<object>} The newly created template entity.
-		 */
-		/** @spec openspec/specs/admin-templates/spec.md */
-		async saveAsTemplate(dashboardUuid, metadata) {
-			this.saving = true
-			try {
-				const { data } = await api.saveDashboardAsTemplate(
-					dashboardUuid,
-					metadata,
-				)
-				// Best-effort gallery refresh — the new template MUST
-				// appear in the gallery per REQ-TMPL-015 acceptance.
-				await this.fetchGallery({
-					category: this.selectedCategory,
-					sort: this.sortBy,
-				})
-				return data?.template ?? null
-			} catch (err) {
-				const errCode = err?.response?.data?.error
-				if (errCode === 'forbidden') {
-					showError(t('launchpad', 'You can only save your own dashboards as templates'))
-				} else {
-					showError(t('launchpad', 'Could not save dashboard as template'))
-				}
-				throw err
-			} finally {
-				this.saving = false
-			}
-		},
-
-		/**
 		 * Admin-only preview image upload (REQ-TMPL-017). Accepts a
 		 * base64 data URL — caller is responsible for reading the file
 		 * via `FileReader` first.

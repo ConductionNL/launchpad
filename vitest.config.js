@@ -53,6 +53,10 @@ module.exports = {
 	test: {
 		environment: 'jsdom',
 		globals: false,
+		// Some specs mount the full Views / CnWidgetWrapper widget tree, which
+		// is heavy enough to occasionally exceed the 5s default under parallel
+		// load. Raise the global ceiling so those don't flake.
+		testTimeout: 20000,
 		include: ['src/**/__tests__/**/*.spec.{js,ts}'],
 		setupFiles: [path.resolve(__dirname, 'tests/vitest/setup.js')],
 		server: {

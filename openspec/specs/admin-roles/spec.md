@@ -1,6 +1,6 @@
 ---
 capability: admin-roles
-status: implemented
+status: done
 ---
 
 # Admin Roles Specification

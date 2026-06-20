@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-enterprise-security-access
 
 **Status:** proposed

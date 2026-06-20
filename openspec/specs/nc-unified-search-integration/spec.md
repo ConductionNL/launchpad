@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Nextcloud Unified Search Integration Specification

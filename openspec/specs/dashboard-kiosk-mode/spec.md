@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # dashboard-kiosk-mode Specification
 
 ## Purpose
-TBD - created by archiving change dashboard-kiosk-mode. Update Purpose after archive.
+Turns LaunchPad dashboards into unattended signage by rendering them chrome-less and full-viewport via a `kiosk=1` flag or a public playlist token. Users can build named playlists that rotate through multiple dashboards with per-entry dwell times, while kiosk surfaces refresh widget data in place and degrade gracefully on failure with skip-and-retry, last-known-content retention, neutral placeholders, and a watchdog to recover from stalls.
 ## Requirements
 ### Requirement: REQ-KIOSK-001 Chrome-less Kiosk Render Flag
 

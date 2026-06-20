@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # People Widget Specification

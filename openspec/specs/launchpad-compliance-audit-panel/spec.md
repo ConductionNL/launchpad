@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-compliance-audit-panel
 
 **Status:** proposed

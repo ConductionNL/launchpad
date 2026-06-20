@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # nc-dashboard-widget-proxy Specification
 
 ## Purpose

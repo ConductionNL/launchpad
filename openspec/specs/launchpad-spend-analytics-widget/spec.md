@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-spend-analytics-widget
 
 **Status:** proposed

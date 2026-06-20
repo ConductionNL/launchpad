@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 retrofit_extensions:
   - REQ-WDG-024
   - REQ-WDG-025

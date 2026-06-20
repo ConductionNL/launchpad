@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 or-policy: reviewed-2026-06-01
 ---
 

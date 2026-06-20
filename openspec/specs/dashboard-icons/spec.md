@@ -1,6 +1,6 @@
 ---
 capability: dashboard-icons
-status: implemented
+status: done
 ---
 
 # Dashboard Icons Specification

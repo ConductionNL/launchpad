@@ -219,24 +219,24 @@ Menu, Container, Video, and `TileForm → CnDashTileWidgetForm` (rename).
    `WidgetRenderer`'s `provide()` (`cnPeopleSource`, `cnSpendAnalyticsSource`) +
    the news `itemsEndpoint` prop (commit `b67cd6a9`).
 
-## Migration progress — 15 of 18 renderers + all 18 forms done
+## Migration progress — 16 of 18 renderers + all 18 forms done
 
 Resolved since the audit (committed on the two feature branches):
 - **calendar** — added month/week views to `CnCalendarWidget` (nc-vue) + wired `cnCalendarSource`.
 - **files** — added a configurable `apiBase` prop to `CnFilesWidget` (nc-vue) + pointed it at `/apps/mydash`.
-- **link** — `LinkButtonHost` wrapper renders `CnLinkButtonWidget` and keeps the internal-action registry + create-file modal host-side.
+- **link** — `LinkButtonHost` wrapper renders `CnLinkButtonWidget`, keeps the internal-action registry + create-file modal host-side.
 - **people / news / spend-analytics** — `cnPeopleSource`/`cnSpendAnalyticsSource` provide() + news `itemsEndpoint`.
+- **nc-widget** — `CnNcWidgetWidget` (native OCA.Dashboard fast-path + core OCS items API, no launchpad proxy). **Live-verified**: all 6 NC widgets on the dashboard render with 0 console errors.
 
-## Renderers still local — 3 remaining, hard architectural blockers
+## Renderers still local — 2 remaining, blockers verified by code inspection
 
-| renderer | blocker | what's needed |
+| renderer | blocker (confirmed) | what's needed |
 |---|---|---|
-| `nc-widget` | launchpad uses a native `OCA.Dashboard` mount bridge (`widgetBridge`) for widgets that render only via callback (no items API); `CnNcWidgetWidget` uses the OCS items API — native-only widgets would break | reconcile the native-mount bridge into `CnNcWidgetWidget` (or accept API-only) + verify against the live NC widgets (6 on the test dashboard) — high regression risk, needs a watched session |
-| `container` | `CnContainerChild` dispatches nested children via nc-vue's **own** `dashboardWidgetRegistry` (component/props shape), which differs from launchpad's registry (renderer/form/defaultContent); nested data widgets also wouldn't receive the `cn*Source` adapters that `WidgetRenderer` provide()s per top-level widget | a registry-bridge in nc-vue (injectable child registry) + a way to flow the data-source adapters into nested children |
-| `tile` | rendered via the separate tile-placement path in `DashboardGrid` (legacy `oc_launchpad_tiles` schema), not the registry renderer slot; it's the most visible UI (the app-tile row) | reconcile the tile placement path + schema with `CnDashTileWidget` — verify carefully (high-visibility) |
+| `container` | `CnContainerChild.vue` hard-imports `getWidgetTypeEntry` from nc-vue's **own** `CnWidgetGrid/dashboardWidgetRegistry.js` — nested launchpad widget types can't resolve there; and nested data widgets wouldn't get the per-placement `cn*Source` adapters that `WidgetRenderer` provide()s (calendar/news/files need each child's own `placement.id`) | nc-vue: make `CnContainerChild`'s registry injectable; launchpad: provide its registry + flow per-child data adapters into nested placements |
+| `tile` | the app-tile-row renderer (`src/components/TileWidget.vue`) injects a runtime `<style>` to override **nldesign's** aggressive CSS (`color … !important`) + uses several `!important` tile-colour rules + icon brightness/invert filters — theming workarounds `CnTileWidget`/`CnDashTileWidget` don't carry; it's also dual-path (DashboardGrid direct render + registry) and the most visible UI | port the nldesign theming workarounds into `CnTileWidget` (or a host wrapper) + reconcile the dual path/schema; verify the app-tile row under nldesign |
 
-These three need nc-vue architectural changes + careful live verification of
-heavily-used features, so they're a watched follow-up, not an unattended migration.
+Both need an nc-vue change (injectable container registry / tile theming) plus
+careful verification of heavily-used surfaces, so they're a watched follow-up.
 
 ## Release handoff (CI/review — not doable from a dev shell)
 

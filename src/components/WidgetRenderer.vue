@@ -230,6 +230,10 @@ export default {
 					),
 				}
 			}
+			if (this.placement?.widgetId === 'files') {
+				// Point CnFilesWidget at launchpad's own files-widget endpoints.
+				return { apiBase: '/apps/mydash' }
+			}
 			return {}
 		},
 

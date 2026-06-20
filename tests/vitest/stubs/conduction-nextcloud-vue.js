@@ -40,6 +40,7 @@ export const CnLabelWidget = { name: 'CnLabelWidget', render: (h) => h('div', { 
 export const CnTextWidget = stub('CnTextWidget')
 export const CnImageWidget = stub('CnImageWidget')
 export const CnLinkButtonWidget = stub('CnLinkButtonWidget')
+export const CnFilesWidget = stub('CnFilesWidget')
 export const CnHeaderWidget = stub('CnHeaderWidget')
 export const CnDividerWidget = stub('CnDividerWidget')
 export const CnVideoWidget = stub('CnVideoWidget')
@@ -137,6 +138,7 @@ export default {
 	CnLinksWidget,
 	CnMenuWidget,
 	CnLinkButtonWidget,
+	CnFilesWidget,
 	CnPeopleWidget,
 	CnNewsWidget,
 	CnSpendAnalyticsWidget,

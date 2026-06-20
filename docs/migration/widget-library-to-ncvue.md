@@ -214,8 +214,24 @@ Menu, Container, Video, and `TileForm → CnDashTileWidgetForm` (rename).
 2. **Bump + merge launchpad**: set launchpad's `@conduction/nextcloud-vue` dep to
    that beta, then merge `feat/widget-library-consumption` to `development`. (Its CI
    build fails until the dep is bumped — that's expected; do not merge before the publish.)
-3. **Data-widget adapter slice** (kept local for now, no regression): migrate the
-   remaining renderers (news, files, people, spend-analytics, nc-widget) by wiring
-   their nc-vue `dataSource` / `cn*Source` / `*Endpoint` to launchpad's endpoints;
-   enhance `CnCalendarWidget` with month/week views before migrating `calendar`;
-   decide LinkButton internal-action handling (events vs registry) before migrating `link`.
+3. **Data-widget adapter slice** — DONE for the cleanly-adaptable renderers:
+   **people / news / spend-analytics** now use nc-vue components, bridged via
+   `WidgetRenderer`'s `provide()` (`cnPeopleSource`, `cnSpendAnalyticsSource`) +
+   the news `itemsEndpoint` prop (commit `b67cd6a9`).
+
+## Renderers still local — confirmed hard blockers (need upstream work)
+
+These are NOT mechanical adapter migrations; each needs an nc-vue feature or a
+launchpad backend change before it can move without a regression:
+
+| renderer | blocker | what's needed upstream |
+|---|---|---|
+| `calendar` | `CnCalendarWidget` supports only agenda/upcoming — migrating drops the month/week grid views (feature regression) | add month/week views to `CnCalendarWidget`, then wire `cnCalendarSource` (adapter already designed) |
+| `container` | `CnContainerChild` dispatches nested children via **nc-vue's own** `dashboardWidgetRegistry`, not launchpad's — nested launchpad widgets wouldn't resolve; also no max-depth guard | register launchpad's widget types into nc-vue's dashboard registry (or make the child registry injectable) + add the REQ-CONT depth guard |
+| `files` | `CnFilesWidget` calls `/apps/files/api/widgets/files/{id}/...`; launchpad serves `/apps/mydash/api/widgets/files/{id}/...` (404 mismatch) + upload/delete flows | make the endpoint configurable (prop/inject) or align the backend route |
+| `nc-widget` | launchpad uses a native `OCA.Dashboard` mount bridge (`widgetBridge`); `CnNcWidgetWidget` uses the OCS API path — risk to live NC widgets | reconcile the native-mount bridge in `CnNcWidgetWidget` (or accept API-only) + verify against live NC widgets |
+| `link` | internal-action **registry + create-file modal** is launchpad-host logic; `CnLinkButtonWidget` only emits `internal-action`/`create-file` events | wire those events in launchpad's host (WidgetRenderer) to the existing `useInternalActions` + modal |
+| `tile` | rendered via the separate tile-placement path (legacy `oc_launchpad_tiles` schema), not the registry renderer slot | reconcile the tile placement path with `CnDashTileWidget` |
+
+These constitute the genuine next slice (upstream nc-vue features + a backend
+route) and should be done in a watched session with live data per widget.

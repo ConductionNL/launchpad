@@ -141,3 +141,47 @@ Do **not** big-bang this. Each slice is independently shippable.
 Roughly: 1 day reconcile/parity + write 4 forms, ~1 day docs (×36) + tests +
 baselines, publish/verify cycle, then ~0.5 day launchpad rewire + delete + verify.
 Realistically a multi-session program gated on an nc-vue release.
+
+---
+
+## Slice 1 — Parity audit (DONE)
+
+Key finding: **nc-vue's widgets were deliberately refactored to be app-agnostic** —
+data comes from `dataSource` props or `cn*Source` injections / `*Endpoint`
+builders, NOT hardcoded `/apps/mydash/...` calls. So the port is "drop-in reuse"
+only for the static/presentational widgets; the data-driven ones need launchpad
+to wire an adapter that points the nc-vue component at launchpad's existing
+endpoints. Nothing here blocks the migration, but it changes the work from
+"delete + import" to "delete + import + wire data source" for ~6 widgets.
+
+### Drop-in reuse (identical except i18n domain / icon-wrapper)
+Renderers: `CnLabelWidget`, `CnTextWidget`, `CnImageWidget`, `CnHeaderWidget`,
+`CnDividerWidget`, `CnVideoWidget`, `CnQuicklinksWidget`, `CnLinksWidget`,
+`CnMenuWidget`. Forms: Label, Text, Image, Header, Divider, Quicklinks, Links,
+Menu, Container, Video, and `TileForm → CnDashTileWidgetForm` (rename).
+
+### Reuse + wire a data adapter (launchpad supplies the source)
+| widget | nc-vue hook | launchpad endpoint to wire |
+|---|---|---|
+| PeopleWidget → CnPeopleWidget | `cnPeopleSource` inject / `dataSource` | `/apps/mydash/api/people` |
+| CalendarWidget → CnCalendarWidget | `cnCalendarSource` inject | `/api/widgets/calendar/events` ⚠ **view-mode regression: nc-vue is agenda/upcoming only — month/week grid views are missing** |
+| SpendAnalyticsWidget → CnSpendAnalyticsWidget | `cnSpendSource` inject | `/api/widgets/spend-analytics/...` |
+| NewsWidget → CnNewsWidget | `itemsEndpoint` prop | `/api/widgets/news/{id}/items` |
+| FilesWidget → CnFilesWidget | folder-picker/list endpoint | path moves `/apps/mydash/...` → `/apps/files/...` (verify) |
+| NcDashboardWidget → CnNcWidgetWidget | `widgetId` + `itemsEndpoint` | NC Dashboard API bridge route |
+
+### Needs an nc-vue enhancement before parity
+- **CnCalendarWidget**: add month/week grid views (or accept the regression).
+- **CnContainerWidget**: enforce REQ-CONT max nesting depth (=3) — launchpad guards it, nc-vue doesn't.
+- **CnLinkButtonWidget**: internal-action **registry + create-file modal** is launchpad-specific; nc-vue emits `internal-action`/`create-file` events instead → launchpad keeps that handler host-side.
+
+### Port from launchpad (no nc-vue counterpart yet) → add as `Cn*WidgetForm`
+- `PeopleForm` → `CnPeopleWidgetForm` (props: layout, filters, excludeDisabled, showBirthdays, birthdayWindowDays, sortBy, columns)
+- `CalendarForm` → `CnCalendarWidgetForm` (viewMode, daysAhead, eventSources, excludeNcalendars)
+- `SpendAnalyticsForm` → `CnSpendAnalyticsWidgetForm` (viewMode, defaultPeriod, colorByVendor)
+- `NcDashboardForm` → `CnNcDashboardWidgetForm` (widgetId, itemLimit, displayMode)
+
+### Recommended next slices
+2. nc-vue: enhancements (Calendar views, Container depth) + the 4 forms, each with barrel export + doc + test.
+3. nc-vue: wire the static drop-ins into the barrel + docs; publish a beta.
+4. launchpad: add the data-source adapters (people/calendar/spend/news/files/nc), rewire `widgetRegistry.js`, delete local copies, verify.

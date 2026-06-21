@@ -193,12 +193,14 @@
 			@set-default="onModalSetDefault" />
 
 		<!-- Style editor modal -->
-		<WidgetStyleEditor
+		<CnWidgetStyleEditorModal
 			v-if="editingPlacement"
-			:placement="editingPlacement"
-			:open="isStyleEditorOpen"
+			:show="isStyleEditorOpen"
+			:widget="styleEditorWidget"
+			:deletable="!editingPlacement.isCompulsory"
+			:extra-icon-options="nlDesignIconOptions"
 			@close="closeStyleEditor"
-			@update="updateWidgetStyle"
+			@save="onStyleSaved"
 			@delete="deleteWidget" />
 
 		<!-- Tile editor modal -->
@@ -238,7 +240,7 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 
@@ -251,7 +253,6 @@ import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import TileWidget from '../components/TileWidget.vue'
 import WidgetPickerModal from '../components/WidgetPickerModal.vue'
-import WidgetStyleEditor from '../components/WidgetStyleEditor.vue'
 import TileEditor from '../components/TileEditor.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
 import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
@@ -284,7 +285,7 @@ export default {
 		WidgetWrapper,
 		TileWidget,
 		WidgetPickerModal,
-		WidgetStyleEditor,
+		CnWidgetStyleEditorModal,
 		TileEditor,
 		DashboardConfigModal,
 		AddWidgetModal,
@@ -338,7 +339,7 @@ export default {
 		// `selectedWidget` from the popover may live in either of two
 		// edit paths. The host-side callbacks resolve which one to use
 		// (custom-type widgets → AddWidgetModal; nextcloud-widget tiles →
-		// WidgetStyleEditor) and the placement-delete path is the same
+		// CnWidgetStyleEditorModal) and the placement-delete path is the same
 		// `removeWidgetFromDashboard` action used by the existing remove
 		// flow. The host wires these via methods after instantiation so
 		// `this` is bound to the component when the callbacks fire.
@@ -372,6 +373,10 @@ export default {
 			configModalInitialTab: 'general',
 			isStyleEditorOpen: false,
 			editingPlacement: null,
+			// Deep clone of editingPlacement handed to CnWidgetStyleEditorModal,
+			// which mutates its `widget` prop in place on Save. Editing the clone
+			// keeps the live store placement untouched until the patch persists.
+			styleEditorWidget: null,
 			isTileEditorOpen: false,
 			editingTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
@@ -413,6 +418,22 @@ export default {
 		 */
 		dashboardColumnOpts() {
 			return getDashboardColumnOpts()
+		},
+
+		/**
+		 * NL Design icon pack offered in the widget style editor, passed to
+		 * CnWidgetStyleEditorModal's `extraIconOptions`. App-specific (served
+		 * from the nldesign app), so it stays here rather than in the library.
+		 *
+		 * @return {Array<{id: string, label: string, icon: string}>} icon options.
+		 */
+		nlDesignIconOptions() {
+			const names = ['Airplane', 'Bell', 'Bike', 'Building', 'Bus', 'Cake', 'Calendar', 'Camera', 'Car', 'Certificate', 'Clock', 'Cogwheel', 'Document', 'Earth', 'Euro', 'Flower', 'Folder', 'Heart', 'House', 'Image', 'LightBulb', 'Lightning', 'Mail', 'Map', 'Megaphone', 'Monument', 'Park', 'Parking', 'Person', 'Phone', 'Search', 'Star', 'Tree', 'Wallet']
+			return names.map(name => ({
+				id: `nl-${name.toLowerCase()}`,
+				label: name,
+				icon: `${window.location.origin}/apps/nldesign/img/icons/${name}.svg`,
+			}))
 		},
 
 		...mapState(useDashboardStore, [
@@ -1011,16 +1032,37 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		openStyleEditor(placement) {
 			this.editingPlacement = placement
+			// Hand the modal a deep clone — it mutates `widget` in place on Save;
+			// the live store placement only changes once the patch persists.
+			this.styleEditorWidget = JSON.parse(JSON.stringify(placement))
 			this.isStyleEditorOpen = true
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeStyleEditor() {
 			this.isStyleEditorOpen = false
 			this.editingPlacement = null
+			this.styleEditorWidget = null
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
-		async updateWidgetStyle(placementId, updates) {
-			await this.updateWidgetPlacement(placementId, updates)
+		/**
+		 * Bridge CnWidgetStyleEditorModal's mutate-in-place `@save(widget)` to
+		 * launchpad's immutable store path: derive the chrome+style patch from
+		 * the (mutated) clone and persist it against the placement id.
+		 *
+		 * @param {object} widget The clone the modal mutated on Save.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onStyleSaved(widget) {
+			const id = this.editingPlacement?.id
+			if (!id) {
+				return
+			}
+			await this.updateWidgetPlacement(id, {
+				showTitle: widget.showTitle,
+				customTitle: widget.customTitle,
+				customIcon: widget.customIcon,
+				styleConfig: widget.styleConfig,
+			})
 			this.closeStyleEditor()
 		},
 		/** @spec openspec/specs/dashboards/spec.md */

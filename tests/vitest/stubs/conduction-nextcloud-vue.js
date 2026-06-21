@@ -31,6 +31,7 @@ export const NcCheckboxRadioSwitch = stub('NcCheckboxRadioSwitch')
 export const NcLoadingIcon = stub('NcLoadingIcon')
 export const CnWidgetWrapper = stub('CnWidgetWrapper')
 export const CnWidgetEditCog = stub('CnWidgetEditCog')
+export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
 export const CnDashboardIcon = stub('CnDashboardIcon')
@@ -141,6 +142,7 @@ export default {
 	NcLoadingIcon,
 	CnWidgetWrapper,
 	CnWidgetEditCog,
+	CnWidgetStyleEditorModal,
 	CnDashboardGrid,
 	CnIconPicker,
 	CnDashboardIcon,

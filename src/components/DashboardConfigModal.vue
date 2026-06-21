@@ -79,8 +79,9 @@
 				<label class="dashboard-config__label" for="dashboard-config-icon">
 					{{ t('launchpad', 'Icon') }}
 				</label>
-				<IconPicker
+				<CnIconPicker
 					:value="form.icon"
+					:upload-fn="iconUploadFn"
 					@input="form.icon = $event" />
 			</div>
 			</div>
@@ -232,8 +233,8 @@ import Tune from 'vue-material-design-icons/Tune.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 
-import IconPicker from './Dashboard/IconPicker.vue'
-import { DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '../constants/dashboardIcons.js'
+import { CnIconPicker, DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '@conduction/nextcloud-vue'
+import { uploadDataUrl } from '../services/resourceService.js'
 import { api } from '../services/api.js'
 
 const PERMISSION_OPTIONS = [
@@ -260,7 +261,7 @@ export default {
 		Tune,
 		ShareVariant,
 		StarOutline,
-		IconPicker,
+		CnIconPicker,
 	},
 
 	props: {
@@ -344,6 +345,16 @@ export default {
 	computed: {
 		isCreate() {
 			return this.mode === 'create'
+		},
+		/**
+		 * The icon-upload transport handed to CnIconPicker. Exposed on the
+		 * instance (computed) so the template can reference the module-imported
+		 * `uploadDataUrl` — a bare module import isn't visible in template scope.
+		 *
+		 * @return {Function} the data-URL upload function.
+		 */
+		iconUploadFn() {
+			return uploadDataUrl
 		},
 		/**
 		 * Config-drawer tab descriptors (dashboard-sharing spec). The

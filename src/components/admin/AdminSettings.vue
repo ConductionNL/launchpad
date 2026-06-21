@@ -142,7 +142,7 @@
 							:key="dash.uuid"
 							class="mydash-admin__template">
 							<div class="mydash-admin__template-info">
-								<IconRenderer :name="dash.icon" :size="20" />
+								<CnDashboardIcon :name="dash.icon" :size="20" />
 								<strong>{{ dash.name }}</strong>
 								<span
 									v-if="dash.isDefault === 1"
@@ -225,8 +225,8 @@ import {
 	NcSelect,
 	NcCheckboxRadioSwitch,
 	NcTextField,
+	CnDashboardIcon,
 } from '@conduction/nextcloud-vue'
-import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
@@ -248,7 +248,7 @@ export default {
 		NcSelect,
 		NcCheckboxRadioSwitch,
 		NcTextField,
-		IconRenderer,
+		CnDashboardIcon,
 		SetupWizardModal,
 		BeheerTabs,
 		TemplatesPage,

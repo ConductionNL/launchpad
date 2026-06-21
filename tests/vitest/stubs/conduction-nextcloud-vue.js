@@ -32,8 +32,14 @@ export const NcLoadingIcon = stub('NcLoadingIcon')
 export const CnWidgetWrapper = stub('CnWidgetWrapper')
 export const CnWidgetEditCog = stub('CnWidgetEditCog')
 export const CnDashboardGrid = stub('CnDashboardGrid')
+export const CnIconPicker = stub('CnIconPicker')
+export const CnDashboardIcon = stub('CnDashboardIcon')
 export const getDashboardColumnOpts = () => ({ breakpoints: [], layout: 'moveScale', breakpointForWindow: true })
 export const placeNewWidget = () => ({ x: 0, y: 0, w: 4, h: 4, pushed: [] })
+export const DASHBOARD_ICONS = { ViewDashboard: {}, Star: {} }
+export const DEFAULT_ICON = 'ViewDashboard'
+export const getIconComponent = () => ({})
+export const isCustomIconUrl = (n) => typeof n === 'string' && (n.startsWith('/') || n.startsWith('http'))
 
 // Dashboard widget library (v2) — renderers + config forms now sourced from
 // @conduction/nextcloud-vue and aliased in widgetRegistry.js. Stubbed here so
@@ -136,6 +142,8 @@ export default {
 	CnWidgetWrapper,
 	CnWidgetEditCog,
 	CnDashboardGrid,
+	CnIconPicker,
+	CnDashboardIcon,
 	CnLabelWidget,
 	CnTextWidget,
 	CnImageWidget,

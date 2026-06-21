@@ -213,25 +213,6 @@ class AnalyticsService
     }//end setRetentionDays()
 
     /**
-     * Persist the global enable/disable toggle.
-     *
-     * @param bool $enabled Whether analytics tracking is active
-     *                      instance-wide.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    public function setGlobalEnabled(bool $enabled): void
-    {
-        $this->appConfig->setValueBool(
-            'launchpad',
-            self::CONFIG_KEY_ENABLED,
-            $enabled
-        );
-    }//end setGlobalEnabled()
-
-    /**
      * Record a view event for `$dashboardUuid` by `$userId`
      * (REQ-ANLT-002, REQ-ANLT-003, REQ-ANLT-004, REQ-ANLT-005).
      *

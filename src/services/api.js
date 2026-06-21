@@ -20,17 +20,9 @@ export const api = {
 	},
 
 	// REQ-DASH-014 — group-shared dashboard CRUD.
-	getGroupDashboards(groupId) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
-	},
-
 	/** @spec openspec/specs/dashboards/spec.md */
 	createGroupDashboard(groupId, data) {
 		return axios.post(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`, data)
-	},
-
-	getGroupDashboard(groupId, uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -99,9 +91,7 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboard/${id}`)
 	},
 
-	// Group-shared dashboard CRUD alias (REQ-DASH-014). `listGroupDashboards`
-	// mirrors the `getGroupDashboards` method above for callers that prefer
-	// the verb-prefixed name.
+	// List a group's shared dashboards (REQ-DASH-014).
 	/** @spec openspec/specs/dashboards/spec.md */
 	listGroupDashboards(groupId) {
 		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
@@ -177,15 +167,6 @@ export const api = {
 		)
 	},
 
-	// REQ-ANLT-007: daily breakdown for one dashboard.
-	/** @spec openspec/specs/dashboards/spec.md */
-	getAnalyticsDashboardDetail(uuid, period = '30d') {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/dashboards/${encodeURIComponent(uuid)}`,
-			{ params: { period } },
-		)
-	},
-
 	// REQ-ANLT-008: instance-wide totals + top-5.
 	/** @spec openspec/specs/dashboards/spec.md */
 	getAnalyticsInstanceSummary(period = '30d') {
@@ -237,23 +218,8 @@ export const api = {
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
-	addShare(dashboardId, data) {
-		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/shares`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
 	replaceShares(dashboardId, shares) {
 		return axios.put(`${baseUrl}/api/dashboard/${dashboardId}/shares`, { shares })
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	removeShare(shareId) {
-		return axios.delete(`${baseUrl}/api/dashboard/share/${shareId}`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	revokeAllForRecipient(shareType, shareWith) {
-		return axios.delete(`${baseUrl}/api/sharees/${shareType}/${encodeURIComponent(shareWith)}`)
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -315,11 +281,6 @@ export const api = {
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
-	updateRule(ruleId, data) {
-		return axios.put(`${baseUrl}/api/rules/${ruleId}`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
 	deleteRule(ruleId) {
 		return axios.delete(`${baseUrl}/api/rules/${ruleId}`)
 	},
@@ -351,10 +312,6 @@ export const api = {
 		return axios.post(`${baseUrl}/api/admin/templates`, data)
 	},
 
-	getAdminTemplate(id) {
-		return axios.get(`${baseUrl}/api/admin/templates/${id}`)
-	},
-
 	/** @spec openspec/specs/dashboards/spec.md */
 	updateAdminTemplate(id, data) {
 		return axios.put(`${baseUrl}/api/admin/templates/${id}`, data)
@@ -363,29 +320,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	deleteAdminTemplate(id) {
 		return axios.delete(`${baseUrl}/api/admin/templates/${id}`)
-	},
-
-	// Template gallery (REQ-TMPL-014). Returns
-	// `{status, templates: [{uuid, name, description, category,
-	// previewImage, gridColumns, widgetCount, lastUpdatedAt}]}`.
-	/** @spec openspec/specs/dashboards/spec.md */
-	getTemplateGallery({ category = null, sort = 'name' } = {}) {
-		const params = { sort }
-		if (category) {
-			params.category = category
-		}
-		return axios.get(`${baseUrl}/api/templates/gallery`, { params })
-	},
-
-	// Upload an admin template preview image (REQ-TMPL-017). Admin-only.
-	// Body: `{base64: 'data:image/<type>;base64,<bytes>'}`. Reuses the
-	// resource-uploads pipeline so the same MIME / size validation applies.
-	/** @spec openspec/specs/dashboards/spec.md */
-	uploadTemplatePreviewImage(templateUuid, base64) {
-		return axios.post(
-			`${baseUrl}/api/admin/templates/${encodeURIComponent(templateUuid)}/preview-image`,
-			{ base64 },
-		)
 	},
 
 	getAdminSettings() {
@@ -497,26 +431,6 @@ export const api = {
 	// Dashboard metadata-fields admin CRUD (REQ-MDFL-001..003).
 	getMetadataFields() {
 		return axios.get(`${baseUrl}/api/admin/metadata-fields`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	createMetadataField(field) {
-		return axios.post(`${baseUrl}/api/admin/metadata-fields`, field)
-	},
-
-	getMetadataField(id) {
-		return axios.get(`${baseUrl}/api/admin/metadata-fields/${id}`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateMetadataField(id, patch) {
-		return axios.put(`${baseUrl}/api/admin/metadata-fields/${id}`, patch)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	deleteMetadataField(id, cascade = false) {
-		const query = cascade ? '?cascade=true' : ''
-		return axios.delete(`${baseUrl}/api/admin/metadata-fields/${id}${query}`)
 	},
 
 	// Per-dashboard metadata read/write (REQ-MDFL-004..006, REQ-MDFL-008).
@@ -657,48 +571,4 @@ export const api = {
 		)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
-	getDashboardReactors(uuid, emoji, cursor = null) {
-		const params = cursor !== null && cursor !== '' ? { cursor } : {}
-		return axios.get(
-			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}/users`,
-			{ params },
-		)
-	},
-
-	// Dashboard translation endpoints (REQ-DASH-038..044) — per-language
-	// content variants for dashboards. All endpoints scope by dashboard
-	// UUID and require ownership; the server returns 403 for cross-user
-	// attempts.
-	/** @spec openspec/specs/dashboards/spec.md */
-	listDashboardTranslations(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	createDashboardTranslation(uuid, data) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateDashboardTranslation(uuid, lang, data) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	deleteDashboardTranslation(uuid, lang) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`)
-	},
-
-	setDashboardTranslationPrimary(uuid, lang) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}/set-primary`)
-	},
-
-	// Resolve the dashboard for the viewer's locale; optional `?lang=`
-	// query parameter overrides the user's Nextcloud locale.
-	/** @spec openspec/specs/dashboards/spec.md */
-	getResolvedDashboard(uuid, lang) {
-		const params = (lang !== undefined && lang !== null && lang !== '') ? { params: { lang } } : {}
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/resolved`, params)
-	},
 }

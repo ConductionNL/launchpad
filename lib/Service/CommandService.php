@@ -115,26 +115,6 @@ class CommandService
     }//end envelopeSuccess()
 
     /**
-     * Build a partial-success JSON envelope (REQ-CLI-007).
-     *
-     * @param array<string,mixed>|list<mixed>|null $data   Payload.
-     * @param list<array<string,mixed>>            $errors Per-item errors.
-     *
-     * @return array<string,mixed>
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function envelopePartial(array|null $data, array $errors): array
-    {
-        return [
-            'success'  => false,
-            'exitCode' => self::EXIT_PARTIAL_SUCCESS,
-            'data'     => $data,
-            'errors'   => $errors,
-        ];
-    }//end envelopePartial()
-
-    /**
      * Build an error JSON envelope (REQ-CLI-007).
      *
      * @param int                      $exitCode Command exit code.

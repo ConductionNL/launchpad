@@ -13,7 +13,7 @@
 		}">
 		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
 		     OpenBuild widget chrome used across the dashboard. -->
-		<WidgetEditCog
+		<CnWidgetEditCog
 			v-if="editMode"
 			class="tile-widget__edit"
 			:menu-label="t('launchpad', 'Tile menu')"
@@ -55,13 +55,13 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
-import WidgetEditCog from './WidgetEditCog.vue'
+import { CnWidgetEditCog } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'TileWidget',
 
 	components: {
-		WidgetEditCog,
+		CnWidgetEditCog,
 	},
 
 	emits: ['edit', 'remove'],

@@ -39,26 +39,28 @@
 
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
 		     shown in edit mode. Sits top-right over the wrapper's header area. -->
-		<WidgetEditCog
+		<CnWidgetEditCog
 			v-if="editMode"
 			class="launchpad-widget__cog"
+			:menu-label="t('launchpad', 'Widget menu')"
+			:edit-label="t('launchpad', 'Edit widget')"
+			:delete-label="t('launchpad', 'Delete widget')"
 			@edit="$emit('edit', placement)"
 			@remove="$emit('remove', placement.id)" />
 	</div>
 </template>
 
 <script>
-import { CnWidgetWrapper } from '@conduction/nextcloud-vue'
+import { CnWidgetWrapper, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import WidgetRenderer from './WidgetRenderer.vue'
-import WidgetEditCog from './WidgetEditCog.vue'
 
 export default {
 	name: 'WidgetWrapper',
 
 	components: {
 		CnWidgetWrapper,
+		CnWidgetEditCog,
 		WidgetRenderer,
-		WidgetEditCog,
 	},
 
 	props: {

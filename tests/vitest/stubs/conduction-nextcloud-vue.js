@@ -30,6 +30,10 @@ export const NcDashboardWidget = stub('NcDashboardWidget')
 export const NcCheckboxRadioSwitch = stub('NcCheckboxRadioSwitch')
 export const NcLoadingIcon = stub('NcLoadingIcon')
 export const CnWidgetWrapper = stub('CnWidgetWrapper')
+export const CnWidgetEditCog = stub('CnWidgetEditCog')
+export const CnDashboardGrid = stub('CnDashboardGrid')
+export const getDashboardColumnOpts = () => ({ breakpoints: [], layout: 'moveScale', breakpointForWindow: true })
+export const placeNewWidget = () => ({ x: 0, y: 0, w: 4, h: 4, pushed: [] })
 
 // Dashboard widget library (v2) — renderers + config forms now sourced from
 // @conduction/nextcloud-vue and aliased in widgetRegistry.js. Stubbed here so
@@ -130,6 +134,8 @@ export default {
 	NcCheckboxRadioSwitch,
 	NcLoadingIcon,
 	CnWidgetWrapper,
+	CnWidgetEditCog,
+	CnDashboardGrid,
 	CnLabelWidget,
 	CnTextWidget,
 	CnImageWidget,

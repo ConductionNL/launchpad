@@ -230,37 +230,6 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/path`)
 	},
 
-	// REQ-LOCK-001..008: dashboard editing-lock management.
-	// Re-entrant for the same user (a second tab refreshes the lease
-	// instead of getting 409). Heartbeat MUST be sent every 60 s by
-	// any client in active edit mode (15 min TTL = 15× safety margin).
-	/** @spec openspec/specs/dashboards/spec.md */
-	acquireDashboardLock(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	heartbeatDashboardLock(uuid) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	releaseDashboardLock(uuid) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	getDashboardLock(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	// Admin-only: force-release whoever holds the lock so the
-	// dashboard returns to an unlocked state. Admin then acquires
-	// normally if they want to edit (REQ-LOCK-006).
-	/** @spec openspec/specs/dashboards/spec.md */
-	forceReleaseDashboardLock(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock/force-release`)
-	},
-
 	// Sharing endpoints
 	/** @spec openspec/specs/dashboards/spec.md */
 	listShares(dashboardId) {

@@ -22,8 +22,6 @@
 		:data-widget-id="placement?.widgetId">
 		<CnWidgetWrapper
 			class="launchpad-widget__wrapper"
-			:class="{ 'launchpad-widget__wrapper--custom-header': hasCustomHeaderStyle }"
-			:style="headerStyleVars"
 			:title="widgetTitle"
 			:show-title="showHeader"
 			:icon-url="widgetIconUrl"
@@ -135,37 +133,16 @@ export default {
 			return !this.placement.isCompulsory
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
-		styleConfig() {
-			return this.placement.styleConfig || {}
-		},
-
 		/**
-		 * Per-widget custom header colours (`styleConfig.headerStyle`).
-		 * CnWidgetWrapper's own `styleConfig` doesn't carry these, so we
-		 * forward them as CSS variables and re-apply them to its header below.
+		 * Placement style overrides forwarded to CnWidgetWrapper. Includes
+		 * `headerStyle.{backgroundColor,textColor}`, which CnWidgetWrapper now
+		 * applies to its header natively (no per-app CSS-var workaround needed).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
+		 * @return {object} the styleConfig blob.
 		 */
-		headerStyle() {
-			return this.styleConfig.headerStyle || {}
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		hasCustomHeaderStyle() {
-			return Boolean(this.headerStyle.backgroundColor || this.headerStyle.textColor)
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		headerStyleVars() {
-			const vars = {}
-			if (this.headerStyle.backgroundColor) {
-				vars['--lp-header-bg'] = this.headerStyle.backgroundColor
-			}
-			if (this.headerStyle.textColor) {
-				vars['--lp-header-color'] = this.headerStyle.textColor
-			}
-			return vars
+		styleConfig() {
+			return this.placement.styleConfig || {}
 		},
 	},
 }
@@ -179,14 +156,6 @@ export default {
 
 .launchpad-widget__wrapper {
 	height: 100%;
-}
-
-/* Restore per-widget custom header colours (styleConfig.headerStyle), which
-   CnWidgetWrapper's styleConfig doesn't carry. Driven by the CSS vars set on
-   the wrapper root; the title inherits the header colour. */
-.launchpad-widget__wrapper--custom-header :deep(.cn-widget-wrapper__header) {
-	background-color: var(--lp-header-bg, transparent);
-	color: var(--lp-header-color, inherit);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

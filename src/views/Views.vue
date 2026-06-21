@@ -98,17 +98,38 @@
 
 		<!-- Main dashboard grid -->
 		<div class="mydash-container" :class="{ 'mydash-edit-mode': isEditMode }">
-			<DashboardGrid
+			<CnDashboardGrid
 				v-if="activeDashboard"
-				:placements="widgetPlacements"
-				:widgets="availableWidgets"
-				:edit-mode="isEditMode"
-				:grid-columns="activeDashboard.gridColumns"
-				@update:placements="updatePlacements"
-				@widget-remove="removeWidget"
-				@widget-edit="openStyleEditor"
-				@widget-right-click="onWidgetRightClick"
-				@tile-edit="openTileEditorForEdit" />
+				:layout="widgetPlacements"
+				:editable="isEditMode"
+				:columns="activeDashboard.gridColumns || 12"
+				:cell-height="60"
+				:margin="8"
+				:column-opts="dashboardColumnOpts"
+				cell-height-css-var="--launchpad-cell-height"
+				:item-key="placementItemKey"
+				@layout-change="updatePlacements">
+				<template #widget="{ item }">
+					<div class="launchpad-grid-item" @contextmenu="onWidgetRightClick($event, item)">
+						<!-- Tile placements render the launcher tile directly. -->
+						<TileWidget
+							v-if="isTilePlacement(item)"
+							:tile="getTileData(item)"
+							:edit-mode="isEditMode"
+							@edit="openTileEditorForEdit(item)"
+							@remove="removeWidget(item.id)" />
+						<!-- All other placements render through the widget wrapper. -->
+						<WidgetWrapper
+							v-else
+							:placement="item"
+							:widget="getWidget(item.widgetId)"
+							:edit-mode="isEditMode"
+							@remove="removeWidget(item.id)"
+							@style="openStyleEditor(item)"
+							@edit="openStyleEditor(item)" />
+					</div>
+				</template>
+			</CnDashboardGrid>
 
 			<!-- Loading shim. The empty-state below previously rendered
 			     during the initial fetch because `activeDashboard` is
@@ -217,7 +238,7 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 
@@ -227,7 +248,8 @@ import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
-import DashboardGrid from '../components/DashboardGrid.vue'
+import WidgetWrapper from '../components/WidgetWrapper.vue'
+import TileWidget from '../components/TileWidget.vue'
 import WidgetPickerModal from '../components/WidgetPickerModal.vue'
 import WidgetStyleEditor from '../components/WidgetStyleEditor.vue'
 import TileEditor from '../components/TileEditor.vue'
@@ -258,7 +280,9 @@ export default {
 		ViewDashboard,
 		MenuIcon,
 		ShareVariant,
-		DashboardGrid,
+		CnDashboardGrid,
+		WidgetWrapper,
+		TileWidget,
 		WidgetPickerModal,
 		WidgetStyleEditor,
 		TileEditor,
@@ -380,6 +404,17 @@ export default {
 		}
 	},
 	computed: {
+		/**
+		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007).
+		 * Built once from the shared nc-vue helper so the grid reflows its
+		 * column count across viewport sizes exactly as the old local grid did.
+		 *
+		 * @return {object} the GridStack `columnOpts` bag.
+		 */
+		dashboardColumnOpts() {
+			return getDashboardColumnOpts()
+		},
+
 		...mapState(useDashboardStore, [
 			'dashboards',
 			'activeDashboard',
@@ -641,6 +676,59 @@ export default {
 	},
 	methods: {
 		t,
+
+		/**
+		 * Per-item render key for CnDashboardGrid — changes when a placement's
+		 * style/update changes so an edit forces a re-render (REQ-GRID).
+		 *
+		 * @param {object} placement the placement (CnDashboardGrid layout item).
+		 * @return {string} the render key.
+		 */
+		placementItemKey(placement) {
+			return `${placement.id}-${placement.updatedAt || ''}-${JSON.stringify(placement.styleConfig || {})}`
+		},
+
+		/**
+		 * Resolve the available-widget definition for a placement's widgetId.
+		 *
+		 * @param {string} widgetId the placement's widget id.
+		 * @return {object|undefined} the widget definition, if registered.
+		 */
+		getWidget(widgetId) {
+			return this.availableWidgets.find(w => w.id === widgetId)
+		},
+
+		/**
+		 * Whether a placement renders as a launcher tile (custom tile type).
+		 *
+		 * @param {object} placement the placement.
+		 * @return {boolean} true for tile placements.
+		 */
+		isTilePlacement(placement) {
+			return placement.tileType === 'custom'
+		},
+
+		/**
+		 * Project a tile placement's flat `tile*` columns into the tile shape
+		 * TileWidget expects.
+		 *
+		 * @param {object} placement the tile placement.
+		 * @return {object|null} the tile data, or null when not a tile.
+		 */
+		getTileData(placement) {
+			if (!this.isTilePlacement(placement)) return null
+			return {
+				id: placement.id,
+				title: placement.tileTitle,
+				icon: placement.tileIcon,
+				iconType: placement.tileIconType,
+				backgroundColor: placement.tileBackgroundColor,
+				textColor: placement.tileTextColor,
+				linkType: placement.tileLinkType,
+				linkValue: placement.tileLinkValue,
+			}
+		},
+
 		...mapActions(useDashboardStore, [
 			'switchDashboard',
 			'createDashboard',
@@ -1329,6 +1417,31 @@ export default {
    on the sides). Add a matching top inset so the dashboard breathes evenly. */
 .mydash-container {
 	padding-top: 8px;
+}
+
+/* CnDashboardGrid renders a flat item background; restore launchpad's
+   frosted-glass tile look (was DashboardGrid's local style) by overriding
+   the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
+.mydash-container :deep(.grid-stack-item-content) {
+	background: var(--color-main-background-blur);
+	backdrop-filter: var(--filter-background-blur);
+	-webkit-backdrop-filter: var(--filter-background-blur);
+	border-radius: var(--border-radius-large);
+	overflow: hidden;
+}
+
+/* Chromeless widgets (label/divider/header/tile/nc-widget) opt out of the
+   frosted surface so they sit flush, matching the prior behaviour. */
+.mydash-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
+.mydash-container :deep(.grid-stack-item-content:has(.tile-widget)) {
+	background: transparent;
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+}
+
+.launchpad-grid-item {
+	width: 100%;
+	height: 100%;
 }
 
 .launchpad-floating-controls {

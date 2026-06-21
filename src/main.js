@@ -34,10 +34,6 @@ import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import bundledStub from './manifest.json'
 import 'gridstack/dist/gridstack.min.css'
 import './styles/workspace.css'
-// REQ-KIOSK-001: chrome-suppression styles, activated by KioskView via the
-// `kiosk-mode-active` body class. Imported globally so the rules are present
-// whenever the kiosk surface mounts.
-import './styles/kiosk.css'
 
 // Tier 1 manifest adoption (ADR-024): register the bundled manifest with
 // nc-vue so the shared shell can read menu/page declarations. The vue-router

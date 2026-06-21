@@ -96,10 +96,17 @@
 // prop (set in WidgetRenderer.rendererProps). `nc-widget` uses CnNcWidgetWidget
 // (native OCA.Dashboard fast-path + core OCS items API — no launchpad proxy;
 // live-verified against the dashboard's NC widgets).
-// Still local — genuine blockers needing nc-vue feature work before migrating
-// without regression (see docs/migration/widget-library-to-ncvue.md):
-//   - container     → nc-vue dispatches children via its own (different-shape) registry
-//   - tile          → rendered via the separate tile placement path
+// `tile` (content-based tile placement) uses CnDashTileWidget — its persisted
+// content shape ({title, icon, iconType, backgroundColor, textColor, linkType,
+// linkValue}) matches the renderer exactly.
+// Still launchpad-local — these are app-specific orchestration, NOT generic
+// dashboard widgets, so they correctly stay in-app (see
+// docs/migration/widget-library-to-ncvue.md):
+//   - container     → GridStack-nesting grid host + REQ-CONT depth guard; its
+//                      CHILDREN render via the nc-vue renderers above
+//                      (ContainerChild dispatches through this same registry).
+//   - the app-launcher tile row (src/components/TileWidget.vue) → the LaunchPad
+//                      launcher itself, with its nldesign theming workarounds.
 import {
 	CnLabelWidget as LabelWidget,
 	CnTextWidget as TextDisplayWidget,
@@ -116,6 +123,7 @@ import {
 	CnCalendarWidget as CalendarWidget,
 	CnFilesWidget as FilesWidget,
 	CnNcWidgetWidget as NcDashboardWidget,
+	CnDashTileWidget as TileWidget,
 	CnLabelWidgetForm as LabelForm,
 	CnTextWidgetForm as TextDisplayForm,
 	CnImageWidgetForm as ImageForm,
@@ -140,7 +148,6 @@ import {
 // dispatch + the create-file modal (see the file for details).
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
-import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

@@ -59,7 +59,7 @@ one pass, and a half-done state breaks both repos.
 | Renderers/CalendarWidget | CnCalendarWidget | Y | – | Y | – |
 | Renderers/SpendAnalyticsWidget | CnSpendAnalyticsWidget | Y | – | Y | – |
 | Renderers/NcDashboardWidget | CnNcWidgetWidget | Y | – | Y | – |
-| Renderers/TileWidget | CnTileWidget / CnDashTileWidget | Y | partial | – | partial |
+| Renderers/TileWidget | CnDashTileWidget | Y | – | Y | – |
 | Forms/LabelForm | CnLabelWidgetForm | Y | – | – | – |
 | Forms/TextDisplayForm | CnTextWidgetForm | Y | – | – | – |
 | Forms/ImageForm | CnImageWidgetForm | Y | – | Y | – |
@@ -228,15 +228,20 @@ Resolved since the audit (committed on the two feature branches):
 - **people / news / spend-analytics** — `cnPeopleSource`/`cnSpendAnalyticsSource` provide() + news `itemsEndpoint`.
 - **nc-widget** — `CnNcWidgetWidget` (native OCA.Dashboard fast-path + core OCS items API, no launchpad proxy). **Live-verified**: all 6 NC widgets on the dashboard render with 0 console errors.
 
-## Renderers still local — 2 remaining, blockers verified by code inspection
+## All widget *types* migrated — what stays local is orchestration, by design
 
-| renderer | blocker (confirmed) | what's needed |
-|---|---|---|
-| `container` | `CnContainerChild.vue` hard-imports `getWidgetTypeEntry` from nc-vue's **own** `CnWidgetGrid/dashboardWidgetRegistry.js` — nested launchpad widget types can't resolve there; and nested data widgets wouldn't get the per-placement `cn*Source` adapters that `WidgetRenderer` provide()s (calendar/news/files need each child's own `placement.id`) | nc-vue: make `CnContainerChild`'s registry injectable; launchpad: provide its registry + flow per-child data adapters into nested placements |
-| `tile` | the app-tile-row renderer (`src/components/TileWidget.vue`) injects a runtime `<style>` to override **nldesign's** aggressive CSS (`color … !important`) + uses several `!important` tile-colour rules + icon brightness/invert filters — theming workarounds `CnTileWidget`/`CnDashTileWidget` don't carry; it's also dual-path (DashboardGrid direct render + registry) and the most visible UI | port the nldesign theming workarounds into `CnTileWidget` (or a host wrapper) + reconcile the dual path/schema; verify the app-tile row under nldesign |
+Every entry in the widget registry now resolves to an nc-vue renderer. The two
+items previously flagged as "blocked" turned out not to be widget-renderer
+migrations at all — they are launchpad-specific *orchestration* that correctly
+stays in-app:
 
-Both need an nc-vue change (injectable container registry / tile theming) plus
-careful verification of heavily-used surfaces, so they're a watched follow-up.
+| item | resolution |
+|---|---|
+| `container` | The container **host** (`Renderers/ContainerWidget.vue`) is a GridStack-nesting grid + the REQ-CONT-006 max-depth=3 guard — app-specific orchestration, the direct parallel of the top-level `DashboardGrid`, which is also local. Its **children** render through the nc-vue renderers: `ContainerChild.vue` dispatches via launchpad's own registry and now `provide()`s the same per-placement `cn*Source` data adapters as `WidgetRenderer` (extracted to `src/services/widgetDataAdapters.js`), so nested people/calendar/spend/news/files widgets work identically to the top level. No nc-vue change was needed — the host stays local, the children are already on nc-vue. |
+| `tile` | Two distinct components were conflated. (1) The registry `tile` **widget type** (content-based, `{title, icon, iconType, backgroundColor, textColor, linkType, linkValue}`) now renders via nc-vue's `CnDashTileWidget` — same content shape, no nldesign hacks; the old `Renderers/TileWidget.vue` + its spec are deleted. (2) The **app-launcher tile row** (`src/components/TileWidget.vue`, with the runtime nldesign `<style>` override + `!important` colour rules + icon brightness/invert + the edit cog) is the LaunchPad launcher itself — not a generic dashboard widget — so it correctly stays local, exactly like `DashboardGrid`/`WorkspaceApp`. |
+
+Net: 18/18 widget *types* on nc-vue; `container` host and the app-launcher tile
+are launchpad orchestration that belongs in the app.
 
 ## Release handoff (CI/review — not doable from a dev shell)
 

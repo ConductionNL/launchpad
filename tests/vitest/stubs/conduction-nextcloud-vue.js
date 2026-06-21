@@ -113,6 +113,7 @@ export const CnCalendarWidgetForm = stub('CnCalendarWidgetForm')
 export const CnLinksWidgetForm = stub('CnLinksWidgetForm')
 export const CnMenuWidgetForm = stub('CnMenuWidgetForm')
 export const CnContainerWidgetForm = stub('CnContainerWidgetForm')
+export const CnDashTileWidget = stub('CnDashTileWidget')
 export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
 export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 
@@ -161,6 +162,7 @@ export default {
 	CnLinksWidgetForm,
 	CnMenuWidgetForm,
 	CnContainerWidgetForm,
+	CnDashTileWidget,
 	CnDashTileWidgetForm,
 	CnSpendAnalyticsWidgetForm,
 }

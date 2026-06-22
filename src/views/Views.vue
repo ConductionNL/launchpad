@@ -242,7 +242,7 @@ import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
 import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
+import { generateUrl, imagePath } from '@nextcloud/router'
 
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -432,7 +432,10 @@ export default {
 			return names.map(name => ({
 				id: `nl-${name.toLowerCase()}`,
 				label: name,
-				icon: `${window.location.origin}/apps/nldesign/img/icons/${name}.svg`,
+				// imagePath resolves the app's real web root (nldesign lives in
+				// custom_apps → /custom_apps/nldesign/img/...), unlike a hardcoded
+				// /apps/nldesign/ path which 404s on this install.
+				icon: imagePath('nldesign', `icons/${name}.svg`),
 			}))
 		},
 

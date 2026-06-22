@@ -50,6 +50,7 @@
 					:key="state.type"
 					:editing-widget="state.editingWidget"
 					:value="state.content"
+					:upload-fn="iconUploadFn"
 					@update:content="onContentUpdate" />
 			</div>
 			<div v-else class="add-widget-modal__empty">
@@ -575,6 +576,13 @@ export default {
 .add-widget-modal__chrome-label {
 	font-size: 14px;
 	min-width: 96px;
+}
+
+/* Let the icon-grid picker fill the row width so it shows several columns
+   instead of being squeezed to content width. */
+.add-widget-modal__chrome-row :deep(.cn-icon-picker) {
+	flex: 1;
+	min-width: 0;
 }
 
 .add-widget-modal__color-preview {

@@ -24,12 +24,13 @@
 			class="launchpad-widget__wrapper"
 			:title="widgetTitle"
 			:show-title="showHeader"
+			:chrome="wrapperChrome"
 			:icon-url="widgetIconUrl"
 			:icon-class="widget && widget.iconClass ? widget.iconClass : null"
 			:style-config="styleConfig"
 			:buttons="widgetButtons"
 			:borderless="isChromelessFrame"
-			:flush="isChromelessFrame"
+			:flush="isChromelessFrame || rendersOwnHeader"
 			:show-refresh="false"
 			:show-request-feature="false">
 			<WidgetRenderer
@@ -120,6 +121,21 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		isChromelessFrame() {
 			return this.isTileWidget || this.isChromelessType
+		},
+
+		/**
+		 * Card chrome variant forwarded to CnWidgetWrapper. Card widgets (NC
+		 * dashboard widgets + data widgets) use the shared `nc-dashboard`
+		 * variant so they are visually identical to the native Nextcloud
+		 * dashboard (apps/dashboard) by default — same tokens, user-overridable
+		 * via styleConfig. Chromeless surfaces (tiles, labels, dividers,
+		 * headers) keep the default chrome since they paint their own surface.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {string} 'nc-dashboard' for card widgets, else 'default'.
+		 */
+		wrapperChrome() {
+			return this.isChromelessFrame ? 'default' : 'nc-dashboard'
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

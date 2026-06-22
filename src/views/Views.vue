@@ -1466,9 +1466,13 @@ export default {
 	overflow: hidden;
 }
 
-/* Chromeless widgets (label/divider/header/tile/nc-widget) opt out of the
-   frosted surface so they sit flush, matching the prior behaviour. */
+/* Chromeless widgets (label/divider/header/tile) AND nc-dashboard card
+   widgets opt out of the grid-item frosted surface: the former paint their
+   own surface, and the latter now carry the shared CnWidgetWrapper
+   `nc-dashboard` chrome (its own blur panel), so the grid item must be
+   transparent to avoid a double background / mismatched radius. */
 .mydash-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
+.mydash-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
 .mydash-container :deep(.grid-stack-item-content:has(.tile-widget)) {
 	background: transparent;
 	backdrop-filter: none;

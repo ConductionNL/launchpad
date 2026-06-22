@@ -508,12 +508,11 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	max-height: 80vh;
 	min-width: 320px;
-	/* The whole body scrolls as one column; individual sections size to
-	   their content (a flex:1 form previously squished the type sub-form
-	   when the Appearance section was added below it). */
-	overflow-y: auto;
+	/* No own height cap / scroll: NcModal's .modal-container__content is the
+	   single scroll container (a second one here caused a double scrollbar).
+	   Sections size to content; the sub-form is flex:0 0 auto so it isn't
+	   squished by the Appearance section below it. */
 }
 
 .add-widget-modal__title {

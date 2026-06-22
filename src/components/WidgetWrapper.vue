@@ -86,16 +86,29 @@ export default {
 		},
 
 		/**
-		 * Widget types that own their entire visual surface — labels,
-		 * dividers, header banners, the registry-driven `tile`, and the NC
-		 * Dashboard API widget (which renders its own header + title). They
-		 * keep a borderless / flush wrapper (no frame, no wrapper header) so
-		 * the renderer paints edge to edge; the edit cog still overlays on top.
+		 * Widget types that own their entire visual surface — labels, dividers,
+		 * header banners, and the registry-driven `tile`. They keep a borderless
+		 * / flush wrapper (no frame, no wrapper header) so the renderer paints
+		 * edge to edge; the edit cog still overlays on top. (nc-widget is NOT
+		 * here: CnNcWidgetWidget renders just a header + content, so it needs the
+		 * card frame — see `rendersOwnHeader`.)
 		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile', 'nc-widget'].includes(this.placement?.widgetId)
+			return ['label', 'divider', 'header', 'tile'].includes(this.placement?.widgetId)
+		},
+
+		/**
+		 * Types whose renderer paints its own header/title, so the wrapper must
+		 * keep the card frame but suppress its own header to avoid a double
+		 * title. The NC Dashboard widget (CnNcWidgetWidget) is the case.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} true when the renderer owns the header.
+		 */
+		rendersOwnHeader() {
+			return this.placement?.widgetId === 'nc-widget'
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -105,7 +118,7 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		showHeader() {
-			if (this.isTileWidget) {
+			if (this.isTileWidget || this.rendersOwnHeader) {
 				return false
 			}
 			if (this.isChromelessType && !this.placement.customTitle) {

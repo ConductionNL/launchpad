@@ -80,3 +80,27 @@ describe('WidgetBridge.pollForCallback', () => {
 		spy.mockRestore()
 	})
 })
+
+describe('WidgetBridge OCA.Dashboard exposure (CnNcWidgetWidget contract)', () => {
+	it('exposes the captured callback on OCA.Dashboard.callbacks + widgets + getWidget', () => {
+		const cb = () => {}
+		window.OCA.Dashboard.register('deals', cb)
+		expect(window.OCA.Dashboard.callbacks.deals).toBe(cb)
+		expect(window.OCA.Dashboard.widgets.deals.callback).toBe(cb)
+		expect(window.OCA.Dashboard.getWidget('deals').callback).toBe(cb)
+	})
+
+	it('setWidgetMetadata merges title/icon without clobbering the callback', () => {
+		const cb = () => {}
+		window.OCA.Dashboard.register('leads', cb)
+		widgetBridge.setWidgetMetadata([{ id: 'leads', title: 'My Leads', iconUrl: '/x.svg' }])
+		const meta = window.OCA.Dashboard.getWidget('leads')
+		expect(meta.title).toBe('My Leads')
+		expect(meta.iconUrl).toBe('/x.svg')
+		expect(meta.callback).toBe(cb)
+	})
+
+	it('setWidgetMetadata tolerates non-array input', () => {
+		expect(() => widgetBridge.setWidgetMetadata(null)).not.toThrow()
+	})
+})

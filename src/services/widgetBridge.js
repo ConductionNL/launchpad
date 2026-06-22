@@ -34,15 +34,32 @@ class WidgetBridge {
 		// Ensure OCA and OCA.Dashboard exist
 		window.OCA = window.OCA || {}
 		window.OCA.Dashboard = window.OCA.Dashboard || {}
+		const dash = window.OCA.Dashboard
+
+		// Expose the registries the shared CnNcWidgetWidget reads to mount a
+		// native widget + resolve its header title: `callbacks[id]`,
+		// `widgets[id]` and `getWidget(id)`. On the custom workspace page NC's
+		// own dashboard registry isn't present, so without this every
+		// callback-based widget falls back to its raw id + "No items available".
+		// Only define getWidget when absent so the native /dashboard registry
+		// is never clobbered.
+		dash.callbacks = dash.callbacks || {}
+		dash.widgets = dash.widgets || {}
+		if (typeof dash.getWidget !== 'function') {
+			dash.getWidget = (id) => dash.widgets[id] || null
+		}
 
 		// Store original methods if they exist
-		const originalRegister = window.OCA.Dashboard.register
-		const originalRegisterStatus = window.OCA.Dashboard.registerStatus
+		const originalRegister = dash.register
+		const originalRegisterStatus = dash.registerStatus
 
 		// Override register method
-		window.OCA.Dashboard.register = (appId, callback) => {
+		dash.register = (appId, callback) => {
 			console.debug('LaunchPad: Widget registered via callback:', appId)
 			this.widgetCallbacks.set(appId, callback)
+			// Surface the callback + a metadata stub where CnNcWidgetWidget looks.
+			dash.callbacks[appId] = callback
+			dash.widgets[appId] = { ...(dash.widgets[appId] || {}), id: appId, callback }
 
 			// Also call original if it exists (for compatibility)
 			if (originalRegister) {
@@ -51,13 +68,46 @@ class WidgetBridge {
 		}
 
 		// Override registerStatus method
-		window.OCA.Dashboard.registerStatus = (appId, callback) => {
+		dash.registerStatus = (appId, callback) => {
 			console.debug('LaunchPad: Status widget registered:', appId)
 			this.statusCallbacks.set(appId, callback)
 
 			// Also call original if it exists
 			if (originalRegisterStatus) {
 				originalRegisterStatus(appId, callback)
+			}
+		}
+	}
+
+	/**
+	 * Merge widget display metadata (title + icon) into the OCA.Dashboard
+	 * registry so CnNcWidgetWidget's header shows a human title rather than the
+	 * raw widget id. `register()` only carries the render callback, so titles
+	 * come from the available-widgets descriptor (the dashboard widgets API).
+	 * Merges (never clobbers a previously-registered `callback`).
+	 *
+	 * @param {Array<{id: string, title?: string, iconUrl?: string, iconClass?: string}>} widgets available widgets.
+	 * @return {void}
+	 */
+	setWidgetMetadata(widgets) {
+		if (!Array.isArray(widgets)) {
+			return
+		}
+		const dash = window.OCA && window.OCA.Dashboard
+		if (!dash) {
+			return
+		}
+		dash.widgets = dash.widgets || {}
+		for (const w of widgets) {
+			if (!w || !w.id) {
+				continue
+			}
+			dash.widgets[w.id] = {
+				...(dash.widgets[w.id] || {}),
+				id: w.id,
+				title: w.title,
+				iconUrl: w.iconUrl,
+				iconClass: w.iconClass,
 			}
 		}
 	}

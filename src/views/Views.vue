@@ -119,7 +119,7 @@
 							:edit-mode="isEditMode"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
-							@edit="openStyleEditor(item)" />
+							@edit="handleContextMenuEdit(item)" />
 					</div>
 				</template>
 			</CnDashboardGrid>
@@ -971,20 +971,53 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		async saveCustomWidget(payload) {
 			try {
+				const chrome = payload.chrome || {}
 				if (this.customWidgetEditing?.id) {
 					await this.updateWidgetPlacement(
 						this.customWidgetEditing.id,
-						{ content: payload.content },
+						{
+							content: payload.content,
+							...this.chromePatch(chrome, this.customWidgetEditing.styleConfig),
+						},
 					)
 				} else {
-					await this.addWidgetToDashboard({
+					// Create the placement, then apply the chrome (title /
+					// background / icon) from the same modal as a follow-up
+					// patch against the new id.
+					const created = await this.addWidgetToDashboard({
 						type: payload.type,
 						content: payload.content,
 					})
+					if (created?.id) {
+						await this.updateWidgetPlacement(created.id, this.chromePatch(chrome, created.styleConfig))
+					}
 				}
 				this.closeCustomWidgetModal()
 			} catch (error) {
 				console.error('[Views] Failed to save custom widget:', error)
+			}
+		},
+
+		/**
+		 * Build the chrome patch (title / background / icon) from the unified
+		 * add/edit modal payload, preserving any existing styleConfig keys and
+		 * folding the background colour into styleConfig.backgroundColor — the
+		 * same shape the legacy style editor persisted (see onStyleSaved).
+		 *
+		 * @param {{showTitle?: boolean, customTitle?: string, customIcon?: string, backgroundColor?: string}} chrome the modal chrome payload
+		 * @param {object} [existingStyleConfig] the placement's current styleConfig, if any
+		 * @return {object} the placement patch
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		chromePatch(chrome, existingStyleConfig) {
+			return {
+				showTitle: chrome.showTitle,
+				customTitle: chrome.customTitle,
+				customIcon: chrome.customIcon,
+				styleConfig: {
+					...(existingStyleConfig || {}),
+					backgroundColor: chrome.backgroundColor || '',
+				},
 			}
 		},
 		/** @spec openspec/specs/dashboards/spec.md */

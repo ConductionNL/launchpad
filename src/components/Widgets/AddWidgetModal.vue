@@ -56,6 +56,47 @@
 				{{ t('launchpad', 'No widget types available') }}
 			</div>
 
+			<!-- Widget appearance (chrome): title, background, icon. These are
+			     the controls the standalone style editor used to own; merging
+			     them here makes the add and edit modals one complete modal. -->
+			<div v-if="activeSubFormComponent" class="add-widget-modal__chrome">
+				<h3 class="add-widget-modal__chrome-heading">
+					{{ t('launchpad', 'Appearance') }}
+				</h3>
+				<NcCheckboxRadioSwitch
+					:checked="chrome.showTitle"
+					@update:checked="chrome.showTitle = $event">
+					{{ t('launchpad', 'Show title') }}
+				</NcCheckboxRadioSwitch>
+				<NcTextField
+					v-if="chrome.showTitle"
+					:value="chrome.customTitle"
+					:label="t('launchpad', 'Custom title')"
+					@update:value="chrome.customTitle = $event" />
+
+				<div class="add-widget-modal__chrome-row">
+					<span class="add-widget-modal__chrome-label">{{ t('launchpad', 'Background') }}</span>
+					<NcColorPicker v-model="chrome.backgroundColor">
+						<NcButton type="tertiary">
+							<template #icon>
+								<span
+									class="add-widget-modal__color-preview"
+									:style="{ backgroundColor: chrome.backgroundColor || 'transparent' }" />
+							</template>
+							{{ chrome.backgroundColor || t('launchpad', 'Default') }}
+						</NcButton>
+					</NcColorPicker>
+				</div>
+
+				<div class="add-widget-modal__chrome-row">
+					<span class="add-widget-modal__chrome-label">{{ t('launchpad', 'Icon') }}</span>
+					<CnIconPicker
+						:value="chrome.customIcon"
+						:upload-fn="iconUploadFn"
+						@input="chrome.customIcon = $event" />
+				</div>
+			</div>
+
 			<!-- Action buttons. REQ-WDG-013 close discipline: cancel emits
 			     close, never submit. Submit button is disabled while the
 			     active sub-form's validate() returns errors (REQ-WDG-012). -->
@@ -77,7 +118,8 @@
 </template>
 
 <script>
-import { NcModal, NcButton } from '@conduction/nextcloud-vue'
+import { NcModal, NcButton, CnIconPicker } from '@conduction/nextcloud-vue'
+import { NcTextField, NcColorPicker, NcCheckboxRadioSwitch } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
 
 import {
@@ -85,6 +127,7 @@ import {
 	getWidgetTypeEntry,
 } from '../../constants/widgetRegistry.js'
 import { useWidgetForm } from '../../composables/useWidgetForm.js'
+import { uploadDataUrl } from '../../services/resourceService.js'
 
 let titleIdCounter = 0
 let selectIdCounter = 0
@@ -117,6 +160,10 @@ export default {
 	components: {
 		NcModal,
 		NcButton,
+		NcTextField,
+		NcColorPicker,
+		NcCheckboxRadioSwitch,
+		CnIconPicker,
 	},
 
 	props: {
@@ -153,6 +200,11 @@ export default {
 			validationTick: 0,
 			titleId: `add-widget-modal-title-${++titleIdCounter}`,
 			typeSelectId: `add-widget-modal-type-${++selectIdCounter}`,
+			// Widget chrome (title / background / icon) edited in the same
+			// modal as the content; synced from the placement on open and
+			// emitted back on submit. Maps to the placement fields
+			// showTitle / customTitle / styleConfig.backgroundColor / customIcon.
+			chrome: { showTitle: true, customTitle: '', backgroundColor: '', customIcon: '' },
 		}
 	},
 
@@ -304,13 +356,32 @@ export default {
 		openLifecycle() {
 			if (this.editingWidget) {
 				this.form.loadEditingWidget(this.editingWidget)
+				this.syncChromeFromPlacement(this.editingWidget)
 				return
 			}
 			const initialType = this.preselectedType
 				|| this.availableTypes[0]
 				|| ''
 			this.form.resetForm(initialType)
+			this.syncChromeFromPlacement(null)
 			this.validationTick++
+		},
+
+		/**
+		 * Seed the chrome controls (title / background / icon) from the
+		 * placement being edited, or to defaults for a new widget. Mirrors
+		 * the fields the legacy style editor persisted.
+		 *
+		 * @param {object|null} placement the placement being edited, or null on add.
+		 * @return {void}
+		 */
+		syncChromeFromPlacement(placement) {
+			this.chrome = {
+				showTitle: placement ? placement.showTitle !== false : true,
+				customTitle: (placement && placement.customTitle) || '',
+				backgroundColor: (placement && placement.styleConfig && placement.styleConfig.backgroundColor) || '',
+				customIcon: (placement && placement.customIcon) || '',
+			}
 		},
 
 		/**
@@ -392,7 +463,26 @@ export default {
 				return
 			}
 			const payload = this.form.assembleContent(this.$refs.activeSubForm)
+			// Carry the chrome (title/background/icon) alongside the content so
+			// the parent can persist both from this single modal.
+			payload.chrome = {
+				showTitle: this.chrome.showTitle,
+				customTitle: this.chrome.customTitle,
+				customIcon: this.chrome.customIcon,
+				backgroundColor: this.chrome.backgroundColor,
+			}
 			this.$emit('submit', payload)
+		},
+
+		/**
+		 * Data-URL upload transport for CnIconPicker (custom icon uploads),
+		 * exposed as a method so the template can reference the imported helper.
+		 *
+		 * @param {File} file the file to upload.
+		 * @return {Promise<string>} the resulting data URL.
+		 */
+		iconUploadFn(file) {
+			return uploadDataUrl(file)
 		},
 
 		/**
@@ -456,6 +546,40 @@ export default {
 	padding: 16px;
 	text-align: center;
 	color: var(--color-text-maxcontrast);
+}
+
+.add-widget-modal__chrome {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	border-top: 1px solid var(--color-border);
+	padding-top: 16px;
+}
+
+.add-widget-modal__chrome-heading {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+}
+
+.add-widget-modal__chrome-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.add-widget-modal__chrome-label {
+	font-size: 14px;
+	min-width: 96px;
+}
+
+.add-widget-modal__color-preview {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	border: 1px solid var(--color-border);
 }
 
 .add-widget-modal__actions {

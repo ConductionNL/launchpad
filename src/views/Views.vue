@@ -44,19 +44,27 @@
 			     top-right cluster without opening the sidebar first. Reuses the
 			     existing onRow* handlers; `maybeSwitchTo` is a no-op because the
 			     target is already active. -->
+			<!-- Active-dashboard cog. Styled `secondary` with a 20px icon so
+			     it matches the adjacent dashboards (hamburger) button, and
+			     carries the Share action (dashboard-sharing spec) in-menu
+			     rather than as a standalone top-bar button. -->
 			<DashboardRowActions
 				v-if="activeDashboard"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
 				:can-edit="canEdit"
+				:can-share="canShareActiveDashboard"
 				:default-uuid="defaultDashboardUuid"
 				:is-edit-mode="isEditMode"
 				:active-dashboard-id="activeDashboard.id"
+				button-type="secondary"
+				:icon-size="20"
 				class="mydash-active-dashboard-cog"
 				@toggle-edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
 				@open-config="onRowOpenConfig(activeDashboard, activeDashboardSource)"
 				@add-custom-widget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
 				@set-default="onRowSetDefault(activeDashboard, activeDashboardSource)"
+				@share="openShareDrawer"
 				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
 				type="secondary"
@@ -66,21 +74,6 @@
 				<template #icon>
 					<MenuIcon :size="20" />
 				</template>
-			</NcButton>
-			<!-- Top-bar share action (dashboard-sharing spec). Opens the
-			     config drawer directly on the Sharing tab. Shown only when a
-			     dashboard the user can share is active. -->
-			<NcButton
-				v-if="canShareActiveDashboard"
-				type="tertiary"
-				:aria-label="t('mydash', 'Share')"
-				class="mydash-share-action"
-				data-test="dashboard-share-action"
-				@click="openShareDrawer">
-				<template #icon>
-					<ShareVariant :size="20" />
-				</template>
-				{{ t('mydash', 'Share') }}
 			</NcButton>
 			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
 			     `default` sentinel — REQ-TMPL-012 documents the literal
@@ -247,7 +240,6 @@ import { generateUrl, imagePath } from '@nextcloud/router'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
-import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
@@ -280,7 +272,6 @@ export default {
 		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
-		ShareVariant,
 		CnDashboardGrid,
 		WidgetWrapper,
 		TileWidget,

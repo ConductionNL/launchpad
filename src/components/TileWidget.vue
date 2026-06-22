@@ -12,15 +12,20 @@
 			'--tile-text-color': tile.textColor || '#ffffff'
 		}">
 		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
-		     OpenBuild widget chrome used across the dashboard. -->
-		<CnWidgetEditCog
-			v-if="editMode"
-			class="tile-widget__edit"
-			:menu-label="t('launchpad', 'Tile menu')"
-			:edit-label="t('launchpad', 'Edit tile')"
-			:delete-label="t('launchpad', 'Delete tile')"
-			@edit="$emit('edit')"
-			@remove="$emit('remove')" />
+		     OpenBuild widget chrome used across the dashboard. The absolute
+		     positioning lives on this wrapper DIV, not on CnWidgetEditCog
+		     itself: the cog's root is an NcActions `.action-item` which sets
+		     `position: relative` at equal specificity, so positioning the
+		     component directly loses the cascade tie and the cog drops into
+		     flow. Wrapping matches the shared nc-vue CnDashboardPage pattern. -->
+		<div v-if="editMode" class="tile-widget__edit">
+			<CnWidgetEditCog
+				:menu-label="t('launchpad', 'Tile menu')"
+				:edit-label="t('launchpad', 'Edit tile')"
+				:delete-label="t('launchpad', 'Delete tile')"
+				@edit="$emit('edit')"
+				@remove="$emit('remove')" />
+		</div>
 
 		<a
 			:href="tileUrl"

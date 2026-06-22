@@ -38,15 +38,21 @@
 		</CnWidgetWrapper>
 
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
-		     shown in edit mode. Sits top-right over the wrapper's header area. -->
-		<CnWidgetEditCog
-			v-if="editMode"
-			class="launchpad-widget__cog"
-			:menu-label="t('launchpad', 'Widget menu')"
-			:edit-label="t('launchpad', 'Edit widget')"
-			:delete-label="t('launchpad', 'Delete widget')"
-			@edit="$emit('edit', placement)"
-			@remove="$emit('remove', placement.id)" />
+		     shown in edit mode. Sits top-right over the wrapper's header area.
+		     The absolute positioning lives on this wrapper DIV, not on
+		     CnWidgetEditCog itself: the cog's root is an NcActions `.action-item`
+		     which sets `position: relative` at equal specificity, so positioning
+		     the component directly loses the cascade tie and the cog drops into
+		     flow (pushing content). Wrapping matches the shared nc-vue
+		     CnDashboardPage pattern. -->
+		<div v-if="editMode" class="launchpad-widget__cog">
+			<CnWidgetEditCog
+				:menu-label="t('launchpad', 'Widget menu')"
+				:edit-label="t('launchpad', 'Edit widget')"
+				:delete-label="t('launchpad', 'Delete widget')"
+				@edit="$emit('edit', placement)"
+				@remove="$emit('remove', placement.id)" />
+		</div>
 	</div>
 </template>
 

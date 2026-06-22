@@ -509,6 +509,10 @@ export default {
 	gap: 16px;
 	max-height: 80vh;
 	min-width: 320px;
+	/* The whole body scrolls as one column; individual sections size to
+	   their content (a flex:1 form previously squished the type sub-form
+	   when the Appearance section was added below it). */
+	overflow-y: auto;
 }
 
 .add-widget-modal__title {
@@ -538,8 +542,7 @@ export default {
 }
 
 .add-widget-modal__form {
-	overflow-y: auto;
-	flex: 1;
+	flex: 0 0 auto;
 }
 
 .add-widget-modal__empty {

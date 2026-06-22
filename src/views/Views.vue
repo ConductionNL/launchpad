@@ -1499,6 +1499,17 @@ export default {
 	overflow: hidden;
 }
 
+/* In edit mode the whole grid item is a drag surface. Text-heavy chromeless
+   widgets (esp. labels) are pure selectable text filling the cell, so a drag
+   would start a text selection instead of a gridstack move. Suppress text
+   selection + show the move cursor so dragging works anywhere on any widget.
+   The edit cog stays clickable (pointer-events unaffected). */
+.mydash-container.mydash-edit-mode :deep(.grid-stack-item-content) {
+	cursor: move;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
 /* Chromeless widgets (label/divider/header/tile) AND nc-dashboard card
    widgets opt out of the grid-item frosted surface: the former paint their
    own surface, and the latter now carry the shared CnWidgetWrapper

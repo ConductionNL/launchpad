@@ -3,7 +3,7 @@
 /**
  * ToggleStorageSetting
  *
- * `mydash:storage:toggle-backend {db|groupfolder}` — changes the active
+ * `launchpad:storage:toggle-backend {db|groupfolder}` — changes the active
  * content storage backend by writing to the `content_storage` admin setting.
  * Emits a warning when switching from GroupFolder back to DB since DB data
  * is not auto-copied from GroupFolder (REQ-GFSB-010).
@@ -67,7 +67,7 @@ class ToggleStorageSetting extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:storage:toggle-backend')
+        $this->setName(name: 'launchpad:storage:toggle-backend')
             ->setDescription(description: 'Change the active content storage backend (db|groupfolder).')
             ->setHelp(
                 help: implode(
@@ -84,7 +84,7 @@ class ToggleStorageSetting extends CommandBase
                         'GroupFolder data back to the database. Run the migration first or',
                         'ensure DB content is intact (migration keeps DB copies by default).',
                         '',
-                        'Run php occ mydash:storage:migrate-to-groupfolder before switching',
+                        'Run php occ launchpad:storage:migrate-to-groupfolder before switching',
                         'to groupfolder to ensure all existing dashboards are available.',
                     ]
                 )

@@ -162,7 +162,7 @@
           },
           {
             "@self": {
-              "register": "mydash",
+              "register": "launchpad",
               "schema": "Dashboard",
               "slug": "welcome-to-launchpad"
             },
@@ -195,7 +195,7 @@
           },
           {
             "@self": {
-              "register": "mydash",
+              "register": "launchpad",
               "schema": "Dashboard",
               "slug": "active-campaigns"
             },
@@ -236,7 +236,7 @@
           },
           {
             "@self": {
-              "register": "mydash",
+              "register": "launchpad",
               "schema": "Dashboard",
               "slug": "sprint-overview"
             },

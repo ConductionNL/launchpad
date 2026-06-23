@@ -1,6 +1,6 @@
 # Context Brief: Dashboard sharing follow-ups: notifications, bulk management, cascade
 
-**App:** MyDash — Dashboard system
+**App:** LaunchPad — Dashboard system
 **Spec:** 2026-04-30-dashboard-sharing-followups
 **Platform:** Nextcloud + OpenRegister
 
@@ -11,7 +11,7 @@
 **Lives at:** Beheer / Tab: Bulk
 
 **Rationale:** Bulk sharing follow-ups are admin batch ops  
-_Source: /tmp/ia-mydash-openregister.md_
+_Source: /tmp/ia-launchpad-openregister.md_
 
 > **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
 
@@ -29,7 +29,7 @@ CAPABILITY: As a dashboard user, I want to configure a daily email digest of not
 **demand: 8** | Category: other
 
 CAPABILITY: As a dashboard user, I want to receive notifications about relevant events and updates, so that I stay informed without manually checking for changes. ACCEPTANCE CRITERIA:
-1. GIVEN a triggering event occurs, WHEN the system generates a notification, THEN the user sees an unread notification indicator in the mydash interface.
+1. GIVEN a triggering event occurs, WHEN the system generates a notification, THEN the user sees an unread notification indicator in the launchpad interface.
 2. GIVEN unread notifications exist, WHEN the user opens the notifications panel, THEN all unread notifications are listed with event description and timestamp.
 3. GIVEN a notification is present, WHEN the user dismisses or marks it as read, THEN it no longer appears in the unread count.
 
@@ -1180,7 +1180,7 @@ Proposed
 
 ## Context
 
-Conduction apps (OpenCatalogi, Procest, Pipelinq, MyDash, Decidesk, DocuDesk, ZaakAfhandelApp, Larpingapp, Softwarecatalog, OpenRegister itself) all consume the same set of "things linked to an object" — files, notes, tasks, calendar events, mail, contacts, deck cards, talk conversations, and an expanding catalogue of NC-ecosystem and external services.
+Conduction apps (OpenCatalogi, Procest, Pipelinq, LaunchPad, Decidesk, DocuDesk, ZaakAfhandelApp, Larpingapp, Softwarecatalog, OpenRegister itself) all consume the same set of "things linked to an object" — files, notes, tasks, calendar events, mail, contacts, deck cards, talk conversations, and an expanding catalogue of NC-ecosystem and external services.
 
 Until now this was implemented in two rigid places:
 
@@ -1424,7 +1424,7 @@ Proposed
 
 ## Context
 
-Conduction maintains ~13 Nextcloud apps (decidesk, docudesk, pipelinq, procest, opencatalogi, openconnector, mydash, larpingapp, shillinq/budgetq, zaakafhandelapp, nldesign, softwarecatalog, and the in-flight idea apps). Each app needs features that overlap heavily: objects with schemas, role-based access, audit trails, archival/retention policies, mapping/transformation, relation management, sidebar tabs with notes/tasks/files, dashboard widgets, integrations with NC-native and external services.
+Conduction maintains ~13 Nextcloud apps (decidesk, docudesk, pipelinq, procest, opencatalogi, openconnector, launchpad, larpingapp, shillinq/budgetq, zaakafhandelapp, nldesign, softwarecatalog, and the in-flight idea apps). Each app needs features that overlap heavily: objects with schemas, role-based access, audit trails, archival/retention policies, mapping/transformation, relation management, sidebar tabs with notes/tasks/files, dashboard widgets, integrations with NC-native and external services.
 
 OpenRegister has grown into the **foundation** that provides these as shared abstractions: registers, schemas, objects, RBAC, audit-trail-immutable, archival-destruction-workflow, mappings, relations, object-interactions, and — with ADR-019 — a pluggable integration registry.
 

@@ -22,7 +22,7 @@ import {
 
 /**
  * Adapter for `CnPeopleWidget` (`cnPeopleSource.fetchPeople`). Maps to
- * launchpad's `/apps/mydash/api/people` and returns `{ users, total, hasMore }`.
+ * launchpad's `/apps/launchpad/api/people` and returns `{ users, total, hasMore }`.
  * Axios is lazy-imported (keeps it out of the vitest css-no-op transform path).
  *
  * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
@@ -45,7 +45,7 @@ export async function fetchPeoplePage(args = {}) {
 	}
 	params.append('limit', String(args.limit ?? 50))
 	params.append('offset', String(args.offset ?? 0))
-	const url = `${genUrl('/apps/mydash/api/people')}?${params.toString()}`
+	const url = `${genUrl('/apps/launchpad/api/people')}?${params.toString()}`
 	const response = await axios.get(url)
 	const data = response?.data || {}
 	return {
@@ -68,7 +68,7 @@ export async function fetchCalendarEvents(placementId, args = {}) {
 		import('@nextcloud/axios'),
 		import('@nextcloud/router'),
 	])
-	const url = genUrl('/apps/mydash/api/widgets/calendar/{placementId}/events', { placementId })
+	const url = genUrl('/apps/launchpad/api/widgets/calendar/{placementId}/events', { placementId })
 	const response = await axios.get(url, { params: { from: args.from, to: args.to } })
 	const data = response?.data || {}
 	return {
@@ -109,13 +109,13 @@ export function buildRendererExtraProps(widgetId) {
 	if (widgetId === 'news') {
 		return {
 			itemsEndpoint: (placementId) => generateUrl(
-				'/apps/mydash/api/widgets/news/{placementId}/items',
+				'/apps/launchpad/api/widgets/news/{placementId}/items',
 				{ placementId },
 			),
 		}
 	}
 	if (widgetId === 'files') {
-		return { apiBase: '/apps/mydash' }
+		return { apiBase: '/apps/launchpad' }
 	}
 	return {}
 }

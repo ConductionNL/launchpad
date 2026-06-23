@@ -21,11 +21,11 @@
 
 import { test, expect } from '@playwright/test'
 import * as path from 'path'
-import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 const NEXTCLOUD_URL = process.env.NC_BASE_URL || process.env.NEXTCLOUD_URL || 'http://localhost:8080'
-const APP_ID = process.env.APP_ID || 'mydash'
+const APP_ID = process.env.APP_ID || 'launchpad'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
@@ -33,7 +33,7 @@ test.beforeAll(async () => {
 
 test.describe('image widget', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	test('REQ-IMG-005: upload → preview → save → reload still shows image', async ({ page }) => {
@@ -69,7 +69,7 @@ test.describe('image widget', () => {
 
 		// Reload and verify persistence.
 		await page.reload()
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 		await expect(page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last())
 			.toBeAttached({ timeout: 10_000 })
 	})

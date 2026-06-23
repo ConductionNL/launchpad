@@ -4,7 +4,7 @@
  *
  * Workspace entry point. Implements the ADR-036 Decision 8 runtime-manifest
  * pattern for launchpad: a 5-line stub manifest is bundled with the app; at boot
- * the frontend fetches GET /apps/mydash/api/manifest and replaces the stub
+ * the frontend fetches GET /apps/launchpad/api/manifest and replaces the stub
  * with the per-user manifest assembled from the user's visible dashboards.
  *
  * launchpad is the proving ground for this pattern because it has no "default
@@ -42,7 +42,7 @@ import './styles/workspace.css'
 try {
 	// eslint-disable-next-line n/no-unsupported-features/es-syntax,n/no-missing-require
 	const { useAppManifest } = require('@conduction/nextcloud-vue/composables')
-	useAppManifest('mydash', bundledStub)
+	useAppManifest('launchpad', bundledStub)
 } catch {
 	// useAppManifest is available from nc-vue ≥ 1.0.0-beta.57; silently
 	// skip on older local source aliases — the app functions without
@@ -91,7 +91,7 @@ const manifestLoading = Vue.observable({ value: true })
 
 ;(async () => {
 	try {
-		const url = generateUrl('/apps/mydash/api/manifest')
+		const url = generateUrl('/apps/launchpad/api/manifest')
 		const response = await axios.get(url)
 
 		if (response && response.status === 200 && response.data

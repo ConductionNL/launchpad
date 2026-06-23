@@ -6,7 +6,7 @@ Atomic, numbered, file-by-file. Sequential within each section unless noted.
 
 - [x] 1.1 Create `src/components/admin/BeheerTabs.vue` — `NcAppNavigationCaption`-style
       tab strip with named slots per tab; reads `?tab=` query string and
-      writes selection to `localStorage` (key `mydash.admin.activeTab`).
+      writes selection to `localStorage` (key `launchpad.admin.activeTab`).
 - [x] 1.2 Add `src/components/admin/tabs/` directory and create stub files:
       `TemplatesPage.vue`, `OperationsTab.vue`, `RolesPermissionsTab.vue`,
       `VersioningAuditTab.vue`, `SharingTab.vue`, `OrgNavigationTab.vue`,
@@ -66,8 +66,8 @@ Atomic, numbered, file-by-file. Sequential within each section unless noted.
 - [x] 5.2 Add the backend `WithRulesController::index` action + route in
       `appinfo/routes.php` (admin auth required). Service method:
       `ConditionalService::listAllRules()` — already exists or
-      add as `SELECT * FROM oc_mydash_conditional_rules JOIN
-      oc_mydash_widget_placements`.
+      add as `SELECT * FROM oc_launchpad_conditional_rules JOIN
+      oc_launchpad_widget_placements`.
 - [x] 5.3 Mount `ConditionalVisibilityOverview` and the moved
       `AdminAnalytics` inside
       `src/components/admin/tabs/VersioningAuditTab.vue`.
@@ -143,7 +143,7 @@ Atomic, numbered, file-by-file. Sequential within each section unless noted.
       `source: 'bridge'` (or derive from `widgetBridge.js` runtime
       registrations) so the catalog filter has a stable key.
 - [x] 10.5 Persist the open / closed state of each category group in
-      `localStorage` under `mydash.catalog.openGroups`.
+      `localStorage` under `launchpad.catalog.openGroups`.
 
 ## 11. Documentation + tests
 

@@ -2,7 +2,7 @@
 
 ## Infrastructure & Data Layer
 
-- [ ] Task 1: Create OpenRegister schemas in `lib/Settings/mydash_register.json` for four new register types:
+- [ ] Task 1: Create OpenRegister schemas in `lib/Settings/launchpad_register.json` for four new register types:
   - `embed_token` (fields: id, name, description, tokenHash, subject, scope, hostOrigins, tenantThemeId, tokenExpiresAt, revokedAt, revocationReason, rateLimitPolicy, createdBy, createdAt, updatedAt)
   - `tenant_theme` (fields: id, name, cssVariables, logoUrl, customCss, createdBy, createdAt)
   - `embed_usage_event` (fields: id, tokenId, eventType, hostOrigin, userAgent, userAgentHash, viewportSize, timestamp, responseStatusCode, responseLatencyMs, correlationId)
@@ -60,7 +60,7 @@
 ## Public Render Route
 
 - [ ] Task 9: Create `lib/Controller/EmbedController.php`:
-  - `GET /apps/mydash/embed/{subjectType}/{subjectId}`: Public render route
+  - `GET /apps/launchpad/embed/{subjectType}/{subjectId}`: Public render route
     1. Extract + validate JWT (Middleware handles this)
     2. Verify subject match (URL's subjectId == token's subject.id)
     3. Render the widget/dashboard HTML with:
@@ -152,17 +152,17 @@
 
 ## JS-SDK
 
-- [ ] Task 19: Create `@mydash/embed-sdk` package structure:
-  - `src/MyDashEmbed.js` — main entry point (render, on, off, resize methods)
+- [ ] Task 19: Create `@launchpad/embed-sdk` package structure:
+  - `src/LaunchPadEmbed.js` — main entry point (render, on, off, resize methods)
   - `src/postMessage.js` — Origin verification + handshake helpers
   - `src/types.ts` — TypeScript definitions (EmbedConfig, EmbedInstance, event types)
   - `dist/embed-sdk.esm.js` (ESM build)
   - `dist/embed-sdk.umd.js` (UMD build)
   - `package.json` with exports, version matching app version
 
-- [ ] Task 20: Implement `MyDashEmbed.render(container, config)` (REQ-EMB-006):
+- [ ] Task 20: Implement `LaunchPadEmbed.render(container, config)` (REQ-EMB-006):
   - Accept: `{token, subjectType, subjectId, tenantThemeId (optional)}`
-  - Create iframe with `src="/apps/mydash/embed/{subjectType}/{subjectId}"`
+  - Create iframe with `src="/apps/launchpad/embed/{subjectType}/{subjectId}"`
   - Insert iframe into container
   - Wait for `load` event
   - Perform postMessage handshake: POST token to iframe (origin verification on both sides)
@@ -191,7 +191,7 @@
   - Listen for resize messages and re-measure
 
 - [ ] Task 24: Build and publish SDK:
-  - Create `.github/workflows/publish-sdk.yml` to build + publish @mydash/embed-sdk to npm on release
+  - Create `.github/workflows/publish-sdk.yml` to build + publish @launchpad/embed-sdk to npm on release
   - Package.json versions match app version (synchronized releases)
   - README with examples (vanilla JS, ESM, TypeScript)
 
@@ -311,7 +311,7 @@
   - Read-only tokens cannot mutate state
   - Wildcard origins rejected at creation time
 
-- [ ] Task 40: Integration with existing MyDash features:
+- [ ] Task 40: Integration with existing LaunchPad features:
   - Dashboards display "Share" → includes "Create embed token" action alongside existing share modes
   - Widgets display "Embed" button → quick token creation for single widget
   - Admin Settings → "Embed Tokens" section with manager + themes

@@ -235,7 +235,7 @@ class DashboardTableBuilder
 
     /**
      * Apply the GroupFolder storage backend schema (REQ-GFSB-002) to an
-     * existing `mydash_dashboards` table.
+     * existing `launchpad_dashboards` table.
      *
      * Adds two nullable columns: `content` (LONGTEXT, JSON blob used by the
      * `db` storage backend) and `locale` (VARCHAR(16), optional locale code
@@ -243,7 +243,7 @@ class DashboardTableBuilder
      * Both columns are nullable — pre-existing rows with no content simply
      * keep NULL until explicitly written by the storage layer. Idempotent.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
      *
      * @return void
      *

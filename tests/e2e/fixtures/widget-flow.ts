@@ -14,14 +14,14 @@
 import { expect, type Page } from '@playwright/test'
 
 /** Navigate to the app and wait for the runtime shell to hydrate (503-resilient). */
-export async function gotoMydash(page: Page): Promise<void> {
-	await page.goto('/index.php/apps/mydash')
+export async function gotoLaunchPad(page: Page): Promise<void> {
+	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	} catch {
 		// Transient dev-instance 503 (needsDbUpgrade blip) — retry once.
-		await page.goto('/index.php/apps/mydash')
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.goto('/index.php/apps/launchpad')
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
 	const open = await page.locator('.dashboard-switcher-sidebar.open').count()
 	if (open > 0) {
@@ -29,7 +29,7 @@ export async function gotoMydash(page: Page): Promise<void> {
 		if (await closeBtn.isVisible().catch(() => false)) {
 			await closeBtn.click()
 		} else {
-			await page.locator('.mydash-sidebar-toggle').first().click()
+			await page.locator('.launchpad-sidebar-toggle').first().click()
 		}
 		await page.waitForFunction(
 			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
@@ -44,7 +44,7 @@ export async function openSidebar(page: Page): Promise<void> {
 	if (open > 0) {
 		return
 	}
-	await page.locator('.mydash-sidebar-toggle').first().click()
+	await page.locator('.launchpad-sidebar-toggle').first().click()
 	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 }
 

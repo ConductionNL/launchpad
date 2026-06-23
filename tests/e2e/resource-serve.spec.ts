@@ -19,11 +19,11 @@
 
 import { test, expect } from '@playwright/test'
 import * as path from 'path'
-import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
-const APP_ID = process.env.APP_ID || 'mydash'
+const APP_ID = process.env.APP_ID || 'launchpad'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
@@ -31,7 +31,7 @@ test.beforeAll(async () => {
 
 test.describe('resource-serving', () => {
 	test('REQ-RES-006: image widget renders uploaded resource via GET /apps/<app>/resource/<filename>', async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 
 		// Upload a tiny PNG via the Image widget upload UI (cog-menu flow).
 		await openAddWidgetModal(page)

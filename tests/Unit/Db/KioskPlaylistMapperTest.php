@@ -101,10 +101,10 @@ class KioskPlaylistMapperTest extends TestCase
             ->expects($this->once())
             ->method('linkToRouteAbsolute')
             ->with(
-                routeName: 'mydash.kiosk.render',
+                routeName: 'launchpad.kiosk.render',
                 arguments: ['token' => 'tok-xyz']
             )
-            ->willReturn('https://example.com/apps/mydash/kiosk/tok-xyz');
+            ->willReturn('https://example.com/apps/launchpad/kiosk/tok-xyz');
 
         $qb = $this->makeQueryBuilder();
         $this->db->method('getQueryBuilder')->willReturn($qb);
@@ -119,7 +119,7 @@ class KioskPlaylistMapperTest extends TestCase
         $result = $mapper->findByToken(token: 'tok-xyz');
 
         $this->assertSame(
-            'https://example.com/apps/mydash/kiosk/tok-xyz',
+            'https://example.com/apps/launchpad/kiosk/tok-xyz',
             $result->getUrl()
         );
     }
@@ -163,7 +163,7 @@ class KioskPlaylistMapperTest extends TestCase
         $expr->method('isNull')->willReturn('isnull-expr');
 
         $qb = $this->createMock(IQueryBuilder::class);
-        $qb->expects($this->once())->method('update')->with(update: 'mydash_kiosk_playlists')->willReturnSelf();
+        $qb->expects($this->once())->method('update')->with(update: 'launchpad_kiosk_playlists')->willReturnSelf();
         $qb->expects($this->once())->method('set')->with(key: 'revoked_at')->willReturnSelf();
         $qb->method('where')->willReturnSelf();
         $qb->method('andWhere')->willReturnSelf();

@@ -149,7 +149,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The widget items.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
      * @spec openspec/changes/role-based-content/tasks.md#task-3
      */
     #[NoAdminRequired]

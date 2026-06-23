@@ -31,13 +31,13 @@ When a dashboard owner initiates publication, the system MUST validate the dashb
 
 ### Requirement: REQ-PDP-002 Anonymous access to published dashboards
 
-When an unauthenticated client requests a published dashboard via `GET /apps/mydash/publication/{slug}`, the system MUST serve the dashboard without requiring authentication, MUST NOT set any session cookie that identifies the viewer, and MUST execute all dashboard queries as the publication service account.
+When an unauthenticated client requests a published dashboard via `GET /apps/launchpad/publication/{slug}`, the system MUST serve the dashboard without requiring authentication, MUST NOT set any session cookie that identifies the viewer, and MUST execute all dashboard queries as the publication service account.
 
 #### Scenario: Anonymous viewer accesses a public-mode publication
 
 - **GIVEN** a published DashboardPublication with status `published`, mode `public`, and slug `wonen-zeist`
 - **AND** a viewer with no authentication cookie
-- **WHEN** the viewer requests `GET /apps/mydash/publication/wonen-zeist`
+- **WHEN** the viewer requests `GET /apps/launchpad/publication/wonen-zeist`
 - **THEN** the response MUST be HTTP 200
 - **AND** MUST include the dashboard definition and computed widget data
 - **AND** MUST NOT set a `Set-Cookie: nc_session_id` or other authenticating cookie
@@ -62,7 +62,7 @@ When an owner configures a `signed`-mode publication and issues a signed URL gra
 - **GIVEN** a published DashboardPublication with status `published`, mode `signed`
 - **WHEN** the owner issues a SignedUrlGrant with expiresAt 7 days from now
 - **THEN** the system MUST generate a signature as HMAC-SHA256(`{publicationId}:{grantId}:{expiresAt}`, tenantSecret)
-- **AND** MUST construct the shareable URL as `/apps/mydash/publication/{slug}?grant={grantId}&expires={expiresAt}&sig={signature}`
+- **AND** MUST construct the shareable URL as `/apps/launchpad/publication/{slug}?grant={grantId}&expires={expiresAt}&sig={signature}`
 - **AND** MUST store the grant with initialusageCount `0`
 
 #### Scenario: Access via valid signed URL
@@ -132,7 +132,7 @@ When a publication is in `password` mode, the viewer MUST submit a password; the
 
 ### Requirement: REQ-PDP-005 Publication branding
 
-When a published dashboard renders on the public view, the page MUST display the configured branding (logo, colours, footer) and MUST NOT display the internal MyDash navigation chrome.
+When a published dashboard renders on the public view, the page MUST display the configured branding (logo, colours, footer) and MUST NOT display the internal LaunchPad navigation chrome.
 
 #### Scenario: Branding elements appear on public view
 
@@ -143,7 +143,7 @@ When a published dashboard renders on the public view, the page MUST display the
   - CSS variables or inline styles applying primaryColour to heading backgrounds, button colors, and borders
   - The footerHtml rendered in the page footer
   - A language attribute on the `<html>` tag set to the publication's language
-  - No MyDash top navbar, no user account menu, no "Add widget" affordances
+  - No LaunchPad top navbar, no user account menu, no "Add widget" affordances
 
 #### Scenario: Meta tags and document title
 
@@ -154,7 +154,7 @@ When a published dashboard renders on the public view, the page MUST display the
 - **AND** the `<link rel="canonical">` MUST point to the publication's stable URL
 - **AND** the `<link rel="icon">` MUST point to the favicon from PublicationBranding
 
-#### Scenario: No MyDash chrome
+#### Scenario: No LaunchPad chrome
 
 - **GIVEN** any published dashboard view
 - **WHEN** the page renders
@@ -216,7 +216,7 @@ When a published dashboard is served, the response MUST carry Cache-Control head
 #### Scenario: Conditional GET with If-None-Match
 
 - **GIVEN** a client with a cached response including `ETag: "abc123-2024-05-10T14:30:00Z"`
-- **WHEN** the client sends `GET /apps/mydash/publication/wonen-zeist` with header `If-None-Match: "abc123-2024-05-10T14:30:00Z"`
+- **WHEN** the client sends `GET /apps/launchpad/publication/wonen-zeist` with header `If-None-Match: "abc123-2024-05-10T14:30:00Z"`
 - **THEN** the system MUST compare the ETag
 - **AND** if the ETag matches, MUST return `HTTP 304 Not Modified` (no response body)
 - **AND** if the ETag differs (dashboard updated), MUST return `HTTP 200` with the full response
@@ -272,7 +272,7 @@ When viewers access a published dashboard, the system MUST record only aggregate
 
 #### Scenario: Owner views analytics
 
-- **GIVEN** a dashboard owner viewing their publication's analytics in the MyDash admin dashboard
+- **GIVEN** a dashboard owner viewing their publication's analytics in the LaunchPad admin dashboard
 - **WHEN** the owner navigates to the publication analytics page
 - **THEN** the UI MUST display:
   - Daily/hourly view counts

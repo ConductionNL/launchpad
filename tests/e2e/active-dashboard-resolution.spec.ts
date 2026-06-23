@@ -26,8 +26,8 @@ import { test, expect } from '@playwright/test'
  * @param {any} page Playwright page object
  */
 async function gotoApp(page: any) {
-	await page.goto('/index.php/apps/mydash')
-	await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+	await page.goto('/index.php/apps/launchpad')
+	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 		await gotoApp(page)
 
 		// Open the sidebar so the dashboard rows are visible.
-		await page.locator('.mydash-sidebar-toggle').first().click()
+		await page.locator('.launchpad-sidebar-toggle').first().click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 
 		const rows = page.locator('.dashboard-switcher-sidebar__item')
@@ -118,7 +118,7 @@ test.describe('active-dashboard-resolution — stale preference', () => {
 
 		// The workspace MUST render either a dashboard grid or the empty-state —
 		// never a blank page / loading spinner after 2 s.
-		const gridOrEmpty = page.locator('.mydash-grid, .mydash-empty, [class*="grid-stack"]')
+		const gridOrEmpty = page.locator('.launchpad-grid, .launchpad-empty, [class*="grid-stack"]')
 		await expect(gridOrEmpty.first()).toBeAttached({ timeout: 5_000 })
 	})
 })

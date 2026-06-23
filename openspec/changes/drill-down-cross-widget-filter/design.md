@@ -2,7 +2,7 @@
 
 ## Context
 
-MyDash dashboards today render each widget as an isolated island. A chart widget pulls its own data with its own filter context; clicking a bar either does nothing or drops the user into a separate list view. Every drill-down step requires reopening filter modals on three widgets, re-entering gemeentecode and wijkcode, and reconciling inevitable inconsistencies — "is this widget's 'older than 6 weeks' calculation the same as that one's?" The user mental model is simple ("show me bezwaren in Zeist, then Vollenhove, then open ones > 6 weeks") but the UI breaks it into three separate journeys through three separate modals.
+LaunchPad dashboards today render each widget as an isolated island. A chart widget pulls its own data with its own filter context; clicking a bar either does nothing or drops the user into a separate list view. Every drill-down step requires reopening filter modals on three widgets, re-entering gemeentecode and wijkcode, and reconciling inevitable inconsistencies — "is this widget's 'older than 6 weeks' calculation the same as that one's?" The user mental model is simple ("show me bezwaren in Zeist, then Vollenhove, then open ones > 6 weeks") but the UI breaks it into three separate journeys through three separate modals.
 
 The OpenRegister API already supports multi-dimension filtering via `_filter` query parameters and uses composite indexes to serve them efficiently. The gap is in the dashboard host: no glue code detects clicks, no pub/sub layer coordinates subscribers, no URL encoding makes filtered views bookmarkable. This change adds that glue.
 
@@ -57,7 +57,7 @@ The OpenRegister API already supports multi-dimension filtering via `_filter` qu
 
 **Alternatives considered:**
 
-- Hard-code the hierarchy in code (a switch statement per known hierarchy). Rejected — organisations with custom taxonomies can't use them without forking mydash. Declarative JSON is extensible.
+- Hard-code the hierarchy in code (a switch statement per known hierarchy). Rejected — organisations with custom taxonomies can't use them without forking launchpad. Declarative JSON is extensible.
 - Compute parent relationships at query time from the data (fetch all gemeentes for the clicked wijk, infer the gemeentecode). Rejected — adds latency and couples hierarchy to the data shape, making it brittle.
 - Support arbitrary parent-relationships without inferring them (user manually clicks up the hierarchy). Rejected — the whole point of hierarchies is to make the breadcrumb and ancestor filters automatic.
 
@@ -99,12 +99,12 @@ The OpenRegister API already supports multi-dimension filtering via `_filter` qu
 
 ### D7: Saved views persist filter combinations in the register
 
-**Decision**: Signed-in users with edit permission on a dashboard can save the current filter state as a named `saved_view` row in the mydash register with fields `{id, dashboardId, name, description, filters, isShared, sharedWith, createdBy, createdAt}`. Saved views appear in a dropdown in the dashboard header; clicking one applies its clauses.
+**Decision**: Signed-in users with edit permission on a dashboard can save the current filter state as a named `saved_view` row in the launchpad register with fields `{id, dashboardId, name, description, filters, isShared, sharedWith, createdBy, createdAt}`. Saved views appear in a dropdown in the dashboard header; clicking one applies its clauses.
 
 **Alternatives considered:**
 
 - Store saved views in localStorage. Rejected — not shareable between users, no access control, lost on device change.
-- Use a separate "views" register. Rejected — the mydash register is the system of record for dashboard metadata; saved views are dashboard artifacts.
+- Use a separate "views" register. Rejected — the launchpad register is the system of record for dashboard metadata; saved views are dashboard artifacts.
 
 **Rationale**: Register-backed persistence makes saved views shareable ("team lead creates 'Open bezwaren > 6w' and shares with the team") and auditable (who created the view, when) without introducing a new persistence tier.
 
@@ -126,7 +126,7 @@ The OpenRegister API already supports multi-dimension filtering via `_filter` qu
 **Alternatives considered:**
 
 - No bound, let widgets re-render whenever their fetch completes. Rejected — on slow networks this creates confusing visual delays ("did my click do anything?").
-- 100 ms to match Nielsen's "feels instantaneous" threshold. Rejected — achievable only for in-memory caches; most widgets fetch from OR, which takes 150-250 ms on normal networks. 300 ms is the midpoint that mydash consistently hits for drill-down queries (which narrow scope, hitting better-selectivity indexes).
+- 100 ms to match Nielsen's "feels instantaneous" threshold. Rejected — achievable only for in-memory caches; most widgets fetch from OR, which takes 150-250 ms on normal networks. 300 ms is the midpoint that launchpad consistently hits for drill-down queries (which narrow scope, hitting better-selectivity indexes).
 
 **Rationale**: Jakob Nielsen's responsiveness thresholds — below 100 ms feels instantaneous, 100–1000 ms feels direct, beyond 1 s users lose flow. 300 ms is what real-world widget fetches from OR can sustain without artificial delays.
 

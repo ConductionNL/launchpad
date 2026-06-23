@@ -59,7 +59,7 @@
 				:active-dashboard-id="activeDashboard.id"
 				button-type="secondary"
 				:icon-size="20"
-				class="mydash-active-dashboard-cog"
+				class="launchpad-active-dashboard-cog"
 				@toggle-edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
 				@open-config="onRowOpenConfig(activeDashboard, activeDashboardSource)"
 				@add-custom-widget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
@@ -90,7 +90,7 @@
 		</div>
 
 		<!-- Main dashboard grid -->
-		<div class="mydash-container" :class="{ 'mydash-edit-mode': isEditMode }">
+		<div class="launchpad-container" :class="{ 'launchpad-edit-mode': isEditMode }">
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -1247,7 +1247,7 @@ export default {
 		/**
 		 * Compute the absolute URL for a slug-chain path. The launchpad
 		 * routes mount under whatever prefix `generateUrl` produces
-		 * (typically `/index.php/apps/mydash` or `/apps/mydash` when
+		 * (typically `/index.php/apps/launchpad` or `/apps/launchpad` when
 		 * URL rewriting is enabled), so we anchor onto the same prefix
 		 * the API client uses.
 		 *
@@ -1259,7 +1259,7 @@ export default {
 			if (!path) {
 				return ''
 			}
-			const prefix = generateUrl('/apps/mydash')
+			const prefix = generateUrl('/apps/launchpad')
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
 		},
@@ -1345,7 +1345,7 @@ export default {
 				return
 			}
 
-			const prefix = generateUrl('/apps/mydash')
+			const prefix = generateUrl('/apps/launchpad')
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {
@@ -1399,7 +1399,7 @@ export default {
 		 * the pin (so the cog shows "Set as default" again on next
 		 * open); clicking on any other row replaces the pin with that
 		 * dashboard's UUID. The new pref takes effect on the next
-		 * page load — visiting `/apps/mydash/` will resolve to this
+		 * page load — visiting `/apps/launchpad/` will resolve to this
 		 * dashboard via the resolver's Step 0.
 		 */
 		// eslint-disable-next-line no-unused-vars
@@ -1512,14 +1512,14 @@ export default {
 /* Nextcloud insets the content area horizontally but not at the top, so the
    grid sat flush under the navbar (8px top gap from the grid margin vs 16px
    on the sides). Add a matching top inset so the dashboard breathes evenly. */
-.mydash-container {
+.launchpad-container {
 	padding-top: 8px;
 }
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
    frosted-glass tile look (was DashboardGrid's local style) by overriding
    the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
-.mydash-container :deep(.grid-stack-item-content) {
+.launchpad-container :deep(.grid-stack-item-content) {
 	background: var(--color-main-background-blur);
 	backdrop-filter: var(--filter-background-blur);
 	-webkit-backdrop-filter: var(--filter-background-blur);
@@ -1532,7 +1532,7 @@ export default {
    would start a text selection instead of a gridstack move. Suppress text
    selection + show the move cursor so dragging works anywhere on any widget.
    The edit cog stays clickable (pointer-events unaffected). */
-.mydash-container.mydash-edit-mode :deep(.grid-stack-item-content) {
+.launchpad-container.launchpad-edit-mode :deep(.grid-stack-item-content) {
 	cursor: move;
 	user-select: none;
 	-webkit-user-select: none;
@@ -1543,9 +1543,9 @@ export default {
    own surface, and the latter now carry the shared CnWidgetWrapper
    `nc-dashboard` chrome (its own blur panel), so the grid item must be
    transparent to avoid a double background / mismatched radius. */
-.mydash-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
-.mydash-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
-.mydash-container :deep(.grid-stack-item-content:has(.tile-widget)) {
+.launchpad-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
+.launchpad-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
+.launchpad-container :deep(.grid-stack-item-content:has(.tile-widget)) {
 	background: transparent;
 	backdrop-filter: none;
 	-webkit-backdrop-filter: none;

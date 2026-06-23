@@ -3,7 +3,7 @@
 /**
  * KioskPlaylist Entity
  *
- * Represents a row in mydash_kiosk_playlists — a named, ordered list of
+ * Represents a row in launchpad_kiosk_playlists — a named, ordered list of
  * dashboards rendered chrome-less on a wall display and addressed by a
  * URL-safe token. The token grants anonymous read access to every
  * referenced dashboard, so it is a first-class access grant.

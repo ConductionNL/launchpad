@@ -11,7 +11,7 @@
 
 ## Backend
 
-- [ ] Document the `map` widget type in the canonical mydash widget catalogue.
+- [ ] Document the `map` widget type in the canonical launchpad widget catalogue.
 - [ ] Validate `map`-typed widget configurations on save: required `register`, `schema`, `geoProperty` keys; optional `spatialFilter`, `clusterThreshold`.
 
 ## Testing

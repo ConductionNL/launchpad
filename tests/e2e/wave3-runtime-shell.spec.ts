@@ -45,10 +45,10 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		// the Vue app has hydrated past initial bootstrap. Retry once to
 		// absorb the dev instance's transient 503 (needsDbUpgrade blip).
 		try {
-			await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+			await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 		} catch {
-			await page.goto('/index.php/apps/mydash')
-			await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+			await page.goto('/index.php/apps/launchpad')
+			await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 		}
 	})
 
@@ -73,7 +73,7 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		// also live in the floating controls when the active dashboard is
 		// shareable — that is the dashboard-sharing feature, not the removed
 		// cog menu — so assert the hamburger count specifically.)
-		await expect(page.locator('.mydash-floating-controls .mydash-sidebar-toggle')).toHaveCount(1)
+		await expect(page.locator('.launchpad-floating-controls .launchpad-sidebar-toggle')).toHaveCount(1)
 
 		// PR #111: the literal "Default" group pill is suppressed.
 		await expect(page.locator('.launchpad-primary-group-label', { hasText: /^Default$/ }))
@@ -128,7 +128,7 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 	})
 
 	test('PR #113: clicking a sidebar row switches the active dashboard server-side', async ({ page }) => {
-		await page.locator('.mydash-sidebar-toggle').click()
+		await page.locator('.launchpad-sidebar-toggle').click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
 
 		// Switching the active dashboard persists the choice via

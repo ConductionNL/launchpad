@@ -279,7 +279,9 @@ export const widgetRegistry = {
 		renderer: FilesWidget,
 		form: FilesForm,
 		defaultContent: {
-			folderPath: '',
+			// Default to root so a new Files widget shows content + passes
+			// validation out of the box (empty path → "Folder no longer exists").
+			folderPath: '/',
 			fileId: null,
 			viewMode: 'list',
 			showThumbnails: true,

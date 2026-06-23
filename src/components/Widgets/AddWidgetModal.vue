@@ -378,7 +378,11 @@ export default {
 		 */
 		syncChromeFromPlacement(placement) {
 			this.chrome = {
-				showTitle: placement ? placement.showTitle !== false : true,
+				// New widgets default to NO title: most custom widgets (text,
+				// image, divider, header which has its own title…) don't want a
+				// generic "Widget" chrome header. The user can switch it on.
+				// Existing placements keep whatever they were saved with.
+				showTitle: placement ? placement.showTitle !== false : false,
 				customTitle: (placement && placement.customTitle) || '',
 				backgroundColor: (placement && placement.styleConfig && placement.styleConfig.backgroundColor) || '',
 				customIcon: (placement && placement.customIcon) || '',

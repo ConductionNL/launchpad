@@ -58,7 +58,7 @@ const childStubs = {
 	DashboardSwitcherSidebar: { name: 'DashboardSwitcherSidebar', template: '<div />' },
 	SidebarBackdrop: { name: 'SidebarBackdrop', template: '<div />' },
 	WidgetPickerModal: { name: 'WidgetPickerModal', template: '<div />' },
-	AddWidgetModal: { name: 'AddWidgetModal', template: '<div />' },
+	CnAddWidgetModal: { name: 'CnAddWidgetModal', template: '<div />' },
 	WidgetStyleEditor: { name: 'WidgetStyleEditor', template: '<div />' },
 	TileEditor: { name: 'TileEditor', template: '<div />' },
 	WidgetContextMenu: { name: 'WidgetContextMenu', template: '<div />' },

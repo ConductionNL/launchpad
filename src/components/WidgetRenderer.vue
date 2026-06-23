@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<div class="widget-renderer">
+	<div class="widget-renderer" :class="{ 'widget-renderer--flush': isFullBleed }">
 		<!-- Registry-driven custom widget (label, text, image, link, header,
 		     divider, files, people, quicklinks, news, video, calendar, links,
 		     menu, container, tile, nc-widget). The placement's content blob
@@ -138,6 +138,19 @@ export default {
 				return null
 			}
 			return entry
+		},
+
+		/**
+		 * Full-bleed widget types paint their own edge-to-edge surface (banner
+		 * image/colour, divider rule) and must not be inset by the renderer's
+		 * default 16px padding — otherwise a header banner leaves a gap inside
+		 * its cell. Other widgets keep the padding for breathing room.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} true when the widget should render edge-to-edge.
+		 */
+		isFullBleed() {
+			return ['header', 'image', 'divider'].includes(this.placement?.widgetId)
 		},
 
 		/**
@@ -419,6 +432,11 @@ export default {
 .widget-renderer {
 	height: 100%;
 	padding: 16px;
+}
+
+/* Full-bleed widgets (header banner, image, divider) paint edge-to-edge. */
+.widget-renderer--flush {
+	padding: 0;
 }
 
 .widget-renderer__loading {

@@ -141,6 +141,55 @@ export const CnChartWidgetForm = stub('CnChartWidgetForm')
 export const CnStatsBlockWidget = stub('CnStatsBlockWidget')
 export const CnStatsBlockWidgetForm = stub('CnStatsBlockWidgetForm')
 
+// Communal dashboard widget catalog stub — mirrors nc-vue's
+// `dashboardWidgetRegistry` so launchpad's widgetRegistry (which now CONSUMES
+// it) resolves types. The four `form: null` types (calendar/people/
+// spend-analytics/nc-widget) match the real catalog; launchpad re-adds their
+// forms via its FORM_OVERRIDES overlay.
+// Each entry uses the REAL component stub as renderer/form so registry-dispatch
+// tests (e.g. ContainerWidget rendering `.cn-label-widget`) and form-driven
+// tests work. `form: null` for the four communal form-less types (launchpad
+// re-adds those forms via FORM_OVERRIDES). defaultContent mirrors the real
+// registrations for the types unit tests assert (label fully; others minimal).
+const _DASH = {
+	label: { renderer: CnLabelWidget, form: CnLabelWidgetForm, defaultContent: { text: '', fontSize: '16px', color: '', backgroundColor: '', fontWeight: 'bold', textAlign: 'center' } },
+	text: { renderer: CnTextWidget, form: CnTextWidgetForm, defaultContent: { text: '', fontSize: '14px', color: '', backgroundColor: '', textAlign: 'left', contentMode: 'markdown', tableMode: false, tableData: null } },
+	image: { renderer: CnImageWidget, form: CnImageWidgetForm, defaultContent: { url: '', alt: '', link: '', fit: 'cover' } },
+	link: { renderer: CnLinkButtonWidget, form: CnLinkButtonWidgetForm, defaultContent: { label: '', url: '', icon: '', actionType: 'external', backgroundColor: '', textColor: '', displayMode: 'button', listOrientation: 'vertical', listItemGap: 'normal', links: [] } },
+	divider: { renderer: CnDividerWidget, form: CnDividerWidgetForm, defaultContent: { style: 'line', lineColor: '', lineThickness: 1, lineStyle: 'solid', whitespaceSize: 'medium', headingText: '' } },
+	header: { renderer: CnHeaderWidget, form: CnHeaderWidgetForm, defaultContent: {} },
+	quicklinks: { renderer: CnQuicklinksWidget, form: CnQuicklinksWidgetForm, defaultContent: {} },
+	video: { renderer: CnVideoWidget, form: CnVideoWidgetForm, defaultContent: {} },
+	news: { renderer: CnNewsWidget, form: CnNewsWidgetForm, defaultContent: {} },
+	tile: { renderer: CnDashTileWidget, form: CnDashTileWidgetForm, defaultContent: {} },
+	links: { renderer: CnLinksWidget, form: CnLinksWidgetForm, defaultContent: {} },
+	menu: { renderer: CnMenuWidget, form: CnMenuWidgetForm, defaultContent: {} },
+	container: { renderer: stub('container-renderer'), form: CnContainerWidgetForm, defaultContent: {} },
+	files: { renderer: CnFilesWidget, form: CnFilesWidgetForm, defaultContent: { folderPath: '/' } },
+	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
+	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
+	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
+	'object-list': { renderer: CnObjectListWidget, form: CnObjectListWidgetForm, defaultContent: {} },
+	chart: { renderer: CnChartWidget, form: CnChartWidgetForm, defaultContent: {} },
+	'stats-block': { renderer: CnStatsBlockWidget, form: CnStatsBlockWidgetForm, defaultContent: {} },
+	table: { renderer: CnObjectListWidget, form: CnObjectListWidgetForm, defaultContent: {} },
+	calendar: { renderer: CnCalendarWidget, form: null, defaultContent: {} },
+	people: { renderer: CnPeopleWidget, form: null, defaultContent: {} },
+	'spend-analytics': { renderer: CnSpendAnalyticsWidget, form: null, defaultContent: {} },
+	'nc-widget': { renderer: CnNcWidgetWidget, form: null, defaultContent: {} },
+}
+export const dashboardWidgetRegistry = Object.fromEntries(Object.entries(_DASH).map(([type, e]) => [type, {
+	renderer: e.renderer,
+	form: e.form,
+	defaultContent: e.defaultContent,
+	displayName: type,
+	icon: 'ViewDashboard',
+}]))
+export const registerDashboardWidget = (type, entry) => { dashboardWidgetRegistry[type] = entry }
+export const listWidgetTypes = () => Object.keys(dashboardWidgetRegistry).filter((t) => dashboardWidgetRegistry[t].form)
+export const getWidgetTypeEntry = (type) => dashboardWidgetRegistry[type] || null
+export const getDefaultContent = (type) => ({ ...((dashboardWidgetRegistry[type] && dashboardWidgetRegistry[type].defaultContent) || {}) })
+
 export default {
 	NcModal,
 	NcButton,
@@ -206,4 +255,9 @@ export default {
 	CnChartWidgetForm,
 	CnStatsBlockWidget,
 	CnStatsBlockWidgetForm,
+	dashboardWidgetRegistry,
+	registerDashboardWidget,
+	listWidgetTypes,
+	getWidgetTypeEntry,
+	getDefaultContent,
 }

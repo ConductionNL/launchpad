@@ -127,6 +127,19 @@ export const CnContainerWidgetForm = stub('CnContainerWidgetForm')
 export const CnDashTileWidget = stub('CnDashTileWidget')
 export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
 export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
+// Analytics widgets (OpenBuild parity) — renderers + config forms.
+export const CnStatWidget = stub('CnStatWidget')
+export const CnStatWidgetForm = stub('CnStatWidgetForm')
+export const CnDeltaWidget = stub('CnDeltaWidget')
+export const CnDeltaWidgetForm = stub('CnDeltaWidgetForm')
+export const CnGaugeWidget = stub('CnGaugeWidget')
+export const CnGaugeWidgetForm = stub('CnGaugeWidgetForm')
+export const CnObjectListWidget = stub('CnObjectListWidget')
+export const CnObjectListWidgetForm = stub('CnObjectListWidgetForm')
+export const CnChartWidget = stub('CnChartWidget')
+export const CnChartWidgetForm = stub('CnChartWidgetForm')
+export const CnStatsBlockWidget = stub('CnStatsBlockWidget')
+export const CnStatsBlockWidgetForm = stub('CnStatsBlockWidgetForm')
 
 export default {
 	NcModal,
@@ -181,4 +194,16 @@ export default {
 	CnDashTileWidget,
 	CnDashTileWidgetForm,
 	CnSpendAnalyticsWidgetForm,
+	CnStatWidget,
+	CnStatWidgetForm,
+	CnDeltaWidget,
+	CnDeltaWidgetForm,
+	CnGaugeWidget,
+	CnGaugeWidgetForm,
+	CnObjectListWidget,
+	CnObjectListWidgetForm,
+	CnChartWidget,
+	CnChartWidgetForm,
+	CnStatsBlockWidget,
+	CnStatsBlockWidgetForm,
 }

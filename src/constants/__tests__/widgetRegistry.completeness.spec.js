@@ -54,6 +54,14 @@ const EXPECTED_TYPES = [
 	'text',
 	'tile',
 	'video',
+	// Analytics widgets (OpenBuild parity) — OpenRegister-data-driven.
+	'stat',
+	'delta',
+	'gauge',
+	'object-list',
+	'chart',
+	'stats-block',
+	'table',
 ]
 
 describe('widgetRegistry completeness (REQ-WDG-023)', () => {

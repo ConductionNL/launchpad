@@ -142,12 +142,31 @@ import {
 	CnContainerWidgetForm as ContainerForm,
 	CnDashTileWidgetForm as TileForm,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
+	// Analytics widgets (OpenBuild parity) — OpenRegister-data-driven. Each
+	// renderer fetches its own OR aggregate at runtime via generateUrl (no
+	// build-time OR dependency — the BI surface reads OR live, the same runtime
+	// pattern as spend-analytics); the forms self-fetch schema properties.
+	CnStatWidget as StatWidget,
+	CnStatWidgetForm as StatForm,
+	CnDeltaWidget as DeltaWidget,
+	CnDeltaWidgetForm as DeltaForm,
+	CnGaugeWidget as GaugeWidget,
+	CnGaugeWidgetForm as GaugeForm,
+	CnObjectListWidget as ObjectListWidget,
+	CnObjectListWidgetForm as ObjectListForm,
+	CnChartWidgetForm as ChartForm,
+	CnStatsBlockWidgetForm as StatsBlockForm,
 } from '@conduction/nextcloud-vue'
 // `link` rendering is delegated to CnLinkButtonWidget; LinkButtonHost is the
 // thin launchpad wrapper that supplies the host-side internal-action registry
 // dispatch + the create-file modal (see the file for details).
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+// Chart + stats-block need a content→props adapter (the underlying nc-vue
+// components take separate apexcharts/stat props, not a `content` blob); these
+// thin hosts map the registry content shape onto them (both self-fetch OR data).
+import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -470,6 +489,102 @@ export const widgetRegistry = {
 		requires: { graphql: ['financeq.transactions', 'procest.cases'] },
 		displayName: t('launchpad', 'Spend analytics'),
 		icon: 'ChartLine',
+	},
+	// Analytics widgets (OpenBuild parity). All read OpenRegister at runtime:
+	// the renderer fetches its aggregate via generateUrl, the form self-fetches
+	// schema properties — no manifest.dependencies on OR (the BI surface reads
+	// OR live, matching the spend-analytics runtime pattern). defaultContent
+	// mirrors the nc-vue dashboardWidgetRegistry registration for each type.
+	stat: {
+		renderer: StatWidget,
+		form: StatForm,
+		defaultContent: {
+			label: '',
+			icon: 'Cash',
+			iconColor: '',
+			valueColor: '#0082c9',
+			caption: '',
+			format: { style: 'number', currency: 'EUR', decimals: 0 },
+			source: { register: '', schema: '', metric: 'count', field: '', filter: {} },
+		},
+		displayName: t('launchpad', 'Statistic / KPI'),
+		icon: 'TrendingUp',
+	},
+	delta: {
+		renderer: DeltaWidget,
+		form: DeltaForm,
+		defaultContent: {
+			label: '',
+			icon: 'Cash',
+			format: { style: 'number', currency: 'EUR', decimals: 0 },
+			source: { register: '', schema: '', metric: 'count', field: '', goodDirection: 'up', current: { filter: {} }, previous: { filter: {} } },
+		},
+		displayName: t('launchpad', 'Comparison / delta'),
+		icon: 'TrendingUp',
+	},
+	gauge: {
+		renderer: GaugeWidget,
+		form: GaugeForm,
+		defaultContent: {
+			label: '',
+			format: { style: 'number', currency: 'EUR', decimals: 0 },
+			source: { register: '', schema: '', metric: 'count', field: '', filter: {} },
+			target: { kind: 'static', value: 100, metric: 'count', field: '', filter: {} },
+			thresholds: { warn: 80, danger: 100, invert: false },
+		},
+		displayName: t('launchpad', 'Gauge / utilization'),
+		icon: 'Gauge',
+	},
+	'object-list': {
+		renderer: ObjectListWidget,
+		form: ObjectListForm,
+		defaultContent: {
+			register: '',
+			schema: '',
+			filter: {},
+			sort: { field: '', dir: 'asc' },
+			limit: 5,
+			columns: [{ key: 'title', label: 'Title' }],
+		},
+		displayName: t('launchpad', 'Object list'),
+		icon: 'ClipboardList',
+	},
+	chart: {
+		renderer: ChartHost,
+		form: ChartForm,
+		defaultContent: {
+			chartKind: 'area',
+			dataSource: { register: '', schema: '', filter: {}, bucket: { field: '', interval: 'month', metric: 'count', metricField: '' } },
+		},
+		displayName: t('launchpad', 'Chart'),
+		icon: 'ChartLine',
+	},
+	'stats-block': {
+		renderer: StatsBlockHost,
+		form: StatsBlockForm,
+		defaultContent: {
+			title: '',
+			props: { countLabel: '', variant: 'default', iconClass: '' },
+			dataSource: { register: '', schema: '', metric: 'count', field: '', filter: {} },
+		},
+		displayName: t('launchpad', 'Statistic card'),
+		icon: 'ChartBar',
+	},
+	// `table` aliases the object-list renderer/form (matches the nc-vue
+	// dashboardWidgetRegistry alias) with a table-shaped defaultContent.
+	table: {
+		renderer: ObjectListWidget,
+		form: ObjectListForm,
+		defaultContent: {
+			register: '',
+			schema: '',
+			filter: {},
+			sort: { field: '', dir: 'asc' },
+			limit: 10,
+			columns: [{ key: 'title', label: 'Title' }],
+		},
+		displayName: t('launchpad', 'Table'),
+		icon: 'ClipboardList',
 	},
 }
 

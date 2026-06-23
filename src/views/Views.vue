@@ -165,10 +165,11 @@
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
 		     no API calls itself; this view persists the emitted payload. -->
-		<AddWidgetModal
+		<CnAddWidgetModal
 			:show="isCustomWidgetModalOpen"
 			:preselected-type="customWidgetPreselectedType"
 			:editing-widget="customWidgetEditing"
+			:upload-fn="iconUploadFn"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
 
@@ -233,7 +234,7 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl, imagePath } from '@nextcloud/router'
 
@@ -247,8 +248,8 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetPickerModal from '../components/WidgetPickerModal.vue'
 import TileEditor from '../components/TileEditor.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
-import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
+import { uploadDataUrl } from '../services/resourceService.js'
 import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
@@ -279,7 +280,7 @@ export default {
 		CnWidgetStyleEditorModal,
 		TileEditor,
 		DashboardConfigModal,
-		AddWidgetModal,
+		CnAddWidgetModal,
 		WidgetContextMenu,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
@@ -996,6 +997,19 @@ export default {
 			} catch (error) {
 				console.error('[Views] Failed to save custom widget:', error)
 			}
+		},
+
+		/**
+		 * Upload transport for the shared CnAddWidgetModal's Appearance icon
+		 * picker — rounds a custom icon data URL through LaunchPad's resource
+		 * service so it isn't embedded inline.
+		 *
+		 * @param {File} file the file to upload.
+		 * @return {Promise<string>} the resulting URL/data URL.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		iconUploadFn(file) {
+			return uploadDataUrl(file)
 		},
 
 		/**

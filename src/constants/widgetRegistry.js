@@ -37,6 +37,7 @@
 
 import {
 	dashboardWidgetRegistry,
+	registerDashboardWidget,
 	listWidgetTypes as cnListWidgetTypes,
 	getWidgetTypeEntry as cnGetWidgetTypeEntry,
 	getDefaultContent as cnGetDefaultContent,
@@ -90,6 +91,18 @@ const FORM_OVERRIDES = {
 	people: PeopleForm,
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,
+}
+
+// Inject LaunchPad's form-overrides INTO the shared registry so the communal
+// CnAddWidgetModal (which reads `dashboardWidgetRegistry` directly) can offer +
+// configure these types too — the modal is now the single add/edit surface for
+// both LaunchPad and OpenBuild. Grid rendering still uses LaunchPad's
+// RENDERER_OVERRIDES via `widgetRegistry`/`getWidgetTypeEntry` below.
+for (const [type, form] of Object.entries(FORM_OVERRIDES)) {
+	const base = cnGetWidgetTypeEntry(type)
+	if (base) {
+		registerDashboardWidget(type, { ...base, form })
+	}
 }
 
 /**

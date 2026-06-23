@@ -240,6 +240,8 @@ return [
 		['name' => 'widgetApi#calendarEvents',
 		 'url' => '/api/widgets/calendar/{placementId}/events', 'verb' => 'GET',
 		 'requirements' => ['placementId' => '\d+']],
+		// REQ-CAL-002: list the user's calendars for the config-form picker.
+		['name' => 'widgetApi#calendars', 'url' => '/api/widgets/calendar/calendars', 'verb' => 'GET'],
 		['name' => 'widgetApi#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],
 		['name' => 'widgetApi#removePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'DELETE'],
 

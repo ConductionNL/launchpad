@@ -191,6 +191,52 @@ class CalendarWidgetService
     }//end getEvents()
 
     /**
+     * List the current user's internal calendars for the config-form picker
+     * (REQ-CAL-002). Each entry's `key` is the identifier
+     * {@see fetchInternalEvents} filters on (the search result's
+     * `calendar-key`). Returns an empty list when the Calendar app is absent.
+     *
+     * @param string $userId The current user id.
+     *
+     * @return array<int, array{key: string, name: string, color: string}>
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
+     */
+    public function listCalendars(string $userId): array
+    {
+        if ($this->calendarMgr === null) {
+            return [];
+        }
+
+        $out = [];
+        try {
+            $calendars = $this->calendarMgr->getCalendarsForPrincipal(
+                principalUri: 'principals/users/'.$userId
+            );
+        } catch (Throwable $exception) {
+            $this->logger->warning(
+                message: 'Calendar widget: listing calendars failed: '.$exception->getMessage()
+            );
+            return [];
+        }
+
+        foreach ($calendars as $calendar) {
+            $color = '';
+            if (method_exists(object_or_class: $calendar, method: 'getDisplayColor') === true) {
+                $color = (string) ($calendar->getDisplayColor() ?? '');
+            }
+
+            $out[] = [
+                'key'   => (string) $calendar->getKey(),
+                'name'  => (string) $calendar->getDisplayName(),
+                'color' => $color,
+            ];
+        }
+
+        return $out;
+    }//end listCalendars()
+
+    /**
      * Fetch events from internal Nextcloud calendars.
      *
      * Uses OCP\Calendar\IManager::search() when available so ACL is

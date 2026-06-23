@@ -250,6 +250,17 @@ export const api = {
 		return axios.get(`${baseUrl}/api/widgets/items?${params.toString()}`)
 	},
 
+	/**
+	 * List the current user's calendars for the calendar widget's config-form
+	 * picker (REQ-CAL-002).
+	 *
+	 * @return {Promise} resolves to `{ calendars: [{key, name, color}] }`.
+	 * @spec openspec/specs/calendar-widget/spec.md
+	 */
+	getCalendarWidgetCalendars() {
+		return axios.get(`${baseUrl}/api/widgets/calendar/calendars`)
+	},
+
 	/** @spec openspec/specs/dashboards/spec.md */
 	addWidget(dashboardId, data) {
 		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/widgets`, data)

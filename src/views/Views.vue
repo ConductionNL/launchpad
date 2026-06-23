@@ -170,6 +170,7 @@
 			:preselected-type="customWidgetPreselectedType"
 			:editing-widget="customWidgetEditing"
 			:upload-fn="iconUploadFn"
+			:calendars-fetcher="fetchCalendars"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
 
@@ -1010,6 +1011,19 @@ export default {
 		 */
 		iconUploadFn(file) {
 			return uploadDataUrl(file)
+		},
+
+		/**
+		 * Calendar list fetcher for the shared CnAddWidgetModal's calendar
+		 * widget picker — returns the user's calendars so authors select them
+		 * instead of typing principal URIs (REQ-CAL-002).
+		 *
+		 * @return {Promise<Array<{key: string, name: string, color: string}>>}
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
+		async fetchCalendars() {
+			const res = await api.getCalendarWidgetCalendars()
+			return res?.data?.calendars || []
 		},
 
 		/**

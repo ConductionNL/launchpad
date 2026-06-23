@@ -155,8 +155,8 @@ class KioskService
         $saved = $this->playlistMapper->insert(entity: $playlist);
 
         $this->logger->debug(
-            message: sprintf('mydash: kiosk playlist created by %s', $callerId),
-            context: ['app' => 'mydash']
+            message: sprintf('launchpad: kiosk playlist created by %s', $callerId),
+            context: ['app' => 'launchpad']
         );
 
         return $saved;

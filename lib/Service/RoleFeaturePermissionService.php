@@ -67,7 +67,7 @@ use OCP\IUserManager;
  * Searched `openregister/lib/Service/` for the same symbols:
  *   → `AuthorizationService` and `PropertyRbacHandler` provide general
  *     object-level RBAC. Neither performs widget-scoped filtering per
- *     group — this is domain-specific to MyDash.
+ *     group — this is domain-specific to LaunchPad.
  *
  * Verified `@conduction/nextcloud-vue`:
  *   → No role-filtered picker component exists in the shared library.

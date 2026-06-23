@@ -82,7 +82,7 @@ class PublicShareMapper extends QBMapper
         if ($share->getToken() !== null) {
             $share->setUrl(
                 $this->urlGenerator->linkToRouteAbsolute(
-                    routeName: 'mydash.publicShare.show',
+                    routeName: 'launchpad.publicShare.show',
                     arguments: ['token' => $share->getToken()]
                 )
             );

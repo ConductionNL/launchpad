@@ -13,7 +13,7 @@
 /* =========================================================
    REQ-SHELL-001 — full-width chrome wrapper
    Nextcloud's `#app-workspace` is a flex row container.
-   MyDash opts out of the navigation rail (PageController sets
+   LaunchPad opts out of the navigation rail (PageController sets
    `id-app-navigation: null`), so the workspace wrapper must
    claim the full available width or the grid collapses to 0px.
    ========================================================= */

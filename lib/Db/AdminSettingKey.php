@@ -34,7 +34,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 /**
- * All admin-setting keys used by MyDash.
+ * All admin-setting keys used by LaunchPad.
  *
  * The enum value is the string stored in oc_mydash_admin_settings.setting_key.
  *

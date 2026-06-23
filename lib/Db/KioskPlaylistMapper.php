@@ -70,7 +70,7 @@ class KioskPlaylistMapper extends QBMapper
         if ($playlist->getToken() !== null) {
             $playlist->setUrl(
                 $this->urlGenerator->linkToRouteAbsolute(
-                    routeName: 'mydash.kiosk.render',
+                    routeName: 'launchpad.kiosk.render',
                     arguments: ['token' => $playlist->getToken()]
                 )
             );

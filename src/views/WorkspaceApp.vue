@@ -444,7 +444,7 @@ export default {
 
 <!--
   Global (unscoped) layout rules for the chrome wrapper. Nextcloud's
-  `#app-workspace` is a `display: flex` row container. MyDash opts out of
+  `#app-workspace` is a `display: flex` row container. LaunchPad opts out of
   the navigation rail (PageController sets `id-app-navigation: null`), so
   the workspace wrapper must claim the full available width — without this,
   `.launchpad-workspace` collapses to 0px and the dashboard grid renders empty.

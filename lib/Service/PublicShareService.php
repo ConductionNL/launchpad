@@ -156,8 +156,8 @@ class PublicShareService
         $saved = $this->shareMapper->insert(entity: $share);
 
         $this->logger->debug(
-            message: sprintf('mydash: public share created for dashboard %s', $dashboardUuid),
-            context: ['app' => 'mydash']
+            message: sprintf('launchpad: public share created for dashboard %s', $dashboardUuid),
+            context: ['app' => 'launchpad']
         );
 
         return $saved;

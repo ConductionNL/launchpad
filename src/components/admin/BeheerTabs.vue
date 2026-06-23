@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -8,7 +8,7 @@
 		<div
 			class="beheer-tabs__strip"
 			role="tablist"
-			:aria-label="t('mydash', 'Administration areas')">
+			:aria-label="t('launchpad', 'Administration areas')">
 			<button
 				v-for="tab in tabs"
 				:key="tab.slug"

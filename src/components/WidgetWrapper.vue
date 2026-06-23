@@ -146,7 +146,15 @@ export default {
 			if (this.isChromelessType && !this.placement.customTitle) {
 				return false
 			}
-			return this.placement.showTitle !== false
+			// `showTitle` round-trips through the DB as an integer (0/1) or a
+			// string, so a strict `!== false` check wrongly keeps the header
+			// for a stored 0. Treat 0 / '0' / false as "off"; an absent flag
+			// (legacy placements) still defaults to shown.
+			const flag = this.placement.showTitle
+			if (flag === undefined || flag === null) {
+				return true
+			}
+			return flag !== false && flag !== 0 && flag !== '0' && flag !== ''
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

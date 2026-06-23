@@ -376,13 +376,30 @@ export default {
 		 * @param {object|null} placement the placement being edited, or null on add.
 		 * @return {void}
 		 */
+		/**
+		 * Interpret a placement's `showTitle` as a boolean. The flag round-trips
+		 * through the DB as an integer (0/1) or string, so treat 0 / '0' / false
+		 * / '' as off; an absent flag defaults to on (legacy behaviour).
+		 *
+		 * @param {boolean|number|string|undefined|null} flag the stored value.
+		 * @return {boolean} whether the title header is on.
+		 */
+		isShowTitleOn(flag) {
+			if (flag === undefined || flag === null) {
+				return true
+			}
+			return flag !== false && flag !== 0 && flag !== '0' && flag !== ''
+		},
+
 		syncChromeFromPlacement(placement) {
 			this.chrome = {
 				// New widgets default to NO title: most custom widgets (text,
 				// image, divider, header which has its own title…) don't want a
 				// generic "Widget" chrome header. The user can switch it on.
 				// Existing placements keep whatever they were saved with.
-				showTitle: placement ? placement.showTitle !== false : false,
+				// `showTitle` round-trips as a DB integer (0/1), so a strict
+				// `!== false` check would wrongly tick the box for a stored 0.
+				showTitle: placement ? this.isShowTitleOn(placement.showTitle) : false,
 				customTitle: (placement && placement.customTitle) || '',
 				backgroundColor: (placement && placement.styleConfig && placement.styleConfig.backgroundColor) || '',
 				customIcon: (placement && placement.customIcon) || '',

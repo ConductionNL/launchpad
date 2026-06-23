@@ -46,6 +46,26 @@ describe('WidgetWrapper — custom header style', () => {
 	})
 })
 
+describe('WidgetWrapper — showHeader (showTitle round-trip)', () => {
+	// `showTitle` persists to the DB as an integer/string, so the header
+	// decision must treat 0 / '0' / false / '' as "off" — a strict `!== false`
+	// check wrongly kept the header for a stored 0 (the generic "Widget" title).
+	it.each([
+		[false, false],
+		[0, false],
+		['0', false],
+		['', false],
+		[true, true],
+		[1, true],
+		['1', true],
+		[undefined, true],
+		[null, true],
+	])('showTitle=%p → showHeader=%p', (showTitle, expected) => {
+		const wrapper = mountWrapper({ id: 9, widgetId: 'data', showTitle, styleConfig: {} })
+		expect(wrapper.vm.showHeader).toBe(expected)
+	})
+})
+
 describe('WidgetWrapper — edit cog', () => {
 	it('renders the shared cog only in edit mode', () => {
 		const placement = { id: 3, widgetId: 'data', styleConfig: {} }

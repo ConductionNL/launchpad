@@ -106,16 +106,23 @@ export function loadInitialState(page) {
  * @return {*} The pushed value, or the fallback.
  */
 function readKey(key, fallback) {
-	try {
-		// The installed app id is 'launchpad' (NC App Store id), so the PHP
-		// side provides initial-state under that namespace. Fall back to
-		// the 'launchpad' namespace for forward compatibility.
-		let value = loadState('launchpad', key, undefined)
-		if (value === undefined) {
-			value = loadState('launchpad', key, fallback)
+	// The app's source id is 'launchpad', but it is still installed under the
+	// NC App Store id 'mydash' in some environments (the deploy transform
+	// renames the PHP APP_ID launchpad→mydash, so PHP injects the initial
+	// state under 'mydash'). Try each namespace in its OWN try/catch: when a
+	// namespace's element is absent, `loadState` throws even with an explicit
+	// `undefined` fallback, so a single shared try would abort before reaching
+	// the second namespace — leaving a mydash deployment with "No dashboards
+	// available" despite a fully-populated initial state.
+	for (const app of ['launchpad', 'mydash']) {
+		try {
+			const value = loadState(app, key, undefined)
+			if (value !== undefined) {
+				return value
+			}
+		} catch (e) {
+			// Namespace not present on this page — fall through to the next.
 		}
-		return value === undefined ? fallback : value
-	} catch (e) {
-		return fallback
 	}
+	return fallback
 }

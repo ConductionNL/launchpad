@@ -235,3 +235,5 @@ Dependencies with licenses not on this list will fail CI unless explicitly appro
 ## Authors
 
 Built by [Conduction](https://conduction.nl) -- open-source software for Dutch government and public sector organizations.
+
+<!-- ci: trigger release-workflow check (launchpad rebrand) -->

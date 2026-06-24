@@ -274,13 +274,22 @@ class DashboardApiController extends Controller
             );
         }
 
+        // The effective dashboard can now be a group/default (showcase)
+        // dashboard the user does not own (resolved via the last-used
+        // preference), so tag ownership the same way show() does rather
+        // than letting the client assume the caller owns it.
+        $activeDashboard = $result['dashboard'];
+        $isOwner         = ($activeDashboard->getUserId() === $this->userId);
+
         return ResponseHelper::success(
             data: [
-                'dashboard'       => $result['dashboard']->jsonSerialize(),
+                'dashboard'       => $activeDashboard->jsonSerialize(),
                 'placements'      => ResponseHelper::serializeList(
                     entities: $result['placements']
                 ),
                 'permissionLevel' => $result['permissionLevel'],
+                'isOwner'         => $isOwner,
+                'sharedBy'        => $isOwner === true ? null : $activeDashboard->getUserId(),
             ]
         );
     }//end getActive()

@@ -312,9 +312,12 @@ export const useDashboardStore = defineStore('dashboard', {
 				if (activeResponse.data) {
 					this.activeDashboard = {
 						...activeResponse.data.dashboard,
-						// getActive only returns the user's own dashboards.
-						isOwner: true,
-						sharedBy: null,
+						// getActive can now resolve a group/showcase dashboard
+						// the user doesn't own (via the last-used preference),
+						// so honour the ownership tags it returns; default to
+						// owner when an older backend omits them.
+						isOwner: activeResponse.data.isOwner ?? true,
+						sharedBy: activeResponse.data.sharedBy ?? null,
 					}
 					this.widgetPlacements = activeResponse.data.placements || []
 					this.permissionLevel = activeResponse.data.permissionLevel || 'full'

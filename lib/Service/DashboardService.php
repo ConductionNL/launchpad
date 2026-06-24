@@ -381,23 +381,40 @@ class DashboardService
      */
     public function getEffectiveDashboard(string $userId): ?array
     {
-        // Wave3.7 Step 0 — explicit default-dashboard pin wins over
-        // the auto-overwriting active flag. Resolves the pinned UUID
-        // through the user's visible set so a stale UUID falls
-        // through to the legacy chain rather than 404'ing.
+        // Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
+        // then the auto-overwriting last-used preference (REQ-DASH-019),
+        // both against the user's full visible set. This honours a
+        // group/default (showcase) dashboard whose `user_id` is NULL —
+        // not just personal `is_active` rows — so the API-driven view
+        // matches the server-rendered landing URL, which
+        // resolveActiveDashboard() resolves the same way. A stale pref
+        // (UUID no longer visible) falls through to the legacy chain.
         $defaultUuid = $this->getDefaultPreference(userId: $userId);
-        if ($defaultUuid !== '') {
+        $activeUuid  = (string) $this->config->getUserValue(
+            userId: $userId,
+            appName: Application::APP_ID,
+            key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
+            default: ''
+        );
+        if ($defaultUuid !== '' || $activeUuid !== '') {
             $visible = $this->getVisibleToUser(userId: $userId);
-            foreach ($visible as $entry) {
-                $candidate = $entry['dashboard'];
-                if ((string) $candidate->getUuid() === $defaultUuid) {
-                    $placements = $this->placementMapper->findByDashboardId(
-                        dashboardId: $candidate->getId()
-                    );
-                    return $this->dashResolver->buildResult(
-                        dashboard: $candidate,
-                        placements: $placements
-                    );
+            // Default pin wins over last-used — same precedence as
+            // resolveActiveDashboard() steps 0 then 1.
+            foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
+                if ($prefUuid === '') {
+                    continue;
+                }
+                foreach ($visible as $entry) {
+                    $candidate = $entry['dashboard'];
+                    if ((string) $candidate->getUuid() === $prefUuid) {
+                        $placements = $this->placementMapper->findByDashboardId(
+                            dashboardId: $candidate->getId()
+                        );
+                        return $this->dashResolver->buildResult(
+                            dashboard: $candidate,
+                            placements: $placements
+                        );
+                    }
                 }
             }
         }

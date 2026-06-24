@@ -5,14 +5,12 @@
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>mydash</id>
+	<id>launchpad</id>
 	<name lang="en">LaunchPad</name>
 	<name lang="nl">LaunchPad</name>
 	<summary lang="en">Drag-and-drop dashboards with templates, tiles, and smart visibility</summary>
 	<summary lang="nl">Drag-and-drop dashboards met templates, tegels en slimme zichtbaarheid</summary>
-	<description lang="en"><![CDATA[> ⚠️ **Active development — not for production use yet.** This app is under active development. Although it may carry a stable release status, **please do not use it in production environments before 17 June 2026.** See the [app page on conduction.nl](https://conduction.nl/apps/launchpad) for release planning and what this app does.
-
-LaunchPad supercharges the Nextcloud dashboard. Create personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams.
+	<description lang="en"><![CDATA[LaunchPad supercharges the Nextcloud dashboard. Create personalized workspaces with drag-and-drop widgets, custom shortcut tiles, and smart visibility rules — then let admins roll out templates to entire teams.
 
 **Key Features**
 
@@ -30,9 +28,7 @@ Perfect for organizations that want consistent, curated dashboards for their tea
 
 Free and open source under the EUPL-1.2 license.
     ]]></description>
-	<description lang="nl"><![CDATA[> ⚠️ **In actieve ontwikkeling — nog niet voor productiegebruik.** Deze app is volop in ontwikkeling. Hoewel de app een stabiele release-status kan hebben, **gebruik deze nog niet in productieomgevingen vóór 17 juni 2026.** Zie de [app-pagina op conduction.nl](https://conduction.nl/apps/launchpad) voor release-planning en het doel van deze app.
-
-LaunchPad geeft het Nextcloud-dashboard superkrachten. Maak persoonlijke werkruimtes met drag-and-drop widgets, eigen snelkoppelingstegels en slimme zichtbaarheidsregels — en laat beheerders templates uitrollen naar hele teams.
+	<description lang="nl"><![CDATA[LaunchPad geeft het Nextcloud-dashboard superkrachten. Maak persoonlijke werkruimtes met drag-and-drop widgets, eigen snelkoppelingstegels en slimme zichtbaarheidsregels — en laat beheerders templates uitrollen naar hele teams.
 
 **Belangrijkste functies**
 
@@ -50,7 +46,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.8</version>
+	<version>1.0.5-unstable.11</version>
 	<licence>agpl</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -91,11 +87,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- role-based-content task-2: seed default role-feature permissions. -->
 			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
+			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
 		</install>
 		<post-migration>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
 			<step>OCA\LaunchPad\Repair\PurgeOrphanedCascadeData</step>
+			<!-- Ensure background jobs are registered after every upgrade. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
 		</post-migration>
 	</repair-steps>
 
@@ -115,7 +115,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\LaunchPad\Command\DashboardShowCommand</command>
 		<command>OCA\LaunchPad\Command\DashboardDeleteCommand</command>
 		<command>OCA\LaunchPad\Command\DashboardDebugShareCommand</command>
-		<command>OCA\LaunchPad\Command\UserRevokeFeedTokenCommand</command>
 		<command>OCA\LaunchPad\Command\I18nExportStringsCommand</command>
 		<command>OCA\LaunchPad\Command\I18nMigrateLanguageStructureCommand</command>
 		<command>OCA\LaunchPad\Command\I18nCopyNavigationCommand</command>
@@ -125,7 +124,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
 		<command>OCA\LaunchPad\Command\DemoShowcasesInstallCommand</command>
 		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
-		<!-- REQ-WIZ-010: setup wizard via `php occ mydash:setup`. -->
+		<!-- REQ-WIZ-010: setup wizard via `php occ launchpad:setup`. -->
 		<command>OCA\LaunchPad\Command\SetupCommand</command>
 		<!-- REQ-GFSB-008: one-time DB→GroupFolder content migration. -->
 		<command>OCA\LaunchPad\Command\MigrateStorageToGroupFolder</command>
@@ -136,7 +135,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	<navigations>
 		<navigation>
 			<name>LaunchPad</name>
-			<route>mydash.page.index</route>
+			<route>launchpad.page.index</route>
 			<icon>app.svg</icon>
 			<order>-5</order>
 		</navigation>

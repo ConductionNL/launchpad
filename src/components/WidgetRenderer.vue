@@ -164,7 +164,14 @@ export default {
 		},
 
 		isTileWidget() {
-			return this.placement.widgetId && this.placement.widgetId.startsWith('tile-')
+			if (this.placement.widgetId && this.placement.widgetId.startsWith('tile-')) {
+				return true
+			}
+			// Inline tiles carry their config on the placement (tileType set)
+			// and may use a non-`tile-` widgetId — the export/import and demo-
+			// showcase format tags them `mydash-tile`. Treat any placement
+			// with a tileType as a tile so those render too.
+			return Boolean(this.placement.tileType)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -176,6 +183,22 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		tileData() {
 			if (!this.isTileWidget) return null
+			// Inline tile: the config lives on the placement itself
+			// (export/import + demo-showcase format), so build the tile
+			// object directly instead of resolving it from the tile store.
+			if (this.placement.tileType) {
+				return {
+					id: this.placement.id,
+					title: this.placement.tileTitle,
+					icon: this.placement.tileIcon,
+					iconType: this.placement.tileIconType,
+					backgroundColor: this.placement.tileBackgroundColor,
+					textColor: this.placement.tileTextColor,
+					linkType: this.placement.tileLinkType,
+					linkValue: this.placement.tileLinkValue,
+				}
+			}
+			// Referenced tile: resolve the Tile entity from the store by id.
 			const { tiles } = storeToRefs(useTileStore())
 			return tiles.value.find(t => t.id === this.tileId)
 		},

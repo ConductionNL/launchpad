@@ -40,11 +40,18 @@
 				viewBox="0 0 24 24">
 				<path :d="tile.icon" />
 			</svg>
-			<!-- Icon class or emoji or URL -->
+			<!-- Icon class or emoji or URL or MDI registry name -->
 			<div v-else class="tile-widget__icon">
 				<span v-if="tile.iconType === 'class'" :class="['icon', tile.icon]" />
 				<img v-else-if="tile.iconType === 'url'" :src="tile.icon" alt="Icon">
 				<span v-else-if="tile.iconType === 'emoji'" class="tile-widget__emoji">{{ tile.icon }}</span>
+				<!-- MDI registry name (export/import + demo-showcase tiles). The
+				     MDI component fills with currentColor, so tint via color. -->
+				<CnDashboardIcon
+					v-else-if="tile.iconType === 'mdi'"
+					:name="tile.icon"
+					:size="64"
+					:style="{ color: tile.textColor || '#ffffff' }" />
 			</div>
 			<div
 				class="tile-widget__title"
@@ -60,13 +67,14 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
-import { CnWidgetEditCog } from '@conduction/nextcloud-vue'
+import { CnWidgetEditCog, CnDashboardIcon } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'TileWidget',
 
 	components: {
 		CnWidgetEditCog,
+		CnDashboardIcon,
 	},
 
 	emits: ['edit', 'remove'],
@@ -85,10 +93,18 @@ export default {
 	computed: {
 		/** @spec openspec/specs/tiles/spec.md */
 		tileUrl() {
+			const value = this.tile.linkValue
 			if (this.tile.linkType === 'app') {
-				return generateUrl('/apps/' + this.tile.linkValue)
+				return generateUrl('/apps/' + value)
 			}
-			return this.tile.linkValue
+			// Internal absolute paths (e.g. /apps/deck, /apps/text) MUST go
+			// through generateUrl so instances served under a sub-directory or
+			// requiring an /index.php prefix route correctly. External URLs
+			// (http(s)://, protocol-relative //, mailto:, tel:) pass through.
+			if (typeof value === 'string' && value.startsWith('/') && value.startsWith('//') === false) {
+				return generateUrl(value)
+			}
+			return value
 		},
 	},
 

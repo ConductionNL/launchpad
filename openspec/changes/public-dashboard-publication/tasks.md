@@ -14,23 +14,23 @@
 
 ## OpenRegister Schemas
 
-- [ ] Task 6: Define OpenRegister schema `DashboardPublication` with properties: publicationId (UUID), dashboardId (ref to mydash dashboards register), slug (string, pattern, unique index), mode (enum: public/signed/password), publishedAt (datetime), publishedBy (ref to user), status (enum: draft/published/paused/retracted), retractionReason (string nullable), lastModifiedAt (datetime). Add to `lib/Settings/mydash_register.json` with `x-openregister.type: "application"`.
+- [ ] Task 6: Define OpenRegister schema `DashboardPublication` with properties: publicationId (UUID), dashboardId (ref to launchpad dashboards register), slug (string, pattern, unique index), mode (enum: public/signed/password), publishedAt (datetime), publishedBy (ref to user), status (enum: draft/published/paused/retracted), retractionReason (string nullable), lastModifiedAt (datetime). Add to `lib/Settings/launchpad_register.json` with `x-openregister.type: "application"`.
 
-- [ ] Task 7: Define OpenRegister schema `PublicationBranding` with properties: publicationId (ref), organisationLogo (UUID ref to file), favicon (UUID ref to file), primaryColour (hex string), secondaryColour (hex string), fontFamily (string), footerHtml (string), accessibilityStatementUrl (url), privacyStatementUrl (url), contactEmail (email), language (enum: nl/en/fr/de). Add to `lib/Settings/mydash_register.json`.
+- [ ] Task 7: Define OpenRegister schema `PublicationBranding` with properties: publicationId (ref), organisationLogo (UUID ref to file), favicon (UUID ref to file), primaryColour (hex string), secondaryColour (hex string), fontFamily (string), footerHtml (string), accessibilityStatementUrl (url), privacyStatementUrl (url), contactEmail (email), language (enum: nl/en/fr/de). Add to `lib/Settings/launchpad_register.json`.
 
-- [ ] Task 8: Define OpenRegister schema `PublicationAccess` with properties: publicationId (ref), robotsPolicy (enum: index_follow/noindex_nofollow/noindex_follow), cacheControlMaxAge (integer, seconds, default 0), staleWhileRevalidate (integer, seconds, default 0), allowedReferrers (array of strings, optional), allowedCountries (array of ISO 3166-1 alpha-2 codes, optional). Add to `lib/Settings/mydash_register.json`.
+- [ ] Task 8: Define OpenRegister schema `PublicationAccess` with properties: publicationId (ref), robotsPolicy (enum: index_follow/noindex_nofollow/noindex_follow), cacheControlMaxAge (integer, seconds, default 0), staleWhileRevalidate (integer, seconds, default 0), allowedReferrers (array of strings, optional), allowedCountries (array of ISO 3166-1 alpha-2 codes, optional). Add to `lib/Settings/launchpad_register.json`.
 
-- [ ] Task 9: Define OpenRegister schema `SignedUrlGrant` with properties: grantId (UUID), publicationId (ref), issuedTo (string, label), issuedAt (datetime), expiresAt (datetime), signature (string, HMAC-SHA256), usageCount (integer, default 0), lastUsedAt (datetime nullable), revoked (boolean, default false). Add to `lib/Settings/mydash_register.json`.
+- [ ] Task 9: Define OpenRegister schema `SignedUrlGrant` with properties: grantId (UUID), publicationId (ref), issuedTo (string, label), issuedAt (datetime), expiresAt (datetime), signature (string, HMAC-SHA256), usageCount (integer, default 0), lastUsedAt (datetime nullable), revoked (boolean, default false). Add to `lib/Settings/launchpad_register.json`.
 
-- [ ] Task 10: Define OpenRegister schema `PasswordGate` with properties: publicationId (ref), passwordHash (string, bcrypt), hint (string nullable), attemptsLockoutThreshold (integer, default 5), lockoutDurationSeconds (integer, default 300). Add to `lib/Settings/mydash_register.json`.
+- [ ] Task 10: Define OpenRegister schema `PasswordGate` with properties: publicationId (ref), passwordHash (string, bcrypt), hint (string nullable), attemptsLockoutThreshold (integer, default 5), lockoutDurationSeconds (integer, default 300). Add to `lib/Settings/launchpad_register.json`.
 
-- [ ] Task 11: Define OpenRegister schema `PublicationServiceAccount` with properties: tenantId (ref), accountId (string, identifier), allowedRegisters (array of register names), allowedSchemas (array of schema names), rowLevelFilter (JSON nullable), createdAt (datetime), rotatedAt (datetime). Add to `lib/Settings/mydash_register.json`.
+- [ ] Task 11: Define OpenRegister schema `PublicationServiceAccount` with properties: tenantId (ref), accountId (string, identifier), allowedRegisters (array of register names), allowedSchemas (array of schema names), rowLevelFilter (JSON nullable), createdAt (datetime), rotatedAt (datetime). Add to `lib/Settings/launchpad_register.json`.
 
-- [ ] Task 12: Define OpenRegister schema `PublicationViewLog` with properties: publicationId (ref), day (date, ISO format), hourBucket (integer 0-23, UTC), viewCount (integer), uniqueSessionCount (integer), topCountry (ISO 3166-1 alpha-2 nullable), topReferrer (string nullable). Add to `lib/Settings/mydash_register.json` with `@self` envelope. Include composite index `(publicationId, day, hourBucket)` for efficient queries.
+- [ ] Task 12: Define OpenRegister schema `PublicationViewLog` with properties: publicationId (ref), day (date, ISO format), hourBucket (integer 0-23, UTC), viewCount (integer), uniqueSessionCount (integer), topCountry (ISO 3166-1 alpha-2 nullable), topReferrer (string nullable). Add to `lib/Settings/launchpad_register.json` with `@self` envelope. Include composite index `(publicationId, day, hourBucket)` for efficient queries.
 
 ## Seed Data
 
-- [ ] Task 13: Add 3 seed publications to `lib/Settings/mydash_register.json` under `components.objects[]` with `@self` envelope:
+- [ ] Task 13: Add 3 seed publications to `lib/Settings/launchpad_register.json` under `components.objects[]` with `@self` envelope:
   1. Public gemeente dashboard (slug: `wonen-zeist`, mode: public, robotsPolicy: index_follow, cacheControlMaxAge: 3600)
   2. Signed-URL press briefing (slug: `press-may-2024`, mode: signed, robotsPolicy: noindex_nofollow, grants: array with 1 example SignedUrlGrant expiring 7 days ahead)
   3. Password-gated consultation results (slug: `inspraak-2024`, mode: password, passwordHash: bcrypt(`demo`), robotsPolicy: noindex_follow)
@@ -83,7 +83,7 @@
 
 ## Frontend Components
 
-- [ ] Task 19: Create `src/components/PublicationPasswordForm.vue` component. Renders a minimal HTML form (no MyDash chrome) with a password input, submit button, and error messages. Calls publicationService.submitPassword(). On success, sets a session cookie and reloads the dashboard. On failure, increments attempt counter and shows hint after N attempts. Displays lockout message if lockoutRemaining > 0.
+- [ ] Task 19: Create `src/components/PublicationPasswordForm.vue` component. Renders a minimal HTML form (no LaunchPad chrome) with a password input, submit button, and error messages. Calls publicationService.submitPassword(). On success, sets a session cookie and reloads the dashboard. On failure, increments attempt counter and shows hint after N attempts. Displays lockout message if lockoutRemaining > 0.
 
 - [ ] Task 20: Create `src/components/PublicationBrandingForm.vue` component (admin form). Includes fields:
   - File picker for organisationLogo (calls FileService upload)
@@ -124,7 +124,7 @@
 
 - [ ] Task 25: PHPUnit tests for PublicationAnalyticsService (`tests/Unit/Service/PublicationAnalyticsServiceTest.php`): records view to PublicationViewLog hourly bucket, derives session hash (deterministic, not backreferable), aggregates counts correctly, does not log PII (no IP, no User-Agent).
 
-- [ ] Task 26: Playwright E2E test: Create a public-mode publication, access as anon user, verify dashboard renders with branding (logo, colours, footer), verify no MyDash chrome, verify Cache-Control header is present, verify view-log is incremented.
+- [ ] Task 26: Playwright E2E test: Create a public-mode publication, access as anon user, verify dashboard renders with branding (logo, colours, footer), verify no LaunchPad chrome, verify Cache-Control header is present, verify view-log is incremented.
 
 - [ ] Task 27: Playwright E2E test: Create signed-mode publication, issue a grant, construct signed URL, access as anon user, verify dashboard renders, verify grant usageCount incremented, revoke grant, verify subsequent access is 403.
 
@@ -179,4 +179,4 @@
 
 - [ ] Task 39: Create database repair step (if needed): verify OpenRegister schemas exist, create publication service account for tenant if not present, idempotently load seed publications.
 
-- [ ] Task 40: Add feature flag (optional) for gradual rollout: `MYDASH_PUBLIC_PUBLICATIONS_ENABLED` (default: true). If false, hide publication settings UI and return 404 for publication routes. Allows safe rollback if issues arise post-deploy.
+- [ ] Task 40: Add feature flag (optional) for gradual rollout: `LAUNCHPAD_PUBLIC_PUBLICATIONS_ENABLED` (default: true). If false, hide publication settings UI and return 404 for publication routes. Allows safe rollback if issues arise post-deploy.

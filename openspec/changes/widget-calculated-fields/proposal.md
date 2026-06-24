@@ -2,7 +2,7 @@
 
 ## Why
 
-Currently, every value shown in a mydash widget comes from a single source: a register query, an OpenConnector call, or a simple aggregate computed by the widget engine. The moment a user wants something composite — "revenue minus refunds as a percentage of revenue", "average ticket resolution time across two queues", "this widget's count divided by another widget's count" — they must either build a custom widget, change the underlying register, or copy numbers into a spreadsheet. Calculated fields make those compositions a first-class feature of the widget itself.
+Currently, every value shown in a launchpad widget comes from a single source: a register query, an OpenConnector call, or a simple aggregate computed by the widget engine. The moment a user wants something composite — "revenue minus refunds as a percentage of revenue", "average ticket resolution time across two queues", "this widget's count divided by another widget's count" — they must either build a custom widget, change the underlying register, or copy numbers into a spreadsheet. Calculated fields make those compositions a first-class feature of the widget itself.
 
 This change introduces a new `widget.calculatedFields` array enabling users to define named expressions that derive values from other fields in the same widget, fields in other widgets on the same dashboard, constants, and a set of built-in functions. The formula language is deliberately small — enough for ratios, conditional formatting, date arithmetic, and string composition, but constrained to prevent silent bugs.
 

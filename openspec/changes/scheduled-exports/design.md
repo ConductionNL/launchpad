@@ -2,13 +2,13 @@
 
 ## Context
 
-MyDash dashboards and widgets are designed for live, in-browser consumption: users open the app and read the numbers. Three common organisational patterns require pushing data out instead:
+LaunchPad dashboards and widgets are designed for live, in-browser consumption: users open the app and read the numbers. Three common organisational patterns require pushing data out instead:
 
 1. **Recurring management reports**: A weekly bezwaarschriften PDF sent to a wethouder's inbox every Monday at 09:00.
 2. **Regulated data exchange**: A monthly CBS or VNG return in CSV/XLSX format that must land on an SFTP drop by a specific deadline or incur penalties.
 3. **Cross-system snapshots**: A nightly PNG of a service-desk KPI dashboard posted to Teams so the standup starts from a shared picture.
 
-Today, organisations work around this limitation by exporting dashboards manually, scheduling cron jobs that hit the MyDash API with brittle scraping logic, or maintaining separate reporting tools that duplicate data logic. Scheduled Exports closes this gap by making MyDash the source of truth for all three patterns.
+Today, organisations work around this limitation by exporting dashboards manually, scheduling cron jobs that hit the LaunchPad API with brittle scraping logic, or maintaining separate reporting tools that duplicate data logic. Scheduled Exports closes this gap by making LaunchPad the source of truth for all three patterns.
 
 ## Goals / Non-Goals
 
@@ -25,7 +25,7 @@ Today, organisations work around this limitation by exporting dashboards manuall
 - eIDAS or NTA 9087 digital signing (v2 integration with docudesk; v1 ships PDF/A-2b as the archival format).
 - AI-powered scheduling suggestions based on dashboard access patterns.
 - Custom render post-processing (cropping, watermarking, redaction) — that is the domain of docudesk.
-- Scheduled export of arbitrary external data sources (only MyDash dashboards and widgets).
+- Scheduled export of arbitrary external data sources (only LaunchPad dashboards and widgets).
 
 ## Decisions
 
@@ -53,9 +53,9 @@ Today, organisations work around this limitation by exporting dashboards manuall
 
 ### D3: Render artefacts live in Files, audit rows in OpenRegister
 
-**Decision**: Binary artefacts (PDF, PNG files) are written to the user's Nextcloud Files area under `Apps/MyDash/Exports/{exportId}/`. Audit rows (`scheduled_export_run` objects) live in OpenRegister alongside the export config, capturing artefact paths and delivery outcomes.
+**Decision**: Binary artefacts (PDF, PNG files) are written to the user's Nextcloud Files area under `Apps/LaunchPad/Exports/{exportId}/`. Audit rows (`scheduled_export_run` objects) live in OpenRegister alongside the export config, capturing artefact paths and delivery outcomes.
 
-**Rationale**: Files integration gives users familiar drag-and-drop, sharing, and search without MyDash reinventing file management. OpenRegister integration gives compliance officers read-only access to audit trails through the standard permission model. Decoupling the binary storage from the audit metadata means retention policies can keep audit records forever while purging binary files after e.g. 14 days (per compliance requirements).
+**Rationale**: Files integration gives users familiar drag-and-drop, sharing, and search without LaunchPad reinventing file management. OpenRegister integration gives compliance officers read-only access to audit trails through the standard permission model. Decoupling the binary storage from the audit metadata means retention policies can keep audit records forever while purging binary files after e.g. 14 days (per compliance requirements).
 
 **Alternatives considered:**
 
@@ -107,7 +107,7 @@ Today, organisations work around this limitation by exporting dashboards manuall
 
 ## Seed Data
 
-The `lib/Settings/mydash_register.json` import includes three example scheduled exports:
+The `lib/Settings/launchpad_register.json` import includes three example scheduled exports:
 
 1. **Weekly Bezwaren Report (PDF)**
    - Subject: dashboard named "Bezwaarschriften Overzicht"
@@ -176,7 +176,7 @@ No duplication detected. All core abstractions (CRUD, permissions, retention, au
 
 ## Migration Plan
 
-1. **Schemas + register import** — add `lib/Settings/mydash_register.json` with four schemas (scheduled_export, render_target, recipient, scheduled_export_run) and seed data. Repair step calls `ConfigurationService::importFromApp()`.
+1. **Schemas + register import** — add `lib/Settings/launchpad_register.json` with four schemas (scheduled_export, render_target, recipient, scheduled_export_run) and seed data. Repair step calls `ConfigurationService::importFromApp()`.
 2. **Backend services** — implement `ScheduledExportService`, `RecurrenceResolver`, `RenderPipeline`, `DeliveryDispatcher`, `AuditLog` with unit test coverage per ADR-008.
 3. **Background jobs** — register `ScheduledExportRunner` (every minute) and `ScheduledExportJanitor` (every hour) via Nextcloud job abstraction.
 4. **Controller + routes** — add `ScheduledExportController` with 11 endpoints (CRUD, run, preview, audit, retry); register in `appinfo/routes.php`.

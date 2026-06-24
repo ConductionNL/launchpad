@@ -227,7 +227,7 @@ class AdminSettingsService
      *                                   `$defaultSharePermissionLevel` is not
      *                                   a valid value.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-2
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
      */
     public function updateSettings(
         ?string $defaultPermLevel=null,

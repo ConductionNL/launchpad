@@ -54,7 +54,7 @@ bootstrap when OpenRegister is absent.
 
 `$appId` passed to the factories is `Application::APP_ID` = `'launchpad'` — the
 runtime NC app id (mount path `custom_apps/launchpad`, all assets served under
-`application: 'launchpad'`). The `mydash` value is the App Store publish id only
+`application: 'launchpad'`). The `launchpad` value is the App Store publish id only
 and is untouched. The Prometheus prefix therefore stays `launchpad_`, and
 appConfig/version reads keep using the `launchpad` app id exactly as today.
 

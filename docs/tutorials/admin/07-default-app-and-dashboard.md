@@ -8,7 +8,7 @@ description: Land every user on LaunchPad after login and disable the built-in N
 
 By default Nextcloud opens the built-in **Dashboard** app after login and when a user clicks the logo. You can point that landing slot at LaunchPad instead, so every user starts on their LaunchPad dashboards — and, optionally, retire the stock Dashboard app entirely so the two don't compete.
 
-This is configured in Nextcloud core, not in LaunchPad's own admin settings. LaunchPad registers with the app id **`mydash`**, which is the value Nextcloud uses everywhere it refers to the app.
+This is configured in Nextcloud core, not in LaunchPad's own admin settings. LaunchPad registers with the app id **`launchpad`**, which is the value Nextcloud uses everywhere it refers to the app.
 
 ## Goal
 
@@ -51,7 +51,7 @@ To re-enable it later:
 occ app:enable dashboard
 ```
 
-Disabling Dashboard does **not** touch LaunchPad data — LaunchPad is a separate app (`mydash`) with its own dashboards, widgets, and storage.
+Disabling Dashboard does **not** touch LaunchPad data — LaunchPad is a separate app (`launchpad`) with its own dashboards, widgets, and storage.
 
 ### 5. Verify
 
@@ -63,17 +63,17 @@ The same settings are plain `occ` config, which is handy for scripted or air-gap
 
 ```bash
 # Make LaunchPad the default landing app for everyone
-occ config:system:set defaultapp --value mydash
+occ config:system:set defaultapp --value launchpad
 
 # Disable the built-in Dashboard
 occ app:disable dashboard
 ```
 
-`defaultapp` accepts a comma-separated fallback chain — the equivalent of the priority list — e.g. `mydash,files`.
+`defaultapp` accepts a comma-separated fallback chain — the equivalent of the priority list — e.g. `launchpad,files`.
 
 ## Behaviour notes
 
-- **App id vs. display name.** The setting stores the app id **`mydash`**, even though the UI and menu label it **LaunchPad**. If you script this, use `mydash`.
+- **App id vs. display name.** The setting stores the app id **`launchpad`**, even though the UI and menu label it **LaunchPad**. If you script this, use `launchpad`.
 - **Per-user override.** Users can still set their own personal default app under **Personal settings → Appearance and accessibility** unless you enforce the value. The global default only sets the instance-wide fallback.
 - **Per-user landing dashboard.** Which LaunchPad dashboard a user lands on is separate from this setting — see [Set a default dashboard](../user/07-set-default.md) (user) and [Mark a group's default dashboard](03-group-defaults.md) (admin).
 - **Logo click.** The default app also governs where the Nextcloud logo links, so once set, the logo becomes a quick "home" button to LaunchPad.

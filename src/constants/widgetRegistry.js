@@ -2,121 +2,59 @@
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * Widget registry — single source of truth for "what custom widget types
- * exist" on top of the Nextcloud-discovered widget set.
+ * Widget registry — LaunchPad's view onto the COMMUNAL dashboard widget
+ * catalog. The single source of truth for "what widget types exist" is
+ * nc-vue's `dashboardWidgetRegistry` (every `Cn*Widget` self-registers into it
+ * at import time); OpenBuild and LaunchPad both consume that one catalog. This
+ * module no longer hardcodes per-type entries — it re-exports the communal
+ * registry, applying only the small set of LaunchPad-specific concerns:
  *
- * Each entry maps a `type` string (the value persisted in
- * `oc_launchpad_widget_placements`) to a `{renderer, form, defaultContent,
- * displayName, icon}` descriptor. The Add Widget modal consults this registry
- * to render the type picker and the per-type sub-form, and the dashboard
- * grid uses it to pick the right renderer for a placement.
+ *  1. Renderer overrides — a few types dispatch through an in-app host wrapper
+ *     instead of the communal renderer:
+ *       - `link`        → LinkButtonHost  (host-side internal-action registry +
+ *                         create-file modal)
+ *       - `container`   → ContainerWidget (recursive GridStack sub-grid host,
+ *                         REQ-CONT depth guard; children render via this registry)
+ *       - `chart`       → ChartHost       (maps the registry `content` shape onto
+ *                         CnChartWidget's apexcharts props)
+ *       - `stats-block` → StatsBlockHost  (maps `content` onto CnStatsBlockWidget's
+ *                         separate props)
+ *     `files` keeps the communal CnFilesWidget renderer — its launchpad backend
+ *     `apiBase` is injected by WidgetRenderer.rendererProps, not the registry.
  *
- * Adding a new widget type means adding an entry here plus the matching
- * Renderer + Form Vue components — no other wiring is required. The registry
- * tolerates entries with `form: null` (renderer only) — `listWidgetTypes()`
- * filters those out so the AddWidgetModal type picker only shows types the
- * user can actually configure. Per-widget proposals that haven't yet shipped
- * their sub-form should not appear in the picker.
+ *  2. displayName localisation — the communal registration stores a plain
+ *     English label; we re-localise it through `t('launchpad', …)` so the type
+ *     picker still honours the user's language.
  *
- * REQ-LBL-007: The widget type `label` MUST be registered with a renderer
- * reference to `LabelWidget.vue`, a form reference to `LabelForm.vue`, and a
- * `defaultContent` of `{text:'', fontSize:'16px', color:'',
- * backgroundColor:'', fontWeight:'bold', textAlign:'center'}`.
+ * The helper API (`listWidgetTypes` / `getWidgetTypeEntry` / `getDefaultContent`)
+ * mirrors the communal helpers so existing consumers (AddWidgetModal type
+ * picker, WidgetRenderer dispatch, the store) are unchanged. Adding a widget
+ * type is now a nc-vue change (register it in `dashboardWidgetRegistry`) — it
+ * flows into LaunchPad automatically, no edit here required.
  *
- * REQ-TXT-005 / REQ-TXT-001..004 / REQ-TXMD-001..007: The widget type `text`
- * MUST be registered with a renderer reference to `TextDisplayWidget.vue`, a
- * form reference to `TextDisplayForm.vue`, and a `defaultContent` of
- * `{text:'', fontSize:'14px', color:'', backgroundColor:'', textAlign:'left',
- * contentMode:'markdown'}`. New widgets default to markdown mode; existing
- * placements without `contentMode` render through the legacy HTML branch.
- *
- * REQ-LBN-001..007: The widget type `link` MUST be registered with a
- * renderer reference to `LinkButtonWidget.vue`, a form reference to
- * `LinkButtonForm.vue`, and a `defaultContent` of `{label:'', url:'',
- * icon:'', actionType:'external', backgroundColor:'', textColor:''}`.
- *
- * REQ-DIV-002: The widget type `divider` MUST be registered with a renderer
- * reference to `DividerWidget.vue`, a form reference to `DividerForm.vue`,
- * and a `defaultContent` of `{style:'line', lineColor:'',
- * lineThickness:1, lineStyle:'solid', whitespaceSize:'medium',
- * headingText:''}`. The divider is fully client-side; no API endpoints
- * are required.
- *
- * REQ-FLS-001..011: The widget type `files` MUST be registered with a
- * renderer reference to `FilesWidget.vue`, a form reference to
- * `FilesForm.vue`, and a `defaultContent` of `{folderPath:'',
- * fileId:null, viewMode:'list', showThumbnails:true, mimeTypeFilter:[],
- * allowUpload:false, allowDelete:false, sortBy:'name',
- * sortDescending:false}`.
- *
- * REQ-PPL-001 / REQ-PPL-002: The widget type `people` MUST be registered
- * with a renderer reference to `PeopleWidget.vue`, a form reference to
- * `PeopleForm.vue`, and a `defaultContent` matching the spec's per-placement
- * config shape (layout, selectionMode, filters, excludeDisabled,
- * showBirthdays, birthdayWindowDays, sortBy, columns, showFields).
- *
- * REQ-NEWS-001..011: The widget type `news` MUST be registered with a
- * renderer reference to `NewsWidget.vue`, a form reference to
- * `NewsForm.vue`, and a `defaultContent` of `{feedUrls:[],
- * layout:'list', itemLimit:10, showThumbnails:true, showSummary:true,
- * summaryMaxChars:200, dateFormat:'relative', metadataFilter:null}`.
- *
- * REQ-LNKS-001..010: The widget type `links` MUST be registered with a
- * renderer reference to `LinksWidget.vue`, a form reference to
- * `LinksForm.vue`, and a `defaultContent` of `{sections:[], columns:3,
- * linkLayout:'card', iconSize:'medium', openInNewTab:true,
- * showSectionTitles:true, showLinkDescriptions:true}`.
- *
- * REQ-WDG-014: The set of supported widget types MUST come from this single
- * registry. Toolbar dropdown, modal type selector, and grid renderer all
- * consult `listWidgetTypes()` / `getWidgetTypeEntry()`.
- *
- * REQ-SAW-001..003: The widget type `spend-analytics` MUST be registered with
- * a renderer reference to `SpendAnalyticsWidget.vue`, a form reference to
- * `SpendAnalyticsForm.vue`, a `defaultContent` of `{viewMode:'summary',
- * period:'quarter', filters:{categoryIds:[], departmentIds:[], vendorIds:[]},
- * drillThroughTarget:'detail-page', attachEvidence:true,
- * aiInsights:{enabled:false}}`, and a soft `requires.graphql` of at minimum
- * `['financeq.transactions', 'procest.cases']`. The `requires` clause is a
- * runtime-source hint only — it MUST NOT appear in `manifest.dependencies`.
+ * REQ-WDG-014: the supported widget types come from this single registry.
  */
 
-import LabelWidget from '../components/Widgets/Renderers/LabelWidget.vue'
-import LabelForm from '../components/Widgets/Forms/LabelForm.vue'
-import TextDisplayWidget from '../components/Widgets/Renderers/TextDisplayWidget.vue'
-import TextDisplayForm from '../components/Widgets/Forms/TextDisplayForm.vue'
-import ImageWidget from '../components/Widgets/Renderers/ImageWidget.vue'
-import ImageForm from '../components/Widgets/Forms/ImageForm.vue'
-import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonWidget.vue'
-import LinkButtonForm from '../components/Widgets/Forms/LinkButtonForm.vue'
-import NcDashboardWidget from '../components/Widgets/Renderers/NcDashboardWidget.vue'
-import NcDashboardForm from '../components/Widgets/Forms/NcDashboardForm.vue'
-import HeaderWidget from '../components/Widgets/Renderers/HeaderWidget.vue'
-import HeaderForm from '../components/Widgets/Forms/HeaderForm.vue'
-import DividerWidget from '../components/Widgets/Renderers/DividerWidget.vue'
-import DividerForm from '../components/Widgets/Forms/DividerForm.vue'
-import FilesWidget from '../components/Widgets/Renderers/FilesWidget.vue'
-import FilesForm from '../components/Widgets/Forms/FilesForm.vue'
-import PeopleWidget from '../components/Widgets/Renderers/PeopleWidget.vue'
-import PeopleForm from '../components/Widgets/Forms/PeopleForm.vue'
-import QuicklinksWidget from '../components/Widgets/Renderers/QuicklinksWidget.vue'
-import QuicklinksForm from '../components/Widgets/Forms/QuicklinksForm.vue'
-import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
-import NewsForm from '../components/Widgets/Forms/NewsForm.vue'
-import VideoWidget from '../components/Widgets/Renderers/VideoWidget.vue'
-import VideoForm from '../components/Widgets/Forms/VideoForm.vue'
-import CalendarWidget from '../components/Widgets/Renderers/CalendarWidget.vue'
-import CalendarForm from '../components/Widgets/Forms/CalendarForm.vue'
-import LinksWidget from '../components/Widgets/Renderers/LinksWidget.vue'
-import LinksForm from '../components/Widgets/Forms/LinksForm.vue'
-import MenuWidget from '../components/Widgets/Renderers/MenuWidget.vue'
-import MenuForm from '../components/Widgets/Forms/MenuForm.vue'
+import {
+	dashboardWidgetRegistry,
+	registerDashboardWidget,
+	listWidgetTypes as cnListWidgetTypes,
+	getWidgetTypeEntry as cnGetWidgetTypeEntry,
+	getDefaultContent as cnGetDefaultContent,
+	// Forms for types the communal registry leaves `form: null` (renderer-only
+	// in OpenBuild) but which LaunchPad configures — they rely on LaunchPad-
+	// injected context (NC widget catalog, people API, calendar/graphql sources).
+	CnCalendarWidgetForm as CalendarForm,
+	CnPeopleWidgetForm as PeopleForm,
+	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
+	CnNcDashboardWidgetForm as NcDashboardForm,
+} from '@conduction/nextcloud-vue'
+// LaunchPad-specific host wrappers (app-side orchestration, NOT generic
+// dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
+import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
-import ContainerForm from '../components/Widgets/Forms/ContainerForm.vue'
-import TileWidget from '../components/Widgets/Renderers/TileWidget.vue'
-import TileForm from '../components/Widgets/Forms/TileForm.vue'
-import SpendAnalyticsWidget from '../components/Widgets/Renderers/SpendAnalyticsWidget.vue'
-import SpendAnalyticsForm from '../components/Widgets/Forms/SpendAnalyticsForm.vue'
+import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -125,427 +63,130 @@ import SpendAnalyticsForm from '../components/Widgets/Forms/SpendAnalyticsForm.v
  * @property {object} defaultContent Initial `content` payload for new placements
  * @property {string} displayName Human-readable type name for the type picker
  * @property {string} icon Material Design icon name used in the type picker
- * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets — names the sibling-app GraphQL schemas the widget reads (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
+ * @property {{graphql?: string[]}} [requires] Soft runtime-source declaration for cross-app widgets (REQ-SAW-001). NEVER a `manifest.dependencies` entry.
  */
 
-/** @type {Record<string, WidgetRegistryEntry>} */
-export const widgetRegistry = {
-	label: {
-		renderer: LabelWidget,
-		form: LabelForm,
-		defaultContent: {
-			text: '',
-			fontSize: '16px',
-			color: '',
-			backgroundColor: '',
-			fontWeight: 'bold',
-			textAlign: 'center',
-		},
-		displayName: t('launchpad', 'Label'),
-		icon: 'FormatTitle',
-	},
-	text: {
-		renderer: TextDisplayWidget,
-		form: TextDisplayForm,
-		// REQ-TXMD-001 / REQ-TXMD-005: new text widgets default to
-		// markdown mode. Existing placements without a `contentMode` key
-		// fall through to the renderer's legacy 'html' branch — the
-		// registry default only seeds new placements via AddWidgetModal.
-		defaultContent: {
-			text: '',
-			fontSize: '14px',
-			color: '',
-			backgroundColor: '',
-			textAlign: 'left',
-			contentMode: 'markdown',
-			tableMode: false,
-			tableData: null,
-		},
-		displayName: t('launchpad', 'Text'),
-		icon: 'FormatText',
-	},
-	image: {
-		renderer: ImageWidget,
-		form: ImageForm,
-		defaultContent: {
-			url: '',
-			alt: '',
-			link: '',
-			fit: 'cover',
-		},
-		displayName: t('launchpad', 'Image'),
-		icon: 'Camera',
-	},
-	link: {
-		renderer: LinkButtonWidget,
-		form: LinkButtonForm,
-		defaultContent: {
-			label: '',
-			url: '',
-			icon: '',
-			actionType: 'external',
-			backgroundColor: '',
-			textColor: '',
-			// REQ-LBLM-001/005/009: list-mode defaults. `displayMode`
-			// defaults to `'button'` so newly-created placements behave
-			// exactly like the legacy single-link widget; the `links`,
-			// `listOrientation`, `listItemGap` keys ride along so the
-			// edit form has a stable starting shape.
-			displayMode: 'button',
-			listOrientation: 'vertical',
-			listItemGap: 'normal',
-			links: [],
-		},
-		displayName: t('launchpad', 'Link Button'),
-		icon: 'LinkVariant',
-	},
-	'nc-widget': {
-		renderer: NcDashboardWidget,
-		form: NcDashboardForm,
-		defaultContent: {
-			widgetId: '',
-			displayMode: 'vertical',
-		},
-		displayName: t('launchpad', 'Nextcloud Widget'),
-		icon: 'ViewDashboard',
-	},
-	header: {
-		renderer: HeaderWidget,
-		form: HeaderForm,
-		defaultContent: {
-			title: '',
-			subtitle: '',
-			backgroundImageUrl: '',
-			backgroundImageFileId: null,
-			backgroundColor: '',
-			overlayMode: 'none',
-			overlayColor: '',
-			overlayOpacity: 0.4,
-			textColor: '',
-			textAlign: 'center',
-			verticalAlign: 'middle',
-			height: 'medium',
-			cta: null,
-		},
-		displayName: t('launchpad', 'Header Banner'),
-		icon: 'ViewHeadline',
-	},
-	divider: {
-		renderer: DividerWidget,
-		form: DividerForm,
-		defaultContent: {
-			style: 'line',
-			lineColor: '',
-			lineThickness: 1,
-			lineStyle: 'solid',
-			whitespaceSize: 'medium',
-			headingText: '',
-		},
-		displayName: t('launchpad', 'Divider'),
-		icon: 'Minus',
-	},
-	files: {
-		renderer: FilesWidget,
-		form: FilesForm,
-		defaultContent: {
-			folderPath: '',
-			fileId: null,
-			viewMode: 'list',
-			showThumbnails: true,
-			mimeTypeFilter: [],
-			allowUpload: false,
-			allowDelete: false,
-			sortBy: 'name',
-			sortDescending: false,
-		},
-		displayName: t('launchpad', 'Files'),
-		icon: 'Folder',
-	},
-	people: {
-		renderer: PeopleWidget,
-		form: PeopleForm,
-		defaultContent: {
-			layout: 'grid',
-			selectionMode: 'filter',
-			selectedUsers: [],
-			filters: [],
-			filterOperator: 'AND',
-			excludeDisabled: true,
-			showBirthdays: true,
-			birthdayWindowDays: 7,
-			sortBy: 'displayName',
-			columns: 3,
-			showFields: {
-				displayName: true,
-				role: true,
-				organisation: true,
-				email: true,
-				phone: true,
-				avatar: true,
-				birthdate: true,
-			},
-		},
-		displayName: t('launchpad', 'People'),
-		icon: 'AccountGroup',
-	},
-	quicklinks: {
-		renderer: QuicklinksWidget,
-		form: QuicklinksForm,
-		defaultContent: {
-			links: [],
-			iconSize: 'medium',
-			iconShape: 'rounded',
-			showLabels: true,
-			labelPosition: 'below',
-			columns: 'auto',
-			tileBackgroundStyle: 'transparent',
-			hoverEffect: 'lift',
-		},
-		displayName: t('launchpad', 'Quicklinks'),
-		icon: 'Star',
-	},
-	news: {
-		renderer: NewsWidget,
-		form: NewsForm,
-		defaultContent: {
-			feedUrls: [],
-			layout: 'list',
-			itemLimit: 10,
-			showThumbnails: true,
-			showSummary: true,
-			summaryMaxChars: 200,
-			dateFormat: 'relative',
-			metadataFilter: null,
-		},
-		displayName: t('launchpad', 'News'),
-		icon: 'RssBox',
-	},
-	video: {
-		renderer: VideoWidget,
-		form: VideoForm,
-		defaultContent: {
-			sourceType: null,
-			videoUrl: '',
-			fileId: null,
-			autoplay: false,
-			muted: true,
-			loop: false,
-			controls: true,
-			aspectRatio: '16:9',
-			posterUrl: '',
-		},
-		displayName: t('launchpad', 'Video'),
-		icon: 'Video',
-	},
-	calendar: {
-		renderer: CalendarWidget,
-		form: CalendarForm,
-		defaultContent: {
-			internalCalendars: [],
-			externalIcsUrls: [],
-			viewMode: 'agenda',
-			daysAhead: 14,
-			colorByCalendar: true,
-		},
-		displayName: t('launchpad', 'Calendar'),
-		icon: 'Calendar',
-	},
-	links: {
-		renderer: LinksWidget,
-		form: LinksForm,
-		defaultContent: {
-			sections: [],
-			columns: 3,
-			linkLayout: 'card',
-			iconSize: 'medium',
-			openInNewTab: true,
-			showSectionTitles: true,
-			showLinkDescriptions: true,
-		},
-		displayName: t('launchpad', 'Links'),
-		icon: 'LinkBoxVariant',
-	},
-	menu: {
-		renderer: MenuWidget,
-		form: MenuForm,
-		defaultContent: {
-			items: [],
-			style: 'dropdown',
-			orientation: 'horizontal',
-			showIcons: true,
-			expandedByDefault: false,
-			activeItemHighlight: 'underline',
-		},
-		displayName: t('launchpad', 'Menu'),
-		icon: 'ViewDashboard',
-	},
-	// REQ-CONT-001: container widget — recursive sub-grid host. Children
-	// live in `content.placements[]` and are rendered through the inner
-	// GridStack instance bounded by the container's outer cell. Server-
-	// side REQ-CONT-006 caps recursion at 3 levels deep.
-	container: {
-		renderer: ContainerWidget,
-		form: ContainerForm,
-		defaultContent: {
-			placements: [],
-			backgroundColor: 'transparent',
-			padding: 'medium',
-			title: '',
-		},
-		displayName: t('launchpad', 'Container'),
-		icon: 'ViewDashboard',
-	},
-	// REQ-WDG-022 / REQ-TILE-PLACEMENT: tile widget — registry-driven
-	// replacement for the deprecated standalone tile-creation flow. The
-	// renderer reads from BOTH the new inline `content.{...}` shape AND
-	// the legacy flat `placement.tile*` columns so dashboards holding
-	// tile placements created via the deprecated `oc_launchpad_tiles` flow
-	// keep rendering without a migration step.
-	tile: {
-		renderer: TileWidget,
-		form: TileForm,
-		defaultContent: {
-			title: '',
-			icon: '',
-			iconType: 'class',
-			backgroundColor: '#3b82f6',
-			textColor: '#ffffff',
-			linkType: 'app',
-			linkValue: '',
-		},
-		displayName: t('launchpad', 'Tile'),
-		icon: 'ViewGrid',
-	},
-	// REQ-SAW-001/-002/-003: spend-analytics widget — consumes runtime
-	// GraphQL from financeq + procest. The soft `requires.graphql`
-	// declaration names the sibling-app schemas it reads; it MUST NEVER
-	// be promoted to a top-level `manifest.dependencies` entry
-	// (feedback_launchpad-no-or-dependency.md) — the renderer registers
-	// regardless and falls back to an empty-state when a source is
-	// absent at runtime.
-	'spend-analytics': {
-		renderer: SpendAnalyticsWidget,
-		form: SpendAnalyticsForm,
-		defaultContent: {
-			viewMode: 'summary',
-			period: 'quarter',
-			filters: { categoryIds: [], departmentIds: [], vendorIds: [] },
-			drillThroughTarget: 'detail-page',
-			attachEvidence: true,
-			aiInsights: { enabled: false },
-		},
-		requires: { graphql: ['financeq.transactions', 'procest.cases'] },
-		displayName: t('launchpad', 'Spend analytics'),
-		icon: 'ChartLine',
-	},
+/**
+ * Types whose renderer LaunchPad overrides with an in-app host wrapper. Every
+ * other type uses the communal renderer verbatim.
+ *
+ * @type {Record<string, object>}
+ */
+const RENDERER_OVERRIDES = {
+	link: LinkButtonWidget,
+	container: ContainerWidget,
+	chart: ChartHost,
+	'stats-block': StatsBlockHost,
 }
 
 /**
- * List every registered widget type that has a usable form component. The
- * AddWidgetModal type picker calls this; types without a `form` entry MUST
- * be excluded so the user is never offered a type they cannot configure.
+ * Types whose form LaunchPad supplies even though the communal entry is
+ * `form: null` (renderer-only in OpenBuild). The forms need LaunchPad-injected
+ * context, so they live here rather than in the shared registry.
  *
- * Per-widget proposals (text-display-widget, link-button-widget,
- * nc-dashboard-widget-proxy) each register their own form when they land —
- * until then those types are renderer-only and stay out of the picker.
+ * @type {Record<string, object>}
+ */
+const FORM_OVERRIDES = {
+	calendar: CalendarForm,
+	people: PeopleForm,
+	'spend-analytics': SpendAnalyticsForm,
+	'nc-widget': NcDashboardForm,
+}
+
+// Inject LaunchPad's form-overrides INTO the shared registry so the communal
+// CnAddWidgetModal (which reads `dashboardWidgetRegistry` directly) can offer +
+// configure these types too — the modal is now the single add/edit surface for
+// both LaunchPad and OpenBuild. Grid rendering still uses LaunchPad's
+// RENDERER_OVERRIDES via `widgetRegistry`/`getWidgetTypeEntry` below.
+for (const [type, form] of Object.entries(FORM_OVERRIDES)) {
+	const base = cnGetWidgetTypeEntry(type)
+	if (base) {
+		registerDashboardWidget(type, { ...base, form })
+	}
+}
+
+/**
+ * Apply LaunchPad's overlay to a communal registry entry: swap in the host
+ * renderer / app form when overridden, and re-localise the displayName.
  *
- * @return {string[]} list of registered type keys with a non-null form
+ * @param {string} type the widget type key.
+ * @param {WidgetRegistryEntry|null} entry the communal entry (or null).
+ * @return {WidgetRegistryEntry|null} the decorated entry, or null when unknown.
+ */
+function decorate(type, entry) {
+	if (!entry) {
+		return null
+	}
+	const out = { ...entry }
+	if (RENDERER_OVERRIDES[type]) {
+		out.renderer = RENDERER_OVERRIDES[type]
+	}
+	if (FORM_OVERRIDES[type]) {
+		out.form = FORM_OVERRIDES[type]
+	}
+	if (typeof entry.displayName === 'string' && entry.displayName !== '') {
+		out.displayName = t('launchpad', entry.displayName)
+	}
+	return out
+}
+
+/**
+ * The app-dashboard widget types LaunchPad offers: the communal app-dashboard
+ * set (non-null form) PLUS the types LaunchPad supplies a form for via
+ * FORM_OVERRIDES (which the communal registry leaves form-less).
+ *
+ * @return {string[]} the offerable type keys.
+ */
+function offerableTypes() {
+	const types = new Set(cnListWidgetTypes('app-dashboard'))
+	for (const type of Object.keys(FORM_OVERRIDES)) {
+		if (cnGetWidgetTypeEntry(type)) {
+			types.add(type)
+		}
+	}
+	return [...types]
+}
+
+/**
+ * LaunchPad's effective widget registry — the offerable types with LaunchPad's
+ * overlay applied. Built once at module load (all widgets self-register when
+ * `@conduction/nextcloud-vue` is imported above). Existing-placement lookups
+ * that may reference a non-picker type go through `getWidgetTypeEntry`, which
+ * resolves the full live catalog.
+ *
+ * @type {Record<string, WidgetRegistryEntry>}
+ */
+export const widgetRegistry = Object.fromEntries(
+	offerableTypes().map((type) => [type, decorate(type, dashboardWidgetRegistry[type])]),
+)
+
+/**
+ * List every addable widget type for the app-dashboard surface.
+ *
+ * @return {string[]} the offerable type keys.
  */
 export function listWidgetTypes() {
-	return Object.keys(widgetRegistry).filter(
-		(type) => widgetRegistry[type] && widgetRegistry[type].form !== null && widgetRegistry[type].form !== undefined,
-	)
+	return offerableTypes()
 }
 
 /**
- * Look up a widget type entry; returns null when the type is unknown so the
- * caller can fall back gracefully.
+ * Look up a widget type entry (LaunchPad overlay applied), resolving against
+ * the full live catalog so existing placements of any type still render.
+ * Returns null for unknown types.
  *
- * @param {string} type the widget type key
- * @return {WidgetRegistryEntry|null} the registry entry or null
+ * @param {string} type the widget type key.
+ * @return {WidgetRegistryEntry|null} the entry or null.
  */
 export function getWidgetTypeEntry(type) {
-	return widgetRegistry[type] || null
+	return decorate(type, cnGetWidgetTypeEntry(type))
 }
 
 /**
- * Return the `defaultContent` blob for a registered type, or `{}` for unknown
- * types so the caller never has to null-check.
+ * Return a fresh copy of a type's `defaultContent`, or `{}` for unknown types.
  *
- * @param {string} type the widget type key
- * @return {object} a fresh copy of the type's defaultContent
+ * @param {string} type the widget type key.
+ * @return {object} the default content blob.
  */
 export function getDefaultContent(type) {
-	const entry = widgetRegistry[type]
-	if (!entry) {
-		return {}
-	}
-	// Return a shallow copy so callers can mutate freely without polluting
-	// the registry's frozen-by-convention defaults.
-	return { ...entry.defaultContent }
-}
-
-/**
- * Stable category keys for the Catalog SUB_PAGE browse view (widgets +
- * legacy-widget-bridge specs). The catalog groups every discoverable widget
- * under one of these; bridged Nextcloud widgets get their own `bridge`
- * category so end users can filter to non-native widgets.
- *
- * @type {{BUILT_IN: string, CUSTOM_TILE: string, BRIDGE: string}}
- */
-export const CATALOG_CATEGORIES = {
-	BUILT_IN: 'built-in',
-	CUSTOM_TILE: 'custom-tile',
-	BRIDGE: 'bridge',
-}
-
-/**
- * Resolve the catalog category for a native registry type. The `tile` type is
- * the custom-tile category; everything else in the static registry is a
- * built-in MyDash widget. Bridge widgets are not in the static registry —
- * they are appended at runtime by {@see listCatalogEntries}.
- *
- * @param {string} type the registry type key
- * @return {string} one of the CATALOG_CATEGORIES values
- */
-export function catalogCategoryFor(type) {
-	if (type === 'tile') {
-		return CATALOG_CATEGORIES.CUSTOM_TILE
-	}
-	return CATALOG_CATEGORIES.BUILT_IN
-}
-
-/**
- * Build the full catalog entry list for the browse view, grouped by
- * category. Native registry types map to Built-in / Custom Tiles; bridge
- * widget ids (from the runtime `widgetBridge.getRegisteredWidgetIds()`)
- * map to the Bridge category with `source: 'bridge'` so the catalog filter
- * has a stable key (legacy-widget-bridge spec).
- *
- * @param {string[]} [bridgeIds] ids of widgets surfaced by the bridge adapter
- * @return {Array<{type: string, displayName: string, icon: string,
- *           category: string, source: string}>} catalog entries
- */
-export function listCatalogEntries(bridgeIds = []) {
-	const entries = Object.keys(widgetRegistry).map((type) => {
-		const entry = widgetRegistry[type]
-		const category = catalogCategoryFor(type)
-		return {
-			type,
-			displayName: entry.displayName || type,
-			icon: entry.icon || 'ViewGridPlus',
-			category,
-			source: category === CATALOG_CATEGORIES.BUILT_IN ? 'native' : category,
-		}
-	})
-
-	const bridgeEntries = (Array.isArray(bridgeIds) ? bridgeIds : []).map((id) => ({
-		type: id,
-		displayName: id,
-		icon: 'PuzzleOutline',
-		category: CATALOG_CATEGORIES.BRIDGE,
-		source: 'bridge',
-	}))
-
-	return [...entries, ...bridgeEntries]
+	return cnGetDefaultContent(type)
 }

@@ -58,7 +58,7 @@ const childStubs = {
 	DashboardSwitcherSidebar: { name: 'DashboardSwitcherSidebar', template: '<div />' },
 	SidebarBackdrop: { name: 'SidebarBackdrop', template: '<div />' },
 	WidgetPickerModal: { name: 'WidgetPickerModal', template: '<div />' },
-	AddWidgetModal: { name: 'AddWidgetModal', template: '<div />' },
+	CnAddWidgetModal: { name: 'CnAddWidgetModal', template: '<div />' },
 	WidgetStyleEditor: { name: 'WidgetStyleEditor', template: '<div />' },
 	TileEditor: { name: 'TileEditor', template: '<div />' },
 	WidgetContextMenu: { name: 'WidgetContextMenu', template: '<div />' },
@@ -126,18 +126,21 @@ async function mountViews({ activeDashboard = null, loading = false } = {}) {
 }
 
 describe('Views — initial-load shim', () => {
+	// Mounting the full Views tree pulls in the heavy CnWidgetWrapper widget
+	// chrome; give these a generous timeout so they stay green under parallel
+	// full-suite load (they run ~4.5s in isolation).
 	it('renders the loading shim, NOT the empty-state CTA, while loading=true and activeDashboard is null', async () => {
 		const wrapper = await mountViews({ activeDashboard: null, loading: true })
 
 		expect(wrapper.find('.launchpad-loading').exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).exists()).toBe(true)
 		expect(wrapper.find('.launchpad-empty').exists()).toBe(false)
-	})
+	}, 20000)
 
 	it('renders the empty-state CTA once loading=false and activeDashboard is still null', async () => {
 		const wrapper = await mountViews({ activeDashboard: null, loading: false })
 
 		expect(wrapper.find('.launchpad-loading').exists()).toBe(false)
 		expect(wrapper.find('.launchpad-empty').exists()).toBe(true)
-	})
+	}, 20000)
 })

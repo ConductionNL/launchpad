@@ -2,7 +2,7 @@
 
 Per ADR-008 smoke discipline. These four steps are the manual smoke
 test that a deploy is expected to satisfy on `localhost:8080`
-(launchpad bind-mounted as `mydash` in `apps_paths`). Each step is
+(launchpad bind-mounted as `launchpad` in `apps_paths`). Each step is
 copy-pasteable; the expected response is the green-light condition.
 
 ## 1. Admin can list role-feature permissions
@@ -10,7 +10,7 @@ copy-pasteable; the expected response is the green-light condition.
 ```bash
 curl -s -u admin:admin \
   -H 'OCS-APIRequest: true' \
-  http://localhost:8080/index.php/apps/mydash/api/role-feature-permissions \
+  http://localhost:8080/index.php/apps/launchpad/api/role-feature-permissions \
   | jq '.'
 ```
 
@@ -27,7 +27,7 @@ curl -s -o /dev/null -w '%{http_code}\n' \
   -H 'Content-Type: application/json' \
   -X POST \
   -d '{"groupId":"employees","name":"Employees","allowedWidgets":[],"deniedWidgets":[]}' \
-  http://localhost:8080/index.php/apps/mydash/api/role-feature-permissions
+  http://localhost:8080/index.php/apps/launchpad/api/role-feature-permissions
 ```
 
 **Expected.** HTTP 403 (NC `SecurityMiddleware` rejects the non-admin
@@ -37,28 +37,28 @@ is admin-gated via `requireAdmin()`).
 ## 3. Configured-group user sees filtered `/api/widgets`
 
 Pre-condition: as admin, POST one RoleFeaturePermission for
-`employees` group with `allowedWidgets: ["mydash-label"]`.
+`employees` group with `allowedWidgets: ["launchpad-label"]`.
 
 ```bash
 curl -s -u alice:alice \
   -H 'OCS-APIRequest: true' \
-  http://localhost:8080/index.php/apps/mydash/api/widgets \
+  http://localhost:8080/index.php/apps/launchpad/api/widgets \
   | jq '.[] | .id'
 ```
 
-**Expected.** Only `"mydash-label"` (or the configured slice) appears
+**Expected.** Only `"launchpad-label"` (or the configured slice) appears
 — the widget catalogue is filtered by
 `RoleFeaturePermissionService::resolveAllowedWidgets()` per the
 multi-group deny-wins rule documented in `docs/role-based-content.md`.
 
 ## 4. Direct restricted-widget endpoint returns 403 (no stack trace)
 
-For a user without `mydash-feed` in their allow set:
+For a user without `launchpad-feed` in their allow set:
 
 ```bash
 curl -s -u alice:alice \
   -H 'OCS-APIRequest: true' \
-  http://localhost:8080/index.php/apps/mydash/api/widgets/mydash-feed/items \
+  http://localhost:8080/index.php/apps/launchpad/api/widgets/launchpad-feed/items \
   | jq '.'
 ```
 

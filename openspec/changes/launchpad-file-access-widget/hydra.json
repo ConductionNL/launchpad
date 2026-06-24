@@ -1,0 +1,8 @@
+{
+  "spec_slug": "launchpad-file-access-widget",
+  "title": "Dashboard document and file access",
+  "app": "launchpad",
+  "repo": "https://github.com/ConductionNL/launchpad",
+  "depends_on": [],
+  "issue": null
+}

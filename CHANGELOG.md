@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file.
   (≥ 480 px or below). The `moveScale` algorithm preserves relative widget
   widths on breakpoint changes. Cell height is 60 px; inter-cell margin is
   8 px. All geometry constants are centralised in `useGridManager.js` and
-  mirrored to the `--mydash-cell-height` CSS custom property at init time.
+  mirrored to the `--launchpad-cell-height` CSS custom property at init time.
 
 ### Security
 

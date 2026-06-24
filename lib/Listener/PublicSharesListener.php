@@ -76,7 +76,7 @@ class PublicSharesListener implements IEventListener
 
             $this->logger->debug(
                 message: sprintf(
-                    'mydash PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
+                    'launchpad PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
                     $count,
                     $uuid
                 ),

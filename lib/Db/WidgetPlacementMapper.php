@@ -135,41 +135,6 @@ class WidgetPlacementMapper extends QBMapper
     }//end findByWidgetId()
 
     /**
-     * Find placement by dashboard and widget ID.
-     *
-     * @param int    $dashboardId The dashboard ID.
-     * @param string $widgetId    The widget ID.
-     *
-     * @return WidgetPlacement[] The matching placements.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function findByDashboardAndWidget(
-        int $dashboardId,
-        string $widgetId
-    ): array {
-        $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
-            ->from(from: $this->getTableName())
-            ->where(
-                $qb->expr()->eq(
-                    x: 'dashboard_id',
-                    y: $qb->createNamedParameter(
-                        value: $dashboardId,
-                        type: IQueryBuilder::PARAM_INT
-                    )
-                )
-            )
-            ->andWhere(
-                $qb->expr()->eq(
-                    x: 'widget_id',
-                    y: $qb->createNamedParameter(value: $widgetId)
-                )
-            );
-
-        return $this->findEntities(query: $qb);
-    }//end findByDashboardAndWidget()
-
-    /**
      * Delete all placements for a dashboard.
      *
      * @param int $dashboardId The dashboard ID.
@@ -479,34 +444,4 @@ class WidgetPlacementMapper extends QBMapper
 
         return (int) $row['cnt'];
     }//end countByDashboardId()
-
-    /**
-     * Get max sort order for a dashboard.
-     *
-     * @param int $dashboardId The dashboard ID.
-     *
-     * @return int The maximum sort order.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function getMaxSortOrder(int $dashboardId): int
-    {
-        $qb = $this->db->getQueryBuilder();
-        $qb->select($qb->func()->max(field: 'sort_order'))
-            ->from(from: $this->getTableName())
-            ->where(
-                $qb->expr()->eq(
-                    x: 'dashboard_id',
-                    y: $qb->createNamedParameter(
-                        value: $dashboardId,
-                        type: IQueryBuilder::PARAM_INT
-                    )
-                )
-            );
-
-        $result = $qb->executeQuery();
-        $max    = $result->fetchOne();
-        $result->closeCursor();
-
-        return (int) ($max ?? 0);
-    }//end getMaxSortOrder()
 }//end class

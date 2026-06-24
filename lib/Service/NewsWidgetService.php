@@ -214,7 +214,17 @@ class NewsWidgetService
      */
     public function extractNewsConfig(WidgetPlacement $placement): array
     {
-        $decoded = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
+        // The unified Add-Widget modal stores per-type config (feedUrls, …) in
+        // the `content` column; `style_config` only carries chrome
+        // (background/title). Read `content` first, falling back to
+        // `style_config` for any legacy placement that stored config there.
+        $decoded = $this->decodeStyleConfigBlob(raw: $placement->getContent());
+        if ($this->extractFeedUrls(decoded: $decoded) === []) {
+            $legacy = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
+            if ($this->extractFeedUrls(decoded: $legacy) !== []) {
+                $decoded = $legacy;
+            }
+        }
 
         return [
             'feedUrls'        => $this->extractFeedUrls(decoded: $decoded),

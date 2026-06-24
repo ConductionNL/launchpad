@@ -3,7 +3,7 @@
 /**
  * PublicShareMapper
  *
- * QBMapper for mydash_public_shares. Covers token lookup, active-share
+ * QBMapper for launchpad_public_shares. Covers token lookup, active-share
  * filtering, soft-revoke, and debounced view-count increment via APCu/Redis.
  *
  * @category  Database
@@ -64,10 +64,10 @@ class PublicShareMapper extends QBMapper
     ) {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_public_shares',
+            tableName: 'launchpad_public_shares',
             entityClass: PublicShare::class
         );
-        $this->cache = $this->cacheFactory->createDistributed(prefix: 'mydash_vc_');
+        $this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_vc_');
     }//end __construct()
 
     /**
@@ -82,7 +82,7 @@ class PublicShareMapper extends QBMapper
         if ($share->getToken() !== null) {
             $share->setUrl(
                 $this->urlGenerator->linkToRouteAbsolute(
-                    routeName: 'mydash.publicShare.show',
+                    routeName: 'launchpad.publicShare.show',
                     arguments: ['token' => $share->getToken()]
                 )
             );

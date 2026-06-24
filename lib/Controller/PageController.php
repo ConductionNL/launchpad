@@ -37,6 +37,7 @@ use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Dashboard\IManager;
@@ -336,6 +337,18 @@ class PageController extends Controller
                 'id-app-navigation' => null,
             ]
         );
+
+        // REQ-VID: the video widget embeds YouTube/Vimeo players in an
+        // <iframe>; Nextcloud's default `frame-src 'self'` blocks them, so the
+        // page must explicitly allow the player origins (and their poster/
+        // thumbnail CDNs) or the widget renders an empty/broken frame.
+        $csp = new ContentSecurityPolicy();
+        $csp->addAllowedFrameDomain(domain: 'https://www.youtube.com');
+        $csp->addAllowedFrameDomain(domain: 'https://www.youtube-nocookie.com');
+        $csp->addAllowedFrameDomain(domain: 'https://player.vimeo.com');
+        $csp->addAllowedImageDomain(domain: 'https://i.ytimg.com');
+        $csp->addAllowedImageDomain(domain: 'https://i.vimeocdn.com');
+        $response->setContentSecurityPolicy(csp: $csp);
 
         return $response;
     }//end index()

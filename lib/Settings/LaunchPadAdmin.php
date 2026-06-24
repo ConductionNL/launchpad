@@ -173,7 +173,7 @@ class LaunchPadAdmin implements IDelegatedSettings
     /**
      * App config keys an authorized (delegated) admin may manage.
      *
-     * Returned as a map of appId => list of allowed config keys. MyDash
+     * Returned as a map of appId => list of allowed config keys. LaunchPad
      * exposes no delegatable sub-keys yet, so this is intentionally empty;
      * the attribute still scopes the endpoint to full admins.
      *

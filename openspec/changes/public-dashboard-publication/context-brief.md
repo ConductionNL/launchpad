@@ -9,15 +9,15 @@ status: draft
 **Lives at:** Beheer / Tab: Sharing & Publication
 
 **Rationale:** Publication policy  
-_Source: /tmp/ia-mydash-openregister.md_
+_Source: /tmp/ia-launchpad-openregister.md_
 
 > **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
 
 ## Purpose
 
-Provide an anonymous-read publication channel for mydash dashboards so that gemeenten, provincies, waterschappen, and other public bodies can publish open-data dashboards to citizens, journalists, and other partners without forcing each viewer through an authentication step. Today mydash dashboards are identity-bound: every viewer is a known user, every view is logged against that user, and access is governed by per-dashboard ACLs. That is correct for internal BI and for the existing `dashboard-sharing` capability which lets one user share a dashboard with another identified user. It is wrong for open-overheid usage where the entire point is that any citizen can land on a URL like `dashboards.gemeentezeist.nl/wonen` and see the live numbers without a login.
+Provide an anonymous-read publication channel for launchpad dashboards so that gemeenten, provincies, waterschappen, and other public bodies can publish open-data dashboards to citizens, journalists, and other partners without forcing each viewer through an authentication step. Today launchpad dashboards are identity-bound: every viewer is a known user, every view is logged against that user, and access is governed by per-dashboard ACLs. That is correct for internal BI and for the existing `dashboard-sharing` capability which lets one user share a dashboard with another identified user. It is wrong for open-overheid usage where the entire point is that any citizen can land on a URL like `dashboards.gemeentezeist.nl/wonen` and see the live numbers without a login.
 
-This spec introduces a publication channel that is distinct from sharing. A dashboard owner can mark a dashboard as publishable, choose between three publication modes (fully public, signed-URL with expiry, password-gated), apply a publication-specific brand chrome (gemeente logo, kleurpalet, footer with privacy and accessibility links), configure robots and noindex behaviour, and set cache-control headers so the dashboard can be fronted by a CDN at high request volumes. Underlying data queries run as a designated "publication service account" with its own ACL so that public dashboards can never accidentally inherit a viewer's elevated permissions. View-counts and traffic metrics are recorded in aggregate (no per-citizen profiling) and surface in the owner's mydash analytics. The spec deliberately scopes out interactive filtering, comment threads, and authenticated personalisation; those belong to a future `interactive-public-dashboard` spec.
+This spec introduces a publication channel that is distinct from sharing. A dashboard owner can mark a dashboard as publishable, choose between three publication modes (fully public, signed-URL with expiry, password-gated), apply a publication-specific brand chrome (gemeente logo, kleurpalet, footer with privacy and accessibility links), configure robots and noindex behaviour, and set cache-control headers so the dashboard can be fronted by a CDN at high request volumes. Underlying data queries run as a designated "publication service account" with its own ACL so that public dashboards can never accidentally inherit a viewer's elevated permissions. View-counts and traffic metrics are recorded in aggregate (no per-citizen profiling) and surface in the owner's launchpad analytics. The spec deliberately scopes out interactive filtering, comment threads, and authenticated personalisation; those belong to a future `interactive-public-dashboard` spec.
 
 ## Data Model
 
@@ -50,7 +50,7 @@ GIVEN a publication in signed mode, WHEN the owner issues a signed URL with an e
 GIVEN a publication in password mode, WHEN a viewer arrives, THEN the system MUST present a minimal password form, MUST hash and compare against the stored passwordHash using a constant-time comparison, MUST lock further attempts after the configured threshold, and MUST never log the submitted password.
 
 ### REQ-PDP-005: Brand chrome
-GIVEN a publication with a branding profile, WHEN the dashboard renders, THEN the page chrome MUST display the configured logo, colours, footer, and language; the mydash internal navigation chrome MUST NOT appear; and the document title and meta-description MUST be derived from the publication settings.
+GIVEN a publication with a branding profile, WHEN the dashboard renders, THEN the page chrome MUST display the configured logo, colours, footer, and language; the launchpad internal navigation chrome MUST NOT appear; and the document title and meta-description MUST be derived from the publication settings.
 
 ### REQ-PDP-006: Robots and indexing control
 GIVEN a publication with a robotsPolicy, WHEN search-engine bots request the page or the site's robots.txt, THEN the system MUST emit the configured directive both as a meta-robots tag and via X-Robots-Tag header so that even if the bot ignores HTML, the header signal is honoured.
@@ -71,7 +71,7 @@ GIVEN viewer traffic on a publication, WHEN the system records metrics, THEN it 
 
 ## Cross-app
 
-- **mydash dashboard-sharing**: distinct surface; sharing is identity-bound, publication is anonymous.
+- **launchpad dashboard-sharing**: distinct surface; sharing is identity-bound, publication is anonymous.
 - **opencatalogi**: published dashboards can be registered as open-data resources in the gemeente catalogue.
 - **openregister**: publication service account permissions enforced at the register/schema layer.
 - **openconnector**: optional CDN front (Cloudflare, Fastly, KPN CDN) provisioned via connector.

@@ -93,7 +93,7 @@ class KioskPlaylistTest extends TestCase
         $playlist->setId(7);
         $playlist->setName('Wall');
         $playlist->setToken('tok-123');
-        $playlist->setUrl('https://example.com/apps/mydash/kiosk/tok-123');
+        $playlist->setUrl('https://example.com/apps/launchpad/kiosk/tok-123');
         $playlist->setEntries((string) json_encode([['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]]));
         $playlist->setRefreshSeconds(120);
         $playlist->setCreatedBy('alice');
@@ -105,7 +105,7 @@ class KioskPlaylistTest extends TestCase
         $this->assertSame(7, $json['id']);
         $this->assertSame('Wall', $json['name']);
         $this->assertSame('tok-123', $json['token']);
-        $this->assertSame('https://example.com/apps/mydash/kiosk/tok-123', $json['url']);
+        $this->assertSame('https://example.com/apps/launchpad/kiosk/tok-123', $json['url']);
         $this->assertSame(120, $json['refreshSeconds']);
         $this->assertSame('alice', $json['createdBy']);
         $this->assertSame('2026-01-01 00:00:00', $json['createdAt']);
@@ -129,7 +129,7 @@ class KioskPlaylistTest extends TestCase
         $playlist = new KioskPlaylist();
         $this->assertNull($playlist->getUrl());
 
-        $playlist->setUrl('https://example.com/apps/mydash/kiosk/tok');
-        $this->assertSame('https://example.com/apps/mydash/kiosk/tok', $playlist->getUrl());
+        $playlist->setUrl('https://example.com/apps/launchpad/kiosk/tok');
+        $this->assertSame('https://example.com/apps/launchpad/kiosk/tok', $playlist->getUrl());
     }
 }//end class

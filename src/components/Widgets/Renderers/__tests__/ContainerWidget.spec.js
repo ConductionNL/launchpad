@@ -62,9 +62,10 @@ describe('ContainerWidget — REQ-CONT-003 recursive dispatch', () => {
 				},
 			},
 		})
-		// The label widget renders a `.label-widget` element via its
-		// own renderer — proving the registry-driven dispatch worked.
-		expect(wrapper.find('.label-widget').exists()).toBe(true)
+		// The label widget (now @conduction/nextcloud-vue's CnLabelWidget,
+		// rendering `.cn-label-widget`) renders via the registry — proving
+		// the registry-driven dispatch worked.
+		expect(wrapper.find('.cn-label-widget').exists()).toBe(true)
 	})
 })
 

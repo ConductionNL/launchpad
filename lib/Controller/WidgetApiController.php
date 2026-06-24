@@ -149,7 +149,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The widget items.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
      * @spec openspec/changes/role-based-content/tasks.md#task-3
      */
     #[NoAdminRequired]
@@ -694,6 +694,40 @@ class WidgetApiController extends Controller
 
         return ResponseHelper::success(data: $result);
     }//end calendarEvents()
+
+    /**
+     * List the current user's internal Nextcloud calendars so the calendar
+     * widget's config form can offer a picker instead of free-text principal
+     * URIs (REQ-CAL-002). Each entry carries the calendar key (the identifier
+     * `fetchInternalEvents` filters on), display name, and colour.
+     *
+     * @return JSONResponse The user's calendars, or 401 when unauthenticated.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
+     */
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function calendars(): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null || $this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.calendar-events');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
+        }
+
+        try {
+            $calendars = $this->calendarWidgetService->listCalendars(userId: $this->userId);
+        } catch (\Exception $exception) {
+            return ResponseHelper::error(exception: $exception);
+        }
+
+        return ResponseHelper::success(data: ['calendars' => $calendars]);
+    }//end calendars()
 
     /**
      * Pull `internalCalendars`/`externalIcsUrls` arrays out of the

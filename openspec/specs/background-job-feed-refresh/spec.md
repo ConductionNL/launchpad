@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # background-job-feed-refresh Specification
 
 ## Purpose
-TBD - created by archiving change background-job-feed-refresh. Update Purpose after archive.
+Keeps news-widget feeds fresh by running a scheduled background job that fetches, parses, and caches RSS 2.0 and Atom 1.0 feeds referenced by dashboard placements. It deduplicates feed URLs into a shared cache table, uses HTTP conditional requests and per-feed failure isolation to stay efficient and resilient, enforces a host allow-list and concurrency lock, and exposes an admin endpoint to trigger an immediate refresh.
 ## Requirements
 
 @e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface

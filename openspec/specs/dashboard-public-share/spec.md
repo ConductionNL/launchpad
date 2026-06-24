@@ -1,7 +1,11 @@
+---
+status: done
+---
+
 # dashboard-public-share Specification
 
 ## Purpose
-TBD - created by archiving change dashboard-public-share. Update Purpose after archive.
+Lets dashboard owners publish read-only public links to their dashboards, optionally protected by a password and an expiry date. Anonymous visitors render the dashboard through a unique share token while the system enforces read-only access, soft-revocation, brute-force throttling, debounced view counting, and a service-account read path for GroupFolder-backed content.
 ## Requirements
 ### Requirement: REQ-PSHR-001 Create Public Share
 

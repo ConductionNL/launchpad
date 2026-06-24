@@ -1,8 +1,8 @@
 {
   "spec_slug": "embedded-analytics",
   "title": "Embedded Analytics",
-  "app": "mydash",
-  "repo": "https://github.com/ConductionNL/mydash",
+  "app": "launchpad",
+  "repo": "https://github.com/ConductionNL/launchpad",
   "depends_on": [],
   "issue": null
 }

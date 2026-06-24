@@ -93,24 +93,6 @@ return [
 		['name' => 'dashboardApi#byPath', 'url' => '/api/dashboards/by-path/{path}', 'verb' => 'GET',
 		 'requirements' => ['path' => '.+']],
 
-		// Dashboard comments endpoints (REQ-CMNT-001..009). Threaded
-		// comments backed by Nextcloud's `ICommentsManager` with
-		// object type `launchpad_dashboard`. The literal `/comments`
-		// segment disambiguates from the `{groupId}` wildcard below
-		// — both share the `/api/dashboards/{uuid}/...` prefix.
-		['name' => 'dashboardCommentsApi#index',
-		 'url' => '/api/dashboards/{uuid}/comments', 'verb' => 'GET',
-		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
-		['name' => 'dashboardCommentsApi#create',
-		 'url' => '/api/dashboards/{uuid}/comments', 'verb' => 'POST',
-		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
-		['name' => 'dashboardCommentsApi#update',
-		 'url' => '/api/dashboards/{uuid}/comments/{id}', 'verb' => 'PUT',
-		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
-		['name' => 'dashboardCommentsApi#destroy',
-		 'url' => '/api/dashboards/{uuid}/comments/{id}', 'verb' => 'DELETE',
-		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
-
 		// Group-shared dashboard CRUD (REQ-DASH-014). All five routes are
 		// scoped to a single `groupId` (real Nextcloud group id or the
 		// reserved literal `default`).
@@ -258,6 +240,8 @@ return [
 		['name' => 'widgetApi#calendarEvents',
 		 'url' => '/api/widgets/calendar/{placementId}/events', 'verb' => 'GET',
 		 'requirements' => ['placementId' => '\d+']],
+		// REQ-CAL-002: list the user's calendars for the config-form picker.
+		['name' => 'widgetApi#calendars', 'url' => '/api/widgets/calendar/calendars', 'verb' => 'GET'],
 		['name' => 'widgetApi#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],
 		['name' => 'widgetApi#removePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'DELETE'],
 
@@ -328,26 +312,11 @@ return [
 		['name' => 'resourceServe#getResource', 'url' => '/resource/{filename}', 'verb' => 'GET',
 		 'requirements' => ['filename' => '[^/]+']],
 
-		// Per-user RSS / Atom feed endpoints (REQ-FEED-001..009).
-		// The three /api/feed/token routes are authenticated; the
-		// public /feed/{token}.xml route is gated only by the opaque
-		// token in the URL path. Specific `/regenerate` precedes the
-		// catch-all `{token}.xml` route below.
-		['name' => 'feed#getToken', 'url' => '/api/feed/token', 'verb' => 'GET'],
-		['name' => 'feed#regenerateToken', 'url' => '/api/feed/token/regenerate', 'verb' => 'POST'],
-		['name' => 'feed#revokeToken', 'url' => '/api/feed/token', 'verb' => 'DELETE'],
-		['name' => 'feed#publicFeed', 'url' => '/feed/{token}.xml', 'verb' => 'GET',
-		 'requirements' => ['token' => '[A-Za-z0-9_\-]+']],
-
-		// Template gallery + save-as-template (REQ-TMPL-014, REQ-TMPL-015).
-		// `gallery` is logged-in-user only (not admin); `saveAsTemplate` is
-		// owner-only with the check inside the service. Registered BEFORE
-		// the personal `/api/dashboard/{id}` routes so the literal
-		// `templates/gallery` and `save-as-template` segments win in the
+		// Template gallery (REQ-TMPL-014). `gallery` is logged-in-user only
+		// (not admin). Registered BEFORE the personal `/api/dashboard/{id}`
+		// routes so the literal `templates/gallery` segment wins in the
 		// router (Symfony first-match).
 		['name' => 'template#gallery', 'url' => '/api/templates/gallery', 'verb' => 'GET'],
-		['name' => 'template#saveAsTemplate', 'url' => '/api/dashboards/{uuid}/save-as-template', 'verb' => 'POST',
-		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Admin endpoints
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],

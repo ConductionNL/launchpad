@@ -21,7 +21,10 @@
 			     follow the fleet tablist pattern (nc-vue CnTabbedFormDialog /
 			     NC sidebar tabs): justified tabs, icon + label, active
 			     primary underline. -->
-			<ul v-if="!isCreate" class="dashboard-config__tabs" role="tablist" data-test="config-tabs">
+			<ul v-if="!isCreate"
+				class="dashboard-config__tabs"
+				role="tablist"
+				data-test="config-tabs">
 				<li
 					v-for="tab in tabs"
 					:key="tab.id"
@@ -48,41 +51,42 @@
 				role="tabpanel"
 				data-test="config-panel-general"
 				class="dashboard-config__panel">
-			<div class="dashboard-config__field">
-				<NcTextField
-					:value="form.name"
-					:label="t('launchpad', 'Title')"
-					:placeholder="t('launchpad', 'My dashboard')"
-					data-testid="dashboard-name-input"
-					@update:value="form.name = $event" />
-			</div>
+				<div class="dashboard-config__field">
+					<NcTextField
+						:value="form.name"
+						:label="t('launchpad', 'Title')"
+						:placeholder="t('launchpad', 'My dashboard')"
+						data-testid="dashboard-name-input"
+						@update:value="form.name = $event" />
+				</div>
 
-			<div class="dashboard-config__field">
-				<label class="dashboard-config__label" for="dashboard-config-description">
-					{{ t('launchpad', 'Description') }}
-				</label>
-				<textarea
-					id="dashboard-config-description"
-					v-model="form.description"
-					class="dashboard-config__textarea"
-					rows="3"
-					data-testid="dashboard-description-input"
-					:placeholder="t('launchpad', 'What is this dashboard for?')" />
-			</div>
+				<div class="dashboard-config__field">
+					<label class="dashboard-config__label" for="dashboard-config-description">
+						{{ t('launchpad', 'Description') }}
+					</label>
+					<textarea
+						id="dashboard-config-description"
+						v-model="form.description"
+						class="dashboard-config__textarea"
+						rows="3"
+						data-testid="dashboard-description-input"
+						:placeholder="t('launchpad', 'What is this dashboard for?')" />
+				</div>
 
-			<!-- Icon picker — IconPicker enumerates registry names from
+				<!-- Icon picker — IconPicker enumerates registry names from
 			     `DASHBOARD_ICONS` AND accepts a custom upload (capability
 			     `custom-icon-upload-pattern`). Same v-model whether the
 			     final value is a registry key or a /apps/launchpad/resource/...
 			     URL (REQ-ICON-003 + REQ-ICON-008..009). -->
-			<div class="dashboard-config__field">
-				<label class="dashboard-config__label" for="dashboard-config-icon">
-					{{ t('launchpad', 'Icon') }}
-				</label>
-				<IconPicker
-					:value="form.icon"
-					@input="form.icon = $event" />
-			</div>
+				<div class="dashboard-config__field">
+					<label class="dashboard-config__label" for="dashboard-config-icon">
+						{{ t('launchpad', 'Icon') }}
+					</label>
+					<CnIconPicker
+						:value="form.icon"
+						:upload-fn="iconUploadFn"
+						@input="form.icon = $event" />
+				</div>
 			</div>
 			<!-- /general panel -->
 
@@ -103,9 +107,9 @@
 						:checked="form.isDefault"
 						type="switch"
 						@update:checked="form.isDefault = $event">
-						<strong>{{ t('mydash', 'Default dashboard') }}</strong>
+						<strong>{{ t('launchpad', 'Default dashboard') }}</strong>
 						<span class="dashboard-config__hint">
-							{{ t('mydash', 'Open this dashboard automatically when visiting MyDash.') }}
+							{{ t('launchpad', 'Open this dashboard automatically when visiting LaunchPad.') }}
 						</span>
 					</NcCheckboxRadioSwitch>
 				</div>
@@ -120,68 +124,68 @@
 				role="tabpanel"
 				data-test="config-panel-sharing"
 				class="dashboard-config__panel">
-			<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
-				<label class="dashboard-config__label">
-					{{ t('launchpad', 'Share with users and groups') }}
-				</label>
+				<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
+					<label class="dashboard-config__label">
+						{{ t('launchpad', 'Share with users and groups') }}
+					</label>
 
-				<NcSelect
-					:value="null"
-					:options="shareeOptions"
-					:filterable="false"
-					:loading="shareeLoading"
-					:aria-label-combobox="t('launchpad', 'Share with users and groups')"
-					:placeholder="t('launchpad', 'Search users and groups…')"
-					label="displayName"
-					track-by="key"
-					:clearable="false"
-					@search="onShareeSearch"
-					@input="onShareeSelected">
-					<template #option="option">
-						<span class="sharee-option">
-							<AccountGroup v-if="option.shareType === 'group'" :size="18" />
-							<Account v-else :size="18" />
-							{{ option.displayName }}
-						</span>
-					</template>
-				</NcSelect>
+					<NcSelect
+						:value="null"
+						:options="shareeOptions"
+						:filterable="false"
+						:loading="shareeLoading"
+						:aria-label-combobox="t('launchpad', 'Share with users and groups')"
+						:placeholder="t('launchpad', 'Search users and groups…')"
+						label="displayName"
+						track-by="key"
+						:clearable="false"
+						@search="onShareeSearch"
+						@input="onShareeSelected">
+						<template #option="option">
+							<span class="sharee-option">
+								<AccountGroup v-if="option.shareType === 'group'" :size="18" />
+								<Account v-else :size="18" />
+								{{ option.displayName }}
+							</span>
+						</template>
+					</NcSelect>
 
-				<ul v-if="localShares.length > 0" class="dashboard-config__shares">
-					<li
-						v-for="(share, idx) in localShares"
-						:key="`${share.shareType}:${share.shareWith}`"
-						class="dashboard-config__share">
-						<span class="dashboard-config__share-name">
-							<AccountGroup v-if="share.shareType === 'group'" :size="18" />
-							<Account v-else :size="18" />
-							{{ share.displayName || share.shareWith }}
-						</span>
-						<NcSelect
-							:value="permissionOptionFor(share.permissionLevel)"
-							:options="permissionOptions"
-							:input-label="t('launchpad', 'Permission level')"
-							label="label"
-							track-by="value"
-							:clearable="false"
-							class="dashboard-config__share-level"
-							@input="onShareLevelChange(idx, $event)" />
-						<NcButton
-							type="tertiary"
-							:aria-label="t('launchpad', 'Remove share')"
-							@click="onShareRemove(idx)">
-							<template #icon>
-								<Close :size="18" />
-							</template>
-						</NcButton>
-					</li>
-				</ul>
-				<p v-else class="dashboard-config__hint">
-					{{ t('launchpad', 'Not shared with anyone yet.') }}
-				</p>
-				<p v-if="sharesDirty" class="dashboard-config__hint dashboard-config__hint--dirty">
-					{{ t('launchpad', 'Unsaved changes — click Save to apply.') }}
-				</p>
-			</div>
+					<ul v-if="localShares.length > 0" class="dashboard-config__shares">
+						<li
+							v-for="(share, idx) in localShares"
+							:key="`${share.shareType}:${share.shareWith}`"
+							class="dashboard-config__share">
+							<span class="dashboard-config__share-name">
+								<AccountGroup v-if="share.shareType === 'group'" :size="18" />
+								<Account v-else :size="18" />
+								{{ share.displayName || share.shareWith }}
+							</span>
+							<NcSelect
+								:value="permissionOptionFor(share.permissionLevel)"
+								:options="permissionOptions"
+								:input-label="t('launchpad', 'Permission level')"
+								label="label"
+								track-by="value"
+								:clearable="false"
+								class="dashboard-config__share-level"
+								@input="onShareLevelChange(idx, $event)" />
+							<NcButton
+								type="tertiary"
+								:aria-label="t('launchpad', 'Remove share')"
+								@click="onShareRemove(idx)">
+								<template #icon>
+									<Close :size="18" />
+								</template>
+							</NcButton>
+						</li>
+					</ul>
+					<p v-else class="dashboard-config__hint">
+						{{ t('launchpad', 'Not shared with anyone yet.') }}
+					</p>
+					<p v-if="sharesDirty" class="dashboard-config__hint dashboard-config__hint--dirty">
+						{{ t('launchpad', 'Unsaved changes — click Save to apply.') }}
+					</p>
+				</div>
 			</div>
 			<!-- /sharing panel -->
 
@@ -232,8 +236,8 @@ import Tune from 'vue-material-design-icons/Tune.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 
-import IconPicker from './Dashboard/IconPicker.vue'
-import { DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '../constants/dashboardIcons.js'
+import { CnIconPicker, DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '@conduction/nextcloud-vue'
+import { uploadDataUrl } from '../services/resourceService.js'
 import { api } from '../services/api.js'
 
 const PERMISSION_OPTIONS = [
@@ -260,7 +264,7 @@ export default {
 		Tune,
 		ShareVariant,
 		StarOutline,
-		IconPicker,
+		CnIconPicker,
 	},
 
 	props: {
@@ -346,6 +350,16 @@ export default {
 			return this.mode === 'create'
 		},
 		/**
+		 * The icon-upload transport handed to CnIconPicker. Exposed on the
+		 * instance (computed) so the template can reference the module-imported
+		 * `uploadDataUrl` — a bare module import isn't visible in template scope.
+		 *
+		 * @return {Function} the data-URL upload function.
+		 */
+		iconUploadFn() {
+			return uploadDataUrl
+		},
+		/**
 		 * Config-drawer tab descriptors (dashboard-sharing spec). The
 		 * Sharing tab is only offered when the user can manage shares.
 		 *
@@ -353,12 +367,12 @@ export default {
 		 */
 		tabs() {
 			const list = [
-				{ id: 'general', label: t('mydash', 'General'), icon: Tune },
+				{ id: 'general', label: t('launchpad', 'General'), icon: Tune },
 			]
 			if (this.canManageShares) {
-				list.push({ id: 'sharing', label: t('mydash', 'Sharing'), icon: ShareVariant })
+				list.push({ id: 'sharing', label: t('launchpad', 'Sharing'), icon: ShareVariant })
 			}
-			list.push({ id: 'default', label: t('mydash', 'Default'), icon: StarOutline })
+			list.push({ id: 'default', label: t('launchpad', 'Default'), icon: StarOutline })
 			return list
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -424,7 +438,10 @@ export default {
 	watch: {
 		open: {
 			immediate: true,
-			/** @spec openspec/specs/dashboards/spec.md */
+			/**
+			 * @param isOpen
+			 * @spec openspec/specs/dashboards/spec.md
+			 */
 			handler(isOpen) {
 				if (!isOpen) {
 					this.serverShares = []
@@ -476,7 +493,10 @@ export default {
 
 	methods: {
 		t,
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param level
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		permissionOptionFor(level) {
 			return this.permissionOptions.find(o => o.value === level) || this.permissionOptions[0]
 		},
@@ -536,7 +556,10 @@ export default {
 			}))
 			return [...users, ...groups]
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param query
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onShareeSearch(query) {
 			const trimmed = (query || '').trim()
 			if (trimmed.length === 0) {
@@ -562,7 +585,10 @@ export default {
 				this.shareeLoading = false
 			}
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param option
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		onShareeSelected(option) {
 			if (!option) return
 			// Buffer locally — do not write to server until Save.
@@ -581,7 +607,11 @@ export default {
 			// previous search results.
 			this.shareeOptions = [...this.shareeSuggestions]
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param idx
+		 * @param option
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		onShareLevelChange(idx, option) {
 			if (!option) return
 			const share = this.localShares[idx]
@@ -591,7 +621,10 @@ export default {
 				permissionLevel: option.value,
 			})
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param idx
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		onShareRemove(idx) {
 			this.localShares.splice(idx, 1)
 		},

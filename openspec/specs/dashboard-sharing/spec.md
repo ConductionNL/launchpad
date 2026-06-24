@@ -12,8 +12,8 @@ Dashboard sharing lets a dashboard owner grant read or edit access on a personal
 ## Permission model
 
 Permission levels (`view_only` / `add_only` / `full`) live on
-`oc_mydash_dashboards.permissions` and on the `oc_mydash_dashboard_shares`
-rows. This is MyDash's **native** permission model and the primary access
+`oc_launchpad_dashboards.permissions` and on the `oc_launchpad_dashboard_shares`
+rows. This is LaunchPad's **native** permission model and the primary access
 control mechanism.
 
 **Requirement: MUST NOT declare an install-time dependency on OpenRegister.**
@@ -24,7 +24,7 @@ with no OpenRegister present. There MUST be no `require_once` or
 ## Runtime OR delegation (OPTIONAL)
 
 When OR is enabled at runtime and a dashboard's `permissions.delegate` field
-references an OR-backed object, MyDash MAY at render time call
+references an OR-backed object, LaunchPad MAY at render time call
 `OR /api/objects/{id}/can?action={read|write}` and AND the result with the
 local permission level. **If OR is absent the delegation is silently skipped
 and the local permission level applies.**

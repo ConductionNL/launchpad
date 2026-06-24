@@ -1,6 +1,6 @@
 # Public Dashboard Publication
 
-MyDash dashboards are today identity-bound — every viewer is an authenticated user and every view is recorded against that user. This is correct for internal BI and for the existing `dashboard-sharing` capability which lets one user share with another identified user. It is wrong for open-overheid use cases where any citizen should be able to view a live dashboard without a login.
+LaunchPad dashboards are today identity-bound — every viewer is an authenticated user and every view is recorded against that user. This is correct for internal BI and for the existing `dashboard-sharing` capability which lets one user share with another identified user. It is wrong for open-overheid use cases where any citizen should be able to view a live dashboard without a login.
 
 This change introduces a publication channel — distinct from sharing — that lets a dashboard owner mark a dashboard as publishable and choose from three publication modes (fully public, signed-URL with expiry, password-gated). The owner can apply a publication-specific brand chrome (gemeente logo, colours, footer), configure search-engine indexing and caching directives, and surface traffic metrics in aggregate form (no per-citizen tracking). All data queries on a published dashboard run as a designated "publication service account" so the viewer never inherits elevated permissions.
 
@@ -25,7 +25,7 @@ Publication is a distinct use case with its own data model, access-control rules
 - **Configuration**: Owner marks a dashboard as publishable and configures mode, slug, branding, robots policy, cache headers via a publication-settings form.
 - **Access validation**: Signed mode validates tamper-evident signature + expiry. Password mode validates hash against configured password. Public mode allows all.
 - **Query execution**: All dashboard queries execute as a pre-configured publication service account with its own register/schema permissions.
-- **Branding**: Publication-specific logo, colours, footer, language, and meta tags replace the internal MyDash chrome on the public-view route.
+- **Branding**: Publication-specific logo, colours, footer, language, and meta tags replace the internal LaunchPad chrome on the public-view route.
 - **Indexing**: X-Robots-Tag and meta-robots directives honour the configured robotsPolicy so search engines follow the owner's intent.
 - **Caching**: Cache-Control headers and ETag support enable CDN fronting at scale.
 - **Analytics**: View counts recorded per hour bucket derived from salted session-cookie hashes — no backreferable identity tracking.
@@ -45,7 +45,7 @@ Publication is a distinct use case with its own data model, access-control rules
 
 ## Cross-app dependencies
 
-- **mydash dashboard-sharing**: distinct surface; sharing is identity-bound, publication is anonymous
+- **launchpad dashboard-sharing**: distinct surface; sharing is identity-bound, publication is anonymous
 - **opencatalogi**: published dashboards can be registered as open-data resources
 - **openregister**: publication service account permissions enforced at register/schema layer
 - **openconnector**: optional CDN front provisioned via connector

@@ -21,7 +21,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
@@ -30,7 +30,7 @@ test.beforeAll(async () => {
 
 test.describe('text-display widget', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	test('add → fill → save → reload renders sanitised text and survives round-trip', async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('text-display widget', () => {
 
 		// Persistence: the placement survives a full reload.
 		await page.reload()
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 		await expect(page.locator('.text-display-widget').filter({ hasText: marker }).first())
 			.toBeAttached({ timeout: 10_000 })
 	})

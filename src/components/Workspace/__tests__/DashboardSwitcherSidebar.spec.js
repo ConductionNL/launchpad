@@ -31,7 +31,7 @@ beforeEach(() => {
 })
 
 const iconRendererStub = {
-	name: 'IconRenderer',
+	name: 'CnDashboardIcon',
 	props: ['name', 'size'],
 	template: '<span class="icon-renderer-stub" :data-name="name" />',
 }
@@ -69,7 +69,7 @@ function mountSidebar(props = {}) {
 			...props,
 		},
 		stubs: {
-			IconRenderer: iconRendererStub,
+			CnDashboardIcon: iconRendererStub,
 			NcButton: ncButtonStub,
 			SidebarFooter: sidebarFooterStub,
 		},

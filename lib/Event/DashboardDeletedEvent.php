@@ -36,7 +36,6 @@ use OCP\EventDispatcher\Event;
  * MUST NOT attempt to re-delete the main dashboard row.
  *
  * @see \OCA\LaunchPad\Listener\WidgetPlacementsListener
- * @see \OCA\LaunchPad\Listener\CommentsListener
  * @see \OCA\LaunchPad\Listener\ReactionsListener
  * @see \OCA\LaunchPad\Listener\LocksListener
  * @see \OCA\LaunchPad\Listener\VersionsListener

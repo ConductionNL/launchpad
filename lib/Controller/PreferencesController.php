@@ -17,7 +17,7 @@
  *
  * @version GIT: <git_id>
  *
- * @link https://github.com/ConductionNL/mydash
+ * @link https://github.com/ConductionNL/launchpad
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2

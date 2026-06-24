@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Orphaned Data Cleanup Specification

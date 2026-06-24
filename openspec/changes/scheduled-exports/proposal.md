@@ -2,13 +2,13 @@
 
 ## Why
 
-MyDash dashboards are designed for live in-browser consumption, but three common organisational rhythms require a different model. First, the recurring management report — a wethouder wanting a weekly bezwaarschriften PDF every Monday at 09:00. Second, the regulated data exchange — a monthly CBS or VNG return that must land on SFTP by a specific date or face penalties. Third, the cross-system snapshot — a nightly PNG of a KPI dashboard posted to Teams so standup starts from a shared picture. Today, MyDash cannot answer these use cases. Scheduled Exports closes that gap.
+LaunchPad dashboards are designed for live in-browser consumption, but three common organisational rhythms require a different model. First, the recurring management report — a wethouder wanting a weekly bezwaarschriften PDF every Monday at 09:00. Second, the regulated data exchange — a monthly CBS or VNG return that must land on SFTP by a specific date or face penalties. Third, the cross-system snapshot — a nightly PNG of a KPI dashboard posted to Teams so standup starts from a shared picture. Today, LaunchPad cannot answer these use cases. Scheduled Exports closes that gap.
 
 ## What Changes
 
 Five new entities in OpenRegister form the core:
 
-- **`scheduled_export`**: Export configuration holding schedule, recipients, render targets, retention policy. Owned per-user or per-group, shared via standard MyDash permissions.
+- **`scheduled_export`**: Export configuration holding schedule, recipients, render targets, retention policy. Owned per-user or per-group, shared via standard LaunchPad permissions.
 - **`render_target`**: One output format (PDF, PNG, CSV, XLSX) with format-specific options (page size, viewport, delimiter). Multiple per export; decouples rendering from delivery.
 - **`recipient`**: Delivery destination with channel-specific config (email addresses, file path, webhook URL, SFTP credentials). Includes per-recipient filter context so the same export renders once per gemeente and emails each its filtered copy.
 - **`scheduled_export_run`**: Audit row written on every fire capturing render artefact hashes, delivery outcomes per recipient, retry counts, and any errors. Proves what was delivered and when.
@@ -19,7 +19,7 @@ Two background jobs orchestrate the lifecycle:
 - **`ScheduledExportRunner`**: Evaluates enabled exports with `nextRunAt` in the past, renders to each recipient's filter context, dispatches to all channels in parallel, writes audit rows. Granularity: one minute.
 - **`ScheduledExportJanitor`**: Deletes render artefacts after `retention.keepArtefactsForDays` and run-rows after `retention.keepAuditForDays`. Granularity: one hour.
 
-Render artefacts are stored in the user's Nextcloud Files area under `Apps/MyDash/Exports/{exportId}/` so they appear in the standard file UI. Delivery spans four channels (email, Nextcloud Files, webhook, SFTP) with per-recipient signing secrets and encrypted credential vaulting. Failures retry with exponential backoff up to `maxAttempts` and surface in the UI with a "Retry" action.
+Render artefacts are stored in the user's Nextcloud Files area under `Apps/LaunchPad/Exports/{exportId}/` so they appear in the standard file UI. Delivery spans four channels (email, Nextcloud Files, webhook, SFTP) with per-recipient signing secrets and encrypted credential vaulting. Failures retry with exponential backoff up to `maxAttempts` and surface in the UI with a "Retry" action.
 
 ## Capabilities
 
@@ -38,7 +38,7 @@ Render artefacts are stored in the user's Nextcloud Files area under `Apps/MyDas
 - New PHP service layer: `ScheduledExportService`, `RecurrenceResolver`, `RenderPipeline`, `DeliveryDispatcher`, `RetryHandler`, `AuditLog`.
 - New background jobs: `ScheduledExportRunner`, `ScheduledExportJanitor`.
 - New controller: `ScheduledExportController` handling CRUD, preview, manual run.
-- New OpenRegister schemas (via `lib/Settings/mydash_register.json`).
+- New OpenRegister schemas (via `lib/Settings/launchpad_register.json`).
 - Frontend: export editor modal (list, create, edit, delete), run-history panel, preview modal.
 - Configuration: retry policy defaults, retention window defaults.
 
@@ -65,7 +65,7 @@ Render artefacts are stored in the user's Nextcloud Files area under `Apps/MyDas
 
 **Migration:**
 
-- OpenRegister imports schemas from `lib/Settings/mydash_register.json` on install.
+- OpenRegister imports schemas from `lib/Settings/launchpad_register.json` on install.
 - Seed data includes 3–5 example exports per render-target and delivery-channel combination for QA.
 - No custom schema migrations required; register lifecycle is generic.
 
@@ -74,4 +74,4 @@ Render artefacts are stored in the user's Nextcloud Files area under `Apps/MyDas
 - Render outputs are not duplicated in OpenRegister; binaries live in Files only. Audit rows capture sha256 so compliance officers can verify delivery without retaining bytes after retention window.
 - The render pipeline reuses the existing Vue component layer, live OpenRegister queries, and OpenConnector source resolver so on-screen rendering and scheduled-export PDF/PNG rendering produce identical output down to NL Design tokens and locale-aware formatting.
 - DST and leap-day handling follow Quartz scheduler conventions (preserve wall-clock time across DST, fire once per missed fire window) rather than inverting cron semantics, aligned with what operators familiar with cron + anacron already expect.
-- Webhook signing and SFTP host-key verification are mandatory for security-sensitive use cases (regulated data exchange). Signed payloads follow GitHub/Stripe convention (HMAC-SHA256 in `X-MyDash-Signature` header).
+- Webhook signing and SFTP host-key verification are mandatory for security-sensitive use cases (regulated data exchange). Signed payloads follow GitHub/Stripe convention (HMAC-SHA256 in `X-LaunchPad-Signature` header).

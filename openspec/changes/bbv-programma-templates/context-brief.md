@@ -9,13 +9,13 @@ status: draft
 **Lives at:** Templates / (root)
 
 **Rationale:** Sector starter content  
-_Source: /tmp/ia-mydash-openregister.md_
+_Source: /tmp/ia-launchpad-openregister.md_
 
 > **Implementation note for builders:** Respect the placement above. Do not promote this spec to a top-level menu item, sub-page, or new route unless the placement type explicitly says so. If the placement is `DETAIL_TAB`, `WIDGET`, `ACTION`, `SETTING`, or `INFRA`, the feature must NOT introduce a new entry in the app sidebar. When in doubt, ask before creating a new top-level surface.
 
 ## Purpose
 
-Provide a first-class data model and seed-template library for the Nederlandse gemeentelijke Programmabegroting-structuur (BBV: Besluit Begroting en Verantwoording provincies en gemeenten) inside mydash so that gemeenten can stand up a programma / doel / indicator hierarchy in minutes instead of weeks. Every gemeente in Nederland is wettelijk verplicht een programmabegroting op te stellen die de gemeentelijke taken indeelt in programma's (sociaal domein, ruimte, bestuur, openbare orde, ...), met per programma één of meer doelen en per doel meetbare indicatoren (vaak gekoppeld aan de wettelijke "Beleidsindicatoren" uit waarstaatjegemeente.nl).
+Provide a first-class data model and seed-template library for the Nederlandse gemeentelijke Programmabegroting-structuur (BBV: Besluit Begroting en Verantwoording provincies en gemeenten) inside launchpad so that gemeenten can stand up a programma / doel / indicator hierarchy in minutes instead of weeks. Every gemeente in Nederland is wettelijk verplicht een programmabegroting op te stellen die de gemeentelijke taken indeelt in programma's (sociaal domein, ruimte, bestuur, openbare orde, ...), met per programma één of meer doelen en per doel meetbare indicatoren (vaak gekoppeld aan de wettelijke "Beleidsindicatoren" uit waarstaatjegemeente.nl).
 
 Vandaag bouwt elke gemeente die structuur opnieuw op in Excel of in een lokaal BI-tool, vaak afwijkend van de buurgemeente, waardoor benchmarking lastig is en de Provinciale toezichthouder de aanlevering moeilijk kan vergelijken. Tegelijkertijd is de BBV-taxonomie sterk gestandaardiseerd: het Ministerie van BZK publiceert de verplichte beleidsindicatoren, de IV3-rubrieken (Informatie voor Derden) zijn vastgesteld, en de meeste gemeenten hanteren een vergelijkbare programma-indeling op hoofdlijnen.
 
@@ -76,7 +76,7 @@ GIVEN een programma met een toegewezen budget, WHEN financeq de realisatie-cijfe
 
 ## Cross-app
 
-- **mydash bbv-programma-tree**: visualisatie-component die op deze data draait.
+- **launchpad bbv-programma-tree**: visualisatie-component die op deze data draait.
 - **financeq**: bron van begroting en realisatie per IV3-taakveld.
 - **planix**: project- en maatregel-uitvoering onder doelen.
 - **openregister**: opslag van programma's, doelen, indicatoren en templates.

@@ -2,10 +2,10 @@
 
 ## Overview
 
-MyDash widgets are today rendered only for authenticated Nextcloud users with dashboard ACL permission. Three customer classes cannot adopt MyDash today:
+LaunchPad widgets are today rendered only for authenticated Nextcloud users with dashboard ACL permission. Three customer classes cannot adopt LaunchPad today:
 
 1. **Public transparency dashboards**: Municipalities that want to publish live "openstaande WOO-verzoeken" on their public website without exposing Nextcloud.
-2. **Partner-facing operational dashboards**: Shared-service organisations running MyDash for a consortium of municipalities, embedding each member gemeente's widget slice into the gemeente's internal intranet (avoiding mass Nextcloud account creation).
+2. **Partner-facing operational dashboards**: Shared-service organisations running LaunchPad for a consortium of municipalities, embedding each member gemeente's widget slice into the gemeente's internal intranet (avoiding mass Nextcloud account creation).
 3. **In-product analytics**: SaaS vendors whose products are built on Conduction's stack, surfacing "your usage this month" inside their customer portal without iframing a full Nextcloud login flow.
 
 Today's auth boundary (Nextcloud session) is correct for internal organisational consumption but too narrow for these use cases. The change introduces **embed tokens** — signed JWTs that are the sole auth mechanism for embedded views, scoped to a specific widget or dashboard, rate-limited, revocable within 60 seconds, and subject to auditable telemetry.
@@ -34,8 +34,8 @@ Today's auth boundary (Nextcloud session) is correct for internal organisational
 ### User stories from the field
 
 1. **Public WOO dashboard**: "Our gemeente wants to publish a live widget on our public website that shows outstanding WOO requests without exposing Nextcloud. Citizens should see the list, but not be able to download it."
-2. **Partner intranet**: "We run MyDash for 8 gemeentes. Each gemeente wants their own dashboard in their internal intranet, but they don't have Nextcloud accounts. We need to embed a widget per gemeente into their own page."
-3. **SaaS usage dashboard**: "Our customer portal shows 'your usage this month'. It's built in React and lives on a different domain. We want to embed a MyDash widget to replace a custom in-house chart."
+2. **Partner intranet**: "We run LaunchPad for 8 gemeentes. Each gemeente wants their own dashboard in their internal intranet, but they don't have Nextcloud accounts. We need to embed a widget per gemeente into their own page."
+3. **SaaS usage dashboard**: "Our customer portal shows 'your usage this month'. It's built in React and lives on a different domain. We want to embed a LaunchPad widget to replace a custom in-house chart."
 
 ### JWT as the auth boundary
 
@@ -269,9 +269,9 @@ Three realistic scenarios for Netherlands municipalities:
 ## Migration Plan
 
 1. **Phase 1 — Backend services**: JWT signing service (key generation + rotation), EmbedTokenService (CRUD + validation), RateLimitService. Test coverage, no user-facing endpoints yet.
-2. **Phase 2 — Public render route**: GET /apps/mydash/embed/{subjectType}/{subjectId}?token=<jwt>, CSP headers, read-only enforcement, usage telemetry.
+2. **Phase 2 — Public render route**: GET /apps/launchpad/embed/{subjectType}/{subjectId}?token=<jwt>, CSP headers, read-only enforcement, usage telemetry.
 3. **Phase 3 — Admin UI**: EmbedTokenManager component (create, revoke, view usage), tenant theme manager, signing key rotation UI.
-4. **Phase 4 — JS-SDK**: @mydash/embed-sdk package (ESM + UMD), postMessage handshake, event relay.
+4. **Phase 4 — JS-SDK**: @launchpad/embed-sdk package (ESM + UMD), postMessage handshake, event relay.
 5. **Phase 5 — Integration**: Modify dashboard/widget rendering to accept token scope context, apply theming, wire up accessibility checks.
 
 ## Open Questions
@@ -295,7 +295,7 @@ Three realistic scenarios for Netherlands municipalities:
 
 - **Token issuance**: No overlap with Nextcloud's session/cookie issuance. Nextcloud tokens (app password, remember token) are user-centric; embed tokens are widget-centric.
 - **Rate limiting**: OpenRegister has no built-in rate limiting. RateLimitService is new and specific to embed tokens.
-- **Usage telemetry**: Not reusing any MyDash existing logging. ActivityService is user-action centric; EmbedUsageEvent is traffic-observation centric.
+- **Usage telemetry**: Not reusing any LaunchPad existing logging. ActivityService is user-action centric; EmbedUsageEvent is traffic-observation centric.
 - **Theme injection**: Theme service is new. Widgets already support CSS variable overrides (REQ-WDG-007 or similar), but tenant-theme is a new schema for bundling multiple variables + logo + custom CSS.
 - **JWT signing**: Not reusing Nextcloud's OAuth2 token logic (which is stateful and session-based). JWT is stateless and self-contained.
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end tests for the `nc-widget` placement type covering
@@ -23,7 +23,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test'
-import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
@@ -61,7 +61,7 @@ async function addNcWidget(page: Page): Promise<boolean> {
 
 test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e nc-dashboard-widget::native-render-when-bundle-present

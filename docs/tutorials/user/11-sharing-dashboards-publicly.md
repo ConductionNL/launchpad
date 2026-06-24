@@ -5,7 +5,7 @@ title: Sharing dashboards publicly
 
 # Sharing dashboards publicly
 
-MyDash lets you share a read-only view of any dashboard you own via a
+LaunchPad lets you share a read-only view of any dashboard you own via a
 URL-safe token — no Nextcloud login required.
 
 ## Creating a public share
@@ -18,7 +18,7 @@ URL-safe token — no Nextcloud login required.
 ### API
 
 ```http
-POST /apps/mydash/api/dashboards/{uuid}/public-share
+POST /apps/launchpad/api/dashboards/{uuid}/public-share
 Content-Type: application/json
 
 {
@@ -33,7 +33,7 @@ Response `201 Created`:
 {
   "id": 42,
   "token": "vK9mP2q...",
-  "url": "https://example.com/apps/mydash/s/vK9mP2q...",
+  "url": "https://example.com/apps/launchpad/s/vK9mP2q...",
   "passwordRequired": true,
   "expiresAt": "2026-12-31 23:59:59"
 }
@@ -42,7 +42,7 @@ Response `201 Created`:
 ## Listing active shares
 
 ```http
-GET /apps/mydash/api/dashboards/{uuid}/public-shares
+GET /apps/launchpad/api/dashboards/{uuid}/public-shares
 ```
 
 Returns an array of active (non-revoked, non-expired) shares.
@@ -50,7 +50,7 @@ Returns an array of active (non-revoked, non-expired) shares.
 ## Revoking a share
 
 ```http
-DELETE /apps/mydash/api/dashboards/{uuid}/public-shares/{id}
+DELETE /apps/launchpad/api/dashboards/{uuid}/public-shares/{id}
 ```
 
 The share is **soft-revoked** (the row is kept for audit purposes).
@@ -64,7 +64,7 @@ If a share has a password, accessing `/s/{token}` returns `401` with
 Submit the password to the unlock endpoint:
 
 ```http
-POST /apps/mydash/s/{token}/unlock
+POST /apps/launchpad/s/{token}/unlock
 Content-Type: application/json
 
 { "password": "SecurePass123!" }

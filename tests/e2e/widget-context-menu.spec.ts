@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end tests for the widget right-click context menu
@@ -14,7 +14,7 @@
  *     Remove button calls the placement-delete path and the widget does not
  *     reappear after a full page reload.
  *
- * NOTE: These tests require a running Nextcloud instance with the mydash app
+ * NOTE: These tests require a running Nextcloud instance with the launchpad app
  * installed and at least one widget placement on the active dashboard. The
  * test harness must supply authenticated storage state via the global setup
  * at `tests/e2e/global-setup.ts`. In CI, the Hydra pipeline wires this up
@@ -30,23 +30,23 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * Helper: navigate to mydash, wait for the grid to hydrate, and switch into
+ * Helper: navigate to launchpad, wait for the grid to hydrate, and switch into
  * edit mode so right-click opens the popover.
  *
  * @param {import('@playwright/test').Page} page Playwright page fixture.
  */
 async function openInEditMode(page: import('@playwright/test').Page) {
-	await page.goto('/index.php/apps/mydash')
+	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	} catch {
-		await page.goto('/index.php/apps/mydash')
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.goto('/index.php/apps/launchpad')
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
 
 	// Open the sidebar and enter edit mode for the active personal dashboard
 	// via its per-row cog menu ("Edit dashboard").
-	await page.locator('.mydash-sidebar-toggle').first().click()
+	await page.locator('.launchpad-sidebar-toggle').first().click()
 	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 	const activeRow = page.locator(
 		'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
@@ -56,7 +56,7 @@ async function openInEditMode(page: import('@playwright/test').Page) {
 
 	// Wait for edit mode class to appear on the grid container, then close the
 	// sidebar so it does not occlude the grid for the right-click assertions.
-	await page.waitForSelector('.mydash-edit-mode', { timeout: 8_000 })
+	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
 	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 	if (await closeBtn.isVisible().catch(() => false)) {
 		await closeBtn.click()
@@ -136,13 +136,13 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		// (a bare grid-cell gap, or a container widget's inner grid, does not
 		// forward the contextmenu). Pick a grid item that holds a simple
 		// widget renderer content element and use its placement id.
-		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.mydash-widget__content') }).first()
+		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.launchpad-widget__content') }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		const gsId = await placement.getAttribute('gs-id')
 		expect(gsId).toBeTruthy()
 
 		// Right-click the widget content (not the cell padding) to open the menu.
-		await placement.locator('.mydash-widget__content').first().click({ button: 'right' })
+		await placement.locator('.launchpad-widget__content').first().click({ button: 'right' })
 
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
@@ -155,7 +155,7 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 
 		// Reload and confirm the placement is absent (DELETE persisted).
 		await page.reload({ waitUntil: 'domcontentloaded' })
-		await page.waitForSelector('.mydash-container', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-container', { timeout: 20_000 })
 		await page.waitForTimeout(1_000)
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0)
 	})

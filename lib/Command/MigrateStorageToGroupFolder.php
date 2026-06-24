@@ -3,7 +3,7 @@
 /**
  * MigrateStorageToGroupFolder
  *
- * `mydash:storage:migrate-to-groupfolder` — one-time idempotent migration
+ * `launchpad:storage:migrate-to-groupfolder` — one-time idempotent migration
  * from database content storage to GroupFolder storage (REQ-GFSB-008).
  * Reads all dashboards via DashboardMapper, copies their content JSON from
  * the `content` column to the GroupFolder backend, and reports progress.
@@ -71,20 +71,20 @@ class MigrateStorageToGroupFolder extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:storage:migrate-to-groupfolder')
+        $this->setName(name: 'launchpad:storage:migrate-to-groupfolder')
             ->setDescription(description: 'Migrate dashboard content from DB to GroupFolder (REQ-GFSB-008).')
             ->setHelp(
                 help: implode(
                     separator: "\n",
                     array: [
                         'Copies all dashboard content blobs from the `content` column in',
-                        '`mydash_dashboards` to the configured GroupFolder backend.',
+                        '`launchpad_dashboards` to the configured GroupFolder backend.',
                         '',
                         'The command is idempotent: dashboards already present in the',
                         'GroupFolder are skipped. Re-run safely after partial failures.',
                         '',
                         'After a successful migration, switch the active backend via:',
-                        '  php occ mydash:storage:toggle-backend groupfolder',
+                        '  php occ launchpad:storage:toggle-backend groupfolder',
                         '',
                         'Use --prune-source to remove DB content for successfully migrated',
                         'dashboards (default: DB content is kept for rollback safety).',

@@ -23,8 +23,8 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const SETTINGS_URL = `${BASE}/index.php/apps/mydash/api/admin/settings`
-const APP_URL      = '/index.php/apps/mydash'
+const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/api/admin/settings`
+const APP_URL      = '/index.php/apps/launchpad'
 
 /** Make an authenticated request context using HTTP Basic auth. */
 async function adminApi(playwright: { request: { newContext: typeof import('@playwright/test').request.newContext } }): Promise<APIRequestContext> {
@@ -50,13 +50,13 @@ async function setAllowUserDashboards(api: APIRequestContext, enabled: boolean):
 /** Wait for the workspace Vue shell to hydrate past initial bootstrap. */
 async function waitForShell(page: ReturnType<typeof test.extend>['page']): Promise<void> {
 	await page.goto(APP_URL)
-	await page.waitForSelector('.mydash-floating-controls, .workspace-shell', { timeout: 20_000 })
+	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', { timeout: 20_000 })
 }
 
 /** Open the dashboard-switcher sidebar via the floating toggle button. */
 async function openSidebar(page: ReturnType<typeof test.extend>['page']): Promise<void> {
 	// The floating hamburger toggle is always visible in the workspace shell.
-	const ham = page.locator('.mydash-sidebar-toggle, .mydash-floating-controls button').first()
+	const ham = page.locator('.launchpad-sidebar-toggle, .launchpad-floating-controls button').first()
 	await expect(ham).toBeVisible({ timeout: 10_000 })
 	// Only click if the sidebar is not already open.
 	const isOpen = await page.locator('.dashboard-switcher-sidebar.open').isVisible().catch(() => false)

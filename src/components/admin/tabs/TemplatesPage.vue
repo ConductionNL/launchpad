@@ -1,53 +1,53 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template>
 	<div class="templates-page" data-test="templates-page">
-		<div class="mydash-admin__section-header">
-			<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
+		<div class="launchpad-admin__section-header">
+			<h3>{{ t('launchpad', 'Dashboard templates') }}</h3>
 			<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('mydash', 'Create template') }}
+				{{ t('launchpad', 'Create template') }}
 			</NcButton>
 		</div>
 
-		<p class="mydash-admin__hint">
-			{{ t('mydash', 'Create dashboard templates that will be applied to users based on their groups.') }}
+		<p class="launchpad-admin__hint">
+			{{ t('launchpad', 'Create dashboard templates that will be applied to users based on their groups.') }}
 		</p>
 
-		<div v-if="templates.length === 0" class="mydash-admin__empty">
-			<NcEmptyContent :description="t('mydash', 'No templates yet')">
+		<div v-if="templates.length === 0" class="launchpad-admin__empty">
+			<NcEmptyContent :description="t('launchpad', 'No templates yet')">
 				<template #icon>
 					<ViewDashboard :size="48" />
 				</template>
 			</NcEmptyContent>
 		</div>
 
-		<div v-else class="mydash-admin__templates">
+		<div v-else class="launchpad-admin__templates">
 			<div
 				v-for="template in templates"
 				:key="template.id"
-				class="mydash-admin__template">
-				<div class="mydash-admin__template-info">
+				class="launchpad-admin__template">
+				<div class="launchpad-admin__template-info">
 					<CnDashboardIcon :name="template.icon" :size="20" />
 					<strong>{{ template.name }}</strong>
-					<span v-if="template.isDefault" class="mydash-admin__badge">
-						{{ t('mydash', 'Default') }}
+					<span v-if="template.isDefault" class="launchpad-admin__badge">
+						{{ t('launchpad', 'Default') }}
 					</span>
-					<span class="mydash-admin__template-groups">
+					<span class="launchpad-admin__template-groups">
 						{{ formatTargetGroups(template.targetGroups) }}
 					</span>
 				</div>
-				<div class="mydash-admin__template-actions">
+				<div class="launchpad-admin__template-actions">
 					<NcButton type="secondary" @click="editTemplate(template)">
-						{{ t('mydash', 'Edit') }}
+						{{ t('launchpad', 'Edit') }}
 					</NcButton>
 					<NcButton type="error" @click="deleteTemplate(template)">
-						{{ t('mydash', 'Delete') }}
+						{{ t('launchpad', 'Delete') }}
 					</NcButton>
 				</div>
 			</div>
@@ -56,36 +56,36 @@
 		<!-- Template Editor Modal -->
 		<NcModal
 			v-if="editingTemplate"
-			:name="editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template')"
+			:name="editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template')"
 			size="large"
 			@close="closeTemplateEditor">
-			<div class="mydash-admin__modal">
-				<h2>{{ editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template') }}</h2>
+			<div class="launchpad-admin__modal">
+				<h2>{{ editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template') }}</h2>
 
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Template name') }}</label>
-					<NcTextField v-model="editingTemplate.name" :placeholder="t('mydash', 'My template')" />
+				<div class="launchpad-admin__field">
+					<label>{{ t('launchpad', 'Template name') }}</label>
+					<NcTextField v-model="editingTemplate.name" :placeholder="t('launchpad', 'My template')" />
 				</div>
 
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Description') }}</label>
-					<NcTextField v-model="editingTemplate.description" :placeholder="t('mydash', 'Optional description')" />
+				<div class="launchpad-admin__field">
+					<label>{{ t('launchpad', 'Description') }}</label>
+					<NcTextField v-model="editingTemplate.description" :placeholder="t('launchpad', 'Optional description')" />
 				</div>
 
-				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Target groups') }}</label>
+				<div class="launchpad-admin__field">
+					<label>{{ t('launchpad', 'Target groups') }}</label>
 					<NcSelectTags
 						v-model="editingTemplate.targetGroups"
 						:options="availableGroups"
 						:multiple="true"
-						:aria-label-combobox="t('mydash', 'Target groups')"
-						:placeholder="t('mydash', 'Select groups (leave empty for all users)')" />
+						:aria-label-combobox="t('launchpad', 'Target groups')"
+						:placeholder="t('launchpad', 'Select groups (leave empty for all users)')" />
 				</div>
 
-				<div class="mydash-admin__field">
+				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="editingTemplate.permissionLevel"
-						:input-label="t('mydash', 'Permission level')"
+						:input-label="t('launchpad', 'Permission level')"
 						:options="permissionOptions"
 						label="label"
 						track-by="id"
@@ -95,15 +95,15 @@
 				<NcCheckboxRadioSwitch
 					:checked="editingTemplate.isDefault"
 					@update:checked="editingTemplate.isDefault = $event">
-					{{ t('mydash', 'Set as default template') }}
+					{{ t('launchpad', 'Set as default template') }}
 				</NcCheckboxRadioSwitch>
 
-				<div class="mydash-admin__modal-actions">
+				<div class="launchpad-admin__modal-actions">
 					<NcButton type="secondary" @click="closeTemplateEditor">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton type="primary" @click="saveTemplate">
-						{{ t('mydash', 'Save') }}
+						{{ t('launchpad', 'Save') }}
 					</NcButton>
 				</div>
 			</div>
@@ -156,9 +156,9 @@ export default {
 			availableGroups: [],
 			editingTemplate: null,
 			permissionOptions: [
-				{ id: 'view_only', label: t('mydash', 'View only') },
-				{ id: 'add_only', label: t('mydash', 'Add only') },
-				{ id: 'full', label: t('mydash', 'Full customization') },
+				{ id: 'view_only', label: t('launchpad', 'View only') },
+				{ id: 'add_only', label: t('launchpad', 'Add only') },
+				{ id: 'full', label: t('launchpad', 'Full customization') },
 			],
 		}
 	},
@@ -234,7 +234,7 @@ export default {
 
 		/** @spec openspec/specs/admin-templates/spec.md */
 		async deleteTemplate(template) {
-			if (!confirm(t('mydash', 'Are you sure you want to delete this template?'))) {
+			if (!confirm(t('launchpad', 'Are you sure you want to delete this template?'))) {
 				return
 			}
 
@@ -249,7 +249,7 @@ export default {
 		/** @spec openspec/specs/admin-templates/spec.md */
 		formatTargetGroups(groups) {
 			if (!groups || groups.length === 0) {
-				return t('mydash', 'All users')
+				return t('launchpad', 'All users')
 			}
 			return groups.join(', ')
 		},
@@ -258,39 +258,39 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin__section-header {
+.launchpad-admin__section-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 16px;
 }
 
-.mydash-admin__section-header h3 {
+.launchpad-admin__section-header h3 {
 	margin: 0;
 }
 
-.mydash-admin__hint {
+.launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
 }
 
-.mydash-admin__field {
+.launchpad-admin__field {
 	margin-bottom: 16px;
 }
 
-.mydash-admin__field label {
+.launchpad-admin__field label {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 500;
 }
 
-.mydash-admin__templates {
+.launchpad-admin__templates {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.mydash-admin__template {
+.launchpad-admin__template {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -299,23 +299,23 @@ export default {
 	border-radius: var(--border-radius);
 }
 
-.mydash-admin__template-info {
+.launchpad-admin__template-info {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.mydash-admin__template-groups {
+.launchpad-admin__template-groups {
 	color: var(--color-text-maxcontrast);
 	font-size: 14px;
 }
 
-.mydash-admin__template-actions {
+.launchpad-admin__template-actions {
 	display: flex;
 	gap: 8px;
 }
 
-.mydash-admin__badge {
+.launchpad-admin__badge {
 	display: inline-block;
 	padding: 2px 8px;
 	background: var(--color-primary-element);
@@ -324,19 +324,19 @@ export default {
 	font-size: 12px;
 }
 
-.mydash-admin__empty {
+.launchpad-admin__empty {
 	padding: 48px 0;
 }
 
-.mydash-admin__modal {
+.launchpad-admin__modal {
 	padding: 24px;
 }
 
-.mydash-admin__modal h2 {
+.launchpad-admin__modal h2 {
 	margin: 0 0 24px;
 }
 
-.mydash-admin__modal-actions {
+.launchpad-admin__modal-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 12px;

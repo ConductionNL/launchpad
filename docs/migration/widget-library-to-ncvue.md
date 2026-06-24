@@ -31,7 +31,7 @@ The nc-vue widget library is **not finished as a public API**, and **not publish
 
 So "port to nc-vue" means: finish, export, document, test, parity-audit, and
 **publish** a ~36-component library in the shared fleet lib (consumed by
-OpenRegister / OpenCatalogi / Procest / Pipelinq / MyDash), then migrate launchpad
+OpenRegister / OpenCatalogi / Procest / Pipelinq / LaunchPad), then migrate launchpad
 onto it. That is multi-day and has fleet-wide blast radius — it cannot be done in
 one pass, and a half-done state breaks both repos.
 
@@ -87,7 +87,7 @@ NcDashboardForm).
 - `Renderers/TileWidget` supports the legacy `oc_launchpad_tiles` schema shape.
 - `Renderers/NcDashboardWidget` is the NC Dashboard API bridge (v1/v2 polling +
   the `hideHeader` path used by `WidgetWrapper`).
-- i18n domain differs (`mydash`/`launchpad` vs `nextcloud-vue`).
+- i18n domain differs (`launchpad`/`launchpad` vs `nextcloud-vue`).
 - Helper sub-components with no standalone nc-vue export: `MenuItemIcon`,
   `MenuTreeNode`, `MenuItemEditor`, `TextTableEditor`, `ContainerChild`.
 
@@ -148,7 +148,7 @@ Realistically a multi-session program gated on an nc-vue release.
 
 Key finding: **nc-vue's widgets were deliberately refactored to be app-agnostic** —
 data comes from `dataSource` props or `cn*Source` injections / `*Endpoint`
-builders, NOT hardcoded `/apps/mydash/...` calls. So the port is "drop-in reuse"
+builders, NOT hardcoded `/apps/launchpad/...` calls. So the port is "drop-in reuse"
 only for the static/presentational widgets; the data-driven ones need launchpad
 to wire an adapter that points the nc-vue component at launchpad's existing
 endpoints. Nothing here blocks the migration, but it changes the work from
@@ -163,11 +163,11 @@ Menu, Container, Video, and `TileForm → CnDashTileWidgetForm` (rename).
 ### Reuse + wire a data adapter (launchpad supplies the source)
 | widget | nc-vue hook | launchpad endpoint to wire |
 |---|---|---|
-| PeopleWidget → CnPeopleWidget | `cnPeopleSource` inject / `dataSource` | `/apps/mydash/api/people` |
+| PeopleWidget → CnPeopleWidget | `cnPeopleSource` inject / `dataSource` | `/apps/launchpad/api/people` |
 | CalendarWidget → CnCalendarWidget | `cnCalendarSource` inject | `/api/widgets/calendar/events` ⚠ **view-mode regression: nc-vue is agenda/upcoming only — month/week grid views are missing** |
 | SpendAnalyticsWidget → CnSpendAnalyticsWidget | `cnSpendSource` inject | `/api/widgets/spend-analytics/...` |
 | NewsWidget → CnNewsWidget | `itemsEndpoint` prop | `/api/widgets/news/{id}/items` |
-| FilesWidget → CnFilesWidget | folder-picker/list endpoint | path moves `/apps/mydash/...` → `/apps/files/...` (verify) |
+| FilesWidget → CnFilesWidget | folder-picker/list endpoint | path moves `/apps/launchpad/...` → `/apps/files/...` (verify) |
 | NcDashboardWidget → CnNcWidgetWidget | `widgetId` + `itemsEndpoint` | NC Dashboard API bridge route |
 
 ### Needs an nc-vue enhancement before parity
@@ -223,7 +223,7 @@ Menu, Container, Video, and `TileForm → CnDashTileWidgetForm` (rename).
 
 Resolved since the audit (committed on the two feature branches):
 - **calendar** — added month/week views to `CnCalendarWidget` (nc-vue) + wired `cnCalendarSource`.
-- **files** — added a configurable `apiBase` prop to `CnFilesWidget` (nc-vue) + pointed it at `/apps/mydash`.
+- **files** — added a configurable `apiBase` prop to `CnFilesWidget` (nc-vue) + pointed it at `/apps/launchpad`.
 - **link** — `LinkButtonHost` wrapper renders `CnLinkButtonWidget`, keeps the internal-action registry + create-file modal host-side.
 - **people / news / spend-analytics** — `cnPeopleSource`/`cnSpendAnalyticsSource` provide() + news `itemsEndpoint`.
 - **nc-widget** — `CnNcWidgetWidget` (native OCA.Dashboard fast-path + core OCS items API, no launchpad proxy). **Live-verified**: all 6 NC widgets on the dashboard render with 0 console errors.

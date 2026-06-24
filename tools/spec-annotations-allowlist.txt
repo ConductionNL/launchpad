@@ -378,10 +378,10 @@ OCA\LaunchPad\Migration\Version001024Date20260503130000::changeSchema
 OCA\LaunchPad\Notification\Notifier::getID
 OCA\LaunchPad\Notification\Notifier::getName
 OCA\LaunchPad\Notification\Notifier::prepare
-OCA\LaunchPad\Search\MyDashSearchProvider::getId
-OCA\LaunchPad\Search\MyDashSearchProvider::getName
-OCA\LaunchPad\Search\MyDashSearchProvider::getOrder
-OCA\LaunchPad\Search\MyDashSearchProvider::search
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getId
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getName
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getOrder
+OCA\LaunchPad\Search\LaunchPadSearchProvider::search
 OCA\LaunchPad\Service\AdminSettingsService::getGroupOrder
 OCA\LaunchPad\Service\AdminSettingsService::setGroupOrder
 OCA\LaunchPad\Service\AdminTemplateService::resolvePrimaryGroup

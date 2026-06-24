@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [x] Task 1: Ship the migration `lib/Migration/Version001004Date20260601000000.php` creating `mydash_public_shares` (PK `id`, `dashboardUuid` VARCHAR(36), `token` VARCHAR(64) UNIQUE, `passwordHash` VARCHAR(255), `expiresAt`, `createdBy`, `createdAt`, `revokedAt`, `viewCount`, `lastViewedAt`) with composite index `(dashboardUuid, revokedAt)` — applied cleanly on sqlite/mysql/postgres
+- [x] Task 1: Ship the migration `lib/Migration/Version001004Date20260601000000.php` creating `launchpad_public_shares` (PK `id`, `dashboardUuid` VARCHAR(36), `token` VARCHAR(64) UNIQUE, `passwordHash` VARCHAR(255), `expiresAt`, `createdBy`, `createdAt`, `revokedAt`, `viewCount`, `lastViewedAt`) with composite index `(dashboardUuid, revokedAt)` — applied cleanly on sqlite/mysql/postgres
 - [x] Task 2: Add `lib/Db/PublicShare` entity with full getters/setters (positional args, Entity magic), `jsonSerialize()` that strips `passwordHash`, and a computed `url` property set by the mapper via `IURLGenerator`
 - [x] Task 3: Add `lib/Db/PublicShareMapper` (extends `QBMapper`) with `findByToken`, `findByDashboardUuid`, `findActiveByDashboardUuid` (filter revoked + expired), `softRevoke`, `incrementViewCount` (60-second per-IP per-token debounce via `ICacheFactory::createDistributed`), `revokeByDashboardUuid`
 - [x] Task 4: Add exception types `ShareNotFoundException`, `ShareExpiredException`, `SharePasswordRequiredException`, `ShareReadOnlyException`

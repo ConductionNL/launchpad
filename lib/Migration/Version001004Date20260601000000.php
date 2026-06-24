@@ -30,14 +30,14 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Creates the mydash_public_shares table.
+ * Creates the launchpad_public_shares table.
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-1
  */
 class Version001004Date20260601000000 extends SimpleMigrationStep
 {
     /**
-     * Create mydash_public_shares table.
+     * Create launchpad_public_shares table.
      *
      * @param IOutput $output        Migration output handler.
      * @param Closure $schemaClosure Returns an ISchemaWrapper.
@@ -57,8 +57,8 @@ class Version001004Date20260601000000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_public_shares') === false) {
-            $table = $schema->createTable('mydash_public_shares');
+        if ($schema->hasTable('launchpad_public_shares') === false) {
+            $table = $schema->createTable('launchpad_public_shares');
 
             $table->addColumn(
                 'id',
@@ -149,10 +149,10 @@ class Version001004Date20260601000000 extends SimpleMigrationStep
             );
 
             $table->setPrimaryKey(['id']);
-            $table->addUniqueIndex(['token'], 'mydash_pshares_token_unique');
+            $table->addUniqueIndex(['token'], 'launchpad_pshares_token_unique');
             $table->addIndex(
                 ['dashboard_uuid', 'revoked_at'],
-                'mydash_pshares_dash_revoked'
+                'launchpad_pshares_dash_revoked'
             );
         }//end if
 

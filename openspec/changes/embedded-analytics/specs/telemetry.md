@@ -79,7 +79,7 @@ AND the full user-agent string is hashed and stored separately in `userAgentHash
 ### Scenario 8.5 — NO end-user identifier in events
 
 GIVEN a host page that is embedded in a SaaS portal, where the logged-in user is "customer-123"
-  AND the MyDash request is made in the context of that user
+  AND the LaunchPad request is made in the context of that user
 WHEN the embed usage event is written
 THEN the event row SHALL NOT include:
   - User ID from the host page (even if passed in a header)

@@ -12,7 +12,7 @@ status: draft
 
 When a share is created OR its `permission_level` is **upgraded** (`view_only → add_only|full`, or `add_only → full`), the system MUST publish a Nextcloud notification to each affected recipient via `OCP\Notification\IManager`. The notification MUST use:
 
-- `app: 'mydash'`, `subject: 'dashboard_shared'`
+- `app: 'launchpad'`, `subject: 'dashboard_shared'`
 - `objectType: 'dashboard'`, `objectId: <dashboardId as string>`
 - `subjectParameters: [sharerUserId, dashboardName, permissionLevel]`
 
@@ -27,7 +27,7 @@ The system MUST NOT publish notifications when:
 
 - GIVEN alice owns dashboard `5` ("Q3 Plan"), and bob has no existing share on it
 - WHEN alice sends `POST /api/dashboard/5/shares` with `{shareType: "user", shareWith: "bob", permissionLevel: "view_only"}`
-- THEN exactly one `INotification` MUST be published with `user='bob'`, `app='mydash'`, `subject='dashboard_shared'`, parameters `["alice", "Q3 Plan", "view_only"]`, `objectType='dashboard'`, `objectId='5'`
+- THEN exactly one `INotification` MUST be published with `user='bob'`, `app='launchpad'`, `subject='dashboard_shared'`, parameters `["alice", "Q3 Plan", "view_only"]`, `objectType='dashboard'`, `objectId='5'`
 
 #### Scenario: Group share fans out per current member
 
@@ -120,31 +120,31 @@ The response MUST include the count of removed share rows. No notifications MUST
 
 ### Requirement: REQ-SHARE-011 Notifier renders share and ownership-transfer subjects
 
-The app MUST register an `OCP\Notification\INotifier` implementation with `id = 'mydash'` that handles two subjects: `dashboard_shared` and `dashboard_ownership_transferred`. For any other subject the notifier MUST throw `\OCP\Notification\UnknownNotificationException` so that other notifiers may handle it.
+The app MUST register an `OCP\Notification\INotifier` implementation with `id = 'launchpad'` that handles two subjects: `dashboard_shared` and `dashboard_ownership_transferred`. For any other subject the notifier MUST throw `\OCP\Notification\UnknownNotificationException` so that other notifiers may handle it.
 
 For `dashboard_shared`, the rendered notification MUST include:
 - A rich subject "{sharerDisplayName} shared **{dashboardName}** with you"
 - A parsed message naming the permission level (e.g. "Full access", "Add-only access", "View-only access")
-- A primary link to `/apps/mydash/?dashboard={dashboardUuid}`
+- A primary link to `/apps/launchpad/?dashboard={dashboardUuid}`
 
 For `dashboard_ownership_transferred`, the rendered notification MUST include:
 - A rich subject "**{dashboardName}** is now yours"
 - A parsed message stating ownership was transferred because the previous owner was removed
 - A primary link to the same deep link
 
-Localisation MUST be performed via `IFactory::get('mydash')` so the existing Dutch and English translation files are used.
+Localisation MUST be performed via `IFactory::get('launchpad')` so the existing Dutch and English translation files are used.
 
 #### Scenario: Notifier renders share notification in English
 
-- GIVEN an `INotification` with `app='mydash'`, `subject='dashboard_shared'`, `subjectParameters=['alice','Q3 Plan','full']`, `objectType='dashboard'`, `objectId='5'`
+- GIVEN an `INotification` with `app='launchpad'`, `subject='dashboard_shared'`, `subjectParameters=['alice','Q3 Plan','full']`, `objectType='dashboard'`, `objectId='5'`
 - WHEN the notifier prepares it for `languageCode='en'`
 - THEN the rich subject MUST be `"alice shared **Q3 Plan** with you"`
 - AND the parsed message MUST be `"Full access"`
-- AND the link MUST resolve via `IURLGenerator::linkToRouteAbsolute('mydash.page.index') . '?dashboard=' . <uuid of dashboard 5>`
+- AND the link MUST resolve via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index') . '?dashboard=' . <uuid of dashboard 5>`
 
 #### Scenario: Unknown subject throws
 
-- GIVEN an `INotification` with `app='mydash'`, `subject='something_else'`
+- GIVEN an `INotification` with `app='launchpad'`, `subject='something_else'`
 - WHEN the notifier prepares it
 - THEN `\OCP\Notification\UnknownNotificationException` MUST be thrown
 

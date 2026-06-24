@@ -88,7 +88,7 @@ Deze change introduceert een gestandaardiseerde Programma/Doel/Indicator/Maatreg
 
 ### D6: IndicatorMeting sync from waarstaatjegemeente/CBS is push-based, not pull-based
 
-**Decision**: openconnector schedules periodic sync jobs that push new metingen into mydash via webhook. On error, the system notifies the doel-eigenaar but does NOT prevent page load.
+**Decision**: openconnector schedules periodic sync jobs that push new metingen into launchpad via webhook. On error, the system notifies the doel-eigenaar but does NOT prevent page load.
 
 **Alternatives considered:**
 

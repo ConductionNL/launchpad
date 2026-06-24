@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end tests for AddWidgetModal close-discipline and
@@ -26,13 +26,13 @@ test.beforeAll(async () => {
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function gotoMydash(page: any) {
-	await page.goto('/index.php/apps/mydash')
+async function gotoLaunchPad(page: any) {
+	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	} catch {
-		await page.goto('/index.php/apps/mydash')
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.goto('/index.php/apps/launchpad')
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
 	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
 	if (isSidebarOpen > 0) {
@@ -40,7 +40,7 @@ async function gotoMydash(page: any) {
 		if (await closeBtn.isVisible().catch(() => false)) {
 			await closeBtn.click()
 		} else {
-			await page.locator('.mydash-sidebar-toggle').first().click()
+			await page.locator('.launchpad-sidebar-toggle').first().click()
 		}
 		await page.waitForFunction(
 			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
@@ -50,7 +50,7 @@ async function gotoMydash(page: any) {
 }
 
 async function openSidebar(page: any) {
-	await page.locator('.mydash-sidebar-toggle').first().click()
+	await page.locator('.launchpad-sidebar-toggle').first().click()
 	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 }
 
@@ -78,7 +78,7 @@ async function openAddWidgetModal(page: any) {
 
 test.describe('add-widget-modal close discipline', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e add-widget-modal::cancel-closes-without-submit
@@ -185,7 +185,7 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 	test.describe.configure({ timeout: 90_000 })
 
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
@@ -211,7 +211,7 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		// Close the sidebar so the placement is interactable.
 		const sidebar = page.locator('.dashboard-switcher-sidebar.open')
 		if (await sidebar.count() > 0) {
-			await page.locator('.mydash-sidebar-toggle').first().click()
+			await page.locator('.launchpad-sidebar-toggle').first().click()
 			await page.waitForFunction(
 				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
 				{ timeout: 5_000 },
@@ -224,14 +224,14 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
 		// data-testid="cog-edit-dashboard") so the right-click popover is
 		// available, then close the sidebar.
-		if (await page.locator('.mydash-edit-mode').count() === 0) {
+		if (await page.locator('.launchpad-edit-mode').count() === 0) {
 			await openSidebar(page)
 			const activeRow = page.locator(
 				'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
 			).first()
 			await activeRow.locator('.dashboard-row-actions button').first().click()
 			await page.locator('[data-testid="cog-edit-dashboard"]').click()
-			await page.waitForSelector('.mydash-edit-mode', { timeout: 8_000 })
+			await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
 			const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 			if (await closeBtn.isVisible().catch(() => false)) {
 				await closeBtn.click()
@@ -245,7 +245,7 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		// Right-click the rendered widget content to open the popover, then Edit.
 		const cell = page.locator('.grid-stack-item').filter({ hasText: text }).first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
-		await cell.locator('.mydash-widget__content').first().click({ button: 'right' })
+		await cell.locator('.launchpad-widget__content').first().click({ button: 'right' })
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
 		await page.locator('[data-testid="ctx-edit"]').click()

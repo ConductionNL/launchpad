@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * API-direct HTTP-contract tests for multi-scope-dashboards
  * (REQ-DASH-011..014). Every assertion is on a raw /api response, so per
  * the gate-19 program this file lives under api-direct/ (excluded from the
  * Playwright UI gate); contract coverage is owned by Newman
- * (tests/integration/mydash.postman_collection.json). The `@e2e`
+ * (tests/integration/launchpad.postman_collection.json). The `@e2e`
  * annotations are retained so the gate-19 traceability check still
  * registers these scenarios as covered.
  *
@@ -83,7 +83,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 
 		// Admin creates a group-shared dashboard in GROUP_ID.
 		const createRes = await adminCtx.post(
-			`${BASE}/index.php/apps/mydash/api/dashboards/group/${GROUP_ID}`,
+			`${BASE}/index.php/apps/launchpad/api/dashboards/group/${GROUP_ID}`,
 			{ data: { name: 'E2E Marketing Overview' } },
 		)
 		expect(createRes.status(), `POST /group/${GROUP_ID} should be 201`).toBe(201)
@@ -94,7 +94,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 		createdUuid = created!.uuid as string
 
 		// Member (in GROUP_ID) calls /visible and expects to find the new dashboard.
-		const visibleRes = await memberCtx.get(`${BASE}/index.php/apps/mydash/api/dashboards/visible`)
+		const visibleRes = await memberCtx.get(`${BASE}/index.php/apps/launchpad/api/dashboards/visible`)
 		expect(visibleRes.status(), 'GET /visible should be 200 for member').toBe(200)
 
 		const visibleBody = await visibleRes.json() as { data?: Array<{ uuid: string; source: string }> }
@@ -115,7 +115,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 
 		// Admin creates a default-group dashboard.
 		const createRes = await adminCtx.post(
-			`${BASE}/index.php/apps/mydash/api/dashboards/group/default`,
+			`${BASE}/index.php/apps/launchpad/api/dashboards/group/default`,
 			{ data: { name: 'E2E Welcome Dashboard' } },
 		)
 		expect(createRes.status(), 'POST /group/default should be 201').toBe(201)
@@ -125,7 +125,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 		expect(defaultUuid, 'Default-group dashboard must have a UUID').toBeTruthy()
 
 		// Nonmember (in no groups) calls /visible and expects the default-group row.
-		const visibleRes = await nomemCtx.get(`${BASE}/index.php/apps/mydash/api/dashboards/visible`)
+		const visibleRes = await nomemCtx.get(`${BASE}/index.php/apps/launchpad/api/dashboards/visible`)
 		expect(visibleRes.status(), 'GET /visible should be 200 for nonmember').toBe(200)
 
 		const visibleBody = await visibleRes.json() as { data?: Array<{ uuid: string; source: string }> }
@@ -134,7 +134,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 		expect(found?.source, 'Source must be "default" for default-group rows').toBe('default')
 
 		// Clean up.
-		await adminCtx.delete(`${BASE}/index.php/apps/mydash/api/dashboards/group/default/${defaultUuid}`)
+		await adminCtx.delete(`${BASE}/index.php/apps/launchpad/api/dashboards/group/default/${defaultUuid}`)
 		await adminCtx.dispose()
 		await nomemCtx.dispose()
 	})
@@ -147,7 +147,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 		const memberCtx = await apiAs(MEMB)
 
 		const putRes = await memberCtx.put(
-			`${BASE}/index.php/apps/mydash/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
+			`${BASE}/index.php/apps/launchpad/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
 			{ data: { name: 'Attempted rename by non-admin' } },
 		)
 		expect(putRes.status(), 'Non-admin PUT should return 403').toBe(403)
@@ -166,13 +166,13 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 
 		// Admin updates the name.
 		const putRes = await adminCtx.put(
-			`${BASE}/index.php/apps/mydash/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
+			`${BASE}/index.php/apps/launchpad/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
 			{ data: { name: NEW_NAME } },
 		)
 		expect(putRes.status(), 'Admin PUT should return 200').toBe(200)
 
 		// Member fetches /visible — the rename must be visible on next load.
-		const visibleRes = await memberCtx.get(`${BASE}/index.php/apps/mydash/api/dashboards/visible`)
+		const visibleRes = await memberCtx.get(`${BASE}/index.php/apps/launchpad/api/dashboards/visible`)
 		expect(visibleRes.status()).toBe(200)
 
 		const visibleBody = await visibleRes.json() as { data?: Array<{ uuid: string; name: string }> }
@@ -181,7 +181,7 @@ test.describe('Group-shared dashboards (REQ-DASH-011..014)', () => {
 
 		// Tear down the dashboard created by T1.
 		await adminCtx.delete(
-			`${BASE}/index.php/apps/mydash/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
+			`${BASE}/index.php/apps/launchpad/api/dashboards/group/${GROUP_ID}/${createdUuid}`,
 		)
 
 		await adminCtx.dispose()

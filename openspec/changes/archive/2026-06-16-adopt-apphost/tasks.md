@@ -52,5 +52,5 @@
 
 - [x] 5.1 Update the `prometheus-metrics` spec to reflect declarative engine
       adoption (public health, engine-owned exposition).
-- [x] 5.2 Confirm `mydash` App Store id, `OCA\LaunchPad` namespace, `launchpad`
+- [x] 5.2 Confirm `launchpad` App Store id, `OCA\LaunchPad` namespace, `launchpad`
       l10n domain, and Vue 2.7 / pinia ~2.1 / @vueuse ~10 pins all unchanged.

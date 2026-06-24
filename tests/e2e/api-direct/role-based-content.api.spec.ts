@@ -8,7 +8,7 @@
  * These assertions are on raw /api responses, NOT the rendered UI, so per
  * the gate-19 program they live under api-direct/ (excluded from the
  * Playwright UI gate); the contract coverage is provided by Newman
- * (tests/integration/mydash.postman_collection.json). The `@e2e`
+ * (tests/integration/launchpad.postman_collection.json). The `@e2e`
  * annotations are retained so the gate-19 traceability check still
  * registers these scenarios as covered.
  *
@@ -27,8 +27,8 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const PERMS_URL   = `${BASE}/index.php/apps/mydash/api/role-feature-permissions`
-const WIDGETS_URL = `${BASE}/index.php/apps/mydash/api/widgets`
+const PERMS_URL   = `${BASE}/index.php/apps/launchpad/api/role-feature-permissions`
+const WIDGETS_URL = `${BASE}/index.php/apps/launchpad/api/widgets`
 
 /**
  * Employee-role restriction: seeding a role permission succeeds and the

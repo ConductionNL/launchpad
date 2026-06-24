@@ -271,10 +271,11 @@ describe('DashboardSwitcherSidebar', () => {
 			// The card lives in the personal section but BELOW the <ul>
 			expect(wrapper.find('[data-section="user"] .dashboard-switcher-sidebar__add-dashboard-card').exists())
 				.toBe(true)
-			// NcButton stub carries the type="outline" the spec requires
+			// NcButton renders the secondary (outlined) appearance — "outline"
+			// is not a valid NcButton type, so it uses "secondary".
 			const button = card.find('[data-action="create"]')
 			expect(button.exists()).toBe(true)
-			expect(button.attributes('data-button-type')).toBe('outline')
+			expect(button.attributes('data-button-type')).toBe('secondary')
 			// Localised label
 			expect(button.text()).toContain('Add dashboard')
 		})

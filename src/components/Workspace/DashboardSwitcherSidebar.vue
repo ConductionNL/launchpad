@@ -22,7 +22,7 @@
 	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
 	never triggers a switch (REQ-SWITCH-004).
 
-	A dedicated "Add Dashboard" card button (NcButton outline) renders
+	A dedicated "Add Dashboard" card button (NcButton secondary) renders
 	below the personal dashboards list — still inside the scroll container,
 	NOT inside the footer — when `allowUserDashboards === true`. Clicking
 	it emits `update:open(false)` then `create-dashboard()` (REQ-SWITCH-008).
@@ -243,7 +243,7 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						type="outline"
+						type="secondary"
 						wide
 						data-action="create"
 						data-testid="add-dashboard-button"

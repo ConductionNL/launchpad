@@ -1738,6 +1738,17 @@ class DashboardService
             sourceName: (string) $source->getName()
         );
 
+        // REQ-DASH-020: the slug is derived from the name, so a fork name
+        // that collides with one of the user's existing root dashboards
+        // would produce a duplicate "/my-copy-of-x" slug (forks bypass the
+        // tree service's per-sibling slug check, and the unique index does
+        // not cover NULL parent_uuid). Disambiguate the name up-front so
+        // repeated forks of the same source get distinct names and slugs.
+        $resolvedName = $this->makeUniquePersonalName(
+            userId: $userId,
+            baseName: $resolvedName
+        );
+
         $this->db->beginTransaction();
         try {
             // REQ-DASH-020: force `isDefault = 0` and `groupId = null`
@@ -1873,6 +1884,46 @@ class DashboardService
         // the standard sprintf substitution mechanism.
         return $l10n->t('My copy of %s', [$sourceName]);
     }//end resolveForkName()
+
+    /**
+     * Disambiguate a fork name so its derived slug is free among the
+     * user's existing root personal dashboards. Appends " (2)", " (3)",
+     * … until {@see SlugGenerator::slugify()} yields an unused slug, so
+     * repeated forks of one source no longer share a name and slug
+     * (REQ-DASH-020). Names whose slug is empty (no legal characters)
+     * are returned unchanged — such rows stay unaddressable by path.
+     *
+     * @param string $userId   The owning user.
+     * @param string $baseName The candidate fork name.
+     *
+     * @return string The disambiguated name (possibly suffixed).
+     */
+    private function makeUniquePersonalName(
+        string $userId,
+        string $baseName
+    ): string {
+        $taken = [];
+        foreach ($this->dashboardMapper->findByUserId(userId: $userId) as $dash) {
+            // Forks land at the root, so only root siblings can collide.
+            if ($dash->getParentUuid() !== null) {
+                continue;
+            }
+
+            $slug = (string) $dash->getSlug();
+            if ($slug !== '') {
+                $taken[$slug] = true;
+            }
+        }
+
+        $candidate = $baseName;
+        $counter   = 2;
+        while (isset($taken[SlugGenerator::slugify(name: $candidate)]) === true) {
+            $candidate = $baseName.' ('.$counter.')';
+            $counter++;
+        }
+
+        return $candidate;
+    }//end makeUniquePersonalName()
 
     /**
      * Check whether the given user is a Nextcloud administrator.

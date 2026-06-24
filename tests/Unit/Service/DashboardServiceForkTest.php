@@ -322,6 +322,69 @@ class DashboardServiceForkTest extends TestCase
     }//end testForkDefaultsToLocalisedNameWhenBodyOmitsName()
 
     /**
+     * REQ-DASH-020 regression: a second fork of the same source must not
+     * reuse the first fork's name and slug. The disambiguator appends a
+     * counter so the new row gets a distinct "/my-copy-of-x-2" slug
+     * rather than a duplicate "/my-copy-of-x".
+     *
+     * @return void
+     */
+    public function testForkDisambiguatesNameWhenSlugAlreadyTaken(): void
+    {
+        $this->settingMapper->method('getValue')->willReturn(true);
+
+        $source = $this->makeDashboard(
+            uuid: 'src-uuid',
+            name: 'Marketing Overview',
+            type: Dashboard::TYPE_GROUP_SHARED,
+            userId: null,
+            groupId: 'marketing',
+            id: 42
+        );
+        $this->stubVisibleToUser(
+            userId: 'alice',
+            visible: [
+                ['dashboard' => $source, 'source' => Dashboard::SOURCE_GROUP],
+            ]
+        );
+
+        // A prior fork already owns the default name's slug.
+        $existing = $this->makeDashboard(
+            uuid: 'existing-uuid',
+            name: 'My copy of Marketing Overview',
+            type: Dashboard::TYPE_USER,
+            userId: 'alice',
+            groupId: null,
+            id: 5
+        );
+        $existing->setSlug('my-copy-of-marketing-overview');
+        $this->dashboardMapper
+            ->method('findByUserId')
+            ->with(userId: 'alice')
+            ->willReturn([$existing]);
+
+        $captured = null;
+        $this->dashboardMapper
+            ->method('insert')
+            ->willReturnCallback(function (Dashboard $d) use (&$captured): Dashboard {
+                $d->setId(7);
+                $captured = $d;
+                return $d;
+            });
+        $this->placementMapper->method('cloneToDashboard')->willReturn(0);
+
+        $this->service->forkAsPersonal(
+            userId: 'alice',
+            sourceUuid: 'src-uuid',
+            name: null
+        );
+
+        $this->assertNotNull($captured);
+        $this->assertSame('My copy of Marketing Overview (2)', $captured->getName());
+        $this->assertSame('my-copy-of-marketing-overview-2', $captured->getSlug());
+    }//end testForkDisambiguatesNameWhenSlugAlreadyTaken()
+
+    /**
      * REQ-DASH-021: any throwable from the placement clone rolls back
      * the entire transaction and re-throws.
      *

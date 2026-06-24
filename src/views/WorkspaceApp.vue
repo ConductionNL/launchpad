@@ -26,7 +26,7 @@
 		     dashboard switching is owned by the left sidebar
 		     (REQ-SWITCH-002). -->
 		<!-- Title strip is only visible when the sidebar is OPEN.
-		     When closed, the floating sidebar-toggle in mydash-floating-controls
+		     When closed, the floating sidebar-toggle in launchpad-floating-controls
 		     (top-right) is the only entry point. -->
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
@@ -312,7 +312,11 @@ export default {
 
 <style scoped>
 .workspace-shell {
-	min-height: 100vh;
+	/* Bound to the content area (height:100%) and allow flex children to
+	   shrink (min-height:0) so .workspace-shell__grid scrolls internally
+	   rather than the shell overflowing #content unbounded. */
+	height: 100%;
+	min-height: 0;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
@@ -397,6 +401,10 @@ export default {
 
 .workspace-shell__grid {
 	flex: 1;
+	/* min-height:0 is required for the flex item to shrink below its content
+	   height; without it overflow:auto never engages and the grid grows
+	   unbounded, clipping silently out of the viewport. */
+	min-height: 0;
 	overflow: auto;
 }
 
@@ -436,7 +444,7 @@ export default {
 
 <!--
   Global (unscoped) layout rules for the chrome wrapper. Nextcloud's
-  `#app-workspace` is a `display: flex` row container. MyDash opts out of
+  `#app-workspace` is a `display: flex` row container. LaunchPad opts out of
   the navigation rail (PageController sets `id-app-navigation: null`), so
   the workspace wrapper must claim the full available width — without this,
   `.launchpad-workspace` collapses to 0px and the dashboard grid renders empty.
@@ -448,6 +456,8 @@ export default {
 	flex: 1 1 auto;
 	min-width: 0;
 	width: 100%;
-	min-height: 100vh;
+	/* See src/styles/workspace.css — fill the content area, don't grow past it. */
+	height: 100%;
+	min-height: 0;
 }
 </style>

@@ -45,8 +45,8 @@
 	spec. The downstream runtime-shell component should adopt the same
 	binding when it ships.
 
-	Icon rendering MUST go through the shared `IconRenderer` from
-	`dashboard-icons` — no inline `v-if="iconUrl"` branches here
+	Icon rendering MUST go through the shared `CnDashboardIcon` from
+	@conduction/nextcloud-vue — no inline `v-if="iconUrl"` branches here
 	(REQ-SWITCH-007).
 -->
 
@@ -79,28 +79,6 @@
 			</button>
 		</div>
 
-		<!-- Region mode switch (widgets spec: Catalog SUB_PAGE). Toggles the
-		     workspace region between the dashboards canvas and the Catalog
-		     browse view; the parent owns the active region. -->
-		<div class="dashboard-switcher-sidebar__modes" data-test="sidebar-modes">
-			<button
-				type="button"
-				class="dashboard-switcher-sidebar__mode"
-				:class="{ 'dashboard-switcher-sidebar__mode--active': mode === 'dashboards' }"
-				data-test="sidebar-mode-dashboards"
-				@click="onModeChange('dashboards')">
-				{{ t('mydash', 'Dashboards') }}
-			</button>
-			<button
-				type="button"
-				class="dashboard-switcher-sidebar__mode"
-				:class="{ 'dashboard-switcher-sidebar__mode--active': mode === 'catalog' }"
-				data-test="sidebar-mode-catalog"
-				@click="onModeChange('catalog')">
-				{{ t('mydash', 'Catalog') }}
-			</button>
-		</div>
-
 		<div class="dashboard-switcher-sidebar__body">
 			<!-- 1. Primary group dashboards -->
 			<section
@@ -124,7 +102,7 @@
 						@keydown.enter="onSwitch(dashboard.id, 'group')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'group')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
@@ -177,7 +155,7 @@
 						@keydown.enter="onSwitch(dashboard.id, 'default')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'default')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
@@ -230,7 +208,7 @@
 						@keydown.enter="onSwitch(dashboard.id, 'user')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
@@ -299,13 +277,11 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { NcButton } from '@conduction/nextcloud-vue'
+import { NcButton, CnDashboardIcon } from '@conduction/nextcloud-vue'
 
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
-
-import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SidebarFooter from './SidebarFooter.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
 
@@ -316,7 +292,7 @@ export default {
 		Close,
 		Plus,
 		Star,
-		IconRenderer,
+		CnDashboardIcon,
 		NcButton,
 		SidebarFooter,
 		DashboardRowActions,
@@ -434,17 +410,6 @@ export default {
 		},
 
 		/**
-		 * Active workspace region mode (widgets spec: Catalog SUB_PAGE).
-		 * `'dashboards'` shows the canvas, `'catalog'` shows the browse
-		 * view. Controlled by the parent; the sidebar emits `mode-change`.
-		 */
-		mode: {
-			type: String,
-			default: 'dashboards',
-			validator: v => ['dashboards', 'catalog'].includes(v),
-		},
-
-		/**
 		 * dashboard-quota-limits REQ-QUOTA-006: when true the user is at
 		 * their per-user dashboard limit, so the "Add dashboard" affordance
 		 * is disabled. Default false ⇒ unlimited instances are unaffected.
@@ -469,9 +434,6 @@ export default {
 		'create-dashboard',
 		'delete-dashboard',
 		'update:open',
-		// widgets spec — Catalog SUB_PAGE region toggle. Carries the new
-		// mode string (`'dashboards'` | `'catalog'`).
-		'mode-change',
 		// wave3.6 — per-row events. Each carries `(dashboard, source)`
 		// so the host can switch to that dashboard and then apply the
 		// action. The sidebar emits the raw event; the host owns the
@@ -650,23 +612,6 @@ export default {
 			this.$emit('update:open', false)
 		},
 
-		/**
-		 * Switch the workspace region mode (widgets spec: Catalog SUB_PAGE).
-		 * Emits the new mode and closes the sidebar so the chosen region
-		 * gets the full viewport. A no-op when already in that mode.
-		 *
-		 * @param {string} next the target mode (`'dashboards'` | `'catalog'`)
-		 * @return {void}
-		 */
-		/** @spec openspec/specs/widgets/spec.md */
-		onModeChange(next) {
-			if (next === this.mode) {
-				return
-			}
-			this.$emit('mode-change', next)
-			this.$emit('update:open', false)
-		},
-
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onEscClose() {
 			if (this.isOpen) {
@@ -706,31 +651,6 @@ export default {
 	padding: 12px 16px;
 	border-bottom: 1px solid var(--color-border, #e0e0e0);
 	flex: 0 0 auto;
-}
-
-.dashboard-switcher-sidebar__modes {
-	display: flex;
-	gap: 4px;
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--color-border, #e0e0e0);
-	flex: 0 0 auto;
-}
-
-.dashboard-switcher-sidebar__mode {
-	flex: 1 1 0;
-	background: transparent;
-	border: 1px solid var(--color-border, #e0e0e0);
-	border-radius: var(--border-radius-pill, 16px);
-	padding: 4px 8px;
-	cursor: pointer;
-	font: inherit;
-	color: var(--color-text-maxcontrast, #767676);
-}
-
-.dashboard-switcher-sidebar__mode--active {
-	background: var(--color-primary-element, #21468b);
-	color: var(--color-primary-text, #fff);
-	border-color: var(--color-primary-element, #21468b);
 }
 
 .dashboard-switcher-sidebar__title {

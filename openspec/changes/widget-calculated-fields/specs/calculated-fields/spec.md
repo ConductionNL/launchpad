@@ -221,7 +221,7 @@ The parser SHALL accept only functions on the documented allowlist and SHALL rej
 
 ### Scenario: Allowlist is per-instance configurable
 
-- GIVEN a MyDash instance with `allowedFunctions: ['abs', 'round', 'sum']` (restricted)
+- GIVEN a LaunchPad instance with `allowedFunctions: ['abs', 'round', 'sum']` (restricted)
 - WHEN a user tries to save an expression using `now()` (not in allowlist)
 - THEN the API SHALL respond 400 with `{error: 'functionNotAllowed', name: 'now'}`
 

@@ -40,7 +40,7 @@ De BBV-taxonomie is echter sterk gestandaardiseerd: het Ministerie van BZK publi
 
 **Dependencies:**
 
-- OpenRegister (already required by mydash)
+- OpenRegister (already required by launchpad)
 - IGroupManager, IUserManager (from Nextcloud core)
 - No new composer/npm dependencies
 
@@ -71,7 +71,7 @@ De BBV-taxonomie is echter sterk gestandaardiseerd: het Ministerie van BZK publi
 
 ## Deliverables
 
-- OpenRegister schemas (JSON, in mydash `_register.json`)
+- OpenRegister schemas (JSON, in launchpad `_register.json`)
 - Backend services (PHP in `lib/Service/`)
 - Frontend views (Vue in `src/views/`)
 - API endpoints (PHP in `lib/Controller/`)

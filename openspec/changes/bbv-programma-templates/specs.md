@@ -148,7 +148,7 @@ THEN openconnector MUST via webhook POST `/api/bbv/indicatoren/{id}/metingen` de
 - periode: "2024-Q4"
 - geverifieerdDoor: "system-openconnector"
 - geverifieerdOp: [huidige timestamp]
-THEN mydash MUST een IndicatorMeting-record aanmaken in OpenRegister
+THEN launchpad MUST een IndicatorMeting-record aanmaken in OpenRegister
 
 **Scenario 2: Notification on variance**
 
@@ -187,10 +187,10 @@ THEN het scherm MUST beconfirmen: "✓ Maatregel 'Opschaling jeugdzorg capacitei
 **Scenario 2: Sync status to planix**
 
 GIVEN Maatregel is gelinkt aan planix project (planixProjectId = "prj-uuid")
-GIVEN status in mydash is "in_uitvoering"
+GIVEN status in launchpad is "in_uitvoering"
 GIVEN planix project-status wordt gewijzigd naar "afgerond" in planix
-WHEN mydash haalt de status op via planix API (polling of webhook)
-THEN mydash MUST de Maatregel-status naar "afgerond" synchroniseren
+WHEN launchpad haalt de status op via planix API (polling of webhook)
+THEN launchpad MUST de Maatregel-status naar "afgerond" synchroniseren
 THEN het systeem MUST een bevestigingsnotificatie naar de Maatregel-trekker sturen: "Maatregel status updated to 'afgerond' from planix"
 
 **Scenario 3: Link fails, planix unavailable**

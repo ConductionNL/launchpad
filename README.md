@@ -63,7 +63,7 @@ LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized wor
 
 ## Architecture
 
-See [`docs/architecture.md`](docs/architecture.md) for the full architecture reference, including the app-manifest adoption (ADR-024), the runtime-only OR consumption policy, and the permission model on `oc_mydash_dashboards`.
+See [`docs/architecture.md`](docs/architecture.md) for the full architecture reference, including the app-manifest adoption (ADR-024), the runtime-only OR consumption policy, and the permission model on `oc_launchpad_dashboards`.
 
 OR-backed widget development: [`docs/widgets/or-data.md`](docs/widgets/or-data.md).
 

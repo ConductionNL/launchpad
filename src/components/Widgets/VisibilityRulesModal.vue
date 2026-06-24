@@ -1,5 +1,5 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
+  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
@@ -7,14 +7,14 @@
 	<NcModal
 		v-if="open"
 		size="normal"
-		:name="t('mydash', 'Visibility rules')"
+		:name="t('launchpad', 'Visibility rules')"
 		@close="$emit('close')">
 		<div class="visibility-rules" data-test="visibility-rules-modal">
 			<h2 class="visibility-rules__title">
-				{{ t('mydash', 'Visibility rules') }}
+				{{ t('launchpad', 'Visibility rules') }}
 			</h2>
 			<p class="visibility-rules__hint">
-				{{ t('mydash', 'Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic.') }}
+				{{ t('launchpad', 'Show or hide this widget based on group membership, time of day, date range, or a user attribute. Include rules use OR logic; exclude rules use AND logic.') }}
 			</p>
 
 			<div v-if="loading" class="visibility-rules__loading">
@@ -33,13 +33,13 @@
 							<span
 								class="visibility-rules__flag"
 								:class="rule.isInclude ? 'visibility-rules__flag--include' : 'visibility-rules__flag--exclude'">
-								{{ rule.isInclude ? t('mydash', 'Include') : t('mydash', 'Exclude') }}
+								{{ rule.isInclude ? t('launchpad', 'Include') : t('launchpad', 'Exclude') }}
 							</span>
 							<code class="visibility-rules__config">{{ summariseConfig(rule) }}</code>
 						</div>
 						<NcButton
 							type="tertiary"
-							:aria-label="t('mydash', 'Remove rule')"
+							:aria-label="t('launchpad', 'Remove rule')"
 							:disabled="busy"
 							data-test="visibility-rule-remove"
 							@click="removeRule(rule)">
@@ -50,16 +50,16 @@
 					</li>
 				</ul>
 				<p v-else class="visibility-rules__empty">
-					{{ t('mydash', 'No visibility rules yet — this widget is always shown.') }}
+					{{ t('launchpad', 'No visibility rules yet — this widget is always shown.') }}
 				</p>
 
 				<div class="visibility-rules__form" data-test="visibility-rules-form">
-					<h3>{{ t('mydash', 'Add a rule') }}</h3>
+					<h3>{{ t('launchpad', 'Add a rule') }}</h3>
 
 					<div class="visibility-rules__field">
 						<NcSelect
 							v-model="draft.type"
-							:input-label="t('mydash', 'Rule type')"
+							:input-label="t('launchpad', 'Rule type')"
 							:options="ruleTypeOptions"
 							label="label"
 							track-by="id"
@@ -69,7 +69,7 @@
 					<div class="visibility-rules__field">
 						<NcSelect
 							v-model="draft.mode"
-							:input-label="t('mydash', 'Effect')"
+							:input-label="t('launchpad', 'Effect')"
 							:options="modeOptions"
 							label="label"
 							track-by="id"
@@ -78,13 +78,13 @@
 
 					<!-- group -->
 					<div v-if="draft.type && draft.type.id === 'group'" class="visibility-rules__field">
-						<label class="visibility-rules__label">{{ t('mydash', 'Groups') }}</label>
+						<label class="visibility-rules__label">{{ t('launchpad', 'Groups') }}</label>
 						<NcSelectTags
 							v-model="draft.groups"
 							:options="availableGroups"
 							:multiple="true"
-							:aria-label-combobox="t('mydash', 'Groups')"
-							:placeholder="t('mydash', 'Select groups')" />
+							:aria-label-combobox="t('launchpad', 'Groups')"
+							:placeholder="t('launchpad', 'Select groups')" />
 					</div>
 
 					<!-- time -->
@@ -92,14 +92,14 @@
 						<div class="visibility-rules__field">
 							<NcTextField
 								:value="draft.startTime"
-								:label="t('mydash', 'Start time (HH:MM)')"
+								:label="t('launchpad', 'Start time (HH:MM)')"
 								placeholder="09:00"
 								@update:value="draft.startTime = $event" />
 						</div>
 						<div class="visibility-rules__field">
 							<NcTextField
 								:value="draft.endTime"
-								:label="t('mydash', 'End time (HH:MM)')"
+								:label="t('launchpad', 'End time (HH:MM)')"
 								placeholder="17:00"
 								@update:value="draft.endTime = $event" />
 						</div>
@@ -110,14 +110,14 @@
 						<div class="visibility-rules__field">
 							<NcTextField
 								:value="draft.startDate"
-								:label="t('mydash', 'Start date (YYYY-MM-DD)')"
+								:label="t('launchpad', 'Start date (YYYY-MM-DD)')"
 								placeholder="2026-12-01"
 								@update:value="draft.startDate = $event" />
 						</div>
 						<div class="visibility-rules__field">
 							<NcTextField
 								:value="draft.endDate"
-								:label="t('mydash', 'End date (YYYY-MM-DD)')"
+								:label="t('launchpad', 'End date (YYYY-MM-DD)')"
 								placeholder="2026-12-31"
 								@update:value="draft.endDate = $event" />
 						</div>
@@ -128,14 +128,14 @@
 						<div class="visibility-rules__field">
 							<NcTextField
 								:value="draft.attribute"
-								:label="t('mydash', 'Attribute')"
+								:label="t('launchpad', 'Attribute')"
 								placeholder="language"
 								@update:value="draft.attribute = $event" />
 						</div>
 						<div class="visibility-rules__field">
 							<NcTextField
 								:value="draft.value"
-								:label="t('mydash', 'Equals value')"
+								:label="t('launchpad', 'Equals value')"
 								placeholder="nl"
 								@update:value="draft.value = $event" />
 						</div>
@@ -147,7 +147,7 @@
 							:disabled="busy || !canAdd"
 							data-test="visibility-rule-add"
 							@click="addRule">
-							{{ t('mydash', 'Add rule') }}
+							{{ t('launchpad', 'Add rule') }}
 						</NcButton>
 					</div>
 				</div>
@@ -215,18 +215,18 @@ export default {
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		ruleTypeOptions() {
 			return [
-				{ id: 'group', label: t('mydash', 'Group') },
-				{ id: 'time', label: t('mydash', 'Time of day') },
-				{ id: 'date', label: t('mydash', 'Date range') },
-				{ id: 'attribute', label: t('mydash', 'User attribute') },
+				{ id: 'group', label: t('launchpad', 'Group') },
+				{ id: 'time', label: t('launchpad', 'Time of day') },
+				{ id: 'date', label: t('launchpad', 'Date range') },
+				{ id: 'attribute', label: t('launchpad', 'User attribute') },
 			]
 		},
 
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		modeOptions() {
 			return [
-				{ id: 'include', label: t('mydash', 'Include (show when matched)') },
-				{ id: 'exclude', label: t('mydash', 'Exclude (hide when matched)') },
+				{ id: 'include', label: t('launchpad', 'Include (show when matched)') },
+				{ id: 'exclude', label: t('launchpad', 'Exclude (hide when matched)') },
 			]
 		},
 
@@ -275,8 +275,8 @@ export default {
 		 */
 		freshDraft() {
 			return {
-				type: { id: 'group', label: t('mydash', 'Group') },
-				mode: { id: 'include', label: t('mydash', 'Include (show when matched)') },
+				type: { id: 'group', label: t('launchpad', 'Group') },
+				mode: { id: 'include', label: t('launchpad', 'Include (show when matched)') },
 				groups: [],
 				startTime: '',
 				endTime: '',

@@ -106,7 +106,7 @@ The render route SHALL verify the JWT signature against the `kid`-selected `sign
 
 GIVEN a valid, non-expired, non-revoked JWT for widget W signed with RS256 key (kid=rsa-1)
   AND the embedded widget renders HTML (no token scope restriction assumed yet — REQ-EMB-004 covers scope enforcement)
-WHEN the route is called with `GET /apps/mydash/embed/widget/W?token=<jwt>`
+WHEN the route is called with `GET /apps/launchpad/embed/widget/W?token=<jwt>`
 THEN the response SHALL be 200 with HTML body
   AND the response SHALL include header `Content-Security-Policy: frame-ancestors <hostOrigins>`
   AND the response SHALL include header `X-Content-Type-Options: nosniff`
@@ -120,7 +120,7 @@ THEN the response SHALL be 200 with HTML body
 
 GIVEN a valid JWT for widget W
   AND the admin tries to render it against widget V (different UUID)
-WHEN the route is called with `GET /apps/mydash/embed/widget/V?token=<jwt>`
+WHEN the route is called with `GET /apps/launchpad/embed/widget/V?token=<jwt>`
 THEN the response SHALL be 403 with body:
   ```json
   {
@@ -136,7 +136,7 @@ THEN the response SHALL be 403 with body:
 ### Scenario 2.3 — Expired token returns 401 with WWW-Authenticate header
 
 GIVEN a JWT whose `tokenExpiresAt` is in the past (e.g., "2026-01-01T00:00:00Z" and current time is 2026-05-22)
-WHEN the route is called with `GET /apps/mydash/embed/widget/W?token=<jwt>`
+WHEN the route is called with `GET /apps/launchpad/embed/widget/W?token=<jwt>`
 THEN the response SHALL be 401 with body:
   ```json
   {
@@ -151,7 +151,7 @@ THEN the response SHALL be 401 with body:
 ### Scenario 2.4 — Revoked token returns 401 with constant-time comparison
 
 GIVEN a JWT whose `embed_token` row has `revokedAt` set (token was revoked 5 minutes ago)
-WHEN the route is called with `GET /apps/mydash/embed/widget/W?token=<jwt>`
+WHEN the route is called with `GET /apps/launchpad/embed/widget/W?token=<jwt>`
 THEN the response SHALL be 401 with body:
   ```json
   {
@@ -165,7 +165,7 @@ THEN the response SHALL be 401 with body:
 ### Scenario 2.5 — Invalid JWT signature returns 401
 
 GIVEN a JWT with an invalid signature (e.g., tampered payload)
-WHEN the route is called with `GET /apps/mydash/embed/widget/W?token=<tampered-jwt>`
+WHEN the route is called with `GET /apps/launchpad/embed/widget/W?token=<tampered-jwt>`
 THEN the response SHALL be 401 with body:
   ```json
   {
@@ -177,7 +177,7 @@ THEN the response SHALL be 401 with body:
 ### Scenario 2.6 — Missing token returns 401
 
 GIVEN a request to the embed render route without a token
-WHEN the route is called with `GET /apps/mydash/embed/widget/W` (no ?token= parameter)
+WHEN the route is called with `GET /apps/launchpad/embed/widget/W` (no ?token= parameter)
 THEN the response SHALL be 401 with body:
   ```json
   {
@@ -189,7 +189,7 @@ THEN the response SHALL be 401 with body:
 ### Scenario 2.7 — Bearer header token (SDK form-factor)
 
 GIVEN a valid JWT passed via Authorization header (SDK use case)
-WHEN the route is called with `GET /apps/mydash/embed/widget/W` + header `Authorization: Bearer <jwt>`
+WHEN the route is called with `GET /apps/launchpad/embed/widget/W` + header `Authorization: Bearer <jwt>`
 THEN the response SHALL be 200 with HTML body (same as Scenario 2.1)
   AND the response latency/rate-limit treatment SHALL be identical to query-parameter tokens
   AND the response CSP/cache headers SHALL be identical

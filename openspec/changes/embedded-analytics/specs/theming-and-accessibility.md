@@ -72,7 +72,7 @@ THEN the API SHALL respond 400 with body:
 GIVEN an `embed_token` with `tenantThemeId: null` (no theme selected)
 WHEN the embed render route generates HTML
 THEN the response SHALL use the platform's default NL Design theme (no custom :root injection)
-  AND the widget SHALL render with standard MyDash colours and fonts
+  AND the widget SHALL render with standard LaunchPad colours and fonts
 
 ### Scenario 5.5 — Theme logo displayed in embed header
 
@@ -151,7 +151,7 @@ THEN the API SHALL compute the colour contrast ratio using the WCAG luminance fo
 
 ### Scenario 10.3 — Build-time axe-core checks
 
-GIVEN the MyDash build pipeline
+GIVEN the LaunchPad build pipeline
 WHEN `npm run build` executes
 THEN a test step SHALL:
   1. Render a representative sample of widget shapes (e.g., chart, table, text, image, custom)

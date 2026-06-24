@@ -708,6 +708,11 @@ export const useDashboardStore = defineStore('dashboard', {
 				if (placement.pushed.length > 0) {
 					await this.applyPushedPlacements(placement.pushed)
 				}
+
+				// Return the created placement so callers (e.g. the unified
+				// add/edit modal) can apply chrome (title/background/icon) to a
+				// brand-new widget via a follow-up updateWidgetPlacement patch.
+				return response.data
 			} catch (error) {
 				this.handleWidgetQuotaError(error)
 				console.error('Failed to add widget:', error)

@@ -378,10 +378,10 @@ OCA\LaunchPad\Migration\Version001024Date20260503130000::changeSchema
 OCA\LaunchPad\Notification\Notifier::getID
 OCA\LaunchPad\Notification\Notifier::getName
 OCA\LaunchPad\Notification\Notifier::prepare
-OCA\LaunchPad\Search\MyDashSearchProvider::getId
-OCA\LaunchPad\Search\MyDashSearchProvider::getName
-OCA\LaunchPad\Search\MyDashSearchProvider::getOrder
-OCA\LaunchPad\Search\MyDashSearchProvider::search
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getId
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getName
+OCA\LaunchPad\Search\LaunchPadSearchProvider::getOrder
+OCA\LaunchPad\Search\LaunchPadSearchProvider::search
 OCA\LaunchPad\Service\AdminSettingsService::getGroupOrder
 OCA\LaunchPad\Service\AdminSettingsService::setGroupOrder
 OCA\LaunchPad\Service\AdminTemplateService::resolvePrimaryGroup
@@ -742,6 +742,8 @@ OCA\LaunchPad\Migration\Version002000Date20260519000000::changeSchema
 # ADR-036 Decision 8 data migration — no discrete spec REQ to cite.
 OCA\LaunchPad\Migration\Version002000Date20260519000000::postSchemaChange
 # ADR-036 Decision 8 data migration — no discrete spec REQ to cite.
+OCA\LaunchPad\Migration\Version002003Date20260620000000::changeSchema
+# Drops launchpad_feed_tokens; retires the outbound-RSS feature (dashboard-rss-feeds), no additive spec REQ to cite.
 OCA\LaunchPad\Controller\PageController::deepLink
 # Deep-link handler is a catch-all page route, no single spec annotation.
 OCA\LaunchPad\Controller\DashboardApiController::computePath

@@ -24,10 +24,22 @@
     "docsUrl": "openspec/specs/admin-templates/spec.md"
   },
   {
+    "slug": "background-job-feed-refresh",
+    "title": "background-job-feed-refresh",
+    "summary": "Keeps news-widget feeds fresh by running a scheduled background job that fetches, parses, and caches RSS 2.0 and Atom 1.0 feeds referenced by dashboard placements. It deduplicates feed URLs into a shared cache table, uses HTTP conditional requests and per-feed failure isolation to stay efficient and resilient, enforces a host allow-list and concurrency lock, and exposes an admin endpoint to trigger an immediate refresh.",
+    "docsUrl": "openspec/specs/background-job-feed-refresh/spec.md"
+  },
+  {
     "slug": "calendar-widget",
     "title": "Calendar Widget",
     "summary": "The calendar widget is a built-in LaunchPad widget type that renders aggregated events from internal Nextcloud calendars and external ICS feeds in a single dashboard tile. Users can switch between three view modes (month, week, agenda), restrict the look-ahead window for agenda mode, and color events by their source calendar. External ICS feeds are fetched server-side with caching, an HTTPS-only / SSRF-safe guard, and an optional admin allow-list of permitted hostnames, so that adding a public calendar link to a dashboard does not expose the Nextcloud instance to internal-network probing or runaway expansion.",
     "docsUrl": "openspec/specs/calendar-widget/spec.md"
+  },
+  {
+    "slug": "cli-commands",
+    "title": "CLI Commands Suite",
+    "summary": "The CLI commands suite establishes a coherent, standardized operator interface for LaunchPad management tasks. It defines the `launchpad:` namespace prefix, consistent global flags across all commands, and introduces new operational helpers for dashboard inspection, sharing debugging, feed token management, and internationalization. The capability ensures scriptability, auditability, and discoverability of all CLI operations.",
+    "docsUrl": "openspec/specs/cli-commands/spec.md"
   },
   {
     "slug": "conditional-visibility",
@@ -66,12 +78,6 @@
     "docsUrl": "openspec/specs/dashboard-comments/spec.md"
   },
   {
-    "slug": "dashboard-deeplinking",
-    "title": "Dashboard Deep-Linking",
-    "summary": "Each dashboard has a stable, addressable URL based on its slug-chain. Visiting `/apps/launchpad/{slug-chain}` lands the workspace on the matching dashboard; switching dashboards via the sidebar pushes a new history entry; the browser back/forward buttons navigate between dashboards.",
-    "docsUrl": "openspec/specs/dashboard-deeplinking/spec.md"
-  },
-  {
     "slug": "dashboard-export-import",
     "title": "Dashboard Export & Import",
     "summary": "Dashboard export and import allow LaunchPad administrators to create versioned snapshots of dashboard configurations, widgets, metadata fields, and associated assets. Snapshots are portable across Nextcloud instances, enabling backup, disaster recovery, template authoring, and cross-instance sharing. This capability defines a standardised ZIP container format (`launchpad-export-v1.zip`), collision handling semantics, and API/CLI endpoints for end-to-end export-import workflows. Downstream capabilities such as `confluence-html-import` consume the same ZIP shape, so the manifest schema (`schemaVersion: 1`) is treated as a stable contract.",
@@ -84,10 +90,10 @@
     "docsUrl": "openspec/specs/dashboard-icons/spec.md"
   },
   {
-    "slug": "dashboard-language-content",
-    "title": "Dashboard Language Content",
-    "summary": "Per-language content variants for LaunchPad dashboards. A single dashboard can carry multiple localised widget trees, names, and descriptions. The viewer's Nextcloud locale (or an explicit `?lang=` query parameter) is matched against the available variants; when no match is found the system falls back to the dashboard's primary variant. Each dashboard MUST have exactly one row marked `isPrimary = 1`. New dashboards auto-seed a primary translation in the owner's current Nextcloud locale.",
-    "docsUrl": "openspec/specs/dashboard-language-content/spec.md"
+    "slug": "dashboard-kiosk-mode",
+    "title": "dashboard-kiosk-mode",
+    "summary": "Turns LaunchPad dashboards into unattended signage by rendering them chrome-less and full-viewport via a `kiosk=1` flag or a public playlist token. Users can build named playlists that rotate through multiple dashboards with per-entry dwell times, while kiosk surfaces refresh widget data in place and degrade gracefully on failure with skip-and-retry, last-known-content retention, neutral placeholders, and a watchdog to recover from stalls.",
+    "docsUrl": "openspec/specs/dashboard-kiosk-mode/spec.md"
   },
   {
     "slug": "dashboard-locking",
@@ -102,6 +108,18 @@
     "docsUrl": "openspec/specs/dashboard-metadata-fields/spec.md"
   },
   {
+    "slug": "dashboard-public-share",
+    "title": "dashboard-public-share",
+    "summary": "Lets dashboard owners publish read-only public links to their dashboards, optionally protected by a password and an expiry date. Anonymous visitors render the dashboard through a unique share token while the system enforces read-only access, soft-revocation, brute-force throttling, debounced view counting, and a service-account read path for GroupFolder-backed content.",
+    "docsUrl": "openspec/specs/dashboard-public-share/spec.md"
+  },
+  {
+    "slug": "dashboard-quota-limits",
+    "title": "dashboard-quota-limits",
+    "summary": "Numeric admin-governance quotas for LaunchPad: maximum personal dashboards per user and maximum widget placements per dashboard. Both default to `0` (unlimited). Enforcement is server-side and fail-closed at a single `QuotaService` choke point on every user-initiated creation path, returning HTTP 409 with a structured body; admin provisioning is exempt; lowering a limit grandfathers existing data (never deletes/hides); and the dashboards list response carries an additive `quota` envelope so the UI can disable creation affordances at the limit while the server check stays authoritative.",
+    "docsUrl": "openspec/specs/dashboard-quota-limits/spec.md"
+  },
+  {
     "slug": "dashboard-reactions",
     "title": "Dashboard Reactions",
     "summary": "Dashboard reactions enable lightweight social feedback via emoji on LaunchPad dashboards. Users can react with a configurable whitelist of emojis to mark dashboards as useful, appreciated, or funny, without requiring full-featured comments. Reactions are aggregated by emoji and visible to all viewers. An administrator can enable/disable reactions globally and per-dashboard, and can curate the allowed emoji list.",
@@ -112,12 +130,6 @@
     "title": "Dashboard RSS Feeds",
     "summary": "Expose a user's accessible dashboards as an RSS 2.0 / Atom feed accessible without Nextcloud browser authentication via a per-user secret token. Each user may opt-in by requesting their feed token; the feed is filtered by the token-owner's dashboard ACLs (permissions) so private content remains private. The feed enables integration with RSS readers, monitoring tools, and third-party systems without requiring full Nextcloud login.",
     "docsUrl": "openspec/specs/dashboard-rss-feeds/spec.md"
-  },
-  {
-    "slug": "dashboard-sharing",
-    "title": "Dashboard Sharing",
-    "summary": "Dashboard sharing lets a dashboard owner grant read or edit access on a personal (`type: 'user'`) dashboard to specific Nextcloud users or groups. It complements the existing dashboard scopes (`user`, `admin_template`, `group_shared`) by enabling **ad-hoc peer-to-peer collaboration** without needing administrator involvement: any user can decide to share their own dashboard with a colleague or a group, with view, add, or full access. The recipient sees the shared dashboard alongside their own in the dashboard switcher and can act on it according to the share's permission level. Only the owner can manage shares; only the owner can rename, change description, or delete the dashboard.",
-    "docsUrl": "openspec/specs/dashboard-sharing/spec.md"
   },
   {
     "slug": "dashboard-switcher",
@@ -144,12 +156,6 @@
     "docsUrl": "openspec/specs/dashboards/spec.md"
   },
   {
-    "slug": "default-widget-bundle",
-    "title": "Default Widget Bundle",
-    "summary": "Every newly-created personal dashboard ships with a preconfigured set of four widget placements so the user lands on a non-empty grid. Empty grids on first-create were a documented friction point — the \"No dashboard yet\" empty-state CTA flashed on every cold load and new dashboards rendered as a blank canvas with no way to discover the widget catalog.",
-    "docsUrl": "openspec/specs/default-widget-bundle/spec.md"
-  },
-  {
     "slug": "demo-data-showcases",
     "title": "Demo Data Showcases",
     "summary": "The `demo-data-showcases` capability provides administrators with one-click installation of pre-built, fully populated example dashboards that illustrate different organizational use cases. Showcases are bundled as ZIP archives containing a machine-readable `export.json` manifest plus per-locale page JSON files and media assets, loaded from disk on demand, and installed as `group_shared` dashboards visible to all users (via REQ-DASH-012 default-group sentinel). The capability includes widget type validation, graceful skip-on-missing for unknown widgets, NL-only localization in v1, and idempotent installation via API and CLI commands.",
@@ -160,12 +166,6 @@
     "title": "Divider Widget",
     "summary": "The divider widget is a lightweight, configurable visual separator for LaunchPad dashboards. It enables dashboard creators to break up widget sections into logical groups using minimal UI — a horizontal line, whitespace spacer, or centered heading with dividing lines — all rendered client-side with full theme awareness and print support. This capability adds no backend endpoints or data storage; all configuration is stored in the placement's `widgetContent JSON` blob and rendered in-browser.",
     "docsUrl": "openspec/specs/divider-widget/spec.md"
-  },
-  {
-    "slug": "effective-default-marker",
-    "title": "Effective Default Marker",
-    "summary": "The dashboard switcher sidebar marks the user's *effective default dashboard* — the dashboard the resolver lands them on when they visit `/apps/launchpad/` cold — with a small ★ icon and a tooltip.",
-    "docsUrl": "openspec/specs/effective-default-marker/spec.md"
   },
   {
     "slug": "files-widget",
@@ -184,6 +184,12 @@
     "title": "Grid Layout",
     "summary": "The grid layout system powers the drag-and-drop dashboard experience in LaunchPad. Built on GridStack 12.x, it provides a 12-column responsive grid that reflows at four explicit viewport breakpoints (1400/1100/768/480 px → 12/8/4/1 cols) where users can position, resize, and rearrange widget placements and tiles. The grid operates in two modes: view mode (static, no interaction) and edit mode (drag-and-drop enabled). Position changes are emitted via Vue events and persisted via the API by the parent component.",
     "docsUrl": "openspec/specs/grid-layout/spec.md"
+  },
+  {
+    "slug": "groupfolder-storage-backend",
+    "title": "groupfolder-storage-backend",
+    "summary": "Abstracts dashboard content storage behind a unified read/write/delete interface so operators can choose between the default database backend and an optional Nextcloud GroupFolder backend. The GroupFolder backend stores dashboards as human-readable JSON files in an auto-created, admin-restricted folder, fails closed without silent fallback, and ships a one-time migration command — all transparently to existing API clients.",
+    "docsUrl": "openspec/specs/groupfolder-storage-backend/spec.md"
   },
   {
     "slug": "header-widget",
@@ -216,6 +222,54 @@
     "docsUrl": "openspec/specs/label-widget/spec.md"
   },
   {
+    "slug": "launchpad-adopt-or-abstractions",
+    "title": "launchpad-adopt-or-abstractions",
+    "summary": "Keeps LaunchPad installable and runnable without OpenRegister or OpenConnector while letting its widgets consume OR data when present. It mandates an architectural manifest, forbids install-time OR/OC dependencies, requires runtime feature-detection with documented empty states, locale and tenant-context stamping on OR fetches, a local-first dashboard permission model, and several code-hygiene rules (typed admin-setting keys, a named filename-pattern constant, and documented column-type constants).",
+    "docsUrl": "openspec/specs/launchpad-adopt-or-abstractions/spec.md"
+  },
+  {
+    "slug": "launchpad-ai-dashboard-assistant",
+    "title": "Spec: launchpad-ai-dashboard-assistant",
+    "summary": "Add an embedded AI assistant widget (`launchpad_ai_assistant`) that lets the dashboard viewer ask natural-language questions about their dashboard's data and receive a streamed reply — summarising open cases, surfacing consultation responses, explaining an aggregate trend. The widget is a **thin chat surface** that delegates inference to the openconnector-registered LLM source (Ollama + Qwen via `local-llm` per `reference_llphant-ollama-think-false`). launchpad MUST NOT carry its own LLM client SDK or call any inference endpoint directly.",
+    "docsUrl": "openspec/specs/launchpad-ai-dashboard-assistant/spec.md"
+  },
+  {
+    "slug": "launchpad-compliance-audit-panel",
+    "title": "Spec: launchpad-compliance-audit-panel",
+    "summary": "Surface the organisation's compliance posture on a launchpad dashboard through one widget (`launchpad_compliance_audit`). The widget reads audit-trail, retention, and compliance-evidence data at runtime via GraphQL — consuming OR's `audit-trail-immutable` and `archival-destruction-workflow` abstractions (ADR-022 table rows \"Audit trail\" + \"Archival + destruction workflow\") plus shillinq's Archiefwet retention rules and docudesk's compliance documents.",
+    "docsUrl": "openspec/specs/launchpad-compliance-audit-panel/spec.md"
+  },
+  {
+    "slug": "launchpad-enterprise-security-access",
+    "title": "Spec: launchpad-enterprise-security-access",
+    "summary": "Surface enterprise security and access posture on a launchpad dashboard through a read-only widget (`launchpad_security_access`). Three card surfaces compose the widget:",
+    "docsUrl": "openspec/specs/launchpad-enterprise-security-access/spec.md"
+  },
+  {
+    "slug": "launchpad-file-access-widget",
+    "title": "Spec: launchpad-file-access-widget",
+    "summary": "Surface dossier documents (and arbitrary Nextcloud Files objects) on a launchpad dashboard via a single widget (`launchpad_file_access`). The widget is a **quick-access surface** distinct from the existing `files-widget` (which embeds a folder browser): this widget renders a curated short-list of files the viewer needs from the dashboard — typically the documents attached to a dossier object via OR's `object-interactions` integration (ADR-019 / ADR-022).",
+    "docsUrl": "openspec/specs/launchpad-file-access-widget/spec.md"
+  },
+  {
+    "slug": "launchpad-meeting-calendar-actions",
+    "title": "Spec: launchpad-meeting-calendar-actions",
+    "summary": "Surface meeting and agenda actions on a launchpad dashboard via the widget `launchpad_meeting_actions`. The widget composes data from two sources, presented as one timeline:",
+    "docsUrl": "openspec/specs/launchpad-meeting-calendar-actions/spec.md"
+  },
+  {
+    "slug": "launchpad-mobile-remote-access",
+    "title": "Spec: launchpad-mobile-remote-access",
+    "summary": "Define the **manifest contract** for declaring widget mobile-readiness so the launchpad workspace can render a coherent mobile + remote experience. The existing `responsive-grid-breakpoints` spec already handles the grid-side breakpoint engine; this spec adds the **per-widget declaration surface** in the app manifest (per ADR-024) and the fallback behaviour when no widget on a dashboard declares itself mobile-ready.",
+    "docsUrl": "openspec/specs/launchpad-mobile-remote-access/spec.md"
+  },
+  {
+    "slug": "launchpad-spend-analytics-widget",
+    "title": "Spec: launchpad-spend-analytics-widget",
+    "summary": "Surface procurement + financial spend analytics on a launchpad dashboard as a single widget (`launchpad_spend_analytics`). The widget consumes data live at render time via runtime GraphQL queries against financeq + procest (and, for evidence attachment, docudesk through OR's `object-interactions` integration registry per ADR-022). The widget MUST NOT add an install-time dependency on any sibling app — per `feedback_launchpad-no-or-dependency.md`, launchpad stays the always-available shell.",
+    "docsUrl": "openspec/specs/launchpad-spend-analytics-widget/spec.md"
+  },
+  {
     "slug": "legacy-widget-bridge",
     "title": "Legacy Widget Bridge",
     "summary": "LaunchPad's grid can render widgets from two eras of the Nextcloud widget API: modern widgets that implement `IAPIWidget` / `IAPIWidgetV2` (covered by the [widgets](../widgets/spec.md) capability), and legacy widgets that use the older callback-registration pattern by calling `window.OCA.Dashboard.register(appId, callback)` at bootstrap. This capability covers the client-side bridge that captures those legacy registrations so LaunchPad can mount them into the grid on demand.",
@@ -244,6 +298,12 @@
     "title": "Organization-wide Navigation Editor",
     "summary": "The `navigation-editor-org` capability provides a robust, admin-curated, group-aware org-wide navigation tree distinct from the personal dashboard list. Where the existing `dashboard-switcher-sidebar` shows the dashboards a user owns or can access, this capability adds a second navigation surface — an admin-controlled tree of links and sections shared across the whole organisation. Useful for company resources, policy hubs, and tools panels.",
     "docsUrl": "openspec/specs/navigation-editor-org/spec.md"
+  },
+  {
+    "slug": "nc-dashboard-widget-proxy",
+    "title": "nc-dashboard-widget-proxy",
+    "summary": "Defines the user-facing surface of the Nextcloud Dashboard widget proxy (`nc-widget` placement type) — primarily the picker UX inside the unified Add Custom Widget modal. The renderer/contract for `nc-widget` placements themselves is owned by the `widgets` capability (REQ-WDG-018 onwards) and the bridge polling behaviour by `legacy-widget-bridge`. This spec narrows in on how end users discover and pick a Nextcloud-discovered widget when configuring an `nc-widget` placement.",
+    "docsUrl": "openspec/specs/nc-dashboard-widget-proxy/spec.md"
   },
   {
     "slug": "nc-unified-search-integration",
@@ -292,6 +352,12 @@
     "title": "Resource Uploads",
     "summary": "The `resource-uploads` capability owns a small mini file API for binary assets that LaunchPad widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in LaunchPad's app-data folder (NOT the user's Files), addressed by a stable URL, uploaded admin-only via a base64-data-URL JSON request, and served back to any logged-in user via a non-OCS streaming endpoint plus an OCS listing endpoint. SVG sanitisation is specified in the sibling `svg-sanitisation` capability.",
     "docsUrl": "openspec/specs/resource-uploads/spec.md"
+  },
+  {
+    "slug": "role-feature-permissions",
+    "title": "Role Feature Permissions",
+    "summary": "This capability governs which dashboard widgets and features are visible, accessible, and default-seeded for users based on their Nextcloud group (role). It ensures that staff see only the tools relevant to their job, that new users receive a role-appropriate starting layout seeded from evidence rather than a generic blank dashboard, and that attempts to access restricted features via direct URL are rejected at the API layer with a 403 response and an audit log entry.",
+    "docsUrl": "openspec/specs/role-feature-permissions/spec.md"
   },
   {
     "slug": "runtime-shell",

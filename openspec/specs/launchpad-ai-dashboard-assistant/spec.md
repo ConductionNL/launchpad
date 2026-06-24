@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-ai-dashboard-assistant
 
 **Status:** proposed

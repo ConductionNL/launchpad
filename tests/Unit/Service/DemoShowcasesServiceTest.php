@@ -153,7 +153,7 @@ class DemoShowcasesServiceTest extends TestCase
         // The thumbnail is delegated to IURLGenerator::imagePath() with the
         // app id and the per-showcase image path — not a hardcoded URL.
         $this->assertSame(
-            expected: 'imagePath(mydash,showcases/de-bron.png)',
+            expected: 'imagePath(launchpad,showcases/de-bron.png)',
             actual: $result['thumbnailUrl']
         );
     }

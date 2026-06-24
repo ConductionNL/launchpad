@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<div class="widget-renderer">
+	<div class="widget-renderer" :class="{ 'widget-renderer--flush': isFullBleed }">
 		<!-- Registry-driven custom widget (label, text, image, link, header,
 		     divider, files, people, quicklinks, news, video, calendar, links,
 		     menu, container, tile, nc-widget). The placement's content blob
@@ -14,7 +14,8 @@
 			:is="registryEntry.renderer"
 			v-if="registryEntry"
 			:content="placement.content || {}"
-			:placement="placement" />
+			:placement="placement"
+			v-bind="rendererProps" />
 
 		<!-- Custom Tile Widget (legacy path: widgetId === 'tile-{id}') -->
 		<TileWidget
@@ -69,6 +70,7 @@ import { useTileStore } from '../stores/tiles.js'
 import { widgetBridge } from '../services/widgetBridge.js'
 import TileWidget from './TileWidget.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import { buildWidgetDataProvide, buildRendererExtraProps } from '../services/widgetDataAdapters.js'
 
 export default {
 	name: 'WidgetRenderer',
@@ -90,6 +92,19 @@ export default {
 			type: Object,
 			required: true,
 		},
+	},
+
+	/**
+	 * Provide the data-source adapters the nc-vue data widgets inject
+	 * (`cnPeopleSource` / `cnSpendAnalyticsSource`), bridging them to
+	 * launchpad's existing endpoints/services so the shared renderers stay
+	 * app-agnostic. News uses the `itemsEndpoint` prop instead (see
+	 * `rendererProps`).
+	 *
+	 * @return {object} the injected data-source adapters.
+	 */
+	provide() {
+		return buildWidgetDataProvide(() => this.placement?.id)
 	},
 
 	data() {
@@ -123,6 +138,30 @@ export default {
 				return null
 			}
 			return entry
+		},
+
+		/**
+		 * Full-bleed widget types paint their own edge-to-edge surface (banner
+		 * image/colour, divider rule) and must not be inset by the renderer's
+		 * default 16px padding — otherwise a header banner leaves a gap inside
+		 * its cell. Other widgets keep the padding for breathing room.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} true when the widget should render edge-to-edge.
+		 */
+		isFullBleed() {
+			return ['header', 'image', 'divider'].includes(this.placement?.widgetId)
+		},
+
+		/**
+		 * Per-widget-type extra props bound onto the registry renderer.
+		 * nc-vue's CnNewsWidget pulls items from a consumer-supplied
+		 * `itemsEndpoint` builder pointing at launchpad's news endpoint.
+		 *
+		 * @return {object} extra props for `<component :is>` (empty for most types).
+		 */
+		rendererProps() {
+			return buildRendererExtraProps(this.placement?.widgetId)
 		},
 
 		isTileWidget() {
@@ -393,6 +432,11 @@ export default {
 .widget-renderer {
 	height: 100%;
 	padding: 16px;
+}
+
+/* Full-bleed widgets (header banner, image, divider) paint edge-to-edge. */
+.widget-renderer--flush {
+	padding: 0;
 }
 
 .widget-renderer__loading {

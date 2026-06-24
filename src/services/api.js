@@ -6,7 +6,7 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const baseUrl = generateUrl('/apps/mydash')
+const baseUrl = generateUrl('/apps/launchpad')
 
 export const api = {
 	// Dashboard endpoints
@@ -20,17 +20,9 @@ export const api = {
 	},
 
 	// REQ-DASH-014 — group-shared dashboard CRUD.
-	getGroupDashboards(groupId) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
-	},
-
 	/** @spec openspec/specs/dashboards/spec.md */
 	createGroupDashboard(groupId, data) {
 		return axios.post(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`, data)
-	},
-
-	getGroupDashboard(groupId, uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -99,9 +91,7 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboard/${id}`)
 	},
 
-	// Group-shared dashboard CRUD alias (REQ-DASH-014). `listGroupDashboards`
-	// mirrors the `getGroupDashboards` method above for callers that prefer
-	// the verb-prefixed name.
+	// List a group's shared dashboards (REQ-DASH-014).
 	/** @spec openspec/specs/dashboards/spec.md */
 	listGroupDashboards(groupId) {
 		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
@@ -177,15 +167,6 @@ export const api = {
 		)
 	},
 
-	// REQ-ANLT-007: daily breakdown for one dashboard.
-	/** @spec openspec/specs/dashboards/spec.md */
-	getAnalyticsDashboardDetail(uuid, period = '30d') {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/dashboards/${encodeURIComponent(uuid)}`,
-			{ params: { period } },
-		)
-	},
-
 	// REQ-ANLT-008: instance-wide totals + top-5.
 	/** @spec openspec/specs/dashboards/spec.md */
 	getAnalyticsInstanceSummary(period = '30d') {
@@ -230,37 +211,6 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/path`)
 	},
 
-	// REQ-LOCK-001..008: dashboard editing-lock management.
-	// Re-entrant for the same user (a second tab refreshes the lease
-	// instead of getting 409). Heartbeat MUST be sent every 60 s by
-	// any client in active edit mode (15 min TTL = 15× safety margin).
-	/** @spec openspec/specs/dashboards/spec.md */
-	acquireDashboardLock(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	heartbeatDashboardLock(uuid) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	releaseDashboardLock(uuid) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	getDashboardLock(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
-	},
-
-	// Admin-only: force-release whoever holds the lock so the
-	// dashboard returns to an unlocked state. Admin then acquires
-	// normally if they want to edit (REQ-LOCK-006).
-	/** @spec openspec/specs/dashboards/spec.md */
-	forceReleaseDashboardLock(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock/force-release`)
-	},
-
 	// Sharing endpoints
 	/** @spec openspec/specs/dashboards/spec.md */
 	listShares(dashboardId) {
@@ -268,23 +218,8 @@ export const api = {
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
-	addShare(dashboardId, data) {
-		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/shares`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
 	replaceShares(dashboardId, shares) {
 		return axios.put(`${baseUrl}/api/dashboard/${dashboardId}/shares`, { shares })
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	removeShare(shareId) {
-		return axios.delete(`${baseUrl}/api/dashboard/share/${shareId}`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	revokeAllForRecipient(shareType, shareWith) {
-		return axios.delete(`${baseUrl}/api/sharees/${shareType}/${encodeURIComponent(shareWith)}`)
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -315,6 +250,17 @@ export const api = {
 		return axios.get(`${baseUrl}/api/widgets/items?${params.toString()}`)
 	},
 
+	/**
+	 * List the current user's calendars for the calendar widget's config-form
+	 * picker (REQ-CAL-002).
+	 *
+	 * @return {Promise} resolves to `{ calendars: [{key, name, color}] }`.
+	 * @spec openspec/specs/calendar-widget/spec.md
+	 */
+	getCalendarWidgetCalendars() {
+		return axios.get(`${baseUrl}/api/widgets/calendar/calendars`)
+	},
+
 	/** @spec openspec/specs/dashboards/spec.md */
 	addWidget(dashboardId, data) {
 		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/widgets`, data)
@@ -343,11 +289,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	addWidgetRule(placementId, data) {
 		return axios.post(`${baseUrl}/api/widgets/${placementId}/rules`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateRule(ruleId, data) {
-		return axios.put(`${baseUrl}/api/rules/${ruleId}`, data)
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -382,10 +323,6 @@ export const api = {
 		return axios.post(`${baseUrl}/api/admin/templates`, data)
 	},
 
-	getAdminTemplate(id) {
-		return axios.get(`${baseUrl}/api/admin/templates/${id}`)
-	},
-
 	/** @spec openspec/specs/dashboards/spec.md */
 	updateAdminTemplate(id, data) {
 		return axios.put(`${baseUrl}/api/admin/templates/${id}`, data)
@@ -394,40 +331,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	deleteAdminTemplate(id) {
 		return axios.delete(`${baseUrl}/api/admin/templates/${id}`)
-	},
-
-	// Template gallery (REQ-TMPL-014). Returns
-	// `{status, templates: [{uuid, name, description, category,
-	// previewImage, gridColumns, widgetCount, lastUpdatedAt}]}`.
-	/** @spec openspec/specs/dashboards/spec.md */
-	getTemplateGallery({ category = null, sort = 'name' } = {}) {
-		const params = { sort }
-		if (category) {
-			params.category = category
-		}
-		return axios.get(`${baseUrl}/api/templates/gallery`, { params })
-	},
-
-	// Save a personal dashboard as an admin template (REQ-TMPL-015).
-	// Body: `{name, description?, category?, previewImage?}`. Owner-only;
-	// 403 envelope when caller does not own the source dashboard.
-	/** @spec openspec/specs/dashboards/spec.md */
-	saveDashboardAsTemplate(dashboardUuid, metadata = {}) {
-		return axios.post(
-			`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/save-as-template`,
-			metadata,
-		)
-	},
-
-	// Upload an admin template preview image (REQ-TMPL-017). Admin-only.
-	// Body: `{base64: 'data:image/<type>;base64,<bytes>'}`. Reuses the
-	// resource-uploads pipeline so the same MIME / size validation applies.
-	/** @spec openspec/specs/dashboards/spec.md */
-	uploadTemplatePreviewImage(templateUuid, base64) {
-		return axios.post(
-			`${baseUrl}/api/admin/templates/${encodeURIComponent(templateUuid)}/preview-image`,
-			{ base64 },
-		)
 	},
 
 	getAdminSettings() {
@@ -536,52 +439,9 @@ export const api = {
 		})
 	},
 
-	// Dashboard comments (REQ-CMNT-001..009). Threaded comments backed by
-	// Nextcloud's ICommentsManager. The `enabled` field on the GET
-	// response carries the effective per-dashboard / global toggle.
-	/** @spec openspec/specs/dashboards/spec.md */
-	listDashboardComments(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	createDashboardComment(uuid, payload) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments`, payload)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateDashboardComment(uuid, id, payload) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`, payload)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	deleteDashboardComment(uuid, id) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/comments/${id}`)
-	},
-
 	// Dashboard metadata-fields admin CRUD (REQ-MDFL-001..003).
 	getMetadataFields() {
 		return axios.get(`${baseUrl}/api/admin/metadata-fields`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	createMetadataField(field) {
-		return axios.post(`${baseUrl}/api/admin/metadata-fields`, field)
-	},
-
-	getMetadataField(id) {
-		return axios.get(`${baseUrl}/api/admin/metadata-fields/${id}`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateMetadataField(id, patch) {
-		return axios.put(`${baseUrl}/api/admin/metadata-fields/${id}`, patch)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	deleteMetadataField(id, cascade = false) {
-		const query = cascade ? '?cascade=true' : ''
-		return axios.delete(`${baseUrl}/api/admin/metadata-fields/${id}${query}`)
 	},
 
 	// Per-dashboard metadata read/write (REQ-MDFL-004..006, REQ-MDFL-008).
@@ -592,24 +452,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	updateDashboardMetadata(uuid, metadata) {
 		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`, { metadata })
-	},
-
-	// REQ-FEED-001..003 — per-user RSS / Atom feed-token management.
-	// `getFeedToken` issues-or-returns the existing token; `regenerate`
-	// atomically rotates; `revoke` soft-revokes (idempotent — 204 even
-	// when no token exists).
-	getFeedToken() {
-		return axios.get(`${baseUrl}/api/feed/token`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	regenerateFeedToken() {
-		return axios.post(`${baseUrl}/api/feed/token/regenerate`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	revokeFeedToken() {
-		return axios.delete(`${baseUrl}/api/feed/token`)
 	},
 
 	// Org-wide navigation editor (REQ-ONAV-001..012). The GET endpoint
@@ -740,48 +582,4 @@ export const api = {
 		)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
-	getDashboardReactors(uuid, emoji, cursor = null) {
-		const params = cursor !== null && cursor !== '' ? { cursor } : {}
-		return axios.get(
-			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}/users`,
-			{ params },
-		)
-	},
-
-	// Dashboard translation endpoints (REQ-DASH-038..044) — per-language
-	// content variants for dashboards. All endpoints scope by dashboard
-	// UUID and require ownership; the server returns 403 for cross-user
-	// attempts.
-	/** @spec openspec/specs/dashboards/spec.md */
-	listDashboardTranslations(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	createDashboardTranslation(uuid, data) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	updateDashboardTranslation(uuid, lang, data) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`, data)
-	},
-
-	/** @spec openspec/specs/dashboards/spec.md */
-	deleteDashboardTranslation(uuid, lang) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`)
-	},
-
-	setDashboardTranslationPrimary(uuid, lang) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}/set-primary`)
-	},
-
-	// Resolve the dashboard for the viewer's locale; optional `?lang=`
-	// query parameter overrides the user's Nextcloud locale.
-	/** @spec openspec/specs/dashboards/spec.md */
-	getResolvedDashboard(uuid, lang) {
-		const params = (lang !== undefined && lang !== null && lang !== '') ? { params: { lang } } : {}
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/resolved`, params)
-	},
 }

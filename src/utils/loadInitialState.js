@@ -106,15 +106,12 @@ export function loadInitialState(page) {
  * @return {*} The pushed value, or the fallback.
  */
 function readKey(key, fallback) {
+	// The app is installed under its canonical id 'launchpad', so PHP provides
+	// initial state under that namespace. loadState() returns the fallback when
+	// the element is absent; the try/catch is a belt-and-suspenders guard so the
+	// bundle never crashes if the contract is violated.
 	try {
-		// The installed app id is 'mydash' (NC App Store id), so the PHP
-		// side provides initial-state under that namespace. Fall back to
-		// the 'launchpad' namespace for forward compatibility.
-		let value = loadState('mydash', key, undefined)
-		if (value === undefined) {
-			value = loadState('launchpad', key, fallback)
-		}
-		return value === undefined ? fallback : value
+		return loadState('launchpad', key, fallback)
 	} catch (e) {
 		return fallback
 	}

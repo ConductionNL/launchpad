@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # CLI Commands Suite Specification
 
 ## Purpose

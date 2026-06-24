@@ -196,13 +196,13 @@ The system MUST allow a user with edit permission on the export to trigger an im
 
 ### Requirement: REQ-SCH-010 Header signing and credential vaulting
 
-The system MUST HMAC-SHA256-sign webhook payloads with a per-recipient secret in the `X-MyDash-Signature` header, MUST store SFTP credentials encrypted at rest, and MUST route webhook/SFTP credentials through OpenConnector when `openconnectorSourceId` is set on the recipient.
+The system MUST HMAC-SHA256-sign webhook payloads with a per-recipient secret in the `X-LaunchPad-Signature` header, MUST store SFTP credentials encrypted at rest, and MUST route webhook/SFTP credentials through OpenConnector when `openconnectorSourceId` is set on the recipient.
 
 #### Scenario: Webhook payload is signed
 
 - GIVEN a webhook recipient with `channelConfig.signingSecret` set
 - WHEN a payload is dispatched
-- THEN the request SHALL include `X-MyDash-Signature: sha256=<hex>` computed over the body using the secret
+- THEN the request SHALL include `X-LaunchPad-Signature: sha256=<hex>` computed over the body using the secret
 
 #### Scenario: SFTP credentials are redacted on read
 
@@ -214,4 +214,4 @@ The system MUST HMAC-SHA256-sign webhook payloads with a per-recipient secret in
 
 - GIVEN a recipient with `openconnectorSourceId=S`
 - WHEN delivery runs
-- THEN the dispatch SHALL be issued through OpenConnector source S (so the credential lives in the OC vault and the dispatch appears in the OC call-log) instead of using mydash-local credentials
+- THEN the dispatch SHALL be issued through OpenConnector source S (so the credential lives in the OC vault and the dispatch appears in the OC call-log) instead of using launchpad-local credentials

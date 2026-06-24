@@ -121,11 +121,11 @@ class PublicShareMapperTest extends TestCase
     {
         $share = new PublicShare();
         $share->setToken('tok789');
-        $share->setUrl('https://example.com/apps/mydash/s/tok789');
+        $share->setUrl('https://example.com/apps/launchpad/s/tok789');
 
         $json = $share->jsonSerialize();
 
-        $this->assertSame('https://example.com/apps/mydash/s/tok789', $json['url']);
+        $this->assertSame('https://example.com/apps/launchpad/s/tok789', $json['url']);
     }
 
     public function testDebounceSkipsIncrementWhenCacheHit(): void

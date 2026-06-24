@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 or-policy: reviewed-2026-06-01
 ---
 
@@ -12,12 +12,12 @@ Admin templates allow Nextcloud administrators to create pre-configured dashboar
 ## Storage policy
 
 Admin templates and admin settings (including template configuration) persist
-in MyDash's **local tables**: `oc_mydash_dashboards` (template rows with
-`type = 'admin_template'`) and `oc_mydash_admin_settings` (key-value admin
+in LaunchPad's **local tables**: `oc_launchpad_dashboards` (template rows with
+`type = 'admin_template'`) and `oc_launchpad_admin_settings` (key-value admin
 config). This is a deliberate architectural decision.
 
 **Requirement: MUST NOT store admin templates in OpenRegister.**
-MyDash MUST work standalone — on a fresh Nextcloud installation with no
+LaunchPad MUST work standalone — on a fresh Nextcloud installation with no
 OpenRegister present, every template feature MUST function identically.
 Templates MUST NOT be written to, read from, or depend on any OR register,
 schema, or object store.
@@ -25,7 +25,7 @@ schema, or object store.
 **Rationale:** (1) The existing REQ-TMPL-001..017 capability is fully shipped
 and database-backed — switching storage models would be a breaking change.
 (2) `WHERE type='admin_template'` is a single indexed query; OR object
-retrieval would require a REST round-trip per template. (3) MyDash supports
+retrieval would require a REST round-trip per template. (3) LaunchPad supports
 installations without a GroupFolder and therefore without the OR filesystem
 convention. (4) ACL is already provided by the dashboard-sharing capability.
 See the `D1 — Storage divergence` note at the bottom of this spec.
@@ -489,60 +489,6 @@ The system MUST expose a read-only gallery endpoint that lists all `admin_templa
 - WHEN a user calls `GET /api/templates/gallery` without category filter
 - THEN the template MUST be included
 - AND when calling `GET /api/templates/gallery?category=marketing`, the template with `null` category MUST NOT be included
-
-### Requirement: Save-as-template Action (REQ-TMPL-015)
-
-Any dashboard owner MUST be able to convert their current dashboard into a reusable admin template, creating a snapshot with a fresh UUID and a deep-copied widget tree.
-
-> NOTE (D3 — Deep-copy semantics): `save-as-template` creates a **deep copy**, not a link or reference. All widget placements are duplicated into a new row. The source dashboard is not modified. The new template row MUST have `basedOnTemplate = null` — templates do not chain and do not inherit lineage from the source dashboard. Edits to the source after save-as-template MUST NOT propagate to the template; this is consistent with the independence guarantee already provided by REQ-TMPL-006 for user copies.
-
-#### Scenario: Save a personal dashboard as a template
-
-- GIVEN user "alice" owns a personal dashboard with 4 widget placements
-- WHEN she sends `POST /api/dashboards/{uuid}/save-as-template` with body:
-  ```json
-  {
-    "name": "Product Roadmap Template",
-    "description": "Standard layout for product planning dashboards",
-    "category": "product",
-    "previewImage": "https://example.com/roadmap-preview.png"
-  }
-  ```
-- THEN the system MUST create a new dashboard with `type: 'admin_template'` and a fresh UUID
-- AND the new template MUST have all 4 widget placements deep-copied from the source
-- AND each copied placement MUST be independent (editing the source dashboard MUST NOT affect the template)
-- AND `userId` on the template MUST be null (templates are admin-collective, not user-owned)
-- AND the response MUST return HTTP 201 with the newly created template object
-
-#### Scenario: Save-as-template resets isActive flag
-
-- GIVEN a personal dashboard with `isActive: 1` (currently selected by the user)
-- WHEN the dashboard is saved as a template
-- THEN the resulting template MUST have `isActive: 0` (templates are not user dashboards; no dashboard is active for them)
-
-#### Scenario: Non-owner cannot save another's dashboard as template
-
-- GIVEN user "alice" owns dashboard "Work"
-- WHEN user "bob" sends `POST /api/dashboards/{uuid}/save-as-template` (alice's dashboard UUID)
-- THEN the system MUST return HTTP 403
-- AND the template MUST NOT be created
-
-#### Scenario: Save-as-template with admin_template source
-
-- GIVEN a user "alice" has a personal copy of an admin template (with `basedOnTemplate: 3`)
-- WHEN she sends `POST /api/dashboards/{uuid}/save-as-template` with her copy's UUID
-- THEN the system MUST create a new admin template
-- AND the new template's `basedOnTemplate` MUST be null (templates do not chain; they are independent)
-- AND the copy's source lineage is NOT preserved
-
-#### Scenario: Save-as-template with missing optional fields
-
-- GIVEN a user sends `POST /api/dashboards/{uuid}/save-as-template` with body `{"name": "My Template"}` (omitting description, category, previewImage)
-- THEN the system MUST create the template with:
-  - `templateDescription: null`
-  - `templateCategory: null`
-  - `templatePreviewImage: null`
-- AND HTTP 201 MUST be returned with the new template
 
 ### Requirement: Template Metadata Fields (REQ-TMPL-016)
 

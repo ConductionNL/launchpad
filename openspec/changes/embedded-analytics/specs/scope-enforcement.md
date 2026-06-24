@@ -104,7 +104,7 @@ THEN the filter interaction SHALL succeed (read-with-interactions mode allows it
 
 ### Scenario 4.10 — API middleware integration point
 
-GIVEN the MyDash API middleware/controller base
+GIVEN the LaunchPad API middleware/controller base
 WHEN a request arrives with an `embed_token` (detected via JWT in Authorization header or token context)
 THEN the middleware SHALL:
   1. Verify the token is valid and non-revoked (REQ-EMB-002)

@@ -10,7 +10,7 @@
  * Tables cleaned:
  *   - oc_launchpad_widget_placements   (dashboard_id no longer in dashboards)
  *   - oc_launchpad_dashboard_locks     (dashboard_uuid no longer in dashboards)
- *   - oc_launchpad_metadata_values     (dashboard_uuid no longer in dashboards)
+ *   - oc_launchpad_meta_values         (dashboard_uuid no longer in dashboards)
  *   - oc_launchpad_dash_translations   (dashboard_uuid no longer in dashboards)
  *   - oc_launchpad_dashboard_views     (dashboard_uuid no longer in dashboards)
  *   - oc_launchpad_dashboard_shares    (dashboard_id no longer in dashboards)
@@ -93,7 +93,7 @@ class PurgeOrphanedCascadeData implements IRepairStep
         // UUID-keyed tables: uuid columns reference dashboards.uuid.
         $uuidTables = [
             ['launchpad_dashboard_locks',    'dashboard_uuid'],
-            ['launchpad_metadata_values',    'dashboard_uuid'],
+            ['launchpad_meta_values',        'dashboard_uuid'],
             ['launchpad_dash_translations',  'dashboard_uuid'],
             ['launchpad_dashboard_views',    'dashboard_uuid'],
             ['launchpad_dash_versions', 'dashboard_uuid'],

@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Initial State Contract Specification

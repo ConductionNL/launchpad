@@ -28,7 +28,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoMydash } from './fixtures/widget-flow'
+import { gotoLaunchPad } from './fixtures/widget-flow'
 
 /**
  * Read GridStack's live column count for the rendered grid.
@@ -54,7 +54,7 @@ async function readColumns(page: import('@playwright/test').Page): Promise<numbe
 
 test.describe('responsive grid breakpoints', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e grid-layout::12-columns-on-wide-desktop

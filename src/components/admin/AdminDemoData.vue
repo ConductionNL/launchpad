@@ -15,7 +15,7 @@
 			{{ t('launchpad', 'Loading showcases…') }}
 		</div>
 
-		<div v-else-if="loadError" class="mydash-demo-showcases__error">
+		<div v-else-if="loadError" class="launchpad-demo-showcases__error">
 			{{ loadError }}
 		</div>
 
@@ -23,18 +23,18 @@
 			<NcNoteCard
 				v-if="actionError"
 				type="error"
-				class="mydash-demo-showcases__action-error"
+				class="launchpad-demo-showcases__action-error"
 				data-test="showcase-action-error">
 				{{ actionError }}
 			</NcNoteCard>
 
-			<div class="mydash-demo-showcases__grid">
+			<div class="launchpad-demo-showcases__grid">
 				<div
 					v-for="showcase in showcases"
 					:key="showcase.id"
-					class="mydash-demo-showcases__card"
+					class="launchpad-demo-showcases__card"
 					:data-test="'showcase-card-' + showcase.id">
-					<div class="mydash-demo-showcases__thumb">
+					<div class="launchpad-demo-showcases__thumb">
 						<img
 							v-if="showcase.thumbnailUrl"
 							:src="showcase.thumbnailUrl"
@@ -43,28 +43,28 @@
 						<ViewDashboard v-else :size="64" />
 					</div>
 
-					<div class="mydash-demo-showcases__body">
-						<div class="mydash-demo-showcases__title-row">
-							<strong class="mydash-demo-showcases__title">{{ showcase.name }}</strong>
-							<span class="mydash-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+					<div class="launchpad-demo-showcases__body">
+						<div class="launchpad-demo-showcases__title-row">
+							<strong class="launchpad-demo-showcases__title">{{ showcase.name }}</strong>
+							<span class="launchpad-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
 						</div>
 
-						<p class="mydash-demo-showcases__desc">
+						<p class="launchpad-demo-showcases__desc">
 							{{ showcase.description }}
 						</p>
 
-						<div v-if="warnings[showcase.id]" class="mydash-demo-showcases__warning">
-							{{ t('mydash', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
+						<div v-if="warnings[showcase.id]" class="launchpad-demo-showcases__warning">
+							{{ t('launchpad', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
 						</div>
 
-						<div class="mydash-demo-showcases__actions">
+						<div class="launchpad-demo-showcases__actions">
 							<NcButton
 								v-if="!showcase.isInstalled"
 								type="primary"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-install-' + showcase.id"
 								@click="install(showcase)">
-								{{ busy[showcase.id] ? t('mydash', 'Installing…') : t('mydash', 'Install') }}
+								{{ busy[showcase.id] ? t('launchpad', 'Installing…') : t('launchpad', 'Install') }}
 							</NcButton>
 							<NcButton
 								v-else
@@ -72,7 +72,7 @@
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-uninstall-' + showcase.id"
 								@click="confirmUninstall(showcase)">
-								{{ busy[showcase.id] ? t('mydash', 'Uninstalling…') : t('mydash', 'Uninstall') }}
+								{{ busy[showcase.id] ? t('launchpad', 'Uninstalling…') : t('launchpad', 'Uninstall') }}
 							</NcButton>
 						</div>
 					</div>
@@ -126,7 +126,7 @@ export default {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
 			} catch (err) {
-				this.loadError = this.t('mydash', 'Could not load demo showcases. Please try again.')
+				this.loadError = this.t('launchpad', 'Could not load demo showcases. Please try again.')
 			} finally {
 				this.loading = false
 			}
@@ -147,11 +147,11 @@ export default {
 				await this.fetch()
 			} catch (err) {
 				if (err.response && err.response.status === 404) {
-					this.actionError = this.t('mydash', 'Showcase not found.')
+					this.actionError = this.t('launchpad', 'Showcase not found.')
 				} else if (err.response && err.response.status === 403) {
-					this.actionError = this.t('mydash', 'You need admin privileges to install showcases.')
+					this.actionError = this.t('launchpad', 'You need admin privileges to install showcases.')
 				} else {
-					this.actionError = this.t('mydash', 'Could not install showcase. Please try again.')
+					this.actionError = this.t('launchpad', 'Could not install showcase. Please try again.')
 				}
 			} finally {
 				this.$set(this.busy, showcase.id, false)
@@ -172,7 +172,7 @@ export default {
 				this.$delete(this.warnings, showcase.id)
 				await this.fetch()
 			} catch (err) {
-				this.actionError = this.t('mydash', 'Could not uninstall showcase. Please try again.')
+				this.actionError = this.t('launchpad', 'Could not uninstall showcase. Please try again.')
 			} finally {
 				this.$set(this.busy, showcase.id, false)
 			}
@@ -203,11 +203,11 @@ export default {
 	color: var(--color-error);
 }
 
-.mydash-demo-showcases__action-error {
+.launchpad-demo-showcases__action-error {
 	margin-top: 16px;
 }
 
-.mydash-demo-showcases__grid {
+.launchpad-demo-showcases__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 	gap: 16px;

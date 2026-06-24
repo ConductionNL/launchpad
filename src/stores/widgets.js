@@ -5,6 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
+import { widgetBridge } from '../services/widgetBridge.js'
 
 export const useWidgetStore = defineStore('widgets', {
 	state: () => ({
@@ -30,6 +31,9 @@ export const useWidgetStore = defineStore('widgets', {
 			try {
 				const response = await api.getAvailableWidgets()
 				this.availableWidgets = response.data
+				// Feed widget titles/icons into OCA.Dashboard so CnNcWidgetWidget
+				// renders a human header instead of the raw widget id.
+				widgetBridge.setWidgetMetadata(this.availableWidgets)
 			} catch (error) {
 				console.error('Failed to load available widgets:', error)
 			} finally {

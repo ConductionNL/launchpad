@@ -11,14 +11,21 @@
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
 			'--tile-text-color': tile.textColor || '#ffffff'
 		}">
-		<!-- Edit button in edit mode -->
-		<button
-			v-if="editMode"
-			class="tile-widget__edit"
-			:aria-label="t('launchpad', 'Edit tile')"
-			@click.prevent="$emit('edit')">
-			<span class="icon-settings" />
-		</button>
+		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
+		     OpenBuild widget chrome used across the dashboard. The absolute
+		     positioning lives on this wrapper DIV, not on CnWidgetEditCog
+		     itself: the cog's root is an NcActions `.action-item` which sets
+		     `position: relative` at equal specificity, so positioning the
+		     component directly loses the cascade tie and the cog drops into
+		     flow. Wrapping matches the shared nc-vue CnDashboardPage pattern. -->
+		<div v-if="editMode" class="tile-widget__edit">
+			<CnWidgetEditCog
+				:menu-label="t('launchpad', 'Tile menu')"
+				:edit-label="t('launchpad', 'Edit tile')"
+				:delete-label="t('launchpad', 'Delete tile')"
+				@edit="$emit('edit')"
+				@remove="$emit('remove')" />
+		</div>
 
 		<a
 			:href="tileUrl"
@@ -53,9 +60,16 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import { CnWidgetEditCog } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'TileWidget',
+
+	components: {
+		CnWidgetEditCog,
+	},
+
+	emits: ['edit', 'remove'],
 
 	props: {
 		tile: {
@@ -194,31 +208,12 @@ export default {
 	color: var(--tile-text-color) !important;
 }
 
+/* Position the shared white cog over the tile's top-right corner. The
+   button's own white styling lives in WidgetEditCog. */
 .tile-widget__edit {
 	position: absolute;
 	top: 8px;
 	right: 8px;
-	width: 32px;
-	height: 32px;
-	border: none;
-	border-radius: 50%;
-	background: rgba(0, 0, 0, 0.5) !important;
-	cursor: pointer;
 	z-index: 10;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background 0.2s ease;
-}
-
-.tile-widget__edit:hover {
-	background: rgba(0, 0, 0, 0.7) !important;
-}
-
-.tile-widget__edit .icon-settings {
-	filter: brightness(0) invert(1);
-	background-size: 20px;
-	width: 20px;
-	height: 20px;
 }
 </style>

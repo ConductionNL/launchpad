@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Organization-wide Navigation Editor Specification

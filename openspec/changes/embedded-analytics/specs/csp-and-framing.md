@@ -9,7 +9,7 @@ The render route SHALL emit `Content-Security-Policy: frame-ancestors <hostOrigi
 GIVEN a token with `hostOrigins=["https://www.zeist.nl"]`
   AND the token is for widget W
 WHEN the embed is loaded inside an iframe on `https://www.zeist.nl/woo/`
-THEN the response to `GET /apps/mydash/embed/widget/W?token=<jwt>` SHALL be 200 with HTML body
+THEN the response to `GET /apps/launchpad/embed/widget/W?token=<jwt>` SHALL be 200 with HTML body
   AND the response SHALL include header:
     `Content-Security-Policy: frame-ancestors https://www.zeist.nl`
   AND the browser SHALL render the iframe normally (CSP allows framing from https://www.zeist.nl)

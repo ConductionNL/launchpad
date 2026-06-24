@@ -1,6 +1,6 @@
 # Map support — render geospatial dashboard widgets
 
-Render geospatial properties from OpenRegister objects on a map widget inside mydash dashboards. Adds a new `map` widget type alongside the existing chart / KPI / table widgets, consuming the GeoJSON storage + spatial-query API that OpenRegister's `geo-metadata-kaart` change is shipping.
+Render geospatial properties from OpenRegister objects on a map widget inside launchpad dashboards. Adds a new `map` widget type alongside the existing chart / KPI / table widgets, consuming the GeoJSON storage + spatial-query API that OpenRegister's `geo-metadata-kaart` change is shipping.
 
 ## Affected code units
 
@@ -12,7 +12,7 @@ Render geospatial properties from OpenRegister objects on a map widget inside my
 
 ## Why a new change
 
-Map rendering is a contained UI surface that depends on geospatial data shipped by OpenRegister, but the rendering decisions (Leaflet vs MapLibre, tile-layer choice, layer control UX, clustering strategy) are mydash-specific. Splitting this change keeps the OpenRegister geo spec focused on storage + API contracts and lets mydash iterate the widget independently.
+Map rendering is a contained UI surface that depends on geospatial data shipped by OpenRegister, but the rendering decisions (Leaflet vs MapLibre, tile-layer choice, layer control UX, clustering strategy) are launchpad-specific. Splitting this change keeps the OpenRegister geo spec focused on storage + API contracts and lets launchpad iterate the widget independently.
 
 ## Approach
 

@@ -54,7 +54,7 @@ In scope: `/api/health` + `/api/metrics` adoption, manifest `observability`
 block, deletion of bespoke observability code + tests, parity verification.
 
 Out of scope: boilerplate controller/settings/repair replacement (documented as
-entangled-and-kept in `design.md`); the `mydash` App Store identity, the
+entangled-and-kept in `design.md`); the `launchpad` App Store identity, the
 `OCA\LaunchPad` namespace, the `launchpad` l10n domain, and the Vue 2.7 / pinia
 ~2.1 / @vueuse ~10 pins are all preserved unchanged.
 
@@ -67,4 +67,4 @@ entangled-and-kept in `design.md`); the `mydash` App Store identity, the
 - Bespoke `HealthController`, `MetricsController`, `MetricsCollector`,
   `MetricsQueryService` (and their unit tests) are deleted; net LOC drops.
 - PHPUnit + vitest green; `npm run build` succeeds; hydra gates diff-clean.
-- App Store id stays `mydash`; namespace stays `OCA\LaunchPad`.
+- App Store id stays `launchpad`; namespace stays `OCA\LaunchPad`.

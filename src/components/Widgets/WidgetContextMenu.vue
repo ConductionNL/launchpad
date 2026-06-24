@@ -24,7 +24,7 @@
 			role="menuitem"
 			data-testid="ctx-visibility-rules"
 			@click="onVisibilityRules">
-			{{ t('mydash', 'Visibility rules…') }}
+			{{ t('launchpad', 'Visibility rules…') }}
 		</button>
 		<button
 			type="button"

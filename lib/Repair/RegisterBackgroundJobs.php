@@ -38,6 +38,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Register the LaunchPad background jobs once on install/upgrade.
+ *
+ * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
 class RegisterBackgroundJobs implements IRepairStep
 {
@@ -57,6 +59,8 @@ class RegisterBackgroundJobs implements IRepairStep
      * Return the human-readable name of this repair step.
      *
      * @return string
+     *
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function getName(): string
     {
@@ -69,6 +73,8 @@ class RegisterBackgroundJobs implements IRepairStep
      * @param IOutput $output Migration output stream.
      *
      * @return void
+     *
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function run(IOutput $output): void
     {

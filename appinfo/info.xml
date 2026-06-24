@@ -87,11 +87,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- role-based-content task-2: seed default role-feature permissions. -->
 			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
+			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
 		</install>
 		<post-migration>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
 			<step>OCA\LaunchPad\Repair\PurgeOrphanedCascadeData</step>
+			<!-- Ensure background jobs are registered after every upgrade. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
 		</post-migration>
 	</repair-steps>
 

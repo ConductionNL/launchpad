@@ -1504,7 +1504,6 @@ export default {
 
 <style scoped>
 #launchpad-app {
-	min-height: 100vh;
 	width: 100%;
 	background: transparent;
 }
@@ -1599,7 +1598,7 @@ export default {
 	flex: 1;
 	padding: 0;
 	overflow: auto;
-	min-height: calc(100vh - var(--header-height));
+	min-height: calc(100vh - var(--header-height) - var(--body-container-margin));
 }
 
 .launchpad-empty,

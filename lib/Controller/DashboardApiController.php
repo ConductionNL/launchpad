@@ -212,7 +212,12 @@ class DashboardApiController extends Controller
         foreach ($items as $entry) {
             $row           = $entry['dashboard']->jsonSerialize();
             $row['source'] = $entry['source'];
-            $serialized[]  = $row;
+            // Tag ownership so the frontend can route activation correctly:
+            // only personal `user`-type rows owned by the caller take the
+            // legacy id-based `is_active` path; group/default rows (user_id
+            // NULL) are activated via the UUID preference instead.
+            $row['isOwner'] = ($entry['dashboard']->getUserId() === $this->userId);
+            $serialized[]   = $row;
         }
 
         // Dashboard-quota-limits REQ-QUOTA-006: carry the additive quota

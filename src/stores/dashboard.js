@@ -331,10 +331,15 @@ export const useDashboardStore = defineStore('dashboard', {
 			this.loading = true
 			try {
 				const target = this.dashboards.find(d => d.id === dashboardId)
-				const isOwned = target?.isOwner !== false
+				// The legacy id-based activate endpoint writes the `is_active`
+				// SMALLINT column, which is only meaningful for personal
+				// `user`-type rows the caller owns. Group/default dashboards
+				// (user_id NULL) would be rejected with "Access denied"; they
+				// rely solely on the UUID preference persisted below.
+				const isPersonalOwned = target?.source === SOURCE_USER && target?.isOwner !== false
 
-				if (isOwned) {
-					// Persist the active flag for owned dashboards.
+				if (isPersonalOwned) {
+					// Persist the active flag for owned personal dashboards.
 					await api.activateDashboard(dashboardId)
 				}
 

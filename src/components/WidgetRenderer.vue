@@ -28,7 +28,6 @@
 				:items="widgetItems"
 				:show-more-url="widget.widgetUrl"
 				:loading="loading || itemsLoading"
-				:item-menu="false"
 				:round-icons="widget.itemIconsRound">
 				<template #empty-content>
 					<NcEmptyContent
@@ -213,9 +212,12 @@ export default {
 			// while mapping standard Nextcloud API fields (title, subtitle, link,
 			// iconUrl, sinceId) to the prop names NcDashboardWidgetItem expects
 			// (mainText, subText, targetUrl, avatarUrl, id).
-			return items.map(item => ({
+			// NcDashboardWidget keys its item list by `item.id`. Some API
+			// widgets (e.g. recommendations) reuse a shared `sinceId` across
+			// rows, so fold the index in to guarantee a unique key.
+			return items.map((item, index) => ({
 				...item,
-				id: item.sinceId || item.id || String(Math.random()),
+				id: `${item.sinceId || item.id || 'item'}-${index}`,
 				targetUrl: item.link || item.targetUrl || '',
 				avatarUrl: item.iconUrl || item.avatarUrl || '',
 				avatarUsername: item.avatarUsername || '',

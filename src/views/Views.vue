@@ -1607,6 +1607,6 @@ export default {
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	min-height: calc(100vh - var(--header-height));
+	min-height: calc(100vh - var(--header-height) - var(--body-container-margin));
 }
 </style>

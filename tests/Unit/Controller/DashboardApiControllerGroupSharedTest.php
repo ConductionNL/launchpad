@@ -174,6 +174,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase
     public function testVisibleReturnsSourceTaggedList(): void
     {
         $personal = $this->makeDashboard(uuid: 'personal-1');
+        $personal->setUserId('alice');
         $group1   = $this->makeDashboard(
             uuid: 'group-1',
             groupId: 'marketing',
@@ -205,6 +206,13 @@ class DashboardApiControllerGroupSharedTest extends TestCase
         $this->assertSame(Dashboard::SOURCE_USER,    $data[0]['source']);
         $this->assertSame(Dashboard::SOURCE_GROUP,   $data[1]['source']);
         $this->assertSame(Dashboard::SOURCE_DEFAULT, $data[2]['source']);
+
+        // Ownership tag drives frontend activation routing: only the
+        // caller-owned personal row is the owner; group/default rows
+        // (user_id NULL) are not.
+        $this->assertTrue($data[0]['isOwner']);
+        $this->assertFalse($data[1]['isOwner']);
+        $this->assertFalse($data[2]['isOwner']);
     }//end testVisibleReturnsSourceTaggedList()
 
     /**

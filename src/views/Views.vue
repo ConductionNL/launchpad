@@ -75,18 +75,6 @@
 					<MenuIcon :size="20" />
 				</template>
 			</NcButton>
-			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
-			     `default` sentinel — REQ-TMPL-012 documents the literal
-			     'Default' as the absence of a configured primary group, so
-			     surfacing it adds noise without information. The label
-			     remains visible whenever a real Nextcloud group display
-			     name is resolved. -->
-			<div
-				v-if="primaryGroupLabel && primaryGroupLabel !== 'Default'"
-				class="launchpad-primary-group-label"
-				:title="t('launchpad', 'Your primary group for shared dashboards')">
-				{{ primaryGroupLabel }}
-			</div>
 		</div>
 
 		<!-- Main dashboard grid -->
@@ -294,10 +282,6 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
-		},
-		primaryGroup: {
-			from: 'primaryGroup',
-			default: 'default',
 		},
 		primaryGroupName: {
 			from: 'primaryGroupName',
@@ -567,28 +551,6 @@ export default {
 				return this.t('launchpad', 'Create your first dashboard to get started')
 			}
 			return this.t('launchpad', 'Personal dashboards are not enabled by your administrator')
-		},
-		/**
-		 * Display label for the resolved primary group (REQ-TMPL-012).
-		 *
-		 * Returns the server-pushed `primaryGroupName` verbatim when it
-		 * is non-empty (real Nextcloud groups), the localised
-		 * `'Default'` string when the resolver returned the `default`
-		 * sentinel and the server didn't pick a name, or an empty
-		 * string when there is nothing meaningful to show — the
-		 * `v-if` in the template hides the badge in that last case.
-		 *
-		 * @return {string} Label to render, or '' when none.
-		 */
-		/** @spec openspec/specs/dashboards/spec.md */
-		primaryGroupLabel() {
-			if (this.primaryGroupName) {
-				return this.primaryGroupName
-			}
-			if (this.primaryGroup && this.primaryGroup !== 'default') {
-				return this.primaryGroup
-			}
-			return ''
 		},
 	},
 	watch: {
@@ -1569,18 +1531,6 @@ export default {
 	/* Hint that the sidebar opens from the left even though the toggle
 	   itself lives in the top-right cluster. */
 	margin-right: auto;
-}
-
-/* Primary-group label (REQ-TMPL-012). Subtle pill that names the
-   resolved group whose dashboards drive the workspace. */
-.launchpad-primary-group-label {
-	font-size: 12px;
-	font-weight: 500;
-	color: var(--color-text-maxcontrast);
-	background: var(--color-background-hover);
-	border-radius: var(--border-radius-pill, 999px);
-	padding: 4px 10px;
-	white-space: nowrap;
 }
 
 /* Strip the visible text on the menu trigger button — we want icon-only.

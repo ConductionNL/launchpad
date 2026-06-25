@@ -348,6 +348,12 @@ class PageController extends Controller
         $csp->addAllowedFrameDomain(domain: 'https://player.vimeo.com');
         $csp->addAllowedImageDomain(domain: 'https://i.ytimg.com');
         $csp->addAllowedImageDomain(domain: 'https://i.vimeocdn.com');
+
+        // REQ-IMG: the image widget loads user-supplied image URLs from
+        // arbitrary origins; allow any host for img-src so those render.
+        // Images cannot execute, so the wildcard carries minimal risk
+        // (http URLs on an https page remain mixed-content blocked).
+        $csp->addAllowedImageDomain(domain: '*');
         $response->setContentSecurityPolicy(csp: $csp);
 
         return $response;

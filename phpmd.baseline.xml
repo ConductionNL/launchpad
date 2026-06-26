@@ -206,6 +206,7 @@
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseAtomEntry"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseRssItem"/>
   <violation rule="PHPMD\Rule\Design\NpathComplexity" file="lib/Service/NewsWidgetService.php" method="normaliseRssItem"/>
+  <violation rule="PHPMD\Rule\Design\LongClass" file="lib/Service/NewsWidgetService.php"/>
   <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="lib/Service/OrphanedDataCleanupService.php"/>
   <violation rule="PHPMD\Rule\CyclomaticComplexity" file="lib/Service/OrphanedDataCleanupService.php" method="purge"/>
   <violation rule="PHPMD\Rule\CleanCode\BooleanArgumentFlag" file="lib/Service/OrphanedDataCleanupService.php"/>

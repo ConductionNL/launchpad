@@ -129,7 +129,7 @@ class MigrateStorageToGroupFolder extends CommandBase
 
         foreach ($dashboards as $i => $dashboard) {
             $uuid    = (string) $dashboard->getUuid();
-            $current = $i + 1;
+            $current = (int) $i + 1;
 
             if ($uuid === '') {
                 $output->writeln(

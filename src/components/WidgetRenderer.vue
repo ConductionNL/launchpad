@@ -13,7 +13,7 @@
 		<component
 			:is="registryEntry.renderer"
 			v-if="registryEntry"
-			:content="placement.content || {}"
+			:content="normalizedContent"
 			:placement="placement"
 			v-bind="rendererProps" />
 
@@ -117,6 +117,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Widget `content` blob, guaranteed to be a plain object.
+		 *
+		 * `WidgetPlacement::getContentArray()` returns PHP `[]` for an unset
+		 * content column, which serialises to a JSON array — a truthy value a
+		 * plain `|| {}` fallback would not replace. The registry renderers all
+		 * declare `content` as an Object, so coerce anything that is not a
+		 * plain object (arrays included) to `{}`.
+		 *
+		 * @return {object} the content object (empty when unset).
+		 */
+		normalizedContent() {
+			const c = this.placement?.content
+			return (c && typeof c === 'object' && !Array.isArray(c)) ? c : {}
+		},
+
 		/**
 		 * Resolve the registry entry for this placement's widget type.
 		 * Returns null when the widgetId is not a registry-driven custom

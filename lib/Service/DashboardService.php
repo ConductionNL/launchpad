@@ -46,6 +46,7 @@ use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IL10N;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
@@ -296,8 +297,29 @@ class DashboardService
         private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
         private readonly ?PublicShareContext $publicShareContext=null,
         private readonly ?QuotaService $quotaService=null,
+        private readonly ?IURLGenerator $urlGenerator=null,
     ) {
     }//end __construct()
+
+    /**
+     * Resolve an app image to a web path that honours the app's actual web
+     * root. Hardcoding `/apps/launchpad/...` breaks when the app is served
+     * from a non-default apps directory (e.g. `/apps-shared/`); IURLGenerator
+     * resolves the correct prefix. Falls back to the legacy literal when the
+     * generator is unavailable (e.g. positional construction in unit tests).
+     *
+     * @param string $image The image filename under `img/`.
+     *
+     * @return string The web path to the image.
+     */
+    private function appImagePath(string $image): string
+    {
+        if ($this->urlGenerator !== null) {
+            return $this->urlGenerator->imagePath('launchpad', $image);
+        }
+
+        return '/apps/launchpad/img/'.$image;
+    }//end appImagePath()
 
     /**
      * Get all dashboards for a user.
@@ -2194,8 +2216,9 @@ class DashboardService
      * (REQ-TILE-PLACEMENT) picks them up without a JSON `content`
      * column. The Nextcloud tile uses an `icon-` CSS class (no logo
      * asset is shipped); Conduction and Sendent point at the PNGs in
-     * `launchpad/img/` via app-relative URLs that resolve through any
-     * Nextcloud overwrite.
+     * `launchpad/img/` via {@see self::appImagePath()}, which resolves the
+     * app's real web root (so the URLs work regardless of which apps
+     * directory the app is served from).
      *
      * @param int $dashboardId The dashboard ID to seed.
      *
@@ -2215,7 +2238,7 @@ class DashboardService
                 'sortOrder'  => 0,
                 'tile'       => [
                     'title'           => 'Conduction',
-                    'icon'            => '/apps/launchpad/img/conduction-logo.png',
+                    'icon'            => $this->appImagePath('conduction-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',
@@ -2232,7 +2255,7 @@ class DashboardService
                 'sortOrder'  => 1,
                 'tile'       => [
                     'title'           => 'Sendent',
-                    'icon'            => '/apps/launchpad/img/sendent-logo.png',
+                    'icon'            => $this->appImagePath('sendent-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',

@@ -212,6 +212,7 @@ class Application extends App implements IBootstrap
         // manifest and emits the `launchpad_` prefix, exactly as before adoption.
         $context->registerService(
             \OCA\LaunchPad\Controller\HealthController::class,
+            // @psalm-suppress UnusedClosureParam,TooManyArguments
             static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
                 return new \OCA\LaunchPad\Controller\HealthController(
                     appName: self::APP_ID,
@@ -225,6 +226,7 @@ class Application extends App implements IBootstrap
         // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
         $context->registerService(
             \OCA\LaunchPad\Controller\MetricsController::class,
+            // @psalm-suppress UnusedClosureParam,TooManyArguments
             static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
                 return new \OCA\LaunchPad\Controller\MetricsController(
                     appName: self::APP_ID,
@@ -239,9 +241,11 @@ class Application extends App implements IBootstrap
     /**
      * App initialization after all apps are registered.
      *
-     * @param IBootContext $context The boot context.
+     * @param IBootContext $context The boot context (unused; required by IBootstrap).
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function boot(IBootContext $context): void
     {

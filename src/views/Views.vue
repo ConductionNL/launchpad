@@ -1511,10 +1511,9 @@ export default {
 
 /* Nextcloud insets the content area horizontally but not at the top, so the
    grid sat flush under the navbar (8px top gap from the grid margin vs 16px
-   on the sides). Add a matching top inset so the dashboard breathes evenly. */
-.launchpad-container {
-	padding-top: 8px;
-}
+   on the sides). Add a matching top inset so the dashboard breathes evenly.
+   Note: the layout properties (flex, overflow, min-height) are consolidated
+   in the single .launchpad-container rule further below. */
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
    frosted-glass tile look (was DashboardGrid's local style) by overriding
@@ -1597,7 +1596,7 @@ export default {
 
 .launchpad-container {
 	flex: 1;
-	padding: 0;
+	padding: 8px 0 0;
 	overflow: auto;
 	min-height: calc(100vh - var(--header-height));
 }

@@ -25,16 +25,11 @@
 				{{ expanded ? '▾' : '▸' }}
 			</span>
 			<span v-else class="org-nav-item__toggle org-nav-item__toggle--placeholder" />
-			<img
-				v-if="iconIsUrl"
+			<CnDashboardIcon
+				v-if="node.icon"
 				class="org-nav-item__icon"
-				:src="node.icon"
-				:width="24"
-				:height="24"
-				alt="">
-			<span v-else-if="node.icon" class="org-nav-item__icon org-nav-item__icon--name">
-				{{ node.icon }}
-			</span>
+				:name="node.icon"
+				:size="24" />
 			<span class="org-nav-item__label">{{ node.label }}</span>
 		</a>
 		<button
@@ -47,16 +42,11 @@
 				{{ expanded ? '▾' : '▸' }}
 			</span>
 			<span v-else class="org-nav-item__toggle org-nav-item__toggle--placeholder" />
-			<img
-				v-if="iconIsUrl"
+			<CnDashboardIcon
+				v-if="node.icon"
 				class="org-nav-item__icon"
-				:src="node.icon"
-				:width="24"
-				:height="24"
-				alt="">
-			<span v-else-if="node.icon" class="org-nav-item__icon org-nav-item__icon--name">
-				{{ node.icon }}
-			</span>
+				:name="node.icon"
+				:size="24" />
 			<span class="org-nav-item__label">{{ node.label }}</span>
 		</button>
 		<ul v-if="hasChildren && expanded" class="org-nav-item__children" role="group">
@@ -72,6 +62,8 @@
 </template>
 
 <script>
+import { CnDashboardIcon } from '@conduction/nextcloud-vue'
+
 /**
  * OrgNavigationItem — recursive node renderer for the org-nav tree
  * (REQ-ONAV-005, REQ-ONAV-006, REQ-ONAV-009).
@@ -86,15 +78,16 @@
  * Sections that contain an active descendant auto-expand
  * (`expanded = true` on mount when `hasActiveDescendant`).
  *
- * Icons (REQ-ONAV-006) follow the dual-mode convention: a URL string
- * (starts with `/` or `http`) renders as `<img>`; bare names render
- * as plain text labels — the link-button-widget IconRenderer is not
- * used here because the org-nav supports MDI names AND custom URLs
- * with the same width/height contract, and the inline branch keeps
- * the SFC self-contained.
+ * Icons (REQ-ONAV-006) render via the shared `CnDashboardIcon`, which
+ * resolves any value the icon picker emits — a URL (→ `<img>`), an SVG
+ * path string (→ inline `<svg>`), or a registry key (→ MDI component).
  */
 export default {
 	name: 'OrgNavigationItem',
+
+	components: {
+		CnDashboardIcon,
+	},
 
 	props: {
 		node: {
@@ -122,15 +115,6 @@ export default {
 	computed: {
 		hasChildren() {
 			return Array.isArray(this.node.children) && this.node.children.length > 0
-		},
-
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
-		iconIsUrl() {
-			const icon = this.node.icon
-			if (typeof icon !== 'string' || icon === '') {
-				return false
-			}
-			return icon.startsWith('/') || icon.startsWith('http')
 		},
 
 		isActive() {
@@ -269,13 +253,9 @@ export default {
 .org-nav-item__icon {
 	width: 24px;
 	height: 24px;
-	display: inline-block;
-}
-
-.org-nav-item__icon--name {
-	font-style: italic;
-	color: var(--color-text-maxcontrast, #555);
-	font-size: 0.85em;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .org-nav-item__label {

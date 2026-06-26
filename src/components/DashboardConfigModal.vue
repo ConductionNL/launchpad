@@ -73,17 +73,19 @@
 						:placeholder="t('launchpad', 'What is this dashboard for?')" />
 				</div>
 
-				<!-- Icon picker — IconPicker enumerates registry names from
-			     `DASHBOARD_ICONS` AND accepts a custom upload (capability
-			     `custom-icon-upload-pattern`). Same v-model whether the
-			     final value is a registry key or a /apps/launchpad/resource/...
+				<!-- Icon browser — searchable grid over the full MDI set plus a
+			     Custom tab that accepts an upload (capability
+			     `custom-icon-upload-pattern`). The same v-model holds whichever
+			     it emits: an SVG path string or a /apps/launchpad/resource/...
 			     URL (REQ-ICON-003 + REQ-ICON-008..009). -->
 				<div class="dashboard-config__field">
 					<label class="dashboard-config__label" for="dashboard-config-icon">
 						{{ t('launchpad', 'Icon') }}
 					</label>
-					<CnIconPicker
+					<CnIconBrowser
+						inline
 						:value="form.icon"
+						:icons="iconCatalogue"
 						:upload-fn="iconUploadFn"
 						@input="form.icon = $event" />
 				</div>
@@ -236,7 +238,8 @@ import Tune from 'vue-material-design-icons/Tune.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 
-import { CnIconPicker, DASHBOARD_ICONS, DEFAULT_ICON, isCustomIconUrl } from '@conduction/nextcloud-vue'
+import { CnIconBrowser, DEFAULT_ICON } from '@conduction/nextcloud-vue'
+import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
 import { api } from '../services/api.js'
 
@@ -264,7 +267,7 @@ export default {
 		Tune,
 		ShareVariant,
 		StarOutline,
-		CnIconPicker,
+		CnIconBrowser,
 	},
 
 	props: {
@@ -349,8 +352,12 @@ export default {
 		isCreate() {
 			return this.mode === 'create'
 		},
+		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		iconCatalogue() {
+			return ICON_CATALOGUE
+		},
 		/**
-		 * The icon-upload transport handed to CnIconPicker. Exposed on the
+		 * The icon-upload transport handed to CnIconBrowser. Exposed on the
 		 * instance (computed) so the template can reference the module-imported
 		 * `uploadDataUrl` — a bare module import isn't visible in template scope.
 		 *
@@ -415,16 +422,6 @@ export default {
 		canSave() {
 			return this.form.name.trim().length > 0
 		},
-		/**
-		 * Picker option list — derived from the registry so the UI grows
-		 * automatically when an icon is added or removed (REQ-ICON-003).
-		 *
-		 * @return {string[]} Registry keys, in insertion order.
-		 */
-		/** @spec openspec/specs/dashboards/spec.md */
-		iconOptions() {
-			return Object.keys(DASHBOARD_ICONS)
-		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		sharesDirty() {
 			if (this.localShares.length !== this.serverShares.length) return true
@@ -466,17 +463,12 @@ export default {
 				} else if (this.dashboard) {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
-					// Persisted icon may be NULL/empty/unknown OR a custom URL
-					// (capability `custom-icon-upload-pattern`). URLs are kept
-					// verbatim — only unknown registry names fall back to
-					// DEFAULT_ICON (REQ-ICON-002 + REQ-ICON-009).
-					if (isCustomIconUrl(this.dashboard.icon)) {
-						this.form.icon = this.dashboard.icon
-					} else if (this.dashboard.icon && DASHBOARD_ICONS[this.dashboard.icon]) {
-						this.form.icon = this.dashboard.icon
-					} else {
-						this.form.icon = DEFAULT_ICON
-					}
+					// Persisted icon may be NULL/empty, a registry key, a custom
+					// URL, or an SVG path string (CnIconBrowser). Any non-empty
+					// value is kept verbatim and rendered by CnDashboardIcon;
+					// only null/empty falls back to DEFAULT_ICON
+					// (REQ-ICON-002 + REQ-ICON-009).
+					this.form.icon = this.dashboard.icon || DEFAULT_ICON
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.

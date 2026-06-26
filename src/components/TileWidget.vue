@@ -77,8 +77,6 @@ export default {
 		CnDashboardIcon,
 	},
 
-	emits: ['edit', 'remove'],
-
 	props: {
 		tile: {
 			type: Object,
@@ -89,6 +87,8 @@ export default {
 			default: false,
 		},
 	},
+
+	emits: ['edit', 'remove'],
 
 	computed: {
 		/** @spec openspec/specs/tiles/spec.md */

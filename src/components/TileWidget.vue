@@ -172,6 +172,13 @@ export default {
 	box-shadow: none;
 }
 
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.tile-widget__link {
+		transition: none;
+	}
+}
+
 .tile-widget__icon {
 	font-size: 64px;
 	width: auto;

@@ -253,10 +253,15 @@ export default {
 			// (mainText, subText, targetUrl, avatarUrl, id).
 			// NcDashboardWidget keys its item list by `item.id`. Some API
 			// widgets (e.g. recommendations) reuse a shared `sinceId` across
-			// rows, so fold the index in to guarantee a unique key.
+			// rows, so build a compound key from stable per-row data
+			// (sinceId + id + targetUrl/title) to stay unique. The key is
+			// anchored on stable values — never the array index alone — so a
+			// reorder of the upstream items moves DOM nodes instead of tearing
+			// them down. `index` is only a last-resort fallback when a row
+			// carries no stable identifying field at all.
 			return items.map((item, index) => ({
 				...item,
-				id: `${item.sinceId || item.id || 'item'}-${index}`,
+				id: `${item.sinceId || ''}-${item.id || ''}-${item.link || item.targetUrl || item.title || index}`,
 				targetUrl: item.link || item.targetUrl || '',
 				avatarUrl: item.iconUrl || item.avatarUrl || '',
 				avatarUsername: item.avatarUsername || '',

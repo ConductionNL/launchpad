@@ -12,6 +12,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { api } from '../../../services/api.js'
+import VisibilityRulesModal from '../VisibilityRulesModal.vue'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
@@ -25,9 +27,6 @@ vi.mock('../../../services/api.js', () => ({
 		deleteRule: vi.fn(),
 	},
 }))
-
-import { api } from '../../../services/api.js'
-import VisibilityRulesModal from '../VisibilityRulesModal.vue'
 
 const stubs = {
 	NcModal: { template: '<div><slot /></div>' },
@@ -53,12 +52,16 @@ beforeEach(() => {
 describe('VisibilityRulesModal', () => {
 	it('fetches and lists rules on open', async () => {
 		api.getWidgetRules.mockResolvedValue({
-			data: { data: { rules: [
-				{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true },
-			] } },
+			data: {
+				data: {
+					rules: [
+						{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true },
+					],
+				},
+			},
 		})
 		const wrapper = mountModal()
-		await new Promise((r) => setTimeout(r, 0))
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 		expect(api.getWidgetRules).toHaveBeenCalledWith(10)
 		expect(wrapper.findAll('[data-test="visibility-rules-item"]').length).toBe(1)
@@ -70,7 +73,7 @@ describe('VisibilityRulesModal', () => {
 			data: { data: { id: 99, ruleType: 'group', ruleConfig: { groups: ['sales'] }, isInclude: true } },
 		})
 		const wrapper = mountModal()
-		await new Promise((r) => setTimeout(r, 0))
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
 		// Drive the draft directly (NcSelect/NcSelectTags are stubbed).
@@ -93,7 +96,7 @@ describe('VisibilityRulesModal', () => {
 		})
 		api.deleteRule.mockResolvedValue({ data: { status: 'ok' } })
 		const wrapper = mountModal()
-		await new Promise((r) => setTimeout(r, 0))
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
 		await wrapper.vm.removeRule({ id: 5 })
@@ -108,7 +111,7 @@ describe('VisibilityRulesModal', () => {
 		})
 		api.deleteRule.mockRejectedValue(new Error('boom'))
 		const wrapper = mountModal()
-		await new Promise((r) => setTimeout(r, 0))
+		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
 		await wrapper.vm.removeRule({ id: 7 })

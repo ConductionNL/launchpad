@@ -1547,7 +1547,7 @@ export default {
 	flex: 1;
 	padding: 8px 0 0;
 	overflow: auto;
-	min-height: calc(100vh - var(--header-height) - var(--body-container-margin));
+	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
 }
 
 .launchpad-empty,
@@ -1556,6 +1556,6 @@ export default {
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	min-height: calc(100vh - var(--header-height) - var(--body-container-margin));
+	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
 }
 </style>

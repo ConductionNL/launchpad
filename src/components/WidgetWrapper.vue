@@ -187,11 +187,10 @@ export default {
 		 * @return {object} the styleConfig blob.
 		 */
 		styleConfig() {
-			// The backend serializes an empty styleConfig as a JSON array
-			// (`[]`), which is truthy — so coerce non-plain-object values to
-			// `{}` to satisfy CnWidgetWrapper's Object-typed prop.
-			const sc = this.placement.styleConfig
-			return (sc && typeof sc === 'object' && Array.isArray(sc) === false) ? sc : {}
+			// The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+			// empty styleConfig, so a plain `|| {}` fallback satisfies
+			// CnWidgetWrapper's Object-typed prop.
+			return this.placement.styleConfig || {}
 		},
 	},
 }

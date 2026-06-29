@@ -120,19 +120,16 @@ export default {
 		/**
 		 * Widget `content` blob, guaranteed to be a plain object.
 		 *
-		 * `WidgetPlacement::getContentArray()` returns PHP `[]` for an unset
-		 * content column, which serialises to a JSON array — a truthy value a
-		 * plain `|| {}` fallback would not replace. The registry renderers all
-		 * declare `content` as an Object, so coerce anything that is not a
-		 * plain object (arrays included) to `{}`.
+		 * The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+		 * unset content column, so a plain `|| {}` fallback covers the
+		 * remaining null/undefined cases.
 		 *
 		 * @return {object} the content object (empty when unset).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		normalizedContent() {
-			const c = this.placement?.content
-			return (c && typeof c === 'object' && !Array.isArray(c)) ? c : {}
+			return this.placement?.content || {}
 		},
 
 		/**

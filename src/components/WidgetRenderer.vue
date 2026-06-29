@@ -127,6 +127,8 @@ export default {
 		 * plain object (arrays included) to `{}`.
 		 *
 		 * @return {object} the content object (empty when unset).
+		 *
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		normalizedContent() {
 			const c = this.placement?.content
@@ -179,6 +181,7 @@ export default {
 			return buildRendererExtraProps(this.placement?.widgetId)
 		},
 
+		/** @spec openspec/specs/widgets/spec.md */
 		isTileWidget() {
 			if (this.placement.widgetId && this.placement.widgetId.startsWith('tile-')) {
 				return true

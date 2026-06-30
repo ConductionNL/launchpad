@@ -25,6 +25,7 @@
 				@input="emitPatch({ url: localUrl || null })">
 			<CnIconBrowser
 				class="org-nav-row__icon"
+				:label="t('launchpad', 'Icon')"
 				:value="localIcon"
 				:icons="iconCatalogue"
 				@input="onIconInput" />

@@ -610,4 +610,58 @@ class DashboardServiceActiveResolutionTest extends TestCase
         );
     }//end testSetActivePreferenceEmptyStringClears()
 
+    /**
+     * REQ-DASH-019 regression: getEffectiveDashboard (the API view
+     * resolver behind `GET /api/dashboard`) MUST honour the saved
+     * last-used preference against the full visible set — including a
+     * group/default (showcase) dashboard whose `user_id` is NULL — so the
+     * view matches the landing URL that resolveActiveDashboard() produces.
+     * Previously it only consulted the legacy `is_active` column, 404'ing
+     * for showcase dashboards and leaving the view blank.
+     *
+     * @return void
+     */
+    public function testGetEffectiveDashboardHonoursActivePrefForGroupDashboard(): void
+    {
+        $showcase = $this->makeDashboard(
+            uuid: 'uuid-showcase',
+            type: Dashboard::TYPE_GROUP_SHARED,
+            groupId: Dashboard::DEFAULT_GROUP_ID
+        );
+        $this->stubVisible('alice', [
+            ['dashboard' => $showcase, 'source' => Dashboard::SOURCE_DEFAULT],
+        ]);
+
+        $this->config
+            ->method('getUserValue')
+            ->willReturnCallback(function ($uid, $app, $key, $default) {
+                if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+                    return '';
+                }
+                if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+                    return 'uuid-showcase';
+                }
+                return $default;
+            });
+
+        $expected = [
+            'dashboard'       => $showcase,
+            'placements'      => [],
+            'permissionLevel' => 'view',
+        ];
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+        $this->dashResolver
+            ->method('buildResult')
+            ->with(dashboard: $showcase, placements: [])
+            ->willReturn($expected);
+
+        // Must resolve via the preference, never fall through to the
+        // personal-only legacy `is_active` lookup.
+        $this->dashResolver->expects($this->never())->method('tryGetActiveDashboard');
+
+        $result = $this->service->getEffectiveDashboard(userId: 'alice');
+
+        $this->assertSame($expected, $result);
+    }//end testGetEffectiveDashboardHonoursActivePrefForGroupDashboard()
+
 }//end class

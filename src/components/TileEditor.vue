@@ -6,6 +6,7 @@
 <template>
 	<NcModal
 		:show.sync="isOpen"
+		:name="tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile')"
 		size="normal"
 		@close="$emit('close')">
 		<div class="tile-editor">

@@ -99,6 +99,7 @@ class RequestDataExtractor
             'customTitle',
             'customIcon',
             'styleConfig',
+            'content',
             'tileTitle',
             'tileIcon',
             'tileIconType',

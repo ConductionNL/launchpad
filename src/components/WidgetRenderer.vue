@@ -13,7 +13,7 @@
 		<component
 			:is="registryEntry.renderer"
 			v-if="registryEntry"
-			:content="placement.content || {}"
+			:content="normalizedContent"
 			:placement="placement"
 			v-bind="rendererProps" />
 
@@ -28,7 +28,6 @@
 				:items="widgetItems"
 				:show-more-url="widget.widgetUrl"
 				:loading="loading || itemsLoading"
-				:item-menu="false"
 				:round-icons="widget.itemIconsRound">
 				<template #empty-content>
 					<NcEmptyContent
@@ -119,6 +118,21 @@ export default {
 
 	computed: {
 		/**
+		 * Widget `content` blob, guaranteed to be a plain object.
+		 *
+		 * The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+		 * unset content column, so a plain `|| {}` fallback covers the
+		 * remaining null/undefined cases.
+		 *
+		 * @return {object} the content object (empty when unset).
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		normalizedContent() {
+			return this.placement?.content || {}
+		},
+
+		/**
 		 * Resolve the registry entry for this placement's widget type.
 		 * Returns null when the widgetId is not a registry-driven custom
 		 * type — falling back to the existing tile / API-widget / legacy
@@ -164,8 +178,16 @@ export default {
 			return buildRendererExtraProps(this.placement?.widgetId)
 		},
 
+		/** @spec openspec/specs/widgets/spec.md */
 		isTileWidget() {
-			return this.placement.widgetId && this.placement.widgetId.startsWith('tile-')
+			if (this.placement.widgetId && this.placement.widgetId.startsWith('tile-')) {
+				return true
+			}
+			// Inline tiles carry their config on the placement (tileType set)
+			// and may use a non-`tile-` widgetId — the export/import and demo-
+			// showcase format tags them `mydash-tile`. Treat any placement
+			// with a tileType as a tile so those render too.
+			return Boolean(this.placement.tileType)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -177,6 +199,22 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		tileData() {
 			if (!this.isTileWidget) return null
+			// Inline tile: the config lives on the placement itself
+			// (export/import + demo-showcase format), so build the tile
+			// object directly instead of resolving it from the tile store.
+			if (this.placement.tileType) {
+				return {
+					id: this.placement.id,
+					title: this.placement.tileTitle,
+					icon: this.placement.tileIcon,
+					iconType: this.placement.tileIconType,
+					backgroundColor: this.placement.tileBackgroundColor,
+					textColor: this.placement.tileTextColor,
+					linkType: this.placement.tileLinkType,
+					linkValue: this.placement.tileLinkValue,
+				}
+			}
+			// Referenced tile: resolve the Tile entity from the store by id.
 			const { tiles } = storeToRefs(useTileStore())
 			return tiles.value.find(t => t.id === this.tileId)
 		},
@@ -213,9 +251,17 @@ export default {
 			// while mapping standard Nextcloud API fields (title, subtitle, link,
 			// iconUrl, sinceId) to the prop names NcDashboardWidgetItem expects
 			// (mainText, subText, targetUrl, avatarUrl, id).
-			return items.map(item => ({
+			// NcDashboardWidget keys its item list by `item.id`. Some API
+			// widgets (e.g. recommendations) reuse a shared `sinceId` across
+			// rows, so build a compound key from stable per-row data
+			// (sinceId + id + targetUrl/title) to stay unique. The key is
+			// anchored on stable values — never the array index alone — so a
+			// reorder of the upstream items moves DOM nodes instead of tearing
+			// them down. `index` is only a last-resort fallback when a row
+			// carries no stable identifying field at all.
+			return items.map((item, index) => ({
 				...item,
-				id: item.sinceId || item.id || String(Math.random()),
+				id: `${item.sinceId || ''}-${item.id || ''}-${item.link || item.targetUrl || item.title || index}`,
 				targetUrl: item.link || item.targetUrl || '',
 				avatarUrl: item.iconUrl || item.avatarUrl || '',
 				avatarUsername: item.avatarUsername || '',

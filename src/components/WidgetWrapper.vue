@@ -187,6 +187,9 @@ export default {
 		 * @return {object} the styleConfig blob.
 		 */
 		styleConfig() {
+			// The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+			// empty styleConfig, so a plain `|| {}` fallback satisfies
+			// CnWidgetWrapper's Object-typed prop.
 			return this.placement.styleConfig || {}
 		},
 	},

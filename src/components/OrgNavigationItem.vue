@@ -28,7 +28,7 @@
 			<CnDashboardIcon
 				v-if="node.icon"
 				class="org-nav-item__icon"
-				:name="node.icon"
+				:name="iconName"
 				:size="24" />
 			<span class="org-nav-item__label">{{ node.label }}</span>
 		</a>
@@ -45,7 +45,7 @@
 			<CnDashboardIcon
 				v-if="node.icon"
 				class="org-nav-item__icon"
-				:name="node.icon"
+				:name="iconName"
 				:size="24" />
 			<span class="org-nav-item__label">{{ node.label }}</span>
 		</button>
@@ -63,6 +63,7 @@
 
 <script>
 import { CnDashboardIcon } from '@conduction/nextcloud-vue'
+import { normaliseIconValue } from '../services/iconCatalogue.js'
 
 /**
  * OrgNavigationItem — recursive node renderer for the org-nav tree
@@ -115,6 +116,18 @@ export default {
 	computed: {
 		hasChildren() {
 			return Array.isArray(this.node.children) && this.node.children.length > 0
+		},
+
+		/**
+		 * Render-ready icon value. Legacy free-text names (from the old
+		 * free-text icon input) are mapped to their MDI path so they don't
+		 * silently fall back to the default icon; picker-emitted paths and
+		 * URLs pass through unchanged.
+		 *
+		 * @return {string|null} value for `CnDashboardIcon :name`.
+		 */
+		iconName() {
+			return normaliseIconValue(this.node.icon)
 		},
 
 		isActive() {

@@ -21,10 +21,13 @@
 			</div>
 
 			<div class="cgd-form__field">
-				<NcTextField
-					:value.sync="form.icon"
-					:label="t('launchpad', 'Icon (Material Design name)')"
-					data-test="create-group-dashboard-icon" />
+				<CnIconBrowser
+					inline
+					:label="t('launchpad', 'Icon')"
+					:value="form.icon"
+					:icons="iconCatalogue"
+					data-test="create-group-dashboard-icon"
+					@input="form.icon = $event" />
 			</div>
 
 			<div class="cgd-form__field">
@@ -71,8 +74,11 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@nextcloud/vue'
+import { CnIconBrowser } from '@conduction/nextcloud-vue'
+import { mdiViewDashboard } from '@mdi/js'
 
 import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
+import { ICON_CATALOGUE } from '../../../services/iconCatalogue.js'
 
 /**
  * CreateGroupDashboardModal — NcDialog-based create form for group-shared
@@ -90,6 +96,7 @@ export default {
 		NcDialog,
 		NcSelect,
 		NcTextField,
+		CnIconBrowser,
 	},
 
 	props: {
@@ -107,7 +114,7 @@ export default {
 			store: useGroupDashboardsStore(),
 			form: {
 				name: '',
-				icon: 'view-dashboard',
+				icon: mdiViewDashboard,
 				layoutTemplate: 'blank',
 				isDefault: false,
 			},
@@ -116,6 +123,11 @@ export default {
 	},
 
 	computed: {
+		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		iconCatalogue() {
+			return ICON_CATALOGUE
+		},
+
 		layoutTemplates() {
 			// Mirrors the layout templates exposed by the admin templates
 			// catalogue; pinned here to avoid an extra round-trip during

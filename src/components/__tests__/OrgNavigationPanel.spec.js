@@ -14,6 +14,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Vue from 'vue'
+import { mdiStar } from '@mdi/js'
 import { PiniaVuePlugin, createPinia, setActivePinia } from 'pinia'
 
 import OrgNavigationPanel from '../OrgNavigationPanel.vue'
@@ -111,6 +112,24 @@ describe('OrgNavigationItem', () => {
 		const img = wrapper.find('.org-nav-item__icon')
 		expect(img.element.tagName.toLowerCase()).toBe('img')
 		expect(img.attributes('src')).toBe('/icons/foo.png')
+	})
+
+	it('REQ-ONAV-006: SVG-path icon renders as inline <svg>', () => {
+		const wrapper = mountItem({
+			id: 'x', label: 'I', url: '/x', icon: mdiStar, children: [],
+		})
+		const icon = wrapper.find('.org-nav-item__icon')
+		expect(icon.element.tagName.toLowerCase()).toBe('svg')
+		expect(icon.find('path').attributes('d')).toBe(mdiStar)
+	})
+
+	it('REQ-ONAV-006: a legacy free-text MDI name renders via its resolved path', () => {
+		const wrapper = mountItem({
+			id: 'x', label: 'I', url: '/x', icon: 'star', children: [],
+		})
+		const icon = wrapper.find('.org-nav-item__icon')
+		expect(icon.element.tagName.toLowerCase()).toBe('svg')
+		expect(icon.find('path').attributes('d')).toBe(mdiStar)
 	})
 
 	it('REQ-ONAV-009: exact URL match marks node as active', () => {

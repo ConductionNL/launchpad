@@ -21,9 +21,9 @@
 			</div>
 
 			<div class="cgd-form__field">
-				<label class="cgd-form__label">{{ t('launchpad', 'Icon') }}</label>
 				<CnIconBrowser
 					inline
+					:label="t('launchpad', 'Icon')"
 					:value="form.icon"
 					:icons="iconCatalogue"
 					data-test="create-group-dashboard-icon"

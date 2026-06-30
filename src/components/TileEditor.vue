@@ -43,9 +43,9 @@
 					required />
 
 				<div class="tile-editor__field">
-					<label class="tile-editor__label">{{ t('launchpad', 'Icon') }}</label>
 					<CnIconBrowser
 						inline
+						:label="t('launchpad', 'Icon')"
 						:value="displayIcon"
 						:icons="iconCatalogue"
 						:url-icons="nlDesignIcons"
@@ -359,10 +359,5 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
-}
-
-.tile-editor__label {
-	font-weight: 600;
-	font-size: 14px;
 }
 </style>

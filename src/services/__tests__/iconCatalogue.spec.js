@@ -5,7 +5,32 @@
 
 import { describe, it, expect } from 'vitest'
 import * as mdi from '@mdi/js'
-import { normaliseIconValue } from '../iconCatalogue.js'
+import { ICON_CATALOGUE, normaliseIconValue } from '../iconCatalogue.js'
+
+describe('ICON_CATALOGUE', () => {
+	it('is a frozen, non-empty array', () => {
+		expect(Array.isArray(ICON_CATALOGUE)).toBe(true)
+		expect(ICON_CATALOGUE.length).toBeGreaterThan(0)
+		expect(Object.isFrozen(ICON_CATALOGUE)).toBe(true)
+	})
+
+	it('produces entries shaped { key, label, value, search, path }', () => {
+		for (const entry of ICON_CATALOGUE) {
+			expect(entry).toMatchObject({
+				key: expect.any(String),
+				label: expect.any(String),
+				value: expect.any(String),
+				search: expect.any(String),
+				path: expect.any(String),
+			})
+			// Keys are MDI export names; value/path are the SVG path the picker
+			// indexes by, and search is the lower-cased key.
+			expect(entry.key.startsWith('mdi')).toBe(true)
+			expect(entry.value).toBe(entry.path)
+			expect(entry.search).toBe(entry.key.toLowerCase())
+		}
+	})
+})
 
 describe('normaliseIconValue', () => {
 	it('maps a lowercase legacy name to its MDI path', () => {

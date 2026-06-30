@@ -22,14 +22,14 @@
 					<img
 						v-if="isUrlIcon"
 						class="tile-preview__icon"
-						:src="form.icon"
+						:src="displayIcon"
 						alt="">
 					<svg
 						v-else
 						class="tile-preview__icon"
 						:style="{ fill: form.textColor }"
 						viewBox="0 0 24 24">
-						<path :d="form.icon" />
+						<path :d="displayIcon" />
 					</svg>
 					<span class="tile-preview__title">{{ form.title }}</span>
 				</div>
@@ -46,7 +46,7 @@
 					<label class="tile-editor__label">{{ t('launchpad', 'Icon') }}</label>
 					<CnIconBrowser
 						inline
-						:value="form.icon"
+						:value="displayIcon"
 						:icons="iconCatalogue"
 						:url-icons="nlDesignIcons"
 						@input="onIcon" />
@@ -120,7 +120,7 @@
 <script>
 import { NcModal, NcButton, NcTextField, NcColorPicker, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
-import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
+import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
 export default {
 	name: 'TileEditor',
@@ -190,6 +190,18 @@ export default {
 		/** The shared MDI icon catalogue passed to CnIconBrowser. */
 		iconCatalogue() {
 			return ICON_CATALOGUE
+		},
+		/**
+		 * Icon value for the picker and preview. Legacy tiles store an MDI
+		 * shortname (`link`) or key (`AlertCircle`) rather than the SVG path the
+		 * catalogue is indexed by, so the picker can't match them and the
+		 * preview can't draw them. Map those to their path for display; the
+		 * stored `form.icon` is left untouched until the user picks a new icon.
+		 *
+		 * @return {string} the SVG path / URL to display.
+		 */
+		displayIcon() {
+			return normaliseIconValue(this.form.icon)
 		},
 	},
 

@@ -79,11 +79,9 @@
 			     it emits: an SVG path string or a /apps/launchpad/resource/...
 			     URL (REQ-ICON-003 + REQ-ICON-008..009). -->
 				<div class="dashboard-config__field">
-					<label class="dashboard-config__label" for="dashboard-config-icon">
-						{{ t('launchpad', 'Icon') }}
-					</label>
 					<CnIconBrowser
 						inline
+						:label="t('launchpad', 'Icon')"
 						:value="form.icon"
 						:icons="iconCatalogue"
 						:upload-fn="iconUploadFn"

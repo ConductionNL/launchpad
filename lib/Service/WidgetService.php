@@ -208,6 +208,13 @@ class WidgetService
     /**
      * Update a widget placement.
      *
+     * When the update carries a `content` payload, run the same save-time
+     * content validation as the create path ({@see self::addWidget()}) —
+     * the placement-update route became a content-write path once `content`
+     * was added to the extracted fields, and without this it would bypass
+     * the menu depth / required-field checks (REQ-MENU-002) that the create
+     * path enforces. The widget type is read from the stored placement.
+     *
      * @param int   $placementId The placement ID.
      * @param array $data        The data to update.
      *
@@ -219,6 +226,16 @@ class WidgetService
         int $placementId,
         array $data
     ): WidgetPlacement {
+        if (isset($data['content']) === true && is_array($data['content']) === true) {
+            $placement = $this->placementService->getPlacement(
+                placementId: $placementId
+            );
+            $this->validateWidgetContent(
+                widgetType: $placement->getWidgetId(),
+                content: $data['content']
+            );
+        }
+
         return $this->placementService->updatePlacement(
             placementId: $placementId,
             data: $data

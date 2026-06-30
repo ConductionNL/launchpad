@@ -807,4 +807,12 @@ export default {
 	bottom: 0;
 	flex: 0 0 auto;
 }
+
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar,
+	.dashboard-switcher-sidebar__item {
+		transition: none;
+	}
+}
 </style>

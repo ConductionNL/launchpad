@@ -653,15 +653,18 @@ export const useDashboardStore = defineStore('dashboard', {
 		/**
 		 * Add a widget to the active dashboard. Routes through
 		 * `placeNewWidget` (REQ-GRID-014) so the placement algorithm
-		 * (REQ-GRID-006: try autoPosition, fall back to top-left + push
-		 * down) is the single source of truth for "where does this go?".
+		 * (REQ-GRID-006: append in a fresh row below all existing
+		 * widgets, never moving them) is the single source of truth for
+		 * "where does this go?".
 		 *
 		 * Position-only callers (e.g. legacy code that passed a fully
 		 * computed `{x, y, w, h}`) MAY still supply a `position` object;
 		 * if it includes both `x` AND `y` we honour the explicit choice
 		 * and skip the auto-placement path. Otherwise we delegate to
-		 * `placeNewWidget` and apply any push-down side effects via the
-		 * existing batch-update path (REQ-WDG-008, debounce 300 ms).
+		 * `placeNewWidget`. The helper never moves existing widgets, so
+		 * `placement.pushed` is always empty; the batch-update branch
+		 * (REQ-WDG-008, debounce 300 ms) is retained for caller
+		 * compatibility but is a no-op under bottom-append.
 		 *
 		 * @param {string|object} widgetId widget identifier OR a `{type, content}` payload from AddWidgetModal
 		 * @param {object|null} [position] explicit `{x, y, w, h}` (skips auto-placement) or partial spec to seed the helper
@@ -730,7 +733,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		/**
 		 * Add a tile to the active dashboard. Tiles default to a smaller
 		 * 2×2 footprint than regular widgets but still funnel through
-		 * `placeNewWidget` so the auto-placement + fallback algorithm is
+		 * `placeNewWidget` so the bottom-append placement algorithm is
 		 * applied consistently (REQ-GRID-006 / REQ-GRID-014).
 		 *
 		 * @param {object} tileData tile payload (title/icon/colours/link)

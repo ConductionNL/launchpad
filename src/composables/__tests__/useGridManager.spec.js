@@ -17,10 +17,10 @@
  *     popover, view-mode falls through, viewport clamping, swap-not-stack,
  *     outside-click closes, listener cleanup.
  *   - REQ-GRID-006 (Widget Auto-Layout) + REQ-GRID-014 (single placement
- *     authority): `placeNewWidget()` returns the auto-position slot when
- *     space exists, falls back to top-left + push-down when the top is
- *     full or the auto-position slot lands below the viewport, applies
- *     the 4×4 default size, and is the ONLY caller of `grid.addWidget(`
+ *     authority): `placeNewWidget()` always appends the new widget in a
+ *     fresh row below all existing widgets (`x=0`, `y=` lowest occupied
+ *     bottom edge) and never moves existing widgets, applies the 4×4
+ *     default size, and is the ONLY caller of `grid.addWidget(`
  *     in `src/` (architectural enforcement via grep test).
  *
  * These constants are the single source of truth referenced by

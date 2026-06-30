@@ -120,17 +120,16 @@ export default {
 		/**
 		 * Widget `content` blob, guaranteed to be a plain object.
 		 *
-		 * `WidgetPlacement::getContentArray()` returns PHP `[]` for an unset
-		 * content column, which serialises to a JSON array — a truthy value a
-		 * plain `|| {}` fallback would not replace. The registry renderers all
-		 * declare `content` as an Object, so coerce anything that is not a
-		 * plain object (arrays included) to `{}`.
+		 * The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+		 * unset content column, so a plain `|| {}` fallback covers the
+		 * remaining null/undefined cases.
 		 *
 		 * @return {object} the content object (empty when unset).
+		 *
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		normalizedContent() {
-			const c = this.placement?.content
-			return (c && typeof c === 'object' && !Array.isArray(c)) ? c : {}
+			return this.placement?.content || {}
 		},
 
 		/**
@@ -179,6 +178,7 @@ export default {
 			return buildRendererExtraProps(this.placement?.widgetId)
 		},
 
+		/** @spec openspec/specs/widgets/spec.md */
 		isTileWidget() {
 			if (this.placement.widgetId && this.placement.widgetId.startsWith('tile-')) {
 				return true
@@ -253,10 +253,15 @@ export default {
 			// (mainText, subText, targetUrl, avatarUrl, id).
 			// NcDashboardWidget keys its item list by `item.id`. Some API
 			// widgets (e.g. recommendations) reuse a shared `sinceId` across
-			// rows, so fold the index in to guarantee a unique key.
+			// rows, so build a compound key from stable per-row data
+			// (sinceId + id + targetUrl/title) to stay unique. The key is
+			// anchored on stable values — never the array index alone — so a
+			// reorder of the upstream items moves DOM nodes instead of tearing
+			// them down. `index` is only a last-resort fallback when a row
+			// carries no stable identifying field at all.
 			return items.map((item, index) => ({
 				...item,
-				id: `${item.sinceId || item.id || 'item'}-${index}`,
+				id: `${item.sinceId || ''}-${item.id || ''}-${item.link || item.targetUrl || item.title || index}`,
 				targetUrl: item.link || item.targetUrl || '',
 				avatarUrl: item.iconUrl || item.avatarUrl || '',
 				avatarUsername: item.avatarUsername || '',

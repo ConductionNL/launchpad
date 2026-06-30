@@ -688,30 +688,45 @@ class CalendarWidgetService
         // shapes (older NC / test fixtures).
         $obj = ($raw['objects'][0] ?? $raw);
 
-        $titleVal = ($this->extractSearchValue(prop: $raw['SUMMARY'] ?? null)
-            ?? $this->extractSearchValue(prop: $obj['SUMMARY'] ?? null)
-            ?? ($raw['title'] ?? null));
-        $startVal = ($this->extractSearchValue(prop: $raw['DTSTART'] ?? null)
-            ?? $this->extractSearchValue(prop: $obj['DTSTART'] ?? null)
-            ?? ($raw['start'] ?? null));
-        $endVal = ($this->extractSearchValue(prop: $raw['DTEND'] ?? null)
-            ?? $this->extractSearchValue(prop: $obj['DTEND'] ?? null)
-            ?? ($raw['end'] ?? null));
-        $locVal = ($this->extractSearchValue(prop: $raw['LOCATION'] ?? null)
-            ?? $this->extractSearchValue(prop: $obj['LOCATION'] ?? null)
-            ?? ($raw['location'] ?? null));
-        $descVal = ($this->extractSearchValue(prop: $raw['DESCRIPTION'] ?? null)
-            ?? $this->extractSearchValue(prop: $obj['DESCRIPTION'] ?? null)
-            ?? ($raw['description'] ?? null));
-        $uidVal = ($this->extractSearchValue(prop: $raw['UID'] ?? null)
-            ?? $this->extractSearchValue(prop: $obj['UID'] ?? null)
-            ?? ($raw['uid'] ?? null));
+        $titleFromRaw = $this->extractSearchValue(prop: $raw['SUMMARY'] ?? null);
+        $titleFromObj = $this->extractSearchValue(prop: $obj['SUMMARY'] ?? null);
+        $titleVal     = ($titleFromRaw ?? $titleFromObj ?? ($raw['title'] ?? null));
 
-        $title = (string) ($titleVal ?? '');
-        $resolvedTitle = ($title !== '') ? $title : 'Untitled';
+        $startFromRaw = $this->extractSearchValue(prop: $raw['DTSTART'] ?? null);
+        $startFromObj = $this->extractSearchValue(prop: $obj['DTSTART'] ?? null);
+        $startVal     = ($startFromRaw ?? $startFromObj ?? ($raw['start'] ?? null));
 
-        $resolvedLocation = ($locVal !== null && $locVal !== '') ? (string) $locVal : null;
-        $resolvedDescription = ($descVal !== null && $descVal !== '') ? (string) $descVal : null;
+        $endFromRaw = $this->extractSearchValue(prop: $raw['DTEND'] ?? null);
+        $endFromObj = $this->extractSearchValue(prop: $obj['DTEND'] ?? null);
+        $endVal     = ($endFromRaw ?? $endFromObj ?? ($raw['end'] ?? null));
+
+        $locFromRaw = $this->extractSearchValue(prop: $raw['LOCATION'] ?? null);
+        $locFromObj = $this->extractSearchValue(prop: $obj['LOCATION'] ?? null);
+        $locVal     = ($locFromRaw ?? $locFromObj ?? ($raw['location'] ?? null));
+
+        $descFromRaw = $this->extractSearchValue(prop: $raw['DESCRIPTION'] ?? null);
+        $descFromObj = $this->extractSearchValue(prop: $obj['DESCRIPTION'] ?? null);
+        $descVal     = ($descFromRaw ?? $descFromObj ?? ($raw['description'] ?? null));
+
+        $uidFromRaw = $this->extractSearchValue(prop: $raw['UID'] ?? null);
+        $uidFromObj = $this->extractSearchValue(prop: $obj['UID'] ?? null);
+        $uidVal     = ($uidFromRaw ?? $uidFromObj ?? ($raw['uid'] ?? null));
+
+        $title         = (string) ($titleVal ?? '');
+        $resolvedTitle = 'Untitled';
+        if ($title !== '') {
+            $resolvedTitle = $title;
+        }
+
+        $resolvedLocation = null;
+        if ($locVal !== null && $locVal !== '') {
+            $resolvedLocation = (string) $locVal;
+        }
+
+        $resolvedDescription = null;
+        if ($descVal !== null && $descVal !== '') {
+            $resolvedDescription = (string) $descVal;
+        }
 
         return [
             'uid'          => (string) ($uidVal ?? ''),

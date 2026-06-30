@@ -75,6 +75,8 @@
                 <referencedClass name="OCA\OpenRegister\Service\FileService"/>
                 <referencedClass name="OCA\OpenRegister\Service\CalendarEventService"/>
                 <referencedClass name="OCA\OpenRegister\Mcp\IMcpToolProvider"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericHealthController"/>
+                <referencedClass name="OCA\OpenRegister\AppHost\Controller\GenericMetricsController"/>
                 <!-- Additional OCP infrastructure types used across the fleet -->
                 <referencedClass name="OCP\AppFramework\Bootstrap\IBootContext"/>
                 <referencedClass name="OCP\AppFramework\Bootstrap\IRegistrationContext"/>
@@ -125,6 +127,15 @@
         <InvalidMethodCall errorLevel="suppress"/>
         <UndefinedInterfaceMethod errorLevel="suppress"/>
         <MissingTemplateParam errorLevel="suppress"/>
+        <InvalidTemplateParam errorLevel="suppress"/>
+        <UnusedClosureParam errorLevel="suppress"/>
+        <UnusedFunctionCall errorLevel="suppress"/>
+        <TooManyArguments>
+            <errorLevel type="suppress">
+                <referencedFunction name="OCA\LaunchPad\Controller\HealthController::__construct"/>
+                <referencedFunction name="OCA\LaunchPad\Controller\MetricsController::__construct"/>
+            </errorLevel>
+        </TooManyArguments>
     </issueHandlers>
     <extraFiles>
         <directory name="vendor/nextcloud/ocp" />

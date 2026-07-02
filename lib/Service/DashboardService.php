@@ -46,6 +46,7 @@ use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IL10N;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
@@ -273,6 +274,11 @@ class DashboardService
      *                                                                   service gating per-user
      *                                                                   dashboard creation
      *                                                                   (dashboard-quota-limits).
+     * @param IURLGenerator|null                  $urlGenerator          URL generator used to
+     *                                                                   resolve app image paths for
+     *                                                                   default tile logos, so they
+     *                                                                   render regardless of the
+     *                                                                   app's install location.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -296,6 +302,7 @@ class DashboardService
         private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
         private readonly ?PublicShareContext $publicShareContext=null,
         private readonly ?QuotaService $quotaService=null,
+        private readonly ?IURLGenerator $urlGenerator=null,
     ) {
     }//end __construct()
 
@@ -2106,6 +2113,30 @@ class DashboardService
     }//end findPlacements()
 
     /**
+     * Resolve a URL for a bundled app image (default tile logo).
+     *
+     * Uses the URL generator so the path carries the app's real web
+     * prefix — `/apps/launchpad/img/...` on a standard install,
+     * `/custom_apps/launchpad/img/...` when the app is served from a
+     * secondary apps directory. Hardcoding `/apps/launchpad/img/` breaks
+     * the logo wherever the app is not mounted under the default apps
+     * path. Falls back to the app-relative path when no generator is
+     * wired (unit-test construction).
+     *
+     * @param string $fileName The image file name under `img/`.
+     *
+     * @return string The resolved image URL.
+     */
+    private function tileImagePath(string $fileName): string
+    {
+        if ($this->urlGenerator !== null) {
+            return $this->urlGenerator->imagePath(appName: 'launchpad', file: $fileName);
+        }
+
+        return '/apps/launchpad/img/'.$fileName;
+    }//end tileImagePath()
+
+    /**
      * Seed the default widget bundle on a freshly-created dashboard.
      *
      * Every brand-new personal dashboard is bootstrapped with three
@@ -2147,7 +2178,7 @@ class DashboardService
                 'sortOrder'  => 0,
                 'tile'       => [
                     'title'           => 'Conduction',
-                    'icon'            => '/apps/launchpad/img/conduction-logo.png',
+                    'icon'            => $this->tileImagePath(fileName: 'conduction-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',
@@ -2164,7 +2195,7 @@ class DashboardService
                 'sortOrder'  => 1,
                 'tile'       => [
                     'title'           => 'Sendent',
-                    'icon'            => '/apps/launchpad/img/sendent-logo.png',
+                    'icon'            => $this->tileImagePath(fileName: 'sendent-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',

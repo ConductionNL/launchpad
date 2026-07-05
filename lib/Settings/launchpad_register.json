@@ -21,6 +21,7 @@
         "title": "Dashboard",
         "description": "A user dashboard containing widget placements and layout configuration",
         "type": "object",
+        "x-schema-org": "schema:WebPage",
         "x-openregister": {
           "schemaType": "schema:WebPage",
           "active": true,

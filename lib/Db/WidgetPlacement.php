@@ -366,13 +366,23 @@ class WidgetPlacement extends Entity implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        // styleConfig and content are associative JSON blobs. An empty blob
+        // The styleConfig and content are associative JSON blobs. An empty blob
         // decodes to a PHP `[]`, which json_encodes to a JSON array (`[]`)
         // rather than an object (`{}`). Cast the empty case to stdClass so the
         // wire format is always an object — clients type these fields as
         // objects and a stray `[]` is truthy-but-wrong on the frontend.
         $styleConfig = $this->getStyleConfigArray();
         $content     = $this->getContentArray();
+
+        $styleConfigValue = $styleConfig;
+        if (empty($styleConfig) === true) {
+            $styleConfigValue = new \stdClass();
+        }
+
+        $contentValue = $content;
+        if (empty($content) === true) {
+            $contentValue = new \stdClass();
+        }
 
         $data = [
             'id'           => $this->getId(),
@@ -384,10 +394,10 @@ class WidgetPlacement extends Entity implements JsonSerializable
             'gridHeight'   => $this->gridHeight,
             'isCompulsory' => $this->isCompulsory,
             'isVisible'    => $this->isVisible,
-            'styleConfig'  => empty($styleConfig) === true ? new \stdClass() : $styleConfig,
+            'styleConfig'  => $styleConfigValue,
             'customTitle'  => $this->customTitle,
             'customIcon'   => $this->customIcon,
-            'content'      => empty($content) === true ? new \stdClass() : $content,
+            'content'      => $contentValue,
             'showTitle'    => $this->showTitle,
             'sortOrder'    => $this->sortOrder,
             'createdAt'    => $this->createdAt,

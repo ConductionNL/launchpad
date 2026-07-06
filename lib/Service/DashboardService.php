@@ -440,6 +440,7 @@ class DashboardService
                 if ($prefUuid === '') {
                     continue;
                 }
+
                 foreach ($visible as $entry) {
                     $candidate = $entry['dashboard'];
                     if ((string) $candidate->getUuid() === $prefUuid) {
@@ -453,7 +454,7 @@ class DashboardService
                     }
                 }
             }
-        }
+        }//end if
 
         $result = $this->dashResolver->tryGetActiveDashboard(
             userId: $userId
@@ -2324,7 +2325,7 @@ class DashboardService
                 'sortOrder'  => 0,
                 'tile'       => [
                     'title'           => 'Conduction',
-                    'icon'            => $this->appImagePath('conduction-logo.png'),
+                    'icon'            => $this->appImagePath(image: 'conduction-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',
@@ -2341,7 +2342,7 @@ class DashboardService
                 'sortOrder'  => 1,
                 'tile'       => [
                     'title'           => 'Sendent',
-                    'icon'            => $this->appImagePath('sendent-logo.png'),
+                    'icon'            => $this->appImagePath(image: 'sendent-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',

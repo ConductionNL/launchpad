@@ -224,32 +224,13 @@ class DashboardApiControllerGroupSharedTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * `createGroup()` returns 403 when the calling user is not an admin
-     * (REQ-DASH-014 non-admin scenario).
-     *
-     * @return void
-     */
-    public function testCreateGroupForbiddenForNonAdmin(): void
-    {
-        $this->dashboardService
-            ->method('isAdmin')
-            ->with('bob')
-            ->willReturn(false);
-
-        $this->dashboardService->expects($this->never())->method('createGroupShared');
-
-        $controller = $this->makeController('bob');
-        $response   = $controller->createGroup(
-            groupId: 'marketing',
-            name: 'Marketing Overview'
-        );
-
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }//end testCreateGroupForbiddenForNonAdmin()
-
-    /**
-     * `createGroup()` returns 201 and the new dashboard when called by an admin
-     * (REQ-DASH-014 create scenario).
+     * `createGroup()` is admin-only via the `#[AuthorizedAdminSetting]`
+     * attribute — the framework middleware (not reachable when calling the
+     * controller method directly in a unit test) rejects non-admins before
+     * the method body runs. See `testGroupEndpointsCarryAuthorizedAdminSettingAttribute()`
+     * for the machine-checkable assertion, and
+     * `openspec/changes/fix-group-dashboard-admin-auth-attribute/tasks.md#task-15`
+     * for the manual curl/Newman verification of the actual 403 behaviour.
      *
      * @return void
      */
@@ -260,11 +241,6 @@ class DashboardApiControllerGroupSharedTest extends TestCase
             groupId: 'marketing',
             type: Dashboard::TYPE_GROUP_SHARED
         );
-
-        $this->dashboardService
-            ->method('isAdmin')
-            ->with('admin')
-            ->willReturn(true);
 
         $this->dashboardService
             ->method('createGroupShared')
@@ -417,31 +393,10 @@ class DashboardApiControllerGroupSharedTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * `updateGroup()` returns 403 when called by a non-admin (REQ-DASH-014).
-     *
-     * @return void
-     */
-    public function testUpdateGroupForbiddenForNonAdmin(): void
-    {
-        $this->dashboardService
-            ->method('isAdmin')
-            ->with('bob')
-            ->willReturn(false);
-
-        $this->dashboardService->expects($this->never())->method('updateGroupShared');
-
-        $controller = $this->makeController('bob');
-        $response   = $controller->updateGroup(
-            groupId: 'marketing',
-            uuid: 'dash-1',
-            name: 'New Name'
-        );
-
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }//end testUpdateGroupForbiddenForNonAdmin()
-
-    /**
-     * `updateGroup()` returns 200 and persisted data when called by admin.
+     * `updateGroup()` is admin-only via the `#[AuthorizedAdminSetting]`
+     * attribute — see `testCreateGroupReturns201ForAdmin()` docblock for
+     * why the non-admin-403 scenario is no longer a controller-body unit
+     * test.
      *
      * @return void
      */
@@ -453,11 +408,6 @@ class DashboardApiControllerGroupSharedTest extends TestCase
             type: Dashboard::TYPE_GROUP_SHARED
         );
         $updated->setName('New Name');
-
-        $this->dashboardService
-            ->method('isAdmin')
-            ->with('admin')
-            ->willReturn(true);
 
         $this->dashboardService
             ->method('updateGroupShared')
@@ -478,40 +428,15 @@ class DashboardApiControllerGroupSharedTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * `deleteGroup()` returns 403 when called by a non-admin (REQ-DASH-014).
-     *
-     * @return void
-     */
-    public function testDeleteGroupForbiddenForNonAdmin(): void
-    {
-        $this->dashboardService
-            ->method('isAdmin')
-            ->with('bob')
-            ->willReturn(false);
-
-        $this->dashboardService->expects($this->never())->method('deleteGroupShared');
-
-        $controller = $this->makeController('bob');
-        $response   = $controller->deleteGroup(
-            groupId: 'marketing',
-            uuid: 'dash-1'
-        );
-
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }//end testDeleteGroupForbiddenForNonAdmin()
-
-    /**
-     * `deleteGroup()` returns 200 when admin deletes a non-last dashboard.
+     * `deleteGroup()` is admin-only via the `#[AuthorizedAdminSetting]`
+     * attribute — see `testCreateGroupReturns201ForAdmin()` docblock for
+     * why the non-admin-403 scenario is no longer a controller-body unit
+     * test.
      *
      * @return void
      */
     public function testDeleteGroupReturns200ForAdmin(): void
     {
-        $this->dashboardService
-            ->method('isAdmin')
-            ->with('admin')
-            ->willReturn(true);
-
         $this->dashboardService
             ->expects($this->once())
             ->method('deleteGroupShared')
@@ -535,10 +460,6 @@ class DashboardApiControllerGroupSharedTest extends TestCase
     public function testDeleteGroupPropagatesLastInGroupError(): void
     {
         $this->dashboardService
-            ->method('isAdmin')
-            ->willReturn(true);
-
-        $this->dashboardService
             ->method('deleteGroupShared')
             ->willThrowException(
                 new \InvalidArgumentException(DashboardService::ERR_LAST_IN_GROUP)
@@ -561,10 +482,6 @@ class DashboardApiControllerGroupSharedTest extends TestCase
     public function testDeleteGroupReturns404ForMissing(): void
     {
         $this->dashboardService
-            ->method('isAdmin')
-            ->willReturn(true);
-
-        $this->dashboardService
             ->method('deleteGroupShared')
             ->willThrowException(new DoesNotExistException('not found'));
 
@@ -576,4 +493,47 @@ class DashboardApiControllerGroupSharedTest extends TestCase
 
         $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
     }//end testDeleteGroupReturns404ForMissing()
+
+    // -------------------------------------------------------------------------
+    // fix-group-dashboard-admin-auth-attribute — machine-checkable auth contract
+    // -------------------------------------------------------------------------
+
+    /**
+     * `createGroup()`, `updateGroup()`, `deleteGroup()`, and
+     * `setGroupDefault()` MUST carry `#[AuthorizedAdminSetting]` rather
+     * than relying on an in-body `isAdmin()` check layered on a permissive
+     * `#[NoAdminRequired]` attribute (ADR-005 gate-semantic-auth).
+     *
+     * @return void
+     */
+    public function testGroupEndpointsCarryAuthorizedAdminSettingAttribute(): void
+    {
+        $reflection = new \ReflectionClass(DashboardApiController::class);
+
+        foreach (['createGroup', 'updateGroup', 'deleteGroup', 'setGroupDefault'] as $methodName) {
+            $method     = $reflection->getMethod($methodName);
+            $attributes = $method->getAttributes(
+                \OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting::class
+            );
+
+            $this->assertNotEmpty(
+                $attributes,
+                sprintf(
+                    '%s() must carry #[AuthorizedAdminSetting] instead of an in-body isAdmin() check',
+                    $methodName
+                )
+            );
+
+            $noAdminRequired = $method->getAttributes(
+                \OCP\AppFramework\Http\Attribute\NoAdminRequired::class
+            );
+            $this->assertEmpty(
+                $noAdminRequired,
+                sprintf(
+                    '%s() must not also carry #[NoAdminRequired] alongside #[AuthorizedAdminSetting]',
+                    $methodName
+                )
+            );
+        }
+    }//end testGroupEndpointsCarryAuthorizedAdminSettingAttribute()
 }//end class

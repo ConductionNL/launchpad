@@ -105,33 +105,14 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
     }//end makeController()
 
     /**
-     * REQ-DASH-015: non-admin caller MUST get 403 with no service call.
-     *
-     * @return void
-     */
-    public function testSetGroupDefaultRejectsNonAdmin(): void
-    {
-        $this->dashboardService->method('isAdmin')
-            ->with('alice')
-            ->willReturn(false);
-        $this->dashboardService->expects($this->never())
-            ->method('setGroupDefault');
-
-        $controller = $this->makeController('alice');
-        $response   = $controller->setGroupDefault(
-            groupId: 'marketing',
-            uuid: 'uuid-a'
-        );
-
-        $this->assertSame(
-            Http::STATUS_FORBIDDEN,
-            $response->getStatus()
-        );
-    }//end testSetGroupDefaultRejectsNonAdmin()
-
-    /**
-     * Anonymous caller MUST get 401 — the route attribute alone is not
-     * enough; the in-body guard runs first.
+     * `setGroupDefault()` is admin-only via the `#[AuthorizedAdminSetting]`
+     * attribute — the framework middleware (not reachable when calling the
+     * controller method directly in a unit test) rejects non-admins before
+     * the method body runs. See
+     * `DashboardApiControllerGroupSharedTest::testGroupEndpointsCarryAuthorizedAdminSettingAttribute()`
+     * for the machine-checkable assertion, and
+     * `openspec/changes/fix-group-dashboard-admin-auth-attribute/tasks.md#task-15`
+     * for the manual curl/Newman verification of the actual 403 behaviour.
      *
      * @return void
      */
@@ -159,7 +140,6 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
      */
     public function testSetGroupDefaultRejectsMissingUuid(): void
     {
-        $this->dashboardService->method('isAdmin')->willReturn(true);
         $this->dashboardService->expects($this->never())
             ->method('setGroupDefault');
 
@@ -182,7 +162,6 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
      */
     public function testSetGroupDefaultHappyPath(): void
     {
-        $this->dashboardService->method('isAdmin')->willReturn(true);
         $this->dashboardService->expects($this->once())
             ->method('setGroupDefault')
             ->with(
@@ -212,7 +191,6 @@ class DashboardApiControllerDefaultFlagTest extends TestCase
      */
     public function testSetGroupDefaultMapsDoesNotExistTo404(): void
     {
-        $this->dashboardService->method('isAdmin')->willReturn(true);
         $this->dashboardService->method('setGroupDefault')
             ->willThrowException(
                 new DoesNotExistException(msg: 'not in group')

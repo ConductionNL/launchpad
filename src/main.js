@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Workspace entry point. Implements the ADR-036 Decision 8 runtime-manifest
  * pattern for launchpad: a 5-line stub manifest is bundled with the app; at boot

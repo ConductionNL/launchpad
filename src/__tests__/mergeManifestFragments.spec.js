@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * ADR-037: verifies that disjoint manifest fragments union cleanly so concurrent
  * OpenSpec change builds never collide on the shared src/manifest.json.

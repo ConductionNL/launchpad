@@ -73,14 +73,14 @@
 			<NcButton
 				v-if="canShareActiveDashboard"
 				type="tertiary"
-				:aria-label="t('mydash', 'Share')"
+				:aria-label="t('launchpad','Share')"
 				class="mydash-share-action"
 				data-test="dashboard-share-action"
 				@click="openShareDrawer">
 				<template #icon>
 					<ShareVariant :size="20" />
 				</template>
-				{{ t('mydash', 'Share') }}
+				{{ t('launchpad','Share') }}
 			</NcButton>
 			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
 			     `default` sentinel — REQ-TMPL-012 documents the literal

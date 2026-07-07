@@ -8,8 +8,8 @@
 		<div class="org-nav-row__row" :style="{ paddingLeft: indentPx }">
 			<span
 				class="org-nav-row__handle"
-				:title="t('mydash', 'Drag to reorder within this level')"
-				:aria-label="t('mydash', 'Drag to reorder')">⋮⋮</span>
+				:title="t('launchpad','Drag to reorder within this level')"
+				:aria-label="t('launchpad','Drag to reorder')">⋮⋮</span>
 			<input
 				v-model="localLabel"
 				type="text"

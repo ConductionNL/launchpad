@@ -1,9 +1,9 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 <template>
 	<div class="mydash-admin__section">
-		<h3>{{ t('mydash', 'Role-based default layouts') }}</h3>
+		<h3>{{ t('launchpad','Role-based default layouts') }}</h3>
 		<p class="mydash-admin__hint">
-			{{ t('mydash', 'Define the default grid positions for each group\'s widgets. New users whose group has no admin template will receive these positions as their starting layout.') }}
+			{{ t('launchpad','Define the default grid positions for each group\'s widgets. New users whose group has no admin template will receive these positions as their starting layout.') }}
 		</p>
 
 		<div v-if="store.error" class="mydash-admin__error" role="alert">
@@ -12,8 +12,8 @@
 
 		<NcEmptyContent
 			v-if="!store.loading && store.layoutDefaults.length === 0"
-			:name="t('mydash', 'No layout defaults configured')"
-			:description="t('mydash', 'Add layout default rows to seed role-based starting dashboards for new users.')">
+			:name="t('launchpad','No layout defaults configured')"
+			:description="t('launchpad','Add layout default rows to seed role-based starting dashboards for new users.')">
 			<template #icon>
 				<ViewDashboard :size="40" />
 			</template>
@@ -29,22 +29,22 @@
 				</div>
 				<div class="mydash-admin__role-widgets">
 					<span class="mydash-admin__chip">
-						{{ t('mydash', '{x},{y} {w}×{h}', { x: row.gridX, y: row.gridY, w: row.gridWidth, h: row.gridHeight }) }}
+						{{ t('launchpad','{x},{y} {w}×{h}', { x: row.gridX, y: row.gridY, w: row.gridWidth, h: row.gridHeight }) }}
 					</span>
 					<span v-if="row.isCompulsory" class="mydash-admin__chip mydash-admin__chip--compulsory">
-						{{ t('mydash', 'Compulsory') }}
+						{{ t('launchpad','Compulsory') }}
 					</span>
 				</div>
 				<div class="mydash-admin__role-actions">
 					<NcButton type="tertiary"
-						:aria-label="t('mydash', 'Edit')"
+						:aria-label="t('launchpad','Edit')"
 						@click="openEdit(row)">
 						<template #icon>
 							<Pencil :size="20" />
 						</template>
 					</NcButton>
 					<NcButton type="tertiary"
-						:aria-label="t('mydash', 'Delete')"
+						:aria-label="t('launchpad','Delete')"
 						@click="openDeleteDialog(row)">
 						<template #icon>
 							<Delete :size="20" />
@@ -58,7 +58,7 @@
 			<template #icon>
 				<Plus :size="20" />
 			</template>
-			{{ t('mydash', 'Add layout default') }}
+			{{ t('launchpad','Add layout default') }}
 		</NcButton>
 
 		<!-- Editor dialog (extracted per ADR-004 modal-isolation) -->

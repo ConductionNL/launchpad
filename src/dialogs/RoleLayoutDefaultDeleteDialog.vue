@@ -5,18 +5,18 @@
 
 <template>
 	<NcDialog
-		:name="t('mydash', 'Delete layout default')"
+		:name="t('launchpad','Delete layout default')"
 		:open="open"
 		@update:open="$emit('update:open', $event)">
 		<template #default>
-			<p>{{ t('mydash', 'Delete layout default for "{group}" / "{widget}"?', { group: groupId, widget: widgetId }) }}</p>
+			<p>{{ t('launchpad','Delete layout default for "{group}" / "{widget}"?', { group: groupId, widget: widgetId }) }}</p>
 		</template>
 		<template #actions>
 			<NcButton type="tertiary" @click="$emit('update:open', false)">
-				{{ t('mydash', 'Cancel') }}
+				{{ t('launchpad','Cancel') }}
 			</NcButton>
 			<NcButton type="error" @click="$emit('confirm')">
-				{{ t('mydash', 'Delete') }}
+				{{ t('launchpad','Delete') }}
 			</NcButton>
 		</template>
 	</NcDialog>

@@ -6,8 +6,8 @@
 <template>
 	<div class="launchpad-admin">
 		<CnSettingsSection
-			:name="t('mydash', 'MyDash settings')"
-			:description="t('mydash', 'Configure dashboard permissions and defaults')"
+			:name="t('launchpad','MyDash settings')"
+			:description="t('launchpad','Configure dashboard permissions and defaults')"
 			doc-url="https://mydash.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
 			     page, above the Beheer tabs, so the call-to-action is always
@@ -43,7 +43,7 @@
 
 			<!-- Global Settings — always visible above the tab strip. -->
 			<div class="mydash-admin__section" data-testid="admin-default-settings">
-				<h3>{{ t('mydash', 'Default settings') }}</h3>
+				<h3>{{ t('launchpad','Default settings') }}</h3>
 
 				<div class="launchpad-admin__field">
 					<NcSelect
@@ -115,7 +115,7 @@
 			     `group-default-badge` data-test hooks (task 12.2). -->
 			<div class="mydash-admin__section">
 				<div class="mydash-admin__section-header">
-					<h3>{{ t('mydash', 'Group-shared dashboards') }}</h3>
+					<h3>{{ t('launchpad','Group-shared dashboards') }}</h3>
 				</div>
 
 				<p class="launchpad-admin__hint">
@@ -281,7 +281,7 @@ export default {
 		return {
 			loading: true,
 			settings: {
-				defaultPermissionLevel: { id: 'add_only', label: this.t('mydash', 'Add only') },
+				defaultPermissionLevel: { id: 'add_only', label: this.t('launchpad','Add only') },
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
@@ -316,13 +316,13 @@ export default {
 		 */
 		beheerTabs() {
 			return [
-				{ slug: 'templates', label: this.t('mydash', 'Templates') },
-				{ slug: 'operations', label: this.t('mydash', 'Operations') },
-				{ slug: 'roles-permissions', label: this.t('mydash', 'Roles & Permissions') },
-				{ slug: 'versioning-audit', label: this.t('mydash', 'Versioning & Audit') },
-				{ slug: 'sharing', label: this.t('mydash', 'Sharing') },
-				{ slug: 'org-navigation', label: this.t('mydash', 'Org navigation') },
-				{ slug: 'demo-data', label: this.t('mydash', 'Demo data') },
+				{ slug: 'templates', label: this.t('launchpad','Templates') },
+				{ slug: 'operations', label: this.t('launchpad','Operations') },
+				{ slug: 'roles-permissions', label: this.t('launchpad','Roles & Permissions') },
+				{ slug: 'versioning-audit', label: this.t('launchpad','Versioning & Audit') },
+				{ slug: 'sharing', label: this.t('launchpad','Sharing') },
+				{ slug: 'org-navigation', label: this.t('launchpad','Org navigation') },
+				{ slug: 'demo-data', label: this.t('launchpad','Demo data') },
 				{ slug: 'group-dashboards', label: this.t('launchpad', 'Group dashboards') },
 			]
 		},

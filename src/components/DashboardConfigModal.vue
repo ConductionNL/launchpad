@@ -103,9 +103,9 @@
 						:checked="form.isDefault"
 						type="switch"
 						@update:checked="form.isDefault = $event">
-						<strong>{{ t('mydash', 'Default dashboard') }}</strong>
+						<strong>{{ t('launchpad','Default dashboard') }}</strong>
 						<span class="dashboard-config__hint">
-							{{ t('mydash', 'Open this dashboard automatically when visiting MyDash.') }}
+							{{ t('launchpad','Open this dashboard automatically when visiting MyDash.') }}
 						</span>
 					</NcCheckboxRadioSwitch>
 				</div>
@@ -353,12 +353,12 @@ export default {
 		 */
 		tabs() {
 			const list = [
-				{ id: 'general', label: t('mydash', 'General'), icon: Tune },
+				{ id: 'general', label: t('launchpad','General'), icon: Tune },
 			]
 			if (this.canManageShares) {
-				list.push({ id: 'sharing', label: t('mydash', 'Sharing'), icon: ShareVariant })
+				list.push({ id: 'sharing', label: t('launchpad','Sharing'), icon: ShareVariant })
 			}
-			list.push({ id: 'default', label: t('mydash', 'Default'), icon: StarOutline })
+			list.push({ id: 'default', label: t('launchpad','Default'), icon: StarOutline })
 			return list
 		},
 		/** @spec openspec/specs/dashboards/spec.md */

@@ -6,7 +6,7 @@
 <template>
 	<div class="metrics-panel" data-test="prometheus-metrics-panel">
 		<div class="metrics-panel__header">
-			<h3>{{ t('mydash', 'Prometheus metrics') }}</h3>
+			<h3>{{ t('launchpad','Prometheus metrics') }}</h3>
 			<NcButton
 				type="secondary"
 				:disabled="!body"
@@ -15,7 +15,7 @@
 				<template #icon>
 					<ContentCopy :size="18" />
 				</template>
-				{{ copied ? t('mydash', 'Copied') : t('mydash', 'Copy') }}
+				{{ copied ? t('launchpad','Copied') : t('launchpad','Copy') }}
 			</NcButton>
 		</div>
 
@@ -23,7 +23,7 @@
 			<NcLoadingIcon :size="24" />
 		</div>
 		<p v-else-if="error" class="metrics-panel__error" data-test="metrics-error">
-			{{ t('mydash', 'Failed to load metrics.') }}
+			{{ t('launchpad','Failed to load metrics.') }}
 		</p>
 		<pre v-else class="metrics-panel__pre" data-test="metrics-body">{{ body }}</pre>
 	</div>

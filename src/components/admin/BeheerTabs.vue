@@ -8,7 +8,7 @@
 		<div
 			class="beheer-tabs__strip"
 			role="tablist"
-			:aria-label="t('mydash', 'Administration areas')">
+			:aria-label="t('launchpad','Administration areas')">
 			<button
 				v-for="tab in tabs"
 				:key="tab.slug"

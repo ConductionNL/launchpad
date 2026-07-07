@@ -10,6 +10,9 @@
 				v-for="placement in placements"
 				:key="getPlacementKey(placement)"
 				class="grid-stack-item"
+				role="group"
+				:tabindex="editMode ? 0 : -1"
+				:aria-label="getPlacementAriaLabel(placement)"
 				:gs-id="placement.id"
 				:gs-x="placement.gridX"
 				:gs-y="placement.gridY"
@@ -17,7 +20,9 @@
 				:gs-h="placement.gridHeight"
 				:gs-min-w="2"
 				:gs-min-h="2"
-				@contextmenu="onItemContextMenu($event, placement)">
+				@contextmenu="onItemContextMenu($event, placement)"
+				@keydown.enter.prevent="onItemKeyboardMenu($event, placement)"
+				@keydown.space.prevent="onItemKeyboardMenu($event, placement)">
 				<div class="grid-stack-item-content">
 					<!-- Render Tile directly for tile placements. -->
 					<TileWidget
@@ -52,8 +57,19 @@
 			:top="contextMenu.y"
 			:left="contextMenu.x"
 			@edit="onContextEdit(contextMenu.widget)"
+			@move="onContextMove(contextMenu.widget)"
 			@remove="onContextRemove(contextMenu.widget)"
 			@close="closeContextMenu" />
+
+		<!-- Keyboard-operable move/resize panel (WCAG 2.1 SC 2.1.1
+		     keyboard-equivalent to pointer drag). -->
+		<WidgetMovePanel
+			:open="movePanel.show"
+			:placement="movePanel.placement"
+			:all-placements="placements"
+			:grid-columns="gridColumns"
+			@save="onMoveSave"
+			@close="closeMovePanel" />
 	</div>
 </template>
 
@@ -67,9 +83,11 @@ import {
 	syncCellHeightCssVar,
 	placeNewWidget,
 } from '../composables/useGridManager.js'
+import { t } from '@nextcloud/l10n'
 import WidgetWrapper from './WidgetWrapper.vue'
 import TileWidget from './TileWidget.vue'
 import WidgetContextMenu from './Widgets/WidgetContextMenu.vue'
+import WidgetMovePanel from './Widgets/WidgetMovePanel.vue'
 
 export default {
 	name: 'DashboardGrid',
@@ -78,6 +96,7 @@ export default {
 		WidgetWrapper,
 		TileWidget,
 		WidgetContextMenu,
+		WidgetMovePanel,
 	},
 
 	props: {
@@ -117,6 +136,10 @@ export default {
 				x: 0,
 				y: 0,
 				widget: null,
+			},
+			movePanel: {
+				show: false,
+				placement: null,
 			},
 		}
 	},
@@ -175,6 +198,48 @@ export default {
 		/** @spec openspec/specs/grid-layout/spec.md */
 		onItemContextMenu(event, placement) {
 			this.$emit('widget-right-click', event, placement)
+		},
+
+		/**
+		 * Accessible name for a grid item so screen readers announce it as a
+		 * navigable unit (WCAG 2.1 SC 4.1.2 Name, Role, Value) rather than an
+		 * opaque content blob.
+		 *
+		 * @param {object} placement the placement to name
+		 * @return {string} e.g. "Tile: Reports" or "Widget: widget-42"
+		 */
+		/** @spec openspec/specs/grid-layout/spec.md */
+		getPlacementAriaLabel(placement) {
+			if (this.isTilePlacement(placement)) {
+				const tileTitle = placement.tileTitle || placement.id
+				return t('launchpad', 'Tile: {title}', { title: tileTitle })
+			}
+			const widget = this.getWidget(placement.widgetId)
+			const title = (widget && (widget.title || widget.name)) || placement.widgetId || placement.id
+			return t('launchpad', 'Widget: {title}', { title })
+		},
+
+		/**
+		 * Open the context menu from the keyboard (Enter/Space) while a grid
+		 * item has focus, mirroring how right-click opens it — but positioned
+		 * from the focused element's bounding rect instead of a mouse cursor.
+		 * Edit mode only, matching the pointer path.
+		 *
+		 * @param {KeyboardEvent} event the keydown event
+		 * @param {object} placement the focused placement
+		 */
+		/** @spec openspec/specs/grid-layout/spec.md */
+		onItemKeyboardMenu(event, placement) {
+			if (!this.editMode) {
+				return
+			}
+			const rect = (event.currentTarget && typeof event.currentTarget.getBoundingClientRect === 'function')
+				? event.currentTarget.getBoundingClientRect()
+				: { left: 0, top: 0, width: 0, height: 0 }
+			this.contextMenu.show = true
+			this.contextMenu.x = rect.left + (rect.width / 2)
+			this.contextMenu.y = rect.top + (rect.height / 2)
+			this.contextMenu.widget = placement
 		},
 
 		/**
@@ -372,6 +437,66 @@ export default {
 		},
 
 		/**
+		 * Handle context menu "Move" click — open the keyboard-operable
+		 * move/resize panel for the placement.
+		 *
+		 * @param {object} placement widget placement object
+		 */
+		/** @spec openspec/specs/grid-layout/spec.md */
+		onContextMove(placement) {
+			this.movePanel.placement = placement
+			this.movePanel.show = true
+		},
+
+		/**
+		 * Close the move panel without persisting.
+		 */
+		/** @spec openspec/specs/grid-layout/spec.md */
+		closeMovePanel() {
+			this.movePanel.show = false
+			this.movePanel.placement = null
+		},
+
+		/**
+		 * Persist the keyboard move/resize result through the same
+		 * placement-update path GridStack's `change` event uses: apply the
+		 * new rect (and any pushed placements) to the placements list and
+		 * emit `update:placements`.
+		 *
+		 * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array}} rect
+		 *   the confirmed rectangle from the move panel
+		 */
+		/** @spec openspec/specs/grid-layout/spec.md */
+		onMoveSave(rect) {
+			const target = this.movePanel.placement
+			if (!target) {
+				this.closeMovePanel()
+				return
+			}
+			const pushedById = {}
+			for (const p of (rect.pushed || [])) {
+				pushedById[String(p.id)] = p.gridY
+			}
+			const updatedPlacements = this.placements.map(placement => {
+				if (String(placement.id) === String(target.id)) {
+					return {
+						...placement,
+						gridX: rect.gridX,
+						gridY: rect.gridY,
+						gridWidth: rect.gridWidth,
+						gridHeight: rect.gridHeight,
+					}
+				}
+				if (Object.prototype.hasOwnProperty.call(pushedById, String(placement.id))) {
+					return { ...placement, gridY: pushedById[String(placement.id)] }
+				}
+				return placement
+			})
+			this.$emit('update:placements', updatedPlacements)
+			this.closeMovePanel()
+		},
+
+		/**
 		 * Handle context menu "Remove" click (REQ-WDG-015).
 		 * Emits widget-remove event to parent.
 		 *
@@ -415,6 +540,14 @@ export default {
 
 .grid-stack {
 	background: transparent;
+}
+
+/* Keyboard-focus affordance for grid items (WCAG 2.1 SC 2.4.7 /
+   2.1.1) — mirrors the primary-element accent used elsewhere. */
+:deep(.grid-stack-item:focus-visible) {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+	border-radius: var(--border-radius-large);
 }
 
 :deep(.grid-stack-item-content) {

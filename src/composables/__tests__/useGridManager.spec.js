@@ -41,7 +41,9 @@ import {
 	DEFAULT_VIEWPORT_ROWS,
 	DEFAULT_W,
 	GRID_MARGIN,
+	MIN_CELLS,
 	getColumnOpts,
+	nudgePlacement,
 	placeNewWidget,
 	syncCellHeightCssVar,
 } from '../useGridManager.js'
@@ -540,5 +542,63 @@ describe('useGridManager — context menu', () => {
 		grid.closeContextMenu()
 		expect(onEdit).not.toHaveBeenCalled()
 		expect(onRemove).not.toHaveBeenCalled()
+	})
+})
+
+describe('nudgePlacement (keyboard-accessible repositioning)', () => {
+	const base = { id: 'a', gridX: 3, gridY: 2, gridWidth: 4, gridHeight: 4 }
+
+	it('MIN_CELLS mirrors the gs-min floor', () => {
+		expect(MIN_CELLS).toBe(2)
+	})
+
+	it('move-right / move-down shift by one cell', () => {
+		expect(nudgePlacement(base, 'move-right', []).gridX).toBe(4)
+		expect(nudgePlacement(base, 'move-down', []).gridY).toBe(3)
+	})
+
+	it('move-up / move-left clamp at the grid origin', () => {
+		const atOrigin = { id: 'a', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 4 }
+		expect(nudgePlacement(atOrigin, 'move-up', []).gridY).toBe(0)
+		expect(nudgePlacement(atOrigin, 'move-left', []).gridX).toBe(0)
+	})
+
+	it('move-right clamps at the right edge (x + w <= columns)', () => {
+		const nearEdge = { id: 'a', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 4 }
+		// columns = 12, w = 4 → max x is 8, so move-right is a no-op.
+		expect(nudgePlacement(nearEdge, 'move-right', [], { gridColumns: 12 }).gridX).toBe(8)
+	})
+
+	it('grow-width / grow-height increase size by one cell', () => {
+		expect(nudgePlacement(base, 'grow-width', []).gridWidth).toBe(5)
+		expect(nudgePlacement(base, 'grow-height', []).gridHeight).toBe(5)
+	})
+
+	it('shrink-width / shrink-height floor at MIN_CELLS', () => {
+		const small = { id: 'a', gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 }
+		expect(nudgePlacement(small, 'shrink-width', []).gridWidth).toBe(2)
+		expect(nudgePlacement(small, 'shrink-height', []).gridHeight).toBe(2)
+	})
+
+	it('grow-width cannot exceed the column count', () => {
+		const wide = { id: 'a', gridX: 0, gridY: 0, gridWidth: 12, gridHeight: 4 }
+		expect(nudgePlacement(wide, 'grow-width', [], { gridColumns: 12 }).gridWidth).toBe(12)
+	})
+
+	it('reports collisions with other placements as push-downs (drag parity)', () => {
+		const target = { id: 'a', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 }
+		const others = [
+			{ id: 'b', gridX: 0, gridY: 1, gridWidth: 4, gridHeight: 2 },
+			{ id: 'c', gridX: 8, gridY: 8, gridWidth: 2, gridHeight: 2 },
+		]
+		// Growing height to overlap 'b' should push 'b' below the new rect.
+		const result = nudgePlacement(target, 'grow-height', others)
+		expect(result.gridHeight).toBe(3)
+		expect(result.pushed).toEqual([{ id: 'b', gridY: 3 }])
+	})
+
+	it('an unknown action is a no-op', () => {
+		const result = nudgePlacement(base, 'not-a-real-action', [])
+		expect(result).toMatchObject({ gridX: 3, gridY: 2, gridWidth: 4, gridHeight: 4 })
 	})
 })

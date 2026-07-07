@@ -204,6 +204,21 @@ return [
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
+		// The `/report/{announcementKey}/csv` route is registered BEFORE the
+		// plain report route so the `/csv` suffix is matched first, and both
+		// come before the literal `/pending` and root POST routes.
+		['name' => 'acknowledgement#reportCsv',
+		 'url' => '/api/acknowledgements/report/{announcementKey}/csv', 'verb' => 'GET',
+		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		['name' => 'acknowledgement#report',
+		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
+		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		['name' => 'acknowledgement#pending',
+		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
+		['name' => 'acknowledgement#acknowledge',
+		 'url' => '/api/acknowledgements', 'verb' => 'POST'],
+
 		// Dashboard versioning endpoints (REQ-VERS-001..009).
 		// `{uuid}` is the dashboard UUID; `{versionNumber}` is the integer
 		// version number. Routes are registered BEFORE the personal

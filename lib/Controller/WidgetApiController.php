@@ -446,6 +446,38 @@ class WidgetApiController extends Controller
             return ResponseHelper::forbidden();
         }
 
+        // REQ-ACK-001: setting/changing/clearing the mandatory-read
+        // acknowledgement requirement is restricted to an admin or the
+        // template owner — a non-author who can otherwise style the widget
+        // MUST be rejected (ADR-005, no privilege bleed through the styling
+        // gate). Only guard when the payload actually touches an
+        // acknowledgement-requirement field.
+        $ackFields  = [
+            'requiresAcknowledgement',
+            'acknowledgementPrompt',
+            'acknowledgementDeadline',
+            'reacknowledgeOnChange',
+            'acknowledgementContentVersion',
+        ];
+        $touchesAck = false;
+        foreach ($ackFields as $ackField) {
+            if ($this->request->getParam(key: $ackField) !== null) {
+                $touchesAck = true;
+                break;
+            }
+        }
+
+        if ($touchesAck === true
+            && $this->permissionService->canManageAcknowledgement(
+                userId: $this->userId,
+                placementId: $placementId
+            ) === false
+        ) {
+            return ResponseHelper::forbidden(
+                message: 'Only an admin or the template owner may set an acknowledgement requirement'
+            );
+        }
+
         // REQ-CONT-006: validate the container depth invariant on
         // update too — a placement can grow nested children via PUT
         // without ever going through addWidget.

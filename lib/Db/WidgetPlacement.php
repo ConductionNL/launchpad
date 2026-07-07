@@ -70,6 +70,18 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCustomIcon(?string $customIcon)
  * @method string|null getContent()
  * @method void setContent(?string $content)
+ * @method int getRequiresAcknowledgement()
+ * @method void setRequiresAcknowledgement(int $requiresAcknowledgement)
+ * @method string|null getAcknowledgementPrompt()
+ * @method void setAcknowledgementPrompt(?string $acknowledgementPrompt)
+ * @method string|null getAcknowledgementDeadline()
+ * @method void setAcknowledgementDeadline(?string $acknowledgementDeadline)
+ * @method int getReacknowledgeOnChange()
+ * @method void setReacknowledgeOnChange(int $reacknowledgeOnChange)
+ * @method int getAcknowledgementContentVersion()
+ * @method void setAcknowledgementContentVersion(int $acknowledgementContentVersion)
+ * @method string|null getAnnouncementKey()
+ * @method void setAnnouncementKey(?string $announcementKey)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
@@ -252,6 +264,61 @@ class WidgetPlacement extends Entity implements JsonSerializable
     protected ?string $content = null;
 
     /**
+     * Whether this placement requires a mandatory-read acknowledgement
+     * (SMALLINT 0/1). When 0 the placement behaves exactly as before this
+     * capability existed. REQ-ACK-001.
+     *
+     * @var integer
+     */
+    protected int $requiresAcknowledgement = 0;
+
+    /**
+     * The author-supplied sign-off text shown to the recipient (e.g.
+     * "I have read and understood the 2026 integriteitscode"). Free-text
+     * content, not an i18n key. REQ-ACK-001.
+     *
+     * @var string|null
+     */
+    protected ?string $acknowledgementPrompt = null;
+
+    /**
+     * The optional acknowledgement deadline as a `Y-m-d` date string, or
+     * null for no deadline. Presented but never auto-acknowledged
+     * (REQ-ACK-002). REQ-ACK-001.
+     *
+     * @var string|null
+     */
+    protected ?string $acknowledgementDeadline = null;
+
+    /**
+     * Whether bumping the content version re-forces delivery for everyone
+     * (SMALLINT 0/1). REQ-ACK-005.
+     *
+     * @var integer
+     */
+    protected int $reacknowledgeOnChange = 0;
+
+    /**
+     * The current content version. Authors bump this when the content
+     * materially changes; with `reacknowledgeOnChange = 1` the item
+     * returns to the unacknowledged state for the new version.
+     * REQ-ACK-001 / REQ-ACK-005.
+     *
+     * @var integer
+     */
+    protected int $acknowledgementContentVersion = 1;
+
+    /**
+     * The stable announcement identity (UUID) minted the first time
+     * acknowledgement is required and copied to every cloned placement so
+     * all recipients of one announcement share one identity. Null until a
+     * requirement is set. REQ-ACK-001 (design D2).
+     *
+     * @var string|null
+     */
+    protected ?string $announcementKey = null;
+
+    /**
      * The creation timestamp as string.
      *
      * @var string|null
@@ -288,6 +355,11 @@ class WidgetPlacement extends Entity implements JsonSerializable
         $this->addType(fieldName: 'showTitle', type: 'integer');
         // SMALLINT in DB (0/1).
         $this->addType(fieldName: 'sortOrder', type: 'integer');
+        $this->addType(fieldName: 'requiresAcknowledgement', type: 'integer');
+        // SMALLINT in DB (0/1).
+        $this->addType(fieldName: 'reacknowledgeOnChange', type: 'integer');
+        // SMALLINT in DB (0/1).
+        $this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
     }//end __construct()
 
     /**
@@ -366,32 +438,48 @@ class WidgetPlacement extends Entity implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        // styleConfig and content are associative JSON blobs. An empty blob
-        // decodes to a PHP `[]`, which json_encodes to a JSON array (`[]`)
-        // rather than an object (`{}`). Cast the empty case to stdClass so the
-        // wire format is always an object — clients type these fields as
-        // objects and a stray `[]` is truthy-but-wrong on the frontend.
+        // The styleConfig and content are associative JSON blobs. An empty
+        // blob decodes to a PHP `[]`, which json_encodes to a JSON array
+        // (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
+        // so the wire format is always an object — clients type these fields
+        // as objects and a stray `[]` is truthy-but-wrong on the frontend.
         $styleConfig = $this->getStyleConfigArray();
         $content     = $this->getContentArray();
 
+        $styleConfigOut = new \stdClass();
+        if (empty($styleConfig) === false) {
+            $styleConfigOut = $styleConfig;
+        }
+
+        $contentOut = new \stdClass();
+        if (empty($content) === false) {
+            $contentOut = $content;
+        }
+
         $data = [
-            'id'           => $this->getId(),
-            'dashboardId'  => $this->dashboardId,
-            'widgetId'     => $this->widgetId,
-            'gridX'        => $this->gridX,
-            'gridY'        => $this->gridY,
-            'gridWidth'    => $this->gridWidth,
-            'gridHeight'   => $this->gridHeight,
-            'isCompulsory' => $this->isCompulsory,
-            'isVisible'    => $this->isVisible,
-            'styleConfig'  => empty($styleConfig) === true ? new \stdClass() : $styleConfig,
-            'customTitle'  => $this->customTitle,
-            'customIcon'   => $this->customIcon,
-            'content'      => empty($content) === true ? new \stdClass() : $content,
-            'showTitle'    => $this->showTitle,
-            'sortOrder'    => $this->sortOrder,
-            'createdAt'    => $this->createdAt,
-            'updatedAt'    => $this->updatedAt,
+            'id'                            => $this->getId(),
+            'dashboardId'                   => $this->dashboardId,
+            'widgetId'                      => $this->widgetId,
+            'gridX'                         => $this->gridX,
+            'gridY'                         => $this->gridY,
+            'gridWidth'                     => $this->gridWidth,
+            'gridHeight'                    => $this->gridHeight,
+            'isCompulsory'                  => $this->isCompulsory,
+            'isVisible'                     => $this->isVisible,
+            'styleConfig'                   => $styleConfigOut,
+            'customTitle'                   => $this->customTitle,
+            'customIcon'                    => $this->customIcon,
+            'content'                       => $contentOut,
+            'showTitle'                     => $this->showTitle,
+            'sortOrder'                     => $this->sortOrder,
+            'requiresAcknowledgement'       => $this->requiresAcknowledgement,
+            'acknowledgementPrompt'         => $this->acknowledgementPrompt,
+            'acknowledgementDeadline'       => $this->acknowledgementDeadline,
+            'reacknowledgeOnChange'         => $this->reacknowledgeOnChange,
+            'acknowledgementContentVersion' => $this->acknowledgementContentVersion,
+            'announcementKey'               => $this->announcementKey,
+            'createdAt'                     => $this->createdAt,
+            'updatedAt'                     => $this->updatedAt,
         ];
 
         // Include tile configuration if this is a tile.

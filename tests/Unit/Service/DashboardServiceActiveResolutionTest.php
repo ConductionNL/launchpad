@@ -628,6 +628,9 @@ class DashboardServiceActiveResolutionTest extends TestCase
             type: Dashboard::TYPE_GROUP_SHARED,
             groupId: Dashboard::DEFAULT_GROUP_ID
         );
+        // The resolver loads placements by numeric id; give the showcase a
+        // concrete id so the typed `findByDashboardId(int)` mock is satisfied.
+        $showcase->setId(4242);
         $this->stubVisible('alice', [
             ['dashboard' => $showcase, 'source' => Dashboard::SOURCE_DEFAULT],
         ]);

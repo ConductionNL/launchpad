@@ -92,6 +92,14 @@ export const useDashboardStore = defineStore('dashboard', {
 			dashboardsUsed: 0,
 			maxWidgetsPerDashboard: 0,
 		},
+		// dashboard-acknowledgements REQ-ACK-002: the current user's
+		// outstanding mandatory-read items, fetched from
+		// `/api/acknowledgements/pending`. Each entry carries
+		// `{placementId, dashboardUuid, announcementKey, prompt, deadline,
+		// contentVersion}`. Empty until `fetchPendingAcknowledgements()` runs
+		// — so dashboards with no acknowledgement requirements render exactly
+		// as before (no forced-delivery gate, no indicator).
+		pendingAcknowledgements: [],
 	}),
 
 	getters: {
@@ -103,6 +111,35 @@ export const useDashboardStore = defineStore('dashboard', {
 
 		compulsoryPlacements: (state) => {
 			return state.widgetPlacements.filter(p => p.isCompulsory)
+		},
+
+		// dashboard-acknowledgements REQ-ACK-002: the count of the user's
+		// outstanding (unacknowledged) mandatory items, surfaced as the
+		// dashboard-level indicator.
+		outstandingAcknowledgementCount: (state) => state.pendingAcknowledgements.length,
+
+		// The set of announcement keys the current user still owes a
+		// sign-off on. Used by the widget wrapper to decide whether to force
+		// delivery on a given placement.
+		pendingAnnouncementKeys: (state) => new Set(
+			state.pendingAcknowledgements
+				.map((item) => item.announcementKey)
+				.filter((key) => !!key),
+		),
+
+		// REQ-ACK-002: whether a placement is an outstanding mandatory item
+		// for the current user (requires acknowledgement AND its announcement
+		// is still pending).
+		isPlacementOutstanding: (state) => (placement) => {
+			if (!placement || Number(placement.requiresAcknowledgement) !== 1) {
+				return false
+			}
+			if (!placement.announcementKey) {
+				return false
+			}
+			return state.pendingAcknowledgements.some(
+				(item) => item.announcementKey === placement.announcementKey,
+			)
 		},
 
 		// REQ-DASH-013 — personal user-owned dashboards. Backed by the
@@ -270,6 +307,38 @@ export const useDashboardStore = defineStore('dashboard', {
 	},
 
 	actions: {
+		// dashboard-acknowledgements REQ-ACK-002: refresh the user's
+		// outstanding mandatory-read items. Failures are non-fatal — a broken
+		// acknowledgement fetch must never blank the dashboard, so the list is
+		// simply left empty (no forced-delivery gate).
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		async fetchPendingAcknowledgements() {
+			try {
+				const response = await api.getPendingAcknowledgements()
+				this.pendingAcknowledgements = response?.data?.items ?? []
+			} catch (error) {
+				console.warn('Failed to load pending acknowledgements:', error)
+				this.pendingAcknowledgements = []
+			}
+		},
+
+		// REQ-ACK-002 / REQ-ACK-003: record the current user's sign-off for a
+		// placement's announcement (idempotent server-side) and drop it from
+		// the outstanding set on success.
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		async acknowledgePlacement(placement) {
+			if (!placement?.announcementKey) {
+				return
+			}
+			await api.acknowledge(
+				placement.announcementKey,
+				Number(placement.acknowledgementContentVersion) || 1,
+			)
+			this.pendingAcknowledgements = this.pendingAcknowledgements.filter(
+				(item) => item.announcementKey !== placement.announcementKey,
+			)
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		async loadDashboards() {
 			this.loading = true

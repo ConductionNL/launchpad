@@ -23,6 +23,8 @@ placement, so all recipients of one announcement share one identity. A caller
 who is not an admin or the template owner MUST be rejected with `403` and the
 placement MUST be unchanged.
 
+@e2e exclude Configuration + persistence + clone-propagation path; covered by PlacementUpdater / TemplateService / WidgetPlacementMapper PHPUnit and the non-author 403 by AcknowledgementControllerTest — no dedicated admin form UI in this pass.
+
 #### Scenario: Admin requires acknowledgement on a template announcement
 
 - **GIVEN** an admin editing template dashboard `t-hr-2026` with a header widget placement `p-integriteitscode`
@@ -66,12 +68,16 @@ outstanding (unacknowledged) mandatory items.
 
 #### Scenario: Already-acknowledged item renders normally
 
+@e2e exclude Asserted in AcknowledgementServiceTest::isOutstanding (no-receipt vs receipt) and the dashboard store vitest — the "already acknowledged" state renders the plain widget, the same negative path the covered sign-off scenario exits into.
+
 - **GIVEN** user "alice" has a receipt for `announcementKey` `ak-1` at `acknowledgementContentVersion = 1`
 - **WHEN** she reopens the dashboard and the placement is still at version `1`
 - **THEN** the widget MUST render its normal content with no forced-delivery prompt
 - **AND** the outstanding-acknowledgements count MUST NOT include this item
 
 #### Scenario: Deadline is presented but does not auto-acknowledge
+
+@e2e exclude Deadline/overdue presentation is unit-covered (AcknowledgementService::isOverdue + AcknowledgementPrompt vitest) and requires a fixed system date; the prompt still requires an explicit sign-off, covered by the main gate scenario.
 
 - **GIVEN** placement `p-integriteitscode` with `acknowledgementDeadline = 2026-08-01` and the current date is `2026-08-02`
 - **WHEN** an unacknowledged user opens the dashboard
@@ -97,12 +103,16 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
 #### Scenario: Repeated acknowledgement is idempotent
 
+@e2e exclude Row-level idempotency (no second row, original timestamp) is asserted in AcknowledgementServiceTest::testRepeatedAcknowledgeIsIdempotent + the race test — not observable through the UI.
+
 - **GIVEN** user "alice" already has a receipt for `(ak-1, alice, 1)`
 - **WHEN** she `POST`s the same acknowledgement again
 - **THEN** the system MUST NOT insert a second row
 - **AND** MUST return success with the original `acknowledgedAt` unchanged
 
 #### Scenario: A user cannot acknowledge on behalf of another user
+
+@e2e exclude Cross-user 403 (no IDOR) is asserted in AcknowledgementControllerTest::testAcknowledgeRejectsCrossUser — a server-side auth contract, not a UI flow.
 
 - **GIVEN** authenticated user "alice"
 - **WHEN** she `POST`s an acknowledgement whose body names `userId = "bob"`
@@ -131,12 +141,16 @@ an admin nor the template owner MUST be rejected with `403`.
 
 #### Scenario: A newly added group member becomes pending automatically
 
+@e2e exclude Live-audience resolution via IGroupManager is asserted in AcknowledgementServiceTest::testReportSeparatesAcknowledgedFromPending — mutating group membership mid-session is out of scope for a single UI run.
+
 - **GIVEN** the report above, and `dave` is subsequently added to group "sociaal-domein"
 - **WHEN** the report is requested again
 - **THEN** the audience MUST include `dave`
 - **AND** `dave` MUST appear in the pending list until he acknowledges
 
 #### Scenario: Non-author cannot read the report
+
+@e2e exclude Non-author 403 on the report is asserted in AcknowledgementControllerTest::testReportRejectsNonOwner / testReportCsvRejectsNonManager — a server-side auth contract, not a UI flow.
 
 - **GIVEN** user "bob" who is a recipient of `ak-1` but not an admin or template owner
 - **WHEN** bob requests the read-receipt report for `ak-1`
@@ -150,6 +164,8 @@ when an author bumps `acknowledgementContentVersion` on a placement whose
 Receipts for prior versions MUST be retained as history and MUST NOT satisfy the
 new version. When `reacknowledgeOnChange = 0`, bumping the version MUST NOT
 re-force delivery for users who already acknowledged a prior version.
+
+@e2e exclude Version-bump re-force logic (both branches) is asserted in AcknowledgementServiceTest::isOutstanding — a content-version bump is not directly UI-observable in a single session.
 
 #### Scenario: Version bump re-forces delivery when re-acknowledge is on
 
@@ -173,6 +189,8 @@ the announcement, and the read-receipt report MUST be exportable as CSV
 containing one row per audience member with acknowledged/pending status and, for
 acknowledged rows, the timestamp — so the result can be filed as compliance
 evidence.
+
+@e2e exclude Single-shot activity emission and the CSV export body are asserted in AcknowledgementServiceTest / AcknowledgementControllerTest — the CSV `DataDownloadResponse` cannot be exercised under the OCP stub bootstrap and the Activity row is not UI-observable on the dashboard.
 
 #### Scenario: Acknowledging emits one activity event
 

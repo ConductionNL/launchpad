@@ -557,6 +557,43 @@ class PermissionService
     }//end verifyDashboardOwnership()
 
     /**
+     * Whether the user may set/change/clear the mandatory-read
+     * acknowledgement requirement on a placement — a Nextcloud admin, a
+     * LaunchPad admin, or the owner of the placement's dashboard (the
+     * template author). A non-author MUST be rejected (REQ-ACK-001,
+     * ADR-005). Returns false when the placement or its dashboard is
+     * missing.
+     *
+     * @param string $userId      The acting user ID.
+     * @param int    $placementId The placement ID.
+     *
+     * @return bool True when the user may manage the requirement.
+     *
+     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+     */
+    public function canManageAcknowledgement(
+        string $userId,
+        int $placementId
+    ): bool {
+        if ($this->groupManager->isAdmin(userId: $userId) === true
+            || $this->roleService->isAdmin(userId: $userId) === true
+        ) {
+            return true;
+        }
+
+        try {
+            $placement = $this->placementMapper->find(id: $placementId);
+            $dashboard = $this->dashboardMapper->find(
+                id: $placement->getDashboardId()
+            );
+        } catch (DoesNotExistException) {
+            return false;
+        }
+
+        return $dashboard->getUserId() === $userId;
+    }//end canManageAcknowledgement()
+
+    /**
      * Verify user owns a placement's dashboard.
      *
      * @param string $userId      The user ID.

@@ -25,6 +25,7 @@
  * | dashboard_restored                 | dashboard-versioning          |
  * | dashboard_lock_overridden          | dashboard-locking             |
  * | dashboard_role_changed             | admin-roles                   |
+ * | dashboard_acknowledged             | dashboard-acknowledgements    |
  *
  * Sibling capabilities MUST emit through `ActivityPublisher::publish()`
  * after the primary domain action has been persisted. They MUST NOT
@@ -91,6 +92,7 @@ class Extension implements IProvider
     public const EVENT_RESTORED        = 'dashboard_restored';
     public const EVENT_LOCK_OVERRIDDEN = 'dashboard_lock_overridden';
     public const EVENT_ROLE_CHANGED    = 'dashboard_role_changed';
+    public const EVENT_ACKNOWLEDGED    = 'dashboard_acknowledged';
 
     /**
      * Canonical list of every LaunchPad event type registered with NC
@@ -115,6 +117,7 @@ class Extension implements IProvider
         self::EVENT_RESTORED,
         self::EVENT_LOCK_OVERRIDDEN,
         self::EVENT_ROLE_CHANGED,
+        self::EVENT_ACKNOWLEDGED,
     ];
 
     /**
@@ -291,6 +294,10 @@ class Extension implements IProvider
             self::EVENT_ROLE_CHANGED         => [
                 'self'  => 'Your role in {dashboard} was changed to {role}',
                 'other' => "{actor} changed {target}'s role in {dashboard} to {role}",
+            ],
+            self::EVENT_ACKNOWLEDGED         => [
+                'self'  => 'You acknowledged {dashboard}',
+                'other' => '{actor} acknowledged {dashboard}',
             ],
         ];
     }//end getSubjectTemplates()

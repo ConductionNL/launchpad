@@ -240,6 +240,15 @@ class TemplateService
         );
         $placement->setShowTitle($source->getShowTitle());
         $placement->setSortOrder($source->getSortOrder());
+        // REQ-ACK-001: copy the acknowledgement requirement and the stable
+        // `announcementKey` so every recipient cloned from this template
+        // placement shares one announcement identity (design D2).
+        $placement->setRequiresAcknowledgement($source->getRequiresAcknowledgement());
+        $placement->setAcknowledgementPrompt($source->getAcknowledgementPrompt());
+        $placement->setAcknowledgementDeadline($source->getAcknowledgementDeadline());
+        $placement->setReacknowledgeOnChange($source->getReacknowledgeOnChange());
+        $placement->setAcknowledgementContentVersion($source->getAcknowledgementContentVersion());
+        $placement->setAnnouncementKey($source->getAnnouncementKey());
         $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setCreatedAt($now);
         $placement->setUpdatedAt($now);

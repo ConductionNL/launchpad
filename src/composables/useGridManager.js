@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * useGridManager — combined GridStack configuration + Vue 2 composable.
  *
@@ -13,12 +13,12 @@
  *    - `getColumnOpts()` — returns the `columnOpts` bag for `GridStack.init`
  *    - `syncCellHeightCssVar()` — mirrors `CELL_HEIGHT` into a CSS variable
  *
- * 2. Add-widget placement helper (REQ-GRID-006 widget auto-layout +
- *    REQ-GRID-014 single placement authority):
- *    - `placeNewWidget(spec, placements, options?)` — primary auto-position
- *      with top-left + push-down fallback. Single legal caller of
- *      `grid.addWidget(...)` in the codebase (enforced by grep test).
- *    - `DEFAULT_W`, `DEFAULT_H`, `DEFAULT_VIEWPORT_ROWS` constants.
+ * 2. Add-widget placement helper (REQ-GRID-014 single placement authority):
+ *    - `placeNewWidget(spec, placements, options?)` — always appends the new
+ *      widget in a fresh row below all existing widgets; never moves existing
+ *      widgets. Single legal caller of `grid.addWidget(...)` in the codebase
+ *      (enforced by grep test).
+ *    - `DEFAULT_W`, `DEFAULT_H` constants.
  *
  * 3. Right-click context-menu state for widget placements
  *    (REQ-WDG-015..017, widget-context-menu):
@@ -158,119 +158,40 @@ export const DEFAULT_W = 4
 export const DEFAULT_H = 4
 
 /**
- * Fallback "viewport rows" used when the caller does not pass a measured
- * value. 8 rows × 60 px ≈ 480 px which is the smallest first-paint surface.
+ * Compute the placement coordinates for a new widget being added to the
+ * dashboard.
  *
- * @type {number}
- */
-export const DEFAULT_VIEWPORT_ROWS = 8
-
-/**
- * Pure rectangle-overlap test on integer grid coordinates.
+ * Behaviour: always append the new widget in a fresh row directly below all
+ * existing widgets — `x = 0`, `y =` the lowest occupied bottom edge. Existing
+ * widgets are never moved (there is no push-down), and an empty dashboard
+ * places the first widget at `(0, 0)`.
  *
- * @param {{x: number, y: number, w: number, h: number}} a
- * @param {{x: number, y: number, w: number, h: number}} b
- * @return {boolean}
- */
-function rectsOverlap(a, b) {
-	return (
-		a.x < b.x + b.w
-		&& b.x < a.x + a.w
-		&& a.y < b.y + b.h
-		&& b.y < a.y + a.h
-	)
-}
-
-/**
- * Engine-free emulation of GridStack's `findEmptyPosition` scan.
- *
- * @param {{w: number, h: number}} sz target widget size in cells
- * @param {Array<{x: number, y: number, w: number, h: number}>} nodes existing widgets
- * @param {number} columns total grid columns
- * @param {number} maxScanRows scan ceiling
- * @return {{x: number, y: number} | null}
- */
-function scanForEmptySlot(sz, nodes, columns, maxScanRows) {
-	if (sz.w > columns) {
-		return null
-	}
-	for (let y = 0; y < maxScanRows; y++) {
-		for (let x = 0; x <= columns - sz.w; x++) {
-			const candidate = { x, y, w: sz.w, h: sz.h }
-			const collides = nodes.some(n => rectsOverlap(candidate, n))
-			if (!collides) {
-				return { x, y }
-			}
-		}
-	}
-	return null
-}
-
-/**
- * Compute the placement coordinates and any required push-down side effects
- * for a new widget being added to the dashboard.
- *
- * Algorithm (REQ-GRID-006):
- *   1. **Primary** — try `grid.addWidget({...spec, autoPosition: true})`
- *      via the supplied live GridStack instance, OR emulate the same scan
- *      with `scanForEmptySlot`.
- *   2. **Fallback** — when step 1 returns no slot OR the picked slot is
- *      below `viewportRows` (off-screen on first paint), place the new
- *      widget at `(0, 0)` and shift every overlapping existing widget to
- *      `gridY = h`.
+ * This deliberately replaces the former "keep the new widget on-screen by
+ * inserting it at top-left and pushing every existing widget down" rule, which
+ * reordered the user's layout on every add once the visible rows filled up.
  *
  * @param {object} spec target widget spec — `w`/`h` default to {@link DEFAULT_W}/{@link DEFAULT_H}
  * @param {Array<object>} placements current placements in LaunchPad field-name form
  *   (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`)
- * @param {object} [options] optional knobs
- * @param {number} [options.gridColumns] column count, defaults to {@link DEFAULT_COLUMNS}
- * @param {number} [options.viewportRows] visible rows on first paint, defaults to {@link DEFAULT_VIEWPORT_ROWS}
- * @param {object} [options.grid] live GridStack instance — when supplied the engine is used directly
+ * @param {object} [options] optional knobs (accepted for caller compatibility;
+ *   none affect bottom placement)
  * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
+ *   `pushed` is always empty — existing widgets are never moved.
  */
 /** @spec openspec/specs/grid-layout/spec.md */
 export function placeNewWidget(spec, placements, options = {}) {
 	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : DEFAULT_W
 	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : DEFAULT_H
-	const columns = options.gridColumns || DEFAULT_COLUMNS
-	const viewportRows = options.viewportRows || DEFAULT_VIEWPORT_ROWS
 
 	const safePlacements = Array.isArray(placements) ? placements : []
-	const nodes = safePlacements.map(p => ({
-		id: p.id,
-		x: Number.isFinite(p.gridX) ? p.gridX : 0,
-		y: Number.isFinite(p.gridY) ? p.gridY : 0,
-		w: Number.isFinite(p.gridWidth) ? p.gridWidth : 1,
-		h: Number.isFinite(p.gridHeight) ? p.gridHeight : 1,
-	}))
-
-	let primaryHit = null
-	if (options.grid && options.grid.engine) {
-		const probe = { w, h, _id: '__launchpad_probe__' }
-		const liveNodes = options.grid.engine.nodes.filter(n => n._id !== probe._id)
-		const found = options.grid.engine.findEmptyPosition(probe, liveNodes, columns)
-		if (found) {
-			primaryHit = { x: probe.x, y: probe.y }
-		}
-	} else {
-		primaryHit = scanForEmptySlot({ w, h }, nodes, columns, viewportRows * 4)
+	let bottomY = 0
+	for (const p of safePlacements) {
+		const y = Number.isFinite(p.gridY) ? p.gridY : 0
+		const ph = Number.isFinite(p.gridHeight) ? p.gridHeight : 1
+		bottomY = Math.max(bottomY, y + ph)
 	}
 
-	const primaryAcceptable = primaryHit !== null && primaryHit.y < viewportRows
-
-	if (primaryAcceptable) {
-		return { x: primaryHit.x, y: primaryHit.y, w, h, pushed: [] }
-	}
-
-	const newRect = { x: 0, y: 0, w, h }
-	const pushed = []
-	for (const node of nodes) {
-		if (rectsOverlap(newRect, node)) {
-			pushed.push({ id: node.id, gridY: h })
-		}
-	}
-
-	return { x: 0, y: 0, w, h, pushed }
+	return { x: 0, y: bottomY, w, h, pushed: [] }
 }
 
 // ---------------------------------------------------------------------------

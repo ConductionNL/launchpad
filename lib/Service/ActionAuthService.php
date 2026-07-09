@@ -121,7 +121,6 @@ class ActionAuthService
 
     }//end requireAction()
 
-
     /**
      * Get the list of groups allowed to perform the action.
      *

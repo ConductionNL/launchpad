@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * useNestedGridManager — Vue 2 composable that wraps an inner GridStack
  * instance for the `container` widget type (REQ-CONT-001..007).
@@ -85,18 +85,17 @@ export function getNestedGridOptions() {
  * Compute the placement coordinates for a NEW child widget inside a
  * container's inner grid, bounded to {@link NESTED_COLUMNS} columns.
  *
- * Reuses the outer-grid `placeNewWidget` algorithm (top-left + push-down
- * fallback), passing the inner-grid column count via `options.gridColumns`
- * so the scan respects the 4-column ceiling.
+ * Reuses the outer-grid `placeNewWidget` algorithm (append in a fresh row
+ * below all existing children; existing children are never moved), passing the
+ * inner-grid column count via `options.gridColumns` for caller compatibility.
  *
  * @param {object} spec target widget spec — `w`/`h` default to
  *   {@link NESTED_DEFAULT_W} / {@link NESTED_DEFAULT_H}.
  * @param {Array<object>} placements current child placements in LaunchPad
  *   field-name form (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`).
- * @param {object} [options] optional knobs
- * @param {number} [options.viewportRows] visible rows on first paint
- * @param {object} [options.grid] live inner GridStack instance
+ * @param {object} [options] optional knobs (accepted for caller compatibility)
  * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
+ *   `pushed` is always empty — existing children are never moved.
  */
 /** @spec openspec/specs/container-widget/spec.md */
 export function placeNewWidget(spec, placements, options = {}) {

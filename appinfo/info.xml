@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
@@ -23,6 +23,9 @@
 - **Widget styling** — Customize colors, borders, and titles for each individual widget
 - **Compulsory widgets** — Admins can pin important widgets that users cannot remove
 - **Full Nextcloud compatibility** — Works with every existing Nextcloud dashboard widget out of the box
+- **Role-based widget access** — Restrict which widget types a group of users may add, resolved from Nextcloud group membership
+- **Dashboard sharing** — Share a dashboard with specific users or groups, or publish a brute-force-protected read-only public link
+- **Group dashboards** — One shared dashboard per group, in addition to personal dashboards
 
 Perfect for organizations that want consistent, curated dashboards for their teams while still giving users freedom to personalize.
 
@@ -41,35 +44,43 @@ Free and open source under the EUPL-1.2 license.
 - **Widget-styling** — Pas kleuren, randen en titels aan voor elke individuele widget
 - **Verplichte widgets** — Beheerders kunnen belangrijke widgets vastzetten die gebruikers niet kunnen verwijderen
 - **Volledige Nextcloud-compatibiliteit** — Werkt direct met elke bestaande Nextcloud dashboard-widget
+- **Rolgebaseerde widget-toegang** — Beperk welke widget-types een gebruikersgroep mag toevoegen, op basis van Nextcloud-groepslidmaatschap
+- **Dashboards delen** — Deel een dashboard met specifieke gebruikers of groepen, of publiceer een tegen brute-force beveiligde alleen-lezen publieke link
+- **Groepsdashboards** — Eén gedeeld dashboard per groep, naast persoonlijke dashboards
 
 Ideaal voor organisaties die consistente, samengestelde dashboards willen voor hun teams, terwijl gebruikers de vrijheid houden om te personaliseren.
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
 	<version>1.0.5-unstable.11</version>
-	<licence>agpl</licence>
+	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
 	<documentation>
-		<user>https://github.com/ConductionNL/launchpad</user>
-		<admin>https://github.com/ConductionNL/launchpad</admin>
-		<developer>https://github.com/ConductionNL/launchpad</developer>
+		<user>https://codeberg.org/Conduction/launchpad</user>
+		<admin>https://codeberg.org/Conduction/launchpad</admin>
+		<developer>https://codeberg.org/Conduction/launchpad</developer>
 	</documentation>
 	<category>customization</category>
 	<category>organization</category>
 	<category>dashboard</category>
-	<website>https://github.com/ConductionNL/launchpad</website>
-	<discussion>https://github.com/ConductionNL/launchpad/discussions</discussion>
-	<bugs>https://github.com/ConductionNL/launchpad/issues</bugs>
-	<repository>https://github.com/ConductionNL/launchpad</repository>
+	<website>https://codeberg.org/Conduction/launchpad</website>
+	<bugs>https://codeberg.org/Conduction/launchpad/issues</bugs>
+	<repository>https://codeberg.org/Conduction/launchpad</repository>
 
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/app-store.svg</screenshot>
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot.png</screenshot>
+	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-dashboard.png</screenshot>
+	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-widgets.png</screenshot>
+	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-admin.png</screenshot>
 
+	<!-- ADR: LaunchPad is an OR-free app (docs/architecture.md "Runtime-only
+	     OR consumption policy"). It MUST boot and function fully on a
+	     Nextcloud instance with no OpenRegister installed; any OR data is
+	     consumed optionally at runtime and feature-detected per widget.
+	     OpenRegister therefore MUST NOT be declared as an install-time
+	     dependency here. -->
 	<dependencies>
 		<php min-version="8.3"/>
 		<nextcloud min-version="29" max-version="34"/>
-		<app>openregister</app>
 	</dependencies>
 
 	<!-- Surface dashboards, widget content, and metadata in NC unified search. REQ-SRCH-001. -->

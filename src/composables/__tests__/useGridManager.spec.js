@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `useGridManager.js` covering both halves of the
  * combined composable:
@@ -17,10 +17,10 @@
  *     popover, view-mode falls through, viewport clamping, swap-not-stack,
  *     outside-click closes, listener cleanup.
  *   - REQ-GRID-006 (Widget Auto-Layout) + REQ-GRID-014 (single placement
- *     authority): `placeNewWidget()` returns the auto-position slot when
- *     space exists, falls back to top-left + push-down when the top is
- *     full or the auto-position slot lands below the viewport, applies
- *     the 4×4 default size, and is the ONLY caller of `grid.addWidget(`
+ *     authority): `placeNewWidget()` always appends the new widget in a
+ *     fresh row below all existing widgets (`x=0`, `y=` lowest occupied
+ *     bottom edge) and never moves existing widgets, applies the 4×4
+ *     default size, and is the ONLY caller of `grid.addWidget(`
  *     in `src/` (architectural enforcement via grep test).
  *
  * These constants are the single source of truth referenced by
@@ -38,7 +38,6 @@ import {
 	COLUMN_LAYOUT,
 	DEFAULT_COLUMNS,
 	DEFAULT_H,
-	DEFAULT_VIEWPORT_ROWS,
 	DEFAULT_W,
 	GRID_MARGIN,
 	getColumnOpts,
@@ -144,21 +143,21 @@ describe('useGridManager — grid configuration', () => {
 		})
 	})
 
-	describe('REQ-GRID-006 + REQ-GRID-014 placeNewWidget()', () => {
+	describe('REQ-GRID-014 placeNewWidget() — always appends at the bottom', () => {
 		it('exports the documented default constants', () => {
 			expect(DEFAULT_W).toBe(4)
 			expect(DEFAULT_H).toBe(4)
-			expect(DEFAULT_VIEWPORT_ROWS).toBe(8)
 		})
 
-		it('auto-positions into empty space when the top region has room (no pushes)', () => {
+		it('appends below the only existing widget without moving it', () => {
 			// Single existing widget at top-left occupying half the row.
 			const placements = [
 				{ id: 'a', gridX: 0, gridY: 0, gridWidth: 6, gridHeight: 4 },
 			]
 			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
-			// First empty row-major slot at y=0 is x=6 (right of the existing widget).
-			expect(result).toMatchObject({ x: 6, y: 0, w: 4, h: 4, pushed: [] })
+			// Free space remains at x=6,y=0, but we still drop the widget in a
+			// fresh row below everything (bottom edge of `a` is y=4).
+			expect(result).toMatchObject({ x: 0, y: 4, w: 4, h: 4, pushed: [] })
 		})
 
 		it('applies the 4×4 default size when the spec omits w/h', () => {
@@ -171,93 +170,26 @@ describe('useGridManager — grid configuration', () => {
 			expect(result).toMatchObject({ w: 2, h: 2 })
 		})
 
-		it('falls back to top-left + push-down when the top region is fully occupied', () => {
-			// Three 4-wide widgets fill the entire (0..12) × (0..4) region.
+		it('places below the lowest widget and never pushes existing widgets', () => {
+			// A full top region plus a widget that already lives lower down.
 			const placements = [
 				{ id: 'a', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 4 },
 				{ id: 'b', gridX: 4, gridY: 0, gridWidth: 4, gridHeight: 4 },
 				{ id: 'c', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 4 },
-				// Non-overlapping widget that already lives below — must not be touched.
 				{ id: 'd', gridX: 0, gridY: 6, gridWidth: 4, gridHeight: 2 },
 			]
-			const result = placeNewWidget({ w: 4, h: 4 }, placements, {
-				gridColumns: 12,
-				viewportRows: 4, // tighten so y=4 (the next empty slot) is treated as off-screen
-			})
-			expect(result.x).toBe(0)
-			expect(result.y).toBe(0)
-			expect(result.w).toBe(4)
-			expect(result.h).toBe(4)
-			// Only widgets `a` (overlaps) is in the new rect's column lane;
-			// `b` and `c` are in columns ≥ 4 so they do NOT overlap [0..4).
-			// Confirm only the overlapper gained gridY.
-			const pushedIds = result.pushed.map(p => p.id).sort()
-			expect(pushedIds).toEqual(['a'])
-			expect(result.pushed.find(p => p.id === 'a').gridY).toBe(4)
-			// `d` was at y=6 — outside the new rect — so it stays put.
-			expect(result.pushed.find(p => p.id === 'd')).toBeUndefined()
+			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
+			// Lowest bottom edge is `d` at gridY 6 + gridHeight 2 = 8.
+			expect(result).toMatchObject({ x: 0, y: 8, w: 4, h: 4, pushed: [] })
 		})
 
-		it('push-down on a widget that overlaps the top region keeps gridX/gridWidth intact (only gridY changes)', () => {
-			// Existing widget straddles the right half but overlaps the new 6×3 placement at top-left.
+		it('uses the bottom edge of the lowest widget even when it is not the last in the array', () => {
 			const placements = [
-				{ id: 'right', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 2 },
+				{ id: 'low', gridX: 0, gridY: 5, gridWidth: 6, gridHeight: 3 }, // bottom edge = 8
+				{ id: 'high', gridX: 6, gridY: 0, gridWidth: 6, gridHeight: 2 }, // bottom edge = 2
 			]
-			const result = placeNewWidget({ w: 6, h: 3 }, placements, {
-				gridColumns: 12,
-				viewportRows: 1, // forces fallback even though there IS room at y=0,x=0
-			})
-			// Note: x=0..6 of the new widget DOES NOT overlap x=8..12 of `right`,
-			// so `right` should NOT be pushed under the design rule. Validate this
-			// stays true even with an aggressively tight viewport.
-			expect(result.x).toBe(0)
-			expect(result.y).toBe(0)
-			expect(result.pushed).toEqual([])
-		})
-
-		it('actually pushes a wide overlapper at top to gridY = newH and keeps gridX/gridWidth', () => {
-			// Wide existing widget that overlaps a 6-wide new placement.
-			const placements = [
-				{ id: 'wide', gridX: 4, gridY: 0, gridWidth: 8, gridHeight: 2 },
-			]
-			const result = placeNewWidget({ w: 6, h: 3 }, placements, {
-				gridColumns: 12,
-				viewportRows: 1,
-			})
-			expect(result.pushed).toHaveLength(1)
-			expect(result.pushed[0]).toEqual({ id: 'wide', gridY: 3 })
-			// gridX/gridWidth are NOT in the push payload — only gridY moves.
-			// (Caller merges by id, leaving the other fields untouched.)
-		})
-
-		it('treats the auto-positioned slot as a failure when it lands below viewportRows', () => {
-			// Fill rows 0..3 entirely so the next empty slot is at y=4.
-			const placements = []
-			for (let y = 0; y < 4; y++) {
-				placements.push({ id: `row-${y}`, gridX: 0, gridY: y, gridWidth: 12, gridHeight: 1 })
-			}
-			const result = placeNewWidget({ w: 4, h: 4 }, placements, {
-				gridColumns: 12,
-				viewportRows: 4, // y=4 is "off-screen"
-			})
-			// Expect fallback: top-left + every overlapper pushed to gridY = 4.
-			expect(result).toMatchObject({ x: 0, y: 0, w: 4, h: 4 })
-			const pushed = result.pushed
-			expect(pushed.map(p => p.id).sort()).toEqual(['row-0', 'row-1', 'row-2', 'row-3'])
-			pushed.forEach(p => expect(p.gridY).toBe(4))
-		})
-
-		it('returns the autoPosition slot when it lands within the viewport (no fallback)', () => {
-			// Single 4×2 widget at top-left; plenty of room at y=0, x=4.
-			const placements = [
-				{ id: 'a', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
-			]
-			const result = placeNewWidget({ w: 4, h: 2 }, placements, {
-				gridColumns: 12,
-				viewportRows: 8,
-			})
-			expect(result.y).toBeLessThan(8)
-			expect(result.pushed).toEqual([])
+			const result = placeNewWidget({ w: 6, h: 3 }, placements, { gridColumns: 12 })
+			expect(result).toMatchObject({ x: 0, y: 8, pushed: [] })
 		})
 
 		it('handles an empty grid by returning (0, 0)', () => {
@@ -265,14 +197,12 @@ describe('useGridManager — grid configuration', () => {
 			expect(result).toMatchObject({ x: 0, y: 0, w: 4, h: 4, pushed: [] })
 		})
 
-		it('respects the gridColumns option for narrower dashboards', () => {
-			// 8-column grid, single widget on the left half.
+		it('tolerates placements with missing grid fields (treats them as 1-row at y=0)', () => {
 			const placements = [
-				{ id: 'a', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 4 },
+				{ id: 'a' }, // no coords → contributes bottom edge 1
 			]
-			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 8 })
-			// First empty row-major slot is x=4 (the right half of an 8-col grid).
-			expect(result).toMatchObject({ x: 4, y: 0 })
+			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
+			expect(result).toMatchObject({ x: 0, y: 1, pushed: [] })
 		})
 
 		it('does not mutate the input placements array', () => {
@@ -280,7 +210,7 @@ describe('useGridManager — grid configuration', () => {
 				{ id: 'a', gridX: 0, gridY: 0, gridWidth: 12, gridHeight: 4 },
 			]
 			const snapshot = JSON.stringify(placements)
-			placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12, viewportRows: 4 })
+			placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
 			expect(JSON.stringify(placements)).toBe(snapshot)
 		})
 	})

@@ -1,0 +1,248 @@
+[
+  {
+    "slug": "admin-templates",
+    "title": "Admin templates",
+    "title_nl": "Beheersjablonen",
+    "summary": "You push a curated homepage to a group in minutes.",
+    "summary_nl": "Je rolt een ingerichte startpagina in minuten uit naar een groep.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/admin-templates/spec.md"
+  },
+  {
+    "slug": "permissions",
+    "title": "Permission tiers",
+    "title_nl": "Rechtenniveaus",
+    "summary": "People personalise their homepage without touching the locked widgets.",
+    "summary_nl": "Mensen passen hun startpagina aan zonder de vergrendelde widgets te raken.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/permissions/spec.md"
+  },
+  {
+    "slug": "admin-roles",
+    "title": "Role delegation",
+    "title_nl": "Roldelegatie",
+    "summary": "You hand a colleague dashboard admin without full Nextcloud rights.",
+    "summary_nl": "Je geeft een collega dashboardbeheer zonder volledige Nextcloud-rechten.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/admin-roles/spec.md"
+  },
+  {
+    "slug": "conditional-visibility",
+    "title": "Conditional visibility",
+    "title_nl": "Voorwaardelijke zichtbaarheid",
+    "summary": "You show finance cards to finance and banners only this week.",
+    "summary_nl": "Je toont finance-kaarten aan finance en banners alleen deze week.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/conditional-visibility/spec.md"
+  },
+  {
+    "slug": "dashboard-kiosk-mode",
+    "title": "Kiosk and signage mode",
+    "title_nl": "Kiosk- en narrowcastmodus",
+    "summary": "You rotate dashboards on a lobby screen unattended.",
+    "summary_nl": "Je laat dashboards onbemand rouleren op een lobbyscherm.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-kiosk-mode/spec.md"
+  },
+  {
+    "slug": "dashboard-quota-limits",
+    "title": "Dashboard quotas",
+    "title_nl": "Dashboardquota",
+    "summary": "You cap dashboards per user and keep the instance tidy.",
+    "summary_nl": "Je begrenst dashboards per gebruiker en houdt de omgeving netjes.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-quota-limits/spec.md"
+  },
+  {
+    "slug": "dashboard-switcher",
+    "title": "Multiple dashboards",
+    "title_nl": "Meerdere dashboards",
+    "summary": "You build a homepage per role and switch in one click.",
+    "summary_nl": "Je bouwt een startpagina per rol en wisselt met een klik.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-switcher/spec.md"
+  },
+  {
+    "slug": "grid-layout",
+    "title": "Drag-and-drop grid",
+    "title_nl": "Sleep-en-neerzet raster",
+    "summary": "You drag, drop, and resize cards until the layout fits.",
+    "summary_nl": "Je sleept, plaatst en schaalt kaarten tot de indeling klopt.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/grid-layout/spec.md"
+  },
+  {
+    "slug": "nc-dashboard-widget-proxy",
+    "title": "Nextcloud widgets",
+    "title_nl": "Nextcloud-widgets",
+    "summary": "You drop in any Files, Calendar, or Talk widget you already use.",
+    "summary_nl": "Je plaatst elke Bestanden-, Agenda- of Talk-widget die je al gebruikt.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/nc-dashboard-widget-proxy/spec.md"
+  },
+  {
+    "slug": "tiles",
+    "title": "Shortcut tiles",
+    "title_nl": "Snelkoppelingstegels",
+    "summary": "You pin your key tools with an icon, colour, and link.",
+    "summary_nl": "Je pint je belangrijkste tools met een icoon, kleur en link.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/tiles/spec.md"
+  },
+  {
+    "slug": "dashboard-public-share",
+    "title": "Public share links",
+    "title_nl": "Openbare deellinks",
+    "summary": "You share a read-only dashboard with a single link.",
+    "summary_nl": "Je deelt een alleen-lezen dashboard met een enkele link.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-public-share/spec.md"
+  },
+  {
+    "slug": "dashboard-versioning",
+    "title": "Versioning and rollback",
+    "title_nl": "Versiebeheer en terugdraaien",
+    "summary": "You roll a dashboard back to last week in one step.",
+    "summary_nl": "Je draait een dashboard in een stap terug naar vorige week.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-versioning/spec.md"
+  },
+  {
+    "slug": "dashboard-export-import",
+    "title": "Export and import",
+    "title_nl": "Exporteren en importeren",
+    "summary": "You move a dashboard between environments from the UI or the command line.",
+    "summary_nl": "Je verplaatst een dashboard tussen omgevingen via de interface of de opdrachtregel.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-export-import/spec.md"
+  },
+  {
+    "slug": "runtime-or-consumption",
+    "title": "Live business data",
+    "title_nl": "Live bedrijfsdata",
+    "summary": "You pull live figures over GraphQL when OpenRegister is present.",
+    "summary_nl": "Je haalt live cijfers op via GraphQL wanneer OpenRegister aanwezig is.",
+    "status": "stable",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/runtime-or-consumption/spec.md"
+  },
+  {
+    "slug": "kpi-cards",
+    "title": "KPI cards",
+    "title_nl": "KPI-kaarten",
+    "summary": "You show counts and charts straight on the dashboard.",
+    "summary_nl": "Je toont aantallen en grafieken direct op het dashboard.",
+    "status": "stable",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/default-widget-bundle/spec.md"
+  },
+  {
+    "slug": "confluence-html-import",
+    "title": "Confluence import",
+    "title_nl": "Confluence-import",
+    "summary": "You bring a Confluence page in as dashboard content.",
+    "summary_nl": "Je haalt een Confluence-pagina binnen als dashboardinhoud.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/confluence-html-import/spec.md"
+  },
+  {
+    "slug": "prometheus-metrics",
+    "title": "Prometheus metrics",
+    "title_nl": "Prometheus-metrieken",
+    "summary": "You scrape health and usage from a standard metrics endpoint.",
+    "summary_nl": "Je leest gezondheid en gebruik uit via een standaard metrics-endpoint.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/prometheus-metrics/spec.md"
+  },
+  {
+    "slug": "orphaned-data-cleanup",
+    "title": "Data cleanup",
+    "title_nl": "Data-opschoning",
+    "summary": "A background job clears orphaned data on its own.",
+    "summary_nl": "Een achtergrondtaak ruimt verweesde data vanzelf op.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/orphaned-data-cleanup/spec.md"
+  },
+  {
+    "slug": "activity-feed-integration",
+    "title": "Activity feed",
+    "title_nl": "Activiteitenoverzicht",
+    "summary": "Core dashboard actions land in the Nextcloud activity stream.",
+    "summary_nl": "Kerndashboardacties komen in de Nextcloud-activiteitenstroom terecht.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/activity-feed-integration/spec.md"
+  },
+  {
+    "slug": "nc-unified-search-integration",
+    "title": "Unified search",
+    "title_nl": "Geintegreerd zoeken",
+    "summary": "You find dashboards from the Nextcloud search bar.",
+    "summary_nl": "Je vindt dashboards via de Nextcloud-zoekbalk.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/nc-unified-search-integration/spec.md"
+  },
+  {
+    "slug": "groupfolder-storage-backend",
+    "title": "GroupFolder storage (optional)",
+    "title_nl": "GroupFolder-opslag (optioneel)",
+    "summary": "You optionally store dashboard content in a shared GroupFolder.",
+    "summary_nl": "Je bewaart dashboardinhoud optioneel in een gedeelde GroupFolder.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/groupfolder-storage-backend/spec.md"
+  },
+  {
+    "slug": "launchpad-spend-analytics-widget",
+    "title": "Spend analytics card",
+    "title_nl": "Uitgavenanalyse-kaart",
+    "summary": "You preview spend from financeq and procest on a card.",
+    "summary_nl": "Je bekijkt uitgaven uit financeq en procest op een kaart.",
+    "status": "beta",
+    "providedBy": "openregister",
+    "docsUrl": "openspec/specs/launchpad-spend-analytics-widget/spec.md"
+  },
+  {
+    "slug": "launchpad-mobile-remote-access",
+    "title": "Mobile access",
+    "title_nl": "Mobiele toegang",
+    "summary": "A responsive homepage that survives on a phone.",
+    "summary_nl": "Een responsieve startpagina die het op een telefoon volhoudt.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-mobile-remote-access/spec.md"
+  },
+  {
+    "slug": "launchpad-compliance-audit-panel",
+    "title": "Audit panel",
+    "title_nl": "Auditpaneel",
+    "summary": "A dedicated compliance and audit-trail view.",
+    "summary_nl": "Een eigen weergave voor compliance en het auditspoor.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-compliance-audit-panel/spec.md"
+  },
+  {
+    "slug": "launchpad-enterprise-security-access",
+    "title": "SSO and access posture",
+    "title_nl": "SSO en toegangsstatus",
+    "summary": "You surface SAML, TOTP, and WebAuthn status on the dashboard.",
+    "summary_nl": "Je toont de status van SAML, TOTP en WebAuthn op het dashboard.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-enterprise-security-access/spec.md"
+  },
+  {
+    "slug": "launchpad-ai-dashboard-assistant",
+    "title": "AI assistant",
+    "title_nl": "AI-assistent",
+    "summary": "You ask for the widget you need and have it placed for you.",
+    "summary_nl": "Je vraagt om de widget die je nodig hebt en die wordt voor je geplaatst.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-ai-dashboard-assistant/spec.md"
+  },
+  {
+    "slug": "launchpad-meeting-calendar-actions",
+    "title": "Meeting actions",
+    "title_nl": "Vergaderacties",
+    "summary": "You act on the day's meetings straight from a card.",
+    "summary_nl": "Je handelt de vergaderingen van de dag direct vanaf een kaart af.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-meeting-calendar-actions/spec.md"
+  }
+]

@@ -209,4 +209,34 @@ class WidgetPlacementTest extends TestCase
         $this->assertSame('app', $serialized['tileLinkType']);
         $this->assertSame('/apps/files', $serialized['tileLinkValue']);
     }
+
+    public function testJsonSerializeEmptyBlobsAreObjects(): void
+    {
+        // styleConfig and content are unset -> getters return PHP [].
+        $serialized = $this->placement->jsonSerialize();
+
+        // Serialized empty blobs must be stdClass so json_encode emits `{}`,
+        // not `[]` — clients type these fields as objects.
+        $this->assertInstanceOf(\stdClass::class, $serialized['styleConfig']);
+        $this->assertInstanceOf(\stdClass::class, $serialized['content']);
+
+        $json = json_encode($serialized);
+        $this->assertStringContainsString('"styleConfig":{}', $json);
+        $this->assertStringContainsString('"content":{}', $json);
+    }
+
+    public function testJsonSerializePreservesNonEmptyBlobs(): void
+    {
+        $style   = ['headerStyle' => ['backgroundColor' => '#fff']];
+        $content = ['text' => 'hello'];
+        $this->placement->setStyleConfigArray($style);
+        $this->placement->setContentArray($content);
+
+        $serialized = $this->placement->jsonSerialize();
+
+        // Non-empty blobs are passed through unchanged (json_encode already
+        // renders associative arrays as objects).
+        $this->assertSame($style, $serialized['styleConfig']);
+        $this->assertSame($content, $serialized['content']);
+    }
 }

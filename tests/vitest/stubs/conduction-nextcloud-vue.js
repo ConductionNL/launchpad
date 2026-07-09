@@ -34,7 +34,46 @@ export const CnWidgetEditCog = stub('CnWidgetEditCog')
 export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
-export const CnDashboardIcon = stub('CnDashboardIcon')
+export const CnIconBrowser = stub('CnIconBrowser')
+// Icon-catalogue adapters — normalize an icon source into CnIconBrowser's
+// catalogue shape. Real logic mirrored thinly so the launchpad icon-catalogue
+// service builds a valid array in tests.
+export const mdiCatalogue = (ns) => Object.keys(ns || {})
+	.filter((k) => k.startsWith('mdi') && typeof ns[k] === 'string')
+	.map((k) => ({ key: k, label: k, value: ns[k], search: k.toLowerCase(), path: ns[k] }))
+export const vmdiCatalogue = (ctx) => ((ctx && ctx.keys) ? ctx.keys() : [])
+	.map((f) => {
+		const key = f.replace(/^\.\//, '').replace(/\.vue$/, '')
+		return { key, label: key, value: key, search: key.toLowerCase(), component: stub(key) }
+	})
+// Faithful enough to mirror the real renderer: <img> for URLs, inline <svg>
+// for SVG path strings, else a placeholder <div>. Keeps icon-rendering unit
+// tests (e.g. org-nav REQ-ONAV-006) meaningful without the CJS .vue bundle.
+export const CnDashboardIcon = {
+	name: 'CnDashboardIcon',
+	props: {
+		name: { type: String, default: null },
+		size: { type: Number, default: 20 },
+		alt: { type: String, default: null },
+	},
+	computed: {
+		isUrl() {
+			return typeof this.name === 'string' && (this.name.startsWith('/') || this.name.startsWith('http'))
+		},
+		isPath() {
+			return !this.isUrl && typeof this.name === 'string' && /^[Mm][\d\s.,-]/.test(this.name)
+		},
+	},
+	render(h) {
+		if (this.isUrl) {
+			return h('img', { attrs: { src: this.name, alt: this.alt || 'icon', width: this.size, height: this.size } })
+		}
+		if (this.isPath) {
+			return h('svg', { attrs: { viewBox: '0 0 24 24', width: this.size, height: this.size } }, [h('path', { attrs: { d: this.name } })])
+		}
+		return h('div')
+	},
+}
 export const getDashboardColumnOpts = () => ({ breakpoints: [], layout: 'moveScale', breakpointForWindow: true })
 export const placeNewWidget = () => ({ x: 0, y: 0, w: 4, h: 4, pushed: [] })
 export const DASHBOARD_ICONS = { ViewDashboard: {}, Star: {} }
@@ -207,6 +246,9 @@ export default {
 	CnWidgetStyleEditorModal,
 	CnDashboardGrid,
 	CnIconPicker,
+	CnIconBrowser,
+	mdiCatalogue,
+	vmdiCatalogue,
 	CnDashboardIcon,
 	CnLabelWidget,
 	CnTextWidget,

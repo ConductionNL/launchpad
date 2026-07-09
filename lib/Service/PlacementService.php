@@ -24,6 +24,8 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 
 /**
  * Service for managing widget placement CRUD operations.
+ *
+ * @spec openspec/specs/widgets/spec.md
  */
 class PlacementService
 {
@@ -190,6 +192,10 @@ class PlacementService
             data: $data
         );
         $this->tileUpdater->applyTileUpdates(
+            placement: $placement,
+            data: $data
+        );
+        $this->placementUpdater->applyAcknowledgementUpdates(
             placement: $placement,
             data: $data
         );

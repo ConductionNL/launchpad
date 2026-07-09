@@ -18,8 +18,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -219,9 +219,9 @@ class NewsWidgetService
         // (background/title). Read `content` first, falling back to
         // `style_config` for any legacy placement that stored config there.
         $decoded = $this->decodeStyleConfigBlob(raw: $placement->getContent());
-        if ($this->extractFeedUrls(decoded: $decoded) === []) {
+        if ($decoded === [] || $this->extractFeedUrls(decoded: $decoded) === []) {
             $legacy = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
-            if ($this->extractFeedUrls(decoded: $legacy) !== []) {
+            if ($legacy !== []) {
                 $decoded = $legacy;
             }
         }

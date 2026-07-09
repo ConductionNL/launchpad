@@ -111,6 +111,8 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
      * @throws DashboardContentStorageException  On any other file-system failure.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
+     *
+     * @psalm-suppress UnusedReturnValue
      */
     private function ensureLaunchPadGroupFolder(): Node
     {

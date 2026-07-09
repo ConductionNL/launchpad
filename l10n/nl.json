@@ -1063,6 +1063,23 @@
         "AI insight": "AI-inzicht",
         "AI insight unavailable — the local LLM source is not configured": "AI-inzicht niet beschikbaar — de lokale LLM-bron is niet geconfigureerd",
         "Generate insight": "Inzicht genereren",
-        "Total spend: {amount}": "Totale uitgaven: {amount}"
+        "Total spend: {amount}": "Totale uitgaven: {amount}",
+        "Acknowledgement required": "Bevestiging vereist",
+        "Please confirm you have read this item.": "Bevestig dat je dit item hebt gelezen.",
+        "I have read and understood": "Ik heb dit gelezen en begrepen",
+        "Deadline: {date}": "Deadline: {date}",
+        "Could not record your acknowledgement. Please try again.": "Je bevestiging kon niet worden vastgelegd. Probeer het opnieuw.",
+        "You have items awaiting acknowledgement": "Je hebt items die op bevestiging wachten",
+        "_%n item to acknowledge_::_%n items to acknowledge_": ["%n item te bevestigen", "%n items te bevestigen"],
+        "Read receipts": "Leesbevestigingen",
+        "Read-receipt report": "Leesbevestigingsrapport",
+        "Acknowledged": "Bevestigd",
+        "Pending": "In afwachting",
+        "Overdue": "Te laat",
+        "User": "Gebruiker",
+        "Status": "Status",
+        "Acknowledged at": "Bevestigd op",
+        "Export CSV": "CSV exporteren",
+        "Could not load the read-receipt report.": "Het leesbevestigingsrapport kon niet worden geladen."
     }
 }

@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
   -
   - Root component — mounts the runtime-shell orchestrator (WorkspaceApp.vue)
   - which owns the four-region page chrome and delegates the grid surface to

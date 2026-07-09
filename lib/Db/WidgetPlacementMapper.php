@@ -135,6 +135,32 @@ class WidgetPlacementMapper extends QBMapper
     }//end findByWidgetId()
 
     /**
+     * Find every placement carrying a given `announcementKey`, across all
+     * dashboards. Backs the read-receipt report's audience resolution: the
+     * blueprint (template) placement and every cloned recipient placement
+     * share one key (REQ-ACK-004, design D2).
+     *
+     * @param string $announcementKey The stable announcement identity.
+     *
+     * @return WidgetPlacement[] The matching placements (may be empty).
+     * @spec   openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+     */
+    public function findByAnnouncementKey(string $announcementKey): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'announcement_key',
+                    y: $qb->createNamedParameter(value: $announcementKey)
+                )
+            );
+
+        return $this->findEntities(query: $qb);
+    }//end findByAnnouncementKey()
+
+    /**
      * Delete all placements for a dashboard.
      *
      * @param int $dashboardId The dashboard ID.
@@ -314,6 +340,15 @@ class WidgetPlacementMapper extends QBMapper
             // the renderer what to load. Dropping it forks widgets into a
             // sourceless "No items available" state.
             $clone->setContent($row->getContent());
+            // REQ-ACK-001: preserve the acknowledgement requirement and the
+            // shared `announcementKey` on fork so a forked dashboard keeps the
+            // same announcement identity.
+            $clone->setRequiresAcknowledgement($row->getRequiresAcknowledgement());
+            $clone->setAcknowledgementPrompt($row->getAcknowledgementPrompt());
+            $clone->setAcknowledgementDeadline($row->getAcknowledgementDeadline());
+            $clone->setReacknowledgeOnChange($row->getReacknowledgeOnChange());
+            $clone->setAcknowledgementContentVersion($row->getAcknowledgementContentVersion());
+            $clone->setAnnouncementKey($row->getAnnouncementKey());
             $clone->setCreatedAt($now);
             $clone->setUpdatedAt($now);
 

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Admin entry point. Loads the typed initial-state contract via
  * {@link loadInitialState} and exposes every key down the component tree
@@ -10,6 +10,8 @@
  *
  * Provided values are plain (non-reactive) snapshots (REQ-INIT-005).
  */
+
+import './publicPath.js'
 
 import Vue from 'vue'
 import { PiniaVuePlugin, createPinia } from 'pinia'

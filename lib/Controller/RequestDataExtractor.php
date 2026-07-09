@@ -24,6 +24,8 @@ use OCP\IRequest;
 
 /**
  * Helper for extracting typed data from controller requests.
+ *
+ * @spec openspec/specs/widgets/spec.md
  */
 class RequestDataExtractor
 {
@@ -107,6 +109,11 @@ class RequestDataExtractor
             'tileTextColor',
             'tileLinkType',
             'tileLinkValue',
+            'requiresAcknowledgement',
+            'acknowledgementPrompt',
+            'acknowledgementDeadline',
+            'reacknowledgeOnChange',
+            'acknowledgementContentVersion',
         ];
 
         $data = [];

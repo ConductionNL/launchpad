@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `ContainerWidget.vue` covering REQ-CONT-001
  * (registration), REQ-CONT-002 (inner grid bounded), REQ-CONT-003

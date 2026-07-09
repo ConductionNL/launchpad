@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `OrgNavigationPanel.vue` and the recursive
  * `OrgNavigationItem.vue` (REQ-ONAV-005, REQ-ONAV-006, REQ-ONAV-008,

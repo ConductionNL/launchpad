@@ -6,7 +6,7 @@
  * Unit tests for the Activity Feed Integration capability:
  *  - REQ-ACT-001: Extension parses each known event type and rejects
  *    unknown types via UnknownActivityException.
- *  - REQ-ACT-002: ALL_EVENTS holds exactly 13 unique values; unknown
+ *  - REQ-ACT-002: ALL_EVENTS holds exactly 14 unique values; unknown
  *    types are dropped by the publisher with a warning log.
  *  - REQ-ACT-003: ActivityPublisher::publish populates the IEvent with
  *    the canonical {app, type, object_type, object_name(=uuid), link}
@@ -145,7 +145,7 @@ class ExtensionTest extends TestCase
     }//end setUp()
 
     /**
-     * REQ-ACT-002: ALL_EVENTS is exactly the 13 documented strings.
+     * REQ-ACT-002: ALL_EVENTS is exactly the 14 documented strings.
      *
      * @return void
      */
@@ -165,6 +165,7 @@ class ExtensionTest extends TestCase
             'dashboard_restored',
             'dashboard_lock_overridden',
             'dashboard_role_changed',
+            'dashboard_acknowledged',
         ];
         $actual   = Extension::ALL_EVENTS;
         sort(array: $expected);
@@ -172,7 +173,7 @@ class ExtensionTest extends TestCase
 
         $this->assertSame(expected: $expected, actual: $actual);
         $this->assertCount(
-            expectedCount: 13,
+            expectedCount: 14,
             haystack: array_unique(array: Extension::ALL_EVENTS)
         );
         $this->assertNotContains(

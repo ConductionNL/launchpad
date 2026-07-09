@@ -28,8 +28,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -451,23 +451,30 @@ class FilesWidgetService
             }
         }
 
-        if ($node === null) {
-            $folderPath = (string) ($config['folderPath'] ?? '');
-            if ($folderPath !== '') {
-                $normalised = ('/'.trim(string: $folderPath, characters: '/'));
-                try {
-                    $candidate = $userFolder;
-                    if ($normalised !== '/') {
-                        $candidate = $userFolder->get(path: $normalised);
-                    }
-
-                    if ($candidate instanceof Folder) {
-                        $node = $candidate;
-                    }
-                } catch (NotFoundException $e) {
-                    // Will fall through to the throw below.
+        $folderPath = (string) ($config['folderPath'] ?? '');
+        if ($node === null && $folderPath !== '') {
+            $normalised = ('/'.trim(string: $folderPath, characters: '/'));
+            try {
+                $candidate = $userFolder;
+                if ($normalised !== '/') {
+                    $candidate = $userFolder->get(path: $normalised);
                 }
+
+                if ($candidate instanceof Folder) {
+                    $node = $candidate;
+                }
+            } catch (NotFoundException $e) {
+                // Will fall through to the throw below.
             }
+        }
+
+        // Unconfigured placement (neither a fileId nor a folderPath set):
+        // default to the user's home folder rather than erroring, so a
+        // freshly-added or seeded files widget shows something usable until a
+        // folder is chosen. A configured-but-missing folder still falls
+        // through to the throw below.
+        if ($node === null && $fileId === null && $folderPath === '') {
+            $node = $userFolder;
         }
 
         if ($node === null) {

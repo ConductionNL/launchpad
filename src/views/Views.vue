@@ -44,19 +44,27 @@
 			     top-right cluster without opening the sidebar first. Reuses the
 			     existing onRow* handlers; `maybeSwitchTo` is a no-op because the
 			     target is already active. -->
+			<!-- Active-dashboard cog. Styled `secondary` with a 20px icon so
+			     it matches the adjacent dashboards (hamburger) button, and
+			     carries the Share action (dashboard-sharing spec) in-menu
+			     rather than as a standalone top-bar button. -->
 			<DashboardRowActions
 				v-if="activeDashboard"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
 				:can-edit="canEdit"
+				:can-share="canShareActiveDashboard"
 				:default-uuid="defaultDashboardUuid"
 				:is-edit-mode="isEditMode"
 				:active-dashboard-id="activeDashboard.id"
-				class="mydash-active-dashboard-cog"
+				button-type="secondary"
+				:icon-size="20"
+				class="launchpad-active-dashboard-cog"
 				@toggle-edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
 				@open-config="onRowOpenConfig(activeDashboard, activeDashboardSource)"
 				@add-custom-widget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
 				@set-default="onRowSetDefault(activeDashboard, activeDashboardSource)"
+				@share="openShareDrawer"
 				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
 				type="secondary"
@@ -67,48 +75,84 @@
 					<MenuIcon :size="20" />
 				</template>
 			</NcButton>
-			<!-- Top-bar share action (dashboard-sharing spec). Opens the
-			     config drawer directly on the Sharing tab. Shown only when a
-			     dashboard the user can share is active. -->
+			<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
+			     of the user's outstanding mandatory-read items. Hidden entirely
+			     when zero so dashboards without acknowledgement requirements are
+			     visually unchanged. -->
+			<span
+				v-if="outstandingAcknowledgementCount > 0"
+				class="launchpad-ack-indicator"
+				data-testid="acknowledgement-outstanding-count"
+				:title="t('launchpad', 'You have items awaiting acknowledgement')">
+				{{ n('launchpad', '%n item to acknowledge', '%n items to acknowledge', outstandingAcknowledgementCount) }}
+			</span>
+			<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
+			     report opener. Only shown to an editor when the active
+			     dashboard carries at least one acknowledgement requirement. -->
 			<NcButton
 				v-if="canShareActiveDashboard"
 				type="tertiary"
-				:aria-label="t('launchpad','Share')"
+				:aria-label="t('launchpad', 'Share')"
 				class="mydash-share-action"
 				data-test="dashboard-share-action"
 				@click="openShareDrawer">
 				<template #icon>
 					<ShareVariant :size="20" />
 				</template>
-				{{ t('launchpad','Share') }}
+				{{ t('launchpad', 'Share') }}
 			</NcButton>
-			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
-			     `default` sentinel — REQ-TMPL-012 documents the literal
-			     'Default' as the absence of a configured primary group, so
-			     surfacing it adds noise without information. The label
-			     remains visible whenever a real Nextcloud group display
-			     name is resolved. -->
-			<div
-				v-if="primaryGroupLabel && primaryGroupLabel !== 'Default'"
-				class="launchpad-primary-group-label"
-				:title="t('launchpad', 'Your primary group for shared dashboards')">
-				{{ primaryGroupLabel }}
-			</div>
+			<NcButton
+				v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
+				type="secondary"
+				:aria-label="t('launchpad', 'Read receipts')"
+				data-testid="open-acknowledgement-report"
+				@click="openAcknowledgementReport(acknowledgementAnnouncementKeys[0])">
+				{{ t('launchpad', 'Read receipts') }}
+			</NcButton>
 		</div>
 
+		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
+		<AcknowledgementReportModal
+			:open="ackReportOpen"
+			:announcement-key="ackReportKey"
+			@close="ackReportOpen = false" />
+
 		<!-- Main dashboard grid -->
-		<div class="mydash-container" :class="{ 'mydash-edit-mode': isEditMode }">
-			<DashboardGrid
+		<div class="launchpad-container" :class="{ 'launchpad-edit-mode': isEditMode }">
+			<CnDashboardGrid
 				v-if="activeDashboard"
-				:placements="widgetPlacements"
-				:widgets="availableWidgets"
-				:edit-mode="isEditMode"
-				:grid-columns="activeDashboard.gridColumns"
-				@update:placements="updatePlacements"
-				@widget-remove="removeWidget"
-				@widget-edit="openStyleEditor"
-				@widget-right-click="onWidgetRightClick"
-				@tile-edit="openTileEditorForEdit" />
+				:layout="widgetPlacements"
+				:editable="isEditMode"
+				:columns="activeDashboard.gridColumns || 12"
+				:cell-height="60"
+				:margin="8"
+				:column-opts="dashboardColumnOpts"
+				cell-height-css-var="--launchpad-cell-height"
+				:item-key="placementItemKey"
+				@layout-change="updatePlacements">
+				<template #widget="{ item }">
+					<div class="launchpad-grid-item" @contextmenu="onWidgetRightClick($event, item)">
+						<!-- Tile placements render the launcher tile directly. -->
+						<TileWidget
+							v-if="isTilePlacement(item)"
+							:tile="getTileData(item)"
+							:edit-mode="isEditMode"
+							@edit="openTileEditorForEdit(item)"
+							@remove="removeWidget(item.id)" />
+						<!-- All other placements render through the widget wrapper. -->
+						<WidgetWrapper
+							v-else
+							:placement="item"
+							:widget="getWidget(item.widgetId)"
+							:edit-mode="isEditMode"
+							:outstanding-acknowledgement="isPlacementOutstanding(item)"
+							@remove="removeWidget(item.id)"
+							@style="openStyleEditor(item)"
+							@edit="handleContextMenuEdit(item)"
+							@acknowledged="onWidgetAcknowledged" />
+					</div>
+				</template>
+			</CnDashboardGrid>
 
 			<!-- Loading shim. The empty-state below previously rendered
 			     during the initial fetch because `activeDashboard` is
@@ -151,10 +195,12 @@
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
 		     no API calls itself; this view persists the emitted payload. -->
-		<AddWidgetModal
+		<CnAddWidgetModal
 			:show="isCustomWidgetModalOpen"
 			:preselected-type="customWidgetPreselectedType"
 			:editing-widget="customWidgetEditing"
+			:upload-fn="iconUploadFn"
+			:calendars-fetcher="fetchCalendars"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
 
@@ -172,12 +218,14 @@
 			@set-default="onModalSetDefault" />
 
 		<!-- Style editor modal -->
-		<WidgetStyleEditor
+		<CnWidgetStyleEditorModal
 			v-if="editingPlacement"
-			:placement="editingPlacement"
-			:open="isStyleEditorOpen"
+			:show="isStyleEditorOpen"
+			:widget="styleEditorWidget"
+			:deletable="!editingPlacement.isCompulsory"
+			:extra-icon-options="nlDesignIconOptions"
 			@close="closeStyleEditor"
-			@update="updateWidgetStyle"
+			@save="onStyleSaved"
 			@delete="deleteWidget" />
 
 		<!-- Tile editor modal -->
@@ -217,9 +265,9 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
+import { generateUrl, imagePath } from '@nextcloud/router'
 
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -227,13 +275,14 @@ import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
-import DashboardGrid from '../components/DashboardGrid.vue'
+import WidgetWrapper from '../components/WidgetWrapper.vue'
+import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
+import TileWidget from '../components/TileWidget.vue'
 import WidgetPickerModal from '../components/WidgetPickerModal.vue'
-import WidgetStyleEditor from '../components/WidgetStyleEditor.vue'
 import TileEditor from '../components/TileEditor.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
-import AddWidgetModal from '../components/Widgets/AddWidgetModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
+import { uploadDataUrl } from '../services/resourceService.js'
 import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
@@ -258,12 +307,15 @@ export default {
 		ViewDashboard,
 		MenuIcon,
 		ShareVariant,
-		DashboardGrid,
+		CnDashboardGrid,
+		WidgetWrapper,
+		AcknowledgementReportModal,
+		TileWidget,
 		WidgetPickerModal,
-		WidgetStyleEditor,
+		CnWidgetStyleEditorModal,
 		TileEditor,
 		DashboardConfigModal,
-		AddWidgetModal,
+		CnAddWidgetModal,
 		WidgetContextMenu,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
@@ -276,10 +328,6 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
-		},
-		primaryGroup: {
-			from: 'primaryGroup',
-			default: 'default',
 		},
 		primaryGroupName: {
 			from: 'primaryGroupName',
@@ -314,7 +362,7 @@ export default {
 		// `selectedWidget` from the popover may live in either of two
 		// edit paths. The host-side callbacks resolve which one to use
 		// (custom-type widgets → AddWidgetModal; nextcloud-widget tiles →
-		// WidgetStyleEditor) and the placement-delete path is the same
+		// CnWidgetStyleEditorModal) and the placement-delete path is the same
 		// `removeWidgetFromDashboard` action used by the existing remove
 		// flow. The host wires these via methods after instantiation so
 		// `this` is bound to the component when the callbacks fire.
@@ -348,6 +396,10 @@ export default {
 			configModalInitialTab: 'general',
 			isStyleEditorOpen: false,
 			editingPlacement: null,
+			// Deep clone of editingPlacement handed to CnWidgetStyleEditorModal,
+			// which mutates its `widget` prop in place on Save. Editing the clone
+			// keeps the live store placement untouched until the patch persists.
+			styleEditorWidget: null,
 			isTileEditorOpen: false,
 			editingTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
@@ -377,9 +429,58 @@ export default {
 			// `GET /api/dashboards/default` and refreshed locally
 			// whenever the user picks a new default via the cog menu.
 			defaultDashboardUuid: '',
+			// dashboard-acknowledgements REQ-ACK-004: admin read-receipt
+			// report modal state.
+			ackReportOpen: false,
+			ackReportKey: '',
 		}
 	},
 	computed: {
+		/**
+		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
+		 * the placements on the active dashboard that require acknowledgement.
+		 * Drives the admin "Read receipts" affordance (shown only when at least
+		 * one placement carries a requirement and the user can edit).
+		 *
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @return {string[]} the announcement keys.
+		 */
+		acknowledgementAnnouncementKeys() {
+			const keys = (this.widgetPlacements || [])
+				.filter((p) => Number(p.requiresAcknowledgement) === 1 && p.announcementKey)
+				.map((p) => p.announcementKey)
+			return [...new Set(keys)]
+		},
+		/**
+		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007).
+		 * Built once from the shared nc-vue helper so the grid reflows its
+		 * column count across viewport sizes exactly as the old local grid did.
+		 *
+		 * @return {object} the GridStack `columnOpts` bag.
+		 */
+		dashboardColumnOpts() {
+			return getDashboardColumnOpts()
+		},
+
+		/**
+		 * NL Design icon pack offered in the widget style editor, passed to
+		 * CnWidgetStyleEditorModal's `extraIconOptions`. App-specific (served
+		 * from the nldesign app), so it stays here rather than in the library.
+		 *
+		 * @return {Array<{id: string, label: string, icon: string}>} icon options.
+		 */
+		nlDesignIconOptions() {
+			const names = ['Airplane', 'Bell', 'Bike', 'Building', 'Bus', 'Cake', 'Calendar', 'Camera', 'Car', 'Certificate', 'Clock', 'Cogwheel', 'Document', 'Earth', 'Euro', 'Flower', 'Folder', 'Heart', 'House', 'Image', 'LightBulb', 'Lightning', 'Mail', 'Map', 'Megaphone', 'Monument', 'Park', 'Parking', 'Person', 'Phone', 'Search', 'Star', 'Tree', 'Wallet']
+			return names.map(name => ({
+				id: `nl-${name.toLowerCase()}`,
+				label: name,
+				// imagePath resolves the app's real web root (nldesign lives in
+				// custom_apps → /custom_apps/nldesign/img/...), unlike a hardcoded
+				// /apps/nldesign/ path which 404s on this install.
+				icon: imagePath('nldesign', `icons/${name}.svg`),
+			}))
+		},
+
 		...mapState(useDashboardStore, [
 			'dashboards',
 			'activeDashboard',
@@ -393,6 +494,10 @@ export default {
 			// create affordance + tooltip from the store getters.
 			'dashboardQuotaReached',
 			'dashboardQuotaTooltip',
+			// dashboard-acknowledgements REQ-ACK-002: outstanding count +
+			// per-placement outstanding predicate for the forced-delivery gate.
+			'outstandingAcknowledgementCount',
+			'isPlacementOutstanding',
 		]),
 		...mapState(useWidgetStore, ['availableWidgets']),
 		...mapState(useTileStore, ['tiles']),
@@ -516,28 +621,6 @@ export default {
 			}
 			return this.t('launchpad', 'Personal dashboards are not enabled by your administrator')
 		},
-		/**
-		 * Display label for the resolved primary group (REQ-TMPL-012).
-		 *
-		 * Returns the server-pushed `primaryGroupName` verbatim when it
-		 * is non-empty (real Nextcloud groups), the localised
-		 * `'Default'` string when the resolver returned the `default`
-		 * sentinel and the server didn't pick a name, or an empty
-		 * string when there is nothing meaningful to show — the
-		 * `v-if` in the template hides the badge in that last case.
-		 *
-		 * @return {string} Label to render, or '' when none.
-		 */
-		/** @spec openspec/specs/dashboards/spec.md */
-		primaryGroupLabel() {
-			if (this.primaryGroupName) {
-				return this.primaryGroupName
-			}
-			if (this.primaryGroup && this.primaryGroup !== 'default') {
-				return this.primaryGroup
-			}
-			return ''
-		},
 	},
 	watch: {
 		/**
@@ -602,6 +685,11 @@ export default {
 			tileStore.loadTiles(),
 		])
 
+		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
+		// mandatory-read items so the forced-delivery gate and the outstanding
+		// count reflect reality on first render. Non-fatal on failure.
+		dashboardStore.fetchPendingAcknowledgements()
+
 		// Wave3.7 — fetch the user's pinned default-dashboard UUID
 		// once on mount so the per-row cog can render the right "Set
 		// as default" / "Default dashboard" state. Failure here is
@@ -641,6 +729,76 @@ export default {
 	},
 	methods: {
 		t,
+
+		/**
+		 * Per-item render key for CnDashboardGrid — changes when a placement's
+		 * style/update changes so an edit forces a re-render (REQ-GRID).
+		 *
+		 * @param {object} placement the placement (CnDashboardGrid layout item).
+		 * @return {string} the render key.
+		 */
+		placementItemKey(placement) {
+			return `${placement.id}-${placement.updatedAt || ''}-${JSON.stringify(placement.styleConfig || {})}`
+		},
+
+		/**
+		 * Resolve the available-widget definition for a placement's widgetId.
+		 *
+		 * @param {string} widgetId the placement's widget id.
+		 * @return {object|undefined} the widget definition, if registered.
+		 */
+		getWidget(widgetId) {
+			return this.availableWidgets.find(w => w.id === widgetId)
+		},
+
+		/**
+		 * Whether a placement renders as a launcher tile (custom tile type).
+		 *
+		 * @param {object} placement the placement.
+		 * @return {boolean} true for tile placements.
+		 */
+		isTilePlacement(placement) {
+			return placement.tileType === 'custom'
+		},
+
+		/**
+		 * Project a tile placement's flat `tile*` columns into the tile shape
+		 * TileWidget expects.
+		 *
+		 * @param {object} placement the tile placement.
+		 * @return {object|null} the tile data, or null when not a tile.
+		 */
+		getTileData(placement) {
+			if (!this.isTilePlacement(placement)) return null
+			return {
+				id: placement.id,
+				title: placement.tileTitle,
+				icon: placement.tileIcon,
+				iconType: placement.tileIconType,
+				backgroundColor: placement.tileBackgroundColor,
+				textColor: placement.tileTextColor,
+				linkType: placement.tileLinkType,
+				linkValue: placement.tileLinkValue,
+			}
+		},
+
+		// dashboard-acknowledgements REQ-ACK-002: after a recipient signs off
+		// on a widget, refresh the outstanding set so the dashboard-level
+		// count stays accurate. The store already dropped the acknowledged
+		// item optimistically; the re-fetch reconciles with the server.
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		onWidgetAcknowledged() {
+			const dashboardStore = useDashboardStore()
+			dashboardStore.fetchPendingAcknowledgements()
+		},
+
+		// REQ-ACK-004: open the admin read-receipt report for an announcement.
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		openAcknowledgementReport(announcementKey) {
+			this.ackReportKey = announcementKey
+			this.ackReportOpen = true
+		},
+
 		...mapActions(useDashboardStore, [
 			'switchDashboard',
 			'createDashboard',
@@ -868,20 +1026,79 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		async saveCustomWidget(payload) {
 			try {
+				const chrome = payload.chrome || {}
 				if (this.customWidgetEditing?.id) {
 					await this.updateWidgetPlacement(
 						this.customWidgetEditing.id,
-						{ content: payload.content },
+						{
+							content: payload.content,
+							...this.chromePatch(chrome, this.customWidgetEditing.styleConfig),
+						},
 					)
 				} else {
-					await this.addWidgetToDashboard({
+					// Create the placement, then apply the chrome (title /
+					// background / icon) from the same modal as a follow-up
+					// patch against the new id.
+					const created = await this.addWidgetToDashboard({
 						type: payload.type,
 						content: payload.content,
 					})
+					if (created?.id) {
+						await this.updateWidgetPlacement(created.id, this.chromePatch(chrome, created.styleConfig))
+					}
 				}
 				this.closeCustomWidgetModal()
 			} catch (error) {
 				console.error('[Views] Failed to save custom widget:', error)
+			}
+		},
+
+		/**
+		 * Upload transport for the shared CnAddWidgetModal's Appearance icon
+		 * picker — rounds a custom icon data URL through LaunchPad's resource
+		 * service so it isn't embedded inline.
+		 *
+		 * @param {File} file the file to upload.
+		 * @return {Promise<string>} the resulting URL/data URL.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		iconUploadFn(file) {
+			return uploadDataUrl(file)
+		},
+
+		/**
+		 * Calendar list fetcher for the shared CnAddWidgetModal's calendar
+		 * widget picker — returns the user's calendars so authors select them
+		 * instead of typing principal URIs (REQ-CAL-002).
+		 *
+		 * @return {Promise<Array<{key: string, name: string, color: string}>>}
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
+		async fetchCalendars() {
+			const res = await api.getCalendarWidgetCalendars()
+			return res?.data?.calendars || []
+		},
+
+		/**
+		 * Build the chrome patch (title / background / icon) from the unified
+		 * add/edit modal payload, preserving any existing styleConfig keys and
+		 * folding the background colour into styleConfig.backgroundColor — the
+		 * same shape the legacy style editor persisted (see onStyleSaved).
+		 *
+		 * @param {{showTitle?: boolean, customTitle?: string, customIcon?: string, backgroundColor?: string}} chrome the modal chrome payload
+		 * @param {object} [existingStyleConfig] the placement's current styleConfig, if any
+		 * @return {object} the placement patch
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		chromePatch(chrome, existingStyleConfig) {
+			return {
+				showTitle: chrome.showTitle,
+				customTitle: chrome.customTitle,
+				customIcon: chrome.customIcon,
+				styleConfig: {
+					...(existingStyleConfig || {}),
+					backgroundColor: chrome.backgroundColor || '',
+				},
 			}
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -923,16 +1140,37 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		openStyleEditor(placement) {
 			this.editingPlacement = placement
+			// Hand the modal a deep clone — it mutates `widget` in place on Save;
+			// the live store placement only changes once the patch persists.
+			this.styleEditorWidget = JSON.parse(JSON.stringify(placement))
 			this.isStyleEditorOpen = true
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeStyleEditor() {
 			this.isStyleEditorOpen = false
 			this.editingPlacement = null
+			this.styleEditorWidget = null
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
-		async updateWidgetStyle(placementId, updates) {
-			await this.updateWidgetPlacement(placementId, updates)
+		/**
+		 * Bridge CnWidgetStyleEditorModal's mutate-in-place `@save(widget)` to
+		 * launchpad's immutable store path: derive the chrome+style patch from
+		 * the (mutated) clone and persist it against the placement id.
+		 *
+		 * @param {object} widget The clone the modal mutated on Save.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onStyleSaved(widget) {
+			const id = this.editingPlacement?.id
+			if (!id) {
+				return
+			}
+			await this.updateWidgetPlacement(id, {
+				showTitle: widget.showTitle,
+				customTitle: widget.customTitle,
+				customIcon: widget.customIcon,
+				styleConfig: widget.styleConfig,
+			})
 			this.closeStyleEditor()
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -1319,16 +1557,54 @@ export default {
 
 <style scoped>
 #launchpad-app {
-	min-height: 100vh;
 	width: 100%;
 	background: transparent;
 }
 
 /* Nextcloud insets the content area horizontally but not at the top, so the
    grid sat flush under the navbar (8px top gap from the grid margin vs 16px
-   on the sides). Add a matching top inset so the dashboard breathes evenly. */
-.mydash-container {
-	padding-top: 8px;
+   on the sides). Add a matching top inset so the dashboard breathes evenly.
+   Note: the layout properties (flex, overflow, min-height) are consolidated
+   in the single .launchpad-container rule further below. */
+
+/* CnDashboardGrid renders a flat item background; restore launchpad's
+   frosted-glass tile look (was DashboardGrid's local style) by overriding
+   the grid-item-content surface. :deep penetrates into CnDashboardGrid. */
+.launchpad-container :deep(.grid-stack-item-content) {
+	background: var(--color-main-background-blur);
+	backdrop-filter: var(--filter-background-blur);
+	-webkit-backdrop-filter: var(--filter-background-blur);
+	border-radius: var(--border-radius-large);
+	overflow: hidden;
+}
+
+/* In edit mode the whole grid item is a drag surface. Text-heavy chromeless
+   widgets (esp. labels) are pure selectable text filling the cell, so a drag
+   would start a text selection instead of a gridstack move. Suppress text
+   selection + show the move cursor so dragging works anywhere on any widget.
+   The edit cog stays clickable (pointer-events unaffected). */
+.launchpad-container.launchpad-edit-mode :deep(.grid-stack-item-content) {
+	cursor: move;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* Chromeless widgets (label/divider/header/tile) AND nc-dashboard card
+   widgets opt out of the grid-item frosted surface: the former paint their
+   own surface, and the latter now carry the shared CnWidgetWrapper
+   `nc-dashboard` chrome (its own blur panel), so the grid item must be
+   transparent to avoid a double background / mismatched radius. */
+.launchpad-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
+.launchpad-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
+.launchpad-container :deep(.grid-stack-item-content:has(.tile-widget)) {
+	background: transparent;
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+}
+
+.launchpad-grid-item {
+	width: 100%;
+	height: 100%;
 }
 
 .launchpad-floating-controls {
@@ -1341,22 +1617,23 @@ export default {
 	z-index: 1000;
 }
 
+.launchpad-ack-indicator {
+	/* dashboard-acknowledgements REQ-ACK-002 outstanding-count pill. */
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 10px;
+	border-radius: var(--border-radius-pill, 100px);
+	background: var(--color-warning, #d97706);
+	color: var(--color-primary-text, #fff);
+	font-size: 0.8em;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
 .launchpad-sidebar-toggle {
 	/* Hint that the sidebar opens from the left even though the toggle
 	   itself lives in the top-right cluster. */
 	margin-right: auto;
-}
-
-/* Primary-group label (REQ-TMPL-012). Subtle pill that names the
-   resolved group whose dashboards drive the workspace. */
-.launchpad-primary-group-label {
-	font-size: 12px;
-	font-weight: 500;
-	color: var(--color-text-maxcontrast);
-	background: var(--color-background-hover);
-	border-radius: var(--border-radius-pill, 999px);
-	padding: 4px 10px;
-	white-space: nowrap;
 }
 
 /* Strip the visible text on the menu trigger button — we want icon-only.
@@ -1372,9 +1649,9 @@ export default {
 
 .launchpad-container {
 	flex: 1;
-	padding: 0;
+	padding: 8px 0 0;
 	overflow: auto;
-	min-height: calc(100vh - var(--header-height));
+	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
 }
 
 .launchpad-empty,
@@ -1383,6 +1660,6 @@ export default {
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	min-height: calc(100vh - var(--header-height));
+	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
 }
 </style>

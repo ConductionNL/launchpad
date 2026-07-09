@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 return [
@@ -204,6 +204,21 @@ return [
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
+		// The `/report/{announcementKey}/csv` route is registered BEFORE the
+		// plain report route so the `/csv` suffix is matched first, and both
+		// come before the literal `/pending` and root POST routes.
+		['name' => 'acknowledgement#reportCsv',
+		 'url' => '/api/acknowledgements/report/{announcementKey}/csv', 'verb' => 'GET',
+		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		['name' => 'acknowledgement#report',
+		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
+		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		['name' => 'acknowledgement#pending',
+		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
+		['name' => 'acknowledgement#acknowledge',
+		 'url' => '/api/acknowledgements', 'verb' => 'POST'],
+
 		// Dashboard versioning endpoints (REQ-VERS-001..009).
 		// `{uuid}` is the dashboard UUID; `{versionNumber}` is the integer
 		// version number. Routes are registered BEFORE the personal
@@ -240,6 +255,8 @@ return [
 		['name' => 'widgetApi#calendarEvents',
 		 'url' => '/api/widgets/calendar/{placementId}/events', 'verb' => 'GET',
 		 'requirements' => ['placementId' => '\d+']],
+		// REQ-CAL-002: list the user's calendars for the config-form picker.
+		['name' => 'widgetApi#calendars', 'url' => '/api/widgets/calendar/calendars', 'verb' => 'GET'],
 		['name' => 'widgetApi#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],
 		['name' => 'widgetApi#removePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'DELETE'],
 

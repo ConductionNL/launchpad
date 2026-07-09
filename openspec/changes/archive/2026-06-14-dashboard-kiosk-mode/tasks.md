@@ -13,12 +13,12 @@
 > app has only `main`/`admin` webpack entries and no anonymous public-render template
 > or router entry (`DashboardPublicShareView.vue` is likewise an orphan view). Wiring
 > both render surfaces is a shared follow-up. The naming gotcha (table prefix
-> `oc_launchpad_*` in the original prose) was correctly built as `mydash_*` to match
+> `oc_launchpad_*` in the original prose) was correctly built as `launchpad_*` to match
 > the App Store id.
 
 ## Tasks
 
-- [x] Task 1: Migration `lib/Migration/Version002002Date20260614000000.php` creating `mydash_kiosk_playlists` (PK `id`, `name` VARCHAR(255), `token` VARCHAR(64) UNIQUE, `entries` TEXT, `refresh_seconds` INT, `created_by`, `created_at`, `revoked_at`) with unique token index + (created_by, revoked_at) index — table prefix is `mydash_` (App Store id), not `oc_launchpad_`
+- [x] Task 1: Migration `lib/Migration/Version002002Date20260614000000.php` creating `launchpad_kiosk_playlists` (PK `id`, `name` VARCHAR(255), `token` VARCHAR(64) UNIQUE, `entries` TEXT, `refresh_seconds` INT, `created_by`, `created_at`, `revoked_at`) with unique token index + (created_by, revoked_at) index — table prefix is `launchpad_` (App Store id), not `oc_launchpad_`
 - [x] Task 2: `lib/Db/KioskPlaylist` entity (getters/setters, `jsonSerialize()` with computed public `url` via `IURLGenerator`, `getEntriesArray()` JSON accessor) and `lib/Db/KioskPlaylistMapper` (`findByToken` active-only, `findById`, `findByCreator`, `findAllActive`, `softRevoke`)
 - [x] Task 3: `lib/Service/KioskService` — `createPlaylist`/`updatePlaylist` with per-entry owner-or-admin validation (reuses `PublicShareService::authorizeShareMutation`), dwell clamp `[10, 86400]`, refresh clamp `[30, 86400]`, `ISecureRandom::generate(64)` token; `listPlaylists` (own for users, all for admins); `revokePlaylist` (owner-or-admin, idempotent); `renderPlaylist` (404 on unknown/revoked, skips deleted-dashboard entries, strips createdBy)
 - [x] Task 4: `lib/Controller/KioskController` — `POST/GET/PUT/DELETE /api/kiosk/playlists*` (`#[NoAdminRequired]` + service-layer guards) and `GET /kiosk/{token}` (`#[PublicPage]` + `#[NoCSRFRequired]` + `#[AnonRateLimit(60,60)]` + `#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]`, marks read-only bearer, throttles 404s on the shared bucket); 5 routes registered in `appinfo/routes.php`

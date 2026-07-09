@@ -2,7 +2,7 @@
 
 ## Overview
 
-MyDash today requires every dashboard viewer to be authenticated. This design formalises a publication channel for gemeenten to share read-only open-data dashboards with citizens, journalists, and partners without forcing a login. The owner (typically a gemeente communicatie or open-data coordinator) marks a dashboard as publishable, selects a publication mode (public, signed URL, or password-gated), applies custom branding and SEO directives, and the dashboard becomes viewable at a public URL with all queries executing under a designated publication service account.
+LaunchPad today requires every dashboard viewer to be authenticated. This design formalises a publication channel for gemeenten to share read-only open-data dashboards with citizens, journalists, and partners without forcing a login. The owner (typically a gemeente communicatie or open-data coordinator) marks a dashboard as publishable, selects a publication mode (public, signed URL, or password-gated), applies custom branding and SEO directives, and the dashboard becomes viewable at a public URL with all queries executing under a designated publication service account.
 
 ## Goals
 
@@ -33,7 +33,7 @@ Represents the publication contract linking a dashboard to a public slug and mod
 
 **Properties:**
 - `publicationId` — unique identifier (UUID)
-- `dashboardId` — reference to mydash dashboard being published (register+schema+objectId)
+- `dashboardId` — reference to launchpad dashboard being published (register+schema+objectId)
 - `slug` — URL-safe identifier (unique within tenant), e.g. `wonen`, `verkeer-live`
 - `mode` — publication mode: `public`, `signed`, `password`
 - `publishedAt` — timestamp when first published
@@ -152,7 +152,7 @@ Aggregate (no PII) log of viewers accessing a publication. Recorded once per hou
 - Use OpenRegister's fine-grained object-level ACLs. Rejected — ACLs are per-user, not per-service-account; adapting them to a service-account context would require OpenRegister changes.
 - Per-object explicit grant. Rejected — too heavyweight for a v1 feature; a gemeente publishing a dashboard knows which registers it queries and can list them upfront.
 
-**Rationale:** Coarse-grained ACLs are simple to configure and audit. The gemeente declares "publication reader can access registers X, Y, Z" and MyDash enforces it for all publications under that service account.
+**Rationale:** Coarse-grained ACLs are simple to configure and audit. The gemeente declares "publication reader can access registers X, Y, Z" and LaunchPad enforces it for all publications under that service account.
 
 ### D4: Analytics are aggregate and non-backreferable
 
@@ -197,7 +197,7 @@ Aggregate (no PII) log of viewers accessing a publication. Recorded once per hou
 
 - **OpenRegister**: All seven entities are stored as OpenRegister objects; no custom Entity/Mapper classes
 - **AuthorizationService**: Publication service account permissions enforced at register/schema layer (no per-object ACL)
-- **QueryService** (existing MyDash querying): Dashboard queries reuse existing query-execution code, only the execution context (principal) changes to the service account
+- **QueryService** (existing LaunchPad querying): Dashboard queries reuse existing query-execution code, only the execution context (principal) changes to the service account
 - **FileService**: Logo and favicon are stored via FileService; PublicationBranding holds file references (not embedded data)
 - **NotificationService** (optional): On publication state change, notify the owner via Nextcloud notifications
 - **IInitialState**: Public view may need minimal initial state (publication config, branding, available data)
@@ -216,7 +216,7 @@ Aggregate (no PII) log of viewers accessing a publication. Recorded once per hou
 ## Migration Plan
 
 1. **Phase 1: Backend services** — Implement PublicationService, PublicationAuthService, PublicationQueryService, PublicationAnalyticsService in separate PRs for testability.
-2. **Phase 2: OpenRegister schemas** — Define the seven schemas in `lib/Settings/mydash_register.json` with seed data (3-5 example publications).
+2. **Phase 2: OpenRegister schemas** — Define the seven schemas in `lib/Settings/launchpad_register.json` with seed data (3-5 example publications).
 3. **Phase 3: Controller layer** — PublicationController (read) and PublicationSettingsController (admin config).
 4. **Phase 4: Frontend UI** — Publication settings form (owner config), public-view route (anon accessible), analytics dashboard (owner view).
 5. **Phase 5: Testing & CI** — Integration tests (end-to-end publication lifecycle), performance tests (CDN caching), security tests (service account isolation).
@@ -224,7 +224,7 @@ Aggregate (no PII) log of viewers accessing a publication. Recorded once per hou
 
 ## Seed Data
 
-Three example publications in `lib/Settings/mydash_register.json`:
+Three example publications in `lib/Settings/launchpad_register.json`:
 
 **Example 1: Public gemeente housing dashboard**
 - slug: `wonen-gemeente-zeist`

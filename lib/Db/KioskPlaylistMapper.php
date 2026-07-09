@@ -3,7 +3,7 @@
 /**
  * KioskPlaylistMapper
  *
- * QBMapper for mydash_kiosk_playlists. Covers token lookup (active-only),
+ * QBMapper for launchpad_kiosk_playlists. Covers token lookup (active-only),
  * per-creator listing, admin listing, and soft-revoke. The computed public
  * URL is hydrated onto every returned entity via IURLGenerator.
  *
@@ -53,7 +53,7 @@ class KioskPlaylistMapper extends QBMapper
     ) {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_kiosk_playlists',
+            tableName: 'launchpad_kiosk_playlists',
             entityClass: KioskPlaylist::class
         );
     }//end __construct()

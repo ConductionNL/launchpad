@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `SidebarFooter.vue` (capability
  * `dashboard-switcher`). Covers REQ-SWITCH-009:
@@ -45,7 +45,7 @@ describe('SidebarFooter', () => {
 			expect(sendent.attributes('aria-label')).toBe('Sendent')
 			const img = sendent.find('img')
 			expect(img.attributes('alt')).toBe('Sendent')
-			// App id is `mydash` — generating with `launchpad` 404s (no
+			// App id is `launchpad` — generating with `launchpad` 404s (no
 			// appswebroots entry for the display name).
 			expect(img.attributes('src')).toBe('/apps/launchpad/img/sendent-logo.png')
 		})

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `widgetBridge.pollForCallback` covering REQ-LWB-005
  * and REQ-LWB-006: synchronous resolution when the callback is already
@@ -78,5 +78,29 @@ describe('WidgetBridge.pollForCallback', () => {
 
 		expect(spy).toHaveBeenCalledWith('notes')
 		spy.mockRestore()
+	})
+})
+
+describe('WidgetBridge OCA.Dashboard exposure (CnNcWidgetWidget contract)', () => {
+	it('exposes the captured callback on OCA.Dashboard.callbacks + widgets + getWidget', () => {
+		const cb = () => {}
+		window.OCA.Dashboard.register('deals', cb)
+		expect(window.OCA.Dashboard.callbacks.deals).toBe(cb)
+		expect(window.OCA.Dashboard.widgets.deals.callback).toBe(cb)
+		expect(window.OCA.Dashboard.getWidget('deals').callback).toBe(cb)
+	})
+
+	it('setWidgetMetadata merges title/icon without clobbering the callback', () => {
+		const cb = () => {}
+		window.OCA.Dashboard.register('leads', cb)
+		widgetBridge.setWidgetMetadata([{ id: 'leads', title: 'My Leads', iconUrl: '/x.svg' }])
+		const meta = window.OCA.Dashboard.getWidget('leads')
+		expect(meta.title).toBe('My Leads')
+		expect(meta.iconUrl).toBe('/x.svg')
+		expect(meta.callback).toBe(cb)
+	})
+
+	it('setWidgetMetadata tolerates non-array input', () => {
+		expect(() => widgetBridge.setWidgetMetadata(null)).not.toThrow()
 	})
 })

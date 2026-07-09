@@ -149,7 +149,7 @@ class WidgetApiController extends Controller
      *
      * @return JSONResponse The widget items.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
      * @spec openspec/changes/role-based-content/tasks.md#task-3
      */
     #[NoAdminRequired]
@@ -446,6 +446,38 @@ class WidgetApiController extends Controller
             return ResponseHelper::forbidden();
         }
 
+        // REQ-ACK-001: setting/changing/clearing the mandatory-read
+        // acknowledgement requirement is restricted to an admin or the
+        // template owner — a non-author who can otherwise style the widget
+        // MUST be rejected (ADR-005, no privilege bleed through the styling
+        // gate). Only guard when the payload actually touches an
+        // acknowledgement-requirement field.
+        $ackFields  = [
+            'requiresAcknowledgement',
+            'acknowledgementPrompt',
+            'acknowledgementDeadline',
+            'reacknowledgeOnChange',
+            'acknowledgementContentVersion',
+        ];
+        $touchesAck = false;
+        foreach ($ackFields as $ackField) {
+            if ($this->request->getParam(key: $ackField) !== null) {
+                $touchesAck = true;
+                break;
+            }
+        }
+
+        if ($touchesAck === true
+            && $this->permissionService->canManageAcknowledgement(
+                userId: $this->userId,
+                placementId: $placementId
+            ) === false
+        ) {
+            return ResponseHelper::forbidden(
+                message: 'Only an admin or the template owner may set an acknowledgement requirement'
+            );
+        }
+
         // REQ-CONT-006: validate the container depth invariant on
         // update too — a placement can grow nested children via PUT
         // without ever going through addWidget.
@@ -694,6 +726,40 @@ class WidgetApiController extends Controller
 
         return ResponseHelper::success(data: $result);
     }//end calendarEvents()
+
+    /**
+     * List the current user's internal Nextcloud calendars so the calendar
+     * widget's config form can offer a picker instead of free-text principal
+     * URIs (REQ-CAL-002). Each entry carries the calendar key (the identifier
+     * `fetchInternalEvents` filters on), display name, and colour.
+     *
+     * @return JSONResponse The user's calendars, or 401 when unauthenticated.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
+     */
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function calendars(): JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null || $this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.calendar-events');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
+        }
+
+        try {
+            $calendars = $this->calendarWidgetService->listCalendars(userId: $this->userId);
+        } catch (\Exception $exception) {
+            return ResponseHelper::error(exception: $exception);
+        }
+
+        return ResponseHelper::success(data: ['calendars' => $calendars]);
+    }//end calendars()
 
     /**
      * Pull `internalCalendars`/`externalIcsUrls` arrays out of the

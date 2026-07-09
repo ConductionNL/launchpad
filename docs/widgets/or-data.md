@@ -30,8 +30,8 @@ follow.
   <NcEmptyContent
     v-if="!or.enabled.value"
     icon="icon-openregister"
-    :name="t('mydash', 'OpenRegister not available')"
-    :description="t('mydash', 'Enable OpenRegister to surface this data.')"
+    :name="t('launchpad', 'OpenRegister not available')"
+    :description="t('launchpad', 'Enable OpenRegister to surface this data.')"
   />
   <div v-else-if="loading">
     <NcLoadingIcon />

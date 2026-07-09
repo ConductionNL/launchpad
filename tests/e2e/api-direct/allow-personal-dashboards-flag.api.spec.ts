@@ -10,7 +10,7 @@
  * envelope), NOT the rendered UI, so per the gate-19 program they live
  * under api-direct/ (excluded from the Playwright UI gate) and their
  * contract coverage is provided by Newman
- * (tests/integration/mydash.postman_collection.json). The `@e2e`
+ * (tests/integration/launchpad.postman_collection.json). The `@e2e`
  * annotations are retained so the gate-19 traceability check still
  * registers these scenarios as covered.
  *
@@ -29,9 +29,9 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const SETTINGS_URL = `${BASE}/index.php/apps/mydash/api/admin/settings`
-const CREATE_URL   = `${BASE}/index.php/apps/mydash/api/dashboard`
-const FORK_URL     = (uuid: string) => `${BASE}/index.php/apps/mydash/api/dashboards/${encodeURIComponent(uuid)}/fork`
+const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/api/admin/settings`
+const CREATE_URL   = `${BASE}/index.php/apps/launchpad/api/dashboard`
+const FORK_URL     = (uuid: string) => `${BASE}/index.php/apps/launchpad/api/dashboards/${encodeURIComponent(uuid)}/fork`
 
 /** Make an authenticated request context using HTTP Basic auth. */
 async function adminApi(playwright: { request: { newContext: typeof import('@playwright/test').request.newContext } }): Promise<APIRequestContext> {

@@ -153,7 +153,7 @@ capability arrived at its current shape.
 
 `src/manifest.json` is the single source of truth for LaunchPad's menu
 entries and page declarations. It is bundled into the webpack output and
-registered at boot via `useAppManifest('mydash', bundledManifest)` in
+registered at boot via `useAppManifest('launchpad', bundledManifest)` in
 `src/main.js`.
 
 At Tier 1 the vue-router definition in `src/main.js` remains hand-wired;
@@ -192,19 +192,19 @@ See `docs/widgets/or-data.md` for the canonical OR-backed widget pattern
 and `openspec/specs/runtime-or-consumption/spec.md` for the full
 requirements.
 
-## Permission model on `oc_mydash_dashboards`
+## Permission model on `oc_launchpad_dashboards`
 
 Dashboard permissions live in two places:
 
 | Column / table | What it governs |
 |---|---|
-| `oc_mydash_dashboards.permissions` | The owner's own default permission level for the dashboard (`view_only` / `add_only` / `full`) |
-| `oc_mydash_dashboard_shares.permissionLevel` | Per-share override for a specific user or group |
+| `oc_launchpad_dashboards.permissions` | The owner's own default permission level for the dashboard (`view_only` / `add_only` / `full`) |
+| `oc_launchpad_dashboard_shares.permissionLevel` | Per-share override for a specific user or group |
 
 `PermissionService::getEffectivePermissionLevel(userId, dashboard)` is
 the single authority that resolves a caller's effective level by merging
 the share row (if any) with the dashboard default and the admin default
-from `oc_mydash_admin_settings`.
+from `oc_launchpad_admin_settings`.
 
 **Optional runtime OR delegation** is described in
 `openspec/specs/dashboard-sharing/spec.md`. It is OFF by default and
@@ -232,7 +232,7 @@ settings and Group-shared-dashboards sections, then mounts
 | Demo data | `tabs/DemoDataTab.vue` | demo showcase installer |
 
 `BeheerTabs` resolves the active tab with the precedence `?tab=` query →
-`localStorage` (`mydash.admin.activeTab`) → `defaultTab` (Templates). Only
+`localStorage` (`launchpad.admin.activeTab`) → `defaultTab` (Templates). Only
 the active tab's slot is in the DOM.
 
 **Workspace — sidebar mode switch.** `DashboardSwitcherSidebar.vue` gains a
@@ -242,7 +242,7 @@ between the dashboards canvas and `CatalogView.vue` based on the emitted
 canvas restores state without a reload. `CatalogView` groups every
 registered widget by category (Built-in / Custom Tiles / Bridge), with a
 sticky filter strip and per-group collapse state persisted under
-`mydash.catalog.openGroups`.
+`launchpad.catalog.openGroups`.
 
 **Per-widget conditional visibility.** The widget context menu gains a
 "Visibility rules…" item that opens `VisibilityRulesModal.vue`, wrapping the

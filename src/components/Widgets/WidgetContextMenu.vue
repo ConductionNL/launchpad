@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -24,7 +24,7 @@
 			role="menuitem"
 			data-testid="ctx-visibility-rules"
 			@click="onVisibilityRules">
-			{{ t('launchpad','Visibility rules…') }}
+			{{ t('launchpad', 'Visibility rules…') }}
 		</button>
 		<button
 			type="button"

@@ -26,7 +26,7 @@
 		     dashboard switching is owned by the left sidebar
 		     (REQ-SWITCH-002). -->
 		<!-- Title strip is only visible when the sidebar is OPEN.
-		     When closed, the floating sidebar-toggle in mydash-floating-controls
+		     When closed, the floating sidebar-toggle in launchpad-floating-controls
 		     (top-right) is the only entry point. -->
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
@@ -444,7 +444,7 @@ export default {
 
 <!--
   Global (unscoped) layout rules for the chrome wrapper. Nextcloud's
-  `#app-workspace` is a `display: flex` row container. MyDash opts out of
+  `#app-workspace` is a `display: flex` row container. LaunchPad opts out of
   the navigation rail (PageController sets `id-app-navigation: null`), so
   the workspace wrapper must claim the full available width — without this,
   `.launchpad-workspace` collapses to 0px and the dashboard grid renders empty.

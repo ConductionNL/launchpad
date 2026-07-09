@@ -22,7 +22,7 @@ import { test, expect } from '@playwright/test'
 
 const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
 
-const ADMIN_URL = `${BASE}/index.php/settings/admin/mydash`
+const ADMIN_URL = `${BASE}/index.php/settings/admin/launchpad`
 
 /**
  * Scenario: Admin settings page shows the role-layout defaults section.
@@ -35,7 +35,7 @@ const ADMIN_URL = `${BASE}/index.php/settings/admin/mydash`
  */
 test('admin settings page contains role-layout-defaults section', async ({ page }) => {
 	// The shared storageState already carries the admin session, so navigate
-	// straight to the MyDash admin settings page (no redundant form login,
+	// straight to the LaunchPad admin settings page (no redundant form login,
 	// which previously hung the test).
 	const resp = await page.goto(ADMIN_URL, { waitUntil: 'domcontentloaded' })
 

@@ -17,11 +17,11 @@
 - [ ] Task 13: REQ-SWITCH-006 — Sidebar height: calculate to account for header offset (top: 50px) and footer. Use `calc(100vh - 50px)` with `overflow-y: auto` on the list container
 - [ ] Task 14: REQ-SWITCH-007 — Import `IconRenderer` from the `dashboard-icons` capability. Each dashboard row: render the icon via `<IconRenderer :icon="dashboard.icon" />`. No branching on `isCustomIconUrl`.
 - [ ] Task 15: REQ-SWITCH-008 — Render a dedicated "Add Dashboard" button card only when `allowUserDashboards === true`. Card is inside the scroll container (not the footer), positioned below the personal-dashboards list
-- [ ] Task 16: REQ-SWITCH-008 — Add-Dashboard card: `NcButton` with `type="outline"`, full sidebar width, render a `+` icon (use `Plus` component from @conduction/nextcloud-vue), label from `t('mydash', 'Add dashboard')`
+- [ ] Task 16: REQ-SWITCH-008 — Add-Dashboard card: `NcButton` with `type="outline"`, full sidebar width, render a `+` icon (use `Plus` component from @conduction/nextcloud-vue), label from `t('launchpad', 'Add dashboard')`
 - [ ] Task 17: REQ-SWITCH-008 — Add-Dashboard button click: emit `update:open(false)` first, then emit `create-dashboard()`
 - [ ] Task 18: REQ-SWITCH-009 — Render a sticky footer at the bottom: `position: sticky`, `bottom: 0`, separated from the list above by a `<hr />` divider
 - [ ] Task 19: REQ-SWITCH-009 — Footer: "Powered by" line with Sendent logo (link to sendent.nl) and Conduction logo (link to conduction.nl). Both links: `target="_blank"` and `rel="noopener noreferrer"`. Use static URLs or load from config if available.
-- [ ] Task 20: REQ-SWITCH-009 — Footer: Documentation link rendered as an icon + label `t('mydash', 'Documentation')`. Link target: preserved from the gear menu's Documentation URL (retrieve from app config or settings endpoint)
+- [ ] Task 20: REQ-SWITCH-009 — Footer: Documentation link rendered as an icon + label `t('launchpad', 'Documentation')`. Link target: preserved from the gear menu's Documentation URL (retrieve from app config or settings endpoint)
 - [ ] Task 21: REQ-SWITCH-009 — Footer styling: `position: sticky`, light background via Nextcloud CSS var `var(--color-background-secondary)`, padding and border-top divider
 
 ## Parent Integration

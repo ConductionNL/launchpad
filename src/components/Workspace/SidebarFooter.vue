@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -102,14 +102,14 @@ export default {
 		},
 		/** @spec openspec/specs/footer-customization/spec.md */
 		sendentLogo() {
-			// App Store id is `mydash` (info.xml) — `launchpad` is only the
+			// App Store id is `launchpad` (info.xml) — `launchpad` is only the
 			// display name and has no OC.appswebroots entry, so using it
 			// degrades the URL to /img/... and the logo 404s.
-			return generateFilePath('mydash', 'img', 'sendent-logo.png')
+			return generateFilePath('launchpad', 'img', 'sendent-logo.png')
 		},
 		/** @spec openspec/specs/footer-customization/spec.md */
 		conductionLogo() {
-			return generateFilePath('mydash', 'img', 'conduction-logo.png')
+			return generateFilePath('launchpad', 'img', 'conduction-logo.png')
 		},
 	},
 

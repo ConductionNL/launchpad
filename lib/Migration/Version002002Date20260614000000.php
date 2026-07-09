@@ -32,14 +32,14 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Creates the mydash_kiosk_playlists table.
+ * Creates the launchpad_kiosk_playlists table.
  *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-1
  */
 class Version002002Date20260614000000 extends SimpleMigrationStep
 {
     /**
-     * Create mydash_kiosk_playlists table.
+     * Create launchpad_kiosk_playlists table.
      *
      * @param IOutput $output        Migration output handler.
      * @param Closure $schemaClosure Returns an ISchemaWrapper.
@@ -59,8 +59,8 @@ class Version002002Date20260614000000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_kiosk_playlists') === false) {
-            $table = $schema->createTable('mydash_kiosk_playlists');
+        if ($schema->hasTable('launchpad_kiosk_playlists') === false) {
+            $table = $schema->createTable('launchpad_kiosk_playlists');
 
             $table->addColumn(
                 'id',
@@ -131,10 +131,10 @@ class Version002002Date20260614000000 extends SimpleMigrationStep
             );
 
             $table->setPrimaryKey(['id']);
-            $table->addUniqueIndex(['token'], 'mydash_kiosk_token_unique');
+            $table->addUniqueIndex(['token'], 'launchpad_kiosk_token_unique');
             $table->addIndex(
                 ['created_by', 'revoked_at'],
-                'mydash_kiosk_creator_revoked'
+                'launchpad_kiosk_creator_revoked'
             );
         }//end if
 

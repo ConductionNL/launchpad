@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * Playwright end-to-end test for widget collision placement (REQ-GRID-006 +
@@ -28,7 +28,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoMydash, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
@@ -91,7 +91,7 @@ async function addLabelWidget(page: import('@playwright/test').Page, text: strin
 
 test.describe('widget collision placement', () => {
 	test.beforeEach(async ({ page }) => {
-		await gotoMydash(page)
+		await gotoLaunchPad(page)
 	})
 
 	// @e2e grid-layout::five-widgets-no-overlap-auto-position

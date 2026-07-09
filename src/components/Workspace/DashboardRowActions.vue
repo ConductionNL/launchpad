@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -35,11 +35,11 @@
 		:aria-label="t('launchpad', 'Dashboard menu')"
 		:force-menu="true"
 		placement="bottom-end"
-		type="tertiary-no-background"
+		:type="buttonType"
 		class="dashboard-row-actions"
 		@click.native.stop>
 		<template #icon>
-			<Cog :size="18" />
+			<Cog :size="iconSize" />
 		</template>
 		<NcActionButton
 			v-if="canEdit"
@@ -83,6 +83,16 @@
 			{{ isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canShare"
+			:close-after-click="true"
+			data-testid="cog-share"
+			@click="$emit('share')">
+			<template #icon>
+				<ShareVariant :size="20" />
+			</template>
+			{{ t('launchpad', 'Share') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="isOwner"
 			:close-after-click="true"
 			data-testid="cog-delete"
@@ -106,6 +116,7 @@ import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 export default {
 	name: 'DashboardRowActions',
@@ -121,6 +132,7 @@ export default {
 		TrashCanOutline,
 		Star,
 		StarCheck,
+		ShareVariant,
 	},
 
 	props: {
@@ -166,9 +178,40 @@ export default {
 			type: [String, Number],
 			default: null,
 		},
+
+		/*
+		 * When true the menu renders a "Share" entry that emits `share`
+		 * so the host can open the sharing drawer. Off by default — the
+		 * sidebar rows don't expose sharing; the top-right active-dashboard
+		 * cog passes the host's `canShareActiveDashboard` gate.
+		 */
+		canShare: {
+			type: Boolean,
+			default: false,
+		},
+
+		/*
+		 * NcActions toggle button style. Defaults to the subtle
+		 * `tertiary-no-background` used at the edge of each sidebar row;
+		 * the top-right active cog passes `secondary` so it matches the
+		 * adjacent dashboards (hamburger) button.
+		 */
+		buttonType: {
+			type: String,
+			default: 'tertiary-no-background',
+		},
+
+		/*
+		 * Cog icon size. 18 fits the sidebar rows; the top-right cluster
+		 * passes 20 to line up with the 20px hamburger icon.
+		 */
+		iconSize: {
+			type: Number,
+			default: 18,
+		},
 	},
 
-	emits: ['toggle-edit', 'open-config', 'add-custom-widget', 'delete', 'set-default'],
+	emits: ['toggle-edit', 'open-config', 'add-custom-widget', 'delete', 'set-default', 'share'],
 
 	computed: {
 		/*

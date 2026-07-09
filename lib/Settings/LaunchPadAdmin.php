@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -173,7 +173,7 @@ class LaunchPadAdmin implements IDelegatedSettings
     /**
      * App config keys an authorized (delegated) admin may manage.
      *
-     * Returned as a map of appId => list of allowed config keys. MyDash
+     * Returned as a map of appId => list of allowed config keys. LaunchPad
      * exposes no delegatable sub-keys yet, so this is intentionally empty;
      * the attribute still scopes the endpoint to full admins.
      *

@@ -122,27 +122,6 @@ class ActionAuthService
     }//end requireAction()
 
     /**
-     * Check whether the user may perform the named action (non-throwing).
-     *
-     * @param IUser  $user   The authenticated user.
-     * @param string $action Dot-separated action name.
-     *
-     * @return bool True if the user may perform the action.
-     *
-     * @spec openspec/architecture/adr-023-action-authorization.md
-     */
-    public function can(IUser $user, string $action): bool
-    {
-        try {
-            $this->requireAction(user: $user, action: $action);
-            return true;
-        } catch (OCSForbiddenException $e) {
-            return false;
-        }
-
-    }//end can()
-
-    /**
      * Get the list of groups allowed to perform the action.
      *
      * Returns the matrix entry for the action, or ["admin"] as the safe
@@ -244,17 +223,4 @@ class ActionAuthService
         $this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $json);
 
     }//end setMatrix()
-
-    /**
-     * List all action keys currently in the matrix.
-     *
-     * @return array<int, string>
-     *
-     * @spec openspec/architecture/adr-023-action-authorization.md
-     */
-    public function getActions(): array
-    {
-        return array_keys($this->getMatrix());
-
-    }//end getActions()
 }//end class

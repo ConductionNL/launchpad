@@ -1,11 +1,11 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `WidgetWrapper.vue` covering the shared edit cog
- * (shown only in edit mode) and the per-widget custom header colours
- * (styleConfig.headerStyle), which CnWidgetWrapper's own styleConfig does not
- * carry and are re-applied here via CSS variables.
+ * (shown only in edit mode) and that per-widget custom header colours
+ * (styleConfig.headerStyle) are forwarded to CnWidgetWrapper via styleConfig
+ * (CnWidgetWrapper applies them natively — no per-app CSS-var workaround).
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -22,25 +22,47 @@ const mountWrapper = (placement, editMode = false) => shallowMount(WidgetWrapper
 })
 
 describe('WidgetWrapper — custom header style', () => {
-	it('forwards styleConfig.headerStyle colours as CSS vars + flag class', () => {
+	it('forwards styleConfig (incl headerStyle) to CnWidgetWrapper', () => {
+		const headerStyle = { backgroundColor: '#123456', textColor: '#abcdef' }
 		const wrapper = mountWrapper({
 			id: 1,
 			widgetId: 'data',
 			showTitle: true,
-			styleConfig: { headerStyle: { backgroundColor: '#123456', textColor: '#abcdef' } },
+			styleConfig: { headerStyle },
 		})
+		// The wrapper passes the placement's styleConfig straight through; the
+		// shared CnWidgetWrapper applies headerStyle natively (no CSS-var hack).
+		expect(wrapper.vm.styleConfig.headerStyle).toEqual(headerStyle)
 		const cn = wrapper.find('.launchpad-widget__wrapper')
-		expect(cn.classes()).toContain('launchpad-widget__wrapper--custom-header')
-		const style = cn.attributes('style') || ''
-		expect(style).toContain('--lp-header-bg: #123456')
-		expect(style).toContain('--lp-header-color: #abcdef')
+		expect(cn.attributes('style') || '').not.toContain('--lp-header')
+		expect(cn.classes()).not.toContain('launchpad-widget__wrapper--custom-header')
 	})
 
-	it('omits the flag class + vars when no headerStyle is set', () => {
+	it('defaults styleConfig to an empty object when none is set', () => {
 		const wrapper = mountWrapper({ id: 2, widgetId: 'data', showTitle: true, styleConfig: {} })
+		expect(wrapper.vm.styleConfig).toEqual({})
 		const cn = wrapper.find('.launchpad-widget__wrapper')
-		expect(cn.classes()).not.toContain('launchpad-widget__wrapper--custom-header')
 		expect(cn.attributes('style') || '').not.toContain('--lp-header')
+	})
+})
+
+describe('WidgetWrapper — showHeader (showTitle round-trip)', () => {
+	// `showTitle` persists to the DB as an integer/string, so the header
+	// decision must treat 0 / '0' / false / '' as "off" — a strict `!== false`
+	// check wrongly kept the header for a stored 0 (the generic "Widget" title).
+	it.each([
+		[false, false],
+		[0, false],
+		['0', false],
+		['', false],
+		[true, true],
+		[1, true],
+		['1', true],
+		[undefined, true],
+		[null, true],
+	])('showTitle=%p → showHeader=%p', (showTitle, expected) => {
+		const wrapper = mountWrapper({ id: 9, widgetId: 'data', showTitle, styleConfig: {} })
+		expect(wrapper.vm.showHeader).toBe(expected)
 	})
 })
 

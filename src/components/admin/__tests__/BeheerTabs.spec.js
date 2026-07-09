@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `BeheerTabs.vue` (admin-settings spec). Covers:
  *  - tab switching renders only the active tab's slot
@@ -9,7 +9,7 @@
  *  - the default tab is used when neither query nor storage is set
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BeheerTabs, { ACTIVE_TAB_STORAGE_KEY } from '../BeheerTabs.vue'
 

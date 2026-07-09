@@ -3,7 +3,7 @@
 /**
  * PublicShare Entity
  *
- * Represents a row in mydash_public_shares — an anonymous read-only share
+ * Represents a row in launchpad_public_shares — an anonymous read-only share
  * of a dashboard identified by a URL-safe token.
  *
  * @category  Database

@@ -19,10 +19,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\AppInfo;
 
 use OCA\LaunchPad\Activity\DebounceHelper;
-use OCA\LaunchPad\BackgroundJob\PurgeViewsJob;
-use OCA\LaunchPad\BackgroundJob\SaltRotationJob;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCA\LaunchPad\Job\FeedRefreshJob;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
@@ -41,7 +38,6 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
-use OCP\BackgroundJob\IJobList;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
@@ -216,6 +212,7 @@ class Application extends App implements IBootstrap
         // manifest and emits the `launchpad_` prefix, exactly as before adoption.
         $context->registerService(
             \OCA\LaunchPad\Controller\HealthController::class,
+            // @psalm-suppress UnusedClosureParam,TooManyArguments
             static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
                 return new \OCA\LaunchPad\Controller\HealthController(
                     appName: self::APP_ID,
@@ -229,6 +226,7 @@ class Application extends App implements IBootstrap
         // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
         $context->registerService(
             \OCA\LaunchPad\Controller\MetricsController::class,
+            // @psalm-suppress UnusedClosureParam,TooManyArguments
             static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
                 return new \OCA\LaunchPad\Controller\MetricsController(
                     appName: self::APP_ID,
@@ -243,9 +241,11 @@ class Application extends App implements IBootstrap
     /**
      * App initialization after all apps are registered.
      *
-     * @param IBootContext $context The boot context.
+     * @param IBootContext $context The boot context (unused; required by IBootstrap).
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function boot(IBootContext $context): void
     {
@@ -263,25 +263,11 @@ class Application extends App implements IBootstrap
         // App initialization after all apps are registered.
         \OCP\Util::addStyle(application: self::APP_ID, file: 'launchpad');
 
-        // Register the dashboard view-analytics background jobs
-        // (REQ-ANLT-003 design D2 + REQ-ANLT-009) plus the periodic
-        // external-feed refresh job (REQ-FRJ-002). All are idempotent:
-        // `IJobList::add()` is a no-op when the job is already registered.
-        try {
-            $serverContainer = $context->getServerContainer();
-            $jobList         = $serverContainer->get(IJobList::class);
-            if ($jobList instanceof IJobList === true) {
-                $jobList->add(job: PurgeViewsJob::class);
-                $jobList->add(job: SaltRotationJob::class);
-                $jobList->add(job: FeedRefreshJob::class);
-            }
-        } catch (\Throwable $exception) {
-            $context->getServerContainer()
-                ->get(\Psr\Log\LoggerInterface::class)
-                ->warning(
-                    'Failed to register LaunchPad background jobs: '.$exception->getMessage(),
-                    ['app' => self::APP_ID]
-                );
-        }
+        // The dashboard view-analytics jobs (REQ-ANLT-003 design D2 +
+        // REQ-ANLT-009) and the external-feed refresh job (REQ-FRJ-002) are
+        // registered once via the RegisterBackgroundJobs repair step (install +
+        // post-migration), NOT on every request. Registering them here issued a
+        // JobList::has() SELECT against oc_jobs on each web request and tripped
+        // Nextcloud's "dirty table reads" diagnostic.
     }//end boot()
 }//end class

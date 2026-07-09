@@ -11,12 +11,12 @@ cross-links:
 
 ## Purpose
 
-MyDash optionally surfaces data from OpenRegister (OR) in certain widgets.
+LaunchPad optionally surfaces data from OpenRegister (OR) in certain widgets.
 This spec defines the rules that ALL OR-data widgets MUST follow to keep
-MyDash usable on installations where OR is absent, unavailable, or returning
+LaunchPad usable on installations where OR is absent, unavailable, or returning
 errors.
 
-The central invariant: **MyDash is an OR-free app that can optionally
+The central invariant: **LaunchPad is an OR-free app that can optionally
 consume OR data at runtime.** OR is never a hard dependency.
 
 ---
@@ -27,14 +27,14 @@ consume OR data at runtime.** OR is never a hard dependency.
 
 ### Requirement: No install-time OR dependency (REQ-OR-001)
 
-MyDash MUST NOT declare an install-time dependency on `openregister` or
+LaunchPad MUST NOT declare an install-time dependency on `openregister` or
 `openconnector` in `appinfo/info.xml`, `composer.json`, or
 `src/manifest.json`.
 
 #### Scenario: Fresh install without OR boots normally
 
-- GIVEN a Nextcloud instance with MyDash installed but OpenRegister absent
-- WHEN an admin opens MyDash
+- GIVEN a Nextcloud instance with LaunchPad installed but OpenRegister absent
+- WHEN an admin opens LaunchPad
 - THEN the app MUST load without errors
 - AND all dashboards, widgets, and admin settings MUST be fully functional
 - AND no "missing dependency" warning or fatal error MUST appear in the
@@ -42,7 +42,7 @@ MyDash MUST NOT declare an install-time dependency on `openregister` or
 
 #### Scenario: manifest.json dependencies array is empty
 
-- GIVEN the `src/manifest.json` file for MyDash
+- GIVEN the `src/manifest.json` file for LaunchPad
 - WHEN it is parsed
 - THEN the `dependencies` array MUST be `[]`
 - AND it MUST NOT contain `"openregister"` or `"openconnector"`

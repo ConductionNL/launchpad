@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -113,26 +113,6 @@ class CommandService
             'errors'   => [],
         ];
     }//end envelopeSuccess()
-
-    /**
-     * Build a partial-success JSON envelope (REQ-CLI-007).
-     *
-     * @param array<string,mixed>|list<mixed>|null $data   Payload.
-     * @param list<array<string,mixed>>            $errors Per-item errors.
-     *
-     * @return array<string,mixed>
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function envelopePartial(array|null $data, array $errors): array
-    {
-        return [
-            'success'  => false,
-            'exitCode' => self::EXIT_PARTIAL_SUCCESS,
-            'data'     => $data,
-            'errors'   => $errors,
-        ];
-    }//end envelopePartial()
 
     /**
      * Build an error JSON envelope (REQ-CLI-007).

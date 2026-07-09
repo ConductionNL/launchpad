@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -15,7 +15,7 @@
 			{{ t('launchpad', 'Loading showcases…') }}
 		</div>
 
-		<div v-else-if="loadError" class="mydash-demo-showcases__error">
+		<div v-else-if="loadError" class="launchpad-demo-showcases__error">
 			{{ loadError }}
 		</div>
 
@@ -23,18 +23,18 @@
 			<NcNoteCard
 				v-if="actionError"
 				type="error"
-				class="mydash-demo-showcases__action-error"
+				class="launchpad-demo-showcases__action-error"
 				data-test="showcase-action-error">
 				{{ actionError }}
 			</NcNoteCard>
 
-			<div class="mydash-demo-showcases__grid">
+			<div class="launchpad-demo-showcases__grid">
 				<div
 					v-for="showcase in showcases"
 					:key="showcase.id"
-					class="mydash-demo-showcases__card"
+					class="launchpad-demo-showcases__card"
 					:data-test="'showcase-card-' + showcase.id">
-					<div class="mydash-demo-showcases__thumb">
+					<div class="launchpad-demo-showcases__thumb">
 						<img
 							v-if="showcase.thumbnailUrl"
 							:src="showcase.thumbnailUrl"
@@ -43,21 +43,21 @@
 						<ViewDashboard v-else :size="64" />
 					</div>
 
-					<div class="mydash-demo-showcases__body">
-						<div class="mydash-demo-showcases__title-row">
-							<strong class="mydash-demo-showcases__title">{{ showcase.name }}</strong>
-							<span class="mydash-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+					<div class="launchpad-demo-showcases__body">
+						<div class="launchpad-demo-showcases__title-row">
+							<strong class="launchpad-demo-showcases__title">{{ showcase.name }}</strong>
+							<span class="launchpad-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
 						</div>
 
-						<p class="mydash-demo-showcases__desc">
+						<p class="launchpad-demo-showcases__desc">
 							{{ showcase.description }}
 						</p>
 
-						<div v-if="warnings[showcase.id]" class="mydash-demo-showcases__warning">
+						<div v-if="warnings[showcase.id]" class="launchpad-demo-showcases__warning">
 							{{ t('launchpad', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
 						</div>
 
-						<div class="mydash-demo-showcases__actions">
+						<div class="launchpad-demo-showcases__actions">
 							<NcButton
 								v-if="!showcase.isInstalled"
 								type="primary"
@@ -203,11 +203,11 @@ export default {
 	color: var(--color-error);
 }
 
-.mydash-demo-showcases__action-error {
+.launchpad-demo-showcases__action-error {
 	margin-top: 16px;
 }
 
-.mydash-demo-showcases__grid {
+.launchpad-demo-showcases__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 	gap: 16px;

@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -22,7 +22,7 @@
 	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
 	never triggers a switch (REQ-SWITCH-004).
 
-	A dedicated "Add Dashboard" card button (NcButton outline) renders
+	A dedicated "Add Dashboard" card button (NcButton secondary) renders
 	below the personal dashboards list — still inside the scroll container,
 	NOT inside the footer — when `allowUserDashboards === true`. Clicking
 	it emits `update:open(false)` then `create-dashboard()` (REQ-SWITCH-008).
@@ -45,8 +45,8 @@
 	spec. The downstream runtime-shell component should adopt the same
 	binding when it ships.
 
-	Icon rendering MUST go through the shared `IconRenderer` from
-	`dashboard-icons` — no inline `v-if="iconUrl"` branches here
+	Icon rendering MUST go through the shared `CnDashboardIcon` from
+	@conduction/nextcloud-vue — no inline `v-if="iconUrl"` branches here
 	(REQ-SWITCH-007).
 -->
 
@@ -102,7 +102,7 @@
 						@keydown.enter="onSwitch(dashboard.id, 'group')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'group')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
@@ -155,7 +155,7 @@
 						@keydown.enter="onSwitch(dashboard.id, 'default')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'default')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
@@ -208,7 +208,7 @@
 						@keydown.enter="onSwitch(dashboard.id, 'user')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
@@ -243,7 +243,7 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						type="outline"
+						type="secondary"
 						wide
 						data-action="create"
 						data-testid="add-dashboard-button"
@@ -277,13 +277,11 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { NcButton } from '@conduction/nextcloud-vue'
+import { NcButton, CnDashboardIcon } from '@conduction/nextcloud-vue'
 
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
-
-import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SidebarFooter from './SidebarFooter.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
 
@@ -294,7 +292,7 @@ export default {
 		Close,
 		Plus,
 		Star,
-		IconRenderer,
+		CnDashboardIcon,
 		NcButton,
 		SidebarFooter,
 		DashboardRowActions,
@@ -808,5 +806,13 @@ export default {
 	position: sticky;
 	bottom: 0;
 	flex: 0 0 auto;
+}
+
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar,
+	.dashboard-switcher-sidebar__item {
+		transition: none;
+	}
 }
 </style>

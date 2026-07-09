@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit test for the `Views.vue` initial-load shim.
  *
@@ -58,7 +58,7 @@ const childStubs = {
 	DashboardSwitcherSidebar: { name: 'DashboardSwitcherSidebar', template: '<div />' },
 	SidebarBackdrop: { name: 'SidebarBackdrop', template: '<div />' },
 	WidgetPickerModal: { name: 'WidgetPickerModal', template: '<div />' },
-	AddWidgetModal: { name: 'AddWidgetModal', template: '<div />' },
+	CnAddWidgetModal: { name: 'CnAddWidgetModal', template: '<div />' },
 	WidgetStyleEditor: { name: 'WidgetStyleEditor', template: '<div />' },
 	TileEditor: { name: 'TileEditor', template: '<div />' },
 	WidgetContextMenu: { name: 'WidgetContextMenu', template: '<div />' },

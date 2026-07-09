@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
  * End-to-end coverage for the `runtime-shell` capability.
@@ -8,7 +8,7 @@
  * empty-state CTA branches. The in-page edit toolbar was removed — editing
  * actions now live in the per-dashboard cog menu (DashboardRowActions) — so
  * the former toolbar / Save-Layout scenarios no longer apply. These tests
- * run against a live Nextcloud instance with the mydash app enabled.
+ * run against a live Nextcloud instance with the launchpad app enabled.
  *
  * Gate-19 @e2e traceability:
  *   @e2e runtime-shell::hamburger-toggles-sidebar
@@ -22,7 +22,7 @@
 
 import { test, expect } from '@playwright/test'
 
-const APP_URL = '/index.php/apps/mydash'
+const APP_URL = '/index.php/apps/launchpad'
 
 /**
  * Wait for the Vue shell to hydrate past initial bootstrap.
@@ -30,7 +30,7 @@ const APP_URL = '/index.php/apps/mydash'
  */
 async function waitForShell(page: ReturnType<typeof test.extend>['page']) {
 	await page.goto(APP_URL)
-	await page.waitForSelector('.mydash-floating-controls, .workspace-shell', { timeout: 15_000 })
+	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', { timeout: 15_000 })
 }
 
 test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
@@ -39,7 +39,7 @@ test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
 	})
 
 	test('hamburger opens the sidebar', async ({ page }) => {
-		const ham = page.locator('.mydash-sidebar-toggle').first()
+		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await expect(ham).toBeVisible()
 
 		// Sidebar should be closed initially.
@@ -50,7 +50,7 @@ test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
 	})
 
 	test('clicking the hamburger again closes the sidebar', async ({ page }) => {
-		const ham = page.locator('.mydash-sidebar-toggle').first()
+		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await ham.click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
 
@@ -66,12 +66,12 @@ test.describe('REQ-SHELL-006: backdrop click closes sidebar', () => {
 
 	test('clicking the backdrop area closes the sidebar', async ({ page }) => {
 		// Open the sidebar first.
-		const ham = page.locator('.mydash-sidebar-toggle').first()
+		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await ham.click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
 
 		// Click the backdrop (area outside the sidebar panel).
-		const backdrop = page.locator('.mydash-sidebar-backdrop')
+		const backdrop = page.locator('.launchpad-sidebar-backdrop')
 		await expect(backdrop).toBeVisible()
 		await backdrop.click()
 
@@ -79,7 +79,7 @@ test.describe('REQ-SHELL-006: backdrop click closes sidebar', () => {
 	})
 
 	test('clicking inside the sidebar panel does NOT close the sidebar', async ({ page }) => {
-		const ham = page.locator('.mydash-sidebar-toggle').first()
+		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await ham.click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
 

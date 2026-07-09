@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,7 +8,7 @@
 		<CnSettingsSection
 			:name="t('launchpad', 'LaunchPad settings')"
 			:description="t('launchpad', 'Configure dashboard permissions and defaults')"
-			doc-url="https://mydash.conduction.nl/docs/intro">
+			doc-url="https://launchpad.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
 			     page, above the Beheer tabs, so the call-to-action is always
 			     the first thing the admin sees regardless of active tab. -->
@@ -42,7 +42,7 @@
 			</div>
 
 			<!-- Global Settings — always visible above the tab strip. -->
-			<div class="mydash-admin__section" data-testid="admin-default-settings">
+			<div class="launchpad-admin__section" data-testid="admin-default-settings">
 				<h3>{{ t('launchpad', 'Default settings') }}</h3>
 
 				<div class="launchpad-admin__field">
@@ -113,8 +113,8 @@
 			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
 			     tabs because it owns the `set-group-default` /
 			     `group-default-badge` data-test hooks (task 12.2). -->
-			<div class="mydash-admin__section">
-				<div class="mydash-admin__section-header">
+			<div class="launchpad-admin__section">
+				<div class="launchpad-admin__section-header">
 					<h3>{{ t('launchpad', 'Group-shared dashboards') }}</h3>
 				</div>
 
@@ -140,9 +140,9 @@
 						<div
 							v-for="dash in rows"
 							:key="dash.uuid"
-							class="mydash-admin__template">
-							<div class="mydash-admin__template-info">
-								<IconRenderer :name="dash.icon" :size="20" />
+							class="launchpad-admin__template">
+							<div class="launchpad-admin__template-info">
+								<CnDashboardIcon :name="dash.icon" :size="20" />
 								<strong>{{ dash.name }}</strong>
 								<span
 									v-if="dash.isDefault === 1"
@@ -225,8 +225,8 @@ import {
 	NcSelect,
 	NcCheckboxRadioSwitch,
 	NcTextField,
+	CnDashboardIcon,
 } from '@conduction/nextcloud-vue'
-import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
@@ -248,7 +248,7 @@ export default {
 		NcSelect,
 		NcCheckboxRadioSwitch,
 		NcTextField,
-		IconRenderer,
+		CnDashboardIcon,
 		SetupWizardModal,
 		BeheerTabs,
 		TemplatesPage,
@@ -545,7 +545,7 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin {
+.launchpad-admin {
 	max-width: 900px;
 }
 
@@ -606,7 +606,7 @@ export default {
 	gap: 4px;
 }
 
-.mydash-admin__badge {
+.launchpad-admin__badge {
 	display: inline-block;
 	padding: 2px 8px;
 	background: var(--color-primary-element);
@@ -615,7 +615,7 @@ export default {
 	font-size: 12px;
 }
 
-.mydash-admin__template-actions {
+.launchpad-admin__template-actions {
 	display: flex;
 	gap: 8px;
 }
@@ -633,7 +633,7 @@ export default {
 	letter-spacing: 0.04em;
 }
 
-.mydash-admin__wizard-banner {
+.launchpad-admin__wizard-banner {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;

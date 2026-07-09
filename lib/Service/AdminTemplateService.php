@@ -39,7 +39,6 @@ use OCA\LaunchPad\Exception\InvalidDataUrlException;
 use OCA\LaunchPad\Exception\InvalidImageFormatException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
-use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use RuntimeException;
@@ -73,13 +72,6 @@ class AdminTemplateService
      *                                               existing wiring
      *                                               + tests stay
      *                                               valid.
-     * @param IDBConnection|null    $db              DB connection used to
-     *                                               wrap save-as-template
-     *                                               in a transaction
-     *                                               (REQ-TMPL-015).
-     *                                               Optional so test
-     *                                               wiring without a real
-     *                                               DB still works.
      * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
      *                                               DashboardDeletedEvent
      *                                               (SB1 fix, REQ-CSC-001).
@@ -93,7 +85,6 @@ class AdminTemplateService
         private readonly IGroupManager $groupManager,
         private readonly IUserManager $userManager,
         private readonly ?ResourceService $resourceService=null,
-        private readonly ?IDBConnection $db=null,
         private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
@@ -575,29 +566,4 @@ class AdminTemplateService
 
         return (string) $resource['url'];
     }//end uploadPreviewImage()
-
-    /**
-     * Coerce an incoming metadata field to a clean nullable string.
-     *
-     * Empty strings collapse to `null` so the stored value is unambiguous
-     * — gallery filters compare on equality and an empty-string category
-     * would create a phantom group.
-     *
-     * @param mixed $value The raw incoming value.
-     *
-     * @return string|null The cleaned value.
-     */
-    private function normaliseStringMeta(mixed $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $trimmed = trim(string: (string) $value);
-        if ($trimmed === '') {
-            return null;
-        }
-
-        return $trimmed;
-    }//end normaliseStringMeta()
 }//end class

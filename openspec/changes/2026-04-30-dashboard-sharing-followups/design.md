@@ -19,14 +19,14 @@ This change intentionally avoids building any custom notification transport, web
 | `OCP\IUserManager` | Nextcloud core | Filtering admin-pool candidates to still-existing users |
 | `OCP\IURLGenerator` | Nextcloud core | Generating the deep-link URL in notification render |
 | `OCP\IL10N` / `IFactory` | Nextcloud core | Localising notification strings (en + nl) |
-| `DashboardShareService` | MyDash (existing) | Extended with `replaceShares`, `revokeAllForRecipient`, `transferOwnership` |
-| `DashboardService` | MyDash (existing) | `deleteDashboard()` called from the listener for the empty-pool path |
+| `DashboardShareService` | LaunchPad (existing) | Extended with `replaceShares`, `revokeAllForRecipient`, `transferOwnership` |
+| `DashboardService` | LaunchPad (existing) | `deleteDashboard()` called from the listener for the empty-pool path |
 
-**No overlap with OpenRegister services**: MyDash dashboards are stored in custom tables (`oc_mydash_dashboards`, `oc_mydash_dashboard_shares`, `oc_mydash_widget_placements`), not in OpenRegister objects. The notification path goes directly through Nextcloud's `INotificationManager`, which is the correct abstraction for the NC notification ecosystem. No OpenRegister `NotificationService` is applicable here.
+**No overlap with OpenRegister services**: LaunchPad dashboards are stored in custom tables (`oc_launchpad_dashboards`, `oc_launchpad_dashboard_shares`, `oc_launchpad_widget_placements`), not in OpenRegister objects. The notification path goes directly through Nextcloud's `INotificationManager`, which is the correct abstraction for the NC notification ecosystem. No OpenRegister `NotificationService` is applicable here.
 
 ## Seed Data
 
-No seed data is required for this change. No new OpenRegister schemas or registers are introduced. All data changes are to existing custom tables (`oc_mydash_dashboard_shares`, `oc_mydash_dashboards`). The optional one-shot hygiene migration is admin-gated and produces no fixture data.
+No seed data is required for this change. No new OpenRegister schemas or registers are introduced. All data changes are to existing custom tables (`oc_launchpad_dashboard_shares`, `oc_launchpad_dashboards`). The optional one-shot hygiene migration is admin-gated and produces no fixture data.
 
 ## Decision: Pull notifications via Nextcloud's `INotifier`, not push or polling
 
@@ -75,7 +75,7 @@ The trade-off is that it requires the client to send the full list — but the l
 
 The retention algorithm only considers `permission_level = 'full'` shares as candidates for ownership transfer. `add_only` recipients can edit content but the user requirement explicitly says "admin (users can edit and delete the dashboard)" — that maps to `full` only.
 
-If a dashboard has only `view_only` and `add_only` shares and the owner is deleted, **the dashboard is deleted**. This may be surprising; we surface it via the `mydash_dashboards_orphaned_at_owner_deletion_total` Prometheus counter so admins can detect cases where they want to bump shares to `full` proactively.
+If a dashboard has only `view_only` and `add_only` shares and the owner is deleted, **the dashboard is deleted**. This may be surprising; we surface it via the `launchpad_dashboards_orphaned_at_owner_deletion_total` Prometheus counter so admins can detect cases where they want to bump shares to `full` proactively.
 
 We considered a "preserve if at least one human can still see it" rule (i.e. retention threshold = `view_only`). Rejected: it would silently leave dashboards owned by `null`/system, which adds a third ownership state we don't want to model.
 
@@ -97,7 +97,7 @@ The new owner gets a `dashboard_ownership_transferred` notification ("X is now y
 
 `UserDeletedEvent` is fired synchronously inside the user-removal flow. We do all work — share cleanup, dashboard retention/deletion, ownership transfer, notification publishing — synchronously inside the listener, in DB transactions per dashboard.
 
-**Alternative considered:** publish a `mydash.user_deleted` queue message and process asynchronously. Rejected: introduces a queue dependency, complicates testing, and creates a window where dashboards owned by a deleted user are still visible/usable. Simpler to do it inline and pay the deletion-time latency cost.
+**Alternative considered:** publish a `launchpad.user_deleted` queue message and process asynchronously. Rejected: introduces a queue dependency, complicates testing, and creates a window where dashboards owned by a deleted user are still visible/usable. Simpler to do it inline and pay the deletion-time latency cost.
 
 **Risk:** a deletion of a heavily-sharing user (e.g. an admin who owned 100 dashboards) could take seconds. Mitigation: the listener is bounded by the number of owned dashboards, which in practice is small (median <10). If it becomes a problem we can move to a queued model later — the listener's current contract is "complete or fail loudly", not "complete fast".
 
@@ -146,4 +146,4 @@ The pool resolves to empty. The dashboard is deleted. This is correct behaviour:
 
 ### Notification spam mitigation
 
-A user adding 50 recipients via the bulk endpoint produces 50 notifications, one per recipient. Each recipient gets one notification (fan-out is per-target, not per-share-event). Recipients can mute the `mydash` notifier in their personal settings via the existing Nextcloud notification preferences UI — no special handling needed.
+A user adding 50 recipients via the bulk endpoint produces 50 notifications, one per recipient. Each recipient gets one notification (fan-out is per-target, not per-share-event). Recipients can mute the `launchpad` notifier in their personal settings via the existing Nextcloud notification preferences UI — no special handling needed.

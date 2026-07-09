@@ -135,39 +135,30 @@ class WidgetPlacementMapper extends QBMapper
     }//end findByWidgetId()
 
     /**
-     * Find placement by dashboard and widget ID.
+     * Find every placement carrying a given `announcementKey`, across all
+     * dashboards. Backs the read-receipt report's audience resolution: the
+     * blueprint (template) placement and every cloned recipient placement
+     * share one key (REQ-ACK-004, design D2).
      *
-     * @param int    $dashboardId The dashboard ID.
-     * @param string $widgetId    The widget ID.
+     * @param string $announcementKey The stable announcement identity.
      *
-     * @return WidgetPlacement[] The matching placements.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+     * @return WidgetPlacement[] The matching placements (may be empty).
+     * @spec   openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
      */
-    public function findByDashboardAndWidget(
-        int $dashboardId,
-        string $widgetId
-    ): array {
+    public function findByAnnouncementKey(string $announcementKey): array
+    {
         $qb = $this->db->getQueryBuilder();
         $qb->select(selects: '*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
-                    x: 'dashboard_id',
-                    y: $qb->createNamedParameter(
-                        value: $dashboardId,
-                        type: IQueryBuilder::PARAM_INT
-                    )
-                )
-            )
-            ->andWhere(
-                $qb->expr()->eq(
-                    x: 'widget_id',
-                    y: $qb->createNamedParameter(value: $widgetId)
+                    x: 'announcement_key',
+                    y: $qb->createNamedParameter(value: $announcementKey)
                 )
             );
 
         return $this->findEntities(query: $qb);
-    }//end findByDashboardAndWidget()
+    }//end findByAnnouncementKey()
 
     /**
      * Delete all placements for a dashboard.
@@ -349,6 +340,15 @@ class WidgetPlacementMapper extends QBMapper
             // the renderer what to load. Dropping it forks widgets into a
             // sourceless "No items available" state.
             $clone->setContent($row->getContent());
+            // REQ-ACK-001: preserve the acknowledgement requirement and the
+            // shared `announcementKey` on fork so a forked dashboard keeps the
+            // same announcement identity.
+            $clone->setRequiresAcknowledgement($row->getRequiresAcknowledgement());
+            $clone->setAcknowledgementPrompt($row->getAcknowledgementPrompt());
+            $clone->setAcknowledgementDeadline($row->getAcknowledgementDeadline());
+            $clone->setReacknowledgeOnChange($row->getReacknowledgeOnChange());
+            $clone->setAcknowledgementContentVersion($row->getAcknowledgementContentVersion());
+            $clone->setAnnouncementKey($row->getAnnouncementKey());
             $clone->setCreatedAt($now);
             $clone->setUpdatedAt($now);
 
@@ -479,34 +479,4 @@ class WidgetPlacementMapper extends QBMapper
 
         return (int) $row['cnt'];
     }//end countByDashboardId()
-
-    /**
-     * Get max sort order for a dashboard.
-     *
-     * @param int $dashboardId The dashboard ID.
-     *
-     * @return int The maximum sort order.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function getMaxSortOrder(int $dashboardId): int
-    {
-        $qb = $this->db->getQueryBuilder();
-        $qb->select($qb->func()->max(field: 'sort_order'))
-            ->from(from: $this->getTableName())
-            ->where(
-                $qb->expr()->eq(
-                    x: 'dashboard_id',
-                    y: $qb->createNamedParameter(
-                        value: $dashboardId,
-                        type: IQueryBuilder::PARAM_INT
-                    )
-                )
-            );
-
-        $result = $qb->executeQuery();
-        $max    = $result->fetchOne();
-        $result->closeCursor();
-
-        return (int) ($max ?? 0);
-    }//end getMaxSortOrder()
 }//end class

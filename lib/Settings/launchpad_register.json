@@ -34,27 +34,32 @@
         ],
         "properties": {
           "slug": {
+            "title": "Slug",
             "type": "string",
             "description": "URL-safe identifier unique within the owner's space",
             "example": "sales-overview"
           },
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Human-readable dashboard title",
             "example": "Sales Overview"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Optional dashboard description",
             "example": "Key sales metrics and pipeline status"
           },
           "version": {
+            "title": "Version",
             "type": "string",
             "description": "Dashboard schema version",
             "default": "1.0.0",
             "example": "1.0.0"
           },
           "widgets": {
+            "title": "Widgets",
             "type": "array",
             "description": "Ordered list of v2 widget entries for this dashboard",
             "default": [],
@@ -64,6 +69,7 @@
             }
           },
           "sharedWith": {
+            "title": "Shared With",
             "type": "array",
             "description": "Nextcloud user IDs the dashboard is shared with",
             "default": [],
@@ -72,11 +78,13 @@
             }
           },
           "isDefault": {
+            "title": "Is Default",
             "type": "boolean",
             "description": "Whether this is the user's landing dashboard",
             "default": false
           },
           "type": {
+            "title": "Dashboard Type",
             "type": "string",
             "description": "Dashboard scope type: 'user' (personal), 'admin_template', or 'group_shared'",
             "enum": ["user", "admin_template", "group_shared"],
@@ -84,6 +92,7 @@
             "example": "group_shared"
           },
           "groupId": {
+            "title": "Group ID",
             "type": ["string", "null"],
             "description": "Nextcloud group ID for group_shared dashboards. Reserved value 'default' means visible to every user (REQ-DASH-012). Null for user and admin_template dashboards.",
             "example": "marketing"
@@ -162,7 +171,7 @@
           },
           {
             "@self": {
-              "register": "mydash",
+              "register": "launchpad",
               "schema": "Dashboard",
               "slug": "welcome-to-launchpad"
             },
@@ -195,7 +204,7 @@
           },
           {
             "@self": {
-              "register": "mydash",
+              "register": "launchpad",
               "schema": "Dashboard",
               "slug": "active-campaigns"
             },
@@ -236,7 +245,7 @@
           },
           {
             "@self": {
-              "register": "mydash",
+              "register": "launchpad",
               "schema": "Dashboard",
               "slug": "sprint-overview"
             },

@@ -212,7 +212,12 @@ class DashboardApiController extends Controller
         foreach ($items as $entry) {
             $row           = $entry['dashboard']->jsonSerialize();
             $row['source'] = $entry['source'];
-            $serialized[]  = $row;
+            // Tag ownership so the frontend can route activation correctly:
+            // only personal `user`-type rows owned by the caller take the
+            // legacy id-based `is_active` path; group/default rows (user_id
+            // NULL) are activated via the UUID preference instead.
+            $row['isOwner'] = ($entry['dashboard']->getUserId() === $this->userId);
+            $serialized[]   = $row;
         }
 
         // Dashboard-quota-limits REQ-QUOTA-006: carry the additive quota
@@ -269,13 +274,22 @@ class DashboardApiController extends Controller
             );
         }
 
+        // The effective dashboard can now be a group/default (showcase)
+        // dashboard the user does not own (resolved via the last-used
+        // preference), so tag ownership the same way show() does rather
+        // than letting the client assume the caller owns it.
+        $activeDashboard = $result['dashboard'];
+        $isOwner         = ($activeDashboard->getUserId() === $this->userId);
+
         return ResponseHelper::success(
             data: [
-                'dashboard'       => $result['dashboard']->jsonSerialize(),
+                'dashboard'       => $activeDashboard->jsonSerialize(),
                 'placements'      => ResponseHelper::serializeList(
                     entities: $result['placements']
                 ),
                 'permissionLevel' => $result['permissionLevel'],
+                'isOwner'         => $isOwner,
+                'sharedBy'        => $isOwner === true ? null : $activeDashboard->getUserId(),
             ]
         );
     }//end getActive()
@@ -1954,7 +1968,7 @@ class DashboardApiController extends Controller
         DashboardContentStorageException $e
     ): JSONResponse {
         $this->logger->warning(
-            message: 'mydash: dashboard content storage unavailable',
+            message: 'launchpad: dashboard content storage unavailable',
             context: ['message' => $e->getMessage(), 'exception' => $e]
         );
 

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Admin entry point. Loads the typed initial-state contract via
  * {@link loadInitialState} and exposes every key down the component tree
@@ -17,8 +17,23 @@ import Vue from 'vue'
 import { PiniaVuePlugin, createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 
+// Install the OCA.Dashboard shim before anything else runs. Rendering this
+// admin page calls WidgetService::getAvailableWidgets() server-side, which goes
+// through NC's IManager::getWidgets() — and that loads every dashboard widget's
+// bundle onto the page as a side effect. Those legacy bundles register at module
+// top-level via OCA.Dashboard.register(), which only exists on /apps/dashboard
+// (or wherever this bridge runs). Importing the bridge here mirrors the main
+// workspace entry (where it loads via the widgets store) so the injected widget
+// bundles find a register() to call instead of throwing on undefined OCA.Dashboard.
+import { widgetBridge } from './services/widgetBridge.js'
+
 import AdminSettings from './components/admin/AdminSettings.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
+
+// Reference the imported singleton so its side-effecting construction is not
+// tree-shaken / flagged as an unused import.
+// eslint-disable-next-line no-void
+void widgetBridge
 
 // Global functions
 Vue.mixin({

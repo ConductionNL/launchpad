@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -22,16 +22,15 @@
 		:data-widget-id="placement?.widgetId">
 		<CnWidgetWrapper
 			class="launchpad-widget__wrapper"
-			:class="{ 'launchpad-widget__wrapper--custom-header': hasCustomHeaderStyle }"
-			:style="headerStyleVars"
 			:title="widgetTitle"
 			:show-title="showHeader"
+			:chrome="wrapperChrome"
 			:icon-url="widgetIconUrl"
 			:icon-class="widget && widget.iconClass ? widget.iconClass : null"
 			:style-config="styleConfig"
 			:buttons="widgetButtons"
 			:borderless="isChromelessFrame"
-			:flush="isChromelessFrame"
+			:flush="isChromelessFrame || rendersOwnHeader"
 			:show-refresh="false"
 			:show-request-feature="false">
 			<WidgetRenderer
@@ -39,28 +38,47 @@
 				:placement="placement" />
 		</CnWidgetWrapper>
 
+		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
+		     blocking sign-off prompt when the placement requires an
+		     acknowledgement the current user still owes. Suppressed in edit
+		     mode so an author can still configure the widget. -->
+		<AcknowledgementPrompt
+			v-if="showAcknowledgementGate"
+			:placement="placement"
+			@acknowledged="$emit('acknowledged', placement)" />
+
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
-		     shown in edit mode. Sits top-right over the wrapper's header area. -->
-		<WidgetEditCog
-			v-if="editMode"
-			class="launchpad-widget__cog"
-			@edit="$emit('edit', placement)"
-			@remove="$emit('remove', placement.id)" />
+		     shown in edit mode. Sits top-right over the wrapper's header area.
+		     The absolute positioning lives on this wrapper DIV, not on
+		     CnWidgetEditCog itself: the cog's root is an NcActions `.action-item`
+		     which sets `position: relative` at equal specificity, so positioning
+		     the component directly loses the cascade tie and the cog drops into
+		     flow (pushing content). Wrapping matches the shared nc-vue
+		     CnDashboardPage pattern. -->
+		<div v-if="editMode" class="launchpad-widget__cog">
+			<CnWidgetEditCog
+				:menu-label="t('launchpad', 'Widget menu')"
+				:edit-label="t('launchpad', 'Edit widget')"
+				:delete-label="t('launchpad', 'Delete widget')"
+				@edit="$emit('edit', placement)"
+				@remove="$emit('remove', placement.id)" />
+		</div>
 	</div>
 </template>
 
 <script>
-import { CnWidgetWrapper } from '@conduction/nextcloud-vue'
+import { CnWidgetWrapper, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import WidgetRenderer from './WidgetRenderer.vue'
-import WidgetEditCog from './WidgetEditCog.vue'
+import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 
 export default {
 	name: 'WidgetWrapper',
 
 	components: {
 		CnWidgetWrapper,
+		CnWidgetEditCog,
 		WidgetRenderer,
-		WidgetEditCog,
+		AcknowledgementPrompt,
 	},
 
 	props: {
@@ -76,9 +94,16 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
+		// item for the current user. Resolved by the parent from the pending
+		// set; defaults false so widgets without a requirement are unchanged.
+		outstandingAcknowledgement: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
-	emits: ['remove', 'style', 'edit'],
+	emits: ['remove', 'style', 'edit', 'acknowledged'],
 
 	computed: {
 		isTileWidget() {
@@ -86,16 +111,46 @@ export default {
 		},
 
 		/**
-		 * Widget types that own their entire visual surface — labels,
-		 * dividers, header banners, the registry-driven `tile`, and the NC
-		 * Dashboard API widget (which renders its own header + title). They
-		 * keep a borderless / flush wrapper (no frame, no wrapper header) so
-		 * the renderer paints edge to edge; the edit cog still overlays on top.
+		 * REQ-ACK-002: whether the forced-delivery read-gate should overlay
+		 * this widget — the placement requires an acknowledgement the current
+		 * user still owes, and we are NOT in edit mode (an author configuring
+		 * the widget is not a recipient sign-off context).
+		 *
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @return {boolean} true when the sign-off prompt must block the widget.
+		 */
+		showAcknowledgementGate() {
+			if (this.editMode) {
+				return false
+			}
+			return Number(this.placement?.requiresAcknowledgement) === 1
+				&& this.outstandingAcknowledgement
+		},
+
+		/**
+		 * Widget types that own their entire visual surface — labels, dividers,
+		 * header banners, and the registry-driven `tile`. They keep a borderless
+		 * / flush wrapper (no frame, no wrapper header) so the renderer paints
+		 * edge to edge; the edit cog still overlays on top. (nc-widget is NOT
+		 * here: CnNcWidgetWidget renders just a header + content, so it needs the
+		 * card frame — see `rendersOwnHeader`.)
 		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile', 'nc-widget'].includes(this.placement?.widgetId)
+			return ['label', 'divider', 'header', 'tile'].includes(this.placement?.widgetId)
+		},
+
+		/**
+		 * Types whose renderer paints its own header/title, so the wrapper must
+		 * keep the card frame but suppress its own header to avoid a double
+		 * title. The NC Dashboard widget (CnNcWidgetWidget) is the case.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} true when the renderer owns the header.
+		 */
+		rendersOwnHeader() {
+			return this.placement?.widgetId === 'nc-widget'
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -103,15 +158,38 @@ export default {
 			return this.isTileWidget || this.isChromelessType
 		},
 
+		/**
+		 * Card chrome variant forwarded to CnWidgetWrapper. Card widgets (NC
+		 * dashboard widgets + data widgets) use the shared `nc-dashboard`
+		 * variant so they are visually identical to the native Nextcloud
+		 * dashboard (apps/dashboard) by default — same tokens, user-overridable
+		 * via styleConfig. Chromeless surfaces (tiles, labels, dividers,
+		 * headers) keep the default chrome since they paint their own surface.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {string} 'nc-dashboard' for card widgets, else 'default'.
+		 */
+		wrapperChrome() {
+			return this.isChromelessFrame ? 'default' : 'nc-dashboard'
+		},
+
 		/** @spec openspec/specs/widgets/spec.md */
 		showHeader() {
-			if (this.isTileWidget) {
+			if (this.isTileWidget || this.rendersOwnHeader) {
 				return false
 			}
 			if (this.isChromelessType && !this.placement.customTitle) {
 				return false
 			}
-			return this.placement.showTitle !== false
+			// `showTitle` round-trips through the DB as an integer (0/1) or a
+			// string, so a strict `!== false` check wrongly keeps the header
+			// for a stored 0. Treat 0 / '0' / false as "off"; an absent flag
+			// (legacy placements) still defaults to shown.
+			const flag = this.placement.showTitle
+			if (flag === undefined || flag === null) {
+				return true
+			}
+			return flag !== false && flag !== 0 && flag !== '0' && flag !== ''
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -135,37 +213,19 @@ export default {
 			return !this.placement.isCompulsory
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
-		styleConfig() {
-			return this.placement.styleConfig || {}
-		},
-
 		/**
-		 * Per-widget custom header colours (`styleConfig.headerStyle`).
-		 * CnWidgetWrapper's own `styleConfig` doesn't carry these, so we
-		 * forward them as CSS variables and re-apply them to its header below.
+		 * Placement style overrides forwarded to CnWidgetWrapper. Includes
+		 * `headerStyle.{backgroundColor,textColor}`, which CnWidgetWrapper now
+		 * applies to its header natively (no per-app CSS-var workaround needed).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
+		 * @return {object} the styleConfig blob.
 		 */
-		headerStyle() {
-			return this.styleConfig.headerStyle || {}
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		hasCustomHeaderStyle() {
-			return Boolean(this.headerStyle.backgroundColor || this.headerStyle.textColor)
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		headerStyleVars() {
-			const vars = {}
-			if (this.headerStyle.backgroundColor) {
-				vars['--lp-header-bg'] = this.headerStyle.backgroundColor
-			}
-			if (this.headerStyle.textColor) {
-				vars['--lp-header-color'] = this.headerStyle.textColor
-			}
-			return vars
+		styleConfig() {
+			// The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+			// empty styleConfig, so a plain `|| {}` fallback satisfies
+			// CnWidgetWrapper's Object-typed prop.
+			return this.placement.styleConfig || {}
 		},
 	},
 }
@@ -179,14 +239,6 @@ export default {
 
 .launchpad-widget__wrapper {
 	height: 100%;
-}
-
-/* Restore per-widget custom header colours (styleConfig.headerStyle), which
-   CnWidgetWrapper's styleConfig doesn't carry. Driven by the CSS vars set on
-   the wrapper root; the title inherits the header colour. */
-.launchpad-widget__wrapper--custom-header :deep(.cn-widget-wrapper__header) {
-	background-color: var(--lp-header-bg, transparent);
-	color: var(--lp-header-color, inherit);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

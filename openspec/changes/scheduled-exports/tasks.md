@@ -4,7 +4,7 @@
 
 ### Data Model & Services
 
-- [ ] Task 1: Add OpenRegister schemas to `lib/Settings/mydash_register.json`: `scheduled_export`, `render_target`, `recipient`, `scheduled_export_run` with all fields per context-brief.md (including recurrence discriminator as embedded object)
+- [ ] Task 1: Add OpenRegister schemas to `lib/Settings/launchpad_register.json`: `scheduled_export`, `render_target`, `recipient`, `scheduled_export_run` with all fields per context-brief.md (including recurrence discriminator as embedded object)
 - [ ] Task 2: Implement `RecurrenceResolver` service class computing `nextRunAt` from recurrence object and `runTimezone`, respecting DST (spring-forward / fall-back) and leap-day edge cases; covers all four types (`weekly`, `monthly`, `daily`, `cron`)
 - [ ] Task 3: Implement `ScheduledExportService` with methods: `findVisible($userId)`, `findOne($id, $userId)`, `save($export)`, `delete($id, $userId)`, `setEnabled($id, $enabled)` — delegate object CRUD to OpenRegister `ObjectService`, not custom Entity/Mapper
 - [ ] Task 4: Implement `RenderPipeline` service class with method `render($export, $filterContext): RenderResult[]` handling PDF (headless Chromium, A4 portrait/landscape), PNG (viewport size, DPI), CSV (tabular data extraction), XLSX (per-widget sheets); returns array of `{format, sizeBytes, sha256, storagePath}`
@@ -14,8 +14,8 @@
 
 ### Background Jobs
 
-- [ ] Task 8: Implement `OCA\MyDash\BackgroundJob\ScheduledExportRunner` registered at one-minute granularity; fetch all enabled exports with `nextRunAt <= now()`, check for overlapping previous run (skip if running), invoke render → dispatch → audit, recompute `nextRunAt`, handle disabled creator with admin notification
-- [ ] Task 9: Implement `OCA\MyDash\BackgroundJob\ScheduledExportJanitor` registered at one-hour granularity; delete `renderArtefacts` files after `retention.keepArtefactsForDays` (null = forever), null out `storagePath` in run-rows, delete entire run-rows after `retention.keepAuditForDays` via OpenRegister retention hooks
+- [ ] Task 8: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportRunner` registered at one-minute granularity; fetch all enabled exports with `nextRunAt <= now()`, check for overlapping previous run (skip if running), invoke render → dispatch → audit, recompute `nextRunAt`, handle disabled creator with admin notification
+- [ ] Task 9: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor` registered at one-hour granularity; delete `renderArtefacts` files after `retention.keepArtefactsForDays` (null = forever), null out `storagePath` in run-rows, delete entire run-rows after `retention.keepAuditForDays` via OpenRegister retention hooks
 
 ### Controller & Routes
 
@@ -87,4 +87,4 @@ Changelog entry (Task 37). Public docs (out of scope for OpenSpec; docudesk team
 
 ## Seed Data (company-wide ADR-001)
 
-Three realistic example exports per design.md Seed Data section, loaded via `lib/Settings/mydash_register.json` on install.
+Three realistic example exports per design.md Seed Data section, loaded via `lib/Settings/launchpad_register.json` on install.

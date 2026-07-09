@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -23,13 +23,12 @@
 				:placeholder="t('launchpad', 'URL (leave empty for section)')"
 				:aria-label="t('launchpad', 'URL')"
 				@input="emitPatch({ url: localUrl || null })">
-			<input
-				v-model="localIcon"
-				type="text"
+			<CnIconBrowser
 				class="org-nav-row__icon"
-				:placeholder="t('launchpad', 'Icon')"
-				:aria-label="t('launchpad', 'Icon')"
-				@input="emitPatch({ icon: localIcon || null })">
+				:label="t('launchpad', 'Icon')"
+				:value="localIcon"
+				:icons="iconCatalogue"
+				@input="onIconInput" />
 			<label class="org-nav-row__checkbox">
 				<input
 					v-model="localOpenInNewTab"
@@ -123,6 +122,8 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
+import { CnIconBrowser } from '@conduction/nextcloud-vue'
+import { ICON_CATALOGUE } from '../../services/iconCatalogue.js'
 
 /**
  * OrgNavigationEditorRow — single row inside the admin tree editor.
@@ -143,6 +144,7 @@ export default {
 
 	components: {
 		draggable,
+		CnIconBrowser,
 	},
 
 	props: {
@@ -190,6 +192,11 @@ export default {
 	},
 
 	computed: {
+		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		iconCatalogue() {
+			return ICON_CATALOGUE
+		},
+
 		hasChildren() {
 			return Array.isArray(this.node.children) && this.node.children.length > 0
 		},
@@ -221,6 +228,17 @@ export default {
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		emitPatch(patch) {
 			this.$emit('update', { node: this.node, patch })
+		},
+
+		/**
+		 * Store the icon picked from CnIconBrowser (an SVG path or a URL).
+		 *
+		 * @param {string|null} value the chosen icon path/URL.
+		 * @return {void}
+		 */
+		onIconInput(value) {
+			this.localIcon = value || ''
+			this.emitPatch({ icon: value || null })
 		},
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
@@ -287,10 +305,13 @@ export default {
 	min-width: 120px;
 }
 
-.org-nav-row__url,
-.org-nav-row__icon {
+.org-nav-row__url {
 	flex: 1;
 	min-width: 100px;
+}
+
+.org-nav-row__icon {
+	flex: 0 0 auto;
 }
 
 .org-nav-row__btn {

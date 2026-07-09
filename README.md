@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/ConductionNL/launchpad/releases"><img src="https://img.shields.io/github/v/release/ConductionNL/launchpad" alt="Latest release"></a>
-  <a href="https://github.com/ConductionNL/launchpad/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License"></a>
+  <a href="https://github.com/ConductionNL/launchpad/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-EUPL--1.2-blue" alt="License"></a>
   <a href="https://github.com/ConductionNL/launchpad/actions"><img src="https://img.shields.io/github/actions/workflow/status/ConductionNL/launchpad/code-quality.yml?label=quality" alt="Code quality"></a>
   <a href="https://launchpad.conduction.nl"><img src="https://img.shields.io/badge/docs-launchpad.conduction.nl-green" alt="Documentation"></a>
 </p>
@@ -63,7 +63,7 @@ LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized wor
 
 ## Architecture
 
-See [`docs/architecture.md`](docs/architecture.md) for the full architecture reference, including the app-manifest adoption (ADR-024), the runtime-only OR consumption policy, and the permission model on `oc_mydash_dashboards`.
+See [`docs/architecture.md`](docs/architecture.md) for the full architecture reference, including the app-manifest adoption (ADR-024), the runtime-only OR consumption policy, and the permission model on `oc_launchpad_dashboards`.
 
 OR-backed widget development: [`docs/widgets/or-data.md`](docs/widgets/or-data.md).
 

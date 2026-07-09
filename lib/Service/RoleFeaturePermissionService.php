@@ -18,8 +18,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -67,7 +67,7 @@ use OCP\IUserManager;
  * Searched `openregister/lib/Service/` for the same symbols:
  *   → `AuthorizationService` and `PropertyRbacHandler` provide general
  *     object-level RBAC. Neither performs widget-scoped filtering per
- *     group — this is domain-specific to MyDash.
+ *     group — this is domain-specific to LaunchPad.
  *
  * Verified `@conduction/nextcloud-vue`:
  *   → No role-filtered picker component exists in the shared library.

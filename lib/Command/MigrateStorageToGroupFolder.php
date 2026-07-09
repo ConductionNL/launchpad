@@ -78,7 +78,7 @@ class MigrateStorageToGroupFolder extends CommandBase
                     separator: "\n",
                     array: [
                         'Copies all dashboard content blobs from the `content` column in',
-                        '`mydash_dashboards` to the configured GroupFolder backend.',
+                        '`launchpad_dashboards` to the configured GroupFolder backend.',
                         '',
                         'The command is idempotent: dashboards already present in the',
                         'GroupFolder are skipped. Re-run safely after partial failures.',
@@ -129,7 +129,7 @@ class MigrateStorageToGroupFolder extends CommandBase
 
         foreach ($dashboards as $i => $dashboard) {
             $uuid    = (string) $dashboard->getUuid();
-            $current = $i + 1;
+            $current = (int) $i + 1;
 
             if ($uuid === '') {
                 $output->writeln(

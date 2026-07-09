@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -9,7 +9,7 @@
 		:open="open"
 		@update:open="$emit('update:open', $event)">
 		<template #default>
-			<div class="mydash-admin__editor">
+			<div class="launchpad-admin__editor">
 				<NcTextField
 					:value="row.name"
 					:label="t('launchpad', 'Name')"
@@ -25,7 +25,7 @@
 					:label="t('launchpad', 'Widget ID')"
 					:placeholder="t('launchpad', 'analytics_dashboard')"
 					@update:value="$emit('update:row', { ...row, widgetId: $event })" />
-				<div class="mydash-admin__editor-row">
+				<div class="launchpad-admin__editor-row">
 					<NcTextField
 						:value="String(row.gridX)"
 						:label="t('launchpad', 'Grid X')"
@@ -37,7 +37,7 @@
 						type="number"
 						@update:value="$emit('update:row', { ...row, gridY: Number($event) })" />
 				</div>
-				<div class="mydash-admin__editor-row">
+				<div class="launchpad-admin__editor-row">
 					<NcTextField
 						:value="String(row.gridWidth)"
 						:label="t('launchpad', 'Width (columns)')"
@@ -113,14 +113,14 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin__editor {
+.launchpad-admin__editor {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 	min-width: 360px;
 }
 
-.mydash-admin__editor-row {
+.launchpad-admin__editor-row {
 	display: flex;
 	gap: 12px;
 }

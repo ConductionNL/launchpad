@@ -7,7 +7,7 @@ status: draft
 
 ## Context
 
-This capability adds a shared filter bus to mydash dashboards, allowing widgets to publish filter events (on click) and other widgets to consume them (on render). Filter state is persisted in the URL, made available via saved views, and optionally logged for aggregate telemetry.
+This capability adds a shared filter bus to launchpad dashboards, allowing widgets to publish filter events (on click) and other widgets to consume them (on render). Filter state is persisted in the URL, made available via saved views, and optionally logged for aggregate telemetry.
 
 ## NEW Requirements
 

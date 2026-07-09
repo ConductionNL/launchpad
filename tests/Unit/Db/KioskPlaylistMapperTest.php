@@ -163,7 +163,7 @@ class KioskPlaylistMapperTest extends TestCase
         $expr->method('isNull')->willReturn('isnull-expr');
 
         $qb = $this->createMock(IQueryBuilder::class);
-        $qb->expects($this->once())->method('update')->with(update: 'mydash_kiosk_playlists')->willReturnSelf();
+        $qb->expects($this->once())->method('update')->with(update: 'launchpad_kiosk_playlists')->willReturnSelf();
         $qb->expects($this->once())->method('set')->with(key: 'revoked_at')->willReturnSelf();
         $qb->method('where')->willReturnSelf();
         $qb->method('andWhere')->willReturnSelf();

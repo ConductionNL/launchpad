@@ -2,25 +2,25 @@
 
 ## REQ-EMB-006 — JS-SDK exposes render, event, and resize APIs
 
-The system SHALL publish a JS-SDK (`@mydash/embed-sdk`, ESM and UMD builds) that exposes `MyDashEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
+The system SHALL publish a JS-SDK (`@launchpad/embed-sdk`, ESM and UMD builds) that exposes `LaunchPadEmbed.render(container, {token, subjectType, subjectId})`, `.on(eventType, handler)` for filter/drill/export events, and `.resize()` for host-driven layout changes.
 
 ### Scenario 6.1 — SDK initialization and iframe creation
 
 GIVEN a host page (e.g., a SaaS customer portal) that imports the SDK:
   ```html
-  <script src="https://cdn.example.com/@mydash/embed-sdk@1.0.0/dist/embed-sdk.umd.js"></script>
-  <!-- OR ESM: import MyDashEmbed from '@mydash/embed-sdk'; -->
+  <script src="https://cdn.example.com/@launchpad/embed-sdk@1.0.0/dist/embed-sdk.umd.js"></script>
+  <!-- OR ESM: import LaunchPadEmbed from '@launchpad/embed-sdk'; -->
   ```
 WHEN the host page calls:
   ```javascript
-  const embed = MyDashEmbed.render('#embed-container', {
+  const embed = LaunchPadEmbed.render('#embed-container', {
     token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6InJzYS0xIn0...',
     subjectType: 'widget',
     subjectId: 'usage-widget-uuid'
   });
   ```
 THEN the SDK SHALL:
-  1. Create an `<iframe>` element with `src="https://mydash.app/apps/mydash/embed/widget/usage-widget-uuid"`
+  1. Create an `<iframe>` element with `src="https://launchpad.app/apps/launchpad/embed/widget/usage-widget-uuid"`
   2. Insert the iframe into the `#embed-container` div
   3. Wait for the iframe's `load` event
   4. Perform a postMessage handshake with the iframe to inject the JWT token
@@ -43,9 +43,9 @@ THEN the SDK SHALL:
        type: 'embed-token',
        token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6InJzYS0xIn0...',
        origin: 'https://portal.example.com'
-     }, 'https://mydash.app')
+     }, 'https://launchpad.app')
      ```
-  2. The iframe's origin verification (in the render route) SHALL check that `event.origin === 'https://mydash.app'` before accepting the message
+  2. The iframe's origin verification (in the render route) SHALL check that `event.origin === 'https://launchpad.app'` before accepting the message
   3. The iframe stores the token in a secure context and uses it for subsequent API requests
   4. The iframe posts back a 'ready' message when the widget is fully rendered:
      ```javascript
@@ -88,7 +88,7 @@ THEN the iframe SHALL:
      window.parent.postMessage({
        type: 'embed-event',
        eventType: 'export',
-       payload: {format: 'csv', url: 'https://mydash.app/api/downloads/export-123.csv'}
+       payload: {format: 'csv', url: 'https://launchpad.app/api/downloads/export-123.csv'}
      }, '<SDK-origin>')
      ```
   3. The host page can download the file or handle it custom (e.g., send to email)
@@ -107,7 +107,7 @@ THEN the SDK SHALL:
        type: 'embed-resize',
        containerWidth: 1200,
        containerHeight: 600
-     }, 'https://mydash.app')
+     }, 'https://launchpad.app')
      ```
   2. The iframe receives the message and re-measures its container
   3. The iframe re-renders the widget with the new dimensions
@@ -122,8 +122,8 @@ THEN the SDK SHALL:
 GIVEN a TypeScript host application
 WHEN it imports the SDK:
   ```typescript
-  import MyDashEmbed from '@mydash/embed-sdk';
-  import type { EmbedConfig, EmbedInstance } from '@mydash/embed-sdk';
+  import LaunchPadEmbed from '@launchpad/embed-sdk';
+  import type { EmbedConfig, EmbedInstance } from '@launchpad/embed-sdk';
   
   const config: EmbedConfig = {
     token: 'eyJ...',
@@ -131,7 +131,7 @@ WHEN it imports the SDK:
     subjectId: 'uuid'
   };
   
-  const embed: EmbedInstance = await MyDashEmbed.render('#container', config);
+  const embed: EmbedInstance = await LaunchPadEmbed.render('#container', config);
   embed.on('filterApplied', (event) => {
     // event is typed as EmbedFilterEvent
   });
@@ -144,11 +144,11 @@ THEN the IDE SHALL provide autocomplete and type checking
 GIVEN a vanilla JavaScript page (no build step, no module bundler)
 WHEN it loads the UMD bundle:
   ```html
-  <script src="https://unpkg.com/@mydash/embed-sdk@1.0.0/dist/embed-sdk.umd.js"></script>
+  <script src="https://unpkg.com/@launchpad/embed-sdk@1.0.0/dist/embed-sdk.umd.js"></script>
   ```
 THEN the SDK is available as a global:
   ```javascript
-  window.MyDashEmbed.render('#container', {token: '...', ...})
+  window.LaunchPadEmbed.render('#container', {token: '...', ...})
     .then(() => console.log('Ready'));
   ```
 
@@ -197,9 +197,9 @@ GIVEN a host page with three embed containers:
   ```
 WHEN the host page initializes all three:
   ```javascript
-  const embed1 = MyDashEmbed.render('#embed-1', {token: '...', subjectId: 'widget-1'});
-  const embed2 = MyDashEmbed.render('#embed-2', {token: '...', subjectId: 'widget-2'});
-  const embed3 = MyDashEmbed.render('#embed-3', {token: '...', subjectId: 'widget-3'});
+  const embed1 = LaunchPadEmbed.render('#embed-1', {token: '...', subjectId: 'widget-1'});
+  const embed2 = LaunchPadEmbed.render('#embed-2', {token: '...', subjectId: 'widget-2'});
+  const embed3 = LaunchPadEmbed.render('#embed-3', {token: '...', subjectId: 'widget-3'});
   ```
 THEN each embed operates independently
   AND events from embed1 do not leak to embed2 or embed3
@@ -207,7 +207,7 @@ THEN each embed operates independently
 
 ### Scenario 6.11 — SDK package publishing
 
-GIVEN the MyDash build process
+GIVEN the LaunchPad build process
 WHEN `npm run build:sdk` executes
 THEN the SDK package SHALL be published to npm with:
   - ESM build: `dist/embed-sdk.esm.js`
@@ -215,5 +215,5 @@ THEN the SDK package SHALL be published to npm with:
   - TypeScript definitions: `dist/embed-sdk.d.ts`
   - Minified versions: `dist/embed-sdk.esm.min.js`, `dist/embed-sdk.umd.min.js`
   - Source maps for debugging
-  - Package name: `@mydash/embed-sdk`
-  - Version matching the MyDash app version
+  - Package name: `@launchpad/embed-sdk`
+  - Version matching the LaunchPad app version

@@ -3,7 +3,7 @@
 /**
  * AdminSettingKey Enum
  *
- * Canonical list of all admin-setting keys stored in oc_mydash_admin_settings.
+ * Canonical list of all admin-setting keys stored in oc_launchpad_admin_settings.
  * Use this enum as the single source of truth for key names; AdminSetting
  * keeps backward-compatible string constants that alias the enum values.
  *
@@ -34,9 +34,9 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 /**
- * All admin-setting keys used by MyDash.
+ * All admin-setting keys used by LaunchPad.
  *
- * The enum value is the string stored in oc_mydash_admin_settings.setting_key.
+ * The enum value is the string stored in oc_launchpad_admin_settings.setting_key.
  *
  * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-10
  */

@@ -23,8 +23,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -211,25 +211,6 @@ class AnalyticsService
 
         return $clamped;
     }//end setRetentionDays()
-
-    /**
-     * Persist the global enable/disable toggle.
-     *
-     * @param bool $enabled Whether analytics tracking is active
-     *                      instance-wide.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    public function setGlobalEnabled(bool $enabled): void
-    {
-        $this->appConfig->setValueBool(
-            'launchpad',
-            self::CONFIG_KEY_ENABLED,
-            $enabled
-        );
-    }//end setGlobalEnabled()
 
     /**
      * Record a view event for `$dashboardUuid` by `$userId`

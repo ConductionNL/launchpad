@@ -94,7 +94,7 @@ use OCP\IUserSession;
  *                                                  admin endpoints, not
  *                                                  nested branching inside
  *                                                  any single method.
- * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
+ * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
  */
 class AdminController extends Controller
 {

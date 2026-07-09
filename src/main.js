@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Workspace entry point. Implements the ADR-036 Decision 8 runtime-manifest
  * pattern for launchpad: a 5-line stub manifest is bundled with the app; at boot
@@ -36,10 +36,6 @@ import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import bundledStub from './manifest.json'
 import 'gridstack/dist/gridstack.min.css'
 import './styles/workspace.css'
-// REQ-KIOSK-001: chrome-suppression styles, activated by KioskView via the
-// `kiosk-mode-active` body class. Imported globally so the rules are present
-// whenever the kiosk surface mounts.
-import './styles/kiosk.css'
 
 // Tier 1 manifest adoption (ADR-024): register the bundled manifest with
 // nc-vue so the shared shell can read menu/page declarations. The vue-router

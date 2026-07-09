@@ -52,20 +52,20 @@ test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
 })
 
-// Navigate to mydash and wait for the app to hydrate.
+// Navigate to launchpad and wait for the app to hydrate.
 // The sidebar-toggle button is the first stable landmark injected by the Vue
 // bootstrap; we also ensure the sidebar is closed before returning so that
 // the grid and workspace elements are not occluded by the slide-in panel.
-async function gotoMydash(page: Parameters<typeof test>[1] extends never ? never : any) {
+async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? never : any) {
 	// The dev Nextcloud occasionally returns a transient 503 (recurring
 	// needsDbUpgrade blip) right after a write-heavy step; retry the
 	// navigation once so a single blip does not fail an otherwise-green test.
-	await page.goto('/index.php/apps/mydash')
+	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	} catch {
-		await page.goto('/index.php/apps/mydash')
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.goto('/index.php/apps/launchpad')
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
 	// Close sidebar if it happened to be open from a prior test run (or from
 	// a redirect that lands with the sidebar pre-open).

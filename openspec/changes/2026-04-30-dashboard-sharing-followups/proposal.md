@@ -17,9 +17,9 @@ This change adds a Nextcloud-native pull notification on share creation, a bulk 
 ### Pull notifications when shared
 
 - On every successful `addShare` (insert OR update where `permission_level` increased), publish a Nextcloud notification via `OCP\Notification\IManager` to the recipient(s):
-  - `app: 'mydash'`, `subject: 'dashboard_shared'`, `objectType: 'dashboard'`, `objectId: <dashboardId>`
+  - `app: 'launchpad'`, `subject: 'dashboard_shared'`, `objectType: 'dashboard'`, `objectId: <dashboardId>`
   - For group shares, fan out one notification per current group member (resolved at publish time via `IGroupManager`).
-  - The notification payload carries `{sharerUserId, dashboardName, permissionLevel}` so the notifier can render "Alice shared **Marketing Overview** with you (full access)" with a deep link to `/apps/mydash/?dashboard={uuid}`.
+  - The notification payload carries `{sharerUserId, dashboardName, permissionLevel}` so the notifier can render "Alice shared **Marketing Overview** with you (full access)" with a deep link to `/apps/launchpad/?dashboard={uuid}`.
 - Implement `INotifier` so the notification renders in the bell, the activity stream, and the email digest using existing Nextcloud channels — no new transport.
 - Provide a single "Dismiss" action that marks the notification read; no in-notification accept/reject (Pattern A: shared dashboards appear automatically in the recipient's list).
 - When a share is **removed** OR **downgraded**, no notification is published (avoid notification spam for routine permission changes).
@@ -55,7 +55,7 @@ This change adds a Nextcloud-native pull notification on share creation, a bulk 
 
 **Affected code:**
 
-- `lib/Notification/Notifier.php` — new `INotifier` implementation parsing `mydash`/`dashboard_shared` and `mydash`/`dashboard_ownership_transferred` subjects; deep-link target via `IURLGenerator`
+- `lib/Notification/Notifier.php` — new `INotifier` implementation parsing `launchpad`/`dashboard_shared` and `launchpad`/`dashboard_ownership_transferred` subjects; deep-link target via `IURLGenerator`
 - `lib/AppInfo/Application.php` — register `Notifier` via `IRegistrationContext::registerNotifierService()`; register `UserDeletedListener` for `UserDeletedEvent`
 - `lib/Listener/UserDeletedListener.php` — new event listener implementing the retention algorithm above; depends on `DashboardMapper`, `DashboardShareMapper`, `WidgetPlacementMapper`, `IGroupManager`, `IManager` (for ownership-transfer notifications)
 - `lib/Service/DashboardShareService.php` — split internal `addShare` into `_persist + _notify` so the bulk path can do one transaction + one notification batch; add `replaceShares(int $dashboardId, array $shares, string $userId): array`, `revokeAllForRecipient(string $shareType, string $shareWith, string $callerId): int`, `transferOwnership(int $dashboardId, string $newUserId): void`
@@ -77,5 +77,5 @@ This change adds a Nextcloud-native pull notification on share creation, a bulk 
 
 **Migration:**
 
-- No schema changes. The existing `oc_mydash_dashboard_shares` table is sufficient.
+- No schema changes. The existing `oc_launchpad_dashboard_shares` table is sufficient.
 - One-time data hygiene: a one-shot repair step (`Migration/Version001006Date20260430130000.php`) MAY scan for shares whose `share_with` userId no longer exists in `oc_users` and remove them. This is OPTIONAL and gated behind an admin opt-in to avoid surprise data deletion on environments with federated/external users.

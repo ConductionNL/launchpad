@@ -276,9 +276,13 @@ class DashboardService
      *                                                                   service gating per-user
      *                                                                   dashboard creation
      *                                                                   (dashboard-quota-limits).
-     * @param IURLGenerator|null                  $urlGenerator          Optional URL generator
-     *                                                                   used to build widget /
-     *                                                                   app image paths.
+     * @param IURLGenerator|null                  $urlGenerator          URL generator used to
+     *                                                                   build widget / app image
+     *                                                                   paths and to resolve app
+     *                                                                   image paths for default
+     *                                                                   tile logos, so they render
+     *                                                                   regardless of the app's
+     *                                                                   install location.
      * @param ILockingProvider|null               $lockingProvider       Optional cluster lock
      *                                                                   provider used to
      *                                                                   serialise the fork

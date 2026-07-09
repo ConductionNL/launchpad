@@ -5,7 +5,7 @@ title: Sharing dashboards publicly
 
 # Sharing dashboards publicly
 
-MyDash lets you share a read-only view of any dashboard you own via a
+LaunchPad lets you share a read-only view of any dashboard you own via a
 URL-safe token — no Nextcloud login required.
 
 ## Creating a public share

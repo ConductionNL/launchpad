@@ -4,8 +4,8 @@ sidebar_position: 10
 
 # OR-backed widgets
 
-Some MyDash widgets surface data from [OpenRegister](https://github.com/ConductionNL/openregister)
-(OR). OR is an **optional** dependency: MyDash MUST work on a plain
+Some LaunchPad widgets surface data from [OpenRegister](https://github.com/ConductionNL/openregister)
+(OR). OR is an **optional** dependency: LaunchPad MUST work on a plain
 Nextcloud installation with no OR present.
 
 This page documents the canonical pattern every OR-backed widget MUST

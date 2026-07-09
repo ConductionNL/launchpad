@@ -151,7 +151,7 @@ capability arrived at its current shape.
 
 ## App manifest (ADR-024, Tier 1)
 
-`src/manifest.json` is the single source of truth for MyDash's menu
+`src/manifest.json` is the single source of truth for LaunchPad's menu
 entries and page declarations. It is bundled into the webpack output and
 registered at boot via `useAppManifest('mydash', bundledManifest)` in
 `src/main.js`.
@@ -174,12 +174,12 @@ the `dependencies` array.
 
 ## Runtime-only OR consumption policy
 
-MyDash is an **OR-free app** that MAY optionally consume OpenRegister
+LaunchPad is an **OR-free app** that MAY optionally consume OpenRegister
 data at runtime. This policy has two hard rules:
 
 1. **No install-time OR dependency.** `appinfo/info.xml`, `composer.json`,
    and `src/manifest.json` MUST NOT list `openregister` or `openconnector`
-   as dependencies. MyDash MUST boot and function fully on a Nextcloud
+   as dependencies. LaunchPad MUST boot and function fully on a Nextcloud
    instance with no OR installed.
 
 2. **Feature-detect before every OR call.** Any widget that fetches OR
@@ -254,12 +254,12 @@ into General / Sharing / Default tabs; the sharee picker is reachable only
 from the Sharing tab. A top-bar Share action on the canvas opens the drawer
 directly on the Sharing tab.
 
-## What MyDash explicitly does NOT do
+## What LaunchPad explicitly does NOT do
 
 - **No hard OpenRegister dependency.** Dashboards and tiles live in
-  MyDash's own tables. Optional runtime OR data consumption follows the
+  LaunchPad's own tables. Optional runtime OR data consumption follows the
   policy documented above.
-- **No integration registry** (ADR-019 N/A). MyDash consumes the
+- **No integration registry** (ADR-019 N/A). LaunchPad consumes the
   Nextcloud dashboard-widget API; it does not expose an extension
   point for third-party dashboards to register themselves.
 - **No action-level authorisation** (ADR-023 N/A). Permission model is

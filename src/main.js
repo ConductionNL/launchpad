@@ -22,6 +22,8 @@
  *     live value down to CnAppRoot.
  */
 
+import './publicPath.js'
+
 import Vue from 'vue'
 import { PiniaVuePlugin, createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'

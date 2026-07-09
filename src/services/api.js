@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 import axios from '@nextcloud/axios'
@@ -580,6 +580,34 @@ export const api = {
 		return axios.delete(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}`,
 		)
+	},
+
+	// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
+	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+	acknowledge(announcementKey, contentVersion = 1) {
+		return axios.post(`${baseUrl}/api/acknowledgements`, {
+			announcementKey,
+			contentVersion,
+		})
+	},
+
+	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+	getPendingAcknowledgements() {
+		return axios.get(`${baseUrl}/api/acknowledgements/pending`)
+	},
+
+	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+	getAcknowledgementReport(announcementKey) {
+		return axios.get(
+			`${baseUrl}/api/acknowledgements/report/${encodeURIComponent(announcementKey)}`,
+		)
+	},
+
+	// Absolute URL of the CSV export — used as an <a href> download target
+	// so the browser streams the DataDownloadResponse (REQ-ACK-006).
+	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+	getAcknowledgementReportCsvUrl(announcementKey) {
+		return `${baseUrl}/api/acknowledgements/report/${encodeURIComponent(announcementKey)}/csv`
 	},
 
 }

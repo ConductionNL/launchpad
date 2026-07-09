@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 import { defineStore } from 'pinia'
@@ -92,6 +92,14 @@ export const useDashboardStore = defineStore('dashboard', {
 			dashboardsUsed: 0,
 			maxWidgetsPerDashboard: 0,
 		},
+		// dashboard-acknowledgements REQ-ACK-002: the current user's
+		// outstanding mandatory-read items, fetched from
+		// `/api/acknowledgements/pending`. Each entry carries
+		// `{placementId, dashboardUuid, announcementKey, prompt, deadline,
+		// contentVersion}`. Empty until `fetchPendingAcknowledgements()` runs
+		// — so dashboards with no acknowledgement requirements render exactly
+		// as before (no forced-delivery gate, no indicator).
+		pendingAcknowledgements: [],
 	}),
 
 	getters: {
@@ -103,6 +111,35 @@ export const useDashboardStore = defineStore('dashboard', {
 
 		compulsoryPlacements: (state) => {
 			return state.widgetPlacements.filter(p => p.isCompulsory)
+		},
+
+		// dashboard-acknowledgements REQ-ACK-002: the count of the user's
+		// outstanding (unacknowledged) mandatory items, surfaced as the
+		// dashboard-level indicator.
+		outstandingAcknowledgementCount: (state) => state.pendingAcknowledgements.length,
+
+		// The set of announcement keys the current user still owes a
+		// sign-off on. Used by the widget wrapper to decide whether to force
+		// delivery on a given placement.
+		pendingAnnouncementKeys: (state) => new Set(
+			state.pendingAcknowledgements
+				.map((item) => item.announcementKey)
+				.filter((key) => !!key),
+		),
+
+		// REQ-ACK-002: whether a placement is an outstanding mandatory item
+		// for the current user (requires acknowledgement AND its announcement
+		// is still pending).
+		isPlacementOutstanding: (state) => (placement) => {
+			if (!placement || Number(placement.requiresAcknowledgement) !== 1) {
+				return false
+			}
+			if (!placement.announcementKey) {
+				return false
+			}
+			return state.pendingAcknowledgements.some(
+				(item) => item.announcementKey === placement.announcementKey,
+			)
 		},
 
 		// REQ-DASH-013 — personal user-owned dashboards. Backed by the
@@ -270,6 +307,38 @@ export const useDashboardStore = defineStore('dashboard', {
 	},
 
 	actions: {
+		// dashboard-acknowledgements REQ-ACK-002: refresh the user's
+		// outstanding mandatory-read items. Failures are non-fatal — a broken
+		// acknowledgement fetch must never blank the dashboard, so the list is
+		// simply left empty (no forced-delivery gate).
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		async fetchPendingAcknowledgements() {
+			try {
+				const response = await api.getPendingAcknowledgements()
+				this.pendingAcknowledgements = response?.data?.items ?? []
+			} catch (error) {
+				console.warn('Failed to load pending acknowledgements:', error)
+				this.pendingAcknowledgements = []
+			}
+		},
+
+		// REQ-ACK-002 / REQ-ACK-003: record the current user's sign-off for a
+		// placement's announcement (idempotent server-side) and drop it from
+		// the outstanding set on success.
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		async acknowledgePlacement(placement) {
+			if (!placement?.announcementKey) {
+				return
+			}
+			await api.acknowledge(
+				placement.announcementKey,
+				Number(placement.acknowledgementContentVersion) || 1,
+			)
+			this.pendingAcknowledgements = this.pendingAcknowledgements.filter(
+				(item) => item.announcementKey !== placement.announcementKey,
+			)
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		async loadDashboards() {
 			this.loading = true
@@ -312,9 +381,12 @@ export const useDashboardStore = defineStore('dashboard', {
 				if (activeResponse.data) {
 					this.activeDashboard = {
 						...activeResponse.data.dashboard,
-						// getActive only returns the user's own dashboards.
-						isOwner: true,
-						sharedBy: null,
+						// getActive can now resolve a group/showcase dashboard
+						// the user doesn't own (via the last-used preference),
+						// so honour the ownership tags it returns; default to
+						// owner when an older backend omits them.
+						isOwner: activeResponse.data.isOwner ?? true,
+						sharedBy: activeResponse.data.sharedBy ?? null,
 					}
 					this.widgetPlacements = activeResponse.data.placements || []
 					this.permissionLevel = activeResponse.data.permissionLevel || 'full'
@@ -331,10 +403,15 @@ export const useDashboardStore = defineStore('dashboard', {
 			this.loading = true
 			try {
 				const target = this.dashboards.find(d => d.id === dashboardId)
-				const isOwned = target?.isOwner !== false
+				// The legacy id-based activate endpoint writes the `is_active`
+				// SMALLINT column, which is only meaningful for personal
+				// `user`-type rows the caller owns. Group/default dashboards
+				// (user_id NULL) would be rejected with "Access denied"; they
+				// rely solely on the UUID preference persisted below.
+				const isPersonalOwned = target?.source === SOURCE_USER && target?.isOwner !== false
 
-				if (isOwned) {
-					// Persist the active flag for owned dashboards.
+				if (isPersonalOwned) {
+					// Persist the active flag for owned personal dashboards.
 					await api.activateDashboard(dashboardId)
 				}
 
@@ -645,15 +722,18 @@ export const useDashboardStore = defineStore('dashboard', {
 		/**
 		 * Add a widget to the active dashboard. Routes through
 		 * `placeNewWidget` (REQ-GRID-014) so the placement algorithm
-		 * (REQ-GRID-006: try autoPosition, fall back to top-left + push
-		 * down) is the single source of truth for "where does this go?".
+		 * (REQ-GRID-006: append in a fresh row below all existing
+		 * widgets, never moving them) is the single source of truth for
+		 * "where does this go?".
 		 *
 		 * Position-only callers (e.g. legacy code that passed a fully
 		 * computed `{x, y, w, h}`) MAY still supply a `position` object;
 		 * if it includes both `x` AND `y` we honour the explicit choice
 		 * and skip the auto-placement path. Otherwise we delegate to
-		 * `placeNewWidget` and apply any push-down side effects via the
-		 * existing batch-update path (REQ-WDG-008, debounce 300 ms).
+		 * `placeNewWidget`. The helper never moves existing widgets, so
+		 * `placement.pushed` is always empty; the batch-update branch
+		 * (REQ-WDG-008, debounce 300 ms) is retained for caller
+		 * compatibility but is a no-op under bottom-append.
 		 *
 		 * @param {string|object} widgetId widget identifier OR a `{type, content}` payload from AddWidgetModal
 		 * @param {object|null} [position] explicit `{x, y, w, h}` (skips auto-placement) or partial spec to seed the helper
@@ -722,7 +802,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		/**
 		 * Add a tile to the active dashboard. Tiles default to a smaller
 		 * 2×2 footprint than regular widgets but still funnel through
-		 * `placeNewWidget` so the auto-placement + fallback algorithm is
+		 * `placeNewWidget` so the bottom-append placement algorithm is
 		 * applied consistently (REQ-GRID-006 / REQ-GRID-014).
 		 *
 		 * @param {object} tileData tile payload (title/icon/colours/link)

@@ -75,19 +75,47 @@
 					<MenuIcon :size="20" />
 				</template>
 			</NcButton>
-			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
-			     `default` sentinel — REQ-TMPL-012 documents the literal
-			     'Default' as the absence of a configured primary group, so
-			     surfacing it adds noise without information. The label
-			     remains visible whenever a real Nextcloud group display
-			     name is resolved. -->
-			<div
-				v-if="primaryGroupLabel && primaryGroupLabel !== 'Default'"
-				class="launchpad-primary-group-label"
-				:title="t('launchpad', 'Your primary group for shared dashboards')">
-				{{ primaryGroupLabel }}
-			</div>
+			<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
+			     of the user's outstanding mandatory-read items. Hidden entirely
+			     when zero so dashboards without acknowledgement requirements are
+			     visually unchanged. -->
+			<span
+				v-if="outstandingAcknowledgementCount > 0"
+				class="launchpad-ack-indicator"
+				data-testid="acknowledgement-outstanding-count"
+				:title="t('launchpad', 'You have items awaiting acknowledgement')">
+				{{ n('launchpad', '%n item to acknowledge', '%n items to acknowledge', outstandingAcknowledgementCount) }}
+			</span>
+			<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
+			     report opener. Only shown to an editor when the active
+			     dashboard carries at least one acknowledgement requirement. -->
+			<NcButton
+				v-if="canShareActiveDashboard"
+				type="tertiary"
+				:aria-label="t('launchpad', 'Share')"
+				class="mydash-share-action"
+				data-test="dashboard-share-action"
+				@click="openShareDrawer">
+				<template #icon>
+					<ShareVariant :size="20" />
+				</template>
+				{{ t('launchpad', 'Share') }}
+			</NcButton>
+			<NcButton
+				v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
+				type="secondary"
+				:aria-label="t('launchpad', 'Read receipts')"
+				data-testid="open-acknowledgement-report"
+				@click="openAcknowledgementReport(acknowledgementAnnouncementKeys[0])">
+				{{ t('launchpad', 'Read receipts') }}
+			</NcButton>
 		</div>
+
+		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
+		<AcknowledgementReportModal
+			:open="ackReportOpen"
+			:announcement-key="ackReportKey"
+			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
 		<div class="launchpad-container" :class="{ 'launchpad-edit-mode': isEditMode }">
@@ -117,9 +145,11 @@
 							:placement="item"
 							:widget="getWidget(item.widgetId)"
 							:edit-mode="isEditMode"
+							:outstanding-acknowledgement="isPlacementOutstanding(item)"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
-							@edit="handleContextMenuEdit(item)" />
+							@edit="handleContextMenuEdit(item)"
+							@acknowledged="onWidgetAcknowledged" />
 					</div>
 				</template>
 			</CnDashboardGrid>
@@ -242,9 +272,11 @@ import { generateUrl, imagePath } from '@nextcloud/router'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import TileWidget from '../components/TileWidget.vue'
 import WidgetPickerModal from '../components/WidgetPickerModal.vue'
 import TileEditor from '../components/TileEditor.vue'
@@ -274,8 +306,10 @@ export default {
 		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
+		ShareVariant,
 		CnDashboardGrid,
 		WidgetWrapper,
+		AcknowledgementReportModal,
 		TileWidget,
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
@@ -294,10 +328,6 @@ export default {
 		allowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
-		},
-		primaryGroup: {
-			from: 'primaryGroup',
-			default: 'default',
 		},
 		primaryGroupName: {
 			from: 'primaryGroupName',
@@ -399,9 +429,28 @@ export default {
 			// `GET /api/dashboards/default` and refreshed locally
 			// whenever the user picks a new default via the cog menu.
 			defaultDashboardUuid: '',
+			// dashboard-acknowledgements REQ-ACK-004: admin read-receipt
+			// report modal state.
+			ackReportOpen: false,
+			ackReportKey: '',
 		}
 	},
 	computed: {
+		/**
+		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
+		 * the placements on the active dashboard that require acknowledgement.
+		 * Drives the admin "Read receipts" affordance (shown only when at least
+		 * one placement carries a requirement and the user can edit).
+		 *
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @return {string[]} the announcement keys.
+		 */
+		acknowledgementAnnouncementKeys() {
+			const keys = (this.widgetPlacements || [])
+				.filter((p) => Number(p.requiresAcknowledgement) === 1 && p.announcementKey)
+				.map((p) => p.announcementKey)
+			return [...new Set(keys)]
+		},
 		/**
 		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007).
 		 * Built once from the shared nc-vue helper so the grid reflows its
@@ -445,6 +494,10 @@ export default {
 			// create affordance + tooltip from the store getters.
 			'dashboardQuotaReached',
 			'dashboardQuotaTooltip',
+			// dashboard-acknowledgements REQ-ACK-002: outstanding count +
+			// per-placement outstanding predicate for the forced-delivery gate.
+			'outstandingAcknowledgementCount',
+			'isPlacementOutstanding',
 		]),
 		...mapState(useWidgetStore, ['availableWidgets']),
 		...mapState(useTileStore, ['tiles']),
@@ -568,28 +621,6 @@ export default {
 			}
 			return this.t('launchpad', 'Personal dashboards are not enabled by your administrator')
 		},
-		/**
-		 * Display label for the resolved primary group (REQ-TMPL-012).
-		 *
-		 * Returns the server-pushed `primaryGroupName` verbatim when it
-		 * is non-empty (real Nextcloud groups), the localised
-		 * `'Default'` string when the resolver returned the `default`
-		 * sentinel and the server didn't pick a name, or an empty
-		 * string when there is nothing meaningful to show — the
-		 * `v-if` in the template hides the badge in that last case.
-		 *
-		 * @return {string} Label to render, or '' when none.
-		 */
-		/** @spec openspec/specs/dashboards/spec.md */
-		primaryGroupLabel() {
-			if (this.primaryGroupName) {
-				return this.primaryGroupName
-			}
-			if (this.primaryGroup && this.primaryGroup !== 'default') {
-				return this.primaryGroup
-			}
-			return ''
-		},
 	},
 	watch: {
 		/**
@@ -653,6 +684,11 @@ export default {
 			widgetStore.loadAvailableWidgets(),
 			tileStore.loadTiles(),
 		])
+
+		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
+		// mandatory-read items so the forced-delivery gate and the outstanding
+		// count reflect reality on first render. Non-fatal on failure.
+		dashboardStore.fetchPendingAcknowledgements()
 
 		// Wave3.7 — fetch the user's pinned default-dashboard UUID
 		// once on mount so the per-row cog can render the right "Set
@@ -744,6 +780,23 @@ export default {
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
 			}
+		},
+
+		// dashboard-acknowledgements REQ-ACK-002: after a recipient signs off
+		// on a widget, refresh the outstanding set so the dashboard-level
+		// count stays accurate. The store already dropped the acknowledged
+		// item optimistically; the re-fetch reconciles with the server.
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		onWidgetAcknowledged() {
+			const dashboardStore = useDashboardStore()
+			dashboardStore.fetchPendingAcknowledgements()
+		},
+
+		// REQ-ACK-004: open the admin read-receipt report for an announcement.
+		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		openAcknowledgementReport(announcementKey) {
+			this.ackReportKey = announcementKey
+			this.ackReportOpen = true
 		},
 
 		...mapActions(useDashboardStore, [
@@ -1504,17 +1557,15 @@ export default {
 
 <style scoped>
 #launchpad-app {
-	min-height: 100vh;
 	width: 100%;
 	background: transparent;
 }
 
 /* Nextcloud insets the content area horizontally but not at the top, so the
    grid sat flush under the navbar (8px top gap from the grid margin vs 16px
-   on the sides). Add a matching top inset so the dashboard breathes evenly. */
-.launchpad-container {
-	padding-top: 8px;
-}
+   on the sides). Add a matching top inset so the dashboard breathes evenly.
+   Note: the layout properties (flex, overflow, min-height) are consolidated
+   in the single .launchpad-container rule further below. */
 
 /* CnDashboardGrid renders a flat item background; restore launchpad's
    frosted-glass tile look (was DashboardGrid's local style) by overriding
@@ -1566,22 +1617,23 @@ export default {
 	z-index: 1000;
 }
 
+.launchpad-ack-indicator {
+	/* dashboard-acknowledgements REQ-ACK-002 outstanding-count pill. */
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 10px;
+	border-radius: var(--border-radius-pill, 100px);
+	background: var(--color-warning, #d97706);
+	color: var(--color-primary-text, #fff);
+	font-size: 0.8em;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
 .launchpad-sidebar-toggle {
 	/* Hint that the sidebar opens from the left even though the toggle
 	   itself lives in the top-right cluster. */
 	margin-right: auto;
-}
-
-/* Primary-group label (REQ-TMPL-012). Subtle pill that names the
-   resolved group whose dashboards drive the workspace. */
-.launchpad-primary-group-label {
-	font-size: 12px;
-	font-weight: 500;
-	color: var(--color-text-maxcontrast);
-	background: var(--color-background-hover);
-	border-radius: var(--border-radius-pill, 999px);
-	padding: 4px 10px;
-	white-space: nowrap;
 }
 
 /* Strip the visible text on the menu trigger button — we want icon-only.
@@ -1597,9 +1649,9 @@ export default {
 
 .launchpad-container {
 	flex: 1;
-	padding: 0;
+	padding: 8px 0 0;
 	overflow: auto;
-	min-height: calc(100vh - var(--header-height));
+	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
 }
 
 .launchpad-empty,
@@ -1608,6 +1660,6 @@ export default {
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	min-height: calc(100vh - var(--header-height));
+	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
 }
 </style>

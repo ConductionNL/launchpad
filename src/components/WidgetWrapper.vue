@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -38,6 +38,15 @@
 				:placement="placement" />
 		</CnWidgetWrapper>
 
+		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
+		     blocking sign-off prompt when the placement requires an
+		     acknowledgement the current user still owes. Suppressed in edit
+		     mode so an author can still configure the widget. -->
+		<AcknowledgementPrompt
+			v-if="showAcknowledgementGate"
+			:placement="placement"
+			@acknowledged="$emit('acknowledged', placement)" />
+
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
 		     shown in edit mode. Sits top-right over the wrapper's header area.
 		     The absolute positioning lives on this wrapper DIV, not on
@@ -60,6 +69,7 @@
 <script>
 import { CnWidgetWrapper, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 
 export default {
 	name: 'WidgetWrapper',
@@ -68,6 +78,7 @@ export default {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
 		WidgetRenderer,
+		AcknowledgementPrompt,
 	},
 
 	props: {
@@ -83,13 +94,37 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
+		// item for the current user. Resolved by the parent from the pending
+		// set; defaults false so widgets without a requirement are unchanged.
+		outstandingAcknowledgement: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
-	emits: ['remove', 'style', 'edit'],
+	emits: ['remove', 'style', 'edit', 'acknowledged'],
 
 	computed: {
 		isTileWidget() {
 			return this.placement.widgetId && this.placement.widgetId.startsWith('tile-')
+		},
+
+		/**
+		 * REQ-ACK-002: whether the forced-delivery read-gate should overlay
+		 * this widget — the placement requires an acknowledgement the current
+		 * user still owes, and we are NOT in edit mode (an author configuring
+		 * the widget is not a recipient sign-off context).
+		 *
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @return {boolean} true when the sign-off prompt must block the widget.
+		 */
+		showAcknowledgementGate() {
+			if (this.editMode) {
+				return false
+			}
+			return Number(this.placement?.requiresAcknowledgement) === 1
+				&& this.outstandingAcknowledgement
 		},
 
 		/**
@@ -187,6 +222,9 @@ export default {
 		 * @return {object} the styleConfig blob.
 		 */
 		styleConfig() {
+			// The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+			// empty styleConfig, so a plain `|| {}` fallback satisfies
+			// CnWidgetWrapper's Object-typed prop.
 			return this.placement.styleConfig || {}
 		},
 	},

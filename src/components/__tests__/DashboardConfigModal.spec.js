@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `DashboardConfigModal.vue` tab split
  * (dashboard-sharing spec). Covers:
@@ -11,6 +11,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import DashboardConfigModal from '../DashboardConfigModal.vue'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
@@ -57,8 +58,6 @@ vi.mock('@nextcloud/vue', () => ({
 		},
 	},
 }))
-
-import DashboardConfigModal from '../DashboardConfigModal.vue'
 
 const ownedDashboard = {
 	id: 3,

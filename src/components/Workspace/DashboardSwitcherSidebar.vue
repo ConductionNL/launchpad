@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -22,7 +22,7 @@
 	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
 	never triggers a switch (REQ-SWITCH-004).
 
-	A dedicated "Add Dashboard" card button (NcButton outline) renders
+	A dedicated "Add Dashboard" card button (NcButton secondary) renders
 	below the personal dashboards list — still inside the scroll container,
 	NOT inside the footer — when `allowUserDashboards === true`. Clicking
 	it emits `update:open(false)` then `create-dashboard()` (REQ-SWITCH-008).
@@ -243,7 +243,7 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						type="outline"
+						type="secondary"
 						wide
 						data-action="create"
 						data-testid="add-dashboard-button"
@@ -806,5 +806,13 @@ export default {
 	position: sticky;
 	bottom: 0;
 	flex: 0 0 auto;
+}
+
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar,
+	.dashboard-switcher-sidebar__item {
+		transition: none;
+	}
 }
 </style>

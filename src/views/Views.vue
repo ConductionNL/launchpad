@@ -73,14 +73,14 @@
 			<NcButton
 				v-if="canShareActiveDashboard"
 				type="tertiary"
-				:aria-label="t('mydash', 'Share')"
+				:aria-label="t('launchpad','Share')"
 				class="mydash-share-action"
 				data-test="dashboard-share-action"
 				@click="openShareDrawer">
 				<template #icon>
 					<ShareVariant :size="20" />
 				</template>
-				{{ t('mydash', 'Share') }}
+				{{ t('launchpad','Share') }}
 			</NcButton>
 			<!-- Primary-group label (REQ-TMPL-012) is suppressed for the
 			     `default` sentinel — REQ-TMPL-012 documents the literal
@@ -1062,7 +1062,7 @@ export default {
 		/**
 		 * Compute the absolute URL for a slug-chain path. The launchpad
 		 * routes mount under whatever prefix `generateUrl` produces
-		 * (typically `/index.php/apps/mydash` or `/apps/mydash` when
+		 * (typically `/index.php/apps/launchpad` or `/apps/launchpad` when
 		 * URL rewriting is enabled), so we anchor onto the same prefix
 		 * the API client uses.
 		 *
@@ -1074,7 +1074,7 @@ export default {
 			if (!path) {
 				return ''
 			}
-			const prefix = generateUrl('/apps/mydash')
+			const prefix = generateUrl('/apps/launchpad')
 			const cleanPath = path.startsWith('/') ? path : `/${path}`
 			return `${prefix}${cleanPath}`
 		},
@@ -1160,7 +1160,7 @@ export default {
 				return
 			}
 
-			const prefix = generateUrl('/apps/mydash')
+			const prefix = generateUrl('/apps/launchpad')
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {
@@ -1214,7 +1214,7 @@ export default {
 		 * the pin (so the cog shows "Set as default" again on next
 		 * open); clicking on any other row replaces the pin with that
 		 * dashboard's UUID. The new pref takes effect on the next
-		 * page load — visiting `/apps/mydash/` will resolve to this
+		 * page load — visiting `/apps/launchpad/` will resolve to this
 		 * dashboard via the resolver's Step 0.
 		 */
 		// eslint-disable-next-line no-unused-vars

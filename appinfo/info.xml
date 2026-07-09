@@ -5,7 +5,7 @@
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>mydash</id>
+	<id>launchpad</id>
 	<name lang="en">LaunchPad</name>
 	<name lang="nl">LaunchPad</name>
 	<summary lang="en">Drag-and-drop dashboards with templates, tiles, and smart visibility</summary>
@@ -142,7 +142,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	<navigations>
 		<navigation>
 			<name>LaunchPad</name>
-			<route>mydash.page.index</route>
+			<route>launchpad.page.index</route>
 			<icon>app.svg</icon>
 			<order>-5</order>
 		</navigation>

@@ -121,7 +121,7 @@ describe('IconPicker — upload custom URL (REQ-ICON-008)', () => {
 			status: 200,
 			data: {
 				status: 'success',
-				url: '/apps/mydash/resource/abc.png',
+				url: '/apps/launchpad/resource/abc.png',
 				name: 'abc.png',
 				size: 12,
 			},
@@ -142,11 +142,11 @@ describe('IconPicker — upload custom URL (REQ-ICON-008)', () => {
 		await flushAsync()
 
 		expect(axios.post).toHaveBeenCalledWith(
-			'/apps/mydash/api/resources',
+			'/apps/launchpad/api/resources',
 			{ base64: 'data:image/png;base64,AAAA' },
 		)
 		expect(wrapper.emitted('input')).toBeTruthy()
-		expect(wrapper.emitted('input')[0]).toEqual(['/apps/mydash/resource/abc.png'])
+		expect(wrapper.emitted('input')[0]).toEqual(['/apps/launchpad/resource/abc.png'])
 	})
 })
 
@@ -222,7 +222,7 @@ describe('IconPicker — mode switching (REQ-ICON-008)', () => {
 			status: 200,
 			data: {
 				status: 'success',
-				url: '/apps/mydash/resource/abc.png',
+				url: '/apps/launchpad/resource/abc.png',
 				name: 'abc.png',
 				size: 12,
 			},
@@ -246,13 +246,13 @@ describe('IconPicker — mode switching (REQ-ICON-008)', () => {
 
 		// Parent would normally update v-model from the emit; emulate
 		// that by setting the new value through propsData and re-rendering.
-		await wrapper.setProps({ value: '/apps/mydash/resource/abc.png' })
+		await wrapper.setProps({ value: '/apps/launchpad/resource/abc.png' })
 		expect(wrapper.find('img').exists()).toBe(true)
 	})
 
 	it('switches back from a custom URL to a built-in registry name', async () => {
 		const wrapper = mount(IconPicker, {
-			propsData: { value: '/apps/mydash/resource/abc.png' },
+			propsData: { value: '/apps/launchpad/resource/abc.png' },
 		})
 		// Initial: URL → img.
 		expect(wrapper.find('img').exists()).toBe(true)

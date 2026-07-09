@@ -584,7 +584,7 @@ export default {
 
 				try {
 					const response = await axios.post(
-						generateUrl('/apps/mydash/api/files/create'),
+						generateUrl('/apps/launchpad/api/files/create'),
 						{ filename, dir: '/', content: '' },
 					)
 					const data = response?.data

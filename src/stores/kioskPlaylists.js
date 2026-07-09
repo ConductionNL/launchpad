@@ -13,7 +13,7 @@ import { defineStore } from 'pinia'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const baseUrl = generateUrl('/apps/mydash')
+const baseUrl = generateUrl('/apps/launchpad')
 
 /** @spec openspec/changes/dashboard-kiosk-mode/specs/dashboard-kiosk-mode/spec.md */
 export const useKioskPlaylistStore = defineStore('kioskPlaylists', {

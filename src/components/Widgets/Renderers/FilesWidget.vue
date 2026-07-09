@@ -316,7 +316,7 @@ export default {
 				])
 
 				const url = generateUrl(
-					'/apps/mydash/api/widgets/files/{placementId}/contents',
+					'/apps/launchpad/api/widgets/files/{placementId}/contents',
 					{ placementId: this.placementId },
 				)
 				const params = {
@@ -429,7 +429,7 @@ export default {
 				])
 
 				const url = generateUrl(
-					'/apps/mydash/api/widgets/files/{placementId}/files/{fileId}',
+					'/apps/launchpad/api/widgets/files/{placementId}/files/{fileId}',
 					{ placementId: this.placementId, fileId: target.fileId },
 				)
 				await axios.delete(url)
@@ -469,7 +469,7 @@ export default {
 				])
 
 				const url = generateUrl(
-					'/apps/mydash/api/widgets/files/{placementId}/upload',
+					'/apps/launchpad/api/widgets/files/{placementId}/upload',
 					{ placementId: this.placementId },
 				)
 				await axios.post(url, formData, {

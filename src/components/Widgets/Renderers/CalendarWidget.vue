@@ -401,7 +401,7 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				const url = generateUrl('/apps/mydash/api/widgets/calendar/{id}/events', {
+				const url = generateUrl('/apps/launchpad/api/widgets/calendar/{id}/events', {
 					id: this.placementId,
 				})
 				const response = await axios.get(url, {

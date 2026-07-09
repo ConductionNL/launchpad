@@ -229,7 +229,7 @@ export default {
 			this.hasError = false
 
 			try {
-				const url = generateUrl('/apps/mydash/api/widgets/news/{placementId}/items', {
+				const url = generateUrl('/apps/launchpad/api/widgets/news/{placementId}/items', {
 					placementId: this.placementId,
 				})
 				const response = await axios.get(url, { params: { limit: this.itemLimit } })

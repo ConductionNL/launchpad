@@ -1963,7 +1963,7 @@ class DashboardApiController extends Controller
                 'error'   => 'dashboard_content_storage_unavailable',
                 'message' => 'The dashboard content storage backend is unavailable. '
                     .'If you recently changed the backend, run: '
-                    .'php occ mydash:storage:migrate-to-groupfolder',
+                    .'php occ launchpad:storage:migrate-to-groupfolder',
             ],
             statusCode: Http::STATUS_SERVICE_UNAVAILABLE
         );

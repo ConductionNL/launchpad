@@ -33,14 +33,14 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 		<div v-else-if="dashboard" class="public-share-view__content">
 			<header class="public-share-view__header">
 				<h1>{{ dashboard.title }}</h1>
-				<span class="public-share-view__badge">{{ t('mydash', 'Read-only view') }}</span>
+				<span class="public-share-view__badge">{{ t('launchpad','Read-only view') }}</span>
 			</header>
 			<p v-if="dashboard.description" class="public-share-view__description">
 				{{ dashboard.description }}
 			</p>
 			<div class="public-share-view__widgets">
 				<p class="public-share-view__widgets-note">
-					{{ t('mydash', 'Dashboard loaded successfully.') }}
+					{{ t('launchpad','Dashboard loaded successfully.') }}
 				</p>
 			</div>
 		</div>
@@ -58,7 +58,7 @@ import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
 import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
 import { usePublicShareStore } from '../stores/publicShares.js'
 
-const baseUrl = generateUrl('/apps/mydash')
+const baseUrl = generateUrl('/apps/launchpad')
 
 export default defineComponent({
 	name: 'DashboardPublicShareView',
@@ -89,8 +89,8 @@ export default defineComponent({
 		const unlocking = ref(false)
 		const unlockError = ref(null)
 
-		const errorTitle = ref(t('mydash', 'Not available'))
-		const errorDescription = ref(t('mydash', 'This shared dashboard is not available.'))
+		const errorTitle = ref(t('launchpad','Not available'))
+		const errorDescription = ref(t('launchpad','This shared dashboard is not available.'))
 
 		const loadShare = async (password = null) => {
 			loading.value = true
@@ -115,12 +115,12 @@ export default defineComponent({
 					showPasswordModal.value = true
 				} else if (err.response?.status === 404) {
 					error.value = 'not_found'
-					errorTitle.value = t('mydash', 'Not found')
-					errorDescription.value = t('mydash', 'This shared dashboard does not exist or has expired.')
+					errorTitle.value = t('launchpad','Not found')
+					errorDescription.value = t('launchpad','This shared dashboard does not exist or has expired.')
 				} else {
 					error.value = 'server_error'
-					errorTitle.value = t('mydash', 'Error')
-					errorDescription.value = t('mydash', 'An error occurred loading the shared dashboard.')
+					errorTitle.value = t('launchpad','Error')
+					errorDescription.value = t('launchpad','An error occurred loading the shared dashboard.')
 				}
 			} finally {
 				loading.value = false
@@ -142,13 +142,13 @@ export default defineComponent({
 					shareStore.markUnlocked(props.token)
 					await loadShare(password)
 				} else {
-					unlockError.value = t('mydash', 'Incorrect password. Please try again.')
+					unlockError.value = t('launchpad','Incorrect password. Please try again.')
 				}
 			} catch (err) {
 				if (err.response?.status === 429) {
-					unlockError.value = t('mydash', 'unlock_throttled')
+					unlockError.value = t('launchpad','unlock_throttled')
 				} else {
-					unlockError.value = t('mydash', 'Failed to verify password.')
+					unlockError.value = t('launchpad','Failed to verify password.')
 				}
 			} finally {
 				unlocking.value = false

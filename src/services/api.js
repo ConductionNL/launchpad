@@ -6,7 +6,7 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const baseUrl = generateUrl('/apps/mydash')
+const baseUrl = generateUrl('/apps/launchpad')
 
 export const api = {
 	// Dashboard endpoints

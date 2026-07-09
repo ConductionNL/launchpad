@@ -48,7 +48,7 @@ describe('kioskPlaylists store', () => {
 		expect(created.id).toBe(5)
 		expect(store.playlists).toContainEqual(created)
 		expect(axios.post).toHaveBeenCalledWith(
-			'/index.php/apps/mydash/api/kiosk/playlists',
+			'/index.php/apps/launchpad/api/kiosk/playlists',
 			{ name: 'Reception', entries: [], refreshSeconds: 300 },
 		)
 	})
@@ -74,6 +74,6 @@ describe('kioskPlaylists store', () => {
 		const store = useKioskPlaylistStore()
 		const payload = await store.fetchRender('tok123')
 		expect(payload).toEqual({ playlist: { id: 1 }, entries: [] })
-		expect(axios.get).toHaveBeenCalledWith('/index.php/apps/mydash/kiosk/tok123')
+		expect(axios.get).toHaveBeenCalledWith('/index.php/apps/launchpad/kiosk/tok123')
 	})
 })

@@ -11,6 +11,8 @@
  * Provided values are plain (non-reactive) snapshots (REQ-INIT-005).
  */
 
+import './publicPath.js'
+
 import Vue from 'vue'
 import { PiniaVuePlugin, createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'

@@ -6,21 +6,21 @@
 <template>
 	<div class="templates-page" data-test="templates-page">
 		<div class="mydash-admin__section-header">
-			<h3>{{ t('mydash', 'Dashboard templates') }}</h3>
+			<h3>{{ t('launchpad', 'Dashboard templates') }}</h3>
 			<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
-				{{ t('mydash', 'Create template') }}
+				{{ t('launchpad', 'Create template') }}
 			</NcButton>
 		</div>
 
 		<p class="mydash-admin__hint">
-			{{ t('mydash', 'Create dashboard templates that will be applied to users based on their groups.') }}
+			{{ t('launchpad', 'Create dashboard templates that will be applied to users based on their groups.') }}
 		</p>
 
 		<div v-if="templates.length === 0" class="mydash-admin__empty">
-			<NcEmptyContent :description="t('mydash', 'No templates yet')">
+			<NcEmptyContent :description="t('launchpad', 'No templates yet')">
 				<template #icon>
 					<ViewDashboard :size="48" />
 				</template>
@@ -36,7 +36,7 @@
 					<IconRenderer :name="template.icon" :size="20" />
 					<strong>{{ template.name }}</strong>
 					<span v-if="template.isDefault" class="mydash-admin__badge">
-						{{ t('mydash', 'Default') }}
+						{{ t('launchpad', 'Default') }}
 					</span>
 					<span class="mydash-admin__template-groups">
 						{{ formatTargetGroups(template.targetGroups) }}
@@ -44,10 +44,10 @@
 				</div>
 				<div class="mydash-admin__template-actions">
 					<NcButton type="secondary" @click="editTemplate(template)">
-						{{ t('mydash', 'Edit') }}
+						{{ t('launchpad', 'Edit') }}
 					</NcButton>
 					<NcButton type="error" @click="deleteTemplate(template)">
-						{{ t('mydash', 'Delete') }}
+						{{ t('launchpad', 'Delete') }}
 					</NcButton>
 				</div>
 			</div>
@@ -56,36 +56,36 @@
 		<!-- Template Editor Modal -->
 		<NcModal
 			v-if="editingTemplate"
-			:name="editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template')"
+			:name="editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template')"
 			size="large"
 			@close="closeTemplateEditor">
 			<div class="mydash-admin__modal">
-				<h2>{{ editingTemplate.id ? t('mydash', 'Edit template') : t('mydash', 'Create template') }}</h2>
+				<h2>{{ editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template') }}</h2>
 
 				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Template name') }}</label>
-					<NcTextField v-model="editingTemplate.name" :placeholder="t('mydash', 'My template')" />
+					<label>{{ t('launchpad', 'Template name') }}</label>
+					<NcTextField v-model="editingTemplate.name" :placeholder="t('launchpad', 'My template')" />
 				</div>
 
 				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Description') }}</label>
-					<NcTextField v-model="editingTemplate.description" :placeholder="t('mydash', 'Optional description')" />
+					<label>{{ t('launchpad', 'Description') }}</label>
+					<NcTextField v-model="editingTemplate.description" :placeholder="t('launchpad', 'Optional description')" />
 				</div>
 
 				<div class="mydash-admin__field">
-					<label>{{ t('mydash', 'Target groups') }}</label>
+					<label>{{ t('launchpad', 'Target groups') }}</label>
 					<NcSelectTags
 						v-model="editingTemplate.targetGroups"
 						:options="availableGroups"
 						:multiple="true"
-						:aria-label-combobox="t('mydash', 'Target groups')"
-						:placeholder="t('mydash', 'Select groups (leave empty for all users)')" />
+						:aria-label-combobox="t('launchpad', 'Target groups')"
+						:placeholder="t('launchpad', 'Select groups (leave empty for all users)')" />
 				</div>
 
 				<div class="mydash-admin__field">
 					<NcSelect
 						v-model="editingTemplate.permissionLevel"
-						:input-label="t('mydash', 'Permission level')"
+						:input-label="t('launchpad', 'Permission level')"
 						:options="permissionOptions"
 						label="label"
 						track-by="id"
@@ -95,15 +95,15 @@
 				<NcCheckboxRadioSwitch
 					:checked="editingTemplate.isDefault"
 					@update:checked="editingTemplate.isDefault = $event">
-					{{ t('mydash', 'Set as default template') }}
+					{{ t('launchpad', 'Set as default template') }}
 				</NcCheckboxRadioSwitch>
 
 				<div class="mydash-admin__modal-actions">
 					<NcButton type="secondary" @click="closeTemplateEditor">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton type="primary" @click="saveTemplate">
-						{{ t('mydash', 'Save') }}
+						{{ t('launchpad', 'Save') }}
 					</NcButton>
 				</div>
 			</div>
@@ -156,9 +156,9 @@ export default {
 			availableGroups: [],
 			editingTemplate: null,
 			permissionOptions: [
-				{ id: 'view_only', label: t('mydash', 'View only') },
-				{ id: 'add_only', label: t('mydash', 'Add only') },
-				{ id: 'full', label: t('mydash', 'Full customization') },
+				{ id: 'view_only', label: t('launchpad', 'View only') },
+				{ id: 'add_only', label: t('launchpad', 'Add only') },
+				{ id: 'full', label: t('launchpad', 'Full customization') },
 			],
 		}
 	},
@@ -234,7 +234,7 @@ export default {
 
 		/** @spec openspec/specs/admin-templates/spec.md */
 		async deleteTemplate(template) {
-			if (!confirm(t('mydash', 'Are you sure you want to delete this template?'))) {
+			if (!confirm(t('launchpad', 'Are you sure you want to delete this template?'))) {
 				return
 			}
 
@@ -249,7 +249,7 @@ export default {
 		/** @spec openspec/specs/admin-templates/spec.md */
 		formatTargetGroups(groups) {
 			if (!groups || groups.length === 0) {
-				return t('mydash', 'All users')
+				return t('launchpad', 'All users')
 			}
 			return groups.join(', ')
 		},

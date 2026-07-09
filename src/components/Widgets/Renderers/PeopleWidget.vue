@@ -340,7 +340,7 @@ export default {
 					import('@nextcloud/router'),
 				])
 
-				const url = `${generateUrl('/apps/mydash/api/people')}?${params.toString()}`
+				const url = `${generateUrl('/apps/launchpad/api/people')}?${params.toString()}`
 				const response = await axios.get(url)
 				const data = response?.data || {}
 

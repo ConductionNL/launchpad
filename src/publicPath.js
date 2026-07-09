@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Set webpack's runtime public path so dynamically-imported chunks load from
  * the directory Nextcloud actually serves the app's JS from — e.g.

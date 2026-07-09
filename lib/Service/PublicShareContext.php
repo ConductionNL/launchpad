@@ -79,9 +79,11 @@ class PublicShareContext
     }//end markBearer()
 
     /**
-     * Whether the current request was authenticated via a public-share bearer.
+     * Whether the current request was authenticated via a public-share
+     * bearer token (read-only context).
      *
-     * @return boolean True when `markBearer()` has been called for this request.
+     * @return boolean True when `markBearer()` has been called for this request
+     *                 (the request is a public-share bearer).
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
      */

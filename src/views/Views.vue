@@ -90,6 +90,18 @@
 			     report opener. Only shown to an editor when the active
 			     dashboard carries at least one acknowledgement requirement. -->
 			<NcButton
+				v-if="canShareActiveDashboard"
+				type="tertiary"
+				:aria-label="t('launchpad', 'Share')"
+				class="mydash-share-action"
+				data-test="dashboard-share-action"
+				@click="openShareDrawer">
+				<template #icon>
+					<ShareVariant :size="20" />
+				</template>
+				{{ t('launchpad', 'Share') }}
+			</NcButton>
+			<NcButton
 				v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
 				type="secondary"
 				:aria-label="t('launchpad', 'Read receipts')"
@@ -260,6 +272,7 @@ import { generateUrl, imagePath } from '@nextcloud/router'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
@@ -293,6 +306,7 @@ export default {
 		NcLoadingIcon,
 		ViewDashboard,
 		MenuIcon,
+		ShareVariant,
 		CnDashboardGrid,
 		WidgetWrapper,
 		AcknowledgementReportModal,

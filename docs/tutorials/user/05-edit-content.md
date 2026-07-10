@@ -6,16 +6,16 @@ description: Change a widget's content, colours, custom title, or border without
 
 # Edit widget content & style
 
-Each placement carries two layers of configuration:
+Each placement carries two layers of configuration, both edited from the **same** modal:
 
 - **Content** — type-specific fields (text body, link URL, folder path, …). Changes the widget's payload.
-- **Style** — borders, background colour, custom title override, custom icon override. Cosmetic.
+- **Style / appearance** — show-title toggle, custom title override, background, and custom icon. Cosmetic.
 
-Both are editable post-add without removing the widget.
+Both are editable post-add without removing the widget. Content and style used to be separate menu entries; they are now one unified **Edit widget** modal with a **Content** area and an **Appearance** section.
 
 ## Goal
 
-Edit a widget you already added — both its content and its visual style.
+Edit a widget you already added — both its content and its appearance.
 
 ## Prerequisites
 
@@ -23,54 +23,51 @@ Edit a widget you already added — both its content and its visual style.
 
 ## Steps
 
-### 1. Right-click the widget
+### 1. Enter edit mode and open the widget's menu
 
-In edit mode, right-clicking a widget opens a context menu anchored at the cursor:
+Cog menu → **Edit dashboard**. Each placement then shows a **Widget menu** (⋯/cog) button in its top-right corner. Click it:
 
-![Right-click context menu](/screenshots/tutorials/user/05-context-menu.png)
+![Widget menu](/screenshots/tutorials/user/05-context-menu.png)
 
 Options:
-- **Edit** — opens the per-type configuration form (same as during add).
-- **Style** — opens the cosmetic style editor.
-- **Remove** — see [Remove a widget](06-remove-widget.md).
-- **Cancel** — close the menu.
+- **Edit widget** — opens the unified configuration + appearance form (same modal as during add).
+- **Delete widget** — see [Remove a widget](06-remove-widget.md).
 
-### 2. Edit content
+### 2. Edit the content
 
-Pick **Edit**. The same `AddWidgetModal` you used to add the widget reopens, this time pre-filled with the current placement's content. Change fields and **Save**.
+Pick **Edit widget**. The same **Add Widget** modal you used to add it reopens, pre-filled with the current placement's content. Change the type-specific fields at the top (label, URL, folder, colours, …).
 
 ![Edit content modal](/screenshots/tutorials/user/05-edit-content.png)
 
-### 3. Edit style
+### 3. Edit the appearance
 
-Pick **Style** instead. The dedicated `WidgetStyleEditor` opens with these controls:
+Scroll to the **Appearance** section of the same modal:
 
-- **Custom title** — overrides the widget's default title (leave blank for default).
-- **Custom icon** — registry key, URL, or empty for default.
 - **Show title** — toggle the title bar on/off.
-- **Border** — colour and thickness.
-- **Background colour** — solid, transparent, or theme-bound.
+- **Custom title** — overrides the widget's default title (leave blank for default).
+- **Background** — Default, or a custom colour.
+- **Icon** — pick from the Material Design Icons catalogue, the NL Design set (when the `nldesign` app is enabled), or **Upload** your own; leave empty for the default.
 
-![Style editor](/screenshots/tutorials/user/05-style-editor.png)
+![Appearance section](/screenshots/tutorials/user/05-style-editor.png)
 
-The style is persisted as a JSON blob in `placement.styleConfig`; it doesn't touch the widget's content.
+The appearance settings persist as a JSON blob in `placement.styleConfig`; they don't touch the widget's content.
 
 ### 4. Save
 
-Both modals close on **Save** and the change is reflected immediately.
+The modal closes on **Save** and the change is reflected immediately.
 
 ## Verification
 
-- Reload the page. Content / style changes are still applied.
-- The widget header reflects any custom title; widget background reflects any custom colour.
+- Reload the page. Content and appearance changes are still applied.
+- The widget header reflects any custom title; the widget background reflects any custom colour.
 
 ## Common issues
 
 | Symptom | Fix |
 |---|---|
-| **Edit** is disabled | The widget type has no configuration form (renderer-only widgets). Use **Style** for cosmetics, or remove and re-add. |
-| Custom icon doesn't render | The icon string isn't a registered registry key and not a valid URL. See [Dashboard icons capability](../../features/dashboards.md). |
-| Title row gone after toggling **Show title** | Re-open the style editor and toggle it back on, OR set a custom title. |
+| The type-specific fields are absent | The widget type is renderer-only (no configuration form). You can still change the Appearance section, or remove and re-add. |
+| The NL Design icon set is missing from the Icon picker | The `nldesign` app is not enabled on this instance — the pack is hidden by design (MDI + Upload still work). |
+| Title row gone after toggling **Show title** | Re-open Edit and toggle it back on, OR set a custom title. |
 
 ## Reference
 

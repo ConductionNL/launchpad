@@ -35,12 +35,14 @@ export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
 export const CnIconBrowser = stub('CnIconBrowser')
-// Bundled NL Design icon pack (self-contained data URIs in the real library).
-// A two-entry stand-in is enough for the pickers to build a non-empty list.
-export const NL_DESIGN_ICONS = [
-	{ id: 'nl-star', label: 'Star', name: 'Star', url: 'data:image/svg+xml;base64,U1RBUg==' },
-	{ id: 'nl-bell', label: 'Bell', name: 'Bell', url: 'data:image/svg+xml;base64,QkVMTA==' },
+// Bundled NL-government icon catalogues (self-contained data URIs in the real
+// library). A small grouped stand-in is enough for the pickers to build a
+// non-empty list; `NL_DESIGN_ICONS` is the flat combined list.
+export const NL_DESIGN_ICON_GROUPS = [
+	{ key: 'rvo', label: 'RVO', icons: [{ id: 'rvo-star', label: 'Star', url: 'data:image/svg+xml;base64,U1RBUg==' }] },
+	{ key: 'den-haag', label: 'Den Haag', icons: [{ id: 'dh-bell', label: 'Bell', url: 'data:image/svg+xml;base64,QkVMTA==' }] },
 ]
+export const NL_DESIGN_ICONS = NL_DESIGN_ICON_GROUPS.flatMap((g) => g.icons)
 
 // Icon-catalogue adapters — normalize an icon source into CnIconBrowser's
 // catalogue shape. Real logic mirrored thinly so the launchpad icon-catalogue

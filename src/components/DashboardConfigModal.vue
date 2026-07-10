@@ -186,6 +186,81 @@
 						{{ t('launchpad', 'Unsaved changes — click Save to apply.') }}
 					</p>
 				</div>
+
+				<!-- Public link (anonymous read-only share). Applies immediately;
+				     independent of the Save button. -->
+				<div v-if="!isCreate && canManageShares" class="dashboard-config__field dashboard-config__public">
+					<label class="dashboard-config__label">
+						{{ t('launchpad', 'Public link') }}
+					</label>
+					<p class="dashboard-config__hint">
+						{{ t('launchpad', 'Anyone with the link can view this dashboard read-only, without a Nextcloud account.') }}
+					</p>
+
+					<ul v-if="publicShares.length > 0" class="dashboard-config__public-list">
+						<li
+							v-for="share in publicShares"
+							:key="share.id"
+							class="dashboard-config__public-row">
+							<input
+								class="dashboard-config__public-url"
+								type="text"
+								readonly
+								:value="publicShareUrl(share.token)"
+								@focus="$event.target.select()">
+							<NcButton
+								type="tertiary"
+								:aria-label="t('launchpad', 'Copy link')"
+								:title="copiedToken === share.token ? t('launchpad', 'Copied') : t('launchpad', 'Copy link')"
+								@click="copyPublicShareUrl(share)">
+								<template #icon>
+									<Check v-if="copiedToken === share.token" :size="18" />
+									<ContentCopy v-else :size="18" />
+								</template>
+							</NcButton>
+							<span v-if="share.passwordRequired" class="dashboard-config__public-badge" :title="t('launchpad', 'Password protected')">
+								<Lock :size="16" />
+							</span>
+							<span v-if="share.expiresAt" class="dashboard-config__public-expiry">
+								{{ t('launchpad', 'until {date}', { date: share.expiresAt }) }}
+							</span>
+							<NcButton
+								type="tertiary"
+								:aria-label="t('launchpad', 'Revoke link')"
+								:title="t('launchpad', 'Revoke link')"
+								@click="onRevokePublicShare(share.id)">
+								<template #icon>
+									<Close :size="18" />
+								</template>
+							</NcButton>
+						</li>
+					</ul>
+					<p v-else-if="!publicSharesLoading" class="dashboard-config__hint">
+						{{ t('launchpad', 'No public links yet.') }}
+					</p>
+
+					<div class="dashboard-config__public-create">
+						<NcTextField
+							:value.sync="newSharePassword"
+							type="password"
+							:label="t('launchpad', 'Password (optional)')"
+							autocomplete="new-password" />
+						<input
+							v-model="newShareExpiry"
+							class="dashboard-config__public-date"
+							type="date"
+							:aria-label="t('launchpad', 'Expiry date (optional)')">
+						<NcButton
+							type="secondary"
+							:disabled="creatingPublicShare"
+							@click="onCreatePublicShare">
+							<template #icon>
+								<Plus :size="20" />
+							</template>
+							{{ t('launchpad', 'Create public link') }}
+						</NcButton>
+					</div>
+				</div>
 			</div>
 			<!-- /sharing panel -->
 
@@ -235,11 +310,16 @@ import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import Tune from 'vue-material-design-icons/Tune.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
+import Check from 'vue-material-design-icons/Check.vue'
+import Lock from 'vue-material-design-icons/Lock.vue'
 
+import { generateUrl } from '@nextcloud/router'
 import { CnIconBrowser, DEFAULT_ICON } from '@conduction/nextcloud-vue'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
 import { api } from '../services/api.js'
+import { usePublicShareStore } from '../stores/publicShares.js'
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -265,6 +345,9 @@ export default {
 		Tune,
 		ShareVariant,
 		StarOutline,
+		ContentCopy,
+		Check,
+		Lock,
 		CnIconBrowser,
 	},
 
@@ -343,6 +426,13 @@ export default {
 			shareeSuggestions: [],
 			shareeLoading: false,
 			shareeSearchSeq: 0,
+			// Public-share (anonymous read-only link) state.
+			publicShares: [],
+			publicSharesLoading: false,
+			creatingPublicShare: false,
+			newSharePassword: '',
+			newShareExpiry: '',
+			copiedToken: '',
 		}
 	},
 
@@ -443,6 +533,10 @@ export default {
 					this.localShares = []
 					this.shareeOptions = []
 					this.shareeSuggestions = []
+					this.publicShares = []
+					this.newSharePassword = ''
+					this.newShareExpiry = ''
+					this.copiedToken = ''
 					return
 				}
 				// Land on the requested tab (dashboard-sharing spec: the
@@ -475,6 +569,7 @@ export default {
 					if (this.canManageShares) {
 						this.loadShares()
 						this.loadShareeSuggestions()
+						this.loadPublicShares()
 					}
 				}
 			},
@@ -501,6 +596,96 @@ export default {
 				console.error('Failed to load shares:', error)
 				this.serverShares = []
 				this.localShares = []
+			}
+		},
+		/**
+		 * Load the dashboard's active anonymous public-share links.
+		 *
+		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 */
+		async loadPublicShares() {
+			if (!this.dashboard?.uuid) {
+				this.publicShares = []
+				return
+			}
+			this.publicSharesLoading = true
+			try {
+				this.publicShares = await usePublicShareStore().fetchShares(this.dashboard.uuid)
+			} catch (error) {
+				console.error('Failed to load public shares:', error)
+				this.publicShares = []
+			} finally {
+				this.publicSharesLoading = false
+			}
+		},
+		/**
+		 * Mint a new public link, optionally password-protected and/or expiring.
+		 *
+		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 */
+		async onCreatePublicShare() {
+			if (!this.dashboard?.uuid) {
+				return
+			}
+			this.creatingPublicShare = true
+			try {
+				// The date input yields `YYYY-MM-DD`; the backend expects an
+				// ISO 8601 instant, so pin expiry to end-of-day UTC.
+				const expiresAt = this.newShareExpiry
+					? `${this.newShareExpiry}T23:59:59Z`
+					: null
+				await usePublicShareStore().createShare(this.dashboard.uuid, {
+					password: this.newSharePassword || null,
+					expiresAt,
+				})
+				this.newSharePassword = ''
+				this.newShareExpiry = ''
+				await this.loadPublicShares()
+			} catch (error) {
+				console.error('Failed to create public share:', error)
+			} finally {
+				this.creatingPublicShare = false
+			}
+		},
+		/**
+		 * Soft-revoke a public link.
+		 *
+		 * @param {number} id The share id.
+		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 */
+		async onRevokePublicShare(id) {
+			if (!this.dashboard?.uuid) {
+				return
+			}
+			try {
+				await usePublicShareStore().revokeShare(this.dashboard.uuid, id)
+				await this.loadPublicShares()
+			} catch (error) {
+				console.error('Failed to revoke public share:', error)
+			}
+		},
+		/**
+		 * Absolute, shareable URL for a public-share token.
+		 *
+		 * @param {string} token The share token.
+		 * @return {string} the full `…/apps/launchpad/s/<token>` URL.
+		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 */
+		publicShareUrl(token) {
+			return window.location.origin + generateUrl('/apps/launchpad/s/{token}', { token })
+		},
+		/**
+		 * Copy a link to the clipboard and flag the row as copied briefly.
+		 *
+		 * @param {object} share The share row.
+		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 */
+		async copyPublicShareUrl(share) {
+			try {
+				await navigator.clipboard.writeText(this.publicShareUrl(share.token))
+				this.copiedToken = share.token
+			} catch (error) {
+				console.error('Clipboard write failed:', error)
 			}
 		},
 		/**
@@ -681,6 +866,68 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
+}
+
+/* Public-share (anonymous read-only link) section. */
+.dashboard-config__public {
+	margin-top: 12px;
+	padding-top: 16px;
+	border-top: 1px solid var(--color-border);
+}
+
+.dashboard-config__public-list {
+	list-style: none;
+	margin: 8px 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.dashboard-config__public-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.dashboard-config__public-url {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-family: monospace;
+	font-size: 0.85em;
+	padding: 6px 8px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
+}
+
+.dashboard-config__public-badge {
+	display: inline-flex;
+	color: var(--color-text-maxcontrast);
+}
+
+.dashboard-config__public-expiry {
+	font-size: 0.85em;
+	color: var(--color-text-maxcontrast);
+	white-space: nowrap;
+}
+
+.dashboard-config__public-create {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+	margin-top: 8px;
+	flex-wrap: wrap;
+}
+
+.dashboard-config__public-date {
+	height: 44px;
+	padding: 0 8px;
+	border: 2px solid var(--color-border-maxcontrast);
+	border-radius: var(--border-radius-large);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
 }
 
 .dashboard-config__title {

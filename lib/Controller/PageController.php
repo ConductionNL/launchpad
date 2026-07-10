@@ -37,6 +37,7 @@ use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
@@ -352,6 +353,45 @@ class PageController extends Controller
 
         return $response;
     }//end index()
+
+    /**
+     * Render the anonymous read-only public-share page.
+     *
+     * Boots the standalone `launchpad-public` SPA (renderAs public — no
+     * Nextcloud login chrome). The SPA reads the token from the `/s/{token}`
+     * URL itself, fetches the shared dashboard from `/s/{token}/data`, and
+     * renders it read-only. The route is #[PublicPage] so no login is required;
+     * the token is validated server-side by the data endpoint (invalid/revoked/
+     * expired ⇒ 404 there, password ⇒ 401). The token is therefore not a method
+     * parameter here — it needs no server-side handling on the page route.
+     *
+     * The image CSP is widened to `data:` so the bundled NL Design tile icons
+     * (base64 SVG data URIs) render for anonymous visitors too.
+     *
+     * @return TemplateResponse The public page response.
+     *
+     * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+     */
+    #[PublicPage]
+    #[NoCSRFRequired]
+    public function publicShare(): TemplateResponse
+    {
+        Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
+        Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+
+        $response = new TemplateResponse(
+            appName: Application::APP_ID,
+            templateName: 'public',
+            params: [],
+            renderAs: TemplateResponse::RENDER_AS_PUBLIC
+        );
+
+        $csp = new ContentSecurityPolicy();
+        $csp->addAllowedImageDomain(domain: 'data:');
+        $response->setContentSecurityPolicy(csp: $csp);
+
+        return $response;
+    }//end publicShare()
 
     /**
      * Load scripts for all available dashboard widgets.

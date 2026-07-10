@@ -10,6 +10,8 @@ const webpackConfig = require('@nextcloud/webpack-vue-config')
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
 	admin: path.join(__dirname, 'src', 'admin.js'),
+	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
+	public: path.join(__dirname, 'src', 'public.js'),
 }
 
 webpackConfig.output = {

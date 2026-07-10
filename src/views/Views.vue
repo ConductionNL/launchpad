@@ -267,7 +267,8 @@ import Vue from 'vue'
 import { mapState, mapActions } from 'pinia'
 import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { generateUrl, imagePath } from '@nextcloud/router'
+import { generateUrl } from '@nextcloud/router'
+import { nlDesignStyleIcons } from '../utils/nlDesignIcons.js'
 
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -470,15 +471,9 @@ export default {
 		 * @return {Array<{id: string, label: string, icon: string}>} icon options.
 		 */
 		nlDesignIconOptions() {
-			const names = ['Airplane', 'Bell', 'Bike', 'Building', 'Bus', 'Cake', 'Calendar', 'Camera', 'Car', 'Certificate', 'Clock', 'Cogwheel', 'Document', 'Earth', 'Euro', 'Flower', 'Folder', 'Heart', 'House', 'Image', 'LightBulb', 'Lightning', 'Mail', 'Map', 'Megaphone', 'Monument', 'Park', 'Parking', 'Person', 'Phone', 'Search', 'Star', 'Tree', 'Wallet']
-			return names.map(name => ({
-				id: `nl-${name.toLowerCase()}`,
-				label: name,
-				// imagePath resolves the app's real web root (nldesign lives in
-				// custom_apps → /custom_apps/nldesign/img/...), unlike a hardcoded
-				// /apps/nldesign/ path which 404s on this install.
-				icon: imagePath('nldesign', `icons/${name}.svg`),
-			}))
+			// Empty when the nldesign app is disabled/absent so the style editor
+			// never offers icons whose URLs 404 (see nlDesignStyleIcons).
+			return nlDesignStyleIcons()
 		},
 
 		...mapState(useDashboardStore, [

@@ -225,13 +225,14 @@ class PublicShareControllerTest extends TestCase
 
         $this->shareService
             ->method('renderShareContent')
-            ->willReturn(['share' => $share, 'dashboard' => $dashboard]);
+            ->willReturn(['share' => $share, 'dashboard' => $dashboard, 'placements' => []]);
 
         $response = $this->makeController()->show(token: 'tok');
 
         $this->assertSame(Http::STATUS_OK, $response->getStatus());
         $this->assertArrayHasKey('share', $response->getData());
         $this->assertArrayHasKey('dashboard', $response->getData());
+        $this->assertArrayHasKey('placements', $response->getData());
     }
 
     // -------------------------------------------------------------------------

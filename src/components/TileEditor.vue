@@ -119,6 +119,7 @@
 
 <script>
 import { NcModal, NcButton, NcTextField, NcColorPicker, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
+import { nlDesignTileIcons } from '../utils/nlDesignIcons.js'
 import { mdiLink } from '@mdi/js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
@@ -158,15 +159,10 @@ export default {
 				linkValue: '',
 			},
 			// Curated NlDesign icons offered on the picker's Custom tab. Each
-			// renders from its public app URL and is stored as that URL.
-			nlDesignIcons: [
-				'Airplane', 'Bell', 'Bike', 'Building', 'Bus', 'Cake', 'Calendar',
-				'Camera', 'Car', 'Certificate', 'Clock', 'Cogwheel', 'Document',
-				'Earth', 'Euro', 'Flower', 'Folder', 'Heart', 'House', 'Image',
-				'LightBulb', 'Lightning', 'Mail', 'Map', 'Megaphone', 'Monument',
-				'Park', 'Parking', 'Person', 'Phone', 'Search', 'Star', 'Tree',
-				'Wallet',
-			].map((name) => ({ label: name, url: this.getNlDesignIconUrl(name) })),
+			// renders from its public app URL and is stored as that URL. Empty
+			// when the nldesign app is disabled/absent (see nlDesignTileIcons)
+			// so the picker never shows a grid of broken images.
+			nlDesignIcons: nlDesignTileIcons(),
 		}
 	},
 
@@ -223,12 +219,6 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/tiles/spec.md */
-		getNlDesignIconUrl(iconName) {
-			// Generate URL for NlDesign icons
-			return `${window.location.origin}/apps/nldesign/img/icons/${iconName}.svg`
-		},
-
 		/**
 		 * Store the picked icon. CnIconBrowser emits an SVG path (MDI) or a URL
 		 * (NlDesign/upload); derive iconType from the value so TileWidget renders

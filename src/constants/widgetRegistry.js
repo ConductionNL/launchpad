@@ -48,6 +48,10 @@ import {
 	CnPeopleWidgetForm as PeopleForm,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 	CnNcDashboardWidgetForm as NcDashboardForm,
+	// Renderer for the `nc-widget` proxy type. The shared bundle exports the
+	// component but (as of beta.155) does NOT self-register the type — see the
+	// registration guard below.
+	CnNcWidgetWidget,
 } from '@conduction/nextcloud-vue'
 // LaunchPad-specific host wrappers (app-side orchestration, NOT generic
 // dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
@@ -91,6 +95,29 @@ const FORM_OVERRIDES = {
 	people: PeopleForm,
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,
+}
+
+// The shared bundle (beta.155) exports CnNcWidgetWidget but its self-
+// registration side-effect is absent from the published dist, so
+// `getWidgetTypeEntry('nc-widget')` resolves to null. That drops every existing
+// `nc-widget` placement onto WidgetRenderer's legacy callback path — which keys
+// the OCA.Dashboard callback on the literal id `nc-widget` (never registered) —
+// so proxied Nextcloud dashboard widgets (Recommended files, Activity, Deals…)
+// render as blank cards. Register the renderer here so the placements resolve to
+// CnNcWidgetWidget (native callback + OCS item-list fallback). Guarded on the
+// live catalog so this becomes a no-op once nc-vue ships the registration; the
+// FORM_OVERRIDES loop below then layers LaunchPad's config form on top.
+if (!cnGetWidgetTypeEntry('nc-widget')) {
+	registerDashboardWidget('nc-widget', {
+		renderer: CnNcWidgetWidget,
+		form: null,
+		defaultContent: {
+			widgetId: '',
+			displayMode: 'vertical',
+		},
+		displayName: 'Nextcloud widget',
+		icon: 'ViewDashboard',
+	})
 }
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal

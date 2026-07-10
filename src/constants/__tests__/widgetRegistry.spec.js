@@ -56,6 +56,17 @@ describe('widgetRegistry — consumes the communal catalog', () => {
 		expect(a).toEqual(b)
 		expect(a).not.toBe(b)
 	})
+
+	it('resolves a RENDERER for nc-widget so proxied placements are not blank', async () => {
+		// Regression: the shared bundle exports CnNcWidgetWidget but (as of
+		// beta.155) omits its self-registration in the published browser dist,
+		// so `nc-widget` placements fell onto WidgetRenderer's broken legacy
+		// path and rendered blank. widgetRegistry.js registers the renderer.
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		const entry = getWidgetTypeEntry('nc-widget')
+		expect(entry, 'nc-widget must resolve').toBeTruthy()
+		expect(entry.renderer, 'nc-widget needs a renderer').toBeTruthy()
+	})
 })
 
 describe('widgetRegistry — LaunchPad overlay', () => {

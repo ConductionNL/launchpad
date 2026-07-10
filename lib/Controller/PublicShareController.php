@@ -277,8 +277,12 @@ class PublicShareController extends Controller
             unset($shareData['createdBy']);
             return new DataResponse(
                 data: [
-                    'share'     => $shareData,
-                    'dashboard' => $result['dashboard']->jsonSerialize(),
+                    'share'      => $shareData,
+                    'dashboard'  => $result['dashboard']->jsonSerialize(),
+                    'placements' => array_map(
+                        callback: static fn ($placement) => $placement->jsonSerialize(),
+                        array: $result['placements']
+                    ),
                 ]
             );
         } catch (SharePasswordRequiredException) {

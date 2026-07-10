@@ -26,6 +26,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -63,6 +64,9 @@ class PublicShareServiceTest extends TestCase
     /** @var LoggerInterface&MockObject */
     private $logger;
 
+    /** @var WidgetPlacementMapper&MockObject */
+    private $placementMapper;
+
     private PublicShareService $service;
 
     protected function setUp(): void
@@ -74,6 +78,7 @@ class PublicShareServiceTest extends TestCase
         $this->secureRandom = $this->createMock(ISecureRandom::class);
         $this->throttler    = $this->createMock(IThrottler::class);
         $this->logger       = $this->createMock(LoggerInterface::class);
+        $this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
 
         $this->service = new PublicShareService(
             shareMapper: $this->shareMapper,
@@ -83,6 +88,7 @@ class PublicShareServiceTest extends TestCase
             secureRandom: $this->secureRandom,
             throttler: $this->throttler,
             logger: $this->logger,
+            placementMapper: $this->placementMapper,
         );
     }
 
@@ -248,11 +254,13 @@ class PublicShareServiceTest extends TestCase
         $dashboard = new Dashboard();
         $dashboard->setUserId('alice');
         $this->dashMapper->method('findByUuid')->willReturn($dashboard);
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
 
         $result = $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
 
         $this->assertArrayHasKey('share', $result);
         $this->assertArrayHasKey('dashboard', $result);
+        $this->assertArrayHasKey('placements', $result);
     }
 
     // -------------------------------------------------------------------------

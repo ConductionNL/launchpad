@@ -150,11 +150,17 @@ return [
 		 'url' => '/api/dashboards/{uuid}/public-shares/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
 		// Public (anonymous) share render and unlock (REQ-PSHR-004, REQ-PSHR-005).
-		// Both are #[PublicPage] + #[NoCSRFRequired] on the controller methods.
-		// Registered BEFORE the deep-link catch-all at the bottom.
-		['name' => 'publicShare#show', 'url' => '/s/{token}', 'verb' => 'GET',
+		// All #[PublicPage] + #[NoCSRFRequired] on the controller methods.
+		// Registered BEFORE the deep-link catch-all at the bottom. `/s/{token}`
+		// serves the anonymous read-only HTML page (page#publicShare); the SPA it
+		// boots fetches its data from `/s/{token}/data` (publicShare#show). The
+		// more-specific /data + /unlock segments are declared before the bare
+		// token page route so they win in matching.
+		['name' => 'publicShare#show', 'url' => '/s/{token}/data', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
+		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		['name' => 'page#publicShare', 'url' => '/s/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 
 		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,

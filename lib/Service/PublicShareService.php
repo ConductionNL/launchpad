@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\ShareExpiredException;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
@@ -69,13 +70,14 @@ class PublicShareService
     /**
      * Constructor.
      *
-     * @param PublicShareMapper $shareMapper  Mapper for public shares.
-     * @param DashboardMapper   $dashMapper   Dashboard mapper for ownership checks.
-     * @param IGroupManager     $groupManager NC group manager for admin checks.
-     * @param IHasher           $hasher       NC BCrypt hasher.
-     * @param ISecureRandom     $secureRandom CSPRNG for token generation.
-     * @param IThrottler        $throttler    NC brute-force throttler.
-     * @param LoggerInterface   $logger       PSR-3 logger.
+     * @param PublicShareMapper     $shareMapper     Mapper for public shares.
+     * @param DashboardMapper       $dashMapper      Dashboard mapper for ownership checks.
+     * @param IGroupManager         $groupManager    NC group manager for admin checks.
+     * @param IHasher               $hasher          NC BCrypt hasher.
+     * @param ISecureRandom         $secureRandom    CSPRNG for token generation.
+     * @param IThrottler            $throttler       NC brute-force throttler.
+     * @param LoggerInterface       $logger          PSR-3 logger.
+     * @param WidgetPlacementMapper $placementMapper Widget placement mapper (public render).
      */
     public function __construct(
         private readonly PublicShareMapper $shareMapper,
@@ -85,6 +87,7 @@ class PublicShareService
         private readonly ISecureRandom $secureRandom,
         private readonly IThrottler $throttler,
         private readonly LoggerInterface $logger,
+        private readonly WidgetPlacementMapper $placementMapper,
     ) {
     }//end __construct()
 
@@ -282,7 +285,15 @@ class PublicShareService
             ip: $ip
         );
 
-        return ['share' => $share, 'dashboard' => $dashboard];
+        $placements = $this->placementMapper->findByDashboardId(
+            dashboardId: (int) $dashboard->getId()
+        );
+
+        return [
+            'share'      => $share,
+            'dashboard'  => $dashboard,
+            'placements' => $placements,
+        ];
     }//end renderShareContent()
 
     /**

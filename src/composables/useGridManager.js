@@ -194,6 +194,118 @@ export function placeNewWidget(spec, placements, options = {}) {
 	return { x: 0, y: bottomY, w, h, pushed: [] }
 }
 
+/**
+ * Minimum widget width/height in grid cells. Mirrors the `gs-min-w` /
+ * `gs-min-h` floor set on every grid item in `DashboardGrid.vue`.
+ *
+ * @type {number}
+ */
+export const MIN_CELLS = 2
+
+/**
+ * Compute the candidate rectangle for a keyboard-driven move or resize of
+ * an existing placement, reusing the same collision model as
+ * {@link placeNewWidget} so keyboard moves get the same push-down
+ * behaviour as pointer drags (WCAG 2.1 SC 2.1.1 keyboard-equivalent path).
+ *
+ * Pure function — no DOM, no GridStack instance — so it is unit-testable
+ * and shared between the keyboard move panel and any future caller.
+ *
+ * Supported actions:
+ *   - `move-up` / `move-down` / `move-left` / `move-right` — shift by one
+ *     cell, clamped to the grid bounds (x ∈ [0, columns − w], y ≥ 0).
+ *   - `grow-width` / `shrink-width` / `grow-height` / `shrink-height` —
+ *     resize by one cell, clamped to {@link MIN_CELLS} and the column
+ *     count.
+ *
+ * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, id?: any}} placement
+ *   the placement being moved/resized (LaunchPad field-name form)
+ * @param {string} action one of the supported action strings above
+ * @param {Array<object>} allPlacements every placement on the dashboard
+ *   (used to compute push-down side effects), in LaunchPad field-name form
+ * @param {object} [options] optional knobs
+ * @param {number} [options.gridColumns] column count, defaults to {@link DEFAULT_COLUMNS}
+ * @return {{ gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: any, gridY: number}> }}
+ *   the clamped candidate rect plus any existing placements that must be
+ *   pushed down to `gridY = newRect.gridY + newRect.gridHeight` to avoid
+ *   overlap. `pushed` is empty when the move/resize is a no-op or clear.
+ */
+/** @spec openspec/specs/grid-layout/spec.md */
+export function nudgePlacement(placement, action, allPlacements, options = {}) {
+	const columns = options.gridColumns || DEFAULT_COLUMNS
+
+	const x = Number.isFinite(placement?.gridX) ? placement.gridX : 0
+	const y = Number.isFinite(placement?.gridY) ? placement.gridY : 0
+	const w = Number.isFinite(placement?.gridWidth) ? placement.gridWidth : MIN_CELLS
+	const h = Number.isFinite(placement?.gridHeight) ? placement.gridHeight : MIN_CELLS
+
+	let nx = x
+	let ny = y
+	let nw = w
+	let nh = h
+
+	switch (action) {
+	case 'move-up':
+		ny = Math.max(0, y - 1)
+		break
+	case 'move-down':
+		ny = y + 1
+		break
+	case 'move-left':
+		nx = Math.max(0, x - 1)
+		break
+	case 'move-right':
+		nx = Math.min(Math.max(0, columns - w), x + 1)
+		break
+	case 'grow-width':
+		nw = Math.min(columns - x, w + 1)
+		break
+	case 'shrink-width':
+		nw = Math.max(MIN_CELLS, w - 1)
+		break
+	case 'grow-height':
+		nh = h + 1
+		break
+	case 'shrink-height':
+		nh = Math.max(MIN_CELLS, h - 1)
+		break
+	default:
+		// Unknown action → no change.
+		break
+	}
+
+	// Keep the widget inside the horizontal bounds after any width change.
+	if (nx + nw > columns) {
+		nx = Math.max(0, columns - nw)
+	}
+
+	const newRect = { x: nx, y: ny, w: nw, h: nh }
+	const pushed = []
+	const others = Array.isArray(allPlacements) ? allPlacements : []
+	for (const other of others) {
+		if (other == null || other.id === placement?.id) {
+			continue
+		}
+		const otherRect = {
+			x: Number.isFinite(other.gridX) ? other.gridX : 0,
+			y: Number.isFinite(other.gridY) ? other.gridY : 0,
+			w: Number.isFinite(other.gridWidth) ? other.gridWidth : 1,
+			h: Number.isFinite(other.gridHeight) ? other.gridHeight : 1,
+		}
+		if (rectsOverlap(newRect, otherRect)) {
+			pushed.push({ id: other.id, gridY: (ny + nh) })
+		}
+	}
+
+	return {
+		gridX: nx,
+		gridY: ny,
+		gridWidth: nw,
+		gridHeight: nh,
+		pushed,
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Right-click context-menu state (REQ-WDG-015..017)
 // ---------------------------------------------------------------------------

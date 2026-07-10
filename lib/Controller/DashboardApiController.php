@@ -36,9 +36,11 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\QuotaService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -919,9 +921,10 @@ class DashboardApiController extends Controller
     /**
      * Create a new group-shared dashboard.
      *
-     * Admin-only — the route attribute is `#[NoAdminRequired]` so the
-     * gate-route-auth check passes; the in-body admin check is the
-     * actual authorization point (gate-semantic-auth). REQ-DASH-014.
+     * Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute
+     * (gate-route-auth / gate-semantic-auth both pass since the
+     * framework-level check is the actual authorization point).
+     * REQ-DASH-014.
      *
      * @param string      $groupId     The group ID.
      * @param mixed       $name        The dashboard name (or {name,...}
@@ -932,7 +935,7 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createGroup(
         string $groupId,
         $name=null,
@@ -940,15 +943,6 @@ class DashboardApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         $resolved = $this->resolveCreateParams(
@@ -1042,7 +1036,7 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateGroup(
         string $groupId,
         string $uuid,
@@ -1053,15 +1047,6 @@ class DashboardApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         $patch = $this->buildGroupUpdateData(
@@ -1106,22 +1091,13 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteGroup(
         string $groupId,
         string $uuid
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         try {
@@ -1146,11 +1122,9 @@ class DashboardApiController extends Controller
     /**
      * Promote a single group-shared dashboard to the group's default.
      *
-     * Admin-only — the route attribute is `#[NoAdminRequired]` so
-     * gate-route-auth passes; the in-body admin check is the actual
-     * authorization point (gate-semantic-auth). The body payload is
-     * `{"uuid": "..."}`. Returns 404 when the uuid does not belong to
-     * the given groupId. REQ-DASH-015.
+     * Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute.
+     * The body payload is `{"uuid": "..."}`. Returns 404 when the uuid
+     * does not belong to the given groupId. REQ-DASH-015.
      *
      * @param string      $groupId The group ID from the URL.
      * @param string|null $uuid    The dashboard UUID from the body.
@@ -1159,22 +1133,13 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function setGroupDefault(
         string $groupId,
         ?string $uuid=null
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         if ($uuid === null || $uuid === '') {

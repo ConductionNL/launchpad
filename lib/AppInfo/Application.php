@@ -91,16 +91,21 @@ class Application extends App implements IBootstrap
             listener: UserDeletedListener::class
         );
 
-        // REQ-ACT-007: register DebounceHelper as a shared singleton
-        // so the in-memory fallback store (used when APCu is absent in
-        // CLI / test runs) survives across all callers within a single
-        // request. ActivityPublisher autowires from the app namespace
-        // — no explicit binding needed (referenced here in this
-        // docblock for the cross-capability discoverability contract:
+        // REQ-ACT-007/REQ-ACT-008: register DebounceHelper as a shared
+        // singleton and inject the distributed cache. The PHP singleton
+        // alone only lives for one request (PHP-FPM rebuilds the DI
+        // container every request); it is the shared *distributed cache*
+        // — not the singleton — that makes the 900-second debounce
+        // guarantee hold across requests and workers when APCu is
+        // absent. ActivityPublisher autowires from the app namespace —
+        // no explicit binding needed (referenced here in this docblock
+        // for the cross-capability discoverability contract:
         // {@see ActivityPublisher}).
         $context->registerService(
             name: DebounceHelper::class,
-            factory: static fn(): DebounceHelper => new DebounceHelper(),
+            factory: static fn(\Psr\Container\ContainerInterface $c): DebounceHelper => new DebounceHelper(
+                cache: $c->get(\OCP\ICacheFactory::class)->createDistributed('launchpad_activity_debounce')
+            ),
             shared: true
         );
 

@@ -22,6 +22,14 @@
 			type="button"
 			class="widget-context-menu__item"
 			role="menuitem"
+			data-testid="ctx-move"
+			@click="onMove">
+			{{ t('launchpad', 'Move') }}
+		</button>
+		<button
+			type="button"
+			class="widget-context-menu__item"
+			role="menuitem"
 			data-testid="ctx-visibility-rules"
 			@click="onVisibilityRules">
 			{{ t('launchpad', 'Visibility rules…') }}
@@ -67,6 +75,9 @@ import { t } from '@nextcloud/l10n'
  * Emits:
  *  - `edit`: user clicked Edit — parent should open `AddWidgetModal` with
  *    the selected widget passed as `editingWidget`
+ *  - `move`: user clicked Move — parent should open the keyboard-operable
+ *    `WidgetMovePanel` for the selected placement (WCAG 2.1 SC 2.1.1
+ *    keyboard-equivalent to pointer drag)
  *  - `remove`: user clicked Remove — parent should hit the placement-delete
  *    path of REQ-WDG-005 (`DELETE /api/placements/{id}`)
  *  - `close`: user clicked Cancel — no-op close
@@ -85,7 +96,7 @@ export default {
 		},
 	},
 
-	emits: ['edit', 'remove', 'visibility-rules', 'close'],
+	emits: ['edit', 'move', 'remove', 'visibility-rules', 'close'],
 
 	computed: {
 		/**
@@ -112,6 +123,12 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		onEdit() {
 			this.$emit('edit')
+			this.$emit('close')
+		},
+
+		/** @spec openspec/specs/grid-layout/spec.md */
+		onMove() {
+			this.$emit('move')
 			this.$emit('close')
 		},
 

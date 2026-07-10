@@ -48,7 +48,7 @@
 						:label="t('launchpad', 'Icon')"
 						:value="displayIcon"
 						:icons="iconCatalogue"
-						:url-icons="nlDesignIcons"
+						:url-icon-groups="nlDesignGroups"
 						@input="onIcon" />
 				</div>
 
@@ -119,7 +119,7 @@
 
 <script>
 import { NcModal, NcButton, NcTextField, NcColorPicker, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
-import { nlDesignTileIcons } from '../utils/nlDesignIcons.js'
+import { nlDesignIconGroups } from '../utils/nlDesignIcons.js'
 import { mdiLink } from '@mdi/js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
@@ -158,11 +158,11 @@ export default {
 				linkType: 'url',
 				linkValue: '',
 			},
-			// Curated NlDesign icons offered on the picker's Custom tab. Each
-			// renders from its public app URL and is stored as that URL. Empty
-			// when the nldesign app is disabled/absent (see nlDesignTileIcons)
-			// so the picker never shows a grid of broken images.
-			nlDesignIcons: nlDesignTileIcons(),
+			// NL Design icon sets (RVO / Gemeente / Den Haag) offered on the
+			// picker's Custom tab as searchable sub-tabs. Bundled into
+			// @conduction/nextcloud-vue as self-contained data: URIs, so they need
+			// no external nldesign app (see nlDesignIconGroups).
+			nlDesignGroups: nlDesignIconGroups(),
 		}
 	},
 

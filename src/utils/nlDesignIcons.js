@@ -3,41 +3,51 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-import { NL_DESIGN_ICONS } from '@conduction/nextcloud-vue'
+import { NL_DESIGN_ICON_GROUPS } from '@conduction/nextcloud-vue'
 
 /**
  * The NL Design icon pack offered on the tile picker's Custom tab and in the
  * widget style editor.
  *
  * The pack is bundled INTO the shared library as self-contained `data:` URIs
- * (`NL_DESIGN_ICONS`), so it works with no external `nldesign` app installed —
+ * across three CC0/EUPL sets (RVO, Gemeente/OpenGemeenten, Den Haag), grouped by
+ * `NL_DESIGN_ICON_GROUPS`. It works with NO external `nldesign` app installed —
  * unlike the old approach that resolved `/…/nldesign/img/icons/*.svg` URLs and
- * 404'd (spamming the console with broken images) whenever that app was
- * disabled. These builders just reshape the shared set for LaunchPad's two
- * picker call-sites.
+ * 404'd whenever that (proprietary Amsterdam) app was disabled.
  *
  * The `?? []` guard keeps LaunchPad safe against an older `@conduction/nextcloud-vue`
- * that predates this export (the pack is then simply absent rather than throwing).
+ * that predates these exports (the pack is then simply absent rather than throwing).
  */
-const ICONS = NL_DESIGN_ICONS ?? []
+const GROUPS = NL_DESIGN_ICON_GROUPS ?? []
+const FLAT = GROUPS.flatMap((group) => group.icons)
 
 /**
- * Build the tile-picker icon list ({label,url}) from the bundled pack.
+ * The grouped icon sets for CnIconBrowser's `url-icon-groups` prop — renders a
+ * searchable sub-tab per set (RVO / Gemeente / Den Haag).
+ *
+ * @return {Array<{key: string, label: string, icons: Array<{id: string, label: string, url: string}>}>} the groups.
+ */
+export function nlDesignIconGroups() {
+	return GROUPS
+}
+
+/**
+ * Flat tile-picker icon list ({label,url}) across all sets. Retained for any
+ * call-site that still wants the ungrouped list.
  *
  * @return {Array<{label: string, url: string}>} icon options.
  */
 export function nlDesignTileIcons() {
-	return ICONS.map((icon) => ({ label: icon.label, url: icon.url }))
+	return FLAT.map((icon) => ({ label: icon.label, url: icon.url }))
 }
 
 /**
- * Build the widget-style-editor icon list ({id,label,icon}) from the bundled
- * pack.
+ * Widget-style-editor icon list ({id,label,icon}) across all sets.
  *
  * @return {Array<{id: string, label: string, icon: string}>} icon options.
  */
 export function nlDesignStyleIcons() {
-	return ICONS.map((icon) => ({
+	return FLAT.map((icon) => ({
 		id: icon.id,
 		label: icon.label,
 		icon: icon.url,

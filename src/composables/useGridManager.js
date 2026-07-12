@@ -203,6 +203,25 @@ export function placeNewWidget(spec, placements, options = {}) {
 export const MIN_CELLS = 2
 
 /**
+ * Whether two grid rectangles overlap.
+ *
+ * Half-open intervals: a rect spans columns `[x, x + w)` and rows `[y, y + h)`,
+ * so cells that merely touch edge-to-edge (e.g. one ending at y=3 and the next
+ * starting at y=3) do NOT collide — which is what makes the push-down in
+ * {@link nudgePlacement} settle instead of cascading forever.
+ *
+ * @param {{x: number, y: number, w: number, h: number}} a First rectangle.
+ * @param {{x: number, y: number, w: number, h: number}} b Second rectangle.
+ * @return {boolean} true when the two rectangles share at least one cell.
+ */
+function rectsOverlap(a, b) {
+	return a.x < b.x + b.w
+		&& b.x < a.x + a.w
+		&& a.y < b.y + b.h
+		&& b.y < a.y + a.h
+}
+
+/**
  * Compute the candidate rectangle for a keyboard-driven move or resize of
  * an existing placement, reusing the same collision model as
  * {@link placeNewWidget} so keyboard moves get the same push-down

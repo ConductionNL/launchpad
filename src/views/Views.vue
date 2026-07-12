@@ -217,13 +217,14 @@
 			@delete="deleteCurrentDashboard"
 			@set-default="onModalSetDefault" />
 
-		<!-- Style editor modal -->
+		<!-- Style editor modal. `extra-icon-options` is gone: CnIconBrowser now
+		     ships the NL Design sets itself (RVO lazily), so passing the pack here
+		     only forced all ~2.3 MB of it into the eager bundle. -->
 		<CnWidgetStyleEditorModal
 			v-if="editingPlacement"
 			:show="isStyleEditorOpen"
 			:widget="styleEditorWidget"
 			:deletable="!editingPlacement.isCompulsory"
-			:extra-icon-options="nlDesignIconOptions"
 			@close="closeStyleEditor"
 			@save="onStyleSaved"
 			@delete="deleteWidget" />
@@ -268,7 +269,6 @@ import { mapState, mapActions } from 'pinia'
 import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { nlDesignStyleIcons } from '../utils/nlDesignIcons.js'
 
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -369,16 +369,25 @@ export default {
 		// `this` is bound to the component when the callbacks fire.
 		const grid = useGridManager({
 			canEdit: canEditRef,
-			/** @spec openspec/specs/dashboards/spec.md */
+			/**
+			 * @param widget
+			 * @spec openspec/specs/dashboards/spec.md
+			 */
 			onEdit(widget) {
 				// `this` is the Vue instance once we bind in `created()`.
 				grid._host?.handleContextMenuEdit(widget)
 			},
-			/** @spec openspec/specs/dashboards/spec.md */
+			/**
+			 * @param widget
+			 * @spec openspec/specs/dashboards/spec.md
+			 */
 			onRemove(widget) {
 				grid._host?.handleContextMenuRemove(widget)
 			},
-			/** @spec openspec/specs/conditional-visibility/spec.md */
+			/**
+			 * @param widget
+			 * @spec openspec/specs/conditional-visibility/spec.md
+			 */
 			onVisibilityRules(widget) {
 				grid._host?.handleContextMenuVisibilityRules(widget)
 			},
@@ -461,19 +470,6 @@ export default {
 		 */
 		dashboardColumnOpts() {
 			return getDashboardColumnOpts()
-		},
-
-		/**
-		 * NL Design icon pack offered in the widget style editor, passed to
-		 * CnWidgetStyleEditorModal's `extraIconOptions`. App-specific (served
-		 * from the nldesign app), so it stays here rather than in the library.
-		 *
-		 * @return {Array<{id: string, label: string, icon: string}>} icon options.
-		 */
-		nlDesignIconOptions() {
-			// Empty when the nldesign app is disabled/absent so the style editor
-			// never offers icons whose URLs 404 (see nlDesignStyleIcons).
-			return nlDesignStyleIcons()
 		},
 
 		...mapState(useDashboardStore, [
@@ -628,7 +624,10 @@ export default {
 		 */
 		canEditForContextMenu: {
 			immediate: true,
-			/** @spec openspec/specs/dashboards/spec.md */
+			/**
+			 * @param value
+			 * @spec openspec/specs/dashboards/spec.md
+			 */
 			handler(value) {
 				if (this.canEditRef) {
 					this.canEditRef.value = !!value
@@ -646,7 +645,11 @@ export default {
 		 */
 		'activeDashboard.uuid': {
 			immediate: true,
-			/** @spec openspec/specs/dashboards/spec.md */
+			/**
+			 * @param uuid
+			 * @param prevUuid
+			 * @spec openspec/specs/dashboards/spec.md
+			 */
 			handler(uuid, prevUuid) {
 				if (!uuid) {
 					return
@@ -788,7 +791,10 @@ export default {
 		},
 
 		// REQ-ACK-004: open the admin read-receipt report for an announcement.
-		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		/**
+		 * @param announcementKey
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 */
 		openAcknowledgementReport(announcementKey) {
 			this.ackReportKey = announcementKey
 			this.ackReportOpen = true
@@ -818,7 +824,10 @@ export default {
 		 *
 		 * @param {string} uuid The dashboard UUID to record.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param uuid
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		recordViewEventDebounced(uuid) {
 			if (!uuid) {
 				return
@@ -855,7 +864,11 @@ export default {
 		 * @param {MouseEvent} event the contextmenu event
 		 * @param {object} placement the placement under the cursor
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param event
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		onWidgetRightClick(event, placement) {
 			this.grid.onWidgetRightClick(event, placement)
 		},
@@ -869,7 +882,10 @@ export default {
 		 *
 		 * @param {object} placement the placement to edit
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		handleContextMenuEdit(placement) {
 			// Placements only carry `widgetId` — never a `type` field. For
 			// registry-driven custom widgets (label, text, image, link, …)
@@ -896,7 +912,10 @@ export default {
 		 * @param {object} placement the placement under the cursor
 		 * @return {string|null} the resolved widget type, or null
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		resolveWidgetType(placement) {
 			const widgetId = placement?.widgetId
 			if (typeof widgetId !== 'string' || widgetId === '') {
@@ -919,7 +938,10 @@ export default {
 		 *
 		 * @param {object} placement the placement to delete
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async handleContextMenuRemove(placement) {
 			if (!placement?.id) {
 				return
@@ -939,7 +961,10 @@ export default {
 		 *
 		 * @param {object} placement the placement whose rules to edit
 		 */
-		/** @spec openspec/specs/conditional-visibility/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/conditional-visibility/spec.md
+		 */
 		handleContextMenuVisibilityRules(placement) {
 			if (!placement?.id) {
 				return
@@ -978,7 +1003,10 @@ export default {
 		 *
 		 * @param {string|null} type registry key, or null for picker flow
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param type
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		openCustomWidgetModal(type = null) {
 			if (!this.isEditMode) {
 				this.isEditMode = true
@@ -994,7 +1022,10 @@ export default {
 		 *
 		 * @param {object} placement existing placement record with type+content
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		openCustomWidgetEdit(placement) {
 			this.customWidgetEditing = placement
 			this.customWidgetPreselectedType = null
@@ -1018,7 +1049,10 @@ export default {
 		 *
 		 * @param {{type: string, content: object}} payload the widget add/edit payload from AddWidgetModal
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param payload
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async saveCustomWidget(payload) {
 			try {
 				const chrome = payload.chrome || {}
@@ -1124,15 +1158,24 @@ export default {
 		closeConfigModal() {
 			this.isConfigModalOpen = false
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param widgetId
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async addWidget(widgetId) {
 			await this.addWidgetToDashboard(widgetId)
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placementId
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async removeWidget(placementId) {
 			await this.removeWidgetFromDashboard(placementId)
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		openStyleEditor(placement) {
 			this.editingPlacement = placement
 			// Hand the modal a deep clone — it mutates `widget` in place on Save;
@@ -1175,7 +1218,10 @@ export default {
 				this.closeStyleEditor()
 			}
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param tile
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		openTileEditor(tile = null) {
 			if (!this.isEditMode) {
 				this.isEditMode = true
@@ -1183,7 +1229,10 @@ export default {
 			this.editingTile = tile
 			this.isTileEditorOpen = true
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param placement
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		openTileEditorForEdit(placement) {
 			const tileData = {
 				id: placement.id,
@@ -1202,7 +1251,10 @@ export default {
 			this.isTileEditorOpen = false
 			this.editingTile = null
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param tileData
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async saveTile(tileData) {
 			try {
 				if (this.editingTile) {
@@ -1234,7 +1286,14 @@ export default {
 		handleCreateDashboard() {
 			this.openCreateDashboardModal()
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param root0
+		 * @param root0.id
+		 * @param root0.name
+		 * @param root0.description
+		 * @param root0.icon
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async saveDashboardConfig({ id, name, description, icon }) {
 			try {
 				if (id == null) {
@@ -1248,7 +1307,10 @@ export default {
 				console.error('Failed to save dashboard:', error)
 			}
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param dashboard
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async deleteCurrentDashboard(dashboard) {
 			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this dashboard?'))) {
 				return
@@ -1282,7 +1344,11 @@ export default {
 		 * @param {'group'|'default'|'user'} source Section discriminator.
 		 */
 		// eslint-disable-next-line no-unused-vars
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param id
+		 * @param source
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onSidebarSwitch(id, source) {
 			// `source` is currently informational — `switchDashboard`
 			// resolves any visible dashboard via /api/dashboard/{id}. The
@@ -1302,7 +1368,10 @@ export default {
 		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
 		 * @return {string} Absolute pathname for `history.pushState`.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param path
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		buildDeepLinkUrl(path) {
 			if (!path) {
 				return ''
@@ -1386,7 +1455,10 @@ export default {
 		 *
 		 * @param {PopStateEvent} event The popstate event.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param event
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async handleHistoryPopState(event) {
 			const targetUuid = event?.state?.uuid ?? null
 			if (targetUuid && targetUuid === this.activeDashboard?.uuid) {
@@ -1425,17 +1497,29 @@ export default {
 		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param dashboard
+		 * @param source
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onRowToggleEdit(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.toggleEditMode()
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param dashboard
+		 * @param source
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onRowOpenConfig(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openConfigModal()
 		},
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param dashboard
+		 * @param source
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onRowAddCustomWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openCustomWidgetModal()
@@ -1451,7 +1535,11 @@ export default {
 		 * dashboard via the resolver's Step 0.
 		 */
 		// eslint-disable-next-line no-unused-vars
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param dashboard
+		 * @param source
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onRowSetDefault(dashboard, source) {
 			const uuid = dashboard?.uuid ?? ''
 			if (uuid === '') {
@@ -1477,7 +1565,12 @@ export default {
 		 * the pin from the dashboard's own configuration without
 		 * having to hunt for the same dashboard's row.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param root0
+		 * @param root0.uuid
+		 * @param root0.isDefault
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onModalSetDefault({ uuid, isDefault }) {
 			if (!uuid) {
 				return
@@ -1501,7 +1594,11 @@ export default {
 		 * round-trip when the per-row action targets the row that is
 		 * already active.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param id
+		 * @param source
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async maybeSwitchTo(id, source) {
 			if (this.activeDashboard?.id === id) {
 				return
@@ -1534,7 +1631,10 @@ export default {
 		 *
 		 * @param {string|number} id Personal dashboard id to delete.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @param id
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async onSidebarDeleteDashboard(id) {
 			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this dashboard?'))) {
 				return

@@ -43,12 +43,15 @@
 					required />
 
 				<div class="tile-editor__field">
+					<!-- No `url-icon-groups`: CnIconBrowser ships the NL Design sets
+					     (Gemeente / Den Haag / RVO) by default and fetches RVO's
+					     1.9 MB only when its tab is opened. Passing them explicitly,
+					     as this used to, forced the whole pack into the eager bundle. -->
 					<CnIconBrowser
 						inline
 						:label="t('launchpad', 'Icon')"
 						:value="displayIcon"
 						:icons="iconCatalogue"
-						:url-icon-groups="nlDesignGroups"
 						@input="onIcon" />
 				</div>
 
@@ -119,7 +122,6 @@
 
 <script>
 import { NcModal, NcButton, NcTextField, NcColorPicker, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
-import { nlDesignIconGroups } from '../utils/nlDesignIcons.js'
 import { mdiLink } from '@mdi/js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
@@ -158,11 +160,6 @@ export default {
 				linkType: 'url',
 				linkValue: '',
 			},
-			// NL Design icon sets (RVO / Gemeente / Den Haag) offered on the
-			// picker's Custom tab as searchable sub-tabs. Bundled into
-			// @conduction/nextcloud-vue as self-contained data: URIs, so they need
-			// no external nldesign app (see nlDesignIconGroups).
-			nlDesignGroups: nlDesignIconGroups(),
 		}
 	},
 

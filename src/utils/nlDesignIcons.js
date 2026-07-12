@@ -6,17 +6,16 @@
 import { NL_DESIGN_ICON_GROUPS } from '@conduction/nextcloud-vue'
 
 /**
- * The NL Design icon pack offered on the tile picker's Custom tab and in the
- * widget style editor.
+ * The NL Design icon pack (RVO, Gemeente/OpenGemeenten, Den Haag), bundled into
+ * the shared library as self-contained `data:` URIs.
  *
- * The pack is bundled INTO the shared library as self-contained `data:` URIs
- * across three CC0/EUPL sets (RVO, Gemeente/OpenGemeenten, Den Haag), grouped by
- * `NL_DESIGN_ICON_GROUPS`. It works with NO external `nldesign` app installed —
- * unlike the old approach that resolved `/…/nldesign/img/icons/*.svg` URLs and
- * 404'd whenever that (proprietary Amsterdam) app was disabled.
- *
- * The `?? []` guard keeps LaunchPad safe against an older `@conduction/nextcloud-vue`
- * that predates these exports (the pack is then simply absent rather than throwing).
+ * @deprecated NOTHING IN THE APP IMPORTS THIS ANY MORE — and it must stay that
+ * way. CnIconBrowser now offers the three sets on its own tabs by default and
+ * fetches RVO's ~1.9 MB only when its tab is opened. These helpers go through the
+ * `NL_DESIGN_ICON_GROUPS` barrel export, which references all three sets eagerly,
+ * so importing them anywhere drags the full ~2.3 MB back into LaunchPad's initial
+ * bundle — which is exactly what the TileEditor and widget style editor used to
+ * do. Kept only for a consumer that deliberately wants the whole pack up front.
  */
 const GROUPS = NL_DESIGN_ICON_GROUPS ?? []
 const FLAT = GROUPS.flatMap((group) => group.icons)

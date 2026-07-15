@@ -17,26 +17,26 @@
  * idempotency, dry-run, and audit-event logic.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\BulkOperationService;
-use OCA\MyDash\Service\PermissionDeniedException;
-use OCA\MyDash\Settings\MyDashAdmin;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Service\PermissionDeniedException;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -111,7 +111,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkDelete(
         mixed $dashboardUuids=null,
         ?bool $dryRun=null,
@@ -171,7 +171,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkMove(
         mixed $dashboardUuids=null,
         ?string $parentUuid=null,
@@ -230,7 +230,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkStatus(
         mixed $dashboardUuids=null,
         ?string $publicationStatus=null,
@@ -296,7 +296,7 @@ class AdminBulkController extends Controller
          *
      * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function bulkReindex(
         mixed $dashboardUuids=null,
         ?bool $dryRun=null

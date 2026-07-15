@@ -96,4 +96,4 @@ safer and easier to debug.
 
 - Add `?dashboardUuids[]=` filter to export a subset of dashboards.
 - Evaluate resumable/chunked upload once field file sizes are better understood.
-- Consider a `mydash:export` CLI command for automated backup workflows.
+- Consider a `launchpad:export` CLI command for automated backup workflows.

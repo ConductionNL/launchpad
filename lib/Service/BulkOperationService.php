@@ -21,32 +21,32 @@
  * mode.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\MyDash\Activity\ActivityPublisher;
-use OCA\MyDash\Activity\Extension;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\Extension;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IAppConfig;

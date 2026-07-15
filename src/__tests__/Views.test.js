@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 /* eslint-disable n/no-unpublished-import */
@@ -259,7 +259,7 @@ describe('REQ-SHELL-002: canEdit gate', () => {
 
 		expect(wrapper.vm.canEdit).toBe(true)
 		// Toolbar must be in DOM
-		expect(wrapper.find('.mydash-toolbar').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-toolbar').exists()).toBe(true)
 	})
 
 	it('non-admin with own personal dashboard (source=user) can edit', async () => {
@@ -268,7 +268,7 @@ describe('REQ-SHELL-002: canEdit gate', () => {
 		})
 
 		expect(wrapper.vm.canEdit).toBe(true)
-		expect(wrapper.find('.mydash-toolbar').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-toolbar').exists()).toBe(true)
 	})
 
 	it('non-admin viewing group-shared dashboard cannot edit (toolbar absent)', async () => {
@@ -278,7 +278,7 @@ describe('REQ-SHELL-002: canEdit gate', () => {
 
 		expect(wrapper.vm.canEdit).toBe(false)
 		// v-if must remove toolbar from DOM entirely (not just hide)
-		expect(wrapper.find('.mydash-toolbar').exists()).toBe(false)
+		expect(wrapper.find('.launchpad-toolbar').exists()).toBe(false)
 	})
 })
 
@@ -292,7 +292,7 @@ describe('REQ-SHELL-004: Hamburger toggles sidebar', () => {
 
 		expect(wrapper.vm.sidebarOpen).toBe(false)
 
-		const hamburger = wrapper.find('.mydash-hamburger')
+		const hamburger = wrapper.find('.launchpad-hamburger')
 		await hamburger.trigger('click')
 
 		expect(wrapper.vm.sidebarOpen).toBe(true)
@@ -301,7 +301,7 @@ describe('REQ-SHELL-004: Hamburger toggles sidebar', () => {
 	it('clicking the hamburger again closes the sidebar', async () => {
 		const wrapper = await mountViews()
 
-		const hamburger = wrapper.find('.mydash-hamburger')
+		const hamburger = wrapper.find('.launchpad-hamburger')
 		await hamburger.trigger('click')
 		expect(wrapper.vm.sidebarOpen).toBe(true)
 
@@ -314,7 +314,7 @@ describe('REQ-SHELL-004: Hamburger toggles sidebar', () => {
 			activeDashboard: { id: 'dash-1', name: 'Marketing Overview', gridColumns: 12 },
 		})
 
-		expect(wrapper.find('.mydash-active-dashboard-label').text()).toContain('Marketing Overview')
+		expect(wrapper.find('.launchpad-active-dashboard-label').text()).toContain('Marketing Overview')
 	})
 })
 
@@ -332,7 +332,7 @@ describe('REQ-SHELL-005: Empty state', () => {
 		// Grid stub must be absent
 		expect(wrapper.findComponent(DashboardGridStub).exists()).toBe(false)
 		// Empty state must render
-		expect(wrapper.find('.mydash-empty').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-empty').exists()).toBe(true)
 		// When allowUserDashboards=true, an NcButton should be present via v-if="#action" slot
 		// The NcButton stub renders with class="button-vue" — it appears somewhere in the tree.
 		// Because canEdit=false (isAdmin=false, dashboardSource='group'), toolbar is absent,
@@ -347,9 +347,9 @@ describe('REQ-SHELL-005: Empty state', () => {
 			activeDashboard: null,
 		})
 
-		expect(wrapper.find('.mydash-empty').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-empty').exists()).toBe(true)
 		// v-if="allowUserDashboards" is false — no NcButton should be inside the empty-state area
-		const ncButtonsInEmpty = wrapper.find('.mydash-empty').findAllComponents({ name: 'NcButton' })
+		const ncButtonsInEmpty = wrapper.find('.launchpad-empty').findAllComponents({ name: 'NcButton' })
 		expect(ncButtonsInEmpty).toHaveLength(0)
 	})
 
@@ -359,7 +359,7 @@ describe('REQ-SHELL-005: Empty state', () => {
 		})
 
 		expect(wrapper.findComponent(DashboardGridStub).exists()).toBe(true)
-		expect(wrapper.find('.mydash-empty').exists()).toBe(false)
+		expect(wrapper.find('.launchpad-empty').exists()).toBe(false)
 	})
 })
 

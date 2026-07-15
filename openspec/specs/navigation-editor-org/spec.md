@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Organization-wide Navigation Editor Specification
@@ -8,7 +8,7 @@ status: implemented
 
 The `navigation-editor-org` capability provides a robust, admin-curated, group-aware org-wide navigation tree distinct from the personal dashboard list. Where the existing `dashboard-switcher-sidebar` shows the dashboards a user owns or can access, this capability adds a second navigation surface — an admin-controlled tree of links and sections shared across the whole organisation. Useful for company resources, policy hubs, and tools panels.
 
-The capability owns its own storage (per-language JSON files inside MyDash's `IAppData` folder), its own group-based filtering pipeline (driven by Nextcloud's `IGroupManager`), its own admin editor UI, and its own runtime panel/drawer renderer. A scalar global setting (`mydash.org_navigation_position`) controls where the panel renders in the workspace shell (left, right, top, or hidden).
+The capability owns its own storage (per-language JSON files inside LaunchPad's `IAppData` folder), its own group-based filtering pipeline (driven by Nextcloud's `IGroupManager`), its own admin editor UI, and its own runtime panel/drawer renderer. A scalar global setting (`launchpad.org_navigation_position`) controls where the panel renders in the workspace shell (left, right, top, or hidden).
 
 ## Data Model
 
@@ -17,7 +17,7 @@ The capability owns its own storage (per-language JSON files inside MyDash's `IA
 
 ### Per-language tree storage
 
-Each language file lives at `IAppData('mydash')/org-navigation/{lang}.json` (e.g. `nl.json`, `en.json`). Maximum file size: 5 MB. Files are written wholesale by `OrgNavigationService::setTree()`; per-node CRUD endpoints are intentionally NOT exposed.
+Each language file lives at `IAppData('launchpad')/org-navigation/{lang}.json` (e.g. `nl.json`, `en.json`). Maximum file size: 5 MB. Files are written wholesale by `OrgNavigationService::setTree()`; per-node CRUD endpoints are intentionally NOT exposed.
 
 ### Node schema
 
@@ -33,25 +33,25 @@ Each language file lives at `IAppData('mydash')/org-navigation/{lang}.json` (e.g
 }
 ```
 
-The `groupVisibility` field is a MyDash-specific addition (the reference implementation relies on filesystem ACL via GroupFolders). Filtering is implemented explicitly in `OrgNavigationService::filterTreeByUserGroups()` via the single-source-of-truth resolver `AdminTemplateService::getUserGroupIdsFor()` (REQ-TMPL-013).
+The `groupVisibility` field is a LaunchPad-specific addition (the reference implementation relies on filesystem ACL via GroupFolders). Filtering is implemented explicitly in `OrgNavigationService::filterTreeByUserGroups()` via the single-source-of-truth resolver `AdminTemplateService::getUserGroupIdsFor()` (REQ-TMPL-013).
 
 ### Global position setting
 
-`mydash.org_navigation_position` is stored as a scalar in the `mydash_admin_settings` key-value table (NOT in the tree JSON). Allowed values: `'left'`, `'right'`, `'top'`, `'hidden'`. Default: `'hidden'` (the rail is opt-in).
+`launchpad.org_navigation_position` is stored as a scalar in the `launchpad_admin_settings` key-value table (NOT in the tree JSON). Allowed values: `'left'`, `'right'`, `'top'`, `'hidden'`. Default: `'hidden'` (the rail is opt-in).
 
 ## Requirements
 
 ### Requirement: REQ-ONAV-001 Org navigation tree storage
 
-The system MUST persist an organisation-wide navigation tree as a JSON file on the Nextcloud filesystem at a well-known path within MyDash's `IAppData` folder. One file is stored per language: `org-navigation/{lang}.json`. The implementation MUST NOT use a Nextcloud app-config key for the tree payload. The maximum accepted file size is 5 MB (enforced on read and write).
+The system MUST persist an organisation-wide navigation tree as a JSON file on the Nextcloud filesystem at a well-known path within LaunchPad's `IAppData` folder. One file is stored per language: `org-navigation/{lang}.json`. The implementation MUST NOT use a Nextcloud app-config key for the tree payload. The maximum accepted file size is 5 MB (enforced on read and write).
 
-> **v1 language scope:** MyDash v1 ships with support for `nl` (Dutch) and `en` (English). Both language files are maintained independently; changing one does not affect the other. The API accepts an optional `?lang=` query parameter (default: `nl`). A CLI copy command (`mydash:copy-org-navigation <source> <target>`) is a planned follow-up, not part of v1.
+> **v1 language scope:** LaunchPad v1 ships with support for `nl` (Dutch) and `en` (English). Both language files are maintained independently; changing one does not affect the other. The API accepts an optional `?lang=` query parameter (default: `nl`). A CLI copy command (`launchpad:copy-org-navigation <source> <target>`) is a planned follow-up, not part of v1.
 
 The tree is an ordered array of node objects (see Data Model above). Tree depth (including root) MUST NOT exceed 3 levels.
 
 #### Scenario: Tree persists to file
 - GIVEN an admin creates and saves an org-nav tree with 2 top-level sections and 3 subsections
-- WHEN the file `org-navigation/nl.json` is read from `IAppData('mydash')`
+- WHEN the file `org-navigation/nl.json` is read from `IAppData('launchpad')`
 - THEN it MUST contain valid JSON with the persisted tree structure
 
 #### Scenario: Node id is uuid
@@ -115,13 +115,13 @@ Validation rules:
 - The `groupVisibility` field (if present) MUST be either null or a non-empty array of string group ids
 - Return HTTP 403 if the requesting user is not an admin
 
-On success, write the validated tree to `IAppData('mydash')/org-navigation/{lang}.json` (wholesale file replacement) and return HTTP 200 with the persisted tree.
+On success, write the validated tree to `IAppData('launchpad')/org-navigation/{lang}.json` (wholesale file replacement) and return HTTP 200 with the persisted tree.
 
 #### Scenario: Admin saves valid tree
 - GIVEN an admin provides a valid tree with 2 sections, each with 2 child links
 - WHEN `PUT /api/admin/org-navigation` is called
 - THEN the response MUST be HTTP 200
-- AND the tree MUST be persisted to `IAppData('mydash')/org-navigation/nl.json`
+- AND the tree MUST be persisted to `IAppData('launchpad')/org-navigation/nl.json`
 
 #### Scenario: Depth exceeded returns 400
 - GIVEN a tree with 4 levels (root → child → grandchild → great-grandchild)
@@ -154,7 +154,7 @@ The system MUST support a global Nextcloud admin setting `org_navigation_positio
 When `position = 'hidden'`, the org-nav rail is not rendered even if the tree is non-empty (effectively opting out).
 
 #### Scenario: Position defaults to hidden
-- GIVEN a new MyDash installation
+- GIVEN a new LaunchPad installation
 - WHEN the app queries `GET /api/admin/org-navigation/position`
 - THEN the response MUST be `{position: 'hidden'}`
 
@@ -189,8 +189,8 @@ The system MUST provide a Vue 2.7 SFC `OrgNavigationPanel.vue` that renders the 
 - AND on expand, the child link MUST appear indented with the document icon and label
 
 #### Scenario: Active item is highlighted
-- GIVEN the tree contains a node with `url: '/apps/mydash/dashboards/sales'`
-- AND the user is currently on the page `/apps/mydash/dashboards/sales/overview`
+- GIVEN the tree contains a node with `url: '/apps/launchpad/dashboards/sales'`
+- AND the user is currently on the page `/apps/launchpad/dashboards/sales/overview`
 - WHEN the panel renders
 - THEN the node MUST have the `org-nav-item--active` CSS class
 
@@ -216,9 +216,9 @@ Each node's `icon` field MUST follow a dual-mode convention compatible with the 
 Icon size MUST be consistently 24 px square across all nav items.
 
 #### Scenario: Icon from URL renders as img
-- GIVEN a node with `icon: '/apps/mydash/icons/custom.png'` and `label: 'Portal'`
+- GIVEN a node with `icon: '/apps/launchpad/icons/custom.png'` and `label: 'Portal'`
 - WHEN the panel renders
-- THEN an `<img src="/apps/mydash/icons/custom.png">` element MUST appear left of the label
+- THEN an `<img src="/apps/launchpad/icons/custom.png">` element MUST appear left of the label
 
 #### Scenario: Icon name renders inline
 - GIVEN a node with `icon: 'briefcase'` and `label: 'Business'`
@@ -233,7 +233,7 @@ Icon size MUST be consistently 24 px square across all nav items.
 
 ### Requirement: REQ-ONAV-007 Admin editor
 
-The system MUST provide an admin editor UI (mounted inside the existing MyDash admin section) with the following features:
+The system MUST provide an admin editor UI (mounted inside the existing LaunchPad admin section) with the following features:
 
 1. A tree builder displaying the current org-nav tree (or empty state if none exists)
 2. Per-node controls:
@@ -270,7 +270,7 @@ The system MUST provide an admin editor UI (mounted inside the existing MyDash a
 - GIVEN the user edits the tree (add 2 sections, reorder, set group visibility)
 - WHEN the user clicks Save
 - AND no validation errors occur
-- THEN `PUT /api/admin/org-navigation` MUST be called and the tree written to `IAppData('mydash')/org-navigation/{lang}.json`
+- THEN `PUT /api/admin/org-navigation` MUST be called and the tree written to `IAppData('launchpad')/org-navigation/{lang}.json`
 - AND a success message MUST appear
 
 #### Scenario: Save with error prevents persist
@@ -315,27 +315,27 @@ The `OrgNavigationPanel.vue` MUST detect and highlight the currently active node
 The active node MUST receive an `org-nav-item--active` CSS class. Sections containing an active descendant MUST auto-expand on mount and MAY receive a `org-nav-item--has-active-child` style.
 
 #### Scenario: Exact URL match
-- GIVEN a node with `url: '/apps/mydash/policies'`
-- AND the current page is exactly `/apps/mydash/policies`
+- GIVEN a node with `url: '/apps/launchpad/policies'`
+- AND the current page is exactly `/apps/launchpad/policies`
 - WHEN the panel renders
 - THEN the node MUST have the `org-nav-item--active` class
 
 #### Scenario: Prefix match with path-segment boundary
-- GIVEN a node with `url: '/apps/mydash/dashboards'`
-- AND the current page is `/apps/mydash/dashboards/sales/details`
+- GIVEN a node with `url: '/apps/launchpad/dashboards'`
+- AND the current page is `/apps/launchpad/dashboards/sales/details`
 - WHEN the panel renders
 - THEN the node MUST have the `org-nav-item--active` class
 
 #### Scenario: Prefix without boundary does not match
-- GIVEN a node with `url: '/apps/mydash/hub'`
-- AND the current page is `/apps/mydash/hubris`
+- GIVEN a node with `url: '/apps/launchpad/hub'`
+- AND the current page is `/apps/launchpad/hubris`
 - WHEN the panel renders
 - THEN the node MUST NOT have the `org-nav-item--active` class
 
 #### Scenario: Parent auto-expands if child is active
 - GIVEN a section "Dashboards" with a child "Sales Dashboard"
-- AND the child has `url: '/apps/mydash/dashboards/sales'`
-- AND the user is on `/apps/mydash/dashboards/sales`
+- AND the child has `url: '/apps/launchpad/dashboards/sales'`
+- AND the user is on `/apps/launchpad/dashboards/sales`
 - WHEN the panel renders
 - THEN the parent section MUST be expanded
 - AND the child MUST have the `org-nav-item--active` class
@@ -403,7 +403,7 @@ Return HTTP 400 with the message `'URL scheme is not allowed'` if validation fai
 - THEN the URL MUST be accepted and persisted
 
 #### Scenario: Relative path allowed
-- GIVEN a node with `url: '/apps/mydash/dashboards/sales'`
+- GIVEN a node with `url: '/apps/launchpad/dashboards/sales'`
 - WHEN the admin saves
 - THEN the URL MUST be accepted
 

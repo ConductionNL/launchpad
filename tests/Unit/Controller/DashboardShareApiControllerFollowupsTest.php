@@ -8,12 +8,12 @@
  * DELETE /api/sharees/{shareType}/{shareWith} (REQ-SHARE-010).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,9 +23,9 @@ namespace Unit\Controller;
 
 use Exception;
 use InvalidArgumentException;
-use OCA\MyDash\Controller\DashboardShareApiController;
-use OCA\MyDash\Db\DashboardShare;
-use OCA\MyDash\Service\DashboardShareService;
+use OCA\LaunchPad\Controller\DashboardShareApiController;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Service\DashboardShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -43,13 +43,24 @@ use PHPUnit\Framework\TestCase;
 class DashboardShareApiControllerFollowupsTest extends TestCase
 {
 
-    /** @var DashboardShareService&MockObject */
+    /**
+     * @var DashboardShareService&MockObject
+     */
     private $shareService;
-    /** @var IRequest&MockObject */
+
+    /**
+     * @var IRequest&MockObject
+     */
     private $request;
-    /** @var IUserManager&MockObject */
+
+    /**
+     * @var IUserManager&MockObject
+     */
     private $userManager;
-    /** @var IGroupManager&MockObject */
+
+    /**
+     * @var IGroupManager&MockObject
+     */
     private $groupManager;
 
     /**
@@ -104,12 +115,14 @@ class DashboardShareApiControllerFollowupsTest extends TestCase
         $s = $this->getMockBuilder(DashboardShare::class)
             ->onlyMethods(['jsonSerialize'])
             ->getMock();
-        $s->method('jsonSerialize')->willReturn([
-            'id'              => $id,
-            'shareType'       => $type,
-            'shareWith'       => $with,
-            'permissionLevel' => $level,
-        ]);
+        $s->method('jsonSerialize')->willReturn(
+                [
+                    'id'              => $id,
+                    'shareType'       => $type,
+                    'shareWith'       => $with,
+                    'permissionLevel' => $level,
+                ]
+                );
         return $s;
     }//end makeShare()
 
@@ -337,4 +350,93 @@ class DashboardShareApiControllerFollowupsTest extends TestCase
         $this->assertSame(Http::STATUS_OK, $response->getStatus());
         $this->assertSame(['deleted' => 1], $response->getData());
     }//end testRevokeForRecipientOnlyRemovesCallerOwnedGroupShares()
+
+    // =========================================================================
+    // searchSharees() — GET /api/sharees
+    // =========================================================================
+
+    /**
+     * Build a user mock for the search stubs.
+     *
+     * @param string $uid  The user id.
+     * @param string $name The display name.
+     *
+     * @return \OCP\IUser&MockObject
+     */
+    private function makeUser(string $uid, string $name): \OCP\IUser
+    {
+        $u = $this->createMock(\OCP\IUser::class);
+        $u->method('getUID')->willReturn($uid);
+        $u->method('getDisplayName')->willReturn($name);
+        return $u;
+    }//end makeUser()
+
+    /**
+     * An EMPTY query returns the bounded suggestion list (users minus the
+     * caller, plus groups) so the share picker is never blank on focus.
+     *
+     * @return void
+     */
+    public function testSearchShareesEmptyQueryReturnsSuggestions(): void
+    {
+        $controller = $this->makeController(userId: 'alice');
+
+        $this->userManager->expects($this->once())
+            ->method('search')
+            ->with('', 10)
+            ->willReturn(
+                    [
+                        $this->makeUser('alice', 'Alice'),
+                        $this->makeUser('bob', 'Bob'),
+                    ]
+                    );
+
+        $group = $this->createMock(\OCP\IGroup::class);
+        $group->method('getGID')->willReturn('marketing');
+        $group->method('getDisplayName')->willReturn('Marketing');
+        $this->groupManager->expects($this->once())
+            ->method('search')
+            ->with('', 10)
+            ->willReturn([$group]);
+
+        $response = $controller->searchSharees(query: '');
+
+        $this->assertSame(Http::STATUS_OK, $response->getStatus());
+        $this->assertSame(
+            [
+                'users'  => [
+                    [
+                        'id'          => 'bob',
+                        'displayName' => 'Bob',
+                    ],
+                ],
+                'groups' => [
+                    [
+                        'id'          => 'marketing',
+                        'displayName' => 'Marketing',
+                    ],
+                ],
+            ],
+            $response->getData()
+        );
+    }//end testSearchShareesEmptyQueryReturnsSuggestions()
+
+    /**
+     * A single-character query stays blocked (directory-enumeration guard,
+     * M3) and returns empty lists without touching the managers.
+     *
+     * @return void
+     */
+    public function testSearchShareesSingleCharQueryStaysBlocked(): void
+    {
+        $controller = $this->makeController(userId: 'alice');
+
+        $this->userManager->expects($this->never())->method('search');
+        $this->groupManager->expects($this->never())->method('search');
+
+        $response = $controller->searchSharees(query: 'a');
+
+        $this->assertSame(Http::STATUS_OK, $response->getStatus());
+        $this->assertSame(['users' => [], 'groups' => []], $response->getData());
+    }//end testSearchShareesSingleCharQueryStaysBlocked()
 }//end class

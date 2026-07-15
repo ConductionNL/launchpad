@@ -3,30 +3,30 @@
 /**
  * DemoShowcasesInstallCommand
  *
- * `php occ mydash:demo-showcases:install <id> [--lang=nl] [--force]`
+ * `php occ launchpad:demo-showcases:install <id> [--lang=nl] [--force]`
  *
  * Mirrors the `POST /api/admin/demo-showcases/{id}/install` endpoint
  * for ops convenience. Idempotent unless `--force` is passed; in that
  * case the existing dashboard is removed and reinstalled (REQ-DEMO-009).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Exception\ShowcaseNotFoundException;
-use OCA\MyDash\Service\DemoShowcasesService;
+use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\Service\DemoShowcasesService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 /**
- * `mydash:demo-showcases:install` console command.
+ * `launchpad:demo-showcases:install` console command.
  */
 class DemoShowcasesInstallCommand extends Command
 {
@@ -59,8 +59,8 @@ class DemoShowcasesInstallCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:demo-showcases:install')
-            ->setDescription(description: 'Install a bundled MyDash demo showcase dashboard.')
+        $this->setName(name: 'launchpad:demo-showcases:install')
+            ->setDescription(description: 'Install a bundled LaunchPad demo showcase dashboard.')
             ->addArgument(
                 name: 'id',
                 mode: InputArgument::REQUIRED,

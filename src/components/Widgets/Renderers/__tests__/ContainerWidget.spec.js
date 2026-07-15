@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `ContainerWidget.vue` covering REQ-CONT-001
  * (registration), REQ-CONT-002 (inner grid bounded), REQ-CONT-003
@@ -26,11 +26,11 @@ beforeEach(() => {
 })
 
 describe('ContainerWidget — REQ-CONT-002 inner grid surface', () => {
-	it('renders a `.grid-stack.mydash-container-grid` host div for the inner GridStack', () => {
+	it('renders a `.grid-stack.launchpad-container-grid` host div for the inner GridStack', () => {
 		const wrapper = mount(ContainerWidget, {
 			propsData: { content: { placements: [] } },
 		})
-		const inner = wrapper.find('.mydash-container-grid')
+		const inner = wrapper.find('.launchpad-container-grid')
 		expect(inner.exists()).toBe(true)
 		expect(inner.classes()).toContain('grid-stack')
 	})
@@ -62,9 +62,10 @@ describe('ContainerWidget — REQ-CONT-003 recursive dispatch', () => {
 				},
 			},
 		})
-		// The label widget renders a `.label-widget` element via its
-		// own renderer — proving the registry-driven dispatch worked.
-		expect(wrapper.find('.label-widget').exists()).toBe(true)
+		// The label widget (now @conduction/nextcloud-vue's CnLabelWidget,
+		// rendering `.cn-label-widget`) renders via the registry — proving
+		// the registry-driven dispatch worked.
+		expect(wrapper.find('.cn-label-widget').exists()).toBe(true)
 	})
 })
 

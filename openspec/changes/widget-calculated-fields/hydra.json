@@ -1,0 +1,8 @@
+{
+  "spec_slug": "widget-calculated-fields",
+  "title": "Widget Calculated Fields",
+  "app": "launchpad",
+  "repo": "https://github.com/ConductionNL/launchpad",
+  "depends_on": [],
+  "issue": null
+}

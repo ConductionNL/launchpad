@@ -1,12 +1,12 @@
 ---
-status: implemented
+status: done
 ---
 
 # Dashboard Bulk Operations Specification
 
 ## Purpose
 
-Dashboard bulk operations expose four batch admin endpoints for large-scale management of MyDash dashboards: bulk delete, bulk re-parent, bulk publication-status update, and bulk re-index. The endpoints provide all-or-nothing permission pre-checks, per-dashboard atomic mutations with continue-on-error semantics, dry-run preview support, and a single audit Activity event per request. The design closes the misclick gap of the source implementation (which defaulted `cascade=true` on bulk delete) by requiring an explicit opt-in for recursive deletion, and pins a 500-dashboard per-request cap that is admin-tunable via the `bulk_operation_max_per_request` app config key.
+Dashboard bulk operations expose four batch admin endpoints for large-scale management of LaunchPad dashboards: bulk delete, bulk re-parent, bulk publication-status update, and bulk re-index. The endpoints provide all-or-nothing permission pre-checks, per-dashboard atomic mutations with continue-on-error semantics, dry-run preview support, and a single audit Activity event per request. The design closes the misclick gap of the source implementation (which defaulted `cascade=true` on bulk delete) by requiring an explicit opt-in for recursive deletion, and pins a 500-dashboard per-request cap that is admin-tunable via the `bulk_operation_max_per_request` app config key.
 
 ## API Surface
 
@@ -265,13 +265,13 @@ All bulk endpoints MUST enforce a maximum number of `dashboardUuids` per request
 - AND NO mutations MUST occur
 
 #### Scenario: Admin modifies bulk operation cap
-- GIVEN admin sets app config `mydash.bulk_operation_max_per_request = 1000` via OCC command or web settings
+- GIVEN admin sets app config `launchpad.bulk_operation_max_per_request = 1000` via OCC command or web settings
 - WHEN admin sends bulk-delete with 750 uuids
 - THEN the system MUST accept the request (750 <= 1000)
 - AND the new cap MUST apply immediately to all subsequent requests
 
 #### Scenario: Cap of zero or negative is invalid
-- GIVEN admin accidentally sets `mydash.bulk_operation_max_per_request = 0`
+- GIVEN admin accidentally sets `launchpad.bulk_operation_max_per_request = 0`
 - WHEN the system reads the config
 - THEN the system MUST apply the safe default (500) as fallback
 - AND log a warning that the configured cap is invalid
@@ -281,7 +281,7 @@ All bulk endpoints MUST enforce a maximum number of `dashboardUuids` per request
 Bulk operations MUST handle idempotent cases gracefully: deleting already-deleted dashboards, moving to the same parent, and setting to the same status result in skip entries in the response, not errors that abort the batch.
 
 #### Scenario: Delete already-deleted dashboard
-- GIVEN dashboard "uuid-1" is already deleted (row no longer exists in `oc_mydash_dashboards`)
+- GIVEN dashboard "uuid-1" is already deleted (row no longer exists in `oc_launchpad_dashboards`)
 - WHEN admin sends bulk-delete with that uuid
 - THEN the system MUST count it as `skippedCount`
 - AND the response MUST include `{uuid: "uuid-1", reason: "already_deleted"}` in the errors array (for auditability)

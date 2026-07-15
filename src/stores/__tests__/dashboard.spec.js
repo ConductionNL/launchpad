@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for the Pinia dashboard store. Covers the new
  * source-aware getters added by the multi-scope-dashboards change:
@@ -433,6 +433,30 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 		await store.switchDashboard('d-1')
 
 		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('uuid-1')
+	})
+
+	it('does NOT call the legacy activate endpoint for a group/default dashboard', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		// Group/default rows have user_id NULL → isOwner false; the legacy
+		// id-based activate would 400 with "Access denied".
+		store.dashboards = [{ id: 1, uuid: 'group-uuid', source: 'group', isOwner: false }]
+
+		mockApi.getDashboardById.mockResolvedValue({
+			data: {
+				dashboard: { id: 1, uuid: 'group-uuid' },
+				placements: [],
+				permissionLevel: 'view',
+				isOwner: false,
+				sharedBy: 'someone',
+			},
+		})
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+
+		await store.switchDashboard(1)
+
+		expect(mockApi.activateDashboard).not.toHaveBeenCalled()
+		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('group-uuid')
 	})
 })
 

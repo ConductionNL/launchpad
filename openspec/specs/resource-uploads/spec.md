@@ -1,12 +1,12 @@
 ---
-status: implemented
+status: done
 ---
 
 # Resource Uploads Specification
 
 ## Purpose
 
-The `resource-uploads` capability owns a small mini file API for binary assets that MyDash widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in MyDash's app-data folder (NOT the user's Files), addressed by a stable URL, uploaded admin-only via a base64-data-URL JSON request, and served back to any logged-in user via a non-OCS streaming endpoint plus an OCS listing endpoint. SVG sanitisation is specified in the sibling `svg-sanitisation` capability.
+The `resource-uploads` capability owns a small mini file API for binary assets that LaunchPad widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in LaunchPad's app-data folder (NOT the user's Files), addressed by a stable URL, uploaded admin-only via a base64-data-URL JSON request, and served back to any logged-in user via a non-OCS streaming endpoint plus an OCS listing endpoint. SVG sanitisation is specified in the sibling `svg-sanitisation` capability.
 
 ## Data Model
 
@@ -21,7 +21,7 @@ Resources are flat files in app data — there is no companion DB row. Layout:
 
 Each upload produces:
 - A new file with `resource_<uniqid>.<ext>` name (where `<ext>` is the normalised extension)
-- A stable public URL `/apps/mydash/resource/<filename>` (served by REQ-RES-006)
+- A stable public URL `/apps/launchpad/resource/<filename>` (served by REQ-RES-006)
 
 ## Requirements
 
@@ -36,7 +36,7 @@ The system MUST expose `POST /api/resources` accepting a raw JSON body of the sh
 
 - GIVEN an authenticated admin user
 - WHEN they POST `{"base64": "data:image/png;base64,iVBORw0KGgo..."}` (valid 200×200 PNG)
-- THEN the system MUST return HTTP 200 with `{status: 'success', url: '/apps/mydash/resource/resource_<uniqid>.png', name: 'resource_<uniqid>.png', size: <bytes>}`
+- THEN the system MUST return HTTP 200 with `{status: 'success', url: '/apps/launchpad/resource/resource_<uniqid>.png', name: 'resource_<uniqid>.png', size: <bytes>}`
 - AND a file MUST exist at the corresponding app-data path
 
 #### Scenario: Non-admin rejected
@@ -133,7 +133,7 @@ Every successful response MUST conform to `{status: 'success', url: <string>, na
 
 ### Requirement: Public resource serving endpoint (REQ-RES-006)
 
-The system MUST expose `GET /apps/mydash/resource/{filename}` (a non-OCS, plain web route) returning a `StreamResponse` of the resource bytes. The route MUST be authenticated (any logged-in Nextcloud user) but MUST NOT require admin privileges. The Content-Type header MUST be derived from the file extension via this map:
+The system MUST expose `GET /apps/launchpad/resource/{filename}` (a non-OCS, plain web route) returning a `StreamResponse` of the resource bytes. The route MUST be authenticated (any logged-in Nextcloud user) but MUST NOT require admin privileges. The Content-Type header MUST be derived from the file extension via this map:
 
 | Extension | Content-Type |
 |---|---|
@@ -149,7 +149,7 @@ The response MUST include `Cache-Control: public, max-age=31536000` (one year, i
 #### Scenario: Serve a PNG
 
 - GIVEN an uploaded resource at `<appdata>/resources/resource_abc123.png`
-- WHEN any authenticated user sends `GET /apps/mydash/resource/resource_abc123.png`
+- WHEN any authenticated user sends `GET /apps/launchpad/resource/resource_abc123.png`
 - THEN the system MUST return HTTP 200 with `Content-Type: image/png`
 - AND `Cache-Control: public, max-age=31536000`
 - AND the response body MUST be the file's exact bytes
@@ -168,19 +168,19 @@ The response MUST include `Cache-Control: public, max-age=31536000` (one year, i
 
 #### Scenario: Missing file returns 404
 
-- WHEN GET `/apps/mydash/resource/does-not-exist.png`
+- WHEN GET `/apps/launchpad/resource/does-not-exist.png`
 - THEN the system MUST return HTTP 404
 - AND the response body MAY be empty (no detail leaked)
 
 #### Scenario: Path traversal rejected
 
-- WHEN GET `/apps/mydash/resource/..%2F..%2Fetc%2Fpasswd` (URL-encoded `../../etc/passwd`)
+- WHEN GET `/apps/launchpad/resource/..%2F..%2Fetc%2Fpasswd` (URL-encoded `../../etc/passwd`)
 - THEN the system MUST return HTTP 404 (the route's `{filename}` parameter MUST be treated as a leaf name; any decoded `/` or `..` in it MUST cause a 404 — never a 200 with system file contents)
 
 #### Scenario: Unauthenticated request rejected
 
 - GIVEN an unauthenticated browser session
-- WHEN GET `/apps/mydash/resource/resource_abc123.png`
+- WHEN GET `/apps/launchpad/resource/resource_abc123.png`
 - THEN Nextcloud MUST redirect to login (standard NC auth middleware)
 - AND no resource bytes MUST be served
 
@@ -194,7 +194,7 @@ When the resources folder does not yet exist, the response MUST be `{status: 'su
 
 - GIVEN one resource exists at `<appdata>/resources/resource_abc123.png` with size 12345 bytes
 - WHEN GET `/api/resources`
-- THEN the response MUST contain `resources[0] = {name: 'resource_abc123.png', url: '/apps/mydash/resource/resource_abc123.png', size: 12345, modifiedAt: <ISO timestamp>}`
+- THEN the response MUST contain `resources[0] = {name: 'resource_abc123.png', url: '/apps/launchpad/resource/resource_abc123.png', size: 12345, modifiedAt: <ISO timestamp>}`
 
 #### Scenario: Empty folder returns empty array
 
@@ -230,7 +230,7 @@ The system MUST pass every uploaded SVG (declared `image/svg` or `image/svg+xml`
 - WHEN she sends `POST /api/resources` with body `{"base64": "data:image/svg+xml;base64,<valid sanitisable SVG>"}`
 - THEN the sanitiser MUST return the (possibly modified) SVG string
 - AND `ResourceService` MUST persist the sanitised bytes (NOT the original bytes)
-- AND the response MUST be HTTP 200 with `{status: 'success', url: '/apps/mydash/resource/resource_<uniqid>.svg', ...}`
+- AND the response MUST be HTTP 200 with `{status: 'success', url: '/apps/launchpad/resource/resource_<uniqid>.svg', ...}`
 
 #### Scenario: Sanitiser strips malicious content but accepts upload
 

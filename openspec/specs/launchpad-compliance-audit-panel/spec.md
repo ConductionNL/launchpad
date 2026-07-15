@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-compliance-audit-panel
 
 **Status:** proposed
@@ -23,7 +27,7 @@ empty-state.
 Sourced from Specter draft `compliance-audit-panel` (2 features:
 deadline alert, portfolio filter).
 
-## ADDED Requirements
+## Requirements
 
 @e2e exclude proposed/unimplemented widget — `launchpad_compliance_audit` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, OR-GraphQL/audit-trail-immutable consumption, docudesk deep-link, and Specter-sourced data rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
@@ -51,7 +55,7 @@ declaration.
 
 ### REQ-CAP-002: The widget content shape SHALL declare posture, filter, and alert configuration
 
-The placement persists `{type: 'compliance-audit', content: {...}}` with:
+The placement MUST persist `{type: 'compliance-audit', content: {...}}` with:
 
 | Field | Type | Required | Default | Purpose |
 |---|---|---|---|---|
@@ -141,8 +145,7 @@ locally and MUST NOT cache retention metadata.
 
 ### REQ-CAP-005: The widget SHALL surface deadline alerts with cross-session persistence (Specter acceptance)
 
-When a compliance deadline falls within `content.deadlineWindowDays`,
-the widget MUST render a visible alert naming the deadline and due
+When a compliance deadline falls within `content.deadlineWindowDays`, the widget MUST render a visible alert naming the deadline and due
 date. The alert MUST persist across sessions until dismissed or
 the deadline passes. Dismissal state MUST persist via the existing
 launchpad placement state — NOT via a new launchpad backend table; the

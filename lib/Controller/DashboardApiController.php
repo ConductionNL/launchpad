@@ -8,7 +8,7 @@
  * (REQ-DASH-013).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -21,22 +21,26 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Exception\DashboardHasChildrenException;
-use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
-use OCA\MyDash\Service\AnalyticsService;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\DashboardTreeService;
-use OCA\MyDash\Service\DashboardVersionService;
-use OCA\MyDash\Service\PermissionService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Service\PermissionService;
+use OCA\LaunchPad\Service\QuotaService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -104,6 +108,10 @@ class DashboardApiController extends Controller
      * @param ActionAuthService       $actionAuth        The ADR-023 action
      *                                                   authorization service.
      * @param string|null             $userId            The user ID.
+     * @param QuotaService|null       $quotaService      The quota-enforcement
+     *                                                   service used to gate
+     *                                                   dashboard creation
+     *                                                   (dashboard-quota-limits).
      */
     public function __construct(
         IRequest $request,
@@ -116,6 +124,7 @@ class DashboardApiController extends Controller
         private readonly IUserSession $userSession,
         private readonly ActionAuthService $actionAuth,
         private readonly ?string $userId,
+        private readonly ?QuotaService $quotaService=null,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -132,7 +141,7 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse The list of dashboards.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-17
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-17
      */
     #[NoAdminRequired]
     public function list(): JSONResponse
@@ -152,8 +161,23 @@ class DashboardApiController extends Controller
             userId: $this->userId
         );
 
+        $serialized = ResponseHelper::serializeList(entities: $dashboards);
+
+        // Dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on
+        // the personal dashboards list. Response shape is
+        // `{items: [...], quota: {...}}`. When the quota service is absent
+        // (legacy test doubles) fall back to the bare-array contract.
+        if ($this->quotaService === null) {
+            return ResponseHelper::success(data: $serialized);
+        }
+
         return ResponseHelper::success(
-            data: ResponseHelper::serializeList(entities: $dashboards)
+            data: [
+                'items' => $serialized,
+                'quota' => $this->quotaService->getQuotaStatus(
+                    userId: $this->userId
+                ),
+            ]
         );
     }//end list()
 
@@ -190,10 +214,34 @@ class DashboardApiController extends Controller
         foreach ($items as $entry) {
             $row           = $entry['dashboard']->jsonSerialize();
             $row['source'] = $entry['source'];
-            $serialized[]  = $row;
+            // Tag ownership so the frontend can route activation correctly:
+            // only personal `user`-type rows owned by the caller take the
+            // legacy id-based `is_active` path; group/default rows (user_id
+            // NULL) are activated via the UUID preference instead.
+            $row['isOwner'] = ($entry['dashboard']->getUserId() === $this->userId);
+            $serialized[]   = $row;
         }
 
-        return ResponseHelper::success(data: $serialized);
+        // Dashboard-quota-limits REQ-QUOTA-006: carry the additive quota
+        // envelope on the unioned listing the store consumes, so the
+        // frontend can disable create affordances at the limit without an
+        // extra round-trip. The response shape is now
+        // `{items: [...], quota: {...}}`; clients that read the bare array
+        // are handled by the store's shape-tolerant unwrap. When the quota
+        // service is absent (legacy test doubles) fall back to the
+        // bare-array contract.
+        if ($this->quotaService === null) {
+            return ResponseHelper::success(data: $serialized);
+        }
+
+        return ResponseHelper::success(
+            data: [
+                'items' => $serialized,
+                'quota' => $this->quotaService->getQuotaStatus(
+                    userId: $this->userId
+                ),
+            ]
+        );
     }//end visible()
 
     /**
@@ -201,7 +249,7 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse The active dashboard data.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-18
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
      */
     #[NoAdminRequired]
     public function getActive(): JSONResponse
@@ -228,13 +276,27 @@ class DashboardApiController extends Controller
             );
         }
 
+        // The effective dashboard can now be a group/default (showcase)
+        // dashboard the user does not own (resolved via the last-used
+        // preference), so tag ownership the same way show() does rather
+        // than letting the client assume the caller owns it.
+        $activeDashboard = $result['dashboard'];
+        $isOwner         = ($activeDashboard->getUserId() === $this->userId);
+
+        $sharedBy = null;
+        if ($isOwner === false) {
+            $sharedBy = $activeDashboard->getUserId();
+        }
+
         return ResponseHelper::success(
             data: [
-                'dashboard'       => $result['dashboard']->jsonSerialize(),
+                'dashboard'       => $activeDashboard->jsonSerialize(),
                 'placements'      => ResponseHelper::serializeList(
                     entities: $result['placements']
                 ),
                 'permissionLevel' => $result['permissionLevel'],
+                'isOwner'         => $isOwner,
+                'sharedBy'        => $sharedBy,
             ]
         );
     }//end getActive()
@@ -258,7 +320,7 @@ class DashboardApiController extends Controller
      * @return JSONResponse The dashboard envelope (200) or
      *                      `{'error': 'Not found'}` (404).
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-21
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-21
      */
     #[NoAdminRequired]
     public function show(int $id): JSONResponse
@@ -322,7 +384,7 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse The created dashboard.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-16
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
      */
     #[NoAdminRequired]
     public function create(
@@ -408,6 +470,10 @@ class DashboardApiController extends Controller
                 ],
                 statusCode: Http::STATUS_CREATED
             );
+        } catch (QuotaExceededException $e) {
+            // Dashboard-quota-limits REQ-QUOTA-002: the user is at their
+            // dashboard limit — HTTP 409 with the structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
         } catch (InvalidArgumentException $e) {
             // REQ-DASH-023..029: parent / slug / depth / cycle violations
             // surface as HTTP 400 with the validation message verbatim.
@@ -440,7 +506,7 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse The updated dashboard.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-19
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
      */
     #[NoAdminRequired]
     public function update(
@@ -541,7 +607,7 @@ class DashboardApiController extends Controller
      *
      * @return JSONResponse The deletion confirmation.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-20
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-20
      */
     #[NoAdminRequired]
     public function delete(int $id): JSONResponse
@@ -855,9 +921,10 @@ class DashboardApiController extends Controller
     /**
      * Create a new group-shared dashboard.
      *
-     * Admin-only — the route attribute is `#[NoAdminRequired]` so the
-     * gate-route-auth check passes; the in-body admin check is the
-     * actual authorization point (gate-semantic-auth). REQ-DASH-014.
+     * Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute
+     * (gate-route-auth / gate-semantic-auth both pass since the
+     * framework-level check is the actual authorization point).
+     * REQ-DASH-014.
      *
      * @param string      $groupId     The group ID.
      * @param mixed       $name        The dashboard name (or {name,...}
@@ -868,7 +935,7 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function createGroup(
         string $groupId,
         $name=null,
@@ -876,15 +943,6 @@ class DashboardApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         $resolved = $this->resolveCreateParams(
@@ -978,7 +1036,7 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateGroup(
         string $groupId,
         string $uuid,
@@ -989,15 +1047,6 @@ class DashboardApiController extends Controller
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         $patch = $this->buildGroupUpdateData(
@@ -1042,22 +1091,13 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function deleteGroup(
         string $groupId,
         string $uuid
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         try {
@@ -1082,11 +1122,9 @@ class DashboardApiController extends Controller
     /**
      * Promote a single group-shared dashboard to the group's default.
      *
-     * Admin-only — the route attribute is `#[NoAdminRequired]` so
-     * gate-route-auth passes; the in-body admin check is the actual
-     * authorization point (gate-semantic-auth). The body payload is
-     * `{"uuid": "..."}`. Returns 404 when the uuid does not belong to
-     * the given groupId. REQ-DASH-015.
+     * Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute.
+     * The body payload is `{"uuid": "..."}`. Returns 404 when the uuid
+     * does not belong to the given groupId. REQ-DASH-015.
      *
      * @param string      $groupId The group ID from the URL.
      * @param string|null $uuid    The dashboard UUID from the body.
@@ -1095,22 +1133,13 @@ class DashboardApiController extends Controller
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    #[NoAdminRequired]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function setGroupDefault(
         string $groupId,
         ?string $uuid=null
     ): JSONResponse {
         if ($this->userId === null) {
             return ResponseHelper::unauthorized();
-        }
-
-        if ($this->dashboardService->isAdmin(
-            userId: $this->userId
-        ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: DashboardService::ERR_FORBIDDEN_NOT_ADMIN
-            );
         }
 
         if ($uuid === null || $uuid === '') {
@@ -1318,6 +1347,10 @@ class DashboardApiController extends Controller
                 ],
                 statusCode: Http::STATUS_FORBIDDEN
             );
+        } catch (QuotaExceededException $e) {
+            // Dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
+            // per-user dashboard quota — HTTP 409 with the structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
         } catch (DoesNotExistException) {
             // REQ-DASH-020: source not visible — 404 without leaking
             // existence (use the canonical message rather than echoing
@@ -1333,7 +1366,7 @@ class DashboardApiController extends Controller
             // REQ-DASH-021 + ADR-005: log the real cause, return a
             // stable, generic envelope to the client.
             $this->logger->error(
-                message: 'mydash: fork failed for user {user}: {message}',
+                message: 'launchpad: fork failed for user {user}: {message}',
                 context: [
                     'user'    => $this->userId,
                     'message' => $t->getMessage(),
@@ -1378,7 +1411,7 @@ class DashboardApiController extends Controller
         }
 
         try {
-            $dashboard = $this->dashboardService->publish(
+            $dashboard = $this->dashboardService->publishDashboard(
                 uuid: $uuid,
                 userId: $this->userId
             );
@@ -1860,13 +1893,13 @@ class DashboardApiController extends Controller
      * the user's edit succeeded; missing one snapshot is a quality of
      * life regression, not a data-integrity bug. We log + swallow.
      *
-     * @param \OCA\MyDash\Db\Dashboard $dashboard The dashboard that was
-     *                                            just updated.
+     * @param \OCA\LaunchPad\Db\Dashboard $dashboard The dashboard that was
+     *                                               just updated.
      *
      * @return void
      */
     private function captureAutomaticSnapshot(
-        \OCA\MyDash\Db\Dashboard $dashboard
+        \OCA\LaunchPad\Db\Dashboard $dashboard
     ): void {
         if ($this->userId === null) {
             return;
@@ -1882,7 +1915,7 @@ class DashboardApiController extends Controller
             );
         } catch (\Throwable $t) {
             $this->logger->warning(
-                message: 'mydash: automatic version snapshot failed',
+                message: 'launchpad: automatic version snapshot failed',
                 context: ['exception' => $t]
             );
         }
@@ -1905,7 +1938,7 @@ class DashboardApiController extends Controller
         DashboardContentStorageException $e
     ): JSONResponse {
         $this->logger->warning(
-            message: 'mydash: dashboard content storage unavailable',
+            message: 'launchpad: dashboard content storage unavailable',
             context: ['message' => $e->getMessage(), 'exception' => $e]
         );
 
@@ -1914,7 +1947,7 @@ class DashboardApiController extends Controller
                 'error'   => 'dashboard_content_storage_unavailable',
                 'message' => 'The dashboard content storage backend is unavailable. '
                     .'If you recently changed the backend, run: '
-                    .'php occ mydash:storage:migrate-to-groupfolder',
+                    .'php occ launchpad:storage:migrate-to-groupfolder',
             ],
             statusCode: Http::STATUS_SERVICE_UNAVAILABLE
         );

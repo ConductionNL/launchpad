@@ -6,31 +6,31 @@
  * Discovers active news-widget feed URLs, fetches each feed via
  * Nextcloud's `IClientService` with HTTP conditional-get headers,
  * normalises RSS 2.0 / Atom 1.0 items to the news-widget schema, caps at
- * 50 items, and persists the cache row in `oc_mydash_feed_cache`. Each
+ * 50 items, and persists the cache row in `oc_launchpad_feed_cache`. Each
  * feed is wrapped in its own try/catch so a single failure does not
  * block the rest (REQ-FRJ-006).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\FeedCache;
-use OCA\MyDash\Db\FeedCacheMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\FeedCache;
+use OCA\LaunchPad\Db\FeedCacheMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\IConfig;
@@ -108,7 +108,7 @@ class FeedRefreshService
      *
      * @var string
      */
-    public const NEWS_WIDGET_ID = 'mydash_news';
+    public const NEWS_WIDGET_ID = 'launchpad_news';
 
     /**
      * Constructor.
@@ -137,9 +137,9 @@ class FeedRefreshService
      * news-widget placements (REQ-FRJ-003).
      *
      * The current schema does not yet carry a `widget_content` column on
-     * `oc_mydash_widget_placements`; the news widget is a sibling spec.
+     * `oc_launchpad_widget_placements`; the news widget is a sibling spec.
      * Until the news widget lands, discovery returns an empty array if
-     * no `mydash_news` placement is found OR if the placement does not
+     * no `launchpad_news` placement is found OR if the placement does not
      * expose any feed URLs through the JSON-encoded `style_config`
      * fallback. The contract is forward-compatible: when the news widget
      * adds feed-URL storage, this method picks it up automatically via
@@ -788,7 +788,7 @@ class FeedRefreshService
         }
 
         return sprintf(
-            'Mozilla/5.0 (compatible; MyDash/%s; +%s/apps/mydash)',
+            'Mozilla/5.0 (compatible; LaunchPad/%s; +%s/apps/launchpad)',
             $appVersion,
             rtrim(string: $instanceUrl, characters: '/')
         );

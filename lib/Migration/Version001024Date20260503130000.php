@@ -5,7 +5,7 @@
  *
  * Migration that adds the per-dashboard footer override columns
  * (`dashboard_footer_mode`, `dashboard_footer_html`) to
- * `oc_mydash_dashboards`. Required by REQ-FTR-006 (per-dashboard
+ * `oc_launchpad_dashboards`. Required by REQ-FTR-006 (per-dashboard
  * footer override) and the supporting `footer-customization`
  * capability spec.
  *
@@ -16,20 +16,20 @@
  * continue to inherit whatever the global footer resolves to.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -37,7 +37,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add footer-override columns to mydash_dashboards (REQ-FTR-006).
+ * Add footer-override columns to launchpad_dashboards (REQ-FTR-006).
  */
 class Version001024Date20260503130000 extends SimpleMigrationStep
 {
@@ -58,11 +58,11 @@ class Version001024Date20260503130000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboards') === false) {
+        if ($schema->hasTable('launchpad_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable('mydash_dashboards');
+        $table = $schema->getTable('launchpad_dashboards');
 
         DashboardTableBuilder::addFooterColumns(table: $table);
 

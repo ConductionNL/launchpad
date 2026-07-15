@@ -7,7 +7,7 @@
  * audit trail (revokedAt set to now rather than hard-delete). REQ-CSC-003.
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -22,10 +22,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
-use OCA\MyDash\Db\PublicShareMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -76,20 +76,20 @@ class PublicSharesListener implements IEventListener
 
             $this->logger->debug(
                 message: sprintf(
-                    'mydash PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
+                    'launchpad PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
                     $count,
                     $uuid
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash PublicSharesListener: failed for dashboard %s: %s',
+                    'launchpad PublicSharesListener: failed for dashboard %s: %s',
                     $uuid,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handle()

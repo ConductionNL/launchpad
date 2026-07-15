@@ -3,8 +3,8 @@
 /**
  * OrphanedWidgetPlacementsCategory
  *
- * Cleanup category for rows in `mydash_widget_placements` whose
- * `dashboard_id` no longer points at any row in `mydash_dashboards`.
+ * Cleanup category for rows in `launchpad_widget_placements` whose
+ * `dashboard_id` no longer points at any row in `launchpad_dashboards`.
  * REQ-CLN-001.
  *
  * Tier-B (`safeToPurgeAutomatically=false`): widget placements carry
@@ -13,22 +13,22 @@
  * so admins can inspect the placements before destroying them.
  *
  * @category  Service
- * @package   OCA\MyDash\Service\Cleanup
+ * @package   OCA\LaunchPad\Service\Cleanup
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\Cleanup;
+namespace OCA\LaunchPad\Service\Cleanup;
 
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 
 /**
  * Sweeps widget placement rows whose dashboard no longer exists.
@@ -83,7 +83,7 @@ class OrphanedWidgetPlacementsCategory implements CleanupCategoryInterface
     }//end getSafeToPurgeAutomatically()
 
     /**
-     * Always available — `mydash_widget_placements` ships in the core
+     * Always available — `launchpad_widget_placements` ships in the core
      * schema.
      *
      * @return bool True.

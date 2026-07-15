@@ -1,13 +1,13 @@
 ---
 capability: dashboard-icons
-status: implemented
+status: done
 ---
 
 # Dashboard Icons Specification
 
 ## Purpose
 
-MyDash dashboards (and the dashboard-list items in the switcher sidebar
+LaunchPad dashboards (and the dashboard-list items in the switcher sidebar
 and admin UI) display an icon next to their name. This capability owns
 the icon vocabulary: a small curated registry of named built-in icons
 that live in the frontend bundle, plus the lookup/render functions
@@ -21,8 +21,8 @@ lives in the frontend.
 ## Context
 
 The icon system has no backend persistence of its own — it operates on
-the existing `oc_mydash_dashboards.icon` column (and any other column
-that follows the same convention, e.g. `oc_mydash_widget_placements.tileIcon`).
+the existing `oc_launchpad_dashboards.icon` column (and any other column
+that follows the same convention, e.g. `oc_launchpad_widget_placements.tileIcon`).
 
 ## Field Convention
 
@@ -157,7 +157,7 @@ The system MUST expose a pure function `isCustomIconUrl(name: string|null): bool
 
 #### Scenario: URL inputs return true
 
-- WHEN `isCustomIconUrl('/apps/mydash/resource/abc123.png')` is called
+- WHEN `isCustomIconUrl('/apps/launchpad/resource/abc123.png')` is called
 - THEN it MUST return `true`
 - AND `isCustomIconUrl('https://example.com/icon.svg')` MUST return `true`
 - AND `isCustomIconUrl('http://example.com/icon.png')` MUST return `true`
@@ -181,8 +181,8 @@ The system MUST expose a pure function `isCustomIconUrl(name: string|null): bool
 
 #### Scenario: URL input yields a null component
 
-- GIVEN the discriminator considers `/apps/mydash/resource/x.png` a custom URL
-- WHEN `getIconComponent('/apps/mydash/resource/x.png')` is called
+- GIVEN the discriminator considers `/apps/launchpad/resource/x.png` a custom URL
+- WHEN `getIconComponent('/apps/launchpad/resource/x.png')` is called
 - THEN it MUST return `null`
 - AND callers MUST interpret `null` as "render via `<img>`", NOT as "use the default icon"
 
@@ -205,8 +205,8 @@ The shared `IconRenderer` component MUST accept a single `name` prop (string or 
 
 #### Scenario: Render a custom URL icon
 
-- GIVEN `IconRenderer` is rendered with prop `name="/apps/mydash/resource/abc.png"`
-- THEN the DOM MUST contain `<img src="/apps/mydash/resource/abc.png">`
+- GIVEN `IconRenderer` is rendered with prop `name="/apps/launchpad/resource/abc.png"`
+- THEN the DOM MUST contain `<img src="/apps/launchpad/resource/abc.png">`
 - AND MUST NOT contain a `<component>` rendering of an MDI icon
 
 #### Scenario: Render with null name falls back to default
@@ -218,7 +218,7 @@ The shared `IconRenderer` component MUST accept a single `name` prop (string or 
 
 #### Scenario: Alt text for custom URL icons
 
-- GIVEN `IconRenderer` is rendered with `name="/apps/mydash/resource/abc.png"` and an `alt` prop of `"Marketing"`
+- GIVEN `IconRenderer` is rendered with `name="/apps/launchpad/resource/abc.png"` and an `alt` prop of `"Marketing"`
 - THEN the rendered `<img>` MUST have `alt="Marketing"`
 - AND when no `alt` prop is supplied the rendered `<img>` MUST fall back to a non-empty default (e.g. the dashboard or widget name)
 
@@ -229,13 +229,13 @@ The `IconPicker` component MUST present BOTH affordances visible simultaneously:
 #### Scenario: Switching from built-in to custom
 
 - GIVEN `IconPicker` v-model is currently `"Star"`
-- WHEN the user uploads a file successfully and the upload returns URL `/apps/mydash/resource/abc.png`
-- THEN the v-model value MUST become `/apps/mydash/resource/abc.png`
+- WHEN the user uploads a file successfully and the upload returns URL `/apps/launchpad/resource/abc.png`
+- THEN the v-model value MUST become `/apps/launchpad/resource/abc.png`
 - AND the preview MUST switch from `<svg>` (Star) to `<img>` (the uploaded image)
 
 #### Scenario: Switching from custom back to built-in
 
-- GIVEN v-model value is `/apps/mydash/resource/abc.png`
+- GIVEN v-model value is `/apps/launchpad/resource/abc.png`
 - WHEN the user picks `"Home"` from the `<select>`
 - THEN the v-model value MUST become `"Home"`
 - AND the preview MUST switch from `<img>` to `<svg>` (Home)
@@ -251,11 +251,11 @@ The `IconPicker` component MUST present BOTH affordances visible simultaneously:
 
 ### Requirement: Field convention is single-column (REQ-ICON-009)
 
-Database columns that store an icon (currently `oc_mydash_dashboards.icon` and `oc_mydash_widget_placements.tileIcon`) MUST hold either a registry name OR a URL string OR NULL — never a typed-discriminator object like `{kind: 'name'|'url', value: ...}`. Discrimination is purely runtime via `isCustomIconUrl`. No schema migration is required when a value flips between built-in and custom forms.
+Database columns that store an icon (currently `oc_launchpad_dashboards.icon` and `oc_launchpad_widget_placements.tileIcon`) MUST hold either a registry name OR a URL string OR NULL — never a typed-discriminator object like `{kind: 'name'|'url', value: ...}`. Discrimination is purely runtime via `isCustomIconUrl`. No schema migration is required when a value flips between built-in and custom forms.
 
 #### Scenario: Mixed values across rows render without migration
 
-- GIVEN three dashboards exist with `icon` values `'Star'`, `'/apps/mydash/resource/x.png'`, and `null`
+- GIVEN three dashboards exist with `icon` values `'Star'`, `'/apps/launchpad/resource/x.png'`, and `null`
 - WHEN any consumer reads them and passes each `icon` to `IconRenderer`
 - THEN no migration or transformation is required
 - AND all three dashboards MUST render correctly (svg, img, default svg respectively)
@@ -263,6 +263,6 @@ Database columns that store an icon (currently `oc_mydash_dashboards.icon` and `
 #### Scenario: Switching a dashboard's icon between forms is a plain UPDATE
 
 - GIVEN dashboard `D1` has `icon = 'Star'`
-- WHEN the admin uploads a custom icon for `D1` and the picker resolves to URL `/apps/mydash/resource/y.png`
-- THEN persisting the change MUST be a single `UPDATE oc_mydash_dashboards SET icon = '/apps/mydash/resource/y.png' WHERE id = ?`
+- WHEN the admin uploads a custom icon for `D1` and the picker resolves to URL `/apps/launchpad/resource/y.png`
+- THEN persisting the change MUST be a single `UPDATE oc_launchpad_dashboards SET icon = '/apps/launchpad/resource/y.png' WHERE id = ?`
 - AND no auxiliary table or column MUST be touched

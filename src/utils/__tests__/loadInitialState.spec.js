@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `loadInitialState`. Covers REQ-INIT-002, REQ-INIT-003,
  * REQ-INIT-004, REQ-INIT-005:
@@ -95,7 +95,7 @@ describe('loadInitialState', () => {
 
 		expect(warn).toHaveBeenCalled()
 		const message = warn.mock.calls[0][0]
-		expect(message).toMatch(/MyDash initial-state schema mismatch/)
+		expect(message).toMatch(/LaunchPad initial-state schema mismatch/)
 		expect(message).toMatch(/server v99/)
 		expect(message).toMatch(/client v2/)
 	})

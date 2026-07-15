@@ -1,34 +1,34 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<NcModal
-		:name="t('mydash', 'MyDash setup wizard')"
+		:name="t('launchpad', 'LaunchPad setup wizard')"
 		size="large"
 		@close="onClose">
 		<div class="setup-wizard" data-test="setup-wizard">
 			<header class="setup-wizard__header">
-				<h2>{{ t('mydash', 'MyDash setup wizard') }}</h2>
+				<h2>{{ t('launchpad', 'LaunchPad setup wizard') }}</h2>
 				<p class="setup-wizard__counter" data-test="setup-wizard-counter">
-					{{ t('mydash', 'Step {n} / {total}', { n: currentStep, total: totalSteps }) }}
+					{{ t('launchpad', 'Step {n} / {total}', { n: currentStep, total: totalSteps }) }}
 				</p>
 			</header>
 
 			<section class="setup-wizard__body">
 				<!-- Step 1 — Welcome -->
 				<div v-if="currentStep === 1" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'Welcome') }}</h3>
+					<h3>{{ t('launchpad', 'Welcome') }}</h3>
 					<p>
-						{{ t('mydash', 'Configure your MyDash instance with storage, group ordering, demo data, admin roles, and footer settings.') }}
+						{{ t('launchpad', 'Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.') }}
 					</p>
 				</div>
 
 				<!-- Step 2 — Storage backend (REQ-WIZ-003) -->
 				<div v-else-if="currentStep === 2" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'Storage backend') }}</h3>
-					<p>{{ t('mydash', 'Choose how MyDash stores dashboard content.') }}</p>
+					<h3>{{ t('launchpad', 'Storage backend') }}</h3>
+					<p>{{ t('launchpad', 'Choose how LaunchPad stores dashboard content.') }}</p>
 
 					<label class="setup-wizard__radio">
 						<input
@@ -37,9 +37,9 @@
 							value="database"
 							data-test="storage-database">
 						<div>
-							<strong>{{ t('mydash', 'Database (default)') }}</strong>
+							<strong>{{ t('launchpad', 'Database (default)') }}</strong>
 							<p class="setup-wizard__hint">
-								{{ t('mydash', 'Store dashboard content in the MyDash database table.') }}
+								{{ t('launchpad', 'Store dashboard content in the LaunchPad database table.') }}
 							</p>
 						</div>
 					</label>
@@ -47,7 +47,7 @@
 					<label
 						class="setup-wizard__radio"
 						:class="{ 'setup-wizard__radio--disabled': !groupfolderAvailable }"
-						:title="groupfolderAvailable ? '' : t('mydash', 'GroupFolder app is not installed. Install \'Nextcloud GroupFolders\' to use this option.')">
+						:title="groupfolderAvailable ? '' : t('launchpad', 'GroupFolder app is not installed. Install \'Nextcloud GroupFolders\' to use this option.')">
 						<input
 							v-model="storage"
 							type="radio"
@@ -55,9 +55,9 @@
 							:disabled="!groupfolderAvailable"
 							data-test="storage-groupfolder">
 						<div>
-							<strong>{{ t('mydash', 'GroupFolder (recommended for org use)') }}</strong>
+							<strong>{{ t('launchpad', 'GroupFolder (recommended for org use)') }}</strong>
 							<p class="setup-wizard__hint">
-								{{ t('mydash', 'Store dashboard content in Nextcloud GroupFolders for collaborative access.') }}
+								{{ t('launchpad', 'Store dashboard content in Nextcloud GroupFolders for collaborative access.') }}
 							</p>
 						</div>
 					</label>
@@ -65,16 +65,16 @@
 
 				<!-- Step 3 — Group priority order (REQ-WIZ-004; embeds existing UI) -->
 				<div v-else-if="currentStep === 3" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'Group priority order') }}</h3>
+					<h3>{{ t('launchpad', 'Group priority order') }}</h3>
 					<p>
-						{{ t('mydash', 'Pick the order Nextcloud groups appear when MyDash routes users to a workspace.') }}
+						{{ t('launchpad', 'Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.') }}
 					</p>
 					<GroupPriorityOrder :initial-active="[]" />
 				</div>
 
 				<!-- Step 4 — Demo data (REQ-WIZ-005; delivered by demo-data-showcases sibling). -->
 				<div v-else-if="currentStep === 4" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'Demo data') }}</h3>
+					<h3>{{ t('launchpad', 'Demo data') }}</h3>
 					<AdminDemoData data-test="demo-data-panel" />
 				</div>
 
@@ -83,12 +83,12 @@
 				     AdminController role endpoints (POST/DELETE /api/admin/roles), not a Vue
 				     panel; build a dedicated AdminRolesPanel.vue and swap the stub below. -->
 				<div v-else-if="currentStep === 5" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'Admin roles') }}</h3>
+					<h3>{{ t('launchpad', 'Admin roles') }}</h3>
 					<p>
-						{{ t('mydash', 'Assign the "Dashboard Admin" role to a Nextcloud group to delegate MyDash administration.') }}
+						{{ t('launchpad', 'Assign the "Dashboard Admin" role to a Nextcloud group to delegate LaunchPad administration.') }}
 					</p>
 					<p class="setup-wizard__note" data-test="admin-roles-stub">
-						{{ t('mydash', 'The admin-roles capability is not yet available; this step will activate once it ships.') }}
+						{{ t('launchpad', 'The admin-roles capability is not yet available; this step will activate once it ships.') }}
 					</p>
 				</div>
 
@@ -98,20 +98,20 @@
 				     KEY_FOOTER_*); build a FooterSettingsPanel.vue and swap the
 				     stub below. -->
 				<div v-else-if="currentStep === 6" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'Footer configuration') }}</h3>
+					<h3>{{ t('launchpad', 'Footer configuration') }}</h3>
 					<p>
-						{{ t('mydash', 'Customize the footer content and appearance for your intranet.') }}
+						{{ t('launchpad', 'Customize the footer content and appearance for your intranet.') }}
 					</p>
 					<p class="setup-wizard__note" data-test="footer-stub">
-						{{ t('mydash', 'The footer-customization capability is not yet available; this step will activate once it ships.') }}
+						{{ t('launchpad', 'The footer-customization capability is not yet available; this step will activate once it ships.') }}
 					</p>
 				</div>
 
 				<!-- Step 7 — Done (REQ-WIZ-002 final step) -->
 				<div v-else-if="currentStep === 7" class="setup-wizard__step">
-					<h3>{{ t('mydash', 'All set') }}</h3>
+					<h3>{{ t('launchpad', 'All set') }}</h3>
 					<p>
-						{{ t('mydash', 'Your setup is complete. Click Finish to save changes and dismiss the setup banner.') }}
+						{{ t('launchpad', 'Your setup is complete. Click Finish to save changes and dismiss the setup banner.') }}
 					</p>
 				</div>
 			</section>
@@ -122,21 +122,21 @@
 					:disabled="currentStep <= 1"
 					data-test="setup-wizard-back"
 					@click="onBack">
-					{{ t('mydash', 'Back') }}
+					{{ t('launchpad', 'Back') }}
 				</NcButton>
 				<NcButton
 					v-if="!isFinalStep"
 					type="secondary"
 					data-test="setup-wizard-skip"
 					@click="onSkip">
-					{{ t('mydash', 'Skip') }}
+					{{ t('launchpad', 'Skip') }}
 				</NcButton>
 				<NcButton
 					type="primary"
 					:disabled="loading"
 					data-test="setup-wizard-next"
 					@click="onNext">
-					{{ isFinalStep ? t('mydash', 'Finish') : t('mydash', 'Next') }}
+					{{ isFinalStep ? t('launchpad', 'Finish') : t('launchpad', 'Next') }}
 				</NcButton>
 			</footer>
 		</div>

@@ -1,19 +1,19 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="sharing-policy" data-test="dashboard-sharing-policy">
-		<h3>{{ t('mydash', 'Organisation sharing defaults') }}</h3>
+		<h3>{{ t('launchpad', 'Organisation sharing defaults') }}</h3>
 		<p class="sharing-policy__hint">
-			{{ t('mydash', 'Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.') }}
+			{{ t('launchpad', 'Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.') }}
 		</p>
 
 		<div class="sharing-policy__field">
 			<NcSelect
 				v-model="defaultPermission"
-				:input-label="t('mydash', 'Default share permission level')"
+				:input-label="t('launchpad', 'Default share permission level')"
 				:options="permissionOptions"
 				label="label"
 				track-by="id"
@@ -24,18 +24,18 @@
 
 		<div class="sharing-policy__field">
 			<label class="sharing-policy__label">
-				{{ t('mydash', 'Forced share groups') }}
+				{{ t('launchpad', 'Forced share groups') }}
 			</label>
 			<NcSelectTags
 				v-model="forcedGroups"
 				:options="groups"
 				:multiple="true"
-				:aria-label-combobox="t('mydash', 'Forced share groups')"
-				:placeholder="t('mydash', 'Select groups (leave empty for none)')"
+				:aria-label-combobox="t('launchpad', 'Forced share groups')"
+				:placeholder="t('launchpad', 'Select groups (leave empty for none)')"
 				data-test="sharing-policy-forced-groups"
 				@input="save" />
 			<p class="sharing-policy__hint">
-				{{ t('mydash', 'Members of these groups always receive every newly created dashboard.') }}
+				{{ t('launchpad', 'Members of these groups always receive every newly created dashboard.') }}
 			</p>
 		</div>
 	</div>
@@ -76,7 +76,7 @@ export default {
 
 	data() {
 		return {
-			permissionOptions: PERMISSION_OPTIONS.map(o => ({ id: o.id, label: t('mydash', o.label) })),
+			permissionOptions: PERMISSION_OPTIONS.map(o => ({ id: o.id, label: t('launchpad', o.label) })),
 			defaultPermission: null,
 			forcedGroups: [],
 		}

@@ -1,32 +1,32 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
   -
   - Bulk dashboard operations widget (REQ-BULK-010).
   -
   - Renders a multi-select table over the visible dashboards plus an
   - "Actions" dropdown that wires into the four bulk endpoints exposed by
-  - {@link OCA\\MyDash\\Controller\\AdminBulkController}. Every action
+  - {@link OCA\\LaunchPad\\Controller\\AdminBulkController}. Every action
   - supports a "Dry run (preview only)" toggle, surfaces a summary of the
   - per-uuid result envelope, and clears the selection on a successful
   - non-dry-run run (REQ-BULK-008).
   -->
 
 <template>
-	<div class="mydash-bulk-ops" data-test="bulk-ops">
-		<h3>{{ t('mydash', 'Bulk dashboard operations') }}</h3>
-		<p class="mydash-bulk-ops__hint">
-			{{ t('mydash', 'Select multiple dashboards and apply an admin action to all of them at once. Every operation supports a dry-run preview.') }}
+	<div class="launchpad-bulk-ops" data-test="bulk-ops">
+		<h3>{{ t('launchpad', 'Bulk dashboard operations') }}</h3>
+		<p class="launchpad-bulk-ops__hint">
+			{{ t('launchpad', 'Select multiple dashboards and apply an admin action to all of them at once. Every operation supports a dry-run preview.') }}
 		</p>
 
-		<div v-if="loading" class="mydash-bulk-ops__loading">
-			{{ t('mydash', 'Loading dashboards…') }}
+		<div v-if="loading" class="launchpad-bulk-ops__loading">
+			{{ t('launchpad', 'Loading dashboards…') }}
 		</div>
 
-		<table v-else class="mydash-bulk-ops__table" data-test="bulk-ops-table">
+		<table v-else class="launchpad-bulk-ops__table" data-test="bulk-ops-table">
 			<thead>
 				<tr>
-					<th class="mydash-bulk-ops__col-select">
+					<th class="launchpad-bulk-ops__col-select">
 						<input
 							type="checkbox"
 							:checked="allSelected"
@@ -34,15 +34,15 @@
 							data-test="bulk-ops-select-all"
 							@change="toggleSelectAll">
 					</th>
-					<th>{{ t('mydash', 'Name') }}</th>
-					<th>{{ t('mydash', 'Status') }}</th>
+					<th>{{ t('launchpad', 'Name') }}</th>
+					<th>{{ t('launchpad', 'Status') }}</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr
 					v-for="dash in dashboards"
 					:key="dash.uuid"
-					:class="{ 'mydash-bulk-ops__row--selected': selectedUuids.includes(dash.uuid) }">
+					:class="{ 'launchpad-bulk-ops__row--selected': selectedUuids.includes(dash.uuid) }">
 					<td>
 						<input
 							type="checkbox"
@@ -57,59 +57,59 @@
 			</tbody>
 		</table>
 
-		<div class="mydash-bulk-ops__actions">
+		<div class="launchpad-bulk-ops__actions">
 			<select
 				v-model="selectedAction"
 				:disabled="selectedUuids.length === 0"
 				data-test="bulk-ops-action-select">
 				<option value="">
-					{{ t('mydash', 'Actions…') }}
+					{{ t('launchpad', 'Actions…') }}
 				</option>
 				<option value="delete">
-					{{ t('mydash', 'Delete') }}
+					{{ t('launchpad', 'Delete') }}
 				</option>
 				<option value="move">
-					{{ t('mydash', 'Move to…') }}
+					{{ t('launchpad', 'Move to…') }}
 				</option>
 				<option value="status">
-					{{ t('mydash', 'Set status') }}
+					{{ t('launchpad', 'Set status') }}
 				</option>
 				<option value="reindex">
-					{{ t('mydash', 'Reindex') }}
+					{{ t('launchpad', 'Reindex') }}
 				</option>
 			</select>
 			<button
 				:disabled="selectedUuids.length === 0 || selectedAction === '' || running"
 				data-test="bulk-ops-run"
 				@click="runAction">
-				{{ running ? t('mydash', 'Working…') : t('mydash', 'Apply') }}
+				{{ running ? t('launchpad', 'Working…') : t('launchpad', 'Apply') }}
 			</button>
 		</div>
 
-		<div v-if="modal" class="mydash-bulk-ops__modal" data-test="bulk-ops-modal">
-			<div class="mydash-bulk-ops__modal-inner">
+		<div v-if="modal" class="launchpad-bulk-ops__modal" data-test="bulk-ops-modal">
+			<div class="launchpad-bulk-ops__modal-inner">
 				<h4>{{ modal.title }}</h4>
 				<p>{{ modal.message }}</p>
 
-				<div v-if="modal.action === 'move'" class="mydash-bulk-ops__field">
-					<label>{{ t('mydash', 'New parent UUID (leave empty for root)') }}</label>
+				<div v-if="modal.action === 'move'" class="launchpad-bulk-ops__field">
+					<label>{{ t('launchpad', 'New parent UUID (leave empty for root)') }}</label>
 					<input
 						v-model="parentUuidInput"
 						type="text"
 						data-test="bulk-ops-parent-uuid">
 				</div>
 
-				<div v-if="modal.action === 'status'" class="mydash-bulk-ops__field">
-					<label>{{ t('mydash', 'Publication status') }}</label>
+				<div v-if="modal.action === 'status'" class="launchpad-bulk-ops__field">
+					<label>{{ t('launchpad', 'Publication status') }}</label>
 					<select v-model="statusInput" data-test="bulk-ops-status-select">
 						<option value="draft">
-							{{ t('mydash', 'Draft') }}
+							{{ t('launchpad', 'Draft') }}
 						</option>
 						<option value="published">
-							{{ t('mydash', 'Published') }}
+							{{ t('launchpad', 'Published') }}
 						</option>
 						<option value="scheduled">
-							{{ t('mydash', 'Scheduled') }}
+							{{ t('launchpad', 'Scheduled') }}
 						</option>
 					</select>
 					<input
@@ -119,34 +119,34 @@
 						data-test="bulk-ops-publish-at">
 				</div>
 
-				<label class="mydash-bulk-ops__dryrun">
+				<label class="launchpad-bulk-ops__dryrun">
 					<input
 						v-model="dryRun"
 						type="checkbox"
 						data-test="bulk-ops-dryrun">
-					{{ t('mydash', 'Dry run (preview only)') }}
+					{{ t('launchpad', 'Dry run (preview only)') }}
 				</label>
 
-				<div class="mydash-bulk-ops__modal-actions">
+				<div class="launchpad-bulk-ops__modal-actions">
 					<button @click="cancelModal">
-						{{ t('mydash', 'Cancel') }}
+						{{ t('launchpad', 'Cancel') }}
 					</button>
 					<button
 						:disabled="running"
 						data-test="bulk-ops-confirm"
 						@click="confirmAction">
-						{{ t('mydash', 'OK') }}
+						{{ t('launchpad', 'OK') }}
 					</button>
 				</div>
 			</div>
 		</div>
 
-		<div v-if="resultSummary" class="mydash-bulk-ops__result" data-test="bulk-ops-result">
+		<div v-if="resultSummary" class="launchpad-bulk-ops__result" data-test="bulk-ops-result">
 			<p v-if="resultSummary.dryRun">
-				{{ t('mydash', 'PREVIEW: would change {count} dashboards.', { count: resultSummary.changed }) }}
+				{{ t('launchpad', 'PREVIEW: would change {count} dashboards.', { count: resultSummary.changed }) }}
 			</p>
 			<p v-else>
-				{{ t('mydash', 'Changed {count} dashboards. Skipped {skipped}.', {
+				{{ t('launchpad', 'Changed {count} dashboards. Skipped {skipped}.', {
 					count: resultSummary.changed,
 					skipped: resultSummary.skipped,
 				}) }}
@@ -158,7 +158,7 @@
 			</ul>
 		</div>
 
-		<div v-if="errorMessage" class="mydash-bulk-ops__error" data-test="bulk-ops-error">
+		<div v-if="errorMessage" class="launchpad-bulk-ops__error" data-test="bulk-ops-error">
 			{{ errorMessage }}
 		</div>
 	</div>
@@ -211,7 +211,7 @@ export default {
 				const { data } = await api.getVisibleDashboards()
 				this.dashboards = Array.isArray(data) ? data : (data.dashboards || [])
 			} catch (e) {
-				this.errorMessage = t('mydash', 'Failed to load dashboards')
+				this.errorMessage = t('launchpad', 'Failed to load dashboards')
 			} finally {
 				this.loading = false
 			}
@@ -241,16 +241,16 @@ export default {
 			this.errorMessage = ''
 			this.resultSummary = null
 			const titles = {
-				delete: t('mydash', 'Delete dashboards?'),
-				move: t('mydash', 'Move dashboards?'),
-				status: t('mydash', 'Set publication status?'),
-				reindex: t('mydash', 'Reindex dashboards for search?'),
+				delete: t('launchpad', 'Delete dashboards?'),
+				move: t('launchpad', 'Move dashboards?'),
+				status: t('launchpad', 'Set publication status?'),
+				reindex: t('launchpad', 'Reindex dashboards for search?'),
 			}
 			const messages = {
-				delete: t('mydash', 'About to delete {n} dashboards. This cannot be undone.', { n: this.selectedUuids.length }),
-				move: t('mydash', 'About to re-parent {n} dashboards.', { n: this.selectedUuids.length }),
-				status: t('mydash', 'About to update the publication status of {n} dashboards.', { n: this.selectedUuids.length }),
-				reindex: t('mydash', 'About to reindex {n} dashboards for unified search.', { n: this.selectedUuids.length }),
+				delete: t('launchpad', 'About to delete {n} dashboards. This cannot be undone.', { n: this.selectedUuids.length }),
+				move: t('launchpad', 'About to re-parent {n} dashboards.', { n: this.selectedUuids.length }),
+				status: t('launchpad', 'About to update the publication status of {n} dashboards.', { n: this.selectedUuids.length }),
+				reindex: t('launchpad', 'About to reindex {n} dashboards for unified search.', { n: this.selectedUuids.length }),
 			}
 			this.modal = {
 				action: this.selectedAction,
@@ -302,7 +302,7 @@ export default {
 					this.loadDashboards()
 				}
 			} catch (e) {
-				this.errorMessage = e?.response?.data?.error || t('mydash', 'Bulk operation failed')
+				this.errorMessage = e?.response?.data?.error || t('launchpad', 'Bulk operation failed')
 			} finally {
 				this.running = false
 				this.modal = null
@@ -313,31 +313,31 @@ export default {
 </script>
 
 <style scoped>
-.mydash-bulk-ops {
+.launchpad-bulk-ops {
 	margin-top: 1rem;
 }
-.mydash-bulk-ops__table {
+.launchpad-bulk-ops__table {
 	width: 100%;
 	border-collapse: collapse;
 	margin-bottom: 0.75rem;
 }
-.mydash-bulk-ops__table th,
-.mydash-bulk-ops__table td {
+.launchpad-bulk-ops__table th,
+.launchpad-bulk-ops__table td {
 	padding: 0.25rem 0.5rem;
 	text-align: left;
 }
-.mydash-bulk-ops__col-select {
+.launchpad-bulk-ops__col-select {
 	width: 2rem;
 }
-.mydash-bulk-ops__row--selected {
+.launchpad-bulk-ops__row--selected {
 	background-color: var(--color-background-hover, #eee);
 }
-.mydash-bulk-ops__actions {
+.launchpad-bulk-ops__actions {
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 0.75rem;
 }
-.mydash-bulk-ops__modal {
+.launchpad-bulk-ops__modal {
 	position: fixed;
 	inset: 0;
 	background-color: rgba(0, 0, 0, 0.4);
@@ -346,27 +346,27 @@ export default {
 	justify-content: center;
 	z-index: 1000;
 }
-.mydash-bulk-ops__modal-inner {
+.launchpad-bulk-ops__modal-inner {
 	background-color: var(--color-main-background, #fff);
 	padding: 1rem;
 	border-radius: 8px;
 	min-width: 320px;
 }
-.mydash-bulk-ops__field {
+.launchpad-bulk-ops__field {
 	margin: 0.5rem 0;
 }
-.mydash-bulk-ops__dryrun {
+.launchpad-bulk-ops__dryrun {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 	margin: 0.5rem 0;
 }
-.mydash-bulk-ops__modal-actions {
+.launchpad-bulk-ops__modal-actions {
 	display: flex;
 	gap: 0.5rem;
 	justify-content: flex-end;
 }
-.mydash-bulk-ops__error {
+.launchpad-bulk-ops__error {
 	color: var(--color-error, #c00);
 }
 </style>

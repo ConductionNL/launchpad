@@ -11,24 +11,24 @@
  * REQ-CSC-003, REQ-CSC-010.
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
 use DateTimeImmutable;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\EventDispatcher\IEventListener;
@@ -110,20 +110,20 @@ class TreeListener implements IEventListener
 
             $this->logger->debug(
                 message: sprintf(
-                    'mydash TreeListener: dispatched delete for %d children of dashboard %s',
+                    'launchpad TreeListener: dispatched delete for %d children of dashboard %s',
                     count($children),
                     $uuid
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash TreeListener: failed for dashboard %s: %s',
+                    'launchpad TreeListener: failed for dashboard %s: %s',
                     $uuid,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handle()

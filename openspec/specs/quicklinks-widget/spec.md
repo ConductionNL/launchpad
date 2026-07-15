@@ -1,16 +1,16 @@
 ---
-status: implemented
+status: done
 ---
 
 # Quicklinks Widget Specification
 
 ## Purpose
 
-The quicklinks widget is a built-in MyDash widget type that renders a flat, dense grid of icon-and-label shortcuts inside a single placement. Where the link-button widget owns one shortcut per placement and the links widget spreads grouped sections across multiple columns, the quicklinks widget targets the "app launcher" use case: 8–40 frequently used URLs in one widget, with admin-configurable icon size, shape, label position, columns, tile background, and hover effect. Bulk-add via CSV paste is first-class so admins can move dozens of shortcuts off a spreadsheet without typing each row.
+The quicklinks widget is a built-in LaunchPad widget type that renders a flat, dense grid of icon-and-label shortcuts inside a single placement. Where the link-button widget owns one shortcut per placement and the links widget spreads grouped sections across multiple columns, the quicklinks widget targets the "app launcher" use case: 8–40 frequently used URLs in one widget, with admin-configurable icon size, shape, label position, columns, tile background, and hover effect. Bulk-add via CSV paste is first-class so admins can move dozens of shortcuts off a spreadsheet without typing each row.
 
 ## Data Model
 
-Quicklinks placements use the existing `oc_mydash_widget_placements.content` JSON column with the discriminated shape `{type: 'quicklinks', content: {...}}`. No schema migration is required.
+Quicklinks placements use the existing `oc_launchpad_widget_placements.content` JSON column with the discriminated shape `{type: 'quicklinks', content: {...}}`. No schema migration is required.
 
 The `content` object carries the eight fields specified in REQ-QLNK-002. Defaults are populated by the widget registry and the renderer; persisted blobs that omit a field render with the registry default applied.
 
@@ -18,13 +18,12 @@ The `content` object carries the eight fields specified in REQ-QLNK-002. Default
 
 ### Requirement: REQ-QLNK-001 Registration and widget id
 
+The system MUST register a new dashboard widget with id `launchpad_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
 @e2e exclude widget registration tested via widget-in-picker scenario
-
-The system MUST register a new dashboard widget with id `mydash_quicklinks` via `OCP\Dashboard\IManager::registerWidget()`. The widget MUST appear in the widget picker under a translatable name `t('Quicklinks')` and MUST have a default grid size of `gridWidth = 4` and `gridHeight = 2`.
 
 #### Scenario: Widget registered and appears in picker
 
-- GIVEN the MyDash app has been installed and the widget is properly registered
+- GIVEN the LaunchPad app has been installed and the widget is properly registered
 - WHEN a user opens the widget picker
 - THEN the picker MUST display an entry for `Quicklinks` (or locale-translated equivalent)
 - AND selecting it MUST add a new widget placement with default config
@@ -38,9 +37,8 @@ The system MUST register a new dashboard widget with id `mydash_quicklinks` via 
 
 ### Requirement: REQ-QLNK-002 Per-placement configuration shape
 
-@e2e exclude per-placement configuration shape tests JSON schema — Vitest/Newman scope
-
 The `widgetContent` JSON blob for a quicklinks widget MUST contain all of the following fields:
+@e2e exclude per-placement configuration shape tests JSON schema — Vitest/Newman scope
 
 - `links: Array<{label: string, url: string, icon: string, color?: string, openInNewTab?: boolean}>` — array of link objects (required; empty array is valid).
 - `iconSize: 'small'|'medium'|'large'|'xlarge'` (default `medium`) — controls icon rendering size.
@@ -69,9 +67,8 @@ The form MUST preserve all fields on save; omitted fields MUST be populated with
 
 ### Requirement: REQ-QLNK-003 Icon resolution
 
-@e2e exclude icon resolution tests IconRenderer dispatch — Vitest component scope
-
 Each link's `icon` field MUST follow the same dual-mode convention as link-button-widget (REQ-LBN-002):
+@e2e exclude icon resolution tests IconRenderer dispatch — Vitest component scope
 
 - A custom URL (starts with `/` or `http(s)://`) MUST render as `<img>` inside the icon container.
 - A bare name (e.g., `folder`, `calendar`, `mail`) MUST render via the shared `IconRenderer` (built-in MDI component).
@@ -81,9 +78,9 @@ Icon size is controlled by the `iconSize` field (REQ-QLNK-004); label rendering 
 
 #### Scenario: Custom URL icon renders as image
 
-- GIVEN content `{links: [{label: 'Docs', url: 'https://example.com', icon: '/apps/mydash/resource/docs.png'}]}`
+- GIVEN content `{links: [{label: 'Docs', url: 'https://example.com', icon: '/apps/launchpad/resource/docs.png'}]}`
 - WHEN the widget renders with `iconSize: 'medium'`
-- THEN the icon container MUST display `<img src="/apps/mydash/resource/docs.png">` sized 48 px square
+- THEN the icon container MUST display `<img src="/apps/launchpad/resource/docs.png">` sized 48 px square
 - AND the label `Docs` MUST appear below (or overlay on hover, depending on `labelPosition`)
 
 #### Scenario: MDI icon name renders via IconRenderer
@@ -101,9 +98,8 @@ Icon size is controlled by the `iconSize` field (REQ-QLNK-004); label rendering 
 
 ### Requirement: REQ-QLNK-004 Icon sizes and shapes
 
-@e2e exclude icon sizes and shapes tests CSS dimension values — requires a placed quicklinks widget; seeded state not in CI fixture
-
 The `iconSize` field MUST map to pixel dimensions as follows:
+@e2e exclude icon sizes and shapes tests CSS dimension values — requires a placed quicklinks widget; seeded state not in CI fixture
 
 - `small` → 32 px square
 - `medium` → 48 px square
@@ -139,9 +135,8 @@ When `tileBackgroundStyle = 'transparent'`, the shape only affects the icon's ba
 
 ### Requirement: REQ-QLNK-005 Label position control
 
-@e2e exclude label position control tests CSS flex ordering — requires placed widget
-
 When `showLabels: true`, each link MUST display a label. The `labelPosition` field MUST control where and when the label appears:
+@e2e exclude label position control tests CSS flex ordering — requires placed widget
 
 - `below` → label appears directly below the icon at all times; each link cell occupies `iconSize + label height` vertical space.
 - `overlay` → label appears centred over the icon only on hover (`:hover`, keyboard focus); default rendering shows icon only; hovering or focusing the link shows the label centred over the icon.
@@ -175,9 +170,8 @@ The label text MUST be the link's `label` field, truncated to a sensible max len
 
 ### Requirement: REQ-QLNK-006 Column layout flexibility
 
-@e2e exclude column layout flexibility tests CSS grid layout — requires placed widget
-
 The `columns` field MUST control the layout grid as follows:
+@e2e exclude column layout flexibility tests CSS grid layout — requires placed widget
 
 - `'auto'` (default) → CSS Flexbox with `flex-wrap: wrap`. Items flow left-to-right, wrapping to the next row when the widget width is exhausted. Item width is elastic based on `iconSize + label area`.
 - A number `1..12` → CSS Grid with `grid-template-columns: repeat(N, 1fr)`, where `N` is the specified number. Each item occupies exactly `1/N` of the widget's width.
@@ -211,9 +205,8 @@ The renderer MUST ignore invalid values (e.g., `columns: 13` or `columns: 'inval
 
 ### Requirement: REQ-QLNK-007 Hover effects
 
-@e2e exclude hover effects tests CSS :hover transitions — requires placed widget and hover simulation
-
 The `hoverEffect` field MUST control the CSS animation when a user hovers over a link:
+@e2e exclude hover effects tests CSS :hover transitions — requires placed widget and hover simulation
 
 - `lift` (default) → translate the icon upward by 2–4 px and add a subtle box-shadow (e.g., `0 4px 8px rgba(0, 0, 0, 0.1)`). Transition duration ≈ 200ms.
 - `fade` → reduce opacity of non-hovered links to 0.6 while hovered link remains 1.0. Transition duration ≈ 150ms.
@@ -255,9 +248,8 @@ Effects MUST apply only to the hovered link, not the entire widget.
 
 ### Requirement: REQ-QLNK-008 URL sanitisation on save
 
-@e2e exclude URL sanitisation runs on save in PHP — Newman scope; frontend sanitiser tested by Vitest
-
 When the edit form submits, the system MUST validate each link's `url` field. Invalid URLs MUST be rejected with an HTTP 400 response and a user-friendly error message. The validation rules are:
+@e2e exclude URL sanitisation runs on save in PHP — Newman scope; frontend sanitiser tested by Vitest
 
 - MUST start with `http://`, `https://`, or `/` (relative Nextcloud URLs).
 - MUST NOT contain `javascript:`, `data:`, `vbscript:`, or other dangerous protocols.
@@ -302,9 +294,8 @@ The form MUST display inline validation feedback (red border + error text) on th
 
 ### Requirement: REQ-QLNK-009 Click and navigation
 
-@e2e exclude click and navigation tests window.open + router.push inside a placed widget — requires seeded quicklinks placement
-
 When a user clicks a link in the rendered widget, the system MUST navigate based on the link's `url` and `openInNewTab` fields:
+@e2e exclude click and navigation tests window.open + router.push inside a placed widget — requires seeded quicklinks placement
 
 - If `url` starts with `/` (relative, internal Nextcloud URL) and `openInNewTab: false` (or not set and auto-detect resolves to same-tab), navigate in the same tab via `router.push(url)` or `window.location.href = url`.
 - If `url` starts with `http(s)://` (external) OR `openInNewTab: true`, open in a new tab via `window.open(url, '_blank', 'noopener,noreferrer')`.
@@ -341,9 +332,8 @@ Auto-detect for `openInNewTab` when not specified: if the URL is external (`http
 
 ### Requirement: REQ-QLNK-010 Accessibility
 
-@e2e exclude accessibility tests ARIA role on links inside a placed widget — requires placed widget
-
 Each link in the rendered widget MUST be an HTML `<a>` element (not a `<button>` or `<div>`). The `<a>` MUST have:
+@e2e exclude accessibility tests ARIA role on links inside a placed widget — requires placed widget
 
 - `href` attribute set to the link's `url`.
 - `aria-label` set to a descriptive label. If `showLabels: true` and `labelPosition: 'below'`, use the visible label. Otherwise, use `url` hostname or a fallback like `t('Link to') + ' ' + extractHostname(url)`.
@@ -381,9 +371,8 @@ Each link in the rendered widget MUST be an HTML `<a>` element (not a `<button>`
 
 ### Requirement: REQ-QLNK-011 Empty state and default sizing
 
-@e2e exclude empty state and default sizing tests Vue empty-state component inside placed widget — requires seeded empty placement
-
 When a quicklinks widget has zero links (`links: []`), the renderer MUST display an empty state message. The message MUST be:
+@e2e exclude empty state and default sizing tests Vue empty-state component inside placed widget — requires seeded empty placement
 
 - Translatable: `t('No quicklinks yet — click the gear icon to add some.')` (or similar in Dutch: `t('Nog geen snelkoppelingen — klik op het tandwielpictogram om er enkele toe te voegen.')`).
 - Centred horizontally and vertically in the widget's viewport.

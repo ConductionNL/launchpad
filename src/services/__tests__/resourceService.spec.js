@@ -1,10 +1,10 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest tests for `src/services/resourceService.js`. Confirms the wrapper:
  *
- *  - posts `{base64: <dataUrl>}` to `/apps/mydash/api/resources`
+ *  - posts `{base64: <dataUrl>}` to `/apps/launchpad/api/resources`
  *  - returns the success envelope's `{url, name, size}` shape
  *  - rethrows the server's `error` enum + `message` as a `ResourceUploadError`
  *  - falls back to a `network_error` code when the network call fails
@@ -38,7 +38,7 @@ describe('resourceService.uploadDataUrl', () => {
 			status: 200,
 			data: {
 				status: 'success',
-				url: '/apps/mydash/resource/resource_abc.png',
+				url: '/apps/launchpad/resource/resource_abc.png',
 				name: 'resource_abc.png',
 				size: 1234,
 			},
@@ -47,11 +47,11 @@ describe('resourceService.uploadDataUrl', () => {
 		const result = await uploadDataUrl('data:image/png;base64,xxx')
 
 		expect(postMock).toHaveBeenCalledWith(
-			'http://localhost/apps/mydash/api/resources',
+			'http://localhost/apps/launchpad/api/resources',
 			{ base64: 'data:image/png;base64,xxx' },
 		)
 		expect(result).toEqual({
-			url: '/apps/mydash/resource/resource_abc.png',
+			url: '/apps/launchpad/resource/resource_abc.png',
 			name: 'resource_abc.png',
 			size: 1234,
 		})

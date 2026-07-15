@@ -1,33 +1,37 @@
+---
+status: done
+---
+
 # background-job-feed-refresh Specification
 
 ## Purpose
-TBD - created by archiving change background-job-feed-refresh. Update Purpose after archive.
+Keeps news-widget feeds fresh by running a scheduled background job that fetches, parses, and caches RSS 2.0 and Atom 1.0 feeds referenced by dashboard placements. It deduplicates feed URLs into a shared cache table, uses HTTP conditional requests and per-feed failure isolation to stay efficient and resilient, enforces a host allow-list and concurrency lock, and exposes an admin endpoint to trigger an immediate refresh.
 ## Requirements
 
 @e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
 
 ### Requirement: REQ-FRJ-001 Feed Cache Table Schema
 
-The system MUST create a database table `oc_mydash_feed_cache` that stores exactly one row per distinct feed URL across all news-widget placements, persisting fetch metadata and cached items.
+The system MUST create a database table `oc_launchpad_feed_cache` that stores exactly one row per distinct feed URL across all news-widget placements, persisting fetch metadata and cached items.
 
 #### Scenario: Table created on migration
 
-- GIVEN MyDash is freshly installed or upgraded and the migration has not yet run
-- WHEN `occ migrations:execute mydash` runs the `AddFeedCacheTable` migration
-- THEN the table `oc_mydash_feed_cache` MUST exist with columns: `id` (auto-increment integer PK), `feedUrl VARCHAR(2048) UNIQUE NOT NULL`, `lastFetchedAt TIMESTAMP NULL`, `lastSuccessAt TIMESTAMP NULL`, `lastFailureReason TEXT NULL`, `etag VARCHAR(255) NULL`, `lastModified VARCHAR(255) NULL`, `itemsJson MEDIUMTEXT NULL`
+- GIVEN LaunchPad is freshly installed or upgraded and the migration has not yet run
+- WHEN `occ migrations:execute launchpad` runs the `AddFeedCacheTable` migration
+- THEN the table `oc_launchpad_feed_cache` MUST exist with columns: `id` (auto-increment integer PK), `feedUrl VARCHAR(2048) UNIQUE NOT NULL`, `lastFetchedAt TIMESTAMP NULL`, `lastSuccessAt TIMESTAMP NULL`, `lastFailureReason TEXT NULL`, `etag VARCHAR(255) NULL`, `lastModified VARCHAR(255) NULL`, `itemsJson MEDIUMTEXT NULL`
 - AND a unique index on `feedUrl` MUST be present
 
 #### Scenario: One row per distinct URL regardless of placement count
 
 - GIVEN two separate news-widget placements both reference `https://example.com/rss`
 - WHEN the background job discovers feed URLs and upserts into the cache table
-- THEN exactly one row with `feedUrl = 'https://example.com/rss'` MUST exist in `oc_mydash_feed_cache`
+- THEN exactly one row with `feedUrl = 'https://example.com/rss'` MUST exist in `oc_launchpad_feed_cache`
 - AND updates to that row MUST be shared by both placements
 
 #### Scenario: Schema is compatible across supported databases
 
 - GIVEN the migration runs on SQLite, MySQL 8.x, and PostgreSQL 14+
-- WHEN `oc_mydash_feed_cache` is created
+- WHEN `oc_launchpad_feed_cache` is created
 - THEN the table MUST be created without error on each engine
 - AND `MEDIUMTEXT` MUST be mapped to an equivalent large-text column type on PostgreSQL
 
@@ -35,7 +39,7 @@ The system MUST create a database table `oc_mydash_feed_cache` that stores exact
 
 - GIVEN the migration has been applied
 - WHEN a rollback is triggered (e.g., `occ migrations:execute --revert`)
-- THEN the `oc_mydash_feed_cache` table MUST be dropped cleanly
+- THEN the `oc_launchpad_feed_cache` table MUST be dropped cleanly
 - AND no orphan indexes MUST remain
 
 #### Scenario: itemsJson capped at 50 items on write
@@ -51,34 +55,34 @@ The system MUST register `FeedRefreshJob` as a Nextcloud `\OCP\BackgroundJob\Tim
 
 #### Scenario: Job runs every 60 minutes by default
 
-- GIVEN no `mydash.feed_refresh_interval_seconds` app config key has been set
+- GIVEN no `launchpad.feed_refresh_interval_seconds` app config key has been set
 - WHEN Nextcloud's cron daemon evaluates scheduled jobs
 - THEN `FeedRefreshJob` MUST run at most once per 3600 seconds (60 minutes)
 - AND `$this->setInterval(3600)` MUST be called in the job constructor
 
 #### Scenario: Admin sets custom refresh interval
 
-- GIVEN an admin runs `occ config:app:set mydash feed_refresh_interval_seconds --value=900`
+- GIVEN an admin runs `occ config:app:set launchpad feed_refresh_interval_seconds --value=900`
 - WHEN `FeedRefreshJob` is next constructed
 - THEN it MUST call `$this->setInterval(900)` so the job runs every 15 minutes
 
 #### Scenario: Interval clamped to minimum 300 seconds
 
-- GIVEN an admin sets `mydash.feed_refresh_interval_seconds` to `60`
+- GIVEN an admin sets `launchpad.feed_refresh_interval_seconds` to `60`
 - WHEN the job constructor reads the config value
 - THEN the effective interval MUST be `max(300, configuredValue)` = `300`
 - AND the job MUST NOT run more frequently than once every 5 minutes
 
 #### Scenario: Interval clamped to maximum 86400 seconds
 
-- GIVEN an admin sets `mydash.feed_refresh_interval_seconds` to `172800` (48 h)
+- GIVEN an admin sets `launchpad.feed_refresh_interval_seconds` to `172800` (48 h)
 - WHEN the job constructor reads the config value
 - THEN the effective interval MUST be `min(86400, configuredValue)` = `86400`
 - AND the job MUST NOT run less frequently than once per 24 hours
 
 #### Scenario: Job registered on application bootstrap
 
-- GIVEN MyDash is installed and enabled
+- GIVEN LaunchPad is installed and enabled
 - WHEN `AppInfo/Bootstrap.php::register()` is called
 - THEN `$context->registerBackgroundJob(FeedRefreshJob::class)` MUST be called
 - AND `occ background-job:list | grep FeedRefreshJob` MUST return a non-empty result
@@ -89,7 +93,7 @@ The job MUST discover the complete set of active feed URLs by querying all news-
 
 #### Scenario: Feed URLs extracted from placements
 
-- GIVEN three news-widget placements with `widgetId = 'mydash_news'`:
+- GIVEN three news-widget placements with `widgetId = 'launchpad_news'`:
   - Placement A: `widgetContent = {"feedUrls": ["https://a.com/rss", "https://b.com/feed"]}`
   - Placement B: `widgetContent = {"feedUrls": ["https://b.com/feed", "https://c.com/atom"]}`
   - Placement C: `widgetContent = {"feedUrls": []}`
@@ -106,21 +110,21 @@ The job MUST discover the complete set of active feed URLs by querying all news-
 
 #### Scenario: New feed URL upserted before first fetch
 
-- GIVEN a placement has just been created with `feedUrl = "https://new.example.org/rss"` not yet in `oc_mydash_feed_cache`
+- GIVEN a placement has just been created with `feedUrl = "https://new.example.org/rss"` not yet in `oc_launchpad_feed_cache`
 - WHEN `discoverFeedUrls()` finishes and the job iterates feed URLs
 - THEN the job MUST call `FeedCacheMapper::upsertUrl("https://new.example.org/rss")` before fetching
-- AND a row MUST exist in `oc_mydash_feed_cache` with null metadata fields
+- AND a row MUST exist in `oc_launchpad_feed_cache` with null metadata fields
 
 #### Scenario: Discovery ignores non-news-widget placements
 
-- GIVEN a placement with `widgetId = 'mydash_links'` and a placement with `widgetId = 'mydash_news'`
+- GIVEN a placement with `widgetId = 'launchpad_links'` and a placement with `widgetId = 'launchpad_news'`
 - WHEN `discoverFeedUrls()` is called
-- THEN ONLY the `mydash_news` placement feeds MUST be included in the result
-- AND no URLs from `mydash_links` placements MUST appear
+- THEN ONLY the `launchpad_news` placement feeds MUST be included in the result
+- AND no URLs from `launchpad_links` placements MUST appear
 
 #### Scenario: Empty result when no news widgets are placed
 
-- GIVEN no placement has `widgetId = 'mydash_news'`
+- GIVEN no placement has `widgetId = 'launchpad_news'`
 - WHEN `discoverFeedUrls()` is called
 - THEN the returned array MUST be empty
 - AND the job MUST log an INFO-level message "No news widget placements found; nothing to refresh" and exit without error
@@ -131,7 +135,7 @@ The job MUST use HTTP conditional-get headers (`If-None-Match`, `If-Modified-Sin
 
 #### Scenario: First fetch — no conditional headers sent
 
-- GIVEN `oc_mydash_feed_cache` row for a URL has `etag = NULL` and `lastModified = NULL`
+- GIVEN `oc_launchpad_feed_cache` row for a URL has `etag = NULL` and `lastModified = NULL`
 - WHEN the job fetches the feed
 - THEN the HTTP request MUST NOT include `If-None-Match` or `If-Modified-Since` headers
 - AND the full feed body MUST be received and parsed
@@ -259,7 +263,7 @@ Only one instance of `FeedRefreshJob` MUST run at a time across the Nextcloud cl
 
 - GIVEN no other instance of `FeedRefreshJob` is running
 - WHEN the job's `run()` method is invoked by the Nextcloud cron daemon
-- THEN the job MUST call `ILockingProvider::acquireLock('mydash_feed_refresh_running', ILockingProvider::LOCK_EXCLUSIVE)`
+- THEN the job MUST call `ILockingProvider::acquireLock('launchpad_feed_refresh_running', ILockingProvider::LOCK_EXCLUSIVE)`
 - AND the lock MUST be released (via `releaseLock`) in a `finally` block after all feeds are processed
 
 #### Scenario: Second concurrent invocation exits without processing
@@ -300,7 +304,7 @@ When the number of active feed URLs exceeds 500, the job MUST split work across 
 - GIVEN there are 750 active feed URLs, sorted alphabetically, and the job processes 500 per tick
 - WHEN the first tick runs
 - THEN feeds 1–500 MUST be processed
-- AND the cursor value (last processed `feedUrl`) MUST be stored in app config `mydash.feed_refresh_cursor`
+- AND the cursor value (last processed `feedUrl`) MUST be stored in app config `launchpad.feed_refresh_cursor`
 
 - WHEN the second tick runs
 - THEN feeds 501–750 MUST be processed (resuming from cursor)
@@ -352,7 +356,7 @@ Feeds no longer referenced by any active placement for ≥30 days MUST be pruned
 
 - GIVEN the `orphaned-data-cleanup` sibling job has NOT been implemented
 - WHEN the feed cache grows over time with unreferenced entries
-- THEN `oc_mydash_feed_cache` rows for orphaned feeds MUST remain in the table (no auto-delete)
+- THEN `oc_launchpad_feed_cache` rows for orphaned feeds MUST remain in the table (no auto-delete)
 - AND no error MUST be raised — the table grows until the sibling job is active
 
 ### Requirement: REQ-FRJ-010 Admin Refresh-Now Endpoint
@@ -403,14 +407,14 @@ The job MUST check each feed URL against the configured allow-list before fetchi
 
 #### Scenario: Allow-list empty — all hosts permitted
 
-- GIVEN `mydash.news_widget_allowed_feed_hosts` is not set or is an empty string
+- GIVEN `launchpad.news_widget_allowed_feed_hosts` is not set or is an empty string
 - WHEN the job processes any feed URL
 - THEN no allow-list check MUST be performed
 - AND all HTTP/HTTPS feed URLs MUST proceed to fetch
 
 #### Scenario: Disallowed host skipped before HTTP request
 
-- GIVEN `mydash.news_widget_allowed_feed_hosts = "bbc.com,example.org"`
+- GIVEN `launchpad.news_widget_allowed_feed_hosts = "bbc.com,example.org"`
 - AND the job discovers `https://blocked-site.com/feed`
 - WHEN the job processes this URL
 - THEN NO HTTP request MUST be made to `blocked-site.com`
@@ -419,7 +423,7 @@ The job MUST check each feed URL against the configured allow-list before fetchi
 
 #### Scenario: Allowed host passes check and is fetched
 
-- GIVEN `mydash.news_widget_allowed_feed_hosts = "bbc.com,example.org"`
+- GIVEN `launchpad.news_widget_allowed_feed_hosts = "bbc.com,example.org"`
 - AND the job discovers `https://bbc.com/news/rss.xml`
 - WHEN the job processes this URL
 - THEN the allow-list check MUST succeed
@@ -427,14 +431,14 @@ The job MUST check each feed URL against the configured allow-list before fetchi
 
 #### Scenario: Allow-list comparison is case-insensitive
 
-- GIVEN `mydash.news_widget_allowed_feed_hosts = "BBC.com"`
+- GIVEN `launchpad.news_widget_allowed_feed_hosts = "BBC.com"`
 - AND the feed URL is `https://bbc.com/rss`
 - WHEN the hostname is compared against the allow-list
 - THEN the match MUST succeed (lowercased comparison on both sides)
 
 #### Scenario: Subdomains not covered by base hostname
 
-- GIVEN `mydash.news_widget_allowed_feed_hosts = "example.org"`
+- GIVEN `launchpad.news_widget_allowed_feed_hosts = "example.org"`
 - AND the feed URL is `https://feeds.example.org/rss`
 - WHEN the hostname is compared
 - THEN the match MUST fail (exact hostname required; no wildcard subdomain expansion)
@@ -448,7 +452,7 @@ The job MUST identify itself with a descriptive User-Agent header and MUST honou
 
 - GIVEN the job fetches any feed URL
 - WHEN the HTTP request is constructed via `IClientService`
-- THEN the `User-Agent` header MUST be set to `Mozilla/5.0 (compatible; MyDash/<appVersion>; +<instanceUrl>/apps/mydash)`
+- THEN the `User-Agent` header MUST be set to `Mozilla/5.0 (compatible; LaunchPad/<appVersion>; +<instanceUrl>/apps/launchpad)`
 - AND `<appVersion>` MUST be the app's current version string (e.g., `1.0.0`)
 - AND `<instanceUrl>` MUST be the NC instance URL from `IConfig::getSystemValue('overwrite.cli.url')`
 
@@ -470,6 +474,6 @@ The job MUST identify itself with a descriptive User-Agent header and MUST honou
 
 - GIVEN the app is upgraded from version `1.0.0` to `1.1.0`
 - WHEN the job runs after upgrade
-- THEN the User-Agent MUST reflect `MyDash/1.1.0`
+- THEN the User-Agent MUST reflect `LaunchPad/1.1.0`
 - AND the version MUST be read dynamically (not hard-coded) from app metadata at job instantiation
 

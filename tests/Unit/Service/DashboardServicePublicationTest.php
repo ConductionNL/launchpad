@@ -15,12 +15,12 @@
  *     canonical 403 sentinel.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -30,16 +30,16 @@ namespace Unit\Service;
 
 use Exception;
 use InvalidArgumentException;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardFactory;
-use OCA\MyDash\Service\DashboardResolver;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\DashboardTreeService;
-use OCA\MyDash\Service\TemplateService;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardFactory;
+use OCA\LaunchPad\Service\DashboardResolver;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -110,7 +110,7 @@ class DashboardServicePublicationTest extends TestCase
             config: $config,
             l10nFactory: $l10nFactory,
             logger: $logger,
-            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
+            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
         );
     }//end setUp()
 
@@ -154,7 +154,7 @@ class DashboardServicePublicationTest extends TestCase
             ->method('update')
             ->willReturnArgument(0);
 
-        $result = $this->service->publish(uuid: 'd-uuid-1', userId: 'alice');
+        $result = $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'alice');
 
         $this->assertSame(
             Dashboard::STATUS_PUBLISHED,
@@ -182,7 +182,7 @@ class DashboardServicePublicationTest extends TestCase
         $this->dashboardMapper->expects($this->never())
             ->method('update');
 
-        $result = $this->service->publish(uuid: 'd-uuid-1', userId: 'alice');
+        $result = $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'alice');
 
         $this->assertSame('2026-03-20 14:30:00', $result->getPublishedAt());
     }//end testPublishIsIdempotent()
@@ -205,7 +205,7 @@ class DashboardServicePublicationTest extends TestCase
             DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
         );
 
-        $this->service->publish(uuid: 'd-uuid-1', userId: 'bob');
+        $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'bob');
     }//end testPublishForbiddenForNonOwnerNonAdmin()
 
     /**
@@ -222,7 +222,7 @@ class DashboardServicePublicationTest extends TestCase
         $this->dashboardMapper->method('update')->willReturnArgument(0);
         $this->groupManager->method('isAdmin')->willReturn(true);
 
-        $result = $this->service->publish(
+        $result = $this->service->publishDashboard(
             uuid: 'd-uuid-1',
             userId: 'root'
         );

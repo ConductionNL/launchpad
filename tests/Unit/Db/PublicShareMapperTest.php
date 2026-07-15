@@ -7,7 +7,7 @@
  * filtering, soft-revoke, and view-count debounce logic.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Db
+ * @package   OCA\LaunchPad\Tests\Unit\Db
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
-use OCA\MyDash\Db\PublicShare;
-use OCA\MyDash\Db\PublicShareMapper;
+use OCA\LaunchPad\Db\PublicShare;
+use OCA\LaunchPad\Db\PublicShareMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\ICache;
 use OCP\ICacheFactory;
@@ -121,11 +121,11 @@ class PublicShareMapperTest extends TestCase
     {
         $share = new PublicShare();
         $share->setToken('tok789');
-        $share->setUrl('https://example.com/apps/mydash/s/tok789');
+        $share->setUrl('https://example.com/apps/launchpad/s/tok789');
 
         $json = $share->jsonSerialize();
 
-        $this->assertSame('https://example.com/apps/mydash/s/tok789', $json['url']);
+        $this->assertSame('https://example.com/apps/launchpad/s/tok789', $json['url']);
     }
 
     public function testDebounceSkipsIncrementWhenCacheHit(): void

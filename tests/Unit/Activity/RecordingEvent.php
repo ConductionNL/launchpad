@@ -16,14 +16,14 @@
  * mock.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Activity
+ * @package   OCA\LaunchPad\Tests\Unit\Activity
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -413,13 +413,14 @@ class RecordingEvent implements IEvent
     /**
      * Store the object identity tuple.
      *
-     * @param string  $objectType The object type identifier.
-     * @param integer $objectId   The numeric primary key.
-     * @param string  $objectName The human-readable name slot.
+     * @param string         $objectType The object type identifier.
+     * @param string|integer $objectId   The primary key (NC34 IEvent widened
+     *                                   this to string|int).
+     * @param string         $objectName The human-readable name slot.
      *
      * @return self
      */
-    public function setObject(string $objectType, int $objectId, string $objectName=''): self
+    public function setObject(string $objectType, string|int $objectId, string $objectName=''): self
     {
         $this->objectType = $objectType;
         $this->objectId   = $objectId;

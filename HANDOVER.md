@@ -1,13 +1,13 @@
-# MyDash - Project Handover Report
+# LaunchPad - Project Handover Report
 
 ## Overview
 
-MyDash is an enhanced dashboard application for Nextcloud that provides a grid-based layout system with drag-and-drop functionality, widget customization, and administrative controls. It maintains full compatibility with existing Nextcloud dashboard widgets.
+LaunchPad is an enhanced dashboard application for Nextcloud that provides a grid-based layout system with drag-and-drop functionality, widget customization, and administrative controls. It maintains full compatibility with existing Nextcloud dashboard widgets.
 
 **Version:** 1.0.0
 **Status:** Backend complete, frontend built, app enabled
-**Access URL:** http://localhost:8080/apps/mydash/
-**Admin Settings:** http://localhost:8080/settings/admin/mydash
+**Access URL:** http://localhost:8080/apps/launchpad/
+**Admin Settings:** http://localhost:8080/settings/admin/launchpad
 
 ---
 
@@ -149,7 +149,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 ## Code Structure
 
 ```
-/apps-extra/mydash/
+/apps-extra/launchpad/
 ├── appinfo/
 │   ├── info.xml              # App metadata, dependencies, navigation
 │   └── routes.php            # All API route definitions
@@ -178,8 +178,8 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 │   ├── Migration/
 │   │   └── Version001000Date20240101000000.php # Database schema
 │   └── Settings/
-│       ├── MyDashAdmin.php           # Admin settings page
-│       └── MyDashAdminSection.php    # Admin settings section
+│       ├── LaunchPadAdmin.php           # Admin settings page
+│       └── LaunchPadAdminSection.php    # Admin settings section
 ├── src/
 │   ├── main.js               # Main app entry point
 │   ├── admin.js              # Admin settings entry point
@@ -204,7 +204,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 │   └── settings/
 │       └── admin.php         # Admin settings template
 ├── css/
-│   └── mydash.css            # App styles
+│   └── launchpad.css            # App styles
 ├── js/                       # Built JavaScript (generated)
 ├── package.json              # npm dependencies
 ├── webpack.config.js         # Webpack configuration
@@ -215,7 +215,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 
 ## Database Schema
 
-### oc_mydash_dashboards
+### oc_launchpad_dashboards
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -234,7 +234,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 | created_at | DATETIME | Creation timestamp |
 | updated_at | DATETIME | Last update timestamp |
 
-### oc_mydash_widget_placements
+### oc_launchpad_widget_placements
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -254,7 +254,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 | created_at | DATETIME | Creation timestamp |
 | updated_at | DATETIME | Last update timestamp |
 
-### oc_mydash_admin_settings
+### oc_launchpad_admin_settings
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -263,7 +263,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 | setting_value | TEXT | JSON value |
 | updated_at | DATETIME | Last update timestamp |
 
-### oc_mydash_conditional_rules
+### oc_launchpad_conditional_rules
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -282,29 +282,29 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/apps/mydash/api/dashboards` | List user's dashboards |
-| GET | `/apps/mydash/api/dashboard` | Get active dashboard |
-| POST | `/apps/mydash/api/dashboard` | Create new dashboard |
-| PUT | `/apps/mydash/api/dashboard/{id}` | Update dashboard |
-| DELETE | `/apps/mydash/api/dashboard/{id}` | Delete dashboard |
-| POST | `/apps/mydash/api/dashboard/{id}/activate` | Switch active dashboard |
-| GET | `/apps/mydash/api/widgets` | List available widgets |
-| POST | `/apps/mydash/api/dashboard/{id}/widgets` | Add widget |
-| PUT | `/apps/mydash/api/widgets/{placementId}` | Update widget placement |
-| DELETE | `/apps/mydash/api/widgets/{placementId}` | Remove widget |
-| POST | `/apps/mydash/api/widgets/{placementId}/rules` | Add conditional rule |
-| DELETE | `/apps/mydash/api/rules/{ruleId}` | Remove rule |
+| GET | `/apps/launchpad/api/dashboards` | List user's dashboards |
+| GET | `/apps/launchpad/api/dashboard` | Get active dashboard |
+| POST | `/apps/launchpad/api/dashboard` | Create new dashboard |
+| PUT | `/apps/launchpad/api/dashboard/{id}` | Update dashboard |
+| DELETE | `/apps/launchpad/api/dashboard/{id}` | Delete dashboard |
+| POST | `/apps/launchpad/api/dashboard/{id}/activate` | Switch active dashboard |
+| GET | `/apps/launchpad/api/widgets` | List available widgets |
+| POST | `/apps/launchpad/api/dashboard/{id}/widgets` | Add widget |
+| PUT | `/apps/launchpad/api/widgets/{placementId}` | Update widget placement |
+| DELETE | `/apps/launchpad/api/widgets/{placementId}` | Remove widget |
+| POST | `/apps/launchpad/api/widgets/{placementId}/rules` | Add conditional rule |
+| DELETE | `/apps/launchpad/api/rules/{ruleId}` | Remove rule |
 
 ### Admin Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/apps/mydash/api/admin/templates` | List admin templates |
-| POST | `/apps/mydash/api/admin/templates` | Create template |
-| PUT | `/apps/mydash/api/admin/templates/{id}` | Update template |
-| DELETE | `/apps/mydash/api/admin/templates/{id}` | Delete template |
-| GET | `/apps/mydash/api/admin/settings` | Get global settings |
-| PUT | `/apps/mydash/api/admin/settings` | Update global settings |
+| GET | `/apps/launchpad/api/admin/templates` | List admin templates |
+| POST | `/apps/launchpad/api/admin/templates` | Create template |
+| PUT | `/apps/launchpad/api/admin/templates/{id}` | Update template |
+| DELETE | `/apps/launchpad/api/admin/templates/{id}` | Delete template |
+| GET | `/apps/launchpad/api/admin/settings` | Get global settings |
+| PUT | `/apps/launchpad/api/admin/settings` | Update global settings |
 
 ---
 
@@ -320,7 +320,7 @@ MyDash is an enhanced dashboard application for Nextcloud that provides a grid-b
 
 ```bash
 # Navigate to app directory
-cd /apps-extra/mydash
+cd /apps-extra/launchpad
 
 # Install dependencies
 npm install
@@ -344,11 +344,11 @@ npm run stylelint:fix
 
 ```bash
 # Enable/disable app
-docker exec -u www-data nextcloud php occ app:enable mydash
-docker exec -u www-data nextcloud php occ app:disable mydash
+docker exec -u www-data nextcloud php occ app:enable launchpad
+docker exec -u www-data nextcloud php occ app:disable launchpad
 
 # Check app status
-docker exec -u www-data nextcloud php occ app:list | grep mydash
+docker exec -u www-data nextcloud php occ app:list | grep launchpad
 
 # Clear cache (after changes)
 docker exec nextcloud apachectl -k graceful
@@ -360,7 +360,7 @@ The openregister docker-compose mounts `./custom_apps` directory. To deploy:
 
 ```bash
 # Copy app to Docker-accessible location
-cp -r /apps-extra/mydash /apps-extra/openregister/custom_apps/
+cp -r /apps-extra/launchpad /apps-extra/openregister/custom_apps/
 ```
 
 ---
@@ -421,10 +421,10 @@ cp -r /apps-extra/mydash /apps-extra/openregister/custom_apps/
 
 ## Next Steps for Browser Agent
 
-1. **Access the application** at http://localhost:8080/apps/mydash/
+1. **Access the application** at http://localhost:8080/apps/launchpad/
 2. **Login credentials:** Check `.claude/CLAUDE.local.md` in openregister or use default admin/admin
 3. **Test core functionality:** Add widgets, drag, resize, style
-4. **Test admin features:** Go to Settings > Administration > MyDash
+4. **Test admin features:** Go to Settings > Administration > LaunchPad
 5. **Fix any UI/UX issues** discovered during testing
 6. **Optimize bundle size** if performance is poor
 7. **Add responsive breakpoints** for smaller screens
@@ -436,10 +436,10 @@ cp -r /apps-extra/mydash /apps-extra/openregister/custom_apps/
 
 | File | Location |
 |------|----------|
-| Main source | `/apps-extra/mydash/` |
-| Deployed to Docker | `/apps-extra/openregister/custom_apps/mydash/` |
+| Main source | `/apps-extra/launchpad/` |
+| Deployed to Docker | `/apps-extra/openregister/custom_apps/launchpad/` |
 | Plan document | `~/.claude/plans/woolly-exploring-teacup.md` |
-| This handover | `/apps-extra/mydash/HANDOVER.md` |
+| This handover | `/apps-extra/launchpad/HANDOVER.md` |
 
 ---
 

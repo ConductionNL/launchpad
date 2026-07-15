@@ -9,12 +9,12 @@
  * REQ-CAL-003 (event normalisation + sort order).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Service\CalendarWidgetService;
-use OCA\MyDash\Service\UrlSafetyValidator;
+use OCA\LaunchPad\Service\CalendarWidgetService;
+use OCA\LaunchPad\Service\UrlSafetyValidator;
 use OCP\Http\Client\IClient;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
@@ -113,7 +113,7 @@ class CalendarWidgetServiceTest extends TestCase
     public function testAllowListEmptyAllowsAll(): void
     {
         $this->appConfig->method('getValueString')
-            ->with('mydash', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
+            ->with('launchpad', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
             ->willReturn('');
         $svc = $this->makeServiceWithRealValidator();
         $this->assertTrue($svc->checkAllowList('https://anything.test/cal.ics'));
@@ -122,7 +122,7 @@ class CalendarWidgetServiceTest extends TestCase
     public function testAllowListMatchesHostCaseInsensitive(): void
     {
         $this->appConfig->method('getValueString')
-            ->with('mydash', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
+            ->with('launchpad', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
             ->willReturn(json_encode(['Calendar.Example.COM']));
         $svc = $this->makeServiceWithRealValidator();
         $this->assertTrue($svc->checkAllowList('https://calendar.example.com/cal.ics'));
@@ -131,7 +131,7 @@ class CalendarWidgetServiceTest extends TestCase
     public function testAllowListRejectsNonMatchingHost(): void
     {
         $this->appConfig->method('getValueString')
-            ->with('mydash', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
+            ->with('launchpad', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
             ->willReturn(json_encode(['calendar.example.com']));
         $svc = $this->makeServiceWithRealValidator();
         $this->assertFalse($svc->checkAllowList('https://untrusted.test/cal.ics'));
@@ -140,7 +140,7 @@ class CalendarWidgetServiceTest extends TestCase
     public function testAllowListNoSubdomainExpansion(): void
     {
         $this->appConfig->method('getValueString')
-            ->with('mydash', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
+            ->with('launchpad', CalendarWidgetService::CONFIG_KEY_ALLOWED_HOSTS, '')
             ->willReturn(json_encode(['example.com']));
         $svc = $this->makeServiceWithRealValidator();
         $this->assertFalse($svc->checkAllowList('https://sub.example.com/cal.ics'));
@@ -191,7 +191,7 @@ class CalendarWidgetServiceTest extends TestCase
         $this->clientService->method('newClient')->willReturn($client);
 
         $this->appConfig->method('getValueInt')
-            ->with('mydash', CalendarWidgetService::CONFIG_KEY_CACHE_TTL, CalendarWidgetService::DEFAULT_CACHE_TTL_SECONDS)
+            ->with('launchpad', CalendarWidgetService::CONFIG_KEY_CACHE_TTL, CalendarWidgetService::DEFAULT_CACHE_TTL_SECONDS)
             ->willReturn(7200);
 
         $this->cache->expects($this->once())

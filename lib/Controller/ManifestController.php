@@ -10,7 +10,7 @@
  * returns empty pages/menu so the frontend renders its empty-state CTA.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -48,11 +48,11 @@ use Psr\Log\LoggerInterface;
 class ManifestController extends Controller
 {
     /**
-     * OpenRegister register slug for mydash dashboards.
+     * OpenRegister register slug for launchpad dashboards.
      *
      * @var string
      */
-    private const REGISTER = 'mydash';
+    private const REGISTER = 'launchpad';
 
     /**
      * OpenRegister schema slug for dashboard objects.
@@ -73,7 +73,7 @@ class ManifestController extends Controller
      *
      * @param IRequest           $request     The HTTP request.
      * @param ContainerInterface $container   The Nextcloud DI container; used to
-     *                                        lazy-load ObjectService so that mydash
+     *                                        lazy-load ObjectService so that launchpad
      *                                        degrades gracefully when OpenRegister
      *                                        is not yet active.
      * @param ActionAuthService  $actionAuth  ADR-023 action authorization.
@@ -103,7 +103,7 @@ class ManifestController extends Controller
      * a `slug` and `title` property becomes one page entry and one menu entry.
      * Objects the user owns OR that list the user in `sharedWith` are included.
      *
-     * Route: GET /apps/mydash/api/manifest
+     * Route: GET /apps/launchpad/api/manifest
      *
      * @return JSONResponse A JSON document conforming to the v2 manifest
      *                      schema. Returns HTTP 401 when no user is
@@ -143,7 +143,7 @@ class ManifestController extends Controller
             $objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
         } catch (\Throwable $e) {
             $this->logger->warning(
-                'MyDash: OpenRegister ObjectService unavailable — returning empty manifest. '.$e->getMessage(),
+                'LaunchPad: OpenRegister ObjectService unavailable — returning empty manifest. '.$e->getMessage(),
                 ['app' => Application::APP_ID]
             );
 
@@ -221,7 +221,7 @@ class ManifestController extends Controller
             // Narrow catch: only handle recoverable OR API errors. Let
             // unexpected errors propagate so they are visible in the logs.
             $this->logger->error(
-                'MyDash: failed to fetch dashboards from OpenRegister: '.$e->getMessage(),
+                'LaunchPad: failed to fetch dashboards from OpenRegister: '.$e->getMessage(),
                 ['app' => Application::APP_ID, 'userId' => $userId]
             );
         }//end try

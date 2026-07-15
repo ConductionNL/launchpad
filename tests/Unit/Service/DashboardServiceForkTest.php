@@ -10,12 +10,12 @@
  * the fork endpoint.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -24,22 +24,23 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use Exception;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardFactory;
-use OCA\MyDash\Service\DashboardResolver;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\TemplateService;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardFactory;
+use OCA\LaunchPad\Service\DashboardResolver;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\TemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
+use OCP\Lock\ILockingProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -80,6 +81,9 @@ class DashboardServiceForkTest extends TestCase
     /** @var IL10N&MockObject */
     private $l10n;
 
+    /** @var ILockingProvider&MockObject */
+    private $lockingProvider;
+
     private DashboardService $service;
 
     /**
@@ -104,6 +108,7 @@ class DashboardServiceForkTest extends TestCase
         $this->config          = $this->createMock(IConfig::class);
         $this->l10nFactory     = $this->createMock(IFactory::class);
         $this->l10n            = $this->createMock(IL10N::class);
+        $this->lockingProvider = $this->createMock(ILockingProvider::class);
         /** @var LoggerInterface&MockObject $logger */
         $logger                = $this->createMock(LoggerInterface::class);
 
@@ -129,14 +134,15 @@ class DashboardServiceForkTest extends TestCase
             templateService: $templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $dashResolver,
-            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
+            treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
             groupManager: $this->groupManager,
             adminTemplateService: $this->adminTemplateService,
             db: $this->db,
             config: $this->config,
             l10nFactory: $this->l10nFactory,
             logger: $logger,
-            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
+            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+            lockingProvider: $this->lockingProvider,
         );
     }//end setUp()
 
@@ -252,7 +258,7 @@ class DashboardServiceForkTest extends TestCase
             ->method('setUserValue')
             ->with(
                 'alice',
-                'mydash',
+                'launchpad',
                 DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY,
                 $this->isType('string')
             );
@@ -320,6 +326,192 @@ class DashboardServiceForkTest extends TestCase
         $this->assertNotNull($captured);
         $this->assertSame('My copy of Marketing Overview', $captured->getName());
     }//end testForkDefaultsToLocalisedNameWhenBodyOmitsName()
+
+    /**
+     * REQ-DASH-020 regression: a second fork of the same source must not
+     * reuse the first fork's name and slug. The disambiguator appends a
+     * counter so the new row gets a distinct "/my-copy-of-x-2" slug
+     * rather than a duplicate "/my-copy-of-x".
+     *
+     * @return void
+     */
+    public function testForkDisambiguatesNameWhenSlugAlreadyTaken(): void
+    {
+        $this->settingMapper->method('getValue')->willReturn(true);
+
+        $source = $this->makeDashboard(
+            uuid: 'src-uuid',
+            name: 'Marketing Overview',
+            type: Dashboard::TYPE_GROUP_SHARED,
+            userId: null,
+            groupId: 'marketing',
+            id: 42
+        );
+        $this->stubVisibleToUser(
+            userId: 'alice',
+            visible: [
+                ['dashboard' => $source, 'source' => Dashboard::SOURCE_GROUP],
+            ]
+        );
+
+        // A prior fork already owns the default name's slug.
+        $existing = $this->makeDashboard(
+            uuid: 'existing-uuid',
+            name: 'My copy of Marketing Overview',
+            type: Dashboard::TYPE_USER,
+            userId: 'alice',
+            groupId: null,
+            id: 5
+        );
+        $existing->setSlug('my-copy-of-marketing-overview');
+        $this->dashboardMapper
+            ->method('findByUserId')
+            ->with(userId: 'alice')
+            ->willReturn([$existing]);
+
+        $captured = null;
+        $this->dashboardMapper
+            ->method('insert')
+            ->willReturnCallback(function (Dashboard $d) use (&$captured): Dashboard {
+                $d->setId(7);
+                $captured = $d;
+                return $d;
+            });
+        $this->placementMapper->method('cloneToDashboard')->willReturn(0);
+
+        $this->service->forkAsPersonal(
+            userId: 'alice',
+            sourceUuid: 'src-uuid',
+            name: null
+        );
+
+        $this->assertNotNull($captured);
+        $this->assertSame('My copy of Marketing Overview (2)', $captured->getName());
+        $this->assertSame('my-copy-of-marketing-overview-2', $captured->getSlug());
+    }//end testForkDisambiguatesNameWhenSlugAlreadyTaken()
+
+    /**
+     * REQ-DASH-020 concurrency: the disambiguate (read) → insert (write)
+     * sequence MUST be serialised behind a per-user exclusive lock so two
+     * simultaneous forks of the same source cannot both compute the same
+     * slug and insert duplicates (the (parent_uuid, slug) index is
+     * non-unique, so the DB does not catch it).
+     *
+     * Under the pre-lock code this fails — `acquireLock` is never called.
+     * With the lock it passes: the lock is taken with the per-user key and
+     * LOCK_EXCLUSIVE, and released exactly once afterwards.
+     *
+     * @return void
+     */
+    public function testForkAcquiresPerUserLockAroundNamingAndInsert(): void
+    {
+        $this->settingMapper->method('getValue')->willReturn(true);
+
+        $source = $this->makeDashboard(
+            uuid: 'src-uuid',
+            name: 'Marketing Overview',
+            type: Dashboard::TYPE_GROUP_SHARED,
+            userId: null,
+            groupId: 'marketing',
+            id: 42
+        );
+        $this->stubVisibleToUser(
+            userId: 'alice',
+            visible: [
+                ['dashboard' => $source, 'source' => Dashboard::SOURCE_GROUP],
+            ]
+        );
+
+        $this->dashboardMapper->method('findByUserId')->willReturn([]);
+        $this->dashboardMapper
+            ->method('insert')
+            ->willReturnCallback(function (Dashboard $d): Dashboard {
+                $d->setId(7);
+                return $d;
+            });
+        $this->placementMapper->method('cloneToDashboard')->willReturn(0);
+
+        // The naming + insert sequence MUST be wrapped in a per-user
+        // exclusive lock, acquired and released exactly once.
+        $this->lockingProvider
+            ->expects($this->once())
+            ->method('acquireLock')
+            ->with(
+                path: 'launchpad/fork/alice',
+                type: ILockingProvider::LOCK_EXCLUSIVE
+            );
+        $this->lockingProvider
+            ->expects($this->once())
+            ->method('releaseLock')
+            ->with(
+                path: 'launchpad/fork/alice',
+                type: ILockingProvider::LOCK_EXCLUSIVE
+            );
+
+        $this->service->forkAsPersonal(
+            userId: 'alice',
+            sourceUuid: 'src-uuid',
+            name: null
+        );
+    }//end testForkAcquiresPerUserLockAroundNamingAndInsert()
+
+    /**
+     * REQ-DASH-021 + concurrency: when the fork transaction fails, the
+     * per-user lock MUST still be released (the release lives in a
+     * `finally`), so a failed fork never leaks a held lock that would
+     * stall every subsequent fork by that user.
+     *
+     * @return void
+     */
+    public function testForkReleasesLockEvenWhenTransactionFails(): void
+    {
+        $this->settingMapper->method('getValue')->willReturn(true);
+
+        $source = $this->makeDashboard(
+            uuid: 'src-uuid',
+            name: 'Marketing Overview',
+            type: Dashboard::TYPE_GROUP_SHARED,
+            userId: null,
+            groupId: 'marketing',
+            id: 42
+        );
+        $this->stubVisibleToUser(
+            userId: 'alice',
+            visible: [
+                ['dashboard' => $source, 'source' => Dashboard::SOURCE_GROUP],
+            ]
+        );
+
+        $this->dashboardMapper->method('findByUserId')->willReturn([]);
+        $this->dashboardMapper
+            ->method('insert')
+            ->willReturnCallback(function (Dashboard $d): Dashboard {
+                $d->setId(7);
+                return $d;
+            });
+        // Clone fails -> rollback -> rethrow, but the lock MUST be freed.
+        $this->placementMapper
+            ->method('cloneToDashboard')
+            ->willThrowException(new Exception('DB error during clone'));
+
+        $this->lockingProvider->expects($this->once())->method('acquireLock');
+        $this->lockingProvider
+            ->expects($this->once())
+            ->method('releaseLock')
+            ->with(
+                path: 'launchpad/fork/alice',
+                type: ILockingProvider::LOCK_EXCLUSIVE
+            );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('DB error during clone');
+
+        $this->service->forkAsPersonal(
+            userId: 'alice',
+            sourceUuid: 'src-uuid',
+            name: null
+        );
+    }//end testForkReleasesLockEvenWhenTransactionFails()
 
     /**
      * REQ-DASH-021: any throwable from the placement clone rolls back

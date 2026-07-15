@@ -7,7 +7,7 @@
  * Stores dashboard content as JSON files under the "LaunchPad" GroupFolder.
  *
  * @category Service
- * @package  OCA\MyDash\Service\DashboardContentStorage
+ * @package  OCA\LaunchPad\Service\DashboardContentStorage
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\DashboardContentStorage;
+namespace OCA\LaunchPad\Service\DashboardContentStorage;
 
 use OCP\App\IAppManager;
 use OCP\Files\File;
@@ -111,6 +111,8 @@ class GroupFolderContentStorage implements DashboardContentStorageInterface
      * @throws DashboardContentStorageException  On any other file-system failure.
      *
      * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-3
+     *
+     * @psalm-suppress UnusedReturnValue
      */
     private function ensureLaunchPadGroupFolder(): Node
     {

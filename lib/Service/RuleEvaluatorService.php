@@ -6,7 +6,7 @@
  * Service for evaluating conditional rules against user context.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,10 +16,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\ConditionalRule;
+use OCA\LaunchPad\Db\ConditionalRule;
 
 /**
  * Service for evaluating conditional rules against user context.
@@ -54,7 +54,7 @@ class RuleEvaluatorService
      *
      * @return bool Whether the rule matches.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-14
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-14
      */
     public function evaluateRule(
         ConditionalRule $rule,

@@ -4,7 +4,7 @@
 
 - [x] 1.1 Create `src/components/Widgets/Renderers/ContainerWidget.vue`
 - [x] 1.2 Renderer accepts `content: {placements: WidgetPlacement[], backgroundColor?: string, padding?: string, title?: string}`
-- [x] 1.3 Renders an inner `<div ref="innerGrid" class="grid-stack mydash-container-grid">` with one child element per `content.placements[]`
+- [x] 1.3 Renders an inner `<div ref="innerGrid" class="grid-stack launchpad-container-grid">` with one child element per `content.placements[]`
 - [x] 1.4 Each child element wraps the registry-driven dispatcher (`ContainerChild` — looks up the placement's `type` in the same `widgetRegistry.js` used at the top level, including the `container` entry, so nesting is naturally recursive)
 - [x] 1.5 On mount, init a nested GridStack via `useNestedGridManager(innerGrid, content.placements)`
 - [x] 1.6 In view mode: container is non-interactive (clicks fall through to children); only background renders
@@ -33,7 +33,7 @@
 
 ## 5. Registry
 
-- [x] 5.1 Add `container` entry to `src/constants/widgetRegistry.js` with renderer, form, defaultContent `{placements: [], backgroundColor: 'transparent', padding: 'medium', title: ''}`, displayName `t('mydash', 'Container')`, icon `ViewDashboard` (or similar)
+- [x] 5.1 Add `container` entry to `src/constants/widgetRegistry.js` with renderer, form, defaultContent `{placements: [], backgroundColor: 'transparent', padding: 'medium', title: ''}`, displayName `t('launchpad', 'Container')`, icon `ViewDashboard` (or similar)
 - [~] 5.2 EXPECTED_TYPES update deferred: the `widget-registry-completeness` change has not yet landed on this branch (test file `src/constants/__tests__/widgetRegistry.completeness.spec.js` does not exist), so there is nothing to extend. Container registration is asserted via the existing `widgetRegistry.spec.js` (REQ-CONT-001 cases added).
 
 ## 6. Tests

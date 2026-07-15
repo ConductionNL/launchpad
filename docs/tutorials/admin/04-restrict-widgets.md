@@ -12,7 +12,7 @@ The role-based-content feature (RFP) lets an admin define an allow-list of widge
 
 - You want to keep certain widgets out of specific groups (e.g. hide HR-Notes from engineering).
 - You want to enforce a minimal widget set for compliance / security reasons.
-- You're rolling out MyDash to non-technical users and want to reduce cognitive load by hiding rarely-used widgets.
+- You're rolling out LaunchPad to non-technical users and want to reduce cognitive load by hiding rarely-used widgets.
 
 ## Goal
 
@@ -25,7 +25,7 @@ Define a role with a widget allow-list, assign it to a group, and verify members
 
 ## Steps
 
-### 1. Open MyDash admin settings → **Roles**
+### 1. Open LaunchPad admin settings → **Roles**
 
 ![Roles tab in admin settings](/screenshots/tutorials/admin/04-roles-tab.png)
 
@@ -43,11 +43,11 @@ Leave the allow-list empty to mean "no restriction" (the default for users not i
 
 ### 3. Save
 
-The role row appears in the list. The allow-list is persisted in `oc_mydash_roles` and surfaced via `RoleFeaturePermissionService::getAllowedWidgetIds(userId)`.
+The role row appears in the list. The allow-list is persisted in `oc_launchpad_roles` and surfaced via `RoleFeaturePermissionService::getAllowedWidgetIds(userId)`.
 
 ### 4. Verify on a member's view
 
-As a member of the assigned group, open MyDash and the widget picker:
+As a member of the assigned group, open LaunchPad and the widget picker:
 
 ![Filtered widget picker](/screenshots/tutorials/admin/04-filtered-picker.png)
 

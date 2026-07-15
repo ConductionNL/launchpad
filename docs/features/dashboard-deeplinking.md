@@ -1,17 +1,17 @@
 # Dashboard deep-linking
 
 Each dashboard has its own URL — paste, bookmark, or share it. Visit
-`/apps/mydash/{slug-chain}` and the workspace opens directly on that
+`/apps/launchpad/{slug-chain}` and the workspace opens directly on that
 dashboard. Switching dashboards in the sidebar updates the URL via
 `pushState`; back/forward navigates between dashboards.
 
 ## URL format
 
 ```
-/apps/mydash/                              → resolver default
-/apps/mydash/finance                       → top-level slug
-/apps/mydash/finance/q1-roadmap            → nested via slug-chain
-/apps/mydash/finance/q1-roadmap/details    → arbitrarily deep
+/apps/launchpad/                              → resolver default
+/apps/launchpad/finance                       → top-level slug
+/apps/launchpad/finance/q1-roadmap            → nested via slug-chain
+/apps/launchpad/finance/q1-roadmap/details    → arbitrarily deep
 ```
 
 Slugs use lowercase ASCII letters, digits, and dashes (per the
@@ -22,7 +22,7 @@ parent → child hierarchy.
 
 ### Inbound (URL → state)
 
-1. User visits `/apps/mydash/some-slug`.
+1. User visits `/apps/launchpad/some-slug`.
 2. PHP catch-all route `page#deepLink` matches and dispatches to
    `PageController::deepLink($deepLink)`.
 3. The controller resolves the slug-chain via
@@ -44,14 +44,14 @@ parent → child hierarchy.
 2. `switchDashboard()` updates `activeDashboard.uuid`.
 3. A watcher on `activeDashboard.uuid` fetches the canonical path
    via `GET /api/dashboards/{uuid}/path`.
-4. If non-empty → `history.pushState({uuid}, '', '/apps/mydash/' + path)`.
+4. If non-empty → `history.pushState({uuid}, '', '/apps/launchpad/' + path)`.
 5. If empty (NULL slug — unaddressable dashboard) → no `pushState`.
 
 ### Back / forward
 
 A `popstate` listener on `Views.vue` mount:
 
-1. Strips `/apps/mydash/` from `window.location.pathname`.
+1. Strips `/apps/launchpad/` from `window.location.pathname`.
 2. Calls `getDashboardByPath(path)` to resolve.
 3. Calls `switchDashboard(uuid)`.
 

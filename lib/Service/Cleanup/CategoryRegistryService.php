@@ -4,7 +4,7 @@
  * CategoryRegistryService
  *
  * Holds every {@see CleanupCategoryInterface} implementation that
- * ships with MyDash. Acts as the single point of resolution for the
+ * ships with LaunchPad. Acts as the single point of resolution for the
  * orchestration service, the CLI commands, the API controller and
  * the background job — none of those classes hold direct references
  * to individual category implementations. REQ-CLN-011.
@@ -19,20 +19,20 @@
  * but stays self-contained inside this file.
  *
  * @category  Service
- * @package   OCA\MyDash\Service\Cleanup
+ * @package   OCA\LaunchPad\Service\Cleanup
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\Cleanup;
+namespace OCA\LaunchPad\Service\Cleanup;
 
 /**
  * Lookup registry over the cleanup categories.

@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -22,7 +22,7 @@
 	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
 	never triggers a switch (REQ-SWITCH-004).
 
-	A dedicated "Add Dashboard" card button (NcButton outline) renders
+	A dedicated "Add Dashboard" card button (NcButton secondary) renders
 	below the personal dashboards list — still inside the scroll container,
 	NOT inside the footer — when `allowUserDashboards === true`. Clicking
 	it emits `update:open(false)` then `create-dashboard()` (REQ-SWITCH-008).
@@ -45,8 +45,8 @@
 	spec. The downstream runtime-shell component should adopt the same
 	binding when it ships.
 
-	Icon rendering MUST go through the shared `IconRenderer` from
-	`dashboard-icons` — no inline `v-if="iconUrl"` branches here
+	Icon rendering MUST go through the shared `CnDashboardIcon` from
+	@conduction/nextcloud-vue — no inline `v-if="iconUrl"` branches here
 	(REQ-SWITCH-007).
 -->
 
@@ -56,11 +56,11 @@
 		:class="{ open: isOpen }"
 		role="navigation"
 		:aria-hidden="ariaHiddenAttr"
-		:aria-label="t('mydash', 'Dashboards')"
+		:aria-label="t('launchpad', 'Dashboards')"
 		@keydown.esc="onEscClose">
 		<div class="dashboard-switcher-sidebar__header">
 			<h2 class="dashboard-switcher-sidebar__title">
-				{{ t('mydash', 'Dashboards') }}
+				{{ t('launchpad', 'Dashboards') }}
 			</h2>
 			<!--
 				Wave3.6 moved the per-dashboard actions out of the header
@@ -73,31 +73,9 @@
 			<button
 				type="button"
 				class="dashboard-switcher-sidebar__close"
-				:aria-label="t('mydash', 'Close')"
+				:aria-label="t('launchpad', 'Close')"
 				@click="onCloseClick">
 				<Close :size="20" />
-			</button>
-		</div>
-
-		<!-- Region mode switch (widgets spec: Catalog SUB_PAGE). Toggles the
-		     workspace region between the dashboards canvas and the Catalog
-		     browse view; the parent owns the active region. -->
-		<div class="dashboard-switcher-sidebar__modes" data-test="sidebar-modes">
-			<button
-				type="button"
-				class="dashboard-switcher-sidebar__mode"
-				:class="{ 'dashboard-switcher-sidebar__mode--active': mode === 'dashboards' }"
-				data-test="sidebar-mode-dashboards"
-				@click="onModeChange('dashboards')">
-				{{ t('mydash', 'Dashboards') }}
-			</button>
-			<button
-				type="button"
-				class="dashboard-switcher-sidebar__mode"
-				:class="{ 'dashboard-switcher-sidebar__mode--active': mode === 'catalog' }"
-				data-test="sidebar-mode-catalog"
-				@click="onModeChange('catalog')">
-				{{ t('mydash', 'Catalog') }}
 			</button>
 		</div>
 
@@ -124,13 +102,13 @@
 						@keydown.enter="onSwitch(dashboard.id, 'group')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'group')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
-							:aria-label="t('mydash', 'Default dashboard')">
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
@@ -161,7 +139,7 @@
 				class="dashboard-switcher-sidebar__section"
 				data-section="default">
 				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('mydash', 'Default') }}
+					{{ t('launchpad', 'Default') }}
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
@@ -177,13 +155,13 @@
 						@keydown.enter="onSwitch(dashboard.id, 'default')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'default')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
-							:aria-label="t('mydash', 'Default dashboard')">
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
@@ -214,7 +192,7 @@
 				class="dashboard-switcher-sidebar__section"
 				data-section="user">
 				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('mydash', 'My Dashboards') }}
+					{{ t('launchpad', 'My Dashboards') }}
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
@@ -230,13 +208,13 @@
 						@keydown.enter="onSwitch(dashboard.id, 'user')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
 						<span class="dashboard-switcher-sidebar__icon">
-							<IconRenderer :name="dashboard.icon" :size="20" />
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('mydash', 'Default dashboard — opens automatically when you visit MyDash')"
-							:aria-label="t('mydash', 'Default dashboard')">
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
 						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
@@ -265,16 +243,25 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						type="outline"
+						type="secondary"
 						wide
 						data-action="create"
-						:aria-label="t('mydash', 'Add dashboard')"
+						data-testid="add-dashboard-button"
+						:disabled="dashboardQuotaReached"
+						:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
+						:aria-label="dashboardQuotaReached ? dashboardQuotaTooltip : t('launchpad', 'Add dashboard')"
 						@click="onCreate">
 						<template #icon>
 							<Plus :size="20" />
 						</template>
-						{{ t('mydash', 'Add dashboard') }}
+						{{ t('launchpad', 'Add dashboard') }}
 					</NcButton>
+					<p
+						v-if="dashboardQuotaReached"
+						class="dashboard-switcher-sidebar__quota-hint"
+						data-testid="dashboard-quota-hint">
+						{{ dashboardQuotaTooltip }}
+					</p>
 				</div>
 			</section>
 		</div>
@@ -290,13 +277,11 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { NcButton } from '@conduction/nextcloud-vue'
+import { NcButton, CnDashboardIcon } from '@conduction/nextcloud-vue'
 
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
-
-import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SidebarFooter from './SidebarFooter.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
 
@@ -307,7 +292,7 @@ export default {
 		Close,
 		Plus,
 		Star,
-		IconRenderer,
+		CnDashboardIcon,
 		NcButton,
 		SidebarFooter,
 		DashboardRowActions,
@@ -425,14 +410,22 @@ export default {
 		},
 
 		/**
-		 * Active workspace region mode (widgets spec: Catalog SUB_PAGE).
-		 * `'dashboards'` shows the canvas, `'catalog'` shows the browse
-		 * view. Controlled by the parent; the sidebar emits `mode-change`.
+		 * dashboard-quota-limits REQ-QUOTA-006: when true the user is at
+		 * their per-user dashboard limit, so the "Add dashboard" affordance
+		 * is disabled. Default false ⇒ unlimited instances are unaffected.
 		 */
-		mode: {
+		dashboardQuotaReached: {
+			type: Boolean,
+			default: false,
+		},
+
+		/**
+		 * dashboard-quota-limits REQ-QUOTA-006: localised tooltip explaining
+		 * the limit, shown on the disabled "Add dashboard" affordance.
+		 */
+		dashboardQuotaTooltip: {
 			type: String,
-			default: 'dashboards',
-			validator: v => ['dashboards', 'catalog'].includes(v),
+			default: '',
 		},
 	},
 
@@ -441,9 +434,6 @@ export default {
 		'create-dashboard',
 		'delete-dashboard',
 		'update:open',
-		// widgets spec — Catalog SUB_PAGE region toggle. Carries the new
-		// mode string (`'dashboards'` | `'catalog'`).
-		'mode-change',
 		// wave3.6 — per-row events. Each carries `(dashboard, source)`
 		// so the host can switch to that dashboard and then apply the
 		// action. The sidebar emits the raw event; the host owns the
@@ -469,7 +459,7 @@ export default {
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		primaryGroupHeading() {
-			return this.groupName || t('mydash', 'Dashboards')
+			return this.groupName || t('launchpad', 'Dashboards')
 		},
 
 		/**
@@ -483,7 +473,7 @@ export default {
 
 		/**
 		 * UUID of the row the resolver would land the user on at
-		 * `/apps/mydash/`. Mirrors the backend's resolver precedence
+		 * `/apps/launchpad/`. Mirrors the backend's resolver precedence
 		 * (steps 0..5) up to the group fallback so the star stays in
 		 * sync with what the user will actually see when they navigate
 		 * cold. Personal dashboards (step 6) are intentionally NOT
@@ -544,7 +534,7 @@ export default {
 
 		/**
 		 * Whether `dashboard` is the row the resolver would land the
-		 * user on when they visit `/apps/mydash/`. The sidebar marks it
+		 * user on when they visit `/apps/launchpad/`. The sidebar marks it
 		 * with a star so the effective default is visible at a glance
 		 * instead of buried in the cog menu.
 		 *
@@ -606,29 +596,19 @@ export default {
 		 */
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onCreate() {
+			// dashboard-quota-limits REQ-QUOTA-006: belt-and-braces — the
+			// button is already disabled at the limit, but never emit the
+			// create event when over quota even if a stale render slipped
+			// through. The server 409 remains authoritative regardless.
+			if (this.dashboardQuotaReached) {
+				return
+			}
 			this.$emit('update:open', false)
 			this.$emit('create-dashboard')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onCloseClick() {
-			this.$emit('update:open', false)
-		},
-
-		/**
-		 * Switch the workspace region mode (widgets spec: Catalog SUB_PAGE).
-		 * Emits the new mode and closes the sidebar so the chosen region
-		 * gets the full viewport. A no-op when already in that mode.
-		 *
-		 * @param {string} next the target mode (`'dashboards'` | `'catalog'`)
-		 * @return {void}
-		 */
-		/** @spec openspec/specs/widgets/spec.md */
-		onModeChange(next) {
-			if (next === this.mode) {
-				return
-			}
-			this.$emit('mode-change', next)
 			this.$emit('update:open', false)
 		},
 
@@ -671,31 +651,6 @@ export default {
 	padding: 12px 16px;
 	border-bottom: 1px solid var(--color-border, #e0e0e0);
 	flex: 0 0 auto;
-}
-
-.dashboard-switcher-sidebar__modes {
-	display: flex;
-	gap: 4px;
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--color-border, #e0e0e0);
-	flex: 0 0 auto;
-}
-
-.dashboard-switcher-sidebar__mode {
-	flex: 1 1 0;
-	background: transparent;
-	border: 1px solid var(--color-border, #e0e0e0);
-	border-radius: var(--border-radius-pill, 16px);
-	padding: 4px 8px;
-	cursor: pointer;
-	font: inherit;
-	color: var(--color-text-maxcontrast, #767676);
-}
-
-.dashboard-switcher-sidebar__mode--active {
-	background: var(--color-primary-element, #21468b);
-	color: var(--color-primary-text, #fff);
-	border-color: var(--color-primary-element, #21468b);
 }
 
 .dashboard-switcher-sidebar__title {
@@ -851,5 +806,13 @@ export default {
 	position: sticky;
 	bottom: 0;
 	flex: 0 0 auto;
+}
+
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar,
+	.dashboard-switcher-sidebar__item {
+		transition: none;
+	}
 }
 </style>

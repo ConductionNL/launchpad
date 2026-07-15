@@ -3,7 +3,7 @@
 /**
  * CleanupPurgeCommand
  *
- * `occ mydash:cleanup:purge` — REQ-CLN-002. Deletes orphaned rows in
+ * `occ launchpad:cleanup:purge` — REQ-CLN-002. Deletes orphaned rows in
  * one or more categories. Defaults to interactive confirmation; the
  * `--yes` flag skips the prompt for non-interactive use (cron, CI).
  * `--dry-run` runs the same code path under a transaction rollback
@@ -11,28 +11,28 @@
  * (REQ-CLN-003).
  *
  * Examples:
- *   occ mydash:cleanup:purge
- *   occ mydash:cleanup:purge --dry-run
- *   occ mydash:cleanup:purge --category=expired_locks --yes
+ *   occ launchpad:cleanup:purge
+ *   occ launchpad:cleanup:purge --dry-run
+ *   occ launchpad:cleanup:purge --category=expired_locks --yes
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
-use OCA\MyDash\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
+use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
- * `mydash:cleanup:purge` CLI command.
+ * `launchpad:cleanup:purge` CLI command.
  */
 class CleanupPurgeCommand extends Command
 {
@@ -70,9 +70,9 @@ class CleanupPurgeCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:cleanup:purge')
+        $this->setName(name: 'launchpad:cleanup:purge')
             ->setDescription(
-                description: 'Delete orphaned MyDash data. See options for dry-run and per-category limits.'
+                description: 'Delete orphaned LaunchPad data. See options for dry-run and per-category limits.'
             )
             ->addOption(
                 name: 'category',

@@ -8,28 +8,28 @@
  * transfer, and notification publishing.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use Exception;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardShare;
-use OCA\MyDash\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -386,7 +386,7 @@ class DashboardShareService
     ): void {
         $notification = $this->notificationManager->createNotification();
         // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $notification->setApp('mydash')
+        $notification->setApp('launchpad')
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             ->setUser($newOwnerId)
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -493,7 +493,7 @@ class DashboardShareService
         foreach ($recipients as $recipientId) {
             $notification = $this->notificationManager->createNotification();
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $notification->setApp('mydash')
+            $notification->setApp('launchpad')
                 // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
                 ->setUser($recipientId)
                 // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters

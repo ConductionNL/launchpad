@@ -14,30 +14,34 @@
  *    persisted setting wholesale (no merge — UI sends the full ordered
  *    list after every drag).
  *
- * Both endpoints are admin-only via `IGroupManager::isAdmin` because
- * even the GET reveals every group on the system (privacy concern).
+ * Both endpoints are admin-only via `#[AuthorizedAdminSetting]` (with
+ * `assertAdmin()`'s `IGroupManager::isAdmin` check kept as defense in
+ * depth) because even the GET reveals every group on the system
+ * (privacy concern).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\AdminSettingsService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -86,6 +90,7 @@ class AdminSettingsController extends Controller
      *
      * @spec openspec/specs/admin-settings/spec.md
      */
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function listGroups(): JSONResponse
     {
         $forbidden = $this->assertAdmin();
@@ -159,6 +164,7 @@ class AdminSettingsController extends Controller
      *
      * @spec openspec/specs/admin-settings/spec.md
      */
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function updateGroupOrder(mixed $groups=null): JSONResponse
     {
         $forbidden = $this->assertAdmin();

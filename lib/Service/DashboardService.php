@@ -7,46 +7,50 @@
  * visible-to-user resolution endpoint).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use DateTimeImmutable;
 use Exception;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardLockMapper;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\DashboardContentStorage\DashboardContentStorageException;
-use OCA\MyDash\Service\DashboardContentStorageFactory;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Exception\DashboardHasChildrenException;
-use OCA\MyDash\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardLockMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardContentStorageException;
+use OCA\LaunchPad\Service\DashboardContentStorageFactory;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IL10N;
+use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
+use OCP\Lock\ILockingProvider;
+use OCP\Lock\LockedException;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -263,6 +267,30 @@ class DashboardService
      *                                                                   existing
      *                                                                   test
      *                                                                   doubles.
+     * @param PublicShareContext|null             $publicShareContext    Optional public-share
+     *                                                                   bearer context; when
+     *                                                                   present a share bearer
+     *                                                                   cannot mutate dashboards
+     *                                                                   (dashboard-public-share).
+     * @param QuotaService|null                   $quotaService          Optional quota-enforcement
+     *                                                                   service gating per-user
+     *                                                                   dashboard creation
+     *                                                                   (dashboard-quota-limits).
+     * @param IURLGenerator|null                  $urlGenerator          URL generator used to
+     *                                                                   build widget / app image
+     *                                                                   paths and to resolve app
+     *                                                                   image paths for default
+     *                                                                   tile logos, so they render
+     *                                                                   regardless of the app's
+     *                                                                   install location.
+     * @param ILockingProvider|null               $lockingProvider       Optional cluster lock
+     *                                                                   provider used to
+     *                                                                   serialise the fork
+     *                                                                   naming + insert
+     *                                                                   sequence per user so
+     *                                                                   concurrent forks cannot
+     *                                                                   produce duplicate slugs
+     *                                                                   (REQ-DASH-020).
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -284,8 +312,32 @@ class DashboardService
         private readonly ?RoleFeaturePermissionService $roleFeaturePerm=null,
         private readonly ?IEventDispatcher $eventDispatcher=null,
         private readonly ?DashboardContentStorageFactory $contentStorageFactory=null,
+        private readonly ?PublicShareContext $publicShareContext=null,
+        private readonly ?QuotaService $quotaService=null,
+        private readonly ?IURLGenerator $urlGenerator=null,
+        private readonly ?ILockingProvider $lockingProvider=null,
     ) {
     }//end __construct()
+
+    /**
+     * Resolve an app image to a web path that honours the app's actual web
+     * root. Hardcoding `/apps/launchpad/...` breaks when the app is served
+     * from a non-default apps directory (e.g. `/apps-shared/`); IURLGenerator
+     * resolves the correct prefix. Falls back to the legacy literal when the
+     * generator is unavailable (e.g. positional construction in unit tests).
+     *
+     * @param string $image The image filename under `img/`.
+     *
+     * @return string The web path to the image.
+     */
+    private function appImagePath(string $image): string
+    {
+        if ($this->urlGenerator !== null) {
+            return $this->urlGenerator->imagePath('launchpad', $image);
+        }
+
+        return '/apps/launchpad/img/'.$image;
+    }//end appImagePath()
 
     /**
      * Get all dashboards for a user.
@@ -369,26 +421,44 @@ class DashboardService
      */
     public function getEffectiveDashboard(string $userId): ?array
     {
-        // Wave3.7 Step 0 — explicit default-dashboard pin wins over
-        // the auto-overwriting active flag. Resolves the pinned UUID
-        // through the user's visible set so a stale UUID falls
-        // through to the legacy chain rather than 404'ing.
+        // Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
+        // then the auto-overwriting last-used preference (REQ-DASH-019),
+        // both against the user's full visible set. This honours a
+        // group/default (showcase) dashboard whose `user_id` is NULL —
+        // not just personal `is_active` rows — so the API-driven view
+        // matches the server-rendered landing URL, which
+        // resolveActiveDashboard() resolves the same way. A stale pref
+        // (UUID no longer visible) falls through to the legacy chain.
         $defaultUuid = $this->getDefaultPreference(userId: $userId);
-        if ($defaultUuid !== '') {
+        $activeUuid  = (string) $this->config->getUserValue(
+            userId: $userId,
+            appName: Application::APP_ID,
+            key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
+            default: ''
+        );
+        if ($defaultUuid !== '' || $activeUuid !== '') {
             $visible = $this->getVisibleToUser(userId: $userId);
-            foreach ($visible as $entry) {
-                $candidate = $entry['dashboard'];
-                if ((string) $candidate->getUuid() === $defaultUuid) {
-                    $placements = $this->placementMapper->findByDashboardId(
-                        dashboardId: $candidate->getId()
-                    );
-                    return $this->dashResolver->buildResult(
-                        dashboard: $candidate,
-                        placements: $placements
-                    );
+            // Default pin wins over last-used — same precedence as
+            // resolveActiveDashboard() steps 0 then 1.
+            foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
+                if ($prefUuid === '') {
+                    continue;
+                }
+
+                foreach ($visible as $entry) {
+                    $candidate = $entry['dashboard'];
+                    if ((string) $candidate->getUuid() === $prefUuid) {
+                        $placements = $this->placementMapper->findByDashboardId(
+                            dashboardId: $candidate->getId()
+                        );
+                        return $this->dashResolver->buildResult(
+                            dashboard: $candidate,
+                            placements: $placements
+                        );
+                    }
                 }
             }
-        }
+        }//end if
 
         $result = $this->dashResolver->tryGetActiveDashboard(
             userId: $userId
@@ -456,6 +526,15 @@ class DashboardService
         int $sortOrder=0,
         bool $seedDefaults=false
     ): Dashboard {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
+        // Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
+        // dashboard quota at the single creation choke point so every
+        // user-initiated surface (REST create, CLI, template
+        // instantiation) is bound. Admin provisioning paths wrap their
+        // calls in QuotaService::runProvisioning() to bypass this
+        // (REQ-QUOTA-004). Runs before any DB write.
+        $this->quotaService?->assertCanCreateDashboard(userId: $userId);
         // REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
         // depth checks BEFORE the entity is built so the request is
         // rejected without a partial row in memory.
@@ -511,7 +590,7 @@ class DashboardService
                 );
             } catch (Throwable $t) {
                 $this->logger->warning(
-                    message: 'mydash: failed to seed primary translation: {message}',
+                    message: 'launchpad: failed to seed primary translation: {message}',
                     context: ['message' => $t->getMessage()]
                 );
             }
@@ -546,6 +625,8 @@ class DashboardService
         string $userId,
         array $data
     ): Dashboard {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
@@ -583,6 +664,8 @@ class DashboardService
         string $userId,
         bool $cascade=false
     ): void {
+        // Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+        $this->publicShareContext?->requireMutable();
         $dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
         if ($dashboard->getUserId() !== $userId) {
@@ -1212,7 +1295,7 @@ class DashboardService
         // Step 0 (wave3.7): explicit default — if the user has pinned
         // a default dashboard via the per-row "Set as default" action,
         // it always wins over the auto-overwriting `active_dashboard_uuid`
-        // pref so visiting `/apps/mydash/` consistently opens the same
+        // pref so visiting `/apps/launchpad/` consistently opens the same
         // dashboard regardless of where the user navigated last.
         $defaultUuid = $this->config->getUserValue(
             userId: $userId,
@@ -1233,7 +1316,7 @@ class DashboardService
                 key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
             );
             $this->logger->warning(
-                message: 'mydash: stale default_dashboard_uuid "{uuid}" cleared for user "{user}"',
+                message: 'launchpad: stale default_dashboard_uuid "{uuid}" cleared for user "{user}"',
                 context: ['uuid' => $defaultUuid, 'user' => $userId]
             );
         }
@@ -1258,7 +1341,7 @@ class DashboardService
                 key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
             );
             $this->logger->warning(
-                message: 'mydash: stale active_dashboard_uuid "{uuid}" cleared for user "{user}"',
+                message: 'launchpad: stale active_dashboard_uuid "{uuid}" cleared for user "{user}"',
                 context: ['uuid' => $savedUuid, 'user' => $userId]
             );
         }
@@ -1442,7 +1525,7 @@ class DashboardService
      *
      * @spec openspec/specs/dashboards/spec.md
      */
-    public function publish(string $uuid, string $userId): Dashboard
+    public function publishDashboard(string $uuid, string $userId): Dashboard
     {
         $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
         $this->assertOwnerOrAdmin(
@@ -1474,7 +1557,7 @@ class DashboardService
         $dashboard->setUpdatedAt($now);
 
         return $this->dashboardMapper->update(entity: $dashboard);
-    }//end publish()
+    }//end publishDashboard()
 
     /**
      * Transition a dashboard back to `draft` while preserving
@@ -1676,6 +1759,12 @@ class DashboardService
         // what happens with the body.
         $this->assertPersonalDashboardsAllowed();
 
+        // Dashboard-quota-limits REQ-QUOTA-002: a fork creates a new
+        // personal-scope dashboard, so it is bound by the per-user
+        // dashboard quota exactly like a plain create. Runs before any DB
+        // write and before the transaction opens.
+        $this->quotaService?->assertCanCreateDashboard(userId: $userId);
+
         // REQ-DASH-020: source must be visible to the user — reuse the
         // visible-to-user resolver so personal / group / default-group
         // sources all resolve through the same indexed-and-deduped path.
@@ -1690,63 +1779,146 @@ class DashboardService
             sourceName: (string) $source->getName()
         );
 
-        $this->db->beginTransaction();
+        // REQ-DASH-020: the slug is derived from the name, so a fork name
+        // that collides with one of the user's existing root dashboards
+        // would produce a duplicate "/my-copy-of-x" slug (forks bypass the
+        // tree service's per-sibling slug check, and the unique index does
+        // not cover NULL parent_uuid). Disambiguate the name up-front so
+        // repeated forks of the same source get distinct names and slugs.
+        //
+        // The disambiguate (read) → insert (write) sequence is a TOCTOU
+        // window: two simultaneous forks of the same source by the same
+        // user would both read the same "taken" slug set, both compute the
+        // same " (2)" candidate, and both insert — and the non-unique
+        // (parent_uuid, slug) index would not stop them. Serialise the
+        // whole read-compute-insert sequence behind a per-user exclusive
+        // lock so the second fork only runs its naming pass after the
+        // first has committed (and so picks " (3)"). The lock is cluster-
+        // wide (DB-backed locking provider), so it holds across app
+        // servers, not just within one PHP process.
+        $lockKey      = 'launchpad/fork/'.$userId;
+        $lockAcquired = $this->acquireForkLock(lockKey: $lockKey);
+
         try {
-            // REQ-DASH-020: force `isDefault = 0` and `groupId = null`
-            // on the fork — the factory is the single source of truth
-            // for the (type, groupId) invariant (REQ-DASH-011).
-            $fork = $this->dashboardFactory->create(
+            $resolvedName = $this->makeUniquePersonalName(
                 userId: $userId,
-                name: $resolvedName,
-                description: $source->getDescription(),
-                type: Dashboard::TYPE_USER,
-                groupId: null,
-                gridColumns: $source->getGridColumns(),
-                permissionLevel: Dashboard::PERMISSION_FULL
-            );
-            // Defensive — the factory already sets this for TYPE_USER but
-            // we make the contract visible at the call site.
-            $fork->setIsDefault(0);
-
-            // REQ-DASH-020: deactivate every other personal dashboard
-            // for this user before persisting the fork — mirrors
-            // {@see self::createDashboard()} so the single-active
-            // invariant holds across the transaction.
-            $this->dashboardMapper->deactivateAllForUser(userId: $userId);
-            $fork->setIsActive(1);
-
-            $persisted = $this->dashboardMapper->insert(entity: $fork);
-
-            // REQ-DASH-020: byte-for-byte placement clone. Any DB error
-            // bubbles out of the mapper and the catch below rolls back.
-            $this->placementMapper->cloneToDashboard(
-                sourceDashboardId: (int) $source->getId(),
-                targetDashboardId: (int) $persisted->getId()
+                baseName: $resolvedName
             );
 
-            // REQ-DASH-018 / REQ-DASH-019: also pin the active-dashboard
-            // user-pref so the resolver returns the fork on the next
-            // render even when the personal `is_active` column is not
-            // the source of truth (multi-scope deployments).
-            $forkUuid = (string) $persisted->getUuid();
-            if ($forkUuid !== '') {
-                $this->setActivePreference(
+            $this->db->beginTransaction();
+            try {
+                // REQ-DASH-020: force `isDefault = 0` and `groupId = null`
+                // on the fork — the factory is the single source of truth
+                // for the (type, groupId) invariant (REQ-DASH-011).
+                $fork = $this->dashboardFactory->create(
                     userId: $userId,
-                    uuid: $forkUuid
+                    name: $resolvedName,
+                    description: $source->getDescription(),
+                    type: Dashboard::TYPE_USER,
+                    groupId: null,
+                    gridColumns: $source->getGridColumns(),
+                    permissionLevel: Dashboard::PERMISSION_FULL
+                );
+                // Defensive — the factory already sets this for TYPE_USER but
+                // we make the contract visible at the call site.
+                $fork->setIsDefault(0);
+
+                // REQ-DASH-020: deactivate every other personal dashboard
+                // for this user before persisting the fork — mirrors
+                // {@see self::createDashboard()} so the single-active
+                // invariant holds across the transaction.
+                $this->dashboardMapper->deactivateAllForUser(userId: $userId);
+                $fork->setIsActive(1);
+
+                $persisted = $this->dashboardMapper->insert(entity: $fork);
+
+                // REQ-DASH-020: byte-for-byte placement clone. Any DB error
+                // bubbles out of the mapper and the catch below rolls back.
+                $this->placementMapper->cloneToDashboard(
+                    sourceDashboardId: (int) $source->getId(),
+                    targetDashboardId: (int) $persisted->getId()
+                );
+
+                // REQ-DASH-018 / REQ-DASH-019: also pin the active-dashboard
+                // user-pref so the resolver returns the fork on the next
+                // render even when the personal `is_active` column is not
+                // the source of truth (multi-scope deployments).
+                $forkUuid = (string) $persisted->getUuid();
+                if ($forkUuid !== '') {
+                    $this->setActivePreference(
+                        userId: $userId,
+                        uuid: $forkUuid
+                    );
+                }
+
+                $this->db->commit();
+
+                return $persisted;
+            } catch (Throwable $t) {
+                // REQ-DASH-021: rollback covers the inserted dashboard row
+                // AND any partially cloned placements — the catch is wide
+                // so we never leak a half-persisted fork on any throwable.
+                $this->db->rollBack();
+                throw $t;
+            }//end try
+        } finally {
+            if ($lockAcquired === true) {
+                $this->lockingProvider?->releaseLock(
+                    path: $lockKey,
+                    type: ILockingProvider::LOCK_EXCLUSIVE
                 );
             }
-
-            $this->db->commit();
-
-            return $persisted;
-        } catch (Throwable $t) {
-            // REQ-DASH-021: rollback covers the inserted dashboard row
-            // AND any partially cloned placements — the catch is wide
-            // so we never leak a half-persisted fork on any throwable.
-            $this->db->rollBack();
-            throw $t;
         }//end try
     }//end forkAsPersonal()
+
+    /**
+     * Acquire the per-user exclusive fork-naming lock, with a bounded
+     * retry so a contending fork waits for the in-flight one to commit
+     * rather than failing.
+     *
+     * `ILockingProvider::acquireLock()` is non-blocking — it throws
+     * {@see LockedException} immediately when the key is held — so we
+     * poll a few times with a short backoff. If the lock still cannot be
+     * acquired within the window we proceed WITHOUT it: that degrades to
+     * the pre-lock behaviour (the narrow TOCTOU window) rather than
+     * failing a user-initiated fork outright. When no locking provider is
+     * wired (e.g. unit tests / minimal containers) we also proceed
+     * unlocked.
+     *
+     * @param string $lockKey The cluster-wide lock key (per user).
+     *
+     * @return bool True when the lock was acquired (caller MUST release it).
+     */
+    private function acquireForkLock(string $lockKey): bool
+    {
+        if ($this->lockingProvider === null) {
+            return false;
+        }
+
+        $maxAttempts = 10;
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            try {
+                $this->lockingProvider->acquireLock(
+                    path: $lockKey,
+                    type: ILockingProvider::LOCK_EXCLUSIVE
+                );
+                return true;
+            } catch (LockedException) {
+                // Held by a concurrent fork — wait briefly and retry.
+                usleep(microseconds: 100000);
+            }
+        }
+
+        $this->logger->warning(
+            message: 'forkAsPersonal could not acquire the fork-naming lock; proceeding unlocked',
+            context: [
+                'app'     => Application::APP_ID,
+                'lockKey' => $lockKey,
+            ]
+        );
+
+        return false;
+    }//end acquireForkLock()
 
     /**
      * Resolve the source dashboard for a fork via the visible-to-user
@@ -1825,6 +1997,46 @@ class DashboardService
         // the standard sprintf substitution mechanism.
         return $l10n->t('My copy of %s', [$sourceName]);
     }//end resolveForkName()
+
+    /**
+     * Disambiguate a fork name so its derived slug is free among the
+     * user's existing root personal dashboards. Appends " (2)", " (3)",
+     * … until {@see SlugGenerator::slugify()} yields an unused slug, so
+     * repeated forks of one source no longer share a name and slug
+     * (REQ-DASH-020). Names whose slug is empty (no legal characters)
+     * are returned unchanged — such rows stay unaddressable by path.
+     *
+     * @param string $userId   The owning user.
+     * @param string $baseName The candidate fork name.
+     *
+     * @return string The disambiguated name (possibly suffixed).
+     */
+    private function makeUniquePersonalName(
+        string $userId,
+        string $baseName
+    ): string {
+        $taken = [];
+        foreach ($this->dashboardMapper->findByUserId(userId: $userId) as $dash) {
+            // Forks land at the root, so only root siblings can collide.
+            if ($dash->getParentUuid() !== null) {
+                continue;
+            }
+
+            $slug = (string) $dash->getSlug();
+            if ($slug !== '') {
+                $taken[$slug] = true;
+            }
+        }
+
+        $candidate = $baseName;
+        $counter   = 2;
+        while (isset($taken[SlugGenerator::slugify(name: $candidate)]) === true) {
+            $candidate = $baseName.' ('.$counter.')';
+            $counter++;
+        }
+
+        return $candidate;
+    }//end makeUniquePersonalName()
 
     /**
      * Check whether the given user is a Nextcloud administrator.
@@ -2095,8 +2307,9 @@ class DashboardService
      * (REQ-TILE-PLACEMENT) picks them up without a JSON `content`
      * column. The Nextcloud tile uses an `icon-` CSS class (no logo
      * asset is shipped); Conduction and Sendent point at the PNGs in
-     * `mydash/img/` via app-relative URLs that resolve through any
-     * Nextcloud overwrite.
+     * `launchpad/img/` via {@see self::appImagePath()}, which resolves the
+     * app's real web root (so the URLs work regardless of which apps
+     * directory the app is served from).
      *
      * @param int $dashboardId The dashboard ID to seed.
      *
@@ -2116,7 +2329,7 @@ class DashboardService
                 'sortOrder'  => 0,
                 'tile'       => [
                     'title'           => 'Conduction',
-                    'icon'            => '/apps/mydash/img/conduction-logo.png',
+                    'icon'            => $this->appImagePath(image: 'conduction-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',
@@ -2133,7 +2346,7 @@ class DashboardService
                 'sortOrder'  => 1,
                 'tile'       => [
                     'title'           => 'Sendent',
-                    'icon'            => '/apps/mydash/img/sendent-logo.png',
+                    'icon'            => $this->appImagePath(image: 'sendent-logo.png'),
                     'iconType'        => 'url',
                     'backgroundColor' => '#ffffff',
                     'textColor'       => '#000000',

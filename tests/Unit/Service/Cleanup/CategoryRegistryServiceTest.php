@@ -9,12 +9,12 @@
  * these tests pin down the contract that implementations rely on.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\Cleanup
+ * @package   OCA\LaunchPad\Tests\Unit\Service\Cleanup
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,15 +22,15 @@ declare(strict_types=1);
 
 namespace Unit\Service\Cleanup;
 
-use OCA\MyDash\Db\ConditionalRuleMapper;
-use OCA\MyDash\Db\DashboardLockMapper;
-use OCA\MyDash\Db\DashboardShareMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\Cleanup\CategoryRegistryService;
-use OCA\MyDash\Service\Cleanup\ExpiredLocksCategory;
-use OCA\MyDash\Service\Cleanup\OrphanedConditionalRulesCategory;
-use OCA\MyDash\Service\Cleanup\OrphanedSharesCategory;
-use OCA\MyDash\Service\Cleanup\OrphanedWidgetPlacementsCategory;
+use OCA\LaunchPad\Db\ConditionalRuleMapper;
+use OCA\LaunchPad\Db\DashboardLockMapper;
+use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
+use OCA\LaunchPad\Service\Cleanup\ExpiredLocksCategory;
+use OCA\LaunchPad\Service\Cleanup\OrphanedConditionalRulesCategory;
+use OCA\LaunchPad\Service\Cleanup\OrphanedSharesCategory;
+use OCA\LaunchPad\Service\Cleanup\OrphanedWidgetPlacementsCategory;
 use PHPUnit\Framework\TestCase;
 
 /**

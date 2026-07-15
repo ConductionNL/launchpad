@@ -3,29 +3,29 @@
 /**
  * Notifier
  *
- * INotifier implementation for MyDash. Renders `dashboard_shared` and
+ * INotifier implementation for LaunchPad. Renders `dashboard_shared` and
  * `dashboard_ownership_transferred` notifications in the Nextcloud bell,
  * activity stream, and email digest. REQ-SHARE-011.
  *
  * @category  Notification
- * @package   OCA\MyDash\Notification
+ * @package   OCA\LaunchPad\Notification
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Notification;
+namespace OCA\LaunchPad\Notification;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\DashboardMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -35,7 +35,7 @@ use OCP\Notification\INotifier;
 use OCP\Notification\UnknownNotificationException;
 
 /**
- * MyDash notification renderer.
+ * LaunchPad notification renderer.
  *
  * Handles three subjects:
  * - `dashboard_shared` — published when a dashboard is shared with a user or
@@ -81,7 +81,7 @@ class Notifier implements INotifier
      */
     public function getName(): string
     {
-        return $this->l10nFactory->get(app: Application::APP_ID)->t('MyDash');
+        return $this->l10nFactory->get(app: Application::APP_ID)->t('LaunchPad');
     }//end getName()
 
     /**
@@ -299,7 +299,7 @@ class Notifier implements INotifier
     private function buildDashboardUrl(string $objectId): string
     {
         $base = $this->urlGenerator->linkToRouteAbsolute(
-            routeName: 'mydash.page.index'
+            routeName: 'launchpad.page.index'
         );
 
         if ($objectId === '') {
@@ -330,7 +330,7 @@ class Notifier implements INotifier
     private function buildDashboardUrlFromUuid(string $uuid): string
     {
         $base = $this->urlGenerator->linkToRouteAbsolute(
-            routeName: 'mydash.page.index'
+            routeName: 'launchpad.page.index'
         );
 
         if ($uuid === '') {

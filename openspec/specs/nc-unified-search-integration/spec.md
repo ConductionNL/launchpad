@@ -1,12 +1,12 @@
 ---
-status: implemented
+status: done
 ---
 
 # Nextcloud Unified Search Integration Specification
 
 ## Purpose
 
-Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanism for content across all installed apps. MyDash dashboards, widgets, and metadata are exposed to this search via a registered `OCP\Search\IProvider` so users can discover and navigate to dashboards by name, description, widget content, or metadata field values from the global search bar without entering the app first.
+Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanism for content across all installed apps. LaunchPad dashboards, widgets, and metadata are exposed to this search via a registered `OCP\Search\IProvider` so users can discover and navigate to dashboards by name, description, widget content, or metadata field values from the global search bar without entering the app first.
 
 ## Requirements
 
@@ -15,27 +15,27 @@ Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanis
 
 ### Requirement: REQ-SRCH-001 Search Provider Registration
 
-The MyDash app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes MyDash dashboards in the unified search results.
+The LaunchPad app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes LaunchPad dashboards in the unified search results.
 
 #### Scenario: Provider is registered and discoverable
-- GIVEN Nextcloud is running with MyDash app installed and enabled
+- GIVEN Nextcloud is running with LaunchPad app installed and enabled
 - WHEN a user presses Ctrl+K to open the unified search bar
-- THEN the MyDash search provider MUST be loaded via the app's bootstrap process
-- AND the provider's `getId()` MUST return `'mydash'`
+- THEN the LaunchPad search provider MUST be loaded via the app's bootstrap process
+- AND the provider's `getId()` MUST return `'launchpad'`
 - AND the provider's `getName()` MUST return the translated string `'Dashboards'` in the user's Nextcloud language
 - AND the provider's `getOrder()` MUST return `50` to position it mid-range (admin-search providers typically have lower order values)
 
 #### Scenario: Provider implements the IProvider contract
-- GIVEN the MyDash app is installed
+- GIVEN the LaunchPad app is installed
 - WHEN Nextcloud's search dispatcher calls the provider interface
 - THEN the provider class MUST implement all required methods: `getId()`, `getName()`, `getOrder()`, `search(IUser, ISearchQuery): SearchResult`
 - AND the methods MUST have correct type hints matching `OCP\Search\IProvider`
 
 #### Scenario: Provider initialization via app bootstrap
-- GIVEN MyDash app info.xml declares `<types><search/></types>`
-- WHEN the MyDash app boots
-- THEN the container MUST register an instance of `MyDashSearchProvider` with the Nextcloud search registry
-- AND the provider instance MUST be reachable at `/apps/mydash/lib/Search/MyDashSearchProvider.php`
+- GIVEN LaunchPad app info.xml declares `<types><search/></types>`
+- WHEN the LaunchPad app boots
+- THEN the container MUST register an instance of `LaunchPadSearchProvider` with the Nextcloud search registry
+- AND the provider instance MUST be reachable at `/apps/launchpad/lib/Search/LaunchPadSearchProvider.php`
 
 #### Scenario: Localized provider name
 - GIVEN a Nextcloud instance with language set to Dutch (nl)
@@ -45,7 +45,7 @@ The MyDash app MUST register a search provider implementing Nextcloud's `OCP\Sea
 
 #### Scenario: Provider name appears in search UI
 - GIVEN a user opens the unified search bar (Ctrl+K)
-- WHEN MyDash results are shown
+- WHEN LaunchPad results are shown
 - THEN the search UI MUST display the provider name from `getName()` as a section header
 - NOTE: Nextcloud's search UI typically groups results by provider name.
 
@@ -141,7 +141,7 @@ When the `dashboard-metadata-fields` capability is enabled, the search provider 
 - AND the resourceUrl MUST deep-link to the dashboard
 
 #### Scenario: Metadata search falls back gracefully
-- GIVEN the `dashboard-metadata-fields` capability is NOT available in the MyDash app
+- GIVEN the `dashboard-metadata-fields` capability is NOT available in the LaunchPad app
 - WHEN user "bob" performs a search
 - THEN the search provider MUST still return dashboard-name, description, and widget-content results
 - AND no error MUST be thrown about missing metadata fields
@@ -201,8 +201,8 @@ Each SearchResultEntry returned by the provider MUST include a title, subline, t
 - WHEN a search result is returned for this dashboard
 - THEN the SearchResultEntry MUST include:
   - `title`: "Sales Dashboard" (dashboard name)
-  - `subline`: the dashboard description, or a localized "MyDash dashboard" fallback when empty
-  - `thumbnailUrl`: a URL to the MyDash app icon
+  - `subline`: the dashboard description, or a localized "LaunchPad dashboard" fallback when empty
+  - `thumbnailUrl`: a URL to the LaunchPad app icon
   - `resourceUrl`: a deep-link URL containing the dashboard UUID
 
 #### Scenario: Widget content search result entry
@@ -211,7 +211,7 @@ Each SearchResultEntry returned by the provider MUST include a title, subline, t
 - THEN the SearchResultEntry MUST include:
   - `title`: "Analytics" (parent dashboard name)
   - `subline`: "Widget content on Analytics" (formatted via IL10N)
-  - `thumbnailUrl`: a URL to the MyDash icon
+  - `thumbnailUrl`: a URL to the LaunchPad icon
   - `resourceUrl`: a deep-link URL containing both the dashboard UUID and a `widget=42` hint targeting the specific widget placement
 
 #### Scenario: Metadata field search result entry
@@ -220,7 +220,7 @@ Each SearchResultEntry returned by the provider MUST include a title, subline, t
 - THEN the SearchResultEntry MUST include:
   - `title`: dashboard name
   - `subline`: "Metadata: {fieldKey} = {fieldValue}" (formatted via IL10N)
-  - `thumbnailUrl`: the MyDash icon
+  - `thumbnailUrl`: the LaunchPad icon
   - `resourceUrl`: a dashboard deep-link (no widget hint, user lands on the main dashboard view)
 
 #### Scenario: Icon URL is valid and reachable
@@ -313,7 +313,7 @@ When a search query matches no dashboards, widgets, or metadata fields, the prov
 The search provider MUST complete typical queries inside Nextcloud's unified-search response budget by capping the per-bucket result count and reusing the canonical visibility boundary as the upstream filter.
 
 #### Scenario: Bounded scan over the visible set
-- GIVEN a MyDash instance where user "alice" can view 1,000 dashboards
+- GIVEN a LaunchPad instance where user "alice" can view 1,000 dashboards
 - WHEN she performs a search query
 - THEN the provider's `search()` method MUST complete a single in-memory pass over the visible set without making per-dashboard SQL queries beyond the placement and metadata fetches needed for matching
 - AND the per-bucket cap (10 dashboards, 10 widgets, 10 metadata) bounds the response size
@@ -333,13 +333,13 @@ The search provider MUST integrate seamlessly with Nextcloud's built-in search U
 - WHEN the "Marketing Dashboard" result appears
 - WHEN she clicks on the result title or thumbnail
 - THEN the browser MUST navigate to the dashboard deep-link URL
-- AND the MyDash app MUST render the dashboard view
+- AND the LaunchPad app MUST render the dashboard view
 
 #### Scenario: Search result resourceUrl is deep-linked
 - GIVEN a search result for a widget on dashboard "Analytics"
 - WHEN user "bob" clicks the result
 - THEN the browser MUST navigate to the widget deep-link URL containing the dashboard UUID and `widget=<placementId>` hint
-- AND the MyDash frontend MAY scroll or highlight the widget with placement ID `{placementId}` (frontend deep-link handling is a follow-up enhancement when a dedicated detail route exists)
+- AND the LaunchPad frontend MAY scroll or highlight the widget with placement ID `{placementId}` (frontend deep-link handling is a follow-up enhancement when a dedicated detail route exists)
 
 #### Scenario: Search result thumbnail is displayed
 - GIVEN a search result is rendered in Nextcloud's search popup
@@ -350,29 +350,29 @@ The search provider MUST integrate seamlessly with Nextcloud's built-in search U
 #### Scenario: Search result appears in the correct section
 - GIVEN the search results include dashboards, files, and contacts
 - WHEN the results are displayed
-- THEN the MyDash results MUST appear under the provider's section header (from `getName()`)
+- THEN the LaunchPad results MUST appear under the provider's section header (from `getName()`)
 - AND they MUST NOT be mixed with other app results
 
 ### Requirement: REQ-SRCH-012 Provider Order in Nextcloud Search
 
-The MyDash search provider MUST be positioned at order `50` so that it appears after high-priority admin-search providers but before lower-priority result types in Nextcloud's search UI. The provider MAY return a higher-priority order (lower numeric value) when the user is already on a MyDash route.
+The LaunchPad search provider MUST be positioned at order `50` so that it appears after high-priority admin-search providers but before lower-priority result types in Nextcloud's search UI. The provider MAY return a higher-priority order (lower numeric value) when the user is already on a LaunchPad route.
 
 #### Scenario: Provider order is respected
-- GIVEN Nextcloud has multiple search providers installed (e.g., admin-search at order 10, MyDash at order 50, contacts at order 100)
-- WHEN the unified search is opened on a non-MyDash route
-- THEN the results MUST be grouped and displayed in order: admin-search results first, then MyDash results, then contacts
+- GIVEN Nextcloud has multiple search providers installed (e.g., admin-search at order 10, LaunchPad at order 50, contacts at order 100)
+- WHEN the unified search is opened on a non-LaunchPad route
+- THEN the results MUST be grouped and displayed in order: admin-search results first, then LaunchPad results, then contacts
 - AND the order is determined by `getOrder()` returning `50`
 
 #### Scenario: Order does not affect search completeness
 - GIVEN user "alice" searches for a term
 - WHEN the search is performed
-- THEN all matching MyDash results MUST be found regardless of order
+- THEN all matching LaunchPad results MUST be found regardless of order
 - AND the order only affects the visual grouping and ranking in the search UI
 
 #### Scenario: Boost in-app order
-- GIVEN the user is currently on a MyDash route (e.g., `mydash.page.index`)
+- GIVEN the user is currently on a LaunchPad route (e.g., `launchpad.page.index`)
 - WHEN the search is invoked
-- THEN `getOrder()` MAY return a lower numeric value (e.g., `5`) to surface MyDash results first
+- THEN `getOrder()` MAY return a lower numeric value (e.g., `5`) to surface LaunchPad results first
 
 ---
 
@@ -389,21 +389,21 @@ The MyDash search provider MUST be positioned at order `50` so that it appears a
 
 ## Configuration / Feature Flags
 
-- None; the search provider is always available when MyDash is enabled.
+- None; the search provider is always available when LaunchPad is enabled.
 - If the `dashboard-metadata-fields` capability is available, metadata search is enabled; otherwise the metadata branch degrades silently (empty result, no error).
 
 ## Implementation Notes
 
-- REQ-SRCH-001 (Provider registration): `lib/Search/MyDashSearchProvider.php` implements `OCP\Search\IProvider`. `Application::register()` calls `$context->registerSearchProvider(MyDashSearchProvider::class)`. `appinfo/info.xml` declares `<types><search/></types>`.
-- REQ-SRCH-002 (Name + description match): `MyDashSearchProvider::matchesDashboard()` performs case-insensitive substring match using `mb_strtolower()` + `str_contains()` on both `Dashboard::getName()` and `Dashboard::getDescription()`.
+- REQ-SRCH-001 (Provider registration): `lib/Search/LaunchPadSearchProvider.php` implements `OCP\Search\IProvider`. `Application::register()` calls `$context->registerSearchProvider(LaunchPadSearchProvider::class)`. `appinfo/info.xml` declares `<types><search/></types>`.
+- REQ-SRCH-002 (Name + description match): `LaunchPadSearchProvider::matchesDashboard()` performs case-insensitive substring match using `mb_strtolower()` + `str_contains()` on both `Dashboard::getName()` and `Dashboard::getDescription()`.
 - REQ-SRCH-003 (Widget content match): `findMatchingTextPlacements()` decodes `WidgetPlacement::getStyleConfig()` (JSON), filters on `type === 'text'`, strips HTML tags via `strip_tags()` + `html_entity_decode()`, then runs the substring match.
 - REQ-SRCH-004 (Metadata match): `findMatchingMetadata()` calls `MetadataService::getMetadataForDashboard()` and matches case-insensitively on values only (keys are not searched). All exceptions are swallowed so the metadata branch degrades silently.
 - REQ-SRCH-005 (Permission filtering): The provider consults `DashboardService::getVisibleToUser()` once per search; a `try/catch` around that call returns an empty `SearchResult` on any failure (fail-safe).
-- REQ-SRCH-006 (Entry structure): `buildDashboardEntry()` / `buildWidgetEntry()` / `buildMetadataEntry()` all emit `SearchResultEntry` with the MyDash app icon (`getAbsoluteURL(imagePath('mydash', 'app.svg'))`), localized subline, and a `dashboardUrl()` / `widgetUrl()` deep-link.
-- REQ-SRCH-007 (Capping): `MyDashSearchProvider::PER_BUCKET_LIMIT = 10` enforces the per-bucket cap; result tiers are concatenated dashboard → widget → metadata for a stable ordering.
-- REQ-SRCH-008 (Localization): All translatable strings (`Dashboards`, `MyDash dashboard`, `Widget content on %s`, `Metadata: %1$s = %2$s`) live in `l10n/en.{json,js}` and `l10n/nl.{json,js}` and are resolved via `IFactory::get('mydash')->t()`.
+- REQ-SRCH-006 (Entry structure): `buildDashboardEntry()` / `buildWidgetEntry()` / `buildMetadataEntry()` all emit `SearchResultEntry` with the LaunchPad app icon (`getAbsoluteURL(imagePath('launchpad', 'app.svg'))`), localized subline, and a `dashboardUrl()` / `widgetUrl()` deep-link.
+- REQ-SRCH-007 (Capping): `LaunchPadSearchProvider::PER_BUCKET_LIMIT = 10` enforces the per-bucket cap; result tiers are concatenated dashboard → widget → metadata for a stable ordering.
+- REQ-SRCH-008 (Localization): All translatable strings (`Dashboards`, `LaunchPad dashboard`, `Widget content on %s`, `Metadata: %1$s = %2$s`) live in `l10n/en.{json,js}` and `l10n/nl.{json,js}` and are resolved via `IFactory::get('launchpad')->t()`.
 - REQ-SRCH-009 (Empty result): The provider short-circuits on empty `getTerm()` and on an empty visible set, both returning `SearchResult::complete($name, [])`.
 - REQ-SRCH-010 (Performance): One `getVisibleToUser()` call yields the candidate set; placement and metadata fetches are O(matching dashboards) and bounded by the per-bucket cap.
-- REQ-SRCH-011 (UI integration): Result `resourceUrl` is built via `IURLGenerator::linkToRouteAbsolute('mydash.page.index')` plus a `#dashboard/<uuid>` fragment, and (for widget matches) a `;widget=<placementId>` hint inside the same fragment so the SPA can deep-link without a separate redirect route.
-- REQ-SRCH-012 (Order): `getOrder()` returns `50` by default; when the current route starts with `mydash.`, it returns `5` to boost in-app discoverability.
-- Tests: `tests/Unit/Search/MyDashSearchProviderTest.php` covers id/name/order, empty term, name/description matches, case-insensitive matching, widget-content matches with deep-link, HTML stripping, non-text widget skipping, metadata value matches, key-vs-value distinction, permission denial, visibility-boundary failure, the 10-result cap, and malformed `styleConfig` resilience.
+- REQ-SRCH-011 (UI integration): Result `resourceUrl` is built via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index')` plus a `#dashboard/<uuid>` fragment, and (for widget matches) a `;widget=<placementId>` hint inside the same fragment so the SPA can deep-link without a separate redirect route.
+- REQ-SRCH-012 (Order): `getOrder()` returns `50` by default; when the current route starts with `launchpad.`, it returns `5` to boost in-app discoverability.
+- Tests: `tests/Unit/Search/LaunchPadSearchProviderTest.php` covers id/name/order, empty term, name/description matches, case-insensitive matching, widget-content matches with deep-link, HTML stripping, non-text widget skipping, metadata value matches, key-vs-value distinction, permission denial, visibility-boundary failure, the 10-result cap, and malformed `styleConfig` resilience.

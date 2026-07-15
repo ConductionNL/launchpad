@@ -3,28 +3,28 @@
 /**
  * I18nCopyNavigationCommand
  *
- * `mydash:i18n:copy-navigation --from=<lang> --to=<lang>` — clone the
+ * `launchpad:i18n:copy-navigation --from=<lang> --to=<lang>` — clone the
  * org-navigation tree across language variants (REQ-CLI-005). The
  * sibling `navigation-editor-org` capability owns the table; this
  * command degrades gracefully when the table is absent.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\IDBConnection;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +32,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:i18n:copy-navigation` console command.
+ * `launchpad:i18n:copy-navigation` console command.
  */
 class I18nCopyNavigationCommand extends CommandBase
 {
@@ -41,7 +41,7 @@ class I18nCopyNavigationCommand extends CommandBase
      *
      * @var string
      */
-    private const NAV_TABLE = 'mydash_navigation';
+    private const NAV_TABLE = 'launchpad_navigation';
 
     /**
      * Constructor.
@@ -67,7 +67,7 @@ class I18nCopyNavigationCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:i18n:copy-navigation')
+        $this->setName(name: 'launchpad:i18n:copy-navigation')
             ->setDescription(description: 'Clone org-navigation between language variants.')
             ->setHelp(
                 help: implode(
@@ -77,8 +77,8 @@ class I18nCopyNavigationCommand extends CommandBase
                         'Existing target nodes are NOT overwritten unless --overwrite is supplied.',
                         '',
                         'Examples:',
-                        '  php occ mydash:i18n:copy-navigation --from=nl --to=en',
-                        '  php occ mydash:i18n:copy-navigation --from=nl --to=en --overwrite --json',
+                        '  php occ launchpad:i18n:copy-navigation --from=nl --to=en',
+                        '  php occ launchpad:i18n:copy-navigation --from=nl --to=en --overwrite --json',
                     ]
                 )
             )

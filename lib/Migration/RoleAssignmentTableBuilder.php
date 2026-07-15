@@ -3,24 +3,24 @@
 /**
  * RoleAssignmentTableBuilder
  *
- * Builder for the `mydash_role_assignments` database table introduced
+ * Builder for the `launchpad_role_assignments` database table introduced
  * by the admin-roles capability. REQ-ROLE-004.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -39,7 +39,7 @@ use OCP\DB\Types;
 class RoleAssignmentTableBuilder
 {
     /**
-     * Create the `mydash_role_assignments` table when missing.
+     * Create the `launchpad_role_assignments` table when missing.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -47,11 +47,11 @@ class RoleAssignmentTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_role_assignments') === true) {
+        if ($schema->hasTable('launchpad_role_assignments') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_role_assignments');
+        $table = $schema->createTable('launchpad_role_assignments');
 
         $table->addColumn(
             'id',
@@ -105,11 +105,11 @@ class RoleAssignmentTableBuilder
         // Lookup indexes for cascade and resolution paths.
         $table->addIndex(
             ['user_id'],
-            'mydash_role_user_idx'
+            'launchpad_role_user_idx'
         );
         $table->addIndex(
             ['group_id'],
-            'mydash_role_group_idx'
+            'launchpad_role_group_idx'
         );
 
         // Enforce one assignment per (user, role) and per (group, role).
@@ -117,11 +117,11 @@ class RoleAssignmentTableBuilder
         // so a single row never participates in both unique indexes.
         $table->addUniqueIndex(
             ['user_id', 'role'],
-            'mydash_role_user_uniq'
+            'launchpad_role_user_uniq'
         );
         $table->addUniqueIndex(
             ['group_id', 'role'],
-            'mydash_role_group_uniq'
+            'launchpad_role_group_uniq'
         );
     }//end create()
 }//end class

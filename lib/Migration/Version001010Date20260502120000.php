@@ -5,7 +5,7 @@
  *
  * Migration that adds the dashboard hierarchy columns
  * (`parent_uuid`, `slug`, `sort_order`) plus the supporting indexes on
- * `oc_mydash_dashboards`. Required by REQ-DASH-023..030
+ * `oc_launchpad_dashboards`. Required by REQ-DASH-023..030
  * (dashboard tree, slug-based path resolution, sibling ordering, and
  * cascade-delete guard).
  *
@@ -16,20 +16,20 @@
  * `sort_order = 0`.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -37,7 +37,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add hierarchy columns + supporting indexes to mydash_dashboards
+ * Add hierarchy columns + supporting indexes to launchpad_dashboards
  * (REQ-DASH-023..030).
  */
 class Version001010Date20260502120000 extends SimpleMigrationStep
@@ -59,11 +59,11 @@ class Version001010Date20260502120000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboards') === false) {
+        if ($schema->hasTable('launchpad_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable('mydash_dashboards');
+        $table = $schema->getTable('launchpad_dashboards');
 
         DashboardTableBuilder::addTreeColumns(table: $table);
 

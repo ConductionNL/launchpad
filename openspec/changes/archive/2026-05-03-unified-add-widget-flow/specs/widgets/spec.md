@@ -30,7 +30,7 @@ The tile widget type MUST be selectable from the unified "Add custom widget" pic
 
 #### Scenario: Tile renderer supports legacy and new content shapes
 
-- **GIVEN** a placement created via the deprecated `oc_mydash_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
+- **GIVEN** a placement created via the deprecated `oc_launchpad_tiles` flow with `placement.tileTitle: 'Old Tile'` and `placement.tileIcon: '📁'` (legacy shape)
 - **WHEN** the placement renders via `TileWidget`
 - **THEN** the title and icon MUST display correctly
 - **AND** no console errors MUST occur from the missing `placement.content` field

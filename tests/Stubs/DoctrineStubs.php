@@ -17,7 +17,7 @@
  * Nextcloud Docker container the real Doctrine classes are already
  * loaded, so the `class_exists` guards turn this into a no-op.
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -145,6 +145,58 @@ namespace OC\Hooks {
              * @return void
              */
             public function emit(string $scope, string $method, array $arguments=[]): void;
+        }
+    }
+}
+
+namespace Psr\Http\Client {
+    if (interface_exists(__NAMESPACE__ . '\\ClientInterface', false) === false) {
+        /**
+         * Minimal stub for Psr\Http\Client\ClientInterface.
+         *
+         * OCP\Http\Client\IClient extends this interface. The real psr/http-client
+         * package is a Nextcloud runtime dependency — not a composer dep of this
+         * app — so this stub keeps PHPUnit's mock generator happy inside the
+         * container where the NC autoloader has not yet registered PSR packages.
+         */
+        interface ClientInterface
+        {
+            /**
+             * @param \Psr\Http\Message\RequestInterface $request
+             * @return \Psr\Http\Message\ResponseInterface
+             * @throws \Psr\Http\Client\ClientExceptionInterface
+             */
+            public function sendRequest(\Psr\Http\Message\RequestInterface $request): \Psr\Http\Message\ResponseInterface;
+        }
+    }
+}
+
+namespace Psr\Http\Message {
+    if (interface_exists(__NAMESPACE__ . '\\RequestInterface', false) === false) {
+        /** Minimal PSR-7 RequestInterface stub. */
+        interface MessageInterface
+        {
+        }
+        interface RequestInterface extends MessageInterface
+        {
+        }
+        interface ResponseInterface extends MessageInterface
+        {
+        }
+        interface StreamInterface
+        {
+        }
+        interface UriInterface
+        {
+        }
+    }
+}
+
+namespace Psr\Http\Client {
+    if (interface_exists(__NAMESPACE__ . '\\ClientExceptionInterface', false) === false) {
+        /** Minimal PSR-18 exception stub. */
+        interface ClientExceptionInterface extends \Throwable
+        {
         }
     }
 }

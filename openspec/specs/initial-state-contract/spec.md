@@ -1,12 +1,12 @@
 ---
-status: implemented
+status: done
 ---
 
 # Initial State Contract Specification
 
 ## Purpose
 
-The `initial-state-contract` capability formalises the precise set of keys that PHP pushes via Nextcloud's `IInitialState::provideInitialState` for each Vue mount in MyDash, and the matching `provide()` calls each entry point emits to expose those keys to the rest of the component tree. Without this contract the keys drift silently — frontend reads a key the backend stopped sending, or vice versa, and the breakage only surfaces at runtime.
+The `initial-state-contract` capability formalises the precise set of keys that PHP pushes via Nextcloud's `IInitialState::provideInitialState` for each Vue mount in LaunchPad, and the matching `provide()` calls each entry point emits to expose those keys to the rest of the component tree. Without this contract the keys drift silently — frontend reads a key the backend stopped sending, or vice versa, and the breakage only surfaces at runtime.
 
 A typed PHP `InitialStateBuilder` service centralises the writes; a typed JS `loadInitialState(page)` reader centralises the reads; a versioned `_schemaVersion` key travels with every payload so deploy skew (PHP and JS bundle out of sync) shows up as a console warning instead of a mysterious bug; CI lint guards prevent controllers and components from bypassing the central code paths.
 
@@ -17,12 +17,12 @@ A typed PHP `InitialStateBuilder` service centralises the writes; a typed JS `lo
 
 ### Requirement: Centralised PHP builder for initial state (REQ-INIT-001)
 
-The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor accepting an `IInitialState` and a `Page` enum (`Page::WORKSPACE` or `Page::ADMIN`). The builder MUST expose typed setter methods (e.g. `setWidgets(array $widgets): self`, `setLayout(array $layout): self`, `setIsAdmin(bool $isAdmin): self`) and a final `apply(): void` that writes every key to the initial-state service. `apply()` MUST throw `MissingInitialStateException` if any required key was not set for the chosen page. Controllers (`PageController`, `MyDashAdmin`) MUST use the builder; direct calls to `IInitialState::provideInitialState` from controllers are forbidden by code review (a grep lint MUST find such calls only inside `InitialStateBuilder`).
+The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor accepting an `IInitialState` and a `Page` enum (`Page::WORKSPACE` or `Page::ADMIN`). The builder MUST expose typed setter methods (e.g. `setWidgets(array $widgets): self`, `setLayout(array $layout): self`, `setIsAdmin(bool $isAdmin): self`) and a final `apply(): void` that writes every key to the initial-state service. `apply()` MUST throw `MissingInitialStateException` if any required key was not set for the chosen page. Controllers (`PageController`, `LaunchPadAdmin`) MUST use the builder; direct calls to `IInitialState::provideInitialState` from controllers are forbidden by code review (a grep lint MUST find such calls only inside `InitialStateBuilder`).
 
 #### Scenario: Builder writes all keys
 
 - **WHEN** a workspace controller calls every required setter and then `apply()` and the page renders
-- **THEN** the system MUST forward each value to `IInitialState::provideInitialState` so that `loadState('mydash', <key>)` on the JS side returns the exact values set
+- **THEN** the system MUST forward each value to `IInitialState::provideInitialState` so that `loadState('launchpad', <key>)` on the JS side returns the exact values set
 - **AND** the JS bundle MUST receive all 10 workspace keys declared in the Data Model
 
 #### Scenario: Missing required key raises before render
@@ -41,7 +41,7 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 
 The exact set of initial-state keys per page is part of the contract and MUST match the Data Model documented in this spec. Adding, removing, or renaming a key is a deliberate spec change and MUST be accompanied by (1) an update to this spec's Data Model, (2) a bump of the `INITIAL_STATE_SCHEMA_VERSION` constant (currently `1`), and (3) coordinated updates to both the PHP builder and the JS reader in the same commit. The schema version MUST itself be pushed as initial state under the key `_schemaVersion`. The JS reader MUST log a console warning when the received version differs from the compiled-in version (catches caching and deploy-skew bugs).
 
-The Workspace page (mounted into `#mydash-app`) MUST expose exactly these keys:
+The Workspace page (mounted into `#launchpad-app`) MUST expose exactly these keys:
 
 | Key | Type | Default (if missing) |
 |---|---|---|
@@ -56,7 +56,7 @@ The Workspace page (mounted into `#mydash-app`) MUST expose exactly these keys:
 | `userDashboards` | `Array<{id, name, icon}>` | `[]` |
 | `allowUserDashboards` | `boolean` | `false` |
 
-The Admin page (mounted into `#mydash-admin-settings`) MUST expose exactly these keys:
+The Admin page (mounted into `#launchpad-admin-settings`) MUST expose exactly these keys:
 
 | Key | Type | Default |
 |---|---|---|
@@ -75,12 +75,12 @@ The Admin page (mounted into `#mydash-admin-settings`) MUST expose exactly these
 #### Scenario: Schema version mismatch warning
 
 - **WHEN** PHP pushes `_schemaVersion: 2` but the loaded JS bundle was compiled against version `1` and the JS reader runs
-- **THEN** the reader MUST log a console warning of the form `MyDash initial-state schema mismatch: server v2 vs client v1 — refresh recommended`
+- **THEN** the reader MUST log a console warning of the form `LaunchPad initial-state schema mismatch: server v2 vs client v1 — refresh recommended`
 - **AND** the reader MUST still attempt to load known keys (graceful degradation)
 
 ### Requirement: Centralised JS reader for initial state (REQ-INIT-003)
 
-The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialState(page: 'workspace' | 'admin'): InitialState`. The reader MUST call `loadState('mydash', key, default)` for every key declared for `page` in the Data Model, MUST return a typed object with default-filled fields (no `undefined` values), and MUST validate the received `_schemaVersion` against the compiled-in `INITIAL_STATE_SCHEMA_VERSION` constant per REQ-INIT-002. Entry points (`src/main.js`, `src/admin.js`) MUST use the reader; direct `loadState('mydash', ...)` calls outside the reader are forbidden by a JS-side grep lint.
+The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialState(page: 'workspace' | 'admin'): InitialState`. The reader MUST call `loadState('launchpad', key, default)` for every key declared for `page` in the Data Model, MUST return a typed object with default-filled fields (no `undefined` values), and MUST validate the received `_schemaVersion` against the compiled-in `INITIAL_STATE_SCHEMA_VERSION` constant per REQ-INIT-002. Entry points (`src/main.js`, `src/admin.js`) MUST use the reader; direct `loadState('launchpad', ...)` calls outside the reader are forbidden by a JS-side grep lint.
 
 #### Scenario: Reader fills defaults
 
@@ -90,7 +90,7 @@ The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialSta
 
 #### Scenario: Direct loadState rejected
 
-- **WHEN** a Vue component under `src/` calls `loadState('mydash', 'something')` directly
+- **WHEN** a Vue component under `src/` calls `loadState('launchpad', 'something')` directly
 - **THEN** the lint test (grep against `src/`) MUST fail
 - **AND** the failure message MUST direct the developer to use `loadInitialState`
 

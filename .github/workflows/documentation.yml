@@ -10,4 +10,4 @@ jobs:
   deploy:
     uses: Conduction/.github/.github/workflows/documentation.yml@main
     with:
-      cname: mydash.conduction.nl
+      cname: launchpad.conduction.nl

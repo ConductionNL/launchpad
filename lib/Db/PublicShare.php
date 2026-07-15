@@ -3,11 +3,11 @@
 /**
  * PublicShare Entity
  *
- * Represents a row in mydash_public_shares — an anonymous read-only share
+ * Represents a row in launchpad_public_shares — an anonymous read-only share
  * of a dashboard identified by a URL-safe token.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -41,7 +41,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;

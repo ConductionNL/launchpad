@@ -17,27 +17,27 @@
  * return is surfaced as HTTP 400 `invalid_svg`.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Exception\FileTooLargeException;
-use OCA\MyDash\Exception\InvalidDataUrlException;
-use OCA\MyDash\Exception\InvalidImageFormatException;
-use OCA\MyDash\Exception\InvalidSvgException;
-use OCA\MyDash\Exception\StorageFailureException;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\FileTooLargeException;
+use OCA\LaunchPad\Exception\InvalidDataUrlException;
+use OCA\LaunchPad\Exception\InvalidImageFormatException;
+use OCA\LaunchPad\Exception\InvalidSvgException;
+use OCA\LaunchPad\Exception\StorageFailureException;
 use OCP\Files\IAppData;
 use OCP\Files\NotFoundException;
 use Throwable;
@@ -154,7 +154,7 @@ class ResourceService
 
         // Build the public URL directly — the serving endpoint is
         // delivered by the sibling `resource-serving` change. The spec
-        // mandates the relative path form `/apps/mydash/resource/<name>`,
+        // mandates the relative path form `/apps/launchpad/resource/<name>`,
         // so we don't pass it through linkToRoute or getAbsoluteURL.
         $url = ('/apps/'.Application::APP_ID.'/resource/'.$filename);
 

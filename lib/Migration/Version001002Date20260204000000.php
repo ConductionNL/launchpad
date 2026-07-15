@@ -6,7 +6,7 @@
  * Migration to increase icon column size for SVG paths.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -44,8 +44,8 @@ class Version001002Date20260204000000 extends SimpleMigrationStep
         $schema = $schemaClosure();
 
         // Increase icon column size to support longer SVG paths.
-        if ($schema->hasTable('mydash_tiles') === true) {
-            $table = $schema->getTable('mydash_tiles');
+        if ($schema->hasTable('launchpad_tiles') === true) {
+            $table = $schema->getTable('launchpad_tiles');
 
             if ($table->hasColumn('icon') === true) {
                 $iconColumn = $table->getColumn('icon');

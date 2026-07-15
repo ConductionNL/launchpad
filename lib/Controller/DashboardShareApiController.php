@@ -8,25 +8,25 @@
  * recipient (REQ-SHARE-010).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use Exception;
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\DashboardShareService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\DashboardShareService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -41,6 +41,8 @@ use OCP\IUserManager;
  *
  * All endpoints require a logged-in user (#[NoAdminRequired]). Owner checks
  * are delegated to DashboardShareService.
+ *
+ * @spec openspec/specs/dashboard-sharing/spec.md
  */
 class DashboardShareApiController extends Controller
 {
@@ -314,9 +316,11 @@ class DashboardShareApiController extends Controller
         }
 
         $trimmed = trim(string: $query);
-        // M3: raise minimum query length to 2 to limit directory enumeration
-        // from single-character a..z sweeps (consistent with NC share picker).
-        if (strlen(string: $trimmed) < 2) {
+        // M3: single-character a..z sweeps stay blocked (directory
+        // enumeration guard, consistent with NC share picker) — but an
+        // EMPTY query returns a bounded suggestion list so the picker is
+        // never blank on focus (parity with the core share dialog).
+        if (strlen(string: $trimmed) === 1) {
             return new DataResponse(data: ['users' => [], 'groups' => []]);
         }
 

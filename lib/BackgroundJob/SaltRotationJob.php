@@ -10,31 +10,31 @@
  * any user identity from the analytics database alone.
  *
  * The job is registered via
- * {@see \OCA\MyDash\AppInfo\Application::register()} and runs every
+ * {@see \OCA\LaunchPad\AppInfo\Application::register()} and runs every
  * 24 hours. The lazy fallback in
- * {@see \OCA\MyDash\Service\UniqueViewerDedup::getSaltForDate()}
+ * {@see \OCA\LaunchPad\Service\UniqueViewerDedup::getSaltForDate()}
  * also rotates the salt when its persisted date marker is stale —
  * this job exists primarily so the rotation timestamp itself
  * happens close to UTC midnight rather than on the first request
  * after midnight.
  *
  * @category  BackgroundJob
- * @package   OCA\MyDash\BackgroundJob
+ * @package   OCA\LaunchPad\BackgroundJob
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\BackgroundJob;
+namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\MyDash\Service\UniqueViewerDedup;
+use OCA\LaunchPad\Service\UniqueViewerDedup;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -81,7 +81,7 @@ class SaltRotationJob extends TimedJob
         $this->dedup->rotateSalt(viewBucketDate: $today);
 
         $this->logger->info(
-            message: 'mydash analytics salt rotated for '.$today,
+            message: 'launchpad analytics salt rotated for '.$today,
             context: ['date' => $today]
         );
     }//end run()

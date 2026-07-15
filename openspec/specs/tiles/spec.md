@@ -1,16 +1,16 @@
 ---
-status: implemented
+status: done
 ---
 
 # Custom Tiles Specification
 
 ## Purpose
 
-Custom tiles are user-created shortcut cards that provide quick access to Nextcloud apps or external URLs. Unlike widgets (which render dynamic content from Nextcloud apps), tiles are simple, static cards with an icon, label, and link. Tiles are first created as reusable entities in the `oc_mydash_tiles` table, then placed onto dashboards via a special tile placement mechanism that stores tile data inline on the placement. This inline-copy model means tile placements are independent snapshots -- changes to the tile definition do NOT propagate to existing placements.
+Custom tiles are user-created shortcut cards that provide quick access to Nextcloud apps or external URLs. Unlike widgets (which render dynamic content from Nextcloud apps), tiles are simple, static cards with an icon, label, and link. Tiles are first created as reusable entities in the `oc_launchpad_tiles` table, then placed onto dashboards via a special tile placement mechanism that stores tile data inline on the placement. This inline-copy model means tile placements are independent snapshots -- changes to the tile definition do NOT propagate to existing placements.
 
 ## Data Model
 
-### Tiles (oc_mydash_tiles)
+### Tiles (oc_launchpad_tiles)
 - **id**: Auto-increment integer primary key
 - **userId**: Nextcloud user ID of the tile creator (STRING, NOT NULL)
 - **title**: Display label for the tile (STRING)
@@ -26,42 +26,41 @@ Custom tiles are user-created shortcut cards that provide quick access to Nextcl
 NOTE: Tiles do NOT have a UUID field. They are identified by their auto-increment integer `id`.
 
 ### Tile Placements
-Tiles are placed on dashboards using the same `oc_mydash_widget_placements` table. The tile data is stored INLINE on the placement (not as a foreign key reference):
+Tiles are placed on dashboards using the same `oc_launchpad_widget_placements` table. The tile data is stored INLINE on the placement (not as a foreign key reference):
 - `widgetId` is set to `'tile-' + uniqid()` (NOT null -- the DB column is NOT NULL)
 - `tileType` is set to `'custom'`
 - `tileTitle`, `tileIcon`, `tileIconType`, `tileBackgroundColor`, `tileTextColor`, `tileLinkType`, `tileLinkValue` are copied from the tile data
 
-This means tile placements store a COPY of the tile configuration at creation time, NOT a reference to the `oc_mydash_tiles` record. Changes to a tile definition in `oc_mydash_tiles` do NOT automatically propagate to existing tile placements.
+This means tile placements store a COPY of the tile configuration at creation time, NOT a reference to the `oc_launchpad_tiles` record. Changes to a tile definition in `oc_launchpad_tiles` do NOT automatically propagate to existing tile placements.
 
 ## Requirements
 
 ### Requirement: REQ-TILE-001 Reusable tile entity model \u2014 DEPRECATED
 
-@e2e exclude tile entity DEPRECATED — write endpoints return 410; checked by Newman, not UI
-
-The reusable tile entity model (rows in `oc_mydash_tiles`, accessed via `TileService::createTile / updateTile / deleteTile` and `POST/PUT/DELETE /api/tiles[/{id}]`) MUST be treated as deprecated as of the `unified-add-widget-flow` change. The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
+The reusable tile entity model (rows in `oc_launchpad_tiles`, accessed via `TileService::createTile / updateTile / deleteTile` and `POST/PUT/DELETE /api/tiles[/{id}]`) MUST be treated as deprecated as of the `unified-add-widget-flow` change. The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
+@e2e exclude tile entity DEPRECATED — write endpoints return 410; checked by Newman, not UI The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
 
 The following behaviour MUST hold during the deprecation window:
 
 1. `POST /api/tiles`, `PUT /api/tiles/{id}`, and `DELETE /api/tiles/{id}` MUST return HTTP 410 Gone with envelope `{status: 'gone', message: '<localised>', replacement: 'POST /api/dashboards/{uuid}/widgets with type:tile'}`.
 2. `GET /api/tiles` and `GET /api/tiles/{id}` MUST continue to return existing rows for backwards compatibility (read-only \u2014 admin tooling, migration scripts).
-3. The `oc_mydash_tiles` table MUST remain in the schema. No destructive migration. A future `tile-table-removal` change MAY drop it after at least one full release of read-deprecation.
-4. Existing tile placements (rows in `oc_mydash_widget_placements` with the legacy inline `tileTitle`/`tileIcon`/`tileIconType`/`tileBackgroundColor`/`tileTextColor`/`tileLinkType`/`tileLinkValue` fields) MUST continue to render. The new `TileWidget` renderer MUST handle the legacy field shape AND the new `placement.content.{title, icon, ...}` shape.
+3. The `oc_launchpad_tiles` table MUST remain in the schema. No destructive migration. A future `tile-table-removal` change MAY drop it after at least one full release of read-deprecation.
+4. Existing tile placements (rows in `oc_launchpad_widget_placements` with the legacy inline `tileTitle`/`tileIcon`/`tileIconType`/`tileBackgroundColor`/`tileTextColor`/`tileLinkType`/`tileLinkValue` fields) MUST continue to render. The new `TileWidget` renderer MUST handle the legacy field shape AND the new `placement.content.{title, icon, ...}` shape.
 
 #### Scenario: Write endpoints return 410 Gone
 
-- **GIVEN** an admin user authenticated to mydash
+- **GIVEN** an admin user authenticated to launchpad
 - **WHEN** they `POST /api/tiles` with any payload
 - **THEN** the response MUST be HTTP 410 Gone
 - **AND** the body MUST include `status: 'gone'`, a localised `message`, and `replacement: 'POST /api/dashboards/{uuid}/widgets with type:tile'`
-- **AND** no row MUST be inserted into `oc_mydash_tiles`
+- **AND** no row MUST be inserted into `oc_launchpad_tiles`
 
 #### Scenario: Read endpoints still serve existing rows
 
 - **GIVEN** the database contains a tile row created prior to the unified-add-widget-flow change
 - **WHEN** an authenticated user calls `GET /api/tiles`
 - **THEN** the response MUST be HTTP 200 with the row's fields in the documented shape
-- **AND** this MUST work as long as the `oc_mydash_tiles` table exists in the schema
+- **AND** this MUST work as long as the `oc_launchpad_tiles` table exists in the schema
 
 #### Scenario: Existing tile placements still render
 
@@ -72,9 +71,8 @@ The following behaviour MUST hold during the deprecation window:
 
 ### Requirement: List User Tiles (REQ-TILE-002)
 
-@e2e exclude list user tiles tests REST endpoint — Newman scope
-
 Users MUST be able to retrieve all their custom tile definitions, scoped to their user ID.
+@e2e exclude list user tiles tests REST endpoint — Newman scope
 
 #### Scenario: List tiles for a user
 - GIVEN user "alice" has 5 custom tiles
@@ -95,9 +93,8 @@ Users MUST be able to retrieve all their custom tile definitions, scoped to thei
 
 ### Requirement: Update Custom Tile (REQ-TILE-003)
 
-@e2e exclude update tile tests REST PUT — Newman scope
-
 Users MUST be able to update the properties of their custom tiles with ownership verification.
+@e2e exclude update tile tests REST PUT — Newman scope
 
 #### Scenario: Update tile title and colors
 - GIVEN user "alice" has tile id 3 with title "My Files"
@@ -123,7 +120,7 @@ Users MUST be able to update the properties of their custom tiles with ownership
 #### Scenario: Update tile does NOT reflect on existing placements
 - GIVEN tile id 3 has been placed on 2 of alice's dashboards (tile data was copied inline to placements at creation time)
 - WHEN she updates the tile's title from "My Files" to "Documents" via PUT /api/tiles/3
-- THEN the tile definition in `oc_mydash_tiles` MUST be updated
+- THEN the tile definition in `oc_launchpad_tiles` MUST be updated
 - BUT existing placements MUST NOT be affected (they store a copy of the tile data, not a reference)
 
 #### Scenario: Partial update preserves unspecified fields
@@ -134,9 +131,8 @@ Users MUST be able to update the properties of their custom tiles with ownership
 
 ### Requirement: Delete Custom Tile (REQ-TILE-004)
 
-@e2e exclude delete tile tests REST DELETE — Newman scope
-
 Users MUST be able to delete their custom tile definitions with ownership verification.
+@e2e exclude delete tile tests REST DELETE — Newman scope
 
 #### Scenario: Delete a tile not placed on any dashboard
 - GIVEN user "alice" has tile id 3 that is not placed on any dashboard
@@ -147,7 +143,7 @@ Users MUST be able to delete their custom tile definitions with ownership verifi
 #### Scenario: Delete a tile that is placed on dashboards
 - GIVEN user "alice" has tile id 3 placed on 2 dashboards
 - WHEN she sends DELETE /api/tiles/3
-- THEN the system MUST delete the tile from `oc_mydash_tiles`
+- THEN the system MUST delete the tile from `oc_launchpad_tiles`
 - AND tile placements on dashboards SHOULD also be deleted
 - NOTE: `TileService::deleteTile()` only deletes the tile entity. It does NOT cascade-delete tile placements. Since placements use inline copies (not foreign key references), there is no DB-level cascade.
 
@@ -159,9 +155,8 @@ Users MUST be able to delete their custom tile definitions with ownership verifi
 
 ### Requirement: Place Tile on Dashboard (REQ-TILE-005)
 
-@e2e exclude place tile on dashboard tests REST POST — Newman scope
-
 Users MUST be able to place tile data onto a dashboard, creating a widget placement with inline tile data.
+@e2e exclude place tile on dashboard tests REST POST — Newman scope
 
 #### Scenario: Place a tile on a dashboard
 - GIVEN user "alice" has dashboard id 5
@@ -201,9 +196,8 @@ Users MUST be able to place tile data onto a dashboard, creating a widget placem
 
 ### Requirement: Tile Icon Rendering (REQ-TILE-006)
 
-@e2e exclude tile icon rendering (emoji/CSS/URL/SVG path) requires a pre-placed tile on the dashboard — needs seeded state not available in CI fixture
-
 The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path.
+@e2e exclude tile icon rendering (emoji/CSS/URL/SVG path) requires a pre-placed tile on the dashboard — needs seeded state not available in CI fixture
 
 #### Scenario: Render emoji icon
 - GIVEN a tile with `iconType: "emoji"` and `icon: "\ud83d\udcc1"`
@@ -231,9 +225,8 @@ The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path
 
 ### Requirement: Tile Color Validation (REQ-TILE-007)
 
-@e2e exclude tile color validation tests server-side validator — Newman scope
-
 Tile colors MUST be validated to ensure proper display and accessibility.
+@e2e exclude tile color validation tests server-side validator — Newman scope
 
 #### Scenario: Valid hex colors accepted
 - GIVEN a tile creation request with `backgroundColor: "#3b82f6"` and `textColor: "#ffffff"`
@@ -253,9 +246,8 @@ Tile colors MUST be validated to ensure proper display and accessibility.
 
 ### Requirement: Tile Link Navigation (REQ-TILE-008)
 
-@e2e exclude tile link navigation tests window.location or router.push inside a widget click — requires a placed tile; seeding not available
-
 Tiles MUST navigate correctly based on their linkType.
+@e2e exclude tile link navigation tests window.location or router.push inside a widget click — requires a placed tile; seeding not available
 
 #### Scenario: App link navigation
 - GIVEN a tile with `linkType: "app"` and `linkValue: "files"`
@@ -275,9 +267,8 @@ Tiles MUST navigate correctly based on their linkType.
 
 ### Requirement: Tile Styling (REQ-TILE-009)
 
-@e2e exclude tile background/text colour CSS tests require a pre-placed tile — seeded state not available in CI fixture
-
 Tiles MUST apply their configured colors as CSS custom properties for consistent rendering.
+@e2e exclude tile background/text colour CSS tests require a pre-placed tile — seeded state not available in CI fixture
 
 #### Scenario: Tile background and text colors applied
 - GIVEN a tile with `backgroundColor: "#3b82f6"` and `textColor: "#ffffff"`
@@ -300,9 +291,8 @@ Tiles MUST apply their configured colors as CSS custom properties for consistent
 
 ### Requirement: Tile Edit Mode (REQ-TILE-010)
 
-@e2e exclude tile edit-mode button visibility requires a placed tile in edit mode — seeded state not available
-
 Tiles MUST support an edit mode that allows configuration changes.
+@e2e exclude tile edit-mode button visibility requires a placed tile in edit mode — seeded state not available
 
 #### Scenario: Edit button visible in edit mode
 - GIVEN a tile on a dashboard in edit mode
@@ -323,9 +313,8 @@ Tiles MUST support an edit mode that allows configuration changes.
 
 ### Requirement: Tile Management UI (REQ-TILE-011)
 
-@e2e exclude tile management UI (modal form) requires an existing tile placement — seeded state not available
-
 Users MUST be able to manage their tile definitions through a dedicated UI.
+@e2e exclude tile management UI (modal form) requires an existing tile placement — seeded state not available
 
 #### Scenario: Tile card display
 - GIVEN user "alice" has custom tiles
@@ -340,9 +329,8 @@ Users MUST be able to manage their tile definitions through a dedicated UI.
 
 ### Requirement: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical
 
+Tile placements (rows in `oc_launchpad_widget_placements` with `tileType: 'custom'` historically, or `widgetId: 'tile'` going forward) MUST store their data INLINE on the placement. This MUST be treated as the canonical model for tile data on dashboards going forward.
 @e2e exclude inline-content placement model is a data-model spec — no distinct UI surface beyond what REQ-TILE-010/011 cover
-
-Tile placements (rows in `oc_mydash_widget_placements` with `tileType: 'custom'` historically, or `widgetId: 'tile'` going forward) MUST store their data INLINE on the placement. This MUST be treated as the canonical model for tile data on dashboards going forward.
 
 New tile placements created via the unified add-widget flow (REQ-WDG-010 + REQ-WDG-022) MUST store their data in `placement.content.{title, icon, iconType, backgroundColor, textColor, linkType, linkValue}` — the standard widget-content shape. Legacy placements with the flat `placement.tileTitle / tileIcon / ...` shape MUST continue to work via the renderer's dual-shape support (REQ-WDG-022 scenario "Tile renderer supports legacy and new content shapes").
 
@@ -352,7 +340,7 @@ A future migration MAY rewrite legacy placements into the new content shape, but
 
 - **GIVEN** a user opens the unified Add Custom Widget modal and picks "Tile"
 - **WHEN** they fill the form and save
-- **THEN** the resulting `oc_mydash_widget_placements` row MUST have its data in `content` (JSON column)
+- **THEN** the resulting `oc_launchpad_widget_placements` row MUST have its data in `content` (JSON column)
 - **AND** the legacy flat `tileTitle`/`tileIcon`/etc. columns MUST NOT be populated for new placements
 
 ## Non-Functional Requirements

@@ -10,12 +10,12 @@
  * caller (only typed exceptions surface).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Exception\FileTypeNotAllowedException;
-use OCA\MyDash\Exception\InvalidDirectoryException;
-use OCA\MyDash\Exception\InvalidFilenameException;
-use OCA\MyDash\Exception\StorageFailureException;
-use OCA\MyDash\Service\FileService;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Exception\FileTypeNotAllowedException;
+use OCA\LaunchPad\Exception\InvalidDirectoryException;
+use OCA\LaunchPad\Exception\InvalidFilenameException;
+use OCA\LaunchPad\Exception\StorageFailureException;
+use OCA\LaunchPad\Service\FileService;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;

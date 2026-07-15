@@ -1,7 +1,7 @@
 # `@spec` annotation pass across `lib/`
 
 Closes the ADR-003 `@spec` tag gap flagged in
-[`docs/adr-audit.md`](../../../docs/adr-audit.md). MyDash has **zero**
+[`docs/adr-audit.md`](../../../docs/adr-audit.md). LaunchPad has **zero**
 `@spec` PHPDoc tags across 64 PHP files and ~215 public methods today.
 
 ## Why now
@@ -27,7 +27,7 @@ call for each.
 
 ## Scope
 
-- Run `/opsx-annotate mydash` against the 61 Bucket 1 methods +
+- Run `/opsx-annotate launchpad` against the 61 Bucket 1 methods +
   5 Bucket 2b methods (from the retrofit that just landed) — 66 methods
   total.
 - Resolve the 3 `NEEDS-REVIEW` flags:
@@ -35,7 +35,7 @@ call for each.
     same method in `PermissionService`. Decide: does it belong to
     `permissions` spec (most likely) or `dashboards` (delegator
     pattern)?
-  - `MyDashAdmin::getForm` (0.80) + `MyDashAdminSection::getID` (0.75) —
+  - `LaunchPadAdmin::getForm` (0.80) + `LaunchPadAdminSection::getID` (0.75) —
     admin-UI-registration boilerplate. Decide: extend `admin-settings`
     spec with a new Requirement, or treat as plumbing (skip).
 - Add file-level `@spec` tags pointing at each file's owning

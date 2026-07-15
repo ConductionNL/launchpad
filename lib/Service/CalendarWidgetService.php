@@ -3,7 +3,7 @@
 /**
  * CalendarWidgetService
  *
- * Aggregates events for the MyDash calendar widget from internal Nextcloud
+ * Aggregates events for the LaunchPad calendar widget from internal Nextcloud
  * Calendar sources (via OCP\Calendar\IManager when available) and external
  * ICS feeds. Recurring events are expanded server-side using sabre/vobject's
  * VCalendar::expand() (bundled with Nextcloud — not vendored separately).
@@ -20,24 +20,24 @@
  * is dropped from the response, but other sources continue to render.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -48,7 +48,7 @@ use RuntimeException;
 use Throwable;
 
 /**
- * Aggregates and normalises calendar events for the MyDash calendar widget.
+ * Aggregates and normalises calendar events for the LaunchPad calendar widget.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Calendar + HTTP + cache +
  *                                                 config + logging are all
@@ -102,7 +102,7 @@ class CalendarWidgetService
      *
      * @var string
      */
-    private const CACHE_NAMESPACE = 'mydash-calendar-ics';
+    private const CACHE_NAMESPACE = 'launchpad-calendar-ics';
 
     /**
      * The distributed ICache instance used to cache raw ICS bodies.
@@ -189,6 +189,52 @@ class CalendarWidgetService
             'failures' => $failures,
         ];
     }//end getEvents()
+
+    /**
+     * List the current user's internal calendars for the config-form picker
+     * (REQ-CAL-002). Each entry's `key` is the identifier
+     * {@see fetchInternalEvents} filters on (the search result's
+     * `calendar-key`). Returns an empty list when the Calendar app is absent.
+     *
+     * @param string $userId The current user id.
+     *
+     * @return array<int, array{key: string, name: string, color: string}>
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
+     */
+    public function listCalendars(string $userId): array
+    {
+        if ($this->calendarMgr === null) {
+            return [];
+        }
+
+        $out = [];
+        try {
+            $calendars = $this->calendarMgr->getCalendarsForPrincipal(
+                principalUri: 'principals/users/'.$userId
+            );
+        } catch (Throwable $exception) {
+            $this->logger->warning(
+                message: 'Calendar widget: listing calendars failed: '.$exception->getMessage()
+            );
+            return [];
+        }
+
+        foreach ($calendars as $calendar) {
+            $color = '';
+            if (method_exists(object_or_class: $calendar, method: 'getDisplayColor') === true) {
+                $color = (string) ($calendar->getDisplayColor() ?? '');
+            }
+
+            $out[] = [
+                'key'   => (string) $calendar->getKey(),
+                'name'  => (string) $calendar->getDisplayName(),
+                'color' => $color,
+            ];
+        }
+
+        return $out;
+    }//end listCalendars()
 
     /**
      * Fetch events from internal Nextcloud calendars.
@@ -434,7 +480,7 @@ class CalendarWidgetService
         }
 
         $ttl = $this->appConfig->getValueInt(
-            app: 'mydash',
+            app: 'launchpad',
             key: self::CONFIG_KEY_CACHE_TTL,
             default: self::DEFAULT_CACHE_TTL_SECONDS
         );
@@ -596,6 +642,36 @@ class CalendarWidgetService
     }//end veventIsAllDay()
 
     /**
+     * Unwrap one property value from an NC CalDAV search result.
+     *
+     * `CalDavBackend::transformSearchProperty()` stores every property as a
+     * `[value, parameters]` pair, and a repeatable property nests one level
+     * deeper (`[[value, parameters], …]`). A naive `(string)` cast of either
+     * shape yields the literal `"Array"` — the bug this unwraps. Plain scalar
+     * inputs (older NC versions / unit-test fixtures) pass straight through.
+     *
+     * @param mixed $prop The raw property as returned by IManager::search().
+     *
+     * @return mixed The first scalar/object value, or null when absent.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
+     */
+    private function extractSearchValue(mixed $prop): mixed
+    {
+        if (is_array(value: $prop) === false) {
+            return $prop;
+        }
+
+        $first = ($prop[0] ?? null);
+        // Repeatable property: [[value, parameters], …] → unwrap once more.
+        if (is_array(value: $first) === true) {
+            return ($first[0] ?? null);
+        }
+
+        return $first;
+    }//end extractSearchValue()
+
+    /**
      * Normalise a NC IManager::search() result into the canonical shape.
      *
      * @param array<string, mixed> $raw Raw event from IManager.
@@ -606,34 +682,57 @@ class CalendarWidgetService
      */
     public function normalizeInternalEvent(array $raw): array
     {
-        // NC Calendar search results vary across versions; do best-effort mapping.
-        $obj      = $raw['objects'][0] ?? $raw;
-        $title    = (string) ($raw['SUMMARY'] ?? $obj['SUMMARY'] ?? $raw['title'] ?? 'Untitled');
-        $start    = (string) ($raw['DTSTART'] ?? $obj['DTSTART'] ?? $raw['start'] ?? '');
-        $end      = (string) ($raw['DTEND'] ?? $obj['DTEND'] ?? $raw['end'] ?? '');
-        $location = $raw['LOCATION'] ?? $obj['LOCATION'] ?? $raw['location'] ?? null;
-        $desc     = $raw['DESCRIPTION'] ?? $obj['DESCRIPTION'] ?? $raw['description'] ?? null;
+        // NC Calendar search results vary across versions; the VEVENT
+        // properties live under objects[0], each as a [value, parameters]
+        // pair (see extractSearchValue). Fall back to flat keys for other
+        // shapes (older NC / test fixtures).
+        $obj = ($raw['objects'][0] ?? $raw);
 
+        $titleFromRaw = $this->extractSearchValue(prop: $raw['SUMMARY'] ?? null);
+        $titleFromObj = $this->extractSearchValue(prop: $obj['SUMMARY'] ?? null);
+        $titleVal     = ($titleFromRaw ?? $titleFromObj ?? ($raw['title'] ?? null));
+
+        $startFromRaw = $this->extractSearchValue(prop: $raw['DTSTART'] ?? null);
+        $startFromObj = $this->extractSearchValue(prop: $obj['DTSTART'] ?? null);
+        $startVal     = ($startFromRaw ?? $startFromObj ?? ($raw['start'] ?? null));
+
+        $endFromRaw = $this->extractSearchValue(prop: $raw['DTEND'] ?? null);
+        $endFromObj = $this->extractSearchValue(prop: $obj['DTEND'] ?? null);
+        $endVal     = ($endFromRaw ?? $endFromObj ?? ($raw['end'] ?? null));
+
+        $locFromRaw = $this->extractSearchValue(prop: $raw['LOCATION'] ?? null);
+        $locFromObj = $this->extractSearchValue(prop: $obj['LOCATION'] ?? null);
+        $locVal     = ($locFromRaw ?? $locFromObj ?? ($raw['location'] ?? null));
+
+        $descFromRaw = $this->extractSearchValue(prop: $raw['DESCRIPTION'] ?? null);
+        $descFromObj = $this->extractSearchValue(prop: $obj['DESCRIPTION'] ?? null);
+        $descVal     = ($descFromRaw ?? $descFromObj ?? ($raw['description'] ?? null));
+
+        $uidFromRaw = $this->extractSearchValue(prop: $raw['UID'] ?? null);
+        $uidFromObj = $this->extractSearchValue(prop: $obj['UID'] ?? null);
+        $uidVal     = ($uidFromRaw ?? $uidFromObj ?? ($raw['uid'] ?? null));
+
+        $title         = (string) ($titleVal ?? '');
         $resolvedTitle = 'Untitled';
         if ($title !== '') {
             $resolvedTitle = $title;
         }
 
         $resolvedLocation = null;
-        if ($location !== null) {
-            $resolvedLocation = (string) $location;
+        if ($locVal !== null && $locVal !== '') {
+            $resolvedLocation = (string) $locVal;
         }
 
         $resolvedDescription = null;
-        if ($desc !== null) {
-            $resolvedDescription = (string) $desc;
+        if ($descVal !== null && $descVal !== '') {
+            $resolvedDescription = (string) $descVal;
         }
 
         return [
-            'uid'          => (string) ($raw['UID'] ?? $obj['UID'] ?? $raw['uid'] ?? ''),
+            'uid'          => (string) ($uidVal ?? ''),
             'title'        => $resolvedTitle,
-            'start'        => $start,
-            'end'          => $end,
+            'start'        => $this->scalarDateToIso(value: $startVal),
+            'end'          => $this->scalarDateToIso(value: $endVal),
             'allDay'       => (bool) ($raw['allDay'] ?? false),
             'location'     => $resolvedLocation,
             'description'  => $resolvedDescription,
@@ -643,4 +742,29 @@ class CalendarWidgetService
             'source'       => 'internal',
         ];
     }//end normalizeInternalEvent()
+
+    /**
+     * Coerce a search-result date value to an ISO 8601 string.
+     *
+     * Expanded recurrences arrive as `\DateTimeInterface`; raw scalars (test
+     * fixtures, pre-formatted strings) pass through unchanged.
+     *
+     * @param mixed $value The DTSTART/DTEND value.
+     *
+     * @return string The ISO 8601 timestamp, or '' when unset.
+     *
+     * @spec openspec/specs/calendar-widget/spec.md
+     */
+    private function scalarDateToIso(mixed $value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(format: 'c');
+        }
+
+        if (is_string(value: $value) === true) {
+            return $value;
+        }
+
+        return '';
+    }//end scalarDateToIso()
 }//end class

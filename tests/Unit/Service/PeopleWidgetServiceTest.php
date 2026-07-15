@@ -12,12 +12,12 @@
  *   - REQ-PPL-006: group filter union + dedup + unknown-group tolerance.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\PeopleWidgetService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\Accounts\IAccountProperty;
@@ -229,7 +229,7 @@ class PeopleWidgetServiceTest extends TestCase
         $users[] = $this->makeUser(uid: 'bob', display: 'Bob', email: '');
         $users[] = $this->makeUser(uid: 'carol', display: 'Carol', email: 'carol@example.test');
 
-        $this->userManager->method('search')->willReturn($users);
+        $this->wireDirectory(orderedUsers: $users);
         $this->groupManager->method('getUserGroupIds')->willReturn([]);
 
         // Empty account so the optional fields are omitted.
@@ -269,7 +269,7 @@ class PeopleWidgetServiceTest extends TestCase
         $users[] = $this->makeUser(uid: 'alice', display: 'Alice');
         $users[] = $this->makeUser(uid: 'bob', display: 'Bob');
 
-        $this->userManager->method('search')->willReturn($users);
+        $this->wireDirectory(orderedUsers: $users);
         $this->groupManager->method('getUserGroupIds')->willReturn([]);
         $this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
@@ -288,7 +288,10 @@ class PeopleWidgetServiceTest extends TestCase
         $alice = $this->makeUser(uid: 'alice', display: 'Alice', enabled: true);
         $eve   = $this->makeUser(uid: 'eve', display: 'Eve', enabled: false);
 
-        $this->userManager->method('search')->willReturn([$alice, $eve]);
+        // The backend returns both (display-name order); the bounded page
+        // path skips the disabled user inside the window, and the exact
+        // total comes from countUsersTotal() minus countDisabledUsers().
+        $this->wireDirectory(orderedUsers: [$alice, $eve], disabledCount: 1);
         $this->groupManager->method('getUserGroupIds')->willReturn([]);
         $this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
@@ -388,7 +391,7 @@ class PeopleWidgetServiceTest extends TestCase
     public function testBirthdateIsNormalisedToIso(): void
     {
         $alice = $this->makeUser(uid: 'alice', display: 'Alice');
-        $this->userManager->method('search')->willReturn([$alice]);
+        $this->wireDirectory(orderedUsers: [$alice]);
         $this->groupManager->method('getUserGroupIds')->willReturn([]);
 
         $account = $this->makeAccount(
@@ -414,7 +417,7 @@ class PeopleWidgetServiceTest extends TestCase
     public function testShowBirthdaysFalseStripsBirthdate(): void
     {
         $alice = $this->makeUser(uid: 'alice', display: 'Alice');
-        $this->userManager->method('search')->willReturn([$alice]);
+        $this->wireDirectory(orderedUsers: [$alice]);
         $this->groupManager->method('getUserGroupIds')->willReturn([]);
 
         $account = $this->makeAccount(
@@ -431,8 +434,87 @@ class PeopleWidgetServiceTest extends TestCase
     }//end testShowBirthdaysFalseStripsBirthdate()
 
     // ---------------------------------------------------------------
+    // listUsers — bounded directory scan (fix-people-widget-unbounded-user-scan)
+    // ---------------------------------------------------------------
+
+    /**
+     * With no `group` filter and the default `displayName` sort, the
+     * service MUST page directly from the backend via a bounded
+     * `searchDisplayName($pattern, $limit, $offset)` call and MUST NOT
+     * fall back to the unbounded `search('')` full-directory scan.
+     *
+     * @return void
+     */
+    public function testDisplayNameSortUsesBoundedSearchNotFullScan(): void
+    {
+        $alice = $this->makeUser(uid: 'alice', display: 'Alice');
+        $bob   = $this->makeUser(uid: 'bob', display: 'Bob');
+
+        // The unbounded scan MUST NOT be used for this path.
+        $this->userManager->expects($this->never())->method('search');
+
+        $captured = [];
+        $this->userManager->expects($this->atLeastOnce())
+            ->method('searchDisplayName')
+            ->willReturnCallback(
+                function (string $pattern, ?int $limit=null, ?int $offset=null) use (&$captured, $alice, $bob): array {
+                    $captured[] = ['pattern' => $pattern, 'limit' => $limit, 'offset' => $offset];
+                    return array_slice([$alice, $bob], (int) $offset, ($limit ?? 2));
+                }
+            );
+        $this->userManager->method('countUsersTotal')->willReturn(2);
+        $this->userManager->method('countDisabledUsers')->willReturn(0);
+        $this->groupManager->method('getUserGroupIds')->willReturn([]);
+        $this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
+
+        $result = $this->service->listUsers(limit: 10, offset: 0);
+
+        // The backend was asked for a bounded, non-null limit.
+        $this->assertNotEmpty($captured);
+        $this->assertNotNull($captured[0]['limit']);
+        $this->assertGreaterThanOrEqual(10, $captured[0]['limit']);
+        $this->assertSame(0, $captured[0]['offset']);
+        $this->assertSame('', $captured[0]['pattern']);
+
+        // Envelope semantics unchanged from the caller's point of view.
+        $this->assertSame(2, $result['total']);
+        $this->assertFalse($result['hasMore']);
+        $this->assertSame(['alice', 'bob'], array_column($result['users'], 'uid'));
+    }//end testDisplayNameSortUsesBoundedSearchNotFullScan()
+
+    // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
+
+    /**
+     * Wire the user-directory backend for a no-group-filter,
+     * display-name-sorted listing: a bounded `searchDisplayName` that
+     * honours the streamed `limit`/`offset` window plus the
+     * `countUsersTotal`/`countDisabledUsers` counters the bounded path
+     * uses to size `total` without a full scan.
+     *
+     * @param IUser[] $orderedUsers  Users in display-name order (enabled
+     *                               and disabled). `countUsersTotal`
+     *                               reports the full length.
+     * @param int     $disabledCount Number of disabled users in the set.
+     *
+     * @return void
+     */
+    private function wireDirectory(array $orderedUsers, int $disabledCount=0): void
+    {
+        $this->userManager->method('searchDisplayName')
+            ->willReturnCallback(
+                static function (string $pattern, ?int $limit=null, ?int $offset=null) use ($orderedUsers): array {
+                    return array_slice(
+                        $orderedUsers,
+                        (int) $offset,
+                        ($limit ?? count($orderedUsers))
+                    );
+                }
+            );
+        $this->userManager->method('countUsersTotal')->willReturn(count($orderedUsers));
+        $this->userManager->method('countDisabledUsers')->willReturn($disabledCount);
+    }//end wireDirectory()
 
     /**
      * @param string $uid     The user id.

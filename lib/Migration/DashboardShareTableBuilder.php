@@ -6,20 +6,20 @@
  * Builder for the dashboard_shares database table schema.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -30,7 +30,7 @@ use OCP\DB\Types;
 class DashboardShareTableBuilder
 {
     /**
-     * Create the mydash_dashboard_shares table.
+     * Create the launchpad_dashboard_shares table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -38,11 +38,11 @@ class DashboardShareTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_dashboard_shares') === true) {
+        if ($schema->hasTable('launchpad_dashboard_shares') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_dashboard_shares');
+        $table = $schema->createTable('launchpad_dashboard_shares');
 
         $table->addColumn(
             'id',
@@ -100,15 +100,15 @@ class DashboardShareTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addIndex(
             ['dashboard_id'],
-            'mydash_share_dash_idx'
+            'launchpad_share_dash_idx'
         );
         $table->addIndex(
             ['share_type', 'share_with'],
-            'mydash_share_recip_idx'
+            'launchpad_share_recip_idx'
         );
         $table->addUniqueIndex(
             ['dashboard_id', 'share_type', 'share_with'],
-            'mydash_share_unique_idx'
+            'launchpad_share_unique_idx'
         );
     }//end create()
 }//end class

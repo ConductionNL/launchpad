@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * REQ-WDG-023: completeness guard for `src/constants/widgetRegistry.js`.
  *
@@ -50,9 +50,18 @@ const EXPECTED_TYPES = [
 	'news',
 	'people',
 	'quicklinks',
+	'spend-analytics',
 	'text',
 	'tile',
 	'video',
+	// Analytics widgets (OpenBuild parity) — OpenRegister-data-driven.
+	'stat',
+	'delta',
+	'gauge',
+	'object-list',
+	'chart',
+	'stats-block',
+	'table',
 ]
 
 describe('widgetRegistry completeness (REQ-WDG-023)', () => {

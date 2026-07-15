@@ -6,7 +6,7 @@ Closes the ADR-008 `Newman/Postman collection` gap flagged in
 ## Why
 
 ADR-008 requires a Newman collection covering every OCS endpoint.
-MyDash's 17 routes have no integration coverage today —
+LaunchPad's 17 routes have no integration coverage today —
 `tests/integration/` does not exist. The only end-to-end visibility
 today is manual QA + CI PHPUnit.
 
@@ -17,7 +17,7 @@ just no file to run.
 
 ## Scope
 
-Add `tests/integration/mydash.postman_collection.json` covering
+Add `tests/integration/launchpad.postman_collection.json` covering
 **all 17 routes** across the 7 controllers:
 
 - **Health + Metrics** (public / admin) — 2 endpoints
@@ -48,7 +48,7 @@ Assertions follow the app-versions precedent:
 
 ## Acceptance
 
-1. `tests/integration/mydash.postman_collection.json` exists with ≥ 17
+1. `tests/integration/launchpad.postman_collection.json` exists with ≥ 17
    request definitions.
 2. Each request has ≥ 2 assertions (status code + payload shape).
 3. `tests/integration/README.md` documents the local-run command and

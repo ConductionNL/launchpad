@@ -8,20 +8,20 @@
  * with stable error code `personal_dashboards_disabled`.
  *
  * @category  Exception
- * @package   OCA\MyDash\Exception
+ * @package   OCA\LaunchPad\Exception
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Exception;
+namespace OCA\LaunchPad\Exception;
 
 /**
  * Personal-dashboard creation blocked by admin flag (REQ-ASET-003).

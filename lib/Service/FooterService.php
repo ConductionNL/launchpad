@@ -9,9 +9,9 @@
  * config schema validator (REQ-FTR-003).
  *
  * Storage:
- *  - Global settings live in `mydash_admin_settings` under five keys
- *    on {@see \OCA\MyDash\Db\AdminSetting} (`KEY_FOOTER_*`).
- *  - Per-dashboard override lives on the {@see \OCA\MyDash\Db\Dashboard}
+ *  - Global settings live in `launchpad_admin_settings` under five keys
+ *    on {@see \OCA\LaunchPad\Db\AdminSetting} (`KEY_FOOTER_*`).
+ *  - Per-dashboard override lives on the {@see \OCA\LaunchPad\Db\Dashboard}
  *    entity (`dashboardFooterMode`, `dashboardFooterHtml`).
  *
  * Public surface:
@@ -28,25 +28,25 @@
  *    `effectiveFooter` payload for a dashboard's API response.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\AdminSetting;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
+use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
 
 /**
  * Resolve the instance footer + per-dashboard overrides.

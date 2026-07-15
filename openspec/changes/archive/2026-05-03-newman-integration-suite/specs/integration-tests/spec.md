@@ -2,9 +2,9 @@
 
 ## ADDED Requirements
 
-### Requirement: MyDash MUST ship a Newman/Postman collection covering every public OCS endpoint
+### Requirement: LaunchPad MUST ship a Newman/Postman collection covering every public OCS endpoint
 
-A Newman/Postman collection at `tests/integration/mydash.postman_collection.json` MUST exercise every public OCS route declared in `appinfo/routes.php`, asserting on the documented happy-path response shape and at least one error envelope per route. The CI reusable workflow already declares `enable-newman: true`; this requirement formalises the contract.
+A Newman/Postman collection at `tests/integration/launchpad.postman_collection.json` MUST exercise every public OCS route declared in `appinfo/routes.php`, asserting on the documented happy-path response shape and at least one error envelope per route. The CI reusable workflow already declares `enable-newman: true`; this requirement formalises the contract.
 
 #### Scenario: Collection runs in CI on every PR
 - **GIVEN** the `enable-newman: true` reusable workflow is active
@@ -16,4 +16,4 @@ A Newman/Postman collection at `tests/integration/mydash.postman_collection.json
 - **GIVEN** a PR adds a new route to `appinfo/routes.php`
 - **WHEN** code review evaluates the PR
 - **THEN** missing collection coverage MUST be flagged as a blocking review concern
-- **AND** the PR MUST add the route to `tests/integration/mydash.postman_collection.json` before merging
+- **AND** the PR MUST add the route to `tests/integration/launchpad.postman_collection.json` before merging

@@ -3,25 +3,25 @@
 /**
  * Version001006Date20260430130000
  *
- * Migration creating the mydash_dashboard_shares table for REQ-SHARE-001.
+ * Migration creating the launchpad_dashboard_shares table for REQ-SHARE-001.
  * Also includes an optional one-shot orphan-share cleanup step gated by
- * the admin setting `mydash.cleanup_orphan_shares`. REQ-SHARE-012.
+ * the admin setting `launchpad.cleanup_orphan_shares`. REQ-SHARE-012.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -57,7 +57,7 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
     }//end __construct()
 
     /**
-     * Create the mydash_dashboard_shares table.
+     * Create the launchpad_dashboard_shares table.
      *
      * @param IOutput $output        The migration output handler.
      * @param Closure $schemaClosure The schema closure.
@@ -72,11 +72,11 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboard_shares') === true) {
+        if ($schema->hasTable('launchpad_dashboard_shares') === true) {
             return null;
         }
 
-        $table = $schema->createTable('mydash_dashboard_shares');
+        $table = $schema->createTable('launchpad_dashboard_shares');
 
         $table->addColumn(
             'id',
@@ -140,15 +140,15 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
         $table->setPrimaryKey(['id']);
         $table->addIndex(
             ['dashboard_id'],
-            'mydash_shares_dashboard'
+            'launchpad_shares_dashboard'
         );
         $table->addIndex(
             ['share_type', 'share_with'],
-            'mydash_shares_recipient'
+            'launchpad_shares_recipient'
         );
         $table->addUniqueIndex(
             ['dashboard_id', 'share_type', 'share_with'],
-            'mydash_shares_unique'
+            'launchpad_shares_unique'
         );
 
         return $schema;
@@ -158,7 +158,7 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
      * Optional orphan-share cleanup, gated by admin setting.
      *
      * Deletes share rows where the recipient user/group no longer exists.
-     * Only runs when `mydash.cleanup_orphan_shares` is explicitly `true`.
+     * Only runs when `launchpad.cleanup_orphan_shares` is explicitly `true`.
      * Default is `false` to avoid surprise deletions on federated environments.
      *
      * @param IOutput $output        The migration output handler.
@@ -173,7 +173,7 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
         array $options
     ): void {
         $enabled = $this->appConfig->getValueString(
-            app: 'mydash',
+            app: 'launchpad',
             key: 'cleanup_orphan_shares',
             default: 'false'
         );
@@ -182,15 +182,15 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
             return;
         }
 
-        $output->info(message: 'mydash: scanning for orphan share rows…');
+        $output->info(message: 'launchpad: scanning for orphan share rows…');
 
-        if ($this->db->tableExists(table: 'mydash_dashboard_shares') === false) {
+        if ($this->db->tableExists(table: 'launchpad_dashboard_shares') === false) {
             return;
         }
 
         $qb     = $this->db->getQueryBuilder();
         $result = $qb->select(selects: ['id', 'share_type', 'share_with'])
-            ->from(from: 'mydash_dashboard_shares')
+            ->from(from: 'launchpad_dashboard_shares')
             ->executeQuery();
 
         $deleted = 0;
@@ -209,7 +209,7 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
 
             if ($orphan === true) {
                 $del = $this->db->getQueryBuilder();
-                $del->delete(delete: 'mydash_dashboard_shares')
+                $del->delete(delete: 'launchpad_dashboard_shares')
                     ->where(
                         $del->expr()->eq(
                             x: 'id',
@@ -227,6 +227,6 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
         }//end while
 
         $result->closeCursor();
-        $output->info(message: "mydash: removed {$deleted} orphan share row(s).");
+        $output->info(message: "launchpad: removed {$deleted} orphan share row(s).");
     }//end postSchemaChange()
 }//end class

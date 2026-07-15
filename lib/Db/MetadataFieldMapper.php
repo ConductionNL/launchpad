@@ -4,25 +4,25 @@
  * MetadataFieldMapper
  *
  * Database mapper for the dashboard-metadata-fields global registry
- * table (`oc_mydash_meta_fields`). Owns CRUD plus the cascade-delete
- * helper that wipes any matching `oc_mydash_meta_values` rows in the
+ * table (`oc_launchpad_meta_fields`). Owns CRUD plus the cascade-delete
+ * helper that wipes any matching `oc_launchpad_meta_values` rows in the
  * same transaction.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
@@ -45,7 +45,7 @@ class MetadataFieldMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_meta_fields',
+            tableName: 'launchpad_meta_fields',
             entityClass: MetadataField::class
         );
     }//end __construct()
@@ -166,7 +166,7 @@ class MetadataFieldMapper extends QBMapper
     {
         $qb = $this->db->getQueryBuilder();
         $qb->select($qb->func()->count('*', 'cnt'))
-            ->from(from: 'mydash_meta_values')
+            ->from(from: 'launchpad_meta_values')
             ->where(
                 $qb->expr()->eq(
                     x: 'field_id',
@@ -202,7 +202,7 @@ class MetadataFieldMapper extends QBMapper
         // Cascade values first so an interrupted run never leaves a
         // gap between definition and dependents.
         $valueDelete = $this->db->getQueryBuilder();
-        $valueDelete->delete(delete: 'mydash_meta_values')
+        $valueDelete->delete(delete: 'launchpad_meta_values')
             ->where(
                 $valueDelete->expr()->eq(
                     x: 'field_id',

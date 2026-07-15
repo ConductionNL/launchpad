@@ -1,19 +1,19 @@
-# MyDash
+# LaunchPad
 
-> MyDash is an open-source dashboard app for the Nextcloud workspace.
+> LaunchPad is an open-source dashboard app for the Nextcloud workspace.
 
-MyDash is an open-source dashboard app for the Nextcloud workspace. It lets each user compose multiple personal dashboards from drag-and-drop widgets and shortcut tiles on a responsive GridStack canvas, and supports both the v1 and v2 Nextcloud Dashboard widget APIs out of the box. Administrators can ship pre-configured templates to user groups, pin compulsory widgets, and set conditional visibility rules based on group, time of day, or date range. Released under EUPL-1.2 and maintained by Conduction since 2019.
+LaunchPad is an open-source dashboard app for the Nextcloud workspace. It lets each user compose multiple personal dashboards from drag-and-drop widgets and shortcut tiles on a responsive GridStack canvas, and supports both the v1 and v2 Nextcloud Dashboard widget APIs out of the box. Administrators can ship pre-configured templates to user groups, pin compulsory widgets, and set conditional visibility rules based on group, time of day, or date range. Released under EUPL-1.2 and maintained by Conduction since 2019.
 
 ## Docs
 
-- [Documentation](https://mydash.conduction.nl/docs/intro): main entry, including tutorials, user guide, and admin guide.
-- [API reference](https://mydash.conduction.nl/api): OpenAPI documentation.
+- [Documentation](https://launchpad.conduction.nl/docs/intro): main entry, including tutorials, user guide, and admin guide.
+- [API reference](https://launchpad.conduction.nl/api): OpenAPI documentation.
 
 ## Optional
 
 - [Install](https://www.conduction.nl/install): self-host on your Nextcloud instance.
-- [Source code](https://github.com/ConductionNL/mydash): repository and issue tracker.
-- [App page](https://www.conduction.nl/apps/mydash): product positioning on conduction.nl.
+- [Source code](https://github.com/ConductionNL/launchpad): repository and issue tracker.
+- [App page](https://www.conduction.nl/apps/launchpad): product positioning on conduction.nl.
 
 ## Contact
 

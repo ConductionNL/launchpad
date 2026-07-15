@@ -9,20 +9,20 @@
  * dependent table without re-loading the dashboard. REQ-CSC-001.
  *
  * @category  Event
- * @package   OCA\MyDash\Event
+ * @package   OCA\LaunchPad\Event
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Event;
+namespace OCA\LaunchPad\Event;
 
 use DateTimeImmutable;
 use OCP\EventDispatcher\Event;
@@ -35,16 +35,15 @@ use OCP\EventDispatcher\Event;
  * returns. Listeners receive a row that is already soft-deleted; they
  * MUST NOT attempt to re-delete the main dashboard row.
  *
- * @see \OCA\MyDash\Listener\WidgetPlacementsListener
- * @see \OCA\MyDash\Listener\CommentsListener
- * @see \OCA\MyDash\Listener\ReactionsListener
- * @see \OCA\MyDash\Listener\LocksListener
- * @see \OCA\MyDash\Listener\VersionsListener
- * @see \OCA\MyDash\Listener\PublicSharesListener
- * @see \OCA\MyDash\Listener\MetadataValuesListener
- * @see \OCA\MyDash\Listener\TranslationsListener
- * @see \OCA\MyDash\Listener\ViewAnalyticsListener
- * @see \OCA\MyDash\Listener\TreeListener
+ * @see \OCA\LaunchPad\Listener\WidgetPlacementsListener
+ * @see \OCA\LaunchPad\Listener\ReactionsListener
+ * @see \OCA\LaunchPad\Listener\LocksListener
+ * @see \OCA\LaunchPad\Listener\VersionsListener
+ * @see \OCA\LaunchPad\Listener\PublicSharesListener
+ * @see \OCA\LaunchPad\Listener\MetadataValuesListener
+ * @see \OCA\LaunchPad\Listener\TranslationsListener
+ * @see \OCA\LaunchPad\Listener\ViewAnalyticsListener
+ * @see \OCA\LaunchPad\Listener\TreeListener
  */
 final class DashboardDeletedEvent extends Event
 {

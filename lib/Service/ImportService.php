@@ -3,33 +3,33 @@
 /**
  * ImportService
  *
- * Validates and restores a `mydash-export-v1.zip` archive produced by
+ * Validates and restores a `launchpad-export-v1.zip` archive produced by
  * {@see ExportService}. Implements UUID and asset collision handling,
  * per-dashboard transactional import, and metadata-field reconciliation
  * as defined by the `dashboard-export-import` capability spec
  * (REQ-EXIM-004 through REQ-EXIM-008, REQ-EXIM-011).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use Psr\Log\LoggerInterface;
@@ -38,7 +38,7 @@ use Throwable;
 use ZipArchive;
 
 /**
- * Imports MyDash export ZIP archives.
+ * Imports LaunchPad export ZIP archives.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *      Validation + remap + transactional restore is intentionally cohesive.

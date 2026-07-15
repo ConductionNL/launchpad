@@ -1,5 +1,5 @@
 {
-  "$comment": "ADR-023 action matrix seed for mydash. Default admin-only; broaden via Admin Settings > MyDash > Action authorization.",
+  "$comment": "ADR-023 action matrix seed for launchpad. Default admin-only; broaden via Admin Settings > LaunchPad > Action authorization.",
   "actions": {
     "admin.get-my-role": ["admin"],
     "admin-org-navigation.get-org-navigation": ["admin"],
@@ -28,10 +28,6 @@
     "dashboard.unpublish": ["admin"],
     "dashboard.schedule": ["admin"],
     "dashboard.view-event": ["admin"],
-    "dashboard-comments.index": ["admin"],
-    "dashboard-comments.create": ["admin"],
-    "dashboard-comments.update": ["admin"],
-    "dashboard-comments.destroy": ["admin"],
     "dashboard-lock.acquire": ["admin"],
     "dashboard-lock.heartbeat": ["admin"],
     "dashboard-lock.release": ["admin"],

@@ -4,7 +4,7 @@
  * DashboardViewsTableBuilder
  *
  * Builder for the dashboard view-analytics database table schema
- * (REQ-ANLT-001). Creates the `mydash_dashboard_views` table that
+ * (REQ-ANLT-001). Creates the `launchpad_dashboard_views` table that
  * stores **daily aggregate** view-event counts per dashboard — one row
  * per `(dashboardUuid, viewBucket)` pair. Per-event rows are
  * deliberately not persisted; unique-viewer dedup happens entirely in
@@ -12,20 +12,20 @@
  * reach the database.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -36,7 +36,7 @@ use OCP\DB\Types;
 class DashboardViewsTableBuilder
 {
     /**
-     * Create the `mydash_dashboard_views` table (REQ-ANLT-001).
+     * Create the `launchpad_dashboard_views` table (REQ-ANLT-001).
      *
      * Idempotent — early-returns when the table already exists. The
      * composite unique index on `(dashboard_uuid, view_bucket)` is the
@@ -50,18 +50,18 @@ class DashboardViewsTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_dashboard_views') === true) {
+        if ($schema->hasTable('launchpad_dashboard_views') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_dashboard_views');
+        $table = $schema->createTable('launchpad_dashboard_views');
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
     }//end create()
 
     /**
-     * Add columns to the `mydash_dashboard_views` table.
+     * Add columns to the `launchpad_dashboard_views` table.
      *
      * @param \Doctrine\DBAL\Schema\Table $table The table instance.
      *
@@ -118,7 +118,7 @@ class DashboardViewsTableBuilder
     }//end addColumns()
 
     /**
-     * Add indexes to the `mydash_dashboard_views` table.
+     * Add indexes to the `launchpad_dashboard_views` table.
      *
      * Composite unique index `(dashboard_uuid, view_bucket)` enforces
      * the "one row per dashboard per day" invariant (REQ-ANLT-001).
@@ -135,11 +135,11 @@ class DashboardViewsTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['dashboard_uuid', 'view_bucket'],
-            'mydash_anlt_uniq'
+            'launchpad_anlt_uniq'
         );
         $table->addIndex(
             ['view_bucket'],
-            'mydash_anlt_bucket'
+            'launchpad_anlt_bucket'
         );
     }//end addIndexes()
 }//end class

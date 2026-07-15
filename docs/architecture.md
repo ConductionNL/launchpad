@@ -4,12 +4,12 @@ sidebar_position: 3
 
 # Architecture
 
-MyDash is a dashboard container + layout manager for Nextcloud. It lets
+LaunchPad is a dashboard container + layout manager for Nextcloud. It lets
 each user (and each administrator, for the organisation as a whole)
 compose personal dashboards from tiles and legacy Nextcloud widgets,
 arranged on a responsive grid with per-tile conditional visibility.
 
-Unlike thin UI utilities (e.g., app-versions), MyDash owns its own
+Unlike thin UI utilities (e.g., app-versions), LaunchPad owns its own
 domain model — dashboards, placements, tiles, conditional rules — and
 persists everything in its own tables via Doctrine mappers.
 
@@ -151,9 +151,9 @@ capability arrived at its current shape.
 
 ## App manifest (ADR-024, Tier 1)
 
-`src/manifest.json` is the single source of truth for MyDash's menu
+`src/manifest.json` is the single source of truth for LaunchPad's menu
 entries and page declarations. It is bundled into the webpack output and
-registered at boot via `useAppManifest('mydash', bundledManifest)` in
+registered at boot via `useAppManifest('launchpad', bundledManifest)` in
 `src/main.js`.
 
 At Tier 1 the vue-router definition in `src/main.js` remains hand-wired;
@@ -174,12 +174,12 @@ the `dependencies` array.
 
 ## Runtime-only OR consumption policy
 
-MyDash is an **OR-free app** that MAY optionally consume OpenRegister
+LaunchPad is an **OR-free app** that MAY optionally consume OpenRegister
 data at runtime. This policy has two hard rules:
 
 1. **No install-time OR dependency.** `appinfo/info.xml`, `composer.json`,
    and `src/manifest.json` MUST NOT list `openregister` or `openconnector`
-   as dependencies. MyDash MUST boot and function fully on a Nextcloud
+   as dependencies. LaunchPad MUST boot and function fully on a Nextcloud
    instance with no OR installed.
 
 2. **Feature-detect before every OR call.** Any widget that fetches OR
@@ -192,19 +192,19 @@ See `docs/widgets/or-data.md` for the canonical OR-backed widget pattern
 and `openspec/specs/runtime-or-consumption/spec.md` for the full
 requirements.
 
-## Permission model on `oc_mydash_dashboards`
+## Permission model on `oc_launchpad_dashboards`
 
 Dashboard permissions live in two places:
 
 | Column / table | What it governs |
 |---|---|
-| `oc_mydash_dashboards.permissions` | The owner's own default permission level for the dashboard (`view_only` / `add_only` / `full`) |
-| `oc_mydash_dashboard_shares.permissionLevel` | Per-share override for a specific user or group |
+| `oc_launchpad_dashboards.permissions` | The owner's own default permission level for the dashboard (`view_only` / `add_only` / `full`) |
+| `oc_launchpad_dashboard_shares.permissionLevel` | Per-share override for a specific user or group |
 
 `PermissionService::getEffectivePermissionLevel(userId, dashboard)` is
 the single authority that resolves a caller's effective level by merging
 the share row (if any) with the dashboard default and the admin default
-from `oc_mydash_admin_settings`.
+from `oc_launchpad_admin_settings`.
 
 **Optional runtime OR delegation** is described in
 `openspec/specs/dashboard-sharing/spec.md`. It is OFF by default and
@@ -232,7 +232,7 @@ settings and Group-shared-dashboards sections, then mounts
 | Demo data | `tabs/DemoDataTab.vue` | demo showcase installer |
 
 `BeheerTabs` resolves the active tab with the precedence `?tab=` query →
-`localStorage` (`mydash.admin.activeTab`) → `defaultTab` (Templates). Only
+`localStorage` (`launchpad.admin.activeTab`) → `defaultTab` (Templates). Only
 the active tab's slot is in the DOM.
 
 **Workspace — sidebar mode switch.** `DashboardSwitcherSidebar.vue` gains a
@@ -242,7 +242,7 @@ between the dashboards canvas and `CatalogView.vue` based on the emitted
 canvas restores state without a reload. `CatalogView` groups every
 registered widget by category (Built-in / Custom Tiles / Bridge), with a
 sticky filter strip and per-group collapse state persisted under
-`mydash.catalog.openGroups`.
+`launchpad.catalog.openGroups`.
 
 **Per-widget conditional visibility.** The widget context menu gains a
 "Visibility rules…" item that opens `VisibilityRulesModal.vue`, wrapping the
@@ -254,12 +254,12 @@ into General / Sharing / Default tabs; the sharee picker is reachable only
 from the Sharing tab. A top-bar Share action on the canvas opens the drawer
 directly on the Sharing tab.
 
-## What MyDash explicitly does NOT do
+## What LaunchPad explicitly does NOT do
 
 - **No hard OpenRegister dependency.** Dashboards and tiles live in
-  MyDash's own tables. Optional runtime OR data consumption follows the
+  LaunchPad's own tables. Optional runtime OR data consumption follows the
   policy documented above.
-- **No integration registry** (ADR-019 N/A). MyDash consumes the
+- **No integration registry** (ADR-019 N/A). LaunchPad consumes the
   Nextcloud dashboard-widget API; it does not expose an extension
   point for third-party dashboards to register themselves.
 - **No action-level authorisation** (ADR-023 N/A). Permission model is
@@ -267,4 +267,4 @@ directly on the Sharing tab.
   individual actions configured by the admin.
 - **No government-theme targeting** beyond what comes via
   `@conduction/nextcloud-vue` (ADR-010 partial). If Conduction ships
-  NL Design tokens in the wrapper, MyDash inherits them automatically.
+  NL Design tokens in the wrapper, LaunchPad inherits them automatically.

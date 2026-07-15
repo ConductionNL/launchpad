@@ -7,12 +7,12 @@
  * `background-job-feed-refresh` change (REQ-FRJ-010).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -20,10 +20,10 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\AdminController;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\FeedRefreshService;
+use OCA\LaunchPad\Controller\AdminController;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\FeedRefreshService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -72,13 +72,13 @@ class AdminControllerRefreshFeedsTest extends TestCase
             settingsService: $this->settingsService,
             groupManager: $this->groupManager,
             userSession: $this->userSession,
-            exportService: $this->createMock(\OCA\MyDash\Service\ExportService::class),
-            importService: $this->createMock(\OCA\MyDash\Service\ImportService::class),
-            roleService: $this->createMock(\OCA\MyDash\Service\RoleService::class),
+            exportService: $this->createMock(\OCA\LaunchPad\Service\ExportService::class),
+            importService: $this->createMock(\OCA\LaunchPad\Service\ImportService::class),
+            roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
             feedRefresh: $this->feedRefresh,
-            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
-            setupWizardService: $this->createMock(\OCA\MyDash\Service\SetupWizardService::class),
-            actionAuth: $this->createMock(\OCA\MyDash\Service\ActionAuthService::class),
+            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+            setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class),
+            actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class),
         );
     }//end setUp()
 

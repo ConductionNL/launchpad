@@ -6,7 +6,7 @@
  * Migration that adds the dashboard publication-state columns
  * (`publication_status`, `publish_at`, `published_at`) plus the
  * `(user_id, publication_status)` composite index on
- * `oc_mydash_dashboards`. Required by REQ-DASH-031..037 (dashboard
+ * `oc_launchpad_dashboards`. Required by REQ-DASH-031..037 (dashboard
  * draft / published / scheduled workflow).
  *
  * Backfill is implicit via the column default `'published'` — the
@@ -17,20 +17,20 @@
  * `DashboardFactory::create()` (REQ-DASH-031 / design D1).
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -38,7 +38,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add publication-state columns + supporting index to mydash_dashboards
+ * Add publication-state columns + supporting index to launchpad_dashboards
  * (REQ-DASH-031..037).
  */
 class Version001011Date20260502130000 extends SimpleMigrationStep
@@ -61,11 +61,11 @@ class Version001011Date20260502130000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboards') === false) {
+        if ($schema->hasTable('launchpad_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable('mydash_dashboards');
+        $table = $schema->getTable('launchpad_dashboards');
 
         DashboardTableBuilder::addPublicationColumns(table: $table);
 

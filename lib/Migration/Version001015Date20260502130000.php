@@ -3,7 +3,7 @@
 /**
  * Version001015Date20260502130000
  *
- * Migration creating the `oc_mydash_dashboard_versions` table for the
+ * Migration creating the `oc_launchpad_dash_versions` table for the
  * `dashboard-versioning` capability (REQ-VERS-001..009). Owns:
  *   - `dashboard_uuid` / `version_number` composite UNIQUE for fast
  *     per-dashboard lookups and monotonic versionNumber enforcement.
@@ -13,20 +13,20 @@
  * unaffected until their first PUT triggers an automatic snapshot.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -34,7 +34,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add the mydash_dashboard_versions table (REQ-VERS-001..009).
+ * Add the launchpad_dash_versions table (REQ-VERS-001..009).
  */
 class Version001015Date20260502130000 extends SimpleMigrationStep
 {

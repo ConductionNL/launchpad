@@ -7,7 +7,7 @@
  * organisation-wide navigation tree with per-language JSON storage
  * (REQ-ONAV-001..012).
  *
- * The tree is persisted as one JSON file per language under MyDash's
+ * The tree is persisted as one JSON file per language under LaunchPad's
  * IAppData folder (`org-navigation/{lang}.json`). The file is a
  * wholesale-replace; per-node CRUD is intentionally NOT exposed (the
  * admin editor builds the full tree client-side and PUTs the result).
@@ -17,20 +17,20 @@
  * {@see AdminTemplateService::getUserGroupIdsFor()} (REQ-TMPL-013).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 use OCP\Files\IAppData;
@@ -101,7 +101,7 @@ class OrgNavigationService
      *
      * @param IAppData             $appData         Nextcloud app-data
      *                                              accessor for the
-     *                                              MyDash app.
+     *                                              LaunchPad app.
      * @param AdminTemplateService $templateService Routing resolver — the
      *                                              only allowed wrapper
      *                                              around

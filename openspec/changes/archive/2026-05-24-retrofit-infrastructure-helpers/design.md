@@ -37,7 +37,7 @@ Three REQs, one per file:
 
 ## Annotation strategy
 
-File-level `@spec` tags on all three files. Per-method tags on each public method covered. Existing `@spec ...annotate-mydash...task-12` on `UserAttributeResolver::getUserAttributeValue()` is LEFT IN PLACE and the new tag is appended.
+File-level `@spec` tags on all three files. Per-method tags on each public method covered. Existing `@spec ...annotate-launchpad...task-12` on `UserAttributeResolver::getUserAttributeValue()` is LEFT IN PLACE and the new tag is appended.
 
 ## Notes — observed-but-suspicious
 
@@ -48,6 +48,6 @@ File-level `@spec` tags on all three files. Per-method tags on each public metho
 ## Source
 
 - Coverage report: `openspec/coverage-report.json` generated 2026-05-24
-- Umbrella issue: ConductionNL/mydash#292
+- Umbrella issue: ConductionNL/launchpad#292
 - Bucket: 2b (no owning capability)
 - Cluster label: `infrastructure-helpers` (behavioural grouping; not a namespace word)

@@ -2,10 +2,10 @@
 sidebar_position: 5
 ---
 
-# ADR compliance audit — MyDash
+# ADR compliance audit — LaunchPad
 
 Audit of the 23 org-wide ADRs (`hydra/openspec/architecture/adr-*.md`)
-against what MyDash actually does. Audit date: **2026-04-24**, after
+against what LaunchPad actually does. Audit date: **2026-04-24**, after
 consolidating 6 in-flight feature PRs into `development` and landing
 the template + ADR cleanup PR.
 
@@ -15,7 +15,7 @@ the template + ADR cleanup PR.
 
 | ADR | Rule (short) | Status | Note |
 |---|---|---|---|
-| **001** Data layer | App config → `IAppConfig`, not OpenRegister | N/A | MyDash owns its own Doctrine entities (Dashboard, Tile, WidgetPlacement, ConditionalRule, AdminSetting). Self-contained domain model, no OpenRegister dependency |
+| **001** Data layer | App config → `IAppConfig`, not OpenRegister | N/A | LaunchPad owns its own Doctrine entities (Dashboard, Tile, WidgetPlacement, ConditionalRule, AdminSetting). Self-contained domain model, no OpenRegister dependency |
 | 001 | Register JSON at `lib/Settings/{app}_register.json` | N/A | no domain schemas exposed to OR |
 | **002** API | URL pattern `/api/{resource}`, standard verbs | ✅ | all 17 routes in `appinfo/routes.php` follow REST conventions |
 | 002 | No stack traces in error responses | ✅ | `ResponseHelper::error` now returns generic message (fixed in this PR) |
@@ -54,12 +54,12 @@ the template + ADR cleanup PR.
 | 015 | EUPL headers | ✅ | see ADR-014 |
 | **016** Routes | `appinfo/routes.php` is the only registration path | ✅ | `grep -rE '#\\[ApiRoute\\|#\\[FrontpageRoute' lib/` returns zero; all 17 routes declared explicitly |
 | **017** Component composition | Avoid wrapping self-contained components | ✅ | no file in `src/` exceeds 537 lines (`WidgetPicker.vue`); components use the `@conduction/nextcloud-vue` dashboard primitives |
-| **018** Widget header actions | `header-actions` slot on cards | ⚠️ | MyDash renders **legacy** Nextcloud dashboard widgets (`NcDashboardWidget`) rather than OR-backed `CnDetailCard` / `CnObjectDataWidget`. That's by design (MyDash is a container app, not an OR data consumer), but ADR-018 contemplates header-actions on data cards. Treated as N/A-by-design for now; revisit if MyDash grows OR-backed tile types |
-| **019** Integration registry | Sidebar tabs / linked items | N/A | MyDash is a widget **consumer**, not a registry provider |
+| **018** Widget header actions | `header-actions` slot on cards | ⚠️ | LaunchPad renders **legacy** Nextcloud dashboard widgets (`NcDashboardWidget`) rather than OR-backed `CnDetailCard` / `CnObjectDataWidget`. That's by design (LaunchPad is a container app, not an OR data consumer), but ADR-018 contemplates header-actions on data cards. Treated as N/A-by-design for now; revisit if LaunchPad grows OR-backed tile types |
+| **019** Integration registry | Sidebar tabs / linked items | N/A | LaunchPad is a widget **consumer**, not a registry provider |
 | **020** Gate scope | Hydra gate scope is PR diff | N/A | reviewer guidance, not app code |
 | **021** Bounded fix scope | Reviewer bounded-fix by change shape | N/A | reviewer guidance, not app code |
 | **022** Apps consume OR abstractions | RBAC / audit / archival via OR | N/A | no OR consumption — see ADR-001 note |
-| **023** Action authorization | Admin-configured action/group mappings | N/A | MyDash uses role-based permissions (`view` / `add_only` / `full`), not fine-grained action mapping |
+| **023** Action authorization | Admin-configured action/group mappings | N/A | LaunchPad uses role-based permissions (`view` / `add_only` / `full`), not fine-grained action mapping |
 
 ## Summary
 

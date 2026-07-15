@@ -11,18 +11,18 @@ are excluded from the DOM entirely (they are not returned as visible to the clie
 
 ## Data Model
 
-### Table: `mydash_conditional_rules`
+### Table: `launchpad_conditional_rules`
 
 | Column               | Type       | Notes                                    |
 |----------------------|------------|------------------------------------------|
 | `id`                 | BIGINT PK  | Auto-increment, unsigned                 |
-| `widget_placement_id`| BIGINT     | FK to `mydash_widget_placements.id`      |
+| `widget_placement_id`| BIGINT     | FK to `launchpad_widget_placements.id`      |
 | `rule_type`          | VARCHAR 50 | `group`, `time`, `date`, or `attribute`  |
 | `rule_config`        | TEXT       | JSON blob, schema varies by rule type    |
 | `is_include`         | SMALLINT   | `1` = include rule, `0` = exclude rule   |
 | `created_at`         | DATETIME   | Set on insert                            |
 
-Index: `mydash_rule_placement` on `widget_placement_id`.
+Index: `launchpad_rule_placement` on `widget_placement_id`.
 
 The rules table was created in the initial migration (`Version001000Date20240101000000`) via
 `MigrationTableBuilder::createConditionalRulesTable()` → `RulesTableBuilder::create()`.
@@ -176,7 +176,7 @@ RuleApiController
 
 ### `ConditionalRuleMapper` (`lib/Db/ConditionalRuleMapper.php`)
 
-Extends `QBMapper<ConditionalRule>`. Table: `mydash_conditional_rules`.
+Extends `QBMapper<ConditionalRule>`. Table: `launchpad_conditional_rules`.
 
 Key methods:
 - `find(int $id): ConditionalRule` — throws `DoesNotExistException` if not found.

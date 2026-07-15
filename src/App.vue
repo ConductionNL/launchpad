@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
   -
   - Root component — mounts the runtime-shell orchestrator (WorkspaceApp.vue)
   - which owns the four-region page chrome and delegates the grid surface to
@@ -18,6 +18,7 @@
 
 <script>
 import WorkspaceApp from './views/WorkspaceApp.vue'
+import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 
 /**
  * Root component — mounts the runtime-shell orchestrator
@@ -62,9 +63,12 @@ export default {
 	provide() {
 		// Re-provide the reactive manifest refs so deeply nested
 		// descendants don't need to prop-drill through WorkspaceApp/Views.
+		// `cnIconCatalogue` feeds CnIconBrowser instances inside widget config
+		// forms (which can't easily receive an `icons` prop) the full MDI set.
 		return {
 			runtimeManifest: this.runtimeManifest,
 			manifestLoading: this.manifestLoading,
+			cnIconCatalogue: ICON_CATALOGUE,
 		}
 	},
 }

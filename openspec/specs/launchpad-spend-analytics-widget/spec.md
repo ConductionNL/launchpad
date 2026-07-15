@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-spend-analytics-widget
 
 **Status:** proposed
@@ -25,7 +29,7 @@ came from the budgetq/shillinq cluster origin and is dropped; this
 is a launchpad widget that reads sibling-app data, not a shillinq
 feature.
 
-## ADDED Requirements
+## Requirements
 
 @e2e exclude proposed/unimplemented widget — `launchpad_spend_analytics` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert registry/manifest contract, schema validation, financeq/procest GraphQL routing, openconnector narrative gating, deep-links, and Specter-sourced rendering — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
 
@@ -84,8 +88,7 @@ behaviour, not install.
 
 ### REQ-SAW-003: The widget content shape SHALL be the persisted JSON contract for placements
 
-The placement persists `{type: 'spend-analytics', content: {...}}`
-in `oc_launchpad_widget_placements.content` (per the widgets capability
+The placement MUST persist `{type: 'spend-analytics', content: {...}}` in `oc_launchpad_widget_placements.content` (per the widgets capability
 REQ-WDG-010 emit shape). The `content` object MUST carry:
 
 | Field | Type | Required | Default | Purpose |
@@ -152,8 +155,7 @@ NOT call OR endpoints directly via `axios` from launchpad code.
 
 ### REQ-SAW-005: The widget SHALL render an empty-state without throwing when a required sibling app is absent
 
-When any required GraphQL endpoint returns 404 (sibling app not
-installed) or an empty result, the widget MUST render an empty-state
+When any required GraphQL endpoint returns 404 (sibling app not installed) or an empty result, the widget MUST render an empty-state
 panel naming the missing source and a hint for the admin. The
 widget MUST NOT show a 500 / red error, MUST NOT block the rest of
 the dashboard, and MUST NOT prompt the user to install anything
@@ -258,8 +260,7 @@ data.
 
 ### REQ-SAW-008: Evidence attachments SHALL be consumed via OR's `object-interactions` integration registry
 
-When `content.attachEvidence === true`, each spend row (transaction,
-case) MUST surface its docudesk-attached evidence (invoices,
+When `content.attachEvidence === true`, each spend row (transaction, case) MUST surface its docudesk-attached evidence (invoices,
 contracts) using OR's `object-interactions` files integration per
 ADR-022 (Integration registry row) + `feedback_integration-registry-end-to-end`.
 The widget MUST NOT POST/PUT to docudesk endpoints — uploads are

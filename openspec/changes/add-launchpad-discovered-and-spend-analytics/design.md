@@ -1,7 +1,5 @@
 # Design: add-launchpad-discovered-and-spend-analytics
 
-**status: pr-created**
-
 ## Context
 
 Specter's intelligence pass for launchpad produced 14 spec drafts (listed

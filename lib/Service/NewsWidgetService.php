@@ -4,32 +4,32 @@
  * NewsWidgetService
  *
  * Fetches, parses, sanitises, and merges RSS / Atom feed items for the
- * MyDash news widget (REQ-NEWS-001..011). The `background-job-feed-refresh`
+ * LaunchPad news widget (REQ-NEWS-001..011). The `background-job-feed-refresh`
  * sibling change is not yet on this branch — per REQ-NEWS-004 the widget
  * gracefully degrades to synchronous on-demand fetches and caches the
  * raw feed payload via Nextcloud's `ICache` for `news_widget_feed_cache_ttl_seconds`
  * (default 3600s).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DOMDocument;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -57,7 +57,7 @@ class NewsWidgetService
     /**
      * Default per-feed cache TTL in seconds (60 minutes). Overridden at
      * runtime by the app-config key
-     * `mydash.news_widget_feed_cache_ttl_seconds`.
+     * `launchpad.news_widget_feed_cache_ttl_seconds`.
      */
     private const DEFAULT_CACHE_TTL = 3600;
 
@@ -214,7 +214,17 @@ class NewsWidgetService
      */
     public function extractNewsConfig(WidgetPlacement $placement): array
     {
-        $decoded = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
+        // The unified Add-Widget modal stores per-type config (feedUrls, …) in
+        // the `content` column; `style_config` only carries chrome
+        // (background/title). Read `content` first, falling back to
+        // `style_config` for any legacy placement that stored config there.
+        $decoded = $this->decodeStyleConfigBlob(raw: $placement->getContent());
+        if ($decoded === [] || $this->extractFeedUrls(decoded: $decoded) === []) {
+            $legacy = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
+            if ($legacy !== []) {
+                $decoded = $legacy;
+            }
+        }
 
         return [
             'feedUrls'        => $this->extractFeedUrls(decoded: $decoded),
@@ -891,7 +901,7 @@ class NewsWidgetService
         }
 
         try {
-            $this->cache = $this->cacheFactory->createDistributed(prefix: 'mydash_news_');
+            $this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_news_');
         } catch (Throwable $e) {
             $this->logger->info(
                 message: 'NewsWidget: cache subsystem unavailable, falling back to direct fetch',

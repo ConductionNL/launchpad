@@ -8,7 +8,7 @@
  * Throttling uses IThrottler with IP-global action names per design D1/D2.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,16 +23,17 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\PublicShare;
-use OCA\MyDash\Db\PublicShareMapper;
-use OCA\MyDash\Exception\ShareExpiredException;
-use OCA\MyDash\Exception\ShareNotFoundException;
-use OCA\MyDash\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\PublicShare;
+use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ShareExpiredException;
+use OCA\LaunchPad\Exception\ShareNotFoundException;
+use OCA\LaunchPad\Exception\SharePasswordRequiredException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
@@ -69,13 +70,14 @@ class PublicShareService
     /**
      * Constructor.
      *
-     * @param PublicShareMapper $shareMapper  Mapper for public shares.
-     * @param DashboardMapper   $dashMapper   Dashboard mapper for ownership checks.
-     * @param IGroupManager     $groupManager NC group manager for admin checks.
-     * @param IHasher           $hasher       NC BCrypt hasher.
-     * @param ISecureRandom     $secureRandom CSPRNG for token generation.
-     * @param IThrottler        $throttler    NC brute-force throttler.
-     * @param LoggerInterface   $logger       PSR-3 logger.
+     * @param PublicShareMapper     $shareMapper     Mapper for public shares.
+     * @param DashboardMapper       $dashMapper      Dashboard mapper for ownership checks.
+     * @param IGroupManager         $groupManager    NC group manager for admin checks.
+     * @param IHasher               $hasher          NC BCrypt hasher.
+     * @param ISecureRandom         $secureRandom    CSPRNG for token generation.
+     * @param IThrottler            $throttler       NC brute-force throttler.
+     * @param LoggerInterface       $logger          PSR-3 logger.
+     * @param WidgetPlacementMapper $placementMapper Widget placement mapper (public render).
      */
     public function __construct(
         private readonly PublicShareMapper $shareMapper,
@@ -85,6 +87,7 @@ class PublicShareService
         private readonly ISecureRandom $secureRandom,
         private readonly IThrottler $throttler,
         private readonly LoggerInterface $logger,
+        private readonly WidgetPlacementMapper $placementMapper,
     ) {
     }//end __construct()
 
@@ -156,8 +159,8 @@ class PublicShareService
         $saved = $this->shareMapper->insert(entity: $share);
 
         $this->logger->debug(
-            message: sprintf('mydash: public share created for dashboard %s', $dashboardUuid),
-            context: ['app' => 'mydash']
+            message: sprintf('launchpad: public share created for dashboard %s', $dashboardUuid),
+            context: ['app' => 'launchpad']
         );
 
         return $saved;
@@ -282,7 +285,15 @@ class PublicShareService
             ip: $ip
         );
 
-        return ['share' => $share, 'dashboard' => $dashboard];
+        $placements = $this->placementMapper->findByDashboardId(
+            dashboardId: (int) $dashboard->getId()
+        );
+
+        return [
+            'share'      => $share,
+            'dashboard'  => $dashboard,
+            'placements' => $placements,
+        ];
     }//end renderShareContent()
 
     /**

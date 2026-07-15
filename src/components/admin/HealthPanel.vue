@@ -1,28 +1,28 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="health-panel" data-test="health-panel">
-		<h3>{{ t('mydash', 'Health') }}</h3>
+		<h3>{{ t('launchpad', 'Health') }}</h3>
 		<span
 			v-if="loading"
 			class="health-panel__badge health-panel__badge--loading"
 			data-test="health-badge">
-			{{ t('mydash', 'Checking…') }}
+			{{ t('launchpad', 'Checking…') }}
 		</span>
 		<span
 			v-else-if="healthy"
 			class="health-panel__badge health-panel__badge--ok"
 			data-test="health-badge">
-			{{ t('mydash', 'Healthy') }}
+			{{ t('launchpad', 'Healthy') }}
 		</span>
 		<span
 			v-else
 			class="health-panel__badge health-panel__badge--bad"
 			data-test="health-badge">
-			{{ t('mydash', 'Degraded') }}
+			{{ t('launchpad', 'Degraded') }}
 		</span>
 	</div>
 </template>

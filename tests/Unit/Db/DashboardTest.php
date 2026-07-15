@@ -6,14 +6,14 @@
  * Unit tests for the Dashboard entity class.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Db
+ * @package   OCA\LaunchPad\Tests\Unit\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
-use OCA\MyDash\Db\Dashboard;
+use OCA\LaunchPad\Db\Dashboard;
 use PHPUnit\Framework\TestCase;
 
 class DashboardTest extends TestCase

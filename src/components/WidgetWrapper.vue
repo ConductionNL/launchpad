@@ -1,72 +1,84 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
+-->
+
+<!--
+	WidgetWrapper — per-placement widget chrome.
+
+	Renders the shared nc-vue `CnWidgetWrapper` (header, content, footer,
+	styleConfig) so launchpad widgets match the OpenBuild widget surface, and
+	overlays the single shared `WidgetEditCog` (Edit / Delete) in edit mode.
+	The wrapper's own overflow actions menu is suppressed (`:show-refresh` /
+	`:show-request-feature` false, no action-items) so the gear cog is the only
+	affordance.
 -->
 
 <template>
 	<div
-		class="mydash-widget"
+		class="launchpad-widget"
+		:class="{ 'launchpad-widget--editing': editMode }"
 		:data-testid="placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'"
-		:data-widget-id="placement?.widgetId"
-		:style="widgetStyles">
-		<!-- Widget header -->
-		<div v-if="showHeader" class="mydash-widget__header" :style="headerStyles">
-			<div class="mydash-widget__header-left">
-				<img
-					v-if="widgetIconUrl"
-					:src="widgetIconUrl"
-					:alt="widgetTitle"
-					class="mydash-widget__icon">
-				<span v-else-if="widget?.iconClass" :class="widget.iconClass" class="mydash-widget__icon" />
-				<h3 class="mydash-widget__title">
-					{{ widgetTitle }}
-				</h3>
-			</div>
-			<div v-if="editMode" class="mydash-widget__actions">
-				<NcButton
-					type="tertiary"
-					:aria-label="t('mydash', 'Edit widget')"
-					data-testid="widget-edit-cog"
-					@click="$emit('edit', placement)">
-					<template #icon>
-						<Cog :size="20" />
-					</template>
-				</NcButton>
-			</div>
-		</div>
-
-		<!-- Widget content -->
-		<div class="mydash-widget__content">
+		:data-widget-id="placement?.widgetId">
+		<CnWidgetWrapper
+			class="launchpad-widget__wrapper"
+			:title="widgetTitle"
+			:show-title="showHeader"
+			:chrome="wrapperChrome"
+			:icon-url="widgetIconUrl"
+			:icon-class="widget && widget.iconClass ? widget.iconClass : null"
+			:style-config="styleConfig"
+			:buttons="widgetButtons"
+			:borderless="isChromelessFrame"
+			:flush="isChromelessFrame || rendersOwnHeader"
+			:show-refresh="false"
+			:show-request-feature="false">
 			<WidgetRenderer
 				:widget="widget"
 				:placement="placement" />
-		</div>
+		</CnWidgetWrapper>
 
-		<!-- Widget footer with buttons -->
-		<div v-if="widgetButtons.length > 0" class="mydash-widget__footer">
-			<NcButton
-				v-for="button in widgetButtons"
-				:key="button.link"
-				type="tertiary"
-				:href="button.link">
-				{{ button.text }}
-			</NcButton>
+		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
+		     blocking sign-off prompt when the placement requires an
+		     acknowledgement the current user still owes. Suppressed in edit
+		     mode so an author can still configure the widget. -->
+		<AcknowledgementPrompt
+			v-if="showAcknowledgementGate"
+			:placement="placement"
+			@acknowledged="$emit('acknowledged', placement)" />
+
+		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
+		     shown in edit mode. Sits top-right over the wrapper's header area.
+		     The absolute positioning lives on this wrapper DIV, not on
+		     CnWidgetEditCog itself: the cog's root is an NcActions `.action-item`
+		     which sets `position: relative` at equal specificity, so positioning
+		     the component directly loses the cascade tie and the cog drops into
+		     flow (pushing content). Wrapping matches the shared nc-vue
+		     CnDashboardPage pattern. -->
+		<div v-if="editMode" class="launchpad-widget__cog">
+			<CnWidgetEditCog
+				:menu-label="t('launchpad', 'Widget menu')"
+				:edit-label="t('launchpad', 'Edit widget')"
+				:delete-label="t('launchpad', 'Delete widget')"
+				@edit="$emit('edit', placement)"
+				@remove="$emit('remove', placement.id)" />
 		</div>
 	</div>
 </template>
 
 <script>
-import { NcButton } from '@conduction/nextcloud-vue'
-import Cog from 'vue-material-design-icons/Cog.vue'
+import { CnWidgetWrapper, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 
 export default {
 	name: 'WidgetWrapper',
 
 	components: {
-		NcButton,
-		Cog,
+		CnWidgetWrapper,
+		CnWidgetEditCog,
 		WidgetRenderer,
+		AcknowledgementPrompt,
 	},
 
 	props: {
@@ -82,9 +94,16 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
+		// item for the current user. Resolved by the parent from the pending
+		// set; defaults false so widgets without a requirement are unchanged.
+		outstandingAcknowledgement: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
-	emits: ['remove', 'style', 'edit'],
+	emits: ['remove', 'style', 'edit', 'acknowledged'],
 
 	computed: {
 		isTileWidget() {
@@ -92,36 +111,90 @@ export default {
 		},
 
 		/**
-		 * Widget types that own their entire visual surface — labels,
-		 * dividers, header banners, and the registry-driven `tile` are
-		 * "chrome-less": rendering a "Widget"-titled wrapper above them
-		 * is visual noise that competes with the renderer's own
-		 * heading. The wrapper still draws its frame for any other
-		 * type AND for these types when the user has set a per-placement
-		 * `customTitle` (which is an explicit opt-in to show chrome).
+		 * REQ-ACK-002: whether the forced-delivery read-gate should overlay
+		 * this widget — the placement requires an acknowledgement the current
+		 * user still owes, and we are NOT in edit mode (an author configuring
+		 * the widget is not a recipient sign-off context).
+		 *
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @return {boolean} true when the sign-off prompt must block the widget.
+		 */
+		showAcknowledgementGate() {
+			if (this.editMode) {
+				return false
+			}
+			return Number(this.placement?.requiresAcknowledgement) === 1
+				&& this.outstandingAcknowledgement
+		},
+
+		/**
+		 * Widget types that own their entire visual surface — labels, dividers,
+		 * header banners, and the registry-driven `tile`. They keep a borderless
+		 * / flush wrapper (no frame, no wrapper header) so the renderer paints
+		 * edge to edge; the edit cog still overlays on top. (nc-widget is NOT
+		 * here: CnNcWidgetWidget renders just a header + content, so it needs the
+		 * card frame — see `rendersOwnHeader`.)
+		 *
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
 			return ['label', 'divider', 'header', 'tile'].includes(this.placement?.widgetId)
 		},
 
+		/**
+		 * Types whose renderer paints its own header/title, so the wrapper must
+		 * keep the card frame but suppress its own header to avoid a double
+		 * title. The NC Dashboard widget (CnNcWidgetWidget) is the case.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} true when the renderer owns the header.
+		 */
+		rendersOwnHeader() {
+			return this.placement?.widgetId === 'nc-widget'
+		},
+
+		/** @spec openspec/specs/widgets/spec.md */
+		isChromelessFrame() {
+			return this.isTileWidget || this.isChromelessType
+		},
+
+		/**
+		 * Card chrome variant forwarded to CnWidgetWrapper. Card widgets (NC
+		 * dashboard widgets + data widgets) use the shared `nc-dashboard`
+		 * variant so they are visually identical to the native Nextcloud
+		 * dashboard (apps/dashboard) by default — same tokens, user-overridable
+		 * via styleConfig. Chromeless surfaces (tiles, labels, dividers,
+		 * headers) keep the default chrome since they paint their own surface.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {string} 'nc-dashboard' for card widgets, else 'default'.
+		 */
+		wrapperChrome() {
+			return this.isChromelessFrame ? 'default' : 'nc-dashboard'
+		},
+
 		/** @spec openspec/specs/widgets/spec.md */
 		showHeader() {
-			// Tiles (legacy `tile-{id}` widgetId) render directly with no
-			// wrapper. Registry-driven chrome-less types keep the wrapper
-			// frame but skip the header row unless the user supplied a
-			// `customTitle` override.
-			if (this.isTileWidget) {
+			if (this.isTileWidget || this.rendersOwnHeader) {
 				return false
 			}
 			if (this.isChromelessType && !this.placement.customTitle) {
 				return false
 			}
-			return this.placement.showTitle !== false
+			// `showTitle` round-trips through the DB as an integer (0/1) or a
+			// string, so a strict `!== false` check wrongly keeps the header
+			// for a stored 0. Treat 0 / '0' / false as "off"; an absent flag
+			// (legacy placements) still defaults to shown.
+			const flag = this.placement.showTitle
+			if (flag === undefined || flag === null) {
+				return true
+			}
+			return flag !== false && flag !== 0 && flag !== '0' && flag !== ''
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetTitle() {
-			return this.placement.customTitle || this.widget?.title || this.t('mydash', 'Widget')
+			return this.placement.customTitle || this.widget?.title || this.t('launchpad', 'Widget')
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -140,126 +213,40 @@ export default {
 			return !this.placement.isCompulsory
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * Placement style overrides forwarded to CnWidgetWrapper. Includes
+		 * `headerStyle.{backgroundColor,textColor}`, which CnWidgetWrapper now
+		 * applies to its header natively (no per-app CSS-var workaround needed).
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {object} the styleConfig blob.
+		 */
 		styleConfig() {
+			// The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+			// empty styleConfig, so a plain `|| {}` fallback satisfies
+			// CnWidgetWrapper's Object-typed prop.
 			return this.placement.styleConfig || {}
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		widgetStyles() {
-			const styles = {}
-
-			// Tiles should fill the entire grid cell without padding.
-			if (this.isTileWidget) {
-				return {
-					padding: '0',
-					background: 'transparent',
-				}
-			}
-
-			if (this.styleConfig.backgroundColor) {
-				styles.backgroundColor = this.styleConfig.backgroundColor
-			}
-
-			if (this.styleConfig.borderStyle && this.styleConfig.borderStyle !== 'none') {
-				styles.border = `${this.styleConfig.borderWidth || 1}px ${this.styleConfig.borderStyle} ${this.styleConfig.borderColor || 'var(--color-border)'}`
-			}
-
-			if (this.styleConfig.borderRadius !== undefined) {
-				styles.borderRadius = `${this.styleConfig.borderRadius}px`
-			}
-
-			if (this.styleConfig.padding) {
-				const p = this.styleConfig.padding
-				styles.padding = `${p.top || 0}px ${p.right || 0}px ${p.bottom || 0}px ${p.left || 0}px`
-			}
-
-			return styles
-		},
-
-		/** @spec openspec/specs/widgets/spec.md */
-		headerStyles() {
-			const styles = {}
-
-			if (this.styleConfig.headerStyle) {
-				if (this.styleConfig.headerStyle.backgroundColor) {
-					styles.backgroundColor = this.styleConfig.headerStyle.backgroundColor
-				}
-				if (this.styleConfig.headerStyle.textColor) {
-					styles.color = this.styleConfig.headerStyle.textColor
-				}
-			}
-
-			return styles
-		},
-	},
-
-	methods: {
-		/** @spec openspec/specs/widgets/spec.md */
-		hexToRgba(hex, opacity) {
-			if (!hex) return 'transparent'
-			const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-			if (!result) return hex
-			return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})`
 		},
 	},
 }
 </script>
 
 <style scoped>
-.mydash-widget {
+.launchpad-widget {
+	position: relative;
 	height: 100%;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
 }
 
-.mydash-widget__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 12px 16px;
-	flex-shrink: 0;
+.launchpad-widget__wrapper {
+	height: 100%;
 }
 
-.mydash-widget__header-left {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	min-width: 0;
-}
-
-.mydash-widget__icon {
-	width: 24px;
-	height: 24px;
-	flex-shrink: 0;
-}
-
-.mydash-widget__title {
-	font-weight: 600;
-	font-size: 14px;
-	margin: 0;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.mydash-widget__content {
-	flex: 1;
-	overflow: auto;
-	min-height: 0;
-}
-
-.mydash-widget__actions {
-	display: flex;
-	gap: 4px;
-	flex-shrink: 0;
-}
-
-.mydash-widget__footer {
-	display: flex;
-	justify-content: flex-end;
-	padding: 8px 16px;
-	flex-shrink: 0;
+/* The shared cog overlays the wrapper's top-right (the header's action area
+   when a header is shown, otherwise over the content). */
+.launchpad-widget__cog {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 10;
 }
 </style>

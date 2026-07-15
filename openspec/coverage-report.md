@@ -1,4 +1,4 @@
-# Coverage Report — mydash
+# Coverage Report — launchpad
 
 Generated: 2026-05-24 08:33 UTC
 Branch: feature/newman-backend-bugs
@@ -16,9 +16,9 @@ Scanner: opsx-coverage-scan v1 (re-scan, overwrites 2026-04-24 report)
 | PHP files skipped (Migration/Db/Exception boilerplate) | 120 |
 | PHP methods to bucket | 1075 |
 | Vue/JS files enumerated (`src/`) | 109 |
-| Removed-lines cache | `/tmp/removed-lines-mydash.txt` (749 KB, built in 1.2 s) |
+| Removed-lines cache | `/tmp/removed-lines-launchpad.txt` (749 KB, built in 1.2 s) |
 
-**Methodology note.** With 1075 PHP methods + 109 frontend files, per-method enumeration would balloon the JSON and the SKILL allows "heuristic, not mechanical" judgment. The report buckets at **file granularity** with `method_count` rollups. mydash uses two annotation styles:
+**Methodology note.** With 1075 PHP methods + 109 frontend files, per-method enumeration would balloon the JSON and the SKILL allows "heuristic, not mechanical" judgment. The report buckets at **file granularity** with `method_count` rollups. launchpad uses two annotation styles:
 
 1. **Canonical** `@spec openspec/changes/.../tasks.md#task-N` — 3 files (RoleFeaturePermissionService, RoleFeaturePermissionApiController, widgetBridge.js).
 2. **REQ-direct** `@spec capability:REQ-ID` — 26 PHP files, 68 method-level tags. Not the form ADR-003 / SKILL.md mandate, but it does point at a single owner REQ.
@@ -31,9 +31,9 @@ Both are recorded as `annotated`. Inline `REQ-XXX` references in code comments (
 |---|---|---|
 | annotated | 29 files / 75 method-tags | — (already tagged) |
 | plumbing | 28 files | — (never tagged) |
-| 1 — REQ matched | 112 file-entries (838 PHP methods + ~95 Vue/JS files) | `/opsx-annotate mydash` |
-| 2a — existing capability, no REQ | 4 files / 18 methods, 2 clusters (`dashboards`, `widgets`) | `/opsx-reverse-spec mydash --extend <cap>` |
-| 2b — no capability owner | 3 files / 7 methods, 1 cluster (`infrastructure-helpers`) | `/opsx-reverse-spec mydash --cluster infrastructure-helpers` |
+| 1 — REQ matched | 112 file-entries (838 PHP methods + ~95 Vue/JS files) | `/opsx-annotate launchpad` |
+| 2a — existing capability, no REQ | 4 files / 18 methods, 2 clusters (`dashboards`, `widgets`) | `/opsx-reverse-spec launchpad --extend <cap>` |
+| 2b — no capability owner | 3 files / 7 methods, 1 cluster (`infrastructure-helpers`) | `/opsx-reverse-spec launchpad --cluster infrastructure-helpers` |
 | 3a — REQ broken (code removed) | 0 | — |
 | 3b — REQ never implemented (or untagged) | 96 REQ IDs | Triage: separate genuinely-deferred from implemented-but-untagged |
 | 4 — ADR conformance | 4 rule classes, ~310 findings | Follow-up issues (SPDX + file-level @spec are biggest) |
@@ -92,7 +92,7 @@ Each capability has a `*ApiController` + `*Service` pair with near-perfect path/
 - `OrgNavigationService` (20), `AdminOrgNavigationController` (8). 0.95.
 
 ### Capability: nc-unified-search-integration
-- `lib/Search/MyDashSearchProvider.php` (16). REQ-SRCH search provider. 0.95.
+- `lib/Search/LaunchPadSearchProvider.php` (16). REQ-SRCH search provider. 0.95.
 
 ### Capability: demo-data-showcases
 - `DemoShowcasesService` (18), `AdminDemoShowcasesController` (5). 0.95.
@@ -151,7 +151,7 @@ Cluster label `infrastructure-helpers` is **behavioral**, not a namespace word �
 ## Bucket 3 — Surfaced for human triage
 
 ### 3a — possibly broken (0)
-The removed-lines cache returned zero keyword matches for any of the 96 unimplemented REQs. This is **not because nothing was removed** — it's because REQ IDs are documentation-only annotations rather than code symbols. The reverse-pass mechanism in SKILL assumes REQ keywords are domain nouns (e.g. `handleCatalog`, `registerCatalog`); for mydash, deriving 2–3 keywords from each REQ title and grepping would be the next-step refinement (deferred this run).
+The removed-lines cache returned zero keyword matches for any of the 96 unimplemented REQs. This is **not because nothing was removed** — it's because REQ IDs are documentation-only annotations rather than code symbols. The reverse-pass mechanism in SKILL assumes REQ keywords are domain nouns (e.g. `handleCatalog`, `registerCatalog`); for launchpad, deriving 2–3 keywords from each REQ title and grepping would be the next-step refinement (deferred this run).
 
 ### 3b — never implemented or implemented-but-untagged (96)
 96 of 609 REQs are not referenced anywhere in code by their exact `REQ-ID`. Examples from spot-checks:
@@ -169,7 +169,7 @@ The removed-lines cache returned zero keyword matches for any of the 96 unimplem
 | `cli-commands#REQ-CLI-001/009/011` | (see spec) | likely partially implemented |
 | `dashboards#REQ-DASH-006..010, 036, 037` | 7 dashboard REQs | mix of implemented-untagged and genuinely-deferred |
 
-**Full list of 96 in `/tmp/mydash-unimpl-reqs.txt`.** Triage recommendation: pair this list with a quick `git grep` per REQ keyword to separate the implemented-but-untagged (~60-70% by sample) from genuinely deferred (~30-40%).
+**Full list of 96 in `/tmp/launchpad-unimpl-reqs.txt`.** Triage recommendation: pair this list with a quick `git grep` per REQ keyword to separate the implemented-but-untagged (~60-70% by sample) from genuinely deferred (~30-40%).
 
 ## Bucket 4 — ADR conformance findings
 
@@ -194,7 +194,7 @@ Same set as above also lack `SPDX-FileCopyrightText:`.
 
 ## Notes for the human reviewer
 
-1. **Two annotation styles in tree.** The REQ-direct form (`@spec dashboards:REQ-DASH-003`) is dominant (26 files) and reads cleanly, but it's not what `hydra-gate-spdx` and ADR-003 mandate. Recommend a single retrofit change that either (a) standardises everything on `tasks.md#task-N`, or (b) updates ADR-003 to bless REQ-direct alongside the canonical form. This is a meta-decision worth making before `/opsx-annotate mydash` runs at scale.
+1. **Two annotation styles in tree.** The REQ-direct form (`@spec dashboards:REQ-DASH-003`) is dominant (26 files) and reads cleanly, but it's not what `hydra-gate-spdx` and ADR-003 mandate. Recommend a single retrofit change that either (a) standardises everything on `tasks.md#task-N`, or (b) updates ADR-003 to bless REQ-direct alongside the canonical form. This is a meta-decision worth making before `/opsx-annotate launchpad` runs at scale.
 
 2. **86% inline coverage vs 12% formal coverage.** 524/609 REQs are referenced somewhere in code, but only ~75/609 are tagged via `@spec` docblock. The gap is mostly cultural — the team uses inline `REQ-XXX` references in code comments as documentation but doesn't promote them to docblock tags. The retrofit-annotate pass should mechanically lift inline references into docblock tags wherever the method body verifiably implements the named REQ.
 
@@ -205,10 +205,10 @@ Same set as above also lack `SPDX-FileCopyrightText:`.
    - `FileController.php` + `FileService.php` — ambiguous between `resource-uploads` and `files-widget`; both reference each capability's spec scenarios.
    - `ManifestController.php` — orphan-tagged to `manifest-v2-runtime`; closest real owner is `runtime-shell`.
 
-5. **Removed-lines cache returned 0 keyword matches.** The reverse-pass mechanism assumes REQ keywords are code symbols. For mydash where REQ IDs are doc-only, a refinement would be to derive 2–3 domain nouns per REQ title and grep those. Deferred this run; nothing changes in the bucket distribution because the 96 "unimplemented" go straight to 3b under either approach.
+5. **Removed-lines cache returned 0 keyword matches.** The reverse-pass mechanism assumes REQ keywords are code symbols. For launchpad where REQ IDs are doc-only, a refinement would be to derive 2–3 domain nouns per REQ title and grep those. Deferred this run; nothing changes in the bucket distribution because the 96 "unimplemented" go straight to 3b under either approach.
 
 6. **Frontend was rolled up.** The 109 Vue/JS files were not per-method classified. Recommendation: a separate frontend-only annotate pass after the PHP convention is settled.
 
-7. **Surprise — no forbidden patterns, no direct SQL.** Mydash is mechanically clean on those gates. The retrofit work is annotation/SPDX hygiene, not code quality.
+7. **Surprise — no forbidden patterns, no direct SQL.** LaunchPad is mechanically clean on those gates. The retrofit work is annotation/SPDX hygiene, not code quality.
 
 8. **Specs vs changes count mismatch on REQ totals.** REQ extraction regex (`[A-Z]{2,8}-[0-9]+[a-z]*`) found 609 unique REQs across 54 specs. The earlier loose count of 615 differs because of compound-ID forms like `REQ-DASH-016/018` and a handful of malformed cells. Treat 609 as the authoritative denominator for this run.

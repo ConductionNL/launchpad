@@ -8,16 +8,16 @@
  * without manual intervention (REQ-CSC-003, REQ-CLN-001).
  *
  * Tables cleaned:
- *   - oc_mydash_widget_placements   (dashboard_id no longer in dashboards)
- *   - oc_mydash_dashboard_locks     (dashboard_uuid no longer in dashboards)
- *   - oc_mydash_metadata_values     (dashboard_uuid no longer in dashboards)
- *   - oc_mydash_dash_translations   (dashboard_uuid no longer in dashboards)
- *   - oc_mydash_dashboard_views     (dashboard_uuid no longer in dashboards)
- *   - oc_mydash_dashboard_shares    (dashboard_id no longer in dashboards)
- *   - oc_mydash_dashboard_versions  (dashboard_uuid no longer in dashboards)
+ *   - oc_launchpad_widget_placements   (dashboard_id no longer in dashboards)
+ *   - oc_launchpad_dashboard_locks     (dashboard_uuid no longer in dashboards)
+ *   - oc_launchpad_meta_values         (dashboard_uuid no longer in dashboards)
+ *   - oc_launchpad_dash_translations   (dashboard_uuid no longer in dashboards)
+ *   - oc_launchpad_dashboard_views     (dashboard_uuid no longer in dashboards)
+ *   - oc_launchpad_dashboard_shares    (dashboard_id no longer in dashboards)
+ *   - oc_launchpad_dash_versions  (dashboard_uuid no longer in dashboards)
  *
  * @category Repair
- * @package  OCA\MyDash\Repair
+ * @package  OCA\LaunchPad\Repair
  *
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
@@ -25,13 +25,13 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Repair;
+namespace OCA\LaunchPad\Repair;
 
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -74,7 +74,7 @@ class PurgeOrphanedCascadeData implements IRepairStep
     /**
      * Delete orphaned rows from all cascade tables.
      *
-     * Each DELETE uses a NOT IN subquery against oc_mydash_dashboards so
+     * Each DELETE uses a NOT IN subquery against oc_launchpad_dashboards so
      * only rows whose parent no longer exists are removed. Failures per
      * table are caught and logged without stopping the overall step.
      *
@@ -86,17 +86,17 @@ class PurgeOrphanedCascadeData implements IRepairStep
      */
     public function run(IOutput $output): void
     {
-        $output->info('mydash: purging orphaned cascade data…');
+        $output->info('launchpad: purging orphaned cascade data…');
 
         $total = 0;
 
         // UUID-keyed tables: uuid columns reference dashboards.uuid.
         $uuidTables = [
-            ['mydash_dashboard_locks',    'dashboard_uuid'],
-            ['mydash_metadata_values',    'dashboard_uuid'],
-            ['mydash_dash_translations',  'dashboard_uuid'],
-            ['mydash_dashboard_views',    'dashboard_uuid'],
-            ['mydash_dashboard_versions', 'dashboard_uuid'],
+            ['launchpad_dashboard_locks',    'dashboard_uuid'],
+            ['launchpad_meta_values',        'dashboard_uuid'],
+            ['launchpad_dash_translations',  'dashboard_uuid'],
+            ['launchpad_dashboard_views',    'dashboard_uuid'],
+            ['launchpad_dash_versions', 'dashboard_uuid'],
         ];
 
         foreach ($uuidTables as [$table, $fkCol]) {
@@ -109,8 +109,8 @@ class PurgeOrphanedCascadeData implements IRepairStep
 
         // ID-keyed tables: id columns reference dashboards.id.
         $idTables = [
-            ['mydash_widget_placements',  'dashboard_id'],
-            ['mydash_dashboard_shares',   'dashboard_id'],
+            ['launchpad_widget_placements',  'dashboard_id'],
+            ['launchpad_dashboard_shares',   'dashboard_id'],
         ];
 
         foreach ($idTables as [$table, $fkCol]) {
@@ -123,7 +123,7 @@ class PurgeOrphanedCascadeData implements IRepairStep
 
         $output->info(
             sprintf(
-                'mydash: orphaned cascade purge complete — %d row(s) removed.',
+                'launchpad: orphaned cascade purge complete — %d row(s) removed.',
                 $total
             )
         );
@@ -150,7 +150,7 @@ class PurgeOrphanedCascadeData implements IRepairStep
                     $qb->expr()->notIn(
                         x: $fkCol,
                         y: $qb->createFunction(
-                            call: '(SELECT `uuid` FROM `*PREFIX*mydash_dashboards`)'
+                            call: '(SELECT `uuid` FROM `*PREFIX*launchpad_dashboards`)'
                         )
                     )
                 );
@@ -171,11 +171,11 @@ class PurgeOrphanedCascadeData implements IRepairStep
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash PurgeOrphanedCascadeData: failed on %s: %s',
+                    'launchpad PurgeOrphanedCascadeData: failed on %s: %s',
                     $table,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
             $output->warning(
                 sprintf('  %s: purge failed (%s) — skipped.', $table, $t->getMessage())
@@ -205,7 +205,7 @@ class PurgeOrphanedCascadeData implements IRepairStep
                     $qb->expr()->notIn(
                         x: $fkCol,
                         y: $qb->createFunction(
-                            call: '(SELECT `id` FROM `*PREFIX*mydash_dashboards`)'
+                            call: '(SELECT `id` FROM `*PREFIX*launchpad_dashboards`)'
                         )
                     )
                 );
@@ -226,11 +226,11 @@ class PurgeOrphanedCascadeData implements IRepairStep
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash PurgeOrphanedCascadeData: failed on %s: %s',
+                    'launchpad PurgeOrphanedCascadeData: failed on %s: %s',
                     $table,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
             $output->warning(
                 sprintf('  %s: purge failed (%s) — skipped.', $table, $t->getMessage())

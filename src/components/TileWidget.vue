@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -11,14 +11,21 @@
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
 			'--tile-text-color': tile.textColor || '#ffffff'
 		}">
-		<!-- Edit button in edit mode -->
-		<button
-			v-if="editMode"
-			class="tile-widget__edit"
-			:aria-label="t('mydash', 'Edit tile')"
-			@click.prevent="$emit('edit')">
-			<span class="icon-settings" />
-		</button>
+		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
+		     OpenBuild widget chrome used across the dashboard. The absolute
+		     positioning lives on this wrapper DIV, not on CnWidgetEditCog
+		     itself: the cog's root is an NcActions `.action-item` which sets
+		     `position: relative` at equal specificity, so positioning the
+		     component directly loses the cascade tie and the cog drops into
+		     flow. Wrapping matches the shared nc-vue CnDashboardPage pattern. -->
+		<div v-if="editMode" class="tile-widget__edit">
+			<CnWidgetEditCog
+				:menu-label="t('launchpad', 'Tile menu')"
+				:edit-label="t('launchpad', 'Edit tile')"
+				:delete-label="t('launchpad', 'Delete tile')"
+				@edit="$emit('edit')"
+				@remove="$emit('remove')" />
+		</div>
 
 		<a
 			:href="tileUrl"
@@ -33,11 +40,18 @@
 				viewBox="0 0 24 24">
 				<path :d="tile.icon" />
 			</svg>
-			<!-- Icon class or emoji or URL -->
+			<!-- Icon class or emoji or URL or MDI registry name -->
 			<div v-else class="tile-widget__icon">
 				<span v-if="tile.iconType === 'class'" :class="['icon', tile.icon]" />
 				<img v-else-if="tile.iconType === 'url'" :src="tile.icon" alt="Icon">
 				<span v-else-if="tile.iconType === 'emoji'" class="tile-widget__emoji">{{ tile.icon }}</span>
+				<!-- MDI registry name (export/import + demo-showcase tiles). The
+				     MDI component fills with currentColor, so tint via color. -->
+				<CnDashboardIcon
+					v-else-if="tile.iconType === 'mdi'"
+					:name="tile.icon"
+					:size="64"
+					:style="{ color: tile.textColor || '#ffffff' }" />
 			</div>
 			<div
 				class="tile-widget__title"
@@ -53,9 +67,15 @@
 
 <script>
 import { generateUrl } from '@nextcloud/router'
+import { CnWidgetEditCog, CnDashboardIcon } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'TileWidget',
+
+	components: {
+		CnWidgetEditCog,
+		CnDashboardIcon,
+	},
 
 	props: {
 		tile: {
@@ -68,13 +88,23 @@ export default {
 		},
 	},
 
+	emits: ['edit', 'remove'],
+
 	computed: {
 		/** @spec openspec/specs/tiles/spec.md */
 		tileUrl() {
+			const value = this.tile.linkValue
 			if (this.tile.linkType === 'app') {
-				return generateUrl('/apps/' + this.tile.linkValue)
+				return generateUrl('/apps/' + value)
 			}
-			return this.tile.linkValue
+			// Internal absolute paths (e.g. /apps/deck, /apps/text) MUST go
+			// through generateUrl so instances served under a sub-directory or
+			// requiring an /index.php prefix route correctly. External URLs
+			// (http(s)://, protocol-relative //, mailto:, tel:) pass through.
+			if (typeof value === 'string' && value.startsWith('/') && value.startsWith('//') === false) {
+				return generateUrl(value)
+			}
+			return value
 		},
 	},
 
@@ -142,9 +172,18 @@ export default {
 	box-shadow: none;
 }
 
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.tile-widget__link {
+		transition: none;
+	}
+}
+
 .tile-widget__icon {
 	font-size: 64px;
-	width: 64px;
+	width: auto;
+	min-width: 64px;
+	max-width: 80%;
 	height: 64px;
 	display: flex;
 	align-items: center;
@@ -164,8 +203,9 @@ export default {
 }
 
 .tile-widget__icon img {
-	width: 100%;
 	height: 100%;
+	width: auto;
+	max-width: 100%;
 	object-fit: contain;
 	filter: none;
 	background: transparent !important;
@@ -191,31 +231,12 @@ export default {
 	color: var(--tile-text-color) !important;
 }
 
+/* Position the shared white cog over the tile's top-right corner. The
+   button's own white styling lives in WidgetEditCog. */
 .tile-widget__edit {
 	position: absolute;
 	top: 8px;
 	right: 8px;
-	width: 32px;
-	height: 32px;
-	border: none;
-	border-radius: 50%;
-	background: rgba(0, 0, 0, 0.5) !important;
-	cursor: pointer;
 	z-index: 10;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background 0.2s ease;
-}
-
-.tile-widget__edit:hover {
-	background: rgba(0, 0, 0, 0.7) !important;
-}
-
-.tile-widget__edit .icon-settings {
-	filter: brightness(0) invert(1);
-	background-size: 20px;
-	width: 20px;
-	height: 20px;
 }
 </style>

@@ -6,7 +6,7 @@
  * Service for resolving the effective dashboard for a user.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,11 +16,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -49,7 +49,7 @@ class DashboardResolver
      *
      * @return array|null The dashboard result or null.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-18
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
      */
     public function tryGetActiveDashboard(string $userId): ?array
     {
@@ -77,7 +77,7 @@ class DashboardResolver
      *
      * @return array|null The dashboard result or null.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-18
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
      */
     public function tryActivateExistingDashboard(string $userId): ?array
     {
@@ -175,7 +175,7 @@ class DashboardResolver
      * Get the effective permission level for a dashboard.
      *
      * Delegating thin wrapper — the authoritative implementation lives in
-     * {@see \OCA\MyDash\Service\PermissionService::getEffectivePermissionLevel()}.
+     * {@see \OCA\LaunchPad\Service\PermissionService::getEffectivePermissionLevel()}.
      * This copy resolves the template chain inline for the resolver's
      * `buildResult()` path; it MUST stay behaviourally equivalent to the
      * canonical implementation.
@@ -184,7 +184,7 @@ class DashboardResolver
      *
      * @return string The effective permission level.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-24
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-24
      */
     public function getEffectivePermissionLevel(
         Dashboard $dashboard

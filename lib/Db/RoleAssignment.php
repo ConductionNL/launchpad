@@ -3,25 +3,25 @@
 /**
  * RoleAssignment Entity
  *
- * Represents a single MyDash role assignment row binding either a user or
- * a group (XOR) to one of the named MyDash roles (admin / editor / viewer).
- * Persisted in the `oc_mydash_role_assignments` table. REQ-ROLE-004.
+ * Represents a single LaunchPad role assignment row binding either a user or
+ * a group (XOR) to one of the named LaunchPad roles (admin / editor / viewer).
+ * Persisted in the `oc_launchpad_role_assignments` table. REQ-ROLE-004.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
@@ -44,7 +44,7 @@ class RoleAssignment extends Entity implements JsonSerializable
 {
 
     /**
-     * The Dashboard Admin role — full delegation within MyDash. REQ-ROLE-001.
+     * The Dashboard Admin role — full delegation within LaunchPad. REQ-ROLE-001.
      *
      * @var string
      */

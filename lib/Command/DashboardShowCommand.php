@@ -3,29 +3,29 @@
 /**
  * DashboardShowCommand
  *
- * `mydash:dashboard:show <uuid>` — print the full configuration of a
+ * `launchpad:dashboard:show <uuid>` — print the full configuration of a
  * single dashboard (metadata + widget tree) as JSON (REQ-CLI-003).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,12 +33,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:dashboard:show` console command.
+ * `launchpad:dashboard:show` console command.
  */
 class DashboardShowCommand extends CommandBase
 {
     /**
-     * Pattern matching a UUID v4 (the format MyDash mints) — accepts
+     * Pattern matching a UUID v4 (the format LaunchPad mints) — accepts
      * the relaxed v* variant so older fixtures still validate.
      *
      * @var string
@@ -71,7 +71,7 @@ class DashboardShowCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:dashboard:show')
+        $this->setName(name: 'launchpad:dashboard:show')
             ->setDescription(description: 'Display full dashboard configuration.')
             ->setHelp(
                 help: implode(
@@ -80,8 +80,8 @@ class DashboardShowCommand extends CommandBase
                         'Display the full configuration of a single dashboard, including the widget tree.',
                         '',
                         'Examples:',
-                        '  php occ mydash:dashboard:show a1b2c3d4-e5f6-4789-abcd-ef1234567890',
-                        '  php occ mydash:dashboard:show a1b2c3d4-e5f6-4789-abcd-ef1234567890 --json',
+                        '  php occ launchpad:dashboard:show a1b2c3d4-e5f6-4789-abcd-ef1234567890',
+                        '  php occ launchpad:dashboard:show a1b2c3d4-e5f6-4789-abcd-ef1234567890 --json',
                     ]
                 )
             )

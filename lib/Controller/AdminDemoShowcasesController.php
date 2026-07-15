@@ -16,25 +16,25 @@
  * gate).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Exception\ShowcaseNotFoundException;
-use OCA\MyDash\Service\DemoShowcasesService;
-use OCA\MyDash\Settings\MyDashAdmin;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\Service\DemoShowcasesService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -104,7 +104,7 @@ class AdminDemoShowcasesController extends Controller
          *
      * @spec openspec/specs/demo-data-showcases/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function index(): JSONResponse
     {
         $guard = $this->assertAdmin();
@@ -135,7 +135,7 @@ class AdminDemoShowcasesController extends Controller
          *
      * @spec openspec/specs/demo-data-showcases/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function install(
         string $id,
         string $lang='nl',
@@ -198,7 +198,7 @@ class AdminDemoShowcasesController extends Controller
          *
      * @spec openspec/specs/demo-data-showcases/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function destroy(string $id): JSONResponse
     {
         $guard = $this->assertAdmin();

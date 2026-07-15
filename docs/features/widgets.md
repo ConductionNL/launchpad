@@ -1,11 +1,11 @@
 # Widgets
 
-Widgets are the primary content blocks on MyDash dashboards. MyDash combines two widget sources:
+Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad combines two widget sources:
 
 - **Nextcloud Dashboard API widgets** — every widget registered by an installed Nextcloud app, exposed via the v1 (`IAPIWidget`) or v2 (`IAPIWidgetV2`) interface, plus the legacy callback-based widgets.
-- **Registry-driven custom widgets** — a curated set of 17 in-app widget types defined in [`src/constants/widgetRegistry.js`](../../src/constants/widgetRegistry.js). Each entry pairs a Vue renderer with an Add Widget sub-form and a `defaultContent` shape.
+- **Registry-driven custom widgets** — **25** in-app widget types. 17 are LaunchPad-native (defined in [`src/constants/widgetRegistry.js`](../../src/constants/widgetRegistry.js)); the other 8 are **OpenRegister analytics widgets** contributed by the communal `dashboardWidgetRegistry` in [`@conduction/nextcloud-vue`](https://codeberg.org/Conduction/nextcloud-vue) and overlaid by LaunchPad's registry. Each entry pairs a Vue renderer with an Add Widget sub-form and a `defaultContent` shape.
 
-This page documents the **registry-driven** catalog. For app-level Dashboard API widgets, see the host app's documentation.
+This page documents the **registry-driven** catalog. For the full shared catalog (all 25 types with screenshots), see the [Dashboard Widget Catalog](https://codeberg.org/Conduction/nextcloud-vue) in `@conduction/nextcloud-vue` (`docs/components/dashboard-widget-catalog.md`). For app-level Dashboard API widgets, see the host app's documentation.
 
 ## Widget catalog
 
@@ -28,10 +28,18 @@ This page documents the **registry-driven** catalog. For app-level Dashboard API
 | 15 | [`menu`](#menu) | Menu | `ViewDashboard` | Dropdown / horizontal navigation menu |
 | 16 | [`container`](#container) | Container | `ViewDashboard` | Recursive sub-grid host (max depth 3) |
 | 17 | [`tile`](#tile) | Tile | `ViewGrid` | Single icon-tile shortcut |
+| 18 | [`stat`](#stat) | Statistic / KPI | `TrendingUp` | One headline number from an OpenRegister aggregate |
+| 19 | [`delta`](#delta) | Comparison / delta | `TrendingUp` | Current vs previous value + signed % change |
+| 20 | [`gauge`](#gauge) | Gauge / utilization | `Gauge` | A value against a target, with warn/danger bands |
+| 21 | [`stats-block`](#stats-block) | Statistic card | `ChartBar` | A labelled count card (GraphQL-backed) |
+| 22 | [`chart`](#chart) | Chart | `ChartLine` | ApexCharts bar/line/pie over OpenRegister data |
+| 23 | [`object-list`](#object-list) | Object list | `ClipboardList` | A filtered page of OpenRegister objects as a table |
+| 24 | [`table`](#table) | Table | `ClipboardList` | Compact data table (external rows or self-fetch) |
+| 25 | [`spend-analytics`](#spend-analytics) | Spend analytics | `ChartBar` | Procurement/finance spend (financeq + procest) |
 
 ## How widgets are persisted
 
-Every placement is one row in `oc_mydash_widget_placements`:
+Every placement is one row in `oc_launchpad_widget_placements`:
 
 | Column | Stores |
 |---|---|
@@ -143,7 +151,7 @@ A single big call-to-action button. The `displayMode='button'` legacy mode draws
 
 ## nc-widget
 
-A proxy that mounts any Nextcloud Dashboard API widget inside a MyDash placement. Use it to drop the standard "Upcoming events", "Important mail", "Favorites", etc. widgets onto a MyDash dashboard.
+A proxy that mounts any Nextcloud Dashboard API widget inside a LaunchPad placement. Use it to drop the standard "Upcoming events", "Important mail", "Favorites", etc. widgets onto a LaunchPad dashboard.
 
 **Renderer**: [`NcDashboardWidget.vue`](../../src/components/Widgets/Renderers/NcDashboardWidget.vue) · **Form**: [`NcDashboardForm.vue`](../../src/components/Widgets/Forms/NcDashboardForm.vue) · **Spec**: `openspec/changes/nc-dashboard-widget-proxy/`
 
@@ -387,7 +395,7 @@ A recursive sub-grid host. Children live in `content.placements[]` and render th
 
 ## tile
 
-The registry-driven replacement for the deprecated standalone tile-creation flow. The renderer reads from BOTH the new inline `content.{...}` shape AND the legacy flat `placement.tile*` columns, so dashboards holding tile placements created via the deprecated `oc_mydash_tiles` flow keep rendering without a migration step.
+The registry-driven replacement for the deprecated standalone tile-creation flow. The renderer reads from BOTH the new inline `content.{...}` shape AND the legacy flat `placement.tile*` columns, so dashboards holding tile placements created via the deprecated `oc_launchpad_tiles` flow keep rendering without a migration step.
 
 **Renderer**: [`TileWidget.vue`](../../src/components/Widgets/Renderers/TileWidget.vue) · **Form**: [`TileForm.vue`](../../src/components/Widgets/Forms/TileForm.vue) · **Spec**: `openspec/specs/tiles/spec.md`
 
@@ -402,3 +410,134 @@ The registry-driven replacement for the deprecated standalone tile-creation flow
 
 ![Add Widget — Tile](../screenshots/widgets/tile-form.png)
 ![Tile widget rendered](../screenshots/widgets/tile-rendered.png)
+
+---
+
+# OpenRegister analytics widgets
+
+These 8 types are contributed by the communal `dashboardWidgetRegistry` in
+[`@conduction/nextcloud-vue`](https://codeberg.org/Conduction/nextcloud-vue) and
+resolve their data from **OpenRegister at render time** — so they need OpenRegister
+installed with data. Their renderers and sub-forms live in `@conduction/nextcloud-vue`
+(`CnStatWidget`, `CnChartWidget`, …), not in `src/components/Widgets/`. They share a
+`content.dataSource` block: `{ register, schema, filter?, aggregate|groupBy|bucket }`,
+where `register`/`schema` are OpenRegister slugs picked from the form's paired
+Register/Schema dropdowns.
+
+## stat
+
+A single headline KPI. Resolves one number from an OpenRegister aggregate (count or a
+metric over a field) and renders it as a large formatted figure with an optional caption
+and click-through. **Use it for**: "open leads", "documents this month".
+
+**Renderer**: `CnStatWidget` (nc-vue) · **Form**: `CnStatWidgetForm` · **Spec**: `openspec/specs/stat-widget`
+
+| Field | Notes |
+|---|---|
+| `dataSource.register` / `schema` | OpenRegister slugs. |
+| `dataSource.aggregate` | `count` or `{ metric, field }`. |
+| `caption` / `icon` / `route` | Optional chrome + click-through. |
+
+## delta
+
+Comparison card. Resolves a current and a previous aggregate (two time windows) and
+renders the current value plus the signed percentage change, coloured by `goodDirection`.
+**Use it for**: "revenue vs last month", "new cases week-over-week".
+
+**Renderer**: `CnDeltaWidget` (nc-vue) · **Form**: `CnDeltaWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `dataSource` | register + schema + the metric. |
+| `currentWindow` / `previousWindow` | The two comparison ranges. |
+| `goodDirection` | `up` or `down` — drives the green/red colour. |
+
+## gauge
+
+Radial gauge of a value against a target, coloured by warn/danger thresholds.
+**Use it for**: "storage used", "SLA attainment", "budget consumed".
+
+**Renderer**: `CnGaugeWidget` (nc-vue) · **Form**: `CnGaugeWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `dataSource` | register + schema + value metric. |
+| `target` | The 100% reference value. |
+| `warnThreshold` / `dangerThreshold` | Colour bands. |
+
+## stats-block
+
+A labelled count card. Pulls a count from OpenRegister's GraphQL endpoint and renders it
+in the shared `CnStatsBlock`. **Use it for**: a compact "N objects" tile.
+
+**Renderer**: `CnStatsBlockWidget` (nc-vue) · **Form**: `CnStatsBlockWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `dataSource.register` / `schema` | The collection to count. |
+| `label` | Card label above the count. |
+
+## chart
+
+ApexCharts wrapper (bar / line / area / pie / donut / radialBar). Two breakdown modes:
+**category** (`groupBy` a field → one bar per value) and **time-series** (`bucket` a date
+field by month/week → a trend line). `apexcharts` / `vue-apexcharts` are peer deps.
+**Use it for**: "characters by type", "cases opened per month".
+
+**Renderer**: `CnChartWidget` (nc-vue) · **Form**: `CnChartWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `chartKind` | `bar` / `line` / `area` / `pie` / `donut` / `radialBar`. |
+| `dataSource.register` / `schema` | Source collection. |
+| `dataSource.groupBy` | `{ field, metric: 'count', sort, limit }` — category mode. |
+| `dataSource.bucket` | `{ field, interval: 'month', metric }` — time-series mode. |
+
+Example `content` for a bar chart of larping characters by type:
+
+```json
+{ "chartKind": "bar",
+  "dataSource": { "register": "larpingapp", "schema": "character",
+    "groupBy": { "field": "type", "metric": "count", "sort": "desc", "limit": 8 } } }
+```
+
+## object-list
+
+Fetches a filtered page of OpenRegister objects (register + schema + filter + sort + limit)
+and renders them as a compact column table. **Use it for**: "latest 10 leads".
+
+**Renderer**: `CnObjectListWidget` (nc-vue) · **Form**: `CnObjectListWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `dataSource.register` / `schema` | Source collection. |
+| `dataSource.filter` / `sort` / `limit` | Query controls. |
+| `columns` | Which schema fields to show. |
+
+## table
+
+Compact data table with a card wrapper, title header, and optional "View all" footer.
+Two data modes: pass `rows` directly, or self-fetch via `register` + `schemaId`. Shares the
+`object-list` sub-form. **Use it for**: an embedded report table.
+
+**Renderer**: `CnTableWidget` (nc-vue) · **Form**: `CnObjectListWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `rows` | External rows (when not self-fetching). |
+| `register` / `schemaId` | Self-fetch source. |
+| `viewAllLink` | Optional footer link. |
+
+## spend-analytics
+
+Financial spend-analytics widget with period tabs (month / quarter / year). Reads from the
+**financeq** (transactions) and **procest** (vendor commitments) sibling apps via their
+`/graphql` endpoints; renders a graceful empty state when a sibling is absent. **Use it
+for**: a procurement/finance overview. Requires `financeq` and/or `procest` installed.
+
+**Renderer**: `CnSpendAnalyticsWidget` (nc-vue) · **Form**: `CnSpendAnalyticsWidgetForm`
+
+| Field | Notes |
+|---|---|
+| `period` | `month` / `quarter` / `ytd` / `fy`. |
+| `categoryIds` / `departmentIds` | Optional filters passed to the finance query. |

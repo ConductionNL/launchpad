@@ -7,7 +7,7 @@
  * `(type, groupId)` invariant required by REQ-DASH-011.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -17,11 +17,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
+use OCA\LaunchPad\Db\Dashboard;
 
 /**
  * Factory service for creating dashboard entities.
@@ -80,7 +80,7 @@ class DashboardFactory
      *                                  is violated, or when an explicit
      *                                  slug fails the grammar check.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-16
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
      */
     public function create(
         ?string $userId,

@@ -29,7 +29,7 @@ const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const PERMS_URL = `${BASE}/index.php/apps/mydash/api/role-feature-permissions`
+const PERMS_URL = `${BASE}/index.php/apps/launchpad/api/role-feature-permissions`
 
 /** Build an admin API context (HTTP Basic auth + OCS header). */
 async function adminApi(): Promise<APIRequestContext> {

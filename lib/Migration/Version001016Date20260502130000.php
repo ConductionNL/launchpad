@@ -4,8 +4,8 @@
  * Version001016Date20260502130000
  *
  * Migration that creates the dashboard-metadata-fields capability
- * tables: `oc_mydash_meta_fields` (the global field-definition
- * registry) and `oc_mydash_meta_values` (per-dashboard typed values).
+ * tables: `oc_launchpad_meta_fields` (the global field-definition
+ * registry) and `oc_launchpad_meta_values` (per-dashboard typed values).
  * Required by REQ-MDFL-001..008.
  *
  * Zero-impact: both tables are new; no existing data is touched and
@@ -13,27 +13,27 @@
  * to read as `{}` from the metadata endpoint.
  *
  * Composite indexes:
- *   - `mydash_meta_fkey`     unique(field_key)
- *   - `mydash_meta_forder`   (sort_order)
- *   - `mydash_meta_vunique`  unique(dashboard_uuid, field_id)
- *   - `mydash_meta_vdash`    (dashboard_uuid)
- *   - `mydash_meta_vfield`   (field_id)
+ *   - `launchpad_meta_fkey`     unique(field_key)
+ *   - `launchpad_meta_forder`   (sort_order)
+ *   - `launchpad_meta_vunique`  unique(dashboard_uuid, field_id)
+ *   - `launchpad_meta_vdash`    (dashboard_uuid)
+ *   - `launchpad_meta_vfield`   (field_id)
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -47,7 +47,7 @@ use OCP\Migration\SimpleMigrationStep;
 class Version001016Date20260502130000 extends SimpleMigrationStep
 {
     /**
-     * Create the `mydash_meta_fields` and `mydash_meta_values` tables.
+     * Create the `launchpad_meta_fields` and `launchpad_meta_values` tables.
      *
      * @param IOutput $output        The migration output handler.
      * @param Closure $schemaClosure The schema closure returns an

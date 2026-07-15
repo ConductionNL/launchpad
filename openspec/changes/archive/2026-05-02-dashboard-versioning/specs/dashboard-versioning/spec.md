@@ -7,13 +7,13 @@ status: draft
 
 ## Purpose
 
-Enable version history and one-click restoration for MyDash dashboards. The feature delegates storage strategy to the underlying content backend: dashboards stored in Nextcloud Files (via the `groupfolder` backend) use NC's native file versioning; dashboards in the database backend use a dedicated `oc_mydash_dashboard_versions` table. All APIs are backend-agnostic.
+Enable version history and one-click restoration for LaunchPad dashboards. The feature delegates storage strategy to the underlying content backend: dashboards stored in Nextcloud Files (via the `groupfolder` backend) use NC's native file versioning; dashboards in the database backend use a dedicated `oc_launchpad_dash_versions` table. All APIs are backend-agnostic.
 
 ## Data Model
 
 ### Database Backend (Default)
 
-Each dashboard version snapshot is stored in `oc_mydash_dashboard_versions` with:
+Each dashboard version snapshot is stored in `oc_launchpad_dash_versions` with:
 - **id**: Auto-increment integer primary key
 - **dashboardUuid**: UUID of the parent dashboard
 - **versionNumber**: INT (auto-incremented per-dashboard, monotonic, starting at 1)
@@ -26,7 +26,7 @@ Each dashboard version snapshot is stored in `oc_mydash_dashboard_versions` with
 
 ### GroupFolder Backend
 
-Versions are stored via `\OCP\IVersionManager` on the dashboard's JSON file in Nextcloud Files. MyDash does NOT manage retention — Nextcloud's own versioning policies apply. If versioning is unavailable, the API gracefully returns `{versions: [], modeSupported: false}` with HTTP 200.
+Versions are stored via `\OCP\IVersionManager` on the dashboard's JSON file in Nextcloud Files. LaunchPad does NOT manage retention — Nextcloud's own versioning policies apply. If versioning is unavailable, the API gracefully returns `{versions: [], modeSupported: false}` with HTTP 200.
 
 ## ADDED Requirements
 
@@ -225,7 +225,7 @@ The system MUST automatically prune old snapshots, keeping only the 50 most rece
 
 - GIVEN a groupfolder-backed dashboard with file-versions
 - WHEN versions are created and NC's own retention policy kicks in
-- THEN MyDash MUST NOT independently prune NC file-versions
+- THEN LaunchPad MUST NOT independently prune NC file-versions
 - AND the system MUST respect NC's retention settings
 
 #### Scenario: Pruning does not affect versionNumber sequence
@@ -277,7 +277,7 @@ The system MUST transparently adapt all version endpoints to the dashboard's con
 
 - GIVEN a database-backed dashboard
 - WHEN a user calls GET /api/dashboards/{uuid}/versions
-- THEN the system MUST query oc_mydash_dashboard_versions table
+- THEN the system MUST query oc_launchpad_dash_versions table
 - AND return version objects constructed from DB rows
 - AND each version MUST have a canonical versionNumber (INT)
 

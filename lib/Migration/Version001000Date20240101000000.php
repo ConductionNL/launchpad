@@ -3,10 +3,10 @@
 /**
  * Version001000Date20240101000000
  *
- * Initial migration to create all MyDash database tables.
+ * Initial migration to create all LaunchPad database tables.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -24,7 +24,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Initial migration to create all MyDash database tables.
+ * Initial migration to create all LaunchPad database tables.
  */
 class Version001000Date20240101000000 extends SimpleMigrationStep
 {

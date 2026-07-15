@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -9,7 +9,8 @@
 		v-if="childRenderer"
 		:content="childContent"
 		:placement="placement"
-		:edit-mode="editMode" />
+		:edit-mode="editMode"
+		v-bind="extraProps" />
 	<div v-else class="container-child container-child--unknown">
 		<span class="container-child__missing">{{ unknownLabel }}</span>
 	</div>
@@ -17,6 +18,7 @@
 
 <script>
 import { getWidgetTypeEntry } from '../../../constants/widgetRegistry.js'
+import { buildWidgetDataProvide, buildRendererExtraProps } from '../../../services/widgetDataAdapters.js'
 
 /**
  * ContainerChild — registry-driven dispatcher for a single child placement
@@ -32,7 +34,10 @@ import { getWidgetTypeEntry } from '../../../constants/widgetRegistry.js'
  *
  * The dispatcher deliberately stays tiny — no header chrome, no edit
  * affordances of its own — so child widgets render exactly as they
- * would on the top-level grid.
+ * would on the top-level grid. It does, however, provide() the same
+ * nc-vue data-source adapters as WidgetRenderer (scoped to this child's
+ * placement id) so nested data widgets (people/calendar/spend/news/files)
+ * work identically inside a container.
  */
 export default {
 	name: 'ContainerChild',
@@ -48,7 +53,22 @@ export default {
 		},
 	},
 
+	provide() {
+		return buildWidgetDataProvide(() => this.placement?.id)
+	},
+
 	computed: {
+		/**
+		 * Per-type extra props for nc-vue renderers that take a prop (news
+		 * `itemsEndpoint`, files `apiBase`). The container child placement
+		 * carries the type in `placement.type`.
+		 *
+		 * @return {object} extra props to v-bind onto the child renderer.
+		 */
+		extraProps() {
+			return buildRendererExtraProps(this.placement?.type)
+		},
+
 		/** @spec openspec/specs/container-widget/spec.md */
 		registryEntry() {
 			const type = this.placement?.type
@@ -71,7 +91,7 @@ export default {
 		/** @spec openspec/specs/container-widget/spec.md */
 		unknownLabel() {
 			const type = this.placement?.type || ''
-			return t('mydash', 'Unknown widget type: {type}', { type })
+			return t('launchpad', 'Unknown widget type: {type}', { type })
 		},
 	},
 }

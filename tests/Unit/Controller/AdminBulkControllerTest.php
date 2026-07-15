@@ -9,12 +9,12 @@
  * `InvalidArgumentException` from the bulk service.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,9 +23,9 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\Controller\AdminBulkController;
-use OCA\MyDash\Service\BulkOperationService;
-use OCA\MyDash\Service\PermissionDeniedException;
+use OCA\LaunchPad\Controller\AdminBulkController;
+use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;

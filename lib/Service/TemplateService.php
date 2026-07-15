@@ -6,7 +6,7 @@
  * Service for managing admin dashboard templates.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,13 +16,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -55,7 +55,7 @@ class TemplateService
      *
      * @return Dashboard|null The applicable template or null.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-7
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-7
      */
     public function getApplicableTemplate(string $userId): ?Dashboard
     {
@@ -103,7 +103,7 @@ class TemplateService
      *
      * @return Dashboard The created dashboard.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-7
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-7
      */
     public function createDashboardFromTemplate(
         string $userId,
@@ -240,6 +240,15 @@ class TemplateService
         );
         $placement->setShowTitle($source->getShowTitle());
         $placement->setSortOrder($source->getSortOrder());
+        // REQ-ACK-001: copy the acknowledgement requirement and the stable
+        // `announcementKey` so every recipient cloned from this template
+        // placement shares one announcement identity (design D2).
+        $placement->setRequiresAcknowledgement($source->getRequiresAcknowledgement());
+        $placement->setAcknowledgementPrompt($source->getAcknowledgementPrompt());
+        $placement->setAcknowledgementDeadline($source->getAcknowledgementDeadline());
+        $placement->setReacknowledgeOnChange($source->getReacknowledgeOnChange());
+        $placement->setAcknowledgementContentVersion($source->getAcknowledgementContentVersion());
+        $placement->setAnnouncementKey($source->getAnnouncementKey());
         $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setCreatedAt($now);
         $placement->setUpdatedAt($now);

@@ -33,7 +33,7 @@ landmarks — a WCAG 2.1 AA requirement.
 
 ### D1: Image source — URL only
 **Decision:** Image source is a plain URL field. The allow-list of permitted hosts is
-controlled by an admin setting (`mydash.header_widget_allowed_image_hosts`); empty list
+controlled by an admin setting (`launchpad.header_widget_allowed_image_hosts`); empty list
 means all hosts are permitted.
 **Alternatives considered:** Files picker (deferred); data-URL inline upload.
 **Rationale:** URL-only keeps the widget stateless and avoids file-storage coupling in
@@ -65,7 +65,7 @@ title; `h2` is the correct default for dashboards that already have an applicati
 navigation for AT users.
 
 ### D5: Background image allow-list admin setting
-**Decision:** Admin config key `mydash.header_widget_allowed_image_hosts` holds a
+**Decision:** Admin config key `launchpad.header_widget_allowed_image_hosts` holds a
 newline-separated list of permitted hostnames. Empty = all permitted. Checked server-side
 on config save.
 **Alternatives considered:** Same-origin only; no allow-list (open).

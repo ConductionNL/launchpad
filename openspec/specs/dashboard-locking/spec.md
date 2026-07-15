@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Dashboard Locking Specification
@@ -10,7 +10,7 @@ Dashboard locking provides a concurrent-edit guard for dashboards. When two user
 
 ## Data Model
 
-Each dashboard lock is stored in the `oc_mydash_dashboard_locks` table with the following fields:
+Each dashboard lock is stored in the `oc_launchpad_dashboard_locks` table with the following fields:
 
 - **id**: Auto-increment integer primary key
 - **dashboardUuid**: VARCHAR(36) UNIQUE, references dashboard UUID
@@ -269,8 +269,8 @@ When a dashboard is deleted, its lock (if any) MUST be automatically deleted as 
 - GIVEN alice holds a lock on dashboard "d1"
 - AND alice sends `DELETE /api/dashboard/d1` (dashboard deletion, not lock deletion)
 - THEN the system MUST:
-  - Delete the dashboard record from `oc_mydash_dashboards`
-  - Delete the associated lock record from `oc_mydash_dashboard_locks`
+  - Delete the dashboard record from `oc_launchpad_dashboards`
+  - Delete the associated lock record from `oc_launchpad_dashboard_locks`
 - AND the cascade MUST be enforced by application logic in `DashboardService::delete()` calling `DashboardLockMapper::deleteByDashboardUuid()`, or by a DB-level ON DELETE CASCADE (note: Nextcloud's migration framework supports foreign keys on MySQL/Postgres but not SQLite; application-layer cascade is the safer default)
 - NOTE: If the delete request comes from a different user or admin, the same cascade applies
 

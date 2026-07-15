@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>mydash</id>
+	<id>launchpad</id>
 	<name lang="en">LaunchPad</name>
 	<name lang="nl">LaunchPad</name>
 	<summary lang="en">Drag-and-drop dashboards with templates, tiles, and smart visibility</summary>
@@ -23,6 +23,9 @@
 - **Widget styling** — Customize colors, borders, and titles for each individual widget
 - **Compulsory widgets** — Admins can pin important widgets that users cannot remove
 - **Full Nextcloud compatibility** — Works with every existing Nextcloud dashboard widget out of the box
+- **Role-based widget access** — Restrict which widget types a group of users may add, resolved from Nextcloud group membership
+- **Dashboard sharing** — Share a dashboard with specific users or groups, or publish a brute-force-protected read-only public link
+- **Group dashboards** — One shared dashboard per group, in addition to personal dashboards
 
 Perfect for organizations that want consistent, curated dashboards for their teams while still giving users freedom to personalize.
 
@@ -41,35 +44,43 @@ Free and open source under the EUPL-1.2 license.
 - **Widget-styling** — Pas kleuren, randen en titels aan voor elke individuele widget
 - **Verplichte widgets** — Beheerders kunnen belangrijke widgets vastzetten die gebruikers niet kunnen verwijderen
 - **Volledige Nextcloud-compatibiliteit** — Werkt direct met elke bestaande Nextcloud dashboard-widget
+- **Rolgebaseerde widget-toegang** — Beperk welke widget-types een gebruikersgroep mag toevoegen, op basis van Nextcloud-groepslidmaatschap
+- **Dashboards delen** — Deel een dashboard met specifieke gebruikers of groepen, of publiceer een tegen brute-force beveiligde alleen-lezen publieke link
+- **Groepsdashboards** — Eén gedeeld dashboard per groep, naast persoonlijke dashboards
 
 Ideaal voor organisaties die consistente, samengestelde dashboards willen voor hun teams, terwijl gebruikers de vrijheid houden om te personaliseren.
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.7</version>
-	<licence>agpl</licence>
+	<version>1.0.5-unstable.11</version>
+	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
-	<namespace>MyDash</namespace>
+	<namespace>LaunchPad</namespace>
 	<documentation>
-		<user>https://github.com/ConductionNL/mydash</user>
-		<admin>https://github.com/ConductionNL/mydash</admin>
-		<developer>https://github.com/ConductionNL/mydash</developer>
+		<user>https://codeberg.org/Conduction/launchpad</user>
+		<admin>https://codeberg.org/Conduction/launchpad</admin>
+		<developer>https://codeberg.org/Conduction/launchpad</developer>
 	</documentation>
 	<category>customization</category>
 	<category>organization</category>
 	<category>dashboard</category>
-	<website>https://github.com/ConductionNL/mydash</website>
-	<discussion>https://github.com/ConductionNL/mydash/discussions</discussion>
-	<bugs>https://github.com/ConductionNL/mydash/issues</bugs>
-	<repository>https://github.com/ConductionNL/mydash</repository>
+	<website>https://codeberg.org/Conduction/launchpad</website>
+	<bugs>https://codeberg.org/Conduction/launchpad/issues</bugs>
+	<repository>https://codeberg.org/Conduction/launchpad</repository>
 
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/mydash/main/img/app-store.svg</screenshot>
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/mydash/main/img/screenshot.png</screenshot>
+	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-dashboard.png</screenshot>
+	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-widgets.png</screenshot>
+	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-admin.png</screenshot>
 
+	<!-- ADR: LaunchPad is an OR-free app (docs/architecture.md "Runtime-only
+	     OR consumption policy"). It MUST boot and function fully on a
+	     Nextcloud instance with no OpenRegister installed; any OR data is
+	     consumed optionally at runtime and feature-detected per widget.
+	     OpenRegister therefore MUST NOT be declared as an install-time
+	     dependency here. -->
 	<dependencies>
 		<php min-version="8.3"/>
 		<nextcloud min-version="29" max-version="34"/>
-		<app>openregister</app>
 	</dependencies>
 
 	<!-- Surface dashboards, widget content, and metadata in NC unified search. REQ-SRCH-001. -->
@@ -78,70 +89,73 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	</types>
 
 	<background-jobs>
-		<job>OCA\MyDash\BackgroundJob\OrphanedDataCleanupJob</job>
+		<job>OCA\LaunchPad\BackgroundJob\OrphanedDataCleanupJob</job>
 	</background-jobs>
 
 	<repair-steps>
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
 		<install>
-			<step>OCA\MyDash\Repair\InitializeActions</step>
+			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- role-based-content task-2: seed default role-feature permissions. -->
-			<step>OCA\MyDash\Repair\SeedRolePermissions</step>
+			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
+			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
 		</install>
 		<post-migration>
-			<step>OCA\MyDash\Repair\InitializeActions</step>
+			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
-			<step>OCA\MyDash\Repair\PurgeOrphanedCascadeData</step>
+			<step>OCA\LaunchPad\Repair\PurgeOrphanedCascadeData</step>
+			<!-- Ensure background jobs are registered after every upgrade. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
 		</post-migration>
 	</repair-steps>
 
 	<settings>
-		<admin>OCA\MyDash\Settings\MyDashAdmin</admin>
-		<admin-section>OCA\MyDash\Settings\MyDashAdminSection</admin-section>
+		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
 	</settings>
 
 	<commands>
 		<!-- REQ-EXIM-010: dashboard export / import via `php occ`. -->
-		<command>OCA\MyDash\Command\ExportCommand</command>
-		<command>OCA\MyDash\Command\ImportCommand</command>
+		<command>OCA\LaunchPad\Command\ExportCommand</command>
+		<command>OCA\LaunchPad\Command\ImportCommand</command>
 		<!-- REQ-CFLI-011: Confluence HTML export importer via `php occ`. -->
-		<command>OCA\MyDash\Command\ImportConfluenceCommand</command>
-		<!-- REQ-CLI-001..011: shared `mydash:` CLI suite (cli-commands). -->
-		<command>OCA\MyDash\Command\DashboardListCommand</command>
-		<command>OCA\MyDash\Command\DashboardShowCommand</command>
-		<command>OCA\MyDash\Command\DashboardDeleteCommand</command>
-		<command>OCA\MyDash\Command\DashboardDebugShareCommand</command>
-		<command>OCA\MyDash\Command\UserRevokeFeedTokenCommand</command>
-		<command>OCA\MyDash\Command\I18nExportStringsCommand</command>
-		<command>OCA\MyDash\Command\I18nMigrateLanguageStructureCommand</command>
-		<command>OCA\MyDash\Command\I18nCopyNavigationCommand</command>
+		<command>OCA\LaunchPad\Command\ImportConfluenceCommand</command>
+		<!-- REQ-CLI-001..011: shared `launchpad:` CLI suite (cli-commands). -->
+		<command>OCA\LaunchPad\Command\DashboardListCommand</command>
+		<command>OCA\LaunchPad\Command\DashboardShowCommand</command>
+		<command>OCA\LaunchPad\Command\DashboardDeleteCommand</command>
+		<command>OCA\LaunchPad\Command\DashboardDebugShareCommand</command>
+		<command>OCA\LaunchPad\Command\I18nExportStringsCommand</command>
+		<command>OCA\LaunchPad\Command\I18nMigrateLanguageStructureCommand</command>
+		<command>OCA\LaunchPad\Command\I18nCopyNavigationCommand</command>
 		<!-- REQ-OCLN-001..009: orphaned-data cleanup CLI. -->
-		<command>OCA\MyDash\Command\CleanupScanCommand</command>
-		<command>OCA\MyDash\Command\CleanupPurgeCommand</command>
+		<command>OCA\LaunchPad\Command\CleanupScanCommand</command>
+		<command>OCA\LaunchPad\Command\CleanupPurgeCommand</command>
 		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
-		<command>OCA\MyDash\Command\DemoShowcasesInstallCommand</command>
-		<command>OCA\MyDash\Command\DemoShowcasesListCommand</command>
-		<!-- REQ-WIZ-010: setup wizard via `php occ mydash:setup`. -->
-		<command>OCA\MyDash\Command\SetupCommand</command>
+		<command>OCA\LaunchPad\Command\DemoShowcasesInstallCommand</command>
+		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
+		<!-- REQ-WIZ-010: setup wizard via `php occ launchpad:setup`. -->
+		<command>OCA\LaunchPad\Command\SetupCommand</command>
 		<!-- REQ-GFSB-008: one-time DB→GroupFolder content migration. -->
-		<command>OCA\MyDash\Command\MigrateStorageToGroupFolder</command>
+		<command>OCA\LaunchPad\Command\MigrateStorageToGroupFolder</command>
 		<!-- REQ-GFSB-010: toggle the active storage backend. -->
-		<command>OCA\MyDash\Command\ToggleStorageSetting</command>
+		<command>OCA\LaunchPad\Command\ToggleStorageSetting</command>
 	</commands>
 
 	<navigations>
 		<navigation>
 			<name>LaunchPad</name>
-			<route>mydash.page.index</route>
+			<route>launchpad.page.index</route>
 			<icon>app.svg</icon>
 			<order>-5</order>
 		</navigation>
 	</navigations>
 
 	<activity>
-		<!-- REQ-ACT-001: register the MyDash Activity provider that
+		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
 		     surfaces the 13-event catalogue defined in
-		     OCA\MyDash\Activity\Extension. -->
-		<provider>OCA\MyDash\Activity\Extension</provider>
+		     OCA\LaunchPad\Activity\Extension. -->
+		<provider>OCA\LaunchPad\Activity\Extension</provider>
 	</activity>
 </info>

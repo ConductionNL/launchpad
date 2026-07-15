@@ -111,7 +111,7 @@ Showcase installations create `group_shared` dashboard records with:
 - `metadata.showcaseId = '{showcase-id}'` (for idempotency tracking)
 - `metadata.sourceLanguage = '{language-code}'`
 
-> **NOTE — MyDash improvement**: Per-showcase idempotency tracking via `metadata.showcaseId` is a MyDash design decision. The reference implementation used a single app-wide boolean flag (`demo_data_imported`) which only works for a single dataset and cannot distinguish between multiple installed showcases. MyDash's per-showcase approach is strictly more correct and is not a port of the reference behavior.
+> **NOTE — LaunchPad improvement**: Per-showcase idempotency tracking via `metadata.showcaseId` is a LaunchPad design decision. The reference implementation used a single app-wide boolean flag (`demo_data_imported`) which only works for a single dataset and cannot distinguish between multiple installed showcases. LaunchPad's per-showcase approach is strictly more correct and is not a port of the reference behavior.
 
 The system maintains a registry of installed showcases by querying existing dashboards with matching showcase ID in metadata.
 
@@ -138,7 +138,7 @@ The 5 bundled showcases MUST be:
 All 5 showcases are NL-only in v1. Multi-locale support (EN, DE, FR variants) is a v2 goal.
 
 #### Scenario: Showcase ZIP archives exist and load without error
-- **GIVEN** MyDash is installed and enabled
+- **GIVEN** LaunchPad is installed and enabled
 - **WHEN** the system initializes
 - **THEN** all 5 showcase ZIP archives MUST be readable from `showcases/{id}/{id}.zip`
 - **AND** each ZIP MUST contain a valid `export.json` parseable as JSON with required fields
@@ -172,7 +172,7 @@ The system MUST expose `GET /api/admin/demo-showcases` returning a JSON array of
     "id": "de-bron",
     "name": "De Bron",
     "description": "Intranet dashboard voor een zorginstelling",
-    "thumbnailUrl": "/apps/mydash/showcases/de-bron/thumbnail.png",
+    "thumbnailUrl": "/apps/launchpad/showcases/de-bron/thumbnail.png",
     "language": "nl",
     "isInstalled": true,
     "installedDashboardUuid": "9b2df4a1-2e8c-4a3b-8f1c-5d7e9a1b2c3d"
@@ -271,7 +271,7 @@ If any widget types are unknown at install time, they MUST be silently skipped a
 
 Reinstalling an already-installed showcase MUST return the existing dashboard's UUID without creating a duplicate. The system MUST track installation state by querying existing `group_shared` dashboards with matching `showcaseId` in metadata.
 
-> **NOTE**: The reference implementation tracked idempotency using a single app-wide boolean flag, which only supports one demo dataset. MyDash's per-showcase `metadata.showcaseId` approach is more granular and is the correct design for a multi-showcase system. This is a MyDash improvement, not a port.
+> **NOTE**: The reference implementation tracked idempotency using a single app-wide boolean flag, which only supports one demo dataset. LaunchPad's per-showcase `metadata.showcaseId` approach is more granular and is the correct design for a multi-showcase system. This is a LaunchPad improvement, not a port.
 
 #### Scenario: Reinstall returns same UUID
 - **GIVEN** admin has installed showcase `van-der-berg`, receiving UUID `U1`
@@ -369,7 +369,7 @@ All v1 bundled showcases are NL-only. Each showcase ZIP contains a single `nl/` 
 
 ### Requirement: REQ-DEMO-008 Read-only showcase source files
 
-Bundled showcase ZIP archives under `showcases/` are read-only template definitions and MUST NOT be edited or deleted by admins via the admin UI. Only the installed dashboard (a copy in `oc_mydash_dashboards` table) is mutable. The admin UI MUST display showcase templates as non-editable and non-deletable, with "Install" and "Uninstall" buttons for managing installations only.
+Bundled showcase ZIP archives under `showcases/` are read-only template definitions and MUST NOT be edited or deleted by admins via the admin UI. Only the installed dashboard (a copy in `oc_launchpad_dashboards` table) is mutable. The admin UI MUST display showcase templates as non-editable and non-deletable, with "Install" and "Uninstall" buttons for managing installations only.
 
 #### Scenario: Showcase source files are not listed in editable templates
 - **GIVEN** admin views the template management or dashboard list
@@ -393,33 +393,33 @@ Bundled showcase ZIP archives under `showcases/` are read-only template definiti
 
 The system MUST expose two Symfony console commands for showcase management.
 
-1. `php occ mydash:demo-showcases:install <showcase-id> [--lang=nl] [--force]` — installs the specified showcase. The `--force` flag bypasses the idempotency guard and reinstalls even if the showcase is already installed (creating a new dashboard). Without `--force`, reinstall returns the existing UUID. Output MUST include the installed dashboard UUID and any skipped widgets.
-2. `php occ mydash:demo-showcases:list` — lists all available showcases with installation status. Output format: table with columns `ID`, `Name`, `Status`, `Language`.
+1. `php occ launchpad:demo-showcases:install <showcase-id> [--lang=nl] [--force]` — installs the specified showcase. The `--force` flag bypasses the idempotency guard and reinstalls even if the showcase is already installed (creating a new dashboard). Without `--force`, reinstall returns the existing UUID. Output MUST include the installed dashboard UUID and any skipped widgets.
+2. `php occ launchpad:demo-showcases:list` — lists all available showcases with installation status. Output format: table with columns `ID`, `Name`, `Status`, `Language`.
 
 Both commands MUST validate admin role (require Nextcloud admin user credentials or skip if run as web/cron context). Commands MUST be non-interactive and suitable for automation.
 
 #### Scenario: Install via CLI
-- **GIVEN** admin runs `php occ mydash:demo-showcases:install de-bron`
+- **GIVEN** admin runs `php occ launchpad:demo-showcases:install de-bron`
 - **WHEN** the command completes
 - **THEN** the system MUST output "Installed dashboard {uuid}"
 - **AND** the dashboard MUST be created and visible to all users
 
 #### Scenario: Force reinstall via CLI
 - **GIVEN** showcase `de-bron` is already installed with UUID `U1`
-- **WHEN** admin runs `php occ mydash:demo-showcases:install de-bron --force`
+- **WHEN** admin runs `php occ launchpad:demo-showcases:install de-bron --force`
 - **THEN** the command MUST reinstall the showcase, creating a new dashboard
 - **AND** the old dashboard `U1` MUST be removed or superseded
 - **AND** the command MUST output the new UUID
 
 #### Scenario: Install without --force returns existing UUID
 - **GIVEN** showcase `van-der-berg` is already installed with UUID `U1`
-- **WHEN** admin runs `php occ mydash:demo-showcases:install van-der-berg` (no --force)
+- **WHEN** admin runs `php occ launchpad:demo-showcases:install van-der-berg` (no --force)
 - **THEN** the command MUST output the existing UUID `U1` without creating a duplicate
 - **AND** MUST indicate that the showcase was already installed
 
 #### Scenario: List command shows all showcases
 - **GIVEN** 5 showcases available
-- **WHEN** admin runs `php occ mydash:demo-showcases:list`
+- **WHEN** admin runs `php occ launchpad:demo-showcases:list`
 - **THEN** the output MUST show a table with 5 rows
 - **AND** each row MUST include showcase ID, name, and installation status (Installed/Not installed)
 

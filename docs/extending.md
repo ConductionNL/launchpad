@@ -1,13 +1,13 @@
-# Extending MyDash
+# Extending LaunchPad
 
-This guide is for app developers who want their content to appear on a MyDash dashboard. There are two extension paths and you pick one based on **where the data lives**:
+This guide is for app developers who want their content to appear on a LaunchPad dashboard. There are two extension paths and you pick one based on **where the data lives**:
 
 | You have… | Use… | Where the code lives |
 |---|---|---|
 | A Nextcloud app with PHP services and a dedicated widget UI | A **widget** registered through Nextcloud's standard `IWidget` API | Inside your app (`lib/Dashboard/`, `src/`) |
 | Records in OpenRegister (objects, schemas) you want to surface as a card | A **dynamic widget driven by OpenRegister** — registered the same way, but the UI fetches its data from the OpenRegister REST/GraphQL API at render time | Inside your app, but the body of the widget is data-driven from OpenRegister |
 
-Both paths produce something users can place via the **Add Widget** picker, drag around the grid, and resize. MyDash itself does not need to be modified — it auto-discovers any widget registered through Nextcloud's `OCP\Dashboard\IManager`.
+Both paths produce something users can place via the **Add Widget** picker, drag around the grid, and resize. LaunchPad itself does not need to be modified — it auto-discovers any widget registered through Nextcloud's `OCP\Dashboard\IManager`.
 
 If you are looking to add a **shortcut tile** (a static link card a user creates themselves, not driven by app data), see [Custom Tiles](features/tiles.md) instead — that path requires no PHP at all.
 
@@ -15,7 +15,7 @@ If you are looking to add a **shortcut tile** (a static link card a user creates
 
 ## Path 1 — Add a widget from a Nextcloud app
 
-This is the standard Nextcloud Dashboard API. MyDash treats every widget registered this way as a first-class citizen.
+This is the standard Nextcloud Dashboard API. LaunchPad treats every widget registered this way as a first-class citizen.
 
 ### 1. Implement `OCP\Dashboard\IWidget`
 
@@ -91,7 +91,7 @@ OCA.Dashboard.register('yourapp_my_widget', (el, { widget }) => {
 })
 ```
 
-The first argument to `OCA.Dashboard.register` **MUST** equal the PHP `getId()` — that's how Nextcloud finds your renderer when MyDash mounts the widget.
+The first argument to `OCA.Dashboard.register` **MUST** equal the PHP `getId()` — that's how Nextcloud finds your renderer when LaunchPad mounts the widget.
 
 ### 4. Bundle-size note
 
@@ -99,7 +99,7 @@ Each widget entry-point is currently bundled independently, which means Vue + `@
 
 ### 5. Where the widget appears
 
-MyDash's `index()` controller builds the **Add Widget** picker from `IManager::getWidgets()` (via `WidgetService::getAvailableWidgets()`). Your widget shows up automatically with the title and icon-class declared in your `IWidget`. No template hooks, no front-end registration step in MyDash.
+LaunchPad's `index()` controller builds the **Add Widget** picker from `IManager::getWidgets()` (via `WidgetService::getAvailableWidgets()`). Your widget shows up automatically with the title and icon-class declared in your `IWidget`. No template hooks, no front-end registration step in LaunchPad.
 
 ---
 
@@ -147,7 +147,7 @@ The widget tile is now a thin presentation layer; the data shape is whatever Ope
 
 ### When the data lives in OpenRegister but the *widget* logic is generic
 
-If you want one widget that can be re-pointed at any register/schema (a "list widget" picker), expose `register` and `schema` as configuration on the placement and read them via `widget.config` in the `OCA.Dashboard.register` callback. MyDash's placement editor will surface them under the widget's settings panel as long as they are declared in the widget's `IWidget` options.
+If you want one widget that can be re-pointed at any register/schema (a "list widget" picker), expose `register` and `schema` as configuration on the placement and read them via `widget.config` in the `OCA.Dashboard.register` callback. LaunchPad's placement editor will surface them under the widget's settings panel as long as they are declared in the widget's `IWidget` options.
 
 ### Why not a separate "OpenRegister widget API"?
 
@@ -160,7 +160,7 @@ Two reasons. First, the `IWidget` contract is the only widget API Nextcloud know
 | Step | Command |
 |---|---|
 | Install the app | `occ app:enable yourapp` |
-| Force MyDash to re-list | Reload `/apps/mydash/` |
+| Force LaunchPad to re-list | Reload `/apps/launchpad/` |
 | Open the picker | Click **Add widget** in edit mode |
 | Confirm registration | Your widget appears with the title from `getTitle()` |
 
@@ -168,7 +168,7 @@ If the picker shows the widget but it renders blank, the most common cause is th
 
 ## See also
 
-- [Widgets vs Tiles](widgets-vs-tiles.md) — the broader explainer on the two surface types in MyDash
+- [Widgets vs Tiles](widgets-vs-tiles.md) — the broader explainer on the two surface types in LaunchPad
 - [Custom Tiles](features/tiles.md) — for static shortcut cards a user creates without writing code
 - [Widgets feature reference](features/widgets.md) — what users can do with widgets once they appear
 - Nextcloud's [`OCP\Dashboard\IWidget` reference](https://docs.nextcloud.com/server/latest/developer_manual/digging_deeper/dashboard.html)

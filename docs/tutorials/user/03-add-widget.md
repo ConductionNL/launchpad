@@ -1,15 +1,15 @@
 ---
 sidebar_position: 3
 title: Add a widget
-description: Drop a built-in Nextcloud widget or a MyDash custom widget onto a dashboard.
+description: Drop a built-in Nextcloud widget or a LaunchPad custom widget onto a dashboard.
 ---
 
 # Add a widget
 
-Widgets are the content blocks on a dashboard. MyDash supports two families:
+Widgets are the content blocks on a dashboard. LaunchPad supports two families:
 
 - **Nextcloud widgets** — Mail, Activity, Calendar, Talk, Files, etc. Discovered automatically from every installed Nextcloud app via the `IManager` widget API.
-- **MyDash custom widgets** — Label, Text, Image, Link button, Divider, Files (rich), People, Quicklinks, News, Video, Calendar, Links, Menu, Container, Tile.
+- **LaunchPad custom widgets** — Label, Text, Image, Link button, Divider, Files (rich), People, Quicklinks, News, Video, Calendar, Links, Menu, Container, Tile.
 
 Both families use the same picker UI and live on the same grid.
 
@@ -31,7 +31,7 @@ Open the active dashboard's cog menu and click **Edit dashboard**. The grid show
 
 ### 2. Open the **Add widget** modal
 
-From the cog menu pick **Add custom widget…** for the MyDash custom families, or click the empty-cell **+** marker that appears in edit mode for built-in Nextcloud widgets.
+From the cog menu pick **Add custom widget…** for the LaunchPad custom families, or click the empty-cell **+** marker that appears in edit mode for built-in Nextcloud widgets.
 
 ![Widget picker modal](/screenshots/tutorials/user/03-widget-picker.png)
 
@@ -59,7 +59,7 @@ The new placement appears in the grid at the next available cell. You can immedi
 ## Verification
 
 - The widget renders with the content you configured.
-- Reloading the page brings it back at the same grid position with the same content (changes are persisted to `oc_mydash_widget_placements`).
+- Reloading the page brings it back at the same grid position with the same content (changes are persisted to `oc_launchpad_widget_placements`).
 
 ## Common issues
 

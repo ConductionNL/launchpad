@@ -1,19 +1,19 @@
 ---
-status: implemented
+status: done
 ---
 
 # Dashboard Metadata Fields Specification
 
 ## Purpose
 
-Dashboard Metadata Fields allow administrators to define custom, queryable attributes that can be attached to every dashboard in a MyDash instance. Once an administrator defines a global registry of field definitions (e.g., "department", "project stage", "audience"), end users populate values for those fields on their dashboards. The field values are then queryable for filtering dashboards in search, widget configuration, and API calls. This capability standardizes what would otherwise be ad-hoc naming conventions and enables the discovery and organization of dashboards at scale.
+Dashboard Metadata Fields allow administrators to define custom, queryable attributes that can be attached to every dashboard in a LaunchPad instance. Once an administrator defines a global registry of field definitions (e.g., "department", "project stage", "audience"), end users populate values for those fields on their dashboards. The field values are then queryable for filtering dashboards in search, widget configuration, and API calls. This capability standardizes what would otherwise be ad-hoc naming conventions and enables the discovery and organization of dashboards at scale.
 
 ## Data Model
 
 
 @e2e exclude all scenarios test REST CRUD for admin-defined fields — admin metadata UI not present in v1.0.5
 
-### Metadata Field Definition (oc_mydash_meta_fields)
+### Metadata Field Definition (oc_launchpad_meta_fields)
 
 Stores the global registry of field definitions:
 
@@ -33,13 +33,13 @@ Stores the global registry of field definitions:
 - **created_at**: DATETIME (nullable)
 - **updated_at**: DATETIME (nullable)
 
-### Metadata Value (oc_mydash_meta_values)
+### Metadata Value (oc_launchpad_meta_values)
 
 Stores field values per dashboard. Each row is a (dashboardUuid, fieldId) pair with a type-encoded value:
 
 - **id**: Auto-increment integer primary key (BIGINT, unsigned)
-- **dashboard_uuid**: VARCHAR(36) referencing `oc_mydash_dashboards.uuid` (logical reference; cascade is handled at the application layer in `MetadataFieldMapper::deleteWithCascade`)
-- **field_id**: BIGINT referencing `oc_mydash_meta_fields.id` (if the field row is deleted without cascade, the value row becomes orphaned)
+- **dashboard_uuid**: VARCHAR(36) referencing `oc_launchpad_dashboards.uuid` (logical reference; cascade is handled at the application layer in `MetadataFieldMapper::deleteWithCascade`)
+- **field_id**: BIGINT referencing `oc_launchpad_meta_fields.id` (if the field row is deleted without cascade, the value row becomes orphaned)
 - **value**: TEXT (type-encoded):
   - text: plain string
   - number: decimal string (e.g., "42.5")
@@ -47,7 +47,7 @@ Stores field values per dashboard. Each row is a (dashboardUuid, fieldId) pair w
   - select: single option string (e.g., "marketing")
   - multi-select: JSON array of strings (e.g., `["feature1", "feature2"]`)
   - boolean: "0" or "1" string
-- **Composite unique constraint**: `mydash_meta_vunique` on (dashboard_uuid, field_id) — only one value per field per dashboard
+- **Composite unique constraint**: `launchpad_meta_vunique` on (dashboard_uuid, field_id) — only one value per field per dashboard
 
 ### Orphaned Values
 
@@ -293,17 +293,17 @@ Reading and writing metadata MUST be scoped to the dashboard's owner (for person
 
 ## Non-Functional Requirements
 
-- **Performance**: `GET /api/admin/metadata-fields` MUST return within 200ms for up to 1000 fields. `GET /api/dashboards?metadata.*=*` MUST return within 1000ms for 10,000 dashboards with filtering applied (indexed queries on `mydash_meta_vunique` / `mydash_meta_vfield`).
-- **Data integrity**: Field key uniqueness MUST be enforced at the database layer via unique constraint `mydash_meta_fkey`.
+- **Performance**: `GET /api/admin/metadata-fields` MUST return within 200ms for up to 1000 fields. `GET /api/dashboards?metadata.*=*` MUST return within 1000ms for 10,000 dashboards with filtering applied (indexed queries on `launchpad_meta_vunique` / `launchpad_meta_vfield`).
+- **Data integrity**: Field key uniqueness MUST be enforced at the database layer via unique constraint `launchpad_meta_fkey`.
 - **Localization**: All client-facing UI strings ship with English + Dutch translations in `l10n/{en,nl}.{json,js}`. Server-side validation messages embed the localised field label only — the prefixes are not translated to keep the validation contract stable for API consumers.
 - **Graceful degradation**: If metadata reading encounters orphaned values, the system MUST log and continue (never crash the dashboard load).
 - **Backward compatibility**: Dashboards without any metadata MUST continue to work (empty metadata object), and the metadata endpoints are opt-in (clients not using them are unaffected).
 
 ## Implementation Status
 
-**Implemented** — capability ships in mydash via:
+**Implemented** — capability ships in launchpad via:
 
-- **Migration**: `lib/Migration/Version001016Date20260502130000.php` + `lib/Migration/MetadataTablesBuilder.php` — creates `oc_mydash_meta_fields` and `oc_mydash_meta_values`.
+- **Migration**: `lib/Migration/Version001016Date20260502130000.php` + `lib/Migration/MetadataTablesBuilder.php` — creates `oc_launchpad_meta_fields` and `oc_launchpad_meta_values`.
 - **Entities**: `lib/Db/MetadataField.php`, `lib/Db/MetadataValue.php`.
 - **Mappers**: `lib/Db/MetadataFieldMapper.php`, `lib/Db/MetadataValueMapper.php`.
 - **Services**: `lib/Service/MetadataService.php` (orchestration + filter logic), `lib/Service/MetadataValidationService.php` (per-type value validation).

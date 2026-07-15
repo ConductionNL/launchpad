@@ -3,34 +3,34 @@
 /**
  * OrphanedSharesCategory
  *
- * Cleanup category for rows in `mydash_dashboard_shares` whose
- * `dashboard_id` no longer points at any row in `mydash_dashboards`.
+ * Cleanup category for rows in `launchpad_dashboard_shares` whose
+ * `dashboard_id` no longer points at any row in `launchpad_dashboards`.
  * REQ-CLN-001.
  *
  * Tier-A (`safeToPurgeAutomatically=true`): a share row whose
  * dashboard no longer exists is unreachable from every code path —
  * the share can never grant access to anything. Deleting it has no
  * user-visible effect. The proposal labelled the broader category
- * "expired_share_tokens"; mydash currently has no expiry/revocation
+ * "expired_share_tokens"; launchpad currently has no expiry/revocation
  * column so the only orphan kind is the dangling-foreign-key kind.
  *
  * @category  Service
- * @package   OCA\MyDash\Service\Cleanup
+ * @package   OCA\LaunchPad\Service\Cleanup
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\Cleanup;
+namespace OCA\LaunchPad\Service\Cleanup;
 
-use OCA\MyDash\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\DashboardShareMapper;
 
 /**
  * Sweeps share rows whose dashboard no longer exists.
@@ -91,7 +91,7 @@ class OrphanedSharesCategory implements CleanupCategoryInterface
     }//end getSafeToPurgeAutomatically()
 
     /**
-     * Always available — `mydash_dashboard_shares` ships in the core
+     * Always available — `launchpad_dashboard_shares` ships in the core
      * schema.
      *
      * @return bool True.

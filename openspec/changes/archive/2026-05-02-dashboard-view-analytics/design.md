@@ -2,13 +2,13 @@
 
 ## Context
 
-MyDash currently has no way to track which dashboards are being used. This change adds aggregate, privacy-preserving view counts per dashboard (daily buckets) with admin query endpoints and a Vue frontend instrumentation layer. The capability is defined in `dashboard-view-analytics/spec.md` as REQ-ANLT-001 through REQ-ANLT-011.
+LaunchPad currently has no way to track which dashboards are being used. This change adds aggregate, privacy-preserving view counts per dashboard (daily buckets) with admin query endpoints and a Vue frontend instrumentation layer. The capability is defined in `dashboard-view-analytics/spec.md` as REQ-ANLT-001 through REQ-ANLT-011.
 
 The source this feature is ported from uses a static hash strategy: `hash('sha256', $userId . $config->getSystemValue('secret', ''))` (see `the source codebase-source/lib/Service/AnalyticsService.php:288-291`). The Nextcloud instance secret is never rotated, meaning the same user always produces the same hash for all time. The "daily boundary" in the source comes from a `view_date = today()` composite key in an `the source app_uv` table — not from any salt rotation.
 
 This creates a meaningful privacy risk: if the `the source app_uv` table (or its equivalent) were ever leaked, a party who learns the static salt could re-identify which user hash corresponds to which user across years of stored rows. For an analytics feature that explicitly advertises privacy preservation, that is an unacceptable residual risk.
 
-MyDash diverges from the source on this point deliberately. The daily boundary the source achieves through `view_date` is preserved — but the hash is made non-static by rotating the salt each UTC day and keeping no salt history. This means cross-day re-identification from the database alone becomes computationally infeasible.
+LaunchPad diverges from the source on this point deliberately. The daily boundary the source achieves through `view_date` is preserved — but the hash is made non-static by rotating the salt each UTC day and keeping no salt history. This means cross-day re-identification from the database alone becomes computationally infeasible.
 
 ## Goals / Non-Goals
 
@@ -33,7 +33,7 @@ MyDash diverges from the source on this point deliberately. The daily boundary t
 
 ### D1: Unique-viewer dedup salt — daily-rotating, NOT static
 
-**Decision**: Compute viewer hash as `sha256(userId || dailySalt)` where `dailySalt` is a 32-byte random value generated at 00:00 UTC and stored in `IConfig` under `mydash.analytics_dailysalt`. When the salt rotates, the previous value is overwritten — no salt history is kept. This means cross-day hashes for the same user are computationally uncorrelated.
+**Decision**: Compute viewer hash as `sha256(userId || dailySalt)` where `dailySalt` is a 32-byte random value generated at 00:00 UTC and stored in `IConfig` under `launchpad.analytics_dailysalt`. When the salt rotates, the previous value is overwritten — no salt history is kept. This means cross-day hashes for the same user are computationally uncorrelated.
 
 **Alternatives considered:**
 
@@ -48,17 +48,17 @@ MyDash diverges from the source on this point deliberately. The daily boundary t
 
 ### D2: Salt rotation mechanism — daily cron, no historical retention
 
-**Decision**: A daily background job (`SaltRotationJob`) generates a fresh 32-byte random salt at 00:00 UTC using `random_bytes(32)` and stores the hex-encoded value in `IConfig` under `mydash.analytics_dailysalt`. The previous salt is overwritten with no backup. The dedup cache TTL (see D3) is set to expire at the next UTC midnight, ensuring the cache and salt lifetimes are aligned.
+**Decision**: A daily background job (`SaltRotationJob`) generates a fresh 32-byte random salt at 00:00 UTC using `random_bytes(32)` and stores the hex-encoded value in `IConfig` under `launchpad.analytics_dailysalt`. The previous salt is overwritten with no backup. The dedup cache TTL (see D3) is set to expire at the next UTC midnight, ensuring the cache and salt lifetimes are aligned.
 
 **Rationale**: Overwriting (not appending) the salt means no historical salt table exists to leak. This is a deliberate design constraint — once a day has passed, its viewer hashes are permanently uncorrelated with user IDs. A single `IConfig` key needs no migration and is readable by any process without coordination.
 
-### D3: Tables — `oc_mydash_dashboard_views` (daily aggregates only, no per-event log)
+### D3: Tables — `oc_launchpad_dashboard_views` (daily aggregates only, no per-event log)
 
 **Decision**: ONE table with columns `(id PK, dashboardUuid VARCHAR(36), viewBucket DATE, viewCount INT, uniqueViewerCount INT)` and a composite unique index on `(dashboardUuid, viewBucket)`. There is no per-user-per-day event log table. Unique-viewer deduplication is handled exclusively through a Nextcloud `ICache` entry keyed on `(dashboardUuid, viewerHash)` with a TTL expiring at the next UTC midnight.
 
 **Alternatives considered:**
 
-- **Match source: separate `oc_mydash_dashboard_view_log` (or `the source app_uv`-equivalent) table**: Rejected. Keeping per-event rows (even hashed) creates a long-lived table whose rows are individually attributable within a day's salt window. The cache-based approach gives identical dedup semantics with no residual per-user rows in the database.
+- **Match source: separate `oc_launchpad_dashboard_view_log` (or `the source app_uv`-equivalent) table**: Rejected. Keeping per-event rows (even hashed) creates a long-lived table whose rows are individually attributable within a day's salt window. The cache-based approach gives identical dedup semantics with no residual per-user rows in the database.
 
 **Source evidence**:
 
@@ -68,19 +68,19 @@ MyDash diverges from the source on this point deliberately. The daily boundary t
 
 ### D4: Retention — 365 days for aggregates (admin-tunable, min 30, max 3650)
 
-**Decision**: Aggregate rows with `viewBucket < CURRENT_DATE - retentionDays` are purged by a daily background job (`PurgeViewsJob`). The default is 365 days. Admins override via `mydash.analytics_retention_days`. Values below 30 are clamped to 30; values above 3650 are clamped to 3650.
+**Decision**: Aggregate rows with `viewBucket < CURRENT_DATE - retentionDays` are purged by a daily background job (`PurgeViewsJob`). The default is 365 days. Admins override via `launchpad.analytics_retention_days`. Values below 30 are clamped to 30; values above 3650 are clamped to 3650.
 
 **Rationale**: 365 days supports year-over-year comparisons ("this month vs. same month last year"), which is the most common admin reporting horizon. The minimum of 30 keeps the admin dashboard charts meaningful. The maximum of 3650 (10 years) covers compliance use cases without permitting unbounded growth by default.
 
 ### D5: Opt-out — per-user setting, default off (opted in)
 
-**Decision**: User setting `mydash.user_setting.analytics_optout` (boolean, default `false` — opted in). When `true`, the `POST /api/dashboards/{uuid}/view-event` handler short-circuits immediately with HTTP 204, writing no cache entry and touching no database row.
+**Decision**: User setting `launchpad.user_setting.analytics_optout` (boolean, default `false` — opted in). When `true`, the `POST /api/dashboards/{uuid}/view-event` handler short-circuits immediately with HTTP 204, writing no cache entry and touching no database row.
 
 **Rationale**: Privacy regulation (AVG/GDPR) requires a meaningful opt-out path. Short-circuiting before any hash is computed ensures zero data is generated for opted-out users, not just zero data stored — no transient identifiers are created mid-request.
 
-### D6: Global admin disable — `mydash.analytics_enabled` (default `true`)
+### D6: Global admin disable — `launchpad.analytics_enabled` (default `true`)
 
-**Decision**: When an admin sets `mydash.analytics_enabled = false`, every `POST /view-event` returns HTTP 204 with a complete no-op. The frontend checks a config endpoint on mount and suppresses the request entirely when analytics is disabled, avoiding unnecessary HTTP round-trips.
+**Decision**: When an admin sets `launchpad.analytics_enabled = false`, every `POST /view-event` returns HTTP 204 with a complete no-op. The frontend checks a config endpoint on mount and suppresses the request entirely when analytics is disabled, avoiding unnecessary HTTP round-trips.
 
 **Rationale**: Organisations with stricter internal policies may need to disable all view tracking. A single `IConfig` key is simpler than per-scope or per-group toggles and is effective immediately on the next request without cache invalidation.
 

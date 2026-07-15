@@ -3,13 +3,13 @@
 /**
  * ToggleStorageSetting
  *
- * `mydash:storage:toggle-backend {db|groupfolder}` — changes the active
+ * `launchpad:storage:toggle-backend {db|groupfolder}` — changes the active
  * content storage backend by writing to the `content_storage` admin setting.
  * Emits a warning when switching from GroupFolder back to DB since DB data
  * is not auto-copied from GroupFolder (REQ-GFSB-010).
  *
  * @category Command
- * @package  OCA\MyDash\Command
+ * @package  OCA\LaunchPad\Command
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,10 +22,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\CommandService;
-use OCA\MyDash\Service\SetupWizardService;
+use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Service\SetupWizardService;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -67,7 +67,7 @@ class ToggleStorageSetting extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:storage:toggle-backend')
+        $this->setName(name: 'launchpad:storage:toggle-backend')
             ->setDescription(description: 'Change the active content storage backend (db|groupfolder).')
             ->setHelp(
                 help: implode(
@@ -84,7 +84,7 @@ class ToggleStorageSetting extends CommandBase
                         'GroupFolder data back to the database. Run the migration first or',
                         'ensure DB content is intact (migration keeps DB copies by default).',
                         '',
-                        'Run php occ mydash:storage:migrate-to-groupfolder before switching',
+                        'Run php occ launchpad:storage:migrate-to-groupfolder before switching',
                         'to groupfolder to ensure all existing dashboards are available.',
                     ]
                 )

@@ -6,7 +6,7 @@
  * Service for discovering and querying Nextcloud dashboard widgets.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,9 +16,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCP\Dashboard\IManager;
 use OCP\Dashboard\IWidget;
 use OCP\Dashboard\IAPIWidget;
@@ -86,7 +86,7 @@ class WidgetService
      *
      * @return array The list of available widgets.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-32
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
      */
     public function getAvailableWidgets(): array
     {
@@ -125,7 +125,7 @@ class WidgetService
      *
      * @return array The widget items.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-33
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-33
      */
     public function getWidgetItems(
         string $userId,
@@ -208,6 +208,13 @@ class WidgetService
     /**
      * Update a widget placement.
      *
+     * When the update carries a `content` payload, run the same save-time
+     * content validation as the create path ({@see self::addWidget()}) —
+     * the placement-update route became a content-write path once `content`
+     * was added to the extracted fields, and without this it would bypass
+     * the menu depth / required-field checks (REQ-MENU-002) that the create
+     * path enforces. The widget type is read from the stored placement.
+     *
      * @param int   $placementId The placement ID.
      * @param array $data        The data to update.
      *
@@ -219,6 +226,16 @@ class WidgetService
         int $placementId,
         array $data
     ): WidgetPlacement {
+        if (isset($data['content']) === true && is_array($data['content']) === true) {
+            $placement = $this->placementService->getPlacement(
+                placementId: $placementId
+            );
+            $this->validateWidgetContent(
+                widgetType: $placement->getWidgetId(),
+                content: $data['content']
+            );
+        }
+
         return $this->placementService->updatePlacement(
             placementId: $placementId,
             data: $data

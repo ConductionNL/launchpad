@@ -2,7 +2,7 @@
 
 ## Why
 
-MyDash dashboards need a flexible, hierarchical navigation widget to surface contextual links. Users should be able to publish "links to other places" as a structured menu (up to 3 levels deep) with multiple visual styles — dropdown, megamenu, or tree. This is distinct from the application-chrome navigation. The widget must support both internal navigation (same-page routes) and external URLs, with live active-item highlighting based on the current page URL. The widget MUST be fully static (no backend API calls) with server-side validation of nesting depth.
+LaunchPad dashboards need a flexible, hierarchical navigation widget to surface contextual links. Users should be able to publish "links to other places" as a structured menu (up to 3 levels deep) with multiple visual styles — dropdown, megamenu, or tree. This is distinct from the application-chrome navigation. The widget must support both internal navigation (same-page routes) and external URLs, with live active-item highlighting based on the current page URL. The widget MUST be fully static (no backend API calls) with server-side validation of nesting depth.
 
 ## What Changes
 

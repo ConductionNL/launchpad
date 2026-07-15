@@ -1,12 +1,12 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<footer
 		v-if="showFooter"
-		class="mydash-footer"
+		class="launchpad-footer"
 		:style="footerStyle"
 		role="contentinfo">
 		<!-- HTML mode (REQ-FTR-002): server-sanitised payload rendered
@@ -14,7 +14,7 @@
 		     server-side so v-html is the documented integration point. -->
 		<div
 			v-if="resolvedHtml !== null"
-			class="mydash-footer__html"
+			class="launchpad-footer__html"
 			v-html="resolvedHtml" />
 
 		<!-- Structured mode (REQ-FTR-003 / REQ-FTR-004). Layout switches
@@ -22,33 +22,33 @@
 		     `inline` for a single horizontal row. -->
 		<div
 			v-else-if="resolvedConfig"
-			class="mydash-footer__config"
+			class="launchpad-footer__config"
 			:class="{
-				'mydash-footer__config--columns': layoutMode === 'columns',
-				'mydash-footer__config--inline': layoutMode === 'inline',
+				'launchpad-footer__config--columns': layoutMode === 'columns',
+				'launchpad-footer__config--inline': layoutMode === 'inline',
 			}">
-			<div v-if="resolvedConfig.logoUrl || resolvedConfig.organisation" class="mydash-footer__col">
+			<div v-if="resolvedConfig.logoUrl || resolvedConfig.organisation" class="launchpad-footer__col">
 				<img
 					v-if="resolvedConfig.logoUrl"
-					class="mydash-footer__logo"
+					class="launchpad-footer__logo"
 					:src="resolvedConfig.logoUrl"
 					alt="">
-				<div v-if="orgName" class="mydash-footer__org">
+				<div v-if="orgName" class="launchpad-footer__org">
 					{{ orgName }}
 				</div>
 			</div>
-			<div v-if="addressLines.length > 0" class="mydash-footer__col mydash-footer__address">
+			<div v-if="addressLines.length > 0" class="launchpad-footer__col launchpad-footer__address">
 				<div v-for="(line, idx) in addressLines" :key="idx">
 					{{ line }}
 				</div>
 			</div>
-			<div v-if="hasLinksOrLegal" class="mydash-footer__col">
-				<ul v-if="(resolvedConfig.links || []).length > 0" class="mydash-footer__links">
+			<div v-if="hasLinksOrLegal" class="launchpad-footer__col">
+				<ul v-if="(resolvedConfig.links || []).length > 0" class="launchpad-footer__links">
 					<li v-for="(link, idx) in resolvedConfig.links" :key="idx">
 						<a :href="link.url" rel="noopener noreferrer" target="_blank">{{ link.label }}</a>
 					</li>
 				</ul>
-				<div v-if="legalText" class="mydash-footer__legal">
+				<div v-if="legalText" class="launchpad-footer__legal">
 					{{ legalText }}
 					<template v-if="resolvedConfig.copyrightYear">
 						© {{ resolvedConfig.copyrightYear }}
@@ -238,7 +238,7 @@ export default {
 </script>
 
 <style scoped>
-.mydash-footer {
+.launchpad-footer {
 	width: 100%;
 	padding: 16px 24px;
 	margin-top: 24px;
@@ -250,62 +250,62 @@ export default {
 	contain: layout paint;
 }
 
-.mydash-footer__html :deep(a) {
+.launchpad-footer__html :deep(a) {
 	color: var(--color-primary-element, #1976d2);
 }
 
-.mydash-footer__config--columns {
+.launchpad-footer__config--columns {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 2rem;
 }
 
-.mydash-footer__config--inline {
+.launchpad-footer__config--inline {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 1rem;
 }
 
-.mydash-footer__config--inline .mydash-footer__col + .mydash-footer__col::before {
+.launchpad-footer__config--inline .launchpad-footer__col + .launchpad-footer__col::before {
 	content: '·';
 	margin-right: 1rem;
 	opacity: 0.5;
 }
 
-.mydash-footer__logo {
+.launchpad-footer__logo {
 	max-height: 48px;
 	max-width: 200px;
 	display: block;
 	margin-bottom: 6px;
 }
 
-.mydash-footer__org {
+.launchpad-footer__org {
 	font-weight: 600;
 }
 
-.mydash-footer__links {
+.launchpad-footer__links {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.mydash-footer__links li {
+.launchpad-footer__links li {
 	margin-bottom: 4px;
 }
 
-.mydash-footer__links a {
+.launchpad-footer__links a {
 	color: inherit;
 	text-decoration: underline;
 }
 
-.mydash-footer__legal {
+.launchpad-footer__legal {
 	margin-top: 6px;
 	opacity: 0.85;
 }
 
 @media (max-width: 720px) {
-	.mydash-footer__config--columns {
+	.launchpad-footer__config--columns {
 		grid-template-columns: 1fr;
 	}
 }
@@ -314,7 +314,7 @@ export default {
    default print stylesheet hides large chrome regions; we want the
    footer to survive the export so legal disclaimers stay visible. */
 @media print {
-	.mydash-footer {
+	.launchpad-footer {
 		display: block !important;
 		break-inside: avoid;
 		page-break-inside: avoid;

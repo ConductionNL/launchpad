@@ -1,5 +1,5 @@
 {
-	"name": "mydash",
+	"name": "launchpad",
 	"version": "1.0.0",
 	"description": "Enhanced dashboard with grid layout and admin controls for Nextcloud",
 	"main": "src/main.js",
@@ -12,9 +12,10 @@
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
 		"check:manifest": "node scripts/check-manifest.js",
-		"lint": "eslint src && npm run check:manifest && npm run lint:initial-state",
+		"lint": "eslint src && npm run check:manifest && npm run lint:initial-state && npm run lint:translation-domain",
 		"lint:fix": "eslint src --fix",
 		"lint:initial-state": "node ./scripts/lint-initial-state.js",
+		"lint:translation-domain": "node ./scripts/lint-translation-domain.js",
 		"stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
 		"stylelint:fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix",
 		"test": "vitest run",
@@ -26,7 +27,7 @@
 		"test:e2e:headed": "playwright test --headed"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^1.0.0-beta.101",
+		"@conduction/nextcloud-vue": "^1.0.0-beta.193",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^6.1.1",
@@ -38,7 +39,7 @@
 		"dompurify": "^3.4.1",
 		"gridstack": "^12.2.1",
 		"marked": "^18.0.3",
-		"pinia": "^2.1.7",
+		"pinia": "~2.1.7",
 		"vue": "^2.7.16",
 		"vue-frag": "^1.4.3",
 		"vue-loader": "^15.11.1",
@@ -79,6 +80,8 @@
 	],
 	"overrides": {
 		"vue": "^2.7.16",
-		"vue-template-compiler": "^2.7.16"
+		"vue-template-compiler": "^2.7.16",
+		"@vueuse/core": "~10.11.1",
+		"pinia": "~2.1.7"
 	}
 }

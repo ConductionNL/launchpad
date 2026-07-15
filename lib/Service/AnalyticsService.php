@@ -16,28 +16,28 @@
  * SHA-256 hash kept exclusively in the cache (REQ-ANLT-003).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\DashboardView;
-use OCA\MyDash\Db\DashboardViewMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardView;
+use OCA\LaunchPad\Db\DashboardViewMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
 use OCP\IConfig;
@@ -126,7 +126,7 @@ class AnalyticsService
     public function isGloballyEnabled(): bool
     {
         return $this->appConfig->getValueBool(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_ENABLED,
             true
         );
@@ -146,7 +146,7 @@ class AnalyticsService
     {
         $value = $this->config->getUserValue(
             $userId,
-            'mydash',
+            'launchpad',
             self::USER_PREF_KEY_OPTOUT,
             'false'
         );
@@ -166,7 +166,7 @@ class AnalyticsService
     public function getRetentionDays(): int
     {
         $days = $this->appConfig->getValueInt(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_RETENTION_DAYS,
             self::DEFAULT_RETENTION_DAYS
         );
@@ -204,32 +204,13 @@ class AnalyticsService
         }
 
         $this->appConfig->setValueInt(
-            'mydash',
+            'launchpad',
             self::CONFIG_KEY_RETENTION_DAYS,
             $clamped
         );
 
         return $clamped;
     }//end setRetentionDays()
-
-    /**
-     * Persist the global enable/disable toggle.
-     *
-     * @param bool $enabled Whether analytics tracking is active
-     *                      instance-wide.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    public function setGlobalEnabled(bool $enabled): void
-    {
-        $this->appConfig->setValueBool(
-            'mydash',
-            self::CONFIG_KEY_ENABLED,
-            $enabled
-        );
-    }//end setGlobalEnabled()
 
     /**
      * Record a view event for `$dashboardUuid` by `$userId`

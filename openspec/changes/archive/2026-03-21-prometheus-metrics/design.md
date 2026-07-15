@@ -13,11 +13,11 @@
 - `GET /api/health` - Health check (database connectivity)
 
 ### Metrics Exposed
-- `mydash_info{version, php_version, nextcloud_version}` - App info gauge
-- `mydash_up` - Application up gauge
-- `mydash_dashboards_total{type}` - Dashboard count by type (personal/template)
-- `mydash_widgets_total` - Total widget placements
-- `mydash_tiles_total` - Total tiles
+- `launchpad_info{version, php_version, nextcloud_version}` - App info gauge
+- `launchpad_up` - Application up gauge
+- `launchpad_dashboards_total{type}` - Dashboard count by type (personal/template)
+- `launchpad_widgets_total` - Total widget placements
+- `launchpad_tiles_total` - Total tiles
 
 ### Key Design Decisions
 - Metrics computed on-demand (no persistent metrics storage)

@@ -4,7 +4,7 @@
  * WidgetPlacement Entity Test
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Db
+ * @package   OCA\LaunchPad\Tests\Unit\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Unit\Db;
 
-use OCA\MyDash\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use PHPUnit\Framework\TestCase;
 
 class WidgetPlacementTest extends TestCase
@@ -208,5 +208,35 @@ class WidgetPlacementTest extends TestCase
         $this->assertSame('#ffffff', $serialized['tileTextColor']);
         $this->assertSame('app', $serialized['tileLinkType']);
         $this->assertSame('/apps/files', $serialized['tileLinkValue']);
+    }
+
+    public function testJsonSerializeEmptyBlobsAreObjects(): void
+    {
+        // styleConfig and content are unset -> getters return PHP [].
+        $serialized = $this->placement->jsonSerialize();
+
+        // Serialized empty blobs must be stdClass so json_encode emits `{}`,
+        // not `[]` — clients type these fields as objects.
+        $this->assertInstanceOf(\stdClass::class, $serialized['styleConfig']);
+        $this->assertInstanceOf(\stdClass::class, $serialized['content']);
+
+        $json = json_encode($serialized);
+        $this->assertStringContainsString('"styleConfig":{}', $json);
+        $this->assertStringContainsString('"content":{}', $json);
+    }
+
+    public function testJsonSerializePreservesNonEmptyBlobs(): void
+    {
+        $style   = ['headerStyle' => ['backgroundColor' => '#fff']];
+        $content = ['text' => 'hello'];
+        $this->placement->setStyleConfigArray($style);
+        $this->placement->setContentArray($content);
+
+        $serialized = $this->placement->jsonSerialize();
+
+        // Non-empty blobs are passed through unchanged (json_encode already
+        // renders associative arrays as objects).
+        $this->assertSame($style, $serialized['styleConfig']);
+        $this->assertSame($content, $serialized['content']);
     }
 }

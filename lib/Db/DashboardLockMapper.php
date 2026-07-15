@@ -4,23 +4,23 @@
  * DashboardLockMapper
  *
  * Database mapper for DashboardLock entities. Covers the
- * `mydash_dashboard_locks` table. REQ-LOCK-001..008.
+ * `launchpad_dashboard_locks` table. REQ-LOCK-001..008.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -44,7 +44,7 @@ class DashboardLockMapper extends QBMapper
     {
         parent::__construct(
             db: $db,
-            tableName: 'mydash_dashboard_locks',
+            tableName: 'launchpad_dashboard_locks',
             entityClass: DashboardLock::class
         );
     }//end __construct()

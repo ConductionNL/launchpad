@@ -3,28 +3,28 @@
 /**
  * DemoShowcasesListCommand
  *
- * `php occ mydash:demo-showcases:list [--json]`
+ * `php occ launchpad:demo-showcases:list [--json]`
  *
  * Lists every bundled showcase with its installation status. Supports
  * a `--json` flag for machine-parseable output (REQ-DEMO-009).
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Service\DemoShowcasesService;
+use OCA\LaunchPad\Service\DemoShowcasesService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +32,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:demo-showcases:list` console command.
+ * `launchpad:demo-showcases:list` console command.
  */
 class DemoShowcasesListCommand extends Command
 {
@@ -56,8 +56,8 @@ class DemoShowcasesListCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName(name: 'mydash:demo-showcases:list')
-            ->setDescription(description: 'List every bundled MyDash demo showcase.')
+        $this->setName(name: 'launchpad:demo-showcases:list')
+            ->setDescription(description: 'List every bundled LaunchPad demo showcase.')
             ->addOption(
                 name: 'json',
                 shortcut: null,

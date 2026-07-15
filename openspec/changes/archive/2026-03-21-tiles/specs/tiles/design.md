@@ -2,7 +2,7 @@
 
 ## Overview
 
-Custom tiles are reusable shortcut cards with a two-layer architecture: a **tile definition** (stored in `mydash_tiles`) and a **tile placement** (a row in `mydash_widget_placements` with `tile_type = 'custom'`). The placement carries a full snapshot of all tile fields so that the grid only needs to read a single table at render time. The tile definition table serves as the source of truth for the tile library but its fields are copied into the placement on creation.
+Custom tiles are reusable shortcut cards with a two-layer architecture: a **tile definition** (stored in `launchpad_tiles`) and a **tile placement** (a row in `launchpad_widget_placements` with `tile_type = 'custom'`). The placement carries a full snapshot of all tile fields so that the grid only needs to read a single table at render time. The tile definition table serves as the source of truth for the tile library but its fields are copied into the placement on creation.
 
 ---
 
@@ -32,10 +32,10 @@ lib/
     WidgetPlacementMapper.php   — findByDashboardId / updatePositions / getMaxSortOrder
 
   Migration/
-    Version001001Date20260203000000.php   — creates mydash_tiles table
+    Version001001Date20260203000000.php   — creates launchpad_tiles table
     Version001002Date20260204000000.php   — increases icon column to 2000 chars (SVG paths)
-    Version001003Date20260204120000.php   — adds tile_* columns to mydash_widget_placements
-    Version001004Date20260204150000.php   — adds custom_icon column to mydash_widget_placements
+    Version001003Date20260204120000.php   — adds tile_* columns to launchpad_widget_placements
+    Version001004Date20260204150000.php   — adds custom_icon column to launchpad_widget_placements
 ```
 
 ### Frontend
@@ -57,7 +57,7 @@ src/
 
 ## Database Schema
 
-### `mydash_tiles` (tile definitions)
+### `launchpad_tiles` (tile definitions)
 
 | Column             | Type          | Constraints              | Notes                                 |
 |--------------------|---------------|--------------------------|---------------------------------------|
@@ -73,11 +73,11 @@ src/
 | `created_at`       | DATETIME      | NOT NULL                 |                                       |
 | `updated_at`       | DATETIME      | NOT NULL                 |                                       |
 
-Indexes: PK on `id`; `mydash_tiles_user` on `user_id`.
+Indexes: PK on `id`; `launchpad_tiles_user` on `user_id`.
 
 Note: The spec describes a `uuid` column but the actual migration and entity do not include one. The `id` integer is used as the tile reference key throughout the implementation.
 
-### `mydash_widget_placements` — tile-relevant columns
+### `launchpad_widget_placements` — tile-relevant columns
 
 Tile placements share the same table as widget placements. A row is a tile placement when `tile_type IS NOT NULL`.
 
@@ -86,7 +86,7 @@ Tile placements share the same table as widget placements. A row is a tile place
 | `widget_id`            | VARCHAR(255)  | NOT NULL    | Set to `tile-{uniqid()}` for tile placements |
 | `tile_type`            | VARCHAR(20)   | nullable    | `'custom'` for tiles, NULL for widgets       |
 | `tile_title`           | VARCHAR(255)  | nullable    |                                              |
-| `tile_icon`            | VARCHAR(2000) | nullable    | Same icon formats as `mydash_tiles.icon`     |
+| `tile_icon`            | VARCHAR(2000) | nullable    | Same icon formats as `launchpad_tiles.icon`     |
 | `tile_icon_type`       | VARCHAR(20)   | nullable    | `class`, `url`, `emoji`, `svg`               |
 | `tile_background_color`| VARCHAR(7)    | nullable    |                                              |
 | `tile_text_color`      | VARCHAR(7)    | nullable    |                                              |
@@ -107,7 +107,7 @@ Tile placements share the same table as widget placements. A row is a tile place
 | Render component | `WidgetWrapper.vue` + `WidgetRenderer.vue` | `TileWidget.vue` |
 | Edit modal | `WidgetStyleEditor.vue` | `TileEditor.vue` |
 | Content update | Via Nextcloud widget API | Via `PUT /api/widgets/{placementId}` with `tile*` fields |
-| Separate definition record | No | Yes — `mydash_tiles` row (but currently decoupled from placement) |
+| Separate definition record | No | Yes — `launchpad_tiles` row (but currently decoupled from placement) |
 
 Detection in `DashboardGrid.vue`:
 ```js
@@ -151,7 +151,7 @@ WidgetPicker.vue  @add-tile
                   → WidgetPlacementMapper::insert()
 ```
 
-The tile definition (`mydash_tiles`) and the placement snapshot are currently **independent**: creating a placement does not look up a tile definition record. The `TileService` (tile definitions) and `PlacementService` (placement + snapshot) operate separately. This means editing a tile definition via `PUT /api/tiles/{id}` does NOT automatically propagate to existing placements.
+The tile definition (`launchpad_tiles`) and the placement snapshot are currently **independent**: creating a placement does not look up a tile definition record. The `TileService` (tile definitions) and `PlacementService` (placement + snapshot) operate separately. This means editing a tile definition via `PUT /api/tiles/{id}` does NOT automatically propagate to existing placements.
 
 ### Editing a placed tile
 
@@ -250,7 +250,7 @@ Default values applied by `TileApiController::create()` when parameters are omit
 
 1. **Placement snapshot model**: Tile fields are duplicated into the placement row. This avoids a JOIN on every dashboard load and allows a placed tile to be edited independently of the definition, but means tile definition edits do not auto-propagate to placements.
 
-2. **Shared placements table**: Tiles reuse `mydash_widget_placements` rather than having a separate placements table. Discrimination is done via `tile_type IS NOT NULL`. This simplifies grid ordering, position management, and visibility toggling (all placement fields are available to both tiles and widgets).
+2. **Shared placements table**: Tiles reuse `launchpad_widget_placements` rather than having a separate placements table. Discrimination is done via `tile_type IS NOT NULL`. This simplifies grid ordering, position management, and visibility toggling (all placement fields are available to both tiles and widgets).
 
 3. **Synthetic `widget_id`**: Tile placements use `tile-{uniqid()}` as `widget_id`. This satisfies the `NOT NULL` constraint on the column and avoids ambiguity with real Nextcloud widget IDs without requiring a schema change.
 

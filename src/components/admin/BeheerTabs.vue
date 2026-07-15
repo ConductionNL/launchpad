@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,7 +8,7 @@
 		<div
 			class="beheer-tabs__strip"
 			role="tablist"
-			:aria-label="t('mydash', 'Administration areas')">
+			:aria-label="t('launchpad', 'Administration areas')">
 			<button
 				v-for="tab in tabs"
 				:key="tab.slug"
@@ -41,7 +41,7 @@ import { t } from '@nextcloud/l10n'
  *
  * @type {string}
  */
-export const ACTIVE_TAB_STORAGE_KEY = 'mydash.admin.activeTab'
+export const ACTIVE_TAB_STORAGE_KEY = 'launchpad.admin.activeTab'
 
 /**
  * BeheerTabs — a lightweight, router-free tab strip that organises the

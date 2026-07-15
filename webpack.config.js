@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -10,12 +10,14 @@ const webpackConfig = require('@nextcloud/webpack-vue-config')
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
 	admin: path.join(__dirname, 'src', 'admin.js'),
+	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
+	public: path.join(__dirname, 'src', 'public.js'),
 }
 
 webpackConfig.output = {
 	...webpackConfig.output,
-	filename: 'mydash-[name].js',
-	chunkFilename: 'mydash-[name].js?v=[contenthash]',
+	filename: 'launchpad-[name].js',
+	chunkFilename: 'launchpad-[name].js?v=[contenthash]',
 }
 
 // Use local source when available (monorepo dev), otherwise fall back to npm package

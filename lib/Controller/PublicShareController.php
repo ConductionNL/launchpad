@@ -7,7 +7,7 @@
  * Brute-force protection on both public endpoints per design decisions D1/D2.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -22,13 +22,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use Exception;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Exception\ShareNotFoundException;
-use OCA\MyDash\Exception\SharePasswordRequiredException;
-use OCA\MyDash\Service\PublicShareService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\ShareNotFoundException;
+use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCA\LaunchPad\Service\PublicShareContext;
+use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -57,12 +58,14 @@ class PublicShareController extends Controller
      *
      * @param IRequest           $request      The incoming request.
      * @param PublicShareService $shareService The public-share service.
+     * @param PublicShareContext $shareContext Request-scoped bearer marker (Task 7).
      * @param LoggerInterface    $logger       PSR-3 logger.
      * @param string|null        $userId       Authenticated user ID (null for public endpoints).
      */
     public function __construct(
         IRequest $request,
         private readonly PublicShareService $shareService,
+        private readonly PublicShareContext $shareContext,
         private readonly LoggerInterface $logger,
         private readonly ?string $userId,
     ) {
@@ -265,12 +268,21 @@ class PublicShareController extends Controller
                 password: $password
             );
 
+            // Task-7 — flag the request as a public-share bearer so any
+            // mutation service called during the render path (e.g. widget
+            // content hydration) trips ShareReadOnlyException.
+            $this->shareContext->markBearer(token: $token);
+
             $shareData = $result['share']->jsonSerialize();
             unset($shareData['createdBy']);
             return new DataResponse(
                 data: [
-                    'share'     => $shareData,
-                    'dashboard' => $result['dashboard']->jsonSerialize(),
+                    'share'      => $shareData,
+                    'dashboard'  => $result['dashboard']->jsonSerialize(),
+                    'placements' => array_map(
+                        callback: static fn ($placement) => $placement->jsonSerialize(),
+                        array: $result['placements']
+                    ),
                 ]
             );
         } catch (SharePasswordRequiredException) {

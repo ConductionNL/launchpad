@@ -3,17 +3,17 @@
 /**
  * PageController
  *
- * Controller for rendering the main MyDash workspace page (REQ-INIT-001,
+ * Controller for rendering the main LaunchPad workspace page (REQ-INIT-001,
  * REQ-INIT-002). The page-render path constructs an
- * {@see \OCA\MyDash\Service\InitialStateBuilder} for
- * {@see \OCA\MyDash\Service\InitialState\Page::WORKSPACE}, populates every
+ * {@see \OCA\LaunchPad\Service\InitialStateBuilder} for
+ * {@see \OCA\LaunchPad\Service\InitialState\Page::WORKSPACE}, populates every
  * key declared in the spec's Data Model, and applies — direct calls to
  * {@see \OCP\AppFramework\Services\IInitialState::provideInitialState()}
  * are forbidden here (and any other controller) and enforced by the
  * `lint:initial-state` CI guard.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -23,20 +23,22 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\DashboardTreeService;
-use OCA\MyDash\Service\InitialState\Page;
-use OCA\MyDash\Service\InitialStateBuilder;
-use OCA\MyDash\Service\RoleFeaturePermissionService;
-use OCA\MyDash\Service\WidgetService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\InitialState\Page;
+use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Dashboard\IManager;
@@ -100,7 +102,7 @@ class PageController extends Controller
     }//end __construct()
 
     /**
-     * Deep-link entry point — `/apps/mydash/{deepLink}`.
+     * Deep-link entry point — `/apps/launchpad/{deepLink}`.
      *
      * Symfony binds the captured slug-chain into `$deepLink`. Delegating
      * to {@see self::index()} keeps the workspace render path single-
@@ -127,7 +129,7 @@ class PageController extends Controller
      * Wires the full workspace initial-state contract into the template via
      * {@see InitialStateBuilder}. Every key declared in REQ-INIT-002 is set
      * before `apply()` runs; missing keys raise
-     * {@see \OCA\MyDash\Exception\MissingInitialStateException} so the page
+     * {@see \OCA\LaunchPad\Exception\MissingInitialStateException} so the page
      * never renders with a partial payload.
      *
      * Deep-link path: when `$deepLink` resolves through the tree service
@@ -149,8 +151,8 @@ class PageController extends Controller
     #[NoCSRFRequired]
     public function index(string $deepLink=''): TemplateResponse
     {
-        Util::addScript(application: Application::APP_ID, file: 'mydash-main');
-        Util::addStyle(application: Application::APP_ID, file: 'mydash');
+        Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
+        Util::addStyle(application: Application::APP_ID, file: 'launchpad');
 
         // Load all widget scripts so legacy widgets can register their callbacks.
         $this->loadWidgetScripts();
@@ -230,7 +232,7 @@ class PageController extends Controller
                     }
                 } catch (Throwable $t) {
                     $this->logger->warning(
-                        message: 'mydash: deep-link resolution failed for path "{path}": {message}',
+                        message: 'launchpad: deep-link resolution failed for path "{path}": {message}',
                         context: [
                             'path'    => $deepLink,
                             'message' => $t->getMessage(),
@@ -240,7 +242,7 @@ class PageController extends Controller
 
                 if ($active === null) {
                     $this->logger->info(
-                        message: 'mydash: deep-link path "{path}" not visible — falling back to default resolver',
+                        message: 'launchpad: deep-link path "{path}" not visible — falling back to default resolver',
                         context: ['path' => $deepLink]
                     );
                 }
@@ -281,7 +283,7 @@ class PageController extends Controller
                 );
             } catch (Throwable $t) {
                 $this->logger->warning(
-                    message: 'mydash: failed to compute path for active dashboard {uuid}: {message}',
+                    message: 'launchpad: failed to compute path for active dashboard {uuid}: {message}',
                     context: [
                         'uuid'    => (string) $activeDashboard->getUuid(),
                         'message' => $t->getMessage(),
@@ -337,8 +339,59 @@ class PageController extends Controller
             ]
         );
 
+        // REQ-VID: the video widget embeds YouTube/Vimeo players in an
+        // <iframe>; Nextcloud's default `frame-src 'self'` blocks them, so the
+        // page must explicitly allow the player origins (and their poster/
+        // thumbnail CDNs) or the widget renders an empty/broken frame.
+        $csp = new ContentSecurityPolicy();
+        $csp->addAllowedFrameDomain(domain: 'https://www.youtube.com');
+        $csp->addAllowedFrameDomain(domain: 'https://www.youtube-nocookie.com');
+        $csp->addAllowedFrameDomain(domain: 'https://player.vimeo.com');
+        $csp->addAllowedImageDomain(domain: 'https://i.ytimg.com');
+        $csp->addAllowedImageDomain(domain: 'https://i.vimeocdn.com');
+        $response->setContentSecurityPolicy(csp: $csp);
+
         return $response;
     }//end index()
+
+    /**
+     * Render the anonymous read-only public-share page.
+     *
+     * Boots the standalone `launchpad-public` SPA (renderAs public — no
+     * Nextcloud login chrome). The SPA reads the token from the `/s/{token}`
+     * URL itself, fetches the shared dashboard from `/s/{token}/data`, and
+     * renders it read-only. The route is #[PublicPage] so no login is required;
+     * the token is validated server-side by the data endpoint (invalid/revoked/
+     * expired ⇒ 404 there, password ⇒ 401). The token is therefore not a method
+     * parameter here — it needs no server-side handling on the page route.
+     *
+     * The image CSP is widened to `data:` so the bundled NL Design tile icons
+     * (base64 SVG data URIs) render for anonymous visitors too.
+     *
+     * @return TemplateResponse The public page response.
+     *
+     * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+     */
+    #[PublicPage]
+    #[NoCSRFRequired]
+    public function publicShare(): TemplateResponse
+    {
+        Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
+        Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+
+        $response = new TemplateResponse(
+            appName: Application::APP_ID,
+            templateName: 'public',
+            params: [],
+            renderAs: TemplateResponse::RENDER_AS_PUBLIC
+        );
+
+        $csp = new ContentSecurityPolicy();
+        $csp->addAllowedImageDomain(domain: 'data:');
+        $response->setContentSecurityPolicy(csp: $csp);
+
+        return $response;
+    }//end publicShare()
 
     /**
      * Load scripts for all available dashboard widgets.

@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # nc-dashboard-widget-proxy Specification
 
 ## Purpose
@@ -55,7 +59,7 @@ Keyboard navigation MUST work as follows:
 
 - **GIVEN** the workspace's initial state contains zero Nextcloud widgets
 - **WHEN** the picker renders
-- **THEN** an empty-state message MUST display: localised `t('mydash', 'No Nextcloud widgets are installed')`
+- **THEN** an empty-state message MUST display: localised `t('launchpad', 'No Nextcloud widgets are installed')`
 - **AND** no cards MUST render
 
 #### Scenario: Keyboard navigation works

@@ -2,7 +2,7 @@
 
 ## 1. Schema migration
 
-- [x] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddFeedTokensTable.php` adding new `oc_mydash_feed_tokens` table with columns: `id` (INT, auto-increment, PK), `userId` (VARCHAR(64)), `token` (VARCHAR(64)), `createdAt` (DATETIME), `lastUsedAt` (DATETIME NULL), `revokedAt` (DATETIME NULL)
+- [x] 1.1 Create `lib/Migration/VersionXXXXDate2026...AddFeedTokensTable.php` adding new `oc_launchpad_feed_tokens` table with columns: `id` (INT, auto-increment, PK), `userId` (VARCHAR(64)), `token` (VARCHAR(64)), `createdAt` (DATETIME), `lastUsedAt` (DATETIME NULL), `revokedAt` (DATETIME NULL)
 - [x] 1.2 Add UNIQUE index on `(userId)` to enforce one token per user; add index on `token` for fast public feed lookup
 - [x] 1.3 Confirm migration is reversible (drop table in `postSchemaChange` rollback path)
 - [x] 1.4 Run migration locally against sqlite, mysql, and postgres; verify schema applied cleanly each time
@@ -38,7 +38,7 @@
   - [x] 5.2a Query all dashboards accessible to the token's user via `DashboardMapper::findByUserId(token.userId)`
   - [x] 5.2b Filter by the user's actual ACLs (call `PermissionService` or equivalent to check each dashboard)
   - [x] 5.2c Sort by `updatedAt` descending (most recent first)
-  - [x] 5.2d Cap at `IConfig::getAppValue('mydash', 'mydash.feed_item_cap', '50')` items
+  - [x] 5.2d Cap at `IConfig::getAppValue('launchpad', 'launchpad.feed_item_cap', '50')` items
   - [x] 5.2e Build RSS 2.0 or Atom feed XML; return as string
 - [x] 5.3 Add `FeedService::buildRssFeed(array $dashboards, string $userId, string $feedUrl): string` — construct RSS 2.0 XML
   - [x] 5.3a `<rss version="2.0">` root, `<channel>` with `<title>`, `<link>` (Nextcloud root), `<description>`
@@ -69,7 +69,7 @@
 
 ## 7. Database sensitive-parameter marking
 
-- [x] 7.1 If `config/sensitive-parameters.php` exists, add `oc_mydash_feed_tokens.token` to the sensitive list (prevents plaintext logging)
+- [x] 7.1 If `config/sensitive-parameters.php` exists, add `oc_launchpad_feed_tokens.token` to the sensitive list (prevents plaintext logging)
 - [x] 7.2 If file does not exist, document the requirement in a code comment or TODO
 
 ## 8. PHPUnit tests

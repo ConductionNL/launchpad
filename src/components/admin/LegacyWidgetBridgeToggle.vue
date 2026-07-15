@@ -1,20 +1,20 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="bridge-toggle" data-test="legacy-widget-bridge-toggle">
-		<h3>{{ t('mydash', 'Legacy widget bridge') }}</h3>
+		<h3>{{ t('launchpad', 'Legacy widget bridge') }}</h3>
 		<NcCheckboxRadioSwitch
 			:checked="enabled"
 			:disabled="loading"
 			data-test="bridge-toggle-switch"
 			@update:checked="onToggle">
-			{{ t('mydash', 'Enable the legacy widget bridge') }}
+			{{ t('launchpad', 'Enable the legacy widget bridge') }}
 		</NcCheckboxRadioSwitch>
 		<p class="bridge-toggle__hint">
-			{{ t('mydash', 'When disabled, existing dashboards that embed bridged Nextcloud widgets render an "Unavailable" state until the bridge is re-enabled.') }}
+			{{ t('launchpad', 'When disabled, existing dashboards that embed bridged Nextcloud widgets render an "Unavailable" state until the bridge is re-enabled.') }}
 		</p>
 	</div>
 </template>

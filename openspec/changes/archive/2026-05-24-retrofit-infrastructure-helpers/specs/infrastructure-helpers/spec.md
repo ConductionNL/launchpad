@@ -63,7 +63,7 @@ The system MUST provide a static `SlugGenerator` helper that converts arbitrary 
 
 #### Scenario: Validate rejects uppercase
 
-- WHEN `SlugGenerator::isValid('MyDashboard')` is called
+- WHEN `SlugGenerator::isValid('LaunchPadboard')` is called
 - THEN the result is `false`
 
 #### Scenario: Validate accepts grammar match

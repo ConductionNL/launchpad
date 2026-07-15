@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: done
 ---
 
 # Container Widget Specification
@@ -10,7 +10,7 @@ The container widget hosts a sub-grid of child widget placements inside a single
 
 ## Data Model
 
-Container placements use the existing `oc_mydash_widget_placements.content` JSON column with the discriminated shape `{type: 'container', content: {...}}`. No schema migration is required.
+Container placements use the existing `oc_launchpad_widget_placements.content` JSON column with the discriminated shape `{type: 'container', content: {...}}`. No schema migration is required.
 
 The `content` object carries these fields:
 
@@ -120,7 +120,7 @@ Containers MAY hold containers, but the maximum nesting depth is **3 levels**. T
 - **WHEN** the payload is POSTed
 - **THEN** the server MUST return HTTP 400
 - **AND** the body MUST include `error: 'container_depth_exceeded'` and `maxDepth: 3`
-- **AND** no rows MUST be inserted into `oc_mydash_widget_placements`
+- **AND** no rows MUST be inserted into `oc_launchpad_widget_placements`
 
 ### Requirement: REQ-CONT-007 Form fields
 

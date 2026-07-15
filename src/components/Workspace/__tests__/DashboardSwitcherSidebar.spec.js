@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `DashboardSwitcherSidebar.vue` (capability
  * `dashboard-switcher`). Covers REQ-SWITCH-001..004, 006..009:
@@ -31,7 +31,7 @@ beforeEach(() => {
 })
 
 const iconRendererStub = {
-	name: 'IconRenderer',
+	name: 'CnDashboardIcon',
 	props: ['name', 'size'],
 	template: '<span class="icon-renderer-stub" :data-name="name" />',
 }
@@ -69,7 +69,7 @@ function mountSidebar(props = {}) {
 			...props,
 		},
 		stubs: {
-			IconRenderer: iconRendererStub,
+			CnDashboardIcon: iconRendererStub,
 			NcButton: ncButtonStub,
 			SidebarFooter: sidebarFooterStub,
 		},
@@ -271,10 +271,11 @@ describe('DashboardSwitcherSidebar', () => {
 			// The card lives in the personal section but BELOW the <ul>
 			expect(wrapper.find('[data-section="user"] .dashboard-switcher-sidebar__add-dashboard-card').exists())
 				.toBe(true)
-			// NcButton stub carries the type="outline" the spec requires
+			// NcButton renders the secondary (outlined) appearance — "outline"
+			// is not a valid NcButton type, so it uses "secondary".
 			const button = card.find('[data-action="create"]')
 			expect(button.exists()).toBe(true)
-			expect(button.attributes('data-button-type')).toBe('outline')
+			expect(button.attributes('data-button-type')).toBe('secondary')
 			// Localised label
 			expect(button.text()).toContain('Add dashboard')
 		})
@@ -374,14 +375,14 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [
 					{ id: 'p1', name: 'Star', icon: 'Star' },
-					{ id: 'p2', name: 'Custom', icon: '/apps/mydash/resource/x.png' },
+					{ id: 'p2', name: 'Custom', icon: '/apps/launchpad/resource/x.png' },
 					{ id: 'p3', name: 'Empty', icon: null },
 				],
 			})
 			const stubs = wrapper.findAll('.icon-renderer-stub')
 			expect(stubs.length).toBe(3)
 			expect(stubs.at(0).attributes('data-name')).toBe('Star')
-			expect(stubs.at(1).attributes('data-name')).toBe('/apps/mydash/resource/x.png')
+			expect(stubs.at(1).attributes('data-name')).toBe('/apps/launchpad/resource/x.png')
 			// null becomes the empty attribute
 			expect(stubs.at(2).attributes('data-name')).toBeFalsy()
 		})

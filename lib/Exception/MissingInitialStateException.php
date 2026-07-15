@@ -3,7 +3,7 @@
 /**
  * MissingInitialStateException
  *
- * Raised by {@see \OCA\MyDash\Service\InitialStateBuilder::apply()} when a
+ * Raised by {@see \OCA\LaunchPad\Service\InitialStateBuilder::apply()} when a
  * required initial-state key was not set for the chosen page before the
  * builder was applied. The exception message names the page and the
  * missing key, so the failure is actionable in dev and CI alike. Catching
@@ -17,20 +17,20 @@
  * Part of the `initial-state-contract` capability — see REQ-INIT-001.
  *
  * @category  Exception
- * @package   OCA\MyDash\Exception
+ * @package   OCA\LaunchPad\Exception
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Exception;
+namespace OCA\LaunchPad\Exception;
 
 use RuntimeException;
 
@@ -62,7 +62,7 @@ class MissingInitialStateException extends RuntimeException
      */
     public function __construct(string $page, string $key)
     {
-        $template  = 'MyDash initial-state contract violation: page "%s" requires key "%s"';
+        $template  = 'LaunchPad initial-state contract violation: page "%s" requires key "%s"';
         $template .= ' but it was not set on the builder before apply().';
         parent::__construct(message: sprintf($template, $page, $key));
     }//end __construct()

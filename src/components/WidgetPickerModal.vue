@@ -1,24 +1,24 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<NcModal
 		v-if="open"
 		size="normal"
-		:name="t('mydash', 'Add widget')"
+		:name="t('launchpad', 'Add widget')"
 		@close="$emit('close')">
 		<div class="widget-picker">
 			<h2 class="widget-picker__title">
-				{{ t('mydash', 'Add widget') }}
+				{{ t('launchpad', 'Add widget') }}
 			</h2>
 
 			<div class="widget-picker__search">
 				<NcTextField
 					:value="searchQuery"
-					:label="t('mydash', 'Search widgets')"
-					:placeholder="t('mydash', 'Search widgets…')"
+					:label="t('launchpad', 'Search widgets')"
+					:placeholder="t('launchpad', 'Search widgets…')"
 					:show-trailing-button="searchQuery !== ''"
 					trailing-button-icon="close"
 					@update:value="searchQuery = $event"
@@ -48,7 +48,7 @@
 					<div class="widget-picker__widget-info">
 						<span class="widget-picker__widget-title">{{ widget.title }}</span>
 						<span v-if="isPlaced(widget.id)" class="widget-picker__widget-badge">
-							{{ t('mydash', 'Already added') }}
+							{{ t('launchpad', 'Already added') }}
 						</span>
 					</div>
 					<Plus v-if="!isPlaced(widget.id)" :size="20" class="widget-picker__widget-action" />
@@ -57,7 +57,7 @@
 
 				<NcEmptyContent
 					v-if="filteredWidgets.length === 0"
-					:description="t('mydash', 'No widgets found')">
+					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
 					</template>

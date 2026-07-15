@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `OrgNavigationPanel.vue` and the recursive
  * `OrgNavigationItem.vue` (REQ-ONAV-005, REQ-ONAV-006, REQ-ONAV-008,
@@ -14,6 +14,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Vue from 'vue'
+import { mdiStar } from '@mdi/js'
 import { PiniaVuePlugin, createPinia, setActivePinia } from 'pinia'
 
 import OrgNavigationPanel from '../OrgNavigationPanel.vue'
@@ -113,26 +114,44 @@ describe('OrgNavigationItem', () => {
 		expect(img.attributes('src')).toBe('/icons/foo.png')
 	})
 
+	it('REQ-ONAV-006: SVG-path icon renders as inline <svg>', () => {
+		const wrapper = mountItem({
+			id: 'x', label: 'I', url: '/x', icon: mdiStar, children: [],
+		})
+		const icon = wrapper.find('.org-nav-item__icon')
+		expect(icon.element.tagName.toLowerCase()).toBe('svg')
+		expect(icon.find('path').attributes('d')).toBe(mdiStar)
+	})
+
+	it('REQ-ONAV-006: a legacy free-text MDI name renders via its resolved path', () => {
+		const wrapper = mountItem({
+			id: 'x', label: 'I', url: '/x', icon: 'star', children: [],
+		})
+		const icon = wrapper.find('.org-nav-item__icon')
+		expect(icon.element.tagName.toLowerCase()).toBe('svg')
+		expect(icon.find('path').attributes('d')).toBe(mdiStar)
+	})
+
 	it('REQ-ONAV-009: exact URL match marks node as active', () => {
 		const wrapper = mountItem(
-			{ id: 'x', label: 'Hub', url: '/apps/mydash/hub', children: [] },
-			'/apps/mydash/hub',
+			{ id: 'x', label: 'Hub', url: '/apps/launchpad/hub', children: [] },
+			'/apps/launchpad/hub',
 		)
 		expect(wrapper.classes('org-nav-item--active')).toBe(true)
 	})
 
 	it('REQ-ONAV-009: prefix URL match marks node as active', () => {
 		const wrapper = mountItem(
-			{ id: 'x', label: 'Hub', url: '/apps/mydash/hub', children: [] },
-			'/apps/mydash/hub/details',
+			{ id: 'x', label: 'Hub', url: '/apps/launchpad/hub', children: [] },
+			'/apps/launchpad/hub/details',
 		)
 		expect(wrapper.classes('org-nav-item--active')).toBe(true)
 	})
 
 	it('REQ-ONAV-009: non-matching URL does not mark node as active', () => {
 		const wrapper = mountItem(
-			{ id: 'x', label: 'Hub', url: '/apps/mydash/hub', children: [] },
-			'/apps/mydash/hubris',
+			{ id: 'x', label: 'Hub', url: '/apps/launchpad/hub', children: [] },
+			'/apps/launchpad/hubris',
 		)
 		expect(wrapper.classes('org-nav-item--active')).toBe(false)
 	})

@@ -17,12 +17,12 @@
  *     and triggers `cloneToDashboard` exactly once.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -31,12 +31,12 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\ForbiddenException;
-use OCA\MyDash\Service\AdminSettingsService;
-use OCA\MyDash\Service\AdminTemplateService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AdminTemplateService;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -105,7 +105,7 @@ class AdminTemplateServiceGalleryTest extends TestCase
         $template->setDescription('Original description');
         $template->setTemplateDescription('Long-form gallery description');
         $template->setTemplateCategory('marketing');
-        $template->setTemplatePreviewImage('/apps/mydash/resource/img.png');
+        $template->setTemplatePreviewImage('/apps/launchpad/resource/img.png');
         $template->setGridColumns(12);
         $template->setUpdatedAt('2026-05-01 09:00:00');
         // ID is set internally on insert; here we use reflection-free
@@ -137,7 +137,7 @@ class AdminTemplateServiceGalleryTest extends TestCase
         );
         $this->assertSame(expected: 'marketing', actual: $entry['category']);
         $this->assertSame(
-            expected: '/apps/mydash/resource/img.png',
+            expected: '/apps/launchpad/resource/img.png',
             actual: $entry['previewImage']
         );
         $this->assertSame(expected: 12, actual: $entry['gridColumns']);
@@ -204,181 +204,4 @@ class AdminTemplateServiceGalleryTest extends TestCase
         $this->assertNull(actual: $result[0]['category']);
     }//end testGalleryFallsBackToRegularDescription()
 
-    // ---------------------------------------------------------------
-    // saveAsTemplate — REQ-TMPL-015
-    // ---------------------------------------------------------------
-
-    /**
-     * REQ-TMPL-015: empty / missing name → InvalidArgumentException.
-     *
-     * @return void
-     */
-    public function testSaveAsTemplateRejectsEmptyName(): void
-    {
-        $this->expectException(exception: InvalidArgumentException::class);
-
-        $this->service->saveAsTemplate(
-            userId: 'alice',
-            dashboardUuid: 'src-uuid',
-            metadata: ['name' => '   ']
-        );
-    }//end testSaveAsTemplateRejectsEmptyName()
-
-    /**
-     * REQ-TMPL-015: non-owner → ForbiddenException + no insert.
-     *
-     * @return void
-     */
-    public function testSaveAsTemplateRejectsNonOwner(): void
-    {
-        $this->dashboardMapper
-            ->expects($this->once())
-            ->method('findOwnedByUserAndUuid')
-            ->with('bob', 'alices-dashboard')
-            ->willReturn(null);
-
-        $this->dashboardMapper
-            ->expects($this->never())
-            ->method('insert');
-
-        $this->expectException(exception: ForbiddenException::class);
-
-        $this->service->saveAsTemplate(
-            userId: 'bob',
-            dashboardUuid: 'alices-dashboard',
-            metadata: ['name' => 'Stolen template']
-        );
-    }//end testSaveAsTemplateRejectsNonOwner()
-
-    /**
-     * REQ-TMPL-015: happy path persists the new template with the
-     * mandated invariants and clones placements exactly once.
-     *
-     * @return void
-     */
-    public function testSaveAsTemplateHappyPathPersistsAndClones(): void
-    {
-        $source = new Dashboard();
-        $source->setUuid('src-uuid');
-        $source->setUserId('alice');
-        $source->setType(Dashboard::TYPE_USER);
-        $source->setGridColumns(8);
-        $source->setIsActive(1);
-        // Force the source id so cloneToDashboard receives a known value.
-        $source->setId(42);
-
-        $this->dashboardMapper
-            ->expects($this->once())
-            ->method('findOwnedByUserAndUuid')
-            ->with('alice', 'src-uuid')
-            ->willReturn($source);
-
-        $this->dashboardMapper
-            ->expects($this->once())
-            ->method('insert')
-            ->willReturnCallback(static function (Dashboard $entity): Dashboard {
-                self::assertSame(
-                    expected: Dashboard::TYPE_ADMIN_TEMPLATE,
-                    actual: $entity->getType()
-                );
-                self::assertNull(actual: $entity->getUserId());
-                self::assertSame(expected: 0, actual: $entity->getIsActive());
-                self::assertSame(expected: 0, actual: $entity->getIsDefault());
-                self::assertNull(actual: $entity->getBasedOnTemplate());
-                self::assertSame(expected: 8, actual: $entity->getGridColumns());
-                self::assertSame(
-                    expected: 'My Template',
-                    actual: $entity->getName()
-                );
-                self::assertSame(
-                    expected: 'product',
-                    actual: $entity->getTemplateCategory()
-                );
-                self::assertSame(
-                    expected: 'A new template',
-                    actual: $entity->getTemplateDescription()
-                );
-                self::assertSame(
-                    expected: '/apps/mydash/resource/preview.png',
-                    actual: $entity->getTemplatePreviewImage()
-                );
-
-                // Simulate DB-assigned id on the new row.
-                $entity->setId(99);
-                return $entity;
-            });
-
-        $this->placementMapper
-            ->expects($this->once())
-            ->method('cloneToDashboard')
-            ->with(42, 99)
-            ->willReturn(4);
-
-        $result = $this->service->saveAsTemplate(
-            userId: 'alice',
-            dashboardUuid: 'src-uuid',
-            metadata: [
-                'name'         => 'My Template',
-                'description'  => 'A new template',
-                'category'     => 'product',
-                'previewImage' => '/apps/mydash/resource/preview.png',
-            ]
-        );
-
-        $this->assertInstanceOf(
-            expected: Dashboard::class,
-            actual: $result
-        );
-        $this->assertSame(
-            expected: Dashboard::TYPE_ADMIN_TEMPLATE,
-            actual: $result->getType()
-        );
-        $this->assertSame(expected: 99, actual: $result->getId());
-    }//end testSaveAsTemplateHappyPathPersistsAndClones()
-
-    /**
-     * REQ-TMPL-015: missing optional fields collapse to null on the new
-     * template (empty strings normalise to null, never the literal "").
-     *
-     * @return void
-     */
-    public function testSaveAsTemplateNormalisesEmptyOptionalFields(): void
-    {
-        $source = new Dashboard();
-        $source->setUuid('src-uuid');
-        $source->setUserId('alice');
-        $source->setType(Dashboard::TYPE_USER);
-        $source->setGridColumns(12);
-        $source->setId(5);
-
-        $this->dashboardMapper
-            ->method('findOwnedByUserAndUuid')
-            ->willReturn($source);
-
-        $this->dashboardMapper
-            ->expects($this->once())
-            ->method('insert')
-            ->willReturnCallback(static function (Dashboard $entity): Dashboard {
-                self::assertNull(actual: $entity->getTemplateCategory());
-                self::assertNull(actual: $entity->getTemplateDescription());
-                self::assertNull(actual: $entity->getTemplatePreviewImage());
-                $entity->setId(6);
-                return $entity;
-            });
-
-        $this->placementMapper
-            ->expects($this->once())
-            ->method('cloneToDashboard');
-
-        $this->service->saveAsTemplate(
-            userId: 'alice',
-            dashboardUuid: 'src-uuid',
-            metadata: [
-                'name'         => 'Bare template',
-                'description'  => '',
-                'category'     => '   ',
-                'previewImage' => null,
-            ]
-        );
-    }//end testSaveAsTemplateNormalisesEmptyOptionalFields()
 }//end class

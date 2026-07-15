@@ -10,7 +10,11 @@ Each personal dashboard is an independent canvas — its own layout, its own wid
 
 ## Goal
 
-Create a new personal dashboard, give it a name, optionally add a description and an icon, and land on it ready to add widgets.
+Create a new personal dashboard by forking the one you're on, then rename it and land on it ready to customise.
+
+:::info How "Add dashboard" works
+The **+ Add dashboard** button **forks the dashboard you're currently viewing** into a fresh personal copy — it does *not* open a blank-name modal. The new dashboard is created immediately, named **"My copy of &lt;current name&gt;"**, seeded with a copy of the current dashboard's widgets, and activated. Rename it afterwards via [Dashboard configuration…](10-rename-or-delete.md). This means a new dashboard always starts from a working layout rather than an empty grid.
+:::
 
 ## Prerequisites
 
@@ -18,39 +22,37 @@ Create a new personal dashboard, give it a name, optionally add a description an
 
 ## Steps
 
-### 1. Open the sidebar and click **+ Add dashboard**
+### 1. Open the dashboard you want to base the new one on
+
+The fork copies *this* dashboard's widgets, so start from whichever layout is the best starting point.
+
+### 2. Open the sidebar and click **+ Add dashboard**
 
 ![Add dashboard button](/screenshots/tutorials/user/02-create-add-button.png)
 
-### 2. Fill in the create modal
+A new dashboard named **"My copy of &lt;current name&gt;"** is created and activated immediately — no modal, no Save step. You land on it at its own URL.
 
-A configuration modal opens with these fields:
+### 3. Rename it (and set an icon)
 
-- **Name** — required. Used for the sidebar label and the URL slug.
-- **Description** — optional. Shown in admin tooling and inside the configuration modal.
-- **Icon** — optional. Pick from the registered icon set, or paste a URL for a custom icon (see [Dashboard icons capability](../../features/dashboards.md)).
+Open the active dashboard's cog menu → **Dashboard configuration…** and edit the **Name**, optional **Description**, and **Icon** (a searchable Material Design Icons picker plus a Custom tab for a URL/upload). See [Rename or delete a dashboard](10-rename-or-delete.md).
 
-![Create dashboard modal](/screenshots/tutorials/user/02-create-modal.png)
+![Dashboard configuration modal](/screenshots/tutorials/user/10-config-modal.png)
 
-### 3. Click **Save**
-
-The new dashboard is auto-activated, appears at the top of **MY DASHBOARDS** in the sidebar, and is bootstrapped with the default widget bundle (three tiles + a Files widget). You can now [add more widgets](03-add-widget.md), [reposition them](04-reposition-resize.md), or [pin this as your default](07-set-default.md).
-
-![New dashboard with default bundle](/screenshots/tutorials/user/02-create-success.png)
+You can now [add more widgets](03-add-widget.md), [reposition them](04-reposition-resize.md), or [pin this as your default](07-set-default.md).
 
 ## Verification
 
-- The sidebar shows your new dashboard's name, highlighted as active.
-- The URL bar reads `/apps/mydash/<your-slug>` — the slug is auto-derived from the name.
-- The grid contains the four default placements (Conduction tile, Sendent tile, Nextcloud tile, Files widget).
+- The sidebar shows the new **"My copy of …"** dashboard, highlighted as active.
+- The URL bar reads `/apps/launchpad/<auto-slug>` — the slug is auto-derived from the name.
+- The grid contains a copy of the widgets from the dashboard you forked.
 
 ## Common issues
 
 | Symptom | Fix |
 |---|---|
 | **+ Add dashboard** button is missing | Personal dashboards are disabled by your admin. |
-| Save button is disabled | The Name field is empty — required. |
-| "Slug must be unique among siblings" error | A dashboard with the same auto-derived slug already exists. Pick a different name or set an explicit slug via [Dashboard configuration](10-rename-or-delete.md). |
+| The new dashboard has the wrong widgets | It copied the dashboard you were viewing — fork from a different one, or remove the unwanted widgets. |
+| Two dashboards share a slug | Rename via [Dashboard configuration](10-rename-or-delete.md); the slug re-derives from the new name. |
 
 ## Reference
 

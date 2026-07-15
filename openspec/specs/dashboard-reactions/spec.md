@@ -1,23 +1,23 @@
 ---
-status: implemented
+status: done
 ---
 
 # Dashboard Reactions Specification
 
 ## Purpose
 
-Dashboard reactions enable lightweight social feedback via emoji on MyDash dashboards. Users can react with a configurable whitelist of emojis to mark dashboards as useful, appreciated, or funny, without requiring full-featured comments. Reactions are aggregated by emoji and visible to all viewers. An administrator can enable/disable reactions globally and per-dashboard, and can curate the allowed emoji list.
+Dashboard reactions enable lightweight social feedback via emoji on LaunchPad dashboards. Users can react with a configurable whitelist of emojis to mark dashboards as useful, appreciated, or funny, without requiring full-featured comments. Reactions are aggregated by emoji and visible to all viewers. An administrator can enable/disable reactions globally and per-dashboard, and can curate the allowed emoji list.
 
 ## Data Model
 
 
 @e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
 
-### oc_mydash_dashboard_reactions table
+### oc_launchpad_dash_reactions table
 
 Each reaction is stored with the following fields:
 - **id**: Auto-increment integer primary key
-- **dashboardUuid**: VARCHAR(36) NOT NULL, foreign key reference to `oc_mydash_dashboards.uuid`
+- **dashboardUuid**: VARCHAR(36) NOT NULL, foreign key reference to `oc_launchpad_dashboards.uuid`
 - **userId**: VARCHAR(64) NOT NULL, Nextcloud user ID of the reactor
 - **emoji**: VARCHAR(32) NOT NULL, Unicode emoji string (e.g., `👍`, `❤️`, `🎉`)
 - **reactedAt**: DATETIME NOT NULL, timestamp when reaction was created
@@ -28,14 +28,14 @@ Each reaction is stored with the following fields:
 - **Index** `dashboardUuid` — fast lookups by dashboard
 - **Index** `emoji` — fast lookups of reactors by emoji type
 
-### oc_mydash_dashboards Extension
+### oc_launchpad_dashboards Extension
 
 - **reactionsEnabled**: SMALLINT(0/1) NULL — per-dashboard toggle. NULL = follow global setting; 1 = reactions enabled; 0 = reactions disabled
 
 ### Admin Settings
 
-- **mydash.reactions_enabled_default**: Boolean (default: true) — global toggle for reactions feature
-- **mydash.reactions_allowed_emojis**: JSON array of strings (default: `["👍","❤️","🎉","😂","🤔","😢"]`) — whitelist of allowed emoji
+- **launchpad.reactions_enabled_default**: Boolean (default: true) — global toggle for reactions feature
+- **launchpad.reactions_allowed_emojis**: JSON array of strings (default: `["👍","❤️","🎉","😂","🤔","😢"]`) — whitelist of allowed emoji
 
 ## Requirements
 
@@ -186,20 +186,20 @@ Users MUST be able to see which users have reacted with a specific emoji to a da
 Administrators MUST be able to enable or disable reactions for all dashboards at once via an admin setting.
 
 #### Scenario: Admin disables reactions globally
-- GIVEN the admin setting `mydash.reactions_enabled_default` is false
+- GIVEN the admin setting `launchpad.reactions_enabled_default` is false
 - WHEN user "alice" sends `GET /api/dashboards/dash-123/reactions`
 - THEN the response MUST include `"enabled": false`
 - AND any `POST /api/dashboards/dash-123/reactions` MUST return HTTP 403 with message "Reactions are disabled"
 
 #### Scenario: Admin re-enables reactions globally
-- GIVEN the admin setting `mydash.reactions_enabled_default` is true
+- GIVEN the admin setting `launchpad.reactions_enabled_default` is true
 - WHEN user "alice" sends `POST /api/dashboards/dash-123/reactions` with body `{"emoji": "👍"}`
 - THEN the system MUST create the reaction and return HTTP 200
 - NOTE: Existing reactions remain in the database; they are just hidden/disabled when the toggle is off
 
 #### Scenario: Dashboards created before global toggle change inherit the toggle state
-- GIVEN dashboard `dash-old` was created when `mydash.reactions_enabled_default` was true
-- AND admin then sets `mydash.reactions_enabled_default` to false
+- GIVEN dashboard `dash-old` was created when `launchpad.reactions_enabled_default` was true
+- AND admin then sets `launchpad.reactions_enabled_default` to false
 - WHEN user "alice" sends `GET /api/dashboards/dash-old/reactions`
 - THEN the response MUST include `"enabled": false` (the dashboard follows the new global setting, since its `reactionsEnabled` is NULL)
 
@@ -208,21 +208,21 @@ Administrators MUST be able to enable or disable reactions for all dashboards at
 Administrators MUST be able to enable or disable reactions on individual dashboards, overriding the global setting.
 
 #### Scenario: Admin enables reactions on a dashboard that has global reactions disabled
-- GIVEN global setting `mydash.reactions_enabled_default` is false
+- GIVEN global setting `launchpad.reactions_enabled_default` is false
 - AND dashboard `dash-123` has `reactionsEnabled = 1` (force on)
 - WHEN user "alice" sends `GET /api/dashboards/dash-123/reactions`
 - THEN the response MUST include `"enabled": true`
 - AND user "alice" can POST reactions to this dashboard
 
 #### Scenario: Admin disables reactions on a dashboard that has global reactions enabled
-- GIVEN global setting `mydash.reactions_enabled_default` is true
+- GIVEN global setting `launchpad.reactions_enabled_default` is true
 - AND dashboard `dash-456` has `reactionsEnabled = 0` (force off)
 - WHEN user "bob" sends `GET /api/dashboards/dash-456/reactions`
 - THEN the response MUST include `"enabled": false`
 - AND user "bob" cannot POST reactions (returns 403)
 
 #### Scenario: Null reactionsEnabled field follows global setting
-- GIVEN global setting `mydash.reactions_enabled_default` is true
+- GIVEN global setting `launchpad.reactions_enabled_default` is true
 - AND dashboard `dash-789` has `reactionsEnabled = NULL`
 - WHEN user "carol" sends `GET /api/dashboards/dash-789/reactions`
 - THEN the response MUST include `"enabled": true` (inherits global)
@@ -238,18 +238,18 @@ Administrators MUST be able to enable or disable reactions on individual dashboa
 Administrators MUST be able to configure which emoji are allowed via an admin setting.
 
 #### Scenario: Admin updates the allowed emoji list
-- GIVEN the admin setting `mydash.reactions_allowed_emojis` is `["👍","❤️","🎉"]`
+- GIVEN the admin setting `launchpad.reactions_allowed_emojis` is `["👍","❤️","🎉"]`
 - WHEN user "alice" sends `POST /api/dashboards/dash-123/reactions` with body `{"emoji": "😂"}`
 - THEN the system MUST return HTTP 400 with message "Emoji not allowed"
 
 #### Scenario: Empty emoji in whitelist
-- GIVEN the admin setting `mydash.reactions_allowed_emojis` is `[]`
+- GIVEN the admin setting `launchpad.reactions_allowed_emojis` is `[]`
 - WHEN user "alice" sends `POST /api/dashboards/dash-123/reactions` with body `{"emoji": "👍"}`
 - THEN the system MUST return HTTP 400 ("Emoji not allowed")
 - AND GET reactions still works, returning counts and `enabled: true` (disabling via empty list is allowed, but typically the global toggle would be used)
 
 #### Scenario: Default allowed emoji list
-- GIVEN a fresh MyDash installation with no custom admin setting
+- GIVEN a fresh LaunchPad installation with no custom admin setting
 - AND user "alice" sends `POST /api/dashboards/dash-123/reactions` with body `{"emoji": "👍"}`
 - THEN the system MUST accept it and create the reaction
 - AND the default list MUST be `["👍","❤️","🎉","😂","🤔","😢"]`
@@ -282,7 +282,7 @@ When a dashboard is deleted, ALL reactions on that dashboard MUST be removed.
 - GIVEN dashboard `dash-123` has 10 reactions from 5 users
 - WHEN an admin deletes the dashboard (which dispatches `DashboardDeletedEvent`)
 - THEN `ReactionsListener` MUST invoke `ReactionService::deleteReactionsByDashboard('dash-123')`
-- AND all 10 reaction rows in `oc_mydash_dashboard_reactions` where `dashboardUuid = 'dash-123'` MUST be removed
+- AND all 10 reaction rows in `oc_launchpad_dash_reactions` where `dashboardUuid = 'dash-123'` MUST be removed
 - AND subsequent GET requests for that dashboard MUST return 404
 
 #### Scenario: Cascade delete does not affect other dashboards' reactions

@@ -3,7 +3,7 @@
 /**
  * AdminSettingKey Enum
  *
- * Canonical list of all admin-setting keys stored in oc_mydash_admin_settings.
+ * Canonical list of all admin-setting keys stored in oc_launchpad_admin_settings.
  * Use this enum as the single source of truth for key names; AdminSetting
  * keeps backward-compatible string constants that alias the enum values.
  *
@@ -18,7 +18,7 @@
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
  *
  * @category Db
- * @package  OCA\MyDash\Db
+ * @package  OCA\LaunchPad\Db
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,12 +31,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 /**
- * All admin-setting keys used by MyDash.
+ * All admin-setting keys used by LaunchPad.
  *
- * The enum value is the string stored in oc_mydash_admin_settings.setting_key.
+ * The enum value is the string stored in oc_launchpad_admin_settings.setting_key.
  *
  * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-10
  */
@@ -59,4 +59,6 @@ enum AdminSettingKey: string
     case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
     case FORCED_SHARE_GROUPS            = 'forced_share_groups';
     case LEGACY_WIDGET_BRIDGE_ENABLED   = 'legacy_widget_bridge_enabled';
+    case MAX_DASHBOARDS_PER_USER        = 'max_dashboards_per_user';
+    case MAX_WIDGETS_PER_DASHBOARD      = 'max_widgets_per_dashboard';
 }//end enum

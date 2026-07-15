@@ -1,8 +1,8 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
- * Centralised JS reader for the per-page MyDash initial-state contract
+ * Centralised JS reader for the per-page LaunchPad initial-state contract
  * (REQ-INIT-003). The matching PHP builder lives at
  * `lib/Service/InitialStateBuilder.php`. Adding, removing, or renaming a
  * key here is a deliberate spec change — bump
@@ -10,7 +10,7 @@
  * and update the per-page table below.
  *
  * This module is the only place in the frontend allowed to call
- * `loadState('mydash', ...)`; a CI grep guard in `package.json`'s
+ * `loadState('launchpad', ...)`; a CI grep guard in `package.json`'s
  * `lint:initial-state` script enforces that.
  */
 
@@ -89,7 +89,7 @@ export function loadInitialState(page) {
 	if (serverVersion !== null && serverVersion !== INITIAL_STATE_SCHEMA_VERSION) {
 		// eslint-disable-next-line no-console
 		console.warn(
-			`MyDash initial-state schema mismatch: server v${serverVersion} vs client v${INITIAL_STATE_SCHEMA_VERSION} — refresh recommended`,
+			`LaunchPad initial-state schema mismatch: server v${serverVersion} vs client v${INITIAL_STATE_SCHEMA_VERSION} — refresh recommended`,
 		)
 	}
 
@@ -106,9 +106,12 @@ export function loadInitialState(page) {
  * @return {*} The pushed value, or the fallback.
  */
 function readKey(key, fallback) {
+	// The app is installed under its canonical id 'launchpad', so PHP provides
+	// initial state under that namespace. loadState() returns the fallback when
+	// the element is absent; the try/catch is a belt-and-suspenders guard so the
+	// bundle never crashes if the contract is violated.
 	try {
-		const value = loadState('mydash', key, fallback)
-		return value === undefined ? fallback : value
+		return loadState('launchpad', key, fallback)
 	} catch (e) {
 		return fallback
 	}

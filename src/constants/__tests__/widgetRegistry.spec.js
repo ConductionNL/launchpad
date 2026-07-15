@@ -1,11 +1,14 @@
 /**
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
- * Vitest unit test for `widgetRegistry.js` covering REQ-LBL-007: importing
- * the registry exposes a `label` entry with the correct `defaultContent` and
- * the type appears in `listWidgetTypes()` so the AddWidgetModal type picker
- * can list it as a selectable option distinct from `text`.
+ * Vitest unit test for `widgetRegistry.js`. LaunchPad's registry no longer
+ * hardcodes per-type entries — it CONSUMES nc-vue's communal
+ * `dashboardWidgetRegistry` and applies a thin overlay (renderer overrides for
+ * the host-wrapped types, form overrides for types the communal registry leaves
+ * form-less, displayName localisation). These tests assert that consumption +
+ * overlay contract. Per-type `defaultContent` values are nc-vue's
+ * responsibility and are tested there, not re-frozen here.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
@@ -14,45 +17,31 @@ beforeEach(() => {
 	globalThis.t = (_app, key) => key
 })
 
-describe('widgetRegistry', () => {
-	it('REQ-LBL-007: exposes a `label` entry with the proper defaultContent', async () => {
+describe('widgetRegistry — consumes the communal catalog', () => {
+	it('exposes the communal types with a renderer, form, and object defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.label).toBeDefined()
-		expect(widgetRegistry.label.defaultContent).toEqual({
-			text: '',
-			fontSize: '16px',
-			color: '',
-			backgroundColor: '',
-			fontWeight: 'bold',
-			textAlign: 'center',
-		})
+		for (const type of ['label', 'text', 'image', 'divider', 'header', 'links', 'tile']) {
+			expect(widgetRegistry[type], `missing ${type}`).toBeDefined()
+			expect(widgetRegistry[type].renderer, `${type} renderer`).toBeTruthy()
+			expect(widgetRegistry[type].form, `${type} form`).toBeTruthy()
+			expect(typeof widgetRegistry[type].defaultContent, `${type} defaultContent`).toBe('object')
+		}
 	})
 
-	it('REQ-LBL-007: `label` appears in listWidgetTypes() output', async () => {
+	it('listWidgetTypes() surfaces the addable communal types', async () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('label')
+		const types = listWidgetTypes()
+		for (const type of ['label', 'text', 'image', 'link', 'divider', 'header', 'links', 'container', 'tile']) {
+			expect(types, `picker should offer ${type}`).toContain(type)
+		}
 	})
 
-	it('REQ-LBN-001..007 / REQ-LBLM-001..009: exposes a `link` entry with the proper defaultContent', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.link).toBeDefined()
-		expect(widgetRegistry.link.defaultContent).toEqual({
-			label: '',
-			url: '',
-			icon: '',
-			actionType: 'external',
-			backgroundColor: '',
-			textColor: '',
-			displayMode: 'button',
-			listOrientation: 'vertical',
-			listItemGap: 'normal',
-			links: [],
-		})
-	})
-
-	it('REQ-LBN-001..007: `link` appears in listWidgetTypes() output', async () => {
+	it('includes the analytics widgets from the shared catalog (OpenBuild parity)', async () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('link')
+		const types = listWidgetTypes()
+		for (const type of ['stat', 'delta', 'gauge', 'object-list', 'chart', 'stats-block', 'table']) {
+			expect(types, `picker should offer ${type}`).toContain(type)
+		}
 	})
 
 	it('getWidgetTypeEntry returns null for unknown type', async () => {
@@ -60,7 +49,7 @@ describe('widgetRegistry', () => {
 		expect(getWidgetTypeEntry('does-not-exist')).toBeNull()
 	})
 
-	it('getDefaultContent returns a fresh copy of defaults', async () => {
+	it('getDefaultContent returns a fresh copy', async () => {
 		const { getDefaultContent } = await import('../widgetRegistry.js')
 		const a = getDefaultContent('label')
 		const b = getDefaultContent('label')
@@ -68,227 +57,46 @@ describe('widgetRegistry', () => {
 		expect(a).not.toBe(b)
 	})
 
-	it('REQ-TXT-004/005 + REQ-TXMD-001 + REQ-TBLE-002: exposes a `text` entry with the proper defaultContent', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.text).toBeDefined()
-		expect(widgetRegistry.text.defaultContent).toEqual({
-			text: '',
-			fontSize: '14px',
-			color: '',
-			backgroundColor: '',
-			textAlign: 'left',
-			// REQ-TXMD-001 / REQ-TXMD-005: new text widgets default to
-			// markdown so authors can use lightweight syntax out of the
-			// box; existing placements without `contentMode` keep their
-			// legacy HTML rendering.
-			contentMode: 'markdown',
-			tableMode: false,
-			tableData: null,
-		})
+	it('resolves a RENDERER for nc-widget so proxied placements are not blank', async () => {
+		// Regression: the shared bundle exports CnNcWidgetWidget but (as of
+		// beta.155) omits its self-registration in the published browser dist,
+		// so `nc-widget` placements fell onto WidgetRenderer's broken legacy
+		// path and rendered blank. widgetRegistry.js registers the renderer.
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		const entry = getWidgetTypeEntry('nc-widget')
+		expect(entry, 'nc-widget must resolve').toBeTruthy()
+		expect(entry.renderer, 'nc-widget needs a renderer').toBeTruthy()
 	})
+})
 
-	it('REQ-TXT-004: `text` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('text')
-	})
-
-	it('REQ-WDG-018: exposes an `nc-widget` entry with the proper defaultContent', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry['nc-widget']).toBeDefined()
-		expect(widgetRegistry['nc-widget'].defaultContent).toEqual({
-			widgetId: '',
-			displayMode: 'vertical',
-		})
-	})
-
-	it('REQ-WDG-018: `nc-widget` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('nc-widget')
-	})
-
-	it('REQ-WDG-014: listWidgetTypes() omits entries without a registered form', async () => {
-		// Per-widget proposals (text, image, link-button, nc-dashboard-proxy)
-		// each register their sub-form when they ship. Until then those
-		// entries either don't exist or carry `form: null` — the picker
-		// MUST exclude them so the user is never offered an unconfigurable
-		// type. We simulate the situation by mutating the registry in
-		// place and asserting the filter behaviour, then reset.
-		const mod = await import('../widgetRegistry.js')
-		mod.widgetRegistry.__formless_test__ = {
-			renderer: {},
-			form: null,
-			defaultContent: {},
-			displayName: 'Formless',
-			icon: 'X',
-		}
-		try {
-			const types = mod.listWidgetTypes()
-			expect(types).toContain('label')
-			expect(types).not.toContain('__formless_test__')
-		} finally {
-			delete mod.widgetRegistry.__formless_test__
+describe('widgetRegistry — LaunchPad overlay', () => {
+	it('overrides the renderer for host-wrapped types (link/container/chart/stats-block)', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		// The launchpad hosts render an identifiable wrapper, distinct from the
+		// communal stub renderer named `<type>-renderer`.
+		for (const type of ['link', 'container', 'chart', 'stats-block']) {
+			const entry = getWidgetTypeEntry(type)
+			expect(entry, `missing ${type}`).toBeTruthy()
+			expect(entry.renderer, `${type} renderer`).toBeTruthy()
+			expect(entry.renderer.name, `${type} should use a LaunchPad host renderer`).not.toBe(`${type}-renderer`)
 		}
 	})
 
-	it('REQ-IMG-005: exposes an `image` entry with renderer + form + defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.image).toBeDefined()
-		expect(widgetRegistry.image.renderer).toBeTruthy()
-		expect(widgetRegistry.image.form).toBeTruthy()
-		expect(widgetRegistry.image.defaultContent).toEqual({
-			url: '',
-			alt: '',
-			link: '',
-			fit: 'cover',
-		})
+	it('supplies a form for types the communal registry leaves form-less', async () => {
+		const { getWidgetTypeEntry, listWidgetTypes } = await import('../widgetRegistry.js')
+		const types = listWidgetTypes()
+		for (const type of ['calendar', 'people', 'spend-analytics', 'nc-widget']) {
+			expect(types, `picker should offer ${type}`).toContain(type)
+			expect(getWidgetTypeEntry(type).form, `${type} form override`).toBeTruthy()
+		}
 	})
 
-	it('REQ-IMG-005: `image` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('image')
-	})
-
-	it('REQ-DIV-002: exposes a `divider` entry with renderer + form + defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.divider).toBeDefined()
-		expect(widgetRegistry.divider.renderer).toBeTruthy()
-		expect(widgetRegistry.divider.form).toBeTruthy()
-		expect(widgetRegistry.divider.defaultContent).toEqual({
-			style: 'line',
-			lineColor: '',
-			lineThickness: 1,
-			lineStyle: 'solid',
-			whitespaceSize: 'medium',
-			headingText: '',
-		})
-	})
-
-	it('REQ-DIV-002: `divider` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('divider')
-	})
-
-	it('REQ-NEWS-001..011: exposes a `news` entry with the proper defaultContent', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.news).toBeDefined()
-		expect(widgetRegistry.news.renderer).toBeTruthy()
-		expect(widgetRegistry.news.form).toBeTruthy()
-		expect(widgetRegistry.news.defaultContent).toEqual({
-			feedUrls: [],
-			layout: 'list',
-			itemLimit: 10,
-			showThumbnails: true,
-			showSummary: true,
-			summaryMaxChars: 200,
-			dateFormat: 'relative',
-			metadataFilter: null,
-		})
-	})
-
-	it('REQ-NEWS-001..011: `news` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('news')
-	})
-
-	it('REQ-VID-001/002: exposes a `video` entry with renderer + form + defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.video).toBeDefined()
-		expect(widgetRegistry.video.renderer).toBeTruthy()
-		expect(widgetRegistry.video.form).toBeTruthy()
-		expect(widgetRegistry.video.defaultContent).toEqual({
-			sourceType: null,
-			videoUrl: '',
-			fileId: null,
-			autoplay: false,
-			muted: true,
-			loop: false,
-			controls: true,
-			aspectRatio: '16:9',
-			posterUrl: '',
-		})
-	})
-
-	it('REQ-VID-001: `video` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('video')
-	})
-
-	it('REQ-CAL-001: exposes a `calendar` entry with renderer + form + defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.calendar).toBeDefined()
-		expect(widgetRegistry.calendar.renderer).toBeTruthy()
-		expect(widgetRegistry.calendar.form).toBeTruthy()
-		expect(widgetRegistry.calendar.defaultContent).toEqual({
-			internalCalendars: [],
-			externalIcsUrls: [],
-			viewMode: 'agenda',
-			daysAhead: 14,
-			colorByCalendar: true,
-		})
-	})
-
-	it('REQ-CAL-001: `calendar` appears in listWidgetTypes() output', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('calendar')
-	})
-
-	it('REQ-LNKS-001..002: exposes a `links` entry with renderer + form + spec defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.links).toBeDefined()
-		expect(widgetRegistry.links.renderer).toBeTruthy()
-		expect(widgetRegistry.links.form).toBeTruthy()
-		expect(widgetRegistry.links.defaultContent).toEqual({
-			sections: [],
-			columns: 3,
-			linkLayout: 'card',
-			iconSize: 'medium',
-			openInNewTab: true,
-			showSectionTitles: true,
-			showLinkDescriptions: true,
-		})
-	})
-
-	it('REQ-LNKS-001: `links` appears in listWidgetTypes() output (visible in picker)', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('links')
-	})
-
-	it('REQ-CONT-001: exposes a `container` entry with renderer + form + spec defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.container).toBeDefined()
-		expect(widgetRegistry.container.renderer).toBeTruthy()
-		expect(widgetRegistry.container.form).toBeTruthy()
-		expect(widgetRegistry.container.defaultContent).toEqual({
-			placements: [],
-			backgroundColor: 'transparent',
-			padding: 'medium',
-			title: '',
-		})
-	})
-
-	it('REQ-CONT-001: `container` appears in listWidgetTypes() output (visible in picker)', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('container')
-	})
-
-	it('REQ-WDG-022 / REQ-TILE-PLACEMENT: exposes a `tile` entry with renderer + form + spec defaults', async () => {
-		const { widgetRegistry } = await import('../widgetRegistry.js')
-		expect(widgetRegistry.tile).toBeDefined()
-		expect(widgetRegistry.tile.renderer).toBeTruthy()
-		expect(widgetRegistry.tile.form).toBeTruthy()
-		expect(widgetRegistry.tile.defaultContent).toEqual({
-			title: '',
-			icon: '',
-			iconType: 'class',
-			backgroundColor: '#3b82f6',
-			textColor: '#ffffff',
-			linkType: 'app',
-			linkValue: '',
-		})
-	})
-
-	it('REQ-WDG-022: `tile` appears in listWidgetTypes() output (visible in picker)', async () => {
-		const { listWidgetTypes } = await import('../widgetRegistry.js')
-		expect(listWidgetTypes()).toContain('tile')
+	it('localises the displayName through t(launchpad, …)', async () => {
+		let seen = null
+		globalThis.t = (app, key) => { if (app === 'launchpad') { seen = key } return key }
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		const entry = getWidgetTypeEntry('text')
+		expect(typeof entry.displayName).toBe('string')
+		expect(seen, 'displayName should pass through t(launchpad, …)').not.toBeNull()
 	})
 })

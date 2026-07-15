@@ -15,26 +15,26 @@
  *  4. No assignment → null (caller falls back to permissions capability).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\RoleAssignment;
-use OCA\MyDash\Db\RoleAssignmentMapper;
-use OCA\MyDash\Exception\DuplicateRoleAssignmentException;
-use OCA\MyDash\Exception\InvalidRoleAssignmentException;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\RoleAssignmentMapper;
+use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
+use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
@@ -79,7 +79,7 @@ class RoleService
     }//end __construct()
 
     /**
-     * Resolve the effective MyDash role for a user (REQ-ROLE-005).
+     * Resolve the effective LaunchPad role for a user (REQ-ROLE-005).
      *
      * @param string $userId The Nextcloud user ID.
      *

@@ -3,29 +3,29 @@
 /**
  * DashboardListCommand
  *
- * `mydash:dashboard:list` — list dashboards with optional `--user`,
+ * `launchpad:dashboard:list` — list dashboards with optional `--user`,
  * `--group`, and `--status` filters (REQ-CLI-003). Default output is a
  * compact table; with `--json` the standard envelope is emitted.
  *
  * @category  Command
- * @package   OCA\MyDash\Command
+ * @package   OCA\LaunchPad\Command
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Command;
+namespace OCA\LaunchPad\Command;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Service\CommandService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Service\CommandService;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,7 +33,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * `mydash:dashboard:list` console command.
+ * `launchpad:dashboard:list` console command.
  */
 class DashboardListCommand extends CommandBase
 {
@@ -70,13 +70,13 @@ class DashboardListCommand extends CommandBase
      */
     protected function configureCommand(): void
     {
-        $this->setName(name: 'mydash:dashboard:list')
+        $this->setName(name: 'launchpad:dashboard:list')
             ->setDescription(description: 'List dashboards with optional filters.')
             ->setHelp(
                 help: implode(
                     separator: "\n",
                     array: [
-                        'List MyDash dashboards visible on this instance.',
+                        'List LaunchPad dashboards visible on this instance.',
                         '',
                         'Options:',
                         '  --user=<uid>     Restrict to dashboards owned by user.',
@@ -84,8 +84,8 @@ class DashboardListCommand extends CommandBase
                         '  --status=<val>   Filter on publication status (draft|published|scheduled).',
                         '',
                         'Examples:',
-                        '  php occ mydash:dashboard:list',
-                        '  php occ mydash:dashboard:list --user=alice --status=published --json',
+                        '  php occ launchpad:dashboard:list',
+                        '  php occ launchpad:dashboard:list --user=alice --status=published --json',
                     ]
                 )
             )

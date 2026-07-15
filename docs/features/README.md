@@ -1,8 +1,8 @@
-# MyDash — Features
+# LaunchPad — Features
 
-MyDash is a configurable dashboard and widget system for Nextcloud. It replaces Nextcloud's built-in dashboard with a multi-dashboard, drag-and-drop interface where users manage multiple personal dashboards, administrators distribute templated layouts via group membership, and individual widgets render live content from any Nextcloud app.
+LaunchPad is a configurable dashboard and widget system for Nextcloud. It replaces Nextcloud's built-in dashboard with a multi-dashboard, drag-and-drop interface where users manage multiple personal dashboards, administrators distribute templated layouts via group membership, and individual widgets render live content from any Nextcloud app.
 
-MyDash maps to the **BI-component** within the GEMMA reference architecture.
+LaunchPad maps to the **BI-component** within the GEMMA reference architecture.
 
 ## Standards Compliance
 
@@ -29,7 +29,7 @@ MyDash maps to the **BI-component** within the GEMMA reference architecture.
 
 ## Architecture
 
-MyDash integrates with Nextcloud's widget ecosystem via `OCP\Dashboard\IManager::getWidgets()`. Widgets are discovered automatically — any installed Nextcloud app that registers a Dashboard Widget (v1 or v2) appears in the MyDash widget library.
+LaunchPad integrates with Nextcloud's widget ecosystem via `OCP\Dashboard\IManager::getWidgets()`. Widgets are discovered automatically — any installed Nextcloud app that registers a Dashboard Widget (v1 or v2) appears in the LaunchPad widget library.
 
 **Data model:**
 
@@ -40,7 +40,7 @@ MyDash integrates with Nextcloud's widget ecosystem via `OCP\Dashboard\IManager:
 
 ## GEMMA Mapping
 
-| GEMMA Component | MyDash Role |
+| GEMMA Component | LaunchPad Role |
 |-----------------|-------------|
 | BI-component | Configurable multi-dashboard with widget aggregation |
 | Portaal | Entry point for Nextcloud apps via tiles and widgets |

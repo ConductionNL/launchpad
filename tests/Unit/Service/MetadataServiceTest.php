@@ -8,12 +8,12 @@
  * helper so the test exercises orchestration logic only — no DB I/O.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,14 +21,14 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\MetadataField;
-use OCA\MyDash\Db\MetadataFieldMapper;
-use OCA\MyDash\Db\MetadataValue;
-use OCA\MyDash\Db\MetadataValueMapper;
-use OCA\MyDash\Exception\InvalidMetadataFieldException;
-use OCA\MyDash\Exception\MetadataFieldHasValuesException;
-use OCA\MyDash\Service\MetadataService;
-use OCA\MyDash\Service\MetadataValidationService;
+use OCA\LaunchPad\Db\MetadataField;
+use OCA\LaunchPad\Db\MetadataFieldMapper;
+use OCA\LaunchPad\Db\MetadataValue;
+use OCA\LaunchPad\Db\MetadataValueMapper;
+use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
+use OCA\LaunchPad\Exception\MetadataFieldHasValuesException;
+use OCA\LaunchPad\Service\MetadataService;
+use OCA\LaunchPad\Service\MetadataValidationService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

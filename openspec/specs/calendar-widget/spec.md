@@ -1,16 +1,16 @@
 ---
-status: implemented
+status: done
 ---
 
 # Calendar Widget Specification
 
 ## Purpose
 
-The calendar widget is a built-in MyDash widget type that renders aggregated events from internal Nextcloud calendars and external ICS feeds in a single dashboard tile. Users can switch between three view modes (month, week, agenda), restrict the look-ahead window for agenda mode, and color events by their source calendar. External ICS feeds are fetched server-side with caching, an HTTPS-only / SSRF-safe guard, and an optional admin allow-list of permitted hostnames, so that adding a public calendar link to a dashboard does not expose the Nextcloud instance to internal-network probing or runaway expansion.
+The calendar widget is a built-in LaunchPad widget type that renders aggregated events from internal Nextcloud calendars and external ICS feeds in a single dashboard tile. Users can switch between three view modes (month, week, agenda), restrict the look-ahead window for agenda mode, and color events by their source calendar. External ICS feeds are fetched server-side with caching, an HTTPS-only / SSRF-safe guard, and an optional admin allow-list of permitted hostnames, so that adding a public calendar link to a dashboard does not expose the Nextcloud instance to internal-network probing or runaway expansion.
 
 ## Data Model
 
-Calendar placements use the existing `oc_mydash_widget_placements` content column (`widgetContent` JSON) with the discriminated shape `{type: 'calendar', content: {...}}`. No schema migration is required for the placement table; admin-tunable settings (`mydash.calendar_widget_ics_cache_ttl_seconds`, `mydash.calendar_widget_allowed_ics_hosts`) live in `IAppConfig` and are created on demand via getter calls.
+Calendar placements use the existing `oc_launchpad_widget_placements` content column (`widgetContent` JSON) with the discriminated shape `{type: 'calendar', content: {...}}`. No schema migration is required for the placement table; admin-tunable settings (`launchpad.calendar_widget_ics_cache_ttl_seconds`, `launchpad.calendar_widget_allowed_ics_hosts`) live in `IAppConfig` and are created on demand via getter calls.
 
 The `content` object carries five fields, all optional with documented defaults:
 
@@ -45,13 +45,13 @@ The events endpoint returns a flat array of normalised event objects with shape:
 
 ### Requirement: REQ-CAL-001 Widget registration
 
-The system MUST register a MyDash dashboard widget with id `mydash_calendar` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
+The system MUST register a LaunchPad dashboard widget with id `launchpad_calendar` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
 
 #### Scenario: Widget appears in picker
 
 - GIVEN the calendar-widget app is installed and enabled
-- WHEN a user opens the MyDash widget picker dialog
-- THEN the `mydash_calendar` widget MUST appear in the list with a title (e.g., "Calendar") and an icon
+- WHEN a user opens the LaunchPad widget picker dialog
+- THEN the `launchpad_calendar` widget MUST appear in the list with a title (e.g., "Calendar") and an icon
 - AND the widget MUST be selectable for placement on a dashboard
 
 #### Scenario: Multiple instances allowed
@@ -65,7 +65,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_calendar` via
 
 - GIVEN the widget is registered
 - WHEN Nextcloud cache is cleared or the app is reloaded
-- THEN the `mydash_calendar` widget MUST still be discoverable in the picker
+- THEN the `launchpad_calendar` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
 
@@ -75,7 +75,7 @@ The system MUST register a MyDash dashboard widget with id `mydash_calendar` via
 
 ### Requirement: REQ-CAL-002 Placement configuration
 
-The system MUST store per-placement widget configuration in the `oc_mydash_widget_placements.widgetContent` JSON field, allowing users to specify which calendars to display, view mode, and other display preferences.
+The system MUST store per-placement widget configuration in the `oc_launchpad_widget_placements.widgetContent` JSON field, allowing users to specify which calendars to display, view mode, and other display preferences.
 
 #### Scenario: Config for internal calendars
 
@@ -214,7 +214,7 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 - GIVEN an external ICS URL is configured on a placement
 - WHEN the frontend fetches events and this is the first request to that URL from this placement
 - THEN the system MUST fetch the ICS from the external server
-- AND cache the raw ICS content (before parsing) in the `ICache` with key pattern `mydash_calendar_ics_{placementId}_{urlHash}`
+- AND cache the raw ICS content (before parsing) in the `ICache` with key pattern `launchpad_calendar_ics_{placementId}_{urlHash}`
 - AND return the parsed events
 
 #### Scenario: Subsequent fetch uses cache
@@ -227,10 +227,10 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 
 #### Scenario: Cache TTL is admin-configurable
 
-- GIVEN the admin sets `mydash.calendar_widget_ics_cache_ttl_seconds` to 3600 (1 hour)
+- GIVEN the admin sets `launchpad.calendar_widget_ics_cache_ttl_seconds` to 3600 (1 hour)
 - WHEN events are fetched
 - THEN the cache entry MUST expire after 1 hour instead of the default 30 minutes
-- AND the system MUST read the setting from `IAppConfig::getValueInt('mydash', 'mydash.calendar_widget_ics_cache_ttl_seconds', 1800)`
+- AND the system MUST read the setting from `IAppConfig::getValueInt('launchpad', 'launchpad.calendar_widget_ics_cache_ttl_seconds', 1800)`
 
 #### Scenario: Cache key includes URL hash
 
@@ -248,17 +248,17 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 
 ### Requirement: REQ-CAL-006 External ICS allow-list
 
-The system MUST enforce an allow-list of external ICS host names via the admin setting `mydash.calendar_widget_allowed_ics_hosts` (JSON array of hostnames) to restrict which external calendars can be fetched.
+The system MUST enforce an allow-list of external ICS host names via the admin setting `launchpad.calendar_widget_allowed_ics_hosts` (JSON array of hostnames) to restrict which external calendars can be fetched.
 
 #### Scenario: Allow-list is empty (default)
 
-- GIVEN the admin setting `mydash.calendar_widget_allowed_ics_hosts` is not set or is an empty array
+- GIVEN the admin setting `launchpad.calendar_widget_allowed_ics_hosts` is not set or is an empty array
 - WHEN a user configures an external ICS URL from any hostname
 - THEN the URL MUST be allowed and fetched
 
 #### Scenario: Allow-list is populated
 
-- GIVEN the admin sets `mydash.calendar_widget_allowed_ics_hosts` to `["calendar.example.com", "feeds.internal.org"]`
+- GIVEN the admin sets `launchpad.calendar_widget_allowed_ics_hosts` to `["calendar.example.com", "feeds.internal.org"]`
 - AND a user adds a placement with externalIcsUrls: `["https://calendar.example.com/cal.ics"]`
 - WHEN events are fetched
 - THEN the system MUST parse the hostname from the URL

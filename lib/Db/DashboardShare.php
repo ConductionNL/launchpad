@@ -4,24 +4,24 @@
  * DashboardShare Entity
  *
  * Represents a dashboard share entity — a single row in the
- * oc_mydash_dashboard_shares table binding a dashboard to a user or group
+ * oc_launchpad_dashboard_shares table binding a dashboard to a user or group
  * recipient with a given permission level. REQ-SHARE-001.
  *
  * @category  Database
- * @package   OCA\MyDash\Db
+ * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Db;
+namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;

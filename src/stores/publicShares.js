@@ -7,7 +7,7 @@ import { defineStore } from 'pinia'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
-const baseUrl = generateUrl('/apps/mydash')
+const baseUrl = generateUrl('/apps/launchpad')
 
 /** @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md */
 export const usePublicShareStore = defineStore('publicShares', {

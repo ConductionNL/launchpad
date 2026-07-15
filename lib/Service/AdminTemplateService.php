@@ -16,7 +16,7 @@
  *     invariant.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -26,26 +26,22 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use DateTimeImmutable;
 use Exception;
-use InvalidArgumentException;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
-use OCA\MyDash\Exception\ForbiddenException;
-use OCA\MyDash\Exception\InvalidDataUrlException;
-use OCA\MyDash\Exception\InvalidImageFormatException;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Exception\InvalidDataUrlException;
+use OCA\LaunchPad\Exception\InvalidImageFormatException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
-use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use RuntimeException;
-use Throwable;
 
 /**
  * Service for admin template CRUD operations and primary-group routing.
@@ -76,13 +72,6 @@ class AdminTemplateService
      *                                               existing wiring
      *                                               + tests stay
      *                                               valid.
-     * @param IDBConnection|null    $db              DB connection used to
-     *                                               wrap save-as-template
-     *                                               in a transaction
-     *                                               (REQ-TMPL-015).
-     *                                               Optional so test
-     *                                               wiring without a real
-     *                                               DB still works.
      * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
      *                                               DashboardDeletedEvent
      *                                               (SB1 fix, REQ-CSC-001).
@@ -96,7 +85,6 @@ class AdminTemplateService
         private readonly IGroupManager $groupManager,
         private readonly IUserManager $userManager,
         private readonly ?ResourceService $resourceService=null,
-        private readonly ?IDBConnection $db=null,
         private readonly ?IEventDispatcher $eventDispatcher=null,
     ) {
     }//end __construct()
@@ -241,7 +229,7 @@ class AdminTemplateService
      *
      * @return Dashboard[] The list of admin templates.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-4
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
      */
     public function listTemplates(): array
     {
@@ -288,7 +276,7 @@ class AdminTemplateService
      *
      * @return Dashboard The created template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-3
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
      */
     public function createTemplate(
         string $name,
@@ -348,7 +336,7 @@ class AdminTemplateService
      *
      * @throws Exception If the dashboard is not an admin template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-5
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-5
      */
     public function updateTemplate(int $id, array $data): Dashboard
     {
@@ -379,7 +367,7 @@ class AdminTemplateService
      *
      * @throws Exception If the dashboard is not an admin template.
      *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-mydash/tasks.md#task-6
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
      */
     public function deleteTemplate(int $id): void
     {
@@ -525,112 +513,6 @@ class AdminTemplateService
     }//end getGallery()
 
     /**
-     * Save an existing personal dashboard as a new admin template
-     * (REQ-TMPL-015).
-     *
-     * Owner-only deep-copy: validates that `$dashboardUuid` belongs to
-     * `$userId` and is a `type = 'user'` row, then creates a new
-     * `type = 'admin_template'` row with a fresh UUID, inherited
-     * `gridColumns`, the supplied `{name, description, category,
-     * previewImage}` metadata, `userId = null`, `isActive = 0`,
-     * `isDefault = 0`, and `basedOnTemplate = null` (templates do NOT
-     * chain — REQ-TMPL-015 D3). All widget placements are byte-for-byte
-     * cloned via {@see WidgetPlacementMapper::cloneToDashboard()} inside
-     * a single transaction.
-     *
-     * @param string $userId        The acting user (must own the source).
-     * @param string $dashboardUuid The source personal dashboard UUID.
-     * @param array  $metadata      Required: `name`. Optional:
-     *                              `description`, `category`,
-     *                              `previewImage`.
-     *
-     * @return Dashboard The newly created admin template.
-     *
-     * @throws ForbiddenException    When the source is not owned by
-     *                               `$userId` or is not a `user` row.
-     * @throws DoesNotExistException When the source UUID does not exist
-     *                               at all (caller still maps to 403 to
-     *                               avoid leaking existence).
-     * @throws Throwable             On any DB error — the transaction is
-     *                               rolled back before rethrowing.
-     *
-     * @spec openspec/specs/admin-templates/spec.md
-     */
-    public function saveAsTemplate(
-        string $userId,
-        string $dashboardUuid,
-        array $metadata
-    ): Dashboard {
-        $name = trim((string) ($metadata['name'] ?? ''));
-        if ($name === '') {
-            throw new InvalidArgumentException(
-                message: 'Template name is required'
-            );
-        }
-
-        $source = $this->dashboardMapper->findOwnedByUserAndUuid(
-            userId: $userId,
-            uuid: $dashboardUuid
-        );
-        if ($source === null) {
-            throw new ForbiddenException(
-                message: 'You can only save your own dashboards as templates'
-            );
-        }
-
-        $now      = (new DateTime())->format(format: 'Y-m-d H:i:s');
-        $template = new Dashboard();
-        $template->setUuid($this->generateUuid());
-        $template->setName($name);
-        $template->setDescription($metadata['description'] ?? null);
-        $template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
-        $template->setUserId(null);
-        $template->setGridColumns((int) $source->getGridColumns());
-        $template->setPermissionLevel(Dashboard::PERMISSION_ADD_ONLY);
-        $template->setTargetGroupsArray([]);
-        $template->setIsDefault(0);
-        $template->setIsActive(0);
-        $template->setBasedOnTemplate(null);
-        $template->setTemplateCategory(
-            $this->normaliseStringMeta(value: $metadata['category'] ?? null)
-        );
-        $template->setTemplateDescription(
-            $this->normaliseStringMeta(value: $metadata['description'] ?? null)
-        );
-        $template->setTemplatePreviewImage(
-            $this->normaliseStringMeta(value: $metadata['previewImage'] ?? null)
-        );
-        $template->setCreatedAt($now);
-        $template->setUpdatedAt($now);
-
-        $useTransaction = ($this->db !== null);
-        if ($useTransaction === true) {
-            $this->db->beginTransaction();
-        }
-
-        try {
-            $persisted = $this->dashboardMapper->insert(entity: $template);
-
-            $this->placementMapper->cloneToDashboard(
-                sourceDashboardId: (int) $source->getId(),
-                targetDashboardId: (int) $persisted->getId()
-            );
-
-            if ($useTransaction === true) {
-                $this->db->commit();
-            }
-
-            return $persisted;
-        } catch (Throwable $t) {
-            if ($useTransaction === true) {
-                $this->db->rollBack();
-            }
-
-            throw $t;
-        }
-    }//end saveAsTemplate()
-
-    /**
      * Upload a preview image for an admin template (REQ-TMPL-017).
      *
      * Reuses the resource-uploads pipeline (the "custom-icon-upload
@@ -684,29 +566,4 @@ class AdminTemplateService
 
         return (string) $resource['url'];
     }//end uploadPreviewImage()
-
-    /**
-     * Coerce an incoming metadata field to a clean nullable string.
-     *
-     * Empty strings collapse to `null` so the stored value is unambiguous
-     * — gallery filters compare on equality and an empty-string category
-     * would create a phantom group.
-     *
-     * @param mixed $value The raw incoming value.
-     *
-     * @return string|null The cleaned value.
-     */
-    private function normaliseStringMeta(mixed $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $trimmed = trim(string: (string) $value);
-        if ($trimmed === '') {
-            return null;
-        }
-
-        return $trimmed;
-    }//end normaliseStringMeta()
 }//end class

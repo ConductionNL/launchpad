@@ -6,7 +6,7 @@
  * Helper for extracting typed data from controller requests.
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -18,12 +18,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use OCP\IRequest;
 
 /**
  * Helper for extracting typed data from controller requests.
+ *
+ * @spec openspec/specs/widgets/spec.md
  */
 class RequestDataExtractor
 {
@@ -99,6 +101,7 @@ class RequestDataExtractor
             'customTitle',
             'customIcon',
             'styleConfig',
+            'content',
             'tileTitle',
             'tileIcon',
             'tileIconType',
@@ -106,6 +109,11 @@ class RequestDataExtractor
             'tileTextColor',
             'tileLinkType',
             'tileLinkValue',
+            'requiresAcknowledgement',
+            'acknowledgementPrompt',
+            'acknowledgementDeadline',
+            'reacknowledgeOnChange',
+            'acknowledgementContentVersion',
         ];
 
         $data = [];

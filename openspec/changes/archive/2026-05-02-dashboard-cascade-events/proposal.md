@@ -2,7 +2,7 @@
 
 ## Why
 
-When a dashboard is deleted in MyDash, dependent data rows in other tables (widget placements, reactions, locks, versions, comments, shares, metadata values, translations, view analytics) become orphaned. Likewise, when a Nextcloud user or group is deleted, their personal dashboards and all downstream records are left behind. Today there is no automated mechanism to remove this dependent data at deletion time — it accumulates silently and can only be addressed by the separate `orphaned-data-cleanup` job after the fact.
+When a dashboard is deleted in LaunchPad, dependent data rows in other tables (widget placements, reactions, locks, versions, comments, shares, metadata values, translations, view analytics) become orphaned. Likewise, when a Nextcloud user or group is deleted, their personal dashboards and all downstream records are left behind. Today there is no automated mechanism to remove this dependent data at deletion time — it accumulates silently and can only be addressed by the separate `orphaned-data-cleanup` job after the fact.
 
 This change introduces an event-driven cascade system: `DashboardService::delete()` dispatches a `DashboardDeletedEvent` after soft-deleting the dashboard row, and each subsystem that owns dependent data registers a dedicated listener to clean up its own table. User and group lifecycle events from Nextcloud are handled by `UserDeletedListener` and `GroupDeletedListener` respectively, which drive cascade deletion of all associated dashboards (which in turn fire further `DashboardDeletedEvent` dispatches).
 
@@ -13,15 +13,15 @@ The design ensures each listener is independently isolated — a failure in one 
 - Add `lib/Event/DashboardDeletedEvent.php` carrying `{dashboardUuid, ownerUserId, type, deletedAt}`.
 - Fire `DashboardDeletedEvent` from `DashboardService::delete()` after soft-delete, before returning the response.
 - Add ten listeners under `lib/Listener/` for `DashboardDeletedEvent`:
-  - `WidgetPlacementsListener` — deletes `oc_mydash_widget_placements` rows.
-  - `CommentsListener` — calls `ICommentsManager::deleteCommentsAtObject('mydash_dashboard', $uuid)`.
-  - `ReactionsListener` — deletes `oc_mydash_dashboard_reactions` rows.
-  - `LocksListener` — deletes `oc_mydash_dashboard_locks` rows.
-  - `VersionsListener` — deletes `oc_mydash_dashboard_versions` rows (DB mode) and the JSON version file (GroupFolder mode).
-  - `PublicSharesListener` — soft-revokes rows in `oc_mydash_public_shares`.
-  - `MetadataValuesListener` — deletes `oc_mydash_metadata_values` rows for the dashboard.
-  - `TranslationsListener` — deletes `oc_mydash_dashboard_translations` rows for the dashboard.
-  - `ViewAnalyticsListener` — deletes `oc_mydash_dashboard_views` rows for the dashboard.
+  - `WidgetPlacementsListener` — deletes `oc_launchpad_widget_placements` rows.
+  - `CommentsListener` — calls `ICommentsManager::deleteCommentsAtObject('launchpad_dashboard', $uuid)`.
+  - `ReactionsListener` — deletes `oc_launchpad_dash_reactions` rows.
+  - `LocksListener` — deletes `oc_launchpad_dashboard_locks` rows.
+  - `VersionsListener` — deletes `oc_launchpad_dash_versions` rows (DB mode) and the JSON version file (GroupFolder mode).
+  - `PublicSharesListener` — soft-revokes rows in `oc_launchpad_public_shares`.
+  - `MetadataValuesListener` — deletes `oc_launchpad_metadata_values` rows for the dashboard.
+  - `TranslationsListener` — deletes `oc_launchpad_dashboard_translations` rows for the dashboard.
+  - `ViewAnalyticsListener` — deletes `oc_launchpad_dashboard_views` rows for the dashboard.
   - `TreeListener` — on cascade-delete, recursively dispatches `DashboardDeletedEvent` for each child dashboard.
 - Add `UserDeletedListener` subscribing to NC's `\OCP\User\Events\UserDeletedEvent`.
 - Add `GroupDeletedListener` subscribing to NC's `\OCP\Group\Events\GroupDeletedEvent`.

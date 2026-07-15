@@ -3,18 +3,18 @@
 /**
  * DemoShowcasesServiceTest
  *
- * Unit tests for {@see \OCA\MyDash\Service\DemoShowcasesService} covering
+ * Unit tests for {@see \OCA\LaunchPad\Service\DemoShowcasesService} covering
  * the `demo-data-showcases` capability — REQ-DEMO-001 (bundled
  * archives), REQ-DEMO-003 (install path), REQ-DEMO-004 (idempotency),
  * REQ-DEMO-005 (widget skip-on-missing), REQ-DEMO-006 (uninstall).
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Exception\ShowcaseNotFoundException;
-use OCA\MyDash\Service\DemoShowcasesService;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
 use OCP\Dashboard\IWidget;
@@ -102,7 +102,7 @@ class DemoShowcasesServiceTest extends TestCase
             urlGenerator: $this->urlGenerator,
         );
 
-        $this->fixtureDir = sys_get_temp_dir().'/mydash-showcase-fixture-'.uniqid();
+        $this->fixtureDir = sys_get_temp_dir().'/launchpad-showcase-fixture-'.uniqid();
         mkdir(directory: $this->fixtureDir, permissions: 0o755, recursive: true);
         $this->service->setDataDirForTesting(path: $this->fixtureDir);
     }
@@ -153,7 +153,7 @@ class DemoShowcasesServiceTest extends TestCase
         // The thumbnail is delegated to IURLGenerator::imagePath() with the
         // app id and the per-showcase image path — not a hardcoded URL.
         $this->assertSame(
-            expected: 'imagePath(mydash,showcases/de-bron.png)',
+            expected: 'imagePath(launchpad,showcases/de-bron.png)',
             actual: $result['thumbnailUrl']
         );
     }
@@ -218,7 +218,7 @@ class DemoShowcasesServiceTest extends TestCase
         $this->appConfig
             ->expects($this->once())
             ->method('setValueString')
-            ->with('mydash', 'showcase_installed_de-bron', 'installed-uuid');
+            ->with('launchpad', 'showcase_installed_de-bron', 'installed-uuid');
 
         $this->db->expects($this->once())->method('beginTransaction');
         $this->db->expects($this->once())->method('commit');
@@ -244,7 +244,7 @@ class DemoShowcasesServiceTest extends TestCase
                 widgets: [
                     ['widgetId' => 'recommendations', 'gridX' => 0, 'gridY' => 0],
                     ['widgetId' => 'future-timeline', 'gridX' => 4, 'gridY' => 0],
-                    ['widgetId' => 'mydash-tile', 'tileType' => 'shortcut', 'tileTitle' => 'Files', 'gridX' => 8, 'gridY' => 0],
+                    ['widgetId' => 'launchpad-tile', 'tileType' => 'shortcut', 'tileTitle' => 'Files', 'gridX' => 8, 'gridY' => 0],
                 ]
             ),
         );
@@ -323,7 +323,7 @@ class DemoShowcasesServiceTest extends TestCase
         $this->appConfig
             ->expects($this->once())
             ->method('deleteKey')
-            ->with('mydash', 'showcase_installed_de-bron');
+            ->with('launchpad', 'showcase_installed_de-bron');
 
         $this->service->uninstallShowcase(showcaseId: 'de-bron');
     }
@@ -355,7 +355,7 @@ class DemoShowcasesServiceTest extends TestCase
         $this->appConfig
             ->expects($this->once())
             ->method('deleteKey')
-            ->with('mydash', 'showcase_installed_de-bron');
+            ->with('launchpad', 'showcase_installed_de-bron');
 
         $this->service->uninstallShowcase(showcaseId: 'de-bron');
     }
@@ -369,7 +369,7 @@ class DemoShowcasesServiceTest extends TestCase
         $this->dashboardManager->method('getWidgets')->willReturn([]);
 
         [$valid, $skipped] = $this->service->partitionWidgets(widgets: [
-            ['widgetId' => 'mydash-tile', 'tileType' => 'shortcut'],
+            ['widgetId' => 'launchpad-tile', 'tileType' => 'shortcut'],
             ['widgetId' => 'unknown-id'],
         ]);
 

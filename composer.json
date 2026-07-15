@@ -1,11 +1,11 @@
 {
-	"name": "conductionnl/mydash",
+	"name": "conductionnl/launchpad",
 	"description": "Enhanced dashboard with grid layout and admin controls for Nextcloud",
 	"type": "project",
 	"license": "EUPL-1.2",
 	"authors": [
 		{
-			"name": "MyDash Contributors"
+			"name": "LaunchPad Contributors"
 		}
 	],
 	"require": {
@@ -15,7 +15,7 @@
 		"cyclonedx/cyclonedx-php-composer": "^6.2",
 		"edgedesign/phpqa": "^1.27",
 		"nextcloud/coding-standard": "^1.4",
-		"nextcloud/ocp": "^31.0",
+		"nextcloud/ocp": "dev-master",
 		"phpcsstandards/phpcsextra": "^1.4",
 		"phpmd/phpmd": "^2.15",
 		"phpmetrics/phpmetrics": "^2.8",
@@ -28,13 +28,11 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"OCA\\MyDash\\": "lib/"
+			"OCA\\LaunchPad\\": "lib/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"OCP\\": "vendor/nextcloud/ocp/OCP/",
-			"NCU\\": "vendor/nextcloud/ocp/NCU/",
 			"Unit\\": "tests/Unit/"
 		}
 	},
@@ -42,6 +40,7 @@
 		"lint": "find . -name \\*.php -not -path './vendor/*' -not -path './build/*' -print0 | xargs -0 -n1 php -l",
 		"lint:initial-state": "php scripts/lint-initial-state.php",
 		"lint:spec-annotations": "php tools/check-spec-annotations.php",
+		"lint:licenses": "bash scripts/check-license-headers.sh",
 		"cs:check": "./vendor/bin/phpcs --standard=phpcs.xml",
 		"cs:fix": "./vendor/bin/phpcbf --standard=phpcs.xml",
 		"phpcs": "./vendor/bin/phpcs --standard=phpcs.xml",
@@ -55,12 +54,12 @@
 		"test": "phpunit --configuration phpunit.xml",
 		"test:unit": "./vendor/bin/phpunit --configuration phpunit.xml --colors=always || echo 'Tests require Nextcloud environment, skipping...'",
 		"test:all": "./vendor/bin/phpunit --configuration phpunit.xml --colors=always || echo 'Tests require Nextcloud environment, skipping...'",
-		"test:integration": "if command -v newman >/dev/null 2>&1; then newman run tests/integration/mydash.postman_collection.json --environment tests/integration/local.env.json; else npx --yes newman run tests/integration/mydash.postman_collection.json --environment tests/integration/local.env.json; fi",
+		"test:integration": "if command -v newman >/dev/null 2>&1; then newman run tests/integration/launchpad.postman_collection.json --environment tests/integration/local.env.json; else npx --yes newman run tests/integration/launchpad.postman_collection.json --environment tests/integration/local.env.json; fi",
 		"newman": "@test:integration",
 		"newman:coverage": "node tests/integration/.coverage-check.js",
 		"check": "E=0; for CMD in lint phpcs psalm test:unit; do echo; echo \"=== $CMD ===\"; composer $CMD || E=1; done; echo; if [ $E -eq 0 ]; then echo \"ALL CHECKS PASSED\"; else echo \"SOME CHECKS FAILED (see above)\"; fi; exit $E",
 		"check:full": "E=0; for CMD in lint phpcs psalm phpstan test:all; do echo; echo \"=== $CMD ===\"; composer $CMD || E=1; done; echo; if [ $E -eq 0 ]; then echo \"ALL CHECKS PASSED\"; else echo \"SOME CHECKS FAILED (see above)\"; fi; exit $E",
-		"check:strict": "E=0; for CMD in lint lint:initial-state lint:spec-annotations phpcs phpmd psalm phpstan test:all; do echo; echo \"=== $CMD ===\"; composer $CMD || E=1; done; echo; if [ $E -eq 0 ]; then echo \"ALL CHECKS PASSED\"; else echo \"SOME CHECKS FAILED (see above)\"; fi; exit $E",
+		"check:strict": "E=0; for CMD in lint lint:initial-state lint:spec-annotations lint:licenses phpcs phpmd psalm phpstan test:all; do echo; echo \"=== $CMD ===\"; composer $CMD || E=1; done; echo; if [ $E -eq 0 ]; then echo \"ALL CHECKS PASSED\"; else echo \"SOME CHECKS FAILED (see above)\"; fi; exit $E",
 		"fix": [
 			"@cs:fix"
 		],

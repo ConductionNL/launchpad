@@ -8,12 +8,12 @@
  * filesystem and app-manager dependencies.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service\DashboardContentStorage
+ * @package   OCA\LaunchPad\Tests\Unit\Service\DashboardContentStorage
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,13 +21,14 @@ declare(strict_types=1);
 
 namespace Unit\Service\DashboardContentStorage;
 
-use OCA\MyDash\Service\DashboardContentStorage\DashboardNotFoundException;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFolderContentStorage;
-use OCA\MyDash\Service\DashboardContentStorage\GroupFoldersNotInstalledException;
+use OCA\LaunchPad\Service\DashboardContentStorage\DashboardNotFoundException;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFolderContentStorage;
+use OCA\LaunchPad\Service\DashboardContentStorage\GroupFoldersNotInstalledException;
 use OCP\App\IAppManager;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
+use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

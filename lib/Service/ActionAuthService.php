@@ -13,7 +13,7 @@
  *   - Action RBAC (who can invoke which controller method) is this service.
  *   - Admin-only operations (editing the matrix itself, app config, backup/
  *     restore, integrations, credentials) bypass this service and use
- *     #[AuthorizedAdminSetting(MyDashAdmin::class)] at the route layer.
+ *     #[AuthorizedAdminSetting(LaunchPadAdmin::class)] at the route layer.
  *
  * Controllers call `requireAction` which throws OCSForbiddenException when
  * the caller's groups don't intersect the matrix entry for the action.
@@ -23,7 +23,7 @@
  * the settings UI.
  *
  * @category Service
- * @package  OCA\MyDash\Service
+ * @package  OCA\LaunchPad\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -36,9 +36,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -120,27 +120,6 @@ class ActionAuthService
         }
 
     }//end requireAction()
-
-    /**
-     * Check whether the user may perform the named action (non-throwing).
-     *
-     * @param IUser  $user   The authenticated user.
-     * @param string $action Dot-separated action name.
-     *
-     * @return bool True if the user may perform the action.
-     *
-     * @spec openspec/architecture/adr-023-action-authorization.md
-     */
-    public function can(IUser $user, string $action): bool
-    {
-        try {
-            $this->requireAction(user: $user, action: $action);
-            return true;
-        } catch (OCSForbiddenException $e) {
-            return false;
-        }
-
-    }//end can()
 
     /**
      * Get the list of groups allowed to perform the action.
@@ -244,17 +223,4 @@ class ActionAuthService
         $this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $json);
 
     }//end setMatrix()
-
-    /**
-     * List all action keys currently in the matrix.
-     *
-     * @return array<int, string>
-     *
-     * @spec openspec/architecture/adr-023-action-authorization.md
-     */
-    public function getActions(): array
-    {
-        return array_keys($this->getMatrix());
-
-    }//end getActions()
 }//end class

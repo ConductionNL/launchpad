@@ -6,46 +6,46 @@
  * Top-level orchestrator for the `confluence-html-import` capability
  * (REQ-CFLI-001..012). Reads a Confluence HTML export ZIP via
  * {@see ArchiveParser}, sanitises page bodies, rewrites internal links,
- * and creates one MyDash dashboard per page (with a single full-width
+ * and creates one LaunchPad dashboard per page (with a single full-width
  * text-display widget) preserving the source page hierarchy via the
  * existing `dashboard-tree` capability. Creation runs per-page in its
  * own transaction so a single bad page never aborts the whole batch
  * (REQ-CFLI-009).
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacement;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\Confluence\ArchiveParser;
-use OCA\MyDash\Service\Confluence\HtmlSanitizer;
-use OCA\MyDash\Service\Confluence\LinkRewriter;
-use OCA\MyDash\Service\Confluence\MacroRenderer;
-use OCA\MyDash\Service\Confluence\ParsedArchive;
-use OCA\MyDash\Service\Confluence\ParsedPage;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\Confluence\ArchiveParser;
+use OCA\LaunchPad\Service\Confluence\HtmlSanitizer;
+use OCA\LaunchPad\Service\Confluence\LinkRewriter;
+use OCA\LaunchPad\Service\Confluence\MacroRenderer;
+use OCA\LaunchPad\Service\Confluence\ParsedArchive;
+use OCA\LaunchPad\Service\Confluence\ParsedPage;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * Orchestrates Confluence HTML export → MyDash dashboard imports.
+ * Orchestrates Confluence HTML export → LaunchPad dashboard imports.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *      Top-level orchestrator must collaborate with parser, sanitiser,
@@ -137,12 +137,12 @@ class ConfluenceImportService
             'attachmentCount'     => $archive->attachmentCount(),
             'estimatedDashboards' => $archive->pageCount(),
             'warnings'            => $archive->warnings,
-            'assetFolder'         => 'MyDash/Imports/'.$timestamp,
+            'assetFolder'         => 'LaunchPad/Imports/'.$timestamp,
         ];
     }//end dryRun()
 
     /**
-     * Import a Confluence HTML export into MyDash dashboards.
+     * Import a Confluence HTML export into LaunchPad dashboards.
      *
      * @param string      $zipPath       Path to the uploaded ZIP.
      * @param string      $currentUserId Importing user UID.
@@ -232,7 +232,7 @@ class ConfluenceImportService
             'skippedPageCount'      => $skippedCount,
             'errors'                => $errors,
             'warnings'              => $rewriteWarnings,
-            'assetFolder'           => 'MyDash/Imports/'.$timestamp,
+            'assetFolder'           => 'LaunchPad/Imports/'.$timestamp,
         ];
     }//end import()
 

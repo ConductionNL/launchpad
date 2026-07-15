@@ -3,29 +3,29 @@
 /**
  * TranslationsListener
  *
- * Cleans up `oc_mydash_dash_translations` rows when a dashboard
+ * Cleans up `oc_launchpad_dash_translations` rows when a dashboard
  * is soft-deleted. Stub registered as part of the cascade-events
  * scaffolding; the live implementation is owned by the
  * dashboard-language-content follow-up. REQ-CSC-003.
  *
  * @category  Listener
- * @package   OCA\MyDash\Listener
+ * @package   OCA\LaunchPad\Listener
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Listener;
+namespace OCA\LaunchPad\Listener;
 
-use OCA\MyDash\Db\DashboardTranslationMapper;
-use OCA\MyDash\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Db\DashboardTranslationMapper;
+use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -78,20 +78,20 @@ class TranslationsListener implements IEventListener
 
             $this->logger->debug(
                 message: sprintf(
-                    'mydash TranslationsListener: deleted %d translation rows for dashboard %s',
+                    'launchpad TranslationsListener: deleted %d translation rows for dashboard %s',
                     $deleted,
                     $uuid
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         } catch (Throwable $t) {
             $this->logger->warning(
                 message: sprintf(
-                    'mydash TranslationsListener: failed for dashboard %s: %s',
+                    'launchpad TranslationsListener: failed for dashboard %s: %s',
                     $uuid,
                     $t->getMessage()
                 ),
-                context: ['app' => 'mydash']
+                context: ['app' => 'launchpad']
             );
         }//end try
     }//end handle()

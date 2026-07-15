@@ -8,12 +8,12 @@
  * of the resource-uploads capability added by `resource-serving`.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Controller
+ * @package   OCA\LaunchPad\Tests\Unit\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2024 MyDash Contributors
+ * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -21,10 +21,10 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\MyDash\Controller\ResourceServeController;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\ResourceServeService;
-use OCA\MyDash\Service\ResourceService;
+use OCA\LaunchPad\Controller\ResourceServeController;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ResourceServeService;
+use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
@@ -301,7 +301,7 @@ class ResourceServeControllerTest extends TestCase
         $entry    = $response->getData()['resources'][0];
 
         $this->assertSame('resource_xyz.png', $entry['name']);
-        $this->assertSame('/apps/mydash/resource/resource_xyz.png', $entry['url']);
+        $this->assertSame('/apps/launchpad/resource/resource_xyz.png', $entry['url']);
         $this->assertSame(12345, $entry['size']);
         $this->assertSame('2026-04-30T14:11:09+00:00', $entry['modifiedAt']);
         // Helper key MUST NOT leak.

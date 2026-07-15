@@ -2,11 +2,11 @@
 
 ## Why
 
-MyDash users need a compact, high-density way to organize frequently accessed URLs on their dashboard. Today, they must place individual link-button widgets (one per placement) or use the links-widget (which spreads items across a multi-column section with descriptions). Neither scales well for 20+ bookmarks. A quicklinks widget fills this gap: a flat grid of small clickable icons, all inside ONE placement, with configurable sizing, shape, label position, and hover effects. Think "app launcher" or "favourites bar" — many shortcuts in a tight, flexible layout.
+LaunchPad users need a compact, high-density way to organize frequently accessed URLs on their dashboard. Today, they must place individual link-button widgets (one per placement) or use the links-widget (which spreads items across a multi-column section with descriptions). Neither scales well for 20+ bookmarks. A quicklinks widget fills this gap: a flat grid of small clickable icons, all inside ONE placement, with configurable sizing, shape, label position, and hover effects. Think "app launcher" or "favourites bar" — many shortcuts in a tight, flexible layout.
 
 ## What Changes
 
-- Register a new dashboard widget with id `mydash_quicklinks` via `OCP\Dashboard\IManager` that appears in the widget picker.
+- Register a new dashboard widget with id `launchpad_quicklinks` via `OCP\Dashboard\IManager` that appears in the widget picker.
 - Add per-placement configuration stored in `widgetContent JSON` with:
   - `links: [{label, url, icon, color?: string}]` — flat array of shortcuts.
   - `iconSize: 'small'|'medium'|'large'|'xlarge'` (default `medium`) — renders as 32/48/64/96 px.
@@ -53,7 +53,7 @@ MyDash users need a compact, high-density way to organize frequently accessed UR
 
 **Dependencies:**
 
-- `IconRenderer` (existing MyDash component) — reused from link-button-widget
+- `IconRenderer` (existing LaunchPad component) — reused from link-button-widget
 - No new composer or npm dependencies
 
 **Migration:**

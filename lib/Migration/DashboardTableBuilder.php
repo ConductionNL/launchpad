@@ -6,7 +6,7 @@
  * Builder for the dashboards database table schema.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
@@ -27,7 +27,7 @@ use OCP\DB\Types;
 class DashboardTableBuilder
 {
     /**
-     * Create the mydash_dashboards table.
+     * Create the launchpad_dashboards table.
      *
      * @param ISchemaWrapper $schema The schema wrapper.
      *
@@ -35,11 +35,11 @@ class DashboardTableBuilder
      */
     public static function create(ISchemaWrapper $schema): void
     {
-        if ($schema->hasTable('mydash_dashboards') === true) {
+        if ($schema->hasTable('launchpad_dashboards') === true) {
             return;
         }
 
-        $table = $schema->createTable('mydash_dashboards');
+        $table = $schema->createTable('launchpad_dashboards');
 
         self::addColumns(table: $table);
         self::addIndexes(table: $table);
@@ -213,29 +213,29 @@ class DashboardTableBuilder
         $table->setPrimaryKey(['id']);
         $table->addUniqueIndex(
             ['uuid'],
-            'mydash_dashboard_uuid'
+            'launchpad_dashboard_uuid'
         );
         $table->addIndex(
             ['user_id'],
-            'mydash_dashboard_user'
+            'launchpad_dashboard_user'
         );
         $table->addIndex(
             ['type'],
-            'mydash_dashboard_type'
+            'launchpad_dashboard_type'
         );
         $table->addIndex(
             ['user_id', 'is_active'],
-            'mydash_dashboard_active'
+            'launchpad_dashboard_active'
         );
         $table->addIndex(
             ['type', 'group_id'],
-            'mydash_dash_type_group'
+            'launchpad_dash_type_group'
         );
     }//end addIndexes()
 
     /**
      * Apply the GroupFolder storage backend schema (REQ-GFSB-002) to an
-     * existing `mydash_dashboards` table.
+     * existing `launchpad_dashboards` table.
      *
      * Adds two nullable columns: `content` (LONGTEXT, JSON blob used by the
      * `db` storage backend) and `locale` (VARCHAR(16), optional locale code
@@ -243,7 +243,7 @@ class DashboardTableBuilder
      * Both columns are nullable — pre-existing rows with no content simply
      * keep NULL until explicitly written by the storage layer. Idempotent.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
      *
      * @return void
      *
@@ -277,7 +277,7 @@ class DashboardTableBuilder
 
     /**
      * Apply the dashboard-tree hierarchy schema (REQ-DASH-023..030) to an
-     * existing `mydash_dashboards` table.
+     * existing `launchpad_dashboards` table.
      *
      * Adds the three nullable columns (`parent_uuid`, `slug`, `sort_order`)
      * plus the supporting indexes used by `DashboardTreeService` for
@@ -285,7 +285,7 @@ class DashboardTableBuilder
      * uniqueness guarantee. Idempotent — every check is `hasColumn` /
      * `hasIndex` first.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
      *
      * @return void
      */
@@ -324,14 +324,14 @@ class DashboardTableBuilder
             );
         }
 
-        if ($table->hasIndex('mydash_dash_parent') === false) {
+        if ($table->hasIndex('launchpad_dash_parent') === false) {
             $table->addIndex(
                 ['parent_uuid'],
-                'mydash_dash_parent'
+                'launchpad_dash_parent'
             );
         }
 
-        if ($table->hasIndex('mydash_dash_parent_slug') === false) {
+        if ($table->hasIndex('launchpad_dash_parent_slug') === false) {
             // Composite (parent_uuid, slug) supports per-parent slug
             // uniqueness lookups (REQ-DASH-024) and child-by-slug lookups
             // during path resolution (REQ-DASH-027). NULL parent_uuid is
@@ -341,21 +341,21 @@ class DashboardTableBuilder
             // between drivers (sqlite ⇢ NULL = NULL, postgres ⇢ NULL ≠ NULL).
             $table->addIndex(
                 ['parent_uuid', 'slug'],
-                'mydash_dash_parent_slug'
+                'launchpad_dash_parent_slug'
             );
         }
 
-        if ($table->hasIndex('mydash_dash_sort') === false) {
+        if ($table->hasIndex('launchpad_dash_sort') === false) {
             $table->addIndex(
                 ['parent_uuid', 'sort_order'],
-                'mydash_dash_sort'
+                'launchpad_dash_sort'
             );
         }
     }//end addTreeColumns()
 
     /**
      * Apply the dashboard publication-state schema (REQ-DASH-031..037) to
-     * an existing `mydash_dashboards` table.
+     * an existing `launchpad_dashboards` table.
      *
      * Adds three nullable / defaulted columns (`publication_status`,
      * `publish_at`, `published_at`) plus the `(user_id, publication_status)`
@@ -369,7 +369,7 @@ class DashboardTableBuilder
      * column default. Idempotent — every check is `hasColumn` /
      * `hasIndex` first.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
      *
      * @return void
      */
@@ -410,17 +410,17 @@ class DashboardTableBuilder
             );
         }
 
-        if ($table->hasIndex('mydash_dash_user_pubstatus') === false) {
+        if ($table->hasIndex('launchpad_dash_user_pub') === false) {
             $table->addIndex(
                 ['user_id', 'publication_status'],
-                'mydash_dash_user_pubstatus'
+                'launchpad_dash_user_pub'
             );
         }
     }//end addPublicationColumns()
 
     /**
      * Apply the per-dashboard footer-override schema (REQ-FTR-006) to an
-     * existing `mydash_dashboards` table.
+     * existing `launchpad_dashboards` table.
      *
      * Adds two columns: `dashboard_footer_mode` (VARCHAR(16), default
      * `'inherit'`) selecting one of `inherit | hidden | custom`, and
@@ -430,7 +430,7 @@ class DashboardTableBuilder
      * no explicit backfill required (footer-customization design D2).
      * Idempotent — every column is checked with `hasColumn` first.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
      *
      * @return void
      */
@@ -463,7 +463,7 @@ class DashboardTableBuilder
 
     /**
      * Apply the template-discovery schema (REQ-TMPL-014..017) to an
-     * existing `mydash_dashboards` table.
+     * existing `launchpad_dashboards` table.
      *
      * Adds three nullable metadata columns (`template_category`,
      * `template_description`, `template_preview_image`) plus the
@@ -473,7 +473,7 @@ class DashboardTableBuilder
      * benefits from the existing single-column `type` index. Idempotent —
      * every check is `hasColumn` / `hasIndex` first.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table The mydash_dashboards table.
+     * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
      *
      * @return void
      */
@@ -513,10 +513,10 @@ class DashboardTableBuilder
             );
         }
 
-        if ($table->hasIndex('mydash_tpl_type_cat') === false) {
+        if ($table->hasIndex('launchpad_tpl_type_cat') === false) {
             $table->addIndex(
                 ['type', 'template_category'],
-                'mydash_tpl_type_cat'
+                'launchpad_tpl_type_cat'
             );
         }
     }//end addTemplateDiscoveryColumns()

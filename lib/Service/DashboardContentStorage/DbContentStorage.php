@@ -4,10 +4,10 @@
  * DbContentStorage
  *
  * Database-backed implementation of the DashboardContentStorage interface.
- * Stores dashboard content in the `content` column of `oc_mydash_dashboards`.
+ * Stores dashboard content in the `content` column of `oc_launchpad_dashboards`.
  *
  * @category Service
- * @package  OCA\MyDash\Service\DashboardContentStorage
+ * @package  OCA\LaunchPad\Service\DashboardContentStorage
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,16 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service\DashboardContentStorage;
+namespace OCA\LaunchPad\Service\DashboardContentStorage;
 
-use OCA\MyDash\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
 
 /**
  * Database-backed implementation of DashboardContentStorageInterface (REQ-GFSB-002).
  *
- * Content is stored as JSON in the `content` column of `oc_mydash_dashboards`.
+ * Content is stored as JSON in the `content` column of `oc_launchpad_dashboards`.
  * The locale parameter is accepted for interface compatibility but is not used
  * because the DB backend stores a single content blob per dashboard (not
  * locale-separated). Locale-separated content is a GroupFolder-only concern.

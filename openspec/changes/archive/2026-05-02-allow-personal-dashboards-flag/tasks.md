@@ -7,7 +7,7 @@
 - [x] 1.3 Call assert in `DashboardApiController::create` — moved BEFORE param resolution so the 403 envelope is the first thing returned. Fork endpoint does not exist yet (handled by separate `fork-current-as-personal` change).
 - [x] 1.4 Read endpoints (`list`, `visible`, `getActive`, `update`, `delete`, `activate`, `setActiveDashboard`) confirmed to NOT call the assert
 - [x] 1.5 `PageController::index` pushes `allowUserDashboards` via `InitialStateBuilder::setAllowUserDashboards()` (pre-existing — refactored to use the new `DashboardService::getAllowUserDashboards()` helper)
-- [x] 1.6 `MyDashAdmin::getForm` pushes the flag too (pre-existing — refactored to use the helper)
+- [x] 1.6 `LaunchPadAdmin::getForm` pushes the flag too (pre-existing — refactored to use the helper)
 
 ## 2. Frontend
 

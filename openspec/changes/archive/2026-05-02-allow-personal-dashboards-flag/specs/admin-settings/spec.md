@@ -55,11 +55,11 @@ Endpoints that MUST NOT check the flag (so existing personal dashboards remain f
 - **AND** admin toggles `allow_user_dashboards` to `'0'` and back to `'1'`
 - **THEN** `P1` MUST still exist with all original fields and placements
 - **AND** `P1.isActive` MUST still be `1` (unchanged)
-- **AND** no rows in `oc_mydash_dashboards` or `oc_mydash_widget_placements` MUST have been touched
+- **AND** no rows in `oc_launchpad_dashboards` or `oc_launchpad_widget_placements` MUST have been touched
 
 #### Scenario: Default value when setting is missing
 
-- **GIVEN** a fresh MyDash install with no row for `allow_user_dashboards` in `oc_mydash_admin_settings`
+- **GIVEN** a fresh LaunchPad install with no row for `allow_user_dashboards` in `oc_launchpad_admin_settings`
 - **WHEN** any code reads the setting
 - **THEN** it MUST evaluate to `false` (creation blocked)
 

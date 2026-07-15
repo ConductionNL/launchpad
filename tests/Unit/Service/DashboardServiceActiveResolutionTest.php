@@ -10,12 +10,12 @@
  * persist/clear API on `DashboardService::setActivePreference`.
  *
  * @category  Test
- * @package   OCA\MyDash\Tests\Unit\Service
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
+ * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Db\AdminSettingMapper;
-use OCA\MyDash\Db\Dashboard;
-use OCA\MyDash\Db\DashboardMapper;
-use OCA\MyDash\Db\WidgetPlacementMapper;
-use OCA\MyDash\Service\AdminTemplateService;
-use OCA\MyDash\Service\DashboardFactory;
-use OCA\MyDash\Service\DashboardResolver;
-use OCA\MyDash\Service\DashboardService;
-use OCA\MyDash\Service\TemplateService;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\DashboardFactory;
+use OCA\LaunchPad\Service\DashboardResolver;
+use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Tests for the REQ-DASH-018 / REQ-DASH-019 active-dashboard resolver and
- * preference write API on {@see \OCA\MyDash\Service\DashboardService}.
+ * preference write API on {@see \OCA\LaunchPad\Service\DashboardService}.
  *
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
@@ -115,14 +115,14 @@ class DashboardServiceActiveResolutionTest extends TestCase
             templateService: $this->templateService,
             dashboardFactory: new DashboardFactory(),
             dashResolver: $this->dashResolver,
-            treeService: $this->createMock(\OCA\MyDash\Service\DashboardTreeService::class),
+            treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
             groupManager: $this->groupManager,
             adminTemplateService: $this->adminTemplateService,
             db: $this->db,
             config: $this->config,
             l10nFactory: $this->l10nFactory,
             logger: $this->logger,
-            footerService: $this->createMock(\OCA\MyDash\Service\FooterService::class),
+            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
         );
     }//end setUp()
 
@@ -609,5 +609,62 @@ class DashboardServiceActiveResolutionTest extends TestCase
             uuid: ''
         );
     }//end testSetActivePreferenceEmptyStringClears()
+
+    /**
+     * REQ-DASH-019 regression: getEffectiveDashboard (the API view
+     * resolver behind `GET /api/dashboard`) MUST honour the saved
+     * last-used preference against the full visible set — including a
+     * group/default (showcase) dashboard whose `user_id` is NULL — so the
+     * view matches the landing URL that resolveActiveDashboard() produces.
+     * Previously it only consulted the legacy `is_active` column, 404'ing
+     * for showcase dashboards and leaving the view blank.
+     *
+     * @return void
+     */
+    public function testGetEffectiveDashboardHonoursActivePrefForGroupDashboard(): void
+    {
+        $showcase = $this->makeDashboard(
+            uuid: 'uuid-showcase',
+            type: Dashboard::TYPE_GROUP_SHARED,
+            groupId: Dashboard::DEFAULT_GROUP_ID
+        );
+        // The resolver loads placements by numeric id; give the showcase a
+        // concrete id so the typed `findByDashboardId(int)` mock is satisfied.
+        $showcase->setId(4242);
+        $this->stubVisible('alice', [
+            ['dashboard' => $showcase, 'source' => Dashboard::SOURCE_DEFAULT],
+        ]);
+
+        $this->config
+            ->method('getUserValue')
+            ->willReturnCallback(function ($uid, $app, $key, $default) {
+                if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+                    return '';
+                }
+                if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+                    return 'uuid-showcase';
+                }
+                return $default;
+            });
+
+        $expected = [
+            'dashboard'       => $showcase,
+            'placements'      => [],
+            'permissionLevel' => 'view',
+        ];
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+        $this->dashResolver
+            ->method('buildResult')
+            ->with(dashboard: $showcase, placements: [])
+            ->willReturn($expected);
+
+        // Must resolve via the preference, never fall through to the
+        // personal-only legacy `is_active` lookup.
+        $this->dashResolver->expects($this->never())->method('tryGetActiveDashboard');
+
+        $result = $this->service->getEffectiveDashboard(userId: 'alice');
+
+        $this->assertSame($expected, $result);
+    }//end testGetEffectiveDashboardHonoursActivePrefForGroupDashboard()
 
 }//end class

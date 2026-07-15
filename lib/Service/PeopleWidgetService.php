@@ -16,19 +16,19 @@
  * response, never returned as `null` keys.
  *
  * @category  Service
- * @package   OCA\MyDash\Service
+ * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Service;
+namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use Exception;
@@ -176,8 +176,200 @@ class PeopleWidgetService
             );
         }
 
-        $candidates = $this->resolveCandidates(filters: $filters);
+        $groupFilter = $this->extractGroupFilter(filters: $filters);
 
+        // No `group` filter AND the default `displayName` sort: page
+        // directly from the backend in display-name order so we never
+        // materialize more IUser objects than the requested window
+        // (plus any disabled users skipped inside it). This avoids the
+        // former full-directory `IUserManager::search('')` scan on every
+        // People-widget render. REQ-PPL-003.
+        if ($groupFilter === null && $sortBy !== 'group') {
+            return $this->listDirectoryPageByDisplayName(
+                excludeDisabled: $excludeDisabled,
+                showBirthdays: $showBirthdays,
+                limit: $limit,
+                offset: $offset
+            );
+        }
+
+        // Bounded candidate pool: either the union of the filtered group
+        // memberships, or — only for the rare admin-selected `group` sort
+        // with no group filter — the full directory, since ordering by
+        // each user's primary-group membership is inherently a
+        // full-directory read (see resolveCandidates()).
+        $candidates = $this->resolveCandidates(
+            filters: $filters,
+            groupFilter: $groupFilter
+        );
+
+        return $this->paginateCandidates(
+            candidates: $candidates,
+            excludeDisabled: $excludeDisabled,
+            showBirthdays: $showBirthdays,
+            sortBy: $sortBy,
+            limit: $limit,
+            offset: $offset
+        );
+    }//end listUsers()
+
+    /**
+     * Page the directory directly from the backend in display-name order,
+     * bounded to the requested window.
+     *
+     * `IUserManager::searchDisplayName('', limit, offset)` returns users
+     * already sorted by display name with backend-level pagination, so a
+     * bounded fetch is the correct global-order window (unlike
+     * `search('')`, which returns backend/UID order). Disabled users are
+     * skipped inside the streamed window when `excludeDisabled` is true;
+     * the exact `total` is derived from `countUsersTotal()` (minus
+     * `countDisabledUsers()`) so no full scan is needed to size it.
+     *
+     * @param bool $excludeDisabled Whether disabled users are excluded.
+     * @param bool $showBirthdays   Whether birthdate is projected.
+     * @param int  $limit           Page size (already validated 1..MAX_LIMIT).
+     * @param int  $offset          Page offset (already validated >= 0).
+     *
+     * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
+     */
+    private function listDirectoryPageByDisplayName(
+        bool $excludeDisabled,
+        bool $showBirthdays,
+        int $limit,
+        int $offset
+    ): array {
+        $page  = $this->collectDisplayNamePage(
+            excludeDisabled: $excludeDisabled,
+            limit: $limit,
+            offset: $offset
+        );
+        $total = $this->countDirectory(excludeDisabled: $excludeDisabled);
+
+        $users = [];
+        foreach ($page as $user) {
+            $users[] = $this->buildUserProfile(
+                user: $user,
+                showBirthdays: $showBirthdays
+            );
+        }
+
+        return [
+            'users'   => $users,
+            'total'   => $total,
+            'hasMore' => ($offset + count(value: $page)) < $total,
+        ];
+    }//end listDirectoryPageByDisplayName()
+
+    /**
+     * Stream `searchDisplayName` in bounded chunks, skipping disabled
+     * users (when requested) and the first `$offset` matches, until
+     * `$limit` users are collected or the backend is exhausted.
+     *
+     * Reads at most `offset + limit` matches (plus any disabled users
+     * interleaved in that window) — never the full user table.
+     *
+     * @param bool $excludeDisabled Whether disabled users are skipped.
+     * @param int  $limit           Number of users to collect.
+     * @param int  $offset          Number of matching users to skip first.
+     *
+     * @return IUser[] The requested page in display-name order.
+     */
+    private function collectDisplayNamePage(
+        bool $excludeDisabled,
+        int $limit,
+        int $offset
+    ): array {
+        $chunkSize     = max($limit, self::DEFAULT_LIMIT);
+        $page          = [];
+        $toSkip        = $offset;
+        $backendOffset = 0;
+
+        while (count(value: $page) < $limit) {
+            $batch      = $this->userManager->searchDisplayName(
+                pattern: '',
+                limit: $chunkSize,
+                offset: $backendOffset
+            );
+            $batchCount = count(value: $batch);
+            if ($batchCount === 0) {
+                break;
+            }
+
+            foreach ($batch as $user) {
+                if ($excludeDisabled === true && $user->isEnabled() === false) {
+                    continue;
+                }
+
+                if ($toSkip > 0) {
+                    $toSkip--;
+                    continue;
+                }
+
+                $page[] = $user;
+                if (count(value: $page) >= $limit) {
+                    break;
+                }
+            }
+
+            $backendOffset += $batchCount;
+            if ($batchCount < $chunkSize) {
+                // Backend exhausted — no more pages to stream.
+                break;
+            }
+        }//end while
+
+        return $page;
+    }//end collectDisplayNamePage()
+
+    /**
+     * Exact directory size for the pagination envelope, computed from the
+     * backend counters rather than by materializing every user.
+     *
+     * @param bool $excludeDisabled When true, disabled users are excluded
+     *                              from the count.
+     *
+     * @return int The total candidate count.
+     */
+    private function countDirectory(bool $excludeDisabled): int
+    {
+        $total = $this->userManager->countUsersTotal();
+        if (is_int(value: $total) === false) {
+            // Some backends cannot report a total (countUsersTotal()
+            // returns false); fall back to zero so the envelope stays
+            // finite and non-negative.
+            $total = 0;
+        }
+
+        if ($excludeDisabled === true) {
+            $total -= (int) $this->userManager->countDisabledUsers();
+        }
+
+        return max(0, $total);
+    }//end countDirectory()
+
+    /**
+     * Filter → sort → slice → project an in-memory candidate pool.
+     *
+     * Used for the group-filtered path (pool already bounded to group
+     * membership) and the rare no-filter `group` sort path.
+     *
+     * @param IUser[] $candidates      The resolved candidate pool.
+     * @param bool    $excludeDisabled Whether disabled users are excluded.
+     * @param bool    $showBirthdays   Whether birthdate is projected.
+     * @param string  $sortBy          Sort mode (`displayName` or `group`).
+     * @param int     $limit           Page size.
+     * @param int     $offset          Page offset.
+     *
+     * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
+     */
+    private function paginateCandidates(
+        array $candidates,
+        bool $excludeDisabled,
+        bool $showBirthdays,
+        string $sortBy,
+        int $limit,
+        int $offset
+    ): array {
         if ($excludeDisabled === true) {
             $candidates = array_values(
                 array: array_filter(
@@ -209,7 +401,7 @@ class PeopleWidgetService
             'total'   => $total,
             'hasMore' => ($offset + count(value: $page)) < $total,
         ];
-    }//end listUsers()
+    }//end paginateCandidates()
 
     /**
      * Compute the number of days between today (UTC) and the user's next
@@ -261,27 +453,51 @@ class PeopleWidgetService
     }//end computeDaysToBirthday()
 
     /**
-     * Resolve the candidate pool based on the configured filters.
-     *
-     * When the filter set contains a `group` filter we use
-     * `IGroupManager::get($gid)->getUsers()` to avoid scanning the full
-     * user table. Without a group filter we fall back to
-     * `IUserManager::search('')`. Group-value union is deduplicated by
-     * UID via a `$seen` map.
+     * Extract the first `group` filter from the filter list, if present.
      *
      * @param array $filters Filter list (entries shaped like
      *                       `{fieldName, operator, values}`).
      *
-     * @return IUser[]
+     * @return array|null The `group` filter entry, or null when absent.
      */
-    private function resolveCandidates(array $filters): array
+    private function extractGroupFilter(array $filters): ?array
     {
-        $groupFilter = null;
         foreach ($filters as $filter) {
             if (($filter['fieldName'] ?? null) === 'group') {
-                $groupFilter = $filter;
-                break;
+                return $filter;
             }
+        }
+
+        return null;
+    }//end extractGroupFilter()
+
+    /**
+     * Resolve the candidate pool based on the configured filters.
+     *
+     * When a `group` filter is present we use
+     * `IGroupManager::get($gid)->getUsers()` to bound the pool to the
+     * union of the listed group memberships (deduplicated by UID via a
+     * `$seen` map) — never scanning the full user table.
+     *
+     * Without a group filter this method is reached ONLY for the rare
+     * admin-selected `group` sort mode; the common `displayName` path is
+     * served by the bounded backend pagination in
+     * {@see self::listDirectoryPageByDisplayName()} and never calls here.
+     * Ordering the whole directory by each user's primary-group
+     * membership is inherently a full-directory read, so this path falls
+     * back to `IUserManager::search('')` by design.
+     *
+     * @param array      $filters     Filter list (entries shaped like
+     *                                `{fieldName, operator, values}`).
+     * @param array|null $groupFilter The pre-extracted `group` filter, or
+     *                                null when none is configured.
+     *
+     * @return IUser[]
+     */
+    private function resolveCandidates(array $filters, ?array $groupFilter=null): array
+    {
+        if ($groupFilter === null) {
+            $groupFilter = $this->extractGroupFilter(filters: $filters);
         }
 
         if ($groupFilter === null) {

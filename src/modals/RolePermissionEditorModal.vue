@@ -1,38 +1,38 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<NcModal @close="$emit('close')">
-		<div class="mydash-admin__editor">
-			<h3>{{ row.id ? t('mydash', 'Edit role permission') : t('mydash', 'Add role permission') }}</h3>
+		<div class="launchpad-admin__editor">
+			<h3>{{ row.id ? t('launchpad', 'Edit role permission') : t('launchpad', 'Add role permission') }}</h3>
 			<NcTextField :value="row.name"
-				:label="t('mydash', 'Name')"
+				:label="t('launchpad', 'Name')"
 				required
 				@update:value="updateRow('name', $event)" />
 			<NcTextField :value="row.groupId"
-				:label="t('mydash', 'Nextcloud group ID')"
+				:label="t('launchpad', 'Nextcloud group ID')"
 				required
 				:disabled="!!row.id"
 				@update:value="updateRow('groupId', $event)" />
 			<NcTextField :value="row.description"
-				:label="t('mydash', 'Description (optional)')"
+				:label="t('launchpad', 'Description (optional)')"
 				@update:value="updateRow('description', $event)" />
 			<NcTextField :value="allowedWidgetsCsv"
-				:label="t('mydash', 'Allowed widget IDs (comma separated)')"
+				:label="t('launchpad', 'Allowed widget IDs (comma separated)')"
 				@update:value="$emit('update:allowedWidgetsCsv', $event)" />
 			<NcTextField :value="deniedWidgetsCsv"
-				:label="t('mydash', 'Denied widget IDs (comma separated)')"
+				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
 				@update:value="$emit('update:deniedWidgetsCsv', $event)" />
-			<div class="mydash-admin__editor-actions">
+			<div class="launchpad-admin__editor-actions">
 				<NcButton type="tertiary" @click="$emit('close')">
-					{{ t('mydash', 'Cancel') }}
+					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
 				<NcButton type="primary"
 					:disabled="saving || !row.name || !row.groupId"
 					@click="$emit('save')">
-					{{ t('mydash', 'Save') }}
+					{{ t('launchpad', 'Save') }}
 				</NcButton>
 			</div>
 		</div>
@@ -92,14 +92,14 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin__editor {
+.launchpad-admin__editor {
 	padding: calc(var(--default-grid-baseline) * 2);
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	min-width: 480px;
 }
-.mydash-admin__editor-actions {
+.launchpad-admin__editor-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--default-grid-baseline);

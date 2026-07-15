@@ -19,26 +19,26 @@
  * authorization point (gate-semantic-auth).
  *
  * @category  Controller
- * @package   OCA\MyDash\Controller
+ * @package   OCA\LaunchPad\Controller
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Controller;
+namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
-use OCA\MyDash\AppInfo\Application;
-use OCA\MyDash\Service\ActionAuthService;
-use OCA\MyDash\Service\AnalyticsService;
-use OCA\MyDash\Settings\MyDashAdmin;
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -87,7 +87,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function topDashboards(
         string $period='30d',
         int $limit=10
@@ -133,7 +133,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function dashboardDetail(
         string $uuid,
         string $period='30d'
@@ -185,7 +185,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function instanceSummary(string $period='30d'): JSONResponse
     {
         $user = $this->userSession->getUser();
@@ -230,7 +230,7 @@ class AnalyticsController extends Controller
          *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-    #[AuthorizedAdminSetting(MyDashAdmin::class)]
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function exportCsv(string $period='30d'): Response
     {
         $user = $this->userSession->getUser();

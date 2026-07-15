@@ -3,7 +3,7 @@
 ## Context
 
 This capability adds threaded comments to dashboards. The spec (`dashboard-comments`) pins the
-NC `ICommentsManager` delegation model, `mydash_dashboard` object type, one-level-deep threading,
+NC `ICommentsManager` delegation model, `launchpad_dashboard` object type, one-level-deep threading,
 and admin + per-dashboard toggle. Sibling spec `dashboard-cascade-events` owns the
 `DashboardDeletedEvent → ICommentsManager::deleteCommentsAtObject` call — not duplicated here.
 
@@ -15,7 +15,7 @@ depth enforcement, NC hooks, and toggle precedence.
 ## Goals / Non-Goals
 
 **Goals:**
-- Confirm storage delegation to NC `oc_comments` table (no MyDash comment table)
+- Confirm storage delegation to NC `oc_comments` table (no LaunchPad comment table)
 - Document object-type string and NC entity registration
 - Specify one-level-deep enforcement mechanism
 - Define toggle precedence (global vs. per-dashboard)
@@ -29,7 +29,7 @@ depth enforcement, NC hooks, and toggle precedence.
 ## Decisions
 
 ### D1: Storage delegation to NC ICommentsManager
-**Decision**: All comment persistence via `\OCP\Comments\ICommentsManager`; no `oc_mydash_comments` table.
+**Decision**: All comment persistence via `\OCP\Comments\ICommentsManager`; no `oc_launchpad_comments` table.
 **Source evidence**: `the source codebase-source/lib/Controller/CommentController.php:~30-80` — all reads/writes
 through injected `ICommentsManager`; no custom DB mapper.
 **Alternatives considered**: Own table — rejected; loses NC activity feed, @-mention notifications,
@@ -37,9 +37,9 @@ and unread-count badge at zero cost.
 **Rationale**: NC core delegation gives activity feed and notifications for free.
 
 ### D2: Object-type binding
-**Decision**: Object type string is `mydash_dashboard`; object ID is the dashboard UUID.
+**Decision**: Object type string is `launchpad_dashboard`; object ID is the dashboard UUID.
 **Source evidence**: `the source codebase-source/lib/Listener/CommentsEntityListener.php:~15` — uses
-`'page'` as object type; we use `mydash_dashboard` to avoid collision with other NC apps.
+`'page'` as object type; we use `launchpad_dashboard` to avoid collision with other NC apps.
 **Alternatives considered**:
 - `files` object type sharing — rejected; semantically wrong, would pollute file comment queries
 **Rationale**: Unique object type ensures clean separation. Register via `ICommentsManagerFactory`
@@ -64,14 +64,14 @@ is explicit, not delegated to `ICommentsManager` (which allows arbitrary depth).
 the data model consistent and matches the spec contract.
 
 ### D5: Toggle precedence
-**Decision**: Global `mydash.comments_enabled` takes absolute precedence; per-dashboard
+**Decision**: Global `launchpad.comments_enabled` takes absolute precedence; per-dashboard
 `commentsEnabled` only applies when global is on. Globally disabled → HTTP 403 on all endpoints.
 **Alternatives considered**: Per-dashboard override of global — rejected; admin needs kill-switch.
 **Rationale**: Standard NC admin-override pattern; mirrors NC global sharing toggle.
 
 ### D6: Cascade delete ownership
 **Decision**: `DashboardDeletedEvent` listener in `dashboard-cascade-events` calls
-`ICommentsManager::deleteCommentsAtObject('mydash_dashboard', $uuid)`. No separate listener here.
+`ICommentsManager::deleteCommentsAtObject('launchpad_dashboard', $uuid)`. No separate listener here.
 **Alternatives considered**: Own listener — rejected; `dashboard-cascade-events` owns all cascades.
 **Rationale**: Single listener per event avoids double-delete races.
 
@@ -84,4 +84,4 @@ the data model consistent and matches the spec contract.
 
 - Add `?unread=true` filter to comment list once NC unread-comment tracking API is confirmed available
 - Evaluate comment reactions (emoji on comments) — out of scope now, but `dashboard-reactions` pattern could extend here
-- Document whether NC's existing comment search app (`comments` app) indexes `mydash_dashboard` objects automatically
+- Document whether NC's existing comment search app (`comments` app) indexes `launchpad_dashboard` objects automatically

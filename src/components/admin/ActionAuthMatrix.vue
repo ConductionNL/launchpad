@@ -1,52 +1,52 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
-	<div class="mydash-admin__section" data-testid="admin-action-auth-section">
-		<h3>{{ t('mydash', 'Action authorization') }}</h3>
-		<p class="mydash-admin__hint">
-			{{ t('mydash', 'Decide which Nextcloud groups may invoke each MyDash action (ADR-023). Admins always pass. Every action defaults to admin-only — tick a group to broaden it.') }}
+	<div class="launchpad-admin__section" data-testid="admin-action-auth-section">
+		<h3>{{ t('launchpad', 'Action authorization') }}</h3>
+		<p class="launchpad-admin__hint">
+			{{ t('launchpad', 'Decide which Nextcloud groups may invoke each LaunchPad action (ADR-023). Admins always pass. Every action defaults to admin-only — tick a group to broaden it.') }}
 		</p>
 
-		<div v-if="error" class="mydash-admin__action-error" role="alert">
+		<div v-if="error" class="launchpad-admin__action-error" role="alert">
 			{{ error }}
 		</div>
 
-		<p v-if="loading" class="mydash-admin__hint">
-			{{ t('mydash', 'Loading action matrix…') }}
+		<p v-if="loading" class="launchpad-admin__hint">
+			{{ t('launchpad', 'Loading action matrix…') }}
 		</p>
 
-		<div v-else class="mydash-admin__matrix-wrapper">
-			<table class="mydash-admin__matrix">
+		<div v-else class="launchpad-admin__matrix-wrapper">
+			<table class="launchpad-admin__matrix">
 				<thead>
 					<tr>
 						<th scope="col">
-							{{ t('mydash', 'Action') }}
+							{{ t('launchpad', 'Action') }}
 						</th>
 						<th
 							v-for="group in displayGroups"
 							:key="group"
 							scope="col"
-							class="mydash-admin__matrix-group">
+							class="launchpad-admin__matrix-group">
 							{{ group }}
 						</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr v-for="action in actions" :key="action">
-						<th scope="row" class="mydash-admin__matrix-action">
+						<th scope="row" class="launchpad-admin__matrix-action">
 							{{ action }}
 						</th>
 						<td
 							v-for="group in displayGroups"
 							:key="`${action}-${group}`"
-							class="mydash-admin__matrix-cell">
+							class="launchpad-admin__matrix-cell">
 							<NcCheckboxRadioSwitch
 								:checked="isChecked(action, group)"
 								:disabled="group === 'admin'"
-								:aria-label="t('mydash', 'Allow group {group} to perform {action}', { group, action })"
+								:aria-label="t('launchpad', 'Allow group {group} to perform {action}', { group, action })"
 								@update:checked="toggle(action, group, $event)" />
 						</td>
 					</tr>
@@ -54,13 +54,13 @@
 			</table>
 		</div>
 
-		<div class="mydash-admin__matrix-actions">
+		<div class="launchpad-admin__matrix-actions">
 			<NcButton
 				type="primary"
 				data-testid="admin-action-matrix-save"
 				:disabled="loading || saving"
 				@click="save">
-				{{ saving ? t('mydash', 'Saving…') : t('mydash', 'Save action matrix') }}
+				{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save action matrix') }}
 			</NcButton>
 		</div>
 	</div>
@@ -134,7 +134,7 @@ export default {
 				this.matrix = next
 			} catch (e) {
 				console.error('Failed to load action matrix', e)
-				this.error = this.t('mydash', 'Failed to load the action matrix.')
+				this.error = this.t('launchpad', 'Failed to load the action matrix.')
 			} finally {
 				this.loading = false
 			}
@@ -185,10 +185,10 @@ export default {
 					next[action] = [...allowed]
 				}
 				this.matrix = next
-				showSuccess(this.t('mydash', 'Action matrix saved.'))
+				showSuccess(this.t('launchpad', 'Action matrix saved.'))
 			} catch (e) {
 				console.error('Failed to save action matrix', e)
-				showError(this.t('mydash', 'Failed to save the action matrix.'))
+				showError(this.t('launchpad', 'Failed to save the action matrix.'))
 			} finally {
 				this.saving = false
 			}
@@ -198,12 +198,12 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin__hint {
+.launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
 }
 
-.mydash-admin__action-error {
+.launchpad-admin__action-error {
 	background: var(--color-error);
 	color: var(--color-primary-element-text);
 	padding: 8px 12px;
@@ -211,39 +211,39 @@ export default {
 	margin-bottom: 16px;
 }
 
-.mydash-admin__matrix-wrapper {
+.launchpad-admin__matrix-wrapper {
 	overflow-x: auto;
 	margin-bottom: 16px;
 }
 
-.mydash-admin__matrix {
+.launchpad-admin__matrix {
 	border-collapse: collapse;
 	width: 100%;
 }
 
-.mydash-admin__matrix th,
-.mydash-admin__matrix td {
+.launchpad-admin__matrix th,
+.launchpad-admin__matrix td {
 	border: 1px solid var(--color-border);
 	padding: 6px 10px;
 	text-align: left;
 }
 
-.mydash-admin__matrix-group {
+.launchpad-admin__matrix-group {
 	text-align: center;
 	white-space: nowrap;
 }
 
-.mydash-admin__matrix-action {
+.launchpad-admin__matrix-action {
 	font-family: var(--font-face-monospace, monospace);
 	font-size: 0.85em;
 	white-space: nowrap;
 }
 
-.mydash-admin__matrix-cell {
+.launchpad-admin__matrix-cell {
 	text-align: center;
 }
 
-.mydash-admin__matrix-actions {
+.launchpad-admin__matrix-actions {
 	display: flex;
 	justify-content: flex-end;
 }

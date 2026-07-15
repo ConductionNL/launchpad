@@ -1,3 +1,7 @@
+---
+status: done
+---
+
 # Spec: launchpad-mobile-remote-access
 
 **Status:** proposed
@@ -34,7 +38,7 @@ of scope (deferred to a future capability).
 Sourced from Specter draft `mobile-remote-access` (2 features:
 remote/mobile access + curated app + news access).
 
-## ADDED Requirements
+## Requirements
 
 @e2e exclude proposed/unimplemented capability — adds a `mobileReady` registry/manifest field + mobile-breakpoint hide/force-desktop behaviour that is not yet built. Scenarios assert registry/manifest completeness contract, viewport-driven visibility, session-expiry from Specter sources, and curated-app/news sourcing — backend/contract and breakpoint internals belong in unit + Newman. Re-annotate with real UI tests when the capability ships.
 
@@ -90,9 +94,7 @@ extension).
 
 ### REQ-MRA-003: On the mobile breakpoint, widgets with `mobileReady: false` SHALL be hidden — not auto-stacked
 
-When the viewport drops below the mobile breakpoint defined by
-`responsive-grid-breakpoints` (currently 480 px), the runtime shell
-MUST filter out widget placements whose registry entry has
+When the viewport drops below the mobile breakpoint defined by `responsive-grid-breakpoints` (currently 480 px), the runtime shell MUST filter out widget placements whose registry entry has
 `mobileReady: false`. The hidden widgets MUST NOT auto-stack — they
 simply don't render. A small inline notice MUST appear at the top
 of the workspace listing the count of hidden widgets and offering
@@ -123,8 +125,7 @@ the desktop breakpoint at the cost of horizontal scroll).
 
 ### REQ-MRA-004: When zero widgets on a dashboard are mobile-ready, the workspace SHALL render an empty-state — not a blank page
 
-When every placement on the active dashboard has `mobileReady: false`
-AND the viewport is mobile, the workspace MUST render an empty-state
+When every placement on the active dashboard has `mobileReady: false` AND the viewport is mobile, the workspace MUST render an empty-state
 naming the situation and pointing the viewer at the desktop-layout
 override. The empty-state MUST NOT block the sidebar, dashboard
 switcher, or any non-grid affordance.
@@ -185,8 +186,7 @@ MUST resume without losing in-progress widget state.
 
 ### REQ-MRA-006: The curated-app + news surfaces SHALL be role-gated via `role-based-content` — never via a launchpad-local policy table (Specter acceptance)
 
-The Specter draft includes "curated list of relevant applications"
-and "news feed" features for the mobile shell. These MUST be
+The Specter draft's "curated list of relevant applications" and "news feed" features for the mobile shell MUST be
 satisfied by composing existing `role-based-content` rules with
 existing widget types (`links-widget` / `quicklinks-widget` for
 the app list; `news-widget` / `dashboard-rss-feeds` for news). launchpad

@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- **Dashboard quota limits** (`dashboard-quota-limits`): two
+  admin-configurable numeric quotas — `maxDashboardsPerUser` and
+  `maxWidgetsPerDashboard` — with server-side fail-closed enforcement on
+  every user-initiated creation path (create, duplicate, fork, import,
+  add-widget / add-tile) via a single `QuotaService`. Both default to `0`
+  (unlimited), so behaviour is unchanged on upgrade. Exceeding a limit
+  returns HTTP 409 with a structured `quota_exceeded` body; the dashboards
+  list response carries an additive `quota` envelope so the UI disables the
+  "Add dashboard" / "Add widget" affordances at the limit with a localised
+  tooltip. Lowering a limit never deletes or hides existing data
+  (grandfathering); `allowMultipleDashboards = false` is honoured as an
+  effective limit of 1 (most-restrictive-wins); admin template rollout and
+  compulsory-widget pushes are exempt via an explicit provisioning bypass.
+
+### Deferred
+
+- **Admin group-management UI** (`multi-scope-dashboards` Task 13):
+  the admin-facing group-shared CRUD UI was filed as the dedicated
+  follow-up change `openspec/changes/admin-group-management/` so the
+  `multi-scope-dashboards` API + read endpoint slice could ship without
+  UX dependencies. The follow-up adds an eighth Beheer tab
+  (**Group dashboards**) wrapping the existing
+  `/api/dashboards/group/...` endpoints; no new backend semantics.
+
 ### Changed
 
 - **GridStack bumped to v12.x** (REQ-GRID-013): `gridstack` dependency
@@ -18,7 +44,7 @@ All notable changes to this project will be documented in this file.
   (≥ 480 px or below). The `moveScale` algorithm preserves relative widget
   widths on breakpoint changes. Cell height is 60 px; inter-cell margin is
   8 px. All geometry constants are centralised in `useGridManager.js` and
-  mirrored to the `--mydash-cell-height` CSS custom property at init time.
+  mirrored to the `--launchpad-cell-height` CSS custom property at init time.
 
 ### Security
 
@@ -92,8 +118,8 @@ All notable changes to this project will be documented in this file.
   `?format=atom` query fallback) switches to Atom 1.0. Visibility
   reuses `DashboardService::getVisibleToUser()` so private dashboards
   never leak to public feed consumers; item count is capped at the
-  admin-tunable `mydash.feed_item_cap` (default 50). New
-  `oc_mydash_feed_tokens` table with `UNIQUE(user_id)` enforces the
+  admin-tunable `launchpad.feed_item_cap` (default 50). New
+  `oc_launchpad_feed_tokens` table with `UNIQUE(user_id)` enforces the
   one-token-per-user rotation invariant.
 
 - **Unified add/edit modal** (`widget-add-edit-modal`): a single
@@ -128,7 +154,7 @@ All notable changes to this project will be documented in this file.
   the `moveScale` layout algorithm. Geometry constants (`CELL_HEIGHT = 60`,
   `GRID_MARGIN = 8`, `BREAKPOINTS`) live in
   `src/composables/useGridManager.js` as the single source of truth and
-  are mirrored to the CSS custom property `--mydash-cell-height` at
+  are mirrored to the CSS custom property `--launchpad-cell-height` at
   init time so `calc()` expressions stay in sync. Cell height moved from
   the previously documented 80 px to 60 px to better support multi-row
   info widgets; flip the `CELL_HEIGHT` constant in the composable (single
@@ -155,7 +181,7 @@ All notable changes to this project will be documented in this file.
 
   CI guards (`composer lint:initial-state`, `npm run lint:initial-state`)
   forbid direct `IInitialState::provideInitialState()` calls outside the
-  builder and direct `loadState('mydash', ...)` calls outside the reader.
+  builder and direct `loadState('launchpad', ...)` calls outside the reader.
 
 ## 0.1.0 - Initial Release
 

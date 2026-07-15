@@ -4,7 +4,7 @@
  * Version001008Date20260502000000
  *
  * Migration that adds the `group_id` column and the composite
- * `(type, group_id)` index to `oc_mydash_dashboards`. Required by
+ * `(type, group_id)` index to `oc_launchpad_dashboards`. Required by
  * REQ-DASH-011 (group-shared dashboard type) and REQ-DASH-013
  * (visible-to-user resolution endpoint).
  *
@@ -13,20 +13,20 @@
  * lookups without affecting existing queries.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -35,7 +35,7 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add group_id column + composite index to mydash_dashboards (REQ-DASH-011).
+ * Add group_id column + composite index to launchpad_dashboards (REQ-DASH-011).
  */
 class Version001008Date20260502000000 extends SimpleMigrationStep
 {
@@ -56,11 +56,11 @@ class Version001008Date20260502000000 extends SimpleMigrationStep
     ): ?ISchemaWrapper {
         $schema = $schemaClosure();
 
-        if ($schema->hasTable('mydash_dashboards') === false) {
+        if ($schema->hasTable('launchpad_dashboards') === false) {
             return $schema;
         }
 
-        $table = $schema->getTable('mydash_dashboards');
+        $table = $schema->getTable('launchpad_dashboards');
 
         if ($table->hasColumn('group_id') === false) {
             $table->addColumn(
@@ -73,10 +73,10 @@ class Version001008Date20260502000000 extends SimpleMigrationStep
             );
         }
 
-        if ($table->hasIndex('mydash_dash_type_group') === false) {
+        if ($table->hasIndex('launchpad_dash_type_group') === false) {
             $table->addIndex(
                 ['type', 'group_id'],
-                'mydash_dash_type_group'
+                'launchpad_dash_type_group'
             );
         }
 

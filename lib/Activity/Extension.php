@@ -3,7 +3,7 @@
 /**
  * Extension
  *
- * `OCP\Activity\IProvider` implementation for MyDash. Owns the canonical
+ * `OCP\Activity\IProvider` implementation for LaunchPad. Owns the canonical
  * 13-event catalogue, subject/message templates, icons, and the parser
  * that converts a raw `IEvent` into a translated, rich-formatted entry
  * for the Nextcloud Activity stream.
@@ -25,6 +25,7 @@
  * | dashboard_restored                 | dashboard-versioning          |
  * | dashboard_lock_overridden          | dashboard-locking             |
  * | dashboard_role_changed             | admin-roles                   |
+ * | dashboard_acknowledged             | dashboard-acknowledgements    |
  *
  * Sibling capabilities MUST emit through `ActivityPublisher::publish()`
  * after the primary domain action has been persisted. They MUST NOT
@@ -32,22 +33,22 @@
  * the owning action — `ActivityPublisher` swallows and logs exceptions.
  *
  * @category  Activity
- * @package   OCA\MyDash\Activity
+ * @package   OCA\LaunchPad\Activity
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Activity;
+namespace OCA\LaunchPad\Activity;
 
-use OCA\MyDash\AppInfo\Application;
+use OCA\LaunchPad\AppInfo\Application;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\Activity\IProvider;
@@ -55,7 +56,7 @@ use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 
 /**
- * MyDash Activity provider.
+ * LaunchPad Activity provider.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors event catalogue size.
  * @SuppressWarnings(PHPMD.UnusedFormalParameter)  — $previousEvent required by IProvider interface.
@@ -64,7 +65,7 @@ use OCP\L10N\IFactory;
 class Extension implements IProvider
 {
     /**
-     * MyDash application identifier in the Activity stream.
+     * LaunchPad application identifier in the Activity stream.
      */
     public const APP_ID = Application::APP_ID;
 
@@ -72,11 +73,11 @@ class Extension implements IProvider
      * Object type stored on every emitted IEvent.
      *
      * The activity object semantics follow NC core: `objectType` is a
-     * stable string MyDash owns; `objectName` carries the dashboard
+     * stable string LaunchPad owns; `objectName` carries the dashboard
      * UUID (the IEvent::setObject signature requires the numeric
      * primary-key int as `objectId`).
      */
-    public const OBJECT_TYPE = 'mydash_dashboard';
+    public const OBJECT_TYPE = 'launchpad_dashboard';
 
     public const EVENT_CREATED     = 'dashboard_created';
     public const EVENT_UPDATED     = 'dashboard_updated';
@@ -91,9 +92,10 @@ class Extension implements IProvider
     public const EVENT_RESTORED        = 'dashboard_restored';
     public const EVENT_LOCK_OVERRIDDEN = 'dashboard_lock_overridden';
     public const EVENT_ROLE_CHANGED    = 'dashboard_role_changed';
+    public const EVENT_ACKNOWLEDGED    = 'dashboard_acknowledged';
 
     /**
-     * Canonical list of every MyDash event type registered with NC
+     * Canonical list of every LaunchPad event type registered with NC
      * Activity. Used for the per-type opt-out registration loop and
      * the unit-test contract.
      *
@@ -115,6 +117,7 @@ class Extension implements IProvider
         self::EVENT_RESTORED,
         self::EVENT_LOCK_OVERRIDDEN,
         self::EVENT_ROLE_CHANGED,
+        self::EVENT_ACKNOWLEDGED,
     ];
 
     /**
@@ -198,7 +201,7 @@ class Extension implements IProvider
     /**
      * Return an absolute URL to the per-type Activity icon.
      *
-     * Falls back to `img/activity/mydash.svg` (the generic MyDash icon)
+     * Falls back to `img/activity/launchpad.svg` (the generic LaunchPad icon)
      * when `$eventType` is not a known constant.
      *
      * @param string $eventType The event type string.
@@ -213,7 +216,7 @@ class Extension implements IProvider
             haystack: self::ALL_EVENTS,
             strict: true
         );
-        $file  = 'activity/mydash.svg';
+        $file  = 'activity/launchpad.svg';
         if ($known === true) {
             $file = 'activity/'.$eventType.'.svg';
         }
@@ -291,6 +294,10 @@ class Extension implements IProvider
             self::EVENT_ROLE_CHANGED         => [
                 'self'  => 'Your role in {dashboard} was changed to {role}',
                 'other' => "{actor} changed {target}'s role in {dashboard} to {role}",
+            ],
+            self::EVENT_ACKNOWLEDGED         => [
+                'self'  => 'You acknowledged {dashboard}',
+                'other' => '{actor} acknowledged {dashboard}',
             ],
         ];
     }//end getSubjectTemplates()

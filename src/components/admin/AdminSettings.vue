@@ -1,54 +1,54 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
-	<div class="mydash-admin">
+	<div class="launchpad-admin">
 		<CnSettingsSection
-			:name="t('mydash', 'MyDash settings')"
-			:description="t('mydash', 'Configure dashboard permissions and defaults')"
-			doc-url="https://mydash.conduction.nl/docs/intro">
+			:name="t('launchpad', 'LaunchPad settings')"
+			:description="t('launchpad', 'Configure dashboard permissions and defaults')"
+			doc-url="https://launchpad.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
 			     page, above the Beheer tabs, so the call-to-action is always
 			     the first thing the admin sees regardless of active tab. -->
 			<div
 				v-if="wizardState && !wizardState.complete"
-				class="mydash-admin__wizard-banner"
+				class="launchpad-admin__wizard-banner"
 				data-test="setup-wizard-banner">
 				<div>
-					<strong>{{ t('mydash', 'Run setup wizard') }}</strong>
+					<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
 					<p>
-						{{ t('mydash', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
+						{{ t('launchpad', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
 					</p>
 				</div>
 				<NcButton
 					type="primary"
 					data-test="setup-wizard-open"
 					@click="openWizard">
-					{{ t('mydash', 'Run setup wizard') }}
+					{{ t('launchpad', 'Run setup wizard') }}
 				</NcButton>
 			</div>
 			<div
 				v-else-if="wizardState && wizardState.complete"
-				class="mydash-admin__wizard-rerun"
+				class="launchpad-admin__wizard-rerun"
 				data-test="setup-wizard-rerun">
 				<NcButton
 					type="tertiary"
 					data-test="setup-wizard-rerun-open"
 					@click="openWizard">
-					{{ t('mydash', 'Run setup wizard again') }}
+					{{ t('launchpad', 'Run setup wizard again') }}
 				</NcButton>
 			</div>
 
 			<!-- Global Settings — always visible above the tab strip. -->
-			<div class="mydash-admin__section" data-testid="admin-default-settings">
-				<h3>{{ t('mydash', 'Default settings') }}</h3>
+			<div class="launchpad-admin__section" data-testid="admin-default-settings">
+				<h3>{{ t('launchpad', 'Default settings') }}</h3>
 
-				<div class="mydash-admin__field">
+				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultPermissionLevel"
-						:input-label="t('mydash', 'Default permission level')"
+						:input-label="t('launchpad', 'Default permission level')"
 						:options="permissionOptions"
 						label="label"
 						track-by="id"
@@ -60,77 +60,105 @@
 					:checked="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
 					@update:checked="updateSetting('allowUserDashboards', $event)">
-					{{ t('mydash', 'Allow users to create custom dashboards') }}
+					{{ t('launchpad', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
-				<p class="mydash-admin__hint mydash-admin__hint--inline">
-					{{ t('mydash', 'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.') }}
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{ t('launchpad', 'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.') }}
 				</p>
 
 				<NcCheckboxRadioSwitch
 					:checked="settings.allowMultipleDashboards"
 					@update:checked="updateSetting('allowMultipleDashboards', $event)">
-					{{ t('mydash', 'Allow users to have multiple dashboards') }}
+					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
-				<div class="mydash-admin__field">
+				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultGridColumns"
-						:input-label="t('mydash', 'Default grid columns')"
+						:input-label="t('launchpad', 'Default grid columns')"
 						:options="gridColumnOptions"
 						:clearable="false"
 						@input="saveSettings" />
+				</div>
+
+				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
+				     quotas. `0` = unlimited (no enforcement). -->
+				<div class="launchpad-admin__field" data-testid="admin-quota-dashboards">
+					<NcTextField
+						:value.sync="settings.maxDashboardsPerUser"
+						type="number"
+						min="0"
+						max="10000"
+						:label="t('launchpad', 'Maximum dashboards per user')"
+						@update:value="onQuotaInput('maxDashboardsPerUser', $event)" />
+					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+						{{ t('launchpad', '0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.') }}
+					</p>
+				</div>
+
+				<div class="launchpad-admin__field" data-testid="admin-quota-widgets">
+					<NcTextField
+						:value.sync="settings.maxWidgetsPerDashboard"
+						type="number"
+						min="0"
+						max="10000"
+						:label="t('launchpad', 'Maximum widgets per dashboard')"
+						@update:value="onQuotaInput('maxWidgetsPerDashboard', $event)" />
+					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+						{{ t('launchpad', '0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.') }}
+					</p>
 				</div>
 			</div>
 
 			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
 			     tabs because it owns the `set-group-default` /
 			     `group-default-badge` data-test hooks (task 12.2). -->
-			<div class="mydash-admin__section">
-				<div class="mydash-admin__section-header">
-					<h3>{{ t('mydash', 'Group-shared dashboards') }}</h3>
+			<div class="launchpad-admin__section">
+				<div class="launchpad-admin__section-header">
+					<h3>{{ t('launchpad', 'Group-shared dashboards') }}</h3>
 				</div>
 
-				<p class="mydash-admin__hint">
-					{{ t('mydash', 'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.') }}
+				<p class="launchpad-admin__hint">
+					{{ t('launchpad', 'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.') }}
 				</p>
 
-				<div v-if="loadingGroupDashboards" class="mydash-admin__hint">
-					{{ t('mydash', 'Loading group dashboards…') }}
+				<div v-if="loadingGroupDashboards" class="launchpad-admin__hint">
+					{{ t('launchpad', 'Loading group dashboards…') }}
 				</div>
 
 				<div
 					v-for="(rows, groupId) in groupSharedDashboards"
 					:key="groupId"
-					class="mydash-admin__group">
-					<h4 class="mydash-admin__group-title">
+					class="launchpad-admin__group">
+					<h4 class="launchpad-admin__group-title">
 						{{ groupId }}
 					</h4>
-					<div v-if="rows.length === 0" class="mydash-admin__hint">
-						{{ t('mydash', 'No group-shared dashboards in this group yet.') }}
+					<div v-if="rows.length === 0" class="launchpad-admin__hint">
+						{{ t('launchpad', 'No group-shared dashboards in this group yet.') }}
 					</div>
-					<div v-else class="mydash-admin__templates">
+					<div v-else class="launchpad-admin__templates">
 						<div
 							v-for="dash in rows"
 							:key="dash.uuid"
-							class="mydash-admin__template">
-							<div class="mydash-admin__template-info">
-								<IconRenderer :name="dash.icon" :size="20" />
+							class="launchpad-admin__template">
+							<div class="launchpad-admin__template-info">
+								<CnDashboardIcon :name="dash.icon" :size="20" />
 								<strong>{{ dash.name }}</strong>
 								<span
 									v-if="dash.isDefault === 1"
-									class="mydash-admin__badge"
+									class="launchpad-admin__badge"
 									data-test="group-default-badge">
-									{{ t('mydash', 'Default') }}
+									{{ t('launchpad', 'Default') }}
 								</span>
 							</div>
-							<div class="mydash-admin__template-actions">
+							<div class="launchpad-admin__template-actions">
 								<NcButton
 									v-if="dash.isDefault !== 1"
 									type="secondary"
 									data-test="set-group-default"
 									:disabled="settingGroupDefault === dash.uuid"
 									@click="setGroupDefault(groupId, dash.uuid)">
-									{{ t('mydash', 'Set as default') }}
+									{{ t('launchpad', 'Set as default') }}
 								</NcButton>
 							</div>
 						</div>
@@ -167,13 +195,16 @@
 				<template #demo-data>
 					<DemoDataTab />
 				</template>
+				<template #group-dashboards>
+					<GroupDashboardsTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
-			<div class="mydash-admin__section">
-				<h3>{{ t('mydash', 'Setting as default app') }}</h3>
+			<div class="launchpad-admin__section">
+				<h3>{{ t('launchpad', 'Setting as default app') }}</h3>
 				<p>
-					{{ t('mydash', 'To make MyDash the default app for users, go to Settings > Administration > Theming and select MyDash as the default app.') }}
+					{{ t('launchpad', 'To make LaunchPad the default app for users, go to Settings > Administration > Theming and select LaunchPad as the default app.') }}
 				</p>
 			</div>
 		</CnSettingsSection>
@@ -193,8 +224,9 @@ import {
 	NcButton,
 	NcSelect,
 	NcCheckboxRadioSwitch,
+	NcTextField,
+	CnDashboardIcon,
 } from '@conduction/nextcloud-vue'
-import IconRenderer from '../Dashboard/IconRenderer.vue'
 import SetupWizardModal from './SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
@@ -204,6 +236,7 @@ import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
+import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -214,7 +247,8 @@ export default {
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,
-		IconRenderer,
+		NcTextField,
+		CnDashboardIcon,
 		SetupWizardModal,
 		BeheerTabs,
 		TemplatesPage,
@@ -224,10 +258,11 @@ export default {
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
+		GroupDashboardsTab,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
-	// pushes via `MyDashAdmin::getForm()`. Treated as a hint for the
+	// pushes via `LaunchPadAdmin::getForm()`. Treated as a hint for the
 	// initial render only — `loadData()` overwrites with the API truth.
 	inject: {
 		injectedAllGroups: { from: 'allGroups', default: () => [] },
@@ -246,15 +281,18 @@ export default {
 		return {
 			loading: true,
 			settings: {
-				defaultPermissionLevel: { id: 'add_only', label: this.t('mydash', 'Add only') },
+				defaultPermissionLevel: { id: 'add_only', label: this.t('launchpad', 'Add only') },
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
+				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
+				maxDashboardsPerUser: 0,
+				maxWidgetsPerDashboard: 0,
 			},
 			permissionOptions: [
-				{ id: 'view_only', label: this.t('mydash', 'View only') },
-				{ id: 'add_only', label: this.t('mydash', 'Add only') },
-				{ id: 'full', label: this.t('mydash', 'Full customization') },
+				{ id: 'view_only', label: this.t('launchpad', 'View only') },
+				{ id: 'add_only', label: this.t('launchpad', 'Add only') },
+				{ id: 'full', label: this.t('launchpad', 'Full customization') },
 			],
 			gridColumnOptions: [6, 8, 12],
 			// REQ-DASH-015..017 — group-shared dashboards listing.
@@ -273,17 +311,19 @@ export default {
 		 * Ordered Beheer tab descriptors. Labels live here so they stay
 		 * translatable in one place; the slugs match the named slots.
 		 *
+		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
 		 * @return {Array<{slug: string, label: string}>}
 		 */
 		beheerTabs() {
 			return [
-				{ slug: 'templates', label: this.t('mydash', 'Templates') },
-				{ slug: 'operations', label: this.t('mydash', 'Operations') },
-				{ slug: 'roles-permissions', label: this.t('mydash', 'Roles & Permissions') },
-				{ slug: 'versioning-audit', label: this.t('mydash', 'Versioning & Audit') },
-				{ slug: 'sharing', label: this.t('mydash', 'Sharing') },
-				{ slug: 'org-navigation', label: this.t('mydash', 'Org navigation') },
-				{ slug: 'demo-data', label: this.t('mydash', 'Demo data') },
+				{ slug: 'templates', label: this.t('launchpad', 'Templates') },
+				{ slug: 'operations', label: this.t('launchpad', 'Operations') },
+				{ slug: 'roles-permissions', label: this.t('launchpad', 'Roles & Permissions') },
+				{ slug: 'versioning-audit', label: this.t('launchpad', 'Versioning & Audit') },
+				{ slug: 'sharing', label: this.t('launchpad', 'Sharing') },
+				{ slug: 'org-navigation', label: this.t('launchpad', 'Org navigation') },
+				{ slug: 'demo-data', label: this.t('launchpad', 'Demo data') },
+				{ slug: 'group-dashboards', label: this.t('launchpad', 'Group dashboards') },
 			]
 		},
 	},
@@ -331,6 +371,10 @@ export default {
 					allowUserDash: this.settings.allowUserDashboards,
 					allowMultiDash: this.settings.allowMultipleDashboards,
 					defaultGridCols: this.settings.defaultGridColumns,
+					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
+					// the server clamps into [0, 10000].
+					maxDashboardsPerUser: this.clampQuota(this.settings.maxDashboardsPerUser),
+					maxWidgetsPerDashboard: this.clampQuota(this.settings.maxWidgetsPerDashboard),
 				})
 			} catch (error) {
 				console.error('Failed to save settings:', error)
@@ -340,6 +384,42 @@ export default {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		updateSetting(key, value) {
 			this.settings[key] = value
+			this.saveSettings()
+		},
+
+		/**
+		 * Clamp an admin-entered quota into [0, 10000], coercing blank /
+		 * non-numeric input to 0 (unlimited). Mirrors the server-side clamp
+		 * so the UI never round-trips a value the backend would reject
+		 * (dashboard-quota-limits REQ-QUOTA-001).
+		 *
+		 * @param {*} value the raw input value
+		 * @return {number} the clamped non-negative integer
+		 */
+		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
+		clampQuota(value) {
+			const num = Number.parseInt(value, 10)
+			if (Number.isNaN(num) || num < 0) {
+				return 0
+			}
+			if (num > 10000) {
+				return 10000
+			}
+			return num
+		},
+
+		/**
+		 * Handle a numeric quota field edit: clamp into range, write back
+		 * the normalised value (so the input reflects the clamp), and
+		 * persist (dashboard-quota-limits REQ-QUOTA-001).
+		 *
+		 * @param {string} key the settings key (`maxDashboardsPerUser` | `maxWidgetsPerDashboard`)
+		 * @param {*} value the raw input value
+		 * @return {void}
+		 */
+		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
+		onQuotaInput(key, value) {
+			this.settings[key] = this.clampQuota(value)
 			this.saveSettings()
 		},
 
@@ -453,7 +533,7 @@ export default {
 					}),
 				}
 				console.error(
-					this.t('mydash', 'Failed to set the group default dashboard'),
+					this.t('launchpad', 'Failed to set the group default dashboard'),
 					error,
 				)
 			} finally {
@@ -465,53 +545,53 @@ export default {
 </script>
 
 <style scoped>
-.mydash-admin {
+.launchpad-admin {
 	max-width: 900px;
 }
 
-.mydash-admin__section {
+.launchpad-admin__section {
 	margin-bottom: 32px;
 	padding-bottom: 32px;
 	border-bottom: 1px solid var(--color-border);
 }
 
-.mydash-admin__section h3 {
+.launchpad-admin__section h3 {
 	margin: 0 0 16px;
 }
 
-.mydash-admin__section-header {
+.launchpad-admin__section-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 16px;
 }
 
-.mydash-admin__section-header h3 {
+.launchpad-admin__section-header h3 {
 	margin: 0;
 }
 
-.mydash-admin__hint {
+.launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
 }
 
-.mydash-admin__field {
+.launchpad-admin__field {
 	margin-bottom: 16px;
 }
 
-.mydash-admin__field label {
+.launchpad-admin__field label {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 500;
 }
 
-.mydash-admin__templates {
+.launchpad-admin__templates {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.mydash-admin__template {
+.launchpad-admin__template {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -520,13 +600,13 @@ export default {
 	border-radius: var(--border-radius);
 }
 
-.mydash-admin__template-info {
+.launchpad-admin__template-info {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.mydash-admin__badge {
+.launchpad-admin__badge {
 	display: inline-block;
 	padding: 2px 8px;
 	background: var(--color-primary-element);
@@ -535,16 +615,16 @@ export default {
 	font-size: 12px;
 }
 
-.mydash-admin__template-actions {
+.launchpad-admin__template-actions {
 	display: flex;
 	gap: 8px;
 }
 
-.mydash-admin__group {
+.launchpad-admin__group {
 	margin-bottom: 24px;
 }
 
-.mydash-admin__group-title {
+.launchpad-admin__group-title {
 	margin: 16px 0 8px;
 	font-size: 14px;
 	font-weight: 600;
@@ -553,7 +633,7 @@ export default {
 	letter-spacing: 0.04em;
 }
 
-.mydash-admin__wizard-banner {
+.launchpad-admin__wizard-banner {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -565,13 +645,13 @@ export default {
 	border-radius: var(--border-radius);
 }
 
-.mydash-admin__wizard-banner p {
+.launchpad-admin__wizard-banner p {
 	margin: 4px 0 0;
 	color: var(--color-text-maxcontrast);
 	font-size: 13px;
 }
 
-.mydash-admin__wizard-rerun {
+.launchpad-admin__wizard-rerun {
 	margin-bottom: 16px;
 	display: flex;
 	justify-content: flex-end;

@@ -2,7 +2,7 @@
 
 ## 1. Backend (template + controller)
 
-- [x] 1.1 Update `templates/index.php` to render `<div id="app-workspace" class="mydash-workspace"><div id="mydash-app"></div></div>` (mount id kept as `#mydash-app` for non-breakage; spec adapted from `#workspace-vue`)
+- [x] 1.1 Update `templates/index.php` to render `<div id="app-workspace" class="launchpad-workspace"><div id="launchpad-app"></div></div>` (mount id kept as `#launchpad-app` for non-breakage; spec adapted from `#workspace-vue`)
 - [x] 1.2 Update `PageController::index` to pass `'id-app-content' => '#app-workspace'` and `'id-app-navigation' => null` to the template (proposal said `WorkspaceController` but the actual page controller in this app is `PageController`)
 - [x] 1.3 Confirm initial-state push (handled by the separate `initial-state-contract` change) wires `isAdmin`, `dashboardSource`, `activeDashboardId`, `allowUserDashboards`, `layout` into the page
 

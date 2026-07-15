@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 MyDash Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -16,7 +16,7 @@
 	     (security gate — never omit `noopener noreferrer`).
 	  2. A Documentation link (icon + label) targeting the same URL the
 	     gear-menu Documentation entry used before runtime-shell-trim
-	     removed it (https://mydash.conduction.nl).
+	     removed it (https://launchpad.conduction.nl).
 
 	The footer itself is a stateless block; the parent
 	(`DashboardSwitcherSidebar`) owns the `position: sticky; bottom: 0`
@@ -35,13 +35,13 @@
 			rel="noopener noreferrer">
 			<BookOpenVariantOutline :size="18" />
 			<span class="dashboard-switcher-sidebar-footer__doc-label">
-				{{ t('mydash', 'Documentation') }}
+				{{ t('launchpad', 'Documentation') }}
 			</span>
 		</a>
 
 		<div class="dashboard-switcher-sidebar-footer__brand">
 			<span class="dashboard-switcher-sidebar-footer__brand-caption">
-				{{ t('mydash', 'Powered by') }}
+				{{ t('launchpad', 'Powered by') }}
 			</span>
 			<div class="dashboard-switcher-sidebar-footer__brand-logos">
 				<a
@@ -86,7 +86,7 @@ import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOut
  * the click context is a user inside the app reaching for docs, not
  * a prospect evaluating the product.
  */
-export const DOCS_URL = 'https://mydash.conduction.nl/docs/intro'
+export const DOCS_URL = 'https://launchpad.conduction.nl/docs/intro'
 
 export default {
 	name: 'SidebarFooter',
@@ -102,11 +102,14 @@ export default {
 		},
 		/** @spec openspec/specs/footer-customization/spec.md */
 		sendentLogo() {
-			return generateFilePath('mydash', 'img', 'sendent-logo.png')
+			// App Store id is `launchpad` (info.xml) — `launchpad` is only the
+			// display name and has no OC.appswebroots entry, so using it
+			// degrades the URL to /img/... and the logo 404s.
+			return generateFilePath('launchpad', 'img', 'sendent-logo.png')
 		},
 		/** @spec openspec/specs/footer-customization/spec.md */
 		conductionLogo() {
-			return generateFilePath('mydash', 'img', 'conduction-logo.png')
+			return generateFilePath('launchpad', 'img', 'conduction-logo.png')
 		},
 	},
 

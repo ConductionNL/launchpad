@@ -3,7 +3,7 @@
 /**
  * Version001020Date20260502130000
  *
- * Migration that creates the `oc_mydash_feed_tokens` table backing the
+ * Migration that creates the `oc_launchpad_feed_tokens` table backing the
  * per-user RSS / Atom feed-token capability (REQ-FEED-001..009). One row
  * per user (`UNIQUE(user_id)`) plus a fast `token` lookup index for the
  * public `/feed/{token}.xml` endpoint.
@@ -13,20 +13,20 @@
  * `GET /api/feed/token`.
  *
  * @category  Migration
- * @package   OCA\MyDash\Migration
+ * @package   OCA\LaunchPad\Migration
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 MyDash Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
 
-namespace OCA\MyDash\Migration;
+namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;

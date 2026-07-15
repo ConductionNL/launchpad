@@ -18,6 +18,13 @@ import { loadState } from '@nextcloud/initial-state'
 import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
 import 'gridstack/dist/gridstack.min.css'
 
+// Populate the shared dashboard widget catalog so shared placements render.
+// Widget types self-register via import-time side effects that `sideEffects`
+// tree-shaking (ADR-061) would otherwise drop; calling this no-op forces the
+// aggregator — and every widget registration — into the bundle. See main.js.
+import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
+registerBuiltinDashboardWidgets()
+
 Vue.use(PiniaVuePlugin)
 const pinia = createPinia()
 

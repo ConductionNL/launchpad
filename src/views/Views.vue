@@ -892,8 +892,12 @@ export default {
 			// the `widgetId` IS the registry type key, so resolve the type
 			// from the registry and open the content editor (AddWidgetModal)
 			// with `type` set so `loadEditingWidget` can pre-fill the form.
-			// Stock Nextcloud-widget / tile placements have no registry entry
-			// and fall through to the legacy style editor.
+			// `tile` now resolves to the shared registry entry (CnDashTileWidget
+			// + CnDashTileWidgetForm), so preset/registry tiles open the content
+			// editor below; the form reads their flat tile* columns. Legacy
+			// `custom` tiles are handled earlier via TileEditor (isTilePlacement).
+			// Stock Nextcloud-widget placements still have no registry entry and
+			// fall through to the legacy style editor.
 			const resolvedType = this.resolveWidgetType(placement)
 			if (resolvedType) {
 				this.openCustomWidgetEdit({ ...placement, type: resolvedType })

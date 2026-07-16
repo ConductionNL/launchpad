@@ -6,7 +6,7 @@ status: done
 
 ## Purpose
 
-The `resource-uploads` capability owns a small mini file API for binary assets that LaunchPad widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in LaunchPad's app-data folder (NOT the user's Files), addressed by a stable URL, uploaded admin-only via a base64-data-URL JSON request, and served back to any logged-in user via a non-OCS streaming endpoint plus an OCS listing endpoint. SVG sanitisation is specified in the sibling `svg-sanitisation` capability.
+The `resource-uploads` capability owns a small mini file API for binary assets that LaunchPad widgets reference directly: dashboard icons, image-widget images, link-button icons, etc. Resources are stored in LaunchPad's app-data folder (NOT the user's Files), addressed by a stable URL, and served back to any logged-in user via a non-OCS streaming endpoint plus an OCS listing endpoint. Two admin-only upload paths exist: a base64-data-URL JSON request (REQ-RES-001) and a raw `multipart/form-data` upload (REQ-RES-014) — the latter is what the image widget uses so large files never become a huge in-browser base64 string. SVG sanitisation is specified in the sibling `svg-sanitisation` capability.
 
 ## Data Model
 
@@ -373,3 +373,48 @@ The sanitiser MUST parse SVG via `DOMDocument::loadXML($bytes, LIBXML_NONET | LI
 - THEN `libxml_use_internal_errors(true)` MUST have been called before parse
 - AND `libxml_clear_errors()` MUST have been called after parse
 - AND no libxml warning text MUST appear in the HTTP response body
+
+### Requirement: Raw multipart upload endpoint (REQ-RES-014)
+
+The system MUST expose `POST /api/resources/upload` accepting `multipart/form-data` with a single `file` field carrying the raw image bytes (NOT base64). This is the path used by the dashboard image widget so a large image or GIF never has to be base64-encoded in the browser (which can freeze the tab) nor embedded inline in dashboard content.
+
+The endpoint MUST enforce the SAME security as the base64 endpoint (REQ-RES-001): admin-only, via the `AuthorizedAdminSetting` attribute plus a defensive `assertAdmin()` check. A non-admin or unauthenticated request MUST receive HTTP 403 with `{status: 'error', error: 'forbidden'}` and MUST NOT write a file.
+
+The declared image type MUST be derived from the uploaded filename's extension and validated against the same allow-list, size cap (5 MB), raster MIME cross-check, and SVG sanitisation as the base64 endpoint (REQ-RES-002, REQ-RES-003, REQ-RES-009). On success the response MUST be HTTP 200 with the same `{status: 'success', url, name, size}` envelope and URL form (`/apps/launchpad/resource/<filename>`) as REQ-RES-001. A missing/failed `file` field MUST return HTTP 400 with `{status: 'error', error: 'no_file'}` (a multipart-specific code, distinct from the base64 endpoint's `invalid_data_url`).
+
+Uploaded resources are served by REQ-RES-006, which requires an authenticated user — so widget images are viewable by logged-in users but do NOT render for anonymous viewers in public dashboard shares or kiosk mode. This is an accepted limitation of storing widget images as app-data resources.
+
+#### Scenario: Admin uploads a PNG file
+
+- GIVEN an authenticated admin user
+- WHEN they POST `multipart/form-data` with a `file` field containing a valid 200×200 PNG
+- THEN the system MUST return HTTP 200 with `{status: 'success', url: '/apps/launchpad/resource/resource_<uniqid>.png', name: 'resource_<uniqid>.png', size: <bytes>}`
+- AND a file MUST exist at the corresponding app-data path
+- AND the request body MUST NOT contain any base64 encoding
+
+#### Scenario: Non-admin rejected
+
+- GIVEN an authenticated non-admin user
+- WHEN they POST a file to `/api/resources/upload`
+- THEN the system MUST return HTTP 403 with `{status: 'error', error: 'forbidden'}`
+- AND no file MUST be written
+
+#### Scenario: Unauthenticated request rejected
+
+- GIVEN no authenticated user
+- WHEN a request is POSTed to `/api/resources/upload`
+- THEN the system MUST return HTTP 403 with `{status: 'error', error: 'forbidden'}`
+- AND no file MUST be written
+
+#### Scenario: Missing file field rejected
+
+- GIVEN an admin user
+- WHEN they POST with no usable `file` field (absent or a non-zero PHP upload error)
+- THEN the system MUST return HTTP 400 with `{status: 'error', error: 'no_file'}`
+
+#### Scenario: Oversize file rejected
+
+- GIVEN an admin user
+- WHEN they upload a `file` whose bytes exceed 5 MB
+- THEN the system MUST return HTTP 400 with `{status: 'error', error: 'file_too_large'}`
+- AND no file MUST be written

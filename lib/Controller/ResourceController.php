@@ -32,8 +32,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Exception\FileMissingException;
+use OCA\LaunchPad\Exception\FileTooLargeException;
 use OCA\LaunchPad\Exception\ForbiddenException;
-use OCA\LaunchPad\Exception\InvalidDataUrlException;
 use OCA\LaunchPad\Exception\ResourceException;
 use OCA\LaunchPad\Exception\StorageFailureException;
 use OCA\LaunchPad\Service\ResourceService;
@@ -150,15 +151,17 @@ class ResourceController extends Controller
      *
      * Accepts `multipart/form-data` with a single `file` entry and stores
      * the raw bytes directly — no base64, so large images and GIFs never
-     * become a huge in-memory string in the browser. Security matches the
-     * base64 endpoint exactly: admin-only, enforced both by the
-     * `AuthorizedAdminSetting` attribute and a defensive `assertAdmin()`.
-     * The response mirrors the base64 endpoint's `{status, url, name, size}`
-     * envelope.
+     * become a huge in-memory string in the browser. Admin-only, enforced
+     * both by the `AuthorizedAdminSetting` attribute and a defensive
+     * `assertAdmin()`. The response mirrors the base64 endpoint's
+     * `{status, url, name, size}` envelope.
+     *
+     * CSRF stays enforced (no `@NoCSRFRequired`): admin-only is not
+     * CSRF-safe — a logged-in admin lured to a hostile page could otherwise
+     * be made to POST a resource. The frontend uses `@nextcloud/axios`,
+     * which auto-sends the `requesttoken` header, so this is zero-cost.
      *
      * @return JSONResponse The success or error envelope.
-     *
-     * @NoCSRFRequired
      *
      * @spec openspec/specs/resource-uploads/spec.md
      */
@@ -170,7 +173,7 @@ class ResourceController extends Controller
 
             $file = $this->readUploadedFile();
             if ($file === null) {
-                throw new InvalidDataUrlException(message: 'No file uploaded');
+                throw new FileMissingException();
             }
 
             $result = $this->resourceService->uploadRaw(
@@ -219,7 +222,11 @@ class ResourceController extends Controller
      *
      * @return array{name: string, bytes: string}|null The uploaded file, or null.
      *
+     * @throws FileTooLargeException When the reported upload size exceeds the cap.
+     *
      * @SuppressWarnings(PHPMD.Superglobals) — required for multipart uploads.
+     *
+     * @spec openspec/specs/resource-uploads/spec.md
      */
     protected function readUploadedFile(): ?array
     {
@@ -229,9 +236,33 @@ class ResourceController extends Controller
             return null;
         }
 
+        // A multi-file `file[]` submission makes each entry an array
+        // (`error`/`tmp_name` become arrays). This endpoint takes a single
+        // file, so reject that shape up front — casting an array to int/string
+        // below would otherwise emit an "Array to string conversion" warning.
+        if (is_array(value: ($raw['error'] ?? null)) === true) {
+            return null;
+        }
+
         $error = (int) ($raw['error'] ?? UPLOAD_ERR_NO_FILE);
         $tmp   = (string) ($raw['tmp_name'] ?? '');
         if ($error !== UPLOAD_ERR_OK || $tmp === '') {
+            return null;
+        }
+
+        // Cheap pre-read cap using PHP's reported upload size, so a large file
+        // (allowed by a generous upload_max_filesize) is rejected before it is
+        // pulled into memory by file_get_contents(). The authoritative check on
+        // the actual bytes still runs in ResourceService::storeImageBytes().
+        if ((int) ($raw['size'] ?? 0) > ResourceService::MAX_BYTES) {
+            throw new FileTooLargeException();
+        }
+
+        // Assert the temp file came through a real PHP upload to prevent
+        // local-file-inclusion via a crafted tmp_name (mirrors the defence in
+        // FilesWidgetService). Without this, file_get_contents() below would
+        // read any path the superglobal points at.
+        if (is_uploaded_file(filename: $tmp) === false) {
             return null;
         }
 
@@ -254,6 +285,8 @@ class ResourceController extends Controller
      * @param string $name The original uploaded filename.
      *
      * @return string The lowercased extension (without the dot), or ''.
+     *
+     * @spec openspec/specs/resource-uploads/spec.md
      */
     private function declaredTypeFromName(string $name): string
     {

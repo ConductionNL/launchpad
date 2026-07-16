@@ -304,4 +304,40 @@ class ResourceServiceTest extends TestCase
         $this->expectException(FileTooLargeException::class);
         $this->service->uploadRaw(bytes: $oversize, declaredType: 'png');
     }
+
+    public function testUploadRawSanitisesSvgScriptBeforePersisting(): void
+    {
+        // Uses the real SvgSanitiser (wired in setUp): a <script> in the raw
+        // multipart payload MUST be stripped from the persisted bytes.
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg">'
+            .'<script>alert(1)</script><rect width="10" height="10"/></svg>';
+        $this->mimeValidator->method('validate');
+        $this->appData->method('getFolder')->willReturn($this->folder);
+
+        $persisted = null;
+        $this->folder->method('newFile')
+            ->willReturnCallback(function (string $name, $content) use (&$persisted): ISimpleFile {
+                $persisted = $content;
+                return $this->createMock(ISimpleFile::class);
+            });
+
+        $this->service->uploadRaw(bytes: $svg, declaredType: 'svg');
+
+        $this->assertIsString($persisted);
+        $this->assertStringNotContainsStringIgnoringCase('<script', $persisted);
+        // The benign element survives sanitisation.
+        $this->assertStringContainsString('<rect', $persisted);
+    }
+
+    public function testUploadRawMimeMismatchBubblesUp(): void
+    {
+        // REQ-RES-003 cross-check on the raw path: bytes whose detected MIME
+        // does not match the declared type are rejected.
+        $this->mimeValidator->method('validate')
+            ->willThrowException(new MimeMismatchException());
+        $this->appData->expects($this->never())->method('getFolder');
+
+        $this->expectException(MimeMismatchException::class);
+        $this->service->uploadRaw(bytes: $this->tinyPng(), declaredType: 'webp');
+    }
 }

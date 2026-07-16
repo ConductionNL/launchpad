@@ -380,7 +380,7 @@ The system MUST expose `POST /api/resources/upload` accepting `multipart/form-da
 
 The endpoint MUST enforce the SAME security as the base64 endpoint (REQ-RES-001): admin-only, via the `AuthorizedAdminSetting` attribute plus a defensive `assertAdmin()` check. A non-admin or unauthenticated request MUST receive HTTP 403 with `{status: 'error', error: 'forbidden'}` and MUST NOT write a file.
 
-The declared image type MUST be derived from the uploaded filename's extension and validated against the same allow-list, size cap (5 MB), raster MIME cross-check, and SVG sanitisation as the base64 endpoint (REQ-RES-002, REQ-RES-003, REQ-RES-009). On success the response MUST be HTTP 200 with the same `{status: 'success', url, name, size}` envelope and URL form (`/apps/launchpad/resource/<filename>`) as REQ-RES-001. A missing/failed `file` field MUST return HTTP 400 with `{status: 'error', error: 'invalid_data_url'}`.
+The declared image type MUST be derived from the uploaded filename's extension and validated against the same allow-list, size cap (5 MB), raster MIME cross-check, and SVG sanitisation as the base64 endpoint (REQ-RES-002, REQ-RES-003, REQ-RES-009). On success the response MUST be HTTP 200 with the same `{status: 'success', url, name, size}` envelope and URL form (`/apps/launchpad/resource/<filename>`) as REQ-RES-001. A missing/failed `file` field MUST return HTTP 400 with `{status: 'error', error: 'no_file'}` (a multipart-specific code, distinct from the base64 endpoint's `invalid_data_url`).
 
 Uploaded resources are served by REQ-RES-006, which requires an authenticated user — so widget images are viewable by logged-in users but do NOT render for anonymous viewers in public dashboard shares or kiosk mode. This is an accepted limitation of storing widget images as app-data resources.
 
@@ -410,7 +410,7 @@ Uploaded resources are served by REQ-RES-006, which requires an authenticated us
 
 - GIVEN an admin user
 - WHEN they POST with no usable `file` field (absent or a non-zero PHP upload error)
-- THEN the system MUST return HTTP 400 with `{status: 'error', error: 'invalid_data_url'}`
+- THEN the system MUST return HTTP 400 with `{status: 'error', error: 'no_file'}`
 
 #### Scenario: Oversize file rejected
 

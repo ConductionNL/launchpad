@@ -36,7 +36,6 @@ use OCA\LaunchPad\Exception\StorageFailureException;
 use OCA\LaunchPad\Exception\UnsupportedMediaTypeException;
 use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
@@ -366,7 +365,7 @@ class ResourceControllerTest extends TestCase
         $this->assertSame(4321, $body['size']);
     }
 
-    public function testMultipartMissingFileReturnsInvalidDataUrl(): void
+    public function testMultipartMissingFileReturnsNoFile(): void
     {
         $this->userSession->method('getUser')->willReturn($this->adminUser());
         $this->groupManager->method('isAdmin')->willReturn(true);
@@ -376,7 +375,82 @@ class ResourceControllerTest extends TestCase
         $body     = $response->getData();
 
         $this->assertSame(400, $response->getStatus());
-        $this->assertSame('invalid_data_url', $body['error']);
+        $this->assertSame('no_file', $body['error']);
+    }
+
+    public function testMultipartArrayFormFileIsRejectedAsNoFile(): void
+    {
+        // A `file[]` (multi-file) submission makes $_FILES['file']['error'] an
+        // array. Exercise the REAL readUploadedFile() (via $this->controller,
+        // which does not override it) to confirm it rejects cleanly.
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->willReturn(true);
+        $this->service->expects($this->never())->method('uploadRaw');
+
+        $_FILES['file'] = [
+            'name'     => ['a.png'],
+            'tmp_name' => ['/tmp/whatever'],
+            'size'     => [10],
+            'error'    => [UPLOAD_ERR_OK],
+        ];
+        try {
+            $response = $this->controller->uploadMultipart();
+        } finally {
+            unset($_FILES['file']);
+        }
+
+        $this->assertSame(400, $response->getStatus());
+        $this->assertSame('no_file', $response->getData()['error']);
+    }
+
+    public function testMultipartRejectsCraftedTmpNameNotFromUpload(): void
+    {
+        // LFI defence: a tmp_name pointing at an arbitrary local path (not a
+        // real PHP upload) must be rejected. is_uploaded_file() returns false
+        // for any path in the PHPUnit process, so readUploadedFile() bails and
+        // the crafted file is never read or stored.
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->willReturn(true);
+        $this->service->expects($this->never())->method('uploadRaw');
+
+        $_FILES['file'] = [
+            'name'     => 'passwd.png',
+            'tmp_name' => __FILE__,
+            'size'     => 100,
+            'error'    => UPLOAD_ERR_OK,
+        ];
+        try {
+            $response = $this->controller->uploadMultipart();
+        } finally {
+            unset($_FILES['file']);
+        }
+
+        $this->assertSame(400, $response->getStatus());
+        $this->assertSame('no_file', $response->getData()['error']);
+    }
+
+    public function testMultipartOversizeRejectedBeforeReadingFile(): void
+    {
+        // The reported upload size exceeds the cap → rejected in readUploadedFile
+        // before the bytes are pulled into memory, so uploadRaw is never reached.
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->willReturn(true);
+        $this->service->expects($this->never())->method('uploadRaw');
+
+        $_FILES['file'] = [
+            'name'     => 'big.png',
+            'tmp_name' => __FILE__,
+            'size'     => (ResourceService::MAX_BYTES + 1),
+            'error'    => UPLOAD_ERR_OK,
+        ];
+        try {
+            $response = $this->controller->uploadMultipart();
+        } finally {
+            unset($_FILES['file']);
+        }
+
+        $this->assertSame(400, $response->getStatus());
+        $this->assertSame('file_too_large', $response->getData()['error']);
     }
 
     public function testMultipartServiceExceptionMapsToEnvelope(): void

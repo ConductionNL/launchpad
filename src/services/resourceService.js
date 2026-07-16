@@ -112,8 +112,8 @@ export async function uploadDataUrl(dataUrl) {
  *   path; the renderer resolves it through `generateUrl()` at display time so it
  *   works on index.php-routed instances without persisting routing into content.
  * @throws {ResourceUploadError} On any server-side rejection (forbidden,
- *   invalid_image_format, file_too_large, invalid_svg, etc.) or transport
- *   failure (`code === 'network_error'`).
+ *   no_file, invalid_image_format, file_too_large, invalid_svg, etc.) or
+ *   transport failure (`code === 'network_error'`).
  */
 /** @spec openspec/specs/resource-uploads/spec.md */
 export async function uploadFile(file) {

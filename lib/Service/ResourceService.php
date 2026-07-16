@@ -43,7 +43,9 @@ use OCP\Files\NotFoundException;
 use Throwable;
 
 /**
- * Admin-only base64 upload pipeline for branding assets.
+ * Admin-only upload pipeline for branding assets (base64 + raw multipart).
+ *
+ * @spec openspec/specs/resource-uploads/spec.md
  */
 class ResourceService
 {
@@ -119,10 +121,86 @@ class ResourceService
      */
     public function upload(string $base64DataUrl): array
     {
-        $parsed       = $this->parseDataUrl(input: $base64DataUrl);
-        $declaredType = $parsed['type'];
-        $bytes        = $parsed['bytes'];
+        $parsed = $this->parseDataUrl(input: $base64DataUrl);
 
+        return $this->storeImageBytes(
+            bytes: $parsed['bytes'],
+            declaredType: $parsed['type']
+        );
+    }//end upload()
+
+    /**
+     * Upload already-decoded raw image bytes (multipart path).
+     *
+     * The declared type comes from the uploaded file's extension / MIME
+     * rather than a data-URL prefix; it is normalised and vetted against
+     * the same allow-list before running the shared validation and
+     * persistence pipeline. No base64 is involved — the caller has the
+     * raw bytes already (REQ-RES-014).
+     *
+     * @param string $bytes        The raw (decoded) image bytes.
+     * @param string $declaredType The declared image type (e.g. from the
+     *                             file extension or `image/<type>` MIME).
+     *
+     * @return array{url: string, name: string, size: int} The created
+     *                                                     resource.
+     *
+     * @throws InvalidDataUrlException     When the byte payload is empty.
+     * @throws InvalidImageFormatException When the declared type is not
+     *                                     in the allowed list.
+     * @throws InvalidSvgException         When an SVG payload fails to
+     *                                     parse or is fully stripped.
+     * @throws FileTooLargeException       When the bytes exceed 5 MB.
+     * @throws StorageFailureException     When writing to IAppData fails.
+     *
+     * @spec openspec/specs/resource-uploads/spec.md
+     */
+    public function uploadRaw(string $bytes, string $declaredType): array
+    {
+        if ($bytes === '') {
+            throw new InvalidDataUrlException(
+                message: 'Uploaded file is empty'
+            );
+        }
+
+        $declaredType = $this->normaliseDeclaredType(
+            raw: strtolower(string: $declaredType)
+        );
+        if (in_array(
+            needle: $declaredType,
+            haystack: self::ALLOWED_TYPES,
+            strict: true
+        ) === false
+        ) {
+            throw new InvalidImageFormatException();
+        }
+
+        return $this->storeImageBytes(
+            bytes: $bytes,
+            declaredType: $declaredType
+        );
+    }//end uploadRaw()
+
+    /**
+     * Validate and persist decoded image bytes, returning the resource info.
+     *
+     * Shared tail for both the base64 ({@see upload}) and raw multipart
+     * ({@see uploadRaw}) entry points: SVG sanitise → 5 MB cap → raster
+     * MIME cross-check → persist → build the public URL. The declared
+     * type MUST already be normalised and allow-listed by the caller.
+     *
+     * @param string $bytes        The decoded image bytes.
+     * @param string $declaredType The normalised, allow-listed declared type.
+     *
+     * @return array{url: string, name: string, size: int} The created
+     *                                                     resource.
+     *
+     * @throws InvalidSvgException     When an SVG payload is invalid.
+     * @throws FileTooLargeException   When the bytes exceed 5 MB.
+     * @throws StorageFailureException When writing to IAppData fails.
+     */
+    private function storeImageBytes(string $bytes, string $declaredType): array
+    {
         // SVG branch: sanitise BEFORE the size check so the 5 MB cap
         // is measured against the persisted (sanitised) byte count
         // (REQ-RES-009). Sanitiser returns null on parse failure or
@@ -163,7 +241,7 @@ class ResourceService
             'name' => $filename,
             'size' => strlen(string: $bytes),
         ];
-    }//end upload()
+    }//end storeImageBytes()
 
     /**
      * Parse a `data:image/<type>;base64,<payload>` string.

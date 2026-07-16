@@ -129,6 +129,52 @@ class ResourceControllerTest extends TestCase
         };
     }
 
+    /**
+     * Build a controller subclass that injects a fake uploaded file (name +
+     * bytes) so the multipart path can be exercised without `$_FILES`.
+     * A `null` file simulates a missing/failed upload.
+     *
+     * @param array{name: string, bytes: string}|null $file the fake file.
+     *
+     * @return ResourceController the test double.
+     */
+    private function buildMultipartController(?array $file): ResourceController
+    {
+        return new class (
+            $this->request,
+            $this->service,
+            $this->parser,
+            $this->userSession,
+            $this->groupManager,
+            $this->logger,
+            $file,
+        ) extends ResourceController {
+            public function __construct(
+                IRequest $request,
+                ResourceService $resourceService,
+                ResourceUploadRequestParser $parser,
+                IUserSession $userSession,
+                IGroupManager $groupManager,
+                LoggerInterface $logger,
+                private readonly ?array $fakeFile,
+            ) {
+                parent::__construct(
+                    request: $request,
+                    resourceService: $resourceService,
+                    parser: $parser,
+                    userSession: $userSession,
+                    groupManager: $groupManager,
+                    logger: $logger,
+                );
+            }
+
+            protected function readUploadedFile(): ?array
+            {
+                return $this->fakeFile;
+            }
+        };
+    }
+
     private function adminUser(string $uid = 'admin'): IUser
     {
         $user = $this->createMock(IUser::class);
@@ -268,5 +314,98 @@ class ResourceControllerTest extends TestCase
 
         $this->assertSame(415, $response->getStatus());
         $this->assertSame('unsupported_media_type', $body['error']);
+    }
+
+    // ---------------------------------------------------------------
+    // Multipart upload tests (REQ-RES-014).
+    // ---------------------------------------------------------------
+
+    public function testMultipartNonAdminReceives403(): void
+    {
+        $this->userSession->method('getUser')->willReturn($this->adminUser('alice'));
+        $this->groupManager->method('isAdmin')->with('alice')->willReturn(false);
+        $this->service->expects($this->never())->method('uploadRaw');
+
+        $response = $this->buildMultipartController(['name' => 'a.png', 'bytes' => 'x'])->uploadMultipart();
+
+        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+        $this->assertSame('forbidden', $response->getData()['error']);
+    }
+
+    public function testMultipartUnauthenticatedReceives403(): void
+    {
+        $this->userSession->method('getUser')->willReturn(null);
+        $this->service->expects($this->never())->method('uploadRaw');
+
+        $response = $this->buildMultipartController(['name' => 'a.png', 'bytes' => 'x'])->uploadMultipart();
+
+        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+        $this->assertSame('forbidden', $response->getData()['error']);
+    }
+
+    public function testMultipartSuccessReturnsEnvelope(): void
+    {
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+        $this->service->expects($this->once())
+            ->method('uploadRaw')
+            ->with('rawbytes', 'png')
+            ->willReturn([
+                'url'  => '/apps/launchpad/resource/resource_xyz.png',
+                'name' => 'resource_xyz.png',
+                'size' => 4321,
+            ]);
+
+        $response = $this->buildMultipartController(['name' => 'photo.PNG', 'bytes' => 'rawbytes'])->uploadMultipart();
+        $body     = $response->getData();
+
+        $this->assertSame(Http::STATUS_OK, $response->getStatus());
+        $this->assertSame('success', $body['status']);
+        $this->assertSame('/apps/launchpad/resource/resource_xyz.png', $body['url']);
+        $this->assertSame('resource_xyz.png', $body['name']);
+        $this->assertSame(4321, $body['size']);
+    }
+
+    public function testMultipartMissingFileReturnsInvalidDataUrl(): void
+    {
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->willReturn(true);
+        $this->service->expects($this->never())->method('uploadRaw');
+
+        $response = $this->buildMultipartController(null)->uploadMultipart();
+        $body     = $response->getData();
+
+        $this->assertSame(400, $response->getStatus());
+        $this->assertSame('invalid_data_url', $body['error']);
+    }
+
+    public function testMultipartServiceExceptionMapsToEnvelope(): void
+    {
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->willReturn(true);
+        $this->service->method('uploadRaw')->willThrowException(new FileTooLargeException());
+
+        $response = $this->buildMultipartController(['name' => 'big.png', 'bytes' => 'x'])->uploadMultipart();
+        $body     = $response->getData();
+
+        $this->assertSame(400, $response->getStatus());
+        $this->assertSame('file_too_large', $body['error']);
+        $this->assertStringNotContainsString('Exception', $body['message']);
+    }
+
+    public function testMultipartUnexpectedThrowableIsMaskedAsStorageFailure(): void
+    {
+        $this->userSession->method('getUser')->willReturn($this->adminUser());
+        $this->groupManager->method('isAdmin')->willReturn(true);
+        $this->service->method('uploadRaw')->willThrowException(
+            new \RuntimeException('SECRET /var/lib/secret')
+        );
+
+        $response = $this->buildMultipartController(['name' => 'a.png', 'bytes' => 'x'])->uploadMultipart();
+        $body     = $response->getData();
+
+        $this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
+        $this->assertSame('storage_failure', $body['error']);
+        $this->assertStringNotContainsString('SECRET', $body['message']);
     }
 }//end class

@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Exception\InvalidDataUrlException;
 use OCA\LaunchPad\Exception\ResourceException;
 use OCA\LaunchPad\Exception\StorageFailureException;
 use OCA\LaunchPad\Service\ResourceService;
@@ -143,6 +144,121 @@ class ResourceController extends Controller
             return $this->errorResponse(exception: $fallback);
         }//end try
     }//end upload()
+
+    /**
+     * Handle `POST /api/resources/upload` — raw multipart upload.
+     *
+     * Accepts `multipart/form-data` with a single `file` entry and stores
+     * the raw bytes directly — no base64, so large images and GIFs never
+     * become a huge in-memory string in the browser. Security matches the
+     * base64 endpoint exactly: admin-only, enforced both by the
+     * `AuthorizedAdminSetting` attribute and a defensive `assertAdmin()`.
+     * The response mirrors the base64 endpoint's `{status, url, name, size}`
+     * envelope.
+     *
+     * @return JSONResponse The success or error envelope.
+     *
+     * @NoCSRFRequired
+     *
+     * @spec openspec/specs/resource-uploads/spec.md
+     */
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+    public function uploadMultipart(): JSONResponse
+    {
+        try {
+            $this->assertAdmin();
+
+            $file = $this->readUploadedFile();
+            if ($file === null) {
+                throw new InvalidDataUrlException(message: 'No file uploaded');
+            }
+
+            $result = $this->resourceService->uploadRaw(
+                bytes: $file['bytes'],
+                declaredType: $this->declaredTypeFromName(name: $file['name'])
+            );
+
+            return new JSONResponse(
+                data: [
+                    'status' => 'success',
+                    'url'    => $result['url'],
+                    'name'   => $result['name'],
+                    'size'   => $result['size'],
+                ],
+                statusCode: Http::STATUS_OK
+            );
+        } catch (ResourceException $e) {
+            if ($e instanceof StorageFailureException) {
+                $this->logger->error(
+                    message: 'Resource multipart upload storage failure',
+                    context: ['exception' => $e->getMessage()]
+                );
+            }
+
+            return $this->errorResponse(exception: $e);
+        } catch (Throwable $e) {
+            $this->logger->error(
+                message: 'Unexpected resource multipart upload failure',
+                context: ['exception' => $e->getMessage()]
+            );
+
+            return $this->errorResponse(
+                exception: new StorageFailureException(
+                    message: 'Failed to store resource'
+                )
+            );
+        }//end try
+    }//end uploadMultipart()
+
+    /**
+     * Read the single uploaded file from the `file` multipart field.
+     *
+     * Extracted so PHPUnit can override the `$_FILES` source. Returns the
+     * original filename and the raw bytes, or `null` when no usable file
+     * was uploaded (missing entry or a non-zero PHP upload error).
+     *
+     * @return array{name: string, bytes: string}|null The uploaded file, or null.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals) — required for multipart uploads.
+     */
+    protected function readUploadedFile(): ?array
+    {
+        // @phpstan-ignore-next-line — superglobal access is mixed.
+        $raw = ($_FILES['file'] ?? null);
+        if (is_array(value: $raw) === false) {
+            return null;
+        }
+
+        $error = (int) ($raw['error'] ?? UPLOAD_ERR_NO_FILE);
+        $tmp   = (string) ($raw['tmp_name'] ?? '');
+        if ($error !== UPLOAD_ERR_OK || $tmp === '') {
+            return null;
+        }
+
+        $bytes = (string) file_get_contents(filename: $tmp);
+
+        return [
+            'name'  => (string) ($raw['name'] ?? ''),
+            'bytes' => $bytes,
+        ];
+    }//end readUploadedFile()
+
+    /**
+     * Derive a declared image type from an uploaded filename's extension.
+     *
+     * The bytes are cross-checked against this type downstream (raster MIME
+     * validation / SVG sanitisation), so a mislabelled extension is caught
+     * there rather than trusted here. An empty / extension-less name yields
+     * an empty string, which the service rejects as an invalid format.
+     *
+     * @param string $name The original uploaded filename.
+     *
+     * @return string The lowercased extension (without the dot), or ''.
+     */
+    private function declaredTypeFromName(string $name): string
+    {
+        return strtolower(string: (string) pathinfo(path: $name, flags: PATHINFO_EXTENSION));
+    }//end declaredTypeFromName()
 
     /**
      * Throw if the current session user is not an admin.

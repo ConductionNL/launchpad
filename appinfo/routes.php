@@ -511,6 +511,17 @@ return [
 		['name' => 'weather#show', 'url' => '/api/weather/{placementId}', 'verb' => 'GET',
 		 'requirements' => ['placementId' => '\d+']],
 
+		// Live-data tile widget — cached, resolved value for one placement
+		// (REQ-LIVETILE-003). View-time ACL guarded in the controller; never
+		// returns the source URL, headers, or credentials. The two
+		// multi-segment routes below are registered BEFORE the single-segment
+		// `{placementId}` route so a literal `connector/status` /
+		// `validate-source` path is never mistaken for a numeric placement id.
+		['name' => 'liveTile#connectorStatus', 'url' => '/api/livetile/connector/status', 'verb' => 'GET'],
+		['name' => 'liveTile#validateSource', 'url' => '/api/livetile/validate-source', 'verb' => 'POST'],
+		['name' => 'liveTile#show', 'url' => '/api/livetile/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
+
 		// Resolve a dashboard's canonical slug-chain path (used by the
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal

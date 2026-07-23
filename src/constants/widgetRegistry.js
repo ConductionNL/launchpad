@@ -69,6 +69,11 @@ import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
+// `livetile` — server-fetched, ICache-cached data-bound tile
+// (REQ-LIVETILE-001..005, openspec/changes/live-data-tile-widget). Same
+// LaunchPad-only registration pattern as `clock`/`weather`.
+import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
+import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -157,6 +162,27 @@ registerDashboardWidget('weather', {
 	},
 	displayName: 'Weather',
 	icon: 'WeatherPartlyCloudy',
+})
+
+// `livetile` — server-fetched, ICache-cached data-bound tile (REQ-LIVETILE-
+// 001..005). Same LaunchPad-only registration pattern as `clock`/`weather`.
+registerDashboardWidget('livetile', {
+	renderer: LiveTileWidget,
+	form: LiveTileWidgetForm,
+	defaultContent: {
+		label: '',
+		sourceMode: 'url',
+		url: '',
+		sourceId: '',
+		valueExpr: '',
+		refresh: 300,
+		format: { prefix: '', suffix: '', thousands: false },
+		badge: { thresholds: [] },
+		linkUrl: '',
+		linkTarget: 'same-tab',
+	},
+	displayName: 'Live-data tile',
+	icon: 'ChartLine',
 })
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal

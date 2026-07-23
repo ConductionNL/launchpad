@@ -59,6 +59,16 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+// `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
+// communal nc-vue equivalent (openspec/changes/clock-weather-widgets). Both
+// self-register into the shared `dashboardWidgetRegistry` below, exactly
+// like the `nc-widget` escape-hatch above, so they flow through the same
+// `CnAddWidgetModal` type picker and `WidgetRenderer` dispatch as every
+// communal type — no LaunchPad-side branching needed.
+import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
+import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
+import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
+import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -119,6 +129,35 @@ if (!cnGetWidgetTypeEntry('nc-widget')) {
 		icon: 'ViewDashboard',
 	})
 }
+
+// `clock` — fully client-side ambient tile (REQ-CLOCK-001..003). Always
+// (re-)registered here since it is a LaunchPad-only type, never supplied by
+// the communal nc-vue catalog.
+registerDashboardWidget('clock', {
+	renderer: ClockWidget,
+	form: ClockWidgetForm,
+	defaultContent: {
+		style: 'digital',
+		hourFormat: 'auto',
+		timezone: '',
+		showDate: true,
+	},
+	displayName: 'Clock',
+	icon: 'ClockOutline',
+})
+
+// `weather` — server-fetched, ICache-cached ambient tile (REQ-WEATHER-
+// 001..003). Same LaunchPad-only registration pattern as `clock`.
+registerDashboardWidget('weather', {
+	renderer: WeatherWidget,
+	form: WeatherWidgetForm,
+	defaultContent: {
+		location: '',
+		unitsOverride: '',
+	},
+	displayName: 'Weather',
+	icon: 'WeatherPartlyCloudy',
+})
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal
 // CnAddWidgetModal (which reads `dashboardWidgetRegistry` directly) can offer +

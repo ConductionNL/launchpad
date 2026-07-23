@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 
 /**
@@ -49,27 +50,52 @@ class RuleEvaluatorService
      * are all evaluated through private helpers below. Public surface is
      * tagged against the dispatch Requirement (REQ-VIS-010).
      *
-     * @param ConditionalRule $rule   The rule to evaluate.
-     * @param string          $userId The user ID.
+     * `$groupsOverride` / `$nowOverride` are optional context injections
+     * consumed ONLY by the read-only preview path
+     * (conditional-visibility-editor spec, REQ-CVUI-005 —
+     * `VisibilityPreviewController` via `ConditionalService::previewRules()`
+     * / `VisibilityChecker::evaluateRuleSet()`). Render-time callers
+     * (`ConditionalService::checkRulesForPlacement()`) never pass them, so
+     * behaviour for the existing call sites is byte-for-byte unchanged:
+     * group rules keep resolving the live user's group memberships and
+     * time/date rules keep using the server clock.
+     *
+     * @param ConditionalRule        $rule           The rule to evaluate.
+     * @param string                 $userId         The user ID.
+     * @param string[]|null          $groupsOverride When non-null, used
+     *                                                instead of the live
+     *                                                user's group
+     *                                                memberships for
+     *                                                `group` rules.
+     * @param DateTimeInterface|null $nowOverride    When non-null, used
+     *                                                instead of the server
+     *                                                clock for `time` /
+     *                                                `date` rules.
      *
      * @return bool Whether the rule matches.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-14
+     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
      */
     public function evaluateRule(
         ConditionalRule $rule,
-        string $userId
+        string $userId,
+        ?array $groupsOverride=null,
+        ?DateTimeInterface $nowOverride=null
     ): bool {
         return match ($rule->getRuleType()) {
             ConditionalRule::TYPE_GROUP => $this->evaluateGroupRule(
                 rule: $rule,
-                userId: $userId
+                userId: $userId,
+                groupsOverride: $groupsOverride
             ),
             ConditionalRule::TYPE_TIME => $this->evaluateTimeRule(
-                rule: $rule
+                rule: $rule,
+                nowOverride: $nowOverride
             ),
             ConditionalRule::TYPE_DATE => $this->evaluateDateRule(
-                rule: $rule
+                rule: $rule,
+                nowOverride: $nowOverride
             ),
             ConditionalRule::TYPE_ATTRIBUTE => $this->evaluateAttributeRule(
                 rule: $rule,
@@ -83,14 +109,18 @@ class RuleEvaluatorService
      * Evaluate a group-based rule.
      * Config: { "groups": ["admin", "editors"] }.
      *
-     * @param ConditionalRule $rule   The rule to evaluate.
-     * @param string          $userId The user ID.
+     * @param ConditionalRule $rule           The rule to evaluate.
+     * @param string          $userId         The user ID.
+     * @param string[]|null   $groupsOverride When non-null, the group set to
+     *                                        test instead of the live user's
+     *                                        memberships (preview only).
      *
      * @return bool Whether the rule matches.
      */
     private function evaluateGroupRule(
         ConditionalRule $rule,
-        string $userId
+        string $userId,
+        ?array $groupsOverride=null
     ): bool {
         $config       = $rule->getRuleConfigArray();
         $targetGroups = $config['groups'] ?? [];
@@ -100,10 +130,15 @@ class RuleEvaluatorService
         }
 
         // Group memberships are read through the routing resolver so the
-        // single-source-of-truth invariant (REQ-TMPL-013) holds.
-        $userGroups = $this->adminTemplateService->getUserGroupIdsFor(
-            userId: $userId
-        );
+        // single-source-of-truth invariant (REQ-TMPL-013) holds, UNLESS a
+        // preview context supplied an explicit group set to test.
+        $userGroups = $groupsOverride;
+        if ($userGroups === null) {
+            $userGroups = $this->adminTemplateService->getUserGroupIdsFor(
+                userId: $userId
+            );
+        }
+
         if ($userGroups === []) {
             return false;
         }
@@ -115,15 +150,20 @@ class RuleEvaluatorService
      * Evaluate a time-based rule.
      * Config: { "startTime": "09:00", "endTime": "17:00", "days": ["mon"] }.
      *
-     * @param ConditionalRule $rule The rule to evaluate.
+     * @param ConditionalRule        $rule        The rule to evaluate.
+     * @param DateTimeInterface|null $nowOverride When non-null, the moment to
+     *                                            test instead of the server
+     *                                            clock (preview only).
      *
      * @return bool Whether the rule matches.
      */
-    private function evaluateTimeRule(ConditionalRule $rule): bool
-    {
+    private function evaluateTimeRule(
+        ConditionalRule $rule,
+        ?DateTimeInterface $nowOverride=null
+    ): bool {
         $config = $rule->getRuleConfigArray();
 
-        $now         = new DateTime();
+        $now         = $nowOverride ?? new DateTime();
         $currentTime = $now->format(format: 'H:i');
         $currentDay  = strtolower(string: $now->format(format: 'D'));
 
@@ -151,15 +191,20 @@ class RuleEvaluatorService
      * Evaluate a date-based rule.
      * Config: { "startDate": "2024-01-01", "endDate": "2024-12-31" }.
      *
-     * @param ConditionalRule $rule The rule to evaluate.
+     * @param ConditionalRule        $rule        The rule to evaluate.
+     * @param DateTimeInterface|null $nowOverride When non-null, the moment to
+     *                                            test instead of the server
+     *                                            clock (preview only).
      *
      * @return bool Whether the rule matches.
      */
-    private function evaluateDateRule(ConditionalRule $rule): bool
-    {
+    private function evaluateDateRule(
+        ConditionalRule $rule,
+        ?DateTimeInterface $nowOverride=null
+    ): bool {
         $config = $rule->getRuleConfigArray();
 
-        $now         = new DateTime();
+        $now         = $nowOverride ?? new DateTime();
         $currentDate = $now->format(format: 'Y-m-d');
 
         $startDate = $config['startDate'] ?? null;

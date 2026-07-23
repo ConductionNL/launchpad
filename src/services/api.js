@@ -296,6 +296,22 @@ export const api = {
 		return axios.delete(`${baseUrl}/api/rules/${ruleId}`)
 	},
 
+	// REQ-CVUI-001 (conditional-visibility-editor spec): edit an existing
+	// rule through the UI. `data` carries only the changed field(s)
+	// (ruleType / ruleConfig / isInclude) — the backend preserves the rest.
+	/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+	updateRule(ruleId, data) {
+		return axios.put(`${baseUrl}/api/rules/${ruleId}`, data)
+	},
+
+	// REQ-CVUI-004/005: read-only, non-persisting "preview as
+	// audience/date" — evaluates `{rules, context}` through the SAME
+	// evaluation pipeline used at render time.
+	/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists */
+	previewVisibility(data) {
+		return axios.post(`${baseUrl}/api/visibility/preview`, data)
+	},
+
 	// Admin conditional-visibility overview (Beheer ▸ Versioning & Audit).
 	/** @spec openspec/specs/conditional-visibility/spec.md */
 	getAdminWidgetsWithRules() {

@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -104,6 +105,53 @@ class ConditionalService
             userId: $userId
         );
     }//end checkRulesForPlacement()
+
+    /**
+     * Evaluate an in-memory (not persisted) rule set against a supplied
+     * `(groups, datetime)` context.
+     *
+     * Backs `POST /api/visibility/preview`
+     * (conditional-visibility-editor spec, REQ-CVUI-005). Delegates to
+     * {@see VisibilityChecker::evaluateRuleSet()} — the SAME method
+     * `checkRulesForPlacement()` uses at render time (via `checkRules()`) —
+     * so a preview verdict can never diverge from the visibility the
+     * dashboard will actually produce for that context. Does not touch the
+     * database: `$rules` are transient `ConditionalRule` entities built by
+     * the controller from the request body, never loaded from or written to
+     * `ConditionalRuleMapper`.
+     *
+     * @param ConditionalRule[]      $rules          The candidate rule set
+     *                                                (not persisted).
+     * @param string                 $userId         The previewing user's
+     *                                                UID (used only for
+     *                                                `attribute` rules,
+     *                                                which have no override
+     *                                                in the preview
+     *                                                context).
+     * @param string[]               $groupsOverride The audience groups to
+     *                                                test `group` rules
+     *                                                against.
+     * @param DateTimeInterface|null $nowOverride    The moment to test
+     *                                                `time` / `date` rules
+     *                                                against.
+     *
+     * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
+     *
+     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+     */
+    public function previewRules(
+        array $rules,
+        string $userId,
+        array $groupsOverride,
+        ?DateTimeInterface $nowOverride
+    ): array {
+        return $this->visibilityChecker->evaluateRuleSet(
+            rules: $rules,
+            userId: $userId,
+            groupsOverride: $groupsOverride,
+            nowOverride: $nowOverride
+        );
+    }//end previewRules()
 
     /**
      * Get rules for a placement.

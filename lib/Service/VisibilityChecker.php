@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 
 /**
@@ -41,6 +42,11 @@ class VisibilityChecker
      * Include rules use OR logic (at least one must match).
      * Exclude rules use AND logic (any match hides the widget).
      *
+     * Thin boolean-only wrapper around {@see self::evaluateRuleSet()} — the
+     * ONLY place the OR/exclude-AND combination logic lives. Render-time
+     * callers (`ConditionalService::checkRulesForPlacement()`) keep calling
+     * this method unchanged.
+     *
      * @param ConditionalRule[] $rules  The rules to check.
      * @param string            $userId The user ID.
      *
@@ -50,6 +56,41 @@ class VisibilityChecker
      */
     public function checkRules(array $rules, string $userId): bool
     {
+        return $this->evaluateRuleSet(
+            rules: $rules,
+            userId: $userId
+        )['visible'];
+    }//end checkRules()
+
+    /**
+     * Evaluate a rule set and report which rules matched, in addition to the
+     * final visibility verdict.
+     *
+     * Reuses the exact same include=OR / exclude=AND combination logic as
+     * {@see self::checkRules()} (both call this method — `checkRules()` just
+     * discards the matched-id detail) so the preview path
+     * (conditional-visibility-editor spec, REQ-CVUI-005) can never diverge
+     * from render-time visibility. `$groupsOverride` / `$nowOverride` are
+     * forwarded to {@see RuleEvaluatorService::evaluateRule()} and are only
+     * ever non-null when called from the preview controller.
+     *
+     * @param ConditionalRule[]      $rules          The rules to check.
+     * @param string                 $userId         The user ID.
+     * @param string[]|null          $groupsOverride Preview-only group
+     *                                                override.
+     * @param DateTimeInterface|null $nowOverride    Preview-only clock
+     *                                                override.
+     *
+     * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
+     *
+     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+     */
+    public function evaluateRuleSet(
+        array $rules,
+        string $userId,
+        ?array $groupsOverride=null,
+        ?DateTimeInterface $nowOverride=null
+    ): array {
         $includeRules = $this->filterByType(
             rules: $rules,
             isInclude: true
@@ -59,19 +100,36 @@ class VisibilityChecker
             isInclude: false
         );
 
-        if ($this->passesIncludeRules(
+        $include = $this->evaluateGroup(
             rules: $includeRules,
-            userId: $userId
-        ) === false
-        ) {
-            return false;
+            userId: $userId,
+            groupsOverride: $groupsOverride,
+            nowOverride: $nowOverride,
+            isIncludeGroup: true
+        );
+
+        if ($include['passed'] === false) {
+            return [
+                'visible'               => false,
+                'matchedIncludeRuleIds' => $include['matchedIds'],
+                'matchedExcludeRuleIds' => [],
+            ];
         }
 
-        return $this->passesExcludeRules(
+        $exclude = $this->evaluateGroup(
             rules: $excludeRules,
-            userId: $userId
+            userId: $userId,
+            groupsOverride: $groupsOverride,
+            nowOverride: $nowOverride,
+            isIncludeGroup: false
         );
-    }//end checkRules()
+
+        return [
+            'visible'               => $exclude['passed'],
+            'matchedIncludeRuleIds' => $include['matchedIds'],
+            'matchedExcludeRuleIds' => $exclude['matchedIds'],
+        ];
+    }//end evaluateRuleSet()
 
     /**
      * Filter rules by include/exclude type.
@@ -94,56 +152,56 @@ class VisibilityChecker
     }//end filterByType()
 
     /**
-     * Check if include rules pass (at least one must match).
+     * Evaluate one include/exclude group of rules, collecting the ids of
+     * every rule that matched.
      *
-     * @param ConditionalRule[] $rules  The include rules.
-     * @param string            $userId The user ID.
+     * Include group: passes when empty OR at least one rule matched (OR).
+     * Exclude group: passes when NO rule matched (AND — any match fails
+     * it). This single helper backs both `checkRules()` (via
+     * `evaluateRuleSet()`, which discards `matchedIds`) and the preview
+     * path, so the OR/AND semantics exist in exactly one place.
      *
-     * @return bool Whether include rules pass.
+     * @param ConditionalRule[]      $rules          The rules in this group.
+     * @param string                 $userId         The user ID.
+     * @param string[]|null          $groupsOverride Preview-only group
+     *                                                override.
+     * @param DateTimeInterface|null $nowOverride    Preview-only clock
+     *                                                override.
+     * @param bool                   $isIncludeGroup True for the include
+     *                                                group, false for
+     *                                                exclude.
+     *
+     * @return array{passed: bool, matchedIds: int[]}
      */
-    private function passesIncludeRules(
+    private function evaluateGroup(
         array $rules,
-        string $userId
-    ): bool {
-        if (empty($rules) === true) {
-            return true;
-        }
-
+        string $userId,
+        ?array $groupsOverride,
+        ?DateTimeInterface $nowOverride,
+        bool $isIncludeGroup
+    ): array {
+        $matchedIds = [];
         foreach ($rules as $rule) {
             if ($this->ruleEvaluator->evaluateRule(
                 rule: $rule,
-                userId: $userId
+                userId: $userId,
+                groupsOverride: $groupsOverride,
+                nowOverride: $nowOverride
             ) === true
             ) {
-                return true;
+                $matchedIds[] = $rule->getId();
             }
         }
 
-        return false;
-    }//end passesIncludeRules()
-
-    /**
-     * Check if exclude rules pass (none must match).
-     *
-     * @param ConditionalRule[] $rules  The exclude rules.
-     * @param string            $userId The user ID.
-     *
-     * @return bool Whether exclude rules pass.
-     */
-    private function passesExcludeRules(
-        array $rules,
-        string $userId
-    ): bool {
-        foreach ($rules as $rule) {
-            if ($this->ruleEvaluator->evaluateRule(
-                rule: $rule,
-                userId: $userId
-            ) === true
-            ) {
-                return false;
-            }
+        if ($isIncludeGroup === true) {
+            $passed = empty($rules) === true || empty($matchedIds) === false;
+        } else {
+            $passed = empty($matchedIds) === true;
         }
 
-        return true;
-    }//end passesExcludeRules()
+        return [
+            'passed'     => $passed,
+            'matchedIds' => $matchedIds,
+        ];
+    }//end evaluateGroup()
 }//end class

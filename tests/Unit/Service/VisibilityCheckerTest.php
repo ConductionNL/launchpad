@@ -40,6 +40,13 @@ class VisibilityCheckerTest extends TestCase
         return $rule;
     }
 
+    private function createRuleWithId(bool $isInclude, int $id): ConditionalRule
+    {
+        $rule = $this->createRule($isInclude);
+        $rule->setId($id);
+        return $rule;
+    }
+
     public function testNoRulesReturnsVisible(): void
     {
         $this->assertTrue(
@@ -171,5 +178,73 @@ class VisibilityCheckerTest extends TestCase
                 userId: 'alice'
             )
         );
+    }
+
+    // -----------------------------------------------------------------------
+    // evaluateRuleSet() — conditional-visibility-editor REQ-CVUI-005.
+    // checkRules() above proves the boolean is unchanged; these prove the
+    // SAME method also reports which rules matched, and that checkRules()
+    // is a thin wrapper over it (no forked combination logic).
+    // -----------------------------------------------------------------------
+
+    public function testEvaluateRuleSetReportsMatchedIncludeRuleId(): void
+    {
+        $rule = $this->createRuleWithId(true, 1);
+        $this->ruleEvaluator->method('evaluateRule')->willReturn(true);
+
+        $result = $this->checker->evaluateRuleSet(rules: [$rule], userId: 'alice');
+
+        $this->assertTrue($result['visible']);
+        $this->assertSame([1], $result['matchedIncludeRuleIds']);
+        $this->assertSame([], $result['matchedExcludeRuleIds']);
+    }
+
+    public function testEvaluateRuleSetReportsMatchedExcludeRuleIdAsOverrideReason(): void
+    {
+        $include = $this->createRuleWithId(true, 1);
+        $exclude = $this->createRuleWithId(false, 2);
+        $this->ruleEvaluator->method('evaluateRule')->willReturn(true);
+
+        $result = $this->checker->evaluateRuleSet(
+            rules: [$include, $exclude],
+            userId: 'alice'
+        );
+
+        $this->assertFalse($result['visible']);
+        $this->assertSame([1], $result['matchedIncludeRuleIds']);
+        $this->assertSame([2], $result['matchedExcludeRuleIds']);
+    }
+
+    public function testCheckRulesIsAThinWrapperOverEvaluateRuleSet(): void
+    {
+        $rule = $this->createRuleWithId(true, 1);
+        $this->ruleEvaluator->method('evaluateRule')->willReturn(true);
+
+        $bool = $this->checker->checkRules(rules: [$rule], userId: 'alice');
+        $set  = $this->checker->evaluateRuleSet(rules: [$rule], userId: 'alice');
+
+        $this->assertSame($set['visible'], $bool);
+    }
+
+    public function testEvaluateRuleSetForwardsGroupsOverrideToRuleEvaluator(): void
+    {
+        $rule = $this->createRuleWithId(true, 1);
+        $this->ruleEvaluator->expects($this->once())
+            ->method('evaluateRule')
+            ->with(
+                rule: $rule,
+                userId: 'alice',
+                groupsOverride: ['marketing'],
+                nowOverride: null
+            )
+            ->willReturn(true);
+
+        $result = $this->checker->evaluateRuleSet(
+            rules: [$rule],
+            userId: 'alice',
+            groupsOverride: ['marketing']
+        );
+
+        $this->assertTrue($result['visible']);
     }
 }

@@ -257,7 +257,7 @@ export default {
 		 * dashboard switch without a page reload.
 		 *
 		 * @return {Array<{id: string, label: string, placement: object}>}
-		 * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		searchableTiles() {
 			return (this.widgetPlacements || []).map((placement) => ({
@@ -382,7 +382,7 @@ export default {
 		 *
 		 * @param {object} placement a `widgetPlacements` row.
 		 * @return {string} the label to search/display for this placement.
-		 * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		tileSearchLabel(placement) {
 			if (placement.tileType === 'custom') {
@@ -402,7 +402,7 @@ export default {
 		 * @param {{id: string, label: string, placement: object}} item the
 		 *   opened search result.
 		 * @return {void}
-		 * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		onSearchOpen(item) {
 			this.activateSearchResult(item)
@@ -417,7 +417,7 @@ export default {
 		 *
 		 * @param {Array<string>|null} matchIds the current matching ids.
 		 * @return {void}
-		 * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		onSearchFilter(matchIds) {
 			this.applySearchDimming(matchIds)
@@ -432,7 +432,7 @@ export default {
 		 * @param {{type: string, url?: string, query?: string}} action the
 		 *   resolved fallback action.
 		 * @return {void}
-		 * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		onSearchFallback(action) {
 			if (!action) {
@@ -463,7 +463,7 @@ export default {
 		 * undim every tile and move focus to the grid container.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		onSearchClear() {
 			this.applySearchDimming(null)

@@ -105,7 +105,7 @@ let instanceCounter = 0
  * concern outside this component's own tree, hence the event-based
  * contract rather than direct DOM reach-through.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export default {
 	name: 'RuntimeShellSearch',
@@ -220,12 +220,12 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md */
+	/** @spec openspec/specs/tile-quick-search/spec.md */
 	mounted() {
 		window.addEventListener('keydown', this.onWindowKeydown)
 	},
 
-	/** @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md */
+	/** @spec openspec/specs/tile-quick-search/spec.md */
 	beforeDestroy() {
 		window.removeEventListener('keydown', this.onWindowKeydown)
 	},

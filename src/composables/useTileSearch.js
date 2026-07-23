@@ -28,7 +28,7 @@
  * `useGridManager.js` / `useNestedGridManager.js` in this codebase (plain
  * Options-API components, no `setup()` required to consume it).
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 
 import Vue from 'vue'
@@ -108,7 +108,7 @@ export const MATCH_RANK = {
  * @param {string} label the raw (not yet normalised) item label.
  * @return {number|null} one of {@link MATCH_RANK}'s values, or `null`.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function matchRank(query, label) {
 	const q = normalizeForSearch(query)
@@ -140,7 +140,7 @@ export function matchRank(query, label) {
  * @return {Array<{id: string, label: string, item: object, rank: number}>}
  *   the ranked matches, richest match first.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function rankItems(query, items) {
 	const list = Array.isArray(items) ? items : []
@@ -173,7 +173,7 @@ export function rankItems(query, items) {
  * @return {boolean} true when the template is a valid `https` URL
  *   containing `{query}`.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function isValidFallbackTemplate(template) {
 	if (typeof template !== 'string' || template.trim() === '') {
@@ -200,7 +200,7 @@ export function isValidFallbackTemplate(template) {
  * @return {{type: 'none'}|{type: 'unified-search', query: string}|{type: 'web-search', url: string}}
  *   the resolved action; the caller executes the actual side effect.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function resolveFallbackAction(fallbackTarget, query) {
 	if (fallbackTarget === FALLBACK_TARGET_UNIFIED_SEARCH) {
@@ -224,7 +224,7 @@ export function resolveFallbackAction(fallbackTarget, query) {
  * @return {boolean} true for `<input>`, `<textarea>`, `<select>`, or any
  *   `contenteditable` element.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function isTypingTarget(target) {
 	if (!target || typeof target !== 'object') {
@@ -246,7 +246,7 @@ export function isTypingTarget(target) {
  * @param {KeyboardEvent} event the keydown event.
  * @return {boolean} true when the event should focus the search input.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function isSlashFocusShortcut(event) {
 	if (!event || event.key !== '/') {
@@ -267,7 +267,7 @@ export function isSlashFocusShortcut(event) {
  * @param {KeyboardEvent} event the keydown event.
  * @return {boolean} true when the event should focus the search input.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function isCtrlKFocusShortcut(event) {
 	if (!event) {
@@ -301,7 +301,7 @@ export function isCtrlKFocusShortcut(event) {
  *   can change it without recreating the composable.
  * @return {object} the `{state, ...methods}` API — see inline method docs.
  *
- * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+ * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function useTileSearch(options = {}) {
 	const { onOpen, onFallback, getFallbackTarget } = options

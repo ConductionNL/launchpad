@@ -348,7 +348,7 @@ class InitialStateBuilder
      *
      * @return self Fluent.
      *
-     * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+     * @spec openspec/specs/tile-quick-search/spec.md
      */
     public function setQuicksearchFallbackTarget(string $quicksearchFallbackTarget): self
     {

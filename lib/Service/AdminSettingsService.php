@@ -230,7 +230,7 @@ class AdminSettingsService
      *
      * @return bool true when `$value` is a valid fallback target.
      *
-     * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+     * @spec openspec/specs/tile-quick-search/spec.md
      */
     public function isValidQuicksearchFallbackTarget(?string $value): bool
     {

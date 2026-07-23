@@ -59,7 +59,7 @@ use OCP\IUserSession;
 /**
  * Controller for tile usage-analytics endpoints.
  *
- * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+ * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
 class TileAnalyticsController extends Controller
 {
@@ -101,7 +101,7 @@ class TileAnalyticsController extends Controller
      *                      unauthenticated, 404 when the placement
      *                      does not exist.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     #[NoAdminRequired]
     public function recordClick(string $placementId): JSONResponse
@@ -150,7 +150,7 @@ class TileAnalyticsController extends Controller
      * @return JSONResponse `{"enabled": bool}`; 401 when
      *                      unauthenticated.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     #[NoAdminRequired]
     public function config(): JSONResponse
@@ -175,7 +175,7 @@ class TileAnalyticsController extends Controller
      *
      * @return JSONResponse The response.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function topTiles(
@@ -221,7 +221,7 @@ class TileAnalyticsController extends Controller
      *
      * @return JSONResponse The response.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function dashboardBreakdown(
@@ -269,7 +269,7 @@ class TileAnalyticsController extends Controller
      * @return Response The CSV download response or a JSON error
      *                  envelope.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function exportCsv(string $period='30d'): Response

@@ -105,7 +105,7 @@ class TileAnalyticsService
      *
      * @return bool `true` when clicks by this user would be recorded.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function isTrackingActiveFor(string $userId): bool
     {
@@ -137,7 +137,7 @@ class TileAnalyticsService
      *
      * @throws DoesNotExistException When the placement does not exist.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function recordClick(int $placementId, string $userId): bool
     {
@@ -199,7 +199,7 @@ class TileAnalyticsService
      *   clickCount: int, uniqueActorCount: int}>
      *   Top-N tiles sorted by `clickCount` descending.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function getTopTiles(string $period, int $limit): array
     {
@@ -223,7 +223,7 @@ class TileAnalyticsService
      *   uniqueActorCount: int}>
      *   Per-tile totals sorted by `clickCount` descending.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function getDashboardBreakdown(
         string $dashboardUuid,
@@ -247,7 +247,7 @@ class TileAnalyticsService
      *
      * @return string The CSV body (CRLF line endings).
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function generateCsvExport(string $period): string
     {
@@ -291,7 +291,7 @@ class TileAnalyticsService
      * @return string The filename in the form
      *                `tile-analytics-YYYY-MM-DD.csv`.
      *
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     public function csvExportFilename(): string
     {

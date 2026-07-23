@@ -78,7 +78,7 @@ function isTrackingActive() {
  *
  * @return {{recordTileClick: (placementId: (string|number)) => void}}
  */
-/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 export function useTileClickTracking() {
 	/**
 	 * Fire a tile-click record call. Fire-and-forget: never awaited by

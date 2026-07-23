@@ -91,7 +91,7 @@ class PurgeViewsJob extends TimedJob
      * @return void
      *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
-     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/specs/dashboard-view-analytics/spec.md
      */
     protected function run($argument): void
     {

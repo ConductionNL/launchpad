@@ -124,7 +124,7 @@ export default {
 		 *
 		 * @return {void}
 		 */
-		/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+		/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 		handleActivate() {
 			recordTileClick(this.tile?.id)
 		},

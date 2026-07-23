@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Version002006Date20260723000000
+ * Version002007Date20260724000000
  *
  * Migration that creates the `launchpad_tile_clicks` table — daily
  * aggregate click counters for the tile usage-analytics capability
@@ -40,7 +40,7 @@ use OCP\Migration\SimpleMigrationStep;
  * Create the `launchpad_tile_clicks` aggregate table
  * (REQ-TANLT-001..005).
  */
-class Version002006Date20260723000000 extends SimpleMigrationStep
+class Version002007Date20260724000000 extends SimpleMigrationStep
 {
     /**
      * Create the daily-aggregate tile-clicks table.

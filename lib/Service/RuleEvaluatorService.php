@@ -75,7 +75,7 @@ class RuleEvaluatorService
      * @return bool Whether the rule matches.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-14
-     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
      */
     public function evaluateRule(
         ConditionalRule $rule,

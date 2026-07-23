@@ -83,7 +83,7 @@ class VisibilityChecker
      *
      * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
      *
-     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
      */
     public function evaluateRuleSet(
         array $rules,

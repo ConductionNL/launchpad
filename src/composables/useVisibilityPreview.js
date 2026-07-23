@@ -40,7 +40,7 @@ function toPreviewRule(rule) {
  *   reset: () => void,
  * }}
  */
-/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#req-cvui-004-preview-as-audience-and-date */
+/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
 export function useVisibilityPreview() {
 	const state = Vue.observable({
 		loading: false,
@@ -59,7 +59,7 @@ export function useVisibilityPreview() {
 	 * @return {Promise<{visible: boolean, matchedIncludeRuleIds: number[], matchedExcludeRuleIds: number[]}>}
 	 *   the preview result
 	 */
-	/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#req-cvui-004-preview-as-audience-and-date */
+	/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
 	async function runPreview(rules, context) {
 		state.loading = true
 		state.error = null

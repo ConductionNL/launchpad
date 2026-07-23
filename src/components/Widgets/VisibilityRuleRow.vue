@@ -257,10 +257,12 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		rowKey() {
 			return this.rule.id ?? this.rule._localKey ?? 'draft'
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		typeOptions() {
 			return [
 				{ id: 'group', label: t('launchpad', 'Group') },
@@ -271,9 +273,11 @@ export default {
 		},
 
 		typeOption: {
+			/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 			get() {
 				return this.typeOptions.find((o) => o.id === this.local.ruleType) || this.typeOptions[0]
 			},
+			/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 			set(option) {
 				if (!option || option.id === this.local.ruleType) {
 					return
@@ -284,6 +288,7 @@ export default {
 			},
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		operatorOptions() {
 			return [
 				{ id: 'equals', label: t('launchpad', 'Equals') },
@@ -295,15 +300,18 @@ export default {
 		},
 
 		operatorOption: {
+			/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 			get() {
 				return this.operatorOptions.find((o) => o.id === this.local.ruleConfig.operator) || this.operatorOptions[0]
 			},
+			/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 			set(option) {
 				this.local.ruleConfig.operator = option ? option.id : 'equals'
 				this.onChange()
 			},
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		dayOptions() {
 			return [
 				{ id: 'mon', label: t('launchpad', 'Mon') },
@@ -321,6 +329,7 @@ export default {
 		 * tasks.md "client-side operand validation. blocks malformed
 		 * operands (bad time, empty groups)").
 		 *
+		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
 		 * @return {boolean} whether the current draft can be saved.
 		 */
 		isValid() {
@@ -346,6 +355,7 @@ export default {
 		 * Deep-clone a rule prop into a fresh, type-shaped local buffer.
 		 *
 		 * @param {object} rule the source rule
+		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
 		 * @return {object} an independent local copy
 		 */
 		cloneRule(rule) {
@@ -365,6 +375,7 @@ export default {
 			return typeof value === 'string' && DATE_RE.test(value)
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		hasAtLeastOneValidDate() {
 			const { startDate, endDate } = this.local.ruleConfig
 			const hasStart = !!startDate
@@ -381,31 +392,37 @@ export default {
 			return true
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		onStartTimeChange(value) {
 			this.local.ruleConfig.startTime = value
 			this.onChange()
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		onEndTimeChange(value) {
 			this.local.ruleConfig.endTime = value
 			this.onChange()
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		onStartDateChange(value) {
 			this.local.ruleConfig.startDate = value
 			this.onChange()
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		onEndDateChange(value) {
 			this.local.ruleConfig.endDate = value
 			this.onChange()
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		onAttributeFieldChange(field, value) {
 			this.local.ruleConfig[field] = value
 			this.onChange()
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		toggleDay(dayId) {
 			const days = this.local.ruleConfig.days || []
 			const index = days.indexOf(dayId)
@@ -417,6 +434,7 @@ export default {
 			this.onChange()
 		},
 
+		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
 		setMode(isInclude) {
 			this.local.isInclude = isInclude
 			this.onChange()
@@ -427,6 +445,7 @@ export default {
 		 * empty optional keys (REQ-CVUI-002 date scenario: "MUST NOT emit
 		 * an empty endDate key").
 		 *
+		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
 		 * @return {object} the canonical ruleConfig blob.
 		 */
 		buildRuleConfig() {
@@ -467,6 +486,7 @@ export default {
 		/**
 		 * The canonical, emit-ready payload for the current draft.
 		 *
+		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
 		 * @return {{ruleType: string, ruleConfig: object, isInclude: boolean}}
 		 */
 		buildPayload() {
@@ -482,6 +502,7 @@ export default {
 		 * (used by preview) never lags the row's own state, even before
 		 * Save is pressed.
 		 *
+		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
 		 * @return {void}
 		 */
 		onChange() {
@@ -492,6 +513,7 @@ export default {
 		 * Request persistence of the current draft. Only fires when
 		 * client-side validation passes.
 		 *
+		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
 		 * @return {void}
 		 */
 		save() {

@@ -558,6 +558,11 @@ return [
 		['name' => 'liveTile#show', 'url' => '/api/livetile/{placementId}', 'verb' => 'GET',
 		 'requirements' => ['placementId' => '\d+']],
 
+		// Iframe-embed widget — save-time allow-list validation
+		// (REQ-IFRAME-002). No per-placement data endpoint: the browser
+		// embeds the target URL directly, config lives in `widgetContent`.
+		['name' => 'iframe#validateUrl', 'url' => '/api/iframe/validate-url', 'verb' => 'POST'],
+
 		// Resolve a dashboard's canonical slug-chain path (used by the
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal

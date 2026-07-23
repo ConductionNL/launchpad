@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\AppInfo;
 
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Listener\CspListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
@@ -39,6 +40,7 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Group\Events\GroupDeletedEvent;
+use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use OCP\User\Events\UserDeletedEvent;
 
 /**
@@ -170,6 +172,14 @@ class Application extends App implements IBootstrap
         // Surface dashboards, widget content, and metadata values in
         // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
         $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
+
+        // `iframe` widget — contribute the admin allow-listed embed hosts
+        // to LaunchPad's own `frame-src` CSP directive so the instance CSP
+        // never blocks an otherwise-permitted embed (REQ-IFRAME-003).
+        $context->registerEventListener(
+            event: AddContentSecurityPolicyEvent::class,
+            listener: CspListener::class
+        );
 
         // Observability (ADR-040): re-point the unchanged /api/health and
         // /api/metrics routes at thin subclasses of the OpenRegister AppHost

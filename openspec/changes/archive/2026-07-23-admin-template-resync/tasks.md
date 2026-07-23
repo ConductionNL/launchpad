@@ -26,7 +26,7 @@
 - [x] Vitest: dialog gates Apply behind a completed dry-run; strategy binding.
 
 ## Docs
-- [ ] Document the re-sync action, overwrite-vs-merge semantics, dry-run workflow, and compulsory-widget guarantee in the admin template docs. NOT done this pass.
+- [x] Document the re-sync action, overwrite-vs-merge semantics, dry-run workflow, and compulsory-widget guarantee in the admin template docs. (`docs/features/admin-template-resync.md`)
 
 ## Out of scope (follow-ups)
 - Automatic/scheduled re-sync on template edit (this change is explicit-only).

@@ -46,6 +46,7 @@ const EXPECTED_TYPES = [
 	'label',
 	'link',
 	'links',
+	'livetile',
 	'menu',
 	'nc-widget',
 	'news',

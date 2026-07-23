@@ -349,6 +349,10 @@ class PageController extends Controller
         $csp->addAllowedFrameDomain(domain: 'https://player.vimeo.com');
         $csp->addAllowedImageDomain(domain: 'https://i.ytimg.com');
         $csp->addAllowedImageDomain(domain: 'https://i.vimeocdn.com');
+        // REQ-MMW: the map widget (CnMapWidget) falls back to OpenStreetMap tiles
+        // when no basemap is configured; Nextcloud's default `img-src` blocks
+        // external images, so allow the OSM tile hosts or the map paints white.
+        $csp->addAllowedImageDomain(domain: 'https://*.tile.openstreetmap.org');
         $response->setContentSecurityPolicy(csp: $csp);
 
         return $response;
@@ -388,6 +392,9 @@ class PageController extends Controller
 
         $csp = new ContentSecurityPolicy();
         $csp->addAllowedImageDomain(domain: 'data:');
+        // A shared dashboard may contain a map widget, which falls back to
+        // OpenStreetMap tiles when no basemap is configured (see index()).
+        $csp->addAllowedImageDomain(domain: 'https://*.tile.openstreetmap.org');
         $response->setContentSecurityPolicy(csp: $csp);
 
         return $response;

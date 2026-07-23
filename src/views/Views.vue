@@ -200,6 +200,7 @@
 			:preselected-type="customWidgetPreselectedType"
 			:editing-widget="customWidgetEditing"
 			:upload-fn="iconUploadFn"
+			:file-upload-fn="imageFileUpload"
 			:calendars-fetcher="fetchCalendars"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
@@ -283,7 +284,7 @@ import WidgetPickerModal from '../components/WidgetPickerModal.vue'
 import TileEditor from '../components/TileEditor.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
-import { uploadDataUrl } from '../services/resourceService.js'
+import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
@@ -892,8 +893,12 @@ export default {
 			// the `widgetId` IS the registry type key, so resolve the type
 			// from the registry and open the content editor (AddWidgetModal)
 			// with `type` set so `loadEditingWidget` can pre-fill the form.
-			// Stock Nextcloud-widget / tile placements have no registry entry
-			// and fall through to the legacy style editor.
+			// `tile` now resolves to the shared registry entry (CnDashTileWidget
+			// + CnDashTileWidgetForm), so preset/registry tiles open the content
+			// editor below; the form reads their flat tile* columns. Legacy
+			// `custom` tiles are handled earlier via TileEditor (isTilePlacement).
+			// Stock Nextcloud-widget placements still have no registry entry and
+			// fall through to the legacy style editor.
 			const resolvedType = this.resolveWidgetType(placement)
 			if (resolvedType) {
 				this.openCustomWidgetEdit({ ...placement, type: resolvedType })
@@ -1093,6 +1098,20 @@ export default {
 		 */
 		iconUploadFn(file) {
 			return uploadDataUrl(file)
+		},
+
+		/**
+		 * Raw-file upload transport for the shared CnAddWidgetModal's image
+		 * widget sub-form. Streams the picked file to LaunchPad's resource
+		 * service as multipart (no base64) on submit and returns the hosted
+		 * URL in the `{ url }` shape the sub-form's uploadFn expects.
+		 *
+		 * @param {File} file the picked image file.
+		 * @return {Promise<{url: string}>} the hosted resource URL.
+		 * @spec openspec/specs/resource-uploads/spec.md
+		 */
+		imageFileUpload(file) {
+			return uploadFile(file).then((result) => ({ url: result.url }))
 		},
 
 		/**

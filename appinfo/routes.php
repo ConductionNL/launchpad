@@ -319,6 +319,11 @@ return [
 		// streamer is intentionally NOT under `/api/...` because it
 		// returns binary bytes, not a JSON envelope.
 		['name' => 'resource#upload', 'url' => '/api/resources', 'verb' => 'POST'],
+		// Raw multipart upload — REQ-RES-014. Admin-only (same security as the
+		// base64 endpoint above); accepts a single `file` multipart field with
+		// no base64 so large images/GIFs never become a huge in-browser string.
+		// Registered before the wildcard `/resource/{filename}` streamer.
+		['name' => 'resource#uploadMultipart', 'url' => '/api/resources/upload', 'verb' => 'POST'],
 		// Resource listing — REQ-RES-007. Logged-in user only (no admin
 		// gate); the listed names are already referenced from rendered
 		// dashboards so admin gating would lock dashboards out of their

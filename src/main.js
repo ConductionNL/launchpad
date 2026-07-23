@@ -30,12 +30,23 @@ import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 
+import './services/widgetBridge.js'
+
 import App from './App.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import bundledStub from './manifest.json'
 import 'gridstack/dist/gridstack.min.css'
 import './styles/workspace.css'
+
+// Populate the shared dashboard widget catalog. Each widget type self-registers
+// via an import-time side effect aggregated in nc-vue; `sideEffects`
+// tree-shaking (ADR-061) drops those bare side-effect imports unless a binding
+// is used, which collapses the Add-Widget picker to only the types launchpad
+// references directly (link + nc-widget). Calling this exported no-op forces
+// the aggregator — and therefore every widget registration — into the bundle.
+import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
+registerBuiltinDashboardWidgets()
 
 // Tier 1 manifest adoption (ADR-024): register the bundled manifest with
 // nc-vue so the shared shell can read menu/page declarations. The vue-router

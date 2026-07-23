@@ -47,6 +47,7 @@ use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
+use OCP\IPreview;
 use OCP\IURLGenerator;
 use RuntimeException;
 use Throwable;
@@ -92,13 +93,16 @@ class FilesWidgetService
     /**
      * Constructor.
      *
-     * @param IRootFolder   $rootFolder   Filesystem root accessor.
-     * @param IURLGenerator $urlGenerator URL builder for thumbnails and
-     *                                    deep links into the Files app.
+     * @param IRootFolder   $rootFolder     Filesystem root accessor.
+     * @param IURLGenerator $urlGenerator   URL builder for thumbnails and
+     *                                      deep links into the Files app.
+     * @param IPreview      $previewManager Decides which files have a
+     *                                      previewable thumbnail.
      */
     public function __construct(
         private readonly IRootFolder $rootFolder,
         private readonly IURLGenerator $urlGenerator,
+        private readonly IPreview $previewManager,
     ) {
     }//end __construct()
 
@@ -383,19 +387,24 @@ class FilesWidgetService
     {
         $isFolder = $node instanceof Folder;
 
+        // Emit a preview URL for any file Nextcloud can render a thumbnail
+        // for (images, PDFs, videos, …) — not just images. `isAvailable`
+        // gates on a registered preview provider, so we never hand the client
+        // a URL that 404s. Non-previewable files keep `null` and the frontend
+        // falls back to a generic file icon.
         $thumbnailUrl = null;
-        if ($isFolder === false && $node instanceof File) {
-            $mime = $node->getMimetype();
-            if (str_starts_with(haystack: $mime, needle: 'image/') === true) {
-                $thumbnailUrl = $this->urlGenerator->linkToRouteAbsolute(
-                    routeName: 'core.Preview.getPreviewByFileId',
-                    arguments: [
-                        'fileId' => $node->getId(),
-                        'x'      => 64,
-                        'y'      => 64,
-                    ]
-                );
-            }
+        if ($isFolder === false && $node instanceof File
+            && $this->previewManager->isAvailable(file: $node) === true
+        ) {
+            $thumbnailUrl = $this->urlGenerator->linkToRouteAbsolute(
+                routeName: 'core.Preview.getPreviewByFileId',
+                arguments: [
+                    'fileId' => $node->getId(),
+                    'x'      => 256,
+                    'y'      => 256,
+                    'a'      => 1,
+                ]
+            );
         }
 
         $permissions = $node->getPermissions();

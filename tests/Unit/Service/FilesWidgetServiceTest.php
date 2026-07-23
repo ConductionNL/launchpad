@@ -33,6 +33,7 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
+use OCP\IPreview;
 use OCP\IURLGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -47,6 +48,9 @@ class FilesWidgetServiceTest extends TestCase
     /** @var IURLGenerator&MockObject */
     private $urlGenerator;
 
+    /** @var IPreview&MockObject */
+    private $previewManager;
+
     /** @var Folder&MockObject */
     private $userFolder;
 
@@ -57,17 +61,21 @@ class FilesWidgetServiceTest extends TestCase
     {
         $this->rootFolder       = $this->createMock(IRootFolder::class);
         $this->urlGenerator     = $this->createMock(IURLGenerator::class);
+        $this->previewManager   = $this->createMock(IPreview::class);
         $this->userFolder       = $this->createMock(Folder::class);
         $this->configuredFolder = $this->createMock(Folder::class);
 
         $this->urlGenerator->method('linkToRouteAbsolute')
             ->willReturn('https://nc/preview');
 
+        // isAvailable is left unconfigured (returns null → no thumbnail) so it
+        // stays false-y for existing tests; the thumbnail test opts in.
         $this->rootFolder->method('getUserFolder')->willReturn($this->userFolder);
 
         $this->service = new FilesWidgetService(
             rootFolder: $this->rootFolder,
             urlGenerator: $this->urlGenerator,
+            previewManager: $this->previewManager,
         );
     }
 
@@ -263,6 +271,32 @@ class FilesWidgetServiceTest extends TestCase
         $this->assertTrue($metadata['canEdit']);
         $this->assertTrue($metadata['canDelete']);
         $this->assertFalse($metadata['isFolder']);
+    }
+
+    /**
+     * A preview URL is emitted for any file the preview manager can render
+     * (not just images), and stays null for non-previewable files.
+     */
+    public function testBuildFileMetadataEmitsThumbnailWhenPreviewAvailable(): void
+    {
+        $previewable = $this->buildFile(id: 7, name: 'doc.pdf', mime: 'application/pdf');
+        $this->previewManager->method('isAvailable')->willReturn(true);
+
+        $metadata = $this->service->buildFileMetadata(node: $previewable);
+        $this->assertSame('https://nc/preview', $metadata['thumbnailUrl']);
+    }
+
+    /**
+     * Non-previewable files carry no thumbnail URL, so the frontend renders
+     * the generic icon.
+     */
+    public function testBuildFileMetadataOmitsThumbnailWhenNoPreview(): void
+    {
+        $file = $this->buildFile(id: 8, name: 'archive.zip', mime: 'application/zip');
+        // isAvailable left unconfigured → null → no thumbnail.
+
+        $metadata = $this->service->buildFileMetadata(node: $file);
+        $this->assertNull($metadata['thumbnailUrl']);
     }
 
     /**

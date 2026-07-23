@@ -100,6 +100,65 @@ export async function uploadDataUrl(dataUrl) {
 }
 
 /**
+ * Upload a raw `File` via `POST /apps/launchpad/api/resources/upload`
+ * (multipart). Unlike {@link uploadDataUrl}, the file is streamed as-is —
+ * no base64 conversion — so large images and GIFs never become a huge
+ * in-memory string that can freeze the browser tab. Prefer this for
+ * user-picked files; the endpoint returns the same envelope.
+ *
+ * @param {File|Blob} file A `File` (typically from an `<input type="file">`).
+ * @return {Promise<{url: string, name: string, size: number}>} The persisted
+ *   resource info. `url` is the server's logical `/apps/launchpad/resource/<name>`
+ *   path; the renderer resolves it through `generateUrl()` at display time so it
+ *   works on index.php-routed instances without persisting routing into content.
+ * @throws {ResourceUploadError} On any server-side rejection (forbidden,
+ *   no_file, invalid_image_format, file_too_large, invalid_svg, etc.) or
+ *   transport failure (`code === 'network_error'`).
+ */
+/** @spec openspec/specs/resource-uploads/spec.md */
+export async function uploadFile(file) {
+	const url = generateUrl('/apps/launchpad/api/resources/upload')
+
+	const formData = new FormData()
+	formData.append('file', file)
+
+	let response
+	try {
+		// Let the browser/axios set the multipart boundary and CSRF token.
+		response = await axios.post(url, formData)
+	} catch (err) {
+		const data = err?.response?.data
+		if (data && data.status === 'error' && typeof data.error === 'string') {
+			throw new ResourceUploadError(
+				data.error,
+				typeof data.message === 'string' ? data.message : data.error,
+				err?.response?.status,
+			)
+		}
+		throw new ResourceUploadError(
+			'network_error',
+			err?.message || 'Network error',
+			err?.response?.status,
+		)
+	}
+
+	const body = response?.data
+	if (!body || body.status !== 'success' || typeof body.url !== 'string') {
+		throw new ResourceUploadError(
+			body?.error || 'unknown_error',
+			body?.message || 'Unexpected server response',
+			response?.status,
+		)
+	}
+
+	return {
+		url: body.url,
+		name: typeof body.name === 'string' ? body.name : '',
+		size: typeof body.size === 'number' ? body.size : 0,
+	}
+}
+
+/**
  * Read a `File` object as a base64 data URL — convenience wrapper around
  * `FileReader` that returns a promise so callers can `await` it. Used by
  * the image-widget form and link-button widget icon picker.
@@ -117,4 +176,4 @@ export function readFileAsDataUrl(file) {
 	})
 }
 
-export default { uploadDataUrl, ResourceUploadError, readFileAsDataUrl }
+export default { uploadDataUrl, uploadFile, ResourceUploadError, readFileAsDataUrl }

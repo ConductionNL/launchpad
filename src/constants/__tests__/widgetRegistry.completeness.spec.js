@@ -42,6 +42,7 @@ const EXPECTED_TYPES = [
 	'divider',
 	'files',
 	'header',
+	'iframe',
 	'image',
 	'label',
 	'link',

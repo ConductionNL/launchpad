@@ -74,6 +74,12 @@ import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm
 // LaunchPad-only registration pattern as `clock`/`weather`.
 import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
 import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+// `iframe` — embeds an admin-allow-listed external URL in a sandboxed
+// frame, with a client-side graceful-degradation fallback for targets that
+// refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
+// Same LaunchPad-only registration pattern as `clock`/`weather`/`livetile`.
+import IframeWidget from '../components/Widgets/Renderers/IframeWidget.vue'
+import IframeWidgetForm from '../components/Widgets/Renderers/IframeWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -183,6 +189,24 @@ registerDashboardWidget('livetile', {
 	},
 	displayName: 'Live-data tile',
 	icon: 'ChartLine',
+})
+
+// `iframe` — embeds an admin-allow-listed external URL in a sandboxed
+// frame (REQ-IFRAME-001..004). Same LaunchPad-only registration pattern as
+// `clock`/`weather`/`livetile`.
+registerDashboardWidget('iframe', {
+	renderer: IframeWidget,
+	form: IframeWidgetForm,
+	defaultContent: {
+		url: '',
+		title: '',
+		height: 400,
+		aspect: 'none',
+		sandbox: ['allow-scripts', 'allow-same-origin'],
+		allowListChecked: false,
+	},
+	displayName: 'Embedded page',
+	icon: 'Web',
 })
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal

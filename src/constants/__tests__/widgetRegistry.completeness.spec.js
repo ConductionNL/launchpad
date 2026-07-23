@@ -37,6 +37,7 @@ beforeEach(() => {
 // this constant drifts out of sync with the registry.
 const EXPECTED_TYPES = [
 	'calendar',
+	'clock',
 	'container',
 	'divider',
 	'files',
@@ -54,6 +55,7 @@ const EXPECTED_TYPES = [
 	'text',
 	'tile',
 	'video',
+	'weather',
 	// Analytics widgets (OpenBuild parity) — OpenRegister-data-driven.
 	'stat',
 	'delta',

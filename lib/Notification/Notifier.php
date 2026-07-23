@@ -37,7 +37,7 @@ use OCP\Notification\UnknownNotificationException;
 /**
  * LaunchPad notification renderer.
  *
- * Handles three subjects:
+ * Handles four subjects:
  * - `dashboard_shared` — published when a dashboard is shared with a user or
  *   when a share's permission_level is upgraded (REQ-SHARE-008).
  * - `dashboard_ownership_transferred` — published when a UserDeletedEvent
@@ -47,6 +47,9 @@ use OCP\Notification\UnknownNotificationException;
  *   a dashboard comment (REQ-CMNT-006). For this subject the
  *   `INotification::getObjectId()` is the dashboard UUID directly (not
  *   the DB id), so the URL builder takes a different branch.
+ * - `dashboard_template_resynced` — published by
+ *   {@see \OCA\LaunchPad\Service\TemplateResyncService} when an admin
+ *   re-sync changes a user's provisioned copy (REQ-RESYNC-005).
  */
 class Notifier implements INotifier
 {
@@ -143,6 +146,14 @@ class Notifier implements INotifier
 
         if ($subject === 'dashboard_ownership_transferred') {
             return $this->prepareOwnershipTransferred(
+                notification: $notification,
+                l: $l,
+                url: $url
+            );
+        }
+
+        if ($subject === 'dashboard_template_resynced') {
+            return $this->prepareTemplateResynced(
                 notification: $notification,
                 l: $l,
                 url: $url
@@ -284,6 +295,55 @@ class Notifier implements INotifier
 
         return $notification;
     }//end prepareOwnershipTransferred()
+
+    /**
+     * Prepare a `dashboard_template_resynced` notification (REQ-RESYNC-005
+     * "Affected users are notified").
+     *
+     * Subject parameters: [dashboardName].
+     *
+     * @param INotification $notification The notification.
+     * @param IL10N         $l            The L10N instance.
+     * @param string        $url          The deep-link URL.
+     *
+     * @return INotification The prepared notification.
+     */
+    private function prepareTemplateResynced(
+        INotification $notification,
+        IL10N $l,
+        string $url
+    ): INotification {
+        $params = $notification->getSubjectParameters();
+        $name   = $params[0] ?? '';
+
+        $richSubject = $l->t(
+            'An administrator updated your **%1$s** dashboard',
+            [$name]
+        );
+        $notification->setRichSubject(
+            subject: $richSubject,
+            parameters: []
+        );
+        $notification->setParsedSubject(
+            subject: $l->t(
+                'An administrator updated your %1$s dashboard',
+                [$name]
+            )
+        );
+
+        $message = $l->t(
+            'The dashboard template you received was updated by an administrator'
+        );
+        $notification->setRichMessage(
+            message: $message,
+            parameters: []
+        );
+        $notification->setParsedMessage(message: $message);
+
+        $notification->setLink(link: $url);
+
+        return $notification;
+    }//end prepareTemplateResynced()
 
     /**
      * Build the deep-link URL for a dashboard.

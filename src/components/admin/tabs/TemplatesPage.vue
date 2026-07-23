@@ -43,6 +43,12 @@
 					</span>
 				</div>
 				<div class="launchpad-admin__template-actions">
+					<NcButton
+						type="secondary"
+						data-testid="admin-resync-template"
+						@click="openResyncModal(template)">
+						{{ t('launchpad', 'Re-sync to existing copies') }}
+					</NcButton>
 					<NcButton type="secondary" @click="editTemplate(template)">
 						{{ t('launchpad', 'Edit') }}
 					</NcButton>
@@ -52,6 +58,12 @@
 				</div>
 			</div>
 		</div>
+
+		<TemplateResyncModal
+			:open="resyncingTemplate !== null"
+			:template="resyncingTemplate"
+			@close="closeResyncModal"
+			@resynced="closeResyncModal" />
 
 		<!-- Template Editor Modal -->
 		<NcModal
@@ -126,6 +138,7 @@ import { t } from '@nextcloud/l10n'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import { api } from '../../../services/api.js'
+import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
 
 /**
  * TemplatesPage — the Templates SUB_PAGE for the admin Beheer area
@@ -148,6 +161,7 @@ export default {
 		Plus,
 		ViewDashboard,
 		CnDashboardIcon,
+		TemplateResyncModal,
 	},
 
 	data() {
@@ -155,6 +169,7 @@ export default {
 			templates: [],
 			availableGroups: [],
 			editingTemplate: null,
+			resyncingTemplate: null,
 			permissionOptions: [
 				{ id: 'view_only', label: t('launchpad', 'View only') },
 				{ id: 'add_only', label: t('launchpad', 'Add only') },
@@ -244,6 +259,16 @@ export default {
 			} catch (error) {
 				console.error('Failed to delete template:', error)
 			}
+		},
+
+		/** @spec openspec/specs/admin-templates/spec.md */
+		openResyncModal(template) {
+			this.resyncingTemplate = template
+		},
+
+		/** @spec openspec/specs/admin-templates/spec.md */
+		closeResyncModal() {
+			this.resyncingTemplate = null
 		},
 
 		/** @spec openspec/specs/admin-templates/spec.md */

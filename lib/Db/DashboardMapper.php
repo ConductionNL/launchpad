@@ -208,6 +208,36 @@ class DashboardMapper extends QBMapper
     }//end findAdminTemplates()
 
     /**
+     * Find every user dashboard provisioned from a given admin template
+     * (`basedOnTemplate = $templateId`). Used by
+     * {@see \OCA\LaunchPad\Service\TemplateResyncService} to enumerate the
+     * copies an admin re-sync targets (REQ-RESYNC-001).
+     *
+     * @param int $templateId The source template's dashboard ID.
+     *
+     * @return Dashboard[] The provisioned copies, ordered by `id` ASC.
+     * @spec   openspec/specs/admin-templates/spec.md
+     */
+    public function findByBasedOnTemplate(int $templateId): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->where(
+                $qb->expr()->eq(
+                    x: 'based_on_template',
+                    y: $qb->createNamedParameter(
+                        value: $templateId,
+                        type: IQueryBuilder::PARAM_INT
+                    )
+                )
+            )
+            ->orderBy(sort: 'id', order: 'ASC');
+
+        return $this->findEntities(query: $qb);
+    }//end findByBasedOnTemplate()
+
+    /**
      * Find default admin template.
      *
      * @return Dashboard The default template.

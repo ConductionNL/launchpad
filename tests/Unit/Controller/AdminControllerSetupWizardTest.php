@@ -68,6 +68,7 @@ class AdminControllerSetupWizardTest extends TestCase
             footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
             setupWizardService: $this->wizardService,
             actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class),
+            resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class),
         );
     }
 

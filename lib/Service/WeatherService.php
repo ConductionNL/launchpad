@@ -53,7 +53,7 @@ use Throwable;
  *     locale-derived units/language, caching, and stale-fallback in one
  *     cohesive unit — mirrors NewsWidgetService's shape for the same
  *     class of capability.
- * @spec                                             openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md
+ * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherService
 {
@@ -222,7 +222,7 @@ class WeatherService
      *
      * @return array<string,mixed> `{location, tempValue, units, condition, conditionText, language, fetchedAt, stale}` or `{error: string}`.
      *
-     * @spec openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md
+     * @spec openspec/specs/clock-weather-widgets/spec.md
      */
     public function resolveForPlacement(int $placementId, string $userId): array
     {

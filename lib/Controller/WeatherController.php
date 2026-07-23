@@ -46,7 +46,7 @@ use Throwable;
 /**
  * Controller for the weather-widget capability.
  *
- * @spec openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md
+ * @spec openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherController extends Controller
 {
@@ -87,7 +87,7 @@ class WeatherController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md
+     * @spec openspec/specs/clock-weather-widgets/spec.md
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]

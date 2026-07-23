@@ -192,7 +192,7 @@ export default {
 
 	emits: ['rule-added', 'rule-updated', 'rule-removed'],
 
-	/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
+	/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 	setup() {
 		return { preview: useVisibilityPreview() }
 	},
@@ -209,12 +209,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-003-legible-include-exclude-semantics */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-003-legible-include-exclude-semantics */
 		includeRules() {
 			return this.rules.filter((r) => r.isInclude !== false)
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-003-legible-include-exclude-semantics */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-003-legible-include-exclude-semantics */
 		excludeRules() {
 			return this.rules.filter((r) => r.isInclude === false)
 		},
@@ -223,13 +223,13 @@ export default {
 			return this.rules.length === 0
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		matchedIncludeRules() {
 			const ids = (this.preview.state.result && this.preview.state.result.matchedIncludeRuleIds) || []
 			return this.rules.filter((r) => ids.includes(r.id))
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		matchedExcludeRules() {
 			const ids = (this.preview.state.result && this.preview.state.result.matchedExcludeRuleIds) || []
 			return this.rules.filter((r) => ids.includes(r.id))
@@ -239,7 +239,7 @@ export default {
 	watch: {
 		placementId: {
 			immediate: true,
-			/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
+			/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 			handler() {
 				this.load()
 			},
@@ -249,7 +249,7 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		rowKey(row) {
 			return row.id !== null && row.id !== undefined ? `id-${row.id}` : `local-${row._localKey}`
 		},
@@ -262,7 +262,7 @@ export default {
 			this.$set(this.busyKeys, this.rowKey(row), value)
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
 		async load() {
 			if (this.placementId === null || this.placementId === undefined) {
 				this.rules = []
@@ -290,7 +290,7 @@ export default {
 		 * `matchedIncludeRuleIds` / `matchedExcludeRuleIds` before the row
 		 * is ever saved.
 		 *
-		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
 		 * @return {void}
 		 */
 		addRule() {
@@ -311,7 +311,7 @@ export default {
 		 *
 		 * @param {object} row the rule object identity to update
 		 * @param {object} payload `{ruleType, ruleConfig, isInclude}`
-		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
 		 * @return {void}
 		 */
 		onRowUpdate(row, payload) {
@@ -322,7 +322,7 @@ export default {
 			this.$set(this.rules, index, { ...row, ...payload })
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
 		async onRowSave(row, payload) {
 			this.setRowBusy(row, true)
 			try {
@@ -352,7 +352,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
 		async onRowRemove(row) {
 			if (row.id === null || row.id === undefined) {
 				// Never-persisted draft — discard locally, no API call.
@@ -374,7 +374,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
+		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
 		async runPreview() {
 			try {
 				await this.preview.runPreview(this.rules, {
@@ -391,7 +391,7 @@ export default {
 		 * which rule matched in the preview result.
 		 *
 		 * @param {object} rule the rule entity
-		 * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
 		 * @return {string}
 		 */
 		describeRule(rule) {

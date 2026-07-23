@@ -60,7 +60,7 @@ import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
-// communal nc-vue equivalent (openspec/changes/clock-weather-widgets). Both
+// communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
 // like the `nc-widget` escape-hatch above, so they flow through the same
 // `CnAddWidgetModal` type picker and `WidgetRenderer` dispatch as every
@@ -70,7 +70,7 @@ import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 // `livetile` — server-fetched, ICache-cached data-bound tile
-// (REQ-LIVETILE-001..005, openspec/changes/live-data-tile-widget). Same
+// (REQ-LIVETILE-001..005, openspec/specs/live-data-tile-widget/spec.md). Same
 // LaunchPad-only registration pattern as `clock`/`weather`.
 import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
 import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'

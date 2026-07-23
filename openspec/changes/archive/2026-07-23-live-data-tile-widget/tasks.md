@@ -28,7 +28,7 @@
 - [ ] Playwright: drop tile, configure direct-URL against a stub, confirm value renders and click-through navigates. **NOT DONE** — explicitly out of scope for this build pass (no e2e/playwright against the shared instance; local unit tests only per task instructions).
 
 ## Docs
-- [ ] Add "Live-data tile" section to dashboard-authoring docs; cross-reference OpenConnector `dashboard-http-datasource`. **NOT DONE.**
+- [x] Add "Live-data tile" section to dashboard-authoring docs; cross-reference OpenConnector `dashboard-http-datasource`. (`docs/features/live-data-tile.md`)
 
 ## Out of scope (follow-ups)
 - Sparklines on tiles — `livetile-sparkline`.

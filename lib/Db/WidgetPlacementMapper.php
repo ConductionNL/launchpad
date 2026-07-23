@@ -135,6 +135,31 @@ class WidgetPlacementMapper extends QBMapper
     }//end findByWidgetId()
 
     /**
+     * Return every widget placement in the instance, unfiltered.
+     *
+     * Used by {@see \OCA\LaunchPad\Service\HealthPingService::refreshDuePlacements()}
+     * to discover ping-enabled tiles: the `healthPingEnabled` flag lives in
+     * the generic `content` JSON blob rather than under a dedicated widget
+     * id (a tile placement's `widget_id` is a per-instance value like
+     * `tile-<uniqid>`, not a fixed constant), so enumeration cannot be
+     * narrowed at the SQL layer the way {@see self::findByWidgetId()}
+     * narrows the news widget. The caller filters in PHP via
+     * `getContentArray()['healthPingEnabled']`.
+     *
+     * @return WidgetPlacement[] Every placement.
+     * @spec   openspec/specs/service-health-ping/spec.md
+     */
+    public function findAll(): array
+    {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select(selects: '*')
+            ->from(from: $this->getTableName())
+            ->orderBy(sort: 'id', order: 'ASC');
+
+        return $this->findEntities(query: $qb);
+    }//end findAll()
+
+    /**
      * Find every placement carrying a given `announcementKey`, across all
      * dashboards. Backs the read-receipt report's audience resolution: the
      * blueprint (template) placement and every cloned recipient placement

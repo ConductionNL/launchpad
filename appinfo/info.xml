@@ -90,6 +90,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 	<background-jobs>
 		<job>OCA\LaunchPad\BackgroundJob\OrphanedDataCleanupJob</job>
+		<!-- service-health-ping REQ-HPING-003: refresh due ping-enabled tiles. -->
+		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 	</background-jobs>
 
 	<repair-steps>

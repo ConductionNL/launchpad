@@ -99,6 +99,46 @@
 					:placeholder="t('launchpad', 'https://example.com or /apps/files')"
 					type="text" />
 
+				<div class="tile-editor__health-ping">
+					<NcCheckboxRadioSwitch
+						:checked="form.healthPingEnabled"
+						type="switch"
+						@update:checked="onHealthPingToggle">
+						{{ t('launchpad', 'Show a live status badge (health ping)') }}
+					</NcCheckboxRadioSwitch>
+
+					<template v-if="form.healthPingEnabled">
+						<NcTextField
+							:value.sync="form.healthUrl"
+							:label="t('launchpad', 'Health check URL')"
+							:placeholder="t('launchpad', 'https://…')"
+							type="text"
+							@update:value="healthUrlError = ''"
+							@blur="checkHealthUrlAllowed" />
+						<p v-if="healthUrlError" class="tile-editor__warning">
+							{{ healthUrlError }}
+						</p>
+
+						<div class="form-row">
+							<div class="form-row__item">
+								<NcTextField
+									:value.sync="form.expectedStatus"
+									type="number"
+									:label="t('launchpad', 'Expected HTTP status')" />
+							</div>
+							<div class="form-row__item">
+								<NcTextField
+									:value.sync="form.pingInterval"
+									type="number"
+									:label="t('launchpad', 'Check interval (seconds)')" />
+							</div>
+						</div>
+						<p class="tile-editor__hint-small">
+							{{ t('launchpad', 'Minimum {min} seconds.', { min: MIN_PING_INTERVAL }) }}
+						</p>
+					</template>
+				</div>
+
 				<div class="tile-editor__actions">
 					<NcButton
 						v-if="tile"
@@ -121,9 +161,14 @@
 </template>
 
 <script>
-import { NcModal, NcButton, NcTextField, NcColorPicker, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
+import { NcModal, NcButton, NcTextField, NcColorPicker, NcCheckboxRadioSwitch, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
+import { validateHealthPingConfig } from '../services/healthPingClient.js'
+
+const MIN_PING_INTERVAL = 15
+const DEFAULT_PING_INTERVAL = 60
+const DEFAULT_EXPECTED_STATUS = 200
 
 export default {
 	name: 'TileEditor',
@@ -133,6 +178,7 @@ export default {
 		NcButton,
 		NcTextField,
 		NcColorPicker,
+		NcCheckboxRadioSwitch,
 		CnIconBrowser,
 	},
 
@@ -159,7 +205,13 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				healthPingEnabled: false,
+				healthUrl: '',
+				expectedStatus: DEFAULT_EXPECTED_STATUS,
+				pingInterval: DEFAULT_PING_INTERVAL,
 			},
+			healthUrlError: '',
+			MIN_PING_INTERVAL,
 		}
 	},
 
@@ -239,12 +291,83 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				healthPingEnabled: false,
+				healthUrl: '',
+				expectedStatus: DEFAULT_EXPECTED_STATUS,
+				pingInterval: DEFAULT_PING_INTERVAL,
+			}
+			this.healthUrlError = ''
+		},
+
+		/**
+		 * Toggle the health-ping block. Clears any stale validation error
+		 * when disabling so a re-enable starts clean.
+		 *
+		 * @param {boolean} value the new toggle state.
+		 * @return {void}
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 */
+		onHealthPingToggle(value) {
+			this.form.healthPingEnabled = value
+			if (!value) {
+				this.healthUrlError = ''
+			}
+		},
+
+		/**
+		 * Clamp a configured ping interval client-side: values `<= 0`
+		 * default to {@link DEFAULT_PING_INTERVAL}; any positive value
+		 * below {@link MIN_PING_INTERVAL} is raised to that minimum
+		 * (REQ-HPING-001 "Interval bounds"). The server clamps
+		 * authoritatively regardless — this only keeps the saved payload
+		 * consistent with what the badge will actually use.
+		 *
+		 * @param {number|string} raw the raw entered value.
+		 * @return {number} the clamped interval in seconds.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 */
+		clampPingInterval(raw) {
+			const num = Number(raw)
+			if (!Number.isFinite(num) || num <= 0) {
+				return DEFAULT_PING_INTERVAL
+			}
+			return Math.max(num, MIN_PING_INTERVAL)
+		},
+
+		/**
+		 * Best-effort async save-time check (REQ-HPING-001 "rejected at
+		 * save time") — the authoritative fail-closed enforcement always
+		 * happens server-side regardless; this only gives the author fast
+		 * feedback before they hit Save.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 */
+		async checkHealthUrlAllowed() {
+			if (!this.form.healthPingEnabled || String(this.form.healthUrl || '').trim() === '') {
+				this.healthUrlError = ''
+				return
+			}
+			const result = await validateHealthPingConfig({
+				healthPingEnabled: true,
+				healthUrl: this.form.healthUrl,
+			})
+			if (result.valid === false && result.errors.includes('host_not_allowed')) {
+				this.healthUrlError = t('launchpad', 'This host is not on the allow-list.')
+			} else if (result.valid === false && result.errors.includes('invalid_url')) {
+				this.healthUrlError = t('launchpad', 'Enter a valid http(s) URL.')
+			} else {
+				this.healthUrlError = ''
 			}
 		},
 
 		/** @spec openspec/specs/tiles/spec.md */
 		saveTile() {
-			this.$emit('save', { ...this.form })
+			this.$emit('save', {
+				...this.form,
+				expectedStatus: Number(this.form.expectedStatus) || DEFAULT_EXPECTED_STATUS,
+				pingInterval: this.clampPingInterval(this.form.pingInterval),
+			})
 		},
 	},
 }
@@ -346,5 +469,25 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
+}
+
+.tile-editor__health-ping {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-top: 8px;
+	border-top: 1px solid var(--color-border);
+}
+
+.tile-editor__warning {
+	margin: 0;
+	font-size: 13px;
+	color: var(--color-warning-text, var(--color-text-maxcontrast));
+}
+
+.tile-editor__hint-small {
+	margin: -4px 0 0;
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
 }
 </style>

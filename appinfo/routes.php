@@ -563,6 +563,15 @@ return [
 		// embeds the target URL directly, config lives in `widgetContent`.
 		['name' => 'iframe#validateUrl', 'url' => '/api/iframe/validate-url', 'verb' => 'POST'],
 
+		// Service health ping — cached online/offline/degraded badge for one
+		// placement (REQ-HPING-003). View-time ACL guarded in the controller;
+		// never returns the health URL, headers, or upstream response body.
+		// The literal `validate` route is registered BEFORE the single-segment
+		// `{placementId}` route so it is never mistaken for a numeric placement id.
+		['name' => 'healthPing#validate', 'url' => '/api/health-ping/validate', 'verb' => 'POST'],
+		['name' => 'healthPing#show', 'url' => '/api/health-ping/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
+
 		// Resolve a dashboard's canonical slug-chain path (used by the
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal

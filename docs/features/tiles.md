@@ -59,3 +59,8 @@ any new privacy machinery, only a finer-grained aggregate table.
 ## Screenshot
 
 ![Dashboard with Tiles](/screenshots/launchpad-dashboard-overview.png)
+
+## Related
+
+- [Service health ping](service-health-ping.md) — optional online / offline /
+  degraded status badge for a tile's linked service.

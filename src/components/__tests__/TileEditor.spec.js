@@ -9,10 +9,15 @@
  * user picks a new icon.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { mdiLink, mdiAlertCircle } from '@mdi/js'
 import TileEditor from '../TileEditor.vue'
+import { validateHealthPingConfig } from '../../services/healthPingClient.js'
+
+vi.mock('../../services/healthPingClient.js', () => ({
+	validateHealthPingConfig: vi.fn(),
+}))
 
 function mountEditor(tile) {
 	return mount(TileEditor, { propsData: { open: true, tile } })
@@ -68,5 +73,98 @@ describe('TileEditor onIcon / isUrlIcon', () => {
 
 		const pathTile = mountEditor({ id: 4, title: 'X', icon: mdiLink, iconType: 'svg' })
 		expect(pathTile.vm.isUrlIcon).toBe(false)
+	})
+})
+
+describe('TileEditor health-ping config — REQ-HPING-001', () => {
+	beforeEach(() => {
+		validateHealthPingConfig.mockReset()
+	})
+
+	it('defaults health-ping fields to disabled with sane defaults', () => {
+		const wrapper = mountEditor(null)
+		expect(wrapper.vm.form.healthPingEnabled).toBe(false)
+		expect(wrapper.vm.form.expectedStatus).toBe(200)
+		expect(wrapper.vm.form.pingInterval).toBe(60)
+	})
+
+	it('seeds health-ping fields from an editing tile (loaded from placement.content)', () => {
+		const wrapper = mountEditor({
+			id: 9,
+			title: 'Zaaksysteem',
+			icon: mdiLink,
+			iconType: 'svg',
+			healthPingEnabled: true,
+			healthUrl: 'https://zaaksysteem.example.com/health',
+			expectedStatus: 200,
+			pingInterval: 30,
+		})
+		expect(wrapper.vm.form.healthPingEnabled).toBe(true)
+		expect(wrapper.vm.form.healthUrl).toBe('https://zaaksysteem.example.com/health')
+		expect(wrapper.vm.form.pingInterval).toBe(30)
+	})
+
+	it('clampPingInterval raises a value below the 15s minimum', () => {
+		const wrapper = mountEditor(null)
+		expect(wrapper.vm.clampPingInterval(5)).toBe(15)
+	})
+
+	it('clampPingInterval defaults an unset (0/negative) value to 60s', () => {
+		const wrapper = mountEditor(null)
+		expect(wrapper.vm.clampPingInterval(0)).toBe(60)
+		expect(wrapper.vm.clampPingInterval(-5)).toBe(60)
+	})
+
+	it('clampPingInterval leaves a value above the minimum unchanged', () => {
+		const wrapper = mountEditor(null)
+		expect(wrapper.vm.clampPingInterval(120)).toBe(120)
+	})
+
+	it('saveTile emits the clamped pingInterval and numeric expectedStatus', () => {
+		const wrapper = mountEditor(null)
+		wrapper.vm.form.healthPingEnabled = true
+		wrapper.vm.form.healthUrl = 'https://example.com/health'
+		wrapper.vm.form.expectedStatus = '200'
+		wrapper.vm.form.pingInterval = 5
+		wrapper.vm.saveTile()
+
+		const emitted = wrapper.emitted('save')[0][0]
+		expect(emitted.healthPingEnabled).toBe(true)
+		expect(emitted.expectedStatus).toBe(200)
+		expect(emitted.pingInterval).toBe(15)
+	})
+
+	it('onHealthPingToggle clears a stale validation error when disabling', () => {
+		const wrapper = mountEditor(null)
+		wrapper.vm.healthUrlError = 'This host is not on the allow-list.'
+		wrapper.vm.onHealthPingToggle(false)
+		expect(wrapper.vm.form.healthPingEnabled).toBe(false)
+		expect(wrapper.vm.healthUrlError).toBe('')
+	})
+
+	it('checkHealthUrlAllowed surfaces the host_not_allowed error', async () => {
+		validateHealthPingConfig.mockResolvedValue({ valid: false, errors: ['host_not_allowed'] })
+		const wrapper = mountEditor(null)
+		wrapper.vm.form.healthPingEnabled = true
+		wrapper.vm.form.healthUrl = 'https://blocked.example.com'
+		await wrapper.vm.checkHealthUrlAllowed()
+		expect(wrapper.vm.healthUrlError).toBe('This host is not on the allow-list.')
+	})
+
+	it('checkHealthUrlAllowed clears the error for an allow-listed host', async () => {
+		validateHealthPingConfig.mockResolvedValue({ valid: true, errors: [] })
+		const wrapper = mountEditor(null)
+		wrapper.vm.form.healthPingEnabled = true
+		wrapper.vm.form.healthUrl = 'https://ok.example.com'
+		await wrapper.vm.checkHealthUrlAllowed()
+		expect(wrapper.vm.healthUrlError).toBe('')
+	})
+
+	it('checkHealthUrlAllowed is a no-op when ping is disabled', async () => {
+		const wrapper = mountEditor(null)
+		wrapper.vm.form.healthPingEnabled = false
+		wrapper.vm.form.healthUrl = 'https://example.com'
+		await wrapper.vm.checkHealthUrlAllowed()
+		expect(validateHealthPingConfig).not.toHaveBeenCalled()
 	})
 })

@@ -145,6 +145,9 @@
 							v-if="isTilePlacement(item)"
 							:tile="getTileData(item)"
 							:edit-mode="isEditMode"
+							:placement-id="item.id"
+							:health-ping-enabled="item.content && item.content.healthPingEnabled === true"
+							:ping-interval="item.content && item.content.pingInterval"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -1260,8 +1263,10 @@ export default {
 		/**
 		 * @param placement
 		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
 		openTileEditorForEdit(placement) {
+			const content = placement.content || {}
 			const tileData = {
 				id: placement.id,
 				title: placement.tileTitle,
@@ -1271,6 +1276,12 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				// service-health-ping: config lives in the placement's
+				// `content` JSON blob, no schema change (REQ-HPING-001).
+				healthPingEnabled: content.healthPingEnabled === true,
+				healthUrl: content.healthUrl || '',
+				expectedStatus: content.expectedStatus || 200,
+				pingInterval: content.pingInterval || 60,
 			}
 			this.openTileEditor(tileData)
 		},
@@ -1282,8 +1293,17 @@ export default {
 		/**
 		 * @param tileData
 		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
 		async saveTile(tileData) {
+			// service-health-ping: config lives in the placement's `content`
+			// JSON blob, no schema change (REQ-HPING-001).
+			const healthPingContent = {
+				healthPingEnabled: tileData.healthPingEnabled === true,
+				healthUrl: tileData.healthUrl || '',
+				expectedStatus: tileData.expectedStatus || 200,
+				pingInterval: tileData.pingInterval || 60,
+			}
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -1294,9 +1314,17 @@ export default {
 						tileTextColor: tileData.textColor,
 						tileLinkType: tileData.linkType,
 						tileLinkValue: tileData.linkValue,
+						content: healthPingContent,
 					})
 				} else {
-					await this.addTileToDashboard(tileData)
+					const newPlacement = await this.addTileToDashboard(tileData)
+					// `addTile` has no `content` parameter (mirrors the
+					// `addWidget` create-then-patch pattern above) — persist
+					// the health-ping block with a follow-up patch only when
+					// the author actually enabled it.
+					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
+						await this.updateWidgetPlacement(newPlacement.id, { content: healthPingContent })
+					}
 				}
 				this.closeTileEditor()
 			} catch (error) {

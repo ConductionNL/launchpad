@@ -20,7 +20,10 @@
 		<!-- Custom Tile Widget (legacy path: widgetId === 'tile-{id}') -->
 		<TileWidget
 			v-else-if="isTileWidget && tileData"
-			:tile="tileData" />
+			:tile="tileData"
+			:placement-id="placement.id"
+			:health-ping-enabled="normalizedContent.healthPingEnabled === true"
+			:ping-interval="normalizedContent.pingInterval" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">

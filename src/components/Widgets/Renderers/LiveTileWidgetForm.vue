@@ -181,6 +181,7 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		sourceModeOptions() {
 			const options = [{ value: 'url', label: t('launchpad', 'Direct URL') }]
 			// REQ-LIVETILE-005: only offer `connector` mode when the
@@ -191,6 +192,7 @@ export default {
 			return options
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		linkTargetOptions() {
 			return [
 				{ value: 'same-tab', label: t('launchpad', 'Same tab') },
@@ -198,6 +200,7 @@ export default {
 			]
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		assembledContent() {
 			return {
 				label: this.label,
@@ -233,6 +236,7 @@ export default {
 		 *
 		 * @param {number|string} raw the raw entered value.
 		 * @return {number} the clamped refresh interval in seconds.
+		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
 		 */
 		clampRefresh(raw) {
 			const num = Number(raw)
@@ -249,6 +253,7 @@ export default {
 		 * (REQ-LIVETILE-005).
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
 		 */
 		async refreshConnectorAvailability() {
 			this.connectorAvailable = await fetchConnectorAvailability()
@@ -258,27 +263,32 @@ export default {
 			}
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		onSourceModeChange(val) {
 			this.sourceMode = val || 'url'
 			this.emitUpdate()
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		onUrlChange(val) {
 			this.url = val
 			this.urlAllowListError = ''
 			this.emitUpdate()
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		onRefreshChange(val) {
 			this.refresh = val
 			this.emitUpdate()
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		updateField(field, val) {
 			this[field] = val
 			this.emitUpdate()
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		updateFormat(field, val) {
 			if (field === 'prefix') {
 				this.formatPrefix = val
@@ -290,6 +300,7 @@ export default {
 			this.emitUpdate()
 		},
 
+		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
 		emitUpdate() {
 			this.$emit('update:content', this.assembledContent)
 		},
@@ -302,6 +313,7 @@ export default {
 		 * enforcement always happens server-side at fetch time regardless.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
 		 */
 		async checkUrlAllowed() {
 			if (this.sourceMode !== 'url' || this.url.trim() === '') {
@@ -325,6 +337,7 @@ export default {
 		 * `checkUrlAllowed()` also blocks submission.
 		 *
 		 * @return {string[]} the validation errors.
+		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
 		 */
 		validate() {
 			const errors = []

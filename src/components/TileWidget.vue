@@ -27,6 +27,13 @@
 				@remove="$emit('remove')" />
 		</div>
 
+		<!-- REQ-HPING-004: health badge overlay. Fetches nothing (and renders
+		     nothing) unless a ping is actually configured for this tile. -->
+		<HealthPingBadge
+			v-if="healthPingEnabled"
+			:placement-id="placementId"
+			:interval="pingInterval" />
+
 		<a
 			:href="tileUrl"
 			class="tile-widget__link"
@@ -69,6 +76,7 @@
 <script>
 import { generateUrl } from '@nextcloud/router'
 import { CnWidgetEditCog, CnDashboardIcon } from '@conduction/nextcloud-vue'
+import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 
 const { recordTileClick } = useTileClickTracking()
@@ -79,6 +87,7 @@ export default {
 	components: {
 		CnWidgetEditCog,
 		CnDashboardIcon,
+		HealthPingBadge,
 	},
 
 	props: {
@@ -89,6 +98,35 @@ export default {
 		editMode: {
 			type: Boolean,
 			default: false,
+		},
+		/**
+		 * The widget placement id — forwarded to {@link HealthPingBadge}
+		 * so it can call the per-placement health-ping endpoint.
+		 *
+		 * @type {number|string|null}
+		 */
+		placementId: {
+			type: [Number, String],
+			default: null,
+		},
+		/**
+		 * Whether this tile has a health ping configured
+		 * (REQ-HPING-004 "Ping disabled shows no badge").
+		 *
+		 * @type {boolean}
+		 */
+		healthPingEnabled: {
+			type: Boolean,
+			default: false,
+		},
+		/**
+		 * The tile's configured ping interval in seconds.
+		 *
+		 * @type {number}
+		 */
+		pingInterval: {
+			type: Number,
+			default: 60,
 		},
 	},
 

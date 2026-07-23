@@ -807,8 +807,12 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {object} tileData tile payload (title/icon/colours/link)
 		 * @param {object|null} [position] explicit `{x, y, w, h}` (skips auto-placement) or partial spec to seed the helper
+		 * @return {Promise<object|undefined>} the created placement (service-health-ping REQ-HPING-001 follow-up patch), or undefined on failure.
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 */
 		async addTileToDashboard(tileData, position = null) {
 			try {
 				const placement = (position && Number.isFinite(position.x) && Number.isFinite(position.y))
@@ -837,6 +841,12 @@ export const useDashboardStore = defineStore('dashboard', {
 				if (placement.pushed.length > 0) {
 					await this.applyPushedPlacements(placement.pushed)
 				}
+
+				// Return the created placement so callers (e.g. TileEditor's
+				// health-ping block) can apply a follow-up updateWidgetPlacement
+				// patch for fields `addTile` does not itself accept — mirrors
+				// the `addWidget` create-then-patch pattern above.
+				return response.data
 			} catch (error) {
 				this.handleWidgetQuotaError(error)
 				console.error('Failed to add tile:', error)

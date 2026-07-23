@@ -216,7 +216,7 @@ class DashboardMapper extends QBMapper
      * @param int $templateId The source template's dashboard ID.
      *
      * @return Dashboard[] The provisioned copies, ordered by `id` ASC.
-     * @spec   openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+     * @spec   openspec/specs/admin-templates/spec.md
      */
     public function findByBasedOnTemplate(int $templateId): array
     {

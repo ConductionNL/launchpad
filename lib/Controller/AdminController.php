@@ -362,7 +362,7 @@ class AdminController extends Controller
      *                      strategy or a non-template dashboard; 401/403
      *                      on guard failure.
      *
-     * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md#req-resync-001-re-sync-action-pushes-template-updates-to-existing-copies
+     * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-001-re-sync-action-pushes-template-updates-to-existing-copies
      */
     #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
     public function resyncTemplate(

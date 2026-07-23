@@ -37,7 +37,7 @@ use Throwable;
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument's shape is
  *  validated inline; the parent QueuedJob interface requires the
  *  parameter regardless.
- * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md#req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
+ * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
  */
 class TemplateResyncJob extends QueuedJob
 {
@@ -80,6 +80,8 @@ class TemplateResyncJob extends QueuedJob
      *                        actingAdminId: string}`.
      *
      * @return void
+     *
+     * @spec openspec/specs/admin-templates/spec.md
      */
     protected function run($argument): void
     {

@@ -171,7 +171,7 @@ class TemplateResyncService
      * @throws InvalidArgumentException When the strategy is invalid or the
      *                                  dashboard is not an admin template.
      *
-     * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md#req-resync-001-re-sync-action-pushes-template-updates-to-existing-copies
+     * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-001-re-sync-action-pushes-template-updates-to-existing-copies
      */
     public function resync(
         int $templateId,
@@ -246,7 +246,7 @@ class TemplateResyncService
      * @return array<string, mixed> `{templateId, strategy, totalCopies,
      *                              affectedCount, copies: [...]}`.
      *
-     * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md#req-resync-002-dry-run-reports-the-plan-without-mutating
+     * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-002-dry-run-reports-the-plan-without-mutating
      */
     public function planResync(int $templateId, string $strategy): array
     {
@@ -314,7 +314,7 @@ class TemplateResyncService
      *                              async: false, totalCopies,
      *                              affectedCount, copies: [...]}`.
      *
-     * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md#req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
+     * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
      */
     public function applyResync(
         int $templateId,

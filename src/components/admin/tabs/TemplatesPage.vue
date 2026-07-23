@@ -261,12 +261,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md */
+		/** @spec openspec/specs/admin-templates/spec.md */
 		openResyncModal(template) {
 			this.resyncingTemplate = template
 		},
 
-		/** @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md */
+		/** @spec openspec/specs/admin-templates/spec.md */
 		closeResyncModal() {
 			this.resyncingTemplate = null
 		},

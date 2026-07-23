@@ -120,7 +120,7 @@ import { api } from '../services/api.js'
 /**
  * Admin dialog for pushing a template update to its provisioned copies.
  *
- * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+ * @spec openspec/specs/admin-templates/spec.md
  */
 export default {
 	name: 'TemplateResyncModal',
@@ -169,7 +169,7 @@ export default {
 		 * strategy has been reviewed (REQ-RESYNC-002 / tasks.md).
 		 *
 		 * @return {boolean} whether the Apply button is enabled.
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		canApply() {
 			return this.plan !== null && this.loading === false && this.applying === false
@@ -179,7 +179,7 @@ export default {
 		 * Human-readable explanation of the selected strategy's semantics.
 		 *
 		 * @return {string} the strategy hint text.
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		strategyHint() {
 			if (this.strategy?.id === 'merge') {
@@ -197,10 +197,11 @@ export default {
 		 *
 		 * @param {boolean} isOpen whether the modal is now open.
 		 * @return {void}
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		open: {
 			immediate: true,
+			/** @spec openspec/specs/admin-templates/spec.md */
 			handler(isOpen) {
 				if (isOpen) {
 					this.resetState()
@@ -217,7 +218,7 @@ export default {
 		 * dry-run must always be reviewed before Apply unlocks).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		resetState() {
 			this.loading = false
@@ -232,7 +233,7 @@ export default {
 		 * old strategy is no longer valid.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		handleStrategyChange() {
 			this.plan = null
@@ -245,7 +246,7 @@ export default {
 		 * (REQ-RESYNC-002).
 		 *
 		 * @return {Promise<void>} resolves once the plan is loaded.
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		async runDryRun() {
 			if (!this.template) {
@@ -273,7 +274,7 @@ export default {
 		 * Apply the reviewed plan (REQ-RESYNC-001, REQ-RESYNC-005).
 		 *
 		 * @return {Promise<void>} resolves once the re-sync request completes.
-		 * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		async apply() {
 			if (!this.template || !this.canApply) {
@@ -302,6 +303,7 @@ export default {
 		 * Close the dialog.
 		 *
 		 * @return {void}
+		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		handleClose() {
 			this.$emit('close')

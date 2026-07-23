@@ -395,7 +395,7 @@ export const api = {
 		return axios.delete(`${baseUrl}/api/admin/templates/${id}`)
 	},
 
-	/** @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md */
+	/** @spec openspec/specs/admin-templates/spec.md */
 	resyncAdminTemplate(id, { strategy, dryRun }) {
 		return axios.post(`${baseUrl}/api/admin/templates/${id}/resync`, { strategy, dryRun })
 	},

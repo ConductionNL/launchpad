@@ -251,4 +251,20 @@ describe('loadInitialState', () => {
 		const mod = await import('../loadInitialState.js')
 		expect(mod.INITIAL_STATE_SCHEMA_VERSION).toBe(2)
 	})
+
+	describe('quicksearchFallbackTarget (tile-quick-search REQ-QSEARCH-004)', () => {
+		it('defaults to "none" when the server omits the key (older deploy)', async () => {
+			pushedState = { _schemaVersion: 2 }
+			const { loadInitialState } = await import('../loadInitialState.js')
+			const state = loadInitialState('workspace')
+			expect(state.quicksearchFallbackTarget).toBe('none')
+		})
+
+		it('returns the server-pushed value when present', async () => {
+			pushedState = { _schemaVersion: 2, quicksearchFallbackTarget: 'unified-search' }
+			const { loadInitialState } = await import('../loadInitialState.js')
+			const state = loadInitialState('workspace')
+			expect(state.quicksearchFallbackTarget).toBe('unified-search')
+		})
+	})
 })

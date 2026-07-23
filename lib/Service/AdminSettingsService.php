@@ -100,6 +100,17 @@ class AdminSettingsService
         $maxDashKey   = AdminSetting::KEY_MAX_DASHBOARDS_PER_USER;
         $maxWidgetKey = AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD;
 
+        // tile-quick-search REQ-QSEARCH-004: fall back to the safe
+        // 'none' default when unset, OR when a previously-stored value no
+        // longer validates (e.g. an admin-edited DB row) — never surface
+        // a value the frontend can't safely act on.
+        $fallbackKey             = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
+        $storedFallbackTarget    = $settings[$fallbackKey] ?? null;
+        $quicksearchFallbackTarget = is_string($storedFallbackTarget) === true
+            && $this->isValidQuicksearchFallbackTarget(value: $storedFallbackTarget) === true
+                ? $storedFallbackTarget
+                : self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
+
         return [
             'defaultPermissionLevel'      => $settings[$permKey] ?? $permDef,
             // REQ-ASET-003 (extended): default `false` — admins MUST opt in
@@ -122,6 +133,9 @@ class AdminSettingsService
             // quotas. `0` = unlimited (no enforcement).
             'maxDashboardsPerUser'        => $this->clampQuota(value: $settings[$maxDashKey] ?? 0),
             'maxWidgetsPerDashboard'      => $this->clampQuota(value: $settings[$maxWidgetKey] ?? 0),
+            // tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
+            // | an https URL template containing '{query}'.
+            'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
         ];
     }//end getSettings()
 
@@ -182,6 +196,83 @@ class AdminSettingsService
     public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
     /**
+     * tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
+     * on a zero-match query takes no navigation action.
+     *
+     * @var string
+     */
+    public const QUICKSEARCH_FALLBACK_NONE = 'none';
+
+    /**
+     * tile-quick-search REQ-QSEARCH-004: no-match fallback hands the query
+     * to Nextcloud unified search.
+     *
+     * @var string
+     */
+    public const QUICKSEARCH_FALLBACK_UNIFIED_SEARCH = 'unified-search';
+
+    /**
+     * Default `quicksearch_fallback_target` when no admin setting row
+     * exists — no navigation on no-match Enter (REQ-QSEARCH-004 "No
+     * fallback configured" scenario is the safe out-of-the-box default).
+     *
+     * @var string
+     */
+    public const DEFAULT_QUICKSEARCH_FALLBACK_TARGET = self::QUICKSEARCH_FALLBACK_NONE;
+
+    /**
+     * Validate a `quicksearch_fallback_target` value (REQ-QSEARCH-004
+     * "Fallback template validation" scenario). Valid values are the two
+     * literal targets, or an `https` URL template containing the
+     * `{query}` placeholder.
+     *
+     * @param string|null $value the candidate value.
+     *
+     * @return bool true when `$value` is a valid fallback target.
+     *
+     * @spec openspec/specs/tile-quick-search/spec.md
+     */
+    public function isValidQuicksearchFallbackTarget(?string $value): bool
+    {
+        if ($value === null) {
+            return false;
+        }
+
+        if ($value === self::QUICKSEARCH_FALLBACK_NONE || $value === self::QUICKSEARCH_FALLBACK_UNIFIED_SEARCH) {
+            return true;
+        }
+
+        return $this->isValidQuicksearchFallbackUrlTemplate(value: $value);
+    }//end isValidQuicksearchFallbackTarget()
+
+    /**
+     * Validate the `https` + `{query}`-placeholder shape of a web-search
+     * fallback URL template (REQ-QSEARCH-004). Substitutes a harmless
+     * probe string for `{query}` before validating so a template like
+     * `https://example.org/search?q={query}` — not a valid URL as
+     * written — validates correctly.
+     *
+     * @param string $value the candidate URL template.
+     *
+     * @return bool true when `$value` is a valid `https` URL template
+     *              containing `{query}`.
+     */
+    private function isValidQuicksearchFallbackUrlTemplate(string $value): bool
+    {
+        if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
+            return false;
+        }
+
+        $probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
+
+        if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
+            return false;
+        }
+
+        return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+    }//end isValidQuicksearchFallbackUrlTemplate()
+
+    /**
      * Update admin settings.
      *
      * @param string|null $defaultPermLevel            Default permission level.
@@ -220,11 +311,21 @@ class AdminSettingsService
      *                                                 `[0, 10000]`).
      *                                                 dashboard-quota-limits
      *                                                 REQ-QUOTA-001.
+     * @param string|null $quicksearchFallbackTarget   No-match fallback for
+     *                                                 the on-dashboard quick
+     *                                                 search: `'none'`,
+     *                                                 `'unified-search'`, or
+     *                                                 an `https` URL
+     *                                                 template containing
+     *                                                 `{query}`.
+     *                                                 tile-quick-search
+     *                                                 REQ-QSEARCH-004.
      *
      * @return void
      *
-     * @throws \InvalidArgumentException When `$contentStorage` or
-     *                                   `$defaultSharePermissionLevel` is not
+     * @throws \InvalidArgumentException When `$contentStorage`,
+     *                                   `$defaultSharePermissionLevel`, or
+     *                                   `$quicksearchFallbackTarget` is not
      *                                   a valid value.
      *
      * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
@@ -240,7 +341,8 @@ class AdminSettingsService
         ?array $forcedShareGroups=null,
         ?bool $legacyWidgetBridgeEnabled=null,
         ?int $maxDashboardsPerUser=null,
-        ?int $maxWidgetsPerDashboard=null
+        ?int $maxWidgetsPerDashboard=null,
+        ?string $quicksearchFallbackTarget=null
     ): void {
         if ($defaultPermLevel !== null) {
             $this->settingMapper->setSetting(
@@ -304,6 +406,22 @@ class AdminSettingsService
             $this->settingMapper->setSetting(
                 key: AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD,
                 value: $this->clampQuota(value: $maxWidgetsPerDashboard)
+            );
+        }
+
+        // tile-quick-search REQ-QSEARCH-004 "Fallback template validation"
+        // scenario: reject an invalid target at save time rather than
+        // silently storing something the frontend can't act on.
+        if ($quicksearchFallbackTarget !== null) {
+            if ($this->isValidQuicksearchFallbackTarget(value: $quicksearchFallbackTarget) === false) {
+                throw new InvalidArgumentException(
+                    message: "Invalid value for quicksearchFallbackTarget. Must be 'none', 'unified-search', or an https URL template containing '{query}'."
+                );
+            }
+
+            $this->settingMapper->setSetting(
+                key: AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET,
+                value: $quicksearchFallbackTarget
             );
         }
 

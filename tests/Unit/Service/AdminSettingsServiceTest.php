@@ -139,7 +139,9 @@ class AdminSettingsServiceTest extends TestCase
         // dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
         $this->assertArrayHasKey('maxDashboardsPerUser', $settings);
         $this->assertArrayHasKey('maxWidgetsPerDashboard', $settings);
-        $this->assertCount(11, $settings);
+        // tile-quick-search REQ-QSEARCH-004.
+        $this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
+        $this->assertCount(12, $settings);
     }//end testGetSettingsReturnsCamelCaseKeys()
 
     // ----- dashboard-quota-limits REQ-QUOTA-001 -----
@@ -451,4 +453,150 @@ class AdminSettingsServiceTest extends TestCase
         $this->service->setGroupOrder([]);
         $this->assertSame([], $captured);
     }//end testSetGroupOrderEmptyArrayPersisted()
+
+    // ----- tile-quick-search REQ-QSEARCH-004 -----
+
+    public function testGetSettingsQuicksearchFallbackTargetDefaultsToNone(): void
+    {
+        $this->settingMapper->method('getAllAsArray')->willReturn([]);
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame('none', $settings['quicksearchFallbackTarget']);
+    }//end testGetSettingsQuicksearchFallbackTargetDefaultsToNone()
+
+    public function testGetSettingsReturnsStoredQuicksearchFallbackTarget(): void
+    {
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET => 'unified-search',
+                ]
+                );
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame('unified-search', $settings['quicksearchFallbackTarget']);
+    }//end testGetSettingsReturnsStoredQuicksearchFallbackTarget()
+
+    public function testGetSettingsFallsBackToNoneWhenStoredTargetNoLongerValidates(): void
+    {
+        // A hand-edited/corrupt DB row (e.g. an http:// template someone
+        // wrote directly into the DB) must never surface as-is — the
+        // frontend would try to act on it.
+        $this->settingMapper->method('getAllAsArray')->willReturn(
+                [
+                    AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET => 'http://example.org/search?q={query}',
+                ]
+                );
+
+        $settings = $this->service->getSettings();
+
+        $this->assertSame('none', $settings['quicksearchFallbackTarget']);
+    }//end testGetSettingsFallsBackToNoneWhenStoredTargetNoLongerValidates()
+
+    public function testUpdateSettingsPersistsQuicksearchFallbackTargetNone(): void
+    {
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET, 'none');
+
+        $this->service->updateSettings(quicksearchFallbackTarget: 'none');
+    }//end testUpdateSettingsPersistsQuicksearchFallbackTargetNone()
+
+    public function testUpdateSettingsPersistsQuicksearchFallbackTargetUnifiedSearch(): void
+    {
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET, 'unified-search');
+
+        $this->service->updateSettings(quicksearchFallbackTarget: 'unified-search');
+    }//end testUpdateSettingsPersistsQuicksearchFallbackTargetUnifiedSearch()
+
+    public function testUpdateSettingsPersistsValidHttpsTemplate(): void
+    {
+        $this->settingMapper->expects($this->once())
+            ->method('setSetting')
+            ->with(AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET, 'https://duckduckgo.com/?q={query}');
+
+        $this->service->updateSettings(quicksearchFallbackTarget: 'https://duckduckgo.com/?q={query}');
+    }//end testUpdateSettingsPersistsValidHttpsTemplate()
+
+    public function testUpdateSettingsRejectsHttpTemplate(): void
+    {
+        $this->settingMapper->expects($this->never())->method('setSetting');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->updateSettings(quicksearchFallbackTarget: 'http://duckduckgo.com/?q={query}');
+    }//end testUpdateSettingsRejectsHttpTemplate()
+
+    public function testUpdateSettingsRejectsTemplateMissingQueryPlaceholder(): void
+    {
+        $this->settingMapper->expects($this->never())->method('setSetting');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->updateSettings(quicksearchFallbackTarget: 'https://duckduckgo.com/?q=static');
+    }//end testUpdateSettingsRejectsTemplateMissingQueryPlaceholder()
+
+    public function testUpdateSettingsRejectsArbitraryGarbageValue(): void
+    {
+        $this->settingMapper->expects($this->never())->method('setSetting');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->service->updateSettings(quicksearchFallbackTarget: 'not-a-valid-target');
+    }//end testUpdateSettingsRejectsArbitraryGarbageValue()
+
+    public function testUpdateSettingsSkipsNullQuicksearchFallbackTarget(): void
+    {
+        $this->settingMapper->expects($this->never())->method('setSetting');
+
+        $this->service->updateSettings(quicksearchFallbackTarget: null);
+    }//end testUpdateSettingsSkipsNullQuicksearchFallbackTarget()
+
+    /**
+     * @dataProvider provideValidQuicksearchFallbackTargets
+     *
+     * @param string $value the candidate value.
+     */
+    public function testIsValidQuicksearchFallbackTargetAcceptsValidValues(string $value): void
+    {
+        $this->assertTrue($this->service->isValidQuicksearchFallbackTarget($value));
+    }//end testIsValidQuicksearchFallbackTargetAcceptsValidValues()
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function provideValidQuicksearchFallbackTargets(): array
+    {
+        return [
+            'none'                 => ['none'],
+            'unified-search'       => ['unified-search'],
+            'https template'       => ['https://example.org/search?q={query}'],
+            'https template, path' => ['https://example.org/{query}/results'],
+        ];
+    }//end provideValidQuicksearchFallbackTargets()
+
+    /**
+     * @dataProvider provideInvalidQuicksearchFallbackTargets
+     *
+     * @param string|null $value the candidate value.
+     */
+    public function testIsValidQuicksearchFallbackTargetRejectsInvalidValues(?string $value): void
+    {
+        $this->assertFalse($this->service->isValidQuicksearchFallbackTarget($value));
+    }//end testIsValidQuicksearchFallbackTargetRejectsInvalidValues()
+
+    /**
+     * @return array<string, array{0: string|null}>
+     */
+    public static function provideInvalidQuicksearchFallbackTargets(): array
+    {
+        return [
+            'null'                          => [null],
+            'empty string'                  => [''],
+            'http (not https)'              => ['http://example.org/search?q={query}'],
+            'https without {query}'         => ['https://example.org/search'],
+            'not a URL at all'              => ['not-a-target'],
+            'malformed URL with {query}'    => ['ht!tp://exa mple/{query}'],
+        ];
+    }//end provideInvalidQuicksearchFallbackTargets()
 }//end class

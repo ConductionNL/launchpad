@@ -131,7 +131,15 @@
 				:item-key="placementItemKey"
 				@layout-change="updatePlacements">
 				<template #widget="{ item }">
-					<div class="launchpad-grid-item" @contextmenu="onWidgetRightClick($event, item)">
+					<!-- `data-placement-id` (tile-quick-search) lets the runtime
+					     shell's quick-search bar (mounted in WorkspaceApp.vue, a
+					     sibling component) target this exact grid item via a
+					     plain DOM query to dim/scroll/activate it — the search bar
+					     has no other reach into this component's rendered tree. -->
+					<div
+						class="launchpad-grid-item"
+						:data-placement-id="item.id"
+						@contextmenu="onWidgetRightClick($event, item)">
 						<!-- Tile placements render the launcher tile directly. -->
 						<TileWidget
 							v-if="isTilePlacement(item)"
@@ -1720,6 +1728,23 @@ export default {
 .launchpad-grid-item {
 	width: 100%;
 	height: 100%;
+	transition: opacity 0.15s ease;
+}
+
+/* tile-quick-search REQ-QSEARCH-002 "Typing filters tiles by label":
+   non-matching tiles are de-emphasised, NOT removed from the grid layout.
+   The class is toggled imperatively by WorkspaceApp.vue (a sibling
+   component reacting to the search bar's `filter` event) via a plain DOM
+   query — scoped CSS still applies because the element itself carries the
+   compiled `[data-v-*]` attribute regardless of how the class was set. */
+.launchpad-grid-item--dimmed {
+	opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.launchpad-grid-item {
+		transition: none;
+	}
 }
 
 .launchpad-floating-controls {

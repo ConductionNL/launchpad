@@ -47,13 +47,32 @@
 		     dashboard, Add custom widget) live in the per-dashboard cog
 		     menu (DashboardRowActions) so the page chrome stays clean. -->
 
+		<!-- Region 3.5: quick-search / launcher bar (tile-quick-search
+		     REQ-QSEARCH-001). Always visible above the grid regardless of
+		     sidebar state — `/` and Ctrl+K focus it from anywhere on the
+		     page. Filtering/activation reach into Views.vue's rendered grid
+		     via a plain DOM query (see `applySearchDimming` /
+		     `activateSearchResult` below) because the grid DOM lives in a
+		     sibling component's tree. -->
+		<div v-if="hasActiveDashboard" class="workspace-shell__search-bar">
+			<RuntimeShellSearch
+				:items="searchableTiles"
+				:fallback-target="quicksearchFallbackTarget"
+				@open="onSearchOpen"
+				@filter="onSearchFilter"
+				@fallback="onSearchFallback"
+				@clear="onSearchClear" />
+		</div>
+
 		<!-- Region 4: grid surface (or empty state).
 		     The empty state branches on `allowUserDashboards`
 		     (REQ-SHELL-005). When an active dashboard is resolved we
 		     defer to the existing Views component which owns the
 		     grid + per-widget modals — runtime-shell does not duplicate
-		     widget machinery. -->
-		<div class="workspace-shell__grid">
+		     widget machinery. `tabindex="-1"` makes the grid a valid
+		     programmatic focus target for the quick-search Esc contract
+		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
+		<div class="workspace-shell__grid" tabindex="-1">
 			<Views
 				v-if="hasActiveDashboard"
 				ref="viewsRef" />
@@ -90,15 +109,18 @@
 <script>
 import { NcButton } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
+import { mapState } from 'pinia'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
 
 import Views from './Views.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
+import RuntimeShellSearch from '../components/RuntimeShellSearch.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
+import { useWidgetStore } from '../stores/widgets.js'
 
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
@@ -134,6 +156,7 @@ export default {
 		Views,
 		DashboardFooter,
 		OrgNavigationPanel,
+		RuntimeShellSearch,
 		SidebarBackdrop,
 	},
 
@@ -182,6 +205,17 @@ export default {
 			from: 'viewerLocale',
 			default: 'en',
 		},
+		/**
+		 * tile-quick-search REQ-QSEARCH-004 — the admin-configured no-match
+		 * fallback target. Optional initial-state key (mirrors
+		 * `deepLinkPath`'s pattern): older servers that haven't deployed the
+		 * PHP side yet simply omit it, and the default keeps the reader
+		 * typed. See `src/utils/loadInitialState.js`.
+		 */
+		injectedQuicksearchFallbackTarget: {
+			from: 'quicksearchFallbackTarget',
+			default: 'none',
+		},
 	},
 
 	data() {
@@ -210,6 +244,37 @@ export default {
 		 */
 		hasActiveDashboard() {
 			return Boolean(this.injectedActiveDashboardId)
+		},
+
+		...mapState(useDashboardStore, ['widgetPlacements']),
+		...mapState(useWidgetStore, ['availableWidgets']),
+
+		/**
+		 * tile-quick-search REQ-QSEARCH-002 — the current dashboard's
+		 * searchable items, `{id, label, placement}`. Sourced from the live
+		 * Pinia store (not the static initial-state snapshot) so the quick
+		 * search bar re-filters correctly after any placement add/remove/
+		 * dashboard switch without a page reload.
+		 *
+		 * @return {Array<{id: string, label: string, placement: object}>}
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		searchableTiles() {
+			return (this.widgetPlacements || []).map((placement) => ({
+				id: placement.id,
+				label: this.tileSearchLabel(placement),
+				placement,
+			}))
+		},
+
+		/**
+		 * tile-quick-search REQ-QSEARCH-004 — the admin-configured no-match
+		 * fallback target, straight from the typed initial-state contract.
+		 *
+		 * @return {string}
+		 */
+		quicksearchFallbackTarget() {
+			return this.injectedQuicksearchFallbackTarget
 		},
 
 		/**
@@ -304,6 +369,181 @@ export default {
 				})
 			} catch (error) {
 				console.error('[WorkspaceApp] Failed to create first dashboard:', error)
+			}
+		},
+
+		/**
+		 * Resolve a placement's quick-search display label
+		 * (tile-quick-search REQ-QSEARCH-002). Mirrors the exact rule the
+		 * grid itself uses so search results read like the rendered tile
+		 * titles: tile placements use `tileTitle`; every other placement
+		 * uses `customTitle || widget.title || 'Widget'`
+		 * (`WidgetWrapper.vue`'s `widgetTitle` computed).
+		 *
+		 * @param {object} placement a `widgetPlacements` row.
+		 * @return {string} the label to search/display for this placement.
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		tileSearchLabel(placement) {
+			if (placement.tileType === 'custom') {
+				return placement.tileTitle || this.t('launchpad', 'Tile')
+			}
+			const widget = (this.availableWidgets || []).find((w) => w.id === placement.widgetId)
+			return placement.customTitle || widget?.title || this.t('launchpad', 'Widget')
+		},
+
+		/**
+		 * REQ-QSEARCH-003 "Enter opens the selected tile" scenario. `item`
+		 * is a `searchableTiles` entry (`{id, label, placement}`); the
+		 * actual DOM activation is a plain-query concern because the grid
+		 * lives in the sibling `Views` component's tree, not this
+		 * component's own template.
+		 *
+		 * @param {{id: string, label: string, placement: object}} item the
+		 *   opened search result.
+		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		onSearchOpen(item) {
+			this.activateSearchResult(item)
+		},
+
+		/**
+		 * REQ-QSEARCH-002 "Typing filters tiles by label" scenario:
+		 * non-matching tiles are de-emphasised (dimmed via CSS class), not
+		 * removed from the grid layout. `matchIds` is `null` when the query
+		 * is empty (undim everything) or an array of matching placement ids
+		 * otherwise (may be empty — dim everything).
+		 *
+		 * @param {Array<string>|null} matchIds the current matching ids.
+		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		onSearchFilter(matchIds) {
+			this.applySearchDimming(matchIds)
+		},
+
+		/**
+		 * REQ-QSEARCH-004 no-match fallback. `RuntimeShellSearch` only
+		 * resolves *which* action to take (pure decision, unit-tested in
+		 * `useTileSearch.spec.js`); this page performs the actual
+		 * side-effect since window/navigation access is a host-page concern.
+		 *
+		 * @param {{type: string, url?: string, query?: string}} action the
+		 *   resolved fallback action.
+		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		onSearchFallback(action) {
+			if (!action) {
+				return
+			}
+			if (action.type === 'web-search' && action.url) {
+				window.open(action.url, '_blank', 'noopener,noreferrer')
+				return
+			}
+			if (action.type === 'unified-search') {
+				// Best-effort hand-off (REQ-QSEARCH-004 "Unified-search
+				// fallback" scenario): dispatch a CustomEvent Nextcloud's
+				// own unified-search UI can listen for. Nothing else is
+				// touched — if no listener is present the dashboard simply
+				// stays put, satisfying "MUST NOT navigate away from the
+				// dashboard on its own beyond what the unified-search
+				// integration does".
+				window.dispatchEvent(new CustomEvent('nextcloud:unified-search.search', {
+					detail: { query: action.query },
+				}))
+			}
+			// 'none' — RuntimeShellSearch already renders the accessible
+			// no-results message; no further action here.
+		},
+
+		/**
+		 * REQ-QSEARCH-003 "Escape clears and returns focus" scenario:
+		 * undim every tile and move focus to the grid container.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		onSearchClear() {
+			this.applySearchDimming(null)
+			this.focusGrid()
+		},
+
+		/**
+		 * Toggle the `launchpad-grid-item--dimmed` class on every rendered
+		 * grid item (queried via `data-placement-id`, set by `Views.vue`).
+		 * `null` undims everything; an array dims every item whose id is
+		 * NOT present (an empty array therefore dims everything).
+		 *
+		 * @param {Array<string>|null} matchIds the current matching ids.
+		 * @return {void}
+		 */
+		applySearchDimming(matchIds) {
+			if (typeof document === 'undefined') {
+				return
+			}
+			const items = this.$el?.querySelectorAll('.launchpad-grid-item[data-placement-id]')
+			if (!items) {
+				return
+			}
+			items.forEach((el) => {
+				if (matchIds === null) {
+					el.classList.remove('launchpad-grid-item--dimmed')
+					return
+				}
+				const id = el.getAttribute('data-placement-id')
+				el.classList.toggle('launchpad-grid-item--dimmed', matchIds.includes(id) === false)
+			})
+		},
+
+		/**
+		 * Activate a search result's rendered tile in the grid: scroll it
+		 * into view, then click its link (honouring whatever
+		 * `target="_blank"`/`_self` `TileWidget.vue` already rendered —
+		 * REQ-QSEARCH-003 "honouring its configured link target"). Non-tile
+		 * placements without a link are focused instead, best-effort.
+		 *
+		 * @param {{id: string, placement: object}} item the opened search
+		 *   result.
+		 * @return {void}
+		 */
+		activateSearchResult(item) {
+			const placementId = item?.placement?.id
+			if (!placementId || !this.$el) {
+				return
+			}
+			const el = this.$el.querySelector(
+				`.launchpad-grid-item[data-placement-id="${placementId.replace(/"/g, '\\"')}"]`,
+			)
+			if (!el) {
+				return
+			}
+			if (typeof el.scrollIntoView === 'function') {
+				el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+			}
+			const link = el.querySelector('a[href]')
+			if (link && typeof link.click === 'function') {
+				link.click()
+				return
+			}
+			if (typeof el.focus === 'function') {
+				if (!el.hasAttribute('tabindex')) {
+					el.setAttribute('tabindex', '-1')
+				}
+				el.focus({ preventScroll: true })
+			}
+		},
+
+		/**
+		 * Move focus to the grid container (REQ-QSEARCH-003 Esc scenario).
+		 *
+		 * @return {void}
+		 */
+		focusGrid() {
+			const grid = this.$el?.querySelector('.workspace-shell__grid')
+			if (grid && typeof grid.focus === 'function') {
+				grid.focus({ preventScroll: true })
 			}
 		},
 	},
@@ -406,6 +646,24 @@ export default {
 	   unbounded, clipping silently out of the viewport. */
 	min-height: 0;
 	overflow: auto;
+}
+
+/* `tabindex="-1"` makes the grid a programmatic-only focus target (REQ-
+   QSEARCH-003 Esc-returns-focus scenario) — it never joins the tab order,
+   so it needs no visible focus ring for keyboard *tabbing* users, but a
+   ring on programmatic focus still helps orient someone who just pressed
+   Esc from the search bar. */
+.workspace-shell__grid:focus-visible {
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
+}
+
+/* tile-quick-search REQ-QSEARCH-001: the bar sits above the tile grid,
+   full width, matching the title-strip's horizontal padding. */
+.workspace-shell__search-bar {
+	padding: 8px 16px;
+	background: var(--color-main-background, #fff);
+	border-bottom: 1px solid var(--color-border, #ddd);
 }
 
 .workspace-shell__empty {

@@ -86,6 +86,21 @@ return [
 		// dashboard does not exist.
 		['name' => 'dashboardApi#viewEvent', 'url' => '/api/dashboards/{uuid}/view-event', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
+		// REQ-TANLT-002: record a tile click. Authed users only; the
+		// controller short-circuits silently when the user has opted out
+		// or analytics is globally disabled (same reused REQ-ANLT-003/004/005
+		// gates as the dashboard view-event route above). Returns HTTP 204
+		// on success, 404 when the placement does not exist. `placementId`
+		// is constrained to digits so the router never confuses it with a
+		// literal segment.
+		['name' => 'tileAnalytics#recordClick', 'url' => '/api/tile-click/{placementId}', 'verb' => 'POST',
+		 'requirements' => ['placementId' => '\d+']],
+		// REQ-TANLT-003: lets the frontend hook know whether tracking is
+		// currently active for the calling user, so it can suppress the
+		// record call without re-implementing the gate logic client-side.
+		['name' => 'tileAnalytics#config', 'url' => '/api/tile-analytics/config', 'verb' => 'GET'],
+
 		// REQ-DASH-026: nested dashboard tree.
 		['name' => 'dashboardApi#tree', 'url' => '/api/dashboards/tree', 'verb' => 'GET'],
 		// REQ-DASH-027: slug-chain path resolution. The {path} placeholder
@@ -456,6 +471,18 @@ return [
 		['name' => 'analytics#instanceSummary', 'url' => '/api/admin/analytics/summary', 'verb' => 'GET'],
 		['name' => 'analytics#exportCsv', 'url' => '/api/admin/analytics/export', 'verb' => 'GET'],
 		['name' => 'analytics#dashboardDetail', 'url' => '/api/admin/analytics/dashboards/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
+		// Tile usage-analytics admin endpoints (REQ-TANLT-004..005) — a
+		// strict downward extension of the dashboard view-analytics admin
+		// endpoints above. All admin-only via ADR-023 action authorization
+		// inside the controller. The literal `top` and `export` segments
+		// and the `by-dashboard` prefix precede any wildcard so the router
+		// never confuses them.
+		['name' => 'tileAnalytics#topTiles', 'url' => '/api/admin/analytics/tiles/top', 'verb' => 'GET'],
+		['name' => 'tileAnalytics#exportCsv', 'url' => '/api/admin/analytics/tiles/export', 'verb' => 'GET'],
+		['name' => 'tileAnalytics#dashboardBreakdown',
+		 'url' => '/api/admin/analytics/tiles/by-dashboard/{uuid}', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Background feed-refresh trigger (REQ-FRJ-010). Admin-only via

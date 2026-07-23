@@ -83,12 +83,12 @@ export default {
 	},
 
 	computed: {
-		/** Resolved style — `digital` or `analog`. @spec openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md */
+		/** Resolved style — `digital` or `analog`. @spec openspec/specs/clock-weather-widgets/spec.md */
 		style() {
 			return this.content?.style === 'analog' ? 'analog' : DEFAULT_CONTENT.style
 		},
 
-		/** Resolved hour format — `12h`, `24h`, or `auto` (follows locale). @spec openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md */
+		/** Resolved hour format — `12h`, `24h`, or `auto` (follows locale). @spec openspec/specs/clock-weather-widgets/spec.md */
 		hourFormat() {
 			const value = this.content?.hourFormat
 			if (value === '12h' || value === '24h') {
@@ -109,7 +109,7 @@ export default {
 			return undefined
 		},
 
-		/** Resolved IANA timezone, or '' to use the browser/device timezone. @spec openspec/changes/clock-weather-widgets/specs/clock-weather-widgets/spec.md */
+		/** Resolved IANA timezone, or '' to use the browser/device timezone. @spec openspec/specs/clock-weather-widgets/spec.md */
 		timezone() {
 			return typeof this.content?.timezone === 'string' ? this.content.timezone : DEFAULT_CONTENT.timezone
 		},

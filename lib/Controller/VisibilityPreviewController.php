@@ -48,7 +48,7 @@ use OCP\IRequest;
  * {@see \OCA\LaunchPad\Service\RuleEvaluatorService} pipeline used at
  * render time — no forked or re-implemented include/exclude logic.
  *
- * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+ * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
  */
 class VisibilityPreviewController extends Controller
 {
@@ -90,7 +90,7 @@ class VisibilityPreviewController extends Controller
      *                      on success, or HTTP 400 when `rules`/`context`
      *                      fail validation.
      *
-     * @spec openspec/changes/conditional-visibility-editor/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+     * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
      */
     #[NoAdminRequired]
     public function preview(

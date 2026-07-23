@@ -22,7 +22,7 @@ import { generateUrl } from '@nextcloud/router'
  * @return {Promise<{value: *, formatted: string|null, badge: {state: string, label: string}|null, fetchedAt: string|null, stale: boolean}>} the reading.
  * @throws {Error} when the request fails (network error, 403, 404, 5xx, …) — the
  *   caller (LiveTileWidget.vue) catches this and renders the error state.
- * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+ * @spec openspec/specs/live-data-tile-widget/spec.md
  */
 export async function fetchLiveTileValue(placementId) {
 	const url = generateUrl('/apps/launchpad/api/livetile/{placementId}', { placementId })
@@ -36,7 +36,7 @@ export async function fetchLiveTileValue(placementId) {
  * offers `connector` source mode.
  *
  * @return {Promise<boolean>} true when `connector` source mode may be offered.
- * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+ * @spec openspec/specs/live-data-tile-widget/spec.md
  */
 export async function fetchConnectorAvailability() {
 	const url = generateUrl('/apps/launchpad/api/livetile/connector/status')
@@ -56,7 +56,7 @@ export async function fetchConnectorAvailability() {
  *
  * @param {object} config the candidate `{sourceMode, url|sourceId, valueExpr, refresh}` config.
  * @return {Promise<{valid: boolean, errors: string[]}>} the validation result.
- * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+ * @spec openspec/specs/live-data-tile-widget/spec.md
  */
 export async function validateLiveTileSource(config) {
 	const url = generateUrl('/apps/launchpad/api/livetile/validate-source')

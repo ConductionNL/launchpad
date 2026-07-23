@@ -134,7 +134,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		label() {
 			return typeof this.content?.label === 'string' ? this.content.label : ''
 		},
@@ -145,7 +145,7 @@ export default {
 		 * treated as unavailable rather than a network/config error
 		 * (REQ-LIVETILE-005).
 		 *
-		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		unavailable() {
 			return this.content?.sourceMode === 'connector'
@@ -154,7 +154,7 @@ export default {
 				&& this.reading.stale === true
 		},
 
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		displayValue() {
 			if (!this.reading) {
 				return ''
@@ -167,7 +167,7 @@ export default {
 				: String(this.reading.value)
 		},
 
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		valueAriaLabel() {
 			if (!this.label) {
 				return this.displayValue
@@ -175,13 +175,13 @@ export default {
 			return t('launchpad', '{label}: {value}', { label: this.label, value: this.displayValue })
 		},
 
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		badgeIcon() {
 			const state = this.reading?.badge?.state
 			return BADGE_ICONS[state] || CheckCircleOutline
 		},
 
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		badgeClass() {
 			const state = this.reading?.badge?.state
 			return state ? `live-tile-widget__badge--${state}` : ''
@@ -191,12 +191,12 @@ export default {
 			return typeof this.content?.linkUrl === 'string' && this.content.linkUrl.trim() !== ''
 		},
 
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		clickThroughTag() {
 			return this.hasLink ? 'a' : 'div'
 		},
 
-		/** @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md */
+		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		clickThroughAttrs() {
 			if (!this.hasLink) {
 				return {}
@@ -224,7 +224,7 @@ export default {
 		 * activation path without depending on native anchor navigation.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		onActivate() {
 			// Native <a> handles navigation; nothing further required.
@@ -236,7 +236,7 @@ export default {
 		 * renders the error state; it never throws into the parent.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		async load() {
 			const placementId = this.placement?.id

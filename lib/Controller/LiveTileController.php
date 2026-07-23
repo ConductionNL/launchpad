@@ -53,7 +53,7 @@ use Throwable;
 /**
  * Controller for the live-data tile capability.
  *
- * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+ * @spec openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileController extends Controller
 {
@@ -93,7 +93,7 @@ class LiveTileController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+     * @spec openspec/specs/live-data-tile-widget/spec.md
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -152,7 +152,7 @@ class LiveTileController extends Controller
      *
      * @return JSONResponse `{available: bool}`.
      *
-     * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+     * @spec openspec/specs/live-data-tile-widget/spec.md
      */
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -181,7 +181,7 @@ class LiveTileController extends Controller
      *
      * @return JSONResponse `{valid: bool, errors: string[]}`.
      *
-     * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+     * @spec openspec/specs/live-data-tile-widget/spec.md
      */
     #[NoAdminRequired]
     public function validateSource(): JSONResponse

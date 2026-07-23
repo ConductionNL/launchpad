@@ -66,7 +66,7 @@ use Throwable;
  *     lite extraction, formatting, badge thresholding, caching, and
  *     stale-fallback in one cohesive unit — mirrors WeatherService's shape
  *     for the same class of capability.
- * @spec                                             openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+ * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileService
 {
@@ -185,7 +185,7 @@ class LiveTileService
      *
      * @return array<string,mixed> `{value, formatted, badge, fetchedAt, stale}` or `{error: string}`.
      *
-     * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+     * @spec openspec/specs/live-data-tile-widget/spec.md
      */
     public function resolveForPlacement(int $placementId): array
     {
@@ -245,7 +245,7 @@ class LiveTileService
      *
      * @return string[] Validation error codes; empty when the config is valid.
      *
-     * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+     * @spec openspec/specs/live-data-tile-widget/spec.md
      */
     public function validateSourceConfig(array $config): array
     {
@@ -289,7 +289,7 @@ class LiveTileService
      *
      * @return boolean
      *
-     * @spec openspec/changes/live-data-tile-widget/specs/live-data-tile-widget/spec.md
+     * @spec openspec/specs/live-data-tile-widget/spec.md
      */
     public function isConnectorAvailable(): bool
     {

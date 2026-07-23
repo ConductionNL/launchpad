@@ -278,6 +278,11 @@ return [
 		['name' => 'ruleApi#updateRule', 'url' => '/api/rules/{ruleId}', 'verb' => 'PUT'],
 		['name' => 'ruleApi#deleteRule', 'url' => '/api/rules/{ruleId}', 'verb' => 'DELETE'],
 
+		// conditional-visibility-editor: read-only, non-persisting
+		// "preview as audience/date" — #[NoAdminRequired] on
+		// VisibilityPreviewController::preview().
+		['name' => 'visibilityPreview#preview', 'url' => '/api/visibility/preview', 'verb' => 'POST'],
+
 		// Role-feature permissions (REQ-RFP-001..010). Admin-only — the
 		// controller calls `requireAdmin()` on every method. Sits with
 		// the rest of the admin-scoped routes; the duplicate

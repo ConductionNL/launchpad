@@ -67,6 +67,24 @@ class ConditionalRule extends Entity implements JsonSerializable
     public const TYPE_ATTRIBUTE = 'attribute';
 
     /**
+     * The full set of supported rule types. Single source of truth for
+     * server-side ruleType validation — currently consumed by
+     * `VisibilityPreviewController` (conditional-visibility-editor spec,
+     * REQ-CVUI-005). The CRUD path (`RuleApiController`) does not yet
+     * validate `ruleType` (tracked as a known limitation on the
+     * `conditional-visibility` engine spec); adopting this constant there
+     * is out of scope for this change.
+     *
+     * @var string[]
+     */
+    public const ALLOWED_TYPES = [
+        self::TYPE_GROUP,
+        self::TYPE_TIME,
+        self::TYPE_DATE,
+        self::TYPE_ATTRIBUTE,
+    ];
+
+    /**
      * The widget placement ID.
      *
      * @var integer

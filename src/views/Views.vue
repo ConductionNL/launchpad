@@ -260,6 +260,7 @@
 			:placement-id="visibilityPlacementId"
 			@close="closeVisibilityRules"
 			@rule-added="onVisibilityRulesChanged"
+			@rule-updated="onVisibilityRulesChanged"
 			@rule-removed="onVisibilityRulesChanged" />
 	</div>
 </template>

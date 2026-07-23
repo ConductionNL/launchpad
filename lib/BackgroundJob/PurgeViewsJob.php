@@ -8,6 +8,11 @@
  * window is 365 days; admin override via
  * `launchpad.analytics_retention_days` is clamped to `[30, 3650]`.
  *
+ * Extended by the tile usage-analytics capability (REQ-TANLT-005) to
+ * also purge `oc_launchpad_tile_clicks` rows older than the SAME
+ * cutoff in the same run — no second purge job is introduced, per the
+ * "reuse, don't reinvent" contract for that capability.
+ *
  * Logging is intentionally aggregate-only: row count + cutoff date
  * — never any user-attributable identifiers (REQ-ANLT-009 scenario
  * "Purge logs execution"). The job is registered via
@@ -30,6 +35,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\BackgroundJob;
 
 use OCA\LaunchPad\Db\DashboardViewMapper;
+use OCA\LaunchPad\Db\TileClickMapper;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -56,12 +62,18 @@ class PurgeViewsJob extends TimedJob
      *                                              context).
      * @param DashboardViewMapper $viewMapper       Aggregate-row
      *                                              mapper.
+     * @param TileClickMapper     $tileClickMapper  Tile-click
+     *                                              aggregate-row
+     *                                              mapper — reuses
+     *                                              the same cutoff
+     *                                              date (REQ-TANLT-005).
      * @param LoggerInterface     $logger           PSR logger.
      */
     public function __construct(
         ITimeFactory $time,
         private readonly AnalyticsService $analyticsService,
         private readonly DashboardViewMapper $viewMapper,
+        private readonly TileClickMapper $tileClickMapper,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(time: $time);
@@ -70,25 +82,31 @@ class PurgeViewsJob extends TimedJob
 
     /**
      * Run the job — delete every aggregate row strictly older than
-     * the cutoff date.
+     * the cutoff date, in BOTH the dashboard-views table and the
+     * tile-clicks table (REQ-TANLT-005 — same cutoff, same run, no
+     * second job).
      *
      * @param mixed $argument Required by the base class; unused.
      *
      * @return void
      *
      * @spec openspec/specs/dashboard-view-analytics/spec.md
+     * @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md
      */
     protected function run($argument): void
     {
-        $cutoff  = $this->analyticsService->getPurgeCutoffDate();
-        $deleted = $this->viewMapper->deleteOlderThan(beforeDate: $cutoff);
+        $cutoff        = $this->analyticsService->getPurgeCutoffDate();
+        $deletedViews  = $this->viewMapper->deleteOlderThan(beforeDate: $cutoff);
+        $deletedClicks = $this->tileClickMapper->deleteOlderThan(beforeDate: $cutoff);
 
         $this->logger->info(
-            message: 'launchpad analytics purge: deleted '.$deleted.' rows older than '.$cutoff,
+            message: 'launchpad analytics purge: deleted '.$deletedViews.' view rows and '
+                .$deletedClicks.' tile-click rows older than '.$cutoff,
             context: [
-                'rows'      => $deleted,
-                'cutoff'    => $cutoff,
-                'retention' => $this->analyticsService->getRetentionDays(),
+                'viewRows'   => $deletedViews,
+                'tileRows'   => $deletedClicks,
+                'cutoff'     => $cutoff,
+                'retention'  => $this->analyticsService->getRetentionDays(),
             ]
         );
     }//end run()

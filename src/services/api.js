@@ -158,6 +158,43 @@ export const api = {
 		)
 	},
 
+	// REQ-TANLT-002: record a tile click. Authed users only; server
+	// short-circuits to 204 silently when the user has opted out or
+	// analytics is globally disabled (same reused gates as the
+	// dashboard view-event above). Body is empty `{}`.
+	/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+	recordTileClick(placementId) {
+		return axios.post(
+			`${baseUrl}/api/tile-click/${encodeURIComponent(placementId)}`,
+			{},
+		)
+	},
+
+	// REQ-TANLT-003: whether tile-click tracking is currently active
+	// for the calling user (globally enabled AND not opted out).
+	/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+	getTileAnalyticsConfig() {
+		return axios.get(`${baseUrl}/api/tile-analytics/config`)
+	},
+
+	// REQ-TANLT-004: top-N tiles by click count for the given period.
+	/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+	getAnalyticsTopTiles(period = '30d', limit = 10) {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/tiles/top`,
+			{ params: { period, limit } },
+		)
+	},
+
+	// REQ-TANLT-004: per-dashboard tile breakdown for the given period.
+	/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+	getAnalyticsTileDashboardBreakdown(uuid, period = '30d') {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/tiles/by-dashboard/${encodeURIComponent(uuid)}`,
+			{ params: { period } },
+		)
+	},
+
 	// REQ-ANLT-006: top-N dashboards by view count for the given period.
 	/** @spec openspec/specs/dashboards/spec.md */
 	getAnalyticsTopDashboards(period = '30d', limit = 10) {
@@ -183,6 +220,15 @@ export const api = {
 	getAnalyticsCsvExport(period = '30d') {
 		return axios.get(
 			`${baseUrl}/api/admin/analytics/export`,
+			{ params: { period }, responseType: 'blob' },
+		)
+	},
+
+	// REQ-TANLT-005: trigger a tile-analytics CSV export download.
+	/** @spec openspec/changes/tile-usage-analytics/specs/dashboard-view-analytics/spec.md */
+	getTileAnalyticsCsvExport(period = '30d') {
+		return axios.get(
+			`${baseUrl}/api/admin/analytics/tiles/export`,
 			{ params: { period }, responseType: 'blob' },
 		)
 	},

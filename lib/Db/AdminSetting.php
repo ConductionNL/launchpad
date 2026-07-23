@@ -214,6 +214,15 @@ class AdminSetting extends Entity implements JsonSerializable
     public const KEY_MAX_WIDGETS_PER_DASHBOARD = AdminSettingKey::MAX_WIDGETS_PER_DASHBOARD->value;
 
     /**
+     * BC alias for AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET (tile-quick-search).
+     *
+     * @var string
+     *
+     * @see AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET
+     */
+    public const KEY_QUICKSEARCH_FALLBACK_TARGET = AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET->value;
+
+    /**
      * The setting key.
      *
      * @var string

@@ -55,6 +55,13 @@ const PAGE_KEYS = {
 		// Optional key — older servers don't push it, so the default
 		// keeps reads typed even before the deploy lands.
 		deepLinkPath: '',
+		// tile-quick-search REQ-QSEARCH-004: admin-configured no-match
+		// fallback target — 'none' | 'unified-search' | a validated
+		// `https` URL template containing `{query}`. Optional key (same
+		// rationale as `deepLinkPath`): a server that hasn't deployed the
+		// PHP side yet simply omits it, and 'none' is the safe default
+		// (no navigation on no-match Enter).
+		quicksearchFallbackTarget: 'none',
 	},
 	admin: {
 		allGroups: [],

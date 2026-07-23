@@ -23,6 +23,9 @@ import Vue from 'vue'
 import { PiniaVuePlugin, createPinia } from 'pinia'
 
 import WorkspaceApp from '../WorkspaceApp.vue'
+import RuntimeShellSearch from '../../components/RuntimeShellSearch.vue'
+import { useDashboardStore } from '../../stores/dashboard.js'
+import { useWidgetStore } from '../../stores/widgets.js'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
@@ -52,7 +55,7 @@ function mountShell(options = {}) {
 		...(options.inject || {}),
 	}
 	return mount(WorkspaceApp, {
-		pinia: createPinia(),
+		pinia: options.pinia || createPinia(),
 		provide: inject,
 		stubs: {
 			Views: {
@@ -193,6 +196,166 @@ describe('WorkspaceApp', () => {
 			wrapper.vm.sidebarOpen = true
 			wrapper.vm.closeSidebar()
 			expect(wrapper.vm.sidebarOpen).toBe(false)
+		})
+	})
+
+	describe('tile-quick-search: RuntimeShellSearch wiring', () => {
+		/**
+		 * Build a pinia instance pre-populated with dashboard-store /
+		 * widget-store state so `searchableTiles` has something to derive.
+		 *
+		 * @param {object} [options] store overrides.
+		 * @param {Array} [options.widgetPlacements] placements to seed.
+		 * @param {Array} [options.availableWidgets] widget definitions to seed.
+		 * @return {import('pinia').Pinia}
+		 */
+		function buildPinia({ widgetPlacements = [], availableWidgets = [] } = {}) {
+			const pinia = createPinia()
+			useDashboardStore(pinia).widgetPlacements = widgetPlacements
+			useWidgetStore(pinia).availableWidgets = availableWidgets
+			return pinia
+		}
+
+		it('renders the search bar above the grid when a dashboard is active', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			expect(wrapper.findComponent(RuntimeShellSearch).exists()).toBe(true)
+		})
+
+		it('does not render the search bar in the empty state', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: '' } })
+			expect(wrapper.findComponent(RuntimeShellSearch).exists()).toBe(false)
+		})
+
+		it('searchableTiles derives a tile placement label from tileTitle', () => {
+			const pinia = buildPinia({
+				widgetPlacements: [
+					{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' },
+				],
+			})
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' }, pinia })
+			expect(wrapper.vm.searchableTiles).toEqual([
+				{ id: 'p1', label: 'Zaaksysteem', placement: wrapper.vm.widgetPlacements[0] },
+			])
+		})
+
+		it('searchableTiles derives a widget placement label from customTitle, then widget.title, then a fallback', () => {
+			const pinia = buildPinia({
+				widgetPlacements: [
+					{ id: 'p1', widgetId: 'w1', customTitle: 'My custom title' },
+					{ id: 'p2', widgetId: 'w1' },
+					{ id: 'p3', widgetId: 'unknown' },
+				],
+				availableWidgets: [{ id: 'w1', title: 'Weather' }],
+			})
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' }, pinia })
+			const labels = wrapper.vm.searchableTiles.map((t) => t.label)
+			expect(labels).toEqual(['My custom title', 'Weather', 'Widget'])
+		})
+
+		it('passes the searchableTiles + fallbackTarget through as props', () => {
+			const pinia = buildPinia({
+				widgetPlacements: [{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' }],
+			})
+			const wrapper = mountShell({
+				inject: { activeDashboardId: 'd1', quicksearchFallbackTarget: 'unified-search' },
+				pinia,
+			})
+			const search = wrapper.findComponent(RuntimeShellSearch)
+			expect(search.props('items')).toEqual(wrapper.vm.searchableTiles)
+			expect(search.props('fallbackTarget')).toBe('unified-search')
+		})
+
+		it('defaults fallbackTarget to "none" when the initial-state key is absent', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			expect(wrapper.vm.quicksearchFallbackTarget).toBe('none')
+		})
+
+		it('onSearchFilter dims non-matching grid items and leaves matches undimmed', async () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const grid = wrapper.find('.workspace-shell__grid').element
+			const matchEl = document.createElement('div')
+			matchEl.className = 'launchpad-grid-item'
+			matchEl.setAttribute('data-placement-id', 'match')
+			const otherEl = document.createElement('div')
+			otherEl.className = 'launchpad-grid-item'
+			otherEl.setAttribute('data-placement-id', 'other')
+			grid.appendChild(matchEl)
+			grid.appendChild(otherEl)
+
+			wrapper.vm.onSearchFilter(['match'])
+			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
+			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(true)
+
+			// null (query cleared) undims everything.
+			wrapper.vm.onSearchFilter(null)
+			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
+			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
+		})
+
+		it('onSearchClear undims every tile and moves focus to the grid', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const grid = wrapper.find('.workspace-shell__grid').element
+			const el = document.createElement('div')
+			el.className = 'launchpad-grid-item launchpad-grid-item--dimmed'
+			el.setAttribute('data-placement-id', 'p1')
+			grid.appendChild(el)
+
+			const focusSpy = vi.spyOn(grid, 'focus')
+			wrapper.vm.onSearchClear()
+			expect(el.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
+			expect(focusSpy).toHaveBeenCalled()
+		})
+
+		it('onSearchOpen scrolls to and clicks the matched tile\'s rendered link', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const grid = wrapper.find('.workspace-shell__grid').element
+			const el = document.createElement('div')
+			el.className = 'launchpad-grid-item'
+			el.setAttribute('data-placement-id', 'p1')
+			// A hash-only href avoids jsdom's "navigation not implemented"
+			// console noise when `.click()` fires below, while still
+			// exercising the real `<a href>` activation path.
+			const link = document.createElement('a')
+			link.setAttribute('href', '#deck')
+			el.appendChild(link)
+			grid.appendChild(el)
+
+			const scrollSpy = vi.fn()
+			el.scrollIntoView = scrollSpy
+			const clickSpy = vi.spyOn(link, 'click')
+
+			wrapper.vm.onSearchOpen({ id: 'p1', label: 'Deck', placement: { id: 'p1' } })
+			expect(scrollSpy).toHaveBeenCalled()
+			expect(clickSpy).toHaveBeenCalled()
+		})
+
+		it('onSearchFallback opens a web-search URL in a new tab', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
+			wrapper.vm.onSearchFallback({ type: 'web-search', url: 'https://example.org/search?q=x' })
+			expect(openSpy).toHaveBeenCalledWith('https://example.org/search?q=x', '_blank', 'noopener,noreferrer')
+			openSpy.mockRestore()
+		})
+
+		it('onSearchFallback dispatches a unified-search CustomEvent without navigating', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
+			const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
+			wrapper.vm.onSearchFallback({ type: 'unified-search', query: 'invoices' })
+			expect(openSpy).not.toHaveBeenCalled()
+			const dispatched = dispatchSpy.mock.calls.find(([e]) => e.type === 'nextcloud:unified-search.search')
+			expect(dispatched).toBeTruthy()
+			expect(dispatched[0].detail).toEqual({ query: 'invoices' })
+			openSpy.mockRestore()
+			dispatchSpy.mockRestore()
+		})
+
+		it('onSearchFallback does nothing observable for a "none" action', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
+			expect(() => wrapper.vm.onSearchFallback({ type: 'none' })).not.toThrow()
+			expect(openSpy).not.toHaveBeenCalled()
+			openSpy.mockRestore()
 		})
 	})
 })

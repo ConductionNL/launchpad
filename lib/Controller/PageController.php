@@ -27,6 +27,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -85,6 +86,13 @@ class PageController extends Controller
      *                                                           path doesn't
      *                                                           resolve to a
      *                                                           visible dashboard.
+     * @param AdminSettingsService         $adminSettingsService Source of the
+     *                                                           quick-search
+     *                                                           no-match
+     *                                                           fallback-target
+     *                                                           admin setting
+     *                                                           (tile-quick-search
+     *                                                           REQ-QSEARCH-004).
      */
     public function __construct(
         IRequest $request,
@@ -97,6 +105,7 @@ class PageController extends Controller
         private readonly RoleFeaturePermissionService $roleFeaturePerm,
         private readonly DashboardTreeService $treeService,
         private readonly LoggerInterface $logger,
+        private readonly AdminSettingsService $adminSettingsService,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
     }//end __construct()
@@ -320,9 +329,18 @@ class PageController extends Controller
             );
         }
 
+        // tile-quick-search REQ-QSEARCH-004: read the admin-configured
+        // no-match fallback target. `getSettings()` already resolves the
+        // safe 'none' default when unset/invalid, so this never throws.
+        $quicksearchFallbackTarget = (string) (
+            $this->adminSettingsService->getSettings()['quicksearchFallbackTarget']
+            ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
+        );
+
         $builder
             ->setAllowedWidgets($allowedWidgets)
             ->setDeepLinkPath($deepLinkPath)
+            ->setQuicksearchFallbackTarget($quicksearchFallbackTarget)
             ->apply();
 
         // REQ-SHELL-001: pass the chrome slot ids so Nextcloud treats

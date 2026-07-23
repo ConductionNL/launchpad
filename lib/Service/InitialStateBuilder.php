@@ -333,6 +333,30 @@ class InitialStateBuilder
     }//end setDeepLinkPath()
 
     /**
+     * Set the admin-configured quick-search no-match fallback target
+     * (workspace). `'none'` | `'unified-search'` | a validated `https`
+     * URL template containing `{query}`.
+     *
+     * Optional key — mirrors {@see self::setDeepLinkPath()}'s pattern:
+     * NOT in {@see self::REQUIRED_KEYS}, so an older deploy that hasn't
+     * called this setter yet still passes {@see self::apply()}'s
+     * required-key check, and the JS reader's `'none'` default keeps the
+     * frontend typed either way (tile-quick-search REQ-QSEARCH-004).
+     *
+     * @param string $quicksearchFallbackTarget The current fallback-target
+     *                                          setting value.
+     *
+     * @return self Fluent.
+     *
+     * @spec openspec/changes/tile-quick-search/specs/tile-quick-search/spec.md
+     */
+    public function setQuicksearchFallbackTarget(string $quicksearchFallbackTarget): self
+    {
+        $this->values['quicksearchFallbackTarget'] = $quicksearchFallbackTarget;
+        return $this;
+    }//end setQuicksearchFallbackTarget()
+
+    /**
      * Set every Nextcloud group (admin).
      *
      * @param array $allGroups List of `{id, displayName}` pairs.

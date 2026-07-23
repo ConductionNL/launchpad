@@ -16,6 +16,7 @@
  *  - Footer:               FOOTER_ENABLED, FOOTER_HTML, FOOTER_CONFIG,
  *                          FOOTER_BACKGROUND_COLOR, FOOTER_TEXT_COLOR
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
+ *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search)
  *
  * @category Db
  * @package  OCA\LaunchPad\Db
@@ -61,4 +62,5 @@ enum AdminSettingKey: string
     case LEGACY_WIDGET_BRIDGE_ENABLED   = 'legacy_widget_bridge_enabled';
     case MAX_DASHBOARDS_PER_USER        = 'max_dashboards_per_user';
     case MAX_WIDGETS_PER_DASHBOARD      = 'max_widgets_per_dashboard';
+    case QUICKSEARCH_FALLBACK_TARGET    = 'quicksearch_fallback_target';
 }//end enum

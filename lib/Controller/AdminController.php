@@ -380,6 +380,15 @@ class AdminController extends Controller
      *                                                 unlimited).
      *                                                 dashboard-quota-limits
      *                                                 REQ-QUOTA-001.
+     * @param string|null $quicksearchFallbackTarget   On-dashboard quick-search
+     *                                                 no-match fallback:
+     *                                                 `'none'`,
+     *                                                 `'unified-search'`, or
+     *                                                 an `https` URL
+     *                                                 template containing
+     *                                                 `{query}`.
+     *                                                 tile-quick-search
+     *                                                 REQ-QSEARCH-004.
      *
      * @return JSONResponse The update confirmation.
      *
@@ -397,7 +406,8 @@ class AdminController extends Controller
         ?array $forcedShareGroups=null,
         ?bool $legacyWidgetBridgeEnabled=null,
         ?int $maxDashboardsPerUser=null,
-        ?int $maxWidgetsPerDashboard=null
+        ?int $maxWidgetsPerDashboard=null,
+        ?string $quicksearchFallbackTarget=null
     ): JSONResponse {
         try {
             $this->settingsService->updateSettings(
@@ -411,7 +421,8 @@ class AdminController extends Controller
                 forcedShareGroups: $forcedShareGroups,
                 legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
                 maxDashboardsPerUser: $maxDashboardsPerUser,
-                maxWidgetsPerDashboard: $maxWidgetsPerDashboard
+                maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
+                quicksearchFallbackTarget: $quicksearchFallbackTarget
             );
 
             return ResponseHelper::success(data: ['status' => 'ok']);

@@ -82,6 +82,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setAcknowledgementContentVersion(int $acknowledgementContentVersion)
  * @method string|null getAnnouncementKey()
  * @method void setAnnouncementKey(?string $announcementKey)
+ * @method int|null getTemplatePlacementId()
+ * @method void setTemplatePlacementId(?int $templatePlacementId)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
@@ -319,6 +321,20 @@ class WidgetPlacement extends Entity implements JsonSerializable
     protected ?string $announcementKey = null;
 
     /**
+     * The origin key linking this placement back to the source template's
+     * blueprint placement it was cloned from (by that placement's `id`).
+     * Null means "no known template origin" — either a genuinely
+     * user-added placement, or a copy provisioned before this column
+     * existed. Used by {@see \OCA\LaunchPad\Service\TemplateResyncService}
+     * to distinguish template-origin placements (reconciled on re-sync)
+     * from user-added ones (preserved under the `merge` strategy).
+     * REQ-RESYNC-003 / REQ-RESYNC-004.
+     *
+     * @var integer|null
+     */
+    protected ?int $templatePlacementId = null;
+
+    /**
      * The creation timestamp as string.
      *
      * @var string|null
@@ -360,6 +376,7 @@ class WidgetPlacement extends Entity implements JsonSerializable
         $this->addType(fieldName: 'reacknowledgeOnChange', type: 'integer');
         // SMALLINT in DB (0/1).
         $this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
+        $this->addType(fieldName: 'templatePlacementId', type: 'integer');
     }//end __construct()
 
     /**
@@ -478,6 +495,7 @@ class WidgetPlacement extends Entity implements JsonSerializable
             'reacknowledgeOnChange'         => $this->reacknowledgeOnChange,
             'acknowledgementContentVersion' => $this->acknowledgementContentVersion,
             'announcementKey'               => $this->announcementKey,
+            'templatePlacementId'           => $this->templatePlacementId,
             'createdAt'                     => $this->createdAt,
             'updatedAt'                     => $this->updatedAt,
         ];

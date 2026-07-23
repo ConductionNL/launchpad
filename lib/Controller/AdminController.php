@@ -37,6 +37,7 @@ use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\ResourceService;
 use OCA\LaunchPad\Service\RoleService;
 use OCA\LaunchPad\Service\SetupWizardService;
+use OCA\LaunchPad\Service\TemplateResyncService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -123,6 +124,9 @@ class AdminController extends Controller
      *                                                 orchestrator
      *                                                 (REQ-WIZ-001..011).
      * @param ActionAuthService    $actionAuth         ADR-023 action authorization.
+     * @param TemplateResyncService $resyncService     Admin template
+     *                                                 re-sync orchestrator
+     *                                                 (REQ-RESYNC-001..005).
      */
     public function __construct(
         IRequest $request,
@@ -137,6 +141,7 @@ class AdminController extends Controller
         private readonly FooterService $footerService,
         private readonly SetupWizardService $setupWizardService,
         private readonly ActionAuthService $actionAuth,
+        private readonly TemplateResyncService $resyncService,
     ) {
         parent::__construct(
             appName: Application::APP_ID,
@@ -330,6 +335,68 @@ class AdminController extends Controller
             return ResponseHelper::error(exception: $e);
         }//end try
     }//end deleteTemplate()
+
+    /**
+     * Push an updated admin template to its already-provisioned user
+     * copies (REQ-RESYNC-001).
+     *
+     * Body: `{strategy: "overwrite"|"merge", dryRun: bool}`. Dry-run
+     * (the default) computes and returns the plan — affected copies plus
+     * per-copy add/update/remove/preserve counts — without mutating
+     * anything. A real run (`dryRun: false`) applies inline for small
+     * target groups or enqueues {@see \OCA\LaunchPad\BackgroundJob\TemplateResyncJob}
+     * for large ones, writes one audit record, and notifies every
+     * affected user.
+     *
+     * Admin-guarded twice over — the `AuthorizedAdminSetting` attribute
+     * plus the explicit {@see self::assertAdmin()} guard — matching this
+     * controller's other mutating admin actions (export/import/footer).
+     *
+     * @param int    $id       The admin template's dashboard ID.
+     * @param string $strategy `'overwrite'` or `'merge'`.
+     * @param bool   $dryRun   When true (default), report without
+     *                        mutating.
+     *
+     * @return JSONResponse The plan, the applied result, or the
+     *                      async-accepted envelope. 400 on an invalid
+     *                      strategy or a non-template dashboard; 401/403
+     *                      on guard failure.
+     *
+     * @spec openspec/changes/admin-template-resync/specs/admin-templates/spec.md#req-resync-001-re-sync-action-pushes-template-updates-to-existing-copies
+     */
+    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+    public function resyncTemplate(
+        int $id,
+        string $strategy='',
+        bool $dryRun=true
+    ): JSONResponse {
+        $guard = $this->assertAdmin();
+        if ($guard !== null) {
+            return $guard;
+        }
+
+        $user         = $this->userSession->getUser();
+        $actingAdminId = ($user !== null) ? $user->getUID() : '';
+
+        try {
+            $result = $this->resyncService->resync(
+                templateId: $id,
+                strategy: $strategy,
+                dryRun: $dryRun,
+                actingAdminId: $actingAdminId
+            );
+
+            return ResponseHelper::success(data: $result);
+        } catch (InvalidArgumentException $e) {
+            return ResponseHelper::error(
+                exception: $e,
+                statusCode: Http::STATUS_BAD_REQUEST,
+                message: $e->getMessage()
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::error(exception: $e);
+        }//end try
+    }//end resyncTemplate()
 
     /**
      * Get admin settings.

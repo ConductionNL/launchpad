@@ -79,6 +79,7 @@ class AdminControllerRefreshFeedsTest extends TestCase
             footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
             setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class),
             actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class),
+            resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class),
         );
     }//end setUp()
 

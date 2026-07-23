@@ -88,6 +88,7 @@ class AdminControllerExportImportTest extends TestCase
             footerService: $this->footerService,
             setupWizardService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\SetupWizardService::class),
             actionAuth: $this->createMock(originalClassName: \OCA\LaunchPad\Service\ActionAuthService::class),
+            resyncService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\TemplateResyncService::class),
         );
     }
 

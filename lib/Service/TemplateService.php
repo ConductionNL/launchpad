@@ -210,6 +210,20 @@ class TemplateService
     /**
      * Clone a widget placement for a new dashboard.
      *
+     * Copies every widget-, tile-, style- and grid-field byte-for-byte
+     * (mirrors {@see \OCA\LaunchPad\Db\WidgetPlacementMapper::cloneToDashboard()}
+     * so a first-access template copy and an owner-fork clone the exact
+     * same field set — a pre-existing gap where `content`, `customIcon`,
+     * and the `tile*` fields were silently dropped on template
+     * distribution, fixed while touching this method for
+     * `admin-template-resync`).
+     *
+     * Also stamps {@see WidgetPlacement::setTemplatePlacementId()} with the
+     * source template placement's `id` — the origin key
+     * {@see \OCA\LaunchPad\Service\TemplateResyncService} uses to tell
+     * template-origin placements apart from placements the user adds to
+     * their copy afterward (REQ-RESYNC-003 / REQ-RESYNC-004).
+     *
      * @param WidgetPlacement $source      The source placement.
      * @param int             $dashboardId The target dashboard ID.
      *
@@ -238,8 +252,26 @@ class TemplateService
         $placement->setCustomTitle(
             $source->getCustomTitle()
         );
+        $placement->setCustomIcon($source->getCustomIcon());
         $placement->setShowTitle($source->getShowTitle());
         $placement->setSortOrder($source->getSortOrder());
+        // REQ-DASH-020: `content` carries the widget configuration — for
+        // `nc-widget` rows the `{"widgetId": ...}` JSON that tells the
+        // renderer what to load. Dropping it distributes widgets into a
+        // sourceless "No items available" state.
+        $placement->setContent($source->getContent());
+        // Tile fields — a template placement may be a tile (REQ-TMPL-007
+        // "Template placements include tile data"); tileType is the
+        // discriminator gating jsonSerialize()'s tile block, so all tile
+        // columns must travel together.
+        $placement->setTileType($source->getTileType());
+        $placement->setTileTitle($source->getTileTitle());
+        $placement->setTileIcon($source->getTileIcon());
+        $placement->setTileIconType($source->getTileIconType());
+        $placement->setTileBackgroundColor($source->getTileBackgroundColor());
+        $placement->setTileTextColor($source->getTileTextColor());
+        $placement->setTileLinkType($source->getTileLinkType());
+        $placement->setTileLinkValue($source->getTileLinkValue());
         // REQ-ACK-001: copy the acknowledgement requirement and the stable
         // `announcementKey` so every recipient cloned from this template
         // placement shares one announcement identity (design D2).
@@ -249,6 +281,10 @@ class TemplateService
         $placement->setReacknowledgeOnChange($source->getReacknowledgeOnChange());
         $placement->setAcknowledgementContentVersion($source->getAcknowledgementContentVersion());
         $placement->setAnnouncementKey($source->getAnnouncementKey());
+        // REQ-RESYNC-003/004: stamp the template-origin key so a later
+        // admin re-sync can reconcile this placement against the template
+        // while leaving genuinely user-added placements alone.
+        $placement->setTemplatePlacementId($source->getId());
         $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
         $placement->setCreatedAt($now);
         $placement->setUpdatedAt($now);

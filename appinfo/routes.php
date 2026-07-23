@@ -372,6 +372,10 @@ return [
 		// `{uuid}/preview-image` suffix matches first.
 		['name' => 'admin#uploadTemplatePreviewImage', 'url' => '/api/admin/templates/{uuid}/preview-image', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// Admin template re-sync (REQ-RESYNC-001). Registered BEFORE the
+		// `/api/admin/templates/{id}` wildcard routes so the literal
+		// `{id}/resync` suffix matches first, same as preview-image above.
+		['name' => 'admin#resyncTemplate', 'url' => '/api/admin/templates/{id}/resync', 'verb' => 'POST'],
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],

@@ -24,13 +24,13 @@
 
 ## Testing
 - [x] Vitest: clock renders correct time for a configured timezone and 12/24h mode; locale-aware date string; no network call. (44 assertions pass across 6 files.)
-- [ ] PHPUnit: `WeatherService` picks `weather_status` when present, falls back to provider URL otherwise; ICache hit within TTL; stale fallback on upstream failure; response contains no API key.
-- [ ] PHPUnit: `WeatherService` derives units + language from user locale (regression guard against hardcoded units / English-only strings).
-- [ ] PHPUnit: `WeatherController` 403 on unauthorized placement; response shape excludes credentials.
-- [ ] Playwright: drop clock tile, set timezone, confirm rendered time; drop weather tile against a stubbed provider, confirm conditions + units render and a stale badge appears on upstream failure.
+- [x] PHPUnit: `WeatherService` picks `weather_status` when present, falls back to provider URL otherwise; ICache hit within TTL; stale fallback on upstream failure; response contains no API key. (`tests/Unit/Service/WeatherServiceTest.php`)
+- [x] PHPUnit: `WeatherService` derives units + language from user locale (regression guard against hardcoded units / English-only strings).
+- [x] PHPUnit: `WeatherController` 403 on unauthorized placement; response shape excludes credentials. (`tests/Unit/Controller/WeatherControllerTest.php`)
+- [ ] Playwright: drop clock tile, set timezone, confirm rendered time; drop weather tile against a stubbed provider, confirm conditions + units render and a stale badge appears on upstream failure. — deferred, tracked as a follow-up; unit coverage stands in for now.
 
 ## Docs
-- [ ] Add "Clock" and "Weather" sections to dashboard-authoring docs; document locale-driven units/language and the server-side provider/API-key setup.
+- [x] Add "Clock" and "Weather" sections to dashboard-authoring docs; document locale-driven units/language and the server-side provider/API-key setup. (`docs/features/clock-weather-widgets.md` + features README row)
 
 ## Out of scope (follow-ups)
 - Multi-day forecast strip — `weather-forecast-strip`.

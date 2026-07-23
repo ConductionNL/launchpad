@@ -25,6 +25,7 @@ LaunchPad maps to the **BI-component** within the GEMMA reference architecture.
 | [Admin Templates](./admin-templates.md) | Pre-configured dashboards distributed to users by Nextcloud group membership | [admin-templates.md](./admin-templates.md) |
 | [Admin Settings](./admin-settings.md) | Global configuration: allow user dashboards, max dashboards per user, default grid columns | [admin-settings.md](./admin-settings.md) |
 | [Conditional Visibility](./conditional-visibility.md) | Show or hide widget placements based on time, date, group membership, or user attributes | [conditional-visibility.md](./conditional-visibility.md) |
+| [Clock & Weather](./clock-weather-widgets.md) | Ambient tiles: a client-side clock (analog/digital, timezone) and a server-fetched, cached weather reading with locale-driven units | [clock-weather-widgets.md](./clock-weather-widgets.md) |
 | [Prometheus Metrics](./prometheus-metrics.md) | Monitoring endpoint: dashboard count, widget usage, tile counts, health check | [prometheus-metrics.md](./prometheus-metrics.md) |
 
 ## Architecture

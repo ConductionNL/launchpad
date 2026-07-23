@@ -76,7 +76,7 @@ import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
 import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
-// refuse framing (REQ-IFRAME-001..004, openspec/changes/iframe-embed-widget).
+// refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
 // Same LaunchPad-only registration pattern as `clock`/`weather`/`livetile`.
 import IframeWidget from '../components/Widgets/Renderers/IframeWidget.vue'
 import IframeWidgetForm from '../components/Widgets/Renderers/IframeWidgetForm.vue'

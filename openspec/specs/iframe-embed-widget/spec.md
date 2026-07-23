@@ -2,9 +2,7 @@
 
 ## Purpose
 TBD - created by archiving change iframe-embed-widget. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: REQ-IFRAME-001 Register iframe-embed widget
 
 The system MUST register a `launchpad_iframe` widget with the Nextcloud Dashboard Widget API (v2) so it appears in the widget picker.
@@ -108,3 +106,4 @@ The system MUST embed the target in a sandboxed iframe and, when the target site
 - WHEN the frame has not yet loaded
 - THEN the widget MUST show a loading indicator
 - AND on any other load error (network failure, invalid URL) it MUST render the fallback card, never crash the dashboard
+

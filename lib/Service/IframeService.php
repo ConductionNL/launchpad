@@ -33,7 +33,10 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Allow-list validation + CSP-source-of-truth for the `iframe` widget.
@@ -87,8 +90,88 @@ class IframeService
      */
     public function __construct(
         private readonly IAppConfig $appConfig,
+        private readonly IClientService $clientService,
+        private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
+
+    /**
+     * Server-side check of whether a URL can actually be framed
+     * (REQ-IFRAME-003 "graceful degradation"). The browser cannot reliably
+     * distinguish an `X-Frame-Options: DENY` / `frame-ancestors 'none'`
+     * refusal from a normal cross-origin embed — both leave the iframe's
+     * `contentDocument` null — so the client cannot detect the block on its
+     * own. This performs a server-side request and inspects the target's
+     * framing headers, letting the widget render the fallback card up front
+     * instead of a permanently blank frame.
+     *
+     * FAIL-CLOSED on the allow-list: a host not on `iframe_allowed_hosts` is
+     * never fetched and reports `framable: false`. Network/parse failures
+     * report `framable: false` with the corresponding reason — a target we
+     * cannot verify is treated as un-framable rather than gambling on a
+     * blank frame.
+     *
+     * @param string $url The candidate embed URL.
+     *
+     * @return array{framable: bool, reason: string} Whether the URL may be framed and why.
+     *
+     * @spec openspec/specs/iframe-embed-widget/spec.md
+     */
+    public function checkFramable(string $url): array
+    {
+        if ($this->isHostAllowed(url: $url) === false) {
+            return ['framable' => false, 'reason' => 'host_not_allowed'];
+        }
+
+        try {
+            $client   = $this->clientService->newClient();
+            $response = $client->get(
+                uri: $url,
+                options: [
+                    'timeout'         => 8,
+                    'connect_timeout' => 5,
+                    'allow_redirects' => ['max' => 3],
+                    // Never surface upstream bodies; we only need the headers.
+                    'headers'         => ['Accept' => 'text/html'],
+                ]
+            );
+        } catch (Throwable $exception) {
+            $this->logger->info(
+                message: 'IframeService: framable check could not reach target, treating as un-framable',
+                context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
+            );
+            return ['framable' => false, 'reason' => 'unreachable'];
+        }
+
+        $xfo = strtolower(string: trim(string: (string) $response->getHeader('X-Frame-Options')));
+        if ($xfo !== '') {
+            // Any XFO value (DENY, or SAMEORIGIN — the embedding LaunchPad
+            // page is a different origin than the target) refuses the frame.
+            if (str_contains(haystack: $xfo, needle: 'deny') === true
+                || str_contains(haystack: $xfo, needle: 'sameorigin') === true
+                || str_contains(haystack: $xfo, needle: 'allow-from') === true
+            ) {
+                return ['framable' => false, 'reason' => 'x_frame_options'];
+            }
+        }
+
+        $csp = strtolower(string: (string) $response->getHeader('Content-Security-Policy'));
+        if ($csp !== '' && preg_match(pattern: '/frame-ancestors\s+([^;]*)/', subject: $csp, matches: $matches) === 1) {
+            $directive = trim(string: $matches[1]);
+            // `frame-ancestors 'none'` refuses all framing. A `'self'` or a
+            // host-list that does not name our origin also refuses us; since
+            // LaunchPad embeds arbitrary third parties, anything other than a
+            // wildcard is treated as a refusal (fail-closed).
+            if ($directive !== '' && $directive !== '*' && str_contains(haystack: $directive, needle: 'http') === false) {
+                return ['framable' => false, 'reason' => 'frame_ancestors'];
+            }
+            if (str_contains(haystack: $directive, needle: "'none'") === true) {
+                return ['framable' => false, 'reason' => 'frame_ancestors'];
+            }
+        }
+
+        return ['framable' => true, 'reason' => 'ok'];
+    }//end checkFramable()
 
     /**
      * Validate a candidate iframe placement config at save time

@@ -29,7 +29,7 @@
 		</div>
 
 		<iframe
-			v-if="hasUrl"
+			v-if="hasUrl && state !== 'failed'"
 			ref="frame"
 			class="iframe-widget__frame"
 			:style="{ display: state === 'ready' ? 'block' : 'none' }"
@@ -48,6 +48,7 @@ import { NcLoadingIcon } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
+import { checkIframeFramable } from '../../../services/iframeClient.js'
 
 /**
  * How long to wait for the iframe's `load` event before treating the embed
@@ -227,12 +228,34 @@ export default {
 			}
 			this.state = 'loading'
 			this.failureReason = ''
-			this.loadTimer = setTimeout(() => {
-				if (this.state === 'loading') {
-					this.state = 'failed'
-					this.failureReason = 'timeout'
+
+			// REQ-IFRAME-003: the browser cannot detect an X-Frame-Options /
+			// frame-ancestors refusal (a blocked frame and a live cross-origin
+			// embed both leave contentDocument null), so ask the server first
+			// and render the fallback card up front when the target refuses
+			// framing — rather than leaving a permanently blank frame.
+			const startedFor = this.url
+			checkIframeFramable(this.url).then((result) => {
+				// A newer url() (watch → restart) supersedes this check.
+				if (this.url !== startedFor || this.state !== 'loading') {
+					return
 				}
-			}, this.loadTimeoutMs)
+				if (result && result.framable === false) {
+					this.clearTimer()
+					this.state = 'failed'
+					this.failureReason = 'blocked'
+					return
+				}
+				// Framable — fall through to the load-event + timeout guard
+				// (kept as a secondary net for network errors mid-load).
+				this.clearTimer()
+				this.loadTimer = setTimeout(() => {
+					if (this.state === 'loading') {
+						this.state = 'failed'
+						this.failureReason = 'timeout'
+					}
+				}, this.loadTimeoutMs)
+			})
 		},
 
 		/**

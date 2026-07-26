@@ -9,9 +9,18 @@
  * path can be exercised without a real multi-second wait.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import IframeWidget from '../IframeWidget.vue'
+import { checkIframeFramable } from '../../../../services/iframeClient.js'
+
+// The widget asks the server whether a target may be framed before rendering
+// the iframe (REQ-IFRAME-003); mock it so tests are deterministic and never
+// make a real request. Defaults to framable so the existing render/timeout
+// tests behave as before; the framing-refusal test overrides it.
+vi.mock('../../../../services/iframeClient.js', () => ({
+	checkIframeFramable: vi.fn(() => Promise.resolve({ framable: true, reason: 'ok' })),
+}))
 
 const TEST_TIMEOUT_MS = 20
 
@@ -21,6 +30,8 @@ async function flushPromises() {
 }
 
 beforeEach(() => {
+	checkIframeFramable.mockClear()
+	checkIframeFramable.mockResolvedValue({ framable: true, reason: 'ok' })
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
@@ -91,7 +102,26 @@ describe('IframeWidget — REQ-IFRAME-004 loading state', () => {
 	})
 })
 
-describe('IframeWidget — REQ-IFRAME-004 graceful degradation', () => {
+describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
+	it('renders the fallback card up front when the server reports the target refuses framing (X-Frame-Options / frame-ancestors)', async () => {
+		// The browser cannot detect an XFO/frame-ancestors block on its own
+		// (a blocked frame and a live cross-origin embed both leave
+		// contentDocument null), so the server-side framable check is what
+		// surfaces the fallback instead of a permanently blank frame.
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'x_frame_options' })
+		const wrapper = mount(IframeWidget, {
+			propsData: { content: { url: 'https://github.com/', title: 'GitHub' }, loadTimeoutMs: TEST_TIMEOUT_MS },
+		})
+		await flushPromises()
+		const fallback = wrapper.find('.iframe-widget__fallback')
+		expect(fallback.exists()).toBe(true)
+		expect(fallback.find('svg').exists()).toBe(true)
+		expect(fallback.text()).toContain('GitHub')
+		// The blocked target must not be rendered as a frame at all.
+		expect(wrapper.find('iframe').exists()).toBe(false)
+		expect(checkIframeFramable).toHaveBeenCalledWith('https://github.com/')
+	})
+
 	it('renders the fallback card (never a silent blank frame) when no load event fires within the timeout', async () => {
 		const wrapper = mount(IframeWidget, {
 			propsData: { content: { url: 'https://denied.example.com/', title: 'Denied target' }, loadTimeoutMs: TEST_TIMEOUT_MS },

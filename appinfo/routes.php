@@ -562,6 +562,10 @@ return [
 		// (REQ-IFRAME-002). No per-placement data endpoint: the browser
 		// embeds the target URL directly, config lives in `widgetContent`.
 		['name' => 'iframe#validateUrl', 'url' => '/api/iframe/validate-url', 'verb' => 'POST'],
+		// Server-side framing-refusal check (REQ-IFRAME-003) — the browser
+		// cannot detect an X-Frame-Options / frame-ancestors block, so the
+		// widget asks the server before rendering the iframe.
+		['name' => 'iframe#checkFramable', 'url' => '/api/iframe/framable', 'verb' => 'POST'],
 
 		// Service health ping — cached online/offline/degraded badge for one
 		// placement (REQ-HPING-003). View-time ACL guarded in the controller;

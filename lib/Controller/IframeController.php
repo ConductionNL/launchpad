@@ -103,6 +103,45 @@ class IframeController extends Controller
     }//end validateUrl()
 
     /**
+     * `POST /api/iframe/framable`
+     *
+     * Server-side check of whether a URL may actually be framed
+     * (REQ-IFRAME-003 "graceful degradation"). The browser cannot tell an
+     * `X-Frame-Options: DENY` / `frame-ancestors 'none'` refusal apart from a
+     * normal cross-origin embed, so the widget calls this on mount and shows
+     * the fallback card up front when the target refuses framing, instead of
+     * a permanently blank frame. Allow-list fail-closed; never leaks the
+     * target's response body.
+     *
+     * @return JSONResponse `{framable: bool, reason: string}`.
+     *
+     * @spec openspec/specs/iframe-embed-widget/spec.md
+     */
+    #[NoAdminRequired]
+    public function checkFramable(): JSONResponse
+    {
+        if ($this->resolveUserId() === null) {
+            return new JSONResponse(
+                data: ['status' => 'error', 'error' => 'unauthorized'],
+                statusCode: Http::STATUS_UNAUTHORIZED
+            );
+        }
+
+        $url = trim(string: (string) $this->request->getParam(key: 'url', default: ''));
+        if ($url === '') {
+            return new JSONResponse(
+                data: ['framable' => false, 'reason' => 'url_required'],
+                statusCode: Http::STATUS_OK
+            );
+        }
+
+        return new JSONResponse(
+            data: $this->iframeService->checkFramable(url: $url),
+            statusCode: Http::STATUS_OK
+        );
+    }//end checkFramable()
+
+    /**
      * Resolve the active user's UID, or `null` for anonymous.
      *
      * @return string|null

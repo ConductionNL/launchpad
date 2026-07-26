@@ -23,9 +23,14 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use OCA\LaunchPad\Service\IframeService;
+use OCP\Http\Client\IClient;
+use OCP\Http\Client\IClientService;
+use OCP\Http\Client\IResponse;
 use OCP\IAppConfig;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 #[Small]
 class IframeServiceTest extends TestCase
@@ -35,16 +40,122 @@ class IframeServiceTest extends TestCase
 
     private IAppConfig $appConfig;
 
+    private IClientService $clientService;
+
     protected function setUp(): void
     {
-        $this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
-        $this->service    = new IframeService(appConfig: $this->appConfig);
+        $this->appConfig     = $this->createMock(originalClassName: IAppConfig::class);
+        $this->clientService = $this->createMock(originalClassName: IClientService::class);
+        $this->service       = new IframeService(
+            appConfig: $this->appConfig,
+            clientService: $this->clientService,
+            logger: $this->createMock(originalClassName: LoggerInterface::class),
+        );
     }//end setUp()
 
     private function allowHosts(array $hosts): void
     {
         $this->appConfig->method('getValueString')->willReturn(json_encode($hosts));
     }//end allowHosts()
+
+    /**
+     * Stub the HTTP client so a framable-check GET returns the given headers.
+     *
+     * @param array<string,string> $headers Response headers by name.
+     *
+     * @return void
+     */
+    private function stubResponseHeaders(array $headers): void
+    {
+        $response = $this->createMock(originalClassName: IResponse::class);
+        $response->method('getHeader')->willReturnCallback(
+            static function (string $name) use ($headers): string {
+                foreach ($headers as $k => $v) {
+                    if (strcasecmp($k, $name) === 0) {
+                        return $v;
+                    }
+                }
+
+                return '';
+            }
+        );
+        $client = $this->createMock(originalClassName: IClient::class);
+        $client->method('get')->willReturn($response);
+        $this->clientService->method('newClient')->willReturn($client);
+    }//end stubResponseHeaders()
+
+    public function testFramableTrueWhenNoFramingHeaders(): void
+    {
+        $this->allowHosts(['example.com']);
+        $this->stubResponseHeaders([]);
+
+        $result = $this->service->checkFramable(url: 'https://example.com/page');
+
+        $this->assertTrue($result['framable']);
+        $this->assertSame('ok', $result['reason']);
+    }//end testFramableTrueWhenNoFramingHeaders()
+
+    public function testFramableFalseOnXFrameOptionsDeny(): void
+    {
+        $this->allowHosts(['github.com']);
+        $this->stubResponseHeaders(['X-Frame-Options' => 'deny']);
+
+        $result = $this->service->checkFramable(url: 'https://github.com/');
+
+        $this->assertFalse($result['framable']);
+        $this->assertSame('x_frame_options', $result['reason']);
+    }//end testFramableFalseOnXFrameOptionsDeny()
+
+    public function testFramableFalseOnXFrameOptionsSameorigin(): void
+    {
+        $this->allowHosts(['example.com']);
+        $this->stubResponseHeaders(['X-Frame-Options' => 'SAMEORIGIN']);
+
+        $result = $this->service->checkFramable(url: 'https://example.com/');
+
+        $this->assertFalse($result['framable']);
+        $this->assertSame('x_frame_options', $result['reason']);
+    }//end testFramableFalseOnXFrameOptionsSameorigin()
+
+    public function testFramableFalseOnCspFrameAncestorsNone(): void
+    {
+        $this->allowHosts(['github.com']);
+        $this->stubResponseHeaders(
+            ['Content-Security-Policy' => "default-src 'none'; frame-ancestors 'none'; img-src 'self'"]
+        );
+
+        $result = $this->service->checkFramable(url: 'https://github.com/');
+
+        $this->assertFalse($result['framable']);
+        $this->assertSame('frame_ancestors', $result['reason']);
+    }//end testFramableFalseOnCspFrameAncestorsNone()
+
+    public function testFramableFalseWhenHostNotAllowed_NoFetch(): void
+    {
+        $this->allowHosts(['example.com']);
+        // A non-allow-listed host must be refused WITHOUT any HTTP call.
+        $this->clientService->expects($this->never())->method('newClient');
+
+        $result = $this->service->checkFramable(url: 'https://evil.test/x');
+
+        $this->assertFalse($result['framable']);
+        $this->assertSame('host_not_allowed', $result['reason']);
+    }//end testFramableFalseWhenHostNotAllowed_NoFetch()
+
+    public function testFramableFalseWhenTargetUnreachable(): void
+    {
+        $this->allowHosts(['example.com']);
+        $client = $this->createMock(originalClassName: IClient::class);
+        $client->method('get')->willThrowException(new RuntimeException('timeout'));
+        $this->clientService->method('newClient')->willReturn($client);
+
+        $result = $this->service->checkFramable(url: 'https://example.com/');
+
+        // Fail-closed: a target we cannot verify is treated as un-framable,
+        // not gambled on a blank frame.
+        $this->assertFalse($result['framable']);
+        $this->assertSame('unreachable', $result['reason']);
+    }//end testFramableFalseWhenTargetUnreachable()
 
     private function validConfig(array $overrides = []): array
     {

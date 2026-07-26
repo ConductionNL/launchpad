@@ -33,3 +33,26 @@ export async function validateIframeUrl(config) {
 		return { valid: false, errors: ['validation_unavailable'] }
 	}
 }
+
+/**
+ * Ask the server whether a URL may actually be framed (REQ-IFRAME-003
+ * "graceful degradation"). The browser cannot tell an `X-Frame-Options:
+ * DENY` / `frame-ancestors 'none'` refusal apart from a normal cross-origin
+ * embed (both leave `contentDocument` null), so the widget checks server-side
+ * before rendering the iframe and shows the fallback card up front when the
+ * target refuses framing. Fails to "not framable" so a check outage never
+ * leaves a blank frame masquerading as a live embed.
+ *
+ * @param {string} targetUrl the candidate embed URL.
+ * @return {Promise<{framable: boolean, reason: string}>} whether the URL may be framed.
+ * @spec openspec/specs/iframe-embed-widget/spec.md
+ */
+export async function checkIframeFramable(targetUrl) {
+	const url = generateUrl('/apps/launchpad/api/iframe/framable')
+	try {
+		const response = await axios.post(url, { url: targetUrl })
+		return response?.data || { framable: false, reason: 'no_response' }
+	} catch (e) {
+		return { framable: false, reason: 'check_unavailable' }
+	}
+}

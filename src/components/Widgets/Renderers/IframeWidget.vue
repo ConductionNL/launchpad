@@ -29,7 +29,7 @@
 		</div>
 
 		<iframe
-			v-if="hasUrl && state !== 'failed'"
+			v-if="hasUrl && state !== 'failed' && framableConfirmed"
 			ref="frame"
 			class="iframe-widget__frame"
 			:style="{ display: state === 'ready' ? 'block' : 'none' }"
@@ -138,6 +138,13 @@ export default {
 			state: 'loading',
 			failureReason: '',
 			loadTimer: null,
+			// The iframe is NOT rendered until the server-side framable check
+			// (REQ-IFRAME-003) confirms the target permits framing. Rendering
+			// it earlier lets the browser's own "refused to connect" load event
+			// — which fires with a null contentDocument, indistinguishable from
+			// a successful cross-origin embed — flip the state to 'ready' before
+			// the authoritative async check resolves, masking the fallback.
+			framableConfirmed: false,
 		}
 	},
 
@@ -221,6 +228,7 @@ export default {
 		 */
 		restart() {
 			this.clearTimer()
+			this.framableConfirmed = false
 			if (!this.hasUrl) {
 				this.state = 'failed'
 				this.failureReason = 'unconfigured'
@@ -246,8 +254,13 @@ export default {
 					this.failureReason = 'blocked'
 					return
 				}
-				// Framable — fall through to the load-event + timeout guard
-				// (kept as a secondary net for network errors mid-load).
+				// Server confirms framing is permitted — ONLY NOW render the
+				// iframe. Rendering it before this point would let the browser's
+				// own blocked-frame `load` event (null contentDocument, which
+				// onLoad cannot distinguish from a real cross-origin embed) flip
+				// the state to 'ready' ahead of this authoritative check and
+				// mask the fallback.
+				this.framableConfirmed = true
 				this.clearTimer()
 				this.loadTimer = setTimeout(() => {
 					if (this.state === 'loading') {

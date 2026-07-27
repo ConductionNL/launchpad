@@ -277,7 +277,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { reactive } from 'vue'
 import { mapState, mapActions } from 'pinia'
 import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
@@ -371,7 +371,7 @@ export default {
 		// re-creating the composable on every edit-mode toggle. When the
 		// runtime-shell capability ships, this will be replaced by the
 		// typed provide/inject contract and removed from local state.
-		const canEditRef = Vue.observable({ value: false })
+		const canEditRef = reactive({ value: false })
 
 		// `selectedWidget` from the popover may live in either of two
 		// edit paths. The host-side callbacks resolve which one to use
@@ -542,7 +542,7 @@ export default {
 		 * the *initial* truthy/falsy value but never re-renders when the
 		 * composable mutates the state. Wrapping each access in a computed
 		 * forces Vue's dependency tracker to subscribe to the
-		 * `Vue.observable()` getter, so subsequent state changes (open via
+		 * `reactive()` getter, so subsequent state changes (open via
 		 * right-click, close via outside-click / Cancel) correctly mount
 		 * and unmount the popover.
 		 */
@@ -731,7 +731,7 @@ export default {
 		window.addEventListener('popstate', this.handleHistoryPopState)
 	},
 	/** @spec openspec/specs/dashboards/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null

@@ -215,7 +215,7 @@ export default {
 		}, 1000)
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.intervalId) {
 			clearInterval(this.intervalId)
 			this.intervalId = null

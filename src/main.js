@@ -24,8 +24,8 @@
 
 import './publicPath.js'
 
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia } from 'pinia'
+import { createApp, h, reactive } from 'vue'
+import { createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
@@ -45,22 +45,19 @@ import './styles/workspace.css'
 // is used, which collapses the Add-Widget picker to only the types launchpad
 // references directly (link + nc-widget). Calling this exported no-op forces
 // the aggregator — and therefore every widget registration — into the bundle.
-import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
+import { registerBuiltinDashboardWidgets, useAppManifest } from '@conduction/nextcloud-vue'
 registerBuiltinDashboardWidgets()
 
 // Tier 1 manifest adoption (ADR-024): register the bundled manifest with
 // nc-vue so the shared shell can read menu/page declarations. The vue-router
 // definition below remains hand-wired (Tier 1 — not yet manifest-driven).
 // Tier 3 (launchpad-manifest-tier-3) will replace hand-wired routes.
-try {
-	// eslint-disable-next-line n/no-unsupported-features/es-syntax,n/no-missing-require
-	const { useAppManifest } = require('@conduction/nextcloud-vue/composables')
-	useAppManifest('launchpad', bundledStub)
-} catch {
-	// useAppManifest is available from nc-vue ≥ 1.0.0-beta.57; silently
-	// skip on older local source aliases — the app functions without
-	// manifest registration because vue-router is hand-wired at Tier 1.
-}
+// `useAppManifest` comes from the package barrel. It was previously required
+// from a `@conduction/nextcloud-vue/composables` SUBPATH, which the package
+// does not expose (it declares no `exports` map) — so the require always threw
+// and the surrounding try/catch silently skipped manifest registration
+// entirely. Importing it from the barrel makes the registration actually run.
+useAppManifest('launchpad', bundledStub)
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive
 // breakpoints are now generated dynamically by the engine at init time.
@@ -70,15 +67,8 @@ try {
 // never conflict on the shared manifest. No-op until a real fragment is added.
 const mergedManifest = mergeManifestFragments(bundledStub)
 
-// Global functions
-Vue.mixin({
-	methods: {
-		t,
-		n,
-	},
-})
-
-Vue.use(PiniaVuePlugin)
+// Vue 3 has no global Vue constructor — t/n are installed as an app-level
+// mixin on the instance created at the bottom of this file.
 const pinia = createPinia()
 
 // Load the typed initial-state snapshot for the workspace page. Every key
@@ -99,8 +89,8 @@ const initialState = loadInitialState('workspace')
 // needs it can `inject('runtimeManifest', null)`.
 //
 // NO deep-merge — the API response fully replaces the stub on success.
-const runtimeManifest = Vue.observable({ value: mergedManifest })
-const manifestLoading = Vue.observable({ value: true })
+const runtimeManifest = reactive({ value: mergedManifest })
+const manifestLoading = reactive({ value: true })
 
 ;(async () => {
 	try {
@@ -125,18 +115,27 @@ const manifestLoading = Vue.observable({ value: true })
 })()
 // --- End runtime manifest loader ---
 
-const app = new Vue({
-	el: '#workspace-vue',
-	pinia,
-	provide: {
-		...initialState,
-		// ADR-036 Decision 8: expose runtime manifest refs so descendants
-		// can reactively access the live per-user manifest. Wrapped in
-		// Vue.observable so mutations trigger re-renders across the tree.
-		runtimeManifest,
-		manifestLoading,
-	},
-	render: h => h(App),
+const app = createApp({
+	name: 'LaunchpadRoot',
+	render: () => h(App),
 })
+
+// Global t/n — an app-level mixin replaces Vue 2's global Vue.mixin.
+app.mixin({ methods: { t, n } })
+app.use(pinia)
+
+// ADR-036 Decision 8: expose runtime manifest refs so descendants can
+// reactively access the live per-user manifest. `reactive()` (Vue 2's
+// Vue.observable) makes mutations propagate across the tree.
+//
+// Vue 3 moves provide() off the component options onto the app instance, so
+// each key is registered individually rather than as a `provide:` object.
+for (const [key, value] of Object.entries(initialState)) {
+	app.provide(key, value)
+}
+app.provide('runtimeManifest', runtimeManifest)
+app.provide('manifestLoading', manifestLoading)
+
+app.mount('#workspace-vue')
 
 export default app

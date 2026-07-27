@@ -259,7 +259,7 @@ export default {
 		},
 
 		setRowBusy(row, value) {
-			this.$set(this.busyKeys, this.rowKey(row), value)
+			this.busyKeys[this.rowKey(row)] = value
 		},
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
@@ -319,7 +319,7 @@ export default {
 			if (index === -1) {
 				return
 			}
-			this.$set(this.rules, index, { ...row, ...payload })
+			this.rules[index] = { ...row, ...payload }
 		},
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
@@ -331,7 +331,7 @@ export default {
 					const updated = (data && data.data) ? data.data : data
 					const index = this.rules.indexOf(row)
 					if (index !== -1) {
-						this.$set(this.rules, index, { ...row, ...updated })
+						this.rules[index] = { ...row, ...updated }
 					}
 					this.$emit('rule-updated')
 				} else {
@@ -339,7 +339,7 @@ export default {
 					const created = (data && data.data) ? data.data : data
 					const index = this.rules.indexOf(row)
 					if (index !== -1 && created && created.id) {
-						this.$set(this.rules, index, { ...created, _localKey: undefined })
+						this.rules[index] = { ...created, _localKey: undefined }
 					} else {
 						await this.load()
 					}

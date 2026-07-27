@@ -213,7 +213,7 @@ export default {
 		this.restart()
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		this.clearTimer()
 	},
 

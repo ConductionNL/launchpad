@@ -10,8 +10,8 @@
 
 import './publicPath.js'
 
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia } from 'pinia'
+import { createApp, h } from 'vue'
+import { createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import { loadState } from '@nextcloud/initial-state'
 
@@ -25,11 +25,9 @@ import 'gridstack/dist/gridstack.min.css'
 import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
 registerBuiltinDashboardWidgets()
 
-Vue.use(PiniaVuePlugin)
+// Vue 3 has no global Vue constructor — pinia and t/n are installed on the
+// app instance created below (`Vue.prototype.x` becomes an app-level mixin).
 const pinia = createPinia()
-
-Vue.prototype.t = t
-Vue.prototype.n = n
 
 // The token is provided as initial state by PageController::publicShare; fall
 // back to the last path segment of /apps/launchpad/s/{token} if absent.
@@ -44,10 +42,15 @@ if (!token) {
 	token = parts[parts.length - 1] || ''
 }
 
-const app = new Vue({
-	el: '#public-share-vue',
-	pinia,
-	render: h => h(DashboardPublicShareView, { props: { token } }),
+// Props are flat in Vue 3 — the Vue-2 `{ props: { … } }` createElement data
+// object is gone.
+const app = createApp({
+	name: 'LaunchpadPublicShareRoot',
+	render: () => h(DashboardPublicShareView, { token }),
 })
+
+app.mixin({ methods: { t, n } })
+app.use(pinia)
+app.mount('#public-share-vue')
 
 export default app

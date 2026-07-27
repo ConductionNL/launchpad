@@ -134,14 +134,14 @@ export default {
 
 		/** @spec openspec/specs/demo-data-showcases/spec.md */
 		async install(showcase) {
-			this.$set(this.busy, showcase.id, true)
-			this.$delete(this.warnings, showcase.id)
+			this.busy[showcase.id] = true
+			delete this.warnings[showcase.id]
 			this.actionError = ''
 			try {
 				const response = await api.installDemoShowcase(showcase.id)
 				const skipped = (response.data && response.data.skippedWidgets) || []
 				if (skipped.length > 0) {
-					this.$set(this.warnings, showcase.id, skipped)
+					this.warnings[showcase.id] = skipped
 				}
 
 				await this.fetch()
@@ -154,7 +154,7 @@ export default {
 					this.actionError = this.t('launchpad', 'Could not install showcase. Please try again.')
 				}
 			} finally {
-				this.$set(this.busy, showcase.id, false)
+				this.busy[showcase.id] = false
 			}
 		},
 
@@ -165,16 +165,16 @@ export default {
 				return
 			}
 
-			this.$set(this.busy, showcase.id, true)
+			this.busy[showcase.id] = true
 			this.actionError = ''
 			try {
 				await api.uninstallDemoShowcase(showcase.id)
-				this.$delete(this.warnings, showcase.id)
+				delete this.warnings[showcase.id]
 				await this.fetch()
 			} catch (err) {
 				this.actionError = this.t('launchpad', 'Could not uninstall showcase. Please try again.')
 			} finally {
-				this.$set(this.busy, showcase.id, false)
+				this.busy[showcase.id] = false
 			}
 		},
 

@@ -186,7 +186,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/admin-roles/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.saveTimer) {
 			clearTimeout(this.saveTimer)
 		}

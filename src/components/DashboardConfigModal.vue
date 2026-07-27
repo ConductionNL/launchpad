@@ -791,10 +791,10 @@ export default {
 			if (!option) return
 			const share = this.localShares[idx]
 			if (!share || option.value === share.permissionLevel) return
-			this.$set(this.localShares, idx, {
+			this.localShares[idx] = {
 				...share,
 				permissionLevel: option.value,
-			})
+			}
 		},
 		/**
 		 * @param idx

@@ -47,7 +47,7 @@
  * this file are forbidden and enforced by a grep test.
  */
 
-import Vue from 'vue'
+import { reactive } from 'vue'
 
 // ---------------------------------------------------------------------------
 // Grid configuration constants (REQ-GRID-007/012/013)
@@ -373,7 +373,7 @@ export function useGridManager(options = {}) {
 		viewport,
 	} = options
 
-	const state = Vue.observable({
+	const state = reactive({
 		contextMenuOpen: false,
 		contextMenuPosition: { x: 0, y: 0 },
 		selectedWidget: null,

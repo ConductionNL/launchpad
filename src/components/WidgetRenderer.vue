@@ -322,7 +322,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/widgets/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.refreshInterval) {
 			clearInterval(this.refreshInterval)
 		}

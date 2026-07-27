@@ -14,7 +14,7 @@
  * CRUD endpoints persist (REQ-CVUI-004 "same rule shape" scenario).
  */
 
-import Vue from 'vue'
+import { reactive } from 'vue'
 import { api } from '../services/api.js'
 
 /**
@@ -42,7 +42,7 @@ function toPreviewRule(rule) {
  */
 /** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
 export function useVisibilityPreview() {
-	const state = Vue.observable({
+	const state = reactive({
 		loading: false,
 		error: null,
 		result: null,

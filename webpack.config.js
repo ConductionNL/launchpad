@@ -33,8 +33,15 @@ webpackConfig.resolve = {
 		// the same instances as the app (prevents dual-Pinia / dual-Vue bugs).
 		'vue$': path.resolve(__dirname, 'node_modules/vue'),
 		'pinia$': path.resolve(__dirname, 'node_modules/pinia'),
-		'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue'),
-		'@nextcloud/dialogs$': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs'),
+		// @nextcloud/vue@9 and @nextcloud/dialogs@7 (the Vue-3 lines) are
+		// ESM-only: no `main`/`module`, just an `exports` map with a single
+		// "import" condition. Aliasing to the package DIRECTORY (as before)
+		// bypasses `exports` and looks for a main/index that does not exist,
+		// so every import fails to resolve. Point at the concrete ESM entry.
+		// The `$` keeps deep imports (`@nextcloud/vue/components/NcButton`)
+		// going through the exports map.
+		'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue/dist/index.mjs'),
+		'@nextcloud/dialogs$': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/index.mjs'),
 		// `@nextcloud/axios@2.6+` is ESM-only and its `exports` map has no
 		// `require` condition, so the CJS bundle of `@nextcloud/vue@8.x`
 		// (which does `require('@nextcloud/axios')`) fails to resolve.

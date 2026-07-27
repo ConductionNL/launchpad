@@ -226,7 +226,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/tile-quick-search/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		window.removeEventListener('keydown', this.onWindowKeydown)
 	},
 

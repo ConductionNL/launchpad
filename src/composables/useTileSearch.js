@@ -24,14 +24,14 @@
  * `setItems()` — this module never performs a network request and never
  * persists the query anywhere (REQ-QSEARCH-002 "No query stored" scenario).
  *
- * Follows the `Vue.observable()` composable convention already used by
+ * Follows the `reactive()` composable convention already used by
  * `useGridManager.js` / `useNestedGridManager.js` in this codebase (plain
  * Options-API components, no `setup()` required to consume it).
  *
  * @spec openspec/specs/tile-quick-search/spec.md
  */
 
-import Vue from 'vue'
+import { reactive } from 'vue'
 
 /**
  * No-match fallback: take no action beyond showing the "no results"
@@ -285,7 +285,7 @@ export function isCtrlKFocusShortcut(event) {
 
 /**
  * Factory — one instance per mounted search bar. Mirrors the
- * `useGridManager()` shape: a `Vue.observable()` reactive `state` plus
+ * `useGridManager()` shape: a `reactive()` reactive `state` plus
  * plain methods, consumable from an Options-API component without
  * `setup()`.
  *
@@ -306,7 +306,7 @@ export function isCtrlKFocusShortcut(event) {
 export function useTileSearch(options = {}) {
 	const { onOpen, onFallback, getFallbackTarget } = options
 
-	const state = Vue.observable({
+	const state = reactive({
 		query: '',
 		results: [],
 		activeIndex: -1,

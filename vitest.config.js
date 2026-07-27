@@ -15,7 +15,7 @@
  */
 
 const path = require('path')
-const vue2 = require('@vitejs/plugin-vue2')
+const vue = require('@vitejs/plugin-vue')
 
 /**
  * Side-effect imports of `*.css` from `@nextcloud/vue` (and friends) crash
@@ -48,7 +48,7 @@ const cssNoop = {
 module.exports = {
 	plugins: [
 		cssNoop,
-		vue2.default ? vue2.default() : vue2(),
+		vue.default ? vue.default() : vue(),
 	],
 	test: {
 		environment: 'jsdom',
@@ -83,6 +83,10 @@ module.exports = {
 	resolve: {
 		alias: [
 			{ find: '@', replacement: path.resolve(__dirname, 'src') },
+			// VTU v2 silently ignores v1's top-level stubs/provide/mocks. This
+			// adapter hoists them into `global` so the legacy specs keep the
+			// isolation they were written with. See the file's docblock.
+			{ find: /^@vue\/test-utils$/, replacement: path.resolve(__dirname, 'tests/vitest/vueTestUtilsCompat.js') },
 			// `@conduction/nextcloud-vue` ships a CJS bundle that
 			// `require()`s `.vue` files which Vite's transform pipeline
 			// cannot consume. Tests that need the actual component

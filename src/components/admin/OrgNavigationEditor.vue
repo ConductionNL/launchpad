@@ -64,27 +64,32 @@
 			</button>
 		</div>
 
+		<!-- vuedraggable v4 (Vue 3) requires rows to come from the `#item`
+		     scoped slot; a v-for in the default slot throws "draggable element
+		     must have an item slot" at render. `item-key` replaces the manual
+		     :key binding. -->
 		<draggable
 			:list="workingTree"
 			tag="ul"
+			item-key="id"
 			class="org-nav-editor__tree"
 			handle=".org-nav-row__handle"
 			ghost-class="org-nav-row__ghost"
 			:animation="150">
-			<OrgNavigationEditorRow
-				v-for="(node, idx) in workingTree"
-				:key="node.id"
-				:node="node"
-				:level="1"
-				:index="idx"
-				:siblings="workingTree"
-				:max-depth="maxDepth"
-				:groups="groups"
-				@update="onUpdate"
-				@delete="onDelete"
-				@move-up="moveUp"
-				@move-down="moveDown"
-				@add-child="addChild" />
+			<template #item="{ element: node, index: idx }">
+				<OrgNavigationEditorRow
+					:node="node"
+					:level="1"
+					:index="idx"
+					:siblings="workingTree"
+					:max-depth="maxDepth"
+					:groups="groups"
+					@update="onUpdate"
+					@delete="onDelete"
+					@move-up="moveUp"
+					@move-down="moveDown"
+					@add-child="addChild" />
+			</template>
 		</draggable>
 
 		<p v-if="workingTree.length === 0" class="org-nav-editor__empty">

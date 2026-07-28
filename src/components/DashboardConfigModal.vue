@@ -53,11 +53,11 @@
 				class="dashboard-config__panel">
 				<div class="dashboard-config__field">
 					<NcTextField
-						:value="form.name"
+						:model-value="form.name"
 						:label="t('launchpad', 'Title')"
 						:placeholder="t('launchpad', 'My dashboard')"
 						data-testid="dashboard-name-input"
-						@update:value="form.name = $event" />
+						@update:modelValue="form.name = $event" />
 				</div>
 
 				<div class="dashboard-config__field">
@@ -104,9 +104,9 @@
 				class="dashboard-config__panel">
 				<div v-if="!isCreate" class="dashboard-config__field dashboard-config__field--toggle">
 					<NcCheckboxRadioSwitch
-						:checked="form.isDefault"
+						:model-value="form.isDefault"
 						type="switch"
-						@update:checked="form.isDefault = $event">
+						@update:modelValue="form.isDefault = $event">
 						<strong>{{ t('launchpad', 'Default dashboard') }}</strong>
 						<span class="dashboard-config__hint">
 							{{ t('launchpad', 'Open this dashboard automatically when visiting LaunchPad.') }}
@@ -130,7 +130,7 @@
 					</label>
 
 					<NcSelect
-						:value="null"
+						:model-value="null"
 						:options="shareeOptions"
 						:filterable="false"
 						:loading="shareeLoading"
@@ -161,7 +161,7 @@
 								{{ share.displayName || share.shareWith }}
 							</span>
 							<NcSelect
-								:value="permissionOptionFor(share.permissionLevel)"
+								:model-value="permissionOptionFor(share.permissionLevel)"
 								:options="permissionOptions"
 								:input-label="t('launchpad', 'Permission level')"
 								label="label"
@@ -241,7 +241,7 @@
 
 					<div class="dashboard-config__public-create">
 						<NcTextField
-							:value.sync="newSharePassword"
+							v-model="newSharePassword"
 							type="password"
 							:label="t('launchpad', 'Password (optional)')"
 							autocomplete="new-password" />

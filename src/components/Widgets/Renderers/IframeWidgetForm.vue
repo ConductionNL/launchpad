@@ -9,11 +9,15 @@
 			{{ t('launchpad', 'Embed an external page — only hosts your administrator has allow-listed can be embedded.') }}
 		</p>
 
+		<!-- @nextcloud/vue@9: `value`/`checked` + `update:value`/`update:checked`
+		     were renamed to `modelValue` + `update:modelValue`. Both old names
+		     fail silently under Vue 3. Listener stays camelCase — `useModel()`
+		     matches a literal `onUpdate:modelValue`, not the kebab spelling. -->
 		<NcTextField
-			:value="url"
+			:model-value="url"
 			:label="t('launchpad', 'URL')"
 			:placeholder="t('launchpad', 'https://…')"
-			@update:value="onUrlChange"
+			@update:modelValue="onUrlChange"
 			@blur="checkUrlAllowed" />
 		<p v-if="urlAllowListError" class="iframe-widget-form__warning">
 			{{ urlAllowListError }}
@@ -23,23 +27,23 @@
 		</p>
 
 		<NcTextField
-			:value="title"
+			:model-value="title"
 			:label="t('launchpad', 'Title')"
 			:placeholder="t('launchpad', 'e.g. Status page')"
-			@update:value="updateField('title', $event)" />
+			@update:modelValue="updateField('title', $event)" />
 		<p class="iframe-widget-form__hint-small">
 			{{ t('launchpad', 'Read by screen readers — required for accessibility.') }}
 		</p>
 
 		<div class="iframe-widget-form__row">
 			<NcTextField
-				:value="String(height)"
+				:model-value="String(height)"
 				type="number"
 				:label="t('launchpad', 'Height (px)')"
 				:disabled="aspect !== 'none'"
-				@update:value="onHeightChange" />
+				@update:modelValue="onHeightChange" />
 			<NcSelect
-				:value="aspect"
+				:model-value="aspect"
 				:options="aspectOptions"
 				:input-label="t('launchpad', 'Aspect ratio')"
 				:reduce="(option) => option.value"
@@ -52,9 +56,9 @@
 			<NcCheckboxRadioSwitch
 				v-for="token in SANDBOX_TOKEN_OPTIONS"
 				:key="token.value"
-				:checked="sandbox.includes(token.value)"
+				:model-value="sandbox.includes(token.value)"
 				type="switch"
-				@update:checked="(checked) => toggleSandboxToken(token.value, checked)">
+				@update:modelValue="(checked) => toggleSandboxToken(token.value, checked)">
 				{{ token.label }}
 			</NcCheckboxRadioSwitch>
 			<p class="iframe-widget-form__hint-small">

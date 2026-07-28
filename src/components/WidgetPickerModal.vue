@@ -16,12 +16,11 @@
 
 			<div class="widget-picker__search">
 				<NcTextField
-					:value="searchQuery"
+					v-model="searchQuery"
 					:label="t('launchpad', 'Search widgets')"
 					:placeholder="t('launchpad', 'Search widgets…')"
 					:show-trailing-button="searchQuery !== ''"
 					trailing-button-icon="close"
-					@update:value="searchQuery = $event"
 					@trailing-button-click="searchQuery = ''">
 					<template #icon>
 						<Magnify :size="20" />

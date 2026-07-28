@@ -105,8 +105,7 @@
 				</div>
 
 				<NcCheckboxRadioSwitch
-					:checked="editingTemplate.isDefault"
-					@update:checked="editingTemplate.isDefault = $event">
+					v-model="editingTemplate.isDefault">
 					{{ t('launchpad', 'Set as default template') }}
 				</NcCheckboxRadioSwitch>
 

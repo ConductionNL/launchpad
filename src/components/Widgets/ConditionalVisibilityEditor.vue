@@ -96,11 +96,10 @@
 					</div>
 					<div class="conditional-visibility-editor__preview-field">
 						<NcTextField
-							:value="previewDatetime"
+							v-model="previewDatetime"
 							type="datetime-local"
 							:label="t('launchpad', 'Preview at date/time')"
-							data-test="preview-datetime"
-							@update:value="previewDatetime = $event" />
+							data-test="preview-datetime" />
 					</div>
 					<NcButton
 						type="primary"

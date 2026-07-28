@@ -7,10 +7,10 @@
 	<div class="bridge-toggle" data-test="legacy-widget-bridge-toggle">
 		<h3>{{ t('launchpad', 'Legacy widget bridge') }}</h3>
 		<NcCheckboxRadioSwitch
-			:checked="enabled"
+			:model-value="enabled"
 			:disabled="loading"
 			data-test="bridge-toggle-switch"
-			@update:checked="onToggle">
+			@update:modelValue="onToggle">
 			{{ t('launchpad', 'Enable the legacy widget bridge') }}
 		</NcCheckboxRadioSwitch>
 		<p class="bridge-toggle__hint">

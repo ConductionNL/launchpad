@@ -1,13 +1,16 @@
 <template>
 	<div id="launchpad-app">
-		<!-- Slide-in sidebar (REQ-SWITCH-001..007). Wired with Vue 2's
-		     v-model rebind (model: { prop: 'isOpen', event: 'update:open' })
-		     so this template can use plain `v-model` while the sidebar
-		     emits the `update:open(boolean)` event mandated by the spec.
+		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
+		     `isOpen` prop / `update:open` event pair mandated by the spec.
+		     Vue 3 removed the component-level `model: { prop, event }`
+		     option, so a bare `v-model` here would bind `modelValue` /
+		     `update:modelValue` — neither of which the sidebar declares —
+		     and the panel would never open. Bind both halves explicitly.
 		     Once `runtime-shell` ships and replaces this view with
 		     `WorkspaceApp.vue`, the same binding shape applies. -->
 		<DashboardSwitcherSidebar
-			v-model="sidebarOpen"
+			:is-open="sidebarOpen"
+			@update:open="sidebarOpen = $event"
 			:group-name="primaryGroupName"
 			:group-dashboards="sidebarGroupDashboards"
 			:user-dashboards="sidebarUserDashboards"

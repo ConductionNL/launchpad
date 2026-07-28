@@ -9,14 +9,23 @@
 			{{ t('launchpad', 'Bind this tile to a live value from a data source: a count, a status, a KPI number.') }}
 		</p>
 
+		<!-- @nextcloud/vue@9 renamed the two-way prop of every form control
+		     from `value`/`checked` to `modelValue`, and the paired event from
+		     `update:value`/`update:checked` to `update:modelValue`. The old
+		     names fail silently — `:value` falls through as a plain attribute
+		     and the old event is simply never emitted, so the field renders
+		     but never writes back. The listener must stay camelCase:
+		     `useModel()` decides controlled-vs-local by looking for a literal
+		     `onUpdate:modelValue` in the vnode props, and a kebab-case
+		     `@update:model-value` does not match. -->
 		<NcTextField
-			:value="label"
+			:model-value="label"
 			:label="t('launchpad', 'Label')"
 			:placeholder="t('launchpad', 'e.g. Open tickets')"
-			@update:value="updateField('label', $event)" />
+			@update:modelValue="updateField('label', $event)" />
 
 		<NcSelect
-			:value="sourceMode"
+			:model-value="sourceMode"
 			:options="sourceModeOptions"
 			:input-label="t('launchpad', 'Source')"
 			:reduce="(option) => option.value"
@@ -28,18 +37,18 @@
 				{{ t('launchpad', 'OpenConnector is not installed — direct-URL mode only.') }}
 			</p>
 			<NcTextField
-				:value="sourceId"
+				:model-value="sourceId"
 				:label="t('launchpad', 'OpenConnector source id')"
 				:disabled="!connectorAvailable"
-				@update:value="updateField('sourceId', $event)" />
+				@update:modelValue="updateField('sourceId', $event)" />
 		</template>
 
 		<template v-else>
 			<NcTextField
-				:value="url"
+				:model-value="url"
 				:label="t('launchpad', 'URL')"
 				:placeholder="t('launchpad', 'https://…')"
-				@update:value="onUrlChange"
+				@update:modelValue="onUrlChange"
 				@blur="checkUrlAllowed" />
 			<p v-if="urlAllowListError" class="live-tile-widget-form__warning">
 				{{ urlAllowListError }}
@@ -47,43 +56,43 @@
 		</template>
 
 		<NcTextField
-			:value="valueExpr"
+			:model-value="valueExpr"
 			:label="t('launchpad', 'Value expression')"
 			placeholder="$.data.count"
-			@update:value="updateField('valueExpr', $event)" />
+			@update:modelValue="updateField('valueExpr', $event)" />
 
 		<NcTextField
-			:value="String(refresh)"
+			:model-value="String(refresh)"
 			type="number"
 			:label="t('launchpad', 'Refresh interval (seconds)')"
-			@update:value="onRefreshChange" />
+			@update:modelValue="onRefreshChange" />
 		<p class="live-tile-widget-form__hint-small">
 			{{ t('launchpad', 'Minimum {min} seconds.', { min: MIN_REFRESH_SECONDS }) }}
 		</p>
 
 		<div class="live-tile-widget-form__row">
 			<NcTextField
-				:value="formatPrefix"
+				:model-value="formatPrefix"
 				:label="t('launchpad', 'Prefix')"
-				@update:value="updateFormat('prefix', $event)" />
+				@update:modelValue="updateFormat('prefix', $event)" />
 			<NcTextField
-				:value="formatSuffix"
+				:model-value="formatSuffix"
 				:label="t('launchpad', 'Suffix')"
-				@update:value="updateFormat('suffix', $event)" />
+				@update:modelValue="updateFormat('suffix', $event)" />
 		</div>
 		<NcCheckboxRadioSwitch
-			:checked="formatThousands"
+			:model-value="formatThousands"
 			type="switch"
-			@update:checked="updateFormat('thousands', $event)">
+			@update:modelValue="updateFormat('thousands', $event)">
 			{{ t('launchpad', 'Thousands separator') }}
 		</NcCheckboxRadioSwitch>
 
 		<NcTextField
-			:value="linkUrl"
+			:model-value="linkUrl"
 			:label="t('launchpad', 'Click-through link (optional)')"
-			@update:value="updateField('linkUrl', $event)" />
+			@update:modelValue="updateField('linkUrl', $event)" />
 		<NcSelect
-			:value="linkTarget"
+			:model-value="linkTarget"
 			:options="linkTargetOptions"
 			:input-label="t('launchpad', 'Link target')"
 			:reduce="(option) => option.value"

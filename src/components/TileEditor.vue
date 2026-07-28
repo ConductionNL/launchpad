@@ -4,8 +4,13 @@
 -->
 
 <template>
+	<!-- Vue 3 removed the `.sync` modifier, and @nextcloud/vue@9 renamed the
+	     two-way props of its form controls to `modelValue`/`update:modelValue`.
+	     Both halves are silent failures: the compiler drops the unknown `.sync`
+	     modifier and Vue never warns about the missing prop, so the field
+	     renders empty and never writes back. Use `v-model` throughout. -->
 	<NcModal
-		:show.sync="isOpen"
+		v-model:show="isOpen"
 		:name="tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile')"
 		size="normal"
 		@close="$emit('close')">
@@ -37,7 +42,7 @@
 
 			<div class="tile-editor__form">
 				<NcTextField
-					:value.sync="form.title"
+					v-model="form.title"
 					:label="t('launchpad', 'Title')"
 					:placeholder="t('launchpad', 'Enter tile title')"
 					required />
@@ -59,8 +64,7 @@
 					<div class="form-row__item">
 						<label>{{ t('launchpad', 'Background Color') }}</label>
 						<NcColorPicker
-							:value.sync="form.backgroundColor"
-							@input="form.backgroundColor = $event">
+							v-model="form.backgroundColor">
 							<NcButton
 								type="tertiary"
 								:aria-label="t('launchpad', 'Pick background color')">
@@ -77,8 +81,7 @@
 					<div class="form-row__item">
 						<label>{{ t('launchpad', 'Text Color') }}</label>
 						<NcColorPicker
-							:value.sync="form.textColor"
-							@input="form.textColor = $event">
+							v-model="form.textColor">
 							<NcButton
 								type="tertiary"
 								:aria-label="t('launchpad', 'Pick text color')">
@@ -94,26 +97,26 @@
 				</div>
 
 				<NcTextField
-					:value.sync="form.linkValue"
+					v-model="form.linkValue"
 					:label="t('launchpad', 'URL')"
 					:placeholder="t('launchpad', 'https://example.com or /apps/files')"
 					type="text" />
 
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
-						:checked="form.healthPingEnabled"
+						:model-value="form.healthPingEnabled"
 						type="switch"
-						@update:checked="onHealthPingToggle">
+						@update:modelValue="onHealthPingToggle">
 						{{ t('launchpad', 'Show a live status badge (health ping)') }}
 					</NcCheckboxRadioSwitch>
 
 					<template v-if="form.healthPingEnabled">
 						<NcTextField
-							:value.sync="form.healthUrl"
+							v-model="form.healthUrl"
 							:label="t('launchpad', 'Health check URL')"
 							:placeholder="t('launchpad', 'https://…')"
 							type="text"
-							@update:value="healthUrlError = ''"
+							@update:modelValue="healthUrlError = ''"
 							@blur="checkHealthUrlAllowed" />
 						<p v-if="healthUrlError" class="tile-editor__warning">
 							{{ healthUrlError }}
@@ -122,13 +125,13 @@
 						<div class="form-row">
 							<div class="form-row__item">
 								<NcTextField
-									:value.sync="form.expectedStatus"
+									v-model="form.expectedStatus"
 									type="number"
 									:label="t('launchpad', 'Expected HTTP status')" />
 							</div>
 							<div class="form-row__item">
 								<NcTextField
-									:value.sync="form.pingInterval"
+									v-model="form.pingInterval"
 									type="number"
 									:label="t('launchpad', 'Check interval (seconds)')" />
 							</div>

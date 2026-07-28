@@ -44,10 +44,10 @@
 							:key="`${action}-${group}`"
 							class="launchpad-admin__matrix-cell">
 							<NcCheckboxRadioSwitch
-								:checked="isChecked(action, group)"
+								:model-value="isChecked(action, group)"
 								:disabled="group === 'admin'"
 								:aria-label="t('launchpad', 'Allow group {group} to perform {action}', { group, action })"
-								@update:checked="toggle(action, group, $event)" />
+								@update:modelValue="toggle(action, group, $event)" />
 						</td>
 					</tr>
 				</tbody>

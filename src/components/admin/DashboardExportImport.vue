@@ -44,8 +44,7 @@
 				@change="onFileSelected">
 
 			<NcCheckboxRadioSwitch
-				:checked="preserveUuids"
-				@update:checked="preserveUuids = $event">
+				v-model="preserveUuids">
 				{{ t('launchpad', 'Preserve original dashboard UUIDs (fail on collision)') }}
 			</NcCheckboxRadioSwitch>
 

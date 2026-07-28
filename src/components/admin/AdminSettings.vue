@@ -57,9 +57,9 @@
 				</div>
 
 				<NcCheckboxRadioSwitch
-					:checked="settings.allowUserDashboards"
+					:model-value="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
-					@update:checked="updateSetting('allowUserDashboards', $event)">
+					@update:modelValue="updateSetting('allowUserDashboards', $event)">
 					{{ t('launchpad', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
 				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
@@ -67,8 +67,8 @@
 				</p>
 
 				<NcCheckboxRadioSwitch
-					:checked="settings.allowMultipleDashboards"
-					@update:checked="updateSetting('allowMultipleDashboards', $event)">
+					:model-value="settings.allowMultipleDashboards"
+					@update:modelValue="updateSetting('allowMultipleDashboards', $event)">
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
@@ -85,12 +85,12 @@
 				     quotas. `0` = unlimited (no enforcement). -->
 				<div class="launchpad-admin__field" data-testid="admin-quota-dashboards">
 					<NcTextField
-						:value.sync="settings.maxDashboardsPerUser"
+						v-model="settings.maxDashboardsPerUser"
 						type="number"
 						min="0"
 						max="10000"
 						:label="t('launchpad', 'Maximum dashboards per user')"
-						@update:value="onQuotaInput('maxDashboardsPerUser', $event)" />
+						@update:modelValue="onQuotaInput('maxDashboardsPerUser', $event)" />
 					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
 						{{ t('launchpad', '0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.') }}
 					</p>
@@ -98,12 +98,12 @@
 
 				<div class="launchpad-admin__field" data-testid="admin-quota-widgets">
 					<NcTextField
-						:value.sync="settings.maxWidgetsPerDashboard"
+						v-model="settings.maxWidgetsPerDashboard"
 						type="number"
 						min="0"
 						max="10000"
 						:label="t('launchpad', 'Maximum widgets per dashboard')"
-						@update:value="onQuotaInput('maxWidgetsPerDashboard', $event)" />
+						@update:modelValue="onQuotaInput('maxWidgetsPerDashboard', $event)" />
 					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
 						{{ t('launchpad', '0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.') }}
 					</p>

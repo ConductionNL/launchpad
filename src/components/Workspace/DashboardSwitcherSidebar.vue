@@ -298,20 +298,12 @@ export default {
 		DashboardRowActions,
 	},
 
-	/**
-	 * Vue 2 `v-model` rebind: parent can write `v-model="sidebarOpen"` and
-	 * we will read from `isOpen` and emit `update:open(boolean)`. This is
-	 * the Vue 2.7 equivalent of Vue 3's `v-model:open` syntax.
-	 */
-	model: {
-		prop: 'isOpen',
-		event: 'update:open',
-	},
-
 	props: {
 		/**
-		 * Controlled by the parent via `v-model` (rebound to `isOpen` /
-		 * `update:open` above).
+		 * Controlled by the parent. Vue 3 removed the component-level
+		 * `model: { prop, event }` option that used to rebind a bare
+		 * `v-model` onto `isOpen` / `update:open`, so the host binds the
+		 * prop and the `update:open` listener explicitly (see Views.vue).
 		 */
 		isOpen: {
 			type: Boolean,

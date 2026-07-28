@@ -20,11 +20,10 @@
 					<span class="group-priority__count">{{ active.length }}</span>
 				</div>
 				<NcTextField
-					:value="activeFilter"
+					v-model="activeFilter"
 					:label="t('launchpad', 'Filter active groups')"
 					:placeholder="t('launchpad', 'Filter')"
-					class="group-priority__filter"
-					@update:value="activeFilter = $event" />
+					class="group-priority__filter" />
 
 				<ul
 					class="group-priority__list group-priority__list--active"
@@ -66,11 +65,10 @@
 					<span class="group-priority__count">{{ inactive.length }}</span>
 				</div>
 				<NcTextField
-					:value="inactiveFilter"
+					v-model="inactiveFilter"
 					:label="t('launchpad', 'Filter inactive groups')"
 					:placeholder="t('launchpad', 'Filter')"
-					class="group-priority__filter"
-					@update:value="inactiveFilter = $event" />
+					class="group-priority__filter" />
 
 				<ul
 					class="group-priority__list group-priority__list--inactive"

@@ -5,18 +5,36 @@
 
 <template>
 	<div class="clock-widget" :class="`clock-widget--${style}`">
-		<div v-if="style === 'analog'" class="clock-widget__analog" role="img" :aria-label="accessibleLabel">
+		<div v-if="style === 'analog'"
+			class="clock-widget__analog"
+			role="img"
+			:aria-label="accessibleLabel">
 			<svg viewBox="0 0 100 100" class="clock-widget__face" aria-hidden="true">
-				<circle cx="50" cy="50" r="48" class="clock-widget__rim" />
+				<circle cx="50"
+					cy="50"
+					r="48"
+					class="clock-widget__rim" />
 				<line
 					v-for="tick in 12"
 					:key="`tick-${tick}`"
 					class="clock-widget__tick"
 					v-bind="tickCoords(tick)" />
-				<line class="clock-widget__hand clock-widget__hand--hour" x1="50" y1="50" v-bind="handCoords(hourAngle, 26)" />
-				<line class="clock-widget__hand clock-widget__hand--minute" x1="50" y1="50" v-bind="handCoords(minuteAngle, 38)" />
-				<line class="clock-widget__hand clock-widget__hand--second" x1="50" y1="50" v-bind="handCoords(secondAngle, 42)" />
-				<circle cx="50" cy="50" r="2.2" class="clock-widget__pivot" />
+				<line class="clock-widget__hand clock-widget__hand--hour"
+					x1="50"
+					y1="50"
+					v-bind="handCoords(hourAngle, 26)" />
+				<line class="clock-widget__hand clock-widget__hand--minute"
+					x1="50"
+					y1="50"
+					v-bind="handCoords(minuteAngle, 38)" />
+				<line class="clock-widget__hand clock-widget__hand--second"
+					x1="50"
+					y1="50"
+					v-bind="handCoords(secondAngle, 42)" />
+				<circle cx="50"
+					cy="50"
+					r="2.2"
+					class="clock-widget__pivot" />
 			</svg>
 		</div>
 

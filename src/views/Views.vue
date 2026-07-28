@@ -10,7 +10,6 @@
 		     `WorkspaceApp.vue`, the same binding shape applies. -->
 		<DashboardSwitcherSidebar
 			:is-open="sidebarOpen"
-			@update:open="sidebarOpen = $event"
 			:group-name="primaryGroupName"
 			:group-dashboards="sidebarGroupDashboards"
 			:user-dashboards="sidebarUserDashboards"
@@ -21,6 +20,7 @@
 			:dashboard-quota-reached="dashboardQuotaReached"
 			:dashboard-quota-tooltip="dashboardQuotaTooltip"
 			:is-edit-mode="isEditMode"
+			@update:open="sidebarOpen = $event"
 			@switch="onSidebarSwitch"
 			@create-dashboard="onSidebarCreateDashboard"
 			@delete-dashboard="onSidebarDeleteDashboard"
@@ -386,7 +386,9 @@ export default {
 		const grid = useGridManager({
 			canEdit: canEditRef,
 			/**
-			 * @param widget
+			 * Context-menu "Edit" — open the content editor for a placement.
+			 *
+			 * @param {object} widget Placement the context menu was opened on.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
 			onEdit(widget) {
@@ -394,14 +396,19 @@ export default {
 				grid._host?.handleContextMenuEdit(widget)
 			},
 			/**
-			 * @param widget
+			 * Context-menu "Remove" — delete a placement from the dashboard.
+			 *
+			 * @param {object} widget Placement the context menu was opened on.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
 			onRemove(widget) {
 				grid._host?.handleContextMenuRemove(widget)
 			},
 			/**
-			 * @param widget
+			 * Context-menu "Visibility rules…" — open the conditional
+			 * visibility editor for a placement.
+			 *
+			 * @param {object} widget Placement the context menu was opened on.
 			 * @spec openspec/specs/conditional-visibility/spec.md
 			 */
 			onVisibilityRules(widget) {
@@ -641,7 +648,10 @@ export default {
 		canEditForContextMenu: {
 			immediate: true,
 			/**
-			 * @param value
+			 * Mirror the computed edit permission into the ref the grid
+			 * manager closes over.
+			 *
+			 * @param {boolean} value Whether the user may currently edit.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
 			handler(value) {
@@ -662,8 +672,10 @@ export default {
 		'activeDashboard.uuid': {
 			immediate: true,
 			/**
-			 * @param uuid
-			 * @param prevUuid
+			 * Fire a view-event when the active dashboard changes.
+			 *
+			 * @param {string|null} uuid UUID of the newly-active dashboard.
+			 * @param {string|null} prevUuid UUID that was active before.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
 			handler(uuid, prevUuid) {
@@ -806,9 +818,12 @@ export default {
 			dashboardStore.fetchPendingAcknowledgements()
 		},
 
-		// REQ-ACK-004: open the admin read-receipt report for an announcement.
 		/**
-		 * @param announcementKey
+		 * Open the admin read-receipt report for an announcement
+		 * (REQ-ACK-004).
+		 *
+		 * @param {string} announcementKey Key identifying the announcement
+		 *   whose acknowledgement report should be shown.
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 		 */
 		openAcknowledgementReport(announcementKey) {
@@ -839,9 +854,6 @@ export default {
 		 * spec's reload semantics.
 		 *
 		 * @param {string} uuid The dashboard UUID to record.
-		 */
-		/**
-		 * @param uuid
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
@@ -879,10 +891,6 @@ export default {
 		 *
 		 * @param {MouseEvent} event the contextmenu event
 		 * @param {object} placement the placement under the cursor
-		 */
-		/**
-		 * @param event
-		 * @param placement
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onWidgetRightClick(event, placement) {
@@ -897,9 +905,6 @@ export default {
 		 * the popover is useful for stock Nextcloud widgets too.
 		 *
 		 * @param {object} placement the placement to edit
-		 */
-		/**
-		 * @param placement
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		handleContextMenuEdit(placement) {
@@ -931,9 +936,6 @@ export default {
 		 *
 		 * @param {object} placement the placement under the cursor
 		 * @return {string|null} the resolved widget type, or null
-		 */
-		/**
-		 * @param placement
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		resolveWidgetType(placement) {
@@ -957,9 +959,6 @@ export default {
 		 * `/api/placements/{id}`) remains the single source of truth.
 		 *
 		 * @param {object} placement the placement to delete
-		 */
-		/**
-		 * @param placement
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async handleContextMenuRemove(placement) {
@@ -980,9 +979,6 @@ export default {
 		 * extra gate is needed here.
 		 *
 		 * @param {object} placement the placement whose rules to edit
-		 */
-		/**
-		 * @param placement
 		 * @spec openspec/specs/conditional-visibility/spec.md
 		 */
 		handleContextMenuVisibilityRules(placement) {
@@ -1022,9 +1018,6 @@ export default {
 		 * preselected-type scenario); omit it for the type-picker flow.
 		 *
 		 * @param {string|null} type registry key, or null for picker flow
-		 */
-		/**
-		 * @param type
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		openCustomWidgetModal(type = null) {
@@ -1041,9 +1034,6 @@ export default {
 		 * (REQ-WDG-010), so the type select is hidden.
 		 *
 		 * @param {object} placement existing placement record with type+content
-		 */
-		/**
-		 * @param placement
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		openCustomWidgetEdit(placement) {
@@ -1068,9 +1058,6 @@ export default {
 		 * editor and style editor work today.
 		 *
 		 * @param {{type: string, content: object}} payload the widget add/edit payload from AddWidgetModal
-		 */
-		/**
-		 * @param payload
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async saveCustomWidget(payload) {
@@ -1193,21 +1180,27 @@ export default {
 			this.isConfigModalOpen = false
 		},
 		/**
-		 * @param widgetId
+		 * Place a widget on the active dashboard.
+		 *
+		 * @param {string} widgetId Registry key or Nextcloud widget id to add.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async addWidget(widgetId) {
 			await this.addWidgetToDashboard(widgetId)
 		},
 		/**
-		 * @param placementId
+		 * Remove a placement from the active dashboard.
+		 *
+		 * @param {number|string} placementId Id of the placement to remove.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async removeWidget(placementId) {
 			await this.removeWidgetFromDashboard(placementId)
 		},
 		/**
-		 * @param placement
+		 * Open the per-widget style editor for a placement.
+		 *
+		 * @param {object} placement Placement whose chrome/styling to edit.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		openStyleEditor(placement) {
@@ -1253,7 +1246,10 @@ export default {
 			}
 		},
 		/**
-		 * @param tile
+		 * Open the launcher-tile editor, entering edit mode if needed.
+		 *
+		 * @param {object|null} [tile] Existing tile to edit; null opens the
+		 *   editor for a brand-new tile.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		openTileEditor(tile = null) {
@@ -1264,7 +1260,10 @@ export default {
 			this.isTileEditorOpen = true
 		},
 		/**
-		 * @param placement
+		 * Open the tile editor pre-filled from an existing tile placement.
+		 *
+		 * @param {object} placement Tile placement whose `content` blob seeds
+		 *   the editor form.
 		 * @spec openspec/specs/dashboards/spec.md
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
@@ -1294,7 +1293,10 @@ export default {
 			this.editingTile = null
 		},
 		/**
-		 * @param tileData
+		 * Create or update a launcher tile from the editor's form state.
+		 *
+		 * @param {object} tileData Assembled tile fields (title, icon, link
+		 *   target, colours, health-ping config, …).
 		 * @spec openspec/specs/dashboards/spec.md
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
@@ -1346,11 +1348,13 @@ export default {
 			this.openCreateDashboardModal()
 		},
 		/**
-		 * @param root0
-		 * @param root0.id
-		 * @param root0.name
-		 * @param root0.description
-		 * @param root0.icon
+		 * Create or update a dashboard from the config modal's form state.
+		 *
+		 * @param {object} config Dashboard attributes from the modal.
+		 * @param {number|null} config.id Dashboard id; null creates a new one.
+		 * @param {string} config.name Display name.
+		 * @param {string} config.description Short description.
+		 * @param {string} config.icon Icon key or URL.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async saveDashboardConfig({ id, name, description, icon }) {
@@ -1367,7 +1371,9 @@ export default {
 			}
 		},
 		/**
-		 * @param dashboard
+		 * Delete a dashboard after an explicit user confirmation.
+		 *
+		 * @param {object} dashboard Dashboard record to delete.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async deleteCurrentDashboard(dashboard) {
@@ -1401,13 +1407,11 @@ export default {
 		 *
 		 * @param {string|number} id Dashboard id from the clicked row.
 		 * @param {'group'|'default'|'user'} source Section discriminator.
-		 */
-		// eslint-disable-next-line no-unused-vars
-		/**
-		 * @param id
-		 * @param source
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
+		// eslint-disable-next-line no-unused-vars -- `source` is part of the
+		// REQ-SWITCH-002 contract and is kept in the signature so per-source
+		// endpoints can land without re-touching this view.
 		async onSidebarSwitch(id, source) {
 			// `source` is currently informational — `switchDashboard`
 			// resolves any visible dashboard via /api/dashboard/{id}. The
@@ -1426,9 +1430,6 @@ export default {
 		 *
 		 * @param {string} path Leading-slash slug-chain (e.g. `/finance/q1`).
 		 * @return {string} Absolute pathname for `history.pushState`.
-		 */
-		/**
-		 * @param path
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		buildDeepLinkUrl(path) {
@@ -1513,9 +1514,6 @@ export default {
 		 * route correctly.
 		 *
 		 * @param {PopStateEvent} event The popstate event.
-		 */
-		/**
-		 * @param event
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async handleHistoryPopState(event) {
@@ -1555,10 +1553,6 @@ export default {
 		 *
 		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
-		 */
-		/**
-		 * @param dashboard
-		 * @param source
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onRowToggleEdit(dashboard, source) {
@@ -1566,8 +1560,11 @@ export default {
 			this.toggleEditMode()
 		},
 		/**
-		 * @param dashboard
-		 * @param source
+		 * Row cog "Configure" — switch to the row's dashboard, then open the
+		 * dashboard config modal.
+		 *
+		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onRowOpenConfig(dashboard, source) {
@@ -1575,8 +1572,11 @@ export default {
 			this.openConfigModal()
 		},
 		/**
-		 * @param dashboard
-		 * @param source
+		 * Row cog "Add widget" — switch to the row's dashboard, then open the
+		 * custom-widget picker.
+		 *
+		 * @param {object} dashboard Row payload (`id`, `name`, `isOwner`, …).
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onRowAddCustomWidget(dashboard, source) {
@@ -1584,21 +1584,23 @@ export default {
 			this.openCustomWidgetModal()
 		},
 
-		/*
-		 * Wave3.7 — pin the row's dashboard as the user's default.
-		 * Toggle semantics: clicking on the already-pinned row clears
-		 * the pin (so the cog shows "Set as default" again on next
-		 * open); clicking on any other row replaces the pin with that
-		 * dashboard's UUID. The new pref takes effect on the next
-		 * page load — visiting `/apps/launchpad/` will resolve to this
-		 * dashboard via the resolver's Step 0.
-		 */
-		// eslint-disable-next-line no-unused-vars
 		/**
-		 * @param dashboard
-		 * @param source
+		 * Wave3.7 — pin the row's dashboard as the user's default.
+		 *
+		 * Toggle semantics: clicking the already-pinned row clears the pin
+		 * (so the cog shows "Set as default" again on next open); clicking
+		 * any other row replaces the pin with that dashboard's UUID. The new
+		 * preference takes effect on the next page load — visiting
+		 * `/apps/launchpad/` resolves to this dashboard via the resolver's
+		 * Step 0.
+		 *
+		 * @param {object} dashboard Row payload; only `uuid` is read.
+		 * @param {'group'|'default'|'user'} source Row section discriminator,
+		 *   accepted for signature parity with the other row handlers.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
+		// eslint-disable-next-line no-unused-vars -- `source` is unused today
+		// but kept so every row-cog handler shares one signature.
 		async onRowSetDefault(dashboard, source) {
 			const uuid = dashboard?.uuid ?? ''
 			if (uuid === '') {
@@ -1625,9 +1627,10 @@ export default {
 		 * having to hunt for the same dashboard's row.
 		 */
 		/**
-		 * @param root0
-		 * @param root0.uuid
-		 * @param root0.isDefault
+		 * @param {object} payload Emitted by the dashboard config modal.
+		 * @param {string} payload.uuid UUID of the dashboard in the modal.
+		 * @param {boolean} payload.isDefault True to pin it as the user's
+		 *   default; false clears the pin when this dashboard held it.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onModalSetDefault({ uuid, isDefault }) {
@@ -1647,15 +1650,13 @@ export default {
 			}
 		},
 
-		/*
-		 * Switch the active dashboard only when the requested id
-		 * differs from the current active. Avoids a redundant API
-		 * round-trip when the per-row action targets the row that is
-		 * already active.
-		 */
 		/**
-		 * @param id
-		 * @param source
+		 * Switch the active dashboard only when the requested id differs
+		 * from the current one. Avoids a redundant API round-trip when a
+		 * per-row action targets the row that is already active.
+		 *
+		 * @param {string|number} id Dashboard id the row action targets.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async maybeSwitchTo(id, source) {
@@ -1689,9 +1690,6 @@ export default {
 		 * arbitrary id rather than the active dashboard.
 		 *
 		 * @param {string|number} id Personal dashboard id to delete.
-		 */
-		/**
-		 * @param id
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onSidebarDeleteDashboard(id) {

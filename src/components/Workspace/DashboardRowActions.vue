@@ -37,7 +37,7 @@
 		placement="bottom-end"
 		:type="buttonType"
 		class="dashboard-row-actions"
-		@click.native.stop>
+		@click.stop>
 		<template #icon>
 			<Cog :size="iconSize" />
 		</template>

@@ -98,6 +98,11 @@ module.exports = {
 			// cannot consume. Tests that need the actual component
 			// behaviour use `vi.mock(...)`; everyone else gets a tiny
 			// stub so transitive imports don't crash.
+			//
+			// This redirect applies to EVERY spec, so no unit test in this
+			// suite runs against the real library — library integration is
+			// covered only by the Playwright e2e suite. See the stub's
+			// docblock ("CONSEQUENCE") before trusting a green unit run.
 			{ find: /^@conduction\/nextcloud-vue$/, replacement: path.resolve(__dirname, 'tests/vitest/stubs/conduction-nextcloud-vue.js') },
 		],
 	},

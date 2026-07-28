@@ -15,6 +15,26 @@
  * Real visual coverage of `@conduction/nextcloud-vue` lives in the
  * upstream package's own test suite.
  *
+ * CONSEQUENCE — read this before trusting a green unit run:
+ *
+ * No unit test in this suite exercises the real
+ * `@conduction/nextcloud-vue`. The alias in `vitest.config.js` redirects
+ * EVERY import to this file, so library integration is covered ONLY by the
+ * Playwright e2e suite. A green unit run is not evidence that the library
+ * works — it is evidence that this stub does. The suite structurally
+ * cannot catch a library regression: not a breaking prop change, not a
+ * renamed event, not a component that renders nothing.
+ *
+ * That last one is not hypothetical. Earlier in the Vue-3 migration the
+ * library shipped a dist whose render wiring had been tree-shaken away, so
+ * every `Cn` component rendered as a silent comment node — blank app, zero
+ * console errors. The unit suite stayed fully green throughout, because
+ * these stubs render fine. Only a browser caught it.
+ *
+ * Specs that need real component behaviour must opt in deliberately with
+ * `vi.mock(...)`, and anything asserting on rendered library markup
+ * belongs in `tests/e2e/`.
+ *
  * Vue 3 no longer hands `h` to the render function as its first argument —
  * it is imported from `vue` instead, and the vnode data object is flat
  * (`h('img', { src })`) rather than Vue 2's nested `{ attrs: { src } }`.

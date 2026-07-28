@@ -140,7 +140,7 @@
 						track-by="key"
 						:clearable="false"
 						@search="onShareeSearch"
-						@input="onShareeSelected">
+						@update:modelValue="onShareeSelected">
 						<template #option="option">
 							<span class="sharee-option">
 								<AccountGroup v-if="option.shareType === 'group'" :size="18" />
@@ -168,7 +168,7 @@
 								track-by="value"
 								:clearable="false"
 								class="dashboard-config__share-level"
-								@input="onShareLevelChange(idx, $event)" />
+								@update:modelValue="onShareLevelChange(idx, $event)" />
 							<NcButton
 								type="tertiary"
 								:aria-label="t('launchpad', 'Remove share')"

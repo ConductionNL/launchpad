@@ -56,7 +56,11 @@ async function waitForShell(page: ReturnType<typeof test.extend>['page']): Promi
 /** Open the dashboard-switcher sidebar via the floating toggle button. */
 async function openSidebar(page: ReturnType<typeof test.extend>['page']): Promise<void> {
 	// The floating hamburger toggle is always visible in the workspace shell.
-	const ham = page.locator('.launchpad-sidebar-toggle, .launchpad-floating-controls button').first()
+	// Target `.launchpad-sidebar-toggle` EXACTLY: `.launchpad-floating-controls`
+	// also hosts the dashboard-cog and Share buttons, and the cog precedes the
+	// toggle in DOM order — so a comma-selector `.first()` resolves to the cog
+	// and opens the wrong popover, leaving the sidebar closed.
+	const ham = page.locator('.launchpad-sidebar-toggle').first()
 	await expect(ham).toBeVisible({ timeout: 10_000 })
 	// Only click if the sidebar is not already open.
 	const isOpen = await page.locator('.dashboard-switcher-sidebar.open').isVisible().catch(() => false)

@@ -37,7 +37,7 @@
 					track-by="id"
 					:clearable="false"
 					data-testid="template-resync-strategy"
-					@input="handleStrategyChange" />
+					@update:modelValue="handleStrategyChange" />
 				<p class="launchpad-resync__strategy-hint">
 					{{ strategyHint }}
 				</p>

@@ -40,11 +40,11 @@ test.beforeAll(async () => {
 async function addNcWidget(page: Page): Promise<boolean> {
 	await openAddWidgetModal(page)
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Nextcloud Widget' })
+	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Nextcloud widget' })
 
 	// The grid picker lists discovered Nextcloud dashboard widgets.
-	const cards = dialog.locator('.nc-widget-grid-picker__card')
-	const empty = dialog.locator('.nc-widget-grid-picker__empty')
+	const cards = dialog.locator('.cn-nc-widget-grid-picker__card')
+	const empty = dialog.locator('.cn-nc-widget-grid-picker__empty')
 	await expect(cards.first().or(empty)).toBeVisible({ timeout: 8_000 })
 	if (await empty.isVisible().catch(() => false)) {
 		return false

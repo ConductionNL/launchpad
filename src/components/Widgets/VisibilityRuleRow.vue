@@ -43,7 +43,7 @@
 					:aria-label-combobox="t('launchpad', 'Groups')"
 					:placeholder="t('launchpad', 'Select groups')"
 					data-test="rule-groups"
-					@input="onChange" />
+					@update:modelValue="onChange" />
 			</div>
 
 			<!-- time -->

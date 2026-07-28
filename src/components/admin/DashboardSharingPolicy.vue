@@ -19,7 +19,7 @@
 				track-by="id"
 				:clearable="false"
 				data-test="sharing-policy-permission"
-				@input="save" />
+				@update:modelValue="save" />
 		</div>
 
 		<div class="sharing-policy__field">
@@ -33,7 +33,7 @@
 				:aria-label-combobox="t('launchpad', 'Forced share groups')"
 				:placeholder="t('launchpad', 'Select groups (leave empty for none)')"
 				data-test="sharing-policy-forced-groups"
-				@input="save" />
+				@update:modelValue="save" />
 			<p class="sharing-policy__hint">
 				{{ t('launchpad', 'Members of these groups always receive every newly created dashboard.') }}
 			</p>

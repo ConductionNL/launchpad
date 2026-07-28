@@ -136,13 +136,13 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		// (a bare grid-cell gap, or a container widget's inner grid, does not
 		// forward the contextmenu). Pick a grid item that holds a simple
 		// widget renderer content element and use its placement id.
-		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.launchpad-widget__content') }).first()
+		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.cn-widget-wrapper__content') }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		const gsId = await placement.getAttribute('gs-id')
 		expect(gsId).toBeTruthy()
 
 		// Right-click the widget content (not the cell padding) to open the menu.
-		await placement.locator('.launchpad-widget__content').first().click({ button: 'right' })
+		await placement.locator('.cn-widget-wrapper__content').first().click({ button: 'right' })
 
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })

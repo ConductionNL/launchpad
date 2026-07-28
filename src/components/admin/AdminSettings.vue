@@ -53,7 +53,7 @@
 						label="label"
 						track-by="id"
 						:clearable="false"
-						@input="saveSettings" />
+						@update:modelValue="saveSettings" />
 				</div>
 
 				<NcCheckboxRadioSwitch
@@ -78,7 +78,7 @@
 						:input-label="t('launchpad', 'Default grid columns')"
 						:options="gridColumnOptions"
 						:clearable="false"
-						@input="saveSettings" />
+						@update:modelValue="saveSettings" />
 				</div>
 
 				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance

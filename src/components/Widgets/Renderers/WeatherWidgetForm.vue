@@ -25,7 +25,7 @@
 			:placeholder="t('launchpad', 'Follow my locale')"
 			:reduce="(option) => option.value"
 			label="label"
-			@input="updateField('unitsOverride', $event || '')" />
+			@update:modelValue="updateField('unitsOverride', $event || '')" />
 	</div>
 </template>
 

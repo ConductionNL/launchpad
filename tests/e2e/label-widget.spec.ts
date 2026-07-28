@@ -50,16 +50,16 @@ test.describe('label widget', () => {
 
 		// The rendered widget carries the saved text + font-size (the add →
 		// persist → render content round-trip).
-		const placement = page.locator('.label-widget').filter({ hasText: text }).first()
+		const placement = page.locator('.cn-label-widget').filter({ hasText: text }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
-		const fontSize = await placement.locator('.label-widget__text').first()
+		const fontSize = await placement.locator('.cn-label-widget__text').first()
 			.evaluate((el) => window.getComputedStyle(el).fontSize)
 		expect(fontSize).toBe('24px')
 
 		// Persistence: the placement survives a full page reload.
 		await page.reload()
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator('.label-widget').filter({ hasText: text }).first())
+		await expect(page.locator('.cn-label-widget').filter({ hasText: text }).first())
 			.toBeVisible({ timeout: 10_000 })
 
 		// FIXED 2026-06-07: the right-click context-menu "Edit" now resolves
@@ -83,7 +83,7 @@ test.describe('label widget', () => {
 
 		await closeSidebar(page)
 
-		const placement = page.locator('.label-widget').filter({ hasText: text }).first()
+		const placement = page.locator('.cn-label-widget').filter({ hasText: text }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
 		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
@@ -102,7 +102,7 @@ test.describe('label widget', () => {
 		// Right-click the rendered widget content to open the popover, then Edit.
 		const cell = page.locator('.grid-stack-item').filter({ hasText: text }).first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
-		await cell.locator('.launchpad-widget__content').first().click({ button: 'right' })
+		await cell.locator('.cn-widget-wrapper__content').first().click({ button: 'right' })
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
 		await page.locator('[data-testid="ctx-edit"]').click()
@@ -141,7 +141,7 @@ test.describe('label widget', () => {
 
 		await closeSidebar(page)
 
-		const placement = page.locator('.label-widget').filter({ hasText: html })
+		const placement = page.locator('.cn-label-widget').filter({ hasText: html })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
 		// Critical XSS check: the user's <b> MUST NOT become a real element.

@@ -52,7 +52,7 @@ test.describe('text-display widget', () => {
 
 		// The rendered widget carries the marker text (the add → persist →
 		// render content round-trip).
-		const placement = page.locator('.text-display-widget').filter({ hasText: marker }).first()
+		const placement = page.locator('.cn-text-widget').filter({ hasText: marker }).first()
 		await expect(placement).toBeAttached({ timeout: 8_000 })
 		// The safe inline formatting (`<b>`) survives sanitisation — the user's
 		// <b> becomes a real element rather than literal text.
@@ -61,7 +61,7 @@ test.describe('text-display widget', () => {
 		// Persistence: the placement survives a full reload.
 		await page.reload()
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator('.text-display-widget').filter({ hasText: marker }).first())
+		await expect(page.locator('.cn-text-widget').filter({ hasText: marker }).first())
 			.toBeAttached({ timeout: 10_000 })
 	})
 

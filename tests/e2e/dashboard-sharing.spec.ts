@@ -20,7 +20,7 @@
  *  - Recipient sees the shared dashboard (skipped when the fixture has no
  *    second seeded user — honest test.skip, per the house pattern).
  *
- * NOTE: These tests require a running Nextcloud instance with the mydash app
+ * NOTE: These tests require a running Nextcloud instance with the launchpad app
  * installed, the authenticated owner storage state from
  * `tests/e2e/global-setup.ts`, and at least one recipient account
  * ("recipient" by default, overridable via LAUNCHPAD_E2E_SHAREE) that the
@@ -50,15 +50,15 @@ const SHAREE = process.env.LAUNCHPAD_E2E_SHAREE ?? 'recipient'
  * @return {Promise<import('@playwright/test').Locator>} the sharing panel locator.
  */
 async function openSharingTab(page: Page) {
-	await page.goto('/index.php/apps/mydash')
+	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	} catch {
-		await page.goto('/index.php/apps/mydash')
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.goto('/index.php/apps/launchpad')
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
 
-	await page.locator('.mydash-sidebar-toggle').first().click()
+	await page.locator('.launchpad-sidebar-toggle').first().click()
 	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 
 	// Open the active personal dashboard's cog menu → "Dashboard settings".
@@ -185,8 +185,8 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 
 		const context = await browser.newContext({ storageState: process.env.LAUNCHPAD_E2E_SHAREE_STORAGE })
 		const page = await context.newPage()
-		await page.goto('/index.php/apps/mydash')
-		await page.locator('.mydash-sidebar-toggle').first().click()
+		await page.goto('/index.php/apps/launchpad')
+		await page.locator('.launchpad-sidebar-toggle').first().click()
 		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 		// A shared (non-owned) dashboard shows up as a shared-source row.
 		await expect(

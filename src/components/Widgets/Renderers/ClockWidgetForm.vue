@@ -19,7 +19,7 @@
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
-			@input="updateField('style', $event)" />
+			@update:modelValue="updateField('style', $event)" />
 
 		<template v-if="style === 'digital'">
 			<NcSelect
@@ -29,7 +29,7 @@
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
-				@input="updateField('hourFormat', $event)" />
+				@update:modelValue="updateField('hourFormat', $event)" />
 
 			<NcCheckboxRadioSwitch
 				:model-value="showDate"
@@ -46,7 +46,7 @@
 			:placeholder="t('launchpad', 'Follow device timezone')"
 			:reduce="(option) => option.value"
 			label="label"
-			@input="updateField('timezone', $event || '')" />
+			@update:modelValue="updateField('timezone', $event || '')" />
 	</div>
 </template>
 

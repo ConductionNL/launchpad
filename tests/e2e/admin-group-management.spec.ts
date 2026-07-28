@@ -66,7 +66,11 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 		await expect(submit).toBeDisabled()
 
 		// Typing 2+ chars unlocks the submit button.
-		await page.locator('[data-test="create-group-dashboard-name"] input').fill('Ops')
+		// @nextcloud/vue v9 (the Vue-3 line) forwards NcTextField's fallthrough
+		// attributes onto the inner <input> instead of the wrapper <div> the
+		// v8/Vue-2 build used, so `data-test` IS the input — a descendant
+		// `[data-test=…] input` selector matches nothing.
+		await page.locator('input[data-test="create-group-dashboard-name"]').fill('Ops')
 		await expect(submit).toBeEnabled()
 
 		// Cancel returns to the tab without firing a request.

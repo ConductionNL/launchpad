@@ -48,7 +48,7 @@
 				:input-label="t('launchpad', 'Aspect ratio')"
 				:reduce="(option) => option.value"
 				label="label"
-				@input="(val) => updateField('aspect', val || 'none')" />
+				@update:modelValue="(val) => updateField('aspect', val || 'none')" />
 		</div>
 
 		<fieldset class="iframe-widget-form__sandbox">

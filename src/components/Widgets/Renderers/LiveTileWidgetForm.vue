@@ -30,7 +30,7 @@
 			:input-label="t('launchpad', 'Source')"
 			:reduce="(option) => option.value"
 			label="label"
-			@input="onSourceModeChange" />
+			@update:modelValue="onSourceModeChange" />
 
 		<template v-if="sourceMode === 'connector'">
 			<p v-if="!connectorAvailable" class="live-tile-widget-form__warning">
@@ -97,7 +97,7 @@
 			:input-label="t('launchpad', 'Link target')"
 			:reduce="(option) => option.value"
 			label="label"
-			@input="(val) => updateField('linkTarget', val || 'same-tab')" />
+			@update:modelValue="(val) => updateField('linkTarget', val || 'same-tab')" />
 	</div>
 </template>
 

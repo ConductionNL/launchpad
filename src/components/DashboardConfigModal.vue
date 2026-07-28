@@ -524,7 +524,11 @@ export default {
 		open: {
 			immediate: true,
 			/**
-			 * @param isOpen
+			 * Reset the buffered share state whenever the modal closes, so
+			 * the next open starts from the server's list rather than a
+			 * stale local edit.
+			 *
+			 * @param {boolean} isOpen Whether the modal is now open.
 			 * @spec openspec/specs/dashboards/spec.md
 			 */
 			handler(isOpen) {
@@ -579,7 +583,11 @@ export default {
 	methods: {
 		t,
 		/**
-		 * @param level
+		 * Resolve a permission level to its select option, falling back to
+		 * the first option for unknown levels.
+		 *
+		 * @param {string} level Stored permission level, e.g. `read`/`full`.
+		 * @return {object} Matching option from `permissionOptions`.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		permissionOptionFor(level) {
@@ -732,7 +740,10 @@ export default {
 			return [...users, ...groups]
 		},
 		/**
-		 * @param query
+		 * Search sharees as the user types; an empty query restores the
+		 * preloaded suggestions.
+		 *
+		 * @param {string} query Raw search text from the sharee picker.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onShareeSearch(query) {
@@ -761,7 +772,10 @@ export default {
 			}
 		},
 		/**
-		 * @param option
+		 * Buffer a picked sharee locally. Nothing is written to the server
+		 * until the user saves.
+		 *
+		 * @param {object|null} option Sharee option chosen in the picker.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onShareeSelected(option) {
@@ -783,8 +797,10 @@ export default {
 			this.shareeOptions = [...this.shareeSuggestions]
 		},
 		/**
-		 * @param idx
-		 * @param option
+		 * Change one buffered share's permission level.
+		 *
+		 * @param {number} idx Index of the share in `localShares`.
+		 * @param {object|null} option Newly selected permission option.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onShareLevelChange(idx, option) {
@@ -797,7 +813,9 @@ export default {
 			}
 		},
 		/**
-		 * @param idx
+		 * Drop one buffered share. Removal reaches the server on save.
+		 *
+		 * @param {number} idx Index of the share in `localShares`.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onShareRemove(idx) {

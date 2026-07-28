@@ -262,9 +262,23 @@
 			:top="contextMenuTop"
 			:left="contextMenuLeft"
 			@edit="grid.triggerEdit()"
+			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"
 			@visibility-rules="grid.triggerVisibilityRules()"
 			@close="grid.closeContextMenu()" />
+
+		<!-- Keyboard-operable move/resize panel (WCAG 2.1 SC 2.1.1). The
+		     pointer-only GridStack drag has no keyboard equivalent, so the
+		     context menu's "Move" item opens this panel, which nudges the
+		     placement through the same pure `nudgePlacement()` helper the
+		     drag path's collision model uses. -->
+		<WidgetMovePanel
+			:open="movePanelOpen"
+			:placement="movePanelPlacement"
+			:all-placements="widgetPlacements"
+			:grid-columns="activeDashboard?.gridColumns || 12"
+			@save="handleMoveSave"
+			@close="closeMovePanel" />
 
 		<!-- Per-widget conditional-visibility editor (conditional-visibility
 		     spec). Opened from the context menu's "Visibility rules…" item;
@@ -299,6 +313,7 @@ import WidgetPickerModal from '../components/WidgetPickerModal.vue'
 import TileEditor from '../components/TileEditor.vue'
 import DashboardConfigModal from '../components/DashboardConfigModal.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
+import WidgetMovePanel from '../components/Widgets/WidgetMovePanel.vue'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import VisibilityRulesModal from '../components/Widgets/VisibilityRulesModal.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
@@ -334,6 +349,7 @@ export default {
 		DashboardConfigModal,
 		CnAddWidgetModal,
 		WidgetContextMenu,
+		WidgetMovePanel,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
@@ -405,6 +421,15 @@ export default {
 				grid._host?.handleContextMenuRemove(widget)
 			},
 			/**
+			 * Context-menu "Move" — open the keyboard move/resize panel.
+			 *
+			 * @param {object} widget Placement the context menu was opened on.
+			 * @spec openspec/specs/grid-layout/spec.md
+			 */
+			onMove(widget) {
+				grid._host?.handleContextMenuMove(widget)
+			},
+			/**
 			 * Context-menu "Visibility rules…" — open the conditional
 			 * visibility editor for a placement.
 			 *
@@ -446,6 +471,11 @@ export default {
 			// modal for that placement (conditional-visibility spec).
 			isVisibilityModalOpen: false,
 			visibilityPlacementId: null,
+			// Keyboard move/resize panel state (WCAG 2.1 SC 2.1.1). Opened
+			// from the context menu's "Move" item for the placement in
+			// `movePanelPlacement`.
+			movePanelOpen: false,
+			movePanelPlacement: null,
 			// `dashboard-switcher` capability state — controlled here, the
 			// sidebar emits update:open(boolean) via its v-model rebind.
 			sidebarOpen: false,
@@ -526,8 +556,8 @@ export default {
 		 * manage shares — mirrors `DashboardConfigModal.canManageShares`).
 		 *
 		 * @return {boolean}
+		 * @spec openspec/specs/dashboard-sharing/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-sharing/spec.md */
 		canShareActiveDashboard() {
 			const dash = this.activeDashboard
 			return !!dash && dash.isOwner !== false && (dash.id ?? null) !== null
@@ -539,8 +569,8 @@ export default {
 		 * intentionally falls through to the browser's native menu.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		canEditForContextMenu() {
 			return this.canEdit && this.isEditMode
 		},
@@ -555,8 +585,8 @@ export default {
 		 * `reactive()` getter, so subsequent state changes (open via
 		 * right-click, close via outside-click / Cancel) correctly mount
 		 * and unmount the popover.
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuVisible() {
 			return this.grid.state.contextMenuOpen
 		},
@@ -578,8 +608,8 @@ export default {
 		 * discriminator from `/api/dashboards/visible` (REQ-DASH-013).
 		 *
 		 * @return {Array<object>} Concatenated group + default dashboards.
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		sidebarGroupDashboards() {
 			return [...this.groupSharedDashboards, ...this.defaultGroupDashboards]
 		},
@@ -592,8 +622,8 @@ export default {
 		 * flag when the record is not in any bucket yet.
 		 *
 		 * @return {'group'|'default'|'user'} The active dashboard's source.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		activeDashboardSource() {
 			const id = this.activeDashboard?.id
 			if (id != null) {
@@ -615,8 +645,8 @@ export default {
 		 * template even if the store getter is renamed later.
 		 *
 		 * @return {Array<object>} Dashboards with `source === 'user'`.
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		sidebarUserDashboards() {
 			return this.userDashboards
 		},
@@ -627,8 +657,8 @@ export default {
 		 * kept short so the layout doesn't wrap awkwardly.
 		 *
 		 * @return {string}
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		emptyStateDescription() {
 			if (this.allowUserDashboards) {
 				return this.t('launchpad', 'Create your first dashboard to get started')
@@ -757,14 +787,26 @@ export default {
 		t,
 
 		/**
-		 * Per-item render key for CnDashboardGrid — changes when a placement's
-		 * style/update changes so an edit forces a re-render (REQ-GRID).
+		 * Per-item render key for CnDashboardGrid.
+		 *
+		 * The key is the placement id and NOTHING else. It previously also
+		 * folded in `updatedAt` and a JSON dump of `styleConfig` to force a
+		 * re-render after an edit — but that made the key change on every
+		 * persist, so Vue tore down and recreated the grid item's DOM node.
+		 * Any element focused inside it lost focus, which breaks keyboard
+		 * move/resize outright (WCAG 2.1 SC 2.1.1): after one arrow-key move
+		 * the user's focus was thrown back to the document and a second move
+		 * was impossible without re-navigating the whole grid.
+		 *
+		 * Re-rendering on content change does not need a key change — the
+		 * placement objects are replaced wholesale by the store, so the
+		 * bound props update and the child re-renders normally.
 		 *
 		 * @param {object} placement the placement (CnDashboardGrid layout item).
-		 * @return {string} the render key.
+		 * @return {string} the render key — stable for the placement's lifetime.
 		 */
 		placementItemKey(placement) {
-			return `${placement.id}-${placement.updatedAt || ''}-${JSON.stringify(placement.styleConfig || {})}`
+			return String(placement.id)
 		},
 
 		/**
@@ -995,6 +1037,72 @@ export default {
 			this.visibilityPlacementId = null
 		},
 
+		/**
+		 * Context-menu "Move" — open the keyboard move/resize panel for a
+		 * placement. This is the WCAG 2.1 SC 2.1.1 keyboard equivalent of
+		 * GridStack's pointer-only drag; reaching the menu already required
+		 * `canEdit`, so no extra gate is needed here.
+		 *
+		 * @param {object} placement the placement to move or resize
+		 * @spec openspec/specs/grid-layout/spec.md
+		 */
+		handleContextMenuMove(placement) {
+			if (!placement?.id) {
+				return
+			}
+			this.movePanelPlacement = placement
+			this.movePanelOpen = true
+		},
+
+		/** @spec openspec/specs/grid-layout/spec.md */
+		closeMovePanel() {
+			this.movePanelOpen = false
+			this.movePanelPlacement = null
+		},
+
+		/**
+		 * Persist a confirmed keyboard move/resize. The panel hands back the
+		 * clamped rectangle plus any placements `nudgePlacement()` had to
+		 * push down to avoid overlap; both are folded into one
+		 * `updatePlacements` call so the whole layout is written atomically
+		 * on the same debounced path the drag handler uses.
+		 *
+		 * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: any, gridY: number}>}} rect
+		 *   Confirmed geometry emitted by `WidgetMovePanel`.
+		 * @spec openspec/specs/grid-layout/spec.md
+		 */
+		async handleMoveSave(rect) {
+			const movedId = this.movePanelPlacement?.id
+			if (!movedId || !rect) {
+				this.closeMovePanel()
+				return
+			}
+			const pushedById = new Map(
+				(rect.pushed || []).map(p => [p.id, p.gridY]),
+			)
+			const next = (this.widgetPlacements || []).map((placement) => {
+				if (placement.id === movedId) {
+					return {
+						...placement,
+						gridX: rect.gridX,
+						gridY: rect.gridY,
+						gridWidth: rect.gridWidth,
+						gridHeight: rect.gridHeight,
+					}
+				}
+				if (pushedById.has(placement.id)) {
+					return { ...placement, gridY: pushedById.get(placement.id) }
+				}
+				return placement
+			})
+			this.closeMovePanel()
+			try {
+				await this.updatePlacements(next)
+			} catch (error) {
+				console.error('[Views] Failed to persist keyboard move:', error)
+			}
+		},
+
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRulesChanged() {
 			// Rules are evaluated server-side at render; nothing to refetch
@@ -1163,8 +1271,8 @@ export default {
 		 * drawer for the active dashboard pre-selected to the Sharing tab.
 		 *
 		 * @return {void}
+		 * @spec openspec/specs/dashboard-sharing/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-sharing/spec.md */
 		openShareDrawer() {
 			this.configModalMode = 'edit'
 			this.configModalInitialTab = 'sharing'
@@ -1446,8 +1554,8 @@ export default {
 		 * server pushed via initial state. Runs once on mount; uses
 		 * `replaceState` so the bootstrap entry doesn't pollute the
 		 * back-button history.
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		replaceUrlFromInitialState() {
 			const target = this.buildDeepLinkUrl(this.injectedDeepLinkPath)
 			if (!target) {
@@ -1477,8 +1585,8 @@ export default {
 		 * (the bootstrap render uses `replaceUrlFromInitialState`
 		 * instead). Failures are non-fatal; the URL just stays at its
 		 * previous value while the active dashboard moves on.
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		async pushUrlForActiveDashboard() {
 			const uuid = this.activeDashboard?.uuid
 			if (!uuid) {
@@ -1670,8 +1778,8 @@ export default {
 		 * as a personal copy (REQ-DASH-020). The store action handles the
 		 * 403 toast when personal dashboards are disabled (REQ-ASET-003)
 		 * and pushes the new entry to `dashboards` on success.
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		/** @spec openspec/specs/dashboards/spec.md */
 		async onSidebarCreateDashboard() {
 			const sourceUuid = this.activeDashboard?.uuid
 			if (!sourceUuid) {

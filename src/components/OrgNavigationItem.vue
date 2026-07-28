@@ -172,8 +172,8 @@ export default {
 		 *
 		 * @param {string|null} url Candidate URL.
 		 * @return {boolean}
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		urlMatches(url) {
 			if (!url || !this.currentUrl) {
 				return false
@@ -195,8 +195,8 @@ export default {
 		 *
 		 * @param {Array<object>|null} children Child nodes.
 		 * @return {boolean}
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		descendantMatches(children) {
 			if (!Array.isArray(children) || children.length === 0) {
 				return false

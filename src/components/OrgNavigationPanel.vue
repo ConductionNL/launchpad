@@ -125,8 +125,8 @@ export default {
 		 * (REQ-ONAV-010). The link itself handles the actual
 		 * navigation via the standard `<a href>` semantics emitted by
 		 * `OrgNavigationItem`.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		onNavigate() {
 			this.openDrawer = false
 		},

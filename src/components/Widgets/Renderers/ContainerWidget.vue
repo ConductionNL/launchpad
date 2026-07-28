@@ -156,8 +156,8 @@ export default {
 		 * @param {object} child the child placement
 		 * @param {number} index the loop index
 		 * @return {string|number}
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		childKey(child, index) {
 			if (child && (child.id !== undefined && child.id !== null)) {
 				return `id-${child.id}`
@@ -176,8 +176,8 @@ export default {
 		 * children, just without drag/resize affordances.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		async initInnerGrid() {
 			if (!this.$refs.innerGrid) {
 				return
@@ -218,8 +218,8 @@ export default {
 		 *
 		 * @param {Event} _event the GridStack event (ignored)
 		 * @param {Array<object>} nodes the changed nodes
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		onGridChange(_event, nodes) {
 			if (!Array.isArray(nodes) || nodes.length === 0) {
 				return
@@ -251,8 +251,8 @@ export default {
 		 * change.
 		 *
 		 * @param {Array<object>} placements the new child placements
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		handlePersist(placements) {
 			this.$emit('update:content', {
 				...(this.content || {}),

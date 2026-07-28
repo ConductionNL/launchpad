@@ -69,8 +69,8 @@ export const NESTED_DEFAULT_H = 2
  * as a fresh shallow copy so callers can mutate without aliasing.
  *
  * @return {{column: number, cellHeight: number, margin: number, acceptWidgets: boolean, disableOneColumnMode: boolean}}
+ * @spec openspec/specs/container-widget/spec.md
  */
-/** @spec openspec/specs/container-widget/spec.md */
 export function getNestedGridOptions() {
 	return {
 		column: NESTED_COLUMNS,
@@ -96,8 +96,8 @@ export function getNestedGridOptions() {
  * @param {object} [options] optional knobs (accepted for caller compatibility)
  * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
  *   `pushed` is always empty — existing children are never moved.
+ * @spec openspec/specs/container-widget/spec.md
  */
-/** @spec openspec/specs/container-widget/spec.md */
 export function placeNewWidget(spec, placements, options = {}) {
 	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : NESTED_DEFAULT_W
 	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : NESTED_DEFAULT_H
@@ -133,8 +133,8 @@ export function placeNewWidget(spec, placements, options = {}) {
  *   placeNewWidget: (spec: object, placements: Array<object>, options?: object) => object,
  *   persist: (placements: Array<object>) => void,
  * }}
+ * @spec openspec/specs/container-widget/spec.md
  */
-/** @spec openspec/specs/container-widget/spec.md */
 export function useNestedGridManager(options = {}) {
 	const persistPlacements = typeof options.persistPlacements === 'function'
 		? options.persistPlacements

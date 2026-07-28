@@ -150,24 +150,6 @@ export default {
 		},
 	},
 
-	methods: {
-		/**
-		 * REQ-TANLT-002 — fire a fire-and-forget tile-click record call
-		 * on activation. Never blocks or interferes with the anchor's own
-		 * navigation (the browser proceeds to `tileUrl` regardless of
-		 * whether the tracking call succeeds, fails, or is suppressed). A
-		 * single `@click` handler covers both mouse clicks and keyboard
-		 * (Enter) activation — native `<a>` elements fire a `click` event
-		 * for both.
-		 *
-		 * @return {void}
-		 */
-		/** @spec openspec/specs/dashboard-view-analytics/spec.md */
-		handleActivate() {
-			recordTileClick(this.tile?.id)
-		},
-	},
-
 	/** @spec openspec/specs/tiles/spec.md */
 	mounted() {
 		console.log('[TileWidget] Mounted with tile:', JSON.stringify({
@@ -192,6 +174,24 @@ export default {
 			`
 			document.head.appendChild(style)
 		}
+	},
+
+	methods: {
+		/**
+		 * REQ-TANLT-002 — fire a fire-and-forget tile-click record call
+		 * on activation. Never blocks or interferes with the anchor's own
+		 * navigation (the browser proceeds to `tileUrl` regardless of
+		 * whether the tracking call succeeds, fails, or is suppressed). A
+		 * single `@click` handler covers both mouse clicks and keyboard
+		 * (Enter) activation — native `<a>` elements fire a `click` event
+		 * for both.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
+		 */
+		handleActivate() {
+			recordTileClick(this.tile?.id)
+		},
 	},
 }
 </script>

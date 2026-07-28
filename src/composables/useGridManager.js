@@ -248,8 +248,8 @@ function rectsOverlap(a, b) {
  *   the clamped candidate rect plus any existing placements that must be
  *   pushed down to `gridY = newRect.gridY + newRect.gridHeight` to avoid
  *   overlap. `pushed` is empty when the move/resize is a no-op or clear.
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	const columns = options.gridColumns || DEFAULT_COLUMNS
 
@@ -344,6 +344,8 @@ const DEFAULT_MENU_HEIGHT = 132
  *   whether right-click opens the popover.
  * @param {Function} [options.onEdit] called with `(widget)` on Edit click.
  * @param {Function} [options.onRemove] called with `(widget)` on Remove click.
+ * @param {Function} [options.onMove] called with `(widget)` on Move click —
+ *   opens the keyboard move/resize panel (WCAG 2.1 SC 2.1.1).
  * @param {Function} [options.onVisibilityRules] called with `(widget)` on
  *   "Visibility rules…" click.
  * @param {number} [options.menuWidth] override for clamp width (px)
@@ -356,17 +358,19 @@ const DEFAULT_MENU_HEIGHT = 132
  *   closeContextMenu: () => void,
  *   triggerEdit: () => void,
  *   triggerRemove: () => void,
+ *   triggerMove: () => void,
  *   triggerVisibilityRules: () => void,
  *   attach: () => void,
  *   detach: () => void,
  * }}
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function useGridManager(options = {}) {
 	const {
 		canEdit,
 		onEdit,
 		onRemove,
+		onMove,
 		onVisibilityRules,
 		menuWidth = DEFAULT_MENU_WIDTH,
 		menuHeight = DEFAULT_MENU_HEIGHT,
@@ -432,6 +436,14 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	function triggerMove() {
+		const widget = state.selectedWidget
+		closeContextMenu()
+		if (typeof onMove === 'function' && widget) {
+			onMove(widget)
+		}
+	}
+
 	function triggerVisibilityRules() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -476,6 +488,7 @@ export function useGridManager(options = {}) {
 		closeContextMenu,
 		triggerEdit,
 		triggerRemove,
+		triggerMove,
 		triggerVisibilityRules,
 		attach,
 		detach,

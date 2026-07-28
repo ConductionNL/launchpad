@@ -329,8 +329,8 @@ export default {
 		 *
 		 * @param {Event}  event MouseEvent
 		 * @param {object} item  the rendered news item
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
-		/** @spec openspec/specs/news-widget/spec.md */
 		onItemClick(event, item) {
 			if (!item || !item.link) {
 				return
@@ -350,8 +350,8 @@ export default {
 		 *
 		 * @param {object} item News item as returned by the items endpoint.
 		 * @return {string} Truncated, re-sanitised summary HTML.
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
-		/** @spec openspec/specs/news-widget/spec.md */
 		formattedSummary(item) {
 			const raw = typeof item.summary === 'string' ? item.summary : ''
 			if (raw === '') {
@@ -369,8 +369,8 @@ export default {
 		 *
 		 * @param {string} pubDate ISO 8601 date string
 		 * @return {string} formatted date label
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
-		/** @spec openspec/specs/news-widget/spec.md */
 		formatDate(pubDate) {
 			if (typeof pubDate !== 'string' || pubDate === '') {
 				return ''

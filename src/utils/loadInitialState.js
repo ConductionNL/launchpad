@@ -79,8 +79,8 @@ const PAGE_KEYS = {
  * @param {('workspace'|'admin')} page Destination page identifier.
  * @return {object} Typed snapshot — never carries `undefined` values.
  * @throws {Error} When `page` is not a known page identifier.
+ * @spec openspec/specs/initial-state-contract/spec.md
  */
-/** @spec openspec/specs/initial-state-contract/spec.md */
 export function loadInitialState(page) {
 	const defaults = PAGE_KEYS[page]
 	if (!defaults) {

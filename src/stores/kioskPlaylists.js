@@ -18,7 +18,7 @@ const baseUrl = generateUrl('/apps/launchpad')
 /** @spec openspec/changes/dashboard-kiosk-mode/specs/dashboard-kiosk-mode/spec.md */
 export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 	state: () => ({
-		/** @type {Object[]} playlists visible to the current user */
+		/** @type {object[]} playlists visible to the current user */
 		playlists: [],
 		loading: false,
 	}),

@@ -38,8 +38,8 @@ export class ResourceUploadError extends Error {
 	 * @param {string} code Stable error enum from the server envelope.
 	 * @param {string} message Human-readable display message.
 	 * @param {number} [httpStatus] HTTP status code (when known).
+	 * @spec openspec/specs/resource-uploads/spec.md
 	 */
-	/** @spec openspec/specs/resource-uploads/spec.md */
 	constructor(code, message, httpStatus) {
 		super(message)
 		this.name = 'ResourceUploadError'
@@ -59,8 +59,8 @@ export class ResourceUploadError extends Error {
  * @throws {ResourceUploadError} On any server-side rejection (forbidden,
  *   invalid_image_format, file_too_large, mime_mismatch, etc.) or transport
  *   failure (`code === 'network_error'`).
+ * @spec openspec/specs/resource-uploads/spec.md
  */
-/** @spec openspec/specs/resource-uploads/spec.md */
 export async function uploadDataUrl(dataUrl) {
 	const url = generateUrl('/apps/launchpad/api/resources')
 
@@ -114,8 +114,8 @@ export async function uploadDataUrl(dataUrl) {
  * @throws {ResourceUploadError} On any server-side rejection (forbidden,
  *   no_file, invalid_image_format, file_too_large, invalid_svg, etc.) or
  *   transport failure (`code === 'network_error'`).
+ * @spec openspec/specs/resource-uploads/spec.md
  */
-/** @spec openspec/specs/resource-uploads/spec.md */
 export async function uploadFile(file) {
 	const url = generateUrl('/apps/launchpad/api/resources/upload')
 
@@ -165,8 +165,8 @@ export async function uploadFile(file) {
  *
  * @param {File|Blob} file File or Blob (typically from an `<input type="file">`).
  * @return {Promise<string>} Resolves to a `data:<mime>;base64,<payload>` URL.
+ * @spec openspec/specs/resource-uploads/spec.md
  */
-/** @spec openspec/specs/resource-uploads/spec.md */
 export function readFileAsDataUrl(file) {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader()

@@ -377,8 +377,8 @@ export default {
 		 * Compute the inclusive date window for the current mode.
 		 *
 		 * @return {{from: Date, to: Date}|null} the date window
+		 * @spec openspec/specs/calendar-widget/spec.md
 		 */
-		/** @spec openspec/specs/calendar-widget/spec.md */
 		computeRange() {
 			if (this.activeMode === 'month') {
 				return this.monthRange

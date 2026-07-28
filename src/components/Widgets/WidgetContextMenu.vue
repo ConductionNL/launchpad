@@ -107,8 +107,8 @@ export default {
 		 * account for scroll offsets.
 		 *
 		 * @return {object}
+		 * @spec openspec/specs/widgets/spec.md
 		 */
-		/** @spec openspec/specs/widgets/spec.md */
 		positionStyle() {
 			return {
 				top: `${this.top}px`,

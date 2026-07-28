@@ -12,7 +12,7 @@ const baseUrl = generateUrl('/apps/launchpad')
 /** @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md */
 export const usePublicShareStore = defineStore('publicShares', {
 	state: () => ({
-		/** @type {Record<string, Object[]>} shares indexed by dashboardUuid */
+		/** @type {Record<string, object[]>} shares indexed by dashboardUuid */
 		sharesByDashboard: {},
 		loading: false,
 		/** @type {Record<string, boolean>} token -> unlocked flag */

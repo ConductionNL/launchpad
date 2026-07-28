@@ -107,7 +107,7 @@ const DEFAULT_CONTENT = Object.freeze({
  *
  * Pagination is offset-based and matches the backend service contract
  * (REQ-PPL-003): each "Load more" tap appends one page of size
- * {@link PAGE_SIZE} starting at the current `users.length`.
+ * `PAGE_SIZE` starting at the current `users.length`.
  *
  * Caching: results are kept in an in-memory map keyed on the JSON-encoded
  * filter shape for {@link CACHE_TTL_MS}; the toolbar refresh button

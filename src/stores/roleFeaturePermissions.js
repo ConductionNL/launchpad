@@ -28,8 +28,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 	actions: {
 		/**
 		 * Fetch all RoleFeaturePermission rows.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async loadPermissions() {
 			this.loading = true
 			this.error = null
@@ -47,8 +47,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 
 		/**
 		 * Fetch all RoleLayoutDefault rows.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async loadLayoutDefaults() {
 			this.loading = true
 			this.error = null
@@ -68,8 +68,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Upsert a RoleFeaturePermission keyed by groupId.
 		 *
 		 * @param {object} permission The permission payload.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async savePermission(permission) {
 			this.saving = true
 			this.error = null
@@ -97,8 +97,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Delete a RoleFeaturePermission row by id.
 		 *
 		 * @param {number} id The row id.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async deletePermission(id) {
 			this.saving = true
 			this.error = null
@@ -117,8 +117,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Upsert a RoleLayoutDefault keyed by (groupId, widgetId).
 		 *
 		 * @param {object} layoutDefault The layout-default payload.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async saveLayoutDefault(layoutDefault) {
 			this.saving = true
 			this.error = null
@@ -146,8 +146,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Delete a RoleLayoutDefault row by id.
 		 *
 		 * @param {number} id The row id.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async deleteLayoutDefault(id) {
 			this.saving = true
 			this.error = null

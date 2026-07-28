@@ -218,8 +218,8 @@ export default {
 		 * dashboard primary-language fallback before this component sees
 		 * the map.
 		 * @param map
+		 * @spec openspec/specs/footer-customization/spec.md
 		 */
-		/** @spec openspec/specs/footer-customization/spec.md */
 		pickVariant(map) {
 			if (!map || typeof map !== 'object') {
 				return ''

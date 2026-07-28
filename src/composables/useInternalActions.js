@@ -40,8 +40,8 @@ const REGISTRY = new Map()
  *   invoke: (id: string) => (void|Promise<void>),
  *   has: (id: string) => boolean,
  * }} The shared `{register, invoke, has}` triple.
+ * @spec openspec/specs/widgets/spec.md
  */
-/** @spec openspec/specs/widgets/spec.md */
 export function useInternalActions() {
 	/**
 	 * Register a named action. Registering a duplicate id replaces the
@@ -100,8 +100,8 @@ export function useInternalActions() {
  * `it()` blocks.
  *
  * @return {void}
+ * @spec openspec/specs/widgets/spec.md
  */
-/** @spec openspec/specs/widgets/spec.md */
 export function __resetInternalActionsForTest() {
 	REGISTRY.clear()
 }

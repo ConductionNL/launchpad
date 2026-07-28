@@ -184,8 +184,8 @@ export default {
 		 * Screen-reader / visible readout of the pending rectangle.
 		 *
 		 * @return {string}
+		 * @spec openspec/specs/grid-layout/spec.md
 		 */
-		/** @spec openspec/specs/grid-layout/spec.md */
 		readoutText() {
 			return t(
 				'launchpad',
@@ -226,8 +226,8 @@ export default {
 		 * Snapshot the incoming placement into a working rectangle.
 		 *
 		 * @return {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array}}
+		 * @spec openspec/specs/grid-layout/spec.md
 		 */
-		/** @spec openspec/specs/grid-layout/spec.md */
 		initialRect() {
 			const p = this.placement || {}
 			return {
@@ -244,8 +244,8 @@ export default {
 		 * shared collision-aware helper.
 		 *
 		 * @param {string} action one of the `nudgePlacement` action strings
+		 * @spec openspec/specs/grid-layout/spec.md
 		 */
-		/** @spec openspec/specs/grid-layout/spec.md */
 		apply(action) {
 			const base = {
 				id: this.placement ? this.placement.id : undefined,
@@ -263,8 +263,8 @@ export default {
 		 * Map a keydown event to a move/resize action or confirm/cancel.
 		 *
 		 * @param {KeyboardEvent} event the keydown event
+		 * @spec openspec/specs/grid-layout/spec.md
 		 */
-		/** @spec openspec/specs/grid-layout/spec.md */
 		onKeydown(event) {
 			const key = event.key
 			const shift = event.shiftKey

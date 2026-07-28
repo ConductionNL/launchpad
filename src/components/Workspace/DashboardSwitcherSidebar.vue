@@ -457,8 +457,8 @@ export default {
 		/**
 		 * Personal section is rendered when there is at least one personal
 		 * dashboard OR the user is allowed to create one (REQ-SWITCH-001).
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		showPersonalSection() {
 			return this.userDashboards.length > 0 || this.allowUserDashboards === true
 		},
@@ -474,8 +474,8 @@ export default {
 		 *
 		 * @return {string} UUID of the effective default, or '' when
 		 *                  no pin/group default applies.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		effectiveDefaultUuid() {
 			if (this.defaultUuid) {
 				return this.defaultUuid
@@ -510,8 +510,8 @@ export default {
 		 * explicitly.
 		 *
 		 * @return {'true'|'false'} String form of `!isOpen`.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		ariaHiddenAttr() {
 			return this.isOpen ? 'false' : 'true'
 		},
@@ -532,8 +532,8 @@ export default {
 		 *
 		 * @param {object} dashboard Row payload from the parent.
 		 * @return {boolean} True when the row is the effective default.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		isDefaultDashboard(dashboard) {
 			return Boolean(this.effectiveDefaultUuid)
 				&& dashboard?.uuid === this.effectiveDefaultUuid
@@ -546,8 +546,8 @@ export default {
 		 *
 		 * @param {string|number} id Dashboard id of the clicked row.
 		 * @param {'group'|'default'|'user'} source Section the row was rendered in.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onSwitch(id, source) {
 			this.$emit('update:open', false)
 			this.$emit('switch', id, source)
@@ -560,8 +560,8 @@ export default {
 		 * sidebar collapses, THEN re-emitting the action upward with
 		 * `(dashboard, source)` so the host can switch to that
 		 * dashboard before applying the action.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onRowToggleEdit(dashboard, source) {
 			this.$emit('toggle-edit', dashboard, source)
 		},
@@ -585,8 +585,8 @@ export default {
 		/**
 		 * Click handler for the "Add Dashboard" card button. MUST emit
 		 * `update:open(false)` BEFORE `create-dashboard()` (REQ-SWITCH-008).
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onCreate() {
 			// dashboard-quota-limits REQ-QUOTA-006: belt-and-braces — the
 			// button is already disabled at the limit, but never emit the

@@ -38,8 +38,7 @@
 			:sandbox="sandboxAttr"
 			frameborder="0"
 			@load="onLoad"
-			@error="onError">
-		</iframe>
+			@error="onError" />
 	</div>
 </template>
 

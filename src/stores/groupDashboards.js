@@ -133,6 +133,7 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 		 *
 		 * @param {string} groupId NC group id (or DEFAULT_GROUP_ID).
 		 * @param {{name: string, icon?: string, layout?: object, isDefault?: boolean}} payload
+		 *   Attributes for the new dashboard.
 		 * @return {Promise<object>} The created dashboard row.
 		 */
 		async create(groupId, payload) {

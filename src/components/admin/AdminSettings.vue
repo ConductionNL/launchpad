@@ -395,8 +395,8 @@ export default {
 		 *
 		 * @param {*} value the raw input value
 		 * @return {number} the clamped non-negative integer
+		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
 		 */
-		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
 		clampQuota(value) {
 			const num = Number.parseInt(value, 10)
 			if (Number.isNaN(num) || num < 0) {
@@ -416,8 +416,8 @@ export default {
 		 * @param {string} key the settings key (`maxDashboardsPerUser` | `maxWidgetsPerDashboard`)
 		 * @param {*} value the raw input value
 		 * @return {void}
+		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
 		 */
-		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
 		onQuotaInput(key, value) {
 			this.settings[key] = this.clampQuota(value)
 			this.saveSettings()
@@ -427,8 +427,8 @@ export default {
 		 * Resolve the list of group ids the admin curates (REQ-DASH-015).
 		 *
 		 * @return {string[]} Group ids to render.
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		resolveAdminGroupIds() {
 			const configured = Array.isArray(this.injectedConfiguredGroups)
 				? this.injectedConfiguredGroups
@@ -445,8 +445,8 @@ export default {
 		 * Fetch group-shared dashboards for every curated group (REQ-DASH-014).
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadGroupSharedDashboards() {
 			this.loadingGroupDashboards = true
 			const groupIds = this.resolveAdminGroupIds()
@@ -470,8 +470,8 @@ export default {
 		 * Fetch the wizard state for the banner gate (REQ-WIZ-001).
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadWizardState() {
 			try {
 				const { data } = await api.getSetupWizardState()
@@ -509,8 +509,8 @@ export default {
 		 * @param {string} groupId The group id from the row context.
 		 * @param {string} uuid The dashboard uuid to promote.
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		async setGroupDefault(groupId, uuid) {
 			const rows = this.groupSharedDashboards[groupId] || []
 			const snapshot = rows.map(d => ({ uuid: d.uuid, isDefault: d.isDefault }))

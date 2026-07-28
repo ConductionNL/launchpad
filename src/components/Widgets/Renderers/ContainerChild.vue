@@ -42,6 +42,16 @@ import { buildWidgetDataProvide, buildRendererExtraProps } from '../../../servic
 export default {
 	name: 'ContainerChild',
 
+	/**
+	 * Bridge the nc-vue data widgets' injected sources to launchpad's
+	 * endpoints, scoped to this child's placement.
+	 *
+	 * @return {object} the injected data-source adapters.
+	 */
+	provide() {
+		return buildWidgetDataProvide(() => this.placement?.id)
+	},
+
 	props: {
 		placement: {
 			type: Object,
@@ -51,10 +61,6 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-	},
-
-	provide() {
-		return buildWidgetDataProvide(() => this.placement?.id)
 	},
 
 	computed: {

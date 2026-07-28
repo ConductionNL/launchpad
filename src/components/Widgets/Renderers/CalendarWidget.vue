@@ -101,8 +101,12 @@
 
 			<!-- Agenda view: chronological list grouped by day. -->
 			<ul v-else class="calendar-widget__agenda">
-				<template v-for="group in agendaGroups">
-					<li :key="'h-' + group.iso" class="calendar-widget__agenda-header">
+				<!-- Vue 3 keys the whole `<template v-for>` fragment, so the key
+				     belongs on the `<template>` itself; a key on a child of a
+				     `<template v-for>` is ignored (it was the required form in
+				     Vue 2), leaving the agenda list effectively unkeyed. -->
+				<template v-for="group in agendaGroups" :key="group.iso">
+					<li class="calendar-widget__agenda-header">
 						{{ group.label }}
 					</li>
 					<li

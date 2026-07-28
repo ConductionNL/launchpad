@@ -16,13 +16,14 @@
 					@click="navigateTo('/')">
 					{{ t('launchpad', 'Root') }}
 				</button>
-				<template v-for="(segment, index) in pathSegments">
+				<!-- Vue 3 keys the whole `<template v-for>` fragment, so the key
+				     belongs on the `<template>`; per-child keys (the Vue 2 form)
+				     are ignored and leave the breadcrumb list unkeyed. -->
+				<template v-for="(segment, index) in pathSegments" :key="index">
 					<span
-						:key="`sep-${index}`"
 						aria-hidden="true"
 						class="files-widget__separator">/</span>
 					<button
-						:key="`seg-${index}`"
 						type="button"
 						class="files-widget__crumb"
 						:aria-current="index === pathSegments.length - 1 ? 'page' : null"

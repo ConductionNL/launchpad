@@ -336,7 +336,12 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Switch the active admin tab.
+		 *
+		 * @param {string} slug Slug of the newly selected tab.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		onTabChange(slug) {
 			this.activeTab = slug
 		},
@@ -381,7 +386,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Write one setting and persist the whole set.
+		 *
+		 * @param {string} key Setting key to write.
+		 * @param {*} value New value for that key.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		updateSetting(key, value) {
 			this.settings[key] = value
 			this.saveSettings()

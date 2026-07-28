@@ -224,7 +224,13 @@ export default {
 			get() {
 				return this.open
 			},
-			/** @spec openspec/specs/tiles/spec.md */
+			/**
+			 * Closing the modal is owned by the parent, so a `false` write
+			 * is forwarded as a `close` event rather than mutating the prop.
+			 *
+			 * @param {boolean} value New open state.
+			 * @spec openspec/specs/tiles/spec.md
+			 */
 			set(value) {
 				if (!value) {
 					this.$emit('close')
@@ -256,7 +262,13 @@ export default {
 	watch: {
 		tile: {
 			immediate: true,
-			/** @spec openspec/specs/tiles/spec.md */
+			/**
+			 * Seed the form from the tile being edited.
+			 *
+			 * @param {object|null} newTile Tile to edit; null opens a blank
+			 *   form for a new tile.
+			 * @spec openspec/specs/tiles/spec.md
+			 */
 			handler(newTile) {
 				if (newTile) {
 					this.form = {

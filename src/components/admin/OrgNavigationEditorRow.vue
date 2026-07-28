@@ -228,7 +228,12 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Ask the editor to merge changed fields into this row's node.
+		 *
+		 * @param {object} patch Changed fields for the node.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		emitPatch(patch) {
 			this.$emit('update', { node: this.node, patch })
 		},
@@ -244,7 +249,12 @@ export default {
 			this.emitPatch({ icon: value || null })
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Switch between "visible to everyone" and a per-group list.
+		 *
+		 * @param {boolean} allVisible True to clear the group restriction.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onToggleVisibilityAll(allVisible) {
 			if (allVisible) {
 				this.localVisibility = null

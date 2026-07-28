@@ -140,7 +140,15 @@ export default {
 			}
 		},
 
-		/** @spec openspec/architecture/adr-023-action-authorization.md */
+		/**
+		 * Whether a matrix cell is ticked. The admin column always reads as
+		 * allowed regardless of the stored list.
+		 *
+		 * @param {string} action Action the row represents.
+		 * @param {string} group Group the column represents.
+		 * @return {boolean} True when the group may perform the action.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
 		isChecked(action, group) {
 			// Admins always pass regardless of the stored list.
 			if (group === 'admin') {
@@ -150,7 +158,15 @@ export default {
 			return allowed.includes(group)
 		},
 
-		/** @spec openspec/architecture/adr-023-action-authorization.md */
+		/**
+		 * Grant or revoke one action for one group. The admin column is
+		 * fixed and never persisted as a toggle.
+		 *
+		 * @param {string} action Action the row represents.
+		 * @param {string} group Group the column represents.
+		 * @param {boolean} checked True to grant, false to revoke.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
 		toggle(action, group, checked) {
 			// The admin column is fixed and never persisted as a toggle.
 			if (group === 'admin') {

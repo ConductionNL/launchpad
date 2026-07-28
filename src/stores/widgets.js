@@ -41,7 +41,13 @@ export const useWidgetStore = defineStore('widgets', {
 			}
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * Fetch items for a batch of Nextcloud dashboard widgets, marking
+		 * each as loading first so the UI can show per-widget spinners.
+		 *
+		 * @param {string[]} widgetIds Widget ids to fetch items for.
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		async loadWidgetItems(widgetIds) {
 			console.log('[WidgetStore] loadWidgetItems called:', widgetIds)
 			// Mark widgets as loading
@@ -69,7 +75,12 @@ export const useWidgetStore = defineStore('widgets', {
 			}
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * Re-fetch items for a single widget.
+		 *
+		 * @param {string} widgetId Widget id to refresh.
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		async refreshWidgetItems(widgetId) {
 			await this.loadWidgetItems([widgetId])
 		},

@@ -327,7 +327,11 @@ export default {
 		groupDashboards: {
 			type: Array,
 			required: true,
-			/** @spec openspec/specs/dashboard-switcher/spec.md */
+			/**
+			 * @param {*} value Prop value to validate.
+			 * @return {boolean} True when the value is an array.
+			 * @spec openspec/specs/dashboard-switcher/spec.md
+			 */
 			validator(value) {
 				return Array.isArray(value)
 			},
@@ -339,7 +343,11 @@ export default {
 		userDashboards: {
 			type: Array,
 			required: true,
-			/** @spec openspec/specs/dashboard-switcher/spec.md */
+			/**
+			 * @param {*} value Prop value to validate.
+			 * @return {boolean} True when the value is an array.
+			 * @spec openspec/specs/dashboard-switcher/spec.md
+			 */
 			validator(value) {
 				return Array.isArray(value)
 			},
@@ -560,24 +568,51 @@ export default {
 		 * sidebar collapses, THEN re-emitting the action upward with
 		 * `(dashboard, source)` so the host can switch to that
 		 * dashboard before applying the action.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowToggleEdit(dashboard, source) {
 			this.$emit('toggle-edit', dashboard, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+		/**
+		 * Re-emit the row's "Configure" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowOpenConfig(dashboard, source) {
 			this.$emit('open-config', dashboard, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+		/**
+		 * Re-emit the row's "Add widget" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowAddCustomWidget(dashboard, source) {
 			this.$emit('add-custom-widget', dashboard, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+		/**
+		 * Re-emit the row's "Delete" action upward, narrowed to the id.
+		 *
+		 * @param {object} dashboard Row payload; only `id` is forwarded.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowDelete(dashboard, source) {
 			this.$emit('delete-dashboard', dashboard.id, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+		/**
+		 * Re-emit the row's "Set as default" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowSetDefault(dashboard, source) {
 			this.$emit('set-default', dashboard, source)
 		},

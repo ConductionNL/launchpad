@@ -301,7 +301,13 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Load the current folder's contents.
+		 *
+		 * @param {boolean} [append] True to append the next cursor page to
+		 *   the existing list (infinite scroll); false replaces it.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		async fetchContents(append = false) {
 			if (this.placementId === 0) {
 				return
@@ -359,7 +365,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Handle a row click — descend into folders, open files.
+		 *
+		 * @param {object} item The clicked directory entry.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		onItemClick(item) {
 			if (item.isFolder) {
 				const next = this.joinPath(this.currentSubPath, item.name)
@@ -369,7 +380,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Move to another folder, clearing the search box and paging cursor.
+		 *
+		 * @param {string} path Folder path to show; falsy resets to root.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		navigateTo(path) {
 			this.currentSubPath = path || '/'
 			this.searchQuery = ''
@@ -377,13 +393,27 @@ export default {
 			this.fetchContents()
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Build the path for a breadcrumb segment.
+		 *
+		 * @param {number} index Zero-based index of the segment clicked.
+		 * @return {string} Absolute path up to and including that segment.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		segmentPathTo(index) {
 			const segments = this.pathSegments.slice(0, index + 1)
 			return '/' + segments.join('/')
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Join a folder path and an entry name into one path, tolerating
+		 * stray leading/trailing slashes on either side.
+		 *
+		 * @param {string} base Folder path.
+		 * @param {string} name Entry name to append.
+		 * @return {string} The combined absolute path.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		joinPath(base, name) {
 			const trimmedBase = String(base || '/').replace(/\/+$/, '')
 			const trimmedName = String(name || '').replace(/^\/+/, '')
@@ -393,7 +423,12 @@ export default {
 			return `${trimmedBase}/${trimmedName}`
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Open a file in the Nextcloud Files app in a new tab.
+		 *
+		 * @param {number|string} fileId Nextcloud file id; falsy is ignored.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		openFileInFilesApp(fileId) {
 			if (!fileId) {
 				return
@@ -402,12 +437,24 @@ export default {
 			window.open(url, '_blank', 'noopener,noreferrer')
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Whether the delete affordance should show for an entry — requires
+		 * both the widget setting and the server-reported permission.
+		 *
+		 * @param {object} item The directory entry.
+		 * @return {boolean} True when the entry may be deleted.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		canDeleteItem(item) {
 			return this.allowDelete === true && item.canDelete === true
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Stage an entry for deletion, opening the confirmation prompt.
+		 *
+		 * @param {object} item The entry to delete.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		confirmDelete(item) {
 			this.confirmTarget = item
 		},
@@ -451,7 +498,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Upload the files chosen in the hidden file input.
+		 *
+		 * @param {Event} event The input's change event.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		async onFileInputChange(event) {
 			const fileList = event?.target?.files
 			if (!fileList || fileList.length === 0) {
@@ -487,7 +539,14 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/files-widget/spec.md */
+		/**
+		 * Render a byte count as a human-readable size.
+		 *
+		 * @param {number} bytes Size in bytes.
+		 * @param {boolean} isFolder True for folders, which show no size.
+		 * @return {string} The formatted size, or `''` for folders.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
 		formatSize(bytes, isFolder) {
 			if (isFolder) {
 				return ''

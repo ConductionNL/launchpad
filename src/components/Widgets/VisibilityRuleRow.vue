@@ -277,7 +277,13 @@ export default {
 			get() {
 				return this.typeOptions.find((o) => o.id === this.local.ruleType) || this.typeOptions[0]
 			},
-			/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+			/**
+			 * Switch the rule type, resetting its config to the new type's
+			 * empty shape.
+			 *
+			 * @param {object|null} option Selected type option.
+			 * @spec openspec/specs/conditional-visibility-editor/spec.md
+			 */
 			set(option) {
 				if (!option || option.id === this.local.ruleType) {
 					return
@@ -304,7 +310,13 @@ export default {
 			get() {
 				return this.operatorOptions.find((o) => o.id === this.local.ruleConfig.operator) || this.operatorOptions[0]
 			},
-			/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+			/**
+			 * Set the comparison operator, defaulting to `equals` when the
+			 * selection is cleared.
+			 *
+			 * @param {object|null} option Selected operator option.
+			 * @spec openspec/specs/conditional-visibility-editor/spec.md
+			 */
 			set(option) {
 				this.local.ruleConfig.operator = option ? option.id : 'equals'
 				this.onChange()
@@ -392,37 +404,68 @@ export default {
 			return true
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Set the rule's daily start time.
+		 *
+		 * @param {string} value `HH:MM` start time.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		onStartTimeChange(value) {
 			this.local.ruleConfig.startTime = value
 			this.onChange()
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Set the rule's daily end time.
+		 *
+		 * @param {string} value `HH:MM` end time.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		onEndTimeChange(value) {
 			this.local.ruleConfig.endTime = value
 			this.onChange()
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Set the first date on which the rule applies.
+		 *
+		 * @param {string} value ISO date string.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		onStartDateChange(value) {
 			this.local.ruleConfig.startDate = value
 			this.onChange()
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Set the last date on which the rule applies.
+		 *
+		 * @param {string} value ISO date string.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		onEndDateChange(value) {
 			this.local.ruleConfig.endDate = value
 			this.onChange()
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Set one field of an attribute-type rule's config.
+		 *
+		 * @param {string} field Config key to write.
+		 * @param {*} value New value for that key.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		onAttributeFieldChange(field, value) {
 			this.local.ruleConfig[field] = value
 			this.onChange()
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Add or remove a weekday from the rule's active days.
+		 *
+		 * @param {string|number} dayId Identifier of the day to toggle.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		toggleDay(dayId) {
 			const days = this.local.ruleConfig.days || []
 			const index = days.indexOf(dayId)
@@ -434,7 +477,13 @@ export default {
 			this.onChange()
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Switch the rule between include and exclude semantics.
+		 *
+		 * @param {boolean} isInclude True for an include rule, false for
+		 *   an exclude rule.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		setMode(isInclude) {
 			this.local.isInclude = isInclude
 			this.onChange()

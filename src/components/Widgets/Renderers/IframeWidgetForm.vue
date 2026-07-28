@@ -220,7 +220,13 @@ export default {
 			return Math.round(num)
 		},
 
-		/** @spec openspec/specs/iframe-embed-widget/spec.md */
+		/**
+		 * Set the embed URL, clearing the allow-list verdict so the new
+		 * host is re-checked before the frame renders.
+		 *
+		 * @param {string} val The new URL.
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
 		onUrlChange(val) {
 			this.url = val
 			this.urlAllowListError = ''
@@ -228,13 +234,24 @@ export default {
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/iframe-embed-widget/spec.md */
+		/**
+		 * Set the embed height.
+		 *
+		 * @param {number} val Height in pixels.
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
 		onHeightChange(val) {
 			this.height = val
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/iframe-embed-widget/spec.md */
+		/**
+		 * Set one top-level form field.
+		 *
+		 * @param {string} field Name of the data property to write.
+		 * @param {*} val New value for that field.
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
 		updateField(field, val) {
 			this[field] = val
 			this.emitUpdate()

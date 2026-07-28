@@ -86,7 +86,14 @@ export default {
 	],
 
 	methods: {
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Emit the edited row with one field replaced. The row prop is
+		 * never mutated in place.
+		 *
+		 * @param {string} key Field to change.
+		 * @param {*} value New value for that field.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		updateRow(key, value) {
 			this.$emit('update:row', { ...this.row, [key]: value })
 		},

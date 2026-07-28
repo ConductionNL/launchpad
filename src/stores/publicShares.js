@@ -20,15 +20,36 @@ export const usePublicShareStore = defineStore('publicShares', {
 	}),
 
 	getters: {
-		/** Return active shares for a given dashboard UUID. */
+		/**
+		 * Return active shares for a given dashboard UUID.
+		 *
+		 * @param {object} state The store state.
+		 * @return {(uuid: string) => object[]} Lookup function; `[]` when the
+		 *   dashboard has no shares loaded.
+		 */
 		sharesFor: (state) => (uuid) => state.sharesByDashboard[uuid] ?? [],
 
-		/** True if the given token has been unlocked this session. */
+		/**
+		 * True if the given token has been unlocked this session.
+		 *
+		 * @param {object} state The store state.
+		 * @return {(token: string) => boolean} Lookup function.
+		 */
 		isUnlocked: (state) => (token) => state.unlockedTokens[token] === true,
 	},
 
 	actions: {
-		/** Create a public share for a dashboard. */
+		/**
+		 * Create a public share for a dashboard.
+		 *
+		 * @param {string} dashboardUuid UUID of the dashboard to share.
+		 * @param {object} [options] Share options.
+		 * @param {string|null} [options.password] Password required to open
+		 *   the link; null leaves the share unprotected.
+		 * @param {string|null} [options.expiresAt] ISO-8601 expiry; null
+		 *   creates a share that does not expire.
+		 * @return {Promise<object>} The created share record.
+		 */
 		async createShare(dashboardUuid, { password = null, expiresAt = null } = {}) {
 			this.loading = true
 			try {
@@ -50,7 +71,12 @@ export const usePublicShareStore = defineStore('publicShares', {
 			}
 		},
 
-		/** Fetch active shares for a dashboard. */
+		/**
+		 * Fetch active shares for a dashboard.
+		 *
+		 * @param {string} dashboardUuid UUID of the dashboard to inspect.
+		 * @return {Promise<object[]>} The dashboard's active shares.
+		 */
 		async fetchShares(dashboardUuid) {
 			this.loading = true
 			try {
@@ -64,7 +90,12 @@ export const usePublicShareStore = defineStore('publicShares', {
 			}
 		},
 
-		/** Soft-revoke a share. */
+		/**
+		 * Soft-revoke a share and drop it from the local list.
+		 *
+		 * @param {string} dashboardUuid UUID of the dashboard that owns it.
+		 * @param {number|string} shareId Id of the share to revoke.
+		 */
 		async revokeShare(dashboardUuid, shareId) {
 			await axios.delete(
 				`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/public-shares/${shareId}`
@@ -75,13 +106,21 @@ export const usePublicShareStore = defineStore('publicShares', {
 			}
 		},
 
-		/** Mark a token as unlocked and persist to localStorage. */
+		/**
+		 * Mark a token as unlocked and persist to localStorage.
+		 *
+		 * @param {string} token Public share token the user just unlocked.
+		 */
 		markUnlocked(token) {
 			this.unlockedTokens = { ...this.unlockedTokens, [token]: true }
 			localStorage.setItem('mydash_unlocked_tokens', JSON.stringify(this.unlockedTokens))
 		},
 
-		/** Remove an unlocked token (e.g. on session end). */
+		/**
+		 * Remove an unlocked token (e.g. on session end).
+		 *
+		 * @param {string} token Public share token to re-lock.
+		 */
 		clearUnlocked(token) {
 			const updated = { ...this.unlockedTokens }
 			delete updated[token]

@@ -177,8 +177,8 @@ export const DEFAULT_H = 4
  *   none affect bottom placement)
  * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
  *   `pushed` is always empty — existing widgets are never moved.
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function placeNewWidget(spec, placements, options = {}) {
 	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : DEFAULT_W
 	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : DEFAULT_H

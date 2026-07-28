@@ -207,7 +207,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-templates/spec.md */
+		/**
+		 * Open the editor pre-filled from an existing template.
+		 *
+		 * @param {object} template The template to edit.
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
 		editTemplate(template) {
 			this.editingTemplate = {
 				...template,
@@ -246,7 +251,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-templates/spec.md */
+		/**
+		 * Delete a template after an explicit user confirmation.
+		 *
+		 * @param {object} template The template to delete.
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
 		async deleteTemplate(template) {
 			if (!confirm(t('launchpad', 'Are you sure you want to delete this template?'))) {
 				return
@@ -260,7 +270,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-templates/spec.md */
+		/**
+		 * Open the re-sync modal for a template.
+		 *
+		 * @param {object} template The template whose copies to re-sync.
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
 		openResyncModal(template) {
 			this.resyncingTemplate = template
 		},
@@ -270,7 +285,14 @@ export default {
 			this.resyncingTemplate = null
 		},
 
-		/** @spec openspec/specs/admin-templates/spec.md */
+		/**
+		 * Summarise a template's target groups for the list row.
+		 *
+		 * @param {string[]} groups Group ids the template targets.
+		 * @return {string} Comma-joined names, or the localised "All users"
+		 *   label when the template is unscoped.
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
 		formatTargetGroups(groups) {
 			if (!groups || groups.length === 0) {
 				return t('launchpad', 'All users')

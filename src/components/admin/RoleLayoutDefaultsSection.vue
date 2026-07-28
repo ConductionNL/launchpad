@@ -155,12 +155,23 @@ export default {
 			this.editorRow = this.emptyRow()
 			this.showEditor = true
 		},
-		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
+		/**
+		 * Open the editor on a copy of an existing row, so edits are only
+		 * committed on save.
+		 *
+		 * @param {object} row The row to edit.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-6
+		 */
 		openEdit(row) {
 			this.editorRow = { ...row }
 			this.showEditor = true
 		},
-		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
+		/**
+		 * Stage a row for deletion and open the confirmation dialog.
+		 *
+		 * @param {object} row The row to delete.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-6
+		 */
 		openDeleteDialog(row) {
 			this.deleteTarget = row
 			this.showDeleteDialog = true

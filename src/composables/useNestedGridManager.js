@@ -143,7 +143,14 @@ export function useNestedGridManager(options = {}) {
 	return {
 		getOptions: getNestedGridOptions,
 		placeNewWidget,
-		/** @spec openspec/specs/container-widget/spec.md */
+		/**
+		 * Hand the container's child layout to the host's persist callback,
+		 * coercing a non-array to `[]` so a missing layout clears rather
+		 * than throws.
+		 *
+		 * @param {Array<object>} placements Child placements to store.
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
 		persist(placements) {
 			persistPlacements(Array.isArray(placements) ? placements : [])
 		},

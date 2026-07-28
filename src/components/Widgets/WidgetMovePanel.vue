@@ -201,7 +201,13 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/specs/grid-layout/spec.md */
+		/**
+		 * Reset the working rectangle and move focus into the panel each
+		 * time it opens, so arrow keys act immediately (SC 2.1.1).
+		 *
+		 * @param {boolean} isOpen Whether the panel is now open.
+		 * @spec openspec/specs/grid-layout/spec.md
+		 */
 		open(isOpen) {
 			if (isOpen) {
 				this.working = this.initialRect()

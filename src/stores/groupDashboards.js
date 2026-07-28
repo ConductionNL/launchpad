@@ -56,6 +56,7 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 
 	getters: {
 		/**
+		 * @param {object} state The store state.
 		 * @return {(groupId: string) => Array<object>} Dashboards for a
 		 *  given group id. Returns an empty array when not yet fetched —
 		 *  the tab UI treats that as a "needs fetch" signal.

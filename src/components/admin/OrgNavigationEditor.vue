@@ -186,7 +186,13 @@ export default {
 			this.workingTree = this.cloneTree(this.store.visibleTree)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Deep-copy the store's tree so edits stay local until saved.
+		 *
+		 * @param {Array<object>} tree Navigation nodes from the store.
+		 * @return {Array<object>} An independent copy; `[]` for non-arrays.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		cloneTree(tree) {
 			return JSON.parse(JSON.stringify(Array.isArray(tree) ? tree : []))
 		},
@@ -208,7 +214,14 @@ export default {
 			})
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Build a blank navigation node of the requested kind.
+		 *
+		 * @param {string} kind `'section'` for a heading, anything else for
+		 *   a link (which gets a default `/` url).
+		 * @return {object} The new node, with a fresh id and no children.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		makeNode(kind) {
 			return {
 				id: this.generateUuid(),
@@ -221,12 +234,24 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Append a new node at the top level of the tree.
+		 *
+		 * @param {string} kind Node kind to create — see `makeNode`.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		addRoot(kind) {
 			this.workingTree.push(this.makeNode(kind))
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Append a new node beneath an existing one.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {object} payload.parent Node to nest the new child under.
+		 * @param {string} payload.kind Node kind to create — see `makeNode`.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		addChild({ parent, kind }) {
 			if (!parent.children) {
 				parent.children = []
@@ -234,17 +259,38 @@ export default {
 			parent.children.push(this.makeNode(kind))
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Apply a row's field edit to its node in the working tree.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {object} payload.node Node being edited.
+		 * @param {object} payload.patch Changed fields to merge in.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onUpdate({ node, patch }) {
 			Object.assign(node, patch)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Remove a node (and its subtree) from the working tree.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {Array<object>} payload.siblings Array the node lives in.
+		 * @param {number} payload.index Position of the node to remove.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onDelete({ siblings, index }) {
 			siblings.splice(index, 1)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Swap a node with the sibling above it. No-op at the top.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {Array<object>} payload.siblings Array the node lives in.
+		 * @param {number} payload.index Position of the node to move.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		moveUp({ siblings, index }) {
 			if (index <= 0) {
 				return
@@ -254,7 +300,14 @@ export default {
 			siblings.splice(index - 1, 0, item)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Swap a node with the sibling below it. No-op at the bottom.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {Array<object>} payload.siblings Array the node lives in.
+		 * @param {number} payload.index Position of the node to move.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		moveDown({ siblings, index }) {
 			if (index >= siblings.length - 1) {
 				return

@@ -131,7 +131,12 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/confluence-html-import/spec.md */
+		/**
+		 * Capture the chosen Confluence export from the file input.
+		 *
+		 * @param {Event} event The input's change event.
+		 * @spec openspec/specs/confluence-html-import/spec.md
+		 */
 		onFileSelected(event) {
 			const files = event?.target?.files
 			this.selectedFile = (files && files.length > 0) ? files[0] : null

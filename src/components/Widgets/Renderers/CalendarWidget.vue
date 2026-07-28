@@ -355,14 +355,25 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Switch the calendar view. Unknown modes are ignored.
+		 *
+		 * @param {string} mode One of the supported `VIEW_MODES`.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		setMode(mode) {
 			if (VIEW_MODES.includes(mode)) {
 				this.activeMode = mode
 			}
 		},
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Localised label for a view mode's toolbar button.
+		 *
+		 * @param {string} mode One of the supported `VIEW_MODES`.
+		 * @return {string} The translated label.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		modeLabel(mode) {
 			if (mode === 'month') {
 				return t('launchpad', 'Month')
@@ -422,7 +433,14 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Parse a date value defensively — a missing or unparseable value
+		 * falls back to "now" so the grid always has something to render.
+		 *
+		 * @param {string|number|Date} value The value to parse.
+		 * @return {Date} The parsed date, or the current date.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		parseDate(value) {
 			if (!value) {
 				return new Date()
@@ -431,7 +449,14 @@ export default {
 			return Number.isNaN(d.getTime()) ? new Date() : d
 		},
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Format a date as `YYYY-MM-DD` in local time (not UTC, so the day
+		 * matches what the user sees in the grid).
+		 *
+		 * @param {Date} date The date to format.
+		 * @return {string} The ISO calendar date.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		toIsoDate(date) {
 			const yyyy = date.getFullYear()
 			const mm = String(date.getMonth() + 1).padStart(2, '0')
@@ -439,7 +464,13 @@ export default {
 			return `${yyyy}-${mm}-${dd}`
 		},
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Start time shown on an event chip.
+		 *
+		 * @param {object} event The calendar event.
+		 * @return {string} `HH:MM`, or the localised "All day" label.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		formatTime(event) {
 			if (event.allDay) {
 				return t('launchpad', 'All day')
@@ -450,13 +481,26 @@ export default {
 			return `${hh}:${mm}`
 		},
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Column heading for one day, e.g. `Mon 4 Aug`.
+		 *
+		 * @param {Date} date The day to label.
+		 * @return {string} The formatted heading.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		formatDayHeader(date) {
 			const month = date.toLocaleString(undefined, { month: 'short' })
 			return `${this.weekdayHeaders[date.getDay()]} ${date.getDate()} ${month}`
 		},
 
-		/** @spec openspec/specs/calendar-widget/spec.md */
+		/**
+		 * Inline style for an event chip, colouring it by source calendar
+		 * when that option is enabled.
+		 *
+		 * @param {object} event The calendar event.
+		 * @return {object} Style bindings; empty when colouring is off.
+		 * @spec openspec/specs/calendar-widget/spec.md
+		 */
 		eventStyle(event) {
 			if (!this.colorByCalendar) {
 				return {}

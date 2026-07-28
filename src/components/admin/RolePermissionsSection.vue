@@ -164,7 +164,12 @@ export default {
 			this.deniedWidgetsCsv = ''
 			this.showEditor = true
 		},
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Open the editor pre-filled from an existing role-permission row.
+		 *
+		 * @param {object} row The row to edit.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		openEdit(row) {
 			this.editorRow = {
 				...row,
@@ -180,7 +185,13 @@ export default {
 		closeEditor() {
 			this.showEditor = false
 		},
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Split a comma-separated input into trimmed, non-empty entries.
+		 *
+		 * @param {string} s Raw CSV text from the form.
+		 * @return {string[]} The parsed entries.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		parseCsv(s) {
 			return (s ?? '')
 				.split(',')
@@ -204,7 +215,12 @@ export default {
 				console.error('Failed to save role permission', e)
 			}
 		},
-		/** @spec openspec/changes/role-based-content/tasks.md#task-5 */
+		/**
+		 * Stage a row for deletion and open the confirmation dialog.
+		 *
+		 * @param {object} row The row to delete.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-5
+		 */
 		confirmDelete(row) {
 			this.deleteTarget = row
 			this.showDeleteDialog = true

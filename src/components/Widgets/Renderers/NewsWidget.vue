@@ -37,10 +37,18 @@
 						:alt="''">
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">{{ item.title }}</h4>
+						<!-- Feed summaries carry inline markup REQ-NEWS-005
+						     deliberately preserves. This is third-party RSS,
+						     so it is sanitised twice: server-side on fetch
+						     by NewsWidgetService::sanitiseSummaryHtml(), and
+						     again through DOMPurify in formattedSummary()
+						     after truncation. -->
+						<!-- eslint-disable vue/no-v-html -->
 						<p
 							v-if="showSummary && item.summary"
 							class="news-widget__summary"
 							v-html="formattedSummary(item)" />
+						<!-- eslint-enable vue/no-v-html -->
 						<div class="news-widget__meta">
 							<span class="news-widget__source">{{ item.sourceTitle }}</span>
 							<span class="news-widget__date">{{ formatDate(item.pubDate) }}</span>
@@ -57,10 +65,18 @@
 						<h4 class="news-widget__title">
 							{{ item.title }}
 						</h4>
+						<!-- Feed summaries carry inline markup REQ-NEWS-005
+						     deliberately preserves. This is third-party RSS,
+						     so it is sanitised twice: server-side on fetch
+						     by NewsWidgetService::sanitiseSummaryHtml(), and
+						     again through DOMPurify in formattedSummary()
+						     after truncation. -->
+						<!-- eslint-disable vue/no-v-html -->
 						<p
 							v-if="showSummary && item.summary"
 							class="news-widget__summary"
 							v-html="formattedSummary(item)" />
+						<!-- eslint-enable vue/no-v-html -->
 						<div class="news-widget__meta">
 							<span class="news-widget__source">{{ item.sourceTitle }}</span>
 							<span class="news-widget__date">{{ formatDate(item.pubDate) }}</span>
@@ -285,7 +301,13 @@ export default {
 	watch: {
 		placementId: {
 			immediate: true,
-			/** @spec openspec/specs/news-widget/spec.md */
+			/**
+			 * Load feed items whenever this renderer is bound to a
+			 * different placement.
+			 *
+			 * @param {number|string|null} newId The new placement id.
+			 * @spec openspec/specs/news-widget/spec.md
+			 */
 			handler(newId) {
 				if (newId !== null && newId !== undefined) {
 					this.loadItems()

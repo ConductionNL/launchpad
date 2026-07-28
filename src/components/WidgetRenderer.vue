@@ -283,7 +283,12 @@ export default {
 	watch: {
 		widget: {
 			immediate: false, // Don't run immediately, wait for mounted
-			/** @spec openspec/specs/widgets/spec.md */
+			/**
+			 * Reload items when the bound widget definition changes.
+			 *
+			 * @param {object|null} newWidget The new widget definition.
+			 * @spec openspec/specs/widgets/spec.md
+			 */
 			handler(newWidget) {
 				console.log('[WidgetRenderer] widget watch triggered:', newWidget?.id, newWidget)
 				if (newWidget || this.isTileWidget) {
@@ -460,7 +465,13 @@ export default {
 			})
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * (Re)arm the periodic item refresh, clearing any existing timer
+		 * first so repeated calls cannot leak intervals.
+		 *
+		 * @param {number} intervalSeconds Seconds between refreshes.
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		setupAutoRefresh(intervalSeconds) {
 			if (this.refreshInterval) {
 				clearInterval(this.refreshInterval)

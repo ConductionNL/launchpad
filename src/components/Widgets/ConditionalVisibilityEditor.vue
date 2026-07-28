@@ -248,7 +248,15 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Stable `v-for` key for a rule row. Persisted rules key on their
+		 * server id; never-saved drafts key on a local counter so adding or
+		 * removing a draft does not renumber its siblings.
+		 *
+		 * @param {object} row The rule row.
+		 * @return {string} The render key.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		rowKey(row) {
 			return row.id !== null && row.id !== undefined ? `id-${row.id}` : `local-${row._localKey}`
 		},
@@ -321,7 +329,15 @@ export default {
 			this.rules[index] = { ...row, ...payload }
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/**
+		 * Persist a rule row — updates an existing rule, or creates one for
+		 * a draft that has never been saved.
+		 *
+		 * @param {object} row The rule row being saved.
+		 * @param {object} payload Rule fields to write (`ruleType`,
+		 *   `ruleConfig`, `isInclude`).
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 */
 		async onRowSave(row, payload) {
 			this.setRowBusy(row, true)
 			try {
@@ -351,7 +367,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/**
+		 * Remove a rule row. A never-persisted draft is discarded locally
+		 * with no API call; a saved rule is deleted server-side.
+		 *
+		 * @param {object} row The rule row to remove.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 */
 		async onRowRemove(row) {
 			if (row.id === null || row.id === undefined) {
 				// Never-persisted draft — discard locally, no API call.

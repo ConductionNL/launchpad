@@ -13,7 +13,6 @@ import './publicPath.js'
 import { createApp, h } from 'vue'
 import { createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-import { loadState } from '@nextcloud/initial-state'
 
 import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
 import 'gridstack/dist/gridstack.min.css'
@@ -29,18 +28,19 @@ registerBuiltinDashboardWidgets()
 // app instance created below (`Vue.prototype.x` becomes an app-level mixin).
 const pinia = createPinia()
 
-// The token is provided as initial state by PageController::publicShare; fall
-// back to the last path segment of /apps/launchpad/s/{token} if absent.
-let token = ''
-try {
-	token = loadState('launchpad', 'public-share-token', '')
-} catch (e) {
-	token = ''
-}
-if (!token) {
-	const parts = window.location.pathname.replace(/\/+$/, '').split('/')
-	token = parts[parts.length - 1] || ''
-}
+// The token is the last path segment of /apps/launchpad/s/{token}.
+//
+// This previously read a `public-share-token` initial-state key first,
+// described as the primary source. That read was dead: no PHP ever provides
+// that key (PageController::publicShare renders the template without any
+// provideInitialState call), so it always returned the fallback and the path
+// parse below did the real work — as templates/public.php already documents.
+// It also broke REQ-INIT-003, which routes every initial-state read through
+// src/utils/loadInitialState.js. The page is served anonymously, so adding a
+// key to that contract would be a server change with no consumer; reading the
+// URL is the correct source here.
+const pathSegments = window.location.pathname.replace(/\/+$/, '').split('/')
+const token = pathSegments[pathSegments.length - 1] || ''
 
 // Props are flat in Vue 3 — the Vue-2 `{ props: { … } }` createElement data
 // object is gone.

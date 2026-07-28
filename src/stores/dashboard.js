@@ -322,10 +322,15 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
-		// REQ-ACK-002 / REQ-ACK-003: record the current user's sign-off for a
-		// placement's announcement (idempotent server-side) and drop it from
-		// the outstanding set on success.
-		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		/**
+		 * Record the current user's sign-off for a placement's announcement
+		 * (REQ-ACK-002 / REQ-ACK-003). Idempotent server-side; on success the
+		 * placement drops out of the outstanding set.
+		 *
+		 * @param {object} placement Placement carrying the `announcementKey`
+		 *   to acknowledge; a placement without one is ignored.
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 */
 		async acknowledgePlacement(placement) {
 			if (!placement?.announcementKey) {
 				return
@@ -398,7 +403,12 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * Make another dashboard active and load its placements.
+		 *
+		 * @param {string|number} dashboardId Id of the dashboard to switch to.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async switchDashboard(dashboardId) {
 			this.loading = true
 			try {
@@ -580,7 +590,14 @@ export const useDashboardStore = defineStore('dashboard', {
 			return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * Create a personal dashboard.
+		 *
+		 * @param {string|object} [payload] Either a plain name string or an
+		 *   object with `name` / `description` / `icon`; the string form is
+		 *   accepted for legacy callers.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async createDashboard(payload = 'My Dashboard') {
 			// Accept either a plain name string or an object with
 			// name/description/icon (legacy callers may pass a string).
@@ -635,13 +652,21 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
-		// REQ-DASH-020: fork any dashboard the user can see (personal,
-		// group, or default-group sentinel) into a brand-new personal
-		// copy. The new dashboard becomes the user's active dashboard
-		// — we push it onto `dashboards` (tagged `source: 'user'` so
-		// the source-aware getters keep working) and pin
-		// `activeDashboard` so the UI rerenders without a reload.
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * Fork any dashboard the user can see — personal, group, or the
+		 * default-group sentinel — into a brand-new personal copy
+		 * (REQ-DASH-020).
+		 *
+		 * The copy becomes the user's active dashboard: it is pushed onto
+		 * `dashboards` tagged `source: 'user'` so the source-aware getters
+		 * keep working, and pinned as `activeDashboard` so the UI rerenders
+		 * without a reload.
+		 *
+		 * @param {string} sourceUuid UUID of the dashboard to copy.
+		 * @param {string|null} name Name for the copy; null lets the backend
+		 *   apply the localised `My copy of {source name}` default.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async forkDashboard(sourceUuid, name) {
 			this.loading = true
 			try {
@@ -680,7 +705,16 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * Persist the whole placement layout. Local state updates immediately
+		 * for responsiveness; the write is debounced and routed to the
+		 * personal or group endpoint per the active dashboard's source
+		 * (REQ-DASH-013).
+		 *
+		 * @param {Array<object>} placements Every placement on the dashboard,
+		 *   carrying the geometry to store.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async updatePlacements(placements) {
 			console.log('[DashboardStore] updatePlacements called, count:', placements.length)
 
@@ -808,8 +842,6 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @param {object} tileData tile payload (title/icon/colours/link)
 		 * @param {object|null} [position] explicit `{x, y, w, h}` (skips auto-placement) or partial spec to seed the helper
 		 * @return {Promise<object|undefined>} the created placement (service-health-ping REQ-HPING-001 follow-up patch), or undefined on failure.
-		 */
-		/**
 		 * @spec openspec/specs/dashboards/spec.md
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
@@ -900,7 +932,12 @@ export const useDashboardStore = defineStore('dashboard', {
 			await this.updatePlacements(merged)
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * Delete a placement from the active dashboard.
+		 *
+		 * @param {number|string} placementId Id of the placement to remove.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async removeWidgetFromDashboard(placementId) {
 			const placement = this.getPlacementById(placementId)
 			if (placement?.isCompulsory && this.permissionLevel !== 'full') {
@@ -1039,7 +1076,13 @@ export const useDashboardStore = defineStore('dashboard', {
 			}
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * Patch a single placement (content, chrome, geometry, …).
+		 *
+		 * @param {number|string} placementId Id of the placement to update.
+		 * @param {object} updates Changed fields to write.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
 		async updateWidgetPlacement(placementId, updates) {
 			console.log('[DashboardStore] updateWidgetPlacement called:', JSON.stringify({ placementId, updates }, null, 2))
 			try {

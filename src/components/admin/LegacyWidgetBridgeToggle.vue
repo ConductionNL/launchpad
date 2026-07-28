@@ -66,7 +66,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/legacy-widget-bridge/spec.md */
+		/**
+		 * Flip the bridge on or off, optimistically updating the switch and
+		 * rolling back to `previous` if the save fails.
+		 *
+		 * @param {boolean} value Requested new state.
+		 * @spec openspec/specs/legacy-widget-bridge/spec.md
+		 */
 		async onToggle(value) {
 			const previous = this.enabled
 			this.enabled = value

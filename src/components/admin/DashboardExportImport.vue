@@ -125,7 +125,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/dashboard-export-import/spec.md */
+		/**
+		 * Capture the chosen archive from the file input.
+		 *
+		 * @param {Event} event The input's change event.
+		 * @spec openspec/specs/dashboard-export-import/spec.md
+		 */
 		onFileSelected(event) {
 			const files = event?.target?.files
 			this.selectedFile = (files && files.length > 0) ? files[0] : null
@@ -158,7 +163,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/dashboard-export-import/spec.md */
+		/**
+		 * Save a response blob to disk via a synthetic anchor click.
+		 *
+		 * @param {Blob} blob The archive returned by the export endpoint.
+		 * @param {string} filename Name to save the download as.
+		 * @spec openspec/specs/dashboard-export-import/spec.md
+		 */
 		downloadBlob(blob, filename) {
 			const url = window.URL.createObjectURL(blob)
 			const link = document.createElement('a')

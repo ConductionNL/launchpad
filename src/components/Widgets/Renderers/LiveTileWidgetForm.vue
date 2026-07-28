@@ -272,32 +272,60 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/live-data-tile-widget/spec.md */
+		/**
+		 * Switch where the tile reads its value from.
+		 *
+		 * @param {string} val Source mode; falsy falls back to `url`.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
 		onSourceModeChange(val) {
 			this.sourceMode = val || 'url'
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/live-data-tile-widget/spec.md */
+		/**
+		 * Set the data-source URL, clearing any stale allow-list error.
+		 *
+		 * @param {string} val The new URL.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
 		onUrlChange(val) {
 			this.url = val
 			this.urlAllowListError = ''
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/live-data-tile-widget/spec.md */
+		/**
+		 * Set how often the tile re-polls its source.
+		 *
+		 * @param {number} val Refresh interval in seconds.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
 		onRefreshChange(val) {
 			this.refresh = val
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/live-data-tile-widget/spec.md */
+		/**
+		 * Set one top-level form field.
+		 *
+		 * @param {string} field Name of the data property to write.
+		 * @param {*} val New value for that field.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
 		updateField(field, val) {
 			this[field] = val
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/live-data-tile-widget/spec.md */
+		/**
+		 * Set one of the number-formatting options.
+		 *
+		 * @param {string} field Which option to write — `prefix`, `suffix`
+		 *   or `thousands`.
+		 * @param {*} val New value for that option.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
 		updateFormat(field, val) {
 			if (field === 'prefix') {
 				this.formatPrefix = val

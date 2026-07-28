@@ -25,15 +25,22 @@ vi.mock('../../services/api.js', () => ({
 const stubs = {
 	NcModal: { template: '<div class="nc-modal"><slot /></div>' },
 	NcButton: {
+		emits: ['click'],
 		template: '<button class="nc-button" :data-testid="$attrs[\'data-testid\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
 	},
+	// Vue 3 renamed the `v-model` contract: the prop is `modelValue`
+	// (was `value`) and the event is `update:modelValue` (was `input`).
+	// The component under test uses `v-model="strategy"`, so a stub still
+	// emitting `input` never writes back — `strategy` stayed on its
+	// initial option and the plan-reset assertions failed.
 	NcSelect: {
-		props: ['value', 'options'],
+		props: ['modelValue', 'options'],
+		emits: ['update:modelValue'],
 		template: '<select class="nc-select" :data-testid="$attrs[\'data-testid\']" @change="onChange"><option v-for="o in options" :key="o.id" :value="o.id">{{ o.label }}</option></select>',
 		methods: {
 			onChange(event) {
 				const opt = this.options.find((o) => o.id === event.target.value)
-				this.$emit('input', opt)
+				this.$emit('update:modelValue', opt)
 			},
 		},
 	},

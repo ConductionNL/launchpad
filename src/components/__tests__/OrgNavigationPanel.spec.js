@@ -13,9 +13,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
 import { mdiStar } from '@mdi/js'
-import { PiniaVuePlugin, createPinia, setActivePinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
 
 import OrgNavigationPanel from '../OrgNavigationPanel.vue'
 import OrgNavigationItem from '../OrgNavigationItem.vue'
@@ -41,8 +40,6 @@ vi.mock('../../services/api.js', () => ({
 		updateOrgNavigationPosition: vi.fn(),
 	},
 }))
-
-Vue.use(PiniaVuePlugin)
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key

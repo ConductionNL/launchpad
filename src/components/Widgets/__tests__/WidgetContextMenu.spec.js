@@ -38,7 +38,7 @@ describe('WidgetContextMenu', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
 		expect(buttons.length).toBe(5)
-		const labels = buttons.wrappers.map((b) => b.text().trim())
+		const labels = buttons.map((b) => b.text().trim())
 		expect(labels).toEqual(['Edit', 'Move', 'Visibility rules…', 'Remove', 'Cancel'])
 	})
 
@@ -114,6 +114,6 @@ describe('WidgetContextMenu', () => {
 		await wrapper.find('.widget-context-menu').trigger('click')
 		expect(bubbled).toBe(false)
 		document.removeEventListener('click', handler)
-		wrapper.destroy()
+		wrapper.unmount()
 	})
 })

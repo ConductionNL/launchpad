@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * Vitest configuration for LaunchPad Vue 2 unit tests.
+ * Vitest configuration for LaunchPad Vue 3 unit tests.
  *
  * Test files live next to the code they cover under
  * `src/<area>/__tests__/<Subject>.spec.js` and run in a jsdom environment
@@ -56,7 +56,13 @@ module.exports = {
 		// Some specs mount the full Views / CnWidgetWrapper widget tree, which
 		// is heavy enough to occasionally exceed the 5s default under parallel
 		// load. Raise the global ceiling so those don't flake.
-		testTimeout: 20000,
+		testTimeout: 30000,
+		// Several admin specs resolve the component under test with a dynamic
+		// `await import()` inside `beforeEach`. The first call pays Vite's
+		// full transform cost for the SFC and its dependency tree, which
+		// overruns the 10s default hook timeout on a loaded machine — the
+		// symptom is "Hook timed out in 10000ms" with no assertion failure.
+		hookTimeout: 30000,
 		include: ['src/**/__tests__/**/*.spec.{js,ts}'],
 		setupFiles: [path.resolve(__dirname, 'tests/vitest/setup.js')],
 		server: {

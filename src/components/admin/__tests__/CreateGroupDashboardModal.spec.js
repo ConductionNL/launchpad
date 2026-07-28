@@ -34,15 +34,28 @@ vi.mock('../../../services/api.js', () => ({
 
 const stubs = {
 	NcDialog: { template: '<div class="nc-dialog" :data-test="$attrs[\'data-test\']"><slot /><div class="actions"><slot name="actions" /></div></div>' },
-	NcButton: { template: '<button class="nc-button" :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>' },
+	NcButton: { emits: ['click'], template: '<button class="nc-button" :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>' },
+	// The component binds all three of these with `v-model`, which Vue 3
+	// compiles to `:modelValue` + `@update:modelValue` (Vue 2 used `value`
+	// + `input`, and NcCheckboxRadioSwitch used `checked`/`update:checked`).
+	// A stub still declaring the old contract neither receives the value nor
+	// writes it back, so the form silently stayed empty.
 	NcTextField: {
-		props: ['value', 'label', 'error', 'helperText'],
-		template: '<input class="nc-text-field" :data-test="$attrs[\'data-test\']" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+		props: ['modelValue', 'label', 'error', 'helperText'],
+		emits: ['update:modelValue'],
+		template: '<input class="nc-text-field" :data-test="$attrs[\'data-test\']" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
-	NcSelect: { template: '<select class="nc-select" :data-test="$attrs[\'data-test\']" />' },
+	// `options` is declared so the array is consumed as a prop rather than
+	// falling through onto the native <select> element, which rejects it.
+	NcSelect: {
+		props: ['modelValue', 'options'],
+		emits: ['update:modelValue'],
+		template: '<select class="nc-select" :data-test="$attrs[\'data-test\']" />',
+	},
 	NcCheckboxRadioSwitch: {
-		props: ['checked'],
-		template: '<label class="nc-cbs" :data-test="$attrs[\'data-test\']"><input type="checkbox" :checked="checked" @change="$emit(\'update:checked\', $event.target.checked)" /><slot /></label>',
+		props: ['modelValue'],
+		emits: ['update:modelValue'],
+		template: '<label class="nc-cbs" :data-test="$attrs[\'data-test\']"><input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" /><slot /></label>',
 	},
 }
 

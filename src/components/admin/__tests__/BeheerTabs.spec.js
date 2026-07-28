@@ -25,7 +25,9 @@ function mountTabs(props = {}, search = '') {
 	window.location = { search }
 	return mount(BeheerTabs, {
 		propsData: { tabs, defaultTab: 'templates', ...props },
-		scopedSlots: {
+		// VTU v2 merged v1's `scopedSlots` into `slots`; the v1 key is
+		// silently ignored, so every slot rendered empty.
+		slots: {
 			templates: '<div data-test="slot-templates">TEMPLATES</div>',
 			operations: '<div data-test="slot-operations">OPERATIONS</div>',
 			'roles-permissions': '<div data-test="slot-roles">ROLES</div>',

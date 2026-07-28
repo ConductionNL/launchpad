@@ -75,10 +75,86 @@
 <script>
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+import DOMPurify from 'dompurify'
 
 const ALLOWED_LAYOUTS = ['list', 'grid', 'carousel']
 const DEFAULT_LAYOUT = 'list'
 const DEFAULT_LIMIT = 10
+
+/**
+ * Mirror of `NewsWidgetService::ALLOWED_SUMMARY_TAGS` (REQ-NEWS-005). The
+ * server is the primary sanitiser; this list re-applies the same allow-list
+ * client-side after the summary is truncated for display.
+ */
+const ALLOWED_SUMMARY_TAGS = ['p', 'a', 'strong', 'em', 'br', 'ul', 'ol', 'li']
+
+/** Attributes permitted on the surviving summary tags. */
+const ALLOWED_SUMMARY_ATTR = ['href', 'rel', 'target']
+
+/**
+ * Discard everything past `state.remaining` characters of visible text,
+ * walking the subtree in document order and trimming in place. Element
+ * boundaries are respected, so the result is always well-formed markup.
+ *
+ * @param {Node} node Subtree root to trim in place.
+ * @param {{remaining: number}} state Character budget, decremented as text is kept.
+ * @return {void}
+ */
+function trimToBudget(node, state) {
+	for (const child of Array.from(node.childNodes)) {
+		if (state.remaining <= 0) {
+			child.remove()
+			continue
+		}
+		if (child.nodeType === 3) {
+			const text = child.textContent ?? ''
+			if (text.length > state.remaining) {
+				child.textContent = text.slice(0, state.remaining)
+				state.remaining = 0
+			} else {
+				state.remaining -= text.length
+			}
+			continue
+		}
+		trimToBudget(child, state)
+	}
+}
+
+/**
+ * Truncate a server-sanitised summary to a budget of VISIBLE characters and
+ * re-sanitise the result before it reaches `v-html`.
+ *
+ * Slicing the HTML string by raw offset (the previous behaviour) cuts
+ * through tags and attributes: `<a href="…" rel="noopener noreferrer">`
+ * truncated mid-attribute still parses as an anchor but loses the `rel`
+ * hardening REQ-NEWS-005 forces, and leaves unbalanced tags that bleed
+ * formatting into the rest of the widget. Budgeting on text nodes keeps the
+ * markup well-formed, and REQ-NEWS-005 explicitly allows the `rel`
+ * guarantee to be enforced "during sanitisation or template rendering" —
+ * so it is re-asserted here after trimming.
+ *
+ * @param {string} html Server-sanitised summary HTML.
+ * @param {number} maxChars Visible-character budget.
+ * @return {string} Truncated, re-sanitised summary HTML.
+ */
+function truncateSummaryHtml(html, maxChars) {
+	const doc = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html')
+	const body = doc.body
+
+	if ((body.textContent ?? '').length > maxChars) {
+		trimToBudget(body, { remaining: maxChars })
+		body.append(doc.createTextNode('…'))
+	}
+
+	for (const anchor of body.querySelectorAll('a')) {
+		anchor.setAttribute('rel', 'noopener noreferrer')
+	}
+
+	return DOMPurify.sanitize(body.innerHTML, {
+		ALLOWED_TAGS: ALLOWED_SUMMARY_TAGS,
+		ALLOWED_ATTR: ALLOWED_SUMMARY_ATTR,
+	})
+}
 
 /**
  * NewsWidget — renders merged RSS/Atom feed items returned by
@@ -268,19 +344,20 @@ export default {
 
 		/**
 		 * Truncate the (already server-sanitised) summary HTML to the
-		 * placement's `summaryMaxChars` budget. Truncation operates on
-		 * raw bytes; the frontend never re-sanitises.
+		 * placement's `summaryMaxChars` budget, counting visible characters
+		 * rather than raw markup bytes, and re-sanitise before render.
+		 * See `truncateSummaryHtml` for why byte-slicing was unsafe.
 		 *
-		 * @param {object} item news item
-		 * @return {string} truncated summary HTML
+		 * @param {object} item News item as returned by the items endpoint.
+		 * @return {string} Truncated, re-sanitised summary HTML.
 		 */
 		/** @spec openspec/specs/news-widget/spec.md */
 		formattedSummary(item) {
 			const raw = typeof item.summary === 'string' ? item.summary : ''
-			if (raw.length <= this.summaryMaxChars) {
-				return raw
+			if (raw === '') {
+				return ''
 			}
-			return raw.slice(0, this.summaryMaxChars) + '…'
+			return truncateSummaryHtml(raw, this.summaryMaxChars)
 		},
 
 		/**

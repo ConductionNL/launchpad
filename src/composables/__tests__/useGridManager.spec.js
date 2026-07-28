@@ -29,6 +29,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { toRaw } from 'vue'
 import { readFileSync, readdirSync, statSync } from 'fs'
 import { join, relative } from 'path'
 import {
@@ -275,7 +276,11 @@ describe('useGridManager — context menu', () => {
 		expect(event.preventDefault).toHaveBeenCalledOnce()
 		expect(grid.state.contextMenuOpen).toBe(true)
 		expect(grid.state.contextMenuPosition).toEqual({ x: 300, y: 400 })
-		expect(grid.state.selectedWidget).toBe(widget)
+		// `state` is `reactive()`, and Vue 3 hands back a Proxy rather than
+		// the object that was stored, so a bare `toBe` compares proxy to
+		// raw and fails. `toRaw` unwraps it, keeping this an identity
+		// assertion (the widget must be the SAME object, not a copy).
+		expect(toRaw(grid.state.selectedWidget)).toBe(widget)
 	})
 
 	it('REQ-WDG-015: view mode right-click does not open popover and does not preventDefault', async () => {

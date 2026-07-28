@@ -11,6 +11,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import DashboardConfigModal from '../DashboardConfigModal.vue'
 
 vi.mock('@nextcloud/axios', () => ({
@@ -30,31 +31,31 @@ vi.mock('../../services/api.js', () => ({
 vi.mock('@nextcloud/vue', () => ({
 	NcModal: {
 		props: ['name', 'size'],
-		render(h) {
-			return h('div', { class: 'nc-modal-stub' }, this.$slots.default)
+		render() {
+			return h('div', { class: 'nc-modal-stub' }, this.$slots.default?.())
 		},
 	},
 	NcButton: {
 		props: ['type', 'disabled'],
-		render(h) {
-			return h('button', this.$slots.default)
+		render() {
+			return h('button', this.$slots.default?.())
 		},
 	},
 	NcTextField: {
 		props: ['value', 'label', 'placeholder'],
-		render(h) {
+		render() {
 			return h('input')
 		},
 	},
 	NcSelect: {
-		render(h) {
-			return h('div', { class: 'nc-select-stub' }, this.$slots.default)
+		render() {
+			return h('div', { class: 'nc-select-stub' }, this.$slots.default?.())
 		},
 	},
 	NcCheckboxRadioSwitch: {
 		props: ['checked', 'type'],
-		render(h) {
-			return h('label', this.$slots.default)
+		render() {
+			return h('label', this.$slots.default?.())
 		},
 	},
 }))

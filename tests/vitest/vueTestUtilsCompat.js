@@ -27,6 +27,14 @@
  *
  * `propsData` is deliberately NOT touched: v2 still accepts it as an alias
  * for `props`.
+ *
+ * `pinia` gets the same treatment for the same reason. Under Vue 2 the store
+ * reached the component through `Vue.use(PiniaVuePlugin)` plus a top-level
+ * `pinia` mount option. Vue 3 has no global `Vue` to install a plugin on —
+ * a Pinia instance IS an app plugin — so the option becomes
+ * `global.plugins: [pinia]`. Like the keys above, v2 silently ignores the
+ * top-level form, and the symptom is a component mounting against whatever
+ * `setActivePinia()` last set rather than the instance the spec passed.
  */
 
 // Import the real module by absolute path — importing '@vue/test-utils' here
@@ -77,7 +85,36 @@ function hoistGlobalOptions(options) {
 	return next
 }
 
+/**
+ * Turn a v1 top-level `pinia` mount option into a v2 `global.plugins` entry.
+ *
+ * @param {object} [options] Mount options, already run through hoistGlobalOptions.
+ * @return {object} Options with `pinia` installed as an app plugin.
+ */
+function installPinia(options) {
+	if (!options || typeof options !== 'object' || !options.pinia) {
+		return options
+	}
+	const next = { ...options }
+	const pinia = next.pinia
+	delete next.pinia
+	const global = { ...(next.global || {}) }
+	global.plugins = [...(global.plugins || []), pinia]
+	next.global = global
+	return next
+}
+
+/**
+ * Apply every v1 -> v2 mount-option adaptation in order.
+ *
+ * @param {object} [options] Mount options as the spec wrote them.
+ * @return {object} Options in the shape VTU v2 expects.
+ */
+function adaptOptions(options) {
+	return installPinia(hoistGlobalOptions(options))
+}
+
 export * from '../../node_modules/@vue/test-utils/dist/vue-test-utils.esm-bundler.mjs'
 
-export const mount = (component, options) => vtu.mount(component, hoistGlobalOptions(options))
-export const shallowMount = (component, options) => vtu.shallowMount(component, hoistGlobalOptions(options))
+export const mount = (component, options) => vtu.mount(component, adaptOptions(options))
+export const shallowMount = (component, options) => vtu.shallowMount(component, adaptOptions(options))

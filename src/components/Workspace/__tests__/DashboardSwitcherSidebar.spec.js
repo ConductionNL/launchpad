@@ -39,6 +39,7 @@ const iconRendererStub = {
 const ncButtonStub = {
 	name: 'NcButton',
 	props: ['type', 'wide', 'ariaLabel'],
+	emits: ['click'],
 	template: `
 		<button
 			type="button"
@@ -418,7 +419,7 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(markers.length).toBe(1)
 
 			// The star sits in the row for the pinned dashboard.
-			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').find(
 				(li) => li.text().includes('My Notes'),
 			)
 			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
@@ -456,7 +457,7 @@ describe('DashboardSwitcherSidebar', () => {
 			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
 			expect(markers.length).toBe(1)
 
-			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').find(
 				(li) => li.text().includes('Team Board'),
 			)
 			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
@@ -475,7 +476,7 @@ describe('DashboardSwitcherSidebar', () => {
 
 				const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
 				expect(markers.length).toBe(1)
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').find(
 					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
 				)
 				expect(starred.text()).toContain('Group Default')
@@ -492,7 +493,7 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: '',
 				})
 
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').find(
 					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
 				)
 				expect(starred.text()).toContain('Primary Default')
@@ -509,7 +510,7 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: '',
 				})
 
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').find(
 					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
 				)
 				expect(starred.text()).toContain('First Primary')
@@ -536,7 +537,7 @@ describe('DashboardSwitcherSidebar', () => {
 
 				const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
 				expect(markers.length).toBe(1)
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
+				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').find(
 					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
 				)
 				expect(starred.text()).toContain('My Notes')

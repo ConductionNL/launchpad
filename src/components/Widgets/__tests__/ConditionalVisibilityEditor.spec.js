@@ -51,7 +51,7 @@ const RuleRowStub = {
 
 const stubs = {
 	VisibilityRuleRow: RuleRowStub,
-	NcButton: { template: '<button :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>' },
+	NcButton: { emits: ['click'], template: '<button :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>' },
 	NcSelectTags: { template: '<div class="nc-selecttags-stub" />' },
 	NcTextField: {
 		props: ['value'],

@@ -19,18 +19,39 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards/visible`)
 	},
 
-	// REQ-DASH-014 — group-shared dashboard CRUD.
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Create a dashboard shared with a Nextcloud group (REQ-DASH-014).
+	 *
+	 * @param {string} groupId Nextcloud group id that will own the dashboard.
+	 * @param {object} data Dashboard attributes (name, description, icon, …).
+	 * @return {Promise} Axios response resolving to the created dashboard.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	createGroupDashboard(groupId, data) {
 		return axios.post(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`, data)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Update one of a group's shared dashboards (REQ-DASH-014).
+	 *
+	 * @param {string} groupId Nextcloud group id owning the dashboard.
+	 * @param {string} uuid UUID of the dashboard to update.
+	 * @param {object} data Changed dashboard attributes.
+	 * @return {Promise} Axios response resolving to the updated dashboard.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	updateGroupDashboard(groupId, uuid, data) {
 		return axios.put(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`, data)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Delete one of a group's shared dashboards (REQ-DASH-014).
+	 *
+	 * @param {string} groupId Nextcloud group id owning the dashboard.
+	 * @param {string} uuid UUID of the dashboard to delete.
+	 * @return {Promise} Axios response for the delete call.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	deleteGroupDashboard(groupId, uuid) {
 		return axios.delete(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
 	},

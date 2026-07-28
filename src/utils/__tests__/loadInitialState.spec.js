@@ -15,7 +15,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
+import { nextTick } from 'vue'
 
 let pushedState = {}
 
@@ -222,7 +222,7 @@ describe('loadInitialState', () => {
 		const sibling = wrapper.findComponent(Sibling).vm
 
 		mutator.bump()
-		await Vue.nextTick()
+		await nextTick()
 
 		expect(mutator.localLayout).toHaveLength(2)
 		expect(sibling.layout).toHaveLength(1)

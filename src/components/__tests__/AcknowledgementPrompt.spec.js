@@ -11,8 +11,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia, setActivePinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
 import AcknowledgementPrompt from '../AcknowledgementPrompt.vue'
 import { api } from '../../services/api.js'
 
@@ -35,8 +34,6 @@ vi.mock('../../services/api.js', () => ({
 		getPendingAcknowledgements: vi.fn(),
 	},
 }))
-
-Vue.use(PiniaVuePlugin)
 
 const placement = {
 	id: 7,

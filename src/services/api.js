@@ -779,12 +779,14 @@ export const api = {
 		})
 	},
 
-	// Confluence HTML export importer (REQ-CFLI-001..012). Both endpoints
-	// are admin-only on the server side; the UI gates the controls behind
-	// the same admin check. Dry-run returns the parse preview without
-	// touching the database; the import endpoint creates one LaunchPad
-	// dashboard per Confluence page.
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Preview a Confluence HTML export without touching the database
+	 * (REQ-CFLI-001..012). Admin-only server-side.
+	 *
+	 * @param {File} file Confluence HTML export archive, sent multipart.
+	 * @return {Promise} Axios response resolving to the parse preview.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	confluenceImportDryRun(file) {
 		const form = new FormData()
 		form.append('file', file)
@@ -795,7 +797,17 @@ export const api = {
 		)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Import a Confluence HTML export, creating one LaunchPad dashboard per
+	 * Confluence page (REQ-CFLI-001..012). Admin-only server-side.
+	 *
+	 * @param {File} file Confluence HTML export archive, sent multipart.
+	 * @param {object} [options] Import options.
+	 * @param {string|null} [options.parentUuid] Dashboard to nest the
+	 *   imported tree under; omitted imports at the top level.
+	 * @return {Promise} Axios response resolving to the import summary.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	confluenceImport(file, { parentUuid = null } = {}) {
 		const form = new FormData()
 		form.append('file', file)
@@ -819,7 +831,15 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Write a dashboard's metadata-field values
+	 * (REQ-MDFL-004..006, REQ-MDFL-008).
+	 *
+	 * @param {string} uuid UUID of the dashboard to annotate.
+	 * @param {object} metadata Field-key to value map.
+	 * @return {Promise} Axios response resolving to the stored metadata.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	updateDashboardMetadata(uuid, metadata) {
 		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`, { metadata })
 	},
@@ -834,7 +854,15 @@ export const api = {
 		return axios.get(`${baseUrl}/api/admin/org-navigation`, { params: { lang } })
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Replace the org-wide navigation tree for one language
+	 * (REQ-ONAV-001..012). Admin-only server-side.
+	 *
+	 * @param {Array<object>} tree Nested navigation entries to store.
+	 * @param {string} [lang] Which per-language JSON file to write.
+	 * @return {Promise} Axios response resolving to the stored tree.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	updateOrgNavigation(tree, lang = 'nl') {
 		return axios.put(`${baseUrl}/api/admin/org-navigation`, { tree }, { params: { lang } })
 	},
@@ -843,18 +871,34 @@ export const api = {
 		return axios.get(`${baseUrl}/api/admin/org-navigation/position`)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Set where the org navigation rail is rendered (REQ-ONAV-001..012).
+	 *
+	 * @param {string} position Placement keyword for the rail.
+	 * @return {Promise} Axios response resolving to the stored position.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	updateOrgNavigationPosition(position) {
 		return axios.put(`${baseUrl}/api/admin/org-navigation/position`, { position })
 	},
 
 	// Dashboard bulk operations (REQ-BULK-001..011). All four endpoints
 	// are admin-only on the server side; the UI gates the controls behind
-	// the same admin check. Each endpoint accepts `dryRun` to preview
-	// outcomes without mutating the database, and returns
+	// the same admin check. Each accepts `dryRun` to preview outcomes
+	// without mutating the database, and returns
 	// `{deletedCount|movedCount|updatedCount|reindexedCount, skippedCount, errors, dryRun}`
 	// (or the `wouldX` variants in dry-run mode).
-	/** @spec openspec/specs/dashboards/spec.md */
+
+	/**
+	 * Delete many dashboards in one call (REQ-BULK-001..011).
+	 *
+	 * @param {string[]} dashboardUuids UUIDs of the dashboards to delete.
+	 * @param {object} [options] Bulk options.
+	 * @param {boolean} [options.dryRun] Preview the outcome without deleting.
+	 * @param {boolean} [options.cascade] Also delete nested child dashboards.
+	 * @return {Promise} Axios response resolving to the bulk-result envelope.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	bulkDeleteDashboards(dashboardUuids, { dryRun = false, cascade = false } = {}) {
 		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-delete`, {
 			dashboardUuids,
@@ -863,7 +907,17 @@ export const api = {
 		})
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Re-parent many dashboards in one call (REQ-BULK-001..011).
+	 *
+	 * @param {string[]} dashboardUuids UUIDs of the dashboards to move.
+	 * @param {string|null} parentUuid New parent dashboard UUID; null moves
+	 *   them to the top level.
+	 * @param {object} [options] Bulk options.
+	 * @param {boolean} [options.dryRun] Preview the outcome without moving.
+	 * @return {Promise} Axios response resolving to the bulk-result envelope.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	bulkMoveDashboards(dashboardUuids, parentUuid, { dryRun = false } = {}) {
 		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-move`, {
 			dashboardUuids,
@@ -872,7 +926,20 @@ export const api = {
 		})
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Change the publication status of many dashboards in one call
+	 * (REQ-BULK-001..011).
+	 *
+	 * @param {string[]} dashboardUuids UUIDs of the dashboards to update.
+	 * @param {string} publicationStatus Target status — `draft`,
+	 *   `published` or `scheduled`.
+	 * @param {object} [options] Bulk options.
+	 * @param {string|null} [options.publishAt] ISO-8601 timestamp, required
+	 *   when the target status is `scheduled`.
+	 * @param {boolean} [options.dryRun] Preview the outcome without writing.
+	 * @return {Promise} Axios response resolving to the bulk-result envelope.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	bulkStatusDashboards(dashboardUuids, publicationStatus, { publishAt = null, dryRun = false } = {}) {
 		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-status`, {
 			dashboardUuids,
@@ -882,7 +949,16 @@ export const api = {
 		})
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Rebuild the search index for many dashboards in one call
+	 * (REQ-BULK-001..011).
+	 *
+	 * @param {string[]} dashboardUuids UUIDs of the dashboards to reindex.
+	 * @param {object} [options] Bulk options.
+	 * @param {boolean} [options.dryRun] Report what would be reindexed only.
+	 * @return {Promise} Axios response resolving to the bulk-result envelope.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	bulkReindexDashboards(dashboardUuids, { dryRun = false } = {}) {
 		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-reindex`, {
 			dashboardUuids,
@@ -898,7 +974,16 @@ export const api = {
 		return axios.get(`${baseUrl}/api/admin/demo-showcases`)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Install a demo showcase bundle (REQ-DEMO-002..006). Admin-only.
+	 *
+	 * @param {string} id Identifier of the showcase to install.
+	 * @param {object} [options] Install options.
+	 * @param {string} [options.lang] Language variant to install.
+	 * @param {boolean} [options.force] Reinstall even when already present.
+	 * @return {Promise} Axios response resolving to the install summary.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	installDemoShowcase(id, { lang = 'nl', force = false } = {}) {
 		const params = { lang }
 		if (force) {
@@ -907,7 +992,13 @@ export const api = {
 		return axios.post(`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}/install`, null, { params })
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Remove a previously installed demo showcase (REQ-DEMO-002..006).
+	 *
+	 * @param {string} id Identifier of the showcase to uninstall.
+	 * @return {Promise} Axios response for the uninstall call.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	uninstallDemoShowcase(id) {
 		return axios.delete(`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}`)
 	},
@@ -917,17 +1008,36 @@ export const api = {
 		return axios.get(`${baseUrl}/api/tiles`)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Create a reusable launcher tile.
+	 *
+	 * @param {object} data Tile attributes (title, icon, link target, …).
+	 * @return {Promise} Axios response resolving to the created tile.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	createTile(data) {
 		return axios.post(`${baseUrl}/api/tiles`, data)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Update a reusable launcher tile.
+	 *
+	 * @param {number|string} id Numeric id of the tile to update.
+	 * @param {object} data Changed tile attributes.
+	 * @return {Promise} Axios response resolving to the updated tile.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	updateTile(id, data) {
 		return axios.put(`${baseUrl}/api/tiles/${id}`, data)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Delete a reusable launcher tile.
+	 *
+	 * @param {number|string} id Numeric id of the tile to delete.
+	 * @return {Promise} Axios response for the delete call.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	deleteTile(id) {
 		return axios.delete(`${baseUrl}/api/tiles/${id}`)
 	},
@@ -937,7 +1047,14 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Add the calling user's emoji reaction to a dashboard (REQ-RXN-001..004).
+	 *
+	 * @param {string} uuid UUID of the dashboard being reacted to.
+	 * @param {string} emoji The reaction emoji.
+	 * @return {Promise} Axios response resolving to the updated reaction set.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	addDashboardReaction(uuid, emoji) {
 		return axios.post(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`,
@@ -945,7 +1062,14 @@ export const api = {
 		)
 	},
 
-	/** @spec openspec/specs/dashboards/spec.md */
+	/**
+	 * Withdraw the calling user's emoji reaction (REQ-RXN-001..004).
+	 *
+	 * @param {string} uuid UUID of the dashboard to un-react to.
+	 * @param {string} emoji The reaction emoji to withdraw.
+	 * @return {Promise} Axios response for the delete call.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	removeDashboardReaction(uuid, emoji) {
 		return axios.delete(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}`,
@@ -953,7 +1077,17 @@ export const api = {
 	},
 
 	// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
-	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+
+	/**
+	 * Record the current user's sign-off for an announcement. Idempotent
+	 * server-side.
+	 *
+	 * @param {string} announcementKey Key identifying the announcement.
+	 * @param {number} [contentVersion] Version of the text the user signed
+	 *   off; a later version re-prompts them.
+	 * @return {Promise} Axios response for the acknowledgement write.
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
 	acknowledge(announcementKey, contentVersion = 1) {
 		return axios.post(`${baseUrl}/api/acknowledgements`, {
 			announcementKey,
@@ -966,16 +1100,29 @@ export const api = {
 		return axios.get(`${baseUrl}/api/acknowledgements/pending`)
 	},
 
-	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+	/**
+	 * Admin read-receipt report for one announcement — who has signed off
+	 * and who is still outstanding (REQ-ACK-004).
+	 *
+	 * @param {string} announcementKey Key identifying the announcement.
+	 * @return {Promise} Axios response resolving to the report payload.
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
 	getAcknowledgementReport(announcementKey) {
 		return axios.get(
 			`${baseUrl}/api/acknowledgements/report/${encodeURIComponent(announcementKey)}`,
 		)
 	},
 
-	// Absolute URL of the CSV export — used as an <a href> download target
-	// so the browser streams the DataDownloadResponse (REQ-ACK-006).
-	/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+	/**
+	 * URL of the read-receipt CSV export (REQ-ACK-006). Returned as a plain
+	 * string rather than fetched, so it can be used as an `<a href>` target
+	 * and let the browser stream the DataDownloadResponse directly.
+	 *
+	 * @param {string} announcementKey Key identifying the announcement.
+	 * @return {string} Download URL for the report CSV.
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
 	getAcknowledgementReportCsvUrl(announcementKey) {
 		return `${baseUrl}/api/acknowledgements/report/${encodeURIComponent(announcementKey)}/csv`
 	},

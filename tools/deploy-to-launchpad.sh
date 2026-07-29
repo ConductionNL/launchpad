@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 #
-# deploy-to-launchpad.sh — deploy the LaunchPad source into the dev Nextcloud
-# container as the transformed `launchpad` app (the NC App Store id is `launchpad`,
-# the source namespace is `OCA\LaunchPad`). The container app MUST be a full
-# transform — a partial one 500s the whole instance (router loads every app's
-# attribute routes, so one unresolvable class kills even /login).
+# deploy-to-launchpad.sh — deploy the LaunchPad source into the disposable
+# e2e Nextcloud container as the transformed `launchpad` app (the NC App
+# Store id is `launchpad`, the source namespace is `OCA\LaunchPad`). The
+# container app MUST be a full transform — a partial one 500s the whole
+# instance (router loads every app's attribute routes, so one unresolvable
+# class kills even /login).
 #
 # The transform (reverse-engineered + proven; see
 # memory reference_launchpad-launchpad-deploy-mismatch):
@@ -18,11 +19,33 @@
 #   5. App dir:         custom_apps/launchpad -> custom_apps/launchpad.
 #   6. chown www-data, occ app:enable launchpad, occ upgrade, maintenance --off.
 #
-# Re-run any time the dev container is recreated (the launchpad copy is NOT
-# persistent — it is a generated transform of the bind-mounted source).
+# Re-run any time the target container is recreated (the launchpad copy is
+# NOT persistent — it is a generated transform copied in via `docker cp`).
+#
+# Target container (FIXED 2026-07-29 — see below):
+#   `LAUNCHPAD_DEPLOY_CONTAINER` env var, default `lp-vue3-e2e` (the
+#   disposable e2e container the Playwright suite actually points at via
+#   `NC_BASE_URL=http://localhost:8098`). Override only for a deliberately
+#   different disposable target — never point this at a shared dev
+#   container that bind-mounts a real checkout (see the bind-mount guard
+#   below; it will refuse and tell you why).
+#
+#   PAST BUG: this script used to resolve its target with
+#   `docker ps -qf name=nextcloud`, a SUBSTRING match against container
+#   names. On a box that also runs a shared `nextcloud` dev container (used
+#   by other apps/worktrees), that substring innocently matched the WRONG
+#   container — one that bind-mounts `custom_apps/launchpad` straight onto
+#   a real host checkout. Every "successful" deploy wrote through the mount
+#   onto disk instead of reaching `lp-vue3-e2e` at all: the e2e suite kept
+#   testing a stale bundle for the whole session while every app-source fix
+#   silently landed on somebody else's checkout instead. `docker ps -qf` is
+#   never safe for picking a deploy target when container names aren't
+#   guaranteed unique/disjoint on the box — name the target explicitly and
+#   verify what you got before writing to it.
 #
 # Usage:  bash tools/deploy-to-launchpad.sh            # full deploy (PHP+JS+info)
 #         bash tools/deploy-to-launchpad.sh --js-only  # fast: only redeploy bundles
+#         LAUNCHPAD_DEPLOY_CONTAINER=other-e2e bash tools/deploy-to-launchpad.sh
 #
 # SPDX-FileCopyrightText: 2026 LaunchPad Contributors
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -32,9 +55,40 @@ SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JS_ONLY=0
 [ "${1:-}" = "--js-only" ] && JS_ONLY=1
 
-CID="$(docker ps -qf name=nextcloud | head -1)"
-if [ -z "$CID" ]; then echo "ERROR: no running 'nextcloud' container" >&2; exit 1; fi
 DEST=/var/www/html/custom_apps/launchpad
+CID="${LAUNCHPAD_DEPLOY_CONTAINER:-lp-vue3-e2e}"
+
+# Resolve by EXACT name/id (never a substring match — see the header
+# comment for why that bit us) and confirm it is actually running.
+if [ "$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)" != "true" ]; then
+	echo "ERROR: container '$CID' is not running (checked via \`docker inspect\`)." >&2
+	echo "Set LAUNCHPAD_DEPLOY_CONTAINER to the correct disposable e2e container." >&2
+	exit 1
+fi
+
+# Refuse to deploy if $DEST (or any ancestor of it) is a BIND mount. A bind
+# mount means the container's app directory is wired straight onto a real
+# host path — deploying there overwrites someone's actual checkout instead
+# of a disposable e2e instance (this is exactly how a substring-matched
+# `nextcloud` container silently absorbed a whole session's worth of deploys
+# meant for `lp-vue3-e2e`). A volume or a plain in-container directory is
+# fine; only `bind` is refused.
+while IFS='|' read -r mount_type mount_dest mount_src; do
+	[ -z "$mount_dest" ] && continue
+	case "$DEST" in
+		"$mount_dest" | "$mount_dest"/*)
+			if [ "$mount_type" = "bind" ]; then
+				echo "ERROR: $CID:$mount_dest is a BIND MOUNT onto host path '$mount_src'." >&2
+				echo "Deploying to $CID:$DEST would write through to that real checkout —" >&2
+				echo "refusing. This is very likely someone else's work, or the shared dev" >&2
+				echo "instance this project's rules say never to deploy to." >&2
+				echo "Set LAUNCHPAD_DEPLOY_CONTAINER to the correct disposable e2e container." >&2
+				exit 1
+			fi
+			;;
+	esac
+done < <(docker inspect "$CID" --format '{{range .Mounts}}{{.Type}}|{{.Destination}}|{{.Source}}
+{{end}}')
 
 # Transform a single file in-place (host staging copy only — never the source).
 # Rules: (1) PHP namespace OCA\LaunchPad → OCA\LaunchPad; (2) DB table prefix

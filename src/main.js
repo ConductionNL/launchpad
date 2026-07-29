@@ -45,8 +45,32 @@ import './styles/workspace.css'
 // is used, which collapses the Add-Widget picker to only the types launchpad
 // references directly (link + nc-widget). Calling this exported no-op forces
 // the aggregator — and therefore every widget registration — into the bundle.
-import { registerBuiltinDashboardWidgets, useAppManifest } from '@conduction/nextcloud-vue'
+import { registerBuiltinDashboardWidgets, useAppManifest, registerDashboardWidget, CnNcWidgetWidget, CnNcDashboardWidgetForm } from '@conduction/nextcloud-vue'
 registerBuiltinDashboardWidgets()
+
+// nc-vue's own `CnNcWidgetWidget/index.js` self-registers `nc-widget` with
+// `form: null` — a "renderer-only" entry its header comment justifies as
+// "the matching CnNcWidgetWidgetForm is not yet present in this tree". That
+// comment is stale: this nc-vue version DOES ship `CnNcDashboardWidgetForm`
+// (wired to `CnNcWidgetGridPicker`), it was just never plugged into the
+// registration. `listWidgetTypes()` — what `CnAddWidgetModal`'s type picker
+// calls — filters out any entry with a null form, so "Nextcloud widget" was
+// silently unreachable from Add Widget with no error anywhere.
+// Complete the wiring here using nc-vue's own public, documented
+// last-registration-wins registry API (the identical pattern
+// registerDashboardWidgets.js itself uses to re-register `table`,
+// `object-list`, and `map` after their bare self-registration) — no fork of
+// the vendored component required.
+registerDashboardWidget('nc-widget', {
+	renderer: CnNcWidgetWidget,
+	form: CnNcDashboardWidgetForm,
+	defaultContent: {
+		widgetId: '',
+		displayMode: 'vertical',
+	},
+	displayName: 'Nextcloud widget',
+	icon: 'ViewDashboard',
+})
 
 // Tier 1 manifest adoption (ADR-024): register the bundled manifest with
 // nc-vue so the shared shell can read menu/page declarations. The vue-router

@@ -78,6 +78,15 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 
 		const placement = page.locator('.grid-stack-item').first()
 		await expect(placement).toBeVisible({ timeout: 5_000 })
+		// GridStack positions items via gs-x/gs-y, not DOM order, so ".first()"
+		// is not guaranteed to be near the top of the (internally-scrolling)
+		// grid — on a long-lived dashboard with many placements it can easily
+		// sit below the fold. `toBeVisible()` does not catch that (it checks
+		// CSS visibility, not scroll position), but the raw `page.mouse.click`
+		// below uses absolute viewport coordinates and silently hits nothing
+		// if the item is scrolled out of view. Scroll it into view first so
+		// the computed box reflects where it will actually be clicked.
+		await placement.scrollIntoViewIfNeeded()
 
 		// Right-click 30 px from the right edge (leaves < 150 px for the popover).
 		const box = await placement.boundingBox()
@@ -107,6 +116,10 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 
 		const placement = page.locator('.grid-stack-item').first()
 		await expect(placement).toBeVisible({ timeout: 5_000 })
+		// See the right-edge test above: ".first()" can be scrolled out of
+		// view on a long-lived dashboard, and the raw page.mouse.click below
+		// uses absolute coordinates that miss if so.
+		await placement.scrollIntoViewIfNeeded()
 
 		// Right-click 20 px from the bottom edge (leaves < 132 px for the popover).
 		const box = await placement.boundingBox()

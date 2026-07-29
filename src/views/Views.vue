@@ -294,7 +294,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue'
+import { reactive, provide, computed } from 'vue'
 import { mapState, mapActions } from 'pinia'
 import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
@@ -440,6 +440,17 @@ export default {
 				grid._host?.handleContextMenuVisibilityRules(widget)
 			},
 		})
+
+		// nc-vue's CnNcDashboardWidgetForm (the `nc-widget` sub-form mounted by
+		// CnAddWidgetModal) injects a `widgets` catalog to populate its
+		// CnNcWidgetGridPicker — the same Nextcloud-native dashboard-widget
+		// list already fetched into the widget store (`loadAvailableWidgets`,
+		// whose own comment notes it feeds `CnNcWidgetWidget`'s runtime
+		// renderer via `widgetBridge.setWidgetMetadata`). Nothing previously
+		// provided it down this component's tree, so the picker always saw
+		// nc-vue's inject default (`[]`) and rendered permanently empty.
+		// `computed` keeps it reactive to the store across the fetch.
+		provide('widgets', computed(() => useWidgetStore().availableWidgets))
 
 		return { canEditRef, grid }
 	},

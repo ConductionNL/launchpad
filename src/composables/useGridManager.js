@@ -330,11 +330,20 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * Default popover dimensions used when clamping. A real popover is
- * `min-width: 150px` (REQ-WDG-017) and approximately three buttons tall.
+ * Default popover dimensions used when clamping. `min-width: 150px`
+ * (REQ-WDG-017) is only a lower bound — the actual rendered box is wider
+ * once "Visibility rules…" is laid out at the default NC theme font
+ * (measured ~156.5px), and taller now that the popover has grown to 5 menu
+ * items (Edit, Move, Visibility rules…, Remove, Cancel —
+ * WidgetContextMenu.vue; measured ~232.5px). These constants MUST be kept
+ * at or above the real rendered size — and re-measured whenever
+ * WidgetContextMenu.vue's item count or label text changes — or the clamp
+ * math reports success while the real popover still renders past the
+ * viewport edge (REQ-WDG-017). A small margin over the measured values
+ * absorbs theme/font differences.
  */
-const DEFAULT_MENU_WIDTH = 150
-const DEFAULT_MENU_HEIGHT = 132
+const DEFAULT_MENU_WIDTH = 170
+const DEFAULT_MENU_HEIGHT = 245
 
 /**
  * Create a grid-manager state container for the right-click context menu.

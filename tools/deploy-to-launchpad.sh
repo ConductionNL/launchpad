@@ -75,20 +75,44 @@ if [ "$JS_ONLY" -eq 0 ]; then
 	sed -i 's#<namespace>LaunchPad</namespace>#<namespace>LaunchPad</namespace>#' "$STAGE/appinfo/info.xml"
 
 	echo "→ renaming + rewriting JS bundles (launchpad- → launchpad-)…"
+	# NOTE: the source and target app ids are both "launchpad" now (see the
+	# header comment), so `new` below is IDENTICAL to `f` for every file.
+	# Writing sed's output straight to "$new" via `>` truncates the file
+	# before sed even opens it for reading (bash processes redirections
+	# before exec'ing the command) — every bundle would come out empty. The
+	# trailing `mv "$f.LICENSE.txt" "$new.LICENSE.txt"` then fails outright
+	# ("are the same file") since both sides are one path. Stage the sed
+	# output in a throwaway temp file and `mv` it into place instead, and
+	# only rename the LICENSE sidecar when the path genuinely differs — this
+	# stays correct if the ids are ever un-aliased back to two different
+	# strings.
 	for f in "$STAGE"/js/launchpad-*.js; do
 		[ -e "$f" ] || continue
 		new="$STAGE/js/$(basename "$f" | sed 's/^launchpad-/launchpad-/')"
-		sed 's/"launchpad-"+/"launchpad-"+/g' "$f" > "$new"
-		rm -f "$f"
-		[ -f "$f.LICENSE.txt" ] && mv "$f.LICENSE.txt" "$new.LICENSE.txt"
+		tmp_js="$(mktemp)"
+		sed 's/"launchpad-"+/"launchpad-"+/g' "$f" > "$tmp_js"
+		[ "$f" != "$new" ] && rm -f "$f"
+		mv "$tmp_js" "$new"
+		if [ -f "$f.LICENSE.txt" ] && [ "$f.LICENSE.txt" != "$new.LICENSE.txt" ]; then
+			mv "$f.LICENSE.txt" "$new.LICENSE.txt"
+		fi
 	done
 
 	echo "→ deploying to container $CID:$DEST…"
 	# custom_apps is a tmpfs mount; `docker cp` into it silently no-ops. Ship a
 	# tarball to the container's /tmp (normal overlay) and extract IN-container.
+	#
+	# $DEST itself can ALSO be its own bind mount (observed: WSL Docker
+	# Desktop wired a host directory straight onto
+	# /var/www/html/custom_apps/launchpad on this dev box) — `rm -rf "$DEST"`
+	# then fails with "Device or resource busy" on the mount point after it
+	# has already deleted every file underneath, leaving the app directory
+	# EMPTY and the instance broken until the next successful deploy. Clear
+	# the directory's CONTENTS instead of the directory itself so this works
+	# whether $DEST is a plain directory or a mount point.
 	tar -C "$STAGE" -czf /tmp/launchpad-deploy.tar.gz .
 	docker cp /tmp/launchpad-deploy.tar.gz "$CID:/tmp/launchpad-deploy.tar.gz"
-	docker exec "$CID" sh -c "rm -rf '$DEST' && mkdir -p '$DEST' && tar -xzf /tmp/launchpad-deploy.tar.gz -C '$DEST' && rm -f /tmp/launchpad-deploy.tar.gz"
+	docker exec "$CID" sh -c "mkdir -p '$DEST' && find '$DEST' -mindepth 1 -delete && tar -xzf /tmp/launchpad-deploy.tar.gz -C '$DEST' && rm -f /tmp/launchpad-deploy.tar.gz"
 	docker exec "$CID" chown -R www-data:www-data "$DEST"
 	rm -f /tmp/launchpad-deploy.tar.gz
 	rm -rf "$(dirname "$STAGE")"

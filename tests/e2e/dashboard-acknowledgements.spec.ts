@@ -27,9 +27,14 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { ensureOutstandingAcknowledgement } from './fixtures/acknowledgements'
 
 const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
 const APP_URL = `${BASE}/index.php/apps/launchpad`
+
+test.beforeAll(async () => {
+	await ensureOutstandingAcknowledgement()
+})
 
 /**
  * Scenario: an unacknowledged mandatory item blocks with a sign-off prompt

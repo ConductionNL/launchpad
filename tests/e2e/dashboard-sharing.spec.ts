@@ -236,20 +236,30 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		try {
 			await recipientPage.goto('/index.php/apps/launchpad')
 
-			// (1) Resolution: the recipient must NOT be stranded on the
-			// empty state. Before the fix this is exactly where they landed.
+			// (1) Wait for the app to actually render SOMETHING first —
+			// either the shell or the empty state. Asserting "no empty
+			// state" before Vue mounts would pass vacuously (count is 0 on
+			// a blank page), which is exactly the kind of assertion that
+			// proves nothing.
+			await recipientPage.waitForSelector(
+				'.launchpad-sidebar-toggle, .workspace-shell__empty',
+				{ timeout: 30_000 },
+			)
+
+			// (2) Resolution: having rendered, it must NOT be the empty
+			// state. Before the fix this is exactly where a recipient landed.
 			await expect(
 				recipientPage.locator('.workspace-shell__empty'),
 				'a recipient with a share must not land on the empty state',
-			).toHaveCount(0, { timeout: 30_000 })
+			).toHaveCount(0)
 
-			// (2) The shell renders at all — which requires every bootstrap
+			// (3) The shell renders — which also requires every bootstrap
 			// AJAX call to have passed the action matrix as a non-admin.
 			await recipientPage.waitForSelector('.launchpad-sidebar-toggle', { timeout: 30_000 })
 			await recipientPage.locator('.launchpad-sidebar-toggle').first().click()
 			await recipientPage.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 10_000 })
 
-			// (3) Visibility: the share shows up in its own switcher
+			// (4) Visibility: the share shows up in its own switcher
 			// section, not smuggled in under the recipient's group heading.
 			const sharedSection = recipientPage.locator('[data-section="shared"]')
 			await expect(sharedSection).toBeVisible({ timeout: 10_000 })

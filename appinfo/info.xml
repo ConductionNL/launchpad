@@ -98,6 +98,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
+			<!-- ADR-023: broaden pristine admin-only entries to the shipped
+			     non-admin baseline so a fresh install is usable by ordinary
+			     users. Must run AFTER InitializeActions. -->
+			<step>OCA\LaunchPad\Repair\ApplyActionBaseline</step>
 			<!-- role-based-content task-2: seed default role-feature permissions. -->
 			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
 			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
@@ -105,6 +109,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		</install>
 		<post-migration>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
+			<!-- ADR-023: instances installed before the baseline shipped are
+			     stuck on the all-admin seed — broaden the untouched entries
+			     once (version-gated). Must run AFTER InitializeActions. -->
+			<step>OCA\LaunchPad\Repair\ApplyActionBaseline</step>
 			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
 			<step>OCA\LaunchPad\Repair\PurgeOrphanedCascadeData</step>
 			<!-- Ensure background jobs are registered after every upgrade. -->

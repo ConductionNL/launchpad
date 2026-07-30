@@ -18,9 +18,15 @@
  * Controllers call `requireAction` which throws OCSForbiddenException when
  * the caller's groups don't intersect the matrix entry for the action.
  *
- * Admin users always pass. The matrix defaults to ["admin"] for every
- * declared action — first-install safe posture. The admin broadens via
- * the settings UI.
+ * Admin users always pass. Administrative actions (analytics, the tile
+ * catalogue, metadata field definitions, conditional rules, publication
+ * workflow, version history, org navigation) default to ["admin"] only.
+ * The ordinary end-user surface — listing/viewing dashboards, per-user
+ * preferences, and creating/editing the dashboards a user may already
+ * touch — ships with the {@see self::GROUP_ALL_USERS} sentinel so a fresh
+ * install is usable by non-admins; every one of those actions is still
+ * gated per object by PermissionService. The admin narrows or broadens
+ * either way via the settings UI.
  *
  * @category Service
  * @package  OCA\LaunchPad\Service
@@ -56,6 +62,27 @@ use OCP\IUser;
 class ActionAuthService
 {
     private const CONFIG_KEY = 'actions';
+
+    /**
+     * Sentinel entry meaning "every authenticated user may perform this
+     * action".
+     *
+     * Nextcloud has no real group that contains every account, so a matrix
+     * that can only name groups cannot express "ordinary users may list
+     * their dashboards" — which is why the shipped default locked out every
+     * non-admin on a fresh install. This sentinel closes that gap.
+     *
+     * The `@` prefix is deliberate: Nextcloud group IDs created through the
+     * UI or the provisioning API never start with it, so the sentinel can
+     * never be shadowed by (or shadow) a real group.
+     *
+     * Object-level authorization is unaffected — every action that mutates
+     * a dashboard still goes through PermissionService, which checks
+     * ownership / share level per object.
+     *
+     * @var string
+     */
+    public const GROUP_ALL_USERS = '@all';
 
     /**
      * Constructor.
@@ -97,6 +124,14 @@ class ActionAuthService
 
         $allowedGroups = $this->getAllowedGroups(action: $action);
 
+        // The "@all" sentinel grants the action to every authenticated
+        // user, which no real Nextcloud group can express. Checked BEFORE
+        // the admin-only short-circuit below so an entry of
+        // ["admin", "@all"] reads as "everyone", not "admin only".
+        if (in_array(self::GROUP_ALL_USERS, $allowedGroups, true) === true) {
+            return;
+        }
+
         // An "admin"-only entry means non-admins never pass (admin already
         // returned above). Empty entry means nobody is allowed.
         if (count($allowedGroups) === 0 || $allowedGroups === ['admin']) {
@@ -108,10 +143,12 @@ class ActionAuthService
         // Delegate to the single-source-of-truth wrapper (REQ-TMPL-013).
         $userGroups = $this->adminTemplateService->getUserGroupIdsFor($user->getUID());
 
-        // Exclude "admin" from matrix entry before intersection — admin was
-        // already checked above; its presence in the entry is a display hint,
-        // not a group membership check.
-        $nonAdminAllowed = array_values(array_diff($allowedGroups, ['admin']));
+        // Exclude "admin" and the "@all" sentinel from the matrix entry
+        // before intersection — both were already resolved above and neither
+        // is a real group membership to match against.
+        $nonAdminAllowed = array_values(
+            array_diff($allowedGroups, ['admin', self::GROUP_ALL_USERS])
+        );
 
         if (count(array_intersect($userGroups, $nonAdminAllowed)) === 0) {
             throw new OCSForbiddenException(

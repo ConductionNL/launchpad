@@ -387,10 +387,12 @@ class DashboardService
         // when this method first shipped.
         $visible   = $this->getVisibleToUser(userId: $userId);
         $dashboard = null;
+        $source    = '';
         foreach ($visible as $entry) {
             $candidate = $entry['dashboard'];
             if ($candidate->getId() === $dashboardId) {
                 $dashboard = $candidate;
+                $source    = (string) $entry['source'];
                 break;
             }
         }
@@ -402,6 +404,28 @@ class DashboardService
         $placements = $this->placementMapper->findByDashboardId(
             dashboardId: $dashboard->getId()
         );
+
+        // REQ-SHARE-004: for a dashboard reached through a share the
+        // authoritative permission level is the SHARE's, not the row's —
+        // the row carries the OWNER's level, which would advertise edit
+        // rights to a view-only recipient. Server-side enforcement already
+        // goes through PermissionService::resolveAccessLevel(); this keeps
+        // the envelope the frontend renders from agreeing with it.
+        if ($source === Dashboard::SOURCE_SHARED) {
+            $levels = $this->dashResolver->findSharedLevels(
+                userId: $userId,
+                userGroupIds: $this->adminTemplateService->getUserGroupIdsFor(
+                    userId: $userId
+                )
+            );
+            if (isset($levels[$dashboard->getId()]) === true) {
+                return [
+                    'dashboard'       => $dashboard,
+                    'placements'      => $placements,
+                    'permissionLevel' => $levels[$dashboard->getId()],
+                ];
+            }
+        }
 
         return $this->dashResolver->buildResult(
             dashboard: $dashboard,
@@ -469,6 +493,22 @@ class DashboardService
 
         $result = $this->dashResolver->tryActivateExistingDashboard(
             userId: $userId
+        );
+        if ($result !== null) {
+            return $result;
+        }
+
+        // REQ-SHARE-002: a dashboard someone deliberately shared with this
+        // user beats auto-provisioning a brand-new one from a template.
+        // Placed AFTER both owned-dashboard steps (same precedence as
+        // resolveActiveDashboard step 6b) and BEFORE the template step
+        // because tryCreateFromTemplate WRITES — it would otherwise mint an
+        // empty personal dashboard and permanently bury the share.
+        $result = $this->dashResolver->tryGetSharedDashboard(
+            userId: $userId,
+            userGroupIds: $this->adminTemplateService->getUserGroupIdsFor(
+                userId: $userId
+            )
         );
         if ($result !== null) {
             return $result;
@@ -1129,6 +1169,32 @@ class DashboardService
             userGroupIds: $userGroupIds
         );
 
+        // REQ-SHARE-002: dashboards reached through an explicit share row
+        // are part of "visible to me" too. The mapper's union only covers
+        // ownership, group_shared membership and the `default` sentinel, so
+        // without this a share is invisible: the recipient never sees the
+        // dashboard in the switcher and the resolver can never land on it.
+        // Appended LAST and deduped by UUID so an owned / group-reached row
+        // always keeps its stronger source tag.
+        $seenUuids = [];
+        foreach ($entries as $entry) {
+            $seenUuids[(string) $entry['dashboard']->getUuid()] = true;
+        }
+
+        $sharedEntries = $this->dashResolver->findSharedDashboards(
+            userId: $userId,
+            userGroupIds: $userGroupIds
+        );
+        foreach ($sharedEntries as $sharedEntry) {
+            $uuid = (string) $sharedEntry['dashboard']->getUuid();
+            if (isset($seenUuids[$uuid]) === true) {
+                continue;
+            }
+
+            $seenUuids[$uuid] = true;
+            $entries[]        = $sharedEntry;
+        }
+
         // REQ-DASH-031..035: apply publication-state filter and lazy
         // materialisation in one pass — drafts hidden from non-owners,
         // scheduled rows past `publishAt` surfaced as published without
@@ -1252,6 +1318,9 @@ class DashboardService
      *     user's primary group.
      *  5. First `group_shared` in the `'default'` group.
      *  6. User's first personal (`user`-type) dashboard.
+     *  6b. First dashboard SHARED with the user (REQ-SHARE-002) — last
+     *     resort, so a share never displaces anything the user already
+     *     owns, reaches through a group, or explicitly selected.
      *  7. `null` — triggers the empty-state UI.
      *
      * The only side-effect on read is the stale-pref auto-clear in step 1:
@@ -1399,6 +1468,18 @@ class DashboardService
         // Step 6: first personal dashboard.
         foreach ($visible as $entry) {
             if ($entry['source'] === Dashboard::SOURCE_USER) {
+                return $entry;
+            }
+        }
+
+        // Step 6b (REQ-SHARE-002): first dashboard shared WITH the user.
+        // Deliberately the LAST resort — after the saved preference, every
+        // group-shared candidate and every personal dashboard — so a share
+        // can never hijack a selection the user or their admin already made.
+        // It only ever fires for a user who would otherwise land on the
+        // empty state, which is exactly the case that made sharing inert.
+        foreach ($visible as $entry) {
+            if ($entry['source'] === Dashboard::SOURCE_SHARED) {
                 return $entry;
             }
         }

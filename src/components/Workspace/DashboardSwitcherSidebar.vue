@@ -9,9 +9,13 @@
 	Slide-in left navigation panel that lists every dashboard visible to
 	the user, grouped by `source` discriminator (REQ-SWITCH-001):
 
-	  1. Primary group dashboards (`source !== 'default'` from `groupDashboards`)
+	  1. Primary group dashboards (`source` neither `default` nor `shared`,
+	     from `groupDashboards`)
 	  2. Default group dashboards (`source === 'default'` from `groupDashboards`)
 	  3. Personal dashboards (`userDashboards`)
+	  4. Dashboards shared with the user (`source === 'shared'` from
+	     `groupDashboards`) — REQ-SHARE-002. Rendered last, mirroring the
+	     backend resolver where a share is the last-resort candidate.
 
 	Empty sections collapse entirely (no orphan headings). Clicking a row
 	emits `update:open(false)` THEN `switch(id, source)` (REQ-SWITCH-002).
@@ -264,6 +268,59 @@
 					</p>
 				</div>
 			</section>
+
+			<!-- Divider before the shared section -->
+			<hr
+				v-if="sharedDashboards.length > 0 && (primaryGroupDashboards.length > 0 || defaultGroupDashboards.length > 0 || showPersonalSection)"
+				class="dashboard-switcher-sidebar__divider">
+
+			<!-- 4. Dashboards shared with the user (REQ-SHARE-002) -->
+			<section
+				v-if="sharedDashboards.length > 0"
+				class="dashboard-switcher-sidebar__section"
+				data-section="shared">
+				<h3 class="dashboard-switcher-sidebar__heading">
+					{{ t('launchpad', 'Shared with you') }}
+				</h3>
+				<ul class="dashboard-switcher-sidebar__list">
+					<li
+						v-for="dashboard in sharedDashboards"
+						:key="`shared-${dashboard.id}`"
+						class="dashboard-switcher-sidebar__item"
+						:class="{ active: isActive(dashboard.id) }"
+						data-source="shared"
+						tabindex="0"
+						role="button"
+						:aria-label="dashboard.name"
+						@click="onSwitch(dashboard.id, 'shared')"
+						@keydown.enter="onSwitch(dashboard.id, 'shared')"
+						@keydown.space.prevent="onSwitch(dashboard.id, 'shared')">
+						<span class="dashboard-switcher-sidebar__icon">
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
+						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:aria-label="t('launchpad', 'Default dashboard')">
+							<Star :size="16" />
+						</span>
+						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<DashboardRowActions
+							:dashboard="dashboard"
+							source="shared"
+							:can-edit="canEdit"
+							:default-uuid="defaultUuid"
+							:is-edit-mode="isEditMode"
+							:active-dashboard-id="activeDashboardId"
+							@toggle-edit="onRowToggleEdit(dashboard, 'shared')"
+							@open-config="onRowOpenConfig(dashboard, 'shared')"
+							@add-custom-widget="onRowAddCustomWidget(dashboard, 'shared')"
+							@delete="onRowDelete(dashboard, 'shared')"
+							@set-default="onRowSetDefault(dashboard, 'shared')" />
+					</li>
+				</ul>
+			</section>
 		</div>
 
 		<!--
@@ -449,12 +506,26 @@ export default {
 	computed: {
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		primaryGroupDashboards() {
-			return this.groupDashboards.filter(d => d.source !== 'default')
+			return this.groupDashboards.filter(d => d.source !== 'default' && d.source !== 'shared')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		defaultGroupDashboards() {
 			return this.groupDashboards.filter(d => d.source === 'default')
+		},
+
+		/**
+		 * Dashboards reached through an explicit share (REQ-SHARE-002).
+		 * They arrive in `groupDashboards` because the server descriptor
+		 * builder buckets everything that is not `source: 'user'` there,
+		 * but they belong in their own section — a shared dashboard is
+		 * neither the viewer's own nor part of their group's set.
+		 *
+		 * @return {Array<object>} the shared dashboard descriptors.
+		 * @spec openspec/specs/dashboard-sharing/spec.md
+		 */
+		sharedDashboards() {
+			return this.groupDashboards.filter(d => d.source === 'shared')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
@@ -553,7 +624,7 @@ export default {
 		 * in the same tick (REQ-SWITCH-002).
 		 *
 		 * @param {string|number} id Dashboard id of the clicked row.
-		 * @param {'group'|'default'|'user'} source Section the row was rendered in.
+		 * @param {'group'|'default'|'user'|'shared'} source Section the row was rendered in.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onSwitch(id, source) {
@@ -570,7 +641,7 @@ export default {
 		 * dashboard before applying the action.
 		 *
 		 * @param {object} dashboard Row payload.
-		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowToggleEdit(dashboard, source) {
@@ -580,7 +651,7 @@ export default {
 		 * Re-emit the row's "Configure" action upward.
 		 *
 		 * @param {object} dashboard Row payload.
-		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowOpenConfig(dashboard, source) {
@@ -590,7 +661,7 @@ export default {
 		 * Re-emit the row's "Add widget" action upward.
 		 *
 		 * @param {object} dashboard Row payload.
-		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowAddCustomWidget(dashboard, source) {
@@ -600,7 +671,7 @@ export default {
 		 * Re-emit the row's "Delete" action upward, narrowed to the id.
 		 *
 		 * @param {object} dashboard Row payload; only `id` is forwarded.
-		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowDelete(dashboard, source) {
@@ -610,7 +681,7 @@ export default {
 		 * Re-emit the row's "Set as default" action upward.
 		 *
 		 * @param {object} dashboard Row payload.
-		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowSetDefault(dashboard, source) {

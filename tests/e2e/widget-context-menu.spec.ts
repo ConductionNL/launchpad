@@ -27,7 +27,54 @@
  *   @e2e widget-context-menu::remove-persists-across-reload
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, type Locator } from '@playwright/test'
+
+/**
+ * Wait for a locator's `boundingBox()` to stop changing before reading it.
+ *
+ * GridStack ships `.grid-stack-animate` (see
+ * `node_modules/gridstack/dist/gridstack.css`), which puts a 300ms CSS
+ * transition on `left/right/top/height/width` for every `.grid-stack-item`
+ * whenever the column layout reflows — which `page.setViewportSize()`
+ * triggers (REQ-GRID-007 responsive breakpoints, `moveScale` reflow). A
+ * `boundingBox()` read straight after a resize can land mid-transition, so
+ * the coordinates it returns describe an in-flight animation frame rather
+ * than the item's rest position. That is harmless for clicks well inside a
+ * widget, but the two edge-clamp tests below deliberately click within
+ * 20-30px of the widget's boundary — enough for even a small animation
+ * delta to land the click in the grid gutter instead, which is exactly the
+ * "popover never opens" symptom this was chased down for. Poll until two
+ * consecutive reads match (with a small margin for sub-pixel jitter)
+ * instead of guessing a fixed delay, so this holds under any machine speed.
+ *
+ * @param {Locator} locator The element to wait for.
+ * @param {number} [timeoutMs] Give up and return the last read after this long.
+ * @return {Promise<{x: number, y: number, width: number, height: number}>} the stable box.
+ */
+async function waitForStableBox(locator: Locator, timeoutMs = 2_000) {
+	const deadline = Date.now() + timeoutMs
+	let previous = await locator.boundingBox()
+	for (;;) {
+		await new Promise(resolve => setTimeout(resolve, 60))
+		const current = await locator.boundingBox()
+		if (!current) {
+			throw new Error('Locator has no bounding box (detached or hidden).')
+		}
+		if (
+			previous
+			&& Math.abs(current.x - previous.x) < 0.5
+			&& Math.abs(current.y - previous.y) < 0.5
+			&& Math.abs(current.width - previous.width) < 0.5
+			&& Math.abs(current.height - previous.height) < 0.5
+		) {
+			return current
+		}
+		previous = current
+		if (Date.now() > deadline) {
+			return current
+		}
+	}
+}
 
 /**
  * Helper: navigate to launchpad, wait for the grid to hydrate, and switch into
@@ -89,8 +136,10 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await placement.scrollIntoViewIfNeeded()
 
 		// Right-click 30 px from the right edge (leaves < 150 px for the popover).
-		const box = await placement.boundingBox()
-		if (!box) throw new Error('No bounding box for first grid-stack-item')
+		// waitForStableBox (not a bare boundingBox()) — see its docblock: the
+		// viewport resize above just triggered a GridStack column reflow, and
+		// items animate to their new position over 300ms.
+		const box = await waitForStableBox(placement)
 		const x = Math.min(box.x + box.width - 30, 770)
 		const y = box.y + box.height / 2
 
@@ -122,8 +171,9 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await placement.scrollIntoViewIfNeeded()
 
 		// Right-click 20 px from the bottom edge (leaves < 132 px for the popover).
-		const box = await placement.boundingBox()
-		if (!box) throw new Error('No bounding box for first grid-stack-item')
+		// waitForStableBox — see its docblock: the viewport resize above just
+		// triggered a GridStack column reflow, and items animate over 300ms.
+		const box = await waitForStableBox(placement)
 		const x = box.x + box.width / 2
 		// Clamp y to avoid clicking outside the viewport if the widget is short.
 		const y = Math.min(box.y + box.height - 20, 580)

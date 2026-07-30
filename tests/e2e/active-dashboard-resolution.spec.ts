@@ -15,6 +15,7 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { provisionThrowawayUser, deprovisionUser, loginAs } from './fixtures/secondary-user'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -36,16 +37,27 @@ async function gotoApp(page: any) {
 
 test.describe('active-dashboard-resolution — empty state', () => {
 	// @e2e active-dashboard-resolution::empty-state-renders-for-fresh-user
-	test('empty state renders when GET /api/dashboard returns no active dashboard', async () => {
+	test('empty state renders when GET /api/dashboard returns no active dashboard', async ({ browser }) => {
 		// The empty-state branch keys off the server-rendered `activeDashboardId`
 		// initial-state value, NOT the /api/dashboard fetch — so route-mocking a
 		// 404 cannot produce it. Reaching it requires a Nextcloud account that
 		// resolves to zero dashboards; the shared admin fixture always has
-		// dashboards and provisioning a throwaway zero-dashboard user is not
-		// reliable here (occ user:add hits a pre-existing Sabre/CalDAV fatal).
-		// The fresh-user empty-state is covered by the WorkspaceApp Vitest unit
-		// test; the `@e2e` annotation is kept so gate-19 traceability resolves.
-		test.skip(true, 'Empty-state requires a zero-dashboard account; not reachable from the admin fixture. Covered by WorkspaceApp Vitest.')
+		// dashboards, so provision a throwaway one via the OCS provisioning API
+		// (fixtures/secondary-user.ts) and log in as it in a fresh context.
+		const { username, password } = await provisionThrowawayUser()
+		try {
+			const { context, page } = await loginAs(browser, username, password)
+			try {
+				await page.goto('/index.php/apps/launchpad')
+				const empty = page.locator('.workspace-shell__empty')
+				await expect(empty).toBeVisible({ timeout: 15_000 })
+				await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(/no dashboards available/i)
+			} finally {
+				await context.close()
+			}
+		} finally {
+			await deprovisionUser(username)
+		}
 	})
 })
 

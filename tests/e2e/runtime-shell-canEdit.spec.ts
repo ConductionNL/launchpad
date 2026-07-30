@@ -20,9 +20,48 @@
  * @spec openspec/changes/runtime-shell/tasks.md#task-10
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request as pwRequest } from '@playwright/test'
+import { provisionThrowawayUser, deprovisionUser, loginAs } from './fixtures/secondary-user'
 
+const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
+const ADMIN = {
+	user: process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.NC_ADMIN_PASS ?? 'admin',
+}
 const APP_URL = '/index.php/apps/launchpad'
+const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/api/admin/settings`
+
+/**
+ * Toggle the allow_user_dashboards admin flag (mirrors the helper in
+ * allow-personal-dashboards-flag.spec.ts).
+ *
+ * MUST use its own Basic-Auth + `OCS-APIRequest` context, NOT the built-in
+ * cookie-authenticated `request` fixture: a cookie-carrying request without
+ * a CSRF `requesttoken` gets rejected outright by Nextcloud's CSRF check on
+ * this state-changing route (measured: `PUT` returns 412). That failure was
+ * previously swallowed by a `console.warn` instead of failing the test, so
+ * both empty-state scenarios below ran against whatever the flag happened
+ * to already be, not the value each scenario asked for — throws now so a
+ * write failure can never again look like a passing test.
+ *
+ * @param {boolean} enabled The value to set.
+ * @return {Promise<void>}
+ */
+async function setAllowUserDashboards(enabled: boolean): Promise<void> {
+	const api = await pwRequest.newContext({
+		baseURL: BASE,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	try {
+		const res = await api.put(SETTINGS_URL, { data: { allowUserDash: enabled } })
+		if (!res.ok()) {
+			throw new Error(`setAllowUserDashboards(${enabled}): PUT ${SETTINGS_URL} returned ${res.status()}`)
+		}
+	} finally {
+		await api.dispose()
+	}
+}
 
 /**
  * Wait for the Vue shell to hydrate past initial bootstrap.
@@ -98,18 +137,56 @@ test.describe('REQ-SHELL-005: empty state', () => {
 	// `activeDashboardId`, NOT by any /api fetch — so route-mocking the
 	// dashboard list cannot trigger it. Reaching it requires a Nextcloud
 	// account that resolves to zero dashboards (no personal, no group, no
-	// default). The shared single-admin dev fixture always has dashboards,
-	// and provisioning a throwaway zero-dashboard user is not reliable in
-	// this environment (occ user:add hits a pre-existing Sabre/CalDAV
-	// 3rdparty fatal). These scenarios are therefore exercised by the
-	// WorkspaceApp Vitest unit tests against the empty-state branch; the
-	// `@e2e` annotations are kept so gate-19 traceability still resolves.
+	// default). The shared admin fixture always has dashboards, so each
+	// scenario provisions its own throwaway account via the OCS
+	// provisioning API (`fixtures/secondary-user.ts`) and logs in as it in
+	// a fresh browser context, then tears it down afterwards.
+	let throwawayUser: string | undefined
 
-	test('empty state renders with Create CTA when allowUserDashboards is true', async () => {
-		test.skip(true, 'Empty-state requires a zero-dashboard account; admin fixture always has dashboards. Covered by WorkspaceApp Vitest.')
+	test.afterEach(async () => {
+		if (throwawayUser) {
+			await deprovisionUser(throwawayUser)
+			throwawayUser = undefined
+		}
 	})
 
-	test('empty state renders without Create CTA when allowUserDashboards is false', async () => {
-		test.skip(true, 'Empty-state requires a zero-dashboard account; admin fixture always has dashboards. Covered by WorkspaceApp Vitest.')
+	// @e2e runtime-shell::empty-state-with-allow-user-dashboards
+	test('empty state renders with Create CTA when allowUserDashboards is true', async ({ browser }) => {
+		await setAllowUserDashboards(true)
+		const { username, password } = await provisionThrowawayUser()
+		throwawayUser = username
+
+		const { context, page } = await loginAs(browser, username, password)
+		try {
+			await page.goto(APP_URL)
+			const empty = page.locator('.workspace-shell__empty')
+			await expect(empty).toBeVisible({ timeout: 15_000 })
+			await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(/no dashboards available/i)
+			await expect(empty.locator('.workspace-shell__empty-cta')).toBeVisible()
+			await expect(empty.locator('.workspace-shell__empty-cta')).toHaveText(/create your first dashboard/i)
+		} finally {
+			await context.close()
+		}
+	})
+
+	// @e2e runtime-shell::empty-state-without-allow-user-dashboards
+	test('empty state renders without Create CTA when allowUserDashboards is false', async ({ browser }) => {
+		await setAllowUserDashboards(false)
+		const { username, password } = await provisionThrowawayUser()
+		throwawayUser = username
+
+		const { context, page } = await loginAs(browser, username, password)
+		try {
+			await page.goto(APP_URL)
+			const empty = page.locator('.workspace-shell__empty')
+			await expect(empty).toBeVisible({ timeout: 15_000 })
+			await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(/no dashboards available/i)
+			await expect(empty.locator('.workspace-shell__empty-hint')).toHaveText(/contact your administrator/i)
+			await expect(empty.locator('.workspace-shell__empty-cta')).toHaveCount(0)
+		} finally {
+			await context.close()
+			// Restore the default so later specs in the run see the flag on.
+			await setAllowUserDashboards(true)
+		}
 	})
 })

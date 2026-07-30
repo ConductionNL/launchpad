@@ -259,8 +259,13 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 			// The other half of the decision: administrative surfaces stay
 			// admin-only. If this ever returns 200 the baseline has been
 			// over-broadened into a privilege escalation.
+			// NOTE: this MUST be the real route (`appinfo/routes.php`:
+			// `analytics#instanceSummary` -> `/api/admin/analytics/summary`).
+			// An earlier draft of this test used a made-up path and got 404,
+			// which would have sailed through a `not.toBe(403)` style check —
+			// a 404 proves nothing about authorization.
 			const analytics = await api.get(
-				'/index.php/apps/launchpad/api/analytics/instance-summary',
+				'/index.php/apps/launchpad/api/admin/analytics/summary',
 			)
 			expect(
 				analytics.status(),

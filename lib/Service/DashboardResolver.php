@@ -210,6 +210,14 @@ class DashboardResolver
      * dashboard row: the row carries the OWNER's level, which would tell a
      * view-only recipient they may edit.
      *
+     * Publication state is deliberately NOT a filter here, matching
+     * {@see \OCA\LaunchPad\Service\DashboardService::getVisibleToUser()}:
+     * every factory-created dashboard starts as `draft`, so filtering would
+     * make sharing inert again. The share row is the owner's explicit,
+     * named grant. The two paths MUST agree — when they disagreed,
+     * `GET /api/dashboard` served a draft while `/api/dashboards/visible`
+     * returned nothing for the same user.
+     *
      * @param string        $userId       The user ID.
      * @param array<string> $userGroupIds The user's Nextcloud group IDs.
      *

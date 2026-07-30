@@ -145,6 +145,86 @@ class DashboardServiceSharedResolutionTest extends TestCase
     }//end makeDashboard()
 
     /**
+     * REGRESSION (found by e2e, missed by every unit test here): a
+     * dashboard as the FACTORY actually produces it is `draft`, and
+     * `filterByPublicationState()` hides drafts from non-owners — so an
+     * earlier version of this fix appended the share and then filtered it
+     * straight back out. Every fixture above sets `STATUS_PUBLISHED`
+     * explicitly and therefore could not see it.
+     *
+     * This test deliberately builds the dashboard through
+     * {@see DashboardFactory} so it inherits whatever the real default is.
+     * If someone changes the factory default, this test — not a browser —
+     * should be what notices.
+     *
+     * @return void
+     */
+    public function testSharedDraftDashboardIsStillVisibleToItsRecipient(): void
+    {
+        $factory = new DashboardFactory();
+        $shared  = $factory->create(userId: 'owner', name: 'Draft board');
+        $shared->setId(7);
+        $shared->setUuid('uuid-shared-draft');
+
+        // Guard the premise: if the factory ever stops producing drafts this
+        // test must be re-thought, not silently keep passing.
+        $this->assertSame(
+            Dashboard::STATUS_DRAFT,
+            $shared->getPublicationStatus(),
+            'Factory default changed — revisit the share/publication interaction.'
+        );
+
+        $this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+        $this->dashResolver->method('findSharedDashboards')->willReturn(
+            [
+                [
+                    'dashboard' => $shared,
+                    'source'    => Dashboard::SOURCE_SHARED,
+                ],
+            ]
+        );
+
+        $visible = $this->service->getVisibleToUser(userId: 'recipient');
+
+        $this->assertCount(
+            1,
+            $visible,
+            'A draft shared with a user must remain visible to that user — '
+            .'the share is the owner\'s explicit grant.'
+        );
+        $this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
+    }//end testSharedDraftDashboardIsStillVisibleToItsRecipient()
+
+    /**
+     * The exemption is scoped to the share: a draft the user was NOT given
+     * still stays hidden. This is what stops the fix from becoming a
+     * blanket draft leak.
+     *
+     * @return void
+     */
+    public function testUnsharedDraftStaysHiddenFromNonOwners(): void
+    {
+        $draft = $this->makeDashboard(3, 'uuid-foreign-draft', 'someone-else');
+        $draft->setPublicationStatus(Dashboard::STATUS_DRAFT);
+
+        $this->dashboardMapper->method('findVisibleToUser')->willReturn(
+            [
+                [
+                    'dashboard' => $draft,
+                    'source'    => Dashboard::SOURCE_DEFAULT,
+                ],
+            ]
+        );
+        $this->dashResolver->method('findSharedDashboards')->willReturn([]);
+
+        $this->assertSame(
+            [],
+            $this->service->getVisibleToUser(userId: 'recipient'),
+            'A draft nobody shared with this user must stay hidden.'
+        );
+    }//end testUnsharedDraftStaysHiddenFromNonOwners()
+
+    /**
      * REQ-SHARE-002: a shared dashboard is part of "visible to me", tagged
      * with the `shared` source. Without the fix `getVisibleToUser()` returns
      * only what the mapper's three-bucket union produced — an empty set.

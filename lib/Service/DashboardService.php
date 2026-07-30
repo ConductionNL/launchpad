@@ -1169,15 +1169,39 @@ class DashboardService
             userGroupIds: $userGroupIds
         );
 
+        // REQ-DASH-031..035: apply publication-state filter and lazy
+        // materialisation in one pass — drafts hidden from non-owners,
+        // scheduled rows past `publishAt` surfaced as published without
+        // a DB write, future scheduled rows hidden from non-owners.
+        // Defensive cast: legacy test doubles may stub isAdmin to null.
+        $isAdmin  = (bool) $this->safeIsAdmin(userId: $userId);
+        $filtered = $this->filterByPublicationState(
+            entries: $entries,
+            actorUserId: $userId,
+            actorIsAdmin: $isAdmin
+        );
+
         // REQ-SHARE-002: dashboards reached through an explicit share row
         // are part of "visible to me" too. The mapper's union only covers
         // ownership, group_shared membership and the `default` sentinel, so
         // without this a share is invisible: the recipient never sees the
         // dashboard in the switcher and the resolver can never land on it.
-        // Appended LAST and deduped by UUID so an owned / group-reached row
-        // always keeps its stronger source tag.
+        //
+        // Appended AFTER the publication filter, deliberately. Every
+        // dashboard DashboardFactory creates starts as `draft`
+        // (REQ-DASH-031), and the filter hides drafts from non-owners — so
+        // running shares through it would delete every share again, for the
+        // ordinary case, and leave the feature exactly as dead as before.
+        // A share row is the owner's explicit, named grant to this specific
+        // user; it is the same class of entitlement that already exempts
+        // the owner and admins from the hide, and it is what
+        // PermissionService::resolveAccessLevel() already honours. Users
+        // WITHOUT a share still cannot see a draft.
+        //
+        // Deduped by UUID against the filtered set so an owned or
+        // group-reached row always keeps its stronger source tag.
         $seenUuids = [];
-        foreach ($entries as $entry) {
+        foreach ($filtered as $entry) {
             $seenUuids[(string) $entry['dashboard']->getUuid()] = true;
         }
 
@@ -1191,23 +1215,50 @@ class DashboardService
                 continue;
             }
 
+            // A due scheduled row still materialises in-memory so the
+            // recipient sees the same `published` state everyone else does.
+            $this->materialiseDueSchedule(dashboard: $sharedEntry['dashboard']);
+
             $seenUuids[$uuid] = true;
-            $entries[]        = $sharedEntry;
+            $filtered[]       = $sharedEntry;
         }
 
-        // REQ-DASH-031..035: apply publication-state filter and lazy
-        // materialisation in one pass — drafts hidden from non-owners,
-        // scheduled rows past `publishAt` surfaced as published without
-        // a DB write, future scheduled rows hidden from non-owners.
-        // Defensive cast: legacy test doubles may stub isAdmin to null.
-        $isAdmin = (bool) $this->safeIsAdmin(userId: $userId);
-
-        return $this->filterByPublicationState(
-            entries: $entries,
-            actorUserId: $userId,
-            actorIsAdmin: $isAdmin
-        );
+        return $filtered;
     }//end getVisibleToUser()
+
+    /**
+     * Surface a due `scheduled` dashboard as `published`, in memory only.
+     *
+     * Extracted from {@see self::filterByPublicationState()} so the
+     * share-reached path (which deliberately bypasses the visibility hide,
+     * see `getVisibleToUser`) still reports the same publication state as
+     * every other viewer. No DB write — REQ-DASH-034.
+     *
+     * @param Dashboard $dashboard The dashboard to materialise.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function materialiseDueSchedule(Dashboard $dashboard): void
+    {
+        if ($dashboard->getPublicationStatus() !== Dashboard::STATUS_SCHEDULED) {
+            return;
+        }
+
+        $publishAt = $dashboard->getPublishAt();
+        if ($publishAt === null || $publishAt === '') {
+            return;
+        }
+
+        try {
+            if (new DateTime($publishAt) <= new DateTime()) {
+                $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+            }
+        } catch (Exception) {
+            // Malformed timestamp — leave the row as scheduled.
+        }
+    }//end materialiseDueSchedule()
 
     /**
      * Defensive admin check for the visibility filter.

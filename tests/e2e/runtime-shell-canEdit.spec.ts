@@ -221,6 +221,23 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 	/**
 	 * Build an API context authenticated as an ordinary (non-admin) user.
 	 *
+	 * `storageState: undefined` is passed EXPLICITLY and is load-bearing —
+	 * the same trap `loginAs()` documents for `browser.newContext()`. Without
+	 * it this context inherits playwright.config's top-level
+	 * `use.storageState`, which is the shared ADMIN session cookie from
+	 * global-setup. Nextcloud then authenticates the request by cookie as
+	 * admin and never looks at `httpCredentials` at all.
+	 *
+	 * Measured, not assumed: with the cookie inherited, the instance-analytics
+	 * endpoint returned 200 (admin). A genuine non-admin gets 403, and an
+	 * unauthenticated request gets 401. So every "must not be forbidden"
+	 * assertion below was passing as ADMIN — proving nothing about ordinary
+	 * users, which is precisely what this spec exists to prove.
+	 *
+	 * `send: 'always'` because Nextcloud answers with a bare 401 carrying no
+	 * `WWW-Authenticate` header, so Playwright's default challenge-response
+	 * mode has nothing to respond to and would never send the credentials.
+	 *
 	 * @param {string} username The account.
 	 * @param {string} password Its password.
 	 * @return {Promise<import('@playwright/test').APIRequestContext>} the context.
@@ -228,7 +245,8 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 	async function userApi(username: string, password: string) {
 		return pwRequest.newContext({
 			baseURL: BASE,
-			httpCredentials: { username, password },
+			storageState: undefined,
+			httpCredentials: { username, password, send: 'always' },
 			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 		})
 	}
@@ -242,8 +260,12 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 
 		const api = await userApi(username, password)
 		try {
-			// The ordinary end-user surface must NOT be forbidden. A 403 here
-			// is exactly the defect: the app refusing its own users.
+			// The ordinary end-user surface must be USABLE. Asserted as
+			// `toBe(200)`, deliberately not `not.toBe(403)` — the weaker
+			// form also passes on 401 (never authenticated) and 404 (wrong
+			// URL), so it cannot tell "an ordinary user may do this" from
+			// "the request never reached the endpoint". Both of those false
+			// greens actually occurred while writing this spec.
 			for (const path of [
 				'/index.php/apps/launchpad/api/dashboards',
 				'/index.php/apps/launchpad/api/dashboards/visible',
@@ -252,8 +274,8 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 				const res = await api.get(path)
 				expect(
 					res.status(),
-					`${path} must not be forbidden for an ordinary user`,
-				).not.toBe(403)
+					`${path} must be usable by an ordinary user`,
+				).toBe(200)
 			}
 
 			// The other half of the decision: administrative surfaces stay
@@ -300,10 +322,14 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 				),
 				cta.click(),
 			])
+			// 201 Created is the correct result for this POST; 200 is accepted
+			// too so the assertion tracks "the create succeeded" rather than
+			// one exact code. Still strict where it matters — 401, 403, 404
+			// and every 5xx all fail, which is the whole point of the test.
 			expect(
-				res.status(),
+				[200, 201],
 				'the Create CTA the app itself offers must not be forbidden',
-			).toBe(200)
+			).toContain(res.status())
 
 			// `hasActiveDashboard` comes from the server-rendered initial
 			// state, so the empty state only clears on the next load — which

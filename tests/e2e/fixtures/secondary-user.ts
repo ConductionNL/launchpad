@@ -134,7 +134,26 @@ export async function loginAs(
 	await page.goto('/index.php/login')
 	await page.locator('input[name="user"]').fill(username)
 	await page.locator('input[name="password"]').fill(password)
-	await page.locator('button[type="submit"]').first().click()
+
+	// `noWaitAfter` is load-bearing, and is NOT a timeout increase.
+	//
+	// By default `click()` also waits for any navigation it schedules, and
+	// that wait is bounded by playwright.config's `actionTimeout` (10s) —
+	// not by `navigationTimeout` (60s). The Nextcloud login POST + redirect
+	// + Vue hydration routinely exceeds 10s on a loaded box, so the click
+	// failed with "waiting for scheduled navigations to finish" even though
+	// the login had SUCCEEDED: the saved page snapshot at the moment of
+	// failure shows a fully authenticated page (`#app-dashboard`, the
+	// Applications nav, the Settings menu), not the login form.
+	//
+	// So the premise was sound and only the signal was wrong. The correct
+	// signal already existed on the next line — an explicit
+	// `waitForSelector('#header')` with its own 45s budget. Handing the
+	// navigation wait to that explicit check instead of to `click()`'s
+	// implicit one removes the redundant short wait without weakening
+	// anything: if the login genuinely fails, `#header` never appears and
+	// this still fails, just for the real reason.
+	await page.locator('button[type="submit"]').first().click({ noWaitAfter: true })
 	await page.waitForSelector('#header, header.header', { timeout: 45_000 })
 	return { context, page }
 }

@@ -58,7 +58,7 @@ vi.mock('../../../services/api.js', () => ({
 }))
 
 const stubs = {
-	NcButton: { template: '<button class="nc-button" :data-test="$attrs[\'data-test\']" @click="$emit(\'click\')"><slot /></button>' },
+	NcButton: { emits: ['click'], template: '<button class="nc-button" :data-test="$attrs[\'data-test\']" @click="$emit(\'click\')"><slot /></button>' },
 	NcEmptyContent: { template: '<div class="nc-empty-content" :data-test="$attrs[\'data-test\']"><slot name="icon" /><slot /></div>' },
 	NcLoadingIcon: { template: '<span class="nc-loading-icon" />' },
 	AccountMultipleIcon: { template: '<span class="icon-account-multiple" />' },

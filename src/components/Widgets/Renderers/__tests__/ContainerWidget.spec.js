@@ -125,13 +125,13 @@ describe('ContainerWidget — content rendering', () => {
 })
 
 describe('ContainerWidget — cleanup', () => {
-	it('beforeDestroy nulls the gridInstance reference (idempotent)', () => {
+	it('beforeUnmount nulls the gridInstance reference (idempotent)', () => {
 		const wrapper = mount(ContainerWidget, {
 			propsData: { content: { placements: [] } },
 		})
 		// We don't actually init GridStack in JSDOM (the dynamic import
-		// silently bails) — but the destroy path still runs and must
+		// silently bails) — but the teardown path still runs and must
 		// remain a no-op.
-		expect(() => wrapper.destroy()).not.toThrow()
+		expect(() => wrapper.unmount()).not.toThrow()
 	})
 })

@@ -17,7 +17,7 @@ import { mount } from '@vue/test-utils'
 import VisibilityRuleRow from '../VisibilityRuleRow.vue'
 
 const stubs = {
-	NcButton: { template: '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>' },
+	NcButton: { emits: ['click'], template: '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>' },
 	NcSelect: { template: '<div class="nc-select-stub" />' },
 	NcSelectTags: { template: '<div class="nc-selecttags-stub" />' },
 	NcTextField: {

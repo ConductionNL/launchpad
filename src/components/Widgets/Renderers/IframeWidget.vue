@@ -38,8 +38,7 @@
 			:sandbox="sandboxAttr"
 			frameborder="0"
 			@load="onLoad"
-			@error="onError">
-		</iframe>
+			@error="onError" />
 	</div>
 </template>
 
@@ -213,7 +212,7 @@ export default {
 		this.restart()
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		this.clearTimer()
 	},
 

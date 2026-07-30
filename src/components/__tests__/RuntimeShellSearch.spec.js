@@ -44,7 +44,7 @@ describe('RuntimeShellSearch', () => {
 	let wrappers = []
 
 	afterEach(() => {
-		wrappers.forEach((w) => w.destroy())
+		wrappers.forEach((w) => w.unmount())
 		wrappers = []
 	})
 
@@ -289,7 +289,7 @@ describe('RuntimeShellSearch', () => {
 		it('removes the window keydown listener on destroy', () => {
 			const wrapper = mountSearch()
 			const removeSpy = vi.spyOn(window, 'removeEventListener')
-			wrapper.destroy()
+			wrapper.unmount()
 			expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
 			removeSpy.mockRestore()
 		})

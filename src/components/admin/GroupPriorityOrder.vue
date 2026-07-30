@@ -20,11 +20,10 @@
 					<span class="group-priority__count">{{ active.length }}</span>
 				</div>
 				<NcTextField
-					:value="activeFilter"
+					v-model="activeFilter"
 					:label="t('launchpad', 'Filter active groups')"
 					:placeholder="t('launchpad', 'Filter')"
-					class="group-priority__filter"
-					@update:value="activeFilter = $event" />
+					class="group-priority__filter" />
 
 				<ul
 					class="group-priority__list group-priority__list--active"
@@ -66,11 +65,10 @@
 					<span class="group-priority__count">{{ inactive.length }}</span>
 				</div>
 				<NcTextField
-					:value="inactiveFilter"
+					v-model="inactiveFilter"
 					:label="t('launchpad', 'Filter inactive groups')"
 					:placeholder="t('launchpad', 'Filter')"
-					class="group-priority__filter"
-					@update:value="inactiveFilter = $event" />
+					class="group-priority__filter" />
 
 				<ul
 					class="group-priority__list group-priority__list--inactive"
@@ -186,7 +184,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/admin-roles/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.saveTimer) {
 			clearTimeout(this.saveTimer)
 		}
@@ -210,7 +208,16 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Narrow a list of group ids to those whose id or display name
+		 * contains the filter text (case-insensitive).
+		 *
+		 * @param {string[]} list Group ids to filter.
+		 * @param {string} filter Raw filter text from the search box.
+		 * @return {string[]} The matching group ids; the full list when the
+		 *   filter is blank.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		applyFilter(list, filter) {
 			const f = (filter || '').trim().toLowerCase()
 			if (f === '') return list
@@ -220,18 +227,40 @@ export default {
 			})
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Human-readable name for a group id, falling back to the raw id
+		 * when the group is no longer known to Nextcloud.
+		 *
+		 * @param {string} id Nextcloud group id.
+		 * @return {string} Display name, or the id itself.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		displayName(id) {
 			return this.displayNameMap[id] || id
 		},
 
+		/**
+		 * Whether a configured group id no longer exists in Nextcloud — such
+		 * rows render with a "(removed)" affix (REQ-ASET-013).
+		 *
+		 * @param {string} id Nextcloud group id.
+		 * @return {boolean} True when the id is stale.
+		 */
 		isStale(id) {
 			return this.knownIdSet.has(id) === false
 		},
 
 		// --- Drag-and-drop handlers (native HTML5) ---
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Begin a drag, recording which row left which column.
+		 *
+		 * @param {DragEvent} event The dragstart event.
+		 * @param {string} id Group id being dragged.
+		 * @param {string} column Column the drag started in.
+		 * @param {number} index Row index within that column.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onDragStart(event, id, column, index) {
 			this.dragState = { id, fromColumn: column, fromIndex: index }
 			if (event.dataTransfer) {
@@ -240,22 +269,44 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Mark a column as a valid drop target while dragging over it.
+		 *
+		 * @param {DragEvent} event The dragover event.
+		 * @param {string} _column Column under the cursor; unused — every
+		 *   column accepts a drop.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onDragOver(event, _column) {
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect = 'move'
 			}
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Mark an individual row as a valid drop target.
+		 *
+		 * @param {DragEvent} event The dragover event.
+		 * @param {number} _index Row index under the cursor; unused — the
+		 *   insertion point is computed on drop.
+		 * @param {string} _column Column under the cursor; unused for the
+		 *   same reason.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onItemDragOver(event, _index, _column) {
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect = 'move'
 			}
 		},
 
-		// Drop on empty space inside a column → append at the end.
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Handle a drop on empty space inside a column — appends the dragged
+		 * group at the end of that column.
+		 *
+		 * @param {DragEvent} event The drop event.
+		 * @param {string} toColumn Column the group was dropped into.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onDrop(event, toColumn) {
 			if (!this.dragState) return
 			const { id, fromColumn } = this.dragState
@@ -267,8 +318,15 @@ export default {
 			this.moveBetweenColumns(id, fromColumn, toColumn, null)
 		},
 
-		// Drop directly on another item → insert before that item.
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Handle a drop directly onto another row — inserts the dragged
+		 * group before that row.
+		 *
+		 * @param {DragEvent} event The drop event.
+		 * @param {number} targetIndex Index of the row dropped onto.
+		 * @param {string} toColumn Column the group was dropped into.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onItemDrop(event, targetIndex, toColumn) {
 			if (!this.dragState) return
 			const { id, fromColumn, fromIndex } = this.dragState
@@ -289,7 +347,17 @@ export default {
 			this.moveBetweenColumns(id, fromColumn, toColumn, targetIndex)
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Move a group from one column to the other, then queue a save.
+		 * A no-op when both columns are the same.
+		 *
+		 * @param {string} id Group id to move.
+		 * @param {string} fromColumn Column the group is leaving.
+		 * @param {string} toColumn Column the group is joining.
+		 * @param {number|null} insertIndex Position within the target column;
+		 *   null (or out of range) appends at the end.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		moveBetweenColumns(id, fromColumn, toColumn, insertIndex) {
 			if (fromColumn === toColumn) return
 			if (fromColumn === 'active') {
@@ -319,14 +387,23 @@ export default {
 			this.queueSave()
 		},
 
-		// Click-to-move shortcuts for accessibility (drag-and-drop is
-		// not screen-reader friendly).
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Click-to-move shortcut promoting a group to the active column.
+		 * Provided because drag-and-drop is not screen-reader operable.
+		 *
+		 * @param {string} id Group id to activate.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		moveToActive(id) {
 			this.moveBetweenColumns(id, 'inactive', 'active', null)
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Click-to-move shortcut demoting a group to the inactive column.
+		 *
+		 * @param {string} id Group id to deactivate.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		moveToInactive(id) {
 			this.moveBetweenColumns(id, 'active', 'inactive', null)
 		},

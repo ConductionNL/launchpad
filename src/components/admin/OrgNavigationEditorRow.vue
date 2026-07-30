@@ -93,28 +93,31 @@
 				:placeholder="t('launchpad', 'Group ids, comma separated')"
 				@input="onFreeTextGroupsInput">
 		</div>
+		<!-- vuedraggable v4 (Vue 3): rows come from the `#item` scoped slot, and
+		     `item-key` replaces the manual :key binding. See OrgNavigationEditor. -->
 		<draggable
 			v-if="hasChildren"
 			:list="node.children"
 			tag="ul"
+			item-key="id"
 			class="org-nav-row__children"
 			handle=".org-nav-row__handle"
 			ghost-class="org-nav-row__ghost"
 			:animation="150">
-			<OrgNavigationEditorRow
-				v-for="(child, idx) in node.children"
-				:key="child.id"
-				:node="child"
-				:level="level + 1"
-				:index="idx"
-				:siblings="node.children"
-				:max-depth="maxDepth"
-				:groups="groups"
-				@update="(payload) => $emit('update', payload)"
-				@delete="(payload) => $emit('delete', payload)"
-				@move-up="(payload) => $emit('move-up', payload)"
-				@move-down="(payload) => $emit('move-down', payload)"
-				@add-child="(payload) => $emit('add-child', payload)" />
+			<template #item="{ element: child, index: idx }">
+				<OrgNavigationEditorRow
+					:node="child"
+					:level="level + 1"
+					:index="idx"
+					:siblings="node.children"
+					:max-depth="maxDepth"
+					:groups="groups"
+					@update="(payload) => $emit('update', payload)"
+					@delete="(payload) => $emit('delete', payload)"
+					@move-up="(payload) => $emit('move-up', payload)"
+					@move-down="(payload) => $emit('move-down', payload)"
+					@add-child="(payload) => $emit('add-child', payload)" />
+			</template>
 		</draggable>
 	</li>
 </template>
@@ -225,7 +228,12 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Ask the editor to merge changed fields into this row's node.
+		 *
+		 * @param {object} patch Changed fields for the node.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		emitPatch(patch) {
 			this.$emit('update', { node: this.node, patch })
 		},
@@ -241,7 +249,12 @@ export default {
 			this.emitPatch({ icon: value || null })
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Switch between "visible to everyone" and a per-group list.
+		 *
+		 * @param {boolean} allVisible True to clear the group restriction.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onToggleVisibilityAll(allVisible) {
 			if (allVisible) {
 				this.localVisibility = null

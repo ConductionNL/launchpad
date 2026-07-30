@@ -9,11 +9,15 @@
 			{{ t('launchpad', 'Embed an external page — only hosts your administrator has allow-listed can be embedded.') }}
 		</p>
 
+		<!-- @nextcloud/vue@9: `value`/`checked` + `update:value`/`update:checked`
+		     were renamed to `modelValue` + `update:modelValue`. Both old names
+		     fail silently under Vue 3. Listener stays camelCase — `useModel()`
+		     matches a literal `onUpdate:modelValue`, not the kebab spelling. -->
 		<NcTextField
-			:value="url"
+			:model-value="url"
 			:label="t('launchpad', 'URL')"
 			:placeholder="t('launchpad', 'https://…')"
-			@update:value="onUrlChange"
+			@update:modelValue="onUrlChange"
 			@blur="checkUrlAllowed" />
 		<p v-if="urlAllowListError" class="iframe-widget-form__warning">
 			{{ urlAllowListError }}
@@ -23,28 +27,28 @@
 		</p>
 
 		<NcTextField
-			:value="title"
+			:model-value="title"
 			:label="t('launchpad', 'Title')"
 			:placeholder="t('launchpad', 'e.g. Status page')"
-			@update:value="updateField('title', $event)" />
+			@update:modelValue="updateField('title', $event)" />
 		<p class="iframe-widget-form__hint-small">
 			{{ t('launchpad', 'Read by screen readers — required for accessibility.') }}
 		</p>
 
 		<div class="iframe-widget-form__row">
 			<NcTextField
-				:value="String(height)"
+				:model-value="String(height)"
 				type="number"
 				:label="t('launchpad', 'Height (px)')"
 				:disabled="aspect !== 'none'"
-				@update:value="onHeightChange" />
+				@update:modelValue="onHeightChange" />
 			<NcSelect
-				:value="aspect"
+				:model-value="aspect"
 				:options="aspectOptions"
 				:input-label="t('launchpad', 'Aspect ratio')"
 				:reduce="(option) => option.value"
 				label="label"
-				@input="(val) => updateField('aspect', val || 'none')" />
+				@update:modelValue="(val) => updateField('aspect', val || 'none')" />
 		</div>
 
 		<fieldset class="iframe-widget-form__sandbox">
@@ -52,9 +56,9 @@
 			<NcCheckboxRadioSwitch
 				v-for="token in SANDBOX_TOKEN_OPTIONS"
 				:key="token.value"
-				:checked="sandbox.includes(token.value)"
+				:model-value="sandbox.includes(token.value)"
 				type="switch"
-				@update:checked="(checked) => toggleSandboxToken(token.value, checked)">
+				@update:modelValue="(checked) => toggleSandboxToken(token.value, checked)">
 				{{ token.label }}
 			</NcCheckboxRadioSwitch>
 			<p class="iframe-widget-form__hint-small">
@@ -216,7 +220,13 @@ export default {
 			return Math.round(num)
 		},
 
-		/** @spec openspec/specs/iframe-embed-widget/spec.md */
+		/**
+		 * Set the embed URL, clearing the allow-list verdict so the new
+		 * host is re-checked before the frame renders.
+		 *
+		 * @param {string} val The new URL.
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
 		onUrlChange(val) {
 			this.url = val
 			this.urlAllowListError = ''
@@ -224,13 +234,24 @@ export default {
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/iframe-embed-widget/spec.md */
+		/**
+		 * Set the embed height.
+		 *
+		 * @param {number} val Height in pixels.
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
 		onHeightChange(val) {
 			this.height = val
 			this.emitUpdate()
 		},
 
-		/** @spec openspec/specs/iframe-embed-widget/spec.md */
+		/**
+		 * Set one top-level form field.
+		 *
+		 * @param {string} field Name of the data property to write.
+		 * @param {*} val New value for that field.
+		 * @spec openspec/specs/iframe-embed-widget/spec.md
+		 */
 		updateField(field, val) {
 			this[field] = val
 			this.emitUpdate()

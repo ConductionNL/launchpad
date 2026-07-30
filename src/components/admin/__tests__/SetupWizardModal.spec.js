@@ -25,9 +25,15 @@ vi.mock('../../../services/api.js', () => ({
 	},
 }))
 
+// `emits: ['click']` is required under Vue 3: listeners arrive in `$attrs`
+// as `onClick` and are auto-applied to the root `<button>`, so without the
+// declaration the parent's `@click` handler runs twice per click — once
+// natively and once via `$emit`. Declaring the event removes `onClick`
+// from `$attrs`, leaving `$emit` as the only path.
 const ncButtonStub = {
 	name: 'NcButton',
 	props: ['type', 'disabled'],
+	emits: ['click'],
 	template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
 }
 const ncModalStub = {

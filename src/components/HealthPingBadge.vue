@@ -163,7 +163,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/service-health-ping/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		this.stopPolling()
 	},
 

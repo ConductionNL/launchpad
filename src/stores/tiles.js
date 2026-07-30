@@ -26,7 +26,14 @@ export const useTileStore = defineStore('tiles', {
 			}
 		},
 
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * Create a reusable launcher tile and append it to the local list.
+		 *
+		 * @param {object} tileData Tile attributes (title, icon, colours,
+		 *   link target).
+		 * @return {Promise<object>} The created tile.
+		 * @spec openspec/specs/tiles/spec.md
+		 */
 		async createTile(tileData) {
 			try {
 				const response = await api.createTile(tileData)
@@ -38,7 +45,14 @@ export const useTileStore = defineStore('tiles', {
 			}
 		},
 
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * Update a launcher tile and patch it into the local list.
+		 *
+		 * @param {number|string} id Id of the tile to update.
+		 * @param {object} tileData Changed tile attributes.
+		 * @return {Promise<object>} The updated tile.
+		 * @spec openspec/specs/tiles/spec.md
+		 */
 		async updateTile(id, tileData) {
 			try {
 				const response = await api.updateTile(id, tileData)
@@ -53,7 +67,12 @@ export const useTileStore = defineStore('tiles', {
 			}
 		},
 
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * Delete a launcher tile and drop it from the local list.
+		 *
+		 * @param {number|string} id Id of the tile to delete.
+		 * @spec openspec/specs/tiles/spec.md
+		 */
 		async deleteTile(id) {
 			try {
 				await api.deleteTile(id)

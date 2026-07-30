@@ -14,9 +14,35 @@
  *
  * Real visual coverage of `@conduction/nextcloud-vue` lives in the
  * upstream package's own test suite.
+ *
+ * CONSEQUENCE — read this before trusting a green unit run:
+ *
+ * No unit test in this suite exercises the real
+ * `@conduction/nextcloud-vue`. The alias in `vitest.config.js` redirects
+ * EVERY import to this file, so library integration is covered ONLY by the
+ * Playwright e2e suite. A green unit run is not evidence that the library
+ * works — it is evidence that this stub does. The suite structurally
+ * cannot catch a library regression: not a breaking prop change, not a
+ * renamed event, not a component that renders nothing.
+ *
+ * That last one is not hypothetical. Earlier in the Vue-3 migration the
+ * library shipped a dist whose render wiring had been tree-shaken away, so
+ * every `Cn` component rendered as a silent comment node — blank app, zero
+ * console errors. The unit suite stayed fully green throughout, because
+ * these stubs render fine. Only a browser caught it.
+ *
+ * Specs that need real component behaviour must opt in deliberately with
+ * `vi.mock(...)`, and anything asserting on rendered library markup
+ * belongs in `tests/e2e/`.
+ *
+ * Vue 3 no longer hands `h` to the render function as its first argument —
+ * it is imported from `vue` instead, and the vnode data object is flat
+ * (`h('img', { src })`) rather than Vue 2's nested `{ attrs: { src } }`.
  */
 
-const stub = (name) => ({ name, render: (h) => h('div') })
+import { h } from 'vue'
+
+const stub = (name) => ({ name, render: () => h('div') })
 
 export const NcModal = stub('NcModal')
 export const NcButton = stub('NcButton')
@@ -73,12 +99,12 @@ export const CnDashboardIcon = {
 			return !this.isUrl && typeof this.name === 'string' && /^[Mm][\d\s.,-]/.test(this.name)
 		},
 	},
-	render(h) {
+	render() {
 		if (this.isUrl) {
-			return h('img', { attrs: { src: this.name, alt: this.alt || 'icon', width: this.size, height: this.size } })
+			return h('img', { src: this.name, alt: this.alt || 'icon', width: this.size, height: this.size })
 		}
 		if (this.isPath) {
-			return h('svg', { attrs: { viewBox: '0 0 24 24', width: this.size, height: this.size } }, [h('path', { attrs: { d: this.name } })])
+			return h('svg', { viewBox: '0 0 24 24', width: this.size, height: this.size }, [h('path', { d: this.name })])
 		}
 		return h('div')
 	},
@@ -95,7 +121,7 @@ export const isCustomIconUrl = (n) => typeof n === 'string' && (n.startsWith('/'
 // the registry's `renderer`/`form` entries are valid component objects.
 // Renders an identifiable element so registry-dispatch tests (e.g.
 // ContainerWidget recursive dispatch) can assert the child rendered.
-export const CnLabelWidget = { name: 'CnLabelWidget', render: (h) => h('div', { class: 'cn-label-widget' }) }
+export const CnLabelWidget = { name: 'CnLabelWidget', render: () => h('div', { class: 'cn-label-widget' }) }
 export const CnTextWidget = stub('CnTextWidget')
 export const CnImageWidget = stub('CnImageWidget')
 export const CnLinkButtonWidget = stub('CnLinkButtonWidget')
@@ -153,7 +179,7 @@ export const CnLabelWidgetForm = {
 				: ['Label text is required']
 		},
 	},
-	render(h) {
+	render() {
 		return h('div', { class: 'cn-label-widget-form' })
 	},
 }

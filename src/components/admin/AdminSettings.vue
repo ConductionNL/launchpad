@@ -53,13 +53,13 @@
 						label="label"
 						track-by="id"
 						:clearable="false"
-						@input="saveSettings" />
+						@update:modelValue="saveSettings" />
 				</div>
 
 				<NcCheckboxRadioSwitch
-					:checked="settings.allowUserDashboards"
+					:model-value="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
-					@update:checked="updateSetting('allowUserDashboards', $event)">
+					@update:modelValue="updateSetting('allowUserDashboards', $event)">
 					{{ t('launchpad', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
 				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
@@ -67,8 +67,8 @@
 				</p>
 
 				<NcCheckboxRadioSwitch
-					:checked="settings.allowMultipleDashboards"
-					@update:checked="updateSetting('allowMultipleDashboards', $event)">
+					:model-value="settings.allowMultipleDashboards"
+					@update:modelValue="updateSetting('allowMultipleDashboards', $event)">
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
@@ -78,19 +78,19 @@
 						:input-label="t('launchpad', 'Default grid columns')"
 						:options="gridColumnOptions"
 						:clearable="false"
-						@input="saveSettings" />
+						@update:modelValue="saveSettings" />
 				</div>
 
 				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
 				     quotas. `0` = unlimited (no enforcement). -->
 				<div class="launchpad-admin__field" data-testid="admin-quota-dashboards">
 					<NcTextField
-						:value.sync="settings.maxDashboardsPerUser"
+						v-model="settings.maxDashboardsPerUser"
 						type="number"
 						min="0"
 						max="10000"
 						:label="t('launchpad', 'Maximum dashboards per user')"
-						@update:value="onQuotaInput('maxDashboardsPerUser', $event)" />
+						@update:modelValue="onQuotaInput('maxDashboardsPerUser', $event)" />
 					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
 						{{ t('launchpad', '0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.') }}
 					</p>
@@ -98,12 +98,12 @@
 
 				<div class="launchpad-admin__field" data-testid="admin-quota-widgets">
 					<NcTextField
-						:value.sync="settings.maxWidgetsPerDashboard"
+						v-model="settings.maxWidgetsPerDashboard"
 						type="number"
 						min="0"
 						max="10000"
 						:label="t('launchpad', 'Maximum widgets per dashboard')"
-						@update:value="onQuotaInput('maxWidgetsPerDashboard', $event)" />
+						@update:modelValue="onQuotaInput('maxWidgetsPerDashboard', $event)" />
 					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
 						{{ t('launchpad', '0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.') }}
 					</p>
@@ -336,7 +336,12 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Switch the active admin tab.
+		 *
+		 * @param {string} slug Slug of the newly selected tab.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		onTabChange(slug) {
 			this.activeTab = slug
 		},
@@ -381,7 +386,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * Write one setting and persist the whole set.
+		 *
+		 * @param {string} key Setting key to write.
+		 * @param {*} value New value for that key.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
 		updateSetting(key, value) {
 			this.settings[key] = value
 			this.saveSettings()
@@ -395,8 +406,8 @@ export default {
 		 *
 		 * @param {*} value the raw input value
 		 * @return {number} the clamped non-negative integer
+		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
 		 */
-		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
 		clampQuota(value) {
 			const num = Number.parseInt(value, 10)
 			if (Number.isNaN(num) || num < 0) {
@@ -416,8 +427,8 @@ export default {
 		 * @param {string} key the settings key (`maxDashboardsPerUser` | `maxWidgetsPerDashboard`)
 		 * @param {*} value the raw input value
 		 * @return {void}
+		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
 		 */
-		/** @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings */
 		onQuotaInput(key, value) {
 			this.settings[key] = this.clampQuota(value)
 			this.saveSettings()
@@ -427,8 +438,8 @@ export default {
 		 * Resolve the list of group ids the admin curates (REQ-DASH-015).
 		 *
 		 * @return {string[]} Group ids to render.
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		resolveAdminGroupIds() {
 			const configured = Array.isArray(this.injectedConfiguredGroups)
 				? this.injectedConfiguredGroups
@@ -445,8 +456,8 @@ export default {
 		 * Fetch group-shared dashboards for every curated group (REQ-DASH-014).
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadGroupSharedDashboards() {
 			this.loadingGroupDashboards = true
 			const groupIds = this.resolveAdminGroupIds()
@@ -470,8 +481,8 @@ export default {
 		 * Fetch the wizard state for the banner gate (REQ-WIZ-001).
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		async loadWizardState() {
 			try {
 				const { data } = await api.getSetupWizardState()
@@ -509,8 +520,8 @@ export default {
 		 * @param {string} groupId The group id from the row context.
 		 * @param {string} uuid The dashboard uuid to promote.
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		/** @spec openspec/specs/admin-settings/spec.md */
 		async setGroupDefault(groupId, uuid) {
 			const rows = this.groupSharedDashboards[groupId] || []
 			const snapshot = rows.map(d => ({ uuid: d.uuid, isDefault: d.isDefault }))

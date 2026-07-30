@@ -17,7 +17,7 @@ import WidgetMovePanel from '../WidgetMovePanel.vue'
 
 const stubs = {
 	NcModal: { template: '<div class="nc-modal-stub"><slot /></div>' },
-	NcButton: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+	NcButton: { emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' },
 }
 
 beforeEach(() => {

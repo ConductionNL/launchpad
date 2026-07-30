@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 #
-# deploy-to-launchpad.sh — deploy the LaunchPad source into the dev Nextcloud
-# container as the transformed `launchpad` app (the NC App Store id is `launchpad`,
-# the source namespace is `OCA\LaunchPad`). The container app MUST be a full
-# transform — a partial one 500s the whole instance (router loads every app's
-# attribute routes, so one unresolvable class kills even /login).
+# deploy-to-launchpad.sh — deploy the LaunchPad source into the disposable
+# e2e Nextcloud container as the transformed `launchpad` app (the NC App
+# Store id is `launchpad`, the source namespace is `OCA\LaunchPad`). The
+# container app MUST be a full transform — a partial one 500s the whole
+# instance (router loads every app's attribute routes, so one unresolvable
+# class kills even /login).
 #
 # The transform (reverse-engineered + proven; see
 # memory reference_launchpad-launchpad-deploy-mismatch):
@@ -18,11 +19,33 @@
 #   5. App dir:         custom_apps/launchpad -> custom_apps/launchpad.
 #   6. chown www-data, occ app:enable launchpad, occ upgrade, maintenance --off.
 #
-# Re-run any time the dev container is recreated (the launchpad copy is NOT
-# persistent — it is a generated transform of the bind-mounted source).
+# Re-run any time the target container is recreated (the launchpad copy is
+# NOT persistent — it is a generated transform copied in via `docker cp`).
+#
+# Target container (FIXED 2026-07-29 — see below):
+#   `LAUNCHPAD_DEPLOY_CONTAINER` env var, default `lp-vue3-e2e` (the
+#   disposable e2e container the Playwright suite actually points at via
+#   `NC_BASE_URL=http://localhost:8098`). Override only for a deliberately
+#   different disposable target — never point this at a shared dev
+#   container that bind-mounts a real checkout (see the bind-mount guard
+#   below; it will refuse and tell you why).
+#
+#   PAST BUG: this script used to resolve its target with
+#   `docker ps -qf name=nextcloud`, a SUBSTRING match against container
+#   names. On a box that also runs a shared `nextcloud` dev container (used
+#   by other apps/worktrees), that substring innocently matched the WRONG
+#   container — one that bind-mounts `custom_apps/launchpad` straight onto
+#   a real host checkout. Every "successful" deploy wrote through the mount
+#   onto disk instead of reaching `lp-vue3-e2e` at all: the e2e suite kept
+#   testing a stale bundle for the whole session while every app-source fix
+#   silently landed on somebody else's checkout instead. `docker ps -qf` is
+#   never safe for picking a deploy target when container names aren't
+#   guaranteed unique/disjoint on the box — name the target explicitly and
+#   verify what you got before writing to it.
 #
 # Usage:  bash tools/deploy-to-launchpad.sh            # full deploy (PHP+JS+info)
 #         bash tools/deploy-to-launchpad.sh --js-only  # fast: only redeploy bundles
+#         LAUNCHPAD_DEPLOY_CONTAINER=other-e2e bash tools/deploy-to-launchpad.sh
 #
 # SPDX-FileCopyrightText: 2026 LaunchPad Contributors
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -32,9 +55,40 @@ SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JS_ONLY=0
 [ "${1:-}" = "--js-only" ] && JS_ONLY=1
 
-CID="$(docker ps -qf name=nextcloud | head -1)"
-if [ -z "$CID" ]; then echo "ERROR: no running 'nextcloud' container" >&2; exit 1; fi
 DEST=/var/www/html/custom_apps/launchpad
+CID="${LAUNCHPAD_DEPLOY_CONTAINER:-lp-vue3-e2e}"
+
+# Resolve by EXACT name/id (never a substring match — see the header
+# comment for why that bit us) and confirm it is actually running.
+if [ "$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)" != "true" ]; then
+	echo "ERROR: container '$CID' is not running (checked via \`docker inspect\`)." >&2
+	echo "Set LAUNCHPAD_DEPLOY_CONTAINER to the correct disposable e2e container." >&2
+	exit 1
+fi
+
+# Refuse to deploy if $DEST (or any ancestor of it) is a BIND mount. A bind
+# mount means the container's app directory is wired straight onto a real
+# host path — deploying there overwrites someone's actual checkout instead
+# of a disposable e2e instance (this is exactly how a substring-matched
+# `nextcloud` container silently absorbed a whole session's worth of deploys
+# meant for `lp-vue3-e2e`). A volume or a plain in-container directory is
+# fine; only `bind` is refused.
+while IFS='|' read -r mount_type mount_dest mount_src; do
+	[ -z "$mount_dest" ] && continue
+	case "$DEST" in
+		"$mount_dest" | "$mount_dest"/*)
+			if [ "$mount_type" = "bind" ]; then
+				echo "ERROR: $CID:$mount_dest is a BIND MOUNT onto host path '$mount_src'." >&2
+				echo "Deploying to $CID:$DEST would write through to that real checkout —" >&2
+				echo "refusing. This is very likely someone else's work, or the shared dev" >&2
+				echo "instance this project's rules say never to deploy to." >&2
+				echo "Set LAUNCHPAD_DEPLOY_CONTAINER to the correct disposable e2e container." >&2
+				exit 1
+			fi
+			;;
+	esac
+done < <(docker inspect "$CID" --format '{{range .Mounts}}{{.Type}}|{{.Destination}}|{{.Source}}
+{{end}}')
 
 # Transform a single file in-place (host staging copy only — never the source).
 # Rules: (1) PHP namespace OCA\LaunchPad → OCA\LaunchPad; (2) DB table prefix
@@ -75,20 +129,44 @@ if [ "$JS_ONLY" -eq 0 ]; then
 	sed -i 's#<namespace>LaunchPad</namespace>#<namespace>LaunchPad</namespace>#' "$STAGE/appinfo/info.xml"
 
 	echo "→ renaming + rewriting JS bundles (launchpad- → launchpad-)…"
+	# NOTE: the source and target app ids are both "launchpad" now (see the
+	# header comment), so `new` below is IDENTICAL to `f` for every file.
+	# Writing sed's output straight to "$new" via `>` truncates the file
+	# before sed even opens it for reading (bash processes redirections
+	# before exec'ing the command) — every bundle would come out empty. The
+	# trailing `mv "$f.LICENSE.txt" "$new.LICENSE.txt"` then fails outright
+	# ("are the same file") since both sides are one path. Stage the sed
+	# output in a throwaway temp file and `mv` it into place instead, and
+	# only rename the LICENSE sidecar when the path genuinely differs — this
+	# stays correct if the ids are ever un-aliased back to two different
+	# strings.
 	for f in "$STAGE"/js/launchpad-*.js; do
 		[ -e "$f" ] || continue
 		new="$STAGE/js/$(basename "$f" | sed 's/^launchpad-/launchpad-/')"
-		sed 's/"launchpad-"+/"launchpad-"+/g' "$f" > "$new"
-		rm -f "$f"
-		[ -f "$f.LICENSE.txt" ] && mv "$f.LICENSE.txt" "$new.LICENSE.txt"
+		tmp_js="$(mktemp)"
+		sed 's/"launchpad-"+/"launchpad-"+/g' "$f" > "$tmp_js"
+		[ "$f" != "$new" ] && rm -f "$f"
+		mv "$tmp_js" "$new"
+		if [ -f "$f.LICENSE.txt" ] && [ "$f.LICENSE.txt" != "$new.LICENSE.txt" ]; then
+			mv "$f.LICENSE.txt" "$new.LICENSE.txt"
+		fi
 	done
 
 	echo "→ deploying to container $CID:$DEST…"
 	# custom_apps is a tmpfs mount; `docker cp` into it silently no-ops. Ship a
 	# tarball to the container's /tmp (normal overlay) and extract IN-container.
+	#
+	# $DEST itself can ALSO be its own bind mount (observed: WSL Docker
+	# Desktop wired a host directory straight onto
+	# /var/www/html/custom_apps/launchpad on this dev box) — `rm -rf "$DEST"`
+	# then fails with "Device or resource busy" on the mount point after it
+	# has already deleted every file underneath, leaving the app directory
+	# EMPTY and the instance broken until the next successful deploy. Clear
+	# the directory's CONTENTS instead of the directory itself so this works
+	# whether $DEST is a plain directory or a mount point.
 	tar -C "$STAGE" -czf /tmp/launchpad-deploy.tar.gz .
 	docker cp /tmp/launchpad-deploy.tar.gz "$CID:/tmp/launchpad-deploy.tar.gz"
-	docker exec "$CID" sh -c "rm -rf '$DEST' && mkdir -p '$DEST' && tar -xzf /tmp/launchpad-deploy.tar.gz -C '$DEST' && rm -f /tmp/launchpad-deploy.tar.gz"
+	docker exec "$CID" sh -c "mkdir -p '$DEST' && find '$DEST' -mindepth 1 -delete && tar -xzf /tmp/launchpad-deploy.tar.gz -C '$DEST' && rm -f /tmp/launchpad-deploy.tar.gz"
 	docker exec "$CID" chown -R www-data:www-data "$DEST"
 	rm -f /tmp/launchpad-deploy.tar.gz
 	rm -rf "$(dirname "$STAGE")"

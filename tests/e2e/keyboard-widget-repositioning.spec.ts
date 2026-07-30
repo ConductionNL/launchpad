@@ -17,7 +17,7 @@
  *   - Accessibility: the move panel exposes an accessible group name and
  *     traps focus (focus stays inside the panel, not the canvas behind it).
  *
- * NOTE: These tests require a running Nextcloud instance with the mydash
+ * NOTE: These tests require a running Nextcloud instance with the launchpad
  * app installed and at least one widget placement on the active dashboard.
  * The harness supplies authenticated storage state via the global setup at
  * `tests/e2e/global-setup.ts`. In CI, the Hydra pipeline wires this up; run
@@ -32,21 +32,21 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * Navigate to mydash, wait for the grid to hydrate, and switch into edit
+ * Navigate to launchpad, wait for the grid to hydrate, and switch into edit
  * mode so grid items become keyboard-focusable and the context menu opens.
  *
  * @param {import('@playwright/test').Page} page Playwright page fixture.
  */
 async function openInEditMode(page: import('@playwright/test').Page) {
-	await page.goto('/index.php/apps/mydash')
+	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	} catch {
-		await page.goto('/index.php/apps/mydash')
-		await page.waitForSelector('.mydash-sidebar-toggle', { timeout: 20_000 })
+		await page.goto('/index.php/apps/launchpad')
+		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
 
-	await page.locator('.mydash-sidebar-toggle').first().click()
+	await page.locator('.launchpad-sidebar-toggle').first().click()
 	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
 	const activeRow = page.locator(
 		'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
@@ -54,7 +54,7 @@ async function openInEditMode(page: import('@playwright/test').Page) {
 	await activeRow.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
 
-	await page.waitForSelector('.mydash-edit-mode', { timeout: 8_000 })
+	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
 	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 	if (await closeBtn.isVisible().catch(() => false)) {
 		await closeBtn.click()
@@ -121,7 +121,7 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 
 		// Reload and confirm the new position persisted.
 		await page.reload({ waitUntil: 'domcontentloaded' })
-		await page.waitForSelector('.mydash-container', { timeout: 20_000 })
+		await page.waitForSelector('.launchpad-container', { timeout: 20_000 })
 		await page.waitForTimeout(1_000)
 		const persistedX = parseInt(
 			(await page.locator(`[gs-id="${gsId}"]`).getAttribute('gs-x')) ?? '0',

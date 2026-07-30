@@ -9,21 +9,23 @@
 			{{ t('launchpad', 'Show current conditions for a location. Units and language follow your Nextcloud locale unless overridden below.') }}
 		</p>
 
+		<!-- @nextcloud/vue@9: `value` + `update:value` were renamed to
+		     `modelValue` + `update:modelValue`; the old pair fails silently. -->
 		<NcTextField
-			:value="location"
+			:model-value="location"
 			:label="t('launchpad', 'Location')"
 			:placeholder="t('launchpad', 'e.g. Amsterdam, NL')"
 			required
-			@update:value="updateField('location', $event)" />
+			@update:modelValue="updateField('location', $event)" />
 
 		<NcSelect
-			:value="unitsOverride"
+			:model-value="unitsOverride"
 			:options="unitsOptions"
 			:input-label="t('launchpad', 'Units')"
 			:placeholder="t('launchpad', 'Follow my locale')"
 			:reduce="(option) => option.value"
 			label="label"
-			@input="updateField('unitsOverride', $event || '')" />
+			@update:modelValue="updateField('unitsOverride', $event || '')" />
 	</div>
 </template>
 

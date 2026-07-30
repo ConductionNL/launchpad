@@ -107,7 +107,7 @@ const DEFAULT_CONTENT = Object.freeze({
  *
  * Pagination is offset-based and matches the backend service contract
  * (REQ-PPL-003): each "Load more" tap appends one page of size
- * {@link PAGE_SIZE} starting at the current `users.length`.
+ * `PAGE_SIZE` starting at the current `users.length`.
  *
  * Caching: results are kept in an in-memory map keyed on the JSON-encoded
  * filter shape for {@link CACHE_TTL_MS}; the toolbar refresh button
@@ -244,12 +244,25 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/people-widget/spec.md */
+		/**
+		 * Nextcloud profile URL for a user.
+		 *
+		 * @param {string} uid The user id.
+		 * @return {string} Path to that user's profile page.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
 		profileUrl(uid) {
 			return `/u/${encodeURIComponent(uid)}`
 		},
 
-		/** @spec openspec/specs/people-widget/spec.md */
+		/**
+		 * Whether a user's card should carry a birthday badge — requires the
+		 * widget setting, a known birthdate, and an upcoming date.
+		 *
+		 * @param {object} user The user record.
+		 * @return {boolean} True when the badge should render.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
 		showBirthdayBadge(user) {
 			if (!this.showBirthdays || !user.birthdate) {
 				return false
@@ -261,7 +274,13 @@ export default {
 			return days >= 0 && days <= this.birthdayWindowDays
 		},
 
-		/** @spec openspec/specs/people-widget/spec.md */
+		/**
+		 * Badge text for an upcoming birthday.
+		 *
+		 * @param {object} user The user record.
+		 * @return {string} Localised "today" or "in {n} days" label.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
 		formatBirthdayBadge(user) {
 			const days = this.daysToBirthday(user.birthdate)
 			if (days === 0) {
@@ -270,7 +289,14 @@ export default {
 			return t('launchpad', '🎂 in {n} days', { n: days })
 		},
 
-		/** @spec openspec/specs/people-widget/spec.md */
+		/**
+		 * Days until a user's next birthday, ignoring the birth year.
+		 *
+		 * @param {string} iso Birthdate as `YYYY-MM-DD`.
+		 * @return {number|null} Whole days until the next occurrence, or
+		 *   null when the input is missing or unparseable.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
 		daysToBirthday(iso) {
 			if (typeof iso !== 'string' || !iso) {
 				return null
@@ -313,7 +339,14 @@ export default {
 			this.fetchPage(0)
 		},
 
-		/** @spec openspec/specs/people-widget/spec.md */
+		/**
+		 * Fetch one page of users, serving from the in-memory cache when a
+		 * matching entry is younger than `CACHE_TTL_MS` (REQ-PPL-003).
+		 *
+		 * @param {number} offset Zero-based index of the first user to
+		 *   fetch; pages are `PAGE_SIZE` long.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
 		async fetchPage(offset) {
 			const cacheKey = JSON.stringify({ params: this.queryParams, offset })
 			const fresh = this.cacheKey === cacheKey

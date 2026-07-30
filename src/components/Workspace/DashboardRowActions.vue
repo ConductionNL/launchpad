@@ -37,7 +37,7 @@
 		placement="bottom-end"
 		:type="buttonType"
 		class="dashboard-row-actions"
-		@click.native.stop>
+		@click.stop>
 		<template #icon>
 			<Cog :size="iconSize" />
 		</template>
@@ -223,8 +223,8 @@ export default {
 		 * rows are owned by whoever created them, so we honour the
 		 * explicit `dashboard.isOwner` flag when present and otherwise
 		 * conservatively hide the destructive actions.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		isOwner() {
 			if (this.source === 'user') {
 				return true
@@ -237,8 +237,8 @@ export default {
 		 * pinned default. Drives the cog entry's icon (star vs
 		 * StarCheck) and label ("Set as default" vs "Default
 		 * dashboard").
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		isDefault() {
 			const uuid = this.dashboard?.uuid
 			return !!uuid && uuid === this.defaultUuid
@@ -251,8 +251,8 @@ export default {
 		 * mode. Other rows keep showing "Edit dashboard" so the
 		 * user can still enter edit mode on them by switching first
 		 * (the host's `maybeSwitchTo` helper handles that).
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		showSave() {
 			return this.isEditMode
 				&& this.activeDashboardId != null

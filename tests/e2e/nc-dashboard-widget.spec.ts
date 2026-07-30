@@ -40,11 +40,11 @@ test.beforeAll(async () => {
 async function addNcWidget(page: Page): Promise<boolean> {
 	await openAddWidgetModal(page)
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Nextcloud Widget' })
+	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Nextcloud widget' })
 
 	// The grid picker lists discovered Nextcloud dashboard widgets.
-	const cards = dialog.locator('.nc-widget-grid-picker__card')
-	const empty = dialog.locator('.nc-widget-grid-picker__empty')
+	const cards = dialog.locator('.cn-nc-widget-grid-picker__card')
+	const empty = dialog.locator('.cn-nc-widget-grid-picker__empty')
 	await expect(cards.first().or(empty)).toBeVisible({ timeout: 8_000 })
 	if (await empty.isVisible().catch(() => false)) {
 		return false
@@ -75,11 +75,11 @@ test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 		// native bundle registers it instead reveals `__native` (v-show) and
 		// drops `__body`. Assert a visible final state via a poll so either
 		// branch satisfies REQ-WDG-019.
-		const cell = page.locator('.nc-dashboard-widget').first()
+		const cell = page.locator('.cn-nc-widget-widget').first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
 		await expect.poll(async () => {
-			const bodyVisible = await cell.locator('.nc-dashboard-widget__body').isVisible().catch(() => false)
-			const nativeVisible = await cell.locator('.nc-dashboard-widget__native').isVisible().catch(() => false)
+			const bodyVisible = await cell.locator('.cn-nc-widget-widget__body').isVisible().catch(() => false)
+			const nativeVisible = await cell.locator('.cn-nc-widget-widget__native').isVisible().catch(() => false)
 			return bodyVisible || nativeVisible
 		}, { timeout: 10_000 }).toBe(true)
 	})
@@ -107,11 +107,11 @@ test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 		const placed = await addNcWidget(page)
 		test.skip(!placed, 'No Nextcloud dashboard widgets installed in this instance')
 
-		const cell = page.locator('.nc-dashboard-widget').first()
+		const cell = page.locator('.cn-nc-widget-widget').first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
 		// After the native-poll window elapses the API body becomes the final
 		// state. Accept the body OR a rendered item (either proves fallback).
-		const apiState = cell.locator('.nc-dashboard-widget__body, .nc-dashboard-widget__item')
+		const apiState = cell.locator('.cn-nc-widget-widget__body, .cn-nc-widget-widget__item')
 		await expect(apiState.first()).toBeVisible({ timeout: 10_000 })
 	})
 
@@ -131,12 +131,15 @@ test.describe('nc-widget — Nextcloud Dashboard widget placement', () => {
 		const placed = await addNcWidget(page)
 		test.skip(!placed, 'No Nextcloud dashboard widgets installed in this instance')
 
-		const cell = page.locator('.nc-dashboard-widget').first()
+		const cell = page.locator('.cn-nc-widget-widget').first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
 		// Empty-list final state: the empty placeholder must appear and no
 		// item links must be rendered.
-		const empty = cell.locator('.nc-dashboard-widget__empty')
+		// The renderer has no dedicated `__empty` element — loading, no-widget
+		// and empty-list all render through `__state`; assert on the translated
+		// empty-list string so this still pins REQ-WDG-021 specifically.
+		const empty = cell.locator('.cn-nc-widget-widget__state', { hasText: /no items available/i })
 		await expect(empty).toBeVisible({ timeout: 10_000 })
-		await expect(cell.locator('.nc-dashboard-widget__item')).toHaveCount(0)
+		await expect(cell.locator('.cn-nc-widget-widget__item')).toHaveCount(0)
 	})
 })

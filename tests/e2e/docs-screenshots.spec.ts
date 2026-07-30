@@ -124,8 +124,8 @@ test.describe('docs: user track', () => {
 		// 02-create-modal: the configuration modal mid-form. Hooked on
 		// `data-testid` attributes baked into DashboardConfigModal.vue.
 		await page.locator('[data-action="create"]').click()
-		await page.locator('[data-testid="dashboard-name-input"] input').waitFor({ state: 'visible', timeout: 5000 })
-		await page.locator('[data-testid="dashboard-name-input"] input').fill(`Docs example ${Date.now()}`)
+		await page.locator('input[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 5000 })
+		await page.locator('input[data-testid="dashboard-name-input"]').fill(`Docs example ${Date.now()}`)
 		await page.locator('[data-testid="dashboard-description-input"]').fill('Created by docs-screenshots.spec.ts')
 		await shoot(page, 'user', '02-create-modal.png')
 

@@ -85,17 +85,6 @@ export default {
 		TileWidget,
 	},
 
-	props: {
-		widget: {
-			type: Object,
-			default: null,
-		},
-		placement: {
-			type: Object,
-			required: true,
-		},
-	},
-
 	/**
 	 * Provide the data-source adapters the nc-vue data widgets inject
 	 * (`cnPeopleSource` / `cnSpendAnalyticsSource`), bridging them to
@@ -107,6 +96,17 @@ export default {
 	 */
 	provide() {
 		return buildWidgetDataProvide(() => this.placement?.id)
+	},
+
+	props: {
+		widget: {
+			type: Object,
+			default: null,
+		},
+		placement: {
+			type: Object,
+			required: true,
+		},
 	},
 
 	data() {
@@ -143,8 +143,8 @@ export default {
 		 * but this dispatcher only needs `renderer`, so we go through
 		 * `getWidgetTypeEntry` to keep types like `nc-widget` (renderer-only
 		 * proxy) flowing through this branch as well.
+		 * @spec openspec/specs/widgets/spec.md
 		 */
-		/** @spec openspec/specs/widgets/spec.md */
 		registryEntry() {
 			const widgetId = this.placement?.widgetId
 			if (typeof widgetId !== 'string' || widgetId === '') {
@@ -283,7 +283,12 @@ export default {
 	watch: {
 		widget: {
 			immediate: false, // Don't run immediately, wait for mounted
-			/** @spec openspec/specs/widgets/spec.md */
+			/**
+			 * Reload items when the bound widget definition changes.
+			 *
+			 * @param {object|null} newWidget The new widget definition.
+			 * @spec openspec/specs/widgets/spec.md
+			 */
 			handler(newWidget) {
 				console.log('[WidgetRenderer] widget watch triggered:', newWidget?.id, newWidget)
 				if (newWidget || this.isTileWidget) {
@@ -322,7 +327,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/widgets/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.refreshInterval) {
 			clearInterval(this.refreshInterval)
 		}
@@ -460,7 +465,13 @@ export default {
 			})
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * (Re)arm the periodic item refresh, clearing any existing timer
+		 * first so repeated calls cannot leak intervals.
+		 *
+		 * @param {number} intervalSeconds Seconds between refreshes.
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		setupAutoRefresh(intervalSeconds) {
 			if (this.refreshInterval) {
 				clearInterval(this.refreshInterval)

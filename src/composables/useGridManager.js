@@ -47,7 +47,7 @@
  * this file are forbidden and enforced by a grep test.
  */
 
-import Vue from 'vue'
+import { reactive } from 'vue'
 
 // ---------------------------------------------------------------------------
 // Grid configuration constants (REQ-GRID-007/012/013)
@@ -177,8 +177,8 @@ export const DEFAULT_H = 4
  *   none affect bottom placement)
  * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
  *   `pushed` is always empty — existing widgets are never moved.
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function placeNewWidget(spec, placements, options = {}) {
 	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : DEFAULT_W
 	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : DEFAULT_H
@@ -248,8 +248,8 @@ function rectsOverlap(a, b) {
  *   the clamped candidate rect plus any existing placements that must be
  *   pushed down to `gridY = newRect.gridY + newRect.gridHeight` to avoid
  *   overlap. `pushed` is empty when the move/resize is a no-op or clear.
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	const columns = options.gridColumns || DEFAULT_COLUMNS
 
@@ -330,11 +330,20 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * Default popover dimensions used when clamping. A real popover is
- * `min-width: 150px` (REQ-WDG-017) and approximately three buttons tall.
+ * Default popover dimensions used when clamping. `min-width: 150px`
+ * (REQ-WDG-017) is only a lower bound — the actual rendered box is wider
+ * once "Visibility rules…" is laid out at the default NC theme font
+ * (measured ~156.5px), and taller now that the popover has grown to 5 menu
+ * items (Edit, Move, Visibility rules…, Remove, Cancel —
+ * WidgetContextMenu.vue; measured ~232.5px). These constants MUST be kept
+ * at or above the real rendered size — and re-measured whenever
+ * WidgetContextMenu.vue's item count or label text changes — or the clamp
+ * math reports success while the real popover still renders past the
+ * viewport edge (REQ-WDG-017). A small margin over the measured values
+ * absorbs theme/font differences.
  */
-const DEFAULT_MENU_WIDTH = 150
-const DEFAULT_MENU_HEIGHT = 132
+const DEFAULT_MENU_WIDTH = 170
+const DEFAULT_MENU_HEIGHT = 245
 
 /**
  * Create a grid-manager state container for the right-click context menu.
@@ -344,6 +353,8 @@ const DEFAULT_MENU_HEIGHT = 132
  *   whether right-click opens the popover.
  * @param {Function} [options.onEdit] called with `(widget)` on Edit click.
  * @param {Function} [options.onRemove] called with `(widget)` on Remove click.
+ * @param {Function} [options.onMove] called with `(widget)` on Move click —
+ *   opens the keyboard move/resize panel (WCAG 2.1 SC 2.1.1).
  * @param {Function} [options.onVisibilityRules] called with `(widget)` on
  *   "Visibility rules…" click.
  * @param {number} [options.menuWidth] override for clamp width (px)
@@ -356,24 +367,26 @@ const DEFAULT_MENU_HEIGHT = 132
  *   closeContextMenu: () => void,
  *   triggerEdit: () => void,
  *   triggerRemove: () => void,
+ *   triggerMove: () => void,
  *   triggerVisibilityRules: () => void,
  *   attach: () => void,
  *   detach: () => void,
  * }}
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function useGridManager(options = {}) {
 	const {
 		canEdit,
 		onEdit,
 		onRemove,
+		onMove,
 		onVisibilityRules,
 		menuWidth = DEFAULT_MENU_WIDTH,
 		menuHeight = DEFAULT_MENU_HEIGHT,
 		viewport,
 	} = options
 
-	const state = Vue.observable({
+	const state = reactive({
 		contextMenuOpen: false,
 		contextMenuPosition: { x: 0, y: 0 },
 		selectedWidget: null,
@@ -432,6 +445,14 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	function triggerMove() {
+		const widget = state.selectedWidget
+		closeContextMenu()
+		if (typeof onMove === 'function' && widget) {
+			onMove(widget)
+		}
+	}
+
 	function triggerVisibilityRules() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -476,6 +497,7 @@ export function useGridManager(options = {}) {
 		closeContextMenu,
 		triggerEdit,
 		triggerRemove,
+		triggerMove,
 		triggerVisibilityRules,
 		attach,
 		detach,

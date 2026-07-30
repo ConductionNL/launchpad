@@ -132,16 +132,21 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/demo-data-showcases/spec.md */
+		/**
+		 * Install a showcase, marking its row busy for the duration.
+		 *
+		 * @param {object} showcase The showcase to install.
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
 		async install(showcase) {
-			this.$set(this.busy, showcase.id, true)
-			this.$delete(this.warnings, showcase.id)
+			this.busy[showcase.id] = true
+			delete this.warnings[showcase.id]
 			this.actionError = ''
 			try {
 				const response = await api.installDemoShowcase(showcase.id)
 				const skipped = (response.data && response.data.skippedWidgets) || []
 				if (skipped.length > 0) {
-					this.$set(this.warnings, showcase.id, skipped)
+					this.warnings[showcase.id] = skipped
 				}
 
 				await this.fetch()
@@ -154,31 +159,42 @@ export default {
 					this.actionError = this.t('launchpad', 'Could not install showcase. Please try again.')
 				}
 			} finally {
-				this.$set(this.busy, showcase.id, false)
+				this.busy[showcase.id] = false
 			}
 		},
 
-		/** @spec openspec/specs/demo-data-showcases/spec.md */
+		/**
+		 * Uninstall a showcase after an explicit confirmation, since it
+		 * removes the dashboard for every user.
+		 *
+		 * @param {object} showcase The showcase to remove.
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
 		async confirmUninstall(showcase) {
 			const message = this.t('launchpad', 'Remove the {name} showcase dashboard for all users? You can reinstall it later.', { name: showcase.name })
 			if (window.confirm(message) === false) {
 				return
 			}
 
-			this.$set(this.busy, showcase.id, true)
+			this.busy[showcase.id] = true
 			this.actionError = ''
 			try {
 				await api.uninstallDemoShowcase(showcase.id)
-				this.$delete(this.warnings, showcase.id)
+				delete this.warnings[showcase.id]
 				await this.fetch()
 			} catch (err) {
 				this.actionError = this.t('launchpad', 'Could not uninstall showcase. Please try again.')
 			} finally {
-				this.$set(this.busy, showcase.id, false)
+				this.busy[showcase.id] = false
 			}
 		},
 
-		/** @spec openspec/specs/demo-data-showcases/spec.md */
+		/**
+		 * Hide a broken thumbnail so the card falls back to its icon.
+		 *
+		 * @param {Event} event The image's error event.
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
 		onThumbError(event) {
 			// Hide broken images gracefully — fall back to the icon.
 			event.target.style.display = 'none'

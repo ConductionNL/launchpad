@@ -218,7 +218,7 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 			)
 		}
 
-		const placement = page.locator('.label-widget').filter({ hasText: text }).first()
+		const placement = page.locator('.cn-label-widget').filter({ hasText: text }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
 		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
@@ -245,7 +245,7 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		// Right-click the rendered widget content to open the popover, then Edit.
 		const cell = page.locator('.grid-stack-item').filter({ hasText: text }).first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
-		await cell.locator('.launchpad-widget__content').first().click({ button: 'right' })
+		await cell.locator('.cn-widget-wrapper__content').first().click({ button: 'right' })
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
 		await page.locator('[data-testid="ctx-edit"]').click()

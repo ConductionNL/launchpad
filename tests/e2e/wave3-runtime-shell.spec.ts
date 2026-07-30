@@ -86,7 +86,7 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		// only GridStack column placeholders over the empty blue
 		// background. The grid SHOULD now span at least most of the
 		// viewport width.
-		const grid = page.locator('.launchpad-grid').first()
+		const grid = page.locator('.launchpad-container').first()
 		await expect(grid).toBeVisible()
 		const box = await grid.boundingBox()
 		expect(box).not.toBeNull()

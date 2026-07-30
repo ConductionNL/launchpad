@@ -10,59 +10,64 @@
 		@update:open="$emit('update:open', $event)">
 		<template #default>
 			<div class="launchpad-admin__editor">
+				<!-- @nextcloud/vue@9 renamed `value`/`checked` +
+				     `update:value`/`update:checked` to `modelValue` +
+				     `update:modelValue`. Under Vue 3 the old names fail
+				     silently, so every field here rendered but never
+				     emitted. The listener must stay camelCase. -->
 				<NcTextField
-					:value="row.name"
+					:model-value="row.name"
 					:label="t('launchpad', 'Name')"
 					:placeholder="t('launchpad', 'Manager — analysedashboard')"
-					@update:value="$emit('update:row', { ...row, name: $event })" />
+					@update:modelValue="$emit('update:row', { ...row, name: $event })" />
 				<NcTextField
-					:value="row.groupId"
+					:model-value="row.groupId"
 					:label="t('launchpad', 'Group ID')"
 					:placeholder="t('launchpad', 'managers')"
-					@update:value="$emit('update:row', { ...row, groupId: $event })" />
+					@update:modelValue="$emit('update:row', { ...row, groupId: $event })" />
 				<NcTextField
-					:value="row.widgetId"
+					:model-value="row.widgetId"
 					:label="t('launchpad', 'Widget ID')"
 					:placeholder="t('launchpad', 'analytics_dashboard')"
-					@update:value="$emit('update:row', { ...row, widgetId: $event })" />
+					@update:modelValue="$emit('update:row', { ...row, widgetId: $event })" />
 				<div class="launchpad-admin__editor-row">
 					<NcTextField
-						:value="String(row.gridX)"
+						:model-value="String(row.gridX)"
 						:label="t('launchpad', 'Grid X')"
 						type="number"
-						@update:value="$emit('update:row', { ...row, gridX: Number($event) })" />
+						@update:modelValue="$emit('update:row', { ...row, gridX: Number($event) })" />
 					<NcTextField
-						:value="String(row.gridY)"
+						:model-value="String(row.gridY)"
 						:label="t('launchpad', 'Grid Y')"
 						type="number"
-						@update:value="$emit('update:row', { ...row, gridY: Number($event) })" />
+						@update:modelValue="$emit('update:row', { ...row, gridY: Number($event) })" />
 				</div>
 				<div class="launchpad-admin__editor-row">
 					<NcTextField
-						:value="String(row.gridWidth)"
+						:model-value="String(row.gridWidth)"
 						:label="t('launchpad', 'Width (columns)')"
 						type="number"
-						@update:value="$emit('update:row', { ...row, gridWidth: Number($event) })" />
+						@update:modelValue="$emit('update:row', { ...row, gridWidth: Number($event) })" />
 					<NcTextField
-						:value="String(row.gridHeight)"
+						:model-value="String(row.gridHeight)"
 						:label="t('launchpad', 'Height (rows)')"
 						type="number"
-						@update:value="$emit('update:row', { ...row, gridHeight: Number($event) })" />
+						@update:modelValue="$emit('update:row', { ...row, gridHeight: Number($event) })" />
 				</div>
 				<NcTextField
-					:value="String(row.sortOrder)"
+					:model-value="String(row.sortOrder)"
 					:label="t('launchpad', 'Sort order')"
 					type="number"
-					@update:value="$emit('update:row', { ...row, sortOrder: Number($event) })" />
+					@update:modelValue="$emit('update:row', { ...row, sortOrder: Number($event) })" />
 				<NcCheckboxRadioSwitch
-					:checked="Boolean(row.isCompulsory)"
-					@update:checked="$emit('update:row', { ...row, isCompulsory: $event })">
+					:model-value="Boolean(row.isCompulsory)"
+					@update:modelValue="$emit('update:row', { ...row, isCompulsory: $event })">
 					{{ t('launchpad', 'Compulsory (user cannot remove this widget)') }}
 				</NcCheckboxRadioSwitch>
 				<NcTextField
-					:value="row.description || ''"
+					:model-value="row.description || ''"
 					:label="t('launchpad', 'Description (optional)')"
-					@update:value="$emit('update:row', { ...row, description: $event })" />
+					@update:modelValue="$emit('update:row', { ...row, description: $event })" />
 			</div>
 		</template>
 		<template #actions>

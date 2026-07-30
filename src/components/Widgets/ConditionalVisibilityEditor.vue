@@ -96,11 +96,10 @@
 					</div>
 					<div class="conditional-visibility-editor__preview-field">
 						<NcTextField
-							:value="previewDatetime"
+							v-model="previewDatetime"
 							type="datetime-local"
 							:label="t('launchpad', 'Preview at date/time')"
-							data-test="preview-datetime"
-							@update:value="previewDatetime = $event" />
+							data-test="preview-datetime" />
 					</div>
 					<NcButton
 						type="primary"
@@ -249,7 +248,15 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
+		/**
+		 * Stable `v-for` key for a rule row. Persisted rules key on their
+		 * server id; never-saved drafts key on a local counter so adding or
+		 * removing a draft does not renumber its siblings.
+		 *
+		 * @param {object} row The rule row.
+		 * @return {string} The render key.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md
+		 */
 		rowKey(row) {
 			return row.id !== null && row.id !== undefined ? `id-${row.id}` : `local-${row._localKey}`
 		},
@@ -259,7 +266,7 @@ export default {
 		},
 
 		setRowBusy(row, value) {
-			this.$set(this.busyKeys, this.rowKey(row), value)
+			this.busyKeys[this.rowKey(row)] = value
 		},
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
@@ -319,10 +326,18 @@ export default {
 			if (index === -1) {
 				return
 			}
-			this.$set(this.rules, index, { ...row, ...payload })
+			this.rules[index] = { ...row, ...payload }
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/**
+		 * Persist a rule row — updates an existing rule, or creates one for
+		 * a draft that has never been saved.
+		 *
+		 * @param {object} row The rule row being saved.
+		 * @param {object} payload Rule fields to write (`ruleType`,
+		 *   `ruleConfig`, `isInclude`).
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 */
 		async onRowSave(row, payload) {
 			this.setRowBusy(row, true)
 			try {
@@ -331,7 +346,7 @@ export default {
 					const updated = (data && data.data) ? data.data : data
 					const index = this.rules.indexOf(row)
 					if (index !== -1) {
-						this.$set(this.rules, index, { ...row, ...updated })
+						this.rules[index] = { ...row, ...updated }
 					}
 					this.$emit('rule-updated')
 				} else {
@@ -339,7 +354,7 @@ export default {
 					const created = (data && data.data) ? data.data : data
 					const index = this.rules.indexOf(row)
 					if (index !== -1 && created && created.id) {
-						this.$set(this.rules, index, { ...created, _localKey: undefined })
+						this.rules[index] = { ...created, _localKey: undefined }
 					} else {
 						await this.load()
 					}
@@ -352,7 +367,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings */
+		/**
+		 * Remove a rule row. A never-persisted draft is discarded locally
+		 * with no API call; a saved rule is deleted server-side.
+		 *
+		 * @param {object} row The rule row to remove.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 */
 		async onRowRemove(row) {
 			if (row.id === null || row.id === undefined) {
 				// Never-persisted draft — discard locally, no API call.

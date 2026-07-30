@@ -151,8 +151,8 @@ export default {
 		 * dashboards for the currently selected period.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 		async reload() {
 			this.loading = true
 			this.error = null
@@ -186,8 +186,8 @@ export default {
 		 * currently selected period.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 		async exportCsv() {
 			this.exporting = true
 			try {

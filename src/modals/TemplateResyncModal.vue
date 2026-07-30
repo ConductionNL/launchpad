@@ -37,7 +37,7 @@
 					track-by="id"
 					:clearable="false"
 					data-testid="template-resync-strategy"
-					@input="handleStrategyChange" />
+					@update:modelValue="handleStrategyChange" />
 				<p class="launchpad-resync__strategy-hint">
 					{{ strategyHint }}
 				</p>
@@ -201,7 +201,13 @@ export default {
 		 */
 		open: {
 			immediate: true,
-			/** @spec openspec/specs/admin-templates/spec.md */
+			/**
+			 * Clear any previous dry-run plan when the modal opens, so Apply
+			 * stays disabled until a fresh plan is produced.
+			 *
+			 * @param {boolean} isOpen Whether the modal is now open.
+			 * @spec openspec/specs/admin-templates/spec.md
+			 */
 			handler(isOpen) {
 				if (isOpen) {
 					this.resetState()

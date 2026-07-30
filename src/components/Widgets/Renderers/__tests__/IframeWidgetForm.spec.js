@@ -49,8 +49,12 @@ describe('IframeWidgetForm — REQ-IFRAME-001 persisted shape', () => {
 			propsData: {
 				editingWidget: {
 					content: {
-						url: 'https://a.example.com', title: 'A', height: 500, aspect: '16:9',
-						sandbox: ['allow-forms'], allowListChecked: true,
+						url: 'https://a.example.com',
+						title: 'A',
+						height: 500,
+						aspect: '16:9',
+						sandbox: ['allow-forms'],
+						allowListChecked: true,
 					},
 				},
 			},

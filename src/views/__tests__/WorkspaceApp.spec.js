@@ -19,8 +19,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia } from 'pinia'
+import { createPinia } from 'pinia'
 
 import WorkspaceApp from '../WorkspaceApp.vue'
 import RuntimeShellSearch from '../../components/RuntimeShellSearch.vue'
@@ -30,8 +29,6 @@ import { useWidgetStore } from '../../stores/widgets.js'
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 })
-
-Vue.use(PiniaVuePlugin)
 
 /**
  * Mount helper supplying the inject defaults that mirror the typed
@@ -70,9 +67,17 @@ function mountShell(options = {}) {
 			// Stub `NcButton` to a transparent `<button>` so the test
 			// can drive `.workspace-shell__hamburger` clicks without
 			// mounting the full Nextcloud Vue button.
+			// `emits: ['click']` is load-bearing under Vue 3: listeners now
+			// live in `$attrs` as `onClick`, so `v-bind="$attrs"` would bind
+			// the parent's handler natively *and* `$emit('click')` would
+			// fall through to it again — firing `toggleSidebar` twice.
+			// Declaring the event removes `onClick` from `$attrs`, leaving
+			// `$emit` as the single path. Vue 2 kept listeners in the
+			// separate `$listeners` object, so the pattern was safe there.
 			NcButton: {
 				name: 'NcButton',
 				props: ['type', 'disabled'],
+				emits: ['click'],
 				template: '<button v-bind="$attrs" :data-nc-button-type="type" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
 				inheritAttrs: false,
 			},

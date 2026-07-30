@@ -16,12 +16,11 @@
 
 			<div class="widget-picker__search">
 				<NcTextField
-					:value="searchQuery"
+					v-model="searchQuery"
 					:label="t('launchpad', 'Search widgets')"
 					:placeholder="t('launchpad', 'Search widgets…')"
 					:show-trailing-button="searchQuery !== ''"
 					trailing-button-icon="close"
-					@update:value="searchQuery = $event"
 					@trailing-button-click="searchQuery = ''">
 					<template #icon>
 						<Magnify :size="20" />
@@ -135,7 +134,13 @@ export default {
 	},
 
 	watch: {
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * Clear the search box when the picker closes, so the next open
+		 * starts from the full widget list.
+		 *
+		 * @param {boolean} isOpen Whether the picker is now open.
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		open(isOpen) {
 			if (!isOpen) {
 				this.searchQuery = ''
@@ -148,7 +153,13 @@ export default {
 		isPlaced(widgetId) {
 			return this.placedWidgetIds.includes(widgetId)
 		},
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * Ask the host to place the chosen widget.
+		 *
+		 * @param {object} widget The picked widget definition; only `id` is
+		 *   forwarded.
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		addWidget(widget) {
 			this.$emit('add', widget.id)
 		},

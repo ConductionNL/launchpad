@@ -66,7 +66,7 @@ describe('SidebarFooter', () => {
 		it('neither brand link omits rel="noopener noreferrer" (security gate)', () => {
 			const wrapper = mountFooter()
 			const links = wrapper.findAll('a.dashboard-switcher-sidebar-footer__brand-link')
-			links.wrappers.forEach((link) => {
+			links.forEach((link) => {
 				expect(link.attributes('rel')).toBe('noopener noreferrer')
 				expect(link.attributes('target')).toBe('_blank')
 			})

@@ -13,8 +13,8 @@
 
 import './publicPath.js'
 
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia } from 'pinia'
+import { createApp, h } from 'vue'
+import { createPinia } from 'pinia'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 
 // Install the OCA.Dashboard shim before anything else runs. Rendering this
@@ -35,26 +35,30 @@ import { loadInitialState } from './utils/loadInitialState.js'
 // eslint-disable-next-line no-void
 void widgetBridge
 
-// Global functions
-Vue.mixin({
-	methods: {
-		t,
-		n,
-	},
-})
-
-Vue.use(PiniaVuePlugin)
+// Vue 3 has no global Vue constructor — t/n are installed as an app-level
+// mixin on the instance created below.
 const pinia = createPinia()
 
 // Load the typed initial-state snapshot for the admin page (REQ-INIT-002).
 // Plain (non-reactive) values; descendants `inject(key, default)` to read.
 const initialState = loadInitialState('admin')
 
-const app = new Vue({
-	el: '#launchpad-admin-settings',
-	pinia,
-	provide: { ...initialState },
-	render: h => h(AdminSettings),
+const app = createApp({
+	name: 'LaunchpadAdminRoot',
+	render: () => h(AdminSettings),
 })
+
+// Global t/n — an app-level mixin replaces Vue 2's global Vue.mixin.
+app.mixin({ methods: { t, n } })
+app.use(pinia)
+
+// Vue 3 moves provide() off the component options onto the app instance, so
+// each initial-state key is registered individually rather than as a
+// `provide:` object.
+for (const [key, value] of Object.entries(initialState)) {
+	app.provide(key, value)
+}
+
+app.mount('#launchpad-admin-settings')
 
 export default app

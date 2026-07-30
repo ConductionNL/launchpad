@@ -144,7 +144,7 @@ describe('ClockWidget — per-second ticking + cleanup', () => {
 			propsData: { content: { style: 'digital', timezone: 'Europe/Amsterdam' } },
 		})
 		const clearSpy = vi.spyOn(globalThis, 'clearInterval')
-		wrapper.destroy()
+		wrapper.unmount()
 		expect(clearSpy).toHaveBeenCalled()
 	})
 })

@@ -9,41 +9,44 @@
 			{{ t('launchpad', 'Show the current time and date, entirely in the browser — no data leaves your device.') }}
 		</p>
 
+		<!-- @nextcloud/vue@9: `value`/`checked` + `update:value`/`update:checked`
+		     were renamed to `modelValue` + `update:modelValue`; the old names
+		     fail silently under Vue 3. -->
 		<NcSelect
-			:value="style"
+			:model-value="style"
 			:options="styleOptions"
 			:input-label="t('launchpad', 'Style')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
-			@input="updateField('style', $event)" />
+			@update:modelValue="updateField('style', $event)" />
 
 		<template v-if="style === 'digital'">
 			<NcSelect
-				:value="hourFormat"
+				:model-value="hourFormat"
 				:options="hourFormatOptions"
 				:input-label="t('launchpad', 'Hour format')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
-				@input="updateField('hourFormat', $event)" />
+				@update:modelValue="updateField('hourFormat', $event)" />
 
 			<NcCheckboxRadioSwitch
-				:checked="showDate"
+				:model-value="showDate"
 				type="switch"
-				@update:checked="updateField('showDate', $event)">
+				@update:modelValue="updateField('showDate', $event)">
 				{{ t('launchpad', 'Show date') }}
 			</NcCheckboxRadioSwitch>
 		</template>
 
 		<NcSelect
-			:value="timezone"
+			:model-value="timezone"
 			:options="timezoneOptions"
 			:input-label="t('launchpad', 'Timezone')"
 			:placeholder="t('launchpad', 'Follow device timezone')"
 			:reduce="(option) => option.value"
 			label="label"
-			@input="updateField('timezone', $event || '')" />
+			@update:modelValue="updateField('timezone', $event || '')" />
 	</div>
 </template>
 

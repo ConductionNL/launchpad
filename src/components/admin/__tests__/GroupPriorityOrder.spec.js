@@ -39,6 +39,7 @@ vi.mock('@nextcloud/dialogs', () => ({
 const ncButtonStub = {
 	name: 'NcButton',
 	props: ['type', 'ariaLabel'],
+	emits: ['click'],
 	template: '<button @click="$emit(\'click\')"><slot /></button>',
 }
 const ncTextFieldStub = {
@@ -97,7 +98,7 @@ describe('GroupPriorityOrder', () => {
 
 		const staleItem = wrapper
 			.findAll('[data-test="group-priority-active"] li')
-			.wrappers.find((li) => li.attributes('data-test-id') === 'deleted-group')
+			.find((li) => li.attributes('data-test-id') === 'deleted-group')
 		expect(staleItem).toBeTruthy()
 		expect(staleItem.text()).toContain('(removed)')
 		expect(staleItem.classes()).toContain('group-priority__item--stale')

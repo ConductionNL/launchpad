@@ -9,13 +9,17 @@
 		class="launchpad-footer"
 		:style="footerStyle"
 		role="contentinfo">
-		<!-- HTML mode (REQ-FTR-002): server-sanitised payload rendered
-		     directly. The string already passed FooterService::sanitiseHtml
-		     server-side so v-html is the documented integration point. -->
+		<!-- HTML mode (REQ-FTR-002): rich HTML is the point of the feature,
+		     and this string is admin-authored, not user-supplied. It is
+		     sanitised server-side on write by FooterService::sanitiseHtml()
+		     (lib/Service/FooterService.php), which is the only path that can
+		     store it — so v-html is the documented integration point. -->
+		<!-- eslint-disable vue/no-v-html -->
 		<div
 			v-if="resolvedHtml !== null"
 			class="launchpad-footer__html"
 			v-html="resolvedHtml" />
+		<!-- eslint-enable vue/no-v-html -->
 
 		<!-- Structured mode (REQ-FTR-003 / REQ-FTR-004). Layout switches
 		     on the layoutMode field — `columns` for a 3-column grid,
@@ -217,9 +221,9 @@ export default {
 		 * empty string. The parent layer is responsible for inserting the
 		 * dashboard primary-language fallback before this component sees
 		 * the map.
-		 * @param map
+		 * @param {Record<string, string>} map Locale-keyed variants.
+		 * @spec openspec/specs/footer-customization/spec.md
 		 */
-		/** @spec openspec/specs/footer-customization/spec.md */
 		pickVariant(map) {
 			if (!map || typeof map !== 'object') {
 				return ''

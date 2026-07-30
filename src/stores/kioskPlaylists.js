@@ -18,13 +18,18 @@ const baseUrl = generateUrl('/apps/launchpad')
 /** @spec openspec/changes/dashboard-kiosk-mode/specs/dashboard-kiosk-mode/spec.md */
 export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 	state: () => ({
-		/** @type {Object[]} playlists visible to the current user */
+		/** @type {object[]} playlists visible to the current user */
 		playlists: [],
 		loading: false,
 	}),
 
 	getters: {
-		/** Return a playlist by its primary key, or undefined. */
+		/**
+		 * Return a playlist by its primary key, or undefined.
+		 *
+		 * @param {object} state The store state.
+		 * @return {(id: number|string) => (object|undefined)} Lookup function.
+		 */
 		playlistById: (state) => (id) => state.playlists.find((p) => p.id === id),
 	},
 
@@ -46,8 +51,14 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		},
 
 		/**
-		 * Create a playlist. Entries are [{ dashboardUuid, dwellSeconds }, ...].
+		 * Create a playlist.
 		 *
+		 * @param {object} payload The new playlist.
+		 * @param {string} payload.name Display name.
+		 * @param {Array<{dashboardUuid: string, dwellSeconds: number}>} payload.entries
+		 *   Dashboards to cycle through, with how long each is shown.
+		 * @param {number} [payload.refreshSeconds] How often the kiosk
+		 *   re-fetches dashboard content.
 		 * @spec REQ-KIOSK-002
 		 */
 		async createPlaylist({ name, entries, refreshSeconds = 300 }) {
@@ -68,6 +79,13 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		/**
 		 * Update an existing playlist.
 		 *
+		 * @param {number|string} id Primary key of the playlist to update.
+		 * @param {object} payload The replacement values.
+		 * @param {string} payload.name Display name.
+		 * @param {Array<{dashboardUuid: string, dwellSeconds: number}>} payload.entries
+		 *   Dashboards to cycle through, with how long each is shown.
+		 * @param {number} [payload.refreshSeconds] How often the kiosk
+		 *   re-fetches dashboard content.
 		 * @spec REQ-KIOSK-002
 		 */
 		async updatePlaylist(id, { name, entries, refreshSeconds = 300 }) {
@@ -90,6 +108,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		/**
 		 * Soft-revoke a playlist; removes it from the local list.
 		 *
+		 * @param {number|string} id Primary key of the playlist to revoke.
 		 * @spec REQ-KIOSK-002
 		 */
 		async revokePlaylist(id) {
@@ -101,6 +120,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		 * Anonymously fetch a playlist render payload by token. Used by the
 		 * public KioskView; returns { playlist, entries } or throws on 404.
 		 *
+		 * @param {string} token Public share token identifying the playlist.
 		 * @spec REQ-KIOSK-003
 		 */
 		async fetchRender(token) {

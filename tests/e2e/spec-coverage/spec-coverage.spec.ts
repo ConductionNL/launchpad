@@ -264,7 +264,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 		// parent container being visible instead.
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		await expect(page.locator('.launchpad-grid').first()).toBeVisible()
+		await expect(page.locator('.launchpad-container').first()).toBeVisible()
 		// GridStack uses a class like `gs-12` to indicate the column count.
 		const gridClass = await grid.getAttribute('class') ?? ''
 		const hasColumnClass = /gs-\d+/.test(gridClass)
@@ -384,7 +384,7 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: `${TS}-defaults` })
+		const placement = page.locator('.cn-label-widget').filter({ hasText: `${TS}-defaults` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 	})
 
@@ -407,7 +407,7 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: `${TS}-custom` })
+		const placement = page.locator('.cn-label-widget').filter({ hasText: `${TS}-custom` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 	})
 
@@ -455,7 +455,7 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: longWord.slice(0, 10) }).first()
+		const placement = page.locator('.cn-label-widget').filter({ hasText: longWord.slice(0, 10) }).first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		// REQ-LBL-003: the long single word must wrap, not overflow — the
 		// rendered content must not be wider than its widget container
@@ -479,7 +479,7 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: `${TS}-centred` })
+		const placement = page.locator('.cn-label-widget').filter({ hasText: `${TS}-centred` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		const hasCenter = await placement.evaluate((el) => {
 			const cs = window.getComputedStyle(el)

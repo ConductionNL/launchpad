@@ -12,7 +12,7 @@
 		<form class="cgd-form" @submit.prevent="onSubmit">
 			<div class="cgd-form__field">
 				<NcTextField
-					:value.sync="form.name"
+					v-model="form.name"
 					:label="t('launchpad', 'Name')"
 					:error="!!nameError"
 					:helper-text="nameError"
@@ -42,7 +42,7 @@
 			</div>
 
 			<NcCheckboxRadioSwitch
-				:checked.sync="form.isDefault"
+				v-model="form.isDefault"
 				data-test="create-group-dashboard-default">
 				{{ t('launchpad', 'Set as the group default dashboard') }}
 			</NcCheckboxRadioSwitch>

@@ -7,10 +7,10 @@
 	<div class="bridge-toggle" data-test="legacy-widget-bridge-toggle">
 		<h3>{{ t('launchpad', 'Legacy widget bridge') }}</h3>
 		<NcCheckboxRadioSwitch
-			:checked="enabled"
+			:model-value="enabled"
 			:disabled="loading"
 			data-test="bridge-toggle-switch"
-			@update:checked="onToggle">
+			@update:modelValue="onToggle">
 			{{ t('launchpad', 'Enable the legacy widget bridge') }}
 		</NcCheckboxRadioSwitch>
 		<p class="bridge-toggle__hint">
@@ -66,7 +66,13 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/legacy-widget-bridge/spec.md */
+		/**
+		 * Flip the bridge on or off, optimistically updating the switch and
+		 * rolling back to `previous` if the save fails.
+		 *
+		 * @param {boolean} value Requested new state.
+		 * @spec openspec/specs/legacy-widget-bridge/spec.md
+		 */
 		async onToggle(value) {
 			const previous = this.enabled
 			this.enabled = value

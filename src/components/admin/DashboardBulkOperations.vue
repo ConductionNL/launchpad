@@ -217,7 +217,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/dashboard-bulk-operations/spec.md */
+		/**
+		 * Select or clear every dashboard row from the header checkbox.
+		 *
+		 * @param {Event} event The checkbox's change event.
+		 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+		 */
 		toggleSelectAll(event) {
 			if (event.target.checked) {
 				this.selectedUuids = this.dashboards.map(d => d.uuid)
@@ -226,7 +231,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/dashboard-bulk-operations/spec.md */
+		/**
+		 * Add or remove one dashboard from the bulk selection.
+		 *
+		 * @param {string} uuid UUID of the dashboard row toggled.
+		 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+		 */
 		toggleRow(uuid) {
 			const idx = this.selectedUuids.indexOf(uuid)
 			if (idx === -1) {

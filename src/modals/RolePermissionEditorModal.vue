@@ -7,24 +7,27 @@
 	<NcModal @close="$emit('close')">
 		<div class="launchpad-admin__editor">
 			<h3>{{ row.id ? t('launchpad', 'Edit role permission') : t('launchpad', 'Add role permission') }}</h3>
-			<NcTextField :value="row.name"
+			<!-- @nextcloud/vue@9: `value` + `update:value` became
+			     `modelValue` + `update:modelValue`; the old pair is a
+			     silent no-op under Vue 3. Listener stays camelCase. -->
+			<NcTextField :model-value="row.name"
 				:label="t('launchpad', 'Name')"
 				required
-				@update:value="updateRow('name', $event)" />
-			<NcTextField :value="row.groupId"
+				@update:modelValue="updateRow('name', $event)" />
+			<NcTextField :model-value="row.groupId"
 				:label="t('launchpad', 'Nextcloud group ID')"
 				required
 				:disabled="!!row.id"
-				@update:value="updateRow('groupId', $event)" />
-			<NcTextField :value="row.description"
+				@update:modelValue="updateRow('groupId', $event)" />
+			<NcTextField :model-value="row.description"
 				:label="t('launchpad', 'Description (optional)')"
-				@update:value="updateRow('description', $event)" />
-			<NcTextField :value="allowedWidgetsCsv"
+				@update:modelValue="updateRow('description', $event)" />
+			<NcTextField :model-value="allowedWidgetsCsv"
 				:label="t('launchpad', 'Allowed widget IDs (comma separated)')"
-				@update:value="$emit('update:allowedWidgetsCsv', $event)" />
-			<NcTextField :value="deniedWidgetsCsv"
+				@update:modelValue="$emit('update:allowedWidgetsCsv', $event)" />
+			<NcTextField :model-value="deniedWidgetsCsv"
 				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
-				@update:value="$emit('update:deniedWidgetsCsv', $event)" />
+				@update:modelValue="$emit('update:deniedWidgetsCsv', $event)" />
 			<div class="launchpad-admin__editor-actions">
 				<NcButton type="tertiary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
@@ -83,7 +86,14 @@ export default {
 	],
 
 	methods: {
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Emit the edited row with one field replaced. The row prop is
+		 * never mutated in place.
+		 *
+		 * @param {string} key Field to change.
+		 * @param {*} value New value for that field.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		updateRow(key, value) {
 			this.$emit('update:row', { ...this.row, [key]: value })
 		},

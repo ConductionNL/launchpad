@@ -59,8 +59,12 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-002 persisted shape', () => {
 			propsData: {
 				editingWidget: {
 					content: {
-						label: 'Open tickets', sourceMode: 'url', url: 'https://example.com', valueExpr: '$.a',
-						refresh: 60, format: { prefix: '€', suffix: '', thousands: true },
+						label: 'Open tickets',
+						sourceMode: 'url',
+						url: 'https://example.com',
+						valueExpr: '$.a',
+						refresh: 60,
+						format: { prefix: '€', suffix: '', thousands: true },
 					},
 				},
 			},

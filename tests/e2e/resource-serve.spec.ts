@@ -22,7 +22,10 @@ import * as path from 'path'
 import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
-const NEXTCLOUD_URL = process.env.NEXTCLOUD_URL || 'http://localhost:8080'
+// `NC_BASE_URL` is what the Playwright config and the rest of the suite use;
+// honour it first so this spec targets the same instance as every other spec
+// instead of silently falling back to the default :8080 dev container.
+const NEXTCLOUD_URL = process.env.NC_BASE_URL || process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 const APP_ID = process.env.APP_ID || 'launchpad'
 
 test.beforeAll(async () => {
@@ -38,18 +41,16 @@ test.describe('resource-serving', () => {
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
-		// Switch the image source to "Upload" (radio, default is URL).
-		await dialog.getByText('Upload', { exact: true }).click()
+		// nc-vue's CnImageWidgetForm replaced the URL/Upload radio pair with a
+		// single file <label> wrapping a hidden input, and defers the upload to
+		// commit() so a cancelled dialog writes no orphaned file. Set the file
+		// directly; the serve-route URL only exists after Add is pressed.
+		await dialog.locator('.cn-image-widget-form__file-input')
+			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
-		const fileChooserPromise = page.waitForEvent('filechooser')
-		await dialog.getByText('Upload Image', { exact: true }).click()
-		const fc = await fileChooserPromise
-		await fc.setFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
-
-		// After upload the preview renders with the serve route as its src.
-		const preview = dialog.locator('.image-form__preview')
-		await expect(preview).toBeVisible({ timeout: 15_000 })
-		await expect(preview).toHaveAttribute('src', new RegExp(`/apps/${APP_ID}/resource/`), { timeout: 5_000 })
+		// Pre-save the preview is a local object-URL.
+		await expect(dialog.locator('.cn-image-widget-form__preview'))
+			.toBeAttached({ timeout: 15_000 })
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -59,7 +60,7 @@ test.describe('resource-serving', () => {
 		await closeSidebar(page)
 
 		// The widget must render the image using the served URL.
-		const anyImg = page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).first()
+		const anyImg = page.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`).first()
 		await expect(anyImg).toBeVisible({ timeout: 8_000 })
 
 		// Verify the resource URL actually delivers image bytes (network-level).

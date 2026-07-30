@@ -56,6 +56,7 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 
 	getters: {
 		/**
+		 * @param {object} state The store state.
 		 * @return {(groupId: string) => Array<object>} Dashboards for a
 		 *  given group id. Returns an empty array when not yet fetched —
 		 *  the tab UI treats that as a "needs fetch" signal.
@@ -83,7 +84,19 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 			this.error = null
 			try {
 				const res = await api.getAdminGroups()
-				const groups = res.data?.data ?? res.data ?? []
+				// `GET /api/admin/groups` answers with the disjoint split
+				// envelope `{active, inactive, allKnown}` (see
+				// AdminSettingsController::getGroups) — `allKnown` is the
+				// full `{id, displayName}` list this tab renders. The older
+				// `res.data.data` / bare-array shapes are kept as fallbacks
+				// for forward/backward compatibility. Without picking
+				// `allKnown` the envelope OBJECT fell through to the bare
+				// `res.data` branch and `groups.filter(...)` threw
+				// "filter is not a function", which the catch below swallowed
+				// into a "Failed to load groups" toast — so the tab rendered
+				// its empty state even though the request returned 200.
+				const payload = res.data?.allKnown ?? res.data?.data ?? res.data
+				const groups = Array.isArray(payload) ? payload : []
 				// Always make sure the `default` sentinel sits at index 0
 				// so admins find the org-wide default first.
 				this.groups = [
@@ -121,6 +134,7 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 		 *
 		 * @param {string} groupId NC group id (or DEFAULT_GROUP_ID).
 		 * @param {{name: string, icon?: string, layout?: object, isDefault?: boolean}} payload
+		 *   Attributes for the new dashboard.
 		 * @return {Promise<object>} The created dashboard row.
 		 */
 		async create(groupId, payload) {

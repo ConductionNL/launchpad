@@ -14,7 +14,7 @@
  * CRUD endpoints persist (REQ-CVUI-004 "same rule shape" scenario).
  */
 
-import Vue from 'vue'
+import { reactive } from 'vue'
 import { api } from '../services/api.js'
 
 /**
@@ -39,10 +39,10 @@ function toPreviewRule(rule) {
  *   runPreview: (rules: object[], context: {groups: string[], datetime: string}) => Promise<object>,
  *   reset: () => void,
  * }}
+ * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
  */
-/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
 export function useVisibilityPreview() {
-	const state = Vue.observable({
+	const state = reactive({
 		loading: false,
 		error: null,
 		result: null,
@@ -58,8 +58,8 @@ export function useVisibilityPreview() {
 	 * @param {object} context `{groups: string[], datetime: string}`
 	 * @return {Promise<{visible: boolean, matchedIncludeRuleIds: number[], matchedExcludeRuleIds: number[]}>}
 	 *   the preview result
+	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
 	 */
-	/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
 	async function runPreview(rules, context) {
 		state.loading = true
 		state.error = null

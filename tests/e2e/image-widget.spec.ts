@@ -41,20 +41,19 @@ test.describe('image widget', () => {
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
-		// Switch the image source to "Upload" (radio group, default is URL).
-		await dialog.getByText('Upload', { exact: true }).click()
+		// The form moved to nc-vue's CnImageWidgetForm, which replaced the old
+		// URL/Upload radio pair with a single always-present file <label> that
+		// wraps a hidden input, and DEFERS the upload to commit() so a
+		// cancelled dialog never writes an orphaned file. Set the file on the
+		// input directly rather than driving a source toggle that no longer
+		// exists.
+		await dialog.locator('.cn-image-widget-form__file-input')
+			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
-		// Upload a tiny PNG bundled with the test fixtures.
-		const fileChooserPromise = page.waitForEvent('filechooser')
-		await dialog.getByText('Upload Image', { exact: true }).click()
-		const fc = await fileChooserPromise
-		await fc.setFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
-
-		// Wait for the upload to complete — the preview <img> gets the resource
-		// serve route as its src (asserting the attribute is more robust than
-		// visibility, which the modal layout can report as false).
-		await expect(dialog.locator('.image-form__preview'))
-			.toHaveAttribute('src', new RegExp(`/apps/${APP_ID}/resource/`), { timeout: 15_000 })
+		// Before save the preview is a local object-URL (nothing uploaded yet);
+		// assert the preview renders so "upload → preview" is still covered.
+		await expect(dialog.locator('.cn-image-widget-form__preview'))
+			.toBeAttached({ timeout: 15_000 })
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -64,13 +63,13 @@ test.describe('image widget', () => {
 		await closeSidebar(page)
 
 		// The uploaded image renders via the resource serve route.
-		const uploaded = page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last()
+		const uploaded = page.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last()
 		await expect(uploaded).toBeAttached({ timeout: 8_000 })
 
 		// Reload and verify persistence.
 		await page.reload()
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator(`.image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last())
+		await expect(page.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last())
 			.toBeAttached({ timeout: 10_000 })
 	})
 
@@ -94,7 +93,7 @@ test.describe('image widget', () => {
 
 		// The newly-added URL image is the last image-widget whose src points at
 		// the logo asset (resource-backed uploads have a different src).
-		const cell = page.locator('.image-widget').filter({ has: page.locator('img[src*="/core/img/logo/"]') }).last()
+		const cell = page.locator('.cn-image-widget').filter({ has: page.locator('img[src*="/core/img/logo/"]') }).last()
 		await expect(cell).toBeAttached({ timeout: 8_000 })
 		await cell.scrollIntoViewIfNeeded()
 		await expect(cell).toBeVisible({ timeout: 5_000 })

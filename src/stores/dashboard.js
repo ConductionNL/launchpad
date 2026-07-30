@@ -26,12 +26,19 @@ const ERR_PERSONAL_DASHBOARDS_DISABLED = 'personal_dashboards_disabled'
 
 /**
  * The supported source values returned by GET /api/dashboards/visible.
- * Matches Dashboard::SOURCE_USER / SOURCE_GROUP / SOURCE_DEFAULT on the
- * backend (REQ-DASH-013).
+ * Matches Dashboard::SOURCE_USER / SOURCE_GROUP / SOURCE_DEFAULT /
+ * SOURCE_SHARED on the backend (REQ-DASH-013, REQ-SHARE-002).
+ *
+ * NOTE: every source-aware getter below filters by an EXPLICIT source
+ * value, so a source no getter claims is silently dropped from the entire
+ * UI. That is exactly how `shared` rows went missing: the server started
+ * returning them and the switcher still showed nothing the moment the
+ * store refreshed over the server-rendered initial state.
  */
 export const SOURCE_USER = 'user'
 export const SOURCE_GROUP = 'group'
 export const SOURCE_DEFAULT = 'default'
+export const SOURCE_SHARED = 'shared'
 
 /**
  * Publication-state values mirrored from the PHP entity
@@ -208,6 +215,14 @@ export const useDashboardStore = defineStore('dashboard', {
 		// 'default'`).
 		defaultGroupDashboards: (state) => {
 			return state.dashboards.filter(d => d.source === SOURCE_DEFAULT)
+		},
+
+		// REQ-SHARE-002 — dashboards reached through an explicit
+		// per-dashboard share (`source === 'shared'`). Neither the caller's
+		// own nor their group's, so they get their own bucket rather than
+		// being folded into `groupSharedDashboards`.
+		sharedWithMeDashboards: (state) => {
+			return state.dashboards.filter(d => d.source === SOURCE_SHARED)
 		},
 
 		/**

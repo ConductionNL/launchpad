@@ -115,6 +115,58 @@ describe('useDashboardStore — source-aware getters', () => {
 		expect(store.userDashboards).toEqual([])
 		expect(store.groupSharedDashboards).toEqual([])
 		expect(store.defaultGroupDashboards).toEqual([])
+		expect(store.sharedWithMeDashboards).toEqual([])
+	})
+
+	/*
+	 * REQ-SHARE-002 — every getter here filters by an EXPLICIT source value,
+	 * so a source no getter claims is silently dropped from the whole UI.
+	 * That is precisely how `shared` rows went missing: the server started
+	 * returning them and the switcher still showed nothing the moment the
+	 * store refreshed over the server-rendered initial state.
+	 */
+	it('sharedWithMeDashboards returns only `source === "shared"` rows', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 1, uuid: 'a', source: 'user' },
+			{ id: 2, uuid: 'b', source: 'group' },
+			{ id: 3, uuid: 'c', source: 'default' },
+			{ id: 4, uuid: 'd', source: 'shared' },
+			{ id: 5, uuid: 'e', source: 'shared' },
+		]
+		expect(store.sharedWithMeDashboards.map(d => d.uuid)).toEqual(['d', 'e'])
+	})
+
+	it('does not leak shared rows into the owned or group buckets', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 1, uuid: 'a', source: 'user' },
+			{ id: 4, uuid: 'd', source: 'shared' },
+		]
+		expect(store.userDashboards.map(d => d.uuid)).toEqual(['a'])
+		expect(store.groupSharedDashboards).toEqual([])
+		expect(store.defaultGroupDashboards).toEqual([])
+	})
+
+	it('accounts for every shared row in exactly one bucket', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 1, uuid: 'a', source: 'user' },
+			{ id: 2, uuid: 'b', source: 'group' },
+			{ id: 3, uuid: 'c', source: 'default' },
+			{ id: 4, uuid: 'd', source: 'shared' },
+		]
+		const bucketed = [
+			...store.userDashboards,
+			...store.groupSharedDashboards,
+			...store.defaultGroupDashboards,
+			...store.sharedWithMeDashboards,
+		]
+		// No row may fall through every bucket and vanish from the switcher.
+		expect(bucketed).toHaveLength(store.dashboards.length)
 	})
 })
 

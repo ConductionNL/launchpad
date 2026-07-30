@@ -15,9 +15,11 @@
  *   @e2e runtime-shell::backdrop-click-closes-sidebar
  *   @e2e runtime-shell::empty-state-with-allow-user-dashboards
  *   @e2e runtime-shell::empty-state-without-allow-user-dashboards
+ *   @e2e action-authorization::fresh-install-is-usable-by-non-admins
  *
  * @spec openspec/changes/runtime-shell/tasks.md#task-9
  * @spec openspec/changes/runtime-shell/tasks.md#task-10
+ * @spec openspec/architecture/adr-023-action-authorization.md
  */
 
 import { test, expect, request as pwRequest } from '@playwright/test'
@@ -187,6 +189,127 @@ test.describe('REQ-SHELL-005: empty state', () => {
 			await context.close()
 			// Restore the default so later specs in the run see the flag on.
 			await setAllowUserDashboards(true)
+		}
+	})
+})
+
+/*
+ * ADR-023 — a fresh install must be usable by ordinary, non-admin users.
+ *
+ * These are the only scenarios in the whole suite that make an authenticated
+ * request as a genuinely non-admin, non-elevated account (every other spec
+ * runs as admin via the shared global-setup.ts storageState), which is why
+ * the all-admin action matrix survived this long unnoticed.
+ *
+ * Before the non-admin baseline shipped, the seeded matrix mapped EVERY
+ * declared action to ["admin"], so a brand-new account got
+ * `OCSForbiddenException: Action 'dashboard.list' requires admin rights`
+ * on the very first AJAX call the app makes — while the empty state
+ * cheerfully offered it a "Create your first dashboard" button that could
+ * only ever 403.
+ */
+test.describe('ADR-023: fresh install is usable by non-admins', () => {
+	let throwawayUser: string | undefined
+
+	test.afterEach(async () => {
+		if (throwawayUser) {
+			await deprovisionUser(throwawayUser)
+			throwawayUser = undefined
+		}
+	})
+
+	/**
+	 * Build an API context authenticated as an ordinary (non-admin) user.
+	 *
+	 * @param {string} username The account.
+	 * @param {string} password Its password.
+	 * @return {Promise<import('@playwright/test').APIRequestContext>} the context.
+	 */
+	async function userApi(username: string, password: string) {
+		return pwRequest.newContext({
+			baseURL: BASE,
+			httpCredentials: { username, password },
+			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+		})
+	}
+
+	// @e2e action-authorization::fresh-install-is-usable-by-non-admins
+	test('an ordinary user may list and read dashboards, but not touch admin surfaces', async () => {
+		test.setTimeout(90_000)
+
+		const { username, password } = await provisionThrowawayUser('e2e-nonadmin')
+		throwawayUser = username
+
+		const api = await userApi(username, password)
+		try {
+			// The ordinary end-user surface must NOT be forbidden. A 403 here
+			// is exactly the defect: the app refusing its own users.
+			for (const path of [
+				'/index.php/apps/launchpad/api/dashboards',
+				'/index.php/apps/launchpad/api/dashboards/visible',
+				'/index.php/apps/launchpad/api/widgets',
+			]) {
+				const res = await api.get(path)
+				expect(
+					res.status(),
+					`${path} must not be forbidden for an ordinary user`,
+				).not.toBe(403)
+			}
+
+			// The other half of the decision: administrative surfaces stay
+			// admin-only. If this ever returns 200 the baseline has been
+			// over-broadened into a privilege escalation.
+			const analytics = await api.get(
+				'/index.php/apps/launchpad/api/analytics/instance-summary',
+			)
+			expect(
+				analytics.status(),
+				'instance-wide analytics must stay admin-only',
+			).toBe(403)
+		} finally {
+			await api.dispose()
+		}
+	})
+
+	// @e2e action-authorization::fresh-install-is-usable-by-non-admins
+	test('the empty-state Create CTA it is offered actually works', async ({ browser }) => {
+		test.setTimeout(90_000)
+
+		await setAllowUserDashboards(true)
+		const { username, password } = await provisionThrowawayUser('e2e-nonadmin-cta')
+		throwawayUser = username
+
+		const { context, page } = await loginAs(browser, username, password)
+		try {
+			await page.goto(APP_URL)
+			const cta = page.locator('.workspace-shell__empty-cta')
+			await expect(cta).toBeVisible({ timeout: 20_000 })
+
+			// Pre-baseline this click 403'd on `dashboard.create` and the
+			// user stayed stranded on the empty state forever.
+			const [res] = await Promise.all([
+				page.waitForResponse(
+					(r) => r.url().includes('/apps/launchpad/api/dashboard')
+						&& r.request().method() === 'POST',
+					{ timeout: 25_000 },
+				),
+				cta.click(),
+			])
+			expect(
+				res.status(),
+				'the Create CTA the app itself offers must not be forbidden',
+			).toBe(200)
+
+			// `hasActiveDashboard` comes from the server-rendered initial
+			// state, so the empty state only clears on the next load — which
+			// is also the honest end-to-end check that the row persisted.
+			await page.reload()
+			await expect(
+				page.locator('.workspace-shell__empty'),
+				'after creating a dashboard the user must not land on the empty state again',
+			).toHaveCount(0, { timeout: 25_000 })
+		} finally {
+			await context.close()
 		}
 	})
 })

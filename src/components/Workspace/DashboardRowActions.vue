@@ -143,7 +143,7 @@ export default {
 		source: {
 			type: String,
 			required: true,
-			validator: v => ['group', 'default', 'user'].includes(v),
+			validator: v => ['group', 'default', 'user', 'shared'].includes(v),
 		},
 		canEdit: {
 			type: Boolean,

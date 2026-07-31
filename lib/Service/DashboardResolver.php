@@ -31,14 +31,25 @@ class DashboardResolver
     /**
      * Constructor
      *
-     * @param DashboardMapper       $dashboardMapper Dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-     * @param TemplateService       $templateService Template service.
+     * @param DashboardMapper           $dashboardMapper Dashboard mapper.
+     * @param WidgetPlacementMapper     $placementMapper Widget placement mapper.
+     * @param TemplateService           $templateService Template service.
+     * @param DashboardShareService|null $shareService   Share service used to
+     *                                                   resolve dashboards
+     *                                                   shared WITH the user
+     *                                                   (REQ-SHARE-002).
+     *                                                   Nullable so legacy
+     *                                                   positional test
+     *                                                   construction keeps
+     *                                                   working; a null
+     *                                                   service simply yields
+     *                                                   no shared dashboards.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
         private readonly WidgetPlacementMapper $placementMapper,
         private readonly TemplateService $templateService,
+        private readonly ?DashboardShareService $shareService=null,
     ) {
     }//end __construct()
 
@@ -104,6 +115,147 @@ class DashboardResolver
             placements: $placements
         );
     }//end tryActivateExistingDashboard()
+
+    /**
+     * Resolve the permission level of every dashboard SHARED with the user.
+     *
+     * Thin pass-through to {@see DashboardShareService::resolveSharedDashboards()}
+     * so the resolver owns one place where "what is shared with me" is asked.
+     * Keys are dashboard IDs, values the most permissive level the user was
+     * granted (direct user share vs. group share). Returns an empty map when
+     * no share service is wired.
+     *
+     * @param string        $userId       The user ID.
+     * @param array<string> $userGroupIds The user's Nextcloud group IDs.
+     *
+     * @return array<int, string> Map of dashboardId => permission level.
+     *
+     * @spec openspec/specs/dashboard-sharing/spec.md
+     */
+    public function findSharedLevels(string $userId, array $userGroupIds): array
+    {
+        if ($this->shareService === null) {
+            return [];
+        }
+
+        $levels = $this->shareService->resolveSharedDashboards(
+            userId: $userId,
+            groupIds: $userGroupIds
+        );
+
+        // Deterministic order so "the first shared dashboard" is stable
+        // across requests (the map comes back in share-row order).
+        ksort($levels);
+
+        return $levels;
+    }//end findSharedLevels()
+
+    /**
+     * List the dashboards shared WITH a user as source-tagged entries.
+     *
+     * Mirrors the `{dashboard, source}` shape produced by
+     * {@see \OCA\LaunchPad\Db\DashboardMapper::findVisibleToUser()} so callers
+     * can concatenate the two sets. Dashboards the user already owns are
+     * skipped — ownership is a stronger claim than a share, and the caller
+     * dedupes by UUID anyway. Rows whose dashboard was deleted while the
+     * share row survived are skipped silently.
+     *
+     * @param string        $userId       The user ID.
+     * @param array<string> $userGroupIds The user's Nextcloud group IDs.
+     *
+     * @return array<int, array{dashboard: Dashboard, source: string}>
+     *
+     * @spec openspec/specs/dashboard-sharing/spec.md
+     */
+    public function findSharedDashboards(string $userId, array $userGroupIds): array
+    {
+        $levels  = $this->findSharedLevels(
+            userId: $userId,
+            userGroupIds: $userGroupIds
+        );
+        $entries = [];
+
+        foreach (array_keys($levels) as $dashboardId) {
+            try {
+                $dashboard = $this->dashboardMapper->find(id: (int) $dashboardId);
+            } catch (DoesNotExistException) {
+                // Orphaned share row — the cleanup job reaps these.
+                continue;
+            }
+
+            if ($dashboard->getUserId() === $userId) {
+                continue;
+            }
+
+            $entries[] = [
+                'dashboard' => $dashboard,
+                'source'    => Dashboard::SOURCE_SHARED,
+            ];
+        }
+
+        return $entries;
+    }//end findSharedDashboards()
+
+    /**
+     * Try to resolve a dashboard shared with the user as their active one.
+     *
+     * This is the LAST-RESORT step of the resolution chain: it only ever
+     * runs after every dashboard the user owns (or reaches through group
+     * membership) has been considered, so a share can never displace a
+     * selection the user or their admin already made. Without it a share
+     * is inert — a recipient with no dashboard of their own lands on the
+     * empty state and the shared dashboard is unreachable.
+     *
+     * The returned `permissionLevel` comes from the SHARE, not from the
+     * dashboard row: the row carries the OWNER's level, which would tell a
+     * view-only recipient they may edit.
+     *
+     * Publication state is deliberately NOT a filter here, matching
+     * {@see \OCA\LaunchPad\Service\DashboardService::getVisibleToUser()}:
+     * every factory-created dashboard starts as `draft`, so filtering would
+     * make sharing inert again. The share row is the owner's explicit,
+     * named grant. The two paths MUST agree — when they disagreed,
+     * `GET /api/dashboard` served a draft while `/api/dashboards/visible`
+     * returned nothing for the same user.
+     *
+     * @param string        $userId       The user ID.
+     * @param array<string> $userGroupIds The user's Nextcloud group IDs.
+     *
+     * @return array|null The dashboard result or null when nothing is shared.
+     *
+     * @spec openspec/specs/dashboard-sharing/spec.md
+     */
+    public function tryGetSharedDashboard(string $userId, array $userGroupIds): ?array
+    {
+        $levels = $this->findSharedLevels(
+            userId: $userId,
+            userGroupIds: $userGroupIds
+        );
+
+        foreach ($levels as $dashboardId => $level) {
+            try {
+                $dashboard = $this->dashboardMapper->find(id: (int) $dashboardId);
+            } catch (DoesNotExistException) {
+                continue;
+            }
+
+            if ($dashboard->getUserId() === $userId) {
+                continue;
+            }
+
+            $placements = $this->placementMapper->findByDashboardId(
+                dashboardId: $dashboard->getId()
+            );
+
+            return [
+                'dashboard'       => $dashboard,
+                'placements'      => $placements,
+                'permissionLevel' => $level,
+            ];
+        }
+
+        return null;
+    }//end tryGetSharedDashboard()
 
     /**
      * Handle a template-based dashboard result.

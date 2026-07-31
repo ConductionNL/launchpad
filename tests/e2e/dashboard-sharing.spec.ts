@@ -41,10 +41,17 @@
  */
 
 import { test, expect, type Page } from '@playwright/test'
+import { ensureKnownPassword, loginAs } from './fixtures/secondary-user'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
 const SHAREE = process.env.LAUNCHPAD_E2E_SHAREE ?? 'recipient'
+
+// The recipient's password is reset to this known value through the OCS
+// provisioning API before the recipient-side scenario logs in — the
+// pre-seeded account's original password is not known to the suite.
+const RECIPIENT_PASSWORD = process.env.LAUNCHPAD_E2E_SHAREE_PASS
+	?? 'Recipient-e2e-A1!'
 
 /**
  * Open the active personal dashboard's config modal and switch to the
@@ -178,8 +185,8 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		).toHaveCount(0, { timeout: 8_000 })
 	})
 
-	test('recipient sees the shared dashboard in their switcher', async ({ page }) => {
-		test.setTimeout(60_000)
+	test('recipient sees the shared dashboard in their switcher', async ({ page, browser }) => {
+		test.setTimeout(120_000)
 
 		// The preceding "owner removes a share" test may have just removed the
 		// share, so this scenario is self-sufficient: (re-)add it as the owner
@@ -196,43 +203,71 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		// do. The owner's `page`/modal aren't touched again below; only the
 		// recipient's separate context matters from here on.
 
-		// A genuinely non-admin session cannot exercise this scenario on this
-		// instance today — two independent, verified causes, not a stale
-		// selector:
+		// PREVIOUSLY SKIPPED — both causes have now been fixed, so this
+		// scenario runs for real. For the record, the two independent,
+		// live-confirmed causes were:
 		//
-		// 1. DashboardResolver (lib/Service/DashboardResolver.php) only ever
-		//    resolves a user's active dashboard from OWNED, group, or
-		//    template dashboards (`findActiveByUserId`/`findByUserId`,
-		//    scoped to the caller's own rows) — a dashboard merely SHARED to
-		//    a user is never considered. A recipient with no owned/group
-		//    dashboard of their own still lands on WorkspaceApp's empty
-		//    state (`hasActiveDashboard` is server-injected and false), so
-		//    `.launchpad-sidebar-toggle` — which only exists inside `Views`,
-		//    mounted by `v-if="hasActiveDashboard"` — never renders at all,
-		//    regardless of the share.
-		// 2. Independently: the ADR-023 action-authorization matrix
-		//    (`GET /index.php/apps/launchpad/api/admin/action-matrix`)
-		//    defaults EVERY action to `["admin"]`, and on this instance no
-		//    action has ever been broadened beyond that seed default —
-		//    confirmed live: `recipient` (zero groups) gets
+		// 1. DashboardResolver / DashboardMapper::findVisibleToUser() only
+		//    ever considered OWNED, group_shared and `default`-sentinel
+		//    rows. A dashboard merely SHARED with a user was in none of
+		//    those buckets, so a recipient with nothing of their own landed
+		//    on WorkspaceApp's empty state (`hasActiveDashboard` is
+		//    server-injected and was false) and `.launchpad-sidebar-toggle`
+		//    — mounted by `v-if="hasActiveDashboard"` — never rendered at
+		//    all, regardless of the share.
+		//    FIXED: shares are now a source-tagged bucket in the visibility
+		//    union and the LAST-RESORT step of the resolution chain.
+		// 2. The ADR-023 action matrix defaulted EVERY action to
+		//    `["admin"]`, so `recipient` (zero groups) got
 		//    `OCSForbiddenException: Action 'dashboard.list' requires admin
-		//    rights` on the very first AJAX call a real non-admin session
-		//    makes. Every other spec in this suite runs exclusively as
-		//    admin (the shared global-setup.ts storageState), so this
-		//    appears to be the first place in the whole e2e suite that
-		//    authenticates as a truly non-admin, non-elevated session — and
-		//    the first place that would have surfaced this.
+		//    rights` on the very first AJAX call.
+		//    FIXED: the ordinary end-user surface now ships granted to the
+		//    `@all` sentinel; administrative actions stay admin-only.
 		//
-		// Both are real, worth fixing (or deliberately scoping) as their own
-		// changes — (1) needs a product decision on whether resolution
-		// should consider shares, (2) needs either a first-install onboarding
-		// step that seeds a usable non-admin baseline or a documented "admin
-		// must configure this before any user can use the app" posture. Not
-		// something a single spec's fixture should paper over by granting
-		// broad action-matrix access to make one assertion pass.
-		test.skip(
-			true,
-			'Recipient-side visibility needs a real active-dashboard resolution for a non-owned/non-group dashboard (DashboardResolver does not consider shares) AND a non-admin-usable action-authorization matrix (every action defaults to admin-only, unconfigured here) — both confirmed live, neither is a selector problem. Covered at the service layer by DashboardShareServiceFollowupsTest.',
+		// This spec and runtime-shell-canEdit.spec.ts remain the only two
+		// places in the suite that authenticate as a genuinely non-admin
+		// session, so they are the regression guard for both fixes.
+		await ensureKnownPassword(SHAREE, RECIPIENT_PASSWORD)
+		const { context, page: recipientPage } = await loginAs(
+			browser,
+			SHAREE,
+			RECIPIENT_PASSWORD,
 		)
+		try {
+			await recipientPage.goto('/index.php/apps/launchpad')
+
+			// (1) Wait for the app to actually render SOMETHING first —
+			// either the shell or the empty state. Asserting "no empty
+			// state" before Vue mounts would pass vacuously (count is 0 on
+			// a blank page), which is exactly the kind of assertion that
+			// proves nothing.
+			await recipientPage.waitForSelector(
+				'.launchpad-sidebar-toggle, .workspace-shell__empty',
+				{ timeout: 30_000 },
+			)
+
+			// (2) Resolution: having rendered, it must NOT be the empty
+			// state. Before the fix this is exactly where a recipient landed.
+			await expect(
+				recipientPage.locator('.workspace-shell__empty'),
+				'a recipient with a share must not land on the empty state',
+			).toHaveCount(0)
+
+			// (3) The shell renders — which also requires every bootstrap
+			// AJAX call to have passed the action matrix as a non-admin.
+			await recipientPage.waitForSelector('.launchpad-sidebar-toggle', { timeout: 30_000 })
+			await recipientPage.locator('.launchpad-sidebar-toggle').first().click()
+			await recipientPage.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 10_000 })
+
+			// (4) Visibility: the share shows up in its own switcher
+			// section, not smuggled in under the recipient's group heading.
+			const sharedSection = recipientPage.locator('[data-section="shared"]')
+			await expect(sharedSection).toBeVisible({ timeout: 10_000 })
+			await expect(
+				sharedSection.locator('[data-source="shared"]').first(),
+			).toBeVisible()
+		} finally {
+			await context.close()
+		}
 	})
 })

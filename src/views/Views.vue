@@ -545,6 +545,7 @@ export default {
 			'userDashboards',
 			'groupSharedDashboards',
 			'defaultGroupDashboards',
+			'sharedWithMeDashboards',
 			// dashboard-quota-limits REQ-QUOTA-006: drive the disabled
 			// create affordance + tooltip from the store getters.
 			'dashboardQuotaReached',
@@ -615,14 +616,23 @@ export default {
 		},
 		/**
 		 * Combined input for the sidebar's `groupDashboards` prop —
-		 * primary-group + default-group rows, each carrying their `source`
-		 * discriminator from `/api/dashboards/visible` (REQ-DASH-013).
+		 * primary-group + default-group + shared-with-me rows, each carrying
+		 * their `source` discriminator from `/api/dashboards/visible`
+		 * (REQ-DASH-013, REQ-SHARE-002). The sidebar re-splits them by
+		 * `source` into its own sections; anything omitted here is dropped
+		 * from the switcher entirely, which is how `shared` rows went
+		 * missing once the store refreshed over the server-rendered
+		 * initial state.
 		 *
-		 * @return {Array<object>} Concatenated group + default dashboards.
+		 * @return {Array<object>} Concatenated group + default + shared dashboards.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		sidebarGroupDashboards() {
-			return [...this.groupSharedDashboards, ...this.defaultGroupDashboards]
+			return [
+				...this.groupSharedDashboards,
+				...this.defaultGroupDashboards,
+				...this.sharedWithMeDashboards,
+			]
 		},
 		/**
 		 * Section discriminator for the currently active dashboard, so the
@@ -632,7 +642,7 @@ export default {
 		 * the sidebar renders; falls back to the dashboard's own `isOwner`
 		 * flag when the record is not in any bucket yet.
 		 *
-		 * @return {'group'|'default'|'user'} The active dashboard's source.
+		 * @return {'group'|'default'|'user'|'shared'} The active dashboard's source.
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		activeDashboardSource() {
@@ -646,6 +656,12 @@ export default {
 				}
 				if (this.groupSharedDashboards?.some(d => d.id === id)) {
 					return 'group'
+				}
+				// REQ-SHARE-002: a dashboard reached through a share is not
+				// the caller's own, so the cog must gate its owner-only
+				// entries exactly as it does for a group row.
+				if (this.sharedWithMeDashboards?.some(d => d.id === id)) {
+					return 'shared'
 				}
 			}
 			return this.activeDashboard?.isOwner === false ? 'group' : 'user'

@@ -544,4 +544,76 @@ describe('DashboardSwitcherSidebar', () => {
 			})
 		})
 	})
+
+	/*
+	 * REQ-SHARE-002 — dashboards reached through an explicit share.
+	 *
+	 * Before the share-resolution fix these rows never reached the client
+	 * at all (the server's visibility union had no share bucket). Now that
+	 * they do, they must NOT be smuggled into the primary-group section:
+	 * a dashboard someone shared with you is neither yours nor your
+	 * group's, and labelling it under the group heading misrepresents
+	 * where it came from.
+	 */
+	describe('REQ-SHARE-002 shared-with-you section', () => {
+		const sharedRow = { id: 's1', name: 'Shared Board', icon: null, source: 'shared' }
+
+		it('renders shared rows in their own section, not under the group heading', () => {
+			const wrapper = mountSidebar({
+				groupName: 'Engineering',
+				groupDashboards: [groupRow, sharedRow],
+				userDashboards: [],
+			})
+
+			const sharedSection = wrapper.find('[data-section="shared"]')
+			expect(sharedSection.exists()).toBe(true)
+			expect(sharedSection.text()).toContain('Shared Board')
+
+			const groupSection = wrapper.find('[data-section="group"]')
+			expect(groupSection.text()).toContain('Team Board')
+			expect(groupSection.text()).not.toContain('Shared Board')
+		})
+
+		it('tags shared rows with data-source="shared"', () => {
+			const wrapper = mountSidebar({
+				groupDashboards: [sharedRow],
+				userDashboards: [],
+			})
+
+			expect(wrapper.findAll('[data-source="shared"]').length).toBe(1)
+		})
+
+		it('emits switch with the shared source discriminator', async () => {
+			const wrapper = mountSidebar({
+				groupDashboards: [sharedRow],
+				userDashboards: [],
+			})
+
+			await wrapper.find('[data-source="shared"]').trigger('click')
+
+			expect(wrapper.emitted('switch')[0]).toEqual(['s1', 'shared'])
+		})
+
+		it('collapses the shared section entirely when nothing is shared', () => {
+			const wrapper = mountSidebar({
+				groupDashboards: [groupRow],
+				userDashboards: [userRow],
+			})
+
+			expect(wrapper.find('[data-section="shared"]').exists()).toBe(false)
+		})
+
+		it('renders the shared section last, after the personal section', () => {
+			const wrapper = mountSidebar({
+				groupName: 'Engineering',
+				groupDashboards: [groupRow, defaultRow, sharedRow],
+				userDashboards: [userRow],
+			})
+
+			const sections = wrapper.findAll('.dashboard-switcher-sidebar__section')
+				.map((section) => section.attributes('data-section'))
+
+			expect(sections).toEqual(['group', 'default', 'user', 'shared'])
+		})
+	})
 })

@@ -196,6 +196,19 @@ class Dashboard extends Entity implements JsonSerializable
     public const SOURCE_DEFAULT = 'default';
 
     /**
+     * Source tag indicating a dashboard reached through an explicit
+     * per-dashboard share (`oc_launchpad_dashboard_shares` — direct user
+     * share or group share), as opposed to ownership, group membership on
+     * a `group_shared` row, or the `default` sentinel.
+     *
+     * Used in the `/api/dashboards/visible` payload only — never
+     * persisted on the entity. REQ-SHARE-002 / REQ-DASH-013.
+     *
+     * @var string
+     */
+    public const SOURCE_SHARED = 'shared';
+
+    /**
      * Publication status: dashboard is a draft, visible only to its owner
      * (and Nextcloud admins). REQ-DASH-031..037.
      *

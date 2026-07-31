@@ -7,7 +7,7 @@
 	<div class="launchpad-admin__section" data-testid="admin-action-auth-section">
 		<h3>{{ t('launchpad', 'Action authorization') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Decide which Nextcloud groups may invoke each LaunchPad action (ADR-023). Admins always pass. Every action defaults to admin-only — tick a group to broaden it.') }}
+			{{ t('launchpad', 'Decide who may invoke each LaunchPad action (ADR-023). Admins always pass. Administrative actions default to admin-only; the ordinary end-user surface ships granted to "All logged-in users" so non-admins can use the app out of the box. Object-level access (whose dashboard you may edit) is enforced separately and is not affected by this table.') }}
 		</p>
 
 		<div v-if="error" class="launchpad-admin__action-error" role="alert">
@@ -30,7 +30,7 @@
 							:key="group"
 							scope="col"
 							class="launchpad-admin__matrix-group">
-							{{ group }}
+							{{ groupLabel(group) }}
 						</th>
 					</tr>
 				</thead>
@@ -46,7 +46,7 @@
 							<NcCheckboxRadioSwitch
 								:model-value="isChecked(action, group)"
 								:disabled="group === 'admin'"
-								:aria-label="t('launchpad', 'Allow group {group} to perform {action}', { group, action })"
+								:aria-label="t('launchpad', 'Allow group {group} to perform {action}', { group: groupLabel(group), action })"
 								@update:modelValue="toggle(action, group, $event)" />
 						</td>
 					</tr>
@@ -70,6 +70,12 @@
 import { NcButton, NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { api } from '../../services/api.js'
+
+/**
+ * Sentinel column meaning "every authenticated user". Mirrors
+ * `ActionAuthService::GROUP_ALL_USERS` — keep the two in sync.
+ */
+const ALL_USERS = '@all'
 
 /**
  * Admin editor for the ADR-023 action-authorization matrix.
@@ -102,11 +108,20 @@ export default {
 	},
 
 	computed: {
-		// `admin` is always shown first as a disabled, always-on column.
-		/** @spec openspec/architecture/adr-023-action-authorization.md */
+		/**
+		 * Column order: the always-on `admin` column, then the synthetic
+		 * `@all` ("every logged-in user") column, then the real Nextcloud
+		 * groups. `@all` is NOT a group the server can enumerate — it is a
+		 * sentinel understood by ActionAuthService — so it must be injected
+		 * here or the shipped non-admin baseline would be invisible to the
+		 * admin editing the matrix.
+		 *
+		 * @return {Array<string>} the column keys, in display order.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
 		displayGroups() {
-			const rest = this.groups.filter(g => g !== 'admin')
-			return ['admin', ...rest]
+			const rest = this.groups.filter(g => g !== 'admin' && g !== ALL_USERS)
+			return ['admin', ALL_USERS, ...rest]
 		},
 	},
 
@@ -156,6 +171,22 @@ export default {
 			}
 			const allowed = this.matrix[action] || []
 			return allowed.includes(group)
+		},
+
+		/**
+		 * Human-readable column heading. Real group IDs are shown verbatim;
+		 * the `@all` sentinel gets a label an admin can actually reason
+		 * about.
+		 *
+		 * @param {string} group Column key.
+		 * @return {string} The heading text.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
+		groupLabel(group) {
+			if (group === ALL_USERS) {
+				return this.t('launchpad', 'All logged-in users')
+			}
+			return group
 		},
 
 		/**

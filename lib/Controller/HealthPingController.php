@@ -53,15 +53,14 @@ use Throwable;
  */
 class HealthPingController extends Controller
 {
-
     /**
      * Constructor.
      *
-     * @param IRequest           $request            HTTP request.
-     * @param HealthPingService  $healthPingService  Resolves + caches + validates health-ping badges.
-     * @param PermissionService  $permissionService  Dashboard/placement permission gate.
-     * @param IUserSession       $userSession        Session accessor.
-     * @param LoggerInterface    $logger             PSR logger.
+     * @param IRequest          $request           HTTP request.
+     * @param HealthPingService $healthPingService Resolves + caches + validates health-ping badges.
+     * @param PermissionService $permissionService Dashboard/placement permission gate.
+     * @param IUserSession      $userSession       Session accessor.
+     * @param LoggerInterface   $logger            PSR logger.
      */
     public function __construct(
         IRequest $request,

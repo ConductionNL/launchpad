@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\ShareExpiredException;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
@@ -242,7 +243,7 @@ class PublicShareService
      * @param string      $ip       Client IP address for debouncing and throttling.
      * @param string|null $password Plaintext password supplied by the client.
      *
-     * @return array{share: PublicShare, dashboard: Dashboard}
+     * @return array{share: PublicShare, dashboard: Dashboard, placements: WidgetPlacement[]}
      *
      * @throws ShareNotFoundException         When token invalid, revoked, or expired.
      * @throws SharePasswordRequiredException When password is required but not supplied.

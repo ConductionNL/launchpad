@@ -47,6 +47,11 @@ use OCP\Migration\SimpleMigrationStep;
  * Rename the legacy long-named role tables to the abbreviated mapper names.
  *
  * @spec openspec/changes/role-based-content/specs/role-feature-permissions/spec.md
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) `changeSchema()` and
+ *  `preSchemaChange()` override {@see SimpleMigrationStep}; Nextcloud fixes
+ *  their signatures, so the unused `$output` / `$schemaClosure` / `$options`
+ *  parameters cannot be dropped without breaking the override.
  */
 class Version002005Date20260710000000 extends SimpleMigrationStep
 {

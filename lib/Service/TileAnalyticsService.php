@@ -57,33 +57,48 @@ use OCP\AppFramework\Db\DoesNotExistException;
  * Reporting service for the tile usage-analytics capability.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.StaticAccess)           Calls only pure, stateless helpers —
+ *  {@see AnalyticsService::periodToDateRange()} and
+ *  {@see UniqueViewerDedup::utcDateFor()}. Both are dependency-free functions
+ *  declared `public static`; injecting their owning classes purely to reach
+ *  them would add two collaborators that are never otherwise used here and
+ *  push this class further over the CouplingBetweenObjects threshold.
  */
 class TileAnalyticsService
 {
     /**
      * Constructor.
      *
-     * @param TileClickMapper       $tileClickMapper   Aggregate-row mapper.
-     * @param WidgetPlacementMapper $placementMapper   Resolves the placement
-     *                                                 (tile) that was
-     *                                                 clicked to its owning
-     *                                                 dashboard.
-     * @param DashboardMapper       $dashboardMapper   Resolves the owning
-     *                                                 dashboard's UUID.
-     * @param UniqueViewerDedup     $dedup             Reused unique-actor
-     *                                                 dedup service
-     *                                                 (REQ-TANLT-002).
-     * @param AnalyticsService      $analyticsService  Reused for
-     *                                                 `analytics_enabled` /
-     *                                                 `analytics_optout` /
-     *                                                 retention
-     *                                                 (REQ-TANLT-003,
-     *                                                 REQ-TANLT-005) — this
-     *                                                 service never reads
-     *                                                 `IAppConfig`/`IConfig`
-     *                                                 directly so there is
-     *                                                 exactly one place
-     *                                                 those gates live.
+     * @param TileClickMapper       $tileClickMapper  Aggregate-row mapper.
+     * @param WidgetPlacementMapper $placementMapper  Resolves the placement
+     *                                                (tile) that was
+     *                                                clicked to its owning
+     *                                                dashboard.
+     * @param DashboardMapper       $dashboardMapper  Resolves the owning
+     *                                                dashboard's UUID.
+     * @param UniqueViewerDedup     $dedup            Reused unique-actor
+     *                                                dedup service
+     *                                                (REQ-TANLT-002).
+     * @param AnalyticsService      $analyticsService Reused for
+     *                                                `analytics_enabled`
+     *                                                /
+     *                                                `analytics_optout`
+     *                                                /
+     *                                                retention
+     *                                                (REQ-TANLT-003,
+     *                                                REQ-TANLT-005)
+     *                                                — this
+     *                                                service
+     *                                                never
+     *                                                reads
+     *                                                `IAppConfig`/`IConfig`
+     *                                                directly
+     *                                                so there
+     *                                                is exactly
+     *                                                one place
+     *                                                those
+     *                                                gates
+     *                                                live.
      */
     public function __construct(
         private readonly TileClickMapper $tileClickMapper,

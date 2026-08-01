@@ -39,6 +39,14 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Create the `launchpad_tile_clicks` aggregate table
  * (REQ-TANLT-001..005).
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) `changeSchema()` overrides
+ *  {@see SimpleMigrationStep}; Nextcloud fixes the signature, so the unused
+ *  `$output` / `$options` parameters cannot be dropped.
+ * @SuppressWarnings(PHPMD.StaticAccess)          {@see TileClicksTableBuilder} is a
+ *  stateless schema-builder helper. Migration steps are instantiated by
+ *  Nextcloud's migrator, not the DI container, so a static call is the only
+ *  way to share the table definition with the test suite.
  */
 class Version002007Date20260724000000 extends SimpleMigrationStep
 {

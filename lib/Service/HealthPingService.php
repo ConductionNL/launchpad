@@ -88,6 +88,8 @@ class HealthPingService
     public const DEFAULT_EXPECTED_STATUS_RANGE_LOW = 200;
 
     /**
+     * Highest HTTP status still treated as "up" when a placement declares no explicit range.
+     *
      * @var integer
      */
     public const DEFAULT_EXPECTED_STATUS_RANGE_HIGH = 399;
@@ -198,8 +200,8 @@ class HealthPingService
      * Core resolve/cache logic shared by {@see self::resolveForPlacement()}
      * and {@see self::refreshDuePlacements()}.
      *
-     * @param integer              $placementId The widget placement id.
-     * @param array<string,mixed>  $config      The placement's health-ping config.
+     * @param integer             $placementId The widget placement id.
+     * @param array<string,mixed> $config      The placement's health-ping config.
      *
      * @return array<string,mixed> `{state, checkedAt, latencyMs, stale}`.
      */
@@ -297,8 +299,8 @@ class HealthPingService
                         'exception'   => $exception->getMessage(),
                     ]
                 );
-            }
-        }
+            }//end try
+        }//end foreach
 
         return $refreshed;
     }//end refreshDuePlacements()
@@ -370,8 +372,8 @@ class HealthPingService
      * cached entry, or the cached entry is older than the placement's
      * configured (clamped) interval.
      *
-     * @param integer              $placementId The widget placement id.
-     * @param array<string,mixed>  $config      The placement's health-ping config.
+     * @param integer             $placementId The widget placement id.
+     * @param array<string,mixed> $config      The placement's health-ping config.
      *
      * @return boolean
      */
@@ -419,14 +421,17 @@ class HealthPingService
 
         try {
             $client   = $this->clientService->newClient();
-            $response = $client->get(uri: $url, options: [
-                'connect_timeout' => self::CONNECT_TIMEOUT,
-                'timeout'         => self::REQUEST_TIMEOUT,
-                'http_errors'     => false,
+            $response = $client->get(
+                    uri: $url,
+                    options: [
+                        'connect_timeout' => self::CONNECT_TIMEOUT,
+                        'timeout'         => self::REQUEST_TIMEOUT,
+                        'http_errors'     => false,
                 // No auto-redirect — a 3xx to an unexpected host would
                 // bypass the allow-list check above.
-                'allow_redirects' => false,
-            ]);
+                        'allow_redirects' => false,
+                    ]
+                    );
         } catch (Throwable $exception) {
             // REQ-HPING-002 "Offline on failure" — a connection failure or
             // timeout IS a definitive reading, not a missed attempt.
@@ -436,7 +441,7 @@ class HealthPingService
                 context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
             );
             return ['state' => 'offline', 'latencyMs' => $latencyMs];
-        }
+        }//end try
 
         $latencyMs = (int) round((microtime(as_float: true) - $startedAt) * 1000);
         $status    = (int) $response->getStatusCode();
@@ -486,7 +491,11 @@ class HealthPingService
             default: self::DEFAULT_LATENCY_THRESHOLD_MS
         );
 
-        return $threshold > 0 ? $threshold : self::DEFAULT_LATENCY_THRESHOLD_MS;
+        if ($threshold > 0) {
+            return $threshold;
+        }
+
+        return self::DEFAULT_LATENCY_THRESHOLD_MS;
     }//end latencyThreshold()
 
     /**
@@ -551,7 +560,11 @@ class HealthPingService
     private function readPlacementConfig(WidgetPlacement $placement): array
     {
         $content = $placement->getContentArray();
-        return is_array(value: $content) === true ? $content : [];
+        if (is_array(value: $content) === true) {
+            return $content;
+        }
+
+        return [];
     }//end readPlacementConfig()
 
     /**
@@ -562,7 +575,7 @@ class HealthPingService
      * body.
      *
      * @param array<string,mixed> $reading The internal reading.
-     * @param boolean              $stale   Whether this is a stale (cache-expired-but-served) reading.
+     * @param boolean             $stale   Whether this is a stale (cache-expired-but-served) reading.
      *
      * @return array<string,mixed>
      */
@@ -570,10 +583,15 @@ class HealthPingService
     {
         $checkedAtTs = (int) ($reading['checkedAtTs'] ?? time());
 
+        $latencyMs = null;
+        if (isset($reading['latencyMs']) === true) {
+            $latencyMs = (int) $reading['latencyMs'];
+        }
+
         return [
             'state'     => $reading['state'] ?? null,
             'checkedAt' => (new DateTime('@'.$checkedAtTs))->format(format: DATE_ATOM),
-            'latencyMs' => isset($reading['latencyMs']) === true ? (int) $reading['latencyMs'] : null,
+            'latencyMs' => $latencyMs,
             'stale'     => $stale,
         ];
     }//end publicShape()
@@ -612,7 +630,11 @@ class HealthPingService
         }
 
         $decoded = json_decode(json: $raw, associative: true);
-        return is_array(value: $decoded) === true ? $decoded : null;
+        if (is_array(value: $decoded) === true) {
+            return $decoded;
+        }
+
+        return null;
     }//end readCache()
 
     /**

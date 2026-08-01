@@ -86,7 +86,9 @@ class IframeService
     /**
      * Constructor.
      *
-     * @param IAppConfig $appConfig Admin config: allow-listed hosts.
+     * @param IAppConfig      $appConfig     Admin config: allow-listed hosts.
+     * @param IClientService  $clientService HTTP client used for the server-side framability probe.
+     * @param LoggerInterface $logger        Logger for probe failures.
      */
     public function __construct(
         private readonly IAppConfig $appConfig,
@@ -144,34 +146,67 @@ class IframeService
         }
 
         $xfo = strtolower(string: trim(string: (string) $response->getHeader('X-Frame-Options')));
-        if ($xfo !== '') {
-            // Any XFO value (DENY, or SAMEORIGIN — the embedding LaunchPad
-            // page is a different origin than the target) refuses the frame.
-            if (str_contains(haystack: $xfo, needle: 'deny') === true
-                || str_contains(haystack: $xfo, needle: 'sameorigin') === true
-                || str_contains(haystack: $xfo, needle: 'allow-from') === true
-            ) {
-                return ['framable' => false, 'reason' => 'x_frame_options'];
-            }
+        if ($this->xfoRefusesFraming(xfo: $xfo) === true) {
+            return ['framable' => false, 'reason' => 'x_frame_options'];
         }
 
         $csp = strtolower(string: (string) $response->getHeader('Content-Security-Policy'));
-        if ($csp !== '' && preg_match(pattern: '/frame-ancestors\s+([^;]*)/', subject: $csp, matches: $matches) === 1) {
-            $directive = trim(string: $matches[1]);
-            // `frame-ancestors 'none'` refuses all framing. A `'self'` or a
-            // host-list that does not name our origin also refuses us; since
-            // LaunchPad embeds arbitrary third parties, anything other than a
-            // wildcard is treated as a refusal (fail-closed).
-            if ($directive !== '' && $directive !== '*' && str_contains(haystack: $directive, needle: 'http') === false) {
-                return ['framable' => false, 'reason' => 'frame_ancestors'];
-            }
-            if (str_contains(haystack: $directive, needle: "'none'") === true) {
-                return ['framable' => false, 'reason' => 'frame_ancestors'];
-            }
+        if ($this->cspRefusesFraming(csp: $csp) === true) {
+            return ['framable' => false, 'reason' => 'frame_ancestors'];
         }
 
         return ['framable' => true, 'reason' => 'ok'];
     }//end checkFramable()
+
+    /**
+     * Whether an `X-Frame-Options` header value refuses our frame.
+     *
+     * Any XFO value refuses: `DENY` outright, and `SAMEORIGIN` /`ALLOW-FROM`
+     * too, because the embedding LaunchPad page is always a different origin
+     * than the target.
+     *
+     * @param string $xfo The lower-cased, trimmed header value (`''` if absent).
+     *
+     * @return bool True when the header refuses framing.
+     */
+    private function xfoRefusesFraming(string $xfo): bool
+    {
+        if ($xfo === '') {
+            return false;
+        }
+
+        return str_contains(haystack: $xfo, needle: 'deny') === true
+            || str_contains(haystack: $xfo, needle: 'sameorigin') === true
+            || str_contains(haystack: $xfo, needle: 'allow-from') === true;
+    }//end xfoRefusesFraming()
+
+    /**
+     * Whether a `Content-Security-Policy` header's `frame-ancestors`
+     * directive refuses our frame.
+     *
+     * `frame-ancestors 'none'` refuses all framing. A `'self'` or a host-list
+     * that does not name our origin also refuses us; since LaunchPad embeds
+     * arbitrary third parties, anything other than a wildcard is treated as a
+     * refusal (fail-closed).
+     *
+     * @param string $csp The lower-cased header value (`''` if absent).
+     *
+     * @return bool True when the directive refuses framing.
+     */
+    private function cspRefusesFraming(string $csp): bool
+    {
+        $matches = [];
+        if ($csp === '' || preg_match(pattern: '/frame-ancestors\s+([^;]*)/', subject: $csp, matches: $matches) !== 1) {
+            return false;
+        }
+
+        $directive = trim(string: $matches[1]);
+        if ($directive !== '' && $directive !== '*' && str_contains(haystack: $directive, needle: 'http') === false) {
+            return true;
+        }
+
+        return str_contains(haystack: $directive, needle: "'none'") === true;
+    }//end cspRefusesFraming()
 
     /**
      * Validate a candidate iframe placement config at save time
@@ -191,9 +226,9 @@ class IframeService
 
         if ($url === '') {
             $errors[] = 'url_required';
-        } elseif ($this->hasValidScheme(url: $url) === false) {
+        } else if ($this->hasValidScheme(url: $url) === false) {
             $errors[] = 'invalid_url';
-        } elseif ($this->isHostAllowed(url: $url) === false) {
+        } else if ($this->isHostAllowed(url: $url) === false) {
             // FAIL-CLOSED — never "allow all" on an empty/missing list.
             $errors[] = 'host_not_allowed';
         }

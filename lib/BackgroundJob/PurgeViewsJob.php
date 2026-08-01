@@ -103,10 +103,10 @@ class PurgeViewsJob extends TimedJob
             message: 'launchpad analytics purge: deleted '.$deletedViews.' view rows and '
                 .$deletedClicks.' tile-click rows older than '.$cutoff,
             context: [
-                'viewRows'   => $deletedViews,
-                'tileRows'   => $deletedClicks,
-                'cutoff'     => $cutoff,
-                'retention'  => $this->analyticsService->getRetentionDays(),
+                'viewRows'  => $deletedViews,
+                'tileRows'  => $deletedClicks,
+                'cutoff'    => $cutoff,
+                'retention' => $this->analyticsService->getRetentionDays(),
             ]
         );
     }//end run()

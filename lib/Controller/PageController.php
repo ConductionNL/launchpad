@@ -329,18 +329,17 @@ class PageController extends Controller
             );
         }
 
-        // tile-quick-search REQ-QSEARCH-004: read the admin-configured
+        // Tile-quick-search REQ-QSEARCH-004: read the admin-configured
         // no-match fallback target. `getSettings()` already resolves the
         // safe 'none' default when unset/invalid, so this never throws.
-        $quicksearchFallbackTarget = (string) (
-            $this->adminSettingsService->getSettings()['quicksearchFallbackTarget']
-            ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
+        $quicksearchFallback = (string) (
+            $this->adminSettingsService->getSettings()['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
         );
 
         $builder
             ->setAllowedWidgets($allowedWidgets)
             ->setDeepLinkPath($deepLinkPath)
-            ->setQuicksearchFallbackTarget($quicksearchFallbackTarget)
+            ->setQuicksearchFallbackTarget($quicksearchFallback)
             ->apply();
 
         // REQ-SHELL-001: pass the chrome slot ids so Nextcloud treats

@@ -63,14 +63,14 @@ class RuleEvaluatorService
      * @param ConditionalRule        $rule           The rule to evaluate.
      * @param string                 $userId         The user ID.
      * @param string[]|null          $groupsOverride When non-null, used
-     *                                                instead of the live
-     *                                                user's group
-     *                                                memberships for
-     *                                                `group` rules.
+     *                                               instead of the live
+     *                                               user's group
+     *                                               memberships for
+     *                                               `group` rules.
      * @param DateTimeInterface|null $nowOverride    When non-null, used
-     *                                                instead of the server
-     *                                                clock for `time` /
-     *                                                `date` rules.
+     *                                               instead of the server
+     *                                               clock for `time` /
+     *                                               `date` rules.
      *
      * @return bool Whether the rule matches.
      *

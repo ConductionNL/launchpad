@@ -343,16 +343,15 @@ class InitialStateBuilder
      * required-key check, and the JS reader's `'none'` default keeps the
      * frontend typed either way (tile-quick-search REQ-QSEARCH-004).
      *
-     * @param string $quicksearchFallbackTarget The current fallback-target
-     *                                          setting value.
+     * @param string $fallbackTarget The current fallback-target setting value.
      *
      * @return self Fluent.
      *
      * @spec openspec/specs/tile-quick-search/spec.md
      */
-    public function setQuicksearchFallbackTarget(string $quicksearchFallbackTarget): self
+    public function setQuicksearchFallbackTarget(string $fallbackTarget): self
     {
-        $this->values['quicksearchFallbackTarget'] = $quicksearchFallbackTarget;
+        $this->values['quicksearchFallbackTarget'] = $fallbackTarget;
         return $this;
     }//end setQuicksearchFallbackTarget()
 

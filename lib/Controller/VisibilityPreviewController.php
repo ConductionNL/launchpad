@@ -57,10 +57,10 @@ class VisibilityPreviewController extends Controller
      *
      * @param IRequest           $request            The request.
      * @param ConditionalService $conditionalService The conditional service
-     *                                                (shared evaluation
-     *                                                pipeline).
+     *                                               (shared evaluation
+     *                                               pipeline).
      * @param string|null        $userId             The authenticated user
-     *                                                ID.
+     *                                               ID.
      */
     public function __construct(
         IRequest $request,

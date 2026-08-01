@@ -58,7 +58,7 @@ use Throwable;
  *  the transaction boundary, the audit publisher, the notification
  *  manager, and the async job dispatcher for one cohesive re-sync
  *  operation — splitting further would fragment a single atomic concern.
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)    Public surface mirrors
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)   Public surface mirrors
  *  the three controller-facing entry points (resync/planResync/applyResync)
  *  plus the diff helpers the background job and tests both need directly.
  */
@@ -102,41 +102,41 @@ class TemplateResyncService
      * @param DashboardMapper       $dashboardMapper     Dashboard mapper.
      * @param WidgetPlacementMapper $placementMapper     Widget placement mapper.
      * @param IDBConnection         $db                  DB connection —
-     *                                                    used for the
-     *                                                    per-copy
-     *                                                    transaction
-     *                                                    boundary.
+     *                                                   used for the
+     *                                                   per-copy
+     *                                                   transaction
+     *                                                   boundary.
      * @param ActivityPublisher     $activityPublisher   Audit-trail
-     *                                                    publisher
-     *                                                    (REQ-RESYNC-005).
+     *                                                   publisher
+     *                                                   (REQ-RESYNC-005).
      * @param INotificationManager  $notificationManager Nextcloud
-     *                                                    notification
-     *                                                    manager — used
-     *                                                    for the
-     *                                                    per-user
-     *                                                    "your dashboard
-     *                                                    was updated"
-     *                                                    notification.
-     *                                                    Canonical
-     *                                                    fallback per
-     *                                                    REQ-RESYNC-005;
-     *                                                    this app has no
-     *                                                    OpenRegister
-     *                                                    dependency
-     *                                                    (see the
-     *                                                    admin-templates
-     *                                                    storage
-     *                                                    policy), so the
-     *                                                    `x-openregister-
-     *                                                    notifications`
-     *                                                    branch is not
-     *                                                    wired in.
+     *                                                   notification
+     *                                                   manager — used
+     *                                                   for the
+     *                                                   per-user
+     *                                                   "your dashboard
+     *                                                   was updated"
+     *                                                   notification.
+     *                                                   Canonical
+     *                                                   fallback per
+     *                                                   REQ-RESYNC-005;
+     *                                                   this app has no
+     *                                                   OpenRegister
+     *                                                   dependency
+     *                                                   (see the
+     *                                                   admin-templates
+     *                                                   storage
+     *                                                   policy), so the
+     *                                                   `x-openregister-
+     *                                                   notifications`
+     *                                                   branch is not
+     *                                                   wired in.
      * @param IJobList              $jobList             Background job
-     *                                                    list — used to
-     *                                                    enqueue
-     *                                                    {@see TemplateResyncJob}
-     *                                                    for large
-     *                                                    target groups.
+     *                                                   list — used to
+     *                                                   enqueue
+     *                                                   {@see TemplateResyncJob}
+     *                                                   for large
+     *                                                   target groups.
      * @param LoggerInterface       $logger              PSR-3 logger.
      */
     public function __construct(
@@ -254,7 +254,7 @@ class TemplateResyncService
         $templatePlacements = $this->placementMapper->findByDashboardId(
             dashboardId: $template->getId()
         );
-        $copies              = $this->dashboardMapper->findByBasedOnTemplate(
+        $copies = $this->dashboardMapper->findByBasedOnTemplate(
             templateId: $templateId
         );
 
@@ -265,7 +265,7 @@ class TemplateResyncService
             $copyPlacements = $this->placementMapper->findByDashboardId(
                 dashboardId: $copy->getId()
             );
-            $diff = $this->diffCopy(
+            $diff           = $this->diffCopy(
                 templatePlacements: $templatePlacements,
                 copyPlacements: $copyPlacements,
                 strategy: $strategy
@@ -325,19 +325,19 @@ class TemplateResyncService
         $templatePlacements = $this->placementMapper->findByDashboardId(
             dashboardId: $template->getId()
         );
-        $copies              = $this->dashboardMapper->findByBasedOnTemplate(
+        $copies = $this->dashboardMapper->findByBasedOnTemplate(
             templateId: $templateId
         );
 
-        $copyReports    = [];
-        $affectedCount  = 0;
+        $copyReports      = [];
+        $affectedCount    = 0;
         $notifyDashboards = [];
 
         foreach ($copies as $copy) {
             $copyPlacements = $this->placementMapper->findByDashboardId(
                 dashboardId: $copy->getId()
             );
-            $diff = $this->diffCopy(
+            $diff           = $this->diffCopy(
                 templatePlacements: $templatePlacements,
                 copyPlacements: $copyPlacements,
                 strategy: $strategy
@@ -399,7 +399,12 @@ class TemplateResyncService
      *
      * @param Dashboard            $copy The provisioned copy.
      * @param array<string, mixed> $diff The diff computed by
-     *                                   {@see self::diffCopy()}.
+     *                                   {@see self::diffCopy()}, whose
+     *                                   `@return` documents the exact
+     *                                   shape: `toAdd` and `toRemove` hold
+     *                                   {@see WidgetPlacement} lists and
+     *                                   `toUpdate` holds copy/template
+     *                                   pairs.
      *
      * @return string|null The failure message, or null on success.
      */
@@ -408,7 +413,6 @@ class TemplateResyncService
         $this->db->beginTransaction();
 
         try {
-            /** @var WidgetPlacement $templatePlacement */
             foreach ($diff['toAdd'] as $templatePlacement) {
                 $this->placementMapper->insert(
                     entity: $this->cloneTemplatePlacementInto(
@@ -426,7 +430,6 @@ class TemplateResyncService
                 $this->placementMapper->update(entity: $pair['copy']);
             }
 
-            /** @var WidgetPlacement $copyPlacement */
             foreach ($diff['toRemove'] as $copyPlacement) {
                 $this->placementMapper->delete(entity: $copyPlacement);
             }
@@ -485,7 +488,12 @@ class TemplateResyncService
      * @param string            $strategy           `'overwrite'` or
      *                                              `'merge'`.
      *
-     * @return array{toAdd: WidgetPlacement[], toUpdate: array<int, array{copy: WidgetPlacement, template: WidgetPlacement}>, toRemove: WidgetPlacement[], toPreserve: WidgetPlacement[]}
+     * @return array{
+     *     toAdd: WidgetPlacement[],
+     *     toUpdate: array<int, array{copy: WidgetPlacement, template: WidgetPlacement}>,
+     *     toRemove: WidgetPlacement[],
+     *     toPreserve: WidgetPlacement[]
+     * }
      */
     private function diffCopy(
         array $templatePlacements,
@@ -507,17 +515,17 @@ class TemplateResyncService
 
             if ($originId !== null && isset($templateById[$originId]) === true) {
                 $matchedTemplateIds[$originId] = true;
-                $tp                            = $templateById[$originId];
+                $tp = $templateById[$originId];
 
                 if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
                     $toUpdate[] = [
                         'copy'     => $cp,
                         'template' => $tp,
                     ];
-                } else {
-                    $toPreserve[] = $cp;
+                    continue;
                 }
 
+                $toPreserve[] = $cp;
                 continue;
             }
 
@@ -533,11 +541,36 @@ class TemplateResyncService
             // No known origin — a genuinely user-added placement.
             if ($strategy === self::STRATEGY_OVERWRITE) {
                 $toRemove[] = $cp;
-            } else {
-                $toPreserve[] = $cp;
+                continue;
             }
+
+            $toPreserve[] = $cp;
         }//end foreach
 
+        return [
+            'toAdd'      => $this->unmatchedTemplatePlacements(
+                templatePlacements: $templatePlacements,
+                matchedTemplateIds: $matchedTemplateIds
+            ),
+            'toUpdate'   => $toUpdate,
+            'toRemove'   => $toRemove,
+            'toPreserve' => $toPreserve,
+        ];
+    }//end diffCopy()
+
+    /**
+     * Template placements the copy has no counterpart for — i.e. the
+     * additions a re-sync must make.
+     *
+     * @param WidgetPlacement[]   $templatePlacements The template's current placements.
+     * @param array<int, boolean> $matchedTemplateIds Set of template placement IDs
+     *                                                already matched to a copy
+     *                                                placement, keyed by ID.
+     *
+     * @return WidgetPlacement[] The unmatched template placements, in input order.
+     */
+    private function unmatchedTemplatePlacements(array $templatePlacements, array $matchedTemplateIds): array
+    {
         $toAdd = [];
         foreach ($templatePlacements as $tp) {
             if (isset($matchedTemplateIds[$tp->getId()]) === false) {
@@ -545,13 +578,8 @@ class TemplateResyncService
             }
         }
 
-        return [
-            'toAdd'      => $toAdd,
-            'toUpdate'   => $toUpdate,
-            'toRemove'   => $toRemove,
-            'toPreserve' => $toPreserve,
-        ];
-    }//end diffCopy()
+        return $toAdd;
+    }//end unmatchedTemplatePlacements()
 
     /**
      * Whether a diff carries any mutation (add/update/remove). Used to
@@ -627,8 +655,7 @@ class TemplateResyncService
         WidgetPlacement $copy,
         WidgetPlacement $template
     ): bool {
-        return $this->templateFieldSnapshot(placement: $copy)
-            !== $this->templateFieldSnapshot(placement: $template);
+        return $this->templateFieldSnapshot(placement: $copy) !== $this->templateFieldSnapshot(placement: $template);
     }//end placementDiffers()
 
     /**
@@ -792,12 +819,13 @@ class TemplateResyncService
     /**
      * Summarise one copy's diff for the report returned to the admin.
      *
-     * @param Dashboard             $copy    The provisioned copy.
-     * @param array<string, mixed>  $diff    The diff computed by
-     *                                       {@see self::diffCopy()}.
-     * @param bool                  $applied Whether the diff was applied
-     *                                       (false for dry-run reports).
-     * @param string|null           $error   The failure message, or null.
+     * @param Dashboard            $copy    The provisioned copy.
+     * @param array<string, mixed> $diff    The diff computed by
+     *                                      {@see
+     *                                      self::diffCopy()}.
+     * @param bool                 $applied Whether the diff was applied
+     *                                      (false for dry-run reports).
+     * @param string|null          $error   The failure message, or null.
      *
      * @return array<string, mixed> The per-copy report row.
      */

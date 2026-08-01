@@ -48,13 +48,12 @@ use OCP\IUserSession;
  */
 class IframeController extends Controller
 {
-
     /**
      * Constructor.
      *
-     * @param IRequest       $request        HTTP request.
-     * @param IframeService  $iframeService  Allow-list validation + sandbox sanitisation.
-     * @param IUserSession   $userSession    Session accessor.
+     * @param IRequest      $request       HTTP request.
+     * @param IframeService $iframeService Allow-list validation + sandbox sanitisation.
+     * @param IUserSession  $userSession   Session accessor.
      */
     public function __construct(
         IRequest $request,

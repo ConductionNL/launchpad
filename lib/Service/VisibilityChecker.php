@@ -77,9 +77,9 @@ class VisibilityChecker
      * @param ConditionalRule[]      $rules          The rules to check.
      * @param string                 $userId         The user ID.
      * @param string[]|null          $groupsOverride Preview-only group
-     *                                                override.
+     *                                               override.
      * @param DateTimeInterface|null $nowOverride    Preview-only clock
-     *                                                override.
+     *                                               override.
      *
      * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
      *
@@ -164,12 +164,12 @@ class VisibilityChecker
      * @param ConditionalRule[]      $rules          The rules in this group.
      * @param string                 $userId         The user ID.
      * @param string[]|null          $groupsOverride Preview-only group
-     *                                                override.
+     *                                               override.
      * @param DateTimeInterface|null $nowOverride    Preview-only clock
-     *                                                override.
+     *                                               override.
      * @param bool                   $isIncludeGroup True for the include
-     *                                                group, false for
-     *                                                exclude.
+     *                                               group, false for
+     *                                               exclude.
      *
      * @return array{passed: bool, matchedIds: int[]}
      */
@@ -193,10 +193,9 @@ class VisibilityChecker
             }
         }
 
+        $passed = empty($matchedIds) === true;
         if ($isIncludeGroup === true) {
             $passed = empty($rules) === true || empty($matchedIds) === false;
-        } else {
-            $passed = empty($matchedIds) === true;
         }
 
         return [

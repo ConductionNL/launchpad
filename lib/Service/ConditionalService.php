@@ -121,19 +121,19 @@ class ConditionalService
      * `ConditionalRuleMapper`.
      *
      * @param ConditionalRule[]      $rules          The candidate rule set
-     *                                                (not persisted).
+     *                                               (not persisted).
      * @param string                 $userId         The previewing user's
-     *                                                UID (used only for
-     *                                                `attribute` rules,
-     *                                                which have no override
-     *                                                in the preview
-     *                                                context).
+     *                                               UID (used only for
+     *                                               `attribute` rules,
+     *                                               which have no override
+     *                                               in the preview
+     *                                               context).
      * @param string[]               $groupsOverride The audience groups to
-     *                                                test `group` rules
-     *                                                against.
+     *                                               test `group` rules
+     *                                               against.
      * @param DateTimeInterface|null $nowOverride    The moment to test
-     *                                                `time` / `date` rules
-     *                                                against.
+     *                                               `time` / `date` rules
+     *                                               against.
      *
      * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
      *

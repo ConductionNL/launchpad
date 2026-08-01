@@ -57,15 +57,14 @@ use Throwable;
  */
 class LiveTileController extends Controller
 {
-
     /**
      * Constructor.
      *
-     * @param IRequest           $request           HTTP request.
-     * @param LiveTileService    $liveTileService    Resolves + caches + validates live-tile values.
-     * @param PermissionService  $permissionService  Dashboard/placement permission gate.
-     * @param IUserSession       $userSession        Session accessor.
-     * @param LoggerInterface    $logger             PSR logger.
+     * @param IRequest          $request           HTTP request.
+     * @param LiveTileService   $liveTileService   Resolves + caches + validates live-tile values.
+     * @param PermissionService $permissionService Dashboard/placement permission gate.
+     * @param IUserSession      $userSession       Session accessor.
+     * @param LoggerInterface   $logger            PSR logger.
      */
     public function __construct(
         IRequest $request,

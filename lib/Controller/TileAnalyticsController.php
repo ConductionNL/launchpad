@@ -61,10 +61,14 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/dashboard-view-analytics/spec.md
  *
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ * @SuppressWarnings(PHPMD.StaticAccess)           {@see ResponseHelper} is an all-static,
  *  stateless response factory shared by every controller in this app; calling
  *  it statically is its intended usage and injecting it would add a
  *  collaborator with no state to every controller.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) An analytics endpoint reads
+ *  across several aggregates by nature; every collaborator here is a mapper or
+ *  service it must query to answer one request. Splitting the controller would
+ *  move the coupling rather than remove it.
  */
 class TileAnalyticsController extends Controller
 {

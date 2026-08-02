@@ -66,6 +66,9 @@ use Throwable;
  *     lite extraction, formatting, badge thresholding, caching, and
  *     stale-fallback in one cohesive unit — mirrors WeatherService's shape
  *     for the same class of capability.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Same cause as the complexity
+ *     above: the dual-source resolution necessarily reaches OpenConnector, the
+ *     HTTP client, the cache and the config. The collaborators are the feature.
  * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileService

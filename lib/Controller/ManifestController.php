@@ -201,12 +201,31 @@ class ManifestController extends Controller
             // `findObjects()` does not exist; the old call threw
             // BadMethodCallException that was silently swallowed, causing the
             // manifest to always return empty pages/menu arrays.
+            //
+            // The owner filter MUST be NESTED under `@self`. OpenRegister splits
+            // filters into metadata filters (the magic table's `_`-prefixed
+            // columns, addressed as a nested `@self` array) and property filters
+            // (matched against the schema's own properties). A bare `owner` is
+            // therefore read as a property filter on an `owner` property, which
+            // the dashboard schema does not have — so it matched nothing and
+            // this endpoint returned an EMPTY MANIFEST to every user, including
+            // the owner of the dashboards.
+            //
+            // Measured on a live instance, admin owning two dashboards:
+            //   no owner filter at all                    -> 2
+            //   'owner'          => 'admin'               -> 0
+            //   '@self.owner'    => 'admin'  (dotted)     -> 0
+            //   '@self' => ['owner' => 'admin'] (nested)  -> 2
+            //   '@self' => ['owner' => 'nobody-xyz']      -> 0   <- control
+            // The last row is the control: it proves the nested form actually
+            // filters rather than being silently ignored, which is the failure
+            // mode that produced the always-empty manifest in the first place.
             $ownedResults = $objectService->findAll(
                 config: [
                     'filters' => [
                         'register' => self::REGISTER,
                         'schema'   => self::SCHEMA,
-                        'owner'    => $userId,
+                        '@self'    => ['owner' => $userId],
                     ],
                     'limit'   => 500,
                 ]
@@ -326,13 +345,17 @@ class ManifestController extends Controller
                 $grantedUuids = array_slice($grantedUuids, 0, self::MAX_GRANTED);
             }
 
+            // `ids` is a first-class config key that matches `_uuid` OR `_slug`.
+            // A `filters['uuid']` entry would instead be read as a property
+            // filter on a `uuid` property — the same trap that made the owner
+            // query above return nothing.
             $results = $objectService->findAll(
                 config: [
                     'filters' => [
                         'register' => self::REGISTER,
                         'schema'   => self::SCHEMA,
-                        'uuid'     => $grantedUuids,
                     ],
+                    'ids'     => $grantedUuids,
                     'limit'   => self::MAX_GRANTED,
                 ]
             );

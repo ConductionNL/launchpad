@@ -110,30 +110,33 @@ class ManifestControllerGrantsTest extends TestCase
     /**
      * An ObjectService double returning owned rows, then granted rows.
      *
-     * It distinguishes the two calls by the filter the controller sends: the
-     * owned query carries `owner`, the granted query carries `uuid`. That is
-     * deliberately asserted rather than assumed — a controller that sent the
-     * wrong filter would otherwise still look correct here.
+     * It distinguishes the two calls the way OpenRegister actually does: the
+     * owned query carries a NESTED `@self` metadata filter, the granted query
+     * carries the top-level `ids` config key. Both spellings are load-bearing and
+     * both are asserted, because OpenRegister silently degrades the wrong one
+     * into a property filter that matches nothing — which is exactly how this
+     * endpoint shipped an always-empty manifest. Note that neither a bare
+     * `owner` nor a DOTTED `@self.owner` works; only the nested array does.
      *
      * @param array<int, array<string, mixed>> $owned   Rows for the owner query.
-     * @param array<int, array<string, mixed>> $granted Rows for the uuid query.
-     * @param array<int, array<string, mixed>> $seenFilters Collected filters, by reference.
+     * @param array<int, array<string, mixed>> $granted Rows for the ids query.
+     * @param array<int, array<string, mixed>> $seenConfigs Collected configs, by reference.
      *
      * @return object
      */
-    private function objectServiceDouble(array $owned, array $granted, array &$seenFilters): object
+    private function objectServiceDouble(array $owned, array $granted, array &$seenConfigs): object
     {
-        return new class($owned, $granted, $seenFilters) {
+        return new class($owned, $granted, $seenConfigs) {
 
             /**
              * @param array<int, array<string, mixed>> $owned       Owner-query rows.
-             * @param array<int, array<string, mixed>> $granted     Uuid-query rows.
-             * @param array<int, array<string, mixed>> $seenFilters Filter log.
+             * @param array<int, array<string, mixed>> $granted     Ids-query rows.
+             * @param array<int, array<string, mixed>> $seenConfigs Config log.
              */
             public function __construct(
                 private readonly array $owned,
                 private readonly array $granted,
-                private array &$seenFilters
+                private array &$seenConfigs
             ) {
             }
 
@@ -144,10 +147,9 @@ class ManifestControllerGrantsTest extends TestCase
              */
             public function findAll(array $config): array
             {
-                $filters             = ($config['filters'] ?? []);
-                $this->seenFilters[] = $filters;
+                $this->seenConfigs[] = $config;
 
-                if (isset($filters['uuid']) === true) {
+                if (isset($config['ids']) === true) {
                     return $this->granted;
                 }
 
@@ -246,14 +248,14 @@ class ManifestControllerGrantsTest extends TestCase
      */
     public function testAGrantedDashboardIsIncluded(): void
     {
-        $seenFilters = [];
+        $seenConfigs = [];
         $seenActions = [];
 
         $this->wireContainer(
             objectService: $this->objectServiceDouble(
                 owned: [['id' => 'o1', 'slug' => 'mine', 'title' => 'Mine']],
                 granted: [['id' => 'g1', 'slug' => 'shared', 'title' => 'Shared']],
-                seenFilters: $seenFilters
+                seenConfigs: $seenConfigs
             ),
             grantResolver: $this->grantResolverDouble(uuids: ['g1'], seenActions: $seenActions)
         );
@@ -267,12 +269,24 @@ class ManifestControllerGrantsTest extends TestCase
         // resolver refuses anything outside the five core verbs.
         $this->assertSame(['read'], $seenActions);
 
-        // And the two queries really were the two different queries: one scoped
-        // by owner, one by uuid. A controller that sent `owner` twice would
-        // still have produced the assertion above.
-        $this->assertArrayHasKey('owner', $seenFilters[0]);
-        $this->assertArrayNotHasKey('uuid', $seenFilters[0]);
-        $this->assertSame(['g1'], $seenFilters[1]['uuid']);
+        // And the two queries really were two different queries: one scoped by
+        // owner, one by id. A controller that issued the owner query twice would
+        // still have produced the page assertion above.
+        //
+        // The exact spellings are pinned on purpose. OpenRegister routes
+        // `@self.owner` to the `_owner` metadata column, but a bare `owner` to a
+        // *property* filter — and a property the dashboard schema does not have
+        // matches nothing, which is precisely how this endpoint returned an empty
+        // manifest to every user including the owner. Likewise `ids` is a
+        // first-class config key matching `_uuid`/`_slug`, whereas
+        // `filters['uuid']` would degrade the same silent way.
+        $this->assertSame('alice', $seenConfigs[0]['filters']['@self']['owner']);
+        $this->assertArrayNotHasKey('owner', $seenConfigs[0]['filters']);
+        $this->assertArrayNotHasKey('@self.owner', $seenConfigs[0]['filters']);
+        $this->assertArrayNotHasKey('ids', $seenConfigs[0]);
+
+        $this->assertSame(['g1'], $seenConfigs[1]['ids']);
+        $this->assertArrayNotHasKey('uuid', $seenConfigs[1]['filters']);
     }//end testAGrantedDashboardIsIncluded()
 
 
@@ -283,7 +297,7 @@ class ManifestControllerGrantsTest extends TestCase
      */
     public function testAnOwnedAndGrantedDashboardIsNotDuplicated(): void
     {
-        $seenFilters = [];
+        $seenConfigs = [];
         $seenActions = [];
 
         $row = ['id' => 'same', 'slug' => 'both', 'title' => 'Both'];
@@ -292,7 +306,7 @@ class ManifestControllerGrantsTest extends TestCase
             objectService: $this->objectServiceDouble(
                 owned: [$row],
                 granted: [$row],
-                seenFilters: $seenFilters
+                seenConfigs: $seenConfigs
             ),
             grantResolver: $this->grantResolverDouble(uuids: ['same'], seenActions: $seenActions)
         );
@@ -318,13 +332,13 @@ class ManifestControllerGrantsTest extends TestCase
      */
     public function testWithoutTheGrantResolverTheManifestIsOwnedOnly(): void
     {
-        $seenFilters = [];
+        $seenConfigs = [];
 
         $this->wireContainer(
             objectService: $this->objectServiceDouble(
                 owned: [['id' => 'o1', 'slug' => 'mine', 'title' => 'Mine']],
                 granted: [['id' => 'g1', 'slug' => 'shared', 'title' => 'Shared']],
-                seenFilters: $seenFilters
+                seenConfigs: $seenConfigs
             ),
             grantResolver: null
         );
@@ -335,7 +349,7 @@ class ManifestControllerGrantsTest extends TestCase
         $this->assertSame(['mine'], $this->slugsOf($response->getData()));
 
         // The uuid query was never issued at all.
-        $this->assertCount(1, $seenFilters);
+        $this->assertCount(1, $seenConfigs);
     }//end testWithoutTheGrantResolverTheManifestIsOwnedOnly()
 
 
@@ -346,14 +360,14 @@ class ManifestControllerGrantsTest extends TestCase
      */
     public function testNoGrantsIssuesNoSecondQuery(): void
     {
-        $seenFilters = [];
+        $seenConfigs = [];
         $seenActions = [];
 
         $this->wireContainer(
             objectService: $this->objectServiceDouble(
                 owned: [['id' => 'o1', 'slug' => 'mine', 'title' => 'Mine']],
                 granted: [],
-                seenFilters: $seenFilters
+                seenConfigs: $seenConfigs
             ),
             grantResolver: $this->grantResolverDouble(uuids: [], seenActions: $seenActions)
         );
@@ -361,7 +375,7 @@ class ManifestControllerGrantsTest extends TestCase
         $response = $this->makeController()->index();
 
         $this->assertSame(['mine'], $this->slugsOf($response->getData()));
-        $this->assertCount(1, $seenFilters);
+        $this->assertCount(1, $seenConfigs);
     }//end testNoGrantsIssuesNoSecondQuery()
 
 
@@ -376,7 +390,7 @@ class ManifestControllerGrantsTest extends TestCase
      */
     public function testExceedingTheGrantCapLogsAWarning(): void
     {
-        $seenFilters = [];
+        $seenConfigs = [];
         $seenActions = [];
 
         $uuids = [];
@@ -392,7 +406,7 @@ class ManifestControllerGrantsTest extends TestCase
             objectService: $this->objectServiceDouble(
                 owned: [],
                 granted: [],
-                seenFilters: $seenFilters
+                seenConfigs: $seenConfigs
             ),
             grantResolver: $this->grantResolverDouble(uuids: $uuids, seenActions: $seenActions)
         );
@@ -400,6 +414,6 @@ class ManifestControllerGrantsTest extends TestCase
         $this->makeController()->index();
 
         // Truncated to the cap, not sent whole.
-        $this->assertCount(200, $seenFilters[1]['uuid']);
+        $this->assertCount(200, $seenConfigs[1]['ids']);
     }//end testExceedingTheGrantCapLogsAWarning()
 }//end class

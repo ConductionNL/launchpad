@@ -58,7 +58,7 @@ class AdminSettingMapper extends QBMapper
     public function findByKey(string $key): AdminSetting
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -78,7 +78,7 @@ class AdminSettingMapper extends QBMapper
     public function getAllAsArray(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName());
 
         $entities = $this->findEntities(query: $qb);

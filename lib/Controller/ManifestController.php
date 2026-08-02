@@ -101,7 +101,8 @@ class ManifestController extends Controller
      *
      * Reads the user's dashboard objects from OpenRegister. Each object with
      * a `slug` and `title` property becomes one page entry and one menu entry.
-     * Objects the user owns OR that list the user in `sharedWith` are included.
+     * Objects the user owns, plus objects explicitly granted to them via
+     * OpenRegister's per-object sharing primitive, are included.
      *
      * Route: GET /apps/launchpad/api/manifest
      *
@@ -158,6 +159,19 @@ class ManifestController extends Controller
     }//end index()
 
     /**
+     * Maximum number of granted dashboards folded into one manifest.
+     *
+     * A bound, not a policy: the grant lookup is cheap but the follow-up load is
+     * one IN(...) query whose parameter list should not grow without limit. If a
+     * user ever exceeds this, the manifest is truncated rather than slow — and
+     * the truncation is logged rather than silent, so it cannot be mistaken for
+     * "the user has no shared dashboards".
+     *
+     * @var int
+     */
+    private const MAX_GRANTED = 200;
+
+    /**
      * Fetch dashboard objects from OpenRegister for the given user.
      *
      * C5 fix (REQ-MVR-001): replaces the non-existent `findObjects()` call
@@ -165,6 +179,12 @@ class ManifestController extends Controller
      * with the real `ObjectService::findAll()` API. The `owner` filter
      * constrains results to the calling user's records — without it every
      * user would receive the full dataset (latent IDOR on top of the API drift).
+     *
+     * Two sources, deduplicated: dashboards the user OWNS, and dashboards
+     * explicitly GRANTED to them through OpenRegister's per-object sharing
+     * primitive. The owner filter is deliberately kept on the first query rather
+     * than replaced by "let RBAC decide" — see fetchGrantedDashboards() for why
+     * the additive shape is the safe one.
      *
      * @param object $objectService The OpenRegister ObjectService instance.
      * @param string $userId        The authenticated Nextcloud user ID.
@@ -226,9 +246,124 @@ class ManifestController extends Controller
             );
         }//end try
 
+        // Second source: dashboards explicitly granted to this user. Additive,
+        // and folded through the same $seen map so a dashboard the user both
+        // owns and was granted appears once.
+        foreach ($this->fetchGrantedDashboards(objectService: $objectService, userId: $userId) as $data) {
+            $id = ($data['id'] ?? $data['uuid'] ?? $data['slug'] ?? null);
+            if ($id !== null && isset($seen[$id]) === false) {
+                $seen[$id]    = true;
+                $dashboards[] = $data;
+            }
+        }
+
         return $dashboards;
 
     }//end fetchUserDashboards()
+
+    /**
+     * Dashboard objects explicitly granted to this user, via OpenRegister.
+     *
+     * WHY THIS IS ADDITIVE, rather than "drop the owner filter and let RBAC
+     * decide". Letting RBAC decide is the tidier design and it is what the
+     * OpenRegister `private` scope exists for — but it is only safe once the
+     * `dashboard` schema actually carries `scope: private`. A register-descriptor
+     * change lands through a repair step on upgrade, so there is necessarily a
+     * window (and, on any instance where that import did not apply, an
+     * indefinite one) in which the schema is still unscoped. An unfiltered
+     * findAll() against an unscoped schema returns EVERY user's dashboards. So
+     * the owner filter stays, and grants only ever ADD rows. The failure mode of
+     * this shape is a missing dashboard; the failure mode of the other is a
+     * cross-tenant leak in the manifest.
+     *
+     * `read` is the verb, because appearing in someone's manifest is exactly a
+     * read. The resolver answers only for the five core permission verbs and
+     * refuses anything else, so this cannot silently widen.
+     *
+     * Fails soft and empty: OpenRegister may be present without the sharing
+     * primitive (an older release), in which case the class is simply absent and
+     * the manifest degrades to owned-only — the behaviour before this change.
+     *
+     * @param object $objectService The OpenRegister ObjectService instance.
+     * @param string $userId        The authenticated Nextcloud user ID.
+     *
+     * @return array<int, array<string, mixed>> Granted dashboard data arrays.
+     */
+    private function fetchGrantedDashboards(object $objectService, string $userId): array
+    {
+        try {
+            $grantResolver = $this->container->get('OCA\OpenRegister\Service\Rbac\ObjectGrantResolver');
+        } catch (\Throwable $e) {
+            // OpenRegister without the per-object sharing primitive. Not an
+            // error: degrade to owned-only, which is the pre-existing behaviour.
+            $this->logger->debug(
+                'LaunchPad: OpenRegister object-grant resolver unavailable — manifest is owned-only. '.$e->getMessage(),
+                ['app' => Application::APP_ID]
+            );
+
+            return [];
+        }
+
+        try {
+            // Keys, not values: the resolver returns uuid => permission
+            // bitmask, so array_values() would yield the bitmasks.
+            $grantedUuids = array_keys($grantResolver->grantedObjectUuidsFor($userId, 'read'));
+            if (empty($grantedUuids) === true) {
+                return [];
+            }
+
+            if (count($grantedUuids) > self::MAX_GRANTED) {
+                // Logged, never silent: a truncated manifest must not be
+                // indistinguishable from "nothing is shared with this user".
+                $this->logger->warning(
+                    sprintf(
+                        'LaunchPad: %d granted dashboards exceeds the %d cap — manifest truncated.',
+                        count($grantedUuids),
+                        self::MAX_GRANTED
+                    ),
+                    ['app' => Application::APP_ID, 'userId' => $userId]
+                );
+                $grantedUuids = array_slice($grantedUuids, 0, self::MAX_GRANTED);
+            }
+
+            $results = $objectService->findAll(
+                config: [
+                    'filters' => [
+                        'register' => self::REGISTER,
+                        'schema'   => self::SCHEMA,
+                        'uuid'     => $grantedUuids,
+                    ],
+                    'limit'   => self::MAX_GRANTED,
+                ]
+            );
+
+            if (is_array($results) === false) {
+                return [];
+            }
+
+            $granted = [];
+            foreach ($results as $item) {
+                $data = $this->extractData(item: $item);
+                if (empty($data) === false) {
+                    $granted[] = $data;
+                }
+            }
+
+            return $granted;
+        } catch (DoesNotExistException $e) {
+            // Register/schema not provisioned — same benign case the owned
+            // query already handles.
+            return [];
+        } catch (\RuntimeException | \InvalidArgumentException $e) {
+            $this->logger->error(
+                'LaunchPad: failed to fetch granted dashboards from OpenRegister: '.$e->getMessage(),
+                ['app' => Application::APP_ID, 'userId' => $userId]
+            );
+
+            return [];
+        }//end try
+
+    }//end fetchGrantedDashboards()
 
     /**
      * Normalise a raw ObjectService result item to a plain data array.

@@ -105,7 +105,7 @@ class PublicShareMapper extends QBMapper
     public function findByToken(string $token): PublicShare
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -131,7 +131,7 @@ class PublicShareMapper extends QBMapper
     public function findByDashboardUuid(string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -162,7 +162,7 @@ class PublicShareMapper extends QBMapper
         $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

@@ -62,7 +62,7 @@ class DashboardShareMapper extends QBMapper
     public function find(int $id): DashboardShare
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -88,7 +88,7 @@ class DashboardShareMapper extends QBMapper
     public function findByDashboardId(int $dashboardId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -118,7 +118,7 @@ class DashboardShareMapper extends QBMapper
         string $permissionLevel
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -158,7 +158,7 @@ class DashboardShareMapper extends QBMapper
         string $shareWith
     ): ?DashboardShare {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -202,7 +202,7 @@ class DashboardShareMapper extends QBMapper
     public function findForRecipient(string $userId, array $groupIds): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName());
 
         $userClause = $qb->expr()->andX(
@@ -370,7 +370,7 @@ class DashboardShareMapper extends QBMapper
     public function deleteOrphaned(): int
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: 's.id')
+        $qb->select('s.id')
             ->from(from: $this->getTableName(), alias: 's')
             ->leftJoin(
                 fromAlias: 's',
@@ -427,7 +427,7 @@ class DashboardShareMapper extends QBMapper
     ): int {
         // Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
         $sub = $this->db->getQueryBuilder();
-        $sub->select(selects: 'id')
+        $sub->select('id')
             ->from(from: 'launchpad_dashboards')
             ->where(
                 $sub->expr()->eq(

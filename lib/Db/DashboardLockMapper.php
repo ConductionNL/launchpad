@@ -66,7 +66,7 @@ class DashboardLockMapper extends QBMapper
     public function findByDashboardUuid(string $dashboardUuid): DashboardLock
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -97,7 +97,7 @@ class DashboardLockMapper extends QBMapper
         $threshold = $this->expiryThreshold();
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -132,7 +132,7 @@ class DashboardLockMapper extends QBMapper
     public function findByUserId(string $userId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

@@ -60,7 +60,7 @@ class MetadataValueMapper extends QBMapper
     public function findByDashboard(string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -83,7 +83,7 @@ class MetadataValueMapper extends QBMapper
     public function findOne(string $dashboardUuid, int $fieldId): ?MetadataValue
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->andX(
@@ -179,7 +179,7 @@ class MetadataValueMapper extends QBMapper
     public function findByField(int $fieldId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

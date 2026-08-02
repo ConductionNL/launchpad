@@ -211,15 +211,14 @@ class ManifestController extends Controller
             // this endpoint returned an EMPTY MANIFEST to every user, including
             // the owner of the dashboards.
             //
-            // Measured on a live instance, admin owning two dashboards:
-            //   no owner filter at all                    -> 2
-            //   'owner'          => 'admin'               -> 0
-            //   '@self.owner'    => 'admin'  (dotted)     -> 0
-            //   '@self' => ['owner' => 'admin'] (nested)  -> 2
-            //   '@self' => ['owner' => 'nobody-xyz']      -> 0   <- control
-            // The last row is the control: it proves the nested form actually
-            // filters rather than being silently ignored, which is the failure
-            // mode that produced the always-empty manifest in the first place.
+            // Measured on a live instance with admin owning two dashboards: no
+            // owner filter returned 2; a bare `owner => admin` returned 0; a
+            // DOTTED `@self.owner => admin` also returned 0; the nested
+            // `@self => [owner => admin]` returned 2. The control was a nested
+            // filter with a nonexistent user, which returned 0 — without it,
+            // "nested returns 2" could not be distinguished from "the filter was
+            // ignored, here is everything", which is the failure mode that
+            // produced the always-empty manifest in the first place.
             $ownedResults = $objectService->findAll(
                 config: [
                     'filters' => [
@@ -232,18 +231,7 @@ class ManifestController extends Controller
             );
 
             if (is_array($ownedResults) === true) {
-                foreach ($ownedResults as $item) {
-                    $data = $this->extractData(item: $item);
-                    if (empty($data) === true) {
-                        continue;
-                    }
-
-                    $id = $data['id'] ?? $data['uuid'] ?? $data['slug'] ?? null;
-                    if ($id !== null && isset($seen[$id]) === false) {
-                        $seen[$id]    = true;
-                        $dashboards[] = $data;
-                    }
-                }
+                $this->foldInto(rows: $ownedResults, dashboards: $dashboards, seen: $seen, extract: true);
             }
         } catch (DoesNotExistException $e) {
             // The 'mydash' register or 'dashboard' schema has not been
@@ -266,9 +254,49 @@ class ManifestController extends Controller
         }//end try
 
         // Second source: dashboards explicitly granted to this user. Additive,
-        // and folded through the same $seen map so a dashboard the user both
+        // and folded through the SAME $seen map so a dashboard the user both
         // owns and was granted appears once.
-        foreach ($this->fetchGrantedDashboards(objectService: $objectService, userId: $userId) as $data) {
+        $this->foldInto(
+            rows: $this->fetchGrantedDashboards(objectService: $objectService, userId: $userId),
+            dashboards: $dashboards,
+            seen: $seen,
+            extract: false
+        );
+
+        return $dashboards;
+
+    }//end fetchUserDashboards()
+
+    /**
+     * Fold one source's rows into the accumulator, skipping ones already seen.
+     *
+     * Shared by both sources on purpose: the owned query and the grant query must
+     * dedupe by the SAME identity rule, or a dashboard the user both owns and was
+     * granted would appear twice in the manifest.
+     *
+     * @param array<int, mixed>                $rows       Rows from one source.
+     * @param array<int, array<string, mixed>> $dashboards Accumulator, by reference.
+     * @param array<string, bool>              $seen       Identity map, by reference.
+     * @param bool                             $extract    Whether the rows still
+     *                                                     need extractData() —
+     *                                                     the granted source has
+     *                                                     already normalised
+     *                                                     them.
+     *
+     * @return void
+     */
+    private function foldInto(array $rows, array &$dashboards, array &$seen, bool $extract): void
+    {
+        foreach ($rows as $row) {
+            $data = $row;
+            if ($extract === true) {
+                $data = $this->extractData(item: $row);
+            }
+
+            if (is_array($data) === false || empty($data) === true) {
+                continue;
+            }
+
             $id = ($data['id'] ?? $data['uuid'] ?? $data['slug'] ?? null);
             if ($id !== null && isset($seen[$id]) === false) {
                 $seen[$id]    = true;
@@ -276,9 +304,7 @@ class ManifestController extends Controller
             }
         }
 
-        return $dashboards;
-
-    }//end fetchUserDashboards()
+    }//end foldInto()
 
     /**
      * Dashboard objects explicitly granted to this user, via OpenRegister.

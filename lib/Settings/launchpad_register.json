@@ -3,7 +3,7 @@
   "info": {
     "title": "LaunchPad Register",
     "description": "Drag-and-drop dashboard configuration storage for LaunchPad",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "x-openregister": {
     "type": "application",
@@ -13,6 +13,17 @@
   },
   "paths": {},
   "components": {
+    "registers": {
+      "launchpad": {
+        "slug": "launchpad",
+        "title": "LaunchPad Register",
+        "version": "1.0.1",
+        "description": "LaunchPad dashboards stored as OpenRegister objects — the source of the v2 runtime manifest (ADR-036 Decision 8).",
+        "published": true,
+        "schemas": ["dashboard"],
+        "folder": "LaunchPad"
+      }
+    },
     "schemas": {
       "Dashboard": {
         "slug": "dashboard",

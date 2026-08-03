@@ -1308,7 +1308,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"lang\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
+							"raw": "{\"languageCode\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations",

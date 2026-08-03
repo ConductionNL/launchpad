@@ -232,13 +232,13 @@ class Application extends App implements IBootstrap
                 return new \OCA\LaunchPad\Controller\HealthController(
                     appName: self::APP_ID,
                     request: $c->get(\OCP\IRequest::class),
-                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
-                    executor: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
+                    manifestLoader: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    executor: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
                 );
             }
         );
 
-        // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
+        // Metrics controller (admin-only — it omits #[NoAdminRequired]).
         $context->registerService(
             \OCA\LaunchPad\Controller\MetricsController::class,
             // @psalm-suppress UnusedClosureParam,TooManyArguments
@@ -246,12 +246,46 @@ class Application extends App implements IBootstrap
                 return new \OCA\LaunchPad\Controller\MetricsController(
                     appName: self::APP_ID,
                     request: $c->get(\OCP\IRequest::class),
-                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
-                    engine: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
+                    manifestLoader: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+                    engine: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
                 );
             }
         );
     }//end registerObservability()
+
+    /**
+     * Resolve an OpenRegister collaborator, or null when it is unavailable.
+     *
+     * The class names are passed as STRINGS and the failure is swallowed, so
+     * nothing here touches an `OCA\OpenRegister\…` symbol at load time and an
+     * absent OpenRegister yields a degraded endpoint rather than an exception.
+     *
+     * This is the second half of the fix for a real outage mode: the controllers
+     * used to EXTEND the OpenRegister generic controllers, and Nextcloud's router
+     * reflects every controller class while scanning attribute routes — so a
+     * missing parent class was a fatal during route matching that made every
+     * route in this app return 500. Lazy DI cannot make an `extends` lazy, which
+     * is why the controllers now inherit from OCP's Controller and take these as
+     * nullable, untyped collaborators.
+     *
+     * @param \Psr\Container\ContainerInterface $container The DI container.
+     * @param string                            $id        Fully-qualified class name.
+     *
+     * @return object|null The service, or null when it cannot be resolved.
+     */
+    private static function optional(\Psr\Container\ContainerInterface $container, string $id): ?object
+    {
+        try {
+            $service = $container->get($id);
+            if (is_object($service) === true) {
+                return $service;
+            }
+
+            return null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }//end optional()
 
     /**
      * App initialization after all apps are registered.

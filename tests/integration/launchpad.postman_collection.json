@@ -6128,7 +6128,19 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('403 Forbidden for non-admin', () => pm.response.to.have.status(403));"
+									"// Nextcloud's SecurityMiddleware throws NotAdminException for a logged-in",
+									"// non-admin on an #[AuthorizedAdminSetting] method, and that exception carries",
+									"// Http::STATUS_FORBIDDEN — so 403 is the only correct answer here and this",
+									"// assertion is NOT widened to accept what the endpoint currently returns.",
+									"//",
+									"// The message reports the status AND body, because a bare 'expected 403 got 400'",
+									"// cannot distinguish the two possible causes: an ineffective admin guard (a real",
+									"// security bug — an unauthorized caller reaching the request body) versus",
+									"// something answering 400 before the middleware runs.",
+									"pm.test('403 Forbidden for non-admin', () => {",
+									"    pm.expect(pm.response.code, `got ${pm.response.code}: ${pm.response.text().slice(0, 300)}`)",
+									"        .to.eql(403);",
+									"});"
 								]
 							}
 						}

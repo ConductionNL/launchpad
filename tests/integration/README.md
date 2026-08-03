@@ -144,10 +144,13 @@ was asserting against an API that was never built.
 If comments are implemented later, re-add the folder alongside the controller —
 per "When to update this collection" above.
 
-Note that `lib/actions.seed.json` still ships four `dashboard-comments.*`
-entries in the ADR-023 action matrix, i.e. permissions for endpoints that do not
-exist. Pruning those is a product change and is deliberately NOT done here; see
-issue #26.
+`lib/actions.seed.json` is clean — it carries no `dashboard-comments.*` entries,
+so there is nothing to prune alongside this. (An earlier version of this note
+claimed otherwise. The four `dashboard-comments.*` entries do exist, but only in a
+long-lived instance's *stored* action matrix — `occ config:app:get launchpad
+actions` — left behind by an older seed. That is instance state, not shipped
+configuration, and it is harmless: an action entry for a route that does not exist
+authorizes nothing.)
 
 **Feed tokens.** The five requests that used to sit in a `Feeds` folder were
 removed for the same reason as comments: `appinfo/routes.php` declares no

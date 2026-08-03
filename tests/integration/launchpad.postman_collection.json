@@ -45,6 +45,16 @@
 		{
 			"key": "adminPassword",
 			"value": "admin"
+		},
+		{
+			"key": "regularUser",
+			"value": "newman-regular",
+			"description": "Non-admin account used by the authorization assertions. Seeded by tests/integration/seed.sh. Declared HERE, not only in local.env.json, because the shared quality workflow resolves the environment path one directory short and logs 'Environment file … not found, falling back to default env vars' — so nothing from that file reaches the run and {{regularUser}} arrived at Nextcloud literally, producing \"Login failed: '{{regularUser}}'\" and a 401. adminUser/adminPassword above are why the admin half of the suite worked anyway. An --environment file still overrides these when one is actually loaded."
+		},
+		{
+			"key": "regularPassword",
+			"value": "Newman-Regular-Pw-123",
+			"description": "Must stay in sync with PASSWORD in tests/integration/seed.sh. >= 10 chars because Nextcloud's default password policy silently rejects shorter ones."
 		}
 	],
 	"item": [
@@ -6113,7 +6123,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"groupId\":\"hack\",\"allowedWidgets\":[]}"
+							"raw": "{\"groupId\":\"newman-nonadmin-escalation\",\"name\":\"Escalation attempt\",\"allowedWidgets\":[\"activity\"],\"deniedWidgets\":[],\"priorityWeights\":{}}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/role-feature-permissions",
@@ -6131,34 +6141,62 @@
 					},
 					"event": [
 						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// MAKE THIS REQUEST ACTUALLY NON-ADMIN.",
+									"//",
+									"// Newman keeps ONE cookie jar for the whole run. The Nextcloud session cookie",
+									"// established by the earlier admin requests travels with every later request, and",
+									"// Nextcloud authenticates FROM THAT COOKIE — the per-request basic-auth header",
+									"// below is never consulted. Without this clear the request runs as ADMIN, reaches",
+									"// the method body, and answers 400 from inside savePermission() instead of 403.",
+									"//",
+									"// Clearing the jar leaves {{regularUser}}'s basic-auth header as the only",
+									"// credential, so the request genuinely arrives as a logged-in non-admin and",
+									"// SecurityMiddleware can do its job.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"// WHAT THIS DOES AND DOES NOT VERIFY — read before trusting it as coverage.",
+									"// savePermission() carries #[AuthorizedAdminSetting(LaunchPadAdmin::class)], which",
+									"// Nextcloud's SecurityMiddleware enforces in beforeController(): a logged-in",
+									"// non-admin gets NotAdminException, and that exception carries",
+									"// Http::STATUS_FORBIDDEN. 403 is therefore the only correct answer, and this",
+									"// assertion is NOT widened to accept whatever the endpoint happens to return.",
 									"//",
-									"// It asserts only that the write is REFUSED. It does NOT verify the admin guard,",
-									"// because this request cannot reach the endpoint as a non-admin: newman keeps ONE",
-									"// cookie jar for the whole run, so the session cookie set by the earlier admin",
-									"// requests travels with it and Nextcloud authenticates from that rather than from",
-									"// this request's basic-auth header. The collection acknowledges the same effect",
-									"// elsewhere (\"prior cookie still bound\").",
-									"//",
-									"// Evidence it runs as ADMIN: the response body is launchpad's own error shape",
-									"// ({\"error\":\"Operation failed\"}), i.e. execution reached INSIDE",
-									"// savePermission() — which carries #[AuthorizedAdminSetting(LaunchPadAdmin)] and",
-									"// whose NotAdminException would have produced 403 before any controller code ran.",
-									"// What it actually fails on is the payload: the admin create above sends `name`,",
-									"// this one omits it, so the service rejects it with 400.",
-									"//",
-									"// So 403 is NOT asserted — that would fail forever for a harness reason, and",
-									"// accepting 400 as if it proved authorization would be worse: a green test",
-									"// standing in for coverage that does not exist. Proper coverage needs a",
-									"// cookie-free context for this request; tracked in issue #26.",
-									"pm.test('the write is refused (see comment: does NOT verify the admin guard)', () => {",
-									"    pm.expect(pm.response.code, `unexpectedly succeeded: ${pm.response.text().slice(0, 200)}`)",
-									"        .to.be.oneOf([400, 401, 403, 422]);",
-									"});"
+									"// The body is deliberately WELL FORMED — the same shape as the admin create",
+									"// above, only the groupId differs — so validation cannot be the reason it is",
+									"// refused. If the guard were ever removed this request would succeed with 201,",
+									"// which is exactly what this assertion has to catch.",
+									"pm.test('403 Forbidden for non-admin', () => {",
+									"    pm.expect(pm.response.code, `got ${pm.response.code}: ${pm.response.text().slice(0, 300)}`)",
+									"        .to.eql(403);",
+									"});",
+									"",
+									"// Positive control that the refusal came from the guard and not from inside the",
+									"// controller: SecurityMiddleware::afterException answers a JSON request with",
+									"// {\"message\": ...}, whereas every launchpad controller error is {\"error\": ...}.",
+									"// Launchpad's shape here would mean the caller reached the method body — i.e. the",
+									"// cookie confound is back, or the guard is ineffective.",
+									"pm.test('refused by the admin guard, not from inside the controller', () => {",
+									"    pm.expect(pm.response.json(), `unexpected body: ${pm.response.text().slice(0, 300)}`)",
+									"        .to.have.property('message');",
+									"});",
+									"",
+									"// Leave the jar clean. The login above minted a {{regularUser}} session cookie;",
+									"// left in the jar it would travel with every later request and silently downgrade",
+									"// the rest of the run from admin to member. Cleared, the next request falls back",
+									"// to the collection-level admin basic auth and mints a fresh admin session.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
 								]
 							}
 						}

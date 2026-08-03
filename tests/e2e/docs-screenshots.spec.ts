@@ -13,7 +13,7 @@
  * Run it manually whenever the UI changes and the tutorial screenshots
  * need to be refreshed:
  *
- *     NC_BASE_URL=http://localhost:8080 \
+ *     NC_BASE_URL=http://localhost:8097 \
  *     NC_ADMIN_USER=admin NC_ADMIN_PASS=admin \
  *       npx playwright test tests/e2e/docs-screenshots.spec.ts \
  *           --project chromium --headed

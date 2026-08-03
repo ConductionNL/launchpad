@@ -23,8 +23,8 @@ import { test, expect } from '@playwright/test'
 import * as path from 'path'
 import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
 
-const NEXTCLOUD_URL = process.env.NC_BASE_URL || process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 const APP_ID = process.env.APP_ID || 'launchpad'
 
 test.beforeAll(async () => {

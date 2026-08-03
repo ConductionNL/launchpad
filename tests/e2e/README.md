@@ -29,11 +29,32 @@ npm run test:e2e:headed
 
 ## Required environment
 
-| Var               | Default                  | Purpose                                                                |
-|-------------------|--------------------------|------------------------------------------------------------------------|
-| `NC_BASE_URL`     | `http://localhost:8080`  | Nextcloud test instance (the standard `nextcloud-docker-dev` setup).   |
-| `NC_ADMIN_USER`   | `admin`                  | An admin account that can install widgets and create dashboards.       |
-| `NC_ADMIN_PASS`   | `admin`                  | Password for `NC_ADMIN_USER`.                                          |
+| Var                                                          | Default              | Purpose                                                                |
+|--------------------------------------------------------------|----------------------|------------------------------------------------------------------------|
+| `PLAYWRIGHT_BASE_URL` / `BASE_URL` / `NEXTCLOUD_URL` / `NC_BASE_URL` | **none — required** | Nextcloud test instance. First one set wins, in that order.     |
+| `NC_ADMIN_USER`                                              | `admin`              | An admin account that can install widgets and create dashboards.       |
+| `NC_ADMIN_PASS`                                              | `admin`              | Password for `NC_ADMIN_USER`.                                          |
+
+### There is no default base URL, on purpose
+
+The suite used to default to `http://localhost:8080`. On a developer box that
+is the **shared** Nextcloud dev container, and this suite *writes*: it creates
+dashboards, flips the `allow_user_dashboards` admin flag, adds and removes
+group memberships and posts acknowledgements. A run started with nothing set
+did all of that in an environment other sessions were using.
+
+`tests/e2e/support/baseUrl.ts` is now the single resolver — the Playwright
+config, `global-setup.ts` and every spec and fixture import `BASE_URL` from it.
+With none of the four variables set it throws before a single request is made.
+Four names are accepted because different callers export different ones: CI
+(the shared `ConductionNL/.github` quality workflow) exports `BASE_URL`, the
+Playwright tooling exports `PLAYWRIGHT_BASE_URL`, and this repo's own docs and
+compose helpers use `NEXTCLOUD_URL` / `NC_BASE_URL`. Strict about never
+inventing a target; permissive about which variable names it.
+
+```bash
+NC_BASE_URL=http://localhost:8097 npm run test:e2e
+```
 
 The launchpad app must be installed and enabled in the target instance.
 The mounted source must match the branch under test — see the next

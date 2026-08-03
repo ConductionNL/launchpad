@@ -1308,7 +1308,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"lang\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
+							"raw": "{\"languageCode\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations",
@@ -1332,7 +1332,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 4xx', () => pm.expect([200, 201, 400, 403, 409]).to.include(pm.response.code));"
+									"pm.test('201 Created', () => pm.response.to.have.status(201));"
 								]
 							}
 						}
@@ -1375,7 +1375,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 201, 204, 404, 403]).to.include(pm.response.code));"
+									"pm.test('200 OK', () => pm.response.to.have.status(200));"
 								]
 							}
 						}
@@ -1419,7 +1419,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 201, 204, 404, 403]).to.include(pm.response.code));"
+									"pm.test('200 OK', () => pm.response.to.have.status(200));"
 								]
 							}
 						}
@@ -1485,7 +1485,14 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 204, 404, 403]).to.include(pm.response.code));"
+									"// Runs AFTER set-primary on the same language, so a REFUSAL is the correct",
+									"// outcome: destroy() guards the primary variant. Measured on a live instance —",
+									"// 400 with error `primary_variant`, message \"Cannot delete the primary variant;",
+									"// promote another variant first\". Deleting a NON-primary variant returns 200.",
+									"pm.test('refuses deleting the primary variant', () => {",
+									"    pm.expect(pm.response.code, pm.response.text().slice(0, 200)).to.eql(400);",
+									"    pm.expect(pm.response.json().error).to.be.oneOf(['primary_variant', 'last_variant']);",
+									"});"
 								]
 							}
 						}

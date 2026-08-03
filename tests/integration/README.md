@@ -148,3 +148,13 @@ Note that `lib/actions.seed.json` still ships four `dashboard-comments.*`
 entries in the ADR-023 action matrix, i.e. permissions for endpoints that do not
 exist. Pruning those is a product change and is deliberately NOT done here; see
 issue #26.
+
+**Feed tokens.** The five requests that used to sit in a `Feeds` folder were
+removed for the same reason as comments: `appinfo/routes.php` declares no
+`/api/feed/token`, no `/api/feed/token/regenerate` and no `/feed/{token}.xml`.
+The feature is part-scaffolded — `FeedTokenTableBuilder` and its migration exist —
+but there is no controller and no route, so every request 404'd and the `.xml`
+assertions received Nextcloud's HTML error page.
+
+`POST /api/admin/feeds/refresh-now` DOES exist and is still covered, under
+`Admin - Export / Import / Feeds`.

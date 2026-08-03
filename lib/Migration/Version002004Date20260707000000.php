@@ -167,9 +167,21 @@ class Version002004Date20260707000000 extends SimpleMigrationStep
                 );
             }
 
-            if ($placements->hasColumn('acknowledgement_content_version') === false) {
+            // NOTE: 'ack_content_version', not 'acknowledgement_content_version'.
+            // Nextcloud rejects any identifier longer than 30 characters during
+            // app install, and the long form is 31 — so this made a FRESH
+            // INSTALL of the app impossible. The entity keeps the descriptive
+            // property name (and therefore the unchanged JSON key) by aliasing
+            // it in WidgetPlacement::propertyToColumn(). Existing installs carry
+            // the long column and are repaired by Version002008Date20260803000000.
+            // One condition, not two: this step only ever runs once per instance,
+            // and an instance that already ran the old version has the long
+            // column plus a recorded migration, so it never re-enters here. If it
+            // somehow did, Version002008Date20260803000000 handles "both columns
+            // present" by dropping the long one.
+            if ($placements->hasColumn('ack_content_version') === false) {
                 $placements->addColumn(
-                    'acknowledgement_content_version',
+                    'ack_content_version',
                     Types::INTEGER,
                     [
                         'notnull'  => true,

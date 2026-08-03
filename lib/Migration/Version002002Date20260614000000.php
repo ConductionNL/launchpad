@@ -132,9 +132,15 @@ class Version002002Date20260614000000 extends SimpleMigrationStep
 
             $table->setPrimaryKey(['id']);
             $table->addUniqueIndex(['token'], 'launchpad_kiosk_token_unique');
+            // NOTE: 'lp_' prefix, not 'launchpad_'. Nextcloud rejects any
+            // identifier longer than 30 characters during app install, and
+            // 'launchpad_kiosk_creator_revoked' is 31 — so this createTable
+            // branch made a FRESH INSTALL of the app impossible. Existing
+            // installs already carry the long name and are repaired by
+            // Version002008Date20260803000000.
             $table->addIndex(
                 ['created_by', 'revoked_at'],
-                'launchpad_kiosk_creator_revoked'
+                'lp_kiosk_creator_revoked'
             );
         }//end if
 

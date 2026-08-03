@@ -449,6 +449,65 @@ class WidgetPlacement extends Entity implements JsonSerializable
     }//end setContentArray()
 
     /**
+     * Properties whose DB column deliberately differs from the derived name.
+     *
+     * Nextcloud rejects any identifier longer than 30 characters during app
+     * install. Entity's default mapping turns `acknowledgementContentVersion`
+     * into `acknowledgement_content_version`, which is 31 — so the app could not
+     * be installed on a fresh Nextcloud at all (existing installs already had
+     * the column and never re-validated it).
+     *
+     * Aliasing here rather than renaming the property is what keeps this an
+     * internal, non-breaking change: the property, every `lib/` caller, the
+     * `jsonSerialize()` output and the `acknowledgementContentVersion` JSON key
+     * that `src/stores/dashboard.js` and API consumers read all stay identical.
+     * Only the physical column is shortened.
+     *
+     * @var array<string, string> Property name => column name.
+     */
+    private const COLUMN_ALIASES = [
+        'acknowledgementContentVersion' => 'ack_content_version',
+    ];
+
+    /**
+     * Map a property name to its column, honouring {@see COLUMN_ALIASES}.
+     *
+     * @param string $property The entity property name.
+     *
+     * @return string The database column name.
+     */
+    public function propertyToColumn(string $property): string
+    {
+        if (isset(self::COLUMN_ALIASES[$property]) === true) {
+            return self::COLUMN_ALIASES[$property];
+        }
+
+        return parent::propertyToColumn(property: $property);
+    }//end propertyToColumn()
+
+    /**
+     * Map a column name back to its property, honouring {@see COLUMN_ALIASES}.
+     *
+     * Both directions must be overridden: QBMapper writes through
+     * propertyToColumn() but hydrates rows through columnToProperty(), so
+     * overriding only one would load the aliased column into a property that
+     * does not exist and silently lose the value.
+     *
+     * @param string $columnName The database column name.
+     *
+     * @return string The entity property name.
+     */
+    public function columnToProperty(string $columnName)
+    {
+        $property = array_search($columnName, self::COLUMN_ALIASES, true);
+        if ($property !== false) {
+            return $property;
+        }
+
+        return parent::columnToProperty(columnName: $columnName);
+    }//end columnToProperty()
+
+    /**
      * Serialize to JSON.
      *
      * @return array The serialized widget placement.

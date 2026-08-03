@@ -42,6 +42,18 @@ jobs:
       enable-phpunit: true
       enable-newman: true
       newman-environment-path: "tests/integration/local.env.json"
+      # Creates the non-admin account the collection's authorization assertions
+      # need. Without it `{{regularUser}}` stays unresolved, the request arrives
+      # with junk credentials, and `POST /api/role-feature-permissions
+      # non-admin → 403` gets a 400 instead — failing while testing nothing about
+      # authorization.
+      #
+      # A SCRIPT, not an inline command: the shared workflow runs this through
+      # `eval <value>` UNQUOTED, so any shell metacharacter is parsed at the outer
+      # level. Measured on the Playwright equivalent, `( … ) && ( … )` is a syntax
+      # error and `sh -c '… ; …'` splits at the wrong level. `bash <path>` is one
+      # word and cannot be mis-parsed. Path is relative to `server/`.
+      newman-seed-command: bash apps/launchpad/tests/integration/seed.sh
       # OpenRegister must be present for the integration suite to mean anything.
       # The Newman collection asserts OpenRegister-backed behaviour — the
       # AppHost observability engine behind /api/health and /api/metrics, and the

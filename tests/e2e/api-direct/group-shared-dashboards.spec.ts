@@ -30,8 +30,9 @@
  *   - NC regular user: member / member  (member of group "e2e-test-group")
  *   - NC regular user: nonmember / nonmember  (member of no groups)
  *
- * Run manually:
- *   NC_BASE_URL=http://localhost:8080 \
+ * Run manually (point NC_BASE_URL at your OWN isolated instance — there is
+ * deliberately no default; see tests/e2e/support/baseUrl.ts):
+ *   NC_BASE_URL=http://localhost:8097 \
  *   NC_ADMIN_USER=admin NC_ADMIN_PASS=admin \
  *   NC_MEMBER_USER=member NC_MEMBER_PASS=member \
  *   NC_NONMEMBER_USER=nonmember NC_NONMEMBER_PASS=nonmember \
@@ -39,10 +40,10 @@
  */
 
 import { test, expect, request as pwRequest, type APIRequestContext, type APIResponse } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-const BASE  = (process.env.NC_BASE_URL       ?? 'http://localhost:8080').replace(/\/$/, '')
 const ADMIN = { user: process.env.NC_ADMIN_USER      ?? 'admin',     pass: process.env.NC_ADMIN_PASS      ?? 'admin'     }
 const MEMB  = { user: process.env.NC_MEMBER_USER     ?? 'member',    pass: process.env.NC_MEMBER_PASS     ?? 'member'    }
 const NOMEM = { user: process.env.NC_NONMEMBER_USER  ?? 'nonmember', pass: process.env.NC_NONMEMBER_PASS  ?? 'nonmember' }

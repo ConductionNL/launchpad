@@ -28,8 +28,8 @@
 
 import { test, expect } from '@playwright/test'
 import { ensureOutstandingAcknowledgement } from './fixtures/acknowledgements'
+import { BASE_URL as BASE } from './support/baseUrl'
 
-const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
 const APP_URL = `${BASE}/index.php/apps/launchpad`
 
 test.beforeAll(async () => {

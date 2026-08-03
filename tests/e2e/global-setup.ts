@@ -20,6 +20,7 @@ import { chromium, request, type FullConfig } from '@playwright/test'
 import { execSync } from 'child_process'
 import * as path from 'path'
 import * as fs from 'fs'
+import { BASE_URL } from './support/baseUrl'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -74,9 +75,11 @@ async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 }
 
 export default async function globalSetup(config: FullConfig): Promise<void> {
+	// `config.projects[0].use.baseURL` is itself resolved from support/baseUrl,
+	// so the `??` is only a guard against a project that overrides `use` — it
+	// can no longer fall through to a hardcoded shared-container default.
 	const baseURL = (config.projects[0]?.use?.baseURL as string | undefined)
-		?? process.env.NC_BASE_URL
-		?? 'http://localhost:8080'
+		?? BASE_URL
 	const username = process.env.NC_ADMIN_USER ?? 'admin'
 	const password = process.env.NC_ADMIN_PASS ?? 'admin'
 

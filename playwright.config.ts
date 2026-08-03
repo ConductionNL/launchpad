@@ -5,8 +5,11 @@
  * Playwright runner configuration for the launchpad end-to-end suite.
  *
  * The suite assumes:
- *   - A reachable Nextcloud instance at NC_BASE_URL (default
- *     http://localhost:8080) with the launchpad app installed.
+ *   - A reachable Nextcloud instance with the launchpad app installed, named
+ *     by PLAYWRIGHT_BASE_URL / BASE_URL / NEXTCLOUD_URL / NC_BASE_URL. There
+ *     is deliberately no default — see tests/e2e/support/baseUrl.ts for why
+ *     falling back to http://localhost:8080 was a defect and not a
+ *     convenience.
  *   - Admin credentials NC_ADMIN_USER / NC_ADMIN_PASS (defaults
  *     admin / admin) usable to log in via /login.
  *   - The shared admin storage state is created once per run by
@@ -25,8 +28,7 @@
 
 import { defineConfig, devices } from '@playwright/test'
 import * as path from 'path'
-
-const baseURL = process.env.NC_BASE_URL ?? 'http://localhost:8080'
+import { BASE_URL as baseURL } from './tests/e2e/support/baseUrl'
 
 export default defineConfig({
 	testDir: './tests/e2e',
@@ -36,6 +38,7 @@ export default defineConfig({
 	testIgnore: [
 		'**/global-setup.ts',
 		'**/fixtures/**',
+		'**/support/**',
 		// API-direct HTTP-contract specs live under api-direct/. They assert
 		// raw /api responses (status codes, JSON envelopes) rather than the
 		// rendered UI, so per the gate-19 program their contract coverage

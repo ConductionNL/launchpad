@@ -36,3 +36,18 @@ jobs:
       enable-phpunit: true
       enable-newman: true
       newman-environment-path: "tests/integration/local.env.json"
+      # OpenRegister must be present for the integration suite to mean anything.
+      # The Newman collection asserts OpenRegister-backed behaviour — the
+      # AppHost observability engine behind /api/health and /api/metrics, and the
+      # dashboard objects behind the v2 manifest — so without it the suite was
+      # measuring a degraded instance. The job previously reported success only
+      # because `composer test:all` ended in `|| echo '…skipping'` and always
+      # exited 0; with that removed, 17 of 220 assertions surfaced as failures.
+      #
+      # `ref: development` is REQUIRED, not cosmetic. The default is `main`, and
+      # `lib/Service/Rbac/ObjectGrantResolver.php` — which
+      # ManifestController::fetchGrantedDashboards() resolves for the shared-
+      # dashboard source — exists only on `development`. Pinned to `main` the
+      # grant lookup would fail soft to owned-only and the suite would quietly
+      # test less than it appears to.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'

@@ -45,6 +45,16 @@
 		{
 			"key": "adminPassword",
 			"value": "admin"
+		},
+		{
+			"key": "regularUser",
+			"value": "newman-regular",
+			"description": "Non-admin account used by the authorization assertions. Seeded by tests/integration/seed.sh. Declared HERE, not only in local.env.json, because the shared quality workflow resolves the environment path one directory short and logs 'Environment file … not found, falling back to default env vars' — so nothing from that file reaches the run and {{regularUser}} arrived at Nextcloud literally, producing \"Login failed: '{{regularUser}}'\" and a 401. adminUser/adminPassword above are why the admin half of the suite worked anyway. An --environment file still overrides these when one is actually loaded."
+		},
+		{
+			"key": "regularPassword",
+			"value": "Newman-Regular-Pw-123",
+			"description": "Must stay in sync with PASSWORD in tests/integration/seed.sh. >= 10 chars because Nextcloud's default password policy silently rejects shorter ones."
 		}
 	],
 	"item": [

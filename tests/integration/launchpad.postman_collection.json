@@ -1419,7 +1419,20 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 201, 204, 404, 403]).to.include(pm.response.code));"
+									"// This DELETE runs AFTER set-primary on the same language, so it is expected to",
+									"// be REFUSED: DashboardTranslationApiController::destroy() guards the primary /",
+									"// last variant with error code `last_variant`. That guard is a real rule, so this",
+									"// pins it instead of accepting anything.",
+									"//",
+									"// It previously accepted 404 and passed for the WRONG REASON: the create ahead of",
+									"// it sent `lang` instead of `languageCode`, so no `nl` translation ever existed",
+									"// and the delete 404d. Fixing the create exposed this.",
+									"pm.test('refuses deleting the primary/last translation', () => {",
+									"    pm.expect([400, 403, 409]).to.include(pm.response.code);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.error, 'expected last_variant/invalid_state')",
+									"        .to.be.oneOf(['last_variant', 'invalid_state']);",
+									"});"
 								]
 							}
 						}

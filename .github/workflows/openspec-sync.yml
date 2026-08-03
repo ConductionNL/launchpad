@@ -8,8 +8,8 @@ on:
 
 jobs:
   sync:
-    uses: Conduction/.github/.github/workflows/openspec-sync.yml@feature/openspec-project-sync
+    uses: ConductionNL/.github/.github/workflows/openspec-sync.yml@main
     with:
-      app-name: mydash
+      app-name: launchpad
     secrets:
       PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}

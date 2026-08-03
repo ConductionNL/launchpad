@@ -131,3 +131,20 @@ a route to `appinfo/routes.php`, add a request to the appropriate
 capability folder before merging. Run
 `node tests/integration/.coverage-check.js` locally to verify
 coverage; missing routes fail the script with a non-zero exit.
+
+## Deliberately not covered
+
+**Dashboard comments.** The five requests that used to sit in a
+`Dashboards - Comments` folder were removed: launchpad has no comments
+implementation at all — no controller, no service, no route (nor attribute
+route), no `launchpad_dashboard_comments` table and no migration creating one.
+The endpoints returned 404 because there is nothing behind them, so the folder
+was asserting against an API that was never built.
+
+If comments are implemented later, re-add the folder alongside the controller —
+per "When to update this collection" above.
+
+Note that `lib/actions.seed.json` still ships four `dashboard-comments.*`
+entries in the ADR-023 action matrix, i.e. permissions for endpoints that do not
+exist. Pruning those is a product change and is deliberately NOT done here; see
+issue #26.

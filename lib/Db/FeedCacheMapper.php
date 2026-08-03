@@ -60,7 +60,7 @@ class FeedCacheMapper extends QBMapper
     public function findByUrl(string $feedUrl): FeedCache
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -102,7 +102,7 @@ class FeedCacheMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'feed_url', order: 'ASC');
 
@@ -121,7 +121,7 @@ class FeedCacheMapper extends QBMapper
     public function findOrphanedBefore(DateTimeInterface $cutoff): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->lt(

@@ -69,7 +69,7 @@ class DashboardMapper extends QBMapper
     public function find(int $id): Dashboard
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -97,7 +97,7 @@ class DashboardMapper extends QBMapper
     public function findByUuid(string $uuid): Dashboard
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -120,7 +120,7 @@ class DashboardMapper extends QBMapper
     public function findByUserId(string $userId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -154,7 +154,7 @@ class DashboardMapper extends QBMapper
     public function findActiveByUserId(string $userId): Dashboard
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -192,7 +192,7 @@ class DashboardMapper extends QBMapper
     public function findAdminTemplates(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -221,7 +221,7 @@ class DashboardMapper extends QBMapper
     public function findByBasedOnTemplate(int $templateId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -248,7 +248,7 @@ class DashboardMapper extends QBMapper
     public function findDefaultTemplate(): Dashboard
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -372,7 +372,7 @@ class DashboardMapper extends QBMapper
     public function findByGroup(string $groupId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -502,7 +502,7 @@ class DashboardMapper extends QBMapper
         }
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -751,7 +751,7 @@ class DashboardMapper extends QBMapper
     public function findByParent(?string $parentUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName());
 
         if ($parentUuid === null) {
@@ -795,7 +795,7 @@ class DashboardMapper extends QBMapper
         string $slug
     ): ?Dashboard {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName());
 
         if ($parentUuid === null) {
@@ -969,7 +969,7 @@ class DashboardMapper extends QBMapper
     public function findDueScheduled(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -1020,7 +1020,7 @@ class DashboardMapper extends QBMapper
         string $sortBy='name'
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -1089,7 +1089,7 @@ class DashboardMapper extends QBMapper
         string $uuid
     ): ?Dashboard {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -1137,7 +1137,7 @@ class DashboardMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'id', order: 'ASC');
 

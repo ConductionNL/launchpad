@@ -66,6 +66,9 @@ use Throwable;
  *     lite extraction, formatting, badge thresholding, caching, and
  *     stale-fallback in one cohesive unit — mirrors WeatherService's shape
  *     for the same class of capability.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Same cause as the complexity
+ *     above: the dual-source resolution necessarily reaches OpenConnector, the
+ *     HTTP client, the cache and the config. The collaborators are the feature.
  * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileService
@@ -156,13 +159,13 @@ class LiveTileService
      *
      * @param IAppManager           $appManager      Detects whether `openconnector` is enabled.
      * @param ContainerInterface    $container       App container used to optionally resolve
-     *                                                OpenConnector's data-source service
-     *                                                (REQ-LIVETILE-005 capability probe).
-     * @param IClientService        $clientService    HTTP client factory for the direct-URL fetch.
-     * @param ICacheFactory         $cacheFactory     Backing factory for the distributed value cache.
-     * @param IAppConfig            $appConfig        Admin config: allow-listed hosts.
-     * @param WidgetPlacementMapper $placementMapper  Resolves placements by id.
-     * @param LoggerInterface       $logger           PSR logger.
+     *                                               OpenConnector's data-source service
+     *                                               (REQ-LIVETILE-005 capability probe).
+     * @param IClientService        $clientService   HTTP client factory for the direct-URL fetch.
+     * @param ICacheFactory         $cacheFactory    Backing factory for the distributed value cache.
+     * @param IAppConfig            $appConfig       Admin config: allow-listed hosts.
+     * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
+     * @param LoggerInterface       $logger          PSR logger.
      */
     public function __construct(
         private readonly IAppManager $appManager,
@@ -261,9 +264,9 @@ class LiveTileService
             $url = trim(string: (string) ($config['url'] ?? ''));
             if ($url === '') {
                 $errors[] = 'url_required';
-            } elseif ($this->hasValidScheme(url: $url) === false) {
+            } else if ($this->hasValidScheme(url: $url) === false) {
                 $errors[] = 'invalid_url';
-            } elseif ($this->isHostAllowed(url: $url) === false) {
+            } else if ($this->isHostAllowed(url: $url) === false) {
                 // FAIL-CLOSED (REQ-LIVETILE-002 "rejected at save time").
                 $errors[] = 'host_not_allowed';
             }
@@ -412,14 +415,17 @@ class LiveTileService
 
         try {
             $client   = $this->clientService->newClient();
-            $response = $client->get(uri: $url, options: [
-                'connect_timeout' => self::CONNECT_TIMEOUT,
-                'timeout'         => self::REQUEST_TIMEOUT,
-                'http_errors'     => false,
+            $response = $client->get(
+                    uri: $url,
+                    options: [
+                        'connect_timeout' => self::CONNECT_TIMEOUT,
+                        'timeout'         => self::REQUEST_TIMEOUT,
+                        'http_errors'     => false,
                 // No auto-redirect — a 3xx to an unexpected host would
                 // bypass the allow-list check above.
-                'allow_redirects' => false,
-            ]);
+                        'allow_redirects' => false,
+                    ]
+                    );
         } catch (Throwable $exception) {
             $this->logger->info(
                 message: 'LiveTileService: direct-URL fetch failed',
@@ -470,10 +476,53 @@ class LiveTileService
             return $data;
         }
 
-        $tokens = [];
+        $tokens = $this->tokenisePath(path: $rest);
+        if ($tokens === null) {
+            return null;
+        }
+
+        $current = $data;
+        foreach ($tokens as $token) {
+            // Alternation: a `[123]` match leaves group 1 as the empty
+            // string and fills group 2; a `.prop` match matches group 1
+            // and omits group 2 entirely. Discriminate on group 2 — its
+            // presence is what actually distinguishes the two forms.
+            $indexToken = ($token[2] ?? '');
+
+            $key = $token[1];
+            if ($indexToken !== '') {
+                $key = (int) $indexToken;
+            }
+
+            if (is_array(value: $current) === false || array_key_exists(key: $key, array: $current) === false) {
+                return null;
+            }
+
+            $current = $current[$key];
+        }
+
+        return $current;
+    }//end extractValue()
+
+    /**
+     * Split a JSONPath-lite path body into its `.prop` / `[index]` tokens.
+     *
+     * Rejects the whole expression when the tokens do not account for every
+     * character of `$path` — defence-in-depth, so a partially-matched
+     * trailing garbage segment can never be silently ignored.
+     *
+     * @param string $path The expression body (the part after the leading `$`).
+     *
+     * @return array<int, array<int, string>>|null The PREG_SET_ORDER match
+     *                                             sets, or null when the path
+     *                                             is not fully recognised.
+     */
+    private function tokenisePath(string $path): ?array
+    {
+        $tokens  = [];
         $matched = preg_match_all(
             pattern: '/\.([A-Za-z0-9_]+)|\[(\d+)\]/',
-            subject: $rest,
+            subject: $path,
             matches: $tokens,
             flags: PREG_SET_ORDER
         );
@@ -482,48 +531,28 @@ class LiveTileService
             return null;
         }
 
-        // Reject expressions with unrecognised characters between tokens
-        // (defence-in-depth — the regex above already only matches the
-        // two supported forms, this guards against a partially-matched
-        // trailing garbage segment being silently ignored).
-        $consumed = implode(separator: '', array: array_map(
-            callback: static fn (array $token): string => $token[0],
-            array: $tokens
-        ));
-        if ($consumed !== $rest) {
+        $consumed = implode(
+            separator: '',
+            array: array_map(
+                callback: static fn (array $token): string => $token[0],
+                array: $tokens
+            )
+        );
+
+        if ($consumed !== $path) {
             return null;
         }
 
-        $current = $data;
-        foreach ($tokens as $token) {
-            if ($token[1] !== '') {
-                $key = $token[1];
-                if (is_array(value: $current) === false || array_key_exists(key: $key, array: $current) === false) {
-                    return null;
-                }
-
-                $current = $current[$key];
-                continue;
-            }
-
-            $index = (int) $token[2];
-            if (is_array(value: $current) === false || array_key_exists(key: $index, array: $current) === false) {
-                return null;
-            }
-
-            $current = $current[$index];
-        }
-
-        return $current;
-    }//end extractValue()
+        return $tokens;
+    }//end tokenisePath()
 
     /**
      * Format a raw resolved value for display (REQ-LIVETILE-004): prefix,
      * optional thousands separator, suffix. Non-numeric values are
      * returned as their string cast, unformatted.
      *
-     * @param mixed                $value  The raw resolved value.
-     * @param array<string,mixed>  $format `{prefix?: string, suffix?: string, thousands?: bool}`.
+     * @param mixed               $value  The raw resolved value.
+     * @param array<string,mixed> $format `{prefix?: string, suffix?: string, thousands?: bool}`.
      *
      * @return string The formatted display string.
      */
@@ -536,13 +565,18 @@ class LiveTileService
             return $prefix.((string) $value).$suffix;
         }
 
-        $number    = (float) $value;
-        $decimals  = ((float) (int) $number === $number) ? 0 : 2;
+        $number   = (float) $value;
+        $decimals = 2;
+        if ((float) (int) $number === $number) {
+            $decimals = 0;
+        }
+
         $thousands = (bool) ($format['thousands'] ?? false);
 
-        $body = $thousands === true
-            ? number_format(num: $number, decimals: $decimals)
-            : (string) round(num: $number, precision: $decimals);
+        $body = (string) round(num: $number, precision: $decimals);
+        if ($thousands === true) {
+            $body = number_format(num: $number, decimals: $decimals);
+        }
 
         return $prefix.$body.$suffix;
     }//end formatValue()
@@ -554,8 +588,8 @@ class LiveTileService
      * does not exceed wins. Returns `null` when no thresholds are
      * configured or the value is non-numeric.
      *
-     * @param mixed                $value The raw resolved value.
-     * @param array<string,mixed>  $badge `{thresholds?: array<int,array{max:int|float,state:string,label:string}>}`.
+     * @param mixed               $value The raw resolved value.
+     * @param array<string,mixed> $badge `{thresholds?: array<int,array{max:int|float,state:string,label:string}>}`.
      *
      * @return array<string,string>|null `{state, label}` or `null`.
      */
@@ -587,7 +621,11 @@ class LiveTileService
         // Value exceeds every threshold — use the highest-max (last)
         // threshold, which is conventionally the "alert" tier.
         $last = end($sorted);
-        return is_array(value: $last) === true ? $this->badgeShape(threshold: $last) : null;
+        if (is_array(value: $last) === true) {
+            return $this->badgeShape(threshold: $last);
+        }
+
+        return null;
     }//end resolveBadge()
 
     /**
@@ -700,7 +738,7 @@ class LiveTileService
      *
      * @param array<string,mixed> $reading The internal reading.
      * @param array<string,mixed> $config  The placement's resolved config (drives format/badge).
-     * @param boolean              $stale   Whether this is a stale (cache-expired-but-served) reading.
+     * @param boolean             $stale   Whether this is a stale (cache-expired-but-served) reading.
      *
      * @return array<string,mixed>
      */
@@ -709,12 +747,12 @@ class LiveTileService
         $rawValue    = $reading['rawValue'] ?? null;
         $fetchedAtTs = (int) ($reading['fetchedAtTs'] ?? time());
 
-        $formatted = $rawValue !== null
-            ? $this->formatValue(value: $rawValue, format: (array) ($config['format'] ?? []))
-            : null;
-        $badge = $rawValue !== null
-            ? $this->resolveBadge(value: $rawValue, badge: (array) ($config['badge'] ?? []))
-            : null;
+        $formatted = null;
+        $badge     = null;
+        if ($rawValue !== null) {
+            $formatted = $this->formatValue(value: $rawValue, format: (array) ($config['format'] ?? []));
+            $badge     = $this->resolveBadge(value: $rawValue, badge: (array) ($config['badge'] ?? []));
+        }
 
         return [
             'value'     => $rawValue,
@@ -729,8 +767,8 @@ class LiveTileService
      * Build the value cache key — placement id + a hash of the resolved
      * config (proposal.md "Caching keyed on placement id + config hash").
      *
-     * @param integer              $placementId The widget placement id.
-     * @param array<string,mixed>  $config      The placement's resolved config.
+     * @param integer             $placementId The widget placement id.
+     * @param array<string,mixed> $config      The placement's resolved config.
      *
      * @return string The cache key.
      */
@@ -761,7 +799,11 @@ class LiveTileService
         }
 
         $decoded = json_decode(json: $raw, associative: true);
-        return is_array(value: $decoded) === true ? $decoded : null;
+        if (is_array(value: $decoded) === true) {
+            return $decoded;
+        }
+
+        return null;
     }//end readCache()
 
     /**

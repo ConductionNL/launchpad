@@ -24,8 +24,8 @@
 
 import { test, expect, request as pwRequest } from '@playwright/test'
 import { provisionThrowawayUser, deprovisionUser, loginAs } from './fixtures/secondary-user'
+import { BASE_URL as BASE } from './support/baseUrl'
 
-const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',

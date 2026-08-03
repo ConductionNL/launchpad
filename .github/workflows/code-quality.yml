@@ -44,11 +44,38 @@ jobs:
       #     postman fixture-id wiring repaired and assertion drift
       #     resolved. 196 assertions / 0 failures locally.
       #
-      # Playwright remains disabled — the shared workflow's
-      # PHP-built-in-server lifetime is the blocker (cross-repo PR
-      # `ConductionNL/.github#37`). The `tests/e2e/global-setup.ts`
-      # `ensureBundleBuilt()` helper is in place so once the shared
-      # workflow lands, flipping the gate Just Works.
+      #   - Playwright — ENABLED, against a small CI-safe subset
+      #     (`tests/e2e/ci/`), not the 19-spec root suite. The comment that
+      #     previously stood here said Playwright was blocked on the shared
+      #     workflow's PHP-built-in-server lifetime, `ConductionNL/.github#37`
+      #     — that PR merged 2026-05-05, so the blocker had been gone for
+      #     three months. The root config's `testDir` still covers specs that
+      #     capture documentation screenshots and drive seeded multi-user UI
+      #     flows, which would be red on the first run, and a gate that is red
+      #     on arrival is a gate nobody turns on. The shared workflow resolves
+      #     `<playwright-test-path>/playwright.config.ts` before the root one,
+      #     so the subset config selects itself. Same approach as openregister.
       enable-phpunit: true
       enable-newman: true
       newman-environment-path: "tests/integration/local.env.json"
+      # OpenRegister must be present for the integration suite to mean anything.
+      # The Newman collection asserts OpenRegister-backed behaviour — the
+      # AppHost observability engine behind /api/health and /api/metrics, and the
+      # dashboard objects behind the v2 manifest — so without it the suite was
+      # measuring a degraded instance. The job previously reported success only
+      # because `composer test:all` ended in `|| echo '…skipping'` and always
+      # exited 0; with that removed, 17 of 220 assertions surfaced as failures.
+      #
+      # `ref: development` is REQUIRED, not cosmetic. The default is `main`, and
+      # `lib/Service/Rbac/ObjectGrantResolver.php` — which
+      # ManifestController::fetchGrantedDashboards() resolves for the shared-
+      # dashboard source — exists only on `development`. Pinned to `main` the
+      # grant lookup would fail soft to owned-only and the suite would quietly
+      # test less than it appears to.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
+      enable-playwright: true
+      playwright-test-path: tests/e2e/ci
+      # The grant spec needs a second, non-admin account to be the share
+      # recipient; a grant to yourself proves nothing. Password is >= 10 chars
+      # because Nextcloud's default policy silently rejects shorter ones.
+      playwright-seed-command: 'OC_PASS=E2eGranteePw123 php occ user:add --password-from-env e2e-grantee || true'

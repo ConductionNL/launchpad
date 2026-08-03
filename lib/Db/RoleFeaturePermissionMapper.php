@@ -60,7 +60,7 @@ class RoleFeaturePermissionMapper extends QBMapper
     public function find(int $id): RoleFeaturePermission
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -83,7 +83,7 @@ class RoleFeaturePermissionMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'group_id', order: 'ASC');
 
@@ -102,7 +102,7 @@ class RoleFeaturePermissionMapper extends QBMapper
     public function findByGroupId(string $groupId): RoleFeaturePermission
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -130,7 +130,7 @@ class RoleFeaturePermissionMapper extends QBMapper
         }
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->in(

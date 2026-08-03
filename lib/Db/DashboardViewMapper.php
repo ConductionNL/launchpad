@@ -65,7 +65,7 @@ class DashboardViewMapper extends QBMapper
         string $viewBucket
     ): ?DashboardView {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -104,7 +104,7 @@ class DashboardViewMapper extends QBMapper
         string $endDate
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -268,7 +268,7 @@ class DashboardViewMapper extends QBMapper
         string $endDate
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->gte(

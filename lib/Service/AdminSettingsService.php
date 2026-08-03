@@ -27,7 +27,11 @@ use OCP\AppFramework\Db\DoesNotExistException;
 /**
  * Service for managing admin settings.
  *
- * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-7
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) One accessor/validator pair
+ *     per admin setting, and there are many settings. The complexity is the sum
+ *     of many trivial members rather than any intricate logic, so splitting the
+ *     class would scatter the settings surface without simplifying anything.
+ * @spec                                             openspec/changes/groupfolder-storage-backend/tasks.md#task-7
  */
 class AdminSettingsService
 {
@@ -100,16 +104,19 @@ class AdminSettingsService
         $maxDashKey   = AdminSetting::KEY_MAX_DASHBOARDS_PER_USER;
         $maxWidgetKey = AdminSetting::KEY_MAX_WIDGETS_PER_DASHBOARD;
 
-        // tile-quick-search REQ-QSEARCH-004: fall back to the safe
+        // Tile-quick-search REQ-QSEARCH-004: fall back to the safe
         // 'none' default when unset, OR when a previously-stored value no
         // longer validates (e.g. an admin-edited DB row) — never surface
         // a value the frontend can't safely act on.
-        $fallbackKey             = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
-        $storedFallbackTarget    = $settings[$fallbackKey] ?? null;
-        $quicksearchFallbackTarget = is_string($storedFallbackTarget) === true
+        $fallbackKey          = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
+        $storedFallbackTarget = $settings[$fallbackKey] ?? null;
+
+        $quicksearchFallbackTarget = self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
+        if (is_string($storedFallbackTarget) === true
             && $this->isValidQuicksearchFallbackTarget(value: $storedFallbackTarget) === true
-                ? $storedFallbackTarget
-                : self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
+        ) {
+            $quicksearchFallbackTarget = $storedFallbackTarget;
+        }
 
         return [
             'defaultPermissionLevel'      => $settings[$permKey] ?? $permDef,
@@ -133,7 +140,7 @@ class AdminSettingsService
             // quotas. `0` = unlimited (no enforcement).
             'maxDashboardsPerUser'        => $this->clampQuota(value: $settings[$maxDashKey] ?? 0),
             'maxWidgetsPerDashboard'      => $this->clampQuota(value: $settings[$maxWidgetKey] ?? 0),
-            // tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
+            // Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
             // | an https URL template containing '{query}'.
             'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
         ];
@@ -196,7 +203,7 @@ class AdminSettingsService
     public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
     /**
-     * tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
+     * Tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
      * on a zero-match query takes no navigation action.
      *
      * @var string
@@ -204,7 +211,7 @@ class AdminSettingsService
     public const QUICKSEARCH_FALLBACK_NONE = 'none';
 
     /**
-     * tile-quick-search REQ-QSEARCH-004: no-match fallback hands the query
+     * Tile-quick-search REQ-QSEARCH-004: no-match fallback hands the query
      * to Nextcloud unified search.
      *
      * @var string
@@ -392,6 +399,39 @@ class AdminSettingsService
             );
         }
 
+        $this->persistQuotaAndQuicksearchSettings(
+            maxDashboardsPerUser: $maxDashboardsPerUser,
+            maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
+            quicksearchFallbackTarget: $quicksearchFallbackTarget
+        );
+
+        $this->persistSharingAndBridgeSettings(
+            defaultSharePermissionLevel: $defaultSharePermissionLevel,
+            forcedShareGroups: $forcedShareGroups,
+            legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+        );
+    }//end updateSettings()
+
+    /**
+     * Persist the per-user quota limits and the quick-search fallback target.
+     *
+     * Extracted from {@see self::updateSettings()} so the main entry point
+     * stays under the method-length threshold. Each value is only written
+     * when non-null (partial-patch contract).
+     *
+     * @param int|null    $maxDashboardsPerUser      Per-user dashboard quota.
+     * @param int|null    $maxWidgetsPerDashboard    Per-dashboard widget quota.
+     * @param string|null $quicksearchFallbackTarget No-match fallback target.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException When the fallback target is invalid.
+     */
+    private function persistQuotaAndQuicksearchSettings(
+        ?int $maxDashboardsPerUser,
+        ?int $maxWidgetsPerDashboard,
+        ?string $quicksearchFallbackTarget
+    ): void {
         // Dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
         // numeric quotas clamped into `[0, 10000]` so a negative or
         // out-of-range value is never stored.
@@ -409,28 +449,25 @@ class AdminSettingsService
             );
         }
 
-        // tile-quick-search REQ-QSEARCH-004 "Fallback template validation"
+        // Tile-quick-search REQ-QSEARCH-004 "Fallback template validation"
         // scenario: reject an invalid target at save time rather than
         // silently storing something the frontend can't act on.
-        if ($quicksearchFallbackTarget !== null) {
-            if ($this->isValidQuicksearchFallbackTarget(value: $quicksearchFallbackTarget) === false) {
-                throw new InvalidArgumentException(
-                    message: "Invalid value for quicksearchFallbackTarget. Must be 'none', 'unified-search', or an https URL template containing '{query}'."
-                );
-            }
+        if ($quicksearchFallbackTarget === null) {
+            return;
+        }
 
-            $this->settingMapper->setSetting(
-                key: AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET,
-                value: $quicksearchFallbackTarget
+        if ($this->isValidQuicksearchFallbackTarget(value: $quicksearchFallbackTarget) === false) {
+            throw new InvalidArgumentException(
+                message: "Invalid value for quicksearchFallbackTarget. Must be 'none', "
+                    ."'unified-search', or an https URL template containing '{query}'."
             );
         }
 
-        $this->persistSharingAndBridgeSettings(
-            defaultSharePermissionLevel: $defaultSharePermissionLevel,
-            forcedShareGroups: $forcedShareGroups,
-            legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+        $this->settingMapper->setSetting(
+            key: AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET,
+            value: $quicksearchFallbackTarget
         );
-    }//end updateSettings()
+    }//end persistQuotaAndQuicksearchSettings()
 
     /**
      * Persist the dashboard-sharing + legacy-widget-bridge admin settings.

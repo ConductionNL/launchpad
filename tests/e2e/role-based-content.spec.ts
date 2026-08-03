@@ -19,8 +19,7 @@
  */
 
 import { test, expect } from '@playwright/test'
-
-const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
+import { BASE_URL as BASE } from './support/baseUrl'
 
 const ADMIN_URL = `${BASE}/index.php/settings/admin/launchpad`
 

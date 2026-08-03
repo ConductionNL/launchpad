@@ -37,27 +37,26 @@ use Throwable;
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument's shape is
  *  validated inline; the parent QueuedJob interface requires the
  *  parameter regardless.
- * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
+ * @spec                                          openspec/specs/admin-templates/spec.md#requirement-req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
  */
 class TemplateResyncJob extends QueuedJob
 {
     /**
      * Constructor.
      *
-     * @param ITimeFactory           $time          Time factory (parent
-     *                                              requirement).
-     * @param TemplateResyncService  $resyncService The re-sync orchestrator —
-     *                                              {@see TemplateResyncService::applyResync()}
-     *                                              recomputes the plan
-     *                                              fresh at run time
-     *                                              (rather than
-     *                                              deserialising a
-     *                                              stale one), so the
-     *                                              apply reflects the
-     *                                              template's state at
-     *                                              the moment the job
-     *                                              actually runs.
-     * @param LoggerInterface        $logger        PSR-3 logger.
+     * @param ITimeFactory          $time          Time factory (parent
+     *                                             requirement).
+     * @param TemplateResyncService $resyncService The re-sync orchestrator
+     *                                             — {@see
+     *                                             TemplateResyncService::applyResync()}
+     *                                             recomputes the plan fresh
+     *                                             at run time (rather than
+     *                                             deserialising a stale
+     *                                             one), so the apply
+     *                                             reflects the template's
+     *                                             state at the moment the
+     *                                             job actually runs.
+     * @param LoggerInterface       $logger        PSR-3 logger.
      */
     public function __construct(
         ITimeFactory $time,

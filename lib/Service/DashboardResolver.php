@@ -31,19 +31,19 @@ class DashboardResolver
     /**
      * Constructor
      *
-     * @param DashboardMapper           $dashboardMapper Dashboard mapper.
-     * @param WidgetPlacementMapper     $placementMapper Widget placement mapper.
-     * @param TemplateService           $templateService Template service.
-     * @param DashboardShareService|null $shareService   Share service used to
-     *                                                   resolve dashboards
-     *                                                   shared WITH the user
-     *                                                   (REQ-SHARE-002).
-     *                                                   Nullable so legacy
-     *                                                   positional test
-     *                                                   construction keeps
-     *                                                   working; a null
-     *                                                   service simply yields
-     *                                                   no shared dashboards.
+     * @param DashboardMapper            $dashboardMapper Dashboard mapper.
+     * @param WidgetPlacementMapper      $placementMapper Widget placement mapper.
+     * @param TemplateService            $templateService Template service.
+     * @param DashboardShareService|null $shareService    Share service used to
+     *                                                    resolve dashboards
+     *                                                    shared WITH the user
+     *                                                    (REQ-SHARE-002).
+     *                                                    Nullable so legacy
+     *                                                    positional test
+     *                                                    construction keeps
+     *                                                    working; a null
+     *                                                    service simply yields
+     *                                                    no shared dashboards.
      */
     public function __construct(
         private readonly DashboardMapper $dashboardMapper,
@@ -252,7 +252,7 @@ class DashboardResolver
                 'placements'      => $placements,
                 'permissionLevel' => $level,
             ];
-        }
+        }//end foreach
 
         return null;
     }//end tryGetSharedDashboard()

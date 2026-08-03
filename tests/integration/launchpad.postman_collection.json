@@ -635,7 +635,14 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('returns an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+									"// REQ-QUOTA-006 made this an additive envelope: {items: [...], quota: {...}}.",
+									"// The bare array is still returned when the quota service is absent, so accept",
+									"// BOTH rather than pinning one — the frontend store does the same tolerant unwrap.",
+									"pm.test('returns a dashboards array (bare or under items)', () => {",
+									"    const json = pm.response.json();",
+									"    const items = Array.isArray(json) ? json : json.items;",
+									"    pm.expect(items, 'neither a bare array nor an items array').to.be.an('array');",
+									"});"
 								]
 							}
 						}
@@ -667,10 +674,13 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('array of dashboards with source field', () => {",
+									"// Same REQ-QUOTA-006 envelope as /api/dashboards. The source assertion is the",
+									"// point of this request (REQ-DASH-013), so it stays — only the unwrap changed.",
+									"pm.test('dashboards carry a source field', () => {",
 									"    const json = pm.response.json();",
-									"    pm.expect(json).to.be.an('array');",
-									"    if (json.length > 0) pm.expect(json[0]).to.have.property('source');",
+									"    const items = Array.isArray(json) ? json : json.items;",
+									"    pm.expect(items, 'neither a bare array nor an items array').to.be.an('array');",
+									"    if (items.length > 0) pm.expect(items[0]).to.have.property('source');",
 									"});"
 								]
 							}

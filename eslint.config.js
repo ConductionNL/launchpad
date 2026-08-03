@@ -72,6 +72,15 @@ module.exports = defineConfig([{
 		'vue/no-v-model-argument': 'off',
 
 		// Vue 3 templates may have multiple roots (fragments).
+		//
+		// NOTE: `@conduction/nextcloud-vue@2.1.0-vue3.16` switched this rule
+		// off in its own shared preset, so apps that extend
+		// `@conduction/nextcloud-vue/eslint` no longer need a local disable.
+		// This app does NOT extend that preset — it corrects the Vue-2
+		// rules individually on top of `@nextcloud` (see the block comment
+		// above). Verified with `eslint --print-config`: removing this line
+		// takes the rule from `[0]` to `[2]`. It stays until launchpad
+		// adopts the shared preset.
 		'vue/no-multiple-template-root': 'off',
 
 		// `.sync` was removed in Vue 3 — `valid-v-bind-sync` validates a

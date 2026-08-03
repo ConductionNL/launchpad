@@ -70,7 +70,7 @@ class AcknowledgementMapper extends QBMapper
         int $contentVersion
     ): bool {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: $qb->func()->count('*', 'cnt'))
+        $qb->select($qb->func()->count('*', 'cnt'))
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -124,7 +124,7 @@ class AcknowledgementMapper extends QBMapper
         int $contentVersion
     ): ?Acknowledgement {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -173,7 +173,7 @@ class AcknowledgementMapper extends QBMapper
         int $contentVersion
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -213,7 +213,7 @@ class AcknowledgementMapper extends QBMapper
         string $userId
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

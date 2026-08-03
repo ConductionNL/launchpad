@@ -67,7 +67,7 @@ class TileClickMapper extends QBMapper
         string $clickBucket
     ): ?TileClick {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -236,7 +236,7 @@ class TileClickMapper extends QBMapper
         string $endDate
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->gte(

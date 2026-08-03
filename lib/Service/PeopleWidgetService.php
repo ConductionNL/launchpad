@@ -284,7 +284,8 @@ class PeopleWidgetService
         $toSkip        = $offset;
         $backendOffset = 0;
 
-        while (count(value: $page) < $limit) {
+        $pageCount = 0;
+        while ($pageCount < $limit) {
             $batch      = $this->userManager->searchDisplayName(
                 pattern: '',
                 limit: $chunkSize,
@@ -306,7 +307,8 @@ class PeopleWidgetService
                 }
 
                 $page[] = $user;
-                if (count(value: $page) >= $limit) {
+                $pageCount++;
+                if ($pageCount >= $limit) {
                     break;
                 }
             }

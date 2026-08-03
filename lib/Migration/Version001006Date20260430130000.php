@@ -188,8 +188,13 @@ class Version001006Date20260430130000 extends SimpleMigrationStep
             return;
         }
 
+        // NOTE: the column list is passed positionally on purpose. select() is
+        // VARIADIC, so a named argument would arrive as ['selects' => [...]] — a
+        // string-keyed array — and core's `count($selects) === 1 &&
+        // is_array($selects[0])` unwrap would never fire, passing the array
+        // itself where a column name belongs.
         $qb     = $this->db->getQueryBuilder();
-        $result = $qb->select(selects: ['id', 'share_type', 'share_with'])
+        $result = $qb->select('id', 'share_type', 'share_with')
             ->from(from: 'launchpad_dashboard_shares')
             ->executeQuery();
 

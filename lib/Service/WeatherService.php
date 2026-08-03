@@ -53,6 +53,9 @@ use Throwable;
  *     locale-derived units/language, caching, and stale-fallback in one
  *     cohesive unit — mirrors NewsWidgetService's shape for the same
  *     class of capability.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Same cause as the complexity
+ *     above: provider resolution reaches weather_status, the HTTP client, the
+ *     cache, the config and the l10n factory. The collaborators are the feature.
  * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherService
@@ -128,32 +131,32 @@ class WeatherService
     private const IMPERIAL_TERRITORIES = ['US', 'LR', 'MM'];
 
     /**
-     * met.no `symbol_code` prefixes (weather_status's upstream) mapped to
+     * Met.no `symbol_code` prefixes (weather_status's upstream) mapped to
      * our normalised `condition` codes. Suffixes like `_day`/`_night`/
      * `_polartwilight` are stripped before lookup.
      *
      * @var array<string,string>
      */
     private const METNO_CONDITION_MAP = [
-        'clearsky'          => 'clear',
-        'fair'               => 'clear',
-        'partlycloudy'       => 'partly-cloudy',
-        'cloudy'             => 'cloudy',
-        'fog'                => 'fog',
-        'lightrain'          => 'rain',
-        'rain'               => 'rain',
-        'lightrainshowers'   => 'rain',
-        'rainshowers'        => 'rain',
-        'heavyrain'          => 'heavy-rain',
-        'heavyrainshowers'   => 'heavy-rain',
-        'lightsnow'          => 'snow',
-        'snow'               => 'snow',
-        'snowshowers'        => 'snow',
-        'heavysnow'          => 'snow',
-        'sleet'              => 'snow',
-        'thunder'            => 'thunderstorm',
-        'rainandthunder'     => 'thunderstorm',
-        'sleetandthunder'    => 'thunderstorm',
+        'clearsky'         => 'clear',
+        'fair'             => 'clear',
+        'partlycloudy'     => 'partly-cloudy',
+        'cloudy'           => 'cloudy',
+        'fog'              => 'fog',
+        'lightrain'        => 'rain',
+        'rain'             => 'rain',
+        'lightrainshowers' => 'rain',
+        'rainshowers'      => 'rain',
+        'heavyrain'        => 'heavy-rain',
+        'heavyrainshowers' => 'heavy-rain',
+        'lightsnow'        => 'snow',
+        'snow'             => 'snow',
+        'snowshowers'      => 'snow',
+        'heavysnow'        => 'snow',
+        'sleet'            => 'snow',
+        'thunder'          => 'thunderstorm',
+        'rainandthunder'   => 'thunderstorm',
+        'sleetandthunder'  => 'thunderstorm',
     ];
 
     /**
@@ -189,15 +192,15 @@ class WeatherService
      *
      * @param IAppManager           $appManager      Detects whether `weather_status` is enabled.
      * @param ContainerInterface    $container       App container used to optionally resolve
-     *                                                `weather_status`'s forecast service
-     *                                                (REQ-WEATHER-002 provider reuse).
-     * @param IClientService        $clientService    HTTP client factory for the fallback provider fetch.
-     * @param ICacheFactory         $cacheFactory     Backing factory for the distributed reading cache.
-     * @param IAppConfig            $appConfig        Admin config: cache TTL, provider URL, API key.
-     * @param WidgetPlacementMapper $placementMapper  Resolves placements by id.
-     * @param IConfig               $config           Reads the requesting user's locale/language and
-     *                                                the system default.
-     * @param LoggerInterface       $logger           PSR logger.
+     *                                               `weather_status`'s forecast service
+     *                                               (REQ-WEATHER-002 provider reuse).
+     * @param IClientService        $clientService   HTTP client factory for the fallback provider fetch.
+     * @param ICacheFactory         $cacheFactory    Backing factory for the distributed reading cache.
+     * @param IAppConfig            $appConfig       Admin config: cache TTL, provider URL, API key.
+     * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
+     * @param IConfig               $config          Reads the requesting user's locale/language and
+     *                                               the system default.
+     * @param LoggerInterface       $logger          PSR logger.
      */
     public function __construct(
         private readonly IAppManager $appManager,
@@ -243,25 +246,11 @@ class WeatherService
         $cache    = $this->getCache();
         $cached   = $this->readCache(cache: $cache, cacheKey: $cacheKey);
 
-        if ($cached !== null) {
-            $ttl = $this->cacheTtl();
-            $age = (time() - (int) ($cached['fetchedAtTs'] ?? 0));
-            if ($age >= 0 && $age < $ttl) {
-                return $this->publicShape(reading: $cached, stale: false);
-            }
+        if ($this->isCacheFresh(cached: $cached) === true) {
+            return $this->publicShape(reading: $cached, stale: false);
         }
 
-        $fresh = null;
-        if ($location === '') {
-            // No author-configured location — prefer the viewer's own
-            // weather_status personal location, if available.
-            $fresh = $this->fetchFromWeatherStatus(units: $units);
-        }
-
-        if ($fresh === null && $location !== '') {
-            $fresh = $this->fetchFromProviderUrl(location: $location, units: $units, language: $language);
-        }
-
+        $fresh = $this->fetchFresh(location: $location, units: $units, language: $language);
         if ($fresh !== null) {
             $fresh['fetchedAtTs'] = time();
             if ($cache !== null) {
@@ -279,6 +268,49 @@ class WeatherService
 
         return ['error' => 'weather_unavailable'];
     }//end resolveForPlacement()
+
+    /**
+     * Whether a cached reading exists and is still inside its TTL.
+     *
+     * A negative age (clock skew, or a reading stamped in the future) is
+     * treated as stale so a bad timestamp can never pin a stale reading.
+     *
+     * @param array<string,mixed>|null $cached The cached reading, if any.
+     *
+     * @return bool True when `$cached` may be served as fresh.
+     */
+    private function isCacheFresh(?array $cached): bool
+    {
+        if ($cached === null) {
+            return false;
+        }
+
+        $age = (time() - (int) ($cached['fetchedAtTs'] ?? 0));
+
+        return $age >= 0 && $age < $this->cacheTtl();
+    }//end isCacheFresh()
+
+    /**
+     * Fetch a fresh reading from whichever upstream suits the placement.
+     *
+     * With no author-configured location, the viewer's own weather_status
+     * personal location is preferred; otherwise the configured provider URL
+     * is used.
+     *
+     * @param string $location The author-configured location, or `''`.
+     * @param string $units    `'metric'` or `'imperial'`.
+     * @param string $language The resolved forecast language.
+     *
+     * @return array<string,mixed>|null The reading, or null when unavailable.
+     */
+    private function fetchFresh(string $location, string $units, string $language): ?array
+    {
+        if ($location === '') {
+            return $this->fetchFromWeatherStatus(units: $units);
+        }
+
+        return $this->fetchFromProviderUrl(location: $location, units: $units, language: $language);
+    }//end fetchFresh()
 
     /**
      * Read the placement's `{location, unitsOverride}` config, falling
@@ -333,10 +365,18 @@ class WeatherService
             $locale = (string) $this->config->getSystemValue(key: 'default_locale', default: 'en');
         }
 
-        $parts     = preg_split(pattern: '/[_-]/', subject: $locale) ?: [];
+        $parts = preg_split(pattern: '/[_-]/', subject: $locale);
+        if ($parts === false) {
+            $parts = [];
+        }
+
         $territory = strtoupper(string: (string) ($parts[1] ?? ''));
 
-        return in_array(needle: $territory, haystack: self::IMPERIAL_TERRITORIES, strict: true) === true ? 'imperial' : 'metric';
+        if (in_array(needle: $territory, haystack: self::IMPERIAL_TERRITORIES, strict: true) === true) {
+            return 'imperial';
+        }
+
+        return 'metric';
     }//end resolveUnits()
 
     /**
@@ -355,7 +395,11 @@ class WeatherService
             $lang = (string) $this->config->getSystemValue(key: 'default_language', default: 'en');
         }
 
-        return $lang !== '' ? $lang : 'en';
+        if ($lang !== '') {
+            return $lang;
+        }
+
+        return 'en';
     }//end resolveLanguage()
 
     /**
@@ -401,7 +445,7 @@ class WeatherService
                 context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
             );
             return null;
-        }
+        }//end try
 
         return $this->normaliseMetNoForecast(forecast: $forecast, locationInfo: $locationInfo, units: $units);
     }//end fetchFromWeatherStatus()
@@ -411,9 +455,9 @@ class WeatherService
      * `getForecast()` return shape) into our reading shape, using the
      * nearest ("current") timeseries entry.
      *
-     * @param array<int,mixed>   $forecast     The timeseries list.
+     * @param array<int,mixed>    $forecast     The timeseries list.
      * @param array<string,mixed> $locationInfo weather_status's `getLocation()` result.
-     * @param string             $units        `metric` or `imperial`.
+     * @param string              $units        `metric` or `imperial`.
      *
      * @return array<string,mixed>|null
      */
@@ -430,24 +474,28 @@ class WeatherService
         }
 
         $tempC = (float) $details['air_temperature'];
-        $temp  = $units === 'imperial' ? (($tempC * 9 / 5) + 32) : $tempC;
+        $temp  = $tempC;
+        if ($units === 'imperial') {
+            $temp = (($tempC * 9 / 5) + 32);
+        }
 
         $symbolCode = (string) (
-            $current['data']['next_1_hours']['summary']['symbol_code']
-            ?? $current['data']['next_6_hours']['summary']['symbol_code']
-            ?? ''
+            $current['data']['next_1_hours']['summary']['symbol_code'] ?? $current['data']['next_6_hours']['summary']['symbol_code'] ?? ''
         );
-        $condition = $this->mapMetNoSymbol(symbolCode: $symbolCode);
+        $condition  = $this->mapMetNoSymbol(symbolCode: $symbolCode);
 
         $label = (string) ($locationInfo['address'] ?? '');
+        if ($label === '') {
+            $label = 'Current location';
+        }
 
         return [
-            'location'      => ($label !== '' ? $label : 'Current location'),
+            'location'      => $label,
             'tempValue'     => $temp,
             'units'         => $units,
             'condition'     => $condition,
             'conditionText' => $this->humaniseCondition(code: $condition),
-            // met.no/weather_status carries no per-language forecast text —
+            // Met.no/weather_status carries no per-language forecast text —
             // the humanised fallback above is always English (REQ-WEATHER-003
             // "English MUST be the fallback when the provider has no
             // localisation"). `language` still reports what was requested so
@@ -517,14 +565,17 @@ class WeatherService
 
         try {
             $client   = $this->clientService->newClient();
-            $response = $client->get(uri: $url, options: [
-                'connect_timeout' => self::CONNECT_TIMEOUT,
-                'timeout'         => self::REQUEST_TIMEOUT,
-                'http_errors'     => false,
+            $response = $client->get(
+                    uri: $url,
+                    options: [
+                        'connect_timeout' => self::CONNECT_TIMEOUT,
+                        'timeout'         => self::REQUEST_TIMEOUT,
+                        'http_errors'     => false,
                 // C5 (mirrors FeedRefreshService): no auto-redirect — a 3xx to
                 // an unexpected host would bypass the scheme check above.
-                'allow_redirects' => false,
-            ]);
+                        'allow_redirects' => false,
+                    ]
+                    );
         } catch (Throwable $exception) {
             $this->logger->info(
                 message: 'WeatherService: provider fetch failed',
@@ -576,13 +627,21 @@ class WeatherService
         }
 
         $label = (string) ($payload['name'] ?? '');
+        if ($label === '') {
+            $label = $location;
+        }
+
+        $conditionText = $this->humaniseCondition(code: $condition);
+        if ($description !== '') {
+            $conditionText = ucfirst(string: $description);
+        }
 
         return [
-            'location'      => ($label !== '' ? $label : $location),
+            'location'      => $label,
             'tempValue'     => (float) $temp,
             'units'         => $units,
             'condition'     => $condition,
-            'conditionText' => ($description !== '' ? ucfirst(string: $description) : $this->humaniseCondition(code: $condition)),
+            'conditionText' => $conditionText,
             'language'      => $language,
         ];
     }//end normaliseProviderPayload()
@@ -643,7 +702,11 @@ class WeatherService
         }
 
         $decoded = json_decode(json: $raw, associative: true);
-        return is_array(value: $decoded) === true ? $decoded : null;
+        if (is_array(value: $decoded) === true) {
+            return $decoded;
+        }
+
+        return null;
     }//end readCache()
 
     /**
@@ -654,7 +717,7 @@ class WeatherService
      * provider API key or URL.
      *
      * @param array<string,mixed> $reading The internal reading.
-     * @param boolean              $stale   Whether this is a stale (cache-expired-but-served) reading.
+     * @param boolean             $stale   Whether this is a stale (cache-expired-but-served) reading.
      *
      * @return array<string,mixed>
      */
@@ -713,6 +776,10 @@ class WeatherService
             default: self::DEFAULT_CACHE_TTL
         );
 
-        return $ttl > 0 ? $ttl : self::DEFAULT_CACHE_TTL;
+        if ($ttl > 0) {
+            return $ttl;
+        }
+
+        return self::DEFAULT_CACHE_TTL;
     }//end cacheTtl()
 }//end class

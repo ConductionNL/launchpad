@@ -60,18 +60,27 @@ use OCP\IUserSession;
  * Controller for tile usage-analytics endpoints.
  *
  * @spec openspec/specs/dashboard-view-analytics/spec.md
+ *
+ * @SuppressWarnings(PHPMD.StaticAccess)           {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app; calling
+ *  it statically is its intended usage and injecting it would add a
+ *  collaborator with no state to every controller.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) An analytics endpoint reads
+ *  across several aggregates by nature; every collaborator here is a mapper or
+ *  service it must query to answer one request. Splitting the controller would
+ *  move the coupling rather than remove it.
  */
 class TileAnalyticsController extends Controller
 {
     /**
      * Constructor.
      *
-     * @param IRequest             $request             The HTTP request.
+     * @param IRequest             $request              The HTTP request.
      * @param TileAnalyticsService $tileAnalyticsService The tile analytics
      *                                                   service.
-     * @param ActionAuthService    $actionAuth          ADR-023 action
+     * @param ActionAuthService    $actionAuth           ADR-023 action
      *                                                   authorization.
-     * @param IUserSession         $userSession         Current user session.
+     * @param IUserSession         $userSession          Current user session.
      */
     public function __construct(
         IRequest $request,

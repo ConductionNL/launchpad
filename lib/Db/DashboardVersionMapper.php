@@ -69,7 +69,7 @@ class DashboardVersionMapper extends QBMapper
     public function findByDashboardUuid(string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -95,7 +95,7 @@ class DashboardVersionMapper extends QBMapper
         int $limit
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -124,7 +124,7 @@ class DashboardVersionMapper extends QBMapper
         int $versionNumber
     ): DashboardVersion {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -307,7 +307,7 @@ class DashboardVersionMapper extends QBMapper
         int $keepCount
     ): ?int {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: 'version_number')
+        $qb->select('version_number')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

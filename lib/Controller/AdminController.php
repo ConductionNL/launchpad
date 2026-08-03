@@ -102,31 +102,34 @@ class AdminController extends Controller
     /**
      * Constructor
      *
-     * @param IRequest             $request            The request.
-     * @param AdminTemplateService $templateService    The admin template service.
-     * @param AdminSettingsService $settingsService    The admin settings service.
-     * @param IGroupManager        $groupManager       The Nextcloud group manager.
-     * @param IUserSession         $userSession        The current user session.
-     * @param ExportService        $exportService      ZIP export service
-     *                                                 (REQ-EXIM-001..003).
-     * @param ImportService        $importService      ZIP import service
-     *                                                 (REQ-EXIM-004..008).
-     * @param RoleService          $roleService        The LaunchPad role service
-     *                                                 (REQ-ROLE-001..011).
-     * @param FeedRefreshService   $feedRefresh        The background feed
-     *                                                 refresh service used by
-     *                                                 the on-demand admin
-     *                                                 `refreshFeeds` action
-     *                                                 (REQ-BGJOB-FEED-005).
-     * @param FooterService        $footerService      Global footer settings + sanitiser
-     *                                                 (REQ-FTR-001..010).
-     * @param SetupWizardService   $setupWizardService Setup-wizard
-     *                                                 orchestrator
-     *                                                 (REQ-WIZ-001..011).
-     * @param ActionAuthService    $actionAuth         ADR-023 action authorization.
-     * @param TemplateResyncService $resyncService     Admin template
-     *                                                 re-sync orchestrator
-     *                                                 (REQ-RESYNC-001..005).
+     * @param IRequest              $request            The request.
+     * @param AdminTemplateService  $templateService    The admin template service.
+     * @param AdminSettingsService  $settingsService    The admin settings service.
+     * @param IGroupManager         $groupManager       The Nextcloud group manager.
+     * @param IUserSession          $userSession        The current user session.
+     * @param ExportService         $exportService      ZIP export service
+     *                                                  (REQ-EXIM-001..003).
+     * @param ImportService         $importService      ZIP import service
+     *                                                  (REQ-EXIM-004..008).
+     * @param RoleService           $roleService        The LaunchPad role service
+     *                                                  (REQ-ROLE-001..011).
+     * @param FeedRefreshService    $feedRefresh        The background feed
+     *                                                  refresh service
+     *                                                  used by the
+     *                                                  on-demand admin
+     *                                                  `refreshFeeds`
+     *                                                  action
+     *                                                  (REQ-BGJOB-FEED-005).
+     * @param FooterService         $footerService      Global footer settings + sanitiser
+     *                                                  (REQ-FTR-001..010).
+     * @param SetupWizardService    $setupWizardService Setup-wizard
+     *                                                  orchestrator
+     *                                                  (REQ-WIZ-001..011).
+     * @param ActionAuthService     $actionAuth         ADR-023 action authorization.
+     * @param TemplateResyncService $resyncService      Admin template
+     *                                                  re-sync
+     *                                                  orchestrator
+     *                                                  (REQ-RESYNC-001..005).
      */
     public function __construct(
         IRequest $request,
@@ -355,7 +358,7 @@ class AdminController extends Controller
      * @param int    $id       The admin template's dashboard ID.
      * @param string $strategy `'overwrite'` or `'merge'`.
      * @param bool   $dryRun   When true (default), report without
-     *                        mutating.
+     *                         mutating.
      *
      * @return JSONResponse The plan, the applied result, or the
      *                      async-accepted envelope. 400 on an invalid
@@ -375,8 +378,11 @@ class AdminController extends Controller
             return $guard;
         }
 
-        $user         = $this->userSession->getUser();
-        $actingAdminId = ($user !== null) ? $user->getUID() : '';
+        $user          = $this->userSession->getUser();
+        $actingAdminId = '';
+        if ($user !== null) {
+            $actingAdminId = $user->getUID();
+        }
 
         try {
             $result = $this->resyncService->resync(

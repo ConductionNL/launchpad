@@ -21,11 +21,12 @@ import { test, expect } from '@playwright/test'
 import * as path from 'path'
 import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+// Resolve the target instance through the one module the whole suite (and the
+// Playwright config) shares, so this spec can never target a different
+// Nextcloud than the rest of the run — and can never fall back to the shared
+// :8080 dev container, which no longer has a default at all.
+import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
 
-// `NC_BASE_URL` is what the Playwright config and the rest of the suite use;
-// honour it first so this spec targets the same instance as every other spec
-// instead of silently falling back to the default :8080 dev container.
-const NEXTCLOUD_URL = process.env.NC_BASE_URL || process.env.NEXTCLOUD_URL || 'http://localhost:8080'
 const APP_ID = process.env.APP_ID || 'launchpad'
 
 test.beforeAll(async () => {

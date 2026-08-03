@@ -64,7 +64,7 @@ class WidgetPlacementMapper extends QBMapper
     public function find(int $id): WidgetPlacement
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -90,7 +90,7 @@ class WidgetPlacementMapper extends QBMapper
     public function findByDashboardId(int $dashboardId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -122,7 +122,7 @@ class WidgetPlacementMapper extends QBMapper
     public function findByWidgetId(string $widgetId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -152,7 +152,7 @@ class WidgetPlacementMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'id', order: 'ASC');
 
@@ -173,7 +173,7 @@ class WidgetPlacementMapper extends QBMapper
     public function findByAnnouncementKey(string $announcementKey): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -430,7 +430,7 @@ class WidgetPlacementMapper extends QBMapper
     public function deleteOrphaned(): int
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: 'p.id')
+        $qb->select('p.id')
             ->from(from: $this->getTableName(), alias: 'p')
             ->leftJoin(
                 fromAlias: 'p',

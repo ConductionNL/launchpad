@@ -174,13 +174,18 @@ class ApplyActionBaseline implements IRepairStep
             self::BASELINE_VERSION
         );
 
+        $preservedSuffix = 'ies';
+        if ($preserved === 1) {
+            $preservedSuffix = 'y';
+        }
+
         $output->info(
             sprintf(
                 'Action baseline v%d applied: %d action(s) broadened to the non-admin baseline, %d admin-customized entr%s preserved.',
                 self::BASELINE_VERSION,
                 $broadened,
                 $preserved,
-                ($preserved === 1) ? 'y' : 'ies'
+                $preservedSuffix
             )
         );
 
@@ -197,6 +202,35 @@ class ApplyActionBaseline implements IRepairStep
      * @return array<string, array<int, string>> Map of action => allowed groups.
      */
     private function readBaseline(): array
+    {
+        $actions = $this->readSeedActions();
+
+        $baseline = [];
+        foreach ($actions as $action => $groups) {
+            if (is_string($action) === false || is_array($groups) === false) {
+                continue;
+            }
+
+            if (in_array(ActionAuthService::GROUP_ALL_USERS, $groups, true) === false) {
+                continue;
+            }
+
+            $baseline[$action] = $this->normaliseGroups(groups: $groups);
+        }
+
+        return $baseline;
+
+    }//end readBaseline()
+
+    /**
+     * Read and decode the `actions` map out of the seed file.
+     *
+     * A missing, unreadable or malformed seed yields an empty map so the
+     * repair step degrades to a no-op rather than aborting the upgrade.
+     *
+     * @return array<mixed> The raw `actions` map, or an empty array.
+     */
+    private function readSeedActions(): array
     {
         if (file_exists(self::SEED_PATH) === false) {
             return [];
@@ -221,27 +255,27 @@ class ApplyActionBaseline implements IRepairStep
             return [];
         }
 
-        $baseline = [];
-        foreach ($actions as $action => $groups) {
-            if (is_string($action) === false || is_array($groups) === false) {
-                continue;
-            }
+        return $actions;
 
-            if (in_array(ActionAuthService::GROUP_ALL_USERS, $groups, true) === false) {
-                continue;
-            }
+    }//end readSeedActions()
 
-            $clean = [];
-            foreach ($groups as $group) {
-                if (is_string($group) === true && $group !== '') {
-                    $clean[] = $group;
-                }
+    /**
+     * Reduce a seed group list to unique, non-empty strings.
+     *
+     * @param array<mixed> $groups The raw group list from the seed file.
+     *
+     * @return array<int, string> The cleaned, de-duplicated group list.
+     */
+    private function normaliseGroups(array $groups): array
+    {
+        $clean = [];
+        foreach ($groups as $group) {
+            if (is_string($group) === true && $group !== '') {
+                $clean[] = $group;
             }
-
-            $baseline[$action] = array_values(array_unique($clean));
         }
 
-        return $baseline;
+        return array_values(array_unique($clean));
 
-    }//end readBaseline()
+    }//end normaliseGroups()
 }//end class

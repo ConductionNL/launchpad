@@ -58,7 +58,7 @@ class ConditionalRuleMapper extends QBMapper
     public function find(int $id): ConditionalRule
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -83,7 +83,7 @@ class ConditionalRuleMapper extends QBMapper
     public function findByPlacementId(int $placementId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -111,7 +111,7 @@ class ConditionalRuleMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'widget_placement_id', order: 'ASC')
             ->addOrderBy(sort: 'created_at', order: 'ASC');
@@ -187,7 +187,7 @@ class ConditionalRuleMapper extends QBMapper
     public function deleteOrphaned(): int
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: 'r.id')
+        $qb->select('r.id')
             ->from(from: $this->getTableName(), alias: 'r')
             ->leftJoin(
                 fromAlias: 'r',

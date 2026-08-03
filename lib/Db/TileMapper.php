@@ -54,7 +54,7 @@ class TileMapper extends QBMapper
     {
         $qb = $this->db->getQueryBuilder();
 
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -81,7 +81,7 @@ class TileMapper extends QBMapper
     {
         $qb = $this->db->getQueryBuilder();
 
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

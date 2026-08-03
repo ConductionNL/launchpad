@@ -70,7 +70,7 @@ class RoleAssignmentMapper extends QBMapper
     public function findById(int $id): RoleAssignment
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -93,7 +93,7 @@ class RoleAssignmentMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'id', order: 'ASC');
 
@@ -114,7 +114,7 @@ class RoleAssignmentMapper extends QBMapper
     public function findByUser(string $userId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -137,7 +137,7 @@ class RoleAssignmentMapper extends QBMapper
     public function findByGroup(string $groupId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -167,7 +167,7 @@ class RoleAssignmentMapper extends QBMapper
         }
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->in(
@@ -194,7 +194,7 @@ class RoleAssignmentMapper extends QBMapper
     public function findUserRole(string $userId, string $role): ?RoleAssignment
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -229,7 +229,7 @@ class RoleAssignmentMapper extends QBMapper
         string $role
     ): ?RoleAssignment {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

@@ -90,7 +90,7 @@ class DashboardTranslationMapper extends QBMapper
     public function find(int $id): DashboardTranslation
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -116,7 +116,7 @@ class DashboardTranslationMapper extends QBMapper
     public function findByDashboardUuid(string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -148,7 +148,7 @@ class DashboardTranslationMapper extends QBMapper
         }
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -183,7 +183,7 @@ class DashboardTranslationMapper extends QBMapper
         string $dashboardUuid
     ): ?DashboardTranslation {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

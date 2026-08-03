@@ -60,7 +60,7 @@ class RoleLayoutDefaultMapper extends QBMapper
     public function find(int $id): RoleLayoutDefault
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -83,7 +83,7 @@ class RoleLayoutDefaultMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'group_id', order: 'ASC')
             ->addOrderBy(sort: 'sort_order', order: 'ASC');
@@ -102,7 +102,7 @@ class RoleLayoutDefaultMapper extends QBMapper
     public function findByGroupId(string $groupId): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -129,7 +129,7 @@ class RoleLayoutDefaultMapper extends QBMapper
     public function findByGroupAndWidget(string $groupId, string $widgetId): RoleLayoutDefault
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

@@ -56,7 +56,12 @@ use Throwable;
 /**
  * Service for pinging, classifying, and caching tile health-badge state.
  *
- * @spec openspec/specs/service-health-ping/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Ping, classify and cache is
+ *     one cohesive responsibility, and most of the complexity is the
+ *     classification table — a wide but flat mapping of transport outcomes and
+ *     status codes onto badge states. Splitting it would separate the table from
+ *     the code that is the reason it exists.
+ * @spec                                             openspec/specs/service-health-ping/spec.md
  */
 class HealthPingService
 {

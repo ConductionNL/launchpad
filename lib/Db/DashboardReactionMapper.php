@@ -61,7 +61,7 @@ class DashboardReactionMapper extends QBMapper
     public function findByDashboard(string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -94,7 +94,7 @@ class DashboardReactionMapper extends QBMapper
         ?int $offset=null
     ): array {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -133,7 +133,7 @@ class DashboardReactionMapper extends QBMapper
     public function findByUser(string $userId, string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -161,7 +161,7 @@ class DashboardReactionMapper extends QBMapper
     public function countByEmoji(string $dashboardUuid): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: 'emoji')
+        $qb->select('emoji')
             ->selectAlias(
                 select: $qb->func()->count('*'),
                 alias: 'cnt'
@@ -297,7 +297,7 @@ class DashboardReactionMapper extends QBMapper
         string $emoji
     ): int {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: $qb->func()->count('*', 'cnt'))
+        $qb->select($qb->func()->count('*', 'cnt'))
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(

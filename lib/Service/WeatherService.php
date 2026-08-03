@@ -53,6 +53,9 @@ use Throwable;
  *     locale-derived units/language, caching, and stale-fallback in one
  *     cohesive unit — mirrors NewsWidgetService's shape for the same
  *     class of capability.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Same cause as the complexity
+ *     above: provider resolution reaches weather_status, the HTTP client, the
+ *     cache, the config and the l10n factory. The collaborators are the feature.
  * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherService

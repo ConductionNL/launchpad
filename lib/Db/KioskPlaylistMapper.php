@@ -93,7 +93,7 @@ class KioskPlaylistMapper extends QBMapper
     public function findByToken(string $token): KioskPlaylist
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -122,7 +122,7 @@ class KioskPlaylistMapper extends QBMapper
     public function findById(int $id): KioskPlaylist
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -152,7 +152,7 @@ class KioskPlaylistMapper extends QBMapper
     public function findByCreator(string $createdBy): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -180,7 +180,7 @@ class KioskPlaylistMapper extends QBMapper
     public function findAllActive(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where($qb->expr()->isNull(x: 'revoked_at'))
             ->orderBy(sort: 'created_at', order: 'DESC');

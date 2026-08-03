@@ -27,7 +27,11 @@ use OCP\AppFramework\Db\DoesNotExistException;
 /**
  * Service for managing admin settings.
  *
- * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-7
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) One accessor/validator pair
+ *     per admin setting, and there are many settings. The complexity is the sum
+ *     of many trivial members rather than any intricate logic, so splitting the
+ *     class would scatter the settings surface without simplifying anything.
+ * @spec                                             openspec/changes/groupfolder-storage-backend/tasks.md#task-7
  */
 class AdminSettingsService
 {

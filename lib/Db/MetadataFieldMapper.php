@@ -58,7 +58,7 @@ class MetadataFieldMapper extends QBMapper
     public function findAll(): array
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->orderBy(sort: 'sort_order', order: 'ASC')
             ->addOrderBy(sort: 'id', order: 'ASC');
@@ -78,7 +78,7 @@ class MetadataFieldMapper extends QBMapper
     public function findById(int $id): MetadataField
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -105,7 +105,7 @@ class MetadataFieldMapper extends QBMapper
     public function findByKey(string $key): MetadataField
     {
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->eq(
@@ -131,7 +131,7 @@ class MetadataFieldMapper extends QBMapper
         }
 
         $qb = $this->db->getQueryBuilder();
-        $qb->select(selects: '*')
+        $qb->select('*')
             ->from(from: $this->getTableName())
             ->where(
                 $qb->expr()->in(

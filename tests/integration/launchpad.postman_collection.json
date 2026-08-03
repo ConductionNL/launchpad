@@ -1430,8 +1430,8 @@
 									"pm.test('refuses deleting the primary/last translation', () => {",
 									"    pm.expect([400, 403, 409]).to.include(pm.response.code);",
 									"    const json = pm.response.json();",
-									"    pm.expect(json.error, 'expected last_variant/invalid_state')",
-									"        .to.be.oneOf(['last_variant', 'invalid_state']);",
+									"    pm.expect(json.error, 'expected the primary-variant refusal code')",
+									"        .to.be.oneOf(['primary_variant', 'last_variant', 'invalid_state']);",
 									"});"
 								]
 							}

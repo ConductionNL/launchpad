@@ -91,3 +91,34 @@ jobs:
       # recipient; a grant to yourself proves nothing. Password is >= 10 chars
       # because Nextcloud's default policy silently rejects shorter ones.
       playwright-seed-command: 'OC_PASS=E2eGranteePw123 php occ user:add --password-from-env e2e-grantee || true'
+
+      # ── Frontend Check legs ──────────────────────────────────────────────
+      # `frontend-checks` defaults to `[]`, and an empty list means the shared
+      # workflow emits NO "Frontend Check" job at all — so `check:manifest` ran
+      # nowhere while the run still looked complete. It is a self-contained
+      # `node scripts/check-manifest.js`, which is what a leg has to be (each
+      # leg is a fresh job with its own checkout + `npm ci`).
+      # Measured on this tree before enabling: PASSES. It is enabled to keep it
+      # passing, not because it is currently broken.
+      # `test` is NOT listed: "Frontend Tests (unit)" already runs it.
+      frontend-checks: '["check:manifest"]'
+
+      # ── Coverage ratchet ─────────────────────────────────────────────────
+      # `enable-coverage-guard` defaults to FALSE, which is why both
+      # "Coverage Baseline Protection" and "Coverage Baseline Check" have only
+      # ever reported `skipped`. It needs two inputs this repo did not have,
+      # both added in this commit: `scripts/coverage-guard.php` (byte-identical
+      # to openregister's) and `.coverage-baseline` = 49.47, this repo's own
+      # measured coverage (11200 of 22642 statements) read from clover.xml in
+      # the `coverage-report` artifact of run 30911179742.
+      enable-coverage-guard: true
+
+      # ── Hydra mechanical gates ───────────────────────────────────────────
+      # `enable-hydra-gates` defaults to FALSE, so this tier has never executed
+      # here — the job reported `skipped`, which the Quality Report renders
+      # identically to a pass. Pinned to v1.0.1 so a change to the gate package
+      # cannot move this repo's verdict without a commit here.
+      # `enable-axe` deliberately NOT set: a vanilla Nextcloud 34 already carries
+      # serious/critical violations from core's own UI.
+      enable-hydra-gates: true
+      hydra-gates-ref: v1.0.1

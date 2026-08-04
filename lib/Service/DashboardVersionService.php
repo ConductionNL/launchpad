@@ -750,22 +750,74 @@ class DashboardVersionService
                     continue;
                 }
 
+                // A snapshot placement with no widget id cannot be inserted —
+                // the column is NOT NULL and has no default. Skip it loudly
+                // instead of letting the DB turn it into a 500.
+                $widgetId = ($placementData['widgetId'] ?? null);
+                if (is_string($widgetId) === false || $widgetId === '') {
+                    $this->logger->warning(
+                        message: 'launchpad: skipping a snapshot placement with no widgetId',
+                        context: ['dashboardId' => $dashboardId]
+                    );
+                    continue;
+                }
+
                 $entity = new WidgetPlacement();
                 // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
                 $entity->setDashboardId($dashboardId);
 
                 foreach ($placementData as $field => $value) {
-                    if ($field === 'id') {
-                        // Do not re-use the old PK — let the DB assign a new one.
+                    if ($field === 'id' || $field === 'dashboardId') {
+                        // `id`: do not re-use the old PK — let the DB assign one.
+                        // `dashboardId`: already set, and taking it from the
+                        // snapshot would let a snapshot captured elsewhere move
+                        // placements onto a different dashboard.
                         continue;
                     }
 
-                    $setter = 'set'.ucfirst((string) $field);
-                    if (method_exists($entity, $setter) === true) {
+                    // The two JSON-blob columns hold TEXT, while the snapshot
+                    // carries them as decoded objects. Their array setters do
+                    // the encoding; handing an array to setStyleConfig() would
+                    // store the literal "Array".
+                    if ($field === 'styleConfig') {
+                        if (is_array($value) === true) {
+                            $entity->setStyleConfigArray(config: $value);
+                        }
+
+                        continue;
+                    }
+
+                    if ($field === 'content') {
+                        if (is_array($value) === true) {
+                            $entity->setContentArray(content: $value);
+                        }
+
+                        continue;
+                    }
+
+                    /*
+                     * property_exists(), NOT method_exists().
+                     *
+                     * 31 of this entity's 33 setters are MAGIC — declared as
+                     * `@method` and dispatched through Entity::__call — and
+                     * method_exists() is false for those. So the previous
+                     * `method_exists($entity, $setter)` guard skipped EVERY
+                     * field, the placement was inserted with nothing but its
+                     * dashboard id, and every other column fell back to its DB
+                     * default. The row in the failure log is exactly that:
+                     * grid 4x4, is_visible 1, show_title 1 — the defaults — with
+                     * widget_id NULL because that column has no default.
+                     *
+                     * In other words restore never restored anything; it wiped
+                     * the placements and then died on the first insert.
+                     */
+
+                    if (property_exists($entity, (string) $field) === true) {
+                        $setter = 'set'.ucfirst((string) $field);
                         // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
                         $entity->$setter($value);
                     }
-                }
+                }//end foreach
 
                 $this->placementMapper->insert(entity: $entity);
             }//end foreach

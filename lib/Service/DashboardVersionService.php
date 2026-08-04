@@ -77,6 +77,19 @@ class DashboardVersionService
     public const RETENTION_LIMIT = DashboardVersionMapper::DEFAULT_RETENTION;
 
     /**
+     * Snapshot fields whose column holds JSON TEXT rather than a scalar.
+     *
+     * Their array setters do the encoding. Handing the decoded array straight to
+     * the plain setter would store the literal string "Array".
+     *
+     * @var array<string, string> Snapshot field => setter name.
+     */
+    private const BLOB_SETTERS = [
+        'styleConfig' => 'setStyleConfigArray',
+        'content'     => 'setContentArray',
+    ];
+
+    /**
      * Debounce window for automatic snapshots, in seconds (REQ-VERS-001).
      *
      * @var integer
@@ -750,21 +763,12 @@ class DashboardVersionService
                     continue;
                 }
 
-                $entity = new WidgetPlacement();
-                // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-                $entity->setDashboardId($dashboardId);
-
-                foreach ($placementData as $field => $value) {
-                    if ($field === 'id') {
-                        // Do not re-use the old PK — let the DB assign a new one.
-                        continue;
-                    }
-
-                    $setter = 'set'.ucfirst((string) $field);
-                    if (method_exists($entity, $setter) === true) {
-                        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-                        $entity->$setter($value);
-                    }
+                $entity = $this->hydratePlacement(
+                    placementData: $placementData,
+                    dashboardId: $dashboardId
+                );
+                if ($entity === null) {
+                    continue;
                 }
 
                 $this->placementMapper->insert(entity: $entity);
@@ -777,6 +781,85 @@ class DashboardVersionService
             throw $t;
         }//end try
     }//end applySnapshotPayload()
+
+    /**
+     * Build one WidgetPlacement from a snapshot entry.
+     *
+     * Extracted from {@see applySnapshotPayload()} so that method stays within
+     * the complexity budget; the interesting logic is all here.
+     *
+     * @param array<string, mixed> $placementData One entry from the snapshot's
+     *                                            `placements` list.
+     * @param int                  $dashboardId   The dashboard being restored.
+     *
+     * @return WidgetPlacement|null The hydrated entity, or null when the entry
+     *                              cannot be inserted and must be skipped.
+     */
+    private function hydratePlacement(array $placementData, int $dashboardId): ?WidgetPlacement
+    {
+        // A snapshot placement with no widget id cannot be inserted — the
+        // column is NOT NULL and has no default. Skip it loudly instead of
+        // letting the DB turn it into a 500.
+        $widgetId = ($placementData['widgetId'] ?? null);
+        if (is_string($widgetId) === false || $widgetId === '') {
+            $this->logger->warning(
+                message: 'launchpad: skipping a snapshot placement with no widgetId',
+                context: ['dashboardId' => $dashboardId]
+            );
+            return null;
+        }
+
+        $entity = new WidgetPlacement();
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $entity->setDashboardId($dashboardId);
+
+        foreach ($placementData as $field => $value) {
+            if ($field === 'id' || $field === 'dashboardId') {
+                // `id`: do not re-use the old PK — let the DB assign one.
+                // `dashboardId`: already set, and taking it from the snapshot
+                // would let a snapshot captured elsewhere move placements onto
+                // a different dashboard.
+                continue;
+            }
+
+            // The two JSON-blob columns hold TEXT, while the snapshot carries
+            // them as decoded objects. Their array setters do the encoding;
+            // handing an array to setStyleConfig() would store "Array".
+            if (isset(self::BLOB_SETTERS[$field]) === true) {
+                if (is_array($value) === true) {
+                    $blobSetter = self::BLOB_SETTERS[$field];
+                    // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+                    $entity->$blobSetter($value);
+                }
+
+                continue;
+            }
+
+            /*
+             * property_exists(), NOT method_exists().
+             *
+             * 31 of this entity's 33 setters are MAGIC — declared as `@method`
+             * and dispatched through Entity::__call — and method_exists() is
+             * false for those. So the previous `method_exists($entity, $setter)`
+             * guard skipped EVERY field, the placement was inserted with nothing
+             * but its dashboard id, and every other column fell back to its DB
+             * default. The row in the failure log is exactly that: grid 4x4,
+             * is_visible 1, show_title 1 — the defaults — with widget_id NULL
+             * because that column has no default.
+             *
+             * In other words restore never restored anything; it wiped the
+             * placements and then died on the first insert.
+             */
+
+            if (property_exists($entity, (string) $field) === true) {
+                $setter = 'set'.ucfirst((string) $field);
+                // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+                $entity->$setter($value);
+            }
+        }//end foreach
+
+        return $entity;
+    }//end hydratePlacement()
 
     /**
      * Owner-or-admin guard used by every public endpoint.

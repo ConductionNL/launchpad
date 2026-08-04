@@ -346,6 +346,155 @@ class DashboardVersionServiceTest extends TestCase
     }//end testRestoreCapturesPreRestoreSnapshot()
 
     /**
+     * A restored placement must carry the snapshot's FIELDS, not the DB defaults.
+     *
+     * This is the case no existing restore test covered: all three of them stub
+     * `findByDashboardId` to `[]`, so `applySnapshotPayload()`'s copy loop never
+     * executed and the bug below was invisible to a green suite.
+     *
+     * THE BUG. The loop guarded each assignment with
+     * `method_exists($entity, 'set'.ucfirst($field))`. 31 of WidgetPlacement's 33
+     * setters are MAGIC — declared as `@method` and dispatched through
+     * Entity::__call — and method_exists() is false for those. So every field was
+     * skipped, the placement was inserted with nothing but its dashboard id, and
+     * the remaining columns fell back to their DB defaults. Live, that surfaced as
+     *
+     *   Not null violation: null value in column "widget_id"
+     *
+     * because widget_id is NOT NULL and has no default, and the inserted row was
+     * otherwise exactly the default set (grid 4x4, is_visible 1, show_title 1).
+     *
+     * So this asserts the VALUES that arrive at the mapper, which is the only way
+     * to tell "restored" from "inserted a blank row and crashed".
+     *
+     * @return void
+     */
+    public function testRestoredPlacementCarriesTheSnapshotFieldsNotTheDefaults(): void
+    {
+        $dashboard = $this->makeDashboard();
+        // applySnapshotPayload() returns early when the dashboard has no id —
+        // makeDashboard() does not set one, which is the second reason the copy
+        // loop was unreachable from this suite.
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setId(1);
+
+        $snapshot = json_encode(
+            [
+                'placements' => [
+                    [
+                        'id'          => 99,
+                        'dashboardId' => 4242,
+                        'widgetId'    => 'files',
+                        'gridX'       => 3,
+                        'gridY'       => 7,
+                        'gridWidth'   => 6,
+                        'gridHeight'  => 2,
+                        'isVisible'   => 0,
+                        'customTitle' => 'restored title',
+                        'styleConfig' => ['bg' => 'red'],
+                    ],
+                ],
+            ]
+        );
+
+        $target = new DashboardVersion();
+        // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $target->setDashboardUuid('d-uuid-1');
+        $target->setVersionNumber(2);
+        $target->setSnapshotJson($snapshot);
+        // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+        $this->versionMapper->method('findByDashboardAndVersion')->willReturn($target);
+        $this->versionMapper->method('findMaxVersionNumber')->willReturn(5);
+        $this->versionMapper->method('insert')->willReturnArgument(0);
+        $this->versionMapper->method('pruneOldVersions');
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+        $this->dashboardMapper->method('update');
+
+        $inserted = null;
+        $this->placementMapper->expects($this->once())
+            ->method('insert')
+            ->willReturnCallback(
+                function ($entity) use (&$inserted) {
+                    $inserted = $entity;
+                    return $entity;
+                }
+            );
+
+        $this->service->restoreVersion(
+            dashboard: $dashboard,
+            versionNumber: 2,
+            restoringUser: 'alice'
+        );
+
+        $this->assertNotNull($inserted, 'no placement was inserted at all');
+
+        // The field that made this a 500 rather than a wrong row: NOT NULL, no
+        // default, so it is the one the DB noticed.
+        $this->assertSame('files', $inserted->getWidgetId());
+
+        // The rest prove the loop actually assigned, rather than the DB defaults
+        // happening to match. Every value here differs from its column default.
+        $this->assertSame(3, $inserted->getGridX());
+        $this->assertSame(7, $inserted->getGridY());
+        $this->assertSame(6, $inserted->getGridWidth(), 'grid width is the DB default (4), so nothing was assigned');
+        $this->assertSame(2, $inserted->getGridHeight(), 'grid height is the DB default (4), so nothing was assigned');
+        $this->assertSame(0, $inserted->getIsVisible(), 'is_visible is the DB default (1), so nothing was assigned');
+        $this->assertSame('restored title', $inserted->getCustomTitle());
+
+        // styleConfig is TEXT in the DB and an object in the snapshot; the array
+        // setter has to do the encoding or the column stores the string "Array".
+        $this->assertSame(['bg' => 'red'], $inserted->getStyleConfigArray());
+
+        // The snapshot's dashboardId must be IGNORED — honouring it would let a
+        // snapshot captured elsewhere move placements onto another dashboard.
+        $this->assertSame(1, $inserted->getDashboardId());
+    }//end testRestoredPlacementCarriesTheSnapshotFieldsNotTheDefaults()
+
+
+    /**
+     * A snapshot placement with no widgetId is SKIPPED, not fatal.
+     *
+     * widget_id is NOT NULL with no default, so such a row cannot be inserted.
+     * Skipping it with a warning keeps an older or hand-edited snapshot
+     * restorable instead of making the whole version permanently un-restorable
+     * behind a 500.
+     *
+     * @return void
+     */
+    public function testSnapshotPlacementWithoutWidgetIdIsSkippedRatherThanFatal(): void
+    {
+        $dashboard = $this->makeDashboard();
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setId(1);
+
+        $target = new DashboardVersion();
+        // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $target->setDashboardUuid('d-uuid-1');
+        $target->setVersionNumber(2);
+        $target->setSnapshotJson(json_encode(['placements' => [['gridX' => 1]]]));
+        // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+        $this->versionMapper->method('findByDashboardAndVersion')->willReturn($target);
+        $this->versionMapper->method('findMaxVersionNumber')->willReturn(5);
+        $this->versionMapper->method('insert')->willReturnArgument(0);
+        $this->versionMapper->method('pruneOldVersions');
+        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+        $this->dashboardMapper->method('update');
+
+        $this->placementMapper->expects($this->never())->method('insert');
+
+        $result = $this->service->restoreVersion(
+            dashboard: $dashboard,
+            versionNumber: 2,
+            restoringUser: 'alice'
+        );
+
+        $this->assertSame(2, $result['version']->getVersionNumber());
+    }//end testSnapshotPlacementWithoutWidgetIdIsSkippedRatherThanFatal()
+
+
+    /**
      * REQ-VERS-005: restoring to the current version is a no-op — no
      * pre-restore snapshot, no DB update.
      *

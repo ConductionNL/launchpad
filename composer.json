@@ -52,7 +52,7 @@
 		"psalm": "./vendor/bin/psalm --threads=1 --no-cache",
 		"phpstan": "./vendor/bin/phpstan analyse --memory-limit=1G",
 		"test": "phpunit --configuration phpunit.xml",
-		"test:unit": "./vendor/bin/phpunit --configuration phpunit.xml --colors=always || echo 'Tests require Nextcloud environment, skipping...'",
+		"test:unit": "./vendor/bin/phpunit --configuration phpunit.xml --colors=always",
 		"test:all": "./vendor/bin/phpunit --configuration phpunit.xml --colors=always",
 		"test:integration": "if command -v newman >/dev/null 2>&1; then newman run tests/integration/launchpad.postman_collection.json --environment tests/integration/local.env.json; else npx --yes newman run tests/integration/launchpad.postman_collection.json --environment tests/integration/local.env.json; fi",
 		"newman": "@test:integration",

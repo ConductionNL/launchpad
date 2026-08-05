@@ -287,4 +287,47 @@ class WidgetApiControllerRoleTest extends TestCase
 
         $this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
     }//end testGetItemsFiltersDeniedWidgetsFromPartialRequest()
+
+    /**
+     * The `role_permission_denied` audit entry must carry the full context.
+     *
+     * The existing denial tests only assert that `warning()` was called once;
+     * the context payload itself - the thing an auditor actually reads - was
+     * never asserted, so a regression in any of its five fields would have
+     * gone unnoticed. In particular the timestamp is built inline and must be
+     * an ISO-8601/ATOM string.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/role-based-content/tasks.md#task-8
+     */
+    public function testDeniedWidgetAuditEntryCarriesFullContext(): void
+    {
+        $this->roleFeaturePerm->method('isWidgetAllowed')->willReturn(false);
+        $this->actionAuth->method('requireAction')->willReturnSelf();
+
+        $captured = null;
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->willReturnCallback(
+                function (string $message, array $context) use (&$captured): void {
+                    $this->assertSame(expected: 'role_permission_denied', actual: $message);
+                    $captured = $context;
+                }
+            );
+
+        $controller = $this->makeController();
+        $response   = $controller->getItems(widgets: ['analytics_dashboard'], limit: 7);
+
+        $this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+        $this->assertIsArray(actual: $captured);
+        $this->assertSame(expected: 'jan', actual: $captured['userId']);
+        $this->assertSame(expected: 'analytics_dashboard', actual: $captured['widgetId']);
+        $this->assertSame(expected: 'role_permission_denied', actual: $captured['reason']);
+        $this->assertSame(expected: 'launchpad', actual: $captured['app']);
+        $this->assertMatchesRegularExpression(
+            pattern: '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/',
+            string: $captured['timestamp']
+        );
+    }//end testDeniedWidgetAuditEntryCarriesFullContext()
 }//end class

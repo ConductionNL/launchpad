@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end test for the responsive grid breakpoints covering
  * tasks 3.1 + 3.2 of the `responsive-grid-breakpoints` OpenSpec change.

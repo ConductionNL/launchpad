@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end test for the `text` widget covering tasks 7.1..7.3
  * of the `text-display-widget` OpenSpec change.

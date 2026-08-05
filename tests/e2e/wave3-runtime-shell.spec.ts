@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * End-to-end coverage for the wave3 UX cleanup PRs (#111-#114). Every
  * assertion here mirrors a finding the user spotted during manual review;

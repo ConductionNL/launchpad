@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * useTileSearch — the on-dashboard quick-search / launcher-bar composable
  * (tile-quick-search: REQ-QSEARCH-001..004).

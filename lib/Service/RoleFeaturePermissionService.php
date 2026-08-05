@@ -151,61 +151,10 @@ class RoleFeaturePermissionService
             throw new InvalidArgumentException(message: 'groupId is required');
         }
 
-        try {
-            $entity = $this->permissionMapper->findByGroupId(groupId: $groupId);
-        } catch (DoesNotExistException $e) {
-            $entity = new RoleFeaturePermission();
-            $now    = (new DateTime())->format(format: 'c');
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setCreatedAt($now);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGroupId($groupId);
-        }
+        $entity = $this->resolvePermissionEntity(groupId: $groupId);
 
-        if (array_key_exists(key: 'name', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setName((string) $data['name']);
-        }
-
-        if (array_key_exists(key: 'description', array: $data) === true) {
-            $description = null;
-            if ($data['description'] !== null) {
-                $description = (string) $data['description'];
-            }
-
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setDescription($description);
-        }
-
-        if (array_key_exists(key: 'allowedWidgets', array: $data) === true) {
-            $allowed = [];
-            if (is_array(value: $data['allowedWidgets']) === true) {
-                $allowed = $data['allowedWidgets'];
-            }
-
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setAllowedWidgets(json_encode(value: array_values(array: $allowed)));
-        }
-
-        if (array_key_exists(key: 'deniedWidgets', array: $data) === true) {
-            $denied = [];
-            if (is_array(value: $data['deniedWidgets']) === true) {
-                $denied = $data['deniedWidgets'];
-            }
-
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setDeniedWidgets(json_encode(value: array_values(array: $denied)));
-        }
-
-        if (array_key_exists(key: 'priorityWeights', array: $data) === true) {
-            $weights = [];
-            if (is_array(value: $data['priorityWeights']) === true) {
-                $weights = $data['priorityWeights'];
-            }
-
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setPriorityWeights(json_encode(value: $weights));
-        }
+        $this->applyPermissionCopy(entity: $entity, data: $data);
+        $this->applyPermissionWidgetLists(entity: $entity, data: $data);
 
         // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
         $entity->setUpdatedAt((new DateTime())->format(format: 'c'));
@@ -220,6 +169,119 @@ class RoleFeaturePermissionService
 
         return $this->permissionMapper->update(entity: $entity);
     }//end savePermission()
+
+    /**
+     * Load the existing permission row for a group, or mint a fresh one.
+     *
+     * A miss is the insert half of the upsert (REQ-RFP-007): the new
+     * entity is stamped with `createdAt` and the group key so the caller
+     * only has to apply the submitted fields.
+     *
+     * @param string $groupId The group key.
+     *
+     * @return RoleFeaturePermission The existing or freshly minted row.
+     */
+    private function resolvePermissionEntity(string $groupId): RoleFeaturePermission
+    {
+        try {
+            return $this->permissionMapper->findByGroupId(groupId: $groupId);
+        } catch (DoesNotExistException $e) {
+            $entity = new RoleFeaturePermission();
+            $now    = (new DateTime())->format(format: 'c');
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setCreatedAt($now);
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setGroupId($groupId);
+            return $entity;
+        }
+    }//end resolvePermissionEntity()
+
+    /**
+     * Apply the human-facing name/description fields when submitted.
+     *
+     * Both use `array_key_exists` so an omitted key leaves the stored
+     * value alone while an explicit null clears the description.
+     *
+     * @param RoleFeaturePermission $entity The row being upserted.
+     * @param array                 $data   The submitted permission data.
+     *
+     * @return void
+     */
+    private function applyPermissionCopy(
+        RoleFeaturePermission $entity,
+        array $data
+    ): void {
+        if (array_key_exists(key: 'name', array: $data) === true) {
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setName((string) $data['name']);
+        }
+
+        if (array_key_exists(key: 'description', array: $data) === true) {
+            $description = null;
+            if ($data['description'] !== null) {
+                $description = (string) $data['description'];
+            }
+
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setDescription($description);
+        }
+    }//end applyPermissionCopy()
+
+    /**
+     * Apply the JSON-encoded widget allow/deny lists and priority weights.
+     *
+     * The two widget lists are re-indexed with `array_values()` so they
+     * always encode as a JSON array; `priorityWeights` is a keyed map and
+     * is encoded as-is.
+     *
+     * @param RoleFeaturePermission $entity The row being upserted.
+     * @param array                 $data   The submitted permission data.
+     *
+     * @return void
+     */
+    private function applyPermissionWidgetLists(
+        RoleFeaturePermission $entity,
+        array $data
+    ): void {
+        if (array_key_exists(key: 'allowedWidgets', array: $data) === true) {
+            $allowed = self::normaliseArrayPayload(data: $data, key: 'allowedWidgets');
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setAllowedWidgets(json_encode(value: array_values(array: $allowed)));
+        }
+
+        if (array_key_exists(key: 'deniedWidgets', array: $data) === true) {
+            $denied = self::normaliseArrayPayload(data: $data, key: 'deniedWidgets');
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setDeniedWidgets(json_encode(value: array_values(array: $denied)));
+        }
+
+        if (array_key_exists(key: 'priorityWeights', array: $data) === true) {
+            $weights = self::normaliseArrayPayload(data: $data, key: 'priorityWeights');
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $entity->setPriorityWeights(json_encode(value: $weights));
+        }
+    }//end applyPermissionWidgetLists()
+
+    /**
+     * Read an array-typed payload key, defaulting a non-array to `[]`.
+     *
+     * Clients occasionally submit a scalar or null for a list field; the
+     * empty array keeps the JSON column well-formed instead of storing
+     * `"null"` or a coerced scalar.
+     *
+     * @param array  $data The submitted data.
+     * @param string $key  The key to read.
+     *
+     * @return array The array value, or [] when the value is not an array.
+     */
+    private static function normaliseArrayPayload(array $data, string $key): array
+    {
+        if (is_array(value: $data[$key]) === true) {
+            return $data[$key];
+        }
+
+        return [];
+    }//end normaliseArrayPayload()
 
     /**
      * Delete a RoleFeaturePermission row by id.
@@ -257,8 +319,46 @@ class RoleFeaturePermissionService
             );
         }
 
+        $entity = $this->resolveLayoutDefaultEntity(
+            groupId: $groupId,
+            widgetId: $widgetId
+        );
+
+        $this->applyLayoutDefaultCopy(entity: $entity, data: $data);
+        $this->applyLayoutDefaultGeometry(entity: $entity, data: $data);
+        $this->applyLayoutDefaultOrdering(entity: $entity, data: $data);
+
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $entity->setUpdatedAt((new DateTime())->format(format: 'c'));
+
+        // Same upsert semantics as above — null-on-insert tolerated.
+        // @phpstan-ignore-next-line identical.alwaysFalse — null on insert, ok.
+        if ($entity->getId() === null) {
+            return $this->defaultMapper->insert(entity: $entity);
+        }
+
+        return $this->defaultMapper->update(entity: $entity);
+    }//end saveLayoutDefault()
+
+    /**
+     * Load the existing layout default for a `(groupId, widgetId)` pair,
+     * or mint a fresh one.
+     *
+     * A miss is the insert half of the upsert: the new entity is stamped
+     * with `createdAt` and both key columns so the caller only has to
+     * apply the submitted fields.
+     *
+     * @param string $groupId  The group key.
+     * @param string $widgetId The widget key.
+     *
+     * @return RoleLayoutDefault The existing or freshly minted row.
+     */
+    private function resolveLayoutDefaultEntity(
+        string $groupId,
+        string $widgetId
+    ): RoleLayoutDefault {
         try {
-            $entity = $this->defaultMapper->findByGroupAndWidget(
+            return $this->defaultMapper->findByGroupAndWidget(
                 groupId: $groupId,
                 widgetId: $widgetId
             );
@@ -271,8 +371,25 @@ class RoleFeaturePermissionService
             $entity->setGroupId($groupId);
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setWidgetId($widgetId);
+            return $entity;
         }
+    }//end resolveLayoutDefaultEntity()
 
+    /**
+     * Apply the human-facing name/description fields when submitted.
+     *
+     * Both use `array_key_exists` so an omitted key leaves the stored
+     * value alone while an explicit null clears the description.
+     *
+     * @param RoleLayoutDefault $entity The row being upserted.
+     * @param array             $data   The submitted layout default data.
+     *
+     * @return void
+     */
+    private function applyLayoutDefaultCopy(
+        RoleLayoutDefault $entity,
+        array $data
+    ): void {
         if (array_key_exists(key: 'name', array: $data) === true) {
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setName((string) $data['name']);
@@ -287,7 +404,23 @@ class RoleFeaturePermissionService
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setDescription($description);
         }
+    }//end applyLayoutDefaultCopy()
 
+    /**
+     * Apply the grid geometry fields when submitted.
+     *
+     * Width and height are floored at 1 — a zero or negative span would
+     * make the widget unrenderable on the grid.
+     *
+     * @param RoleLayoutDefault $entity The row being upserted.
+     * @param array             $data   The submitted layout default data.
+     *
+     * @return void
+     */
+    private function applyLayoutDefaultGeometry(
+        RoleLayoutDefault $entity,
+        array $data
+    ): void {
         if (array_key_exists(key: 'gridX', array: $data) === true) {
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setGridX((int) $data['gridX']);
@@ -307,7 +440,23 @@ class RoleFeaturePermissionService
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setGridHeight(max(1, (int) $data['gridHeight']));
         }
+    }//end applyLayoutDefaultGeometry()
 
+    /**
+     * Apply the ordering and compulsory-placement fields when submitted.
+     *
+     * `isCompulsory` is normalised to the canonical 0/1 column value so
+     * any truthy shape the client sends lands consistently.
+     *
+     * @param RoleLayoutDefault $entity The row being upserted.
+     * @param array             $data   The submitted layout default data.
+     *
+     * @return void
+     */
+    private function applyLayoutDefaultOrdering(
+        RoleLayoutDefault $entity,
+        array $data
+    ): void {
         if (array_key_exists(key: 'sortOrder', array: $data) === true) {
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setSortOrder((int) $data['sortOrder']);
@@ -322,18 +471,7 @@ class RoleFeaturePermissionService
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $entity->setIsCompulsory($isCompulsory);
         }
-
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setUpdatedAt((new DateTime())->format(format: 'c'));
-
-        // Same upsert semantics as above — null-on-insert tolerated.
-        // @phpstan-ignore-next-line identical.alwaysFalse — null on insert, ok.
-        if ($entity->getId() === null) {
-            return $this->defaultMapper->insert(entity: $entity);
-        }
-
-        return $this->defaultMapper->update(entity: $entity);
-    }//end saveLayoutDefault()
+    }//end applyLayoutDefaultOrdering()
 
     /**
      * Delete a RoleLayoutDefault row by id.

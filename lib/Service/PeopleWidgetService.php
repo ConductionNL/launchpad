@@ -511,18 +511,35 @@ class PeopleWidgetService
             return [];
         }
 
+        return $this->collectGroupMembers(groupIds: $values);
+    }//end resolveCandidates()
+
+    /**
+     * Union of the members of every named group, deduplicated by UID.
+     *
+     * Non-string and empty group ids are skipped, and an id that does not
+     * resolve to a real group contributes zero users rather than raising —
+     * REQ-PPL-006 scenario "Unknown group name handled gracefully".
+     * Ordering follows the group list, then each group's own member order;
+     * a user in several groups keeps the position of its first appearance.
+     *
+     * @param array $groupIds Raw `values` entries from the `group` filter.
+     *
+     * @return IUser[] Deduplicated member list.
+     *
+     * @spec openspec/specs/people-widget/spec.md
+     */
+    private function collectGroupMembers(array $groupIds): array
+    {
         $seen   = [];
         $result = [];
-        foreach ($values as $groupId) {
+        foreach ($groupIds as $groupId) {
             if (is_string(value: $groupId) === false || $groupId === '') {
                 continue;
             }
 
             $group = $this->groupManager->get(gid: $groupId);
             if ($group === null) {
-                // Unknown group MUST yield zero users for that value
-                // without raising — REQ-PPL-006 scenario "Unknown group
-                // name handled gracefully".
                 continue;
             }
 
@@ -538,7 +555,7 @@ class PeopleWidgetService
         }//end foreach
 
         return $result;
-    }//end resolveCandidates()
+    }//end collectGroupMembers()
 
     /**
      * Stable ordering helper.
@@ -742,44 +759,64 @@ class PeopleWidgetService
                 continue;
             }
 
-            // Heuristic: 4-digit segment is the year. Position determines
-            // whether DMY or YMD ordering applies.
-            if (strlen(string: $parts[2]) !== 4 && strlen(string: $parts[0]) !== 4) {
-                continue;
+            $iso = self::isoFromDateParts(parts: $parts);
+            if ($iso !== null) {
+                return $iso;
             }
-
-            $day   = '';
-            $month = '';
-            $year  = '';
-            if (strlen(string: $parts[2]) === 4) {
-                $day   = $parts[0];
-                $month = $parts[1];
-                $year  = $parts[2];
-            }
-
-            if (strlen(string: $parts[0]) === 4) {
-                $year  = $parts[0];
-                $month = $parts[1];
-                $day   = $parts[2];
-            }
-
-            if (ctype_digit(text: $year) === false
-                || ctype_digit(text: $month) === false
-                || ctype_digit(text: $day) === false
-            ) {
-                continue;
-            }
-
-            $iso = sprintf('%04d-%02d-%02d', (int) $year, (int) $month, (int) $day);
-            if (checkdate(month: (int) $month, day: (int) $day, year: (int) $year) === false) {
-                continue;
-            }
-
-            return $iso;
         }//end foreach
 
         return null;
     }//end normaliseToIsoDate()
+
+    /**
+     * Assemble an ISO-8601 date from three already-split date segments.
+     *
+     * Heuristic: the 4-digit segment is the year, and its position decides
+     * whether the input is DMY (`DD-MM-YYYY`) or YMD (`YYYY-MM-DD`). Any
+     * triple that carries no 4-digit year, holds a non-numeric segment, or
+     * does not denote a real calendar date yields null so the caller can
+     * try the next separator.
+     *
+     * @param array $parts Exactly three segments from a single `explode()`.
+     *
+     * @return string|null `YYYY-MM-DD`, or null when the triple is not a
+     *                     valid date.
+     */
+    private static function isoFromDateParts(array $parts): ?string
+    {
+        if (strlen(string: $parts[2]) !== 4 && strlen(string: $parts[0]) !== 4) {
+            return null;
+        }
+
+        $day   = '';
+        $month = '';
+        $year  = '';
+        if (strlen(string: $parts[2]) === 4) {
+            $day   = $parts[0];
+            $month = $parts[1];
+            $year  = $parts[2];
+        }
+
+        if (strlen(string: $parts[0]) === 4) {
+            $year  = $parts[0];
+            $month = $parts[1];
+            $day   = $parts[2];
+        }
+
+        if (ctype_digit(text: $year) === false
+            || ctype_digit(text: $month) === false
+            || ctype_digit(text: $day) === false
+        ) {
+            return null;
+        }
+
+        $iso = sprintf('%04d-%02d-%02d', (int) $year, (int) $month, (int) $day);
+        if (checkdate(month: (int) $month, day: (int) $day, year: (int) $year) === false) {
+            return null;
+        }
+
+        return $iso;
+    }//end isoFromDateParts()
 
     /**
      * Construct a `DateTimeImmutable` for the given month-day in the

@@ -377,86 +377,7 @@ class FooterService
         // with rel/target.
         $result = preg_replace_callback(
             pattern: '#<(/?)\s*([a-zA-Z0-9]+)\b([^>]*)>#s',
-            callback: function (array $matches): string {
-                $closing = ($matches[1] === '/');
-                $tag     = strtolower(string: $matches[2]);
-                $attrs   = $matches[3];
-
-                if (in_array(needle: $tag, haystack: self::ALLOWED_TAGS, strict: true) === false) {
-                    return '';
-                }
-
-                if ($closing === true) {
-                    return '</'.$tag.'>';
-                }
-
-                $allowedAttrs = (self::ALLOWED_ATTRIBUTES[$tag] ?? []);
-                $kept         = [];
-                if ($allowedAttrs !== [] && trim(string: $attrs) !== '') {
-                    if (preg_match_all(
-                        pattern: '#([a-zA-Z][a-zA-Z0-9_-]*)\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))#',
-                        subject: $attrs,
-                        matches: $found,
-                        flags: PREG_SET_ORDER
-                    ) > 0
-                    ) {
-                        foreach ($found as $attr) {
-                            $name = strtolower(string: $attr[1]);
-                            if (in_array(needle: $name, haystack: $allowedAttrs, strict: true) === false) {
-                                continue;
-                            }
-
-                            $value = ($attr[3] ?? ($attr[4] ?? ($attr[5] ?? '')));
-                            // Reject data: / javascript: schemes on URL
-                            // attributes (href / src). The allow-list
-                            // already restricted us to those names so a
-                            // scheme check is enough.
-                            if (preg_match(
-                                pattern: '#^\s*(javascript|data|vbscript):#i',
-                                subject: $value
-                            ) === 1
-                            ) {
-                                continue;
-                            }
-
-                            // Strip any control char or newline; keep
-                            // simple value escaping for HTML context.
-                            $cleanValue  = htmlspecialchars(
-                                string: $value,
-                                flags: (ENT_QUOTES | ENT_HTML5),
-                                encoding: 'UTF-8'
-                            );
-                            $kept[$name] = $cleanValue;
-                        }//end foreach
-                    }//end if
-                }//end if
-
-                $rendered = '<'.$tag;
-                foreach ($kept as $name => $value) {
-                    $rendered .= ' '.$name.'="'.$value.'"';
-                }
-
-                // External <a> elements get rel + target automatically
-                // (REQ-FTR-002 external-link scenario).
-                if ($tag === 'a'
-                    && isset($kept['href']) === true
-                    && preg_match(
-                        pattern: '#^https?://#i',
-                        subject: $kept['href']
-                    ) === 1
-                ) {
-                    $rendered .= ' rel="noopener noreferrer" target="_blank"';
-                }
-
-                $closingTag = '>';
-                if (in_array(needle: $tag, haystack: ['br', 'img'], strict: true) === true) {
-                    $closingTag = ' />';
-                }
-
-                $rendered .= $closingTag;
-
-                return $rendered;
-            },
+            callback: fn (array $matches): string => $this->sanitiseTag(matches: $matches),
             subject: $stripped
         );
 
@@ -466,6 +387,124 @@ class FooterService
 
         return $result;
     }//end sanitiseHtml()
+
+    /**
+     * Rebuild one matched tag in its sanitised form (REQ-FTR-002).
+     *
+     * A tag outside {@see self::ALLOWED_TAGS} collapses to the empty
+     * string. A closing tag is re-emitted bare — it carries no attributes
+     * to sanitise. An opening tag is rebuilt from scratch out of the
+     * surviving attributes, so nothing from the raw source can leak
+     * through.
+     *
+     * @param array<int, string> $matches The regex match: [full, slash, tag, attrs].
+     *
+     * @return string The sanitised tag, or '' when the tag is disallowed.
+     */
+    private function sanitiseTag(array $matches): string
+    {
+        $closing = ($matches[1] === '/');
+        $tag     = strtolower(string: $matches[2]);
+        $attrs   = $matches[3];
+
+        if (in_array(needle: $tag, haystack: self::ALLOWED_TAGS, strict: true) === false) {
+            return '';
+        }
+
+        if ($closing === true) {
+            return '</'.$tag.'>';
+        }
+
+        $kept = $this->sanitiseTagAttributes(tag: $tag, attrs: $attrs);
+
+        $rendered = '<'.$tag;
+        foreach ($kept as $name => $value) {
+            $rendered .= ' '.$name.'="'.$value.'"';
+        }
+
+        // External <a> elements get rel + target automatically
+        // (REQ-FTR-002 external-link scenario).
+        if ($tag === 'a'
+            && isset($kept['href']) === true
+            && preg_match(
+                pattern: '#^https?://#i',
+                subject: $kept['href']
+            ) === 1
+        ) {
+            $rendered .= ' rel="noopener noreferrer" target="_blank"';
+        }
+
+        $closingTag = '>';
+        if (in_array(needle: $tag, haystack: ['br', 'img'], strict: true) === true) {
+            $closingTag = ' />';
+        }
+
+        $rendered .= $closingTag;
+
+        return $rendered;
+    }//end sanitiseTag()
+
+    /**
+     * Extract the attributes of one opening tag that survive the
+     * allow-list (REQ-FTR-005).
+     *
+     * An attribute is kept only when its name is allow-listed for this
+     * tag AND its value does not carry a `javascript:` / `data:` /
+     * `vbscript:` scheme. Surviving values are HTML-escaped before they
+     * are handed back, so the caller can interpolate them directly.
+     *
+     * @param string $tag   The lower-cased tag name.
+     * @param string $attrs The raw attribute blob from the source tag.
+     *
+     * @return array<string, string> The escaped name => value pairs to keep.
+     */
+    private function sanitiseTagAttributes(string $tag, string $attrs): array
+    {
+        $allowedAttrs = (self::ALLOWED_ATTRIBUTES[$tag] ?? []);
+        $kept         = [];
+        if ($allowedAttrs === [] || trim(string: $attrs) === '') {
+            return $kept;
+        }
+
+        if (preg_match_all(
+            pattern: '#([a-zA-Z][a-zA-Z0-9_-]*)\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))#',
+            subject: $attrs,
+            matches: $found,
+            flags: PREG_SET_ORDER
+        ) > 0
+        ) {
+            foreach ($found as $attr) {
+                $name = strtolower(string: $attr[1]);
+                if (in_array(needle: $name, haystack: $allowedAttrs, strict: true) === false) {
+                    continue;
+                }
+
+                $value = ($attr[3] ?? ($attr[4] ?? ($attr[5] ?? '')));
+                // Reject data: / javascript: schemes on URL
+                // attributes (href / src). The allow-list
+                // already restricted us to those names so a
+                // scheme check is enough.
+                if (preg_match(
+                    pattern: '#^\s*(javascript|data|vbscript):#i',
+                    subject: $value
+                ) === 1
+                ) {
+                    continue;
+                }
+
+                // Strip any control char or newline; keep
+                // simple value escaping for HTML context.
+                $cleanValue  = htmlspecialchars(
+                    string: $value,
+                    flags: (ENT_QUOTES | ENT_HTML5),
+                    encoding: 'UTF-8'
+                );
+                $kept[$name] = $cleanValue;
+            }//end foreach
+        }//end if
+
+        return $kept;
+    }//end sanitiseTagAttributes()
 
     /**
      * Validate a structured-mode config payload against the documented

@@ -148,50 +148,27 @@ class DashboardDeleteCommand extends CommandBase
             );
         }
 
-        if ($this->isNoInteraction(input: $input) === false
-            && $this->isJson(input: $input) === false
+        if ($this->confirmDeletion(
+            input: $input,
+            output: $output,
+            dashboard: $dashboard,
+            uuid: $uuid
+        ) === false
         ) {
-            $helper   = new QuestionHelper();
-            $question = new ConfirmationQuestion(
-                question: sprintf(
-                    'Delete dashboard "%s" (%s)? [y/N] ',
-                    (string) $dashboard->getName(),
-                    $uuid
-                ),
-                default: false
+            return $this->emitError(
+                input: $input,
+                output: $output,
+                exitCode: CommandService::EXIT_INVALID_ARGS,
+                code: 'ABORTED',
+                message: 'Deletion aborted by user.'
             );
-            if ((bool) $helper->ask(input: $input, output: $output, question: $question) === false) {
-                return $this->emitError(
-                    input: $input,
-                    output: $output,
-                    exitCode: CommandService::EXIT_INVALID_ARGS,
-                    code: 'ABORTED',
-                    message: 'Deletion aborted by user.'
-                );
-            }
         }
 
-        if ($cascade === true) {
-            $this->treeService->deleteSubtree(dashboard: $dashboard);
-        }
-
-        if ($cascade === false) {
-            $this->placementMapper->deleteByDashboardId(dashboardId: (int) $dashboard->getId());
-            $this->dashboardMapper->delete(entity: $dashboard);
-
-            // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
-            // (REQ-CSC-001).
-            if ($this->eventDispatcher !== null && $uuid !== '') {
-                $this->eventDispatcher->dispatchTyped(
-                    new DashboardDeletedEvent(
-                        dashboardUuid: $uuid,
-                        ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
-                        type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
-                        deletedAt:     new DateTimeImmutable()
-                    )
-                );
-            }
-        }
+        $this->applyDeletion(
+            dashboard: $dashboard,
+            uuid: $uuid,
+            cascade: $cascade
+        );
 
         $cascadeNote = '';
         if ($cascade === true) {
@@ -207,4 +184,88 @@ class DashboardDeleteCommand extends CommandBase
 
         return CommandService::EXIT_SUCCESS;
     }//end handle()
+
+    /**
+     * Ask the operator to confirm the deletion.
+     *
+     * The prompt is skipped entirely — and the deletion allowed — when
+     * `--no-interaction` was supplied or the caller asked for JSON
+     * output, because neither mode can service a terminal question.
+     *
+     * @param InputInterface  $input     CLI input.
+     * @param OutputInterface $output    CLI output.
+     * @param Dashboard       $dashboard The dashboard being deleted (its
+     *                                   name appears in the prompt).
+     * @param string          $uuid      The dashboard UUID.
+     *
+     * @return bool True when the deletion may proceed.
+     */
+    private function confirmDeletion(
+        InputInterface $input,
+        OutputInterface $output,
+        Dashboard $dashboard,
+        string $uuid
+    ): bool {
+        if ($this->isNoInteraction(input: $input) === true
+            || $this->isJson(input: $input) === true
+        ) {
+            return true;
+        }
+
+        $helper   = new QuestionHelper();
+        $question = new ConfirmationQuestion(
+            question: sprintf(
+                'Delete dashboard "%s" (%s)? [y/N] ',
+                (string) $dashboard->getName(),
+                $uuid
+            ),
+            default: false
+        );
+
+        return (bool) $helper->ask(input: $input, output: $output, question: $question);
+    }//end confirmDeletion()
+
+    /**
+     * Delete the dashboard, honouring the `--cascade` flag.
+     *
+     * The cascading path delegates to
+     * {@see DashboardTreeService::deleteSubtree()}, which removes the
+     * descendants and dispatches its own events. The non-cascading path
+     * removes this dashboard's widget placements, deletes the row, and
+     * dispatches {@see DashboardDeletedEvent} itself.
+     *
+     * @param Dashboard $dashboard The dashboard to delete.
+     * @param string    $uuid      The dashboard UUID.
+     * @param bool      $cascade   Whether `--cascade` was supplied.
+     *
+     * @return void
+     */
+    private function applyDeletion(
+        Dashboard $dashboard,
+        string $uuid,
+        bool $cascade
+    ): void {
+        if ($cascade === true) {
+            $this->treeService->deleteSubtree(dashboard: $dashboard);
+            return;
+        }
+
+        $this->placementMapper->deleteByDashboardId(dashboardId: (int) $dashboard->getId());
+        $this->dashboardMapper->delete(entity: $dashboard);
+
+        // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+        // (REQ-CSC-001).
+        if ($this->eventDispatcher === null || $uuid === '') {
+            return;
+        }
+
+        $this->eventDispatcher->dispatchTyped(
+            new DashboardDeletedEvent(
+                dashboardUuid: $uuid,
+                ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
+                type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                deletedAt:     new DateTimeImmutable()
+            )
+        );
+    }//end applyDeletion()
 }//end class

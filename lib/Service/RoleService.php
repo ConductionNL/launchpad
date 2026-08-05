@@ -190,6 +190,23 @@ class RoleService
         $hasUser  = ($userId !== null && $userId !== '');
         $hasGroup = ($groupId !== null && $groupId !== '');
 
+        $this->assertExactlyOneTarget(hasUser: $hasUser, hasGroup: $hasGroup);
+        $this->assertUserExists(userId: $userId);
+        $this->assertGroupExists(groupId: $groupId);
+    }//end validateTarget()
+
+    /**
+     * Assert that exactly one of the user/group targets was supplied.
+     *
+     * @param bool $hasUser  Whether a non-empty user ID was supplied.
+     * @param bool $hasGroup Whether a non-empty group ID was supplied.
+     *
+     * @return void
+     *
+     * @throws InvalidRoleAssignmentException When neither or both are set.
+     */
+    private function assertExactlyOneTarget(bool $hasUser, bool $hasGroup): void
+    {
         if ($hasUser === false && $hasGroup === false) {
             throw new InvalidRoleAssignmentException(
                 message: 'Either userId or groupId must be provided'
@@ -201,19 +218,57 @@ class RoleService
                 message: 'Only one of userId or groupId may be provided'
             );
         }
+    }//end assertExactlyOneTarget()
 
-        if ($hasUser === true && $this->userManager->userExists(uid: $userId) === false) {
+    /**
+     * Assert that a supplied user ID resolves to a real Nextcloud user.
+     *
+     * A null/empty user ID is a group assignment and is left alone — the
+     * XOR check has already run by the time this is called.
+     *
+     * @param string|null $userId Candidate user ID.
+     *
+     * @return void
+     *
+     * @throws InvalidRoleAssignmentException When the user does not exist.
+     */
+    private function assertUserExists(?string $userId): void
+    {
+        if ($userId === null || $userId === '') {
+            return;
+        }
+
+        if ($this->userManager->userExists(uid: $userId) === false) {
             throw new InvalidRoleAssignmentException(
                 message: 'Unknown user'
             );
         }
+    }//end assertUserExists()
 
-        if ($hasGroup === true && $this->groupManager->groupExists(gid: $groupId) === false) {
+    /**
+     * Assert that a supplied group ID resolves to a real Nextcloud group.
+     *
+     * A null/empty group ID is a user assignment and is left alone — the
+     * XOR check has already run by the time this is called.
+     *
+     * @param string|null $groupId Candidate group ID.
+     *
+     * @return void
+     *
+     * @throws InvalidRoleAssignmentException When the group does not exist.
+     */
+    private function assertGroupExists(?string $groupId): void
+    {
+        if ($groupId === null || $groupId === '') {
+            return;
+        }
+
+        if ($this->groupManager->groupExists(gid: $groupId) === false) {
             throw new InvalidRoleAssignmentException(
                 message: 'Unknown group'
             );
         }
-    }//end validateTarget()
+    }//end assertGroupExists()
 
     /**
      * Create a new role assignment (REQ-ROLE-004).

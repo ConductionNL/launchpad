@@ -199,9 +199,6 @@ class FeedRefreshService
      *
      * @return array{status: string, itemCount: int, durationMs: int}
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     *
      * @spec openspec/specs/background-job-feed-refresh/spec.md
      */
     public function refreshFeed(string $feedUrl): array
@@ -210,6 +207,107 @@ class FeedRefreshService
         $row       = $this->cacheMapper->upsertUrl(feedUrl: $feedUrl);
         $now       = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
+        $rejected = $this->rejectBeforeFetch(row: $row, feedUrl: $feedUrl, now: $now, startedAt: $startedAt);
+        if ($rejected !== null) {
+            return $rejected;
+        }
+
+        try {
+            $response = $this->doConditionalGet(row: $row, feedUrl: $feedUrl);
+        } catch (Throwable $exception) {
+            $row->setLastFetchedAt($now);
+            return $this->recordFailure(
+                row: $row,
+                reason: $this->classifyTransportError(exception: $exception),
+                startedAt: $startedAt
+            );
+        }
+
+        $row->setLastFetchedAt($now);
+
+        $early = $this->rejectResponse(row: $row, response: $response, startedAt: $startedAt);
+        if ($early !== null) {
+            return $early;
+        }
+
+        try {
+            $items = $this->parseFeedBody(
+                body: $response['body'],
+                feedUrl: $feedUrl
+            );
+        } catch (Throwable $exception) {
+            return $this->recordFailure(
+                row: $row,
+                reason: 'parse error: '.$exception->getMessage(),
+                startedAt: $startedAt
+            );
+        }
+
+        $row->encodeItems(items: $items);
+        $row->setLastSuccessAt($now);
+        $row->setLastFailureReason(null);
+        $row->setEtag($response['etag']);
+        $row->setLastModified($response['lastModified']);
+        $this->cacheMapper->update(entity: $row);
+
+        return [
+            'status'     => 'ok',
+            'itemCount'  => count(value: $items),
+            'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
+        ];
+    }//end refreshFeed()
+
+    /**
+     * Persist a per-feed failure and build the `failed` result envelope.
+     *
+     * The reported item count is the one still cached from the previous
+     * successful fetch — a failure never discards items (REQ-FRJ-006).
+     *
+     * @param FeedCache $row       The cache row being refreshed.
+     * @param string    $reason    Human-readable failure reason.
+     * @param int       $startedAt Refresh start time in epoch milliseconds.
+     *
+     * @return array{status: string, itemCount: int, durationMs: int}
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
+     */
+    private function recordFailure(
+        FeedCache $row,
+        string $reason,
+        int $startedAt
+    ): array {
+        $row->setLastFailureReason($reason);
+        $this->cacheMapper->update(entity: $row);
+
+        return [
+            'status'     => 'failed',
+            'itemCount'  => count(value: $row->decodeItems()),
+            'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
+        ];
+    }//end recordFailure()
+
+    /**
+     * Pre-fetch guards: allow-list, SSRF safety and URL scheme.
+     *
+     * Each rejection stamps `lastFetchedAt` and persists the row. An
+     * allow-list miss reports `skipped`; SSRF and scheme report `failed`.
+     *
+     * @param FeedCache $row       The cache row being refreshed.
+     * @param string    $feedUrl   The feed URL under test.
+     * @param string    $now       Current timestamp, `Y-m-d H:i:s`.
+     * @param int       $startedAt Refresh start time in epoch milliseconds.
+     *
+     * @return array{status: string, itemCount: int, durationMs: int}|null
+     *         The early result envelope, or null when the URL may be fetched.
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
+     */
+    private function rejectBeforeFetch(
+        FeedCache $row,
+        string $feedUrl,
+        string $now,
+        int $startedAt
+    ): ?array {
         // Allow-list pre-check (REQ-FRJ-011).
         if ($this->isHostAllowed(feedUrl: $feedUrl) === false) {
             $row->setLastFailureReason('host not in allow-list');
@@ -232,9 +330,12 @@ class FeedRefreshService
         // H3: SSRF guard — reject URLs that resolve to private/reserved IP
         // ranges and enforce HTTPS-only. Delegates to UrlSafetyValidator.
         if ($this->urlValidator->isSafe(url: $feedUrl) === false) {
-            $row->setLastFailureReason('SSRF guard: private/reserved IP or non-HTTPS URL rejected');
             $row->setLastFetchedAt($now);
-            $this->cacheMapper->update(entity: $row);
+            $result = $this->recordFailure(
+                row: $row,
+                reason: 'SSRF guard: private/reserved IP or non-HTTPS URL rejected',
+                startedAt: $startedAt
+            );
             $this->logger->warning(
                 message: 'Feed URL rejected by SSRF guard — private IP or non-HTTPS',
                 context: [
@@ -242,11 +343,7 @@ class FeedRefreshService
                     'feedUrl' => $feedUrl,
                 ]
             );
-            return [
-                'status'     => 'failed',
-                'itemCount'  => count(value: $row->decodeItems()),
-                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-            ];
+            return $result;
         }
 
         // Scheme guard — only HTTP/HTTPS (REQ-FRJ-010 scenario "Invalid
@@ -254,33 +351,38 @@ class FeedRefreshService
         // we double-check at service layer for defence in depth).
         $scheme = strtolower(string: (string) parse_url(url: $feedUrl, component: PHP_URL_SCHEME));
         if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-            $row->setLastFailureReason('invalid scheme: '.$scheme);
             $row->setLastFetchedAt($now);
-            $this->cacheMapper->update(entity: $row);
-            return [
-                'status'     => 'failed',
-                'itemCount'  => count(value: $row->decodeItems()),
-                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-            ];
-        }
-
-        try {
-            $response = $this->doConditionalGet(row: $row, feedUrl: $feedUrl);
-        } catch (Throwable $exception) {
-            $row->setLastFailureReason(
-                $this->classifyTransportError(exception: $exception)
+            return $this->recordFailure(
+                row: $row,
+                reason: 'invalid scheme: '.$scheme,
+                startedAt: $startedAt
             );
-            $row->setLastFetchedAt($now);
-            $this->cacheMapper->update(entity: $row);
-            return [
-                'status'     => 'failed',
-                'itemCount'  => count(value: $row->decodeItems()),
-                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-            ];
         }
 
+        return null;
+    }//end rejectBeforeFetch()
+
+    /**
+     * Post-fetch guards: not-modified, non-2xx status and the size cap.
+     *
+     * Assumes the caller has already stamped `lastFetchedAt` on the row.
+     *
+     * @param FeedCache $row       The cache row being refreshed.
+     * @param array     $response  Envelope from `doConditionalGet()` with
+     *                             keys `status`, `reason` and `body`.
+     * @param int       $startedAt Refresh start time in epoch milliseconds.
+     *
+     * @return array{status: string, itemCount: int, durationMs: int}|null
+     *         The early result envelope, or null when the body should be parsed.
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
+     */
+    private function rejectResponse(
+        FeedCache $row,
+        array $response,
+        int $startedAt
+    ): ?array {
         $statusCode = (int) $response['status'];
-        $row->setLastFetchedAt($now);
 
         if ($statusCode === 304) {
             // Items untouched — only lastFetchedAt is updated
@@ -294,56 +396,24 @@ class FeedRefreshService
         }
 
         if ($statusCode < 200 || $statusCode >= 300) {
-            $row->setLastFailureReason($statusCode.' '.$response['reason']);
-            $this->cacheMapper->update(entity: $row);
-            return [
-                'status'     => 'failed',
-                'itemCount'  => count(value: $row->decodeItems()),
-                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-            ];
+            return $this->recordFailure(
+                row: $row,
+                reason: $statusCode.' '.$response['reason'],
+                startedAt: $startedAt
+            );
         }
 
         // Size cap (REQ-FRJ-005 design D3).
         if (strlen(string: $response['body']) > self::MAX_RESPONSE_SIZE) {
-            $row->setLastFailureReason('response too large');
-            $this->cacheMapper->update(entity: $row);
-            return [
-                'status'     => 'failed',
-                'itemCount'  => count(value: $row->decodeItems()),
-                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-            ];
+            return $this->recordFailure(
+                row: $row,
+                reason: 'response too large',
+                startedAt: $startedAt
+            );
         }
 
-        try {
-            $items = $this->parseFeedBody(
-                body: $response['body'],
-                feedUrl: $feedUrl
-            );
-        } catch (Throwable $exception) {
-            $row->setLastFailureReason(
-                'parse error: '.$exception->getMessage()
-            );
-            $this->cacheMapper->update(entity: $row);
-            return [
-                'status'     => 'failed',
-                'itemCount'  => count(value: $row->decodeItems()),
-                'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-            ];
-        }
-
-        $row->encodeItems(items: $items);
-        $row->setLastSuccessAt($now);
-        $row->setLastFailureReason(null);
-        $row->setEtag($response['etag']);
-        $row->setLastModified($response['lastModified']);
-        $this->cacheMapper->update(entity: $row);
-
-        return [
-            'status'     => 'ok',
-            'itemCount'  => count(value: $items),
-            'durationMs' => ((int) (microtime(as_float: true) * 1000) - $startedAt),
-        ];
-    }//end refreshFeed()
+        return null;
+    }//end rejectResponse()
 
     /**
      * Refresh all discovered feed URLs (or a single one when
@@ -353,9 +423,6 @@ class FeedRefreshService
      * @param string|null $onlyUrl Optional single URL to refresh.
      *
      * @return array{processedCount: int, successCount: int, failureCount: int, durationMs: int}
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      *
      * @spec openspec/specs/background-job-feed-refresh/spec.md
      */
@@ -384,21 +451,72 @@ class FeedRefreshService
         // Apply cursor — only relevant for the full-refresh path.
         $startIndex = 0;
         if ($onlyUrl === null) {
-            $cursor = $this->appConfig->getValueString(
-                Application::APP_ID,
-                self::CONFIG_KEY_CURSOR,
-                ''
-            );
-            if ($cursor !== '') {
-                $cursorPos = array_search(needle: $cursor, haystack: $urls, strict: true);
-                // Cursor stale (URL no longer in set) — restart.
-                $startIndex = 0;
-                if ($cursorPos !== false) {
-                    $startIndex = ((int) $cursorPos + 1);
-                }
-            }
+            $startIndex = $this->resolveStartIndex(urls: $urls);
         }
 
+        $tally = $this->refreshBatch(urls: $urls, startIndex: $startIndex);
+
+        // Cursor bookkeeping — full refresh only.
+        if ($onlyUrl === null) {
+            $this->persistCursor(urls: $urls, startIndex: $startIndex, processed: $tally['processed']);
+        }
+
+        return [
+            'processedCount' => $tally['processed'],
+            'successCount'   => $tally['success'],
+            'failureCount'   => $tally['failure'],
+            'durationMs'     => ((int) (microtime(as_float: true) * 1000) - $startedAt),
+        ];
+    }//end refreshAll()
+
+    /**
+     * Resolve the batch start offset from the persisted cursor.
+     *
+     * Resumes at the entry *after* the stored URL; a cursor no longer in
+     * the set is stale and restarts the sweep from 0 (REQ-FRJ-008).
+     *
+     * @param array $urls The sorted, deduplicated feed URL set.
+     *
+     * @return int Index into `$urls` to start this tick from.
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
+     */
+    private function resolveStartIndex(array $urls): int
+    {
+        $cursor = $this->appConfig->getValueString(
+            Application::APP_ID,
+            self::CONFIG_KEY_CURSOR,
+            ''
+        );
+        if ($cursor === '') {
+            return 0;
+        }
+
+        $cursorPos = array_search(needle: $cursor, haystack: $urls, strict: true);
+        // Cursor stale (URL no longer in set) — restart.
+        if ($cursorPos === false) {
+            return 0;
+        }
+
+        return ((int) $cursorPos + 1);
+    }//end resolveStartIndex()
+
+    /**
+     * Refresh one tick's worth of feeds, starting at `$startIndex`.
+     *
+     * Stops at whichever bound is hit first: end of set, batch size, or
+     * wall-clock budget (REQ-FRJ-008). `ok` and `not-modified` count as
+     * successes; everything else counts as a failure.
+     *
+     * @param array $urls       The sorted, deduplicated feed URL set.
+     * @param int   $startIndex Index to start this tick from.
+     *
+     * @return array{processed: int, success: int, failure: int} This tick's tally.
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
+     */
+    private function refreshBatch(array $urls, int $startIndex): array
+    {
         $processed = 0;
         $success   = 0;
         $failure   = 0;
@@ -443,37 +561,54 @@ class FeedRefreshService
             }//end try
         }//end for
 
-        // Cursor bookkeeping — full refresh only.
-        if ($onlyUrl === null) {
-            $endIndex = ($startIndex + $processed);
-            if ($endIndex >= $urlCount) {
-                // Completed the full set — clear cursor.
-                $this->appConfig->deleteKey(
-                    Application::APP_ID,
-                    self::CONFIG_KEY_CURSOR
-                );
-            }
-
-            if ($endIndex < $urlCount) {
-                // More to do next tick — persist cursor at last URL processed.
-                $lastIndex = ($endIndex - 1);
-                if ($lastIndex >= 0 && $lastIndex < $urlCount) {
-                    $this->appConfig->setValueString(
-                        Application::APP_ID,
-                        self::CONFIG_KEY_CURSOR,
-                        $urls[$lastIndex]
-                    );
-                }
-            }
-        }//end if
-
         return [
-            'processedCount' => $processed,
-            'successCount'   => $success,
-            'failureCount'   => $failure,
-            'durationMs'     => ((int) (microtime(as_float: true) * 1000) - $startedAt),
+            'processed' => $processed,
+            'success'   => $success,
+            'failure'   => $failure,
         ];
-    }//end refreshAll()
+    }//end refreshBatch()
+
+    /**
+     * Advance or clear the sweep cursor after a tick.
+     *
+     * Cleared at the tail of the set so the next tick restarts from the
+     * top; otherwise set to the last URL processed (REQ-FRJ-008).
+     *
+     * @param array $urls       The sorted, deduplicated feed URL set.
+     * @param int   $startIndex Index this tick started from.
+     * @param int   $processed  Number of feeds processed this tick.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/background-job-feed-refresh/spec.md
+     */
+    private function persistCursor(
+        array $urls,
+        int $startIndex,
+        int $processed
+    ): void {
+        $urlCount = count(value: $urls);
+        $endIndex = ($startIndex + $processed);
+
+        if ($endIndex >= $urlCount) {
+            // Completed the full set — clear cursor.
+            $this->appConfig->deleteKey(
+                Application::APP_ID,
+                self::CONFIG_KEY_CURSOR
+            );
+            return;
+        }
+
+        // More to do next tick — persist cursor at last URL processed.
+        $lastIndex = ($endIndex - 1);
+        if ($lastIndex >= 0 && $lastIndex < $urlCount) {
+            $this->appConfig->setValueString(
+                Application::APP_ID,
+                self::CONFIG_KEY_CURSOR,
+                $urls[$lastIndex]
+            );
+        }
+    }//end persistCursor()
 
     /**
      * Perform the conditional HTTP GET. Returns a normalised response
@@ -552,12 +687,42 @@ class FeedRefreshService
      */
     private function parseFeedBody(string $body, string $feedUrl): array
     {
+        $xml         = $this->loadFeedXml(body: $body);
+        $sourceTitle = $this->extractFeedTitle(xml: $xml, feedUrl: $feedUrl);
+        $items       = $this->extractItems(xml: $xml, feedUrl: $feedUrl, sourceTitle: $sourceTitle);
+
+        // Sort newest-first by pubDate.
+        usort(
+            array: $items,
+            callback: static fn(array $left, array $right): int => self::compareByPubDate(
+                left: $left,
+                right: $right
+            )
+        );
+
+        return $items;
+    }//end parseFeedBody()
+
+    /**
+     * Parse the raw XML body, converting libxml's error channel into an
+     * exception.
+     *
+     * C2: LIBXML_NOENT is deliberately NOT passed — it resolves (not
+     * disables) entities, enabling XXE; LIBXML_NONET blocks external
+     * DTD/entity fetches. L1: LIBXML_NOCDATA is deliberately NOT passed —
+     * it folds CDATA into text nodes, masking downstream sanitisation.
+     *
+     * @param string $body The raw XML body.
+     *
+     * @return SimpleXMLElement The parsed document.
+     *
+     * @throws RuntimeException When the body is not well-formed XML; the
+     *                          message carries the first libxml error.
+     */
+    private function loadFeedXml(string $body): SimpleXMLElement
+    {
         $previous = libxml_use_internal_errors(use_errors: true);
         try {
-            // C2: LIBXML_NOENT removed — it resolves (not disables) entities,
-            // enabling XXE. LIBXML_NONET blocks external DTD/entity fetches.
-            // L1: LIBXML_NOCDATA removed — it folds CDATA sections into text
-            // nodes, which can mask sanitisation logic on downstream callers.
             $xml = simplexml_load_string(
                 data: $body,
                 class_name: 'SimpleXMLElement',
@@ -578,8 +743,27 @@ class FeedRefreshService
             libxml_use_internal_errors(use_errors: $previous);
         }//end try
 
-        $sourceTitle = $this->extractFeedTitle(xml: $xml, feedUrl: $feedUrl);
-        $items       = [];
+        return $xml;
+    }//end loadFeedXml()
+
+    /**
+     * Collect the normalised entries from an RSS 2.0 or Atom 1.0 document.
+     *
+     * RSS is probed first; a document carrying neither shape yields an
+     * empty list, so an empty feed is not a parse failure.
+     *
+     * @param SimpleXMLElement $xml         The parsed feed document.
+     * @param string           $feedUrl     The feed URL (for sourceUrl).
+     * @param string           $sourceTitle Resolved channel/feed title.
+     *
+     * @return array<int, array<string, mixed>> Normalised items, unsorted.
+     */
+    private function extractItems(
+        SimpleXMLElement $xml,
+        string $feedUrl,
+        string $sourceTitle
+    ): array {
+        $items = [];
 
         // RSS 2.0 — <channel><item>...
         if (isset($xml->channel) === true && isset($xml->channel->item) === true) {
@@ -601,28 +785,35 @@ class FeedRefreshService
             }
         }
 
-        // Sort newest-first by pubDate.
-        usort(
-            array: $items,
-            callback: static function (array $left, array $right): int {
-                $leftRaw  = strtotime(datetime: (string) ($left['pubDate'] ?? ''));
-                $rightRaw = strtotime(datetime: (string) ($right['pubDate'] ?? ''));
-                $leftTs   = 0;
-                if ($leftRaw !== false) {
-                    $leftTs = $leftRaw;
-                }
-
-                $rightTs = 0;
-                if ($rightRaw !== false) {
-                    $rightTs = $rightRaw;
-                }
-
-                return ($rightTs <=> $leftTs);
-            }
-        );
-
         return $items;
-    }//end parseFeedBody()
+    }//end extractItems()
+
+    /**
+     * Newest-first comparator over the normalised `pubDate` field.
+     *
+     * A missing or unparseable date sorts as epoch 0, i.e. last.
+     *
+     * @param array $left  Left-hand normalised item.
+     * @param array $right Right-hand normalised item.
+     *
+     * @return int Negative, zero or positive per the usort contract.
+     */
+    private static function compareByPubDate(array $left, array $right): int
+    {
+        $leftRaw  = strtotime(datetime: (string) ($left['pubDate'] ?? ''));
+        $rightRaw = strtotime(datetime: (string) ($right['pubDate'] ?? ''));
+        $leftTs   = 0;
+        if ($leftRaw !== false) {
+            $leftTs = $leftRaw;
+        }
+
+        $rightTs = 0;
+        if ($rightRaw !== false) {
+            $rightTs = $rightRaw;
+        }
+
+        return ($rightTs <=> $leftTs);
+    }//end compareByPubDate()
 
     /**
      * Extract the channel-level title (RSS) or feed-level title (Atom),

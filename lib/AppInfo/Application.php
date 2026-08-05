@@ -80,6 +80,32 @@ class Application extends App implements IBootstrap
      */
     public function register(IRegistrationContext $context): void
     {
+        $this->registerUserLifecycle(context: $context);
+        $this->registerSharedServices(context: $context);
+        $this->registerCascadeListeners(context: $context);
+        $this->registerIntegrations(context: $context);
+
+        // Observability (ADR-040): re-point the unchanged /api/health and
+        // /api/metrics routes at thin subclasses of the OpenRegister AppHost
+        // generic controllers, which render the declarative observability block
+        // of src/manifest.json. The factories below are lazy — they reference
+        // no OCA\OpenRegister\… symbol until a request resolves the controller,
+        // so a disabled/absent OpenRegister never fatals NC bootstrap (the route
+        // then surfaces the degraded OR-unavailable state instead). $appId is the
+        // runtime app id `launchpad`; the engine reads the manifest under it and
+        // emits the launchpad_ Prometheus prefix, preserving the contract.
+        $this->registerObservability(context: $context);
+    }//end register()
+
+    /**
+     * Register the notifier and the user-deletion cascade listener.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerUserLifecycle(IRegistrationContext $context): void
+    {
         // Render `dashboard_shared` and `dashboard_ownership_transferred`
         // notifications via our INotifier. REQ-SHARE-011.
         $context->registerNotifierService(notifierClass: Notifier::class);
@@ -94,7 +120,17 @@ class Application extends App implements IBootstrap
             event: UserDeletedEvent::class,
             listener: UserDeletedListener::class
         );
+    }//end registerUserLifecycle()
 
+    /**
+     * Register the request- and instance-scoped shared services.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerSharedServices(IRegistrationContext $context): void
+    {
         // REQ-ACT-007/REQ-ACT-008: register DebounceHelper as a shared
         // singleton and inject the distributed cache. The PHP singleton
         // alone only lives for one request (PHP-FPM rebuilds the DI
@@ -121,7 +157,17 @@ class Application extends App implements IBootstrap
             factory: static fn(): PublicShareContext => new PublicShareContext(),
             shared: true
         );
+    }//end registerSharedServices()
 
+    /**
+     * Register the group- and dashboard-deletion cascade listeners.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerCascadeListeners(IRegistrationContext $context): void
+    {
         // Role-assignment cascade on group deletion. REQ-ROLE-011.
         // Group lifecycle cleanup. REQ-CSC-005.
         $context->registerEventListener(
@@ -170,7 +216,18 @@ class Application extends App implements IBootstrap
             event: DashboardDeletedEvent::class,
             listener: TreeListener::class
         );
+    }//end registerCascadeListeners()
 
+    /**
+     * Register the Nextcloud-surface integrations — unified search and the
+     * content-security-policy contribution.
+     *
+     * @param IRegistrationContext $context The registration context.
+     *
+     * @return void
+     */
+    private function registerIntegrations(IRegistrationContext $context): void
+    {
         // Surface dashboards, widget content, and metadata values in
         // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
         $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
@@ -182,18 +239,7 @@ class Application extends App implements IBootstrap
             event: AddContentSecurityPolicyEvent::class,
             listener: CspListener::class
         );
-
-        // Observability (ADR-040): re-point the unchanged /api/health and
-        // /api/metrics routes at thin subclasses of the OpenRegister AppHost
-        // generic controllers, which render the declarative observability block
-        // of src/manifest.json. The factories below are lazy — they reference
-        // no OCA\OpenRegister\… symbol until a request resolves the controller,
-        // so a disabled/absent OpenRegister never fatals NC bootstrap (the route
-        // then surfaces the degraded OR-unavailable state instead). $appId is the
-        // runtime app id `launchpad`; the engine reads the manifest under it and
-        // emits the launchpad_ Prometheus prefix, preserving the contract.
-        $this->registerObservability(context: $context);
-    }//end register()
+    }//end registerIntegrations()
 
     /**
      * Wire the AppHost observability controllers (ADR-040).

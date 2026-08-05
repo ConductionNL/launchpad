@@ -152,13 +152,7 @@ class MigrateStorageToGroupFolder extends CommandBase
             $rawContent = $dashboard->getContent();
             // phpcs:enable
 
-            $contentArray = [];
-            if ($rawContent !== null && $rawContent !== '') {
-                $decoded = json_decode(json: $rawContent, associative: true);
-                if (is_array($decoded) === true) {
-                    $contentArray = $decoded;
-                }
-            }
+            $contentArray = self::decodeContent(rawContent: $rawContent);
 
             try {
                 $this->groupFolderStorage->write(uuid: $uuid, content: $contentArray);
@@ -190,4 +184,29 @@ class MigrateStorageToGroupFolder extends CommandBase
 
         return CommandService::EXIT_SUCCESS;
     }//end handle()
+
+    /**
+     * Decode a dashboard's stored content blob into an array.
+     *
+     * A missing, empty, or non-array-decoding blob yields an empty array
+     * so the GroupFolder write always receives a well-formed payload
+     * instead of failing on legacy or corrupt rows.
+     *
+     * @param string|null $rawContent The raw `content` column value.
+     *
+     * @return array<string, mixed> The decoded content, or an empty array.
+     */
+    private static function decodeContent(?string $rawContent): array
+    {
+        if ($rawContent === null || $rawContent === '') {
+            return [];
+        }
+
+        $decoded = json_decode(json: $rawContent, associative: true);
+        if (is_array($decoded) === false) {
+            return [];
+        }
+
+        return $decoded;
+    }//end decodeContent()
 }//end class

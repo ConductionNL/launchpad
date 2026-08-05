@@ -513,21 +513,8 @@ class NewsWidgetService
             return [];
         }
 
-        // C2: LIBXML_NOENT was removed — it resolves (not disables) entities,
-        // enabling XXE. LIBXML_NONET blocks external DTD/entity fetches.
-        $previousErrors = libxml_use_internal_errors(use_errors: true);
-        $xml            = simplexml_load_string(
-            data: $feedContent,
-            class_name: SimpleXMLElement::class,
-            options: LIBXML_NONET
-        );
-        libxml_clear_errors();
-        libxml_use_internal_errors(use_errors: $previousErrors);
-
-        if ($xml === false) {
-            $this->logger->info(
-                message: 'NewsWidget: could not parse feed XML for '.$sourceUrl
-            );
+        $xml = $this->loadFeedXml(feedContent: $feedContent, sourceUrl: $sourceUrl);
+        if ($xml === null) {
             return [];
         }
 
@@ -552,48 +539,89 @@ class NewsWidgetService
             return $items;
         }
 
-        // RSS 2.0: <rss><channel><item/>…</channel></rss>.
-        if ($rootName === 'rss' && isset($xml->channel) === true) {
-            $channel       = $xml->channel;
-            $resolvedTitle = $sourceTitle;
-            if (isset($channel->title) === true) {
-                $resolvedTitle = (string) $channel->title;
-            }
-
-            foreach ($channel->item as $item) {
-                $items[] = $this->normaliseRssItem(
-                    item: $item,
-                    sourceUrl: $sourceUrl,
-                    sourceTitle: $resolvedTitle
-                );
-            }
-
-            return $items;
+        // RSS 2.0 (<rss><channel>) plus the bare <channel> some publishers ship.
+        $channel = self::resolveRssChannel(xml: $xml, rootName: $rootName);
+        if ($channel === null) {
+            $this->logger->info(
+                message: 'NewsWidget: unsupported feed root <'.$rootName.'> for '.$sourceUrl
+            );
+            return [];
         }
 
-        // Permit a bare <channel> wrapper (some publishers ship without <rss>).
-        if ($rootName === 'channel') {
-            $resolvedTitle = $sourceTitle;
-            if (isset($xml->title) === true) {
-                $resolvedTitle = (string) $xml->title;
-            }
-
-            foreach ($xml->item as $item) {
-                $items[] = $this->normaliseRssItem(
-                    item: $item,
-                    sourceUrl: $sourceUrl,
-                    sourceTitle: $resolvedTitle
-                );
-            }
-
-            return $items;
+        $resolvedTitle = $sourceTitle;
+        if (isset($channel->title) === true) {
+            $resolvedTitle = (string) $channel->title;
         }
 
-        $this->logger->info(
-            message: 'NewsWidget: unsupported feed root <'.$rootName.'> for '.$sourceUrl
-        );
-        return [];
+        foreach ($channel->item as $item) {
+            $items[] = $this->normaliseRssItem(
+                item: $item,
+                sourceUrl: $sourceUrl,
+                sourceTitle: $resolvedTitle
+            );
+        }
+
+        return $items;
     }//end parseRssFeed()
+
+    /**
+     * Parse a raw feed payload, logging and returning null when the XML is
+     * not well-formed so the caller can skip the feed.
+     *
+     * C2: LIBXML_NOENT is deliberately NOT passed — it resolves (not
+     * disables) entities, enabling XXE. LIBXML_NONET blocks external
+     * DTD/entity fetches.
+     *
+     * @param string $feedContent Raw XML payload.
+     * @param string $sourceUrl   URL the payload came from (for logging).
+     *
+     * @return SimpleXMLElement|null Parsed document, or null when malformed.
+     */
+    private function loadFeedXml(string $feedContent, string $sourceUrl): ?SimpleXMLElement
+    {
+        $previousErrors = libxml_use_internal_errors(use_errors: true);
+        $xml            = simplexml_load_string(
+            data: $feedContent,
+            class_name: SimpleXMLElement::class,
+            options: LIBXML_NONET
+        );
+        libxml_clear_errors();
+        libxml_use_internal_errors(use_errors: $previousErrors);
+
+        if ($xml === false) {
+            $this->logger->info(
+                message: 'NewsWidget: could not parse feed XML for '.$sourceUrl
+            );
+            return null;
+        }
+
+        return $xml;
+    }//end loadFeedXml()
+
+    /**
+     * Locate the RSS `<channel>` node for either supported RSS shape.
+     *
+     * Accepts the standard `<rss><channel>` nesting and the bare
+     * `<channel>` root some publishers ship without an `<rss>` wrapper.
+     *
+     * @param SimpleXMLElement $xml      The parsed feed document.
+     * @param string           $rootName Name of the document root element.
+     *
+     * @return SimpleXMLElement|null The channel node, or null when the
+     *                               root is not a supported RSS shape.
+     */
+    private static function resolveRssChannel(SimpleXMLElement $xml, string $rootName): ?SimpleXMLElement
+    {
+        if ($rootName === 'rss' && isset($xml->channel) === true) {
+            return $xml->channel;
+        }
+
+        if ($rootName === 'channel') {
+            return $xml;
+        }
+
+        return null;
+    }//end resolveRssChannel()
 
     /**
      * Deduplicate parsed items by `guid`, keeping the first occurrence
@@ -825,11 +853,9 @@ class NewsWidgetService
         $cache    = $this->getCache();
         $cacheKey = 'feed_'.sha1(string: $url);
 
-        if ($cache !== null) {
-            $cached = $cache->get(key: $cacheKey);
-            if (is_string(value: $cached) === true && $cached !== '') {
-                return $cached;
-            }
+        $cached = $this->readCachedPayload(cache: $cache, cacheKey: $cacheKey);
+        if ($cached !== null) {
+            return $cached;
         }
 
         try {
@@ -888,6 +914,33 @@ class NewsWidgetService
     }//end fetchFeedPayload()
 
     /**
+     * Read a previously cached feed payload.
+     *
+     * Treats a missing cache subsystem, a cache miss, a non-string entry
+     * and an empty entry alike: all mean "no usable payload", so the
+     * caller falls through to a live fetch.
+     *
+     * @param ICache|null $cache    The resolved cache, or null when the
+     *                              subsystem is unavailable.
+     * @param string      $cacheKey Cache key for this feed URL.
+     *
+     * @return string|null Cached payload, or null when there is none.
+     */
+    private function readCachedPayload(?ICache $cache, string $cacheKey): ?string
+    {
+        if ($cache === null) {
+            return null;
+        }
+
+        $cached = $cache->get(key: $cacheKey);
+        if (is_string(value: $cached) === true && $cached !== '') {
+            return $cached;
+        }
+
+        return null;
+    }//end readCachedPayload()
+
+    /**
      * Lazily resolve the distributed cache. Returns `null` when the
      * Nextcloud cache subsystem is unavailable (e.g. unit tests with a
      * stub factory that returns `null`).
@@ -914,6 +967,29 @@ class NewsWidgetService
     }//end getCache()
 
     /**
+     * Text of the first child element present out of `$names`.
+     *
+     * Encodes the "optional child, empty string when absent" convention
+     * the feed normalisers apply to every scalar field. A child that
+     * exists but is empty still wins over a later name in the list.
+     *
+     * @param SimpleXMLElement $node  Parent node.
+     * @param array            $names Child element names, tried in order.
+     *
+     * @return string Text of the first present child, or '' when none is.
+     */
+    private static function childText(SimpleXMLElement $node, array $names): string
+    {
+        foreach ($names as $name) {
+            if (isset($node->$name) === true) {
+                return (string) $node->$name;
+            }
+        }
+
+        return '';
+    }//end childText()
+
+    /**
      * Convert a single Atom `<entry>` into the canonical item shape.
      *
      * @param SimpleXMLElement $entry       The Atom entry node.
@@ -924,17 +1000,10 @@ class NewsWidgetService
      */
     private function normaliseAtomEntry(SimpleXMLElement $entry, string $sourceUrl, string $sourceTitle): array
     {
-        $title = '';
-        if (isset($entry->title) === true) {
-            $title = (string) $entry->title;
-        }
-
-        $summary = '';
-        if (isset($entry->summary) === true) {
-            $summary = (string) $entry->summary;
-        } else if (isset($entry->content) === true) {
-            $summary = (string) $entry->content;
-        }
+        $title   = self::childText(node: $entry, names: ['title']);
+        $summary = self::childText(node: $entry, names: ['summary', 'content']);
+        $pubDate = self::childText(node: $entry, names: ['updated', 'published']);
+        $guid    = self::childText(node: $entry, names: ['id']);
 
         $link = '';
         if (isset($entry->link) === true) {
@@ -943,18 +1012,6 @@ class NewsWidgetService
             if ($href !== null) {
                 $link = (string) $href;
             }
-        }
-
-        $pubDate = '';
-        if (isset($entry->updated) === true) {
-            $pubDate = (string) $entry->updated;
-        } else if (isset($entry->published) === true) {
-            $pubDate = (string) $entry->published;
-        }
-
-        $guid = '';
-        if (isset($entry->id) === true) {
-            $guid = (string) $entry->id;
         }
 
         if ($guid === '') {
@@ -984,30 +1041,11 @@ class NewsWidgetService
      */
     private function normaliseRssItem(SimpleXMLElement $item, string $sourceUrl, string $sourceTitle): array
     {
-        $title = '';
-        if (isset($item->title) === true) {
-            $title = (string) $item->title;
-        }
-
-        $summary = '';
-        if (isset($item->description) === true) {
-            $summary = (string) $item->description;
-        }
-
-        $link = '';
-        if (isset($item->link) === true) {
-            $link = (string) $item->link;
-        }
-
-        $pubDate = '';
-        if (isset($item->pubDate) === true) {
-            $pubDate = (string) $item->pubDate;
-        }
-
-        $guid = '';
-        if (isset($item->guid) === true) {
-            $guid = (string) $item->guid;
-        }
+        $title   = self::childText(node: $item, names: ['title']);
+        $summary = self::childText(node: $item, names: ['description']);
+        $link    = self::childText(node: $item, names: ['link']);
+        $pubDate = self::childText(node: $item, names: ['pubDate']);
+        $guid    = self::childText(node: $item, names: ['guid']);
 
         if ($guid === '') {
             $guid = sha1(string: $title.'|'.$pubDate.'|'.$sourceUrl);

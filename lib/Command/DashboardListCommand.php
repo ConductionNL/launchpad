@@ -127,6 +127,58 @@ class DashboardListCommand extends CommandBase
         $group  = $input->getOption(name: 'group');
         $status = $input->getOption(name: 'status');
 
+        $rejection = $this->validateFilters(
+            input: $input,
+            output: $output,
+            user: $user,
+            status: $status
+        );
+        if ($rejection !== null) {
+            return $rejection;
+        }
+
+        $dashboards = $this->collect(
+            user: $this->optionToString(value: $user),
+            group: $this->optionToString(value: $group),
+            status: $this->optionToString(value: $status)
+        );
+
+        $rows = $this->toRows(dashboards: $dashboards);
+
+        if ($this->isJson(input: $input) === true) {
+            $this->emitSuccess(
+                input: $input,
+                output: $output,
+                data: ['dashboards' => $rows, 'count' => count(value: $rows)]
+            );
+            return CommandService::EXIT_SUCCESS;
+        }
+
+        $this->writeTable(input: $input, output: $output, rows: $rows);
+
+        return CommandService::EXIT_SUCCESS;
+    }//end handle()
+
+    /**
+     * Validate the `--status` and `--user` filters.
+     *
+     * Returns the exit code of the emitted error envelope when a filter
+     * is rejected, or `null` when both filters are acceptable (including
+     * when they were not supplied at all).
+     *
+     * @param InputInterface  $input  CLI input.
+     * @param OutputInterface $output CLI output.
+     * @param mixed           $user   Raw `--user` option value.
+     * @param mixed           $status Raw `--status` option value.
+     *
+     * @return int|null The error exit code, or null when valid.
+     */
+    private function validateFilters(
+        InputInterface $input,
+        OutputInterface $output,
+        mixed $user,
+        mixed $status
+    ): ?int {
         if ($status !== null
             && in_array(needle: (string) $status, haystack: self::ALLOWED_STATUS, strict: true) === false
         ) {
@@ -151,28 +203,38 @@ class DashboardListCommand extends CommandBase
             );
         }
 
-        $userArg = null;
-        if ($user !== null) {
-            $userArg = (string) $user;
+        return null;
+    }//end validateFilters()
+
+    /**
+     * Normalise a raw console option to a nullable string.
+     *
+     * An unset option arrives as `null` and must stay `null` so the
+     * collector can tell "no filter" from "filter on the empty string".
+     *
+     * @param mixed $value The raw option value.
+     *
+     * @return string|null The cast value, or null when unset.
+     */
+    private function optionToString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
         }
 
-        $groupArg = null;
-        if ($group !== null) {
-            $groupArg = (string) $group;
-        }
+        return (string) $value;
+    }//end optionToString()
 
-        $statusArg = null;
-        if ($status !== null) {
-            $statusArg = (string) $status;
-        }
-
-        $dashboards = $this->collect(
-            user: $userArg,
-            group: $groupArg,
-            status: $statusArg
-        );
-
-        $rows = array_map(
+    /**
+     * Flatten dashboards into the row shape shared by both output modes.
+     *
+     * @param array<int, Dashboard> $dashboards The dashboards to flatten.
+     *
+     * @return list<array<string, string>> The rows.
+     */
+    private function toRows(array $dashboards): array
+    {
+        return array_map(
             callback: static function (Dashboard $dashboard): array {
                 return [
                     'uuid'              => (string) $dashboard->getUuid(),
@@ -185,40 +247,51 @@ class DashboardListCommand extends CommandBase
             },
             array: $dashboards
         );
+    }//end toRows()
 
-        if ($this->isJson(input: $input) === true) {
-            $this->emitSuccess(
-                input: $input,
-                output: $output,
-                data: ['dashboards' => $rows, 'count' => count(value: $rows)]
-            );
-            return CommandService::EXIT_SUCCESS;
+    /**
+     * Render the compact human-readable table.
+     *
+     * Writes nothing at all in quiet mode; writes the empty-result notice
+     * when no dashboard matched; otherwise writes a header plus one line
+     * per row.
+     *
+     * @param InputInterface              $input  CLI input.
+     * @param OutputInterface             $output CLI output.
+     * @param list<array<string, string>> $rows   The rows to render.
+     *
+     * @return void
+     */
+    private function writeTable(
+        InputInterface $input,
+        OutputInterface $output,
+        array $rows
+    ): void {
+        if ($this->isQuiet(input: $input) === true) {
+            return;
         }
 
-        if ($this->isQuiet(input: $input) === false && count(value: $rows) === 0) {
+        if (count(value: $rows) === 0) {
             $output->writeln(messages: 'No dashboards match the supplied filters.');
+            return;
         }
 
-        if ($this->isQuiet(input: $input) === false && count(value: $rows) > 0) {
+        $output->writeln(
+            messages: sprintf('%-36s  %-20s  %-14s  %-12s  %s', 'UUID', 'NAME', 'TYPE', 'STATUS', 'OWNER')
+        );
+        foreach ($rows as $row) {
             $output->writeln(
-                messages: sprintf('%-36s  %-20s  %-14s  %-12s  %s', 'UUID', 'NAME', 'TYPE', 'STATUS', 'OWNER')
+                messages: sprintf(
+                    '%-36s  %-20s  %-14s  %-12s  %s',
+                    $row['uuid'],
+                    mb_strimwidth(string: $row['name'], start: 0, width: 20, trim_marker: '..'),
+                    $row['type'],
+                    $row['publicationStatus'],
+                    $row['owner']
+                )
             );
-            foreach ($rows as $row) {
-                $output->writeln(
-                    messages: sprintf(
-                        '%-36s  %-20s  %-14s  %-12s  %s',
-                        $row['uuid'],
-                        mb_strimwidth(string: $row['name'], start: 0, width: 20, trim_marker: '..'),
-                        $row['type'],
-                        $row['publicationStatus'],
-                        $row['owner']
-                    )
-                );
-            }
         }
-
-        return CommandService::EXIT_SUCCESS;
-    }//end handle()
+    }//end writeTable()
 
     /**
      * Collect dashboards across all relevant scopes for the supplied
@@ -237,37 +310,7 @@ class DashboardListCommand extends CommandBase
         string|null $group,
         string|null $status
     ): array {
-        $dashboards = [];
-
-        if ($user !== null) {
-            foreach ($this->dashboardMapper->findByUserId(userId: $user) as $dashboard) {
-                $dashboards[] = $dashboard;
-            }
-        }
-
-        if ($user === null && $group !== null) {
-            foreach ($this->dashboardMapper->findByGroup(groupId: $group) as $dashboard) {
-                $dashboards[] = $dashboard;
-            }
-        }
-
-        if ($user === null && $group === null) {
-            foreach ($this->dashboardMapper->findAdminTemplates() as $dashboard) {
-                $dashboards[] = $dashboard;
-            }
-
-            foreach ($this->dashboardMapper->findByParent(parentUuid: null) as $root) {
-                $dashboards[] = $root;
-                $uuid         = (string) $root->getUuid();
-                if ($uuid === '') {
-                    continue;
-                }
-
-                foreach ($this->dashboardMapper->findDescendants(ancestorUuid: $uuid) as $child) {
-                    $dashboards[] = $child;
-                }
-            }
-        }
+        $dashboards = $this->collectScope(user: $user, group: $group);
 
         if ($status === null) {
             return $dashboards;
@@ -282,4 +325,62 @@ class DashboardListCommand extends CommandBase
             )
         );
     }//end collect()
+
+    /**
+     * Pick the mapper scope that matches the supplied filters.
+     *
+     * The three scopes are mutually exclusive and ordered by specificity:
+     * `--user` wins over `--group`, and with neither filter the whole
+     * instance-wide scope is walked.
+     *
+     * @param string|null $user  Optional user filter.
+     * @param string|null $group Optional group filter.
+     *
+     * @return list<Dashboard>
+     */
+    private function collectScope(string|null $user, string|null $group): array
+    {
+        if ($user !== null) {
+            return array_values(array: $this->dashboardMapper->findByUserId(userId: $user));
+        }
+
+        if ($group !== null) {
+            return array_values(array: $this->dashboardMapper->findByGroup(groupId: $group));
+        }
+
+        return $this->collectInstanceWide();
+    }//end collectScope()
+
+    /**
+     * Walk every dashboard visible instance-wide: the admin templates
+     * plus every root dashboard and its descendants.
+     *
+     * Roots without a UUID cannot be used as a descendant anchor, so
+     * they are emitted on their own and their (unreachable) subtree is
+     * skipped.
+     *
+     * @return list<Dashboard>
+     */
+    private function collectInstanceWide(): array
+    {
+        $dashboards = [];
+
+        foreach ($this->dashboardMapper->findAdminTemplates() as $dashboard) {
+            $dashboards[] = $dashboard;
+        }
+
+        foreach ($this->dashboardMapper->findByParent(parentUuid: null) as $root) {
+            $dashboards[] = $root;
+            $uuid         = (string) $root->getUuid();
+            if ($uuid === '') {
+                continue;
+            }
+
+            foreach ($this->dashboardMapper->findDescendants(ancestorUuid: $uuid) as $child) {
+                $dashboards[] = $child;
+            }
+        }
+
+        return $dashboards;
+    }//end collectInstanceWide()
 }//end class

@@ -47,110 +47,117 @@ class Version001001Date20260203000000 extends SimpleMigrationStep
         if ($schema->hasTable('launchpad_tiles') === false) {
             $table = $schema->createTable('launchpad_tiles');
 
-            $table->addColumn(
-                'id',
-                Types::BIGINT,
-                [
-                    'autoincrement' => true,
-                    'notnull'       => true,
-                    'unsigned'      => true,
-                ]
-            );
-            $table->addColumn(
-                'user_id',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 64,
-                ]
-            );
-            $table->addColumn(
-                'title',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 255,
-                ]
-            );
-            $table->addColumn(
-                'icon',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 2000,
-                    'comment' => 'Icon class, URL to icon image, or SVG path data.',
-                ]
-            );
-            $table->addColumn(
-                'icon_type',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 20,
-                    'default' => 'class',
-                    'comment' => 'Type of icon: class, url, or emoji.',
-                ]
-            );
-            $table->addColumn(
-                'background_color',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 7,
-                    'default' => '#0082c9',
-                    'comment' => 'Hex color code for tile background.',
-                ]
-            );
-            $table->addColumn(
-                'text_color',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 7,
-                    'default' => '#ffffff',
-                    'comment' => 'Hex color code for text.',
-                ]
-            );
-            $table->addColumn(
-                'link_type',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 20,
-                    'comment' => 'Type of link: app or url.',
-                ]
-            );
-            $table->addColumn(
-                'link_value',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 1000,
-                    'comment' => 'App ID or URL.',
-                ]
-            );
-            $table->addColumn(
-                'created_at',
-                Types::DATETIME,
-                [
-                    'notnull' => true,
-                ]
-            );
-            $table->addColumn(
-                'updated_at',
-                Types::DATETIME,
-                [
-                    'notnull' => true,
-                ]
-            );
+            foreach ($this->tileTableColumns() as $name => $spec) {
+                $table->addColumn($name, $spec['type'], $spec['options']);
+            }
 
             $table->setPrimaryKey(['id']);
             $table->addIndex(
                 ['user_id'],
                 'launchpad_tiles_user'
             );
-        }//end if
+        }
 
         return $schema;
     }//end changeSchema()
+
+    /**
+     * The column set of the `launchpad_tiles` table, keyed by column
+     * name.
+     *
+     * Declarative table extracted from {@see self::changeSchema()}.
+     * Array order is the physical column order of the created table.
+     *
+     * @return array<string, array{type: string, options: array<string, mixed>}> The column specs.
+     */
+    private function tileTableColumns(): array
+    {
+        return [
+            'id'               => [
+                'type'    => Types::BIGINT,
+                'options' => [
+                    'autoincrement' => true,
+                    'notnull'       => true,
+                    'unsigned'      => true,
+                ],
+            ],
+            'user_id'          => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 64,
+                ],
+            ],
+            'title'            => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 255,
+                ],
+            ],
+            'icon'             => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 2000,
+                    'comment' => 'Icon class, URL to icon image, or SVG path data.',
+                ],
+            ],
+            'icon_type'        => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 20,
+                    'default' => 'class',
+                    'comment' => 'Type of icon: class, url, or emoji.',
+                ],
+            ],
+            'background_color' => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 7,
+                    'default' => '#0082c9',
+                    'comment' => 'Hex color code for tile background.',
+                ],
+            ],
+            'text_color'       => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 7,
+                    'default' => '#ffffff',
+                    'comment' => 'Hex color code for text.',
+                ],
+            ],
+            'link_type'        => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 20,
+                    'comment' => 'Type of link: app or url.',
+                ],
+            ],
+            'link_value'       => [
+                'type'    => Types::STRING,
+                'options' => [
+                    'notnull' => true,
+                    'length'  => 1000,
+                    'comment' => 'App ID or URL.',
+                ],
+            ],
+            'created_at'       => [
+                'type'    => Types::DATETIME,
+                'options' => [
+                    'notnull' => true,
+                ],
+            ],
+            'updated_at'       => [
+                'type'    => Types::DATETIME,
+                'options' => [
+                    'notnull' => true,
+                ],
+            ],
+        ];
+    }//end tileTableColumns()
 }//end class

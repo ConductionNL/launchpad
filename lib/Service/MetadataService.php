@@ -420,6 +420,38 @@ class MetadataService
             return $dashboards;
         }
 
+        $resolved = $this->resolveFilterCriteria(metadataFilters: $metadataFilters);
+        if (count($resolved) === 0) {
+            return $dashboards;
+        }
+
+        $matchingByField = $this->collectMatchingUuidSets(resolved: $resolved);
+
+        // AND the per-filter sets together.
+        $intersection = self::intersectUuidSets(matchingByField: $matchingByField);
+
+        return self::selectDashboardsByUuid(
+            dashboards: $dashboards,
+            intersection: $intersection
+        );
+    }//end filterDashboards()
+
+    /**
+     * Resolve raw `metadata.<key>` filter keys to their field definitions.
+     *
+     * Keys that no longer correspond to a registered field are dropped
+     * rather than treated as "matches nothing", so a stale bookmarked URL
+     * never silently empties the list (REQ-MDFL-007).
+     *
+     * @param array<string, mixed> $metadataFilters The raw filter map.
+     *
+     * @return array<int, array{field: MetadataField, criterion: mixed}> The
+     *                                                                   resolved
+     *                                                                   filter
+     *                                                                   pairs.
+     */
+    private function resolveFilterCriteria(array $metadataFilters): array
+    {
         $resolved = [];
         foreach ($metadataFilters as $key => $criterion) {
             try {
@@ -431,10 +463,24 @@ class MetadataService
             $resolved[] = ['field' => $field, 'criterion' => $criterion];
         }
 
-        if (count($resolved) === 0) {
-            return $dashboards;
-        }
+        return $resolved;
+    }//end resolveFilterCriteria()
 
+    /**
+     * Build one dashboard-UUID set per resolved filter.
+     *
+     * Each set holds the UUIDs whose stored value satisfies that single
+     * filter; the caller intersects them to get the AND semantics.
+     *
+     * @param array<int, array{field: MetadataField, criterion: mixed}> $resolved The
+     *                                                                            resolved
+     *                                                                            filter
+     *                                                                            pairs.
+     *
+     * @return array<int, array<string, bool>> One UUID set per filter.
+     */
+    private function collectMatchingUuidSets(array $resolved): array
+    {
         $matchingByField = [];
         foreach ($resolved as $entry) {
             $field     = $entry['field'];
@@ -455,7 +501,21 @@ class MetadataService
             $matchingByField[] = $matching;
         }
 
-        // AND the per-filter sets together.
+        return $matchingByField;
+    }//end collectMatchingUuidSets()
+
+    /**
+     * Intersect the per-filter UUID sets into a single AND-ed set.
+     *
+     * @param array<int, array<string, bool>> $matchingByField One UUID set
+     *                                                         per filter
+     *                                                         (MUST be
+     *                                                         non-empty).
+     *
+     * @return array<string, bool> The UUIDs satisfying every filter.
+     */
+    private static function intersectUuidSets(array $matchingByField): array
+    {
         $intersection  = $matchingByField[0];
         $matchingCount = count($matchingByField);
         for ($i = 1; $i < $matchingCount; $i++) {
@@ -465,6 +525,24 @@ class MetadataService
             );
         }
 
+        return $intersection;
+    }//end intersectUuidSets()
+
+    /**
+     * Keep only the dashboards whose UUID survived the intersection.
+     *
+     * Dashboards with no resolvable UUID are dropped — they cannot be
+     * proven to satisfy the filter set.
+     *
+     * @param array<int, mixed>   $dashboards   The candidate dashboards.
+     * @param array<string, bool> $intersection The surviving UUID set.
+     *
+     * @return array<int, mixed> The filtered subset.
+     */
+    private static function selectDashboardsByUuid(
+        array $dashboards,
+        array $intersection
+    ): array {
         $filtered = [];
         foreach ($dashboards as $dashboard) {
             $uuid = self::extractUuid(dashboard: $dashboard);
@@ -478,7 +556,7 @@ class MetadataService
         }
 
         return $filtered;
-    }//end filterDashboards()
+    }//end selectDashboardsByUuid()
 
     /**
      * Pull a UUID off a dashboard entity OR a serialised array row.
@@ -739,21 +817,7 @@ class MetadataService
             || $type === MetadataField::TYPE_MULTI_SELECT);
 
         if ($isSelect === true) {
-            if ($options === null || count($options) === 0) {
-                throw new InvalidMetadataFieldException(
-                    message: 'Select type requires non-empty options array'
-                );
-            }
-
-            // Defensive runtime check: callers may pass non-string entries.
-            foreach ($options as $option) {
-                if (is_string($option) === false || $option === '') {
-                    throw new InvalidMetadataFieldException(
-                        message: 'Select options must be non-empty strings'
-                    );
-                }
-            }
-
+            self::assertSelectOptions(options: $options);
             return;
         }
 
@@ -763,4 +827,36 @@ class MetadataService
             );
         }
     }//end assertOptionsShape()
+
+    /**
+     * Validate the `options` array of a select / multi-select field.
+     *
+     * The list MUST be present, non-empty, and hold only non-empty
+     * strings — an entry-by-entry runtime check because callers can hand
+     * in an arbitrarily shaped decoded JSON array.
+     *
+     * @param array<int, mixed>|null $options The candidate options.
+     *
+     * @return void
+     *
+     * @throws InvalidMetadataFieldException When missing, empty, or holding
+     *                                       a non-string / empty entry.
+     */
+    private static function assertSelectOptions(?array $options): void
+    {
+        if ($options === null || count($options) === 0) {
+            throw new InvalidMetadataFieldException(
+                message: 'Select type requires non-empty options array'
+            );
+        }
+
+        // Defensive runtime check: callers may pass non-string entries.
+        foreach ($options as $option) {
+            if (is_string($option) === false || $option === '') {
+                throw new InvalidMetadataFieldException(
+                    message: 'Select options must be non-empty strings'
+                );
+            }
+        }
+    }//end assertSelectOptions()
 }//end class

@@ -911,7 +911,7 @@ class DashboardApiController extends Controller
         // M5: strip internal identity fields (userId, groupId, targetGroups)
         // from group-shared dashboard payloads returned to non-owner viewers.
         $viewerData = array_map(
-            static fn ($d) => $d->toViewerArray(),
+            static fn ($dashboard) => $dashboard->toViewerArray(),
             $dashboards
         );
 

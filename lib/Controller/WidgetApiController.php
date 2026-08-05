@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use DateTimeImmutable;
+use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
@@ -126,8 +127,8 @@ class WidgetApiController extends Controller
         $filtered = array_values(
             array: array_filter(
                 array: $widgets,
-                callback: function (array $w) use ($allowed): bool {
-                    $id = (string) ($w['id'] ?? '');
+                callback: function (array $widget) use ($allowed): bool {
+                    $id = (string) ($widget['id'] ?? '');
                     return $id !== ''
                         && in_array(
                             needle: $id,
@@ -190,7 +191,7 @@ class WidgetApiController extends Controller
                     context: [
                         'userId'    => $this->userId,
                         'widgetId'  => $widgetId,
-                        'timestamp' => (new \DateTimeImmutable())->format(format: \DateTimeInterface::ATOM),
+                        'timestamp' => (new DateTimeImmutable())->format(format: DateTimeInterface::ATOM),
                         'reason'    => 'role_permission_denied',
                         'app'       => Application::APP_ID,
                     ]
@@ -208,7 +209,7 @@ class WidgetApiController extends Controller
         $allowedWidgets = array_values(
             array: array_filter(
                 array: $widgets,
-                callback: fn($w) => in_array(needle: $w, haystack: $deniedWidgets, strict: true) === false
+                callback: fn($widgetId) => in_array(needle: $widgetId, haystack: $deniedWidgets, strict: true) === false
             )
         );
 

@@ -388,7 +388,7 @@ class AdminSettingsService
 
         if ($contentStorage !== null) {
             if (in_array(needle: $contentStorage, haystack: self::VALID_CONTENT_STORAGE_VALUES, strict: true) === false) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     message: "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
                 );
             }

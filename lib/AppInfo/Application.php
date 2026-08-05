@@ -19,6 +19,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\AppInfo;
 
 use OCA\LaunchPad\Activity\DebounceHelper;
+use OCA\LaunchPad\Controller\HealthController;
+use OCA\LaunchPad\Controller\MetricsController;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
@@ -226,10 +228,10 @@ class Application extends App implements IBootstrap
         // this leaf's runtime app id (`launchpad`) so the engine loads the right
         // manifest and emits the `launchpad_` prefix, exactly as before adoption.
         $context->registerService(
-            \OCA\LaunchPad\Controller\HealthController::class,
+            HealthController::class,
             // @psalm-suppress UnusedClosureParam,TooManyArguments
-            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
-                return new \OCA\LaunchPad\Controller\HealthController(
+            static function (\Psr\Container\ContainerInterface $c): HealthController {
+                return new HealthController(
                     appName: self::APP_ID,
                     request: $c->get(\OCP\IRequest::class),
                     manifestLoader: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
@@ -240,10 +242,10 @@ class Application extends App implements IBootstrap
 
         // Metrics controller (admin-only — it omits #[NoAdminRequired]).
         $context->registerService(
-            \OCA\LaunchPad\Controller\MetricsController::class,
+            MetricsController::class,
             // @psalm-suppress UnusedClosureParam,TooManyArguments
-            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
-                return new \OCA\LaunchPad\Controller\MetricsController(
+            static function (\Psr\Container\ContainerInterface $c): MetricsController {
+                return new MetricsController(
                     appName: self::APP_ID,
                     request: $c->get(\OCP\IRequest::class),
                     manifestLoader: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),

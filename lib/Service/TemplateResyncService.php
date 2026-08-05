@@ -58,9 +58,6 @@ use Throwable;
  *  the transaction boundary, the audit publisher, the notification
  *  manager, and the async job dispatcher for one cohesive re-sync
  *  operation — splitting further would fragment a single atomic concern.
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)   Public surface mirrors
- *  the three controller-facing entry points (resync/planResync/applyResync)
- *  plus the diff helpers the background job and tests both need directly.
  */
 class TemplateResyncService
 {

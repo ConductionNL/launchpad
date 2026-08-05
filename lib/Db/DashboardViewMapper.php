@@ -33,8 +33,6 @@ use OCP\IDBConnection;
  * Mapper for dashboard view-analytics aggregate rows.
  *
  * @extends QBMapper<DashboardView>
- *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class DashboardViewMapper extends QBMapper
 {

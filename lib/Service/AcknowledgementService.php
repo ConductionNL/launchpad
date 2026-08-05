@@ -42,11 +42,7 @@ use OCP\IGroupManager;
 /**
  * Service for mandatory-read acknowledgements and read receipts.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Spans the receipt mapper,
- *                                                  placement + dashboard
- *                                                  mappers, group manager and
- *                                                  the activity publisher.
- * @spec                                           openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+ * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 class AcknowledgementService
 {

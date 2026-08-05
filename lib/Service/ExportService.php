@@ -50,7 +50,12 @@ use ZipArchive;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *      Mirrors injected dependencies.
  * @SuppressWarnings(PHPMD.ErrorControlOperator)
- *      Best-effort temp-file cleanup tolerates concurrent removal.
+ *      The single remaining `@` guards `unlink()` in a shutdown handler that
+ *      deletes the streamed temp ZIP. `unlink()` raises E_WARNING on failure
+ *      whether or not its return value is inspected, so no explicit check can
+ *      replace the operator, and the preceding `file_exists()` test is
+ *      inherently racy — another request's cleanup may win. Cleanup is
+ *      best-effort by design, so the warning is noise.
  */
 class ExportService
 {
@@ -441,7 +446,11 @@ class ExportService
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
-        $size = @filesize(filename: $zipPath);
+        $size = false;
+        if (is_file(filename: $zipPath) === true) {
+            $size = filesize(filename: $zipPath);
+        }
+
         if ($size !== false) {
             $headers['Content-Length'] = (string) $size;
         }

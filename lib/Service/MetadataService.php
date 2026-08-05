@@ -40,12 +40,6 @@ use Psr\Log\LoggerInterface;
 /**
  * Coordinator for the dashboard-metadata-fields capability.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Orchestrates two
- *  mappers + the validation service + the logger; this is the
- *  single facade for the capability.
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)     The full CRUD +
- *  read/write/filter surface is intentionally co-located here so
- *  controllers stay thin.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Per-type
  *  filter dispatch + multi-shape patch handling drive complexity;
  *  splitting would scatter the capability's invariants across

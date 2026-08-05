@@ -40,10 +40,7 @@ use OCP\IDBConnection;
 /**
  * Service that owns the dashboard tree contract.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Single source of truth
- *  for cycle/depth/slug/cascade — splitting risks divergent rules between
- *  the create and update paths.
- * @spec                                           openspec/specs/dashboard-switcher/spec.md
+ * @spec openspec/specs/dashboard-switcher/spec.md
  */
 class DashboardTreeService
 {

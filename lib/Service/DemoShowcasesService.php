@@ -700,6 +700,10 @@ class DemoShowcasesService
      *      Field-by-field guards mirror the export-import format and
      *      are clearer than a map-driven setter.
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *      Consequence of the same field-by-field guards: each optional
+     *      payload key contributes an independent present/absent branch, so
+     *      the acyclic-path count multiplies across fields even though the
+     *      method is a flat sequence with no nesting.
      */
     private function buildPlacement(
         int $dashboardId,

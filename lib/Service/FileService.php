@@ -46,12 +46,7 @@ use Throwable;
  * Strictly-validated file-creation pipeline for the link-button-widget
  * `createFile` action.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Filesystem + URL
- *                                                 generation + admin
- *                                                 settings are all
- *                                                 unavoidable for this
- *                                                 capability.
- * @spec                                           openspec/specs/resource-uploads/spec.md
+ * @spec openspec/specs/resource-uploads/spec.md
  */
 class FileService
 {

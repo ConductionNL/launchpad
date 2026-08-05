@@ -39,8 +39,6 @@ use Throwable;
 
 /**
  * Thin Activity emission service for LaunchPad.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors NC Activity surface.
  */
 class ActivityPublisher
 {

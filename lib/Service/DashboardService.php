@@ -57,7 +57,15 @@ use Throwable;
 /**
  * Service for managing dashboards.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Constructor wiring for the
+ *                                                  three dashboard scopes at
+ *                                                  once: mappers, permission
+ *                                                  and share services, the
+ *                                                  factory, plus the NC
+ *                                                  collaborators the CRUD path
+ *                                                  needs (user manager, L10N
+ *                                                  factory, locking provider,
+ *                                                  logger).
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)     Personal + group-shared + visible-to-user CRUD lives here intentionally.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Same; splitting risks losing the single-source-of-truth behaviour.
  * @SuppressWarnings(PHPMD.ExcessiveParameterList)   The constructor wires every dependency the three scopes need.

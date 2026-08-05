@@ -230,19 +230,17 @@ class PublicShareMapper extends QBMapper
      * Uses the distributed cache (APCu/Redis) for atomic TTL-based deduplication.
      * Falls back to always-increment when no cache backend is available.
      *
-     * @param int    $id    The share primary key.
-     * @param string $token The share token (used as part of the cache key).
-     * @param string $ip    The client IP address.
+     * @param int    $id        The share primary key.
+     * @param string $token     The share token (used as part of the cache key).
+     * @param string $ipAddress The client IP address.
      *
      * @return void
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      */
-    public function incrementViewCount(int $id, string $token, string $ip): void
+    public function incrementViewCount(int $id, string $token, string $ipAddress): void
     {
-        $cacheKey = $token.'_'.md5(string: $ip);
+        $cacheKey = $token.'_'.md5(string: $ipAddress);
 
         if ($this->cache->hasKey(key: $cacheKey) === true) {
             // Already counted in this 60-second window for this (token, IP).

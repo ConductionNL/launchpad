@@ -43,7 +43,13 @@ use ZipArchive;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *      Validation + remap + transactional restore is intentionally cohesive.
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ *      An importer must reject every malformed archive shape it can be
+ *      handed. The branches are per-field validation guards over untrusted
+ *      ZIP input, each a flat early return, so the count reflects the number
+ *      of things checked rather than nested control flow.
  * @SuppressWarnings(PHPMD.NPathComplexity)
+ *      Same guards seen multiplicatively: independent optional fields
+ *      combine into many acyclic paths without adding nesting depth.
  */
 class ImportService
 {

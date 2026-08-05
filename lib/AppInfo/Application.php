@@ -343,6 +343,10 @@ class Application extends App implements IBootstrap
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *      `IBootstrap::boot()` mandates the `IBootContext $context`
+     *      parameter. This boot step only installs a process-level libxml
+     *      entity loader, which needs nothing from the context, but the
+     *      parameter cannot be dropped without breaking the interface.
      */
     public function boot(IBootContext $context): void
     {

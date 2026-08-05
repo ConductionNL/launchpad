@@ -38,9 +38,6 @@ namespace OCA\LaunchPad\Service\Confluence;
  * @SuppressWarnings(PHPMD.UndefinedVariable)
  *      `preg_match` populates its by-ref `$matches` argument; PHPMD's
  *      flow analysis does not follow PHP by-reference semantics.
- * @SuppressWarnings(PHPMD.ShortVariable)
- *      Local variables `$m` / `$rb` are scoped to the closure-only
- *      regex callback; expanding them would harm readability.
  */
 class MacroRenderer
 {
@@ -94,18 +91,18 @@ class MacroRenderer
         $pattern  = '/<ac:image\b[^>]*>(.*?)<\/ac:image>/is';
         $callback = static function (array $match): string {
             $body = (string) ($match[1] ?? '');
-            if (preg_match(pattern: '/ri:filename\s*=\s*"([^"]+)"/i', subject: $body, matches: $m) === 1) {
+            if (preg_match(pattern: '/ri:filename\s*=\s*"([^"]+)"/i', subject: $body, matches: $matches) === 1) {
                 $name = htmlspecialchars(
-                    string: $m[1],
+                    string: $matches[1],
                     flags: (ENT_QUOTES | ENT_SUBSTITUTE),
                     encoding: 'UTF-8'
                 );
                 return '<img src="'.$name.'" alt="'.$name.'">';
             }
 
-            if (preg_match(pattern: '/ri:value\s*=\s*"([^"]+)"/i', subject: $body, matches: $m) === 1) {
+            if (preg_match(pattern: '/ri:value\s*=\s*"([^"]+)"/i', subject: $body, matches: $matches) === 1) {
                 $url = htmlspecialchars(
-                    string: $m[1],
+                    string: $matches[1],
                     flags: (ENT_QUOTES | ENT_SUBSTITUTE),
                     encoding: 'UTF-8'
                 );
@@ -208,10 +205,10 @@ class MacroRenderer
             if (preg_match(
                 pattern: '/<ac:rich-text-body>(.*?)<\/ac:rich-text-body>/is',
                 subject: $body,
-                matches: $rb
+                matches: $rawBody
             ) === 1
             ) {
-                $rich = (string) $rb[1];
+                $rich = (string) $rawBody[1];
             }
 
             return '<div class="confluence-panel-'.$type.'">'.$rich.'</div>';
@@ -259,10 +256,10 @@ class MacroRenderer
             if (preg_match(
                 pattern: '/<ac:rich-text-body>(.*?)<\/ac:rich-text-body>/is',
                 subject: $inner,
-                matches: $rb
+                matches: $rawBody
             ) === 1
             ) {
-                $body = (string) $rb[1];
+                $body = (string) $rawBody[1];
             }
 
             return '<details><summary>'.$title.'</summary>'.$body.'</details>';

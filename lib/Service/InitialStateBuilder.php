@@ -65,9 +65,6 @@ use OCP\AppFramework\Services\IInitialState;
 
 /**
  * Typed builder for the per-page initial-state payload (REQ-INIT-001, REQ-INIT-002).
- *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods) Twelve typed setters mirror the contract.
- * @SuppressWarnings(PHPMD.TooManyMethods)       Same.
  */
 class InitialStateBuilder
 {

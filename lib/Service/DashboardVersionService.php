@@ -60,10 +60,6 @@ use Throwable;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Strategy entry point
  *  for both DB and (future) groupfolder backends naturally pulls in the
  *  three mappers + cache + logger + group manager.
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)   The four CRUD-ish
- *  endpoints (list/fetch/create/restore) plus the cascade hook live
- *  here intentionally — splitting risks losing the single-point
- *  permission guard.
  * @spec                                           openspec/specs/dashboard-versioning/spec.md
  */
 class DashboardVersionService

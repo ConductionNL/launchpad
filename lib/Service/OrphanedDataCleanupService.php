@@ -51,16 +51,6 @@ use Throwable;
 
 /**
  * Orchestrates scan + purge across all registered cleanup categories.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The orchestrator
- *                                                  legitimately
- *                                                  composes the
- *                                                  registry, cache,
- *                                                  DB transaction,
- *                                                  activity and
- *                                                  logger
- *                                                  collaborators in
- *                                                  one place.
  */
 class OrphanedDataCleanupService
 {

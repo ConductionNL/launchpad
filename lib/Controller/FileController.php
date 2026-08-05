@@ -47,8 +47,6 @@ use Throwable;
 
 /**
  * Controller for the link-button-widget createFile flow.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class FileController extends Controller
 {

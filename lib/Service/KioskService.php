@@ -46,8 +46,6 @@ use Psr\Log\LoggerInterface;
 /**
  * Service for kiosk-playlist lifecycle management and public render.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
  */
 class KioskService

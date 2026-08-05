@@ -34,10 +34,7 @@ use Throwable;
 /**
  * One-off async apply for a large-target-group template re-sync.
  *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument's shape is
- *  validated inline; the parent QueuedJob interface requires the
- *  parameter regardless.
- * @spec                                          openspec/specs/admin-templates/spec.md#requirement-req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
+ * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-005-re-sync-is-idempotent-audited-async-capable-and-notifies-users
  */
 class TemplateResyncJob extends QueuedJob
 {

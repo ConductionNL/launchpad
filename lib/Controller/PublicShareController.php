@@ -48,6 +48,11 @@ use Psr\Log\LoggerInterface;
  * Controller for public-share CRUD and anonymous render endpoints.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Constructor wiring only: IRequest, PublicShareService,
+ *      PublicShareContext, a logger and the session user id. The rest of the
+ *      count is the framework surface an anonymous, brute-force-protected
+ *      endpoint must name — DataResponse, OCSForbiddenException,
+ *      MaxDelayReached and the PublicPage / NoCSRFRequired attributes.
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
  */
@@ -242,8 +247,6 @@ class PublicShareController extends Controller
      * @return DataResponse HTTP 200 dashboard payload, 401 if password required, 404 if invalid.
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -251,7 +254,7 @@ class PublicShareController extends Controller
     #[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
     public function show(string $token, ?string $password=null): DataResponse
     {
-        $ip = $this->request->getRemoteAddress();
+        $ipAddress = $this->request->getRemoteAddress();
 
         // Accept password from X-Share-Password header if not in query.
         if ($password === null || $password === '') {
@@ -264,7 +267,7 @@ class PublicShareController extends Controller
         try {
             $result = $this->shareService->renderShareContent(
                 token: $token,
-                ip: $ip,
+                ipAddress: $ipAddress,
                 password: $password
             );
 
@@ -316,8 +319,6 @@ class PublicShareController extends Controller
      * @return DataResponse HTTP 200 with {access: bool}, 429 when throttled, 404 when share invalid.
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     #[PublicPage]
     #[NoCSRFRequired]
@@ -325,7 +326,7 @@ class PublicShareController extends Controller
     #[BruteForceProtection(action: PublicShareService::ACTION_SHARE_PASSWORD)]
     public function unlock(string $token, ?string $password=null): DataResponse
     {
-        $ip = $this->request->getRemoteAddress();
+        $ipAddress = $this->request->getRemoteAddress();
 
         if ($password === null || $password === '') {
             return new DataResponse(
@@ -338,7 +339,7 @@ class PublicShareController extends Controller
             $isSuccess = $this->shareService->unlockShare(
                 token: $token,
                 password: $password,
-                ip: $ip
+                ipAddress: $ipAddress
             );
             $status    = Http::STATUS_UNAUTHORIZED;
             if ($isSuccess === true) {

@@ -54,8 +54,6 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Migrate existing launchpad dashboard rows into OpenRegister objects.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Version002000Date20260519000000 extends SimpleMigrationStep
 {

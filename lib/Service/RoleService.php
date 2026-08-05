@@ -46,11 +46,6 @@ use OCP\IUserManager;
 
 /**
  * Role assignment service (REQ-ROLE-001..011).
- *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods) Validation, resolution,
- *                                                CRUD and cascade methods
- *                                                belong on a single
- *                                                cohesive role service.
  */
 class RoleService
 {

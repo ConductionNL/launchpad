@@ -50,8 +50,22 @@ use Psr\Log\LoggerInterface;
 /**
  * Controller for dashboard API endpoints.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)     Each public method is one
+ *                                                  routed endpoint in
+ *                                                  appinfo/routes.php — CRUD,
+ *                                                  tree/path, group, default
+ *                                                  and publication actions.
+ *                                                  The count is set by the
+ *                                                  route table, not by logic
+ *                                                  that could be extracted.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Class complexity is the
+ *                                                  sum over those endpoints;
+ *                                                  each one is individually
+ *                                                  shallow (decode, authorize,
+ *                                                  delegate to a service, map
+ *                                                  exceptions to a status
+ *                                                  code). No single method
+ *                                                  carries the weight.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   The dashboard API
  *                                                  legitimately spans
  *                                                  multiple persistence

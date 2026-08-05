@@ -53,6 +53,11 @@ use Throwable;
  * Resource upload + serving controller.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Constructor wiring only: IRequest, ResourceService,
+ *      ResourceUploadRequestParser, IUserSession, IGroupManager and a logger.
+ *      Upload validation is already delegated to the parser and the service;
+ *      what remains is the admin-guard and response surface
+ *      (AuthorizedAdminSetting, JSONResponse, Http, Throwable).
  * @spec                                           openspec/specs/resource-uploads/spec.md
  */
 class ResourceController extends Controller

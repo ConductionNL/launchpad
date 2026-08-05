@@ -38,6 +38,11 @@ use ZipArchive;
  *      Per-stage parsing kept in one class so the importer has a single
  *      collaborator with a flat surface (`parse()` returns everything).
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ *      Branch count comes from tolerating the variation between Confluence
+ *      export generations — XHTML vs HTML4 vs Storage Format, differing
+ *      entry layouts inside the ZIP, and optional metadata. Each branch is a
+ *      flat fallback for one export shape, so the count tracks the number of
+ *      formats accepted rather than any nesting depth.
  * @SuppressWarnings(PHPMD.UndefinedVariable)
  *      `preg_match` populates its by-ref `$matches` argument; PHPMD's
  *      flow analysis does not follow PHP by-reference semantics.

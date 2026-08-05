@@ -35,8 +35,6 @@ use OCP\Migration\SimpleMigrationStep;
 
 /**
  * Migration creating the dashboard_shares table and an optional orphan cleanup.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Version001006Date20260430130000 extends SimpleMigrationStep
 {

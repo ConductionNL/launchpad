@@ -44,6 +44,10 @@ use Psr\Log\LoggerInterface;
  * against the v2 schema.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Constructor wiring only: IRequest, a PSR-11 container, ActionAuthService,
+ *      IUserSession, a logger and the session user id. The container is injected
+ *      rather than the individual manifest contributors precisely to keep this
+ *      count from growing as sections are added.
  */
 class ManifestController extends Controller
 {

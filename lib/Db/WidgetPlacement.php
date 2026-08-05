@@ -26,6 +26,11 @@ use stdClass;
  * Widget placement entity for dashboard grid positioning.
  *
  * @SuppressWarnings(PHPMD.TooManyFields)
+ *      A Nextcloud `Entity` declares one protected property per database
+ *      column, so the field count is fixed by the `launchpad_widget_placements`
+ *      schema (31 columns: grid geometry, per-breakpoint overrides, style and
+ *      content JSON, and the conditional-visibility keys). Grouping them into
+ *      value objects would break `Entity`'s column-to-property mapping.
  *
  * @method int getDashboardId()
  * @method void setDashboardId(int $dashboardId)

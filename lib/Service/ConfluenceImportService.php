@@ -50,7 +50,6 @@ use Throwable;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *      Top-level orchestrator must collaborate with parser, sanitiser,
  *      macro renderer, link rewriter, factory, and two mappers.
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ConfluenceImportService
 {
@@ -250,6 +249,10 @@ class ConfluenceImportService
      *      cycle detection — splitting into helpers would require
      *      passing the per-pass closure state across method boundaries.
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *      Same two-pass ordering: the acyclic-path count is the product of
+     *      the independent per-page checks (known parent, self-reference,
+     *      already-resolved, cycle break), which multiply even though the
+     *      passes themselves stay flat.
      */
     private function orderParentsBeforeChildren(array $pages): array
     {

@@ -47,7 +47,6 @@ class Version001004Date20260601000000 extends SimpleMigrationStep
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-1
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function changeSchema(

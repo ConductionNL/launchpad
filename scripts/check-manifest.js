@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Manifest validator — wired into `npm run check:manifest` per ADR-024
  * Tier 1 adoption. Validates src/manifest.json against the basic shape

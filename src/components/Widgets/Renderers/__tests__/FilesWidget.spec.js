@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `FilesWidget.vue` covering REQ-FLS-003
  * (folder listing fetch + render), REQ-FLS-004 (no_access state),

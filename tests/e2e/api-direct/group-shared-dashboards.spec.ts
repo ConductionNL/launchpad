@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * API-direct HTTP-contract tests for multi-scope-dashboards
  * (REQ-DASH-011..014). Every assertion is on a raw /api response, so per

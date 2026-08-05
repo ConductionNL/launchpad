@@ -2,6 +2,7 @@
 	"name": "launchpad",
 	"version": "1.0.0",
 	"description": "Enhanced dashboard with grid layout and admin controls for Nextcloud",
+	"license": "EUPL-1.2",
 	"main": "src/main.js",
 	"engines": {
 		"node": "^20.0.0",
@@ -28,7 +29,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "3.0.0-vue3.6",
+		"@conduction/nextcloud-vue": "2.2.0-vue3.3",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^7.4.1",

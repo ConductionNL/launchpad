@@ -5,7 +5,7 @@
 
 **Product:** LaunchPad
 **Categorie:** Dashboard & informatievoorziening
-**Licentie:** AGPL (vrije open source)
+**Licentie:** EUPL-1.2 (vrije open source)
 **Leverancier:** Conduction B.V.
 **Platform:** Nextcloud (self-hosted / on-premise / cloud)
 
@@ -57,7 +57,7 @@
 | # | Eis | Status | Toelichting |
 |---|-----|--------|-------------|
 | T-01 | On-premise / self-hosted | Beschikbaar | Nextcloud-app |
-| T-02 | Open source | Beschikbaar | AGPL, GitHub |
+| T-02 | Open source | Beschikbaar | EUPL-1.2, GitHub |
 | T-03 | PHP 8.1+ | Beschikbaar | Moderne PHP |
 | T-04 | Nextcloud 28-33 compatibel | Beschikbaar | Brede versie-ondersteuning |
 | T-05 | Geen externe dependencies | Beschikbaar | Alleen Nextcloud vereist |

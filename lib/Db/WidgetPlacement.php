@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
+use stdClass;
 
 /**
  * Widget placement entity for dashboard grid positioning.
@@ -522,12 +523,12 @@ class WidgetPlacement extends Entity implements JsonSerializable
         $styleConfig = $this->getStyleConfigArray();
         $content     = $this->getContentArray();
 
-        $styleConfigOut = new \stdClass();
+        $styleConfigOut = new stdClass();
         if (empty($styleConfig) === false) {
             $styleConfigOut = $styleConfig;
         }
 
-        $contentOut = new \stdClass();
+        $contentOut = new stdClass();
         if (empty($content) === false) {
             $contentOut = $content;
         }

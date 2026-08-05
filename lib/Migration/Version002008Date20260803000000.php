@@ -68,10 +68,6 @@ use Throwable;
 
 /**
  * Shorten the two over-long identifiers that blocked fresh installs.
- *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter) `changeSchema()` and
- *  `postSchemaChange()` override {@see SimpleMigrationStep}; Nextcloud fixes the
- *  signatures, so the unused `$options` parameter cannot be dropped.
  */
 class Version002008Date20260803000000 extends SimpleMigrationStep
 {

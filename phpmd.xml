@@ -80,5 +80,16 @@
     <rule ref="rulesets/unusedcode.xml/UnusedPrivateField"/>
     <rule ref="rulesets/unusedcode.xml/UnusedLocalVariable"/>
     <rule ref="rulesets/unusedcode.xml/UnusedPrivateMethod"/>
-    <rule ref="rulesets/unusedcode.xml/UnusedFormalParameter"/>
+    <!-- UnusedFormalParameter lives in phpmd-unusedparams.xml, NOT here.
+
+         It needs a lib/Migration exclusion (OCP\Migration\IMigrationStep mandates
+         changeSchema(IOutput, Closure, array) and pre/postSchemaChange with the same
+         three parameters; a step that uses none of them still cannot drop them).
+         PHPMD honours <exclude-pattern> only as a DIRECT CHILD of <ruleset> - nested
+         inside a <rule> it is parsed and discarded - and a direct child is applied by
+         PDepend at file-collection time, dropping the file from EVERY rule in the
+         ruleset. Putting the exclusion here would therefore also hide the 32 real
+         non-UnusedFormalParameter findings that lib/Migration currently carries.
+         Hence the separate ruleset + second composer leg. See ConductionNL/.github#155
+         and ConductionNL/launchpad#48. -->
 </ruleset>

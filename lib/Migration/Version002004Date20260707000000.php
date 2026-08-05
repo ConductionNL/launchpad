@@ -54,8 +54,7 @@ class Version002004Date20260707000000 extends SimpleMigrationStep
      *
      * @return ISchemaWrapper|null The modified schema or null.
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @spec                                          openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
      */
     public function changeSchema(
         IOutput $output,

@@ -49,7 +49,6 @@ class Version002002Date20260614000000 extends SimpleMigrationStep
      *
      * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-1
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function changeSchema(

@@ -48,7 +48,7 @@
 #         LAUNCHPAD_DEPLOY_CONTAINER=other-e2e bash tools/deploy-to-launchpad.sh
 #
 # SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: EUPL-1.2
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

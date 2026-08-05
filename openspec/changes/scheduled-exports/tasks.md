@@ -62,7 +62,7 @@
 
 - [ ] Task 31: Composer checks: `composer check:strict`, `composer check:lint` — no errors
 - [ ] Task 32: ESLint + Stylelint on all `.vue` and `.js` files — green
-- [ ] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license AGPL-3.0-or-later`, `@copyright ...`)
+- [ ] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license EUPL-1.2`, `@copyright ...`)
 - [ ] Task 34: Hydra gates green: `hydra-gate-spdx`, `hydra-gate-modal-isolation` (export modals live in `src/modals/`, not inlined), `hydra-gate-route-auth` (all routes have permission checks)
 - [ ] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
 - [ ] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions

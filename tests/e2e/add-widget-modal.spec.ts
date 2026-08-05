@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end tests for AddWidgetModal close-discipline and
  * stale-state scenarios. Covers REQ-WDG-013 (close triggers) and the

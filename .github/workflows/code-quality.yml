@@ -176,8 +176,25 @@ jobs:
       #    The old pin was not merely stale, it was failing this repo's CI for
       #    a reason that had nothing to do with this repo.
       #
-      # v1.3.0 is `f7eaf2a` = .github@main, tagged so the ref stays
-      # reproducible and a later gate change cannot move this repo's verdict
-      # without a commit here.
+      # 3. DEAD AGAIN, same mechanism, third time (2026-08-06). The pin was
+      #    the defect, not its value. quality.yml floats `@main` and executes
+      #    gate scripts BY PATH inside the pinned package, so every new gate
+      #    added at @main is a path that v1.3.0 does not contain:
+      #
+      #      hydra-gates-ref 'v1.3.0' does not contain:
+      #        scripts/axe-run.cjs
+      #        scripts/lib/check_spec_anchors.py
+      #        scripts/lib/check_form_labels.py
+      #        scripts/lib/check_license_triangle.py
+      #
+      #    The job failed for a reason that, again, had nothing to do with
+      #    this repo — CI itself says so: "This is NOT a code-quality finding
+      #    about your repository." Bumping the pin to today's tag would only
+      #    reset the same expiry clock a fourth time.
+      #
+      # So: the pin is REMOVED, not bumped. The shared workflow defaults this
+      # input to `main` and states "CALLERS SHOULD NOT SET THIS AT ALL"; the
+      # rest of the fleet sets nothing (scholiq notes the omission is
+      # deliberate). Floating both halves keeps caller and callee in step,
+      # which is the only configuration in which a pinned path cannot expire.
       enable-hydra-gates: true
-      hydra-gates-ref: v1.3.0

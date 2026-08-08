@@ -80,7 +80,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	     dependency here. -->
 	<dependencies>
 		<php min-version="8.3"/>
-		<nextcloud min-version="29" max-version="34"/>
+		<nextcloud min-version="32" max-version="34"/>
 	</dependencies>
 
 	<!-- Surface dashboards, widget content, and metadata in NC unified search. REQ-SRCH-001. -->

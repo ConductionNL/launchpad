@@ -54,12 +54,34 @@ export default defineConfig({
 	fullyParallel: false,
 	workers: 1,
 	retries: 0,
+	// Stop the run on our own clock, before CI kills it. The shared
+	// ConductionNL quality workflow caps this job at `timeout-minutes: 45`, and
+	// a job cancelled by that cap produces NO verdict: Playwright never prints
+	// its tally, the `if: failure()` trace upload never fires, and the
+	// `if: always()` report upload does not run on a cancelled job either. The
+	// run you most need to read is the one that leaves nothing behind — and it
+	// still renders as "fail" in `gh pr checks` while carrying no information.
+	// Measured overhead before `Run Playwright tests` starts in that job is
+	// 2.0-2.4 min and the uploads after it take seconds, so 38m keeps ~7 min of
+	// margin while guaranteeing a tally and its artifacts.
+	globalTimeout: 38 * 60_000,
 	reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
 	globalSetup: path.resolve(__dirname, 'tests/e2e/global-setup.ts'),
 	use: {
 		baseURL,
 		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
-		trace: 'on-first-retry',
+		// `on-first-retry` writes a trace only when a retry actually happens,
+		// which makes it a function of `retries` — and `retries` is 0 above,
+		// unconditionally. There is no first retry to trigger on, so this suite
+		// has written ZERO traces for its entire history while the config read
+		// as though tracing were on. Note that `video` immediately below was
+		// already `retain-on-failure`: the two settings covering the same
+		// failure disagreed, and the trace half was the dead one.
+		//
+		// `retain-on-failure` captures every test and keeps only the failures.
+		// It is strictly more informative and does not depend on the retry
+		// count, so it cannot be silently disabled from elsewhere in the file.
+		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
 		actionTimeout: 10_000,

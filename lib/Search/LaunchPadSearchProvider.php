@@ -168,6 +168,11 @@ class LaunchPadSearchProvider implements IProvider
      *  drives the branch count; splitting would scatter the result-entry
      *  shape across helpers for no readability gain.
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *      Same match-tier dispatch as above: the acyclic-path count is the
+     *      product of the independent guard clauses (empty term, per-tier
+     *      hit/miss, result cap), not of nested logic. Each branch is a flat
+     *      early return, so the paths multiply without the method getting
+     *      harder to follow.
      */
     public function search(IUser $user, ISearchQuery $query): SearchResult
     {

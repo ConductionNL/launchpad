@@ -44,9 +44,6 @@ use OCP\IConfig;
 
 /**
  * Reporting service for the dashboard view-analytics capability.
- *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class AnalyticsService
 {

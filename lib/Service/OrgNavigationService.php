@@ -42,9 +42,6 @@ use Throwable;
 /**
  * Org-wide navigation tree service.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   IAppData + group
- *                                                 resolver are both
- *                                                 unavoidable here.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Validation +
  *                                                 filtering + persistence
  *                                                 share one bounded class

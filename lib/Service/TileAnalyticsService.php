@@ -56,13 +56,11 @@ use OCP\AppFramework\Db\DoesNotExistException;
 /**
  * Reporting service for the tile usage-analytics capability.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.StaticAccess)           Calls only pure, stateless helpers —
+ * @SuppressWarnings(PHPMD.StaticAccess) Calls only pure, stateless helpers —
  *  {@see AnalyticsService::periodToDateRange()} and
  *  {@see UniqueViewerDedup::utcDateFor()}. Both are dependency-free functions
  *  declared `public static`; injecting their owning classes purely to reach
- *  them would add two collaborators that are never otherwise used here and
- *  push this class further over the CouplingBetweenObjects threshold.
+ *  them would add two collaborators that are never otherwise used here.
  */
 class TileAnalyticsService
 {

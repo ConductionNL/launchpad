@@ -157,7 +157,7 @@ class PublicShareMapperTest extends TestCase
 
         $this->db->method('getQueryBuilder')->willReturn($qb);
 
-        $this->mapper->incrementViewCount(id: 1, token: 'tok', ip: '127.0.0.1');
+        $this->mapper->incrementViewCount(id: 1, token: 'tok', ipAddress: '127.0.0.1');
         // If we get here without exception the debounce path works correctly.
         $this->assertTrue(true);
     }
@@ -190,7 +190,7 @@ class PublicShareMapperTest extends TestCase
 
         $this->db->method('getQueryBuilder')->willReturn($qb);
 
-        $this->mapper->incrementViewCount(id: 1, token: 'tok', ip: '10.0.0.1');
+        $this->mapper->incrementViewCount(id: 1, token: 'tok', ipAddress: '10.0.0.1');
         $this->assertTrue(true);
     }
 }//end class

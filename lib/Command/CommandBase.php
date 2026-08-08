@@ -337,6 +337,10 @@ abstract class CommandBase extends Command
      * @return string
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     *      The audit line must record options in the order the operator
+     *      typed them (REQ-CLI-010). Symfony's `InputInterface` exposes only
+     *      the parsed, normalised token set — it has no accessor for the
+     *      original argv slice — so `$_SERVER['argv']` is the only source.
      */
     private function collectArgsForAudit(InputInterface $input): string
     {

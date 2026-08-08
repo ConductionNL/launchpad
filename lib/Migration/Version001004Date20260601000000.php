@@ -48,6 +48,11 @@ class Version001004Date20260601000000 extends SimpleMigrationStep
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-1
      *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *      Length is a straight-line `createTable` for
+     *      `launchpad_public_shares` plus ten `addColumn` calls, each spanning
+     *      several lines of column options. There is no branching to extract;
+     *      splitting the table definition across helpers would only make the
+     *      resulting schema harder to read against the migration it documents.
      */
     public function changeSchema(
         IOutput $output,

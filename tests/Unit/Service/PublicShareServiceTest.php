@@ -192,7 +192,7 @@ class PublicShareServiceTest extends TestCase
 
         $this->expectException(ShareNotFoundException::class);
 
-        $this->service->renderShareContent(token: 'invalid', ip: '127.0.0.1');
+        $this->service->renderShareContent(token: 'invalid', ipAddress: '127.0.0.1');
     }
 
     public function testRenderRevokedShareThrowsNotFound(): void
@@ -205,7 +205,7 @@ class PublicShareServiceTest extends TestCase
 
         $this->expectException(ShareNotFoundException::class);
 
-        $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
+        $this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
     }
 
     public function testRenderExpiredShareThrowsNotFound(): void
@@ -220,7 +220,7 @@ class PublicShareServiceTest extends TestCase
 
         $this->expectException(ShareNotFoundException::class);
 
-        $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
+        $this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
     }
 
     public function testRenderPasswordProtectedWithoutPasswordThrowsRequired(): void
@@ -236,7 +236,7 @@ class PublicShareServiceTest extends TestCase
 
         $this->expectException(SharePasswordRequiredException::class);
 
-        $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
+        $this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
     }
 
     public function testRenderValidTokenWithoutPasswordSucceeds(): void
@@ -256,7 +256,7 @@ class PublicShareServiceTest extends TestCase
         $this->dashMapper->method('findByUuid')->willReturn($dashboard);
         $this->placementMapper->method('findByDashboardId')->willReturn([]);
 
-        $result = $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
+        $result = $this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
 
         $this->assertArrayHasKey('share', $result);
         $this->assertArrayHasKey('dashboard', $result);
@@ -281,7 +281,7 @@ class PublicShareServiceTest extends TestCase
         $result = $this->service->unlockShare(
             token: 'tok',
             password: 'SecurePass123!',
-            ip: '127.0.0.1'
+            ipAddress: '127.0.0.1'
         );
 
         $this->assertTrue($result);
@@ -306,7 +306,7 @@ class PublicShareServiceTest extends TestCase
         $result = $this->service->unlockShare(
             token: 'tok',
             password: 'WrongPassword',
-            ip: '127.0.0.1'
+            ipAddress: '127.0.0.1'
         );
 
         $this->assertFalse($result);

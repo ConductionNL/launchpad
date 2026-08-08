@@ -47,7 +47,6 @@ use Throwable;
  *                                                 events, tiles, and
  *                                                 generic widget CRUD
  *                                                 share this controller.
- * @SuppressWarnings(PHPMD.LongVariable)
  *
  * @spec openspec/changes/role-based-content/tasks.md#task-3
  */
@@ -56,26 +55,26 @@ class WidgetApiController extends Controller
     /**
      * Constructor
      *
-     * @param IRequest                     $request                The request.
-     * @param WidgetService                $widgetService          The widget service.
-     * @param PermissionService            $permissionService      The permission service.
-     * @param NewsWidgetService            $newsWidgetService      The news widget service.
-     * @param CalendarWidgetService        $calendarWidgetService  The calendar widget service (REQ-CAL-003).
-     * @param WidgetPlacementService       $widgetPlacementService Placement-payload validators (REQ-CONT-006).
-     * @param RoleFeaturePermissionService $roleFeaturePerm        Role-feature filter (REQ-RFP-001..010).
-     * @param IUserSession                 $userSession            User session, used to resolve the
-     *                                                             authenticated IUser for ADR-023 action checks.
-     * @param ActionAuthService            $actionAuth             The ADR-023 action authorization service.
-     * @param LoggerInterface              $logger                 PSR-3 logger for role-denial audit entries (Task 4).
-     * @param string|null                  $userId                 The user ID.
+     * @param IRequest                     $request           The request.
+     * @param WidgetService                $widgetService     The widget service.
+     * @param PermissionService            $permissionService The permission service.
+     * @param NewsWidgetService            $newsWidgetService The news widget service.
+     * @param CalendarWidgetService        $calendarService   The calendar widget service (REQ-CAL-003).
+     * @param WidgetPlacementService       $placementService  Placement-payload validators (REQ-CONT-006).
+     * @param RoleFeaturePermissionService $roleFeaturePerm   Role-feature filter (REQ-RFP-001..010).
+     * @param IUserSession                 $userSession       User session, used to resolve the
+     *                                                        authenticated IUser for ADR-023 action checks.
+     * @param ActionAuthService            $actionAuth        The ADR-023 action authorization service.
+     * @param LoggerInterface              $logger            PSR-3 logger for role-denial audit entries (Task 4).
+     * @param string|null                  $userId            The user ID.
      */
     public function __construct(
         IRequest $request,
         private readonly WidgetService $widgetService,
         private readonly PermissionService $permissionService,
         private readonly NewsWidgetService $newsWidgetService,
-        private readonly CalendarWidgetService $calendarWidgetService,
-        private readonly WidgetPlacementService $widgetPlacementService,
+        private readonly CalendarWidgetService $calendarService,
+        private readonly WidgetPlacementService $placementService,
         private readonly RoleFeaturePermissionService $roleFeaturePerm,
         private readonly IUserSession $userSession,
         private readonly ActionAuthService $actionAuth,
@@ -440,7 +439,7 @@ class WidgetApiController extends Controller
         }
 
         try {
-            $this->widgetPlacementService->validateContainerDepth(
+            $this->placementService->validateContainerDepth(
                 content: $content
             );
         } catch (\InvalidArgumentException $depthError) {
@@ -759,7 +758,7 @@ class WidgetApiController extends Controller
         $config = $this->extractCalendarConfig(placement: $placement);
 
         try {
-            $result = $this->calendarWidgetService->getEvents(
+            $result = $this->calendarService->getEvents(
                 config: $config,
                 from: $start->format(format: \DATE_ATOM),
                 to: $end->format(format: \DATE_ATOM)
@@ -893,7 +892,7 @@ class WidgetApiController extends Controller
         }
 
         try {
-            $calendars = $this->calendarWidgetService->listCalendars(userId: $this->userId);
+            $calendars = $this->calendarService->listCalendars(userId: $this->userId);
         } catch (\Exception $exception) {
             return ResponseHelper::error(exception: $exception);
         }

@@ -40,8 +40,6 @@ use OCP\IUserSession;
 
 /**
  * Controller for the template gallery (REQ-TMPL-014).
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TemplateController extends Controller
 {

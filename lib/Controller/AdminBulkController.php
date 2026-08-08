@@ -47,10 +47,6 @@ use OCP\IUserSession;
 
 /**
  * Bulk admin endpoints for dashboards (REQ-BULK-001..011).
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Admin-guard +
- *  request decoding + service dispatch is the smallest viable surface
- *  area here.
  */
 class AdminBulkController extends Controller
 {

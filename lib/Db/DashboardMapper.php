@@ -34,7 +34,11 @@ use OCP\IDBConnection;
  *
  * @extends QBMapper<Dashboard>
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)     Twenty-five finders and
+ *  counters over one table — personal, group-shared, tree (parent/child/
+ *  ancestor/descendant), publication-state, scheduling and template-gallery
+ *  lookups. Each is a distinct query, not a variation callers could compose,
+ *  and a QBMapper subclass is the only place they can live.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Personal + group-shared
  *  + tree + publication-state + template-discovery query paths converge here
  *  per the cross-cutting `dashboards` table design.

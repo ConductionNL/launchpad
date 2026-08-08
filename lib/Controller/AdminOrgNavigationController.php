@@ -51,12 +51,6 @@ use OCP\IUserSession;
 
 /**
  * Org-wide navigation editor REST surface.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Service + group +
- *                                                 session +
- *                                                 setting mapper are
- *                                                 each used exactly
- *                                                 once.
  */
 class AdminOrgNavigationController extends Controller
 {

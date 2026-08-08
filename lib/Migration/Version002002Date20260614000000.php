@@ -48,8 +48,6 @@ class Version002002Date20260614000000 extends SimpleMigrationStep
      * @return ISchemaWrapper|null
      *
      * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-1
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function changeSchema(
         IOutput $output,

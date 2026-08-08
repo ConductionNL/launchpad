@@ -49,11 +49,7 @@ use Throwable;
  * report endpoints additionally gate on admin / template-owner in the method
  * body (REQ-ACK-004, ADR-005).
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Spans the acknowledgement
- *                                                  service, role service,
- *                                                  group manager, user session
- *                                                  and logger.
- * @spec                                           openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+ * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 class AcknowledgementController extends Controller
 {

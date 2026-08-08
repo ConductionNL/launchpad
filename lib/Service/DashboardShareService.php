@@ -38,8 +38,6 @@ use Throwable;
 
 /**
  * Service for creating and managing dashboard shares.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DashboardShareService
 {

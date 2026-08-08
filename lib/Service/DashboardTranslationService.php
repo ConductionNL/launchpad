@@ -37,8 +37,6 @@ use Throwable;
 
 /**
  * Service for managing dashboard language variants.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DashboardTranslationService
 {

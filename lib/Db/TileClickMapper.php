@@ -35,8 +35,6 @@ use OCP\IDBConnection;
  * Mapper for tile usage-analytics aggregate rows.
  *
  * @extends QBMapper<TileClick>
- *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class TileClickMapper extends QBMapper
 {

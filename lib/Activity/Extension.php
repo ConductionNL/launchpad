@@ -58,9 +58,8 @@ use OCP\L10N\IFactory;
 /**
  * LaunchPad Activity provider.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors event catalogue size.
- * @SuppressWarnings(PHPMD.UnusedFormalParameter)  — $previousEvent required by IProvider interface.
- * @spec                                           openspec/specs/activity-feed-integration/spec.md
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $previousEvent required by IProvider interface.
+ * @spec                                          openspec/specs/activity-feed-integration/spec.md
  */
 class Extension implements IProvider
 {

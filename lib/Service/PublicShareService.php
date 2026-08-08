@@ -48,6 +48,11 @@ use Psr\Log\LoggerInterface;
  * Service for public-share lifecycle management.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Constructor wiring only. A share is a security boundary, so this one
+ *      service must hold the three mappers it reads plus the four NC security
+ *      collaborators the flow requires — IThrottler and MaxDelayReached for
+ *      brute-force control, IHasher for the share password, ISecureRandom for
+ *      the token — alongside IGroupManager and the logger.
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
  */
@@ -110,6 +115,10 @@ class PublicShareService
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
+     *      `DateTime::createFromFormat()` is a PHP built-in named constructor,
+     *      called three times here to try the ATOM, `Y-m-d\TH:i:s\Z` and
+     *      `Y-m-d H:i:s` expiry formats in turn. There is no instance-method
+     *      equivalent and no collaborator to inject in its place.
      */
     public function createPublicShare(
         string $dashboardUuid,
@@ -239,9 +248,9 @@ class PublicShareService
      * Validates token, expiry, revocation, and optional password.
      * Increments view count (debounced by IP within 60-second window).
      *
-     * @param string      $token    The share token.
-     * @param string      $ip       Client IP address for debouncing and throttling.
-     * @param string|null $password Plaintext password supplied by the client.
+     * @param string      $token     The share token.
+     * @param string      $ipAddress Client IP address for debouncing and throttling.
+     * @param string|null $password  Plaintext password supplied by the client.
      *
      * @return array{share: PublicShare, dashboard: Dashboard, placements: WidgetPlacement[]}
      *
@@ -249,15 +258,13 @@ class PublicShareService
      * @throws SharePasswordRequiredException When password is required but not supplied.
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function renderShareContent(
         string $token,
-        string $ip,
+        string $ipAddress,
         ?string $password=null
     ): array {
-        $share = $this->resolveActiveShare(token: $token, ip: $ip);
+        $share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
 
         // Password gate.
         if ($share->getPasswordHash() !== null) {
@@ -272,7 +279,7 @@ class PublicShareService
             ) {
                 $this->throttler->registerAttempt(
                     action: self::ACTION_SHARE_PASSWORD,
-                    ip: $ip
+                    ip: $ipAddress
                 );
                 throw new SharePasswordRequiredException();
             }
@@ -283,7 +290,7 @@ class PublicShareService
         $this->shareMapper->incrementViewCount(
             id: (int) $share->getId(),
             token: $token,
-            ip: $ip
+            ipAddress: $ipAddress
         );
 
         $placements = $this->placementMapper->findByDashboardId(
@@ -302,9 +309,9 @@ class PublicShareService
      *
      * Applies `launchpad_share_password` throttle before verification.
      *
-     * @param string $token    The share token.
-     * @param string $password The supplied plaintext password.
-     * @param string $ip       Client IP address.
+     * @param string $token     The share token.
+     * @param string $password  The supplied plaintext password.
+     * @param string $ipAddress Client IP address.
      *
      * @return bool True on success; false on wrong password.
      *
@@ -312,21 +319,19 @@ class PublicShareService
      * @throws MaxDelayReached        When throttle limit is exceeded (429).
      *
      * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
-     *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      */
     public function unlockShare(
         string $token,
         string $password,
-        string $ip
+        string $ipAddress
     ): bool {
         // Throttle check before any DB query to prevent enumeration timing attacks.
         $this->throttler->sleepDelayOrThrowOnMax(
-            ip: $ip,
+            ip: $ipAddress,
             action: self::ACTION_SHARE_PASSWORD
         );
 
-        $share = $this->resolveActiveShare(token: $token, ip: $ip);
+        $share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
 
         if ($share->getPasswordHash() === null) {
             // No password on this share — unlock is trivially successful.
@@ -341,7 +346,7 @@ class PublicShareService
         if ($isValid === false) {
             $this->throttler->registerAttempt(
                 action: self::ACTION_SHARE_PASSWORD,
-                ip: $ip
+                ip: $ipAddress
             );
         }
 
@@ -353,24 +358,26 @@ class PublicShareService
      *
      * Throws ShareNotFoundException for any failure to avoid information leakage.
      *
-     * @param string $token The share token.
-     * @param string $ip    Client IP (registered on access failure for D1 throttling).
+     * @param string $token     The share token.
+     * @param string $ipAddress Client IP (registered on access failure for D1 throttling).
      *
      * @return PublicShare
      *
      * @throws ShareNotFoundException
      *
-     * @SuppressWarnings(PHPMD.ShortVariable)
      * @SuppressWarnings(PHPMD.StaticAccess)
+     *      `DateTime::createFromFormat()` is a PHP built-in named constructor;
+     *      there is no instance-method equivalent to call and no collaborator
+     *      to inject in its place.
      */
-    private function resolveActiveShare(string $token, string $ip): PublicShare
+    private function resolveActiveShare(string $token, string $ipAddress): PublicShare
     {
         try {
             $share = $this->shareMapper->findByToken(token: $token);
         } catch (DoesNotExistException) {
             $this->throttler->registerAttempt(
                 action: self::ACTION_SHARE_ACCESS,
-                ip: $ip
+                ip: $ipAddress
             );
             throw new ShareNotFoundException();
         }
@@ -378,7 +385,7 @@ class PublicShareService
         if ($share->getRevokedAt() !== null) {
             $this->throttler->registerAttempt(
                 action: self::ACTION_SHARE_ACCESS,
-                ip: $ip
+                ip: $ipAddress
             );
             throw new ShareNotFoundException();
         }
@@ -392,7 +399,7 @@ class PublicShareService
             if ($expiry < new DateTime()) {
                 $this->throttler->registerAttempt(
                     action: self::ACTION_SHARE_ACCESS,
-                    ip: $ip
+                    ip: $ipAddress
                 );
                 throw new ShareNotFoundException();
             }

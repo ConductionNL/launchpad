@@ -48,8 +48,6 @@ use Psr\Log\LoggerInterface;
 /**
  * Controller for kiosk-playlist CRUD and anonymous render endpoints.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-4
  */
 class KioskController extends Controller

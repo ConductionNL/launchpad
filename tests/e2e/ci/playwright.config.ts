@@ -44,6 +44,18 @@ export default defineConfig({
 	retries: process.env.CI ? 1 : 0,
 	workers: 1,
 	reporter: process.env.CI ? [['list'], ['github']] : [['list']],
+	// This is the config the shared workflow actually loads (it resolves
+	// `${playwright-test-path}/playwright.config.ts` — here `tests/e2e/ci` —
+	// before falling back to the app-root one). The job is
+	// `timeout-minutes: 45`, and a job cancelled by that cap produces NO
+	// verdict: Playwright never prints its tally, the `if: failure()` trace
+	// upload never fires, and the `if: always()` report upload does not run on
+	// a cancelled job either. The run you most need to read is the one that
+	// leaves nothing behind, and it still renders as "fail" in
+	// `gh pr checks`. Measured overhead before `Run Playwright tests` starts is
+	// 2.0-2.4 min and the uploads after it take seconds, so 38m keeps ~7 min of
+	// margin while guaranteeing both a tally and the artifacts that explain it.
+	globalTimeout: 38 * 60_000,
 	timeout: 60_000,
 	expect: { timeout: 10_000 },
 	use: {

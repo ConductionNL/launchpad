@@ -78,11 +78,11 @@
 			<table v-if="topDashboards.length" class="launchpad-analytics__table">
 				<thead>
 					<tr>
-						<th>{{ t('launchpad', 'Dashboard') }}</th>
-						<th class="launchpad-analytics__num">
+						<th scope="col">{{ t('launchpad', 'Dashboard') }}</th>
+						<th scope="col" class="launchpad-analytics__num">
 							{{ t('launchpad', 'Views') }}
 						</th>
-						<th class="launchpad-analytics__num">
+						<th scope="col" class="launchpad-analytics__num">
 							{{ t('launchpad', 'Unique viewers') }}
 						</th>
 					</tr>

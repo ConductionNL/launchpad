@@ -26,7 +26,7 @@
 		<table v-else class="launchpad-bulk-ops__table" data-test="bulk-ops-table">
 			<thead>
 				<tr>
-					<th class="launchpad-bulk-ops__col-select">
+					<th scope="col" class="launchpad-bulk-ops__col-select">
 						<input
 							type="checkbox"
 							:checked="allSelected"
@@ -34,8 +34,8 @@
 							data-test="bulk-ops-select-all"
 							@change="toggleSelectAll">
 					</th>
-					<th>{{ t('launchpad', 'Name') }}</th>
-					<th>{{ t('launchpad', 'Status') }}</th>
+					<th scope="col">{{ t('launchpad', 'Name') }}</th>
+					<th scope="col">{{ t('launchpad', 'Status') }}</th>
 				</tr>
 			</thead>
 			<tbody>

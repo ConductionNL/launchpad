@@ -59,11 +59,11 @@
 				<table v-if="plan.copies.length > 0" class="launchpad-resync__table">
 					<thead>
 						<tr>
-							<th>{{ t('launchpad', 'User') }}</th>
-							<th>{{ t('launchpad', 'Add') }}</th>
-							<th>{{ t('launchpad', 'Update') }}</th>
-							<th>{{ t('launchpad', 'Remove') }}</th>
-							<th>{{ t('launchpad', 'Unchanged') }}</th>
+							<th scope="col">{{ t('launchpad', 'User') }}</th>
+							<th scope="col">{{ t('launchpad', 'Add') }}</th>
+							<th scope="col">{{ t('launchpad', 'Update') }}</th>
+							<th scope="col">{{ t('launchpad', 'Remove') }}</th>
+							<th scope="col">{{ t('launchpad', 'Unchanged') }}</th>
 						</tr>
 					</thead>
 					<tbody>

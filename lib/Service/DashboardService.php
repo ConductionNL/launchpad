@@ -713,56 +713,79 @@ class DashboardService
         }
 
         $uuid = (string) $dashboard->getUuid();
-        if ($uuid !== '' && $cascade === false) {
-            $childCount = $this->dashboardMapper->countChildrenByParent(
-                parentUuid: $uuid
-            );
-            if ($childCount > 0) {
-                throw new DashboardHasChildrenException(
-                    childCount: $childCount
-                );
-            }
-        }
+        $this->assertNoChildrenUnlessCascading(uuid: $uuid, cascade: $cascade);
 
         if ($cascade === true && $uuid !== '') {
-            // Translation rows are scoped by uuid; clear them BEFORE the
-            // tree walker drops the parent rows so we never orphan a
-            // variant on a vanished dashboard. The cascade-delete spans
-            // the entire descendant set as well. REQ-DASH-044.
-            if ($this->translationService !== null) {
-                $descendants = $this->dashboardMapper->findDescendants(
-                    ancestorUuid: $uuid
-                );
-                foreach ($descendants as $descendant) {
-                    $descendantUuid = (string) $descendant->getUuid();
-                    if ($descendantUuid !== '') {
-                        $this->translationService->deleteAllForDashboard(
-                            dashboardUuid: $descendantUuid
-                        );
-                    }
-                }
-
-                $this->translationService->deleteAllForDashboard(
-                    dashboardUuid: $uuid
-                );
-            }
-
-            // Cascade-clear the editing lock for the root before the
-            // subtree wipe (REQ-LOCK-008). Descendant locks are not
-            // tracked through this path because the spec scopes locks
-            // to the dashboard the user is editing — children that
-            // disappear simply leak a row that the next-acquire
-            // inline-cleanup will reap.
-            if ($this->lockMapper !== null) {
-                $this->lockMapper->deleteByDashboardUuid(
-                    dashboardUuid: $uuid
-                );
-            }
-
-            $this->treeService->deleteSubtree(dashboard: $dashboard);
+            $this->deleteSubtreeWithChildRows(dashboard: $dashboard, uuid: $uuid);
             return;
-        }//end if
+        }
 
+        $this->deleteLeafWithChildRows(
+            dashboard: $dashboard,
+            dashboardId: $dashboardId,
+            uuid: $uuid,
+            fallbackOwnerId: $userId
+        );
+    }//end deleteDashboard()
+
+    /**
+     * Refuse a non-cascading delete of a dashboard that still has
+     * children.
+     *
+     * A cascading delete is allowed to proceed regardless, and a
+     * dashboard with no UUID cannot have children to begin with.
+     *
+     * @param string $uuid    The dashboard's UUID.
+     * @param bool   $cascade Whether the caller asked to cascade.
+     *
+     * @return void
+     *
+     * @throws DashboardHasChildrenException When children exist and the
+     *                                       caller did not cascade.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function assertNoChildrenUnlessCascading(string $uuid, bool $cascade): void
+    {
+        if ($uuid === '' || $cascade === true) {
+            return;
+        }
+
+        $childCount = $this->dashboardMapper->countChildrenByParent(
+            parentUuid: $uuid
+        );
+        if ($childCount > 0) {
+            throw new DashboardHasChildrenException(
+                childCount: $childCount
+            );
+        }
+    }//end assertNoChildrenUnlessCascading()
+
+    /**
+     * Delete a single (childless, or force-deleted) dashboard together
+     * with the child rows this service owns.
+     *
+     * Translation variants are cleared first so they never outlive the
+     * parent (REQ-DASH-044); placements and the editing lock follow
+     * (REQ-LOCK-008); the row itself goes last, then the deletion event
+     * is dispatched for the cascade listeners.
+     *
+     * @param Dashboard $dashboard       The dashboard to delete.
+     * @param int       $dashboardId     Its numeric ID.
+     * @param string    $uuid            Its UUID (may be empty).
+     * @param string    $fallbackOwnerId Owner to attribute when the row
+     *                                   carried none.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function deleteLeafWithChildRows(
+        Dashboard $dashboard,
+        int $dashboardId,
+        string $uuid,
+        string $fallbackOwnerId
+    ): void {
         // REQ-DASH-044: cascade-delete translation variants for the
         // dashboard about to disappear so they don't outlive the parent.
         if ($uuid !== '' && $this->translationService !== null) {
@@ -785,26 +808,103 @@ class DashboardService
 
         $this->dashboardMapper->delete(entity: $dashboard);
 
-        // SB1 fix: dispatch DashboardDeletedEvent so cascade listeners
-        // (comments, reactions, versions, metadata_values, public_shares,
-        // view_analytics) can clean up their child rows (REQ-CSC-001).
-        if ($this->eventDispatcher !== null && $uuid !== '') {
-            $ownerId         = $dashboard->getUserId();
-            $resolvedOwnerId = $userId;
-            if ($ownerId !== null && $ownerId !== '') {
-                $resolvedOwnerId = $ownerId;
+        $this->dispatchDashboardDeleted(
+            dashboard: $dashboard,
+            uuid: $uuid,
+            fallbackOwnerId: $fallbackOwnerId
+        );
+    }//end deleteLeafWithChildRows()
+
+    /**
+     * Delete a dashboard's whole subtree, clearing the child rows the
+     * tree walker does not own.
+     *
+     * Translation rows are scoped by uuid and are cleared BEFORE the
+     * walker drops the parent rows, so a variant is never orphaned on a
+     * vanished dashboard — for the root AND for every descendant
+     * (REQ-DASH-044). The editing lock is cleared for the root only
+     * (REQ-LOCK-008): the spec scopes locks to the dashboard the user is
+     * editing, so a descendant lock simply leaks a row that the
+     * next-acquire inline cleanup reaps.
+     *
+     * @param Dashboard $dashboard The subtree root to delete.
+     * @param string    $uuid      The root's UUID (already non-empty).
+     *
+     * @return void
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function deleteSubtreeWithChildRows(Dashboard $dashboard, string $uuid): void
+    {
+        if ($this->translationService !== null) {
+            $descendants = $this->dashboardMapper->findDescendants(
+                ancestorUuid: $uuid
+            );
+            foreach ($descendants as $descendant) {
+                $descendantUuid = (string) $descendant->getUuid();
+                if ($descendantUuid !== '') {
+                    $this->translationService->deleteAllForDashboard(
+                        dashboardUuid: $descendantUuid
+                    );
+                }
             }
 
-            $this->eventDispatcher->dispatchTyped(
-                new DashboardDeletedEvent(
-                    dashboardUuid: $uuid,
-                    ownerUserId:   $resolvedOwnerId,
-                    type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
-                    deletedAt:     new DateTimeImmutable()
-                )
+            $this->translationService->deleteAllForDashboard(
+                dashboardUuid: $uuid
             );
         }
-    }//end deleteDashboard()
+
+        if ($this->lockMapper !== null) {
+            $this->lockMapper->deleteByDashboardUuid(
+                dashboardUuid: $uuid
+            );
+        }
+
+        $this->treeService->deleteSubtree(dashboard: $dashboard);
+    }//end deleteSubtreeWithChildRows()
+
+    /**
+     * Dispatch {@see DashboardDeletedEvent} for a dashboard that has just
+     * been deleted.
+     *
+     * SB1 fix: the cascade listeners (comments, reactions, versions,
+     * metadata_values, public_shares, view_analytics) clean up their child
+     * rows off this event (REQ-CSC-001). No-op when no dispatcher is wired
+     * or the dashboard carried no UUID.
+     *
+     * @param Dashboard $dashboard       The dashboard that was deleted.
+     * @param string    $uuid            Its UUID.
+     * @param string    $fallbackOwnerId Owner to attribute when the row
+     *                                   carried none.
+     *
+     * @return void
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function dispatchDashboardDeleted(
+        Dashboard $dashboard,
+        string $uuid,
+        string $fallbackOwnerId
+    ): void {
+        if ($this->eventDispatcher === null || $uuid === '') {
+            return;
+        }
+
+        $ownerId         = $dashboard->getUserId();
+        $resolvedOwnerId = $fallbackOwnerId;
+        if ($ownerId !== null && $ownerId !== '') {
+            $resolvedOwnerId = $ownerId;
+        }
+
+        $this->eventDispatcher->dispatchTyped(
+            new DashboardDeletedEvent(
+                dashboardUuid: $uuid,
+                ownerUserId:   $resolvedOwnerId,
+                type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
+                deletedAt:     new DateTimeImmutable()
+            )
+        );
+    }//end dispatchDashboardDeleted()
 
     /**
      * Activate a dashboard for a user.
@@ -1417,110 +1517,42 @@ class DashboardService
         // it always wins over the auto-overwriting `active_dashboard_uuid`
         // pref so visiting `/apps/launchpad/` consistently opens the same
         // dashboard regardless of where the user navigated last.
-        $defaultUuid = $this->config->getUserValue(
+        $pinned = $this->resolvePreferredDashboard(
             userId: $userId,
-            appName: Application::APP_ID,
-            key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY,
-            default: ''
+            byUuid: $byUuid,
+            prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
         );
-
-        if ($defaultUuid !== '') {
-            if (isset($byUuid[$defaultUuid]) === true) {
-                return $byUuid[$defaultUuid];
-            }
-
-            // Stale default: UUID is no longer visible — clear and fall through.
-            $this->config->deleteUserValue(
-                userId: $userId,
-                appName: Application::APP_ID,
-                key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
-            );
-            $this->logger->warning(
-                message: 'launchpad: stale default_dashboard_uuid "{uuid}" cleared for user "{user}"',
-                context: ['uuid' => $defaultUuid, 'user' => $userId]
-            );
+        if ($pinned !== null) {
+            return $pinned;
         }
 
         // Step 1: saved preference.
-        $savedUuid = $this->config->getUserValue(
+        $saved = $this->resolvePreferredDashboard(
             userId: $userId,
-            appName: Application::APP_ID,
-            key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
-            default: ''
+            byUuid: $byUuid,
+            prefKey: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
         );
-
-        if ($savedUuid !== '') {
-            if (isset($byUuid[$savedUuid]) === true) {
-                return $byUuid[$savedUuid];
-            }
-
-            // Stale pref: UUID is no longer visible — clear and fall through.
-            $this->config->deleteUserValue(
-                userId: $userId,
-                appName: Application::APP_ID,
-                key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
-            );
-            $this->logger->warning(
-                message: 'launchpad: stale active_dashboard_uuid "{uuid}" cleared for user "{user}"',
-                context: ['uuid' => $savedUuid, 'user' => $userId]
-            );
+        if ($saved !== null) {
+            return $saved;
         }
 
         // Steps 2-3: group-shared with isDefault = 1.
-        if ($groupId !== Dashboard::DEFAULT_GROUP_ID) {
-            // Step 2: primary group default.
-            $result = $this->findFirstGroupSharedWhere(
-                visible: $visible,
-                groupId: $groupId,
-                source: Dashboard::SOURCE_GROUP,
-                requireDefault: true
-            );
-            if ($result !== null) {
-                return $result;
-            }
-        }
-
-        // Step 3: default-group default.
-        $result = $this->findFirstGroupSharedWhere(
-            visible: $visible,
-            groupId: Dashboard::DEFAULT_GROUP_ID,
-            source: Dashboard::SOURCE_DEFAULT,
-            requireDefault: true
-        );
-        if ($result !== null) {
-            return $result;
-        }
-
         // Steps 4-5: first group-shared (sortOrder ASC, createdAt ASC).
-        if ($groupId !== Dashboard::DEFAULT_GROUP_ID) {
-            // Step 4: primary group first.
-            $result = $this->findFirstGroupSharedWhere(
-                visible: $visible,
-                groupId: $groupId,
-                source: Dashboard::SOURCE_GROUP,
-                requireDefault: false
-            );
-            if ($result !== null) {
-                return $result;
-            }
-        }
-
-        // Step 5: default-group first.
-        $result = $this->findFirstGroupSharedWhere(
+        $groupShared = $this->resolveGroupSharedDashboard(
             visible: $visible,
-            groupId: Dashboard::DEFAULT_GROUP_ID,
-            source: Dashboard::SOURCE_DEFAULT,
-            requireDefault: false
+            groupId: $groupId
         );
-        if ($result !== null) {
-            return $result;
+        if ($groupShared !== null) {
+            return $groupShared;
         }
 
         // Step 6: first personal dashboard.
-        foreach ($visible as $entry) {
-            if ($entry['source'] === Dashboard::SOURCE_USER) {
-                return $entry;
-            }
+        $personal = $this->findFirstBySource(
+            visible: $visible,
+            source: Dashboard::SOURCE_USER
+        );
+        if ($personal !== null) {
+            return $personal;
         }
 
         // Step 6b (REQ-SHARE-002): first dashboard shared WITH the user.
@@ -1529,15 +1561,137 @@ class DashboardService
         // can never hijack a selection the user or their admin already made.
         // It only ever fires for a user who would otherwise land on the
         // empty state, which is exactly the case that made sharing inert.
+        // Step 7: nothing found ⇒ NULL.
+        return $this->findFirstBySource(
+            visible: $visible,
+            source: Dashboard::SOURCE_SHARED
+        );
+    }//end resolveActiveDashboard()
+
+    /**
+     * Resolve a user-preference dashboard pointer, self-healing a stale
+     * one.
+     *
+     * Both preference keys behave identically: when the stored UUID is
+     * still visible to the user it wins outright; when it is not, the
+     * pref is a leftover pointing at a dashboard that has since been
+     * deleted or unshared, so it is cleared and logged and the caller
+     * falls through to the next resolution step.
+     *
+     * @param string                                                     $userId  The user ID.
+     * @param array<string, array{dashboard: Dashboard, source: string}> $byUuid  UUID-keyed visible index.
+     * @param string                                                     $prefKey The preference key to read.
+     *
+     * @return array{dashboard: Dashboard, source: string}|NULL The hit, or NULL to fall through.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function resolvePreferredDashboard(
+        string $userId,
+        array $byUuid,
+        string $prefKey
+    ): ?array {
+        $uuid = $this->config->getUserValue(
+            userId: $userId,
+            appName: Application::APP_ID,
+            key: $prefKey,
+            default: ''
+        );
+
+        if ($uuid === '') {
+            return null;
+        }
+
+        if (isset($byUuid[$uuid]) === true) {
+            return $byUuid[$uuid];
+        }
+
+        // Stale pref: UUID is no longer visible — clear and fall through.
+        $this->config->deleteUserValue(
+            userId: $userId,
+            appName: Application::APP_ID,
+            key: $prefKey
+        );
+        $this->logger->warning(
+            message: 'launchpad: stale '.$prefKey.' "{uuid}" cleared for user "{user}"',
+            context: ['uuid' => $uuid, 'user' => $userId]
+        );
+
+        return null;
+    }//end resolvePreferredDashboard()
+
+    /**
+     * Resolve steps 2-5 of the active-dashboard ladder: the group-shared
+     * candidates.
+     *
+     * Order is normative — primary-group default, default-group default,
+     * primary-group first, default-group first. The primary-group rungs
+     * are skipped when the user has no primary group (the sentinel).
+     *
+     * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible set.
+     * @param string                                                  $groupId The normalised primary group.
+     *
+     * @return array{dashboard: Dashboard, source: string}|NULL The hit, or NULL to fall through.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function resolveGroupSharedDashboard(array $visible, string $groupId): ?array
+    {
+        $hasPrimaryGroup = ($groupId !== Dashboard::DEFAULT_GROUP_ID);
+
+        $rungs = [];
+        if ($hasPrimaryGroup === true) {
+            // Step 2: primary group default.
+            $rungs[] = [$groupId, Dashboard::SOURCE_GROUP, true];
+        }
+
+        // Step 3: default-group default.
+        $rungs[] = [Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true];
+
+        if ($hasPrimaryGroup === true) {
+            // Step 4: primary group first.
+            $rungs[] = [$groupId, Dashboard::SOURCE_GROUP, false];
+        }
+
+        // Step 5: default-group first.
+        $rungs[] = [Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false];
+
+        foreach ($rungs as $rung) {
+            $result = $this->findFirstGroupSharedWhere(
+                visible: $visible,
+                groupId: $rung[0],
+                source: $rung[1],
+                requireDefault: $rung[2]
+            );
+            if ($result !== null) {
+                return $result;
+            }
+        }
+
+        return null;
+    }//end resolveGroupSharedDashboard()
+
+    /**
+     * Return the first visible entry carrying the given source, in
+     * iteration order.
+     *
+     * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible set.
+     * @param string                                                  $source  The source discriminator.
+     *
+     * @return array{dashboard: Dashboard, source: string}|NULL The hit, or NULL when none match.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function findFirstBySource(array $visible, string $source): ?array
+    {
         foreach ($visible as $entry) {
-            if ($entry['source'] === Dashboard::SOURCE_SHARED) {
+            if ($entry['source'] === $source) {
                 return $entry;
             }
         }
 
-        // Step 7: nothing found.
         return null;
-    }//end resolveActiveDashboard()
+    }//end findFirstBySource()
 
     /**
      * Persist (or clear) the user's active-dashboard preference.
@@ -1937,62 +2091,11 @@ class DashboardService
                 baseName: $resolvedName
             );
 
-            $this->db->beginTransaction();
-            try {
-                // REQ-DASH-020: force `isDefault = 0` and `groupId = null`
-                // on the fork — the factory is the single source of truth
-                // for the (type, groupId) invariant (REQ-DASH-011).
-                $fork = $this->dashboardFactory->create(
-                    userId: $userId,
-                    name: $resolvedName,
-                    description: $source->getDescription(),
-                    type: Dashboard::TYPE_USER,
-                    groupId: null,
-                    gridColumns: $source->getGridColumns(),
-                    permissionLevel: Dashboard::PERMISSION_FULL
-                );
-                // Defensive — the factory already sets this for TYPE_USER but
-                // we make the contract visible at the call site.
-                $fork->setIsDefault(0);
-
-                // REQ-DASH-020: deactivate every other personal dashboard
-                // for this user before persisting the fork — mirrors
-                // {@see self::createDashboard()} so the single-active
-                // invariant holds across the transaction.
-                $this->dashboardMapper->deactivateAllForUser(userId: $userId);
-                $fork->setIsActive(1);
-
-                $persisted = $this->dashboardMapper->insert(entity: $fork);
-
-                // REQ-DASH-020: byte-for-byte placement clone. Any DB error
-                // bubbles out of the mapper and the catch below rolls back.
-                $this->placementMapper->cloneToDashboard(
-                    sourceDashboardId: (int) $source->getId(),
-                    targetDashboardId: (int) $persisted->getId()
-                );
-
-                // REQ-DASH-018 / REQ-DASH-019: also pin the active-dashboard
-                // user-pref so the resolver returns the fork on the next
-                // render even when the personal `is_active` column is not
-                // the source of truth (multi-scope deployments).
-                $forkUuid = (string) $persisted->getUuid();
-                if ($forkUuid !== '') {
-                    $this->setActivePreference(
-                        userId: $userId,
-                        uuid: $forkUuid
-                    );
-                }
-
-                $this->db->commit();
-
-                return $persisted;
-            } catch (Throwable $t) {
-                // REQ-DASH-021: rollback covers the inserted dashboard row
-                // AND any partially cloned placements — the catch is wide
-                // so we never leak a half-persisted fork on any throwable.
-                $this->db->rollBack();
-                throw $t;
-            }//end try
+            return $this->persistFork(
+                userId: $userId,
+                source: $source,
+                resolvedName: $resolvedName
+            );
         } finally {
             if ($lockAcquired === true) {
                 $this->lockingProvider?->releaseLock(
@@ -2002,6 +2105,85 @@ class DashboardService
             }
         }//end try
     }//end forkAsPersonal()
+
+    /**
+     * Persist a fork inside a transaction, cloning the source's
+     * placements and pinning the result as the user's active dashboard.
+     *
+     * The whole body runs in one transaction: REQ-DASH-021 requires that
+     * the rollback cover the inserted dashboard row AND any partially
+     * cloned placements, so the catch is deliberately wide and never
+     * leaves a half-persisted fork behind.
+     *
+     * @param string    $userId       The forking user.
+     * @param Dashboard $source       The dashboard being forked.
+     * @param string    $resolvedName The already-disambiguated fork name.
+     *
+     * @return Dashboard The persisted fork.
+     *
+     * @throws Throwable Whatever the transaction body threw, after rollback.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function persistFork(
+        string $userId,
+        Dashboard $source,
+        string $resolvedName
+    ): Dashboard {
+        $this->db->beginTransaction();
+        try {
+            // REQ-DASH-020: force `isDefault = 0` and `groupId = null`
+            // on the fork — the factory is the single source of truth
+            // for the (type, groupId) invariant (REQ-DASH-011).
+            $fork = $this->dashboardFactory->create(
+                userId: $userId,
+                name: $resolvedName,
+                description: $source->getDescription(),
+                type: Dashboard::TYPE_USER,
+                groupId: null,
+                gridColumns: $source->getGridColumns(),
+                permissionLevel: Dashboard::PERMISSION_FULL
+            );
+            // Defensive — the factory already sets this for TYPE_USER but
+            // we make the contract visible at the call site.
+            $fork->setIsDefault(0);
+
+            // REQ-DASH-020: deactivate every other personal dashboard
+            // for this user before persisting the fork — mirrors
+            // {@see self::createDashboard()} so the single-active
+            // invariant holds across the transaction.
+            $this->dashboardMapper->deactivateAllForUser(userId: $userId);
+            $fork->setIsActive(1);
+
+            $persisted = $this->dashboardMapper->insert(entity: $fork);
+
+            // REQ-DASH-020: byte-for-byte placement clone. Any DB error
+            // bubbles out of the mapper and the catch below rolls back.
+            $this->placementMapper->cloneToDashboard(
+                sourceDashboardId: (int) $source->getId(),
+                targetDashboardId: (int) $persisted->getId()
+            );
+
+            // REQ-DASH-018 / REQ-DASH-019: also pin the active-dashboard
+            // user-pref so the resolver returns the fork on the next
+            // render even when the personal `is_active` column is not
+            // the source of truth (multi-scope deployments).
+            $forkUuid = (string) $persisted->getUuid();
+            if ($forkUuid !== '') {
+                $this->setActivePreference(
+                    userId: $userId,
+                    uuid: $forkUuid
+                );
+            }
+
+            $this->db->commit();
+
+            return $persisted;
+        } catch (Throwable $t) {
+            $this->db->rollBack();
+            throw $t;
+        }//end try
+    }//end persistFork()
 
     /**
      * Acquire the per-user exclusive fork-naming lock, with a bounded
@@ -2451,7 +2633,35 @@ class DashboardService
     {
         $now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
-        $tiles = [
+        $placements = [];
+        foreach ($this->defaultWidgetSeeds() as $config) {
+            $placements[] = $this->placementMapper->insert(
+                entity: $this->buildSeedPlacement(
+                    dashboardId: $dashboardId,
+                    config: $config,
+                    now: $now
+                )
+            );
+        }
+
+        return $placements;
+    }//end seedDefaultWidgets()
+
+    /**
+     * The declarative seed table for a brand-new dashboard's default
+     * widget set.
+     *
+     * Pure data — extracted from {@see self::seedDefaultWidgets()} so the
+     * seeding logic and the seed content can be read (and changed)
+     * independently.
+     *
+     * @return array<int, array<string, mixed>> The seed configs.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function defaultWidgetSeeds(): array
+    {
+        return [
             [
                 'widgetId'   => 'tile',
                 'gridX'      => 0,
@@ -2513,45 +2723,57 @@ class DashboardService
                 'tile'       => null,
             ],
         ];
+    }//end defaultWidgetSeeds()
 
-        $placements = [];
-        foreach ($tiles as $config) {
-            $placement = new WidgetPlacement();
-            $placement->setDashboardId($dashboardId);
-            $placement->setWidgetId($config['widgetId']);
-            $placement->setGridX($config['gridX']);
-            $placement->setGridY($config['gridY']);
-            $placement->setGridWidth($config['gridWidth']);
-            $placement->setGridHeight($config['gridHeight']);
-            $placement->setSortOrder($config['sortOrder']);
-            $placement->setShowTitle(1);
-            $placement->setIsVisible(1);
-            $placement->setCreatedAt($now);
-            $placement->setUpdatedAt($now);
+    /**
+     * Materialise one seed config into an unsaved
+     * {@see WidgetPlacement}.
+     *
+     * @param int                  $dashboardId The owning dashboard.
+     * @param array<string, mixed> $config      One entry of the seed table.
+     * @param string               $now         Current `Y-m-d H:i:s`.
+     *
+     * @return WidgetPlacement The populated, not-yet-inserted placement.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function buildSeedPlacement(int $dashboardId, array $config, string $now): WidgetPlacement
+    {
+        $placement = new WidgetPlacement();
+        $placement->setDashboardId($dashboardId);
+        $placement->setWidgetId($config['widgetId']);
+        $placement->setGridX($config['gridX']);
+        $placement->setGridY($config['gridY']);
+        $placement->setGridWidth($config['gridWidth']);
+        $placement->setGridHeight($config['gridHeight']);
+        $placement->setSortOrder($config['sortOrder']);
+        $placement->setShowTitle(1);
+        $placement->setIsVisible(1);
+        $placement->setCreatedAt($now);
+        $placement->setUpdatedAt($now);
 
-            if ($config['tile'] !== null) {
-                // `tileType` MUST be non-null for `WidgetPlacement::jsonSerialize()`
-                // to emit the flat tile* fields the renderer reads. The
-                // sentinel `'preset'` distinguishes seed-tiles from the
-                // legacy `'custom'` value that routes through the
-                // pre-registry tile path in DashboardGrid.vue, so these
-                // placements still flow through the registry-backed
-                // TileWidget renderer (REQ-WDG-022).
-                $placement->setTileType('preset');
-                $placement->setTileTitle($config['tile']['title']);
-                $placement->setTileIcon($config['tile']['icon']);
-                $placement->setTileIconType($config['tile']['iconType']);
-                $placement->setTileBackgroundColor($config['tile']['backgroundColor']);
-                $placement->setTileTextColor($config['tile']['textColor']);
-                $placement->setTileLinkType($config['tile']['linkType']);
-                $placement->setTileLinkValue($config['tile']['linkValue']);
-            }
+        if ($config['tile'] === null) {
+            return $placement;
+        }
 
-            $placements[] = $this->placementMapper->insert(entity: $placement);
-        }//end foreach
+        // `tileType` MUST be non-null for `WidgetPlacement::jsonSerialize()`
+        // to emit the flat tile* fields the renderer reads. The
+        // sentinel `'preset'` distinguishes seed-tiles from the
+        // legacy `'custom'` value that routes through the
+        // pre-registry tile path in DashboardGrid.vue, so these
+        // placements still flow through the registry-backed
+        // TileWidget renderer (REQ-WDG-022).
+        $placement->setTileType('preset');
+        $placement->setTileTitle($config['tile']['title']);
+        $placement->setTileIcon($config['tile']['icon']);
+        $placement->setTileIconType($config['tile']['iconType']);
+        $placement->setTileBackgroundColor($config['tile']['backgroundColor']);
+        $placement->setTileTextColor($config['tile']['textColor']);
+        $placement->setTileLinkType($config['tile']['linkType']);
+        $placement->setTileLinkValue($config['tile']['linkValue']);
 
-        return $placements;
-    }//end seedDefaultWidgets()
+        return $placement;
+    }//end buildSeedPlacement()
 
     /**
      * Apply updates to a dashboard entity.
@@ -2637,6 +2859,54 @@ class DashboardService
             return;
         }
 
+        $newMode = $this->resolveFooterMode(
+            dashboard: $dashboard,
+            data: $data,
+            modeProvided: $modeProvided
+        );
+
+        if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
+            $sanitised = $this->footerService->sanitiseHtml(
+                html: $this->resolveCustomFooterHtml(
+                    dashboard: $dashboard,
+                    data: $data,
+                    htmlProvided: $htmlProvided
+                )
+            );
+            $dashboard->setDashboardFooterMode(Dashboard::FOOTER_MODE_CUSTOM);
+            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+            $dashboard->setDashboardFooterHtml($sanitised);
+            return;
+        }
+
+        // Inherit / hidden — clear stale HTML to keep the invariant.
+        $dashboard->setDashboardFooterMode($newMode);
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setDashboardFooterHtml(null);
+    }//end applyFooterUpdates()
+
+    /**
+     * Resolve and validate the footer mode an update is asking for.
+     *
+     * Falls back to the dashboard's current mode when the payload does
+     * not carry one, and normalises NULL/empty to
+     * {@see Dashboard::FOOTER_MODE_INHERIT}.
+     *
+     * @param Dashboard            $dashboard    The dashboard being updated.
+     * @param array<string, mixed> $data         The update payload.
+     * @param bool                 $modeProvided Whether the payload carried a mode.
+     *
+     * @return string The validated footer mode.
+     *
+     * @throws InvalidArgumentException When the mode is not in the enum.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function resolveFooterMode(
+        Dashboard $dashboard,
+        array $data,
+        bool $modeProvided
+    ): string {
         $newMode = $dashboard->getDashboardFooterMode();
         if ($modeProvided === true) {
             $newMode = $data['dashboardFooterMode'];
@@ -2654,30 +2924,44 @@ class DashboardService
             );
         }
 
-        if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
-            $rawHtml = $dashboard->getDashboardFooterHtml();
-            if ($htmlProvided === true) {
-                $rawHtml = $data['dashboardFooterHtml'];
-            }
+        return $newMode;
+    }//end resolveFooterMode()
 
-            if ($rawHtml === null || is_string($rawHtml) === false || trim(string: $rawHtml) === '') {
-                throw new InvalidArgumentException(
-                    message: 'dashboardFooterHtml is required when dashboardFooterMode=custom'
-                );
-            }
-
-            $sanitised = $this->footerService->sanitiseHtml(html: $rawHtml);
-            $dashboard->setDashboardFooterMode(Dashboard::FOOTER_MODE_CUSTOM);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $dashboard->setDashboardFooterHtml($sanitised);
-            return;
+    /**
+     * Resolve the raw custom-footer HTML an update is asking to store.
+     *
+     * Falls back to the dashboard's current HTML when the payload does
+     * not carry any, and rejects an absent/blank value — a `custom`
+     * footer with no body is not a meaningful state.
+     *
+     * @param Dashboard            $dashboard    The dashboard being updated.
+     * @param array<string, mixed> $data         The update payload.
+     * @param bool                 $htmlProvided Whether the payload carried HTML.
+     *
+     * @return string The raw (unsanitised) footer HTML.
+     *
+     * @throws InvalidArgumentException When no usable HTML is available.
+     *
+     * @spec openspec/specs/dashboards/spec.md
+     */
+    private function resolveCustomFooterHtml(
+        Dashboard $dashboard,
+        array $data,
+        bool $htmlProvided
+    ): string {
+        $rawHtml = $dashboard->getDashboardFooterHtml();
+        if ($htmlProvided === true) {
+            $rawHtml = $data['dashboardFooterHtml'];
         }
 
-        // Inherit / hidden — clear stale HTML to keep the invariant.
-        $dashboard->setDashboardFooterMode($newMode);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setDashboardFooterHtml(null);
-    }//end applyFooterUpdates()
+        if ($rawHtml === null || is_string($rawHtml) === false || trim(string: $rawHtml) === '') {
+            throw new InvalidArgumentException(
+                message: 'dashboardFooterHtml is required when dashboardFooterMode=custom'
+            );
+        }
+
+        return $rawHtml;
+    }//end resolveCustomFooterHtml()
 
     /**
      * Resolve the effective footer payload for a dashboard

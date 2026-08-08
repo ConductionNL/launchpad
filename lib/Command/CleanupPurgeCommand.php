@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
+use OCA\LaunchPad\Db\CleanupResult;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use Symfony\Component\Console\Command\Command;
@@ -139,22 +140,15 @@ class CleanupPurgeCommand extends Command
             $effectiveCategories = $this->registry->getCategoryNames();
         }
 
-        if ($assumeYes === false) {
-            $helper = $this->getHelper(name: 'question');
-            if ($helper instanceof QuestionHelper) {
-                $question = new ConfirmationQuestion(
-                    question: sprintf(
-                        'Delete orphaned data in categories: [%s]? (y/N) ',
-                        implode(separator: ', ', array: $effectiveCategories)
-                    ),
-                    default: false
-                );
-
-                if ($helper->ask(input: $input, output: $output, question: $question) === false) {
-                    $output->writeln(messages: 'Purge cancelled.');
-                    return 0;
-                }
-            }
+        if ($this->confirmPurge(
+            input: $input,
+            output: $output,
+            assumeYes: $assumeYes,
+            effectiveCategories: $effectiveCategories
+        ) === false
+        ) {
+            $output->writeln(messages: 'Purge cancelled.');
+            return 0;
         }
 
         $result = $this->cleanupService->purge(
@@ -164,20 +158,88 @@ class CleanupPurgeCommand extends Command
             source: 'cli',
         );
 
+        $output->writeln(
+            messages: $this->formatSummary(
+                result: $result,
+                categoryNames: $categoryNames,
+                dryRun: $dryRun
+            )
+        );
+
+        $this->writeSkipped(output: $output, skipped: $result->getSkipped());
+
+        return 0;
+    }//end execute()
+
+    /**
+     * Ask the operator to confirm the purge.
+     *
+     * Returns `true` immediately when `--yes` was supplied, or when the
+     * console has no question helper registered (the pre-existing
+     * non-interactive fallback). Otherwise the confirmation question is
+     * asked and its answer returned.
+     *
+     * @param InputInterface     $input               The console input.
+     * @param OutputInterface    $output              The console output.
+     * @param bool               $assumeYes           Whether `--yes` was
+     *                                                supplied.
+     * @param array<int, string> $effectiveCategories Categories named in
+     *                                                the prompt.
+     *
+     * @return bool True when the purge may proceed.
+     */
+    private function confirmPurge(
+        InputInterface $input,
+        OutputInterface $output,
+        bool $assumeYes,
+        array $effectiveCategories
+    ): bool {
+        if ($assumeYes === true) {
+            return true;
+        }
+
+        $helper = $this->getHelper(name: 'question');
+        if (($helper instanceof QuestionHelper) === false) {
+            return true;
+        }
+
+        $question = new ConfirmationQuestion(
+            question: sprintf(
+                'Delete orphaned data in categories: [%s]? (y/N) ',
+                implode(separator: ', ', array: $effectiveCategories)
+            ),
+            default: false
+        );
+
+        return ($helper->ask(input: $input, output: $output, question: $question) !== false);
+    }//end confirmPurge()
+
+    /**
+     * Build the one-line summary written after a purge.
+     *
+     * A single explicitly-named category gets the per-category wording;
+     * every other invocation gets the across-categories wording. Dry runs
+     * are prefixed so the operator can never mistake a preview for a
+     * completed purge.
+     *
+     * @param CleanupResult      $result        The purge result.
+     * @param array<int, string> $categoryNames The explicitly requested categories.
+     * @param bool               $dryRun        Whether this was a dry run.
+     *
+     * @return string The summary line.
+     */
+    private function formatSummary(
+        CleanupResult $result,
+        array $categoryNames,
+        bool $dryRun
+    ): string {
         $prefix = 'Purged';
         if ($dryRun === true) {
             $prefix = 'DRY-RUN: Would purge';
         }
 
-        $summaryMessage = sprintf(
-            '<info>%s %d items across %d categories in %dms.</info>',
-            $prefix,
-            $result->getTotalRows(),
-            count(value: $result->getByCategory()),
-            $result->getDurationMs()
-        );
         if (count(value: $categoryNames) === 1) {
-            $summaryMessage = sprintf(
+            return sprintf(
                 '<info>%s %d items from category \'%s\' in %dms.</info>',
                 $prefix,
                 $result->getTotalRows(),
@@ -186,18 +248,34 @@ class CleanupPurgeCommand extends Command
             );
         }
 
-        $output->writeln(messages: $summaryMessage);
+        return sprintf(
+            '<info>%s %d items across %d categories in %dms.</info>',
+            $prefix,
+            $result->getTotalRows(),
+            count(value: $result->getByCategory()),
+            $result->getDurationMs()
+        );
+    }//end formatSummary()
 
-        $skipped = $result->getSkipped();
-        if (count(value: $skipped) > 0) {
-            $output->writeln(
-                messages: sprintf(
-                    '<comment>Skipped categories: %s</comment>',
-                    implode(separator: ', ', array: $skipped)
-                )
-            );
+    /**
+     * Write the skipped-categories notice when there is one.
+     *
+     * @param OutputInterface    $output  The console output.
+     * @param array<int, string> $skipped The skipped category names.
+     *
+     * @return void
+     */
+    private function writeSkipped(OutputInterface $output, array $skipped): void
+    {
+        if (count(value: $skipped) === 0) {
+            return;
         }
 
-        return 0;
-    }//end execute()
+        $output->writeln(
+            messages: sprintf(
+                '<comment>Skipped categories: %s</comment>',
+                implode(separator: ', ', array: $skipped)
+            )
+        );
+    }//end writeSkipped()
 }//end class

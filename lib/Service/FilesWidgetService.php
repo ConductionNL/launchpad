@@ -229,71 +229,24 @@ class FilesWidgetService
         $uploaded = [];
         $errors   = [];
         foreach ($uploadedFiles as $entry) {
-            $name  = (string) $entry['name'];
-            $tmp   = (string) $entry['tmp_name'];
-            $error = (int) $entry['error'];
-            $size  = (int) $entry['size'];
+            $name = (string) $entry['name'];
 
-            if ($name === '' || $error !== UPLOAD_ERR_OK || $tmp === '') {
+            $rejection = $this->rejectUpload(entry: $entry, mimeFilter: $mimeFilter);
+            if ($rejection !== null) {
                 $errors[] = [
                     'name'  => $name,
-                    'error' => 'upload_failed',
+                    'error' => $rejection,
                 ];
                 continue;
-            }
-
-            // M3: assert the temp file came through a real PHP upload to
-            // prevent local-file-inclusion via a crafted tmp_name.
-            if (is_uploaded_file(filename: $tmp) === false) {
-                $errors[] = [
-                    'name'  => $name,
-                    'error' => 'upload_failed',
-                ];
-                continue;
-            }
-
-            // M3: reject files that exceed the hard size cap.
-            if ($size > self::MAX_UPLOAD_BYTES) {
-                $errors[] = [
-                    'name'  => $name,
-                    'error' => 'file_too_large',
-                ];
-                continue;
-            }
-
-            // M3: honour the placement MIME type filter on writes so
-            // uploads cannot bypass a restrict-to-images-only config.
-            if ($mimeFilter !== []) {
-                $detectedMime = $this->detectMimeType(path: $tmp);
-                if ($this->mimeMatchesFilter(mime: $detectedMime, filter: $mimeFilter) === false) {
-                    $errors[] = [
-                        'name'  => $name,
-                        'error' => 'file_type_not_allowed',
-                    ];
-                    continue;
-                }
             }
 
             $safeName = $this->resolveAvailableName(folder: $target, desired: $name);
             try {
-                // M3: stream-write to avoid loading the entire file into
-                // memory before handing it to Nextcloud's storage layer.
-                $handle = fopen(filename: $tmp, mode: 'rb');
-                if ($handle === false) {
-                    throw new RuntimeException('Cannot open temporary file');
-                }
-
-                $file      = $target->newFile(path: $safeName);
-                $outHandle = $file->fopen(mode: 'w');
-                if ($outHandle === false) {
-                    fclose($handle);
-                    throw new RuntimeException('Cannot open destination file');
-                }
-
-                stream_copy_to_stream(from: $handle, to: $outHandle);
-                fclose($handle);
-                fclose($outHandle);
-
+                $file       = $this->streamToNewFile(
+                    target: $target,
+                    tmp: (string) $entry['tmp_name'],
+                    safeName: $safeName
+                );
                 $uploaded[] = $this->buildFileMetadata(node: $file);
             } catch (Throwable $e) {
                 $errors[] = [
@@ -308,6 +261,96 @@ class FilesWidgetService
             'errors'   => $errors,
         ];
     }//end uploadFiles()
+
+    /**
+     * Screen one uploaded entry before it is written to storage.
+     *
+     * Applies, in order: the transport-level `$_FILES` error, the M3
+     * genuine-upload assertion (a crafted `tmp_name` would otherwise give
+     * local-file inclusion), the hard size cap, and the placement's MIME
+     * type filter so an upload cannot bypass a restrict-to-images config.
+     *
+     * @param array $entry      One normalised `$_FILES` entry with keys
+     *                          `name`, `tmp_name`, `size` and `error`.
+     * @param array $mimeFilter Normalised MIME filter; `[]` means allow all.
+     *
+     * @return string|null Client-facing error code, or null when the
+     *                     entry may be stored.
+     *
+     * @spec openspec/specs/files-widget/spec.md
+     */
+    private function rejectUpload(array $entry, array $mimeFilter): ?string
+    {
+        $name  = (string) $entry['name'];
+        $tmp   = (string) $entry['tmp_name'];
+        $error = (int) $entry['error'];
+        $size  = (int) $entry['size'];
+
+        if ($name === '' || $error !== UPLOAD_ERR_OK || $tmp === '') {
+            return 'upload_failed';
+        }
+
+        // M3: assert the temp file came through a real PHP upload to
+        // prevent local-file-inclusion via a crafted tmp_name.
+        if (is_uploaded_file(filename: $tmp) === false) {
+            return 'upload_failed';
+        }
+
+        // M3: reject files that exceed the hard size cap.
+        if ($size > self::MAX_UPLOAD_BYTES) {
+            return 'file_too_large';
+        }
+
+        // M3: honour the placement MIME type filter on writes.
+        if ($mimeFilter === []) {
+            return null;
+        }
+
+        $detectedMime = $this->detectMimeType(path: $tmp);
+        if ($this->mimeMatchesFilter(mime: $detectedMime, filter: $mimeFilter) === false) {
+            return 'file_type_not_allowed';
+        }
+
+        return null;
+    }//end rejectUpload()
+
+    /**
+     * Stream a temporary upload into a new file under `$target`.
+     *
+     * M3: streamed rather than read whole so an upload is never fully
+     * materialised in memory before reaching Nextcloud's storage layer.
+     *
+     * @param Folder $target   Destination folder.
+     * @param string $tmp      Path of the PHP temporary upload file.
+     * @param string $safeName Collision-free name for the new file.
+     *
+     * @return File The newly written file.
+     *
+     * @throws RuntimeException When either the source or the destination
+     *                          stream cannot be opened.
+     *
+     * @spec openspec/specs/files-widget/spec.md
+     */
+    private function streamToNewFile(Folder $target, string $tmp, string $safeName): File
+    {
+        $handle = fopen(filename: $tmp, mode: 'rb');
+        if ($handle === false) {
+            throw new RuntimeException('Cannot open temporary file');
+        }
+
+        $file      = $target->newFile(path: $safeName);
+        $outHandle = $file->fopen(mode: 'w');
+        if ($outHandle === false) {
+            fclose($handle);
+            throw new RuntimeException('Cannot open destination file');
+        }
+
+        stream_copy_to_stream(from: $handle, to: $outHandle);
+        fclose($handle);
+        fclose($outHandle);
+
+        return $file;
+    }//end streamToNewFile()
 
     /**
      * Delete a single file inside the configured folder (or a sub-path
@@ -450,31 +493,12 @@ class FilesWidgetService
             throw new FolderNotFoundException();
         }
 
-        $node = null;
-
-        $fileId = $this->extractFileId(config: $config);
-        if ($fileId !== null) {
-            $matches = $userFolder->getById(id: $fileId);
-            if (count($matches) > 0 && $matches[0] instanceof Folder) {
-                $node = $matches[0];
-            }
-        }
-
+        $fileId     = $this->extractFileId(config: $config);
         $folderPath = (string) ($config['folderPath'] ?? '');
-        if ($node === null && $folderPath !== '') {
-            $normalised = ('/'.trim(string: $folderPath, characters: '/'));
-            try {
-                $candidate = $userFolder;
-                if ($normalised !== '/') {
-                    $candidate = $userFolder->get(path: $normalised);
-                }
 
-                if ($candidate instanceof Folder) {
-                    $node = $candidate;
-                }
-            } catch (NotFoundException $e) {
-                // Will fall through to the throw below.
-            }
+        $node = $this->resolveByFileId(userFolder: $userFolder, fileId: $fileId);
+        if ($node === null && $folderPath !== '') {
+            $node = $this->resolveByPath(userFolder: $userFolder, folderPath: $folderPath);
         }
 
         // Unconfigured placement (neither a fileId nor a folderPath set):
@@ -496,6 +520,66 @@ class FilesWidgetService
 
         return $node;
     }//end resolveConfiguredFolder()
+
+    /**
+     * Resolve the placement folder by its stable `fileId`.
+     *
+     * An id that resolves to nothing, or to a node that is not a folder,
+     * yields null so the caller can fall back to `folderPath`.
+     *
+     * @param Folder       $userFolder The viewer's home folder.
+     * @param integer|null $fileId     Configured file id, or null.
+     *
+     * @return Folder|null The resolved folder, or null.
+     *
+     * @spec openspec/specs/files-widget/spec.md
+     */
+    private function resolveByFileId(Folder $userFolder, ?int $fileId): ?Folder
+    {
+        if ($fileId === null) {
+            return null;
+        }
+
+        $matches = $userFolder->getById(id: $fileId);
+        if (count($matches) > 0 && $matches[0] instanceof Folder) {
+            return $matches[0];
+        }
+
+        return null;
+    }//end resolveByFileId()
+
+    /**
+     * Resolve the placement folder by its configured path.
+     *
+     * A path of `/` denotes the viewer's home folder itself. A missing
+     * path, or one naming a non-folder node, yields null so the caller
+     * can raise `FolderNotFoundException`.
+     *
+     * @param Folder $userFolder The viewer's home folder.
+     * @param string $folderPath Configured path, relative to the home folder.
+     *
+     * @return Folder|null The resolved folder, or null.
+     *
+     * @spec openspec/specs/files-widget/spec.md
+     */
+    private function resolveByPath(Folder $userFolder, string $folderPath): ?Folder
+    {
+        $normalised = ('/'.trim(string: $folderPath, characters: '/'));
+        try {
+            $candidate = $userFolder;
+            if ($normalised !== '/') {
+                $candidate = $userFolder->get(path: $normalised);
+            }
+
+            if ($candidate instanceof Folder) {
+                return $candidate;
+            }
+        } catch (NotFoundException $e) {
+            // Caller falls through to its own not-found handling.
+        }
+
+        return null;
+    }//end resolveByPath()
 
     /**
      * Descend into a sub-path relative to a root folder. Each

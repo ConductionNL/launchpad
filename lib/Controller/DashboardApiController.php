@@ -395,33 +395,9 @@ class DashboardApiController extends Controller
         ?string $slug=null,
         ?int $sortOrder=null
     ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-        }
-
-        // L3: wire the create action so the matrix entry is enforced —
-        // consistent with all other mutation endpoints (ADR-023).
-        $this->actionAuth->requireAction($user, 'dashboard.create');
-
-        if ($this->userId === null) {
-            return ResponseHelper::unauthorized();
-        }
-
-        // REQ-ASET-003 (extended): admin gating runs FIRST so the response
-        // envelope is the stable `personal_dashboards_disabled` shape no
-        // matter what the request body looked like.
-        try {
-            $this->dashboardService->assertPersonalDashboardsAllowed();
-        } catch (PersonalDashboardsDisabledException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => $e->getErrorCode(),
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
+        $denial = $this->denyCreate();
+        if ($denial !== null) {
+            return $denial;
         }
 
         $resolved = $this->resolveCreateParams(
@@ -489,6 +465,50 @@ class DashboardApiController extends Controller
             return ResponseHelper::error(exception: $e);
         }//end try
     }//end create()
+
+    /**
+     * Resolve the authentication / authorisation guard chain for
+     * {@see self::create()}.
+     *
+     * Order is load-bearing. REQ-ASET-003 (extended): the admin gating
+     * runs BEFORE any request-body handling so the response envelope is
+     * the stable `personal_dashboards_disabled` shape no matter what the
+     * body looked like.
+     *
+     * @return JSONResponse|NULL The refusal, or NULL to proceed.
+     *
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
+     */
+    private function denyCreate(): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+        }
+
+        // L3: wire the create action so the matrix entry is enforced —
+        // consistent with all other mutation endpoints (ADR-023).
+        $this->actionAuth->requireAction($user, 'dashboard.create');
+
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->dashboardService->assertPersonalDashboardsAllowed();
+        } catch (PersonalDashboardsDisabledException $e) {
+            return new JSONResponse(
+                data: [
+                    'status'  => 'error',
+                    'error'   => $e->getErrorCode(),
+                    'message' => $e->getMessage(),
+                ],
+                statusCode: Http::STATUS_FORBIDDEN
+            );
+        }
+
+        return null;
+    }//end denyCreate()
 
     /**
      * Update a dashboard.

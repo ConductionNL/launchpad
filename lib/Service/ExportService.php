@@ -343,31 +343,71 @@ class ExportService
         $all       = [];
         $seenUuids = [];
 
-        foreach ($this->dashboardMapper->findAdminTemplates() as $tpl) {
-            $uuid = (string) $tpl->getUuid();
+        $this->appendUnseenDashboards(
+            candidates: $this->dashboardMapper->findAdminTemplates(),
+            all: $all,
+            seenUuids: $seenUuids
+        );
+
+        foreach ($this->groupManager->search(search: '') as $group) {
+            $this->appendUnseenDashboards(
+                candidates: $this->dashboardMapper->findByGroup(groupId: $group->getGID()),
+                all: $all,
+                seenUuids: $seenUuids
+            );
+        }
+
+        $this->appendPersonalDashboards(all: $all, seenUuids: $seenUuids);
+
+        return $all;
+    }//end collectAllDashboards()
+
+    /**
+     * Append every candidate whose UUID has not been collected yet.
+     *
+     * Dashboards with an empty UUID are skipped — they cannot be
+     * addressed in the archive and cannot be deduplicated safely.
+     *
+     * @param iterable<Dashboard> $candidates The dashboards to consider.
+     * @param Dashboard[]         $all        The accumulator, appended in place.
+     * @param array<string, bool> $seenUuids  The seen-UUID set, updated in place.
+     *
+     * @return void
+     */
+    private function appendUnseenDashboards(
+        iterable $candidates,
+        array &$all,
+        array &$seenUuids
+    ): void {
+        foreach ($candidates as $candidate) {
+            $uuid = (string) $candidate->getUuid();
             if ($uuid === '' || isset($seenUuids[$uuid]) === true) {
                 continue;
             }
 
             $seenUuids[$uuid] = true;
-            $all[]            = $tpl;
+            $all[]            = $candidate;
         }
+    }//end appendUnseenDashboards()
 
-        foreach ($this->groupManager->search(search: '') as $group) {
-            foreach ($this->dashboardMapper->findByGroup(groupId: $group->getGID()) as $shared) {
-                $uuid = (string) $shared->getUuid();
-                if ($uuid === '' || isset($seenUuids[$uuid]) === true) {
-                    continue;
-                }
-
-                $seenUuids[$uuid] = true;
-                $all[]            = $shared;
-            }
-        }
-
-        // Walk every personal dashboard via the parent index — root-only
-        // call returns the top of every user tree, then descendants pull
-        // the rest. The empty-string lookup short-circuits via NULL.
+    /**
+     * Walk every personal dashboard via the parent index — root-only
+     * call returns the top of every user tree, then descendants pull
+     * the rest. The empty-string lookup short-circuits via NULL.
+     *
+     * A root that was already collected (as an admin template or a
+     * group-shared dashboard) is skipped together with its descendants,
+     * matching the pre-refactor traversal exactly.
+     *
+     * @param Dashboard[]         $all       The accumulator, appended in place.
+     * @param array<string, bool> $seenUuids The seen-UUID set, updated in place.
+     *
+     * @return void
+     */
+    private function appendPersonalDashboards(
+        array &$all,
+        array &$seenUuids
+    ): void {
         foreach ($this->dashboardMapper->findByParent(parentUuid: null) as $root) {
             $uuid = (string) $root->getUuid();
             if ($uuid === '' || isset($seenUuids[$uuid]) === true) {
@@ -376,19 +416,13 @@ class ExportService
 
             $seenUuids[$uuid] = true;
             $all[]            = $root;
-            foreach ($this->dashboardMapper->findDescendants(ancestorUuid: $uuid) as $child) {
-                $childUuid = (string) $child->getUuid();
-                if ($childUuid === '' || isset($seenUuids[$childUuid]) === true) {
-                    continue;
-                }
-
-                $seenUuids[$childUuid] = true;
-                $all[] = $child;
-            }
+            $this->appendUnseenDashboards(
+                candidates: $this->dashboardMapper->findDescendants(ancestorUuid: $uuid),
+                all: $all,
+                seenUuids: $seenUuids
+            );
         }
-
-        return $all;
-    }//end collectAllDashboards()
+    }//end appendPersonalDashboards()
 
     /**
      * Wrap a temp ZIP file in a streaming HTTP response.

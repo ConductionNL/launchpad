@@ -83,30 +83,52 @@ class WidgetPlacementService
                 continue;
             }
 
-            $childContent = $child['content'] ?? null;
-            if (is_array($childContent) === false) {
-                continue;
-            }
-
-            $isChildContainer = (
-                ($child['type'] ?? null) === 'container'
-                || (isset($childContent['placements']) === true
-                    && is_array($childContent['placements']) === true)
-            );
-
-            if ($isChildContainer === true) {
-                $childDepth = ($depth + 1);
-                if ($childDepth > self::MAX_CONTAINER_DEPTH) {
-                    throw new InvalidArgumentException(
-                        message: 'container_depth_exceeded'
-                    );
-                }
-
-                $this->validateContainerDepth(
-                    content: $childContent,
-                    depth: $childDepth
-                );
-            }
+            $this->validateChildDepth(child: $child, depth: $depth);
         }//end foreach
     }//end validateContainerDepth()
+
+    /**
+     * Validate a single `placements[]` child of a container node.
+     *
+     * Non-container children are ignored — only a child that is itself a
+     * container adds a nesting level, and only then can the cap be
+     * breached. Container children are charged one level and recursed
+     * into via {@see self::validateContainerDepth()}.
+     *
+     * @param array $child The child placement to inspect.
+     * @param int   $depth The parent container's nesting depth.
+     *
+     * @return void
+     *
+     * @throws InvalidArgumentException When the depth limit is exceeded.
+     */
+    private function validateChildDepth(array $child, int $depth): void
+    {
+        $childContent = $child['content'] ?? null;
+        if (is_array($childContent) === false) {
+            return;
+        }
+
+        $isChildContainer = (
+            ($child['type'] ?? null) === 'container'
+            || (isset($childContent['placements']) === true
+                && is_array($childContent['placements']) === true)
+        );
+
+        if ($isChildContainer === false) {
+            return;
+        }
+
+        $childDepth = ($depth + 1);
+        if ($childDepth > self::MAX_CONTAINER_DEPTH) {
+            throw new InvalidArgumentException(
+                message: 'container_depth_exceeded'
+            );
+        }
+
+        $this->validateContainerDepth(
+            content: $childContent,
+            depth: $childDepth
+        );
+    }//end validateChildDepth()
 }//end class

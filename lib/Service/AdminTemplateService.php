@@ -410,6 +410,23 @@ class AdminTemplateService
         Dashboard $template,
         array $data
     ): void {
+        $this->applyTemplateIdentityUpdates(template: $template, data: $data);
+        $this->applyTemplateBehaviourUpdates(template: $template, data: $data);
+        $this->applyTemplateGalleryUpdates(template: $template, data: $data);
+    }//end applyTemplateUpdates()
+
+    /**
+     * Apply the template's human-facing identity fields.
+     *
+     * @param Dashboard $template The template entity.
+     * @param array     $data     The update data.
+     *
+     * @return void
+     */
+    private function applyTemplateIdentityUpdates(
+        Dashboard $template,
+        array $data
+    ): void {
         if (isset($data['name']) === true) {
             $template->setName($data['name']);
         }
@@ -419,7 +436,23 @@ class AdminTemplateService
                 $data['description']
             );
         }
+    }//end applyTemplateIdentityUpdates()
 
+    /**
+     * Apply the fields that govern how the template is targeted and rendered.
+     *
+     * Promoting a template to default first clears the flag on every other
+     * template so the "exactly one default" invariant survives the write.
+     *
+     * @param Dashboard $template The template entity.
+     * @param array     $data     The update data.
+     *
+     * @return void
+     */
+    private function applyTemplateBehaviourUpdates(
+        Dashboard $template,
+        array $data
+    ): void {
         if (isset($data['targetGroups']) === true) {
             $template->setTargetGroupsArray(
                 $data['targetGroups']
@@ -447,7 +480,23 @@ class AdminTemplateService
                 $data['gridColumns']
             );
         }
+    }//end applyTemplateBehaviourUpdates()
 
+    /**
+     * Apply the discovery-gallery presentation fields (REQ-TMPL-014).
+     *
+     * All three use `array_key_exists` rather than `isset` so an explicit
+     * null clears the stored value.
+     *
+     * @param Dashboard $template The template entity.
+     * @param array     $data     The update data.
+     *
+     * @return void
+     */
+    private function applyTemplateGalleryUpdates(
+        Dashboard $template,
+        array $data
+    ): void {
         if (array_key_exists(key: 'templateCategory', array: $data) === true) {
             $template->setTemplateCategory(
                 $data['templateCategory']
@@ -465,7 +514,7 @@ class AdminTemplateService
                 $data['templatePreviewImage']
             );
         }
-    }//end applyTemplateUpdates()
+    }//end applyTemplateGalleryUpdates()
 
     /**
      * List admin templates for the discovery gallery (REQ-TMPL-014).

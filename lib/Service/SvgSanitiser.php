@@ -277,43 +277,68 @@ class SvgSanitiser
         }
 
         foreach ($attributes as $attribute) {
-            $name      = $attribute->nodeName;
-            $lowerName = strtolower(string: $name);
+            $lowerName = strtolower(string: $attribute->nodeName);
 
-            // Defence in depth — strip every `on*` attribute regardless
-            // of whitelist (REQ-RES-011).
-            if (str_starts_with(haystack: $lowerName, needle: 'on') === true) {
-                $element->removeAttributeNode(attr: $attribute);
-                continue;
-            }
-
-            if (in_array(
-                needle: $lowerName,
-                haystack: self::ALLOWED_ATTRIBUTES,
-                strict: true
-            ) === false
+            if ($this->isDisallowedAttribute(
+                lowerName: $lowerName,
+                value: $attribute->value
+            ) === true
             ) {
                 $element->removeAttributeNode(attr: $attribute);
-                continue;
-            }
-
-            if ($lowerName === 'href' || $lowerName === 'xlink:href') {
-                if ($this->isDangerousUrl(value: $attribute->value) === true) {
-                    $element->removeAttributeNode(attr: $attribute);
-                }
-
-                continue;
-            }
-
-            if ($lowerName === 'style') {
-                if ($this->isDangerousStyle(value: $attribute->value) === true) {
-                    $element->removeAttributeNode(attr: $attribute);
-                }
-
-                continue;
             }
         }//end foreach
     }//end cleanElement()
+
+    /**
+     * Decide whether a single attribute must be stripped.
+     *
+     * The checks are evaluated in strict order and the FIRST match wins —
+     * this ordering is load-bearing for REQ-RES-011 / REQ-RES-012 and must
+     * not be rearranged:
+     *
+     * 1. Any `on*` attribute is removed regardless of the whitelist
+     *    (defence in depth).
+     * 2. Anything absent from {@see self::ALLOWED_ATTRIBUTES} is removed.
+     * 3. A whitelisted `href` / `xlink:href` is removed when its value is
+     *    on the URL denylist.
+     * 4. A whitelisted `style` is removed when its value is on the CSS
+     *    denylist.
+     *
+     * Anything reaching the end is whitelisted and carries no dangerous
+     * payload, so it is kept.
+     *
+     * @param string $lowerName The lower-cased attribute name.
+     * @param string $value     The raw attribute value.
+     *
+     * @return boolean True when the attribute must be removed.
+     */
+    private function isDisallowedAttribute(string $lowerName, string $value): bool
+    {
+        // Defence in depth — strip every `on*` attribute regardless
+        // of whitelist (REQ-RES-011).
+        if (str_starts_with(haystack: $lowerName, needle: 'on') === true) {
+            return true;
+        }
+
+        if (in_array(
+            needle: $lowerName,
+            haystack: self::ALLOWED_ATTRIBUTES,
+            strict: true
+        ) === false
+        ) {
+            return true;
+        }
+
+        if ($lowerName === 'href' || $lowerName === 'xlink:href') {
+            return $this->isDangerousUrl(value: $value);
+        }
+
+        if ($lowerName === 'style') {
+            return $this->isDangerousStyle(value: $value);
+        }
+
+        return false;
+    }//end isDisallowedAttribute()
 
     /**
      * Whether the supplied URL value is on the denylist. Trims +

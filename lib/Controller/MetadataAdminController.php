@@ -271,30 +271,13 @@ class MetadataAdminController extends Controller
             return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
         }
 
-        $patch = [];
-        if ($key !== null) {
-            $patch['key'] = $key;
-        }
-
-        if ($label !== null) {
-            $patch['label'] = $label;
-        }
-
-        if ($sortOrder !== null) {
-            $patch['sortOrder'] = $sortOrder;
-        }
-
-        if ($required !== null) {
-            $patch['required'] = $required;
-        }
-
-        // Distinguish "not supplied" from "null to clear". The router
-        // delivers `null` when the body omits the key; treat any
-        // explicit array (including empty) as "set options" so admins
-        // can clear an option set on non-select types.
-        if ($options !== null) {
-            $patch['options'] = $options;
-        }
+        $patch = self::buildPatch(
+            key: $key,
+            label: $label,
+            sortOrder: $sortOrder,
+            required: $required,
+            options: $options
+        );
 
         try {
             $field = $this->metadataService->updateFieldDefinition(
@@ -365,6 +348,57 @@ class MetadataAdminController extends Controller
 
         return ResponseHelper::success(data: ['status' => 'ok']);
     }//end deleteField()
+
+    /**
+     * Build the update patch from the individual nullable parameters.
+     *
+     * `null` means "not supplied" and the key is left out entirely, so
+     * the service can distinguish an omitted field from an explicit
+     * value. The router delivers `null` when the body omits the key;
+     * any explicit array (including an empty one) counts as "set
+     * options", so admins can clear an option set on non-select types.
+     *
+     * The forbidden `key` rename is deliberately forwarded rather than
+     * dropped — the service rejects it with the documented 400.
+     *
+     * @param string|null             $key       The (forbidden) new slug.
+     * @param string|null             $label     The new label.
+     * @param int|null                $sortOrder The new sort order.
+     * @param int|null                $required  The new required flag.
+     * @param array<int, string>|null $options   The new option set.
+     *
+     * @return array<string, mixed> The patch payload.
+     */
+    private static function buildPatch(
+        ?string $key,
+        ?string $label,
+        ?int $sortOrder,
+        ?int $required,
+        ?array $options
+    ): array {
+        $patch = [];
+        if ($key !== null) {
+            $patch['key'] = $key;
+        }
+
+        if ($label !== null) {
+            $patch['label'] = $label;
+        }
+
+        if ($sortOrder !== null) {
+            $patch['sortOrder'] = $sortOrder;
+        }
+
+        if ($required !== null) {
+            $patch['required'] = $required;
+        }
+
+        if ($options !== null) {
+            $patch['options'] = $options;
+        }
+
+        return $patch;
+    }//end buildPatch()
 
     /**
      * Build a 400-with-error envelope.

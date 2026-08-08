@@ -509,52 +509,20 @@ class DashboardTreeService
             // Delete leaves first (descendants reverse order) so that the
             // adjacency-list invariants stay consistent during the walk.
             foreach (array_reverse($descendants) as $child) {
-                $childId = $child->getId();
-                if ($childId !== null) {
-                    $this->placementMapper->deleteByDashboardId(
-                        dashboardId: $childId
-                    );
-                }
-
-                $this->dashboardMapper->delete(entity: $child);
+                $this->deleteDashboardWithPlacements(
+                    target: $child,
+                    fallback: $dashboard,
+                    deletedAt: $deletedAt
+                );
                 $deleted++;
-
-                // SB1 fix: dispatch cascade event for child (REQ-CSC-001).
-                $childUuid = (string) $child->getUuid();
-                if ($this->eventDispatcher !== null && $childUuid !== '') {
-                    $this->eventDispatcher->dispatchTyped(
-                        new DashboardDeletedEvent(
-                            dashboardUuid: $childUuid,
-                            ownerUserId:   (string) ($child->getUserId() ?? $dashboard->getUserId() ?? ''),
-                            type:          (string) ($child->getType() ?? $dashboard->getType() ?? Dashboard::TYPE_USER),
-                            deletedAt:     $deletedAt
-                        )
-                    );
-                }
             }//end foreach
 
-            $rootId = $dashboard->getId();
-            if ($rootId !== null) {
-                $this->placementMapper->deleteByDashboardId(
-                    dashboardId: $rootId
-                );
-            }
-
-            $this->dashboardMapper->delete(entity: $dashboard);
+            $this->deleteDashboardWithPlacements(
+                target: $dashboard,
+                fallback: $dashboard,
+                deletedAt: $deletedAt
+            );
             $deleted++;
-
-            // SB1 fix: dispatch cascade event for root (REQ-CSC-001).
-            $rootUuidForEvent = (string) $dashboard->getUuid();
-            if ($this->eventDispatcher !== null && $rootUuidForEvent !== '') {
-                $this->eventDispatcher->dispatchTyped(
-                    new DashboardDeletedEvent(
-                        dashboardUuid: $rootUuidForEvent,
-                        ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
-                        type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
-                        deletedAt:     $deletedAt
-                    )
-                );
-            }
 
             $this->db->commit();
         } catch (\Throwable $t) {
@@ -564,6 +532,51 @@ class DashboardTreeService
 
         return $deleted;
     }//end deleteSubtree()
+
+    /**
+     * Delete one dashboard, its widget placements, and announce the removal.
+     *
+     * Shared by the descendant walk and the subtree root. Owner and type
+     * are read off the target and fall back to `$fallback` (the subtree
+     * root) when the row does not carry them — a root passes itself as its
+     * own fallback, which collapses to reading its own values.
+     *
+     * The event is only dispatched when a dispatcher is wired and the
+     * dashboard carries a non-empty UUID (REQ-CSC-001).
+     *
+     * @param Dashboard         $target    The dashboard to remove.
+     * @param Dashboard         $fallback  Source of owner/type when the target lacks them.
+     * @param DateTimeImmutable $deletedAt The timestamp shared by the whole cascade.
+     *
+     * @return void
+     */
+    private function deleteDashboardWithPlacements(
+        Dashboard $target,
+        Dashboard $fallback,
+        DateTimeImmutable $deletedAt
+    ): void {
+        $targetId = $target->getId();
+        if ($targetId !== null) {
+            $this->placementMapper->deleteByDashboardId(
+                dashboardId: $targetId
+            );
+        }
+
+        $this->dashboardMapper->delete(entity: $target);
+
+        // SB1 fix: dispatch cascade event (REQ-CSC-001).
+        $targetUuid = (string) $target->getUuid();
+        if ($this->eventDispatcher !== null && $targetUuid !== '') {
+            $this->eventDispatcher->dispatchTyped(
+                new DashboardDeletedEvent(
+                    dashboardUuid: $targetUuid,
+                    ownerUserId:   (string) ($target->getUserId() ?? $fallback->getUserId() ?? ''),
+                    type:          (string) ($target->getType() ?? $fallback->getType() ?? Dashboard::TYPE_USER),
+                    deletedAt:     $deletedAt
+                )
+            );
+        }
+    }//end deleteDashboardWithPlacements()
 
     /**
      * Reject a parent that is a descendant of the moving dashboard

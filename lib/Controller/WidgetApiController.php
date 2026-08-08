@@ -245,6 +245,79 @@ class WidgetApiController extends Controller
         int $gridWidth=4,
         int $gridHeight=4
     ): JSONResponse {
+        $denial = $this->denyAddWidget(
+            dashboardId: $dashboardId,
+            widgetId: $widgetId
+        );
+        if ($denial !== null) {
+            return $denial;
+        }
+
+        // REQ-CONT-006: reject deeply-nested container payloads BEFORE
+        // touching the placement mapper so no rows are inserted on a
+        // depth violation. Tolerant of non-container payloads (no-op
+        // when the request carries no `content.placements[]` blob).
+        $contentParam = $this->request->getParam(key: 'content');
+        $depthDenial  = $this->denyContainerDepth(content: $contentParam);
+        if ($depthDenial !== null) {
+            return $depthDenial;
+        }
+
+        // Forward the per-type content payload (registry-driven custom
+        // widgets carry their config here — `label`, `text`, `image`, etc.).
+        // Tolerant of legacy callers that send only `widgetId` and grid
+        // coords with no content blob: $contentParam stays null and
+        // PlacementService leaves the column NULL.
+        $contentToPersist = null;
+        if (is_array($contentParam) === true) {
+            $contentToPersist = $contentParam;
+        }
+
+        try {
+            $placement = $this->widgetService->addWidget(
+                dashboardId: $dashboardId,
+                widgetId: (string) $widgetId,
+                gridX: $gridX,
+                gridY: $gridY,
+                gridWidth: $gridWidth,
+                gridHeight: $gridHeight,
+                content: $contentToPersist
+            );
+
+            return ResponseHelper::success(
+                data: $placement->jsonSerialize(),
+                statusCode: Http::STATUS_CREATED
+            );
+        } catch (QuotaExceededException $e) {
+            // Dashboard-quota-limits REQ-QUOTA-003: dashboard is at the
+            // widget limit — HTTP 409 with the structured body.
+            return ResponseHelper::quotaExceeded(exception: $e);
+        } catch (\Exception $e) {
+            return ResponseHelper::error(exception: $e);
+        }//end try
+    }//end addWidget()
+
+    /**
+     * Resolve the guard chain for {@see self::addWidget()}.
+     *
+     * Returns the JSONResponse that must be sent when the request is
+     * refused, or NULL when every guard passes and the caller may
+     * proceed. Extracted so `addWidget()` reads as "guard, validate
+     * payload, persist" rather than a flat run of early returns.
+     *
+     * Order is load-bearing: authentication first, then the
+     * action-level authorisation (which throws), then payload
+     * validation, then the two per-object permission checks.
+     *
+     * @param int         $dashboardId Dashboard ID.
+     * @param string|null $widgetId    Widget ID from the request body.
+     *
+     * @return JSONResponse|NULL The refusal, or NULL to proceed.
+     *
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
+     */
+    private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse
+    {
         $user = $this->userSession->getUser();
         if ($user === null) {
             return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
@@ -290,58 +363,96 @@ class WidgetApiController extends Controller
             return ResponseHelper::forbidden();
         }
 
-        // REQ-CONT-006: reject deeply-nested container payloads BEFORE
-        // touching the placement mapper so no rows are inserted on a
-        // depth violation. Tolerant of non-container payloads (no-op
-        // when the request carries no `content.placements[]` blob).
-        $contentParam = $this->request->getParam(key: 'content');
-        if (is_array($contentParam) === true) {
-            try {
-                $this->widgetPlacementService->validateContainerDepth(
-                    content: $contentParam
-                );
-            } catch (\InvalidArgumentException $depthError) {
-                if ($depthError->getMessage() === 'container_depth_exceeded') {
-                    return $this->containerDepthExceededResponse();
-                }
+        return null;
+    }//end denyAddWidget()
 
-                return ResponseHelper::error(exception: $depthError);
+    /**
+     * Guard the mandatory-read acknowledgement fields on a placement
+     * update.
+     *
+     * REQ-ACK-001: setting/changing/clearing the acknowledgement
+     * requirement is restricted to an admin or the template owner — a
+     * non-author who can otherwise style the widget MUST be rejected
+     * (ADR-005, no privilege bleed through the styling gate). The guard
+     * only engages when the payload actually touches an
+     * acknowledgement-requirement field, so ordinary styling updates are
+     * unaffected.
+     *
+     * @param int $placementId The placement being updated.
+     *
+     * @return JSONResponse|NULL The refusal, or NULL to proceed.
+     *
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
+     */
+    private function denyAcknowledgementChange(int $placementId): ?JSONResponse
+    {
+        $ackFields = [
+            'requiresAcknowledgement',
+            'acknowledgementPrompt',
+            'acknowledgementDeadline',
+            'reacknowledgeOnChange',
+            'acknowledgementContentVersion',
+        ];
+
+        $touchesAck = false;
+        foreach ($ackFields as $ackField) {
+            if ($this->request->getParam(key: $ackField) !== null) {
+                $touchesAck = true;
+                break;
             }
         }
 
-        // Forward the per-type content payload (registry-driven custom
-        // widgets carry their config here — `label`, `text`, `image`, etc.).
-        // Tolerant of legacy callers that send only `widgetId` and grid
-        // coords with no content blob: $contentParam stays null and
-        // PlacementService leaves the column NULL.
-        $contentToPersist = null;
-        if (is_array($contentParam) === true) {
-            $contentToPersist = $contentParam;
+        if ($touchesAck === false) {
+            return null;
+        }
+
+        if ($this->permissionService->canManageAcknowledgement(
+            userId: (string) $this->userId,
+            placementId: $placementId
+        ) === false
+        ) {
+            return ResponseHelper::forbidden(
+                message: 'Only an admin or the template owner may set an acknowledgement requirement'
+            );
+        }
+
+        return null;
+    }//end denyAcknowledgementChange()
+
+    /**
+     * Validate the container-nesting depth of an inbound content payload.
+     *
+     * REQ-CONT-006. Returns the refusal response when the payload nests
+     * containers deeper than {@see WidgetPlacementService::MAX_CONTAINER_DEPTH},
+     * or NULL when the payload is acceptable (including when it is not a
+     * container payload at all).
+     *
+     * @param mixed $content The raw `content` request parameter.
+     *
+     * @return JSONResponse|NULL The refusal, or NULL to proceed.
+     *
+     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
+     */
+    private function denyContainerDepth(mixed $content): ?JSONResponse
+    {
+        if (is_array($content) === false) {
+            return null;
         }
 
         try {
-            $placement = $this->widgetService->addWidget(
-                dashboardId: $dashboardId,
-                widgetId: $widgetId,
-                gridX: $gridX,
-                gridY: $gridY,
-                gridWidth: $gridWidth,
-                gridHeight: $gridHeight,
-                content: $contentToPersist
+            $this->widgetPlacementService->validateContainerDepth(
+                content: $content
             );
+        } catch (\InvalidArgumentException $depthError) {
+            if ($depthError->getMessage() === 'container_depth_exceeded') {
+                return $this->containerDepthExceededResponse();
+            }
 
-            return ResponseHelper::success(
-                data: $placement->jsonSerialize(),
-                statusCode: Http::STATUS_CREATED
-            );
-        } catch (QuotaExceededException $e) {
-            // Dashboard-quota-limits REQ-QUOTA-003: dashboard is at the
-            // widget limit — HTTP 409 with the structured body.
-            return ResponseHelper::quotaExceeded(exception: $e);
-        } catch (\Exception $e) {
-            return ResponseHelper::error(exception: $e);
-        }//end try
-    }//end addWidget()
+            return ResponseHelper::error(exception: $depthError);
+        }
+
+        return null;
+    }//end denyContainerDepth()
 
     /**
      * Build the canonical "container_depth_exceeded" error response
@@ -447,54 +558,19 @@ class WidgetApiController extends Controller
             return ResponseHelper::forbidden();
         }
 
-        // REQ-ACK-001: setting/changing/clearing the mandatory-read
-        // acknowledgement requirement is restricted to an admin or the
-        // template owner — a non-author who can otherwise style the widget
-        // MUST be rejected (ADR-005, no privilege bleed through the styling
-        // gate). Only guard when the payload actually touches an
-        // acknowledgement-requirement field.
-        $ackFields  = [
-            'requiresAcknowledgement',
-            'acknowledgementPrompt',
-            'acknowledgementDeadline',
-            'reacknowledgeOnChange',
-            'acknowledgementContentVersion',
-        ];
-        $touchesAck = false;
-        foreach ($ackFields as $ackField) {
-            if ($this->request->getParam(key: $ackField) !== null) {
-                $touchesAck = true;
-                break;
-            }
-        }
-
-        if ($touchesAck === true
-            && $this->permissionService->canManageAcknowledgement(
-                userId: $this->userId,
-                placementId: $placementId
-            ) === false
-        ) {
-            return ResponseHelper::forbidden(
-                message: 'Only an admin or the template owner may set an acknowledgement requirement'
-            );
+        $ackDenial = $this->denyAcknowledgementChange(placementId: $placementId);
+        if ($ackDenial !== null) {
+            return $ackDenial;
         }
 
         // REQ-CONT-006: validate the container depth invariant on
         // update too — a placement can grow nested children via PUT
         // without ever going through addWidget.
-        $contentParam = $this->request->getParam(key: 'content');
-        if (is_array($contentParam) === true) {
-            try {
-                $this->widgetPlacementService->validateContainerDepth(
-                    content: $contentParam
-                );
-            } catch (\InvalidArgumentException $depthError) {
-                if ($depthError->getMessage() === 'container_depth_exceeded') {
-                    return $this->containerDepthExceededResponse();
-                }
-
-                return ResponseHelper::error(exception: $depthError);
-            }
+        $depthDenial = $this->denyContainerDepth(
+            content: $this->request->getParam(key: 'content')
+        );
+        if ($depthDenial !== null) {
+            return $depthDenial;
         }
 
         try {
@@ -647,51 +723,18 @@ class WidgetApiController extends Controller
         string $from='',
         string $to=''
     ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+        $denial = $this->denyCalendarEvents();
+        if ($denial !== null) {
+            return $denial;
         }
 
-        if ($this->userId === null) {
-            return ResponseHelper::unauthorized();
+        $range = $this->resolveCalendarRange(from: $from, to: $to);
+        if ($range['error'] !== null) {
+            return $range['error'];
         }
 
-        try {
-            $this->actionAuth->requireAction($user, 'widget.calendar-events');
-        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
-        }
-
-        if ($from === '' || $to === '') {
-            return new JSONResponse(
-                data: ['error' => 'Both from and to are required ISO 8601 timestamps'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        try {
-            $start = new DateTimeImmutable(datetime: $from);
-            $end   = new DateTimeImmutable(datetime: $to);
-        } catch (Throwable $exception) {
-            unset($exception);
-            return new JSONResponse(
-                data: ['error' => 'Invalid date format'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        if ($end < $start) {
-            return new JSONResponse(
-                data: ['error' => '`to` must be greater than or equal to `from`'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
-
-        // Defensive 1-year cap per design D1 to bound RRULE expansion.
-        $maxEnd = $start->modify(modifier: '+1 year');
-        if ($end > $maxEnd) {
-            $end = $maxEnd;
-        }
+        $start = $range['start'];
+        $end   = $range['end'];
 
         try {
             $placement = $this->widgetService->getPlacement(placementId: $placementId);
@@ -727,6 +770,102 @@ class WidgetApiController extends Controller
 
         return ResponseHelper::success(data: $result);
     }//end calendarEvents()
+
+    /**
+     * Resolve the authentication / authorisation guard chain for
+     * {@see self::calendarEvents()}.
+     *
+     * @return JSONResponse|NULL The refusal, or NULL to proceed.
+     *
+     * @spec openspec/specs/widgets/spec.md
+     */
+    private function denyCalendarEvents(): ?JSONResponse
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+        }
+
+        if ($this->userId === null) {
+            return ResponseHelper::unauthorized();
+        }
+
+        try {
+            $this->actionAuth->requireAction($user, 'widget.calendar-events');
+        } catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
+            return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
+        }
+
+        return null;
+    }//end denyCalendarEvents()
+
+    /**
+     * Parse, validate and cap the mandatory `from`/`to` date range of a
+     * calendar-events request.
+     *
+     * The window is capped at one year (design D1) as a defensive bound
+     * on RRULE expansion. On any validation failure the `error` member
+     * carries the response the caller must return and `start`/`end` are
+     * NULL.
+     *
+     * @param string $from ISO 8601 start.
+     * @param string $to   ISO 8601 end.
+     *
+     * @return array{error: JSONResponse|null, start: DateTimeImmutable|null, end: DateTimeImmutable|null}
+     *
+     * @spec openspec/specs/widgets/spec.md
+     */
+    private function resolveCalendarRange(string $from, string $to): array
+    {
+        if ($from === '' || $to === '') {
+            return [
+                'error' => new JSONResponse(
+                    data: ['error' => 'Both from and to are required ISO 8601 timestamps'],
+                    statusCode: Http::STATUS_BAD_REQUEST
+                ),
+                'start' => null,
+                'end'   => null,
+            ];
+        }
+
+        try {
+            $start = new DateTimeImmutable(datetime: $from);
+            $end   = new DateTimeImmutable(datetime: $to);
+        } catch (Throwable $exception) {
+            unset($exception);
+            return [
+                'error' => new JSONResponse(
+                    data: ['error' => 'Invalid date format'],
+                    statusCode: Http::STATUS_BAD_REQUEST
+                ),
+                'start' => null,
+                'end'   => null,
+            ];
+        }
+
+        if ($end < $start) {
+            return [
+                'error' => new JSONResponse(
+                    data: ['error' => '`to` must be greater than or equal to `from`'],
+                    statusCode: Http::STATUS_BAD_REQUEST
+                ),
+                'start' => null,
+                'end'   => null,
+            ];
+        }
+
+        // Defensive 1-year cap per design D1 to bound RRULE expansion.
+        $maxEnd = $start->modify(modifier: '+1 year');
+        if ($end > $maxEnd) {
+            $end = $maxEnd;
+        }
+
+        return [
+            'error' => null,
+            'start' => $start,
+            'end'   => $end,
+        ];
+    }//end resolveCalendarRange()
 
     /**
      * List the current user's internal Nextcloud calendars so the calendar

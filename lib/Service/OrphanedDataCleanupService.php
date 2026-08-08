@@ -225,6 +225,57 @@ class OrphanedDataCleanupService
             $this->db->beginTransaction();
         }
 
+        $this->runCategoryPurges(
+            names: $names,
+            dryRun: $dryRun,
+            byCategory: $byCategory,
+            skipped: $skipped,
+        );
+
+        $duration = ((int) round(num: (microtime(as_float: true) * 1000)) - $start);
+        $result   = CleanupResult::fromCounts(
+            byCategory: $byCategory,
+            durationMs: $duration,
+            dryRun: $dryRun,
+            skipped: $skipped,
+        );
+
+        if ($dryRun === false) {
+            $this->recordPurgeOutcome(
+                result: $result,
+                byCategory: $byCategory,
+                userId: $userId,
+                source: $source,
+            );
+        }
+
+        return $result;
+    }//end purge()
+
+    /**
+     * Run every named category's purge, filling the count and skip lists.
+     *
+     * A category that is unregistered or reports itself unavailable is
+     * skipped rather than failing the whole run. On a dry run the caller
+     * has already opened a transaction, so this rolls it back on both the
+     * happy path and the failure path — REQ-CLN-003 requires a simulation
+     * to leave zero persistent side effect.
+     *
+     * @param array<int, string> $names      The category names to purge.
+     * @param bool               $dryRun     True for simulation.
+     * @param array<string, int> $byCategory Per-category row counts, filled in place.
+     * @param array<int, string> $skipped    Skipped category names, filled in place.
+     *
+     * @return void
+     *
+     * @throws Throwable Re-thrown after the dry-run transaction is rolled back.
+     */
+    private function runCategoryPurges(
+        array $names,
+        bool $dryRun,
+        array &$byCategory,
+        array &$skipped
+    ): void {
         try {
             foreach ($names as $name) {
                 $category = $this->registry->getCategoryByName(name: $name);
@@ -253,40 +304,49 @@ class OrphanedDataCleanupService
 
             throw $t;
         }//end try
+    }//end runCategoryPurges()
 
-        $duration = ((int) round(num: (microtime(as_float: true) * 1000)) - $start);
-        $result   = CleanupResult::fromCounts(
-            byCategory: $byCategory,
-            durationMs: $duration,
-            dryRun: $dryRun,
-            skipped: $skipped,
-        );
+    /**
+     * Record the side effects of a real (non-dry-run) purge.
+     *
+     * Invalidates the scan cache (REQ-CLN-010), emits exactly one Activity
+     * event when rows were actually removed (REQ-CLN-009), and writes the
+     * audit log line.
+     *
+     * @param CleanupResult      $result     The completed purge result.
+     * @param array<string, int> $byCategory Per-category row counts.
+     * @param string|null        $userId     The actor for audit (null = system).
+     * @param string             $source     Origin label ('cli', 'api', 'job').
+     *
+     * @return void
+     */
+    private function recordPurgeOutcome(
+        CleanupResult $result,
+        array $byCategory,
+        ?string $userId,
+        string $source
+    ): void {
+        $this->invalidateCache();
 
-        if ($dryRun === false) {
-            $this->invalidateCache();
-
-            if ($result->getTotalRows() > 0) {
-                $this->emitActivityEvent(
-                    result: $result,
-                    userId: $userId,
-                    source: $source,
-                );
-            }
-
-            $this->logger->info(
-                message: sprintf(
-                    'launchpad.cleanup.purge source=%s user=%s rows=%d duration_ms=%d categories=%s',
-                    $source,
-                    ($userId ?? 'system'),
-                    $result->getTotalRows(),
-                    $result->getDurationMs(),
-                    implode(separator: ',', array: array_keys(array: $byCategory)),
-                )
+        if ($result->getTotalRows() > 0) {
+            $this->emitActivityEvent(
+                result: $result,
+                userId: $userId,
+                source: $source,
             );
-        }//end if
+        }
 
-        return $result;
-    }//end purge()
+        $this->logger->info(
+            message: sprintf(
+                'launchpad.cleanup.purge source=%s user=%s rows=%d duration_ms=%d categories=%s',
+                $source,
+                ($userId ?? 'system'),
+                $result->getTotalRows(),
+                $result->getDurationMs(),
+                implode(separator: ',', array: array_keys(array: $byCategory)),
+            )
+        );
+    }//end recordPurgeOutcome()
 
     /**
      * Read the most recent cached scan result.

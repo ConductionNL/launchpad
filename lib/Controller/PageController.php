@@ -166,18 +166,105 @@ class PageController extends Controller
         // Load all widget scripts so legacy widgets can register their callbacks.
         $this->loadWidgetScripts();
 
-        $user   = $this->userSession->getUser();
-        $userId = '';
-        if ($user !== null) {
-            $userId = $user->getUID();
+        $userId = $this->resolveUserId();
+
+        $routingGroup     = $this->resolveRoutingGroup(userId: $userId);
+        $primaryGroupId   = $routingGroup['id'];
+        $primaryGroupName = $routingGroup['name'];
+
+        $isAdmin = false;
+        $visible = [];
+        $active  = null;
+        if ($userId !== '') {
+            $isAdmin = $this->dashboardService->isAdmin(userId: $userId);
+            $visible = $this->dashboardService->getVisibleToUser(userId: $userId);
+            $active  = $this->resolveActive(
+                userId: $userId,
+                deepLink: $deepLink,
+                primaryGroupId: $primaryGroupId
+            );
         }
 
-        // Routing resolver — REQ-TMPL-012 / REQ-TMPL-013. The
-        // `AdminTemplateService` walks the admin-configured `group_order`
-        // priority list and returns the first group the user belongs to,
-        // OR the literal `'default'` sentinel when nothing matches. The
-        // display name comes from the same service so the lookup lives in
-        // exactly one place.
+        $descriptors = $this->splitDescriptors(visible: $visible);
+        $activeState = $this->describeActive(active: $active);
+
+        $allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
+
+        $builder = new InitialStateBuilder(
+            initialState: $this->initialState,
+            page: Page::WORKSPACE
+        );
+
+        $builder
+            ->setWidgets($this->widgetService->getAvailableWidgets())
+            ->setLayout($activeState['layout'])
+            ->setPrimaryGroup($primaryGroupId)
+            ->setPrimaryGroupName($primaryGroupName)
+            ->setIsAdmin($isAdmin)
+            ->setActiveDashboardId($activeState['activeDashboardId'])
+            ->setDashboardSource($activeState['dashboardSource'])
+            ->setGroupDashboards($descriptors['group'])
+            ->setUserDashboards($descriptors['user'])
+            ->setAllowUserDashboards($allowUserDashboards);
+
+        // PR #95 (role-based-content): per-user widget allow-list.
+        // `null` = no admin policy for this user (unlimited).
+        $allowedWidgets = null;
+        if ($userId !== '') {
+            $allowedWidgets = $this->roleFeaturePerm->getAllowedWidgetIds(
+                userId: $userId
+            );
+        }
+
+        // Tile-quick-search REQ-QSEARCH-004: read the admin-configured
+        // no-match fallback target. `getSettings()` already resolves the
+        // safe 'none' default when unset/invalid, so this never throws.
+        $quicksearchFallback = (string) (
+            $this->adminSettingsService->getSettings()['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
+        );
+
+        $builder
+            ->setAllowedWidgets($allowedWidgets)
+            ->setDeepLinkPath($activeState['deepLinkPath'])
+            ->setQuicksearchFallbackTarget($quicksearchFallback)
+            ->apply();
+
+        // REQ-SHELL-001: pass the chrome slot ids so Nextcloud treats
+        // `#app-workspace` as the main content slot and allocates no left
+        // navigation panel (the runtime shell renders its own slide-in
+        // sidebar via `dashboard-switcher-sidebar`). Renderer parameter
+        // names match the Nextcloud chrome conventions.
+        $response = new TemplateResponse(
+            appName: Application::APP_ID,
+            templateName: 'index',
+            params: [
+                'id-app-content'    => '#app-workspace',
+                'id-app-navigation' => null,
+            ]
+        );
+
+        $response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
+
+        return $response;
+    }//end index()
+
+    /**
+     * Resolve the primary group this request routes through.
+     *
+     * Routing resolver — REQ-TMPL-012 / REQ-TMPL-013. The
+     * `AdminTemplateService` walks the admin-configured `group_order`
+     * priority list and returns the first group the user belongs to, OR
+     * the literal `'default'` sentinel when nothing matches. The display
+     * name comes from the same service so the lookup lives in exactly one
+     * place.
+     *
+     * @param string $userId The caller's uid, or '' when anonymous.
+     *
+     * @return array{id: string, name: string} The group id and its
+     *                                         display name.
+     */
+    private function resolveRoutingGroup(string $userId): array
+    {
         $primaryGroupId   = Dashboard::DEFAULT_GROUP_ID;
         $primaryGroupName = $this->adminTemplateService->resolvePrimaryGroupDisplayName(
             groupId: Dashboard::DEFAULT_GROUP_ID
@@ -191,16 +278,40 @@ class PageController extends Controller
             );
         }
 
-        $isAdmin = false;
-        if ($userId !== '') {
-            $isAdmin = $this->dashboardService->isAdmin(userId: $userId);
+        return [
+            'id'   => $primaryGroupId,
+            'name' => $primaryGroupName,
+        ];
+    }//end resolveRoutingGroup()
+
+    /**
+     * Resolve the active session's user id.
+     *
+     * @return string The uid, or an empty string for an anonymous caller.
+     */
+    private function resolveUserId(): string
+    {
+        $user = $this->userSession->getUser();
+        if ($user === null) {
+            return '';
         }
 
-        $visible = [];
-        if ($userId !== '') {
-            $visible = $this->dashboardService->getVisibleToUser(userId: $userId);
-        }
+        return $user->getUID();
+    }//end resolveUserId()
 
+    /**
+     * Split the visible dashboards into the group and user descriptor
+     * lists the initial-state contract expects (REQ-INIT-002).
+     *
+     * User-sourced entries drop the `source` key — the frontend infers it
+     * from the list the descriptor arrived in.
+     *
+     * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible entries.
+     *
+     * @return array{group: list<array<string, string>>, user: list<array<string, string>>}
+     */
+    private function splitDescriptors(array $visible): array
+    {
         $groupDashboards = [];
         $userDashboards  = [];
         foreach ($visible as $entry) {
@@ -223,157 +334,190 @@ class PageController extends Controller
             $groupDashboards[] = $descriptor;
         }
 
+        return [
+            'group' => $groupDashboards,
+            'user'  => $userDashboards,
+        ];
+    }//end splitDescriptors()
+
+    /**
+     * Resolve the dashboard that should open for this request.
+     *
+     * Deep-link override: when the URL carries a slug-chain we try to land
+     * the user on that dashboard before consulting the seven-step
+     * resolver. Failures (path doesn't resolve, not visible, throws) are
+     * swallowed so a stale bookmark still opens *something* instead of
+     * breaking.
+     *
+     * @param string $userId         The caller's uid (never empty here).
+     * @param string $deepLink       The slug-chain from the URL, or ''.
+     * @param string $primaryGroupId The resolved primary group id.
+     *
+     * @return array{dashboard: Dashboard, source: string}|null The active
+     *                                                          entry, or
+     *                                                          null.
+     */
+    private function resolveActive(
+        string $userId,
+        string $deepLink,
+        string $primaryGroupId
+    ): ?array {
         $active = null;
-        if ($userId !== '') {
-            // Deep-link override: when the URL carries a slug-chain we
-            // try to land the user on that dashboard before consulting
-            // the seven-step resolver. Failures (path doesn't resolve,
-            // not visible, throws) are swallowed so a stale bookmark
-            // still opens *something* instead of breaking.
-            if ($deepLink !== '') {
-                try {
-                    $resolved = $this->treeService->resolvePath(path: $deepLink);
-                    if ($resolved !== null) {
-                        $active = $this->dashboardService->getDashboardForUser(
-                            dashboardId: $resolved->getId(),
-                            userId: $userId
-                        );
-                    }
-                } catch (Throwable $t) {
-                    $this->logger->warning(
-                        message: 'launchpad: deep-link resolution failed for path "{path}": {message}',
-                        context: [
-                            'path'    => $deepLink,
-                            'message' => $t->getMessage(),
-                        ]
-                    );
-                }
+        if ($deepLink !== '') {
+            $active = $this->resolveDeepLink(userId: $userId, deepLink: $deepLink);
+        }
 
-                if ($active === null) {
-                    $this->logger->info(
-                        message: 'launchpad: deep-link path "{path}" not visible — falling back to default resolver',
-                        context: ['path' => $deepLink]
-                    );
-                }
-            }//end if
+        if ($active !== null) {
+            return $active;
+        }
 
-            if ($active === null) {
-                $active = $this->dashboardService->resolveActiveDashboard(
-                    userId: $userId,
-                    primaryGroupId: $primaryGroupId
+        return $this->dashboardService->resolveActiveDashboard(
+            userId: $userId,
+            primaryGroupId: $primaryGroupId
+        );
+    }//end resolveActive()
+
+    /**
+     * Resolve a slug-chain to a dashboard the caller may read.
+     *
+     * Every failure mode — unresolvable path, dashboard not visible, or a
+     * throwing resolver — returns null after logging, so the caller can
+     * fall back to the default resolver.
+     *
+     * @param string $userId   The caller's uid.
+     * @param string $deepLink The slug-chain from the URL.
+     *
+     * @return array{dashboard: Dashboard, source: string}|null The matched
+     *                                                          entry, or
+     *                                                          null.
+     */
+    private function resolveDeepLink(string $userId, string $deepLink): ?array
+    {
+        $active = null;
+        try {
+            $resolved = $this->treeService->resolvePath(path: $deepLink);
+            if ($resolved !== null) {
+                $active = $this->dashboardService->getDashboardForUser(
+                    dashboardId: $resolved->getId(),
+                    userId: $userId
                 );
             }
-        }//end if
-
-        $activeDashboardId = '';
-        $dashboardSource   = Dashboard::SOURCE_GROUP;
-        $layout            = [];
-        $deepLinkPath      = '';
-        if ($active !== null) {
-            $activeDashboard   = $active['dashboard'];
-            $activeDashboardId = (string) $activeDashboard->getUuid();
-            $dashboardSource   = (string) $active['source'];
-            $placements        = $this->widgetService->getDashboardPlacements(
-                dashboardId: $activeDashboard->getId()
+        } catch (Throwable $t) {
+            $this->logger->warning(
+                message: 'launchpad: deep-link resolution failed for path "{path}": {message}',
+                context: [
+                    'path'    => $deepLink,
+                    'message' => $t->getMessage(),
+                ]
             );
-            $layout            = array_map(
+        }
+
+        if ($active === null) {
+            $this->logger->info(
+                message: 'launchpad: deep-link path "{path}" not visible — falling back to default resolver',
+                context: ['path' => $deepLink]
+            );
+        }
+
+        return $active;
+    }//end resolveDeepLink()
+
+    /**
+     * Derive the initial-state keys that describe the active dashboard.
+     *
+     * Returns the documented empty defaults when nothing is active, so
+     * the contract is fully populated either way.
+     *
+     * @param array{dashboard: Dashboard, source: string}|null $active The active entry.
+     *
+     * @return array{activeDashboardId: string, dashboardSource: string, layout: array<int, mixed>, deepLinkPath: string}
+     */
+    private function describeActive(?array $active): array
+    {
+        if ($active === null) {
+            return [
+                'activeDashboardId' => '',
+                'dashboardSource'   => Dashboard::SOURCE_GROUP,
+                'layout'            => [],
+                'deepLinkPath'      => '',
+            ];
+        }
+
+        $activeDashboard = $active['dashboard'];
+        $placements      = $this->widgetService->getDashboardPlacements(
+            dashboardId: $activeDashboard->getId()
+        );
+
+        return [
+            'activeDashboardId' => (string) $activeDashboard->getUuid(),
+            'dashboardSource'   => (string) $active['source'],
+            'layout'            => array_map(
                 callback: function ($placement) {
                     return $placement->jsonSerialize();
                 },
                 array: $placements
+            ),
+            'deepLinkPath'      => $this->computeDeepLinkPath(dashboard: $activeDashboard),
+        ];
+    }//end describeActive()
+
+    /**
+     * Compute the canonical slug-chain for the active dashboard.
+     *
+     * The frontend reads this to keep the URL in sync (e.g. after a
+     * parent rename, a stale bookmarked path is normalised in-place via
+     * `history.replaceState`). A failure is logged and degrades to an
+     * empty path rather than breaking the render.
+     *
+     * @param Dashboard $dashboard The active dashboard.
+     *
+     * @return string The slug-chain, or '' when it could not be computed.
+     */
+    private function computeDeepLinkPath(Dashboard $dashboard): string
+    {
+        try {
+            return $this->treeService->computePath(
+                uuid: (string) $dashboard->getUuid()
             );
-            // Canonical slug-chain for whatever dashboard ended up active —
-            // the frontend reads this to keep the URL in sync (e.g. after
-            // a parent rename, a stale bookmarked path is normalised
-            // in-place via `history.replaceState`).
-            try {
-                $deepLinkPath = $this->treeService->computePath(
-                    uuid: (string) $activeDashboard->getUuid()
-                );
-            } catch (Throwable $t) {
-                $this->logger->warning(
-                    message: 'launchpad: failed to compute path for active dashboard {uuid}: {message}',
-                    context: [
-                        'uuid'    => (string) $activeDashboard->getUuid(),
-                        'message' => $t->getMessage(),
-                    ]
-                );
-            }
-        }//end if
-
-        $allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
-
-        $builder = new InitialStateBuilder(
-            initialState: $this->initialState,
-            page: Page::WORKSPACE
-        );
-
-        $builder
-            ->setWidgets($this->widgetService->getAvailableWidgets())
-            ->setLayout($layout)
-            ->setPrimaryGroup($primaryGroupId)
-            ->setPrimaryGroupName($primaryGroupName)
-            ->setIsAdmin($isAdmin)
-            ->setActiveDashboardId($activeDashboardId)
-            ->setDashboardSource($dashboardSource)
-            ->setGroupDashboards($groupDashboards)
-            ->setUserDashboards($userDashboards)
-            ->setAllowUserDashboards($allowUserDashboards);
-
-        // PR #95 (role-based-content): per-user widget allow-list.
-        // `null` = no admin policy for this user (unlimited).
-        $allowedWidgets = null;
-        if ($userId !== '') {
-            $allowedWidgets = $this->roleFeaturePerm->getAllowedWidgetIds(
-                userId: $userId
+        } catch (Throwable $t) {
+            $this->logger->warning(
+                message: 'launchpad: failed to compute path for active dashboard {uuid}: {message}',
+                context: [
+                    'uuid'    => (string) $dashboard->getUuid(),
+                    'message' => $t->getMessage(),
+                ]
             );
         }
 
-        // Tile-quick-search REQ-QSEARCH-004: read the admin-configured
-        // no-match fallback target. `getSettings()` already resolves the
-        // safe 'none' default when unset/invalid, so this never throws.
-        $quicksearchFallback = (string) (
-            $this->adminSettingsService->getSettings()['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
-        );
+        return '';
+    }//end computeDeepLinkPath()
 
-        $builder
-            ->setAllowedWidgets($allowedWidgets)
-            ->setDeepLinkPath($deepLinkPath)
-            ->setQuicksearchFallbackTarget($quicksearchFallback)
-            ->apply();
-
-        // REQ-SHELL-001: pass the chrome slot ids so Nextcloud treats
-        // `#app-workspace` as the main content slot and allocates no left
-        // navigation panel (the runtime shell renders its own slide-in
-        // sidebar via `dashboard-switcher-sidebar`). Renderer parameter
-        // names match the Nextcloud chrome conventions.
-        $response = new TemplateResponse(
-            appName: Application::APP_ID,
-            templateName: 'index',
-            params: [
-                'id-app-content'    => '#app-workspace',
-                'id-app-navigation' => null,
-            ]
-        );
-
-        // REQ-VID: the video widget embeds YouTube/Vimeo players in an
-        // <iframe>; Nextcloud's default `frame-src 'self'` blocks them, so the
-        // page must explicitly allow the player origins (and their poster/
-        // thumbnail CDNs) or the widget renders an empty/broken frame.
+    /**
+     * Build the workspace content-security policy.
+     *
+     * REQ-VID: the video widget embeds YouTube/Vimeo players in an
+     * `<iframe>`; Nextcloud's default `frame-src 'self'` blocks them, so
+     * the page must explicitly allow the player origins (and their
+     * poster/thumbnail CDNs) or the widget renders an empty/broken frame.
+     * REQ-MMW: the map widget (CnMapWidget) falls back to OpenStreetMap
+     * tiles when no basemap is configured; Nextcloud's default `img-src`
+     * blocks external images, so allow the OSM tile hosts or the map
+     * paints white.
+     *
+     * @return ContentSecurityPolicy The workspace policy.
+     */
+    private function buildWorkspaceCsp(): ContentSecurityPolicy
+    {
         $csp = new ContentSecurityPolicy();
         $csp->addAllowedFrameDomain(domain: 'https://www.youtube.com');
         $csp->addAllowedFrameDomain(domain: 'https://www.youtube-nocookie.com');
         $csp->addAllowedFrameDomain(domain: 'https://player.vimeo.com');
         $csp->addAllowedImageDomain(domain: 'https://i.ytimg.com');
         $csp->addAllowedImageDomain(domain: 'https://i.vimeocdn.com');
-        // REQ-MMW: the map widget (CnMapWidget) falls back to OpenStreetMap tiles
-        // when no basemap is configured; Nextcloud's default `img-src` blocks
-        // external images, so allow the OSM tile hosts or the map paints white.
         $csp->addAllowedImageDomain(domain: 'https://*.tile.openstreetmap.org');
-        $response->setContentSecurityPolicy(csp: $csp);
 
-        return $response;
-    }//end index()
+        return $csp;
+    }//end buildWorkspaceCsp()
 
     /**
      * Render the anonymous read-only public-share page.

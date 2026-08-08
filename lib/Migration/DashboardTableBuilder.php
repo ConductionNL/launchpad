@@ -49,11 +49,31 @@ class DashboardTableBuilder
     /**
      * Add columns to the dashboards table.
      *
+     * Delegates to one helper per column group; the call order below is
+     * the physical column order of the created table.
+     *
      * @param \Doctrine\DBAL\Schema\Table $table The table instance.
      *
      * @return void
      */
     private static function addColumns($table): void
+    {
+        self::addIdentityColumns(table: $table);
+        self::addOwnershipColumns(table: $table);
+        self::addLayoutColumns(table: $table);
+        self::addFlagColumns(table: $table);
+        self::addTimestampColumns(table: $table);
+    }//end addColumns()
+
+    /**
+     * Add the identity / presentation columns (id, uuid, name,
+     * description, icon).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addIdentityColumns($table): void
     {
         $table->addColumn(
             'id',
@@ -98,6 +118,18 @@ class DashboardTableBuilder
                 'comment' => 'Dashboard icon: registry key (dashboard-icons) or upload URL; NULL = default.',
             ]
         );
+    }//end addIdentityColumns()
+
+    /**
+     * Add the ownership / provenance columns (type, user_id, group_id,
+     * based_on_template).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addOwnershipColumns($table): void
+    {
         $table->addColumn(
             'type',
             Types::STRING,
@@ -131,6 +163,18 @@ class DashboardTableBuilder
                 'unsigned' => true,
             ]
         );
+    }//end addOwnershipColumns()
+
+    /**
+     * Add the layout / access columns (grid_columns, permission_level,
+     * target_groups).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addLayoutColumns($table): void
+    {
         $table->addColumn(
             'grid_columns',
             Types::INTEGER,
@@ -155,6 +199,18 @@ class DashboardTableBuilder
                 'notnull' => false,
             ]
         );
+    }//end addLayoutColumns()
+
+    /**
+     * Add the boolean-flag columns (is_default, is_active,
+     * comments_enabled).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addFlagColumns($table): void
+    {
         $table->addColumn(
             'is_default',
             Types::SMALLINT,
@@ -185,6 +241,17 @@ class DashboardTableBuilder
                 'comment'  => 'Per-dashboard comments toggle: NULL = inherit global, 1 = on, 0 = off.',
             ]
         );
+    }//end addFlagColumns()
+
+    /**
+     * Add the audit-timestamp columns (created_at, updated_at).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addTimestampColumns($table): void
+    {
         $table->addColumn(
             'created_at',
             Types::DATETIME,
@@ -199,7 +266,7 @@ class DashboardTableBuilder
                 'notnull' => true,
             ]
         );
-    }//end addColumns()
+    }//end addTimestampColumns()
 
     /**
      * Add indexes to the dashboards table.

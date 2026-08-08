@@ -53,11 +53,30 @@ class PlacementTableBuilder
     /**
      * Add columns to the widget placements table.
      *
+     * Delegates to one helper per column group; the call order below is
+     * the physical column order of the created table.
+     *
      * @param \Doctrine\DBAL\Schema\Table $table The table instance.
      *
      * @return void
      */
     private static function addColumns($table): void
+    {
+        self::addIdentityColumns(table: $table);
+        self::addGridColumns(table: $table);
+        self::addPresentationColumns(table: $table);
+        self::addTimestampColumns(table: $table);
+    }//end addColumns()
+
+    /**
+     * Add the identity / association columns (id, dashboard_id,
+     * widget_id).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addIdentityColumns($table): void
     {
         $table->addColumn(
             'id',
@@ -84,6 +103,18 @@ class PlacementTableBuilder
                 'length'  => 255,
             ]
         );
+    }//end addIdentityColumns()
+
+    /**
+     * Add the grid-geometry columns (grid_x, grid_y, grid_width,
+     * grid_height).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addGridColumns($table): void
+    {
         $table->addColumn(
             'grid_x',
             Types::INTEGER,
@@ -116,6 +147,18 @@ class PlacementTableBuilder
                 'default' => 4,
             ]
         );
+    }//end addGridColumns()
+
+    /**
+     * Add the visibility / presentation columns (is_compulsory,
+     * is_visible, style_config, custom_title, show_title, sort_order).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addPresentationColumns($table): void
+    {
         $table->addColumn(
             'is_compulsory',
             Types::SMALLINT,
@@ -166,6 +209,17 @@ class PlacementTableBuilder
                 'default' => 0,
             ]
         );
+    }//end addPresentationColumns()
+
+    /**
+     * Add the audit-timestamp columns (created_at, updated_at).
+     *
+     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+     *
+     * @return void
+     */
+    private static function addTimestampColumns($table): void
+    {
         $table->addColumn(
             'created_at',
             Types::DATETIME,
@@ -180,7 +234,7 @@ class PlacementTableBuilder
                 'notnull' => true,
             ]
         );
-    }//end addColumns()
+    }//end addTimestampColumns()
 
     /**
      * Add indexes to the widget placements table.

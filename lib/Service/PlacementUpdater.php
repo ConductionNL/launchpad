@@ -130,12 +130,50 @@ class PlacementUpdater
         WidgetPlacement $placement,
         array $data
     ): void {
+        $this->applyAcknowledgementRequirement(placement: $placement, data: $data);
+        $this->applyAcknowledgementCopy(placement: $placement, data: $data);
+        $this->applyAcknowledgementCadence(placement: $placement, data: $data);
+        $this->mintAnnouncementKey(placement: $placement);
+    }//end applyAcknowledgementUpdates()
+
+    /**
+     * Apply the `requiresAcknowledgement` toggle when present in the payload.
+     *
+     * The value is coerced through bool then int so any truthy shape the
+     * client sends ("1", true, 1) lands as the canonical 0/1 column value.
+     *
+     * @param WidgetPlacement $placement The placement entity.
+     * @param array           $data      The update data.
+     *
+     * @return void
+     */
+    private function applyAcknowledgementRequirement(
+        WidgetPlacement $placement,
+        array $data
+    ): void {
         if (isset($data['requiresAcknowledgement']) === true) {
             $placement->setRequiresAcknowledgement(
                 (int) ((bool) $data['requiresAcknowledgement'])
             );
         }
+    }//end applyAcknowledgementRequirement()
 
+    /**
+     * Apply the human-facing acknowledgement copy — prompt and deadline.
+     *
+     * Both use `array_key_exists` rather than `isset` so an explicit null
+     * clears the stored value. An empty-string deadline is normalised to
+     * null (no deadline); an empty-string prompt is kept verbatim.
+     *
+     * @param WidgetPlacement $placement The placement entity.
+     * @param array           $data      The update data.
+     *
+     * @return void
+     */
+    private function applyAcknowledgementCopy(
+        WidgetPlacement $placement,
+        array $data
+    ): void {
         if (array_key_exists('acknowledgementPrompt', $data) === true) {
             $prompt      = $data['acknowledgementPrompt'];
             $promptValue = null;
@@ -155,7 +193,24 @@ class PlacementUpdater
 
             $placement->setAcknowledgementDeadline($deadlineValue);
         }
+    }//end applyAcknowledgementCopy()
 
+    /**
+     * Apply the re-acknowledgement cadence controls.
+     *
+     * `reacknowledgeOnChange` is a 0/1 flag; `acknowledgementContentVersion`
+     * is only accepted when it is a positive integer so a malformed payload
+     * can never rewind the version and mass-invalidate existing receipts.
+     *
+     * @param WidgetPlacement $placement The placement entity.
+     * @param array           $data      The update data.
+     *
+     * @return void
+     */
+    private function applyAcknowledgementCadence(
+        WidgetPlacement $placement,
+        array $data
+    ): void {
         if (isset($data['reacknowledgeOnChange']) === true) {
             $placement->setReacknowledgeOnChange(
                 (int) ((bool) $data['reacknowledgeOnChange'])
@@ -168,16 +223,28 @@ class PlacementUpdater
                 $placement->setAcknowledgementContentVersion($version);
             }
         }
+    }//end applyAcknowledgementCadence()
 
-        // Mint the stable announcement identity the first time the
-        // requirement is enabled (REQ-ACK-001 / design D2).
+    /**
+     * Mint the stable announcement identity the first time the requirement
+     * is enabled (REQ-ACK-001 / design D2).
+     *
+     * Once minted the key is never rotated — clearing the requirement keeps
+     * both the key and the receipts so history survives a toggle.
+     *
+     * @param WidgetPlacement $placement The placement entity.
+     *
+     * @return void
+     */
+    private function mintAnnouncementKey(WidgetPlacement $placement): void
+    {
         if ($placement->getRequiresAcknowledgement() === 1
             && ($placement->getAnnouncementKey() === null
             || $placement->getAnnouncementKey() === '')
         ) {
             $placement->setAnnouncementKey($this->generateUuid());
         }
-    }//end applyAcknowledgementUpdates()
+    }//end mintAnnouncementKey()
 
     /**
      * Generate a v4 UUID using random_bytes (no external dependency).

@@ -465,10 +465,6 @@ class ImportService
      * @param bool                 $preserveUuids Preserve the source UUID.
      *
      * @return Dashboard The new entity (not yet persisted).
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     *      Field-by-field guards are clearer than a map-driven setter.
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function buildEntity(
         array $payload,
@@ -477,6 +473,40 @@ class ImportService
     ): Dashboard {
         $dashboard = new Dashboard();
 
+        $this->applyEntityIdentity(dashboard: $dashboard, payload: $payload);
+        $this->applyEntityOwnership(
+            dashboard: $dashboard,
+            payload: $payload,
+            currentUserId: $currentUserId,
+            preserveUuids: $preserveUuids
+        );
+        $this->applyEntityLayout(dashboard: $dashboard, payload: $payload);
+        $this->applyEntityPlacement(dashboard: $dashboard, payload: $payload);
+
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setIsActive(0);
+        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+        $dashboard->setIsDefault(0);
+
+        return $dashboard;
+    }//end buildEntity()
+
+    /**
+     * Hydrate the dashboard's identity fields — uuid, name, description, icon.
+     *
+     * `uuid` and `name` are mandatory (already checked by
+     * {@see self::validateDashboardPayload()}); the other two are
+     * optional and accept an explicit null.
+     *
+     * @param Dashboard            $dashboard The entity being hydrated.
+     * @param array<string, mixed> $payload   The dashboard payload.
+     *
+     * @return void
+     */
+    private function applyEntityIdentity(
+        Dashboard $dashboard,
+        array $payload
+    ): void {
         $uuid = (string) $payload['uuid'];
         // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
         $dashboard->setUuid($uuid);
@@ -503,7 +533,27 @@ class ImportService
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $dashboard->setIcon($icon);
         }
+    }//end applyEntityIdentity()
 
+    /**
+     * Hydrate the dashboard's type and owning user.
+     *
+     * Imported personal dashboards are owned by the current user unless
+     * we are preserving identity for a same-instance restore.
+     *
+     * @param Dashboard            $dashboard     The entity being hydrated.
+     * @param array<string, mixed> $payload       The dashboard payload.
+     * @param string               $currentUserId The importing user.
+     * @param bool                 $preserveUuids Preserve the source identity.
+     *
+     * @return void
+     */
+    private function applyEntityOwnership(
+        Dashboard $dashboard,
+        array $payload,
+        string $currentUserId,
+        bool $preserveUuids
+    ): void {
         $type = (string) ($payload['type'] ?? Dashboard::TYPE_USER);
         // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
         $dashboard->setType($type);
@@ -517,7 +567,23 @@ class ImportService
 
         // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
         $dashboard->setUserId($userId);
+    }//end applyEntityOwnership()
 
+    /**
+     * Hydrate the grid and access-control fields.
+     *
+     * `targetGroups` is only applied when it really is an array — a
+     * malformed export must not blow up the whole import.
+     *
+     * @param Dashboard            $dashboard The entity being hydrated.
+     * @param array<string, mixed> $payload   The dashboard payload.
+     *
+     * @return void
+     */
+    private function applyEntityLayout(
+        Dashboard $dashboard,
+        array $payload
+    ): void {
         if (array_key_exists(key: 'gridColumns', array: $payload) === true) {
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $dashboard->setGridColumns((int) $payload['gridColumns']);
@@ -533,7 +599,20 @@ class ImportService
         ) {
             $dashboard->setTargetGroupsArray(groups: $payload['targetGroups']);
         }
+    }//end applyEntityLayout()
 
+    /**
+     * Hydrate the tree-placement and publication fields.
+     *
+     * @param Dashboard            $dashboard The entity being hydrated.
+     * @param array<string, mixed> $payload   The dashboard payload.
+     *
+     * @return void
+     */
+    private function applyEntityPlacement(
+        Dashboard $dashboard,
+        array $payload
+    ): void {
         if (array_key_exists(key: 'parentUuid', array: $payload) === true) {
             $parent = null;
             if ($payload['parentUuid'] !== null) {
@@ -563,14 +642,7 @@ class ImportService
             // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
             $dashboard->setPublicationStatus((string) $payload['publicationStatus']);
         }
-
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setIsActive(0);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setIsDefault(0);
-
-        return $dashboard;
-    }//end buildEntity()
+    }//end applyEntityPlacement()
 
     /**
      * Hydrate a WidgetPlacement entity from a payload.

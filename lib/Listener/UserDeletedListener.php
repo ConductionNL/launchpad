@@ -249,8 +249,37 @@ class UserDeletedListener implements IEventListener
             permissionLevel: Dashboard::PERMISSION_FULL
         );
 
-        // Step 1: user-type shares sorted by created_at ASC (mapper already
-        // returns rows in that order).
+        $userOwner = $this->pickUserShareOwner(
+            fullShares: $fullShares,
+            deletedUserId: $deletedUserId
+        );
+        if ($userOwner !== null) {
+            return $userOwner;
+        }
+
+        return $this->pickGroupShareOwner(
+            fullShares: $fullShares,
+            deletedUserId: $deletedUserId
+        );
+    }//end pickNewOwner()
+
+    /**
+     * Step 1 of REQ-SHARE-013 — the first still-existing user-type sharee.
+     *
+     * The mapper already returns rows in `created_at ASC` order, so the
+     * first match in iteration order is the oldest full-permission share.
+     * The deleted user is skipped, as is any uid whose account has since
+     * disappeared.
+     *
+     * @param DashboardShare[] $fullShares    Full-permission shares on the dashboard.
+     * @param string           $deletedUserId The deleted user (excluded from pool).
+     *
+     * @return string|null The new owner uid, or null when no candidate exists.
+     */
+    private function pickUserShareOwner(
+        array $fullShares,
+        string $deletedUserId
+    ): ?string {
         foreach ($fullShares as $share) {
             if ($share->getShareType() !== DashboardShare::SHARE_TYPE_USER) {
                 continue;
@@ -266,7 +295,53 @@ class UserDeletedListener implements IEventListener
             }
         }
 
-        // Step 2: group-type shares — pick alphabetically-first group name.
+        return null;
+    }//end pickUserShareOwner()
+
+    /**
+     * Step 2 of REQ-SHARE-013 — a member of the alphabetically-first group.
+     *
+     * Group shares are walked in alphabetical order; a group that no
+     * longer resolves, or that yields no usable member, falls through to
+     * the next one.
+     *
+     * @param DashboardShare[] $fullShares    Full-permission shares on the dashboard.
+     * @param string           $deletedUserId The deleted user (excluded from pool).
+     *
+     * @return string|null The new owner uid, or null when no candidate exists.
+     */
+    private function pickGroupShareOwner(
+        array $fullShares,
+        string $deletedUserId
+    ): ?string {
+        foreach ($this->sortedGroupShares(fullShares: $fullShares) as $groupShare) {
+            $groupId = (string) $groupShare->getShareWith();
+            $group   = $this->groupManager->get(gid: $groupId);
+            if ($group === null) {
+                continue;
+            }
+
+            $uid = $this->pickExistingMember(
+                users: $group->getUsers(),
+                deletedUserId: $deletedUserId
+            );
+            if ($uid !== null) {
+                return $uid;
+            }
+        }//end foreach
+
+        return null;
+    }//end pickGroupShareOwner()
+
+    /**
+     * Filter the share list down to group-type rows, alphabetically sorted.
+     *
+     * @param DashboardShare[] $fullShares Full-permission shares on the dashboard.
+     *
+     * @return DashboardShare[] The group-type shares, sorted by group name.
+     */
+    private function sortedGroupShares(array $fullShares): array
+    {
         $groupShares = [];
         foreach ($fullShares as $share) {
             if ($share->getShareType() === DashboardShare::SHARE_TYPE_GROUP) {
@@ -283,32 +358,39 @@ class UserDeletedListener implements IEventListener
             )
         );
 
-        foreach ($groupShares as $groupShare) {
-            $groupId = (string) $groupShare->getShareWith();
-            $group   = $this->groupManager->get(gid: $groupId);
-            if ($group === null) {
+        return $groupShares;
+    }//end sortedGroupShares()
+
+    /**
+     * Pick the alphabetically-first still-existing member of a group.
+     *
+     * @param array  $users         The group's members (IUser instances).
+     * @param string $deletedUserId The deleted user (excluded from pool).
+     *
+     * @return string|null The member uid, or null when none qualifies.
+     */
+    private function pickExistingMember(
+        array $users,
+        string $deletedUserId
+    ): ?string {
+        // Get members and sort alphabetically.
+        $members = [];
+        foreach ($users as $user) {
+            $members[] = $user->getUID();
+        }
+
+        sort(array: $members);
+
+        foreach ($members as $uid) {
+            if ($uid === $deletedUserId) {
                 continue;
             }
 
-            // Get members and sort alphabetically.
-            $members = [];
-            foreach ($group->getUsers() as $user) {
-                $members[] = $user->getUID();
+            if ($this->userManager->get(uid: $uid) !== null) {
+                return $uid;
             }
-
-            sort(array: $members);
-
-            foreach ($members as $uid) {
-                if ($uid === $deletedUserId) {
-                    continue;
-                }
-
-                if ($this->userManager->get(uid: $uid) !== null) {
-                    return $uid;
-                }
-            }//end foreach
         }//end foreach
 
         return null;
-    }//end pickNewOwner()
+    }//end pickExistingMember()
 }//end class

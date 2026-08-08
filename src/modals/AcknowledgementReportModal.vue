@@ -50,9 +50,9 @@
 				<table class="launchpad-ack-report__table">
 					<thead>
 						<tr>
-							<th>{{ t('launchpad', 'User') }}</th>
-							<th>{{ t('launchpad', 'Status') }}</th>
-							<th>{{ t('launchpad', 'Acknowledged at') }}</th>
+							<th scope="col">{{ t('launchpad', 'User') }}</th>
+							<th scope="col">{{ t('launchpad', 'Status') }}</th>
+							<th scope="col">{{ t('launchpad', 'Acknowledged at') }}</th>
 						</tr>
 					</thead>
 					<tbody>

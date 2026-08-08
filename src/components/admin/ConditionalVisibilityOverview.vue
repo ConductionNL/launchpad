@@ -26,11 +26,11 @@
 		<table v-else class="cv-overview__table" data-test="cv-overview-table">
 			<thead>
 				<tr>
-					<th>{{ t('launchpad', 'Dashboard') }}</th>
-					<th>{{ t('launchpad', 'Widget type') }}</th>
-					<th>{{ t('launchpad', 'Rules') }}</th>
-					<th>{{ t('launchpad', 'Include') }}</th>
-					<th>{{ t('launchpad', 'Exclude') }}</th>
+					<th scope="col">{{ t('launchpad', 'Dashboard') }}</th>
+					<th scope="col">{{ t('launchpad', 'Widget type') }}</th>
+					<th scope="col">{{ t('launchpad', 'Rules') }}</th>
+					<th scope="col">{{ t('launchpad', 'Include') }}</th>
+					<th scope="col">{{ t('launchpad', 'Exclude') }}</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -67,8 +67,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot.png</screenshot>
 
 	<dependencies>
+		<!--
+			Nextcloud floor raised to 32 fleet-wide (product directive): standardising on
+			NC 32 is what lets the fleet require PHP 8.3. The openregister dependency
+			declared just below itself declares a Nextcloud floor of 32 on its development
+			branch, so a lower floor here would advertise an install range where that
+			dependency refuses to install. max-version is unchanged.
+		-->
 		<php min-version="8.3"/>
-		<nextcloud min-version="29" max-version="34"/>
+		<nextcloud min-version="32" max-version="34"/>
 		<app>openregister</app>
 	</dependencies>
 

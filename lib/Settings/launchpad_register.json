@@ -27,7 +27,7 @@
     "schemas": {
       "Dashboard": {
         "slug": "dashboard",
-        "icon": "ViewDashboard",
+        "icon": "ViewDashboardOutline",
         "version": "1.0.0",
         "title": "Dashboard",
         "description": "A user dashboard containing widget placements and layout configuration",

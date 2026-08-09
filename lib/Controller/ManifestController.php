@@ -493,7 +493,12 @@ class ManifestController extends Controller
                 'label' => $title,
                 'route' => $pageId,
                 'order' => $order,
-                'icon'  => 'icon-home',
+                // ADR-077 Tier A concept `dashboard`. These entries are
+                // dashboards, so `icon-home` was both the wrong concept and a
+                // legacy `icon-*` CSS class — which renders as an invisible
+                // white glyph on NC34+ light themes. The name is registered in
+                // src/icons.js; CnIcon has no fallback for one that is not.
+                'icon'  => 'ViewDashboardOutline',
             ];
 
             $order++;

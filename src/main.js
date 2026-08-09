@@ -33,6 +33,7 @@ import { generateUrl } from '@nextcloud/router'
 import './services/widgetBridge.js'
 
 import App from './App.vue'
+import { LAUNCHPAD_ICONS } from './icons.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import bundledStub from './manifest.json'
@@ -45,8 +46,18 @@ import './styles/workspace.css'
 // is used, which collapses the Add-Widget picker to only the types launchpad
 // references directly (link + nc-widget). Calling this exported no-op forces
 // the aggregator — and therefore every widget registration — into the bundle.
-import { registerBuiltinDashboardWidgets, useAppManifest, registerDashboardWidget, CnNcWidgetWidget, CnNcDashboardWidgetForm } from '@conduction/nextcloud-vue'
+import { registerBuiltinDashboardWidgets, registerIcons, useAppManifest, registerDashboardWidget, CnNcWidgetWidget, CnNcDashboardWidgetForm } from '@conduction/nextcloud-vue'
 registerBuiltinDashboardWidgets()
+
+// Populate the shared CnIcon registry with the MDI icons LaunchPad's
+// manifests name (ADR-077 rule 3).
+//
+// CnIcon resolves a manifest icon name only through this registry and has no
+// fallback: a name that was never registered renders NOTHING — no glyph, no
+// placeholder, no console error — so the menu entry just looks broken. This
+// call has to happen before the app mounts, which is why it sits here beside
+// the widget registration rather than inside a component.
+registerIcons(LAUNCHPAD_ICONS)
 
 // nc-vue's own `CnNcWidgetWidget/index.js` self-registers `nc-widget` with
 // `form: null` — a "renderer-only" entry its header comment justifies as

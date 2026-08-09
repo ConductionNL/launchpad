@@ -29,6 +29,8 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
+ *
+ * @spec openspec/specs/tiles/spec.md
  */
 
 declare(strict_types=1);
@@ -63,5 +65,4 @@ class TileService
     {
         return $this->tileMapper->findByUserId(userId: $userId);
     }//end getUserTiles()
-
 }//end class

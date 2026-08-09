@@ -141,9 +141,18 @@ jobs:
       enable-playwright: true
       playwright-test-path: tests/e2e/ci
       # The grant spec needs a second, non-admin account to be the share
-      # recipient; a grant to yourself proves nothing. Password is >= 10 chars
-      # because Nextcloud's default policy silently rejects shorter ones.
-      playwright-seed-command: 'OC_PASS=E2eGranteePw123 php occ user:add --password-from-env e2e-grantee || true'
+      # recipient; a grant to yourself proves nothing.
+      #
+      # This was an inline `… user:add … || true`. The `|| true` was there for a
+      # real reason — the suite must survive a re-run against a warm instance —
+      # but it tolerated EVERYTHING, not just "already exists": a rejected
+      # password, a missing occ or a broken database all exited 0 and let
+      # Playwright start with no grantee. The script keeps the tolerance and
+      # narrows it to the postcondition that matters (the account exists
+      # afterwards), which it establishes by asking the instance. See
+      # tests/e2e/seed.test.sh, which asserts both arms — including the one
+      # that must fail.
+      playwright-seed-command: bash apps/launchpad/tests/e2e/seed.sh
 
       # ── Frontend Check legs ──────────────────────────────────────────────
       # `frontend-checks` defaults to `[]`, and an empty list means the shared

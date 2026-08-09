@@ -74,6 +74,22 @@ test.describe('anonymous public share', () => {
 		const admin = await apiAs(baseURL!, ADMIN)
 		const anon = await anonymousApi(baseURL!)
 
+		// --- precondition: personal dashboards must be enabled -----------
+		// A fresh CI instance ships `allow_user_dashboards` OFF, so
+		// `POST /api/dashboard` answers 403 personal_dashboards_disabled
+		// (REQ-ASET-003). Enabling it is setup for this test, not part of
+		// what it asserts — the original value is read first and restored at
+		// the end so the instance is left as it was found for whatever runs
+		// next in the same job.
+		const settingsBefore = await admin.get('/index.php/apps/launchpad/api/admin/settings')
+		expect(settingsBefore.status(), await settingsBefore.text()).toBe(200)
+		const priorAllowUserDash = (await settingsBefore.json()).allowUserDashboards === true
+
+		const enable = await admin.put('/index.php/apps/launchpad/api/admin/settings', {
+			data: { allowUserDash: true },
+		})
+		expect(enable.status(), await enable.text()).toBeLessThan(300)
+
 		// --- create a dashboard to publish -------------------------------
 		const stamp = Date.now()
 		const created = await admin.post('/index.php/apps/launchpad/api/dashboard', {
@@ -140,6 +156,13 @@ test.describe('anonymous public share', () => {
 			afterRevoke.status(),
 			'a revoked token must stop serving data — this is the assertion that proves the token gates the route',
 		).not.toBe(200)
+
+		// Leave the instance as it was found.
+		if (priorAllowUserDash === false) {
+			await admin.put('/index.php/apps/launchpad/api/admin/settings', {
+				data: { allowUserDash: false },
+			})
+		}
 
 		await admin.dispose()
 		await anon.dispose()

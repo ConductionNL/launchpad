@@ -96,9 +96,12 @@ test.describe('anonymous public share', () => {
 			data: { name: `E2E Public Share ${stamp}` },
 		})
 		expect(created.status(), await created.text()).toBeLessThan(300)
-		const dashboard = await created.json()
-		const uuid = dashboard.uuid ?? dashboard.data?.uuid
-		expect(uuid, `no uuid in create response: ${JSON.stringify(dashboard)}`).toBeTruthy()
+		// `POST /api/dashboard` answers `{dashboard: {...}, placements: [...]}`
+		// — the new dashboard is nested, not at the root, and the default
+		// widget bundle comes back alongside it.
+		const createdBody = await created.json()
+		const uuid = createdBody.dashboard?.uuid ?? createdBody.uuid ?? createdBody.data?.uuid
+		expect(uuid, `no uuid in create response: ${JSON.stringify(createdBody)}`).toBeTruthy()
 
 		// --- CONTROL, before any share exists ----------------------------
 		// A well-formed token that was never issued. If this returns 200 the
@@ -118,8 +121,8 @@ test.describe('anonymous public share', () => {
 		)
 		expect(share.status(), await share.text()).toBeLessThan(300)
 		const shareBody = await share.json()
-		const token = shareBody.token ?? shareBody.data?.token
-		const shareId = shareBody.id ?? shareBody.data?.id
+		const token = shareBody.token ?? shareBody.data?.token ?? shareBody.share?.token
+		const shareId = shareBody.id ?? shareBody.data?.id ?? shareBody.share?.id
 		expect(token, `no token in share response: ${JSON.stringify(shareBody)}`).toBeTruthy()
 
 		// --- the positive case, anonymously ------------------------------

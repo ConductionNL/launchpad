@@ -202,10 +202,16 @@
 							v-for="share in publicShares"
 							:key="share.id"
 							class="dashboard-config__public-row">
+							<!-- Read-only link field. It is in the tab order (so
+							     the link can be selected and copied by keyboard),
+							     which means it needs a name: without one a screen
+							     reader announces only the URL string with no
+							     indication of what it is. -->
 							<input
 								class="dashboard-config__public-url"
 								type="text"
 								readonly
+								:aria-label="t('launchpad', 'Public share link')"
 								:value="publicShareUrl(share.token)"
 								@focus="$event.target.select()">
 							<NcButton

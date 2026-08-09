@@ -7,7 +7,9 @@
 	<div
 		class="launchpad-sidebar-backdrop sidebar-backdrop"
 		role="presentation"
-		@click="$emit('close')" />
+		tabindex="-1"
+		@click="$emit('close')"
+		@keydown.esc="$emit('close')" />
 </template>
 
 <script>

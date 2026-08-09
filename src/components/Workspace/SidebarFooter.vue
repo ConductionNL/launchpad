@@ -215,4 +215,16 @@ export default {
 .dashboard-switcher-sidebar-footer__brand-image--invert {
 	filter: var(--background-invert-if-bright, none);
 }
+
+/* WCAG 2.2 AA SC 2.3.3 (Animation from Interactions). Honour the OS-level
+   "reduce motion" setting on both hover transitions in this footer: the
+   colour still changes, only the interpolation between the two colours is
+   dropped. `0.01ms` rather than `0` keeps `transitionend` firing for any
+   listener that depends on it. */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar-footer__doc-link,
+	.dashboard-switcher-sidebar-footer__brand-link {
+		transition-duration: 0.01ms;
+	}
+}
 </style>

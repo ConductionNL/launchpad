@@ -79,6 +79,12 @@
 				</div>
 			</div>
 		</template>
+
+		<DemoShowcaseUninstallDialog
+			:open="uninstallTarget !== null"
+			:showcase-name="uninstallTarget ? uninstallTarget.name : ''"
+			@update:open="uninstallTarget = null"
+			@confirm="onUninstallConfirm" />
 	</div>
 </template>
 
@@ -86,6 +92,7 @@
 import { NcButton } from '@conduction/nextcloud-vue'
 import { NcNoteCard } from '@nextcloud/vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import DemoShowcaseUninstallDialog from '../../dialogs/DemoShowcaseUninstallDialog.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -93,6 +100,7 @@ export default {
 
 	components: {
 		NcButton,
+		DemoShowcaseUninstallDialog,
 		NcNoteCard,
 		ViewDashboard,
 	},
@@ -108,6 +116,8 @@ export default {
 			// possible.
 			actionError: '',
 			showcases: [],
+			// The showcase the uninstall confirmation is open for, or null.
+			uninstallTarget: null,
 			busy: {},
 			warnings: {},
 		}
@@ -170,9 +180,25 @@ export default {
 		 * @param {object} showcase The showcase to remove.
 		 * @spec openspec/specs/demo-data-showcases/spec.md
 		 */
-		async confirmUninstall(showcase) {
-			const message = this.t('launchpad', 'Remove the {name} showcase dashboard for all users? You can reinstall it later.', { name: showcase.name })
-			if (window.confirm(message) === false) {
+		confirmUninstall(showcase) {
+			this.uninstallTarget = showcase
+		},
+
+		/**
+		 * Uninstall the confirmed showcase.
+		 *
+		 * Split out of `confirmUninstall` because the confirmation is no
+		 * longer a synchronous `window.confirm()` that could be awaited
+		 * inline — the dialog resolves on a later tick, so the target is
+		 * held in `uninstallTarget` until the user answers.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
+		async onUninstallConfirm() {
+			const showcase = this.uninstallTarget
+			this.uninstallTarget = null
+			if (showcase === null) {
 				return
 			}
 

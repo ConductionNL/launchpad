@@ -78,6 +78,17 @@
 				{{ t('launchpad', 'Close') }}
 			</NcButton>
 		</template>
+
+		<GroupDashboardRenameDialog
+			:open="renameTarget !== null"
+			:current-name="renameTarget ? renameTarget.name : ''"
+			@update:open="renameTarget = null"
+			@confirm="onRenameConfirm" />
+
+		<GroupDashboardDeleteDialog
+			:open="deleteTarget !== null"
+			@update:open="deleteTarget = null"
+			@confirm="onDeleteConfirm" />
 	</NcDialog>
 </template>
 
@@ -90,6 +101,8 @@ import {
 } from '@nextcloud/vue'
 import ViewDashboardIcon from 'vue-material-design-icons/ViewDashboard.vue'
 
+import GroupDashboardDeleteDialog from '../../../dialogs/GroupDashboardDeleteDialog.vue'
+import GroupDashboardRenameDialog from '../../../dialogs/GroupDashboardRenameDialog.vue'
 import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
 
 /**
@@ -104,6 +117,8 @@ export default {
 	name: 'ManageGroupDashboardsModal',
 
 	components: {
+		GroupDashboardDeleteDialog,
+		GroupDashboardRenameDialog,
 		NcButton,
 		NcDialog,
 		NcEmptyContent,
@@ -126,6 +141,14 @@ export default {
 			store: useGroupDashboardsStore(),
 			loading: false,
 			deleting: null,
+			// The row a confirmation dialog is currently open for, or null.
+			// These replace the return values of the removed window.prompt()
+			// and window.confirm(): the native calls were synchronous, so the
+			// target only had to live for the duration of one expression;
+			// a component dialog resolves on a later tick, so the target has
+			// to be held somewhere until the user answers.
+			renameTarget: null,
+			deleteTarget: null,
 		}
 	},
 
@@ -153,21 +176,62 @@ export default {
 			await this.store.setDefault(this.group.id, dashboard.uuid)
 		},
 
-		async onRename(dashboard) {
-			// Lightweight inline prompt — the full edit surface lives in
-			// the dashboard editor view (deep-linked via `View`).
-			// eslint-disable-next-line no-alert
-			const next = window.prompt(this.t('launchpad', 'New dashboard name'), dashboard.name)
-			if (next === null || next.trim() === '' || next === dashboard.name) {
-				return
-			}
-			await this.store.update(this.group.id, dashboard.uuid, { name: next.trim() })
+		/**
+		 * Open the rename dialog for a row. The full edit surface lives in
+		 * the dashboard editor view (deep-linked via `View`); this is the
+		 * lightweight name-only path.
+		 *
+		 * @param {object} dashboard the row to rename.
+		 * @return {void}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		onRename(dashboard) {
+			this.renameTarget = dashboard
 		},
 
-		async onDelete(dashboard) {
-			// eslint-disable-next-line no-alert
-			const ok = window.confirm(this.t('launchpad', 'Delete this dashboard? This cannot be undone.'))
-			if (ok === false) {
+		/**
+		 * Apply a rename the dialog has validated and confirmed.
+		 *
+		 * The empty / whitespace / unchanged rules that used to sit here,
+		 * after `window.prompt()` returned, now live in the dialog's
+		 * `canSubmit` — so a name that reaches this method is already
+		 * trimmed and known to differ from the current one.
+		 *
+		 * @param {string} nextName the confirmed, trimmed name.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onRenameConfirm(nextName) {
+			const dashboard = this.renameTarget
+			this.renameTarget = null
+			if (dashboard === null) {
+				return
+			}
+			await this.store.update(this.group.id, dashboard.uuid, { name: nextName })
+		},
+
+		/**
+		 * Open the delete confirmation for a row.
+		 *
+		 * @param {object} dashboard the row to delete.
+		 * @return {void}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		onDelete(dashboard) {
+			this.deleteTarget = dashboard
+		},
+
+		/**
+		 * Delete the confirmed row. The last-in-group guard is enforced by
+		 * the store, which toasts and re-throws; the modal stays open.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onDeleteConfirm() {
+			const dashboard = this.deleteTarget
+			this.deleteTarget = null
+			if (dashboard === null) {
 				return
 			}
 			this.deleting = dashboard.uuid

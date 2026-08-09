@@ -553,4 +553,14 @@ export default {
 	font-size: 11px;
 	color: var(--color-text-maxcontrast);
 }
+
+/* WCAG 2.2 AA SC 2.3.3 (Animation from Interactions). Honour the OS-level
+   "reduce motion" setting: the hover colour still changes, only the
+   interpolation between the two colours is dropped. `0.01ms` rather than
+   `0` keeps `transitionend` firing for any listener that depends on it. */
+@media (prefers-reduced-motion: reduce) {
+	.news-widget__item-link {
+		transition-duration: 0.01ms;
+	}
+}
 </style>

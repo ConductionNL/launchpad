@@ -74,14 +74,31 @@
 			<div class="launchpad-admin__modal">
 				<h2>{{ editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template') }}</h2>
 
+				<!--
+					The visible text moves from a bare `<label>` onto
+					NcTextField's own `label` prop.
+
+					A `<label>` with no `for` (and not wrapping the field) is
+					not associated with anything — it renders as text, and a
+					screen reader announces the field with no name at all.
+					NcTextField renders the label against the `<input>` it
+					owns, which is the association the markup was reaching
+					for. The placeholder stays as the example value it always
+					was; it is not a substitute for a name, because it
+					disappears as soon as the field has content.
+				-->
 				<div class="launchpad-admin__field">
-					<label>{{ t('launchpad', 'Template name') }}</label>
-					<NcTextField v-model="editingTemplate.name" :placeholder="t('launchpad', 'My template')" />
+					<NcTextField
+						v-model="editingTemplate.name"
+						:label="t('launchpad', 'Template name')"
+						:placeholder="t('launchpad', 'My template')" />
 				</div>
 
 				<div class="launchpad-admin__field">
-					<label>{{ t('launchpad', 'Description') }}</label>
-					<NcTextField v-model="editingTemplate.description" :placeholder="t('launchpad', 'Optional description')" />
+					<NcTextField
+						v-model="editingTemplate.description"
+						:label="t('launchpad', 'Description')"
+						:placeholder="t('launchpad', 'Optional description')" />
 				</div>
 
 				<div class="launchpad-admin__field">

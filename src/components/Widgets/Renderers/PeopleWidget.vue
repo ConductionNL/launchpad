@@ -10,6 +10,7 @@
 				v-model="search"
 				type="search"
 				class="people-widget__search"
+				:aria-label="t('launchpad', 'Search people')"
 				:placeholder="t('launchpad', 'Search by name or email…')">
 			<button
 				type="button"

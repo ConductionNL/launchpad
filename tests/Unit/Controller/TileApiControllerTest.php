@@ -78,7 +78,17 @@ class TileApiControllerTest extends TestCase
 
     public function testCreateReturns410GoneEnvelope(): void
     {
-        $this->tileService->expects($this->never())->method('createTile');
+        // Was: `expects($this->never())->method('createTile')`. The write
+        // methods no longer exist on TileService — a mock expectation on a
+        // method that is absent cannot be written, and would not be worth
+        // writing: absence is a stronger guarantee than a per-test
+        // expectation that it went uncalled. Asserted directly instead, so
+        // re-adding the write path fails a test rather than passing silently.
+        $this->assertFalse(
+            method_exists(TileService::class, 'createTile'),
+            'TileService::createTile was removed with the 410 deprecation; re-adding it '
+            .'restores a write path under a permanently-Gone endpoint.'
+        );
 
         $controller = $this->makeController();
         $response   = $controller->create();
@@ -96,7 +106,10 @@ class TileApiControllerTest extends TestCase
 
     public function testUpdateReturns410GoneEnvelope(): void
     {
-        $this->tileService->expects($this->never())->method('updateTile');
+        $this->assertFalse(
+            method_exists(TileService::class, 'updateTile'),
+            'TileService::updateTile was removed with the 410 deprecation.'
+        );
 
         $controller = $this->makeController();
         $response   = $controller->update();
@@ -109,7 +122,10 @@ class TileApiControllerTest extends TestCase
 
     public function testDestroyReturns410GoneEnvelope(): void
     {
-        $this->tileService->expects($this->never())->method('deleteTile');
+        $this->assertFalse(
+            method_exists(TileService::class, 'deleteTile'),
+            'TileService::deleteTile was removed with the 410 deprecation.'
+        );
 
         $controller = $this->makeController();
         $response   = $controller->destroy();

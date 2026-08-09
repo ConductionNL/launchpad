@@ -52,14 +52,14 @@
     {
       "id": "dashboards",
       "label": "launchpad.menu.dashboards",
-      "icon": "icon-dashboard",
-      "route": "/dashboards",
+      "icon": "ViewDashboardOutline",
+      "route": "dashboard-detail",
       "section": "main"
     },
     {
       "id": "admin-templates",
       "label": "launchpad.menu.adminTemplates",
-      "icon": "icon-template",
+      "icon": "FileReplaceOutline",
       "route": "/admin/templates",
       "section": "settings",
       "permission": "admin"
@@ -67,7 +67,7 @@
     {
       "id": "admin-settings",
       "label": "launchpad.menu.adminSettings",
-      "icon": "icon-settings",
+      "icon": "CogOutline",
       "route": "/admin/settings",
       "section": "settings",
       "permission": "admin"
@@ -79,7 +79,7 @@
       "route": "/dashboards/:id",
       "type": "dashboard",
       "title": "launchpad.pages.dashboard",
-      "_note": "Bundled STUB for the ADR-036 Decision-8 runtime-manifest pattern: the real per-user dashboard pages are assembled server-side by GET /apps/launchpad/api/manifest from the user's visible dashboards and replace this manifest at boot. widgets[] is intentionally empty here — LaunchPad has no static home page.",
+      "_note": "Bundled STUB for the ADR-036 Decision-8 runtime-manifest pattern: the real per-user dashboard pages are assembled server-side by GET /apps/launchpad/api/manifest from the user's visible dashboards and replace this manifest at boot. widgets[] is intentionally empty here — LaunchPad has no static home page. The 'dashboards' menu entry targets this page by ID rather than by path, which is the pairing the SERVER emits: ManifestController::buildManifest() sets each menu entry's route to its page's id ('dashboard-'.$slug) while the page carries the path ('/'.$slug). The stub previously said '/dashboards' — a path matching neither this page ('/dashboards/:id') nor anything the runtime builder produces — so the single menu entry LaunchPad ships resolved to nothing.",
       "widgets": [],
       "config": {
         "documentationUrl": "https://launchpad.conduction.nl"

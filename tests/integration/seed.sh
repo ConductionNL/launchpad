@@ -27,10 +27,32 @@ set -euo pipefail
 # shorter ones.
 PASSWORD='Newman-Regular-Pw-123'
 
-if OC_PASS="$PASSWORD" php occ user:add --password-from-env newman-regular; then
+# `occ` is overridable so tests can drive this script's decision logic without
+# a booted Nextcloud. It defaults to the real thing.
+OCC="${OCC_CMD:-php occ}"
+
+if OC_PASS="$PASSWORD" ${OCC} user:add --password-from-env newman-regular; then
 	echo 'seeded newman-regular'
-else
-	echo 'newman-regular already present (or could not be created) — the collection will show it'
+	echo 'newman seed complete'
+	exit 0
 fi
 
-echo 'newman seed complete'
+# `user:add` failed. The only tolerable reason is that the account is already
+# there from an earlier run — ask the instance rather than trusting the exit
+# code to mean one specific thing.
+#
+# The previous branch here said "already present (or could not be created) —
+# the collection will show it" and continued. It does not show it: without this
+# account the 403 assertion authenticates with unresolved credentials and the
+# endpoint answers 400, so the assertion fails while testing nothing about
+# authorization — which is the failure this seed exists to prevent.
+if ${OCC} user:info newman-regular >/dev/null 2>&1; then
+	echo 'newman-regular already present — idempotent re-run, continuing'
+	echo 'newman seed complete'
+	exit 0
+fi
+
+echo "FATAL: could not create 'newman-regular', and it does not exist afterwards." >&2
+echo 'The collection authenticates as this user to assert a 403; without it the' >&2
+echo 'request answers 400 and the assertion fails while proving nothing.' >&2
+exit 1

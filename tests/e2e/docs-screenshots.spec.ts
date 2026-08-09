@@ -131,7 +131,13 @@ test.describe('docs: user track', () => {
 
 		// Save & screenshot the resulting dashboard with the default bundle
 		await page.locator('[data-testid="dashboard-save-button"]').click()
-		await page.waitForLoadState('networkidle')
+		// Wait for the modal to go away, not for the network to fall quiet.
+		// `networkidle` never settles on Nextcloud (ADR-074 rule 4) — the
+		// notification poll keeps a request in flight for the life of the
+		// page — so this either burned the full timeout or screenshotted an
+		// arbitrary moment. The modal closing is the actual completion signal.
+		await page.locator('input[data-testid="dashboard-name-input"]')
+			.waitFor({ state: 'hidden', timeout: 10000 })
 		await shoot(page, 'user', '02-create-success.png')
 	})
 
@@ -164,7 +170,10 @@ test.describe('docs: user track', () => {
 		await shoot(page, 'user', '03-widget-form.png')
 
 		await page.locator('[data-testid="add-widget-save"]').click()
-		await page.waitForLoadState('networkidle')
+		// The add-widget modal closing is the completion signal; `networkidle`
+		// never settles on Nextcloud (ADR-074 rule 4).
+		await page.locator('[data-testid="add-widget-save"]')
+			.waitFor({ state: 'hidden', timeout: 10000 })
 		await shoot(page, 'user', '03-widget-added.png')
 	})
 
@@ -341,7 +350,13 @@ test.describe('docs: user track', () => {
 test.describe('docs: admin track', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/settings/admin/launchpad')
-		await page.waitForLoadState('networkidle')
+		// Wait for the admin surface itself. `goto` already resolves on load;
+		// `networkidle` on top of it never settles on Nextcloud (ADR-074
+		// rule 4), and every test in this block goes straight on to address
+		// this section — so waiting for it is both the correct signal and the
+		// precondition those tests actually need.
+		await page.locator('[data-testid="admin-default-settings"]')
+			.waitFor({ state: 'visible', timeout: 15000 })
 	})
 
 	test('A1 toggle personal dashboards', async ({ page }) => {
@@ -377,7 +392,12 @@ test.describe('docs: admin track', () => {
 		const firstEdit = page.locator('[data-testid="admin-templates-section"]').getByRole('button', { name: /^Edit$/ }).first()
 		if (await firstEdit.count() > 0) {
 			await firstEdit.click()
-			await page.waitForLoadState('networkidle')
+			// The template editor's name field appearing is the completion
+			// signal; `networkidle` never settles on Nextcloud (ADR-074
+			// rule 4). The editor is a client-side modal, so there may be no
+			// request at all to go idle.
+			await page.getByRole('heading', { name: /^(Edit|Create) template$/ })
+				.waitFor({ state: 'visible', timeout: 10000 })
 			await shoot(page, 'admin', '02-template-edit.png')
 		}
 

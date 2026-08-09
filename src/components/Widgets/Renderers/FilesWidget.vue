@@ -47,10 +47,23 @@
 				@click="triggerUpload">
 				{{ t('launchpad', 'Upload File') }}
 			</button>
+			<!--
+				Hidden trigger for the "Upload File" button above, which is
+				the control users actually operate. It stays `aria-hidden` and
+				out of the tab order — duplicating the button in the
+				accessibility tree would announce the upload affordance twice.
+
+				It still carries a name: `aria-hidden` is a presentation
+				choice that a future change can remove, and a file input that
+				becomes visible with no accessible name is a defect that would
+				then be invisible to this check. The name costs nothing while
+				the element is hidden.
+			-->
 			<input
 				ref="fileInput"
 				type="file"
 				multiple
+				:aria-label="t('launchpad', 'Choose files to upload')"
 				class="files-widget__file-input"
 				:aria-hidden="true"
 				tabindex="-1"
@@ -134,12 +147,23 @@
 			</button>
 		</div>
 
+		<!--
+			`tabindex="-1"` + `@keydown.esc` gives this delete-confirmation a
+			keyboard way out. It is an `aria-modal` dialog, so Escape is the
+			expected dismissal; without it the only ways to decline were
+			clicking the backdrop or the Cancel button. Focus moves into the
+			dialog when it opens (see the `confirmTarget` watcher), so the
+			keydown lands here rather than needing a document-level listener.
+		-->
 		<div
 			v-if="confirmTarget"
+			ref="confirmBackdrop"
 			class="files-widget__modal-backdrop"
 			role="dialog"
 			aria-modal="true"
-			@click.self="cancelDelete">
+			tabindex="-1"
+			@click.self="cancelDelete"
+			@keydown.esc="cancelDelete">
 			<div class="files-widget__modal">
 				<p>
 					{{ t('launchpad', 'Are you sure you want to delete {name}?', { name: confirmTarget.name }) }}
@@ -457,6 +481,17 @@ export default {
 		 */
 		confirmDelete(item) {
 			this.confirmTarget = item
+			// Move focus into the dialog once it renders. Without this,
+			// focus stays on the row's delete button — which is OUTSIDE the
+			// dialog — so the dialog's own Escape handler never receives the
+			// key, and a screen reader goes on reading the file list as if
+			// nothing had opened. `tabindex="-1"` on the backdrop is what
+			// lets it accept focus here without joining the tab order.
+			this.$nextTick(() => {
+				if (this.$refs.confirmBackdrop) {
+					this.$refs.confirmBackdrop.focus()
+				}
+			})
 		},
 
 		/** @spec openspec/specs/files-widget/spec.md */

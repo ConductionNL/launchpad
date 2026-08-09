@@ -31,6 +31,7 @@
 							type="checkbox"
 							:checked="allSelected"
 							:indeterminate.prop="someSelected && !allSelected"
+							:aria-label="t('launchpad', 'Select all dashboards')"
 							data-test="bulk-ops-select-all"
 							@change="toggleSelectAll">
 					</th>
@@ -48,6 +49,7 @@
 							type="checkbox"
 							:value="dash.uuid"
 							:checked="selectedUuids.includes(dash.uuid)"
+							:aria-label="t('launchpad', 'Select {name}', { name: dash.name })"
 							data-test="bulk-ops-row-select"
 							@change="toggleRow(dash.uuid)">
 					</td>
@@ -91,17 +93,36 @@
 				<h4>{{ modal.title }}</h4>
 				<p>{{ modal.message }}</p>
 
+				<!--
+					`for`/`id` pairs, rather than the bare `<label>`s that were
+					here. A label with neither `for` nor the field nested
+					inside it is associated with nothing: it renders as text
+					and the field is announced with no name. `for`/`id` keeps
+					the existing layout exactly as it was, which wrapping the
+					inputs would not.
+
+					The ids are static because this modal is a singleton — it
+					renders once, for one pending bulk action.
+				-->
 				<div v-if="modal.action === 'move'" class="launchpad-bulk-ops__field">
-					<label>{{ t('launchpad', 'New parent UUID (leave empty for root)') }}</label>
+					<label for="launchpad-bulk-ops-parent-uuid">
+						{{ t('launchpad', 'New parent UUID (leave empty for root)') }}
+					</label>
 					<input
+						id="launchpad-bulk-ops-parent-uuid"
 						v-model="parentUuidInput"
 						type="text"
 						data-test="bulk-ops-parent-uuid">
 				</div>
 
 				<div v-if="modal.action === 'status'" class="launchpad-bulk-ops__field">
-					<label>{{ t('launchpad', 'Publication status') }}</label>
-					<select v-model="statusInput" data-test="bulk-ops-status-select">
+					<label for="launchpad-bulk-ops-status">
+						{{ t('launchpad', 'Publication status') }}
+					</label>
+					<select
+						id="launchpad-bulk-ops-status"
+						v-model="statusInput"
+						data-test="bulk-ops-status-select">
 						<option value="draft">
 							{{ t('launchpad', 'Draft') }}
 						</option>
@@ -112,8 +133,14 @@
 							{{ t('launchpad', 'Scheduled') }}
 						</option>
 					</select>
+					<label
+						v-if="statusInput === 'scheduled'"
+						for="launchpad-bulk-ops-publish-at">
+						{{ t('launchpad', 'Publish at') }}
+					</label>
 					<input
 						v-if="statusInput === 'scheduled'"
+						id="launchpad-bulk-ops-publish-at"
 						v-model="publishAtInput"
 						type="datetime-local"
 						data-test="bulk-ops-publish-at">

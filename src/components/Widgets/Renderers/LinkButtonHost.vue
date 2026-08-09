@@ -16,13 +16,26 @@
 			@internal-action="onInternalAction"
 			@create-file="onCreateFile" />
 
+		<!--
+			`tabindex="-1"` + `@keydown.esc` is what makes this dialog
+			dismissable without a mouse. Escape is the expected way out of any
+			`aria-modal` dialog; before this, closing it required clicking
+			either the backdrop or the Cancel button. The listener sits on the
+			backdrop rather than on `document` because the dialog focuses
+			itself on open (see `focusModal`), so every keystroke while it is
+			up is already inside this subtree — and scoping it here means it
+			cannot swallow Escape from anything else on the page.
+		-->
 		<div
 			v-if="modalOpen"
+			ref="modalBackdrop"
 			class="link-button-host__modal-backdrop"
 			role="dialog"
 			aria-modal="true"
+			tabindex="-1"
 			:aria-labelledby="modalTitleId"
-			@click.self="closeModal">
+			@click.self="closeModal"
+			@keydown.esc="closeModal">
 			<div class="link-button-host__modal">
 				<h3 :id="modalTitleId" class="link-button-host__modal-title">
 					{{ t('launchpad', 'Create Document') }}

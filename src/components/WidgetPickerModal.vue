@@ -248,4 +248,16 @@ export default {
 .widget-picker__widget-action--check {
 	color: var(--color-success);
 }
+
+/* WCAG 2.2 AA SC 2.3.3 (Animation from Interactions). Honour the OS-level
+   "reduce motion" setting by making the hover transition instantaneous
+   instead of removing the state change — the colour still updates, so the
+   affordance is intact; only the interpolation between the two colours is
+   dropped. `0.01ms` rather than `0` keeps `transitionend` firing for any
+   listener that depends on it. */
+@media (prefers-reduced-motion: reduce) {
+	.widget-picker__widget {
+		transition-duration: 0.01ms;
+	}
+}
 </style>

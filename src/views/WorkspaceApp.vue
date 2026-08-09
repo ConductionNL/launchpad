@@ -72,7 +72,10 @@
 		     widget machinery. `tabindex="-1"` makes the grid a valid
 		     programmatic focus target for the quick-search Esc contract
 		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
-		<div class="workspace-shell__grid" tabindex="-1">
+		<div
+			id="launchpad-main-content"
+			class="workspace-shell__grid"
+			tabindex="-1">
 			<Views
 				v-if="hasActiveDashboard"
 				ref="viewsRef" />
@@ -340,8 +343,40 @@ export default {
 		},
 	},
 
+	mounted() {
+		document.addEventListener('keydown', this.onDocumentKeydown)
+	},
+
+	beforeUnmount() {
+		document.removeEventListener('keydown', this.onDocumentKeydown)
+	},
+
 	methods: {
 		t,
+
+		/**
+		 * Escape closes the slide-in sidebar (WCAG 2.2 AA SC 2.1.1 Keyboard).
+		 *
+		 * The sidebar could be dismissed two ways, and both needed a mouse:
+		 * clicking the backdrop, or clicking the hamburger again. The
+		 * backdrop is a `role="presentation"` overlay that never takes focus,
+		 * so a `@keydown` bound to the backdrop element itself could never
+		 * fire — the listener has to be on the document to be reachable at
+		 * all, whatever happens to hold focus when the sidebar opens.
+		 *
+		 * Guarded on `sidebarOpen` so this does not swallow Escape from the
+		 * quick-search bar (REQ-QSEARCH-003), which owns its own Escape
+		 * contract and is only reachable while the sidebar is closed.
+		 *
+		 * @param {KeyboardEvent} event the document keydown.
+		 * @return {void}
+		 * @spec openspec/specs/runtime-shell/spec.md
+		 */
+		onDocumentKeydown(event) {
+			if (event.key === 'Escape' && this.sidebarOpen) {
+				this.closeSidebar()
+			}
+		},
 
 		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
 		toggleSidebar() {

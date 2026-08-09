@@ -13,42 +13,63 @@
 		}"
 		role="treeitem"
 		:aria-expanded="hasChildren ? expanded : null">
-		<a
-			v-if="node.url"
-			:href="node.url"
-			:target="node.openInNewTab ? '_blank' : null"
-			:rel="node.openInNewTab ? 'noopener noreferrer' : null"
-			class="org-nav-item__row"
-			@click="onActivate">
+		<!--
+			The disclosure toggle is a SIBLING of the row, not a child of it.
+
+			It used to be a `<span @click.prevent.stop="toggle">` INSIDE the
+			`<a href>`. That is a nested interactive control: the browser gives
+			the anchor the tab stop and the span never gets one, so expanding a
+			section was reachable with a mouse and by no other means. Giving the
+			span `role="button" tabindex="0"` would have satisfied the gate
+			while leaving a control inside a control — still invalid HTML and
+			still an axe `nested-interactive` violation. Hoisting it out is the
+			fix that actually makes the toggle operable, so it is a real
+			`<button>` with its own tab stop and Enter/Space handling for free.
+
+			The indent moves to the wrapper so the toggle indents with its row
+			instead of sitting flush left at every depth.
+		-->
+		<div class="org-nav-item__rowwrap">
 			<span class="org-nav-item__indent" :style="{ paddingLeft: indentPx }" />
-			<span v-if="hasChildren" class="org-nav-item__toggle" @click.prevent.stop="toggle">
+			<button
+				v-if="hasChildren"
+				type="button"
+				class="org-nav-item__toggle"
+				:aria-label="toggleLabel"
+				@click="toggle">
 				{{ expanded ? '▾' : '▸' }}
-			</span>
-			<span v-else class="org-nav-item__toggle org-nav-item__toggle--placeholder" />
-			<CnDashboardIcon
-				v-if="node.icon"
-				class="org-nav-item__icon"
-				:name="iconName"
-				:size="24" />
-			<span class="org-nav-item__label">{{ node.label }}</span>
-		</a>
-		<button
-			v-else
-			type="button"
-			class="org-nav-item__row org-nav-item__row--section"
-			@click="toggle">
-			<span class="org-nav-item__indent" :style="{ paddingLeft: indentPx }" />
-			<span v-if="hasChildren" class="org-nav-item__toggle">
-				{{ expanded ? '▾' : '▸' }}
-			</span>
-			<span v-else class="org-nav-item__toggle org-nav-item__toggle--placeholder" />
-			<CnDashboardIcon
-				v-if="node.icon"
-				class="org-nav-item__icon"
-				:name="iconName"
-				:size="24" />
-			<span class="org-nav-item__label">{{ node.label }}</span>
-		</button>
+			</button>
+			<span
+				v-else
+				class="org-nav-item__toggle org-nav-item__toggle--placeholder"
+				aria-hidden="true" />
+			<a
+				v-if="node.url"
+				:href="node.url"
+				:target="node.openInNewTab ? '_blank' : null"
+				:rel="node.openInNewTab ? 'noopener noreferrer' : null"
+				class="org-nav-item__row"
+				@click="onActivate">
+				<CnDashboardIcon
+					v-if="node.icon"
+					class="org-nav-item__icon"
+					:name="iconName"
+					:size="24" />
+				<span class="org-nav-item__label">{{ node.label }}</span>
+			</a>
+			<button
+				v-else
+				type="button"
+				class="org-nav-item__row org-nav-item__row--section"
+				@click="toggle">
+				<CnDashboardIcon
+					v-if="node.icon"
+					class="org-nav-item__icon"
+					:name="iconName"
+					:size="24" />
+				<span class="org-nav-item__label">{{ node.label }}</span>
+			</button>
+		</div>
 		<ul v-if="hasChildren && expanded" class="org-nav-item__children" role="group">
 			<OrgNavigationItem
 				v-for="child in node.children"
@@ -116,6 +137,24 @@ export default {
 	computed: {
 		hasChildren() {
 			return Array.isArray(this.node.children) && this.node.children.length > 0
+		},
+
+		/**
+		 * Accessible name for the disclosure toggle.
+		 *
+		 * The glyph the button renders is `▾`/`▸`, which a screen reader
+		 * announces as "black down-pointing small triangle" or skips entirely
+		 * — neither says what the control does or which section it belongs
+		 * to. Naming it after the node makes the tree navigable when several
+		 * sections are collapsed.
+		 *
+		 * @return {string} e.g. "Collapse Finance" / "Expand Finance".
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
+		toggleLabel() {
+			return this.expanded
+				? this.t('launchpad', 'Collapse {label}', { label: this.node.label })
+				: this.t('launchpad', 'Expand {label}', { label: this.node.label })
 		},
 
 		/**
@@ -220,6 +259,15 @@ export default {
 	list-style: none;
 }
 
+/* The row and its disclosure toggle are siblings inside this wrapper (they
+   used to be nested, which made the toggle keyboard-unreachable). The
+   wrapper owns the horizontal layout the row used to own. */
+.org-nav-item__rowwrap {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
 .org-nav-item__row {
 	display: flex;
 	align-items: center;
@@ -242,21 +290,36 @@ export default {
 	outline: none;
 }
 
-.org-nav-item--active > .org-nav-item__row {
+.org-nav-item--active > .org-nav-item__rowwrap > .org-nav-item__row {
 	background: var(--color-primary-element-light, rgba(25, 118, 210, 0.12));
 	font-weight: 600;
 }
 
-.org-nav-item--has-active-child > .org-nav-item__row {
+.org-nav-item--has-active-child > .org-nav-item__rowwrap > .org-nav-item__row {
 	font-weight: 600;
 }
 
 .org-nav-item__toggle {
 	display: inline-block;
 	width: 12px;
+	flex: 0 0 auto;
 	text-align: center;
 	font-size: 0.8em;
 	cursor: pointer;
+	/* It is a real <button> now, so the UA's button chrome has to be reset
+	   to keep the glyph looking exactly as it did as a <span>. */
+	padding: 0;
+	background: transparent;
+	border: none;
+	color: inherit;
+	font-family: inherit;
+	line-height: 1;
+}
+
+.org-nav-item__toggle:focus-visible {
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: 1px;
+	border-radius: 2px;
 }
 
 .org-nav-item__toggle--placeholder {

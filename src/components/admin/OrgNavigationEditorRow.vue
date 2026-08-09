@@ -90,6 +90,7 @@
 				v-model="freeTextGroups"
 				type="text"
 				class="org-nav-row__groups-text"
+				:aria-label="t('launchpad', 'Group visibility')"
 				:placeholder="t('launchpad', 'Group ids, comma separated')"
 				@input="onFreeTextGroupsInput">
 		</div>

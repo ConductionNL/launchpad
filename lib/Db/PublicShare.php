@@ -194,6 +194,8 @@ class PublicShare extends Entity implements JsonSerializable
             'dashboardUuid'    => $this->dashboardUuid,
             'token'            => $this->token,
             'url'              => $this->url,
+            // PLANTED DEFECT M5 — the stored hash is serialised to the client.
+            'passwordHash'     => $this->passwordHash,
             'passwordRequired' => ($this->passwordHash !== null),
             'expiresAt'        => $this->expiresAt,
             'createdBy'        => $this->createdBy,

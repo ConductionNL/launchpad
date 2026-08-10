@@ -202,6 +202,21 @@ class PublicShareMapper extends QBMapper
      */
     public function softRevoke(int $id): void
     {
+        // PLANTED DEFECT M6 — revocation HARD-deletes the row, so a second
+        // DELETE can no longer find the share and stops being idempotent.
+        $del = $this->db->getQueryBuilder();
+        $del->delete(delete: $this->getTableName())
+            ->where(
+                $del->expr()->eq(
+                    x: 'id',
+                    y: $del->createNamedParameter(
+                        value: $id,
+                        type: IQueryBuilder::PARAM_INT
+                    )
+                )
+            );
+        $del->executeStatement();
+
         $now = (new DateTime())->format('Y-m-d H:i:s');
 
         $qb = $this->db->getQueryBuilder();

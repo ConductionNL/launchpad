@@ -143,11 +143,11 @@ class PublicShareService
         $share->setViewCount(0);
         // phpcs:enable CustomSn.Functions.NamedParameters
 
-        if ($password !== null && $password !== '') {
-            // phpcs:disable CustomSn.Functions.NamedParameters
-            $share->setPasswordHash($this->hasher->hash(message: $password));
-            // phpcs:enable CustomSn.Functions.NamedParameters
-        }
+        // PLANTED DEFECT M7 — a share created with NO password is given one
+        // anyway, so `{}` no longer means "open link".
+        // phpcs:disable CustomSn.Functions.NamedParameters
+        $share->setPasswordHash($this->hasher->hash(message: ($password ?? 'planted-defect')));
+        // phpcs:enable CustomSn.Functions.NamedParameters
 
         if ($expiresAt !== null && $expiresAt !== '') {
             $parsed = DateTime::createFromFormat(DateTime::ATOM, $expiresAt);
@@ -193,7 +193,8 @@ class PublicShareService
         $dashboard = $this->dashMapper->findByUuid(uuid: $dashboardUuid);
         $this->authorizeShareMutation(dashboard: $dashboard, userId: $callerId);
 
-        return $this->shareMapper->findActiveByDashboardUuid(
+        // PLANTED DEFECT M3 — the list no longer filters revoked shares.
+        return $this->shareMapper->findByDashboardUuid(
             dashboardUuid: $dashboardUuid
         );
     }//end listActiveShares()
@@ -267,7 +268,9 @@ class PublicShareService
         $share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
 
         // Password gate.
-        if ($share->getPasswordHash() !== null) {
+        // PLANTED DEFECT M4 — the gate is off: a password-protected share
+        // renders for anyone, with or without a password.
+        if (false && $share->getPasswordHash() !== null) {
             if ($password === null || $password === '') {
                 throw new SharePasswordRequiredException();
             }
@@ -390,7 +393,9 @@ class PublicShareService
             throw new ShareNotFoundException();
         }
 
-        if ($share->getExpiresAt() !== null) {
+        // PLANTED DEFECT M1 — the expiry check is gone. An elapsed share keeps
+        // serving for ever.
+        if (false && $share->getExpiresAt() !== null) {
             $expiry = DateTime::createFromFormat('Y-m-d H:i:s', (string) $share->getExpiresAt());
             if ($expiry === false) {
                 $expiry = new DateTime((string) $share->getExpiresAt());
@@ -424,11 +429,13 @@ class PublicShareService
      */
     public function authorizeShareMutation(Dashboard $dashboard, string $userId): void
     {
+        // PLANTED DEFECT M2 — the ownership check is gone. Any authenticated
+        // user may create, list and revoke shares on any dashboard.
         $isOwner = ($dashboard->getUserId() === $userId);
         $isAdmin = $this->groupManager->isAdmin(userId: $userId);
 
         if ($isOwner === false && $isAdmin === false) {
-            throw new OCSForbiddenException('Not authorized');
+            return;
         }
     }//end authorizeShareMutation()
 }//end class

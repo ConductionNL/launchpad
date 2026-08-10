@@ -91,9 +91,24 @@ function basic(user: string, pass: string): string {
 	return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`
 }
 
+/*
+ * `storageState: undefined` IS THE LOAD-BEARING LINE, NOT BOILERPLATE.
+ *
+ * The root config sets `use.storageState` to the admin session
+ * `global-setup.ts` harvests, and a context created inside a test inherits it.
+ * So the GRANTEE context arrived carrying admin's cookies, Nextcloud preferred
+ * the session over the `Authorization: Basic` header, and the non-owner test
+ * was quietly asserting what an ADMIN may do.
+ *
+ * Measured: run 31389746411, where the grantee's `POST …/public-share`
+ * answered 201 with `"createdBy":"admin"` — the response naming the user the
+ * request had actually been served as. Explicitly clearing it is what makes
+ * the credentials below the thing that decides who the caller is.
+ */
 async function apiAs(baseURL: string, creds: { user: string, pass: string }): Promise<APIRequestContext> {
 	return request.newContext({
 		baseURL,
+		storageState: undefined,
 		extraHTTPHeaders: {
 			'OCS-APIRequest': 'true',
 			Authorization: basic(creds.user, creds.pass),
@@ -101,9 +116,15 @@ async function apiAs(baseURL: string, creds: { user: string, pass: string }): Pr
 	})
 }
 
-/** An API context with NO Authorization header — a real anonymous visitor. */
+/*
+ * An API context with NO Authorization header — a real anonymous visitor.
+ * `storageState: undefined` matters even more here: inheriting the admin
+ * session would make every "anonymous" assertion below a statement about a
+ * logged-in administrator, and the public-share tests would pass while proving
+ * the opposite of what they claim.
+ */
 async function anonymousApi(baseURL: string): Promise<APIRequestContext> {
-	return request.newContext({ baseURL })
+	return request.newContext({ baseURL, storageState: undefined })
 }
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'

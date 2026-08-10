@@ -36,8 +36,15 @@
  *   @e2e label-widget::newly-added-label-uses-registry-defaults
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request as pwRequest, type APIRequestContext } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl'
+
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+
+const ADMIN_CREDS = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -174,22 +181,52 @@ test.describe('dashboard-switcher sidebar', () => {
 	 */
 	const SETTINGS_API = '/index.php/apps/launchpad/api/admin/settings'
 
+	/*
+	 * `page.request` is the WRONG CLIENT for the admin API and this is the
+	 * second thing these two tests got wrong. It shares the page's cookie jar,
+	 * so it authenticates by session — and a session-authenticated call to
+	 * these endpoints needs Nextcloud's `requesttoken`, which the fixture does
+	 * not attach. Measured in run 31389746411: `GET /api/admin/settings`
+	 * through `page.request` answered NOT OK, and the previous version of this
+	 * test treated exactly that response as "personal dashboards are enabled".
+	 *
+	 * Every other spec in this repo talks to the API through an explicit
+	 * `Authorization: Basic` context for the same reason. So does this one now.
+	 * `storageState: undefined` keeps the admin session out of it, so the
+	 * header is what decides the caller.
+	 */
+	async function adminApi(): Promise<APIRequestContext> {
+		return pwRequest.newContext({
+			baseURL: BASE,
+			storageState: undefined,
+			extraHTTPHeaders: {
+				'OCS-APIRequest': 'true',
+				Authorization: `Basic ${Buffer.from(`${ADMIN_CREDS.user}:${ADMIN_CREDS.pass}`).toString('base64')}`,
+			},
+		})
+	}
+
 	/** Set `allowUserDashboards` and return the value it had before. */
-	async function setAllowUserDashboards(page: any, value: boolean): Promise<boolean> {
-		const before = await page.request.get(SETTINGS_API)
-		expect(
-			before.ok(),
-			'the admin settings must be readable — an unreadable response used to be treated as "enabled"',
-		).toBe(true)
-		const prior = (await before.json()).allowUserDashboards === true
-		const put = await page.request.put(SETTINGS_API, { data: { allowUserDash: value } })
-		expect(put.ok(), await put.text()).toBe(true)
-		return prior
+	async function setAllowUserDashboards(value: boolean): Promise<boolean> {
+		const api = await adminApi()
+		try {
+			const before = await api.get(SETTINGS_API)
+			expect(
+				before.status(),
+				'the admin settings must be readable — an unreadable response used to be read as "enabled"',
+			).toBe(200)
+			const prior = (await before.json()).allowUserDashboards === true
+			const put = await api.put(SETTINGS_API, { data: { allowUserDash: value } })
+			expect(put.status(), await put.text()).toBeLessThan(300)
+			return prior
+		} finally {
+			await api.dispose()
+		}
 	}
 
 	// @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
 	test('Add-Dashboard card renders in sidebar when personal dashboards are enabled', async ({ page }) => {
-		const prior = await setAllowUserDashboards(page, true)
+		const prior = await setAllowUserDashboards(true)
 		try {
 			await gotoLaunchPad(page)
 			await openSidebar(page)
@@ -197,13 +234,13 @@ test.describe('dashboard-switcher sidebar', () => {
 			const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
 			await expect(addCard).toBeVisible()
 		} finally {
-			await setAllowUserDashboards(page, prior)
+			await setAllowUserDashboards(prior)
 		}
 	})
 
 	// @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
 	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({ page }) => {
-		const prior = await setAllowUserDashboards(page, false)
+		const prior = await setAllowUserDashboards(false)
 		try {
 			await gotoLaunchPad(page)
 			await openSidebar(page)
@@ -213,7 +250,7 @@ test.describe('dashboard-switcher sidebar', () => {
 			// still a create affordance to anything that walks the tree.
 			await expect(addCard).toHaveCount(0)
 		} finally {
-			await setAllowUserDashboards(page, prior)
+			await setAllowUserDashboards(prior)
 		}
 	})
 

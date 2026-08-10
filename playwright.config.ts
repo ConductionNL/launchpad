@@ -79,26 +79,6 @@ export default defineConfig({
 		// because `testIgnore` is file-granular and a partially-executed
 		// file would still hand gate-19 the whole file's annotations.
 		//
-		// 3 of 3 PASS, and it is excluded anyway — because running it makes
-		// two OTHER specs fail. Measured in run 31388540423: with this file
-		// first in the order, `ci/manifest-grants.spec.ts` sees the recipient
-		// `e2e-grantee` receive admin's whole manifest, and
-		// `ci/public-share-lifecycle.spec.ts:352` sees the grantee's
-		// `POST …/public-share` answer 201 with `"createdBy":"admin"`. Both
-		// specs are green in a run of the same commits without this file
-		// (31389002230). This spec drives the admin settings page and opens
-		// the create/manage group-dashboard modals against the `default`
-		// group sentinel; its "Cancel returns to the tab without firing a
-		// request" is a COMMENT, not an assertion.
-		//
-		// The mechanism is NOT yet understood — `createdBy: admin` on a
-		// request carrying the grantee's credentials does not follow from a
-		// leaked group assignment on its own — so this entry is a
-		// quarantine, not a diagnosis. It costs no coverage: all three of
-		// this file's `@e2e` annotations name scenarios that do not exist in
-		// any spec (`admin-group-management::tab-renders-one-row-per-group`
-		// and siblings), so they were never counted.
-		'**/admin-group-management.spec.ts',
 		// 2 of 3 fail — "clicking a sidebar row activates the chosen
 		// dashboard server-side" and "a stale saved UUID is silently
 		// discarded" both time out at 24s.

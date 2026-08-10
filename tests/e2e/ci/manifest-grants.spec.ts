@@ -56,9 +56,30 @@ function basic(user: string, pass: string): string {
 const REGISTER = 'launchpad'
 const SCHEMA = 'dashboard'
 
+/*
+ * `storageState: undefined` IS THE LOAD-BEARING LINE, NOT BOILERPLATE.
+ *
+ * This spec asserts what a DIFFERENT user can see. The root Playwright config
+ * sets `use.storageState` to the admin session `global-setup.ts` harvests, and
+ * a context created inside a test inherits it — so this "grantee" context
+ * arrived carrying admin's cookies, Nextcloud preferred the session over the
+ * `Authorization: Basic` header, and every request the test believed it was
+ * making as `e2e-grantee` was served as `admin`.
+ *
+ * Measured: run 31389746411, where the recipient's manifest came back holding
+ * all three of admin's dashboards — including `e2e-owned-…`, created by
+ * `boot-and-manifest.spec.ts` and never granted to anyone. The sibling spec
+ * failed the same way with a created share reading `"createdBy":"admin"`.
+ *
+ * Nothing about it was visible before, because CI ran this file under a config
+ * that had no `storageState` at all. The failure mode is the dangerous kind: a
+ * permission test that silently authenticates as the privileged user does not
+ * error, it just stops discriminating.
+ */
 async function apiAs(baseURL: string, creds: { user: string, pass: string }): Promise<APIRequestContext> {
 	return request.newContext({
 		baseURL,
+		storageState: undefined,
 		extraHTTPHeaders: {
 			'OCS-APIRequest': 'true',
 			Authorization: basic(creds.user, creds.pass),

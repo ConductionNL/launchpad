@@ -150,27 +150,70 @@ test.describe('dashboard-switcher sidebar', () => {
 		await expect(rows.first()).toBeVisible()
 	})
 
+	/*
+	 * BOTH TESTS BELOW USED TO INHERIT THE FLAG THEY NAME, AND BOTH WERE GREEN
+	 * FOR A REASON THAT HAD NOTHING TO DO WITH THEM.
+	 *
+	 * `allow_user_dashboards` is OFF on a fresh instance. The first test
+	 * asserted the card is visible "when personal dashboards are enabled"
+	 * without enabling anything; the second read `GET /api/admin/settings` and
+	 * branched on it, falling through to `allowed = true` whenever the read
+	 * FAILED — so an unreadable settings response silently became "expect the
+	 * card to be visible", which is a check that cannot report its own
+	 * blindness.
+	 *
+	 * They passed because `allow-personal-dashboards-flag.spec.ts` runs
+	 * earlier in alphabetical order and switches the flag on. Measured in run
+	 * 31388540423: with that spec excluded (it is red in the CI fixture), both
+	 * of these went red — while the product was fine.
+	 *
+	 * A test that asserts behaviour under an admin flag has to SET that flag.
+	 * Each now establishes its own precondition and restores it, so the pair
+	 * is a real A/B: the two arms differ only in the setting, which is what
+	 * makes either of them evidence about the setting.
+	 */
+	const SETTINGS_API = '/index.php/apps/launchpad/api/admin/settings'
+
+	/** Set `allowUserDashboards` and return the value it had before. */
+	async function setAllowUserDashboards(page: any, value: boolean): Promise<boolean> {
+		const before = await page.request.get(SETTINGS_API)
+		expect(
+			before.ok(),
+			'the admin settings must be readable — an unreadable response used to be treated as "enabled"',
+		).toBe(true)
+		const prior = (await before.json()).allowUserDashboards === true
+		const put = await page.request.put(SETTINGS_API, { data: { allowUserDash: value } })
+		expect(put.ok(), await put.text()).toBe(true)
+		return prior
+	}
+
 	// @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
 	test('Add-Dashboard card renders in sidebar when personal dashboards are enabled', async ({ page }) => {
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
-		await expect(addCard).toBeVisible()
+		const prior = await setAllowUserDashboards(page, true)
+		try {
+			await gotoLaunchPad(page)
+			await openSidebar(page)
+			const sidebar = page.locator('.dashboard-switcher-sidebar')
+			const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+			await expect(addCard).toBeVisible()
+		} finally {
+			await setAllowUserDashboards(page, prior)
+		}
 	})
 
 	// @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
 	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({ page }) => {
-		// Check the current admin setting and assert the card visibility matches.
-		const settingsResp = await page.request.get('/index.php/apps/launchpad/api/admin/settings')
-		const settings = settingsResp.ok() ? await settingsResp.json() : {}
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
-		const allowed = settings?.allowUserDashboards !== false
-		if (allowed) {
-			await expect(addCard).toBeVisible()
-		} else {
+		const prior = await setAllowUserDashboards(page, false)
+		try {
+			await gotoLaunchPad(page)
+			await openSidebar(page)
+			const sidebar = page.locator('.dashboard-switcher-sidebar')
+			const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+			// Absent from the DOM, not merely hidden — a `display:none` card is
+			// still a create affordance to anything that walks the tree.
 			await expect(addCard).toHaveCount(0)
+		} finally {
+			await setAllowUserDashboards(page, prior)
 		}
 	})
 

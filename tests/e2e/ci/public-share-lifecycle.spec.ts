@@ -28,11 +28,13 @@
  *     satisfy a length-only check as soon as a fourth share existed anywhere.
  *
  * These are API-level assertions on an endpoint family that has no UI beyond
- * the anonymous render page (already covered next door). They live in
- * `tests/e2e/ci/` because that is the directory the shared workflow's
- * `playwright-test-path` names — a spec outside it is not executed by CI, and
- * an @e2e annotation on a test CI never runs is a coverage claim with nothing
- * behind it.
+ * the anonymous render page (already covered next door), which is why they sit
+ * in `tests/e2e/ci/` next to the other API-level specs. That directory no
+ * longer decides execution: `playwright.config.ts` does, via its `testIgnore`,
+ * and this file is not in it. The two facts to keep straight are that the
+ * annotations below are counted by gate-19 only because the file runs in CI,
+ * and that both halves of that sentence are decided in the same config the
+ * workflow loads.
  *
  * Scenarios covered:
  *   @e2e dashboard-public-share::create-a-public-share-without-password

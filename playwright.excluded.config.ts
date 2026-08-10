@@ -35,6 +35,7 @@ export default defineConfig({
 	testDir: './tests/e2e',
 	testMatch: [
 		'**/api-direct/**/*.spec.ts',
+		'**/admin-group-management.spec.ts',
 		'**/active-dashboard-resolution.spec.ts',
 		'**/add-widget-modal.spec.ts',
 		'**/allow-personal-dashboards-flag.spec.ts',

@@ -2,67 +2,65 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * CI-safe Playwright config — a deliberately small, green-on-arrival subset.
+ * MEASUREMENT CONFIG — NOT FOR MERGE.
  *
- * WHY A SECOND CONFIG RATHER THAN ENABLING THE ROOT ONE. The root config points
- * `testDir` at all of `tests/e2e` — 19 spec files, several of which capture
- * documentation screenshots or drive multi-user UI flows that need seeded
- * fixtures. Turning that on wholesale is red on the first run, and a gate that is
- * red on arrival is a gate nobody turns on. The shared workflow resolves
- * `<playwright-test-path>/playwright.config.ts` FIRST and only falls back to the
- * root one, so pointing `playwright-test-path` at this directory selects a
- * config whose `testDir` is just this directory. The floor is green and it grows.
+ * This branch exists to answer one question with evidence rather than reading:
+ * which of the ~107 specs under tests/e2e actually pass in the CI environment
+ * the shared quality workflow provides (NC stable32 + openregister, admin/admin,
+ * a built frontend bundle, php -S on :8080, one seeded `e2e-grantee` account)?
  *
- * This mirrors the same move already made in openregister.
+ * So it points testDir at the whole root suite, wires the root globalSetup +
+ * storageState (which the shipped CI config does not need, because its four
+ * specs are API-only), and runs with retries 0 so a flake reads as a flake.
  */
 
 import { defineConfig, devices } from '@playwright/test'
+import * as path from 'path'
 
-/*
- * CI exports BASE_URL / ADMIN_USER / ADMIN_PASSWORD. The repo's older specs read
- * NC_BASE_URL / NC_ADMIN_USER / NC_ADMIN_PASS, so both spellings are accepted,
- * CI's first.
- *
- * There is deliberately NO localhost fallback. A default would make a run with
- * no environment silently target whatever happens to be on localhost:8080 —
- * which, on a developer machine, is the SHARED dev container. Failing loudly is
- * the only safe behaviour.
- */
 const baseURL = process.env.BASE_URL ?? process.env.NC_BASE_URL
 
 if (baseURL === undefined || baseURL === '') {
-	throw new Error(
-		'BASE_URL (or NC_BASE_URL) must be set. Refusing to guess — a localhost '
-		+ 'default would silently target the shared dev instance.',
-	)
+	throw new Error('BASE_URL (or NC_BASE_URL) must be set.')
 }
 
+const E2E_ROOT = path.resolve(__dirname, '..')
+
 export default defineConfig({
-	testDir: '.',
+	testDir: E2E_ROOT,
+	testIgnore: [
+		'**/global-setup.ts',
+		'**/fixtures/**',
+		'**/support/**',
+		// Known-illegitimate targets, excluded from the measurement itself:
+		//  - api-direct/group-shared-dashboards.spec.ts needs fixture users CI
+		//    does not have (member / nonmember / group e2e-test-group)
+		//  - docs-screenshots.spec.ts is a capture job, not a regression suite
+		'**/api-direct/**',
+		'**/docs-screenshots.spec.ts',
+		// The four specs already executed by CI are not the question; they pass.
+		// Excluding them also keeps the OCS-APIRequest header they need out of
+		// the browser contexts the UI specs use.
+		'**/ci/**',
+	],
 	fullyParallel: false,
 	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 1 : 0,
+	retries: 0,
 	workers: 1,
-	reporter: process.env.CI ? [['list'], ['github']] : [['list']],
-	// This is the config the shared workflow actually loads (it resolves
-	// `${playwright-test-path}/playwright.config.ts` — here `tests/e2e/ci` —
-	// before falling back to the app-root one). The job is
-	// `timeout-minutes: 45`, and a job cancelled by that cap produces NO
-	// verdict: Playwright never prints its tally, the `if: failure()` trace
-	// upload never fires, and the `if: always()` report upload does not run on
-	// a cancelled job either. The run you most need to read is the one that
-	// leaves nothing behind, and it still renders as "fail" in
-	// `gh pr checks`. Measured overhead before `Run Playwright tests` starts is
-	// 2.0-2.4 min and the uploads after it take seconds, so 38m keeps ~7 min of
-	// margin while guaranteeing both a tally and the artifacts that explain it.
+	reporter: process.env.CI
+		? [['list'], ['json', { outputFile: 'playwright-report/measure.json' }], ['html', { open: 'never' }]]
+		: [['list']],
 	globalTimeout: 38 * 60_000,
 	timeout: 60_000,
 	expect: { timeout: 10_000 },
+	globalSetup: path.resolve(E2E_ROOT, 'global-setup.ts'),
 	use: {
 		baseURL: baseURL.replace(/\/$/, ''),
+		storageState: path.resolve(E2E_ROOT, '.auth', 'admin.json'),
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+		video: 'off',
+		actionTimeout: 10_000,
+		navigationTimeout: 60_000,
 	},
 	projects: [
 		{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },

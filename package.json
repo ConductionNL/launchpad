@@ -26,6 +26,8 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:headed": "playwright test --headed",
+		"test:e2e:excluded": "playwright test --config=playwright.excluded.config.ts",
+		"test:e2e:docs": "playwright test --config=playwright.docs.config.ts",
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {

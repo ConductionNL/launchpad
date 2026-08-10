@@ -77,8 +77,8 @@ import {
 import { CnIconBrowser } from '@conduction/nextcloud-vue'
 import { mdiViewDashboard } from '@mdi/js'
 
-import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
-import { ICON_CATALOGUE } from '../../../services/iconCatalogue.js'
+import { useGroupDashboardsStore } from '../stores/groupDashboards.js'
+import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 
 /**
  * CreateGroupDashboardModal — NcDialog-based create form for group-shared

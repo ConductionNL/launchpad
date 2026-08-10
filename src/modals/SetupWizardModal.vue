@@ -145,9 +145,9 @@
 
 <script>
 import { NcButton, NcModal } from '@conduction/nextcloud-vue'
-import GroupPriorityOrder from './GroupPriorityOrder.vue'
-import AdminDemoData from './AdminDemoData.vue'
-import { api } from '../../services/api.js'
+import GroupPriorityOrder from '../components/admin/GroupPriorityOrder.vue'
+import AdminDemoData from '../components/admin/AdminDemoData.vue'
+import { api } from '../services/api.js'
 
 /**
  * SetupWizardModal — multi-step first-run wizard (REQ-WIZ-002).

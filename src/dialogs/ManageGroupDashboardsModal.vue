@@ -101,9 +101,9 @@ import {
 } from '@nextcloud/vue'
 import ViewDashboardIcon from 'vue-material-design-icons/ViewDashboard.vue'
 
-import GroupDashboardDeleteDialog from '../../../dialogs/GroupDashboardDeleteDialog.vue'
-import GroupDashboardRenameDialog from '../../../dialogs/GroupDashboardRenameDialog.vue'
-import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
+import GroupDashboardDeleteDialog from './GroupDashboardDeleteDialog.vue'
+import GroupDashboardRenameDialog from './GroupDashboardRenameDialog.vue'
+import { useGroupDashboardsStore } from '../stores/groupDashboards.js'
 
 /**
  * ManageGroupDashboardsModal — per-group list of dashboards with

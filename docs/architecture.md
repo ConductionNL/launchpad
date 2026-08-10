@@ -25,8 +25,9 @@ persists everything in its own tables via Doctrine mappers.
 │   components/WidgetRenderer    — legacy-widget bridge       │
 │   components/WidgetPicker      — "add widget" modal         │
 │   components/WidgetWrapper     — per-tile chrome            │
-│   components/TileCard / TileEditor / WidgetStyleEditor      │
+│   components/TileCard / WidgetStyleEditor                   │
 │   components/admin/AdminSettings — admin console            │
+│   modals/ + dialogs/    — every NcModal / NcDialog surface  │
 └──────────────────────────┬──────────────────────────────────┘
                            │ OCS JSON via @nextcloud/axios
 ┌──────────────────────────▼──────────────────────────────────┐

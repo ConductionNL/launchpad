@@ -28,7 +28,7 @@
 <script>
 import { NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import ConditionalVisibilityEditor from './ConditionalVisibilityEditor.vue'
+import ConditionalVisibilityEditor from '../components/Widgets/ConditionalVisibilityEditor.vue'
 
 /**
  * VisibilityRulesModal — the placement's "Visibility" settings surface

@@ -15,9 +15,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SetupWizardModal from '../SetupWizardModal.vue'
-import { api } from '../../../services/api.js'
+import { api } from '../../services/api.js'
 
-vi.mock('../../../services/api.js', () => ({
+vi.mock('../../services/api.js', () => ({
 	api: {
 		getSetupWizardState: vi.fn(),
 		setSetupWizardStorage: vi.fn(),

@@ -193,7 +193,13 @@ class PublicShareService
         $dashboard = $this->dashMapper->findByUuid(uuid: $dashboardUuid);
         $this->authorizeShareMutation(dashboard: $dashboard, userId: $callerId);
 
-        return $this->shareMapper->findActiveByDashboardUuid(
+        // PLANTED DEFECT M3 (ISOLATED) — the list stops filtering revoked
+        // shares. In the seven-mutation run this was MASKED by M6, which
+        // hard-deleted the row so an unfiltered query returned the same three
+        // shares anyway, and the list test stayed green while measuring
+        // nothing. Two defects cancelling is exactly the shape a single
+        // combined mutation run cannot see.
+        return $this->shareMapper->findByDashboardUuid(
             dashboardUuid: $dashboardUuid
         );
     }//end listActiveShares()

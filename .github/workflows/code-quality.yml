@@ -97,17 +97,25 @@ jobs:
       #     postman fixture-id wiring repaired and assertion drift
       #     resolved. 196 assertions / 0 failures locally.
       #
-      #   - Playwright — ENABLED, against a small CI-safe subset
-      #     (`tests/e2e/ci/`), not the 19-spec root suite. The comment that
-      #     previously stood here said Playwright was blocked on the shared
-      #     workflow's PHP-built-in-server lifetime, `ConductionNL/.github#37`
-      #     — that PR merged 2026-05-05, so the blocker had been gone for
-      #     three months. The root config's `testDir` still covers specs that
-      #     capture documentation screenshots and drive seeded multi-user UI
-      #     flows, which would be red on the first run, and a gate that is red
-      #     on arrival is a gate nobody turns on. The shared workflow resolves
-      #     `<playwright-test-path>/playwright.config.ts` before the root one,
-      #     so the subset config selects itself. Same approach as openregister.
+      #   - Playwright — ENABLED, against the root suite minus a measured
+      #     exclusion list, NOT against the four-test `tests/e2e/ci/` subset
+      #     it used to run.
+      #
+      #     The subset was a deliberate "green floor that grows", and as a
+      #     floor it worked. What it could not do is tell anyone the truth
+      #     about coverage. gate-19 reads the ROOT `playwright.config.ts`;
+      #     the workflow resolves `<playwright-test-path>/playwright.config.ts`
+      #     FIRST, so it read a different file — and nothing compared them.
+      #     Measured 2026-08-10 (launchpad#82): **CI executed 4 tests while
+      #     113 existed**, and of **117 `@e2e` annotations only 9** were in
+      #     files CI ran. gate-19 reported 71 scenarios covered; 4 had an
+      #     executing test behind them.
+      #
+      #     `tests/e2e` deliberately contains NO `playwright.config.ts`, so
+      #     the workflow's fallback selects the root one — the same file
+      #     gate-19 parses. The two cannot drift without an edit to that file.
+      #     Its `testIgnore` names every excluded spec with the run that
+      #     measured it (31367057618: 65 of 80 passed).
       enable-phpunit: true
       enable-newman: true
       newman-environment-path: "tests/integration/local.env.json"
@@ -139,7 +147,10 @@ jobs:
       # test less than it appears to.
       additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
       enable-playwright: true
-      playwright-test-path: tests/e2e/ci
+      # Names the real suite directory. It holds no config of its own, so the
+      # workflow falls back to the root `playwright.config.ts` — which is the
+      # file gate-19 reads. Same file, same testIgnore, no drift.
+      playwright-test-path: tests/e2e
       # The grant spec needs a second, non-admin account to be the share
       # recipient; a grant to yourself proves nothing.
       #

@@ -6,14 +6,27 @@
  * (REQ-DASH-011..014). Every assertion is on a raw /api response, so per
  * the gate-19 program this file lives under api-direct/ (excluded from the
  * Playwright UI gate); contract coverage is owned by Newman
- * (tests/integration/launchpad.postman_collection.json). The `@e2e`
- * annotations are retained so the gate-19 traceability check still
- * registers these scenarios as covered.
+ * (tests/integration/launchpad.postman_collection.json).
+ *
+ * THE PREVIOUS SENTENCE HERE SAID: "The `@e2e` annotations are retained so
+ * the gate-19 traceability check still registers these scenarios as
+ * covered." Two things were wrong with it, and both are worth stating
+ * rather than quietly deleting.
+ *
+ * It described the wrong goal. Keeping an annotation alive specifically so
+ * a gate keeps counting a scenario, on a file the gate's own program has
+ * excluded from execution, is not traceability — it is a waiver written in
+ * the syntax of coverage, and it reads as a pass.
+ *
+ * And it was not even true. This file has never contained a single
+ * `@e2e <spec>::<slug>` annotation; the sentence documented a mechanism
+ * that was not present. Nothing here was ever counted.
  *
  * Fixture dependency: T1/T2/T4 require the e2e docker fixture's extra NC
- * users (member/nonmember + group "e2e-test-group"). They will not pass
- * against the bare single-admin dev instance — that is expected; Newman
- * carries the asserted contract there.
+ * users (member/nonmember + group "e2e-test-group"). CI does not have them
+ * and does not run this file — so it is not a promotion candidate as it
+ * stands. They will not pass against the bare single-admin dev instance
+ * either; Newman carries the asserted contract there.
  *
  *
  * Scenarios covered:

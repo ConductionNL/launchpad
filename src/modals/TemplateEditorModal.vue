@@ -172,15 +172,15 @@ export default {
 	},
 
 	watch: {
-		/**
-		 * Re-seed the working copy every time the modal opens, so a
-		 * cancelled edit never leaks into the next one.
-		 *
-		 * @param {boolean} isOpen Whether the modal is now open.
-		 * @spec openspec/specs/admin-templates/spec.md
-		 */
 		open: {
 			immediate: true,
+			/**
+			 * Re-seed the working copy every time the modal opens, so a
+			 * cancelled edit never leaks into the next one.
+			 *
+			 * @param {boolean} isOpen Whether the modal is now open.
+			 * @spec openspec/specs/admin-templates/spec.md
+			 */
 			handler(isOpen) {
 				if (isOpen) {
 					this.seedForm()

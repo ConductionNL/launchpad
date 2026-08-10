@@ -65,89 +65,18 @@
 			@close="closeResyncModal"
 			@resynced="closeResyncModal" />
 
-		<!-- Template Editor Modal -->
-		<NcModal
-			v-if="editingTemplate"
-			:name="editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template')"
-			size="large"
-			@close="closeTemplateEditor">
-			<div class="launchpad-admin__modal">
-				<h2>{{ editingTemplate.id ? t('launchpad', 'Edit template') : t('launchpad', 'Create template') }}</h2>
-
-				<!--
-					The visible text moves from a bare `<label>` onto
-					NcTextField's own `label` prop.
-
-					A `<label>` with no `for` (and not wrapping the field) is
-					not associated with anything — it renders as text, and a
-					screen reader announces the field with no name at all.
-					NcTextField renders the label against the `<input>` it
-					owns, which is the association the markup was reaching
-					for. The placeholder stays as the example value it always
-					was; it is not a substitute for a name, because it
-					disappears as soon as the field has content.
-				-->
-				<div class="launchpad-admin__field">
-					<NcTextField
-						v-model="editingTemplate.name"
-						:label="t('launchpad', 'Template name')"
-						:placeholder="t('launchpad', 'My template')" />
-				</div>
-
-				<div class="launchpad-admin__field">
-					<NcTextField
-						v-model="editingTemplate.description"
-						:label="t('launchpad', 'Description')"
-						:placeholder="t('launchpad', 'Optional description')" />
-				</div>
-
-				<div class="launchpad-admin__field">
-					<label>{{ t('launchpad', 'Target groups') }}</label>
-					<NcSelectTags
-						v-model="editingTemplate.targetGroups"
-						:options="availableGroups"
-						:multiple="true"
-						:aria-label-combobox="t('launchpad', 'Target groups')"
-						:placeholder="t('launchpad', 'Select groups (leave empty for all users)')" />
-				</div>
-
-				<div class="launchpad-admin__field">
-					<NcSelect
-						v-model="editingTemplate.permissionLevel"
-						:input-label="t('launchpad', 'Permission level')"
-						:options="permissionOptions"
-						label="label"
-						track-by="id"
-						:clearable="false" />
-				</div>
-
-				<NcCheckboxRadioSwitch
-					v-model="editingTemplate.isDefault">
-					{{ t('launchpad', 'Set as default template') }}
-				</NcCheckboxRadioSwitch>
-
-				<div class="launchpad-admin__modal-actions">
-					<NcButton type="secondary" @click="closeTemplateEditor">
-						{{ t('launchpad', 'Cancel') }}
-					</NcButton>
-					<NcButton type="primary" @click="saveTemplate">
-						{{ t('launchpad', 'Save') }}
-					</NcButton>
-				</div>
-			</div>
-		</NcModal>
+		<TemplateEditorModal
+			:open="isEditorOpen"
+			:template="editingTemplate"
+			@close="closeTemplateEditor"
+			@saved="onTemplateSaved" />
 	</div>
 </template>
 
 <script>
 import {
 	NcButton,
-	NcSelect,
-	NcSelectTags,
-	NcTextField,
-	NcCheckboxRadioSwitch,
 	NcEmptyContent,
-	NcModal,
 	CnDashboardIcon,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
@@ -155,42 +84,37 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import { api } from '../../../services/api.js'
 import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
+import TemplateEditorModal from '../../../modals/TemplateEditorModal.vue'
 
 /**
  * TemplatesPage — the Templates SUB_PAGE for the admin Beheer area
- * (admin-templates spec). Hosts the dashboard-template list + CRUD modal
- * that previously lived inline in `AdminSettings.vue`. This is now the only
- * place templates can be managed, satisfying the IA's "Templates SUB_PAGE"
- * requirement.
+ * (admin-templates spec). Hosts the dashboard-template list and drives the
+ * create/edit modal (`TemplateEditorModal`) and the re-sync modal. This is
+ * the only place templates can be managed, satisfying the IA's
+ * "Templates SUB_PAGE" requirement.
+ *
+ * The page owns list state and which template is open in the editor; the
+ * editor owns the form itself (ADR-004 modal isolation).
  */
 export default {
 	name: 'TemplatesPage',
 
 	components: {
 		NcButton,
-		NcSelect,
-		NcSelectTags,
-		NcTextField,
-		NcCheckboxRadioSwitch,
 		NcEmptyContent,
-		NcModal,
 		Plus,
 		ViewDashboard,
 		CnDashboardIcon,
 		TemplateResyncModal,
+		TemplateEditorModal,
 	},
 
 	data() {
 		return {
 			templates: [],
-			availableGroups: [],
+			isEditorOpen: false,
 			editingTemplate: null,
 			resyncingTemplate: null,
-			permissionOptions: [
-				{ id: 'view_only', label: t('launchpad', 'View only') },
-				{ id: 'add_only', label: t('launchpad', 'Add only') },
-				{ id: 'full', label: t('launchpad', 'Full customization') },
-			],
 		}
 	},
 
@@ -214,14 +138,8 @@ export default {
 
 		/** @spec openspec/specs/admin-templates/spec.md */
 		createTemplate() {
-			this.editingTemplate = {
-				id: null,
-				name: '',
-				description: '',
-				targetGroups: [],
-				permissionLevel: this.permissionOptions[1],
-				isDefault: false,
-			}
+			this.editingTemplate = null
+			this.isEditorOpen = true
 		},
 
 		/**
@@ -231,41 +149,24 @@ export default {
 		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		editTemplate(template) {
-			this.editingTemplate = {
-				...template,
-				permissionLevel: this.permissionOptions.find(
-					p => p.id === template.permissionLevel,
-				) || this.permissionOptions[1],
-			}
+			this.editingTemplate = template
+			this.isEditorOpen = true
 		},
 
 		/** @spec openspec/specs/admin-templates/spec.md */
 		closeTemplateEditor() {
+			this.isEditorOpen = false
 			this.editingTemplate = null
 		},
 
-		/** @spec openspec/specs/admin-templates/spec.md */
-		async saveTemplate() {
-			try {
-				const data = {
-					name: this.editingTemplate.name,
-					description: this.editingTemplate.description,
-					targetGroups: this.editingTemplate.targetGroups,
-					permissionLevel: this.editingTemplate.permissionLevel?.id,
-					isDefault: this.editingTemplate.isDefault,
-				}
-
-				if (this.editingTemplate.id) {
-					await api.updateAdminTemplate(this.editingTemplate.id, data)
-				} else {
-					await api.createAdminTemplate(data)
-				}
-
-				await this.loadTemplates()
-				this.closeTemplateEditor()
-			} catch (error) {
-				console.error('Failed to save template:', error)
-			}
+		/**
+		 * The editor persisted a template — refresh the list and close it.
+		 *
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
+		async onTemplateSaved() {
+			await this.loadTemplates()
+			this.closeTemplateEditor()
 		},
 
 		/**
@@ -337,16 +238,6 @@ export default {
 	margin-bottom: 16px;
 }
 
-.launchpad-admin__field {
-	margin-bottom: 16px;
-}
-
-.launchpad-admin__field label {
-	display: block;
-	margin-bottom: 4px;
-	font-weight: 500;
-}
-
 .launchpad-admin__templates {
 	display: flex;
 	flex-direction: column;
@@ -389,20 +280,5 @@ export default {
 
 .launchpad-admin__empty {
 	padding: 48px 0;
-}
-
-.launchpad-admin__modal {
-	padding: 24px;
-}
-
-.launchpad-admin__modal h2 {
-	margin: 0 0 24px;
-}
-
-.launchpad-admin__modal-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 12px;
-	margin-top: 24px;
 }
 </style>

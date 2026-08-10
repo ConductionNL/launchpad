@@ -26,7 +26,7 @@ vi.mock('@nextcloud/axios', () => ({
 }))
 
 const createGroupDashboardMock = vi.fn()
-vi.mock('../../../services/api.js', () => ({
+vi.mock('../../services/api.js', () => ({
 	api: {
 		createGroupDashboard: createGroupDashboardMock,
 	},
@@ -65,7 +65,7 @@ beforeEach(async () => {
 	setActivePinia(createPinia())
 	globalThis.t = (_app, key) => key
 	createGroupDashboardMock.mockReset()
-	CreateGroupDashboardModal = (await import('../group/CreateGroupDashboardModal.vue')).default
+	CreateGroupDashboardModal = (await import('../CreateGroupDashboardModal.vue')).default
 })
 
 function mountModal() {

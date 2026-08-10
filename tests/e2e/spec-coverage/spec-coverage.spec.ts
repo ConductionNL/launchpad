@@ -254,16 +254,43 @@ test.describe('dashboard-switcher sidebar', () => {
 		}
 	})
 
+	/*
+	 * THIRD TEST WITH THE SAME DEFECT, AND THE MOST EXPENSIVE VERSION OF IT.
+	 *
+	 * This one inherited `allowUserDashboards` like the two above, but instead
+	 * of failing when the flag was off it SKIPPED — `test.skip(true,
+	 * 'allowUserDashboards is false in this environment')`. A skip is not a
+	 * neutral outcome here: the `@e2e` annotation on the line above keeps
+	 * claiming `dashboard-switcher::click-invokes-create-flow` as covered, so
+	 * the scenario counted while nothing exercised it. Measured in run
+	 * 31390900033: `65 tests … 64 passed, 1 skipped`, and this was the one.
+	 *
+	 * The environment it was describing is the DEFAULT one — the flag is off on
+	 * a fresh instance — so the skip was not a rare escape hatch, it was the
+	 * normal path. It sets the flag it needs, like its two siblings.
+	 */
 	// @e2e dashboard-switcher::click-invokes-create-flow
 	test('clicking Add-Dashboard card opens the Create dashboard dialog', async ({ page }) => {
+		const prior = await setAllowUserDashboards(true)
+		try {
+			await gotoLaunchPad(page)
+			await runCreateFlowAssertions(page)
+		} finally {
+			await setAllowUserDashboards(prior)
+		}
+	})
+
+	async function runCreateFlowAssertions(page: any) {
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
 		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
 
-		if (!await addCard.isVisible().catch(() => false)) {
-			test.skip(true, 'allowUserDashboards is false in this environment')
-			return
-		}
+		// No conditional skip. The precondition is established above, so an
+		// absent card is now a failure — which is what it always meant.
+		await expect(
+			addCard,
+			'the Add-Dashboard card must be present once personal dashboards are enabled',
+		).toBeVisible()
 
 		// Clicking "Add dashboard" either opens a "Create dashboard" dialog or
 		// fires a create POST immediately — the current UI forks the active
@@ -287,10 +314,10 @@ test.describe('dashboard-switcher sidebar', () => {
 		if (!dialogVisible) {
 			// No dialog — a create/fork POST must have fired instead.
 			const req = await createRequestPromise
-			expect(req).not.toBeNull()
+			expect(req, 'clicking Add-Dashboard must either open the dialog or fire a create/fork POST').not.toBeNull()
 		}
 		// If dialog IS visible, the create flow is working.
-	})
+	}
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

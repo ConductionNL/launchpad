@@ -88,19 +88,29 @@ function basic(user: string, pass: string): string {
 /*
  * An API context that is unambiguously ONE named user.
  *
- * `storageState: undefined` is load-bearing and is not defensive tidying:
+ * An EXPLICIT EMPTY JAR is load-bearing here and is not defensive tidying:
  * playwright.config.ts sets a top-level `use.storageState` (the admin session
  * from global-setup), and a context that inherits it is served as admin
- * whatever Authorization header it also sends. Measured on this repo in run
- * 31389746411, where a non-admin's create answered 201 with
- * `"createdBy":"admin"` — the response naming the user the request had
- * actually been served as. Every "bob is refused" assertion below would
- * otherwise be an assertion about an administrator.
+ * whatever Authorization header it also sends — a valid session cookie
+ * outranks a later `Authorization` header, so a per-request header is not an
+ * identity switch. Measured on this repo in run 31389746411, where a
+ * non-admin's create answered 201 with `"createdBy":"admin"` — the response
+ * naming the user the request had actually been served as. Every "bob is
+ * refused" assertion below would otherwise be an assertion about an
+ * administrator.
+ *
+ * The jar is spelled `{ cookies: [], origins: [] }` rather than
+ * `storageState: undefined`. Those are not equivalent: option merging treats
+ * an explicit `undefined` as "not supplied", which is exactly the case that
+ * falls back to the project default — i.e. the very inheritance this is meant
+ * to prevent. The empty-jar literal cannot be read that way. (The same fix,
+ * in the same form, closed an identical false green in pipelinq, where a
+ * context created to be anonymous read back `ocs.data.id === "admin"`.)
  */
 async function apiAs(creds: { user: string, pass: string }): Promise<APIRequestContext> {
 	return request.newContext({
 		baseURL: ENV_BASE_URL,
-		storageState: undefined,
+		storageState: { cookies: [], origins: [] },
 		extraHTTPHeaders: {
 			'OCS-APIRequest': 'true',
 			Authorization: basic(creds.user, creds.pass),

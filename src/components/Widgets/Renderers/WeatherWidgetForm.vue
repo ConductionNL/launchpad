@@ -87,6 +87,14 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The two explicit unit systems an author may pin. Leaving the field
+		 * blank (no option selected) is the default and means "follow each
+		 * viewer's own locale" — REQ-WEATHER-003 "Author override of units".
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-003
+		 * @return {Array<{value: string, label: string}>}
+		 */
 		unitsOptions() {
 			return [
 				{ value: 'metric', label: t('launchpad', 'Metric (°C, km/h)') },
@@ -94,6 +102,13 @@ export default {
 			]
 		},
 
+		/**
+		 * The persisted content blob: `location` (resolved server-side per
+		 * REQ-WEATHER-002) plus the optional `unitsOverride` (REQ-WEATHER-003).
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md
+		 * @return {{location: string, unitsOverride: string}}
+		 */
 		assembledContent() {
 			return {
 				location: this.location,
@@ -106,8 +121,10 @@ export default {
 		t,
 
 		/**
-		 * Set a field and notify the parent via `update:content`.
+		 * Set a field and notify the parent via `update:content`, keeping the
+		 * persisted `{location, unitsOverride}` blob in sync with the form.
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md
 		 * @param {string} field one of: location, unitsOverride.
 		 * @param {string} value the new value.
 		 * @return {void}
@@ -119,8 +136,11 @@ export default {
 
 		/**
 		 * Validate the form — a weather tile with no location can never
-		 * resolve a reading, so `location` is required.
+		 * resolve a reading, so `location` is required — REQ-WEATHER-002 has
+		 * `WeatherService` resolve a placement's location, which is
+		 * unsatisfiable when the field is blank.
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-002
 		 * @return {string[]} the validation errors.
 		 */
 		validate() {

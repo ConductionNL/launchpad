@@ -19,6 +19,7 @@ import { generateUrl } from '@nextcloud/router'
 /**
  * Fetch the cached weather reading for one placement.
  *
+ * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-001
  * @param {number|string} placementId the widget placement id.
  * @return {Promise<{location: string, tempValue: number, units: string, condition: string, conditionText: string, language: string, fetchedAt: string, stale: boolean}>} the reading.
  * @throws {Error} when the request fails (network error, 403, 5xx, …) — the

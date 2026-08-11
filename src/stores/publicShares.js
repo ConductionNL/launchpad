@@ -48,6 +48,7 @@ export const usePublicShareStore = defineStore('publicShares', {
 		 *   the link; null leaves the share unprotected.
 		 * @param {string|null} [options.expiresAt] ISO-8601 expiry; null
 		 *   creates a share that does not expire.
+		 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-001
 		 * @return {Promise<object>} The created share record.
 		 */
 		async createShare(dashboardUuid, { password = null, expiresAt = null } = {}) {
@@ -75,6 +76,7 @@ export const usePublicShareStore = defineStore('publicShares', {
 		 * Fetch active shares for a dashboard.
 		 *
 		 * @param {string} dashboardUuid UUID of the dashboard to inspect.
+		 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-002
 		 * @return {Promise<object[]>} The dashboard's active shares.
 		 */
 		async fetchShares(dashboardUuid) {
@@ -95,6 +97,7 @@ export const usePublicShareStore = defineStore('publicShares', {
 		 *
 		 * @param {string} dashboardUuid UUID of the dashboard that owns it.
 		 * @param {number|string} shareId Id of the share to revoke.
+		 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-003
 		 */
 		async revokeShare(dashboardUuid, shareId) {
 			await axios.delete(
@@ -107,9 +110,14 @@ export const usePublicShareStore = defineStore('publicShares', {
 		},
 
 		/**
-		 * Mark a token as unlocked and persist to localStorage.
+		 * Mark a token as unlocked and persist to localStorage, so a correct
+		 * password is not re-demanded on every subsequent render of the same
+		 * share within the session (REQ-PSHR-005 "Unlock with correct
+		 * password"). This is a UX cache only — the server still gates every
+		 * render on the unlock header/param.
 		 *
 		 * @param {string} token Public share token the user just unlocked.
+		 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-005
 		 */
 		markUnlocked(token) {
 			this.unlockedTokens = { ...this.unlockedTokens, [token]: true }
@@ -117,9 +125,11 @@ export const usePublicShareStore = defineStore('publicShares', {
 		},
 
 		/**
-		 * Remove an unlocked token (e.g. on session end).
+		 * Remove an unlocked token (e.g. on session end), returning the share
+		 * to the REQ-PSHR-005 password gate on its next render.
 		 *
 		 * @param {string} token Public share token to re-lock.
+		 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-005
 		 */
 		clearUnlocked(token) {
 			const updated = { ...this.unlockedTokens }

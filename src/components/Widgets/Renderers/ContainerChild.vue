@@ -44,8 +44,12 @@ export default {
 
 	/**
 	 * Bridge the nc-vue data widgets' injected sources to launchpad's
-	 * endpoints, scoped to this child's placement.
+	 * endpoints, scoped to this child's placement. Without this a nested
+	 * data widget would inherit the container's placement id (or none) and
+	 * fetch the wrong rows, so "child widgets render via the registry
+	 * dispatcher" would hold structurally but not behaviourally.
 	 *
+	 * @spec openspec/specs/container-widget/spec.md#req-cont-003
 	 * @return {object} the injected data-source adapters.
 	 */
 	provide() {

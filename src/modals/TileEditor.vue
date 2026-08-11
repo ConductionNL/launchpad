@@ -241,7 +241,14 @@ export default {
 		isUrlIcon() {
 			return isCustomIconUrl(this.form.icon)
 		},
-		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		/**
+		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
+		 * picker source every icon surface reads, so the picker cannot drift
+		 * from the registry (REQ-ICON-003).
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-003
+		 * @return {object} the frozen icon catalogue.
+		 */
 		iconCatalogue() {
 			return ICON_CATALOGUE
 		},
@@ -250,8 +257,11 @@ export default {
 		 * shortname (`link`) or key (`AlertCircle`) rather than the SVG path the
 		 * catalogue is indexed by, so the picker can't match them and the
 		 * preview can't draw them. Map those to their path for display; the
-		 * stored `form.icon` is left untouched until the user picks a new icon.
+		 * stored `form.icon` is left untouched until the user picks a new icon
+		 * — the single `icon` column keeps holding whatever it held, with no
+		 * migration (REQ-ICON-009).
 		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
 		 * @return {string} the SVG path / URL to display.
 		 */
 		displayIcon() {
@@ -286,8 +296,11 @@ export default {
 		/**
 		 * Store the picked icon. CnIconBrowser emits an SVG path (MDI) or a URL
 		 * (NlDesign/upload); derive iconType from the value so TileWidget renders
-		 * the right element.
+		 * the right element. `isCustomIconUrl` is the REQ-ICON-005 URL/name
+		 * discriminator — `iconType` is derived from it rather than guessed,
+		 * so a picked value and its stored type can never disagree.
 		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-005
 		 * @param {string} value the chosen SVG path or icon URL.
 		 * @return {void}
 		 */

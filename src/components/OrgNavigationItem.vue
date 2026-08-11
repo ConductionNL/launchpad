@@ -163,6 +163,7 @@ export default {
 		 * silently fall back to the default icon; picker-emitted paths and
 		 * URLs pass through unchanged.
 		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
 		 * @return {string|null} value for `CnDashboardIcon :name`.
 		 */
 		iconName() {

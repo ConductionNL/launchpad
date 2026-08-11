@@ -37,7 +37,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		/**
 		 * Fetch the playlists visible to the caller (own for users, all for admins).
 		 *
-		 * @spec REQ-KIOSK-002
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md#req-kiosk-002
 		 */
 		async fetchPlaylists() {
 			this.loading = true
@@ -59,7 +59,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		 *   Dashboards to cycle through, with how long each is shown.
 		 * @param {number} [payload.refreshSeconds] How often the kiosk
 		 *   re-fetches dashboard content.
-		 * @spec REQ-KIOSK-002
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md#req-kiosk-002
 		 */
 		async createPlaylist({ name, entries, refreshSeconds = 300 }) {
 			this.loading = true
@@ -86,7 +86,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		 *   Dashboards to cycle through, with how long each is shown.
 		 * @param {number} [payload.refreshSeconds] How often the kiosk
 		 *   re-fetches dashboard content.
-		 * @spec REQ-KIOSK-002
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md#req-kiosk-002
 		 */
 		async updatePlaylist(id, { name, entries, refreshSeconds = 300 }) {
 			this.loading = true
@@ -109,7 +109,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		 * Soft-revoke a playlist; removes it from the local list.
 		 *
 		 * @param {number|string} id Primary key of the playlist to revoke.
-		 * @spec REQ-KIOSK-002
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md#req-kiosk-002
 		 */
 		async revokePlaylist(id) {
 			await axios.delete(`${baseUrl}/api/kiosk/playlists/${encodeURIComponent(id)}`)
@@ -121,7 +121,7 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		 * public KioskView; returns { playlist, entries } or throws on 404.
 		 *
 		 * @param {string} token Public share token identifying the playlist.
-		 * @spec REQ-KIOSK-003
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md#req-kiosk-003
 		 */
 		async fetchRender(token) {
 			const { data } = await axios.get(

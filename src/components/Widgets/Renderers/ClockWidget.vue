@@ -115,7 +115,14 @@ export default {
 			return DEFAULT_CONTENT.hourFormat
 		},
 
-		/** Whether the resolved hour format renders 12-hour clock with AM/PM. */
+		/**
+		 * Whether the resolved hour format renders 12-hour clock with AM/PM.
+		 * `undefined` is deliberate — it lets `Intl` apply the locale's own
+		 * convention for the `auto` setting instead of guessing one here.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {boolean|undefined}
+		 */
 		hour12() {
 			if (this.hourFormat === '12h') {
 				return true
@@ -132,7 +139,14 @@ export default {
 			return typeof this.content?.timezone === 'string' ? this.content.timezone : DEFAULT_CONTENT.timezone
 		},
 
-		/** Whether to render the locale-aware date line beneath a digital clock. */
+		/**
+		 * Whether to render the locale-aware date line beneath a digital
+		 * clock. Forced off for the analog face, which has no date field to
+		 * persist (REQ-CLOCK-002 "Analog style configuration").
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
+		 * @return {boolean}
+		 */
 		showDate() {
 			if (this.style === 'analog') {
 				return false
@@ -140,12 +154,25 @@ export default {
 			return this.content?.showDate !== false
 		},
 
-		/** Canonical BCP-47 locale, e.g. `en-US` or `nl-NL`. */
+		/**
+		 * Canonical BCP-47 locale, e.g. `en-US` or `nl-NL`. Read from the
+		 * Nextcloud user locale so weekday/month names follow it rather than
+		 * being hardcoded English (REQ-CLOCK-003 "Locale-aware date").
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {string}
+		 */
 		locale() {
 			return getCanonicalLocale()
 		},
 
-		/** Intl.DateTimeFormat options shared by the time formatter. */
+		/**
+		 * `Intl.DateTimeFormat` options for the time line — this is where the
+		 * configured 12h/24h format and IANA timezone are actually applied.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {object}
+		 */
 		timeFormatOptions() {
 			const options = {
 				hour: '2-digit',
@@ -161,7 +188,14 @@ export default {
 			return options
 		},
 
-		/** Locale-aware, timezone-aware time string (REQ-CLOCK-003). */
+		/**
+		 * Locale-aware, timezone-aware time string (REQ-CLOCK-003). An
+		 * unknown IANA zone falls back to the device zone rather than
+		 * throwing, so a bad config never blanks the tile.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {string}
+		 */
 		timeText() {
 			try {
 				return new Intl.DateTimeFormat(this.locale, this.timeFormatOptions).format(this.now)
@@ -173,7 +207,14 @@ export default {
 			}
 		},
 
-		/** Intl.DateTimeFormat options for the locale-aware date line. */
+		/**
+		 * `Intl.DateTimeFormat` options for the date line — long weekday and
+		 * month names so the locale's own spelling is used, never a hardcoded
+		 * English string.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {object}
+		 */
 		dateFormatOptions() {
 			const options = {
 				weekday: 'long',
@@ -187,7 +228,13 @@ export default {
 			return options
 		},
 
-		/** Locale-aware date string, e.g. Dutch weekday/month names (REQ-CLOCK-003). */
+		/**
+		 * Locale-aware date string, e.g. Dutch weekday/month names
+		 * (REQ-CLOCK-003 "Locale-aware date").
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {string}
+		 */
 		dateText() {
 			try {
 				return new Intl.DateTimeFormat(this.locale, this.dateFormatOptions).format(this.now)
@@ -202,6 +249,9 @@ export default {
 		 * analog face (which conveys time visually only) and reused as the
 		 * digital wrapper's aria-label so the value is announced once, not
 		 * digit-by-digit (REQ-CLOCK-003 "Analog clock is accessible").
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {string}
 		 */
 		accessibleLabel() {
 			if (this.showDate) {
@@ -210,22 +260,47 @@ export default {
 			return this.timeText
 		},
 
-		/** Seconds hand angle in degrees (0 = 12 o'clock). */
+		/**
+		 * Seconds hand angle in degrees (0 = 12 o'clock) — the per-second
+		 * visual tick the analog face is required to show.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {number}
+		 */
 		secondAngle() {
 			return this.now.getSeconds() * 6
 		},
 
-		/** Minutes hand angle in degrees, creeping smoothly with seconds. */
+		/**
+		 * Minutes hand angle in degrees, creeping smoothly with seconds so
+		 * the face reads as a real clock rather than snapping each minute.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {number}
+		 */
 		minuteAngle() {
 			return (this.now.getMinutes() + (this.now.getSeconds() / 60)) * 6
 		},
 
-		/** Hours hand angle in degrees, creeping smoothly with minutes. */
+		/**
+		 * Hours hand angle in degrees, creeping smoothly with minutes.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+		 * @return {number}
+		 */
 		hourAngle() {
 			return ((this.now.getHours() % 12) + (this.now.getMinutes() / 60)) * 30
 		},
 	},
 
+	/**
+	 * Start the once-per-second tick that drives every time-derived computed
+	 * property — REQ-CLOCK-003 requires the display to update at least once
+	 * per second. Client-side only; no fetch is scheduled here.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+	 * @return {void}
+	 */
 	mounted() {
 		// Update at least once per second (REQ-CLOCK-003).
 		this.intervalId = setInterval(() => {
@@ -233,6 +308,14 @@ export default {
 		}, 1000)
 	},
 
+	/**
+	 * Stop the REQ-CLOCK-003 per-second tick when the tile leaves the grid,
+	 * so a dashboard switch does not leave an interval mutating a destroyed
+	 * component's state.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
+	 * @return {void}
+	 */
 	beforeUnmount() {
 		if (this.intervalId) {
 			clearInterval(this.intervalId)
@@ -242,8 +325,11 @@ export default {
 
 	methods: {
 		/**
-		 * SVG line coordinates for one of the 12 clock-face tick marks.
+		 * SVG line coordinates for one of the 12 clock-face tick marks — the
+		 * hour scale a reader needs to interpret the hand positions on the
+		 * analog face.
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
 		 * @param {number} tick tick index 1..12.
 		 * @return {{x1: number, y1: number, x2: number, y2: number}}
 		 */
@@ -258,6 +344,7 @@ export default {
 		 * SVG line-end coordinates for a clock hand of the given length,
 		 * pointing at the given angle (degrees, 0 = 12 o'clock).
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-003
 		 * @param {number} angleDegrees the hand's angle in degrees.
 		 * @param {number} length the hand length in SVG units.
 		 * @return {{x2: number, y2: number}}
@@ -271,6 +358,7 @@ export default {
 		 * Resolve a point at the given angle (0 = 12 o'clock, clockwise) and
 		 * radius from the SVG center (50, 50).
 		 *
+		 * @spec exclude pure polar-to-cartesian trigonometry — the body reads neither `this.now` nor `this.content`, so it encodes no clock, timezone, format or accessibility behaviour; its only two callers (tickCoords, handCoords) carry the REQ-CLOCK-003 tag.
 		 * @param {number} angleDegrees the angle in degrees.
 		 * @param {number} radius the radius in SVG units.
 		 * @return {{x: number, y: number}}

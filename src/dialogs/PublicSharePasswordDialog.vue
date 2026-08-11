@@ -62,6 +62,17 @@ export default defineComponent({
 
 	emits: ['unlock'],
 
+	/**
+	 * The password gate's own state: the typed password and the submit path
+	 * that hands it to the parent view, which sends it as the unlock
+	 * credential. The dialog never talks to the API itself and never stores
+	 * the password — REQ-PSHR-005 keeps unlock a server-side check.
+	 *
+	 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-005
+	 * @param {object} props the component props.
+	 * @param {object} ctx the setup context (`emit`).
+	 * @return {object} the template bindings.
+	 */
 	setup(props, { emit }) {
 		const passwordInput = ref('')
 

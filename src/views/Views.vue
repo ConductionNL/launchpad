@@ -829,6 +829,13 @@ export default {
 		 * placement objects are replaced wholesale by the store, so the
 		 * bound props update and the child re-renders normally.
 		 *
+		 * NOTE: the REQ-GRID-010 "Placement key regeneration" scenario still
+		 * describes the superseded `updatedAt` + `styleConfig` key. That
+		 * spelling is what broke keyboard move/resize; the accessibility
+		 * requirement below is the one this implementation serves, and the
+		 * stale scenario needs a spec correction.
+		 *
+		 * @spec openspec/specs/grid-layout/spec.md#req-grid-008
 		 * @param {object} placement the placement (CnDashboardGrid layout item).
 		 * @return {string} the render key — stable for the placement's lifetime.
 		 */
@@ -860,6 +867,7 @@ export default {
 		 * Project a tile placement's flat `tile*` columns into the tile shape
 		 * TileWidget expects.
 		 *
+		 * @spec openspec/specs/grid-layout/spec.md#req-grid-009
 		 * @param {object} placement the tile placement.
 		 * @return {object|null} the tile data, or null when not a tile.
 		 */

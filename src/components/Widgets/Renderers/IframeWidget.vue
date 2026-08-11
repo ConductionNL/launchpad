@@ -203,6 +203,15 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * A re-configured URL must be re-checked from scratch: the previous
+		 * target's framable verdict and load-timeout say nothing about the
+		 * new one, so the whole REQ-IFRAME-004 loading/fallback cycle is
+		 * restarted rather than carried over.
+		 *
+		 * @spec openspec/specs/iframe-embed-widget/spec.md#req-iframe-004
+		 * @return {void}
+		 */
 		url() {
 			this.restart()
 		},
@@ -322,8 +331,11 @@ export default {
 		},
 
 		/**
-		 * Clear the pending load-timeout guard, if any.
+		 * Clear the pending load-timeout guard, if any. Without this a timer
+		 * armed for a superseded URL would later fire and flip an already
+		 * successful embed into the REQ-IFRAME-004 fallback state.
 		 *
+		 * @spec openspec/specs/iframe-embed-widget/spec.md#req-iframe-004
 		 * @return {void}
 		 */
 		clearTimer() {

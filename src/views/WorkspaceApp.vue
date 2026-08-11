@@ -273,7 +273,10 @@ export default {
 		/**
 		 * tile-quick-search REQ-QSEARCH-004 — the admin-configured no-match
 		 * fallback target, straight from the typed initial-state contract.
+		 * `none` is the default, which is the REQ-QSEARCH-004 "No fallback
+		 * configured" branch — an unset server never silently navigates.
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-004
 		 * @return {string}
 		 */
 		quicksearchFallbackTarget() {
@@ -333,6 +336,7 @@ export default {
 		/**
 		 * REQ-ONAV-005 — flex direction follows the rail position.
 		 *
+		 * @spec openspec/specs/navigation-editor-org/spec.md#req-onav-005
 		 * @return {string[]}
 		 */
 		orgNavWrapperClass() {
@@ -602,8 +606,12 @@ export default {
 		},
 
 		/**
-		 * Move focus to the grid container (REQ-QSEARCH-003 Esc scenario).
+		 * Move focus to the grid container (REQ-QSEARCH-003 "Escape clears
+		 * and returns focus" — "focus MUST return to the tile grid"). The
+		 * search bar is a sibling of the grid, so it cannot move focus there
+		 * itself; it emits `clear` and this owner does it.
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
 		 * @return {void}
 		 */
 		focusGrid() {

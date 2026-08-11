@@ -50,7 +50,6 @@ const APP_URL = '/index.php/apps/launchpad'
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const INPUT = '[data-test="quick-search-input"]'
 const OPTION = '[data-test="quick-search-option"]'
-const STATUS = '[data-test="quick-search-status"]'
 const GRID_ITEM = '.launchpad-grid-item'
 /*
  * The de-emphasis class `WorkspaceApp.vue::applySearchDimming()` toggles on
@@ -140,8 +139,30 @@ test.beforeAll(async () => {
 		expect(res.status(), `seeding tile "${title}": ${await res.text()}`).toBeLessThan(300)
 	}
 
+	/*
+	 * ACTIVATE THROUGH BOTH MECHANISMS, because there are two and they are
+	 * not interchangeable.
+	 *
+	 * `POST /api/dashboard/{id}/activate` sets the legacy id-based
+	 * `is_active` column. `POST /api/dashboards/active` sets a per-user UUID
+	 * PREFERENCE (`DashboardService::setActivePreference()`), and
+	 * `DashboardApiController::getActive()` resolves the shell's dashboard
+	 * through that preference — its own comment notes the active dashboard
+	 * "can now be a group/default (showcase) dashboard the user does not
+	 * own (resolved via the last-used preference)".
+	 *
+	 * Measured: with only `/activate` called, this suite loaded a dashboard
+	 * that was not this one. Every tile-matching assertion returned zero
+	 * results, because a previously-run spec in the same serial job had left
+	 * a UUID preference behind and that preference won.
+	 */
 	const activate = await api.post(`/index.php/apps/launchpad/api/dashboard/${dashboardId}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
+
+	const setPreference = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+		data: { uuid: dash.uuid },
+	})
+	expect(setPreference.status(), await setPreference.text()).toBeLessThan(300)
 
 	await api.dispose()
 })
@@ -164,14 +185,53 @@ async function openWorkspace(page: Page): Promise<void> {
 	// (`v-if="hasActiveDashboard"` in WorkspaceApp.vue), so its presence is
 	// also the signal that the shell finished booting.
 	await expect(page.locator(INPUT)).toBeVisible({ timeout: 30_000 })
-	// The tiles have to be in the store before any filtering assertion means
-	// anything — `searchableTiles` reads the live Pinia placements.
+	/*
+	 * THE GATE THAT WAS TOO WEAK, and the reason six tests failed with
+	 * "0 results" instead of with something that named the cause.
+	 *
+	 * This used to require only `GRID_ITEM count >= TILES.length`. A
+	 * dashboard seeded with the default widget bundle clears that bar
+	 * easily, so when the shell resolved a DIFFERENT dashboard the gate
+	 * passed and every later assertion failed downstream on an empty result
+	 * list — a symptom three steps from its cause.
+	 *
+	 * The gate now requires THIS suite's own tiles, matched by the per-run
+	 * stamp, so a wrong active dashboard fails here and says so.
+	 */
+	await expect(
+		page.locator(GRID_ITEM).filter({ hasText: STAMP }).first(),
+		`the active dashboard must be the one this suite seeded (tiles stamped ${STAMP}) — `
+		+ 'if this fails the shell resolved a different dashboard and no search assertion below is meaningful',
+	).toBeVisible({ timeout: 30_000 })
+
 	await expect
 		.poll(
-			async () => page.locator(GRID_ITEM).count(),
-			{ message: 'the seeded tiles must be rendered before searching', timeout: 30_000 },
+			async () => page.locator(GRID_ITEM).filter({ hasText: STAMP }).count(),
+			{ message: 'all four seeded tiles must be rendered before searching', timeout: 30_000 },
 		)
 		.toBeGreaterThanOrEqual(TILES.length)
+}
+
+/*
+ * Move focus off the search bar WITHOUT leaving the page.
+ *
+ * This was `page.locator('body').click({ position: { x: 5, y: 5 } })`, and
+ * that measured something other than what it looked like: `position` is
+ * relative to the BODY's box, whose origin is the top-left of the Nextcloud
+ * chrome, so the click landed on core's own header and navigated away. Both
+ * shortcut tests then failed with "element(s) not found" on the search input
+ * — the app was no longer on screen. The failure read like a focus problem
+ * and was a navigation problem.
+ *
+ * `.workspace-shell__grid` is the shell's own grid container and carries
+ * `tabindex="-1"` (WorkspaceApp.vue), so it is programmatically focusable and
+ * is exactly where `focusGrid()` puts focus after Escape. Focusing it is
+ * therefore both in-page and representative of a real resting state. It is
+ * also not a typing target, which matters: `isSlashFocusShortcut()` ignores
+ * `/` while focus is in a text field.
+ */
+async function blurToGrid(page: Page): Promise<void> {
+	await page.locator('.workspace-shell__grid').focus()
 }
 
 /** The visible result labels, in the order the listbox presents them. */
@@ -223,7 +283,7 @@ test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 
 		// CONTROL — focus starts somewhere else, so "is focused" below is a
 		// change and not the initial state.
-		await page.locator('body').click({ position: { x: 5, y: 5 } })
+		await blurToGrid(page)
 		await expect(input, 'CONTROL: the bar must not already hold focus').not.toBeFocused()
 
 		await page.keyboard.press('/')
@@ -243,7 +303,7 @@ test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 		await openWorkspace(page)
 		const input = page.locator(INPUT)
 
-		await page.locator('body').click({ position: { x: 5, y: 5 } })
+		await blurToGrid(page)
 		await expect(input, 'CONTROL: the bar must not already hold focus').not.toBeFocused()
 
 		// Record whether the app called preventDefault on the very event it

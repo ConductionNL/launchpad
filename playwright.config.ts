@@ -93,14 +93,22 @@ export default defineConfig({
 		// creates `e2e-grantee` and nothing else, so the recipient-side
 		// scenario has no second user to be.
 		'**/dashboard-sharing.spec.ts',
-		// 2 of 3 pass. "REQ-IMG-003: a URL image with a click-through link
-		// opens the link in a new tab" fails: the widget cell resolves but
-		// Playwright reports "element is outside of the viewport" through 23
-		// click retries, then the popup wait times out.
-		'**/image-widget.spec.ts',
-		// 2 of 3 pass. "right-click Edit opens the content editor pre-filled,
-		// and edits round-trip" fails.
-		'**/label-widget.spec.ts',
+		// The image suite WAS excluded whole because 1 of its 3 tests fails:
+		// "REQ-IMG-003: a URL image with a click-through link opens the link in
+		// a new tab" — the widget cell resolves but Playwright reports "element
+		// is outside of the viewport" through 23 click retries, then the popup
+		// wait times out. That one test now lives in its own file so the rest
+		// of the suite can run. It is unchanged and still runnable via
+		// `npm run test:e2e:excluded`; the SCENARIO it covers is now proven in
+		// `image-widget.spec.ts` by recording `window.open`, which asserts the
+		// 'noopener,noreferrer' argument a real popup cannot show.
+		'**/image-widget-clickthrough.spec.ts',
+		// The label suite WAS excluded whole because 1 of its 3 tests fails.
+		// That one test now lives in its own file, so the two green ones run
+		// here and the red one stays out — which is what file-granular
+		// `testIgnore` makes necessary. The failing test is unchanged and
+		// still runnable via `npm run test:e2e:excluded`.
+		'**/label-widget-content-edit.spec.ts',
 		// 7 of 8 pass. "ADR-023: … the empty-state Create CTA it is offered
 		// actually works" fails at 10.9s. The seven green ones are a real
 		// loss here and this is the first file to promote once that one is

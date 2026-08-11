@@ -334,6 +334,97 @@ describe('WorkspaceApp', () => {
 			expect(clickSpy).toHaveBeenCalled()
 		})
 
+		/*
+		 * launchpad#95 — TWO DEFECTS, ONE ROOT CAUSE, AND A FIXTURE THAT HID
+		 * BOTH.
+		 *
+		 * Every test above seeds a placement id as a STRING (`'p1'`,
+		 * `'match'`). `WidgetPlacement` rows arrive from
+		 * `GET /api/dashboard/{id}` with an INTEGER `id` — the column is an
+		 * auto-increment primary key — so no fixture in this file had ever
+		 * exercised the type the product actually handles, and both defects
+		 * below were invisible to a green suite:
+		 *
+		 *   1. `applySearchDimming()` compared `getAttribute()` (always a
+		 *      string) against the raw ids with `Array.includes`, which does
+		 *      not coerce. With integer ids nothing ever matched, so EVERY
+		 *      tile was dimmed — including the ones the user searched for.
+		 *   2. `activateSearchResult()` called `.replace()` on the id.
+		 *      `Number.prototype.replace` does not exist, so Enter threw a
+		 *      `TypeError` inside a Vue event handler and silently did
+		 *      nothing.
+		 *
+		 * These two tests are the regression guard, and they are written
+		 * against the production shape on purpose. Both are RED on the code
+		 * as it stood before the fix: the first because `matchEl` is dimmed,
+		 * the second because the call throws before reaching the link.
+		 */
+		it('onSearchFilter leaves an INTEGER-id match undimmed (launchpad#95)', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const grid = wrapper.find('.workspace-shell__grid').element
+			const matchEl = document.createElement('div')
+			matchEl.className = 'launchpad-grid-item'
+			matchEl.setAttribute('data-placement-id', '7')
+			const otherEl = document.createElement('div')
+			otherEl.className = 'launchpad-grid-item'
+			otherEl.setAttribute('data-placement-id', '8')
+			grid.appendChild(matchEl)
+			grid.appendChild(otherEl)
+
+			// The ids are numbers, exactly as `searchableTiles()` copies them
+			// off the API row — NOT the strings the older fixtures used.
+			wrapper.vm.onSearchFilter([7])
+
+			expect(
+				matchEl.classList.contains('launchpad-grid-item--dimmed'),
+				'a matching tile must not be de-emphasised',
+			).toBe(false)
+			expect(
+				otherEl.classList.contains('launchpad-grid-item--dimmed'),
+				'CONTROL: a non-matching tile must still be de-emphasised, or the assertion above is satisfied by "nothing is ever dimmed"',
+			).toBe(true)
+		})
+
+		it('onSearchOpen activates a tile whose placement id is an INTEGER (launchpad#95)', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const grid = wrapper.find('.workspace-shell__grid').element
+			const el = document.createElement('div')
+			el.className = 'launchpad-grid-item'
+			el.setAttribute('data-placement-id', '7')
+			const link = document.createElement('a')
+			link.setAttribute('href', '#deck')
+			el.appendChild(link)
+			grid.appendChild(el)
+
+			const scrollSpy = vi.fn()
+			el.scrollIntoView = scrollSpy
+			const clickSpy = vi.spyOn(link, 'click')
+
+			wrapper.vm.onSearchOpen({ id: 7, label: 'Deck', placement: { id: 7 } })
+
+			expect(scrollSpy, 'the matched tile must be scrolled into view').toHaveBeenCalled()
+			expect(clickSpy, 'Enter must activate the tile\'s rendered link').toHaveBeenCalled()
+		})
+
+		it('onSearchOpen ignores a placement with no id rather than looking for the string "null"', () => {
+			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
+			const grid = wrapper.find('.workspace-shell__grid').element
+			const el = document.createElement('div')
+			el.className = 'launchpad-grid-item'
+			// A cell literally labelled "null" — the shape a bare String()
+			// cast would go looking for, and find.
+			el.setAttribute('data-placement-id', 'null')
+			const link = document.createElement('a')
+			link.setAttribute('href', '#deck')
+			el.appendChild(link)
+			grid.appendChild(el)
+			const clickSpy = vi.spyOn(link, 'click')
+
+			wrapper.vm.onSearchOpen({ id: null, label: 'Deck', placement: { id: null } })
+
+			expect(clickSpy, 'a null id must not activate the tile that happens to be called "null"').not.toHaveBeenCalled()
+		})
+
 		it('onSearchFallback opens a web-search URL in a new tab', () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
 			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})

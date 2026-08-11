@@ -373,9 +373,49 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 			'non-matching tiles must be de-emphasised, not removed from the grid layout',
 		).toBe(gridCountBefore)
 
+		/*
+		 * THIS ASSERTION USED TO BE `dimmed > 0`, AND THAT PASSED FOR THE
+		 * WRONG REASON.
+		 *
+		 * "Every single tile is dimmed" satisfies `> 0`, and that is exactly
+		 * what the app did: `applySearchDimming()` compared a string
+		 * `getAttribute('data-placement-id')` against numeric ids with
+		 * `Array.includes`, which does not coerce, so nothing ever matched
+		 * and the matches were de-emphasised alongside everything else
+		 * (launchpad#95). The requirement is not "something is dimmed", it is
+		 * that the dimming DISTINGUISHES matches from non-matches — and a
+		 * count cannot say that.
+		 *
+		 * So it is now asserted per element, by identity. This is red on the
+		 * unfixed code (the two matching cells carry the class), which is why
+		 * it lands with the fix rather than before or after it.
+		 */
+		// `.first()` on both: `evaluate()` throws on a locator that resolves to
+		// more than one node, and a strictness error would read as a product
+		// failure rather than as the selector problem it is.
+		const matching = page.locator(GRID_ITEM).filter({ hasText: `Zaaksysteem ${STAMP}` }).first()
+		const notMatching = page.locator(GRID_ITEM).filter({ hasText: `Verlof aanvragen ${STAMP}` }).first()
+		await expect(matching, 'the matching tile must be on screen').toBeVisible({ timeout: 15_000 })
+		await expect(notMatching, 'the non-matching tile must be on screen').toBeVisible({ timeout: 15_000 })
+
+		await expect
+			.poll(async () => notMatching.evaluate(el => el.classList.contains('launchpad-grid-item--dimmed')), {
+				message: 'a tile whose label does not match the query must be visibly de-emphasised',
+				timeout: 15_000,
+			})
+			.toBe(true)
+
+		expect(
+			await matching.evaluate(el => el.classList.contains('launchpad-grid-item--dimmed')),
+			'a MATCHING tile must not be de-emphasised — dimming everything satisfies a bare "something is dimmed" count while telling the user nothing',
+		).toBe(false)
+
+		// And the aggregate still has to move, so a future refactor that stops
+		// applying the class at all cannot pass the two checks above by making
+		// `classList.contains` false everywhere.
 		await expect
 			.poll(async () => page.locator(DIMMED).count(), {
-				message: 'the tiles that do not match must be visibly de-emphasised',
+				message: 'CONTROL: the class must actually be applied somewhere',
 				timeout: 15_000,
 			})
 			.toBeGreaterThan(0)
@@ -503,8 +543,81 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 	})
 
 	/*
-	 * REQ-QSEARCH-003 "Enter opens the selected tile" HAS NO TEST HERE, AND
-	 * THAT IS DELIBERATE — the product is broken. See launchpad#95.
+	 * REQ-QSEARCH-003 "Enter opens the selected tile" — NOW COVERED. The
+	 * defect described in the block below is fixed in this same change; the
+	 * history is kept because the way it hid is the interesting part.
+	 *
+	 * The activation is proven by recording the navigation the tile's own
+	 * anchor performs, NOT by waiting for a page load. Seeded tiles link to
+	 * `https://example.invalid/...`, which is unresolvable on purpose — a
+	 * real navigation there would hang the test for its whole timeout and
+	 * then fail for a network reason. So `click` is intercepted at the
+	 * document level and the anchor's `href` recorded, with `preventDefault`
+	 * to stop the browser acting on it. That records exactly what
+	 * `activateSearchResult()` did: which anchor it clicked, or none.
+	 */
+	// @e2e tile-quick-search::enter-opens-the-selected-tile
+	test('Enter activates the selected result\'s tile link (launchpad#95)', async ({ page }) => {
+		await openWorkspace(page)
+
+		await page.evaluate(() => {
+			(window as unknown as { __lpActivations: string[] }).__lpActivations = []
+			document.addEventListener('click', (event) => {
+				const anchor = (event.target as HTMLElement | null)?.closest?.('a[href]')
+				if (anchor) {
+					event.preventDefault();
+					(window as unknown as { __lpActivations: string[] }).__lpActivations
+						.push(anchor.getAttribute('href') ?? '')
+				}
+			}, true)
+		})
+
+		const input = page.locator(INPUT)
+		await input.fill('Zaaksysteem')
+
+		// Exactly one match, so the selected option is unambiguous and the
+		// assertion below cannot be satisfied by the wrong tile.
+		await expect
+			.poll(async () => optionLabels(page), { message: 'the query must resolve to exactly one tile', timeout: 15_000 })
+			.toEqual([`Zaaksysteem ${STAMP}`])
+
+		/*
+		 * SPLITTING PROBE, kept from the investigation. Both of these passed
+		 * while Enter still did nothing, which is what narrowed the cause to
+		 * `activateSearchResult()` itself rather than to the harness: the
+		 * anchor exists, and the input holds focus at the moment Enter is
+		 * pressed. If either regresses, the failure names its own cause
+		 * instead of being read as "the fix was reverted".
+		 */
+		await expect(
+			page.locator(GRID_ITEM).filter({ hasText: `Zaaksysteem ${STAMP}` }).first().locator('a[href]').first(),
+			'PROBE: the rendered tile must carry an anchor, or activation has nothing to click',
+		).toHaveCount(1)
+		await expect(input, 'PROBE: the search input must still hold focus when Enter is pressed').toBeFocused()
+
+		await page.keyboard.press('Enter')
+
+		const readActivations = async () => page.evaluate(
+			() => (window as unknown as { __lpActivations: string[] }).__lpActivations,
+		)
+
+		await expect
+			.poll(readActivations, {
+				message: 'Enter must activate the selected tile\'s link — an empty list is the launchpad#95 symptom '
+					+ '(a TypeError thrown inside a Vue event handler, where nothing surfaces it)',
+				timeout: 15_000,
+			})
+			.not.toHaveLength(0)
+
+		const activations = await readActivations()
+		expect(
+			activations.join(' | '),
+			'the activated link must be the SELECTED tile\'s, not just any anchor on the page',
+		).toContain(encodeURIComponent(`Zaaksysteem ${STAMP}`))
+	})
+
+	/*
+	 * HOW launchpad#95 HID, kept because the shape recurs.
 	 *
 	 * The test existed, ran in CI, and failed with an empty activation list.
 	 * Rather than adjust the harness a second time, two splitting probes were
@@ -528,19 +641,27 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 	 * help — a non-zero integer is truthy — and the throw happens inside a
 	 * Vue event handler, so nothing surfaces and Enter simply does nothing.
 	 *
-	 * NO `@e2e exclude` IS ADDED FOR THIS SCENARIO. The scenario is
-	 * browser-observable; the reason it has no passing test is that the
-	 * feature is broken. An exclusion would record "a browser cannot see
-	 * this", which is false. The gate-19 finding stays open against #95.
+	 * NO `@e2e exclude` WAS ADDED WHILE IT WAS BROKEN, and that is the part
+	 * worth carrying elsewhere. The scenario was always browser-observable;
+	 * the reason it had no passing test was that the feature did not work.
+	 * An exclusion would have recorded "a browser cannot see this", which was
+	 * false — and per `.github#345` the gate scores an exclusion as POSITIVE
+	 * coverage, so it would have bought a green with a false statement.
 	 *
-	 * Related, from the same root cause and also filed in #95: the dimming
-	 * assertion in the filtering test above requires only `dimmed > 0`, and
-	 * that is satisfied by "EVERY tile is dimmed" — which is what
-	 * `applySearchDimming()` actually does, because it compares a string
-	 * `getAttribute('data-placement-id')` against numeric ids with
-	 * `Array.includes`, so no tile ever matches. Tightening that assertion
-	 * to "matches are NOT dimmed" belongs with the fix, since it would be
-	 * red on current `development`.
+	 * Second defect, same root cause, also #95: the filtering test's dimming
+	 * assertion required only `dimmed > 0`, which "EVERY tile is dimmed"
+	 * satisfies — and that is what `applySearchDimming()` did, comparing a
+	 * string `getAttribute('data-placement-id')` against numeric ids with
+	 * `Array.includes`. The assertion was disclosed as passing for the wrong
+	 * reason rather than quietly tightened, because tightening it before the
+	 * fix would simply have been red. It is now per-element and by identity,
+	 * and it lands in the same change as the fix.
+	 *
+	 * WHY THE UNIT TESTS DID NOT CATCH EITHER ONE: every fixture in
+	 * `src/views/__tests__/WorkspaceApp.spec.js` seeded a placement id as a
+	 * STRING (`'p1'`), and the API sends an integer. `Array.includes` and
+	 * `Number.prototype` are both type-exact, so a string fixture made both
+	 * defects invisible. That file now carries integer-id regressions.
 	 */
 
 	// @e2e tile-quick-search::escape-clears-and-returns-focus

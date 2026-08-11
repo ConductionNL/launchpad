@@ -511,8 +511,10 @@ export default {
 		 * `null` undims everything; an array dims every item whose id is
 		 * NOT present (an empty array therefore dims everything).
 		 *
-		 * @param {Array<string>|null} matchIds the current matching ids.
+		 * @param {Array<string|number>|null} matchIds the current matching ids
+		 *   (numbers off the API row, strings once normalised below).
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		applySearchDimming(matchIds) {
 			if (typeof document === 'undefined') {
@@ -522,13 +524,26 @@ export default {
 			if (!items) {
 				return
 			}
+			/*
+			 * A PLACEMENT ID IS A NUMBER; A DOM ATTRIBUTE IS A STRING.
+			 * `matchIds` comes from `searchableTiles()`, which copies
+			 * `placement.id` straight off the API row — an integer. The value
+			 * read back out of a rendered cell is `getAttribute()`, which is
+			 * always a string. `Array.prototype.includes` compares with
+			 * SameValueZero, i.e. no coercion at all, so `[7].includes('7')`
+			 * is `false` — EVERY tile was dimmed on every query, including
+			 * the matches the user was looking for (launchpad#95).
+			 * Normalising both sides to strings makes the comparison one
+			 * between two values of the same type.
+			 */
+			const wanted = matchIds === null ? null : matchIds.map((id) => String(id))
 			items.forEach((el) => {
-				if (matchIds === null) {
+				if (wanted === null) {
 					el.classList.remove('launchpad-grid-item--dimmed')
 					return
 				}
 				const id = el.getAttribute('data-placement-id')
-				el.classList.toggle('launchpad-grid-item--dimmed', matchIds.includes(id) === false)
+				el.classList.toggle('launchpad-grid-item--dimmed', wanted.includes(id) === false)
 			})
 		},
 
@@ -539,12 +554,28 @@ export default {
 		 * REQ-QSEARCH-003 "honouring its configured link target"). Non-tile
 		 * placements without a link are focused instead, best-effort.
 		 *
-		 * @param {{id: string, placement: object}} item the opened search
-		 *   result.
+		 * @param {{id: (string|number), placement: object}} item the opened
+		 *   search result. `placement.id` is an INTEGER off the API row.
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		activateSearchResult(item) {
-			const placementId = item?.placement?.id
+			/*
+			 * `String(...)`, not the raw value. `placement.id` is an INTEGER
+			 * off the API row, and the line below used to call
+			 * `placementId.replace(...)` on it. `Number.prototype.replace`
+			 * does not exist, so this threw a `TypeError` on every single
+			 * activation — inside a Vue event handler, where nothing surfaces
+			 * it, so pressing Enter on a search result silently did nothing
+			 * (launchpad#95). The truthiness guard above did not catch it: a
+			 * non-zero integer is truthy.
+			 *
+			 * `?? ''` rather than a bare cast so that `null`/`undefined`
+			 * become the empty string and are rejected by the guard, instead
+			 * of being stringified into the literal `"null"` and sent to
+			 * `querySelector` as a real id to look for.
+			 */
+			const placementId = String(item?.placement?.id ?? '')
 			if (!placementId || !this.$el) {
 				return
 			}

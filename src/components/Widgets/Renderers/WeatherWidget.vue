@@ -192,6 +192,7 @@ export default {
 		 * accessible label including its units, which "18°C" read aloud
 		 * does not reliably give.
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-003
 		 * @return {string}
 		 */
 		temperatureAriaLabel() {

@@ -34,7 +34,7 @@
  * This is the same reasoning `ci/public-share-lifecycle.spec.ts` records for
  * sitting in `tests/e2e/ci/`, and this file follows its conventions exactly —
  * `Authorization: Basic` rather than Playwright's reactive `httpCredentials`,
- * and `storageState: undefined` on every context so no request is silently
+ * and an explicitly EMPTY cookie jar on every context so no request is silently
  * served as the admin from `global-setup.ts`.
  *
  * TWO PLACES WHERE THE SPEC PROSE NAMES A PATH THE APP DOES NOT SERVE
@@ -61,6 +61,40 @@
  */
 
 import { expect, request, test, type APIRequestContext } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+
+/*
+ * THE WIDGET THE REQ-SHARE-004 TEST ADDS, AND WHY IT IS NOT `label`.
+ *
+ * `WidgetApiController::denyAddWidget()` has TWO independent 403 branches and
+ * both return `ResponseHelper::forbidden()`, i.e. the byte-identical body
+ * `{"error":"Access denied"}`:
+ *
+ *   1. `PermissionService::canAddWidget()` — the share-permission check,
+ *      which is the ONLY thing REQ-SHARE-004 is about.
+ *   2. `RoleFeaturePermissionService::isWidgetAllowed()` — the role-feature
+ *      widget allow-list, which is about something else entirely.
+ *
+ * `tests/e2e/fixtures/role-feature-permissions.ts` installs a RESTRICTIVE
+ * `default` row — `allowedWidgets: ['activity', 'recommendations']` — and ten
+ * widget-adding specs call it in `beforeAll`. playwright.config.ts runs
+ * `workers: 1, fullyParallel: false` against ONE instance, so that row is in
+ * force here whether or not this file asks for it. `isWidgetAllowed()`
+ * short-circuits for Nextcloud admins but bob is a plain provisioned account,
+ * so branch 2 refused `label` outright — measured in CI on this branch, where
+ * the "allowed at full" arm failed with `Access denied`.
+ *
+ * The dangerous half is that the view_only CONTROL arm PASSED THROUGHOUT. It
+ * expects 403 and branch 2 supplied one, so the control was green while
+ * proving nothing about share permissions at all.
+ *
+ * Two changes remove the ambiguity rather than working around it. This file
+ * now installs the restriction itself in `beforeAll`, so the state is known
+ * instead of inherited from whichever spec happened to run first; and it adds
+ * a widget that restriction ALLOWS, so branch 2 is constant across both arms
+ * and the share level is the only variable left.
+ */
+const ALLOWED_WIDGET = 'activity'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -222,6 +256,10 @@ test.beforeAll(async () => {
 	const enable = await admin.put(SETTINGS, { data: { allowUserDash: true } })
 	expect(enable.status(), await enable.text()).toBeLessThan(300)
 	await admin.dispose()
+
+	// Pin the role-feature widget allow-list instead of inheriting whatever
+	// the previously-run specs left behind — see the ALLOWED_WIDGET note.
+	await ensureDefaultWidgetRestriction()
 
 	bob = await makeUser('bob')
 	carol = await makeUser('carol')
@@ -472,11 +510,14 @@ test.describe('REQ-SHARE-004 per-share permission overrides the dashboard defaul
 		 * vacuous — it would pass on a build with no permission check at all.
 		 */
 		const refused = await asBob.post(`/index.php/apps/launchpad/api/dashboard/${dash.id}/widgets`, {
-			data: { widgetId: 'label', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
+			data: { widgetId: ALLOWED_WIDGET, gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
 		})
 		expect(
 			refused.status(),
-			`CONTROL: a view_only recipient must be refused the widget add: ${await refused.text()}`,
+			'CONTROL: a view_only recipient must be refused the widget add. This refusal is '
+			+ 'attributable to the share check only because the SAME widget id succeeds for the '
+			+ 'same user at `full` below — that arm is what rules out the role-feature allow-list '
+			+ `as the cause. Body: ${await refused.text()}`,
 		).toBe(403)
 
 		// Upgrade the share only. Nothing else about the dashboard changes.
@@ -485,8 +526,23 @@ test.describe('REQ-SHARE-004 per-share permission overrides the dashboard defaul
 		})
 		expect(upgrade.status(), await upgrade.text()).toBeLessThan(300)
 
+		/*
+		 * SPLITTING PROBE. The share row must actually read `full` before
+		 * the add is attempted, so a failure names its own cause instead of
+		 * leaving the next reader to re-derive it: a row still reading
+		 * `view_only` means the upgrade POST did not take, whereas a row
+		 * reading `full` under a refused add means the per-share level is
+		 * being ignored downstream.
+		 */
+		const rowAfterUpgrade = (await listShares(owner, dash.id))
+			.find(s => String(s.shareWith) === bob.user)
+		expect(
+			rowAfterUpgrade?.permissionLevel,
+			'SPLITTING PROBE: the upgrade POST must leave bob\'s share row at `full`',
+		).toBe('full')
+
 		const allowed = await asBob.post(`/index.php/apps/launchpad/api/dashboard/${dash.id}/widgets`, {
-			data: { widgetId: 'label', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
+			data: { widgetId: ALLOWED_WIDGET, gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
 		})
 		expect(
 			allowed.status(),

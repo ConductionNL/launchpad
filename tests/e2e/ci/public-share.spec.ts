@@ -28,11 +28,21 @@
  * legs could pass while the rendered page still required a session, and that
  * is exactly the bug a public link has to not have.
  *
- * Scenarios covered:
- *   @e2e dashboard-public-share::public-render-via-valid-token-without-password
- *   @e2e dashboard-public-share::invalid-token-returns-404
- *   @e2e dashboard-public-share::revoked-token-returns-404
- *   @e2e dashboard-public-share::soft-revoke-a-public-share
+ * WHY THERE IS NO `Scenarios covered:` BLOCK HERE ANY MORE (.github#343)
+ * =====================================================================
+ * There was one, listing four `@e2e` slugs. gate-19 resolves the owner of a
+ * tag with `_TestDoc.owner()`, and for a tag that sits ABOVE every `test(` the
+ * owner it picks is simply the FIRST test in the file — so all four slugs were
+ * credited to one test body regardless of what that body asserted, and a tag
+ * for a scenario nobody had written a test for would have counted just the
+ * same. The four below happen to be genuinely proven by the test they now sit
+ * on (it brackets a valid-token render with an unissued-token control and a
+ * post-revoke control, which is all four), but that was true by luck of
+ * authorship rather than by anything the gate checked.
+ *
+ * Tags therefore live directly above the `test()` that proves them, here and
+ * in every file this branch touches. A tag with no test under it is now a
+ * syntax nobody can write by accident.
  *
  * @spec openspec/specs/dashboard-public-share/spec.md
  */
@@ -84,6 +94,10 @@ async function anonymousApi(baseURL: string): Promise<APIRequestContext> {
 }
 
 test.describe('anonymous public share', () => {
+	// @e2e dashboard-public-share::public-render-via-valid-token-without-password
+	// @e2e dashboard-public-share::invalid-token-returns-404
+	// @e2e dashboard-public-share::revoked-token-returns-404
+	// @e2e dashboard-public-share::soft-revoke-a-public-share
 	test('a valid token renders read-only for a visitor with no session, and stops on revoke', async ({ baseURL, browser }) => {
 		const admin = await apiAs(baseURL!, ADMIN)
 		const anon = await anonymousApi(baseURL!)
@@ -181,6 +195,122 @@ test.describe('anonymous public share', () => {
 			})
 		}
 
+		await admin.dispose()
+		await anon.dispose()
+	})
+
+	/*
+	 * REQ-PSHR-006's last scenario, and the only one of its four that a
+	 * browser can decide.
+	 *
+	 * The other three ("cannot create widget / edit / delete via public
+	 * share") are guarded by `PublicShareContext`, a REQUEST-scoped PHP
+	 * marker set exactly once, inside `PublicShareController::renderShare()`,
+	 * after the render succeeds. No route mutates anything under `/s/{token}`,
+	 * so no HTTP request a browser can issue is both a public-share bearer and
+	 * a mutation: an anonymous `PUT /api/dashboard/{id}` is simply an
+	 * unauthenticated request and is refused for that reason instead. Those
+	 * three carry `@e2e exclude` in the spec, with that as the reason.
+	 *
+	 * THIS one is different, and it is the one with a real failure mode. A
+	 * logged-in user — here the admin who OWNS the dashboard, i.e. the caller
+	 * with the most permission available — must get the same read-only render
+	 * as a stranger. The bug this catches is the plausible one: the public
+	 * view noticing a session and "helpfully" upgrading to the editable
+	 * workspace, so that a link pasted into a group chat becomes an edit
+	 * surface for every colleague who happens to be logged in.
+	 *
+	 * The assertions are negative on purpose. Asserting the read-only badge
+	 * alone would still pass if the editable shell rendered AROUND it, so the
+	 * test also requires that none of the workspace's edit affordances exist
+	 * on the page.
+	 */
+	// @e2e dashboard-public-share::logged-in-user-on-public-share-renders-read-only
+	test('a logged-in owner opening the share link gets the same read-only page as a stranger', async ({ baseURL, page }) => {
+		const admin = await apiAs(baseURL!, ADMIN)
+		const anon = await anonymousApi(baseURL!)
+
+		const settingsBefore = await admin.get('/index.php/apps/launchpad/api/admin/settings')
+		expect(settingsBefore.status(), await settingsBefore.text()).toBe(200)
+		const priorAllowUserDash = (await settingsBefore.json()).allowUserDashboards === true
+		const enable = await admin.put('/index.php/apps/launchpad/api/admin/settings', {
+			data: { allowUserDash: true },
+		})
+		expect(enable.status(), await enable.text()).toBeLessThan(300)
+
+		const created = await admin.post('/index.php/apps/launchpad/api/dashboard', {
+			data: { name: `E2E Session Share ${Date.now()}` },
+		})
+		expect(created.status(), await created.text()).toBeLessThan(300)
+		const createdBody = await created.json()
+		const uuid = createdBody.dashboard?.uuid ?? createdBody.uuid ?? createdBody.data?.uuid
+		expect(uuid, `no uuid in create response: ${JSON.stringify(createdBody)}`).toBeTruthy()
+
+		const share = await admin.post(
+			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`,
+			{ data: {} },
+		)
+		expect(share.status(), await share.text()).toBe(201)
+		const shareBody = await share.json()
+		const token = shareBody.token ?? shareBody.data?.token ?? shareBody.share?.token
+		expect(token, `no token in share response: ${JSON.stringify(shareBody)}`).toBeTruthy()
+
+		/*
+		 * CONTROL — establish that this browser context really is logged in
+		 * before drawing any conclusion from what it is refused. The `page`
+		 * fixture carries playwright.config's `use.storageState` (the admin
+		 * session from global-setup). If that session had expired, every
+		 * "no edit affordance" assertion below would pass for the wrong
+		 * reason: the page would be read-only because the visitor is
+		 * anonymous, not because the public view refuses to upgrade.
+		 */
+		await page.goto('/index.php/apps/launchpad')
+		await expect(
+			page.locator('.launchpad-sidebar-toggle').first(),
+			'CONTROL: the shared admin session must be live, otherwise the read-only assertions below prove nothing',
+		).toBeVisible({ timeout: 30_000 })
+
+		// The same link, in the same authenticated context.
+		const response = await page.goto(`/index.php/apps/launchpad/s/${token}`)
+		expect(response?.status(), 'the share page must serve a logged-in visitor too').toBeLessThan(400)
+
+		await expect(
+			page.locator('.public-share-view'),
+			'a logged-in visitor must land on the public read-only view, not the workspace',
+		).toBeVisible({ timeout: 15_000 })
+
+		await expect(
+			page.locator('.public-share-view__badge'),
+			'the read-only badge must be shown to a logged-in visitor exactly as it is to an anonymous one',
+		).toBeVisible({ timeout: 15_000 })
+
+		/*
+		 * THE assertions. `.launchpad-sidebar-toggle` is the workspace shell's
+		 * entry point (the same landmark the CONTROL above waited for, and the
+		 * one `manifest-boot.spec.ts` uses to mean "the app rendered"), and
+		 * `.launchpad-grid-item` is an editable grid cell. Neither belongs on
+		 * a read-only page, and the CONTROL proved this context is capable of
+		 * rendering the first of them.
+		 */
+		await expect(
+			page.locator('.launchpad-sidebar-toggle'),
+			'the editable workspace shell must not render on a public-share page, even for the dashboard owner',
+		).toHaveCount(0)
+		await expect(
+			page.locator('.launchpad-grid-item'),
+			'editable grid cells must not render on a public-share page',
+		).toHaveCount(0)
+
+		// And the session did not change what the data endpoint hands back:
+		// the authenticated caller and the anonymous one see the same shape.
+		const asVisitor = await anon.get(`/index.php/apps/launchpad/s/${token}/data`)
+		expect(asVisitor.status(), await asVisitor.text()).toBe(200)
+
+		if (priorAllowUserDash === false) {
+			await admin.put('/index.php/apps/launchpad/api/admin/settings', {
+				data: { allowUserDash: false },
+			})
+		}
 		await admin.dispose()
 		await anon.dispose()
 	})

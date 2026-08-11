@@ -51,6 +51,15 @@ const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const INPUT = '[data-test="quick-search-input"]'
 const OPTION = '[data-test="quick-search-option"]'
 const STATUS = '[data-test="quick-search-status"]'
+const GRID_ITEM = '.launchpad-grid-item'
+/*
+ * The de-emphasis class `WorkspaceApp.vue::applySearchDimming()` toggles on
+ * every `.launchpad-grid-item[data-placement-id]` that is NOT a match. Named
+ * once here because a wrong value fails SILENTLY: a selector matching nothing
+ * reports zero dimmed both before and after, and any "…must be undimmed"
+ * assertion built on it passes without ever having observed a dim.
+ */
+const DIMMED = '.launchpad-grid-item--dimmed'
 
 /*
  * Tile titles, chosen to make the ranking rule decidable.
@@ -159,7 +168,7 @@ async function openWorkspace(page: Page): Promise<void> {
 	// anything — `searchableTiles` reads the live Pinia placements.
 	await expect
 		.poll(
-			async () => page.locator('.launchpad-grid-item, .grid-stack-item').count(),
+			async () => page.locator(GRID_ITEM).count(),
 			{ message: 'the seeded tiles must be rendered before searching', timeout: 30_000 },
 		)
 		.toBeGreaterThanOrEqual(TILES.length)
@@ -265,7 +274,7 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 	test('typing narrows the matches, dims rather than removes non-matches, and issues no request', async ({ page }) => {
 		await openWorkspace(page)
 
-		const gridItems = page.locator('.launchpad-grid-item, .grid-stack-item')
+		const gridItems = page.locator(GRID_ITEM)
 		const gridCountBefore = await gridItems.count()
 
 		// Watch for ANY request while typing. The spec says the filter is
@@ -292,13 +301,24 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 			'a tile whose label does not match must not be offered as a result',
 		).not.toContain('Verlof aanvragen')
 
-		// THE distinguishing assertion of this scenario: the GRID keeps every
-		// tile. De-emphasis is a visual state, not a removal — a filter
-		// implemented by unmounting cells would pass every assertion above.
+		/*
+		 * THE distinguishing assertion of this scenario, in two halves. The
+		 * grid must keep every tile — a filter implemented by unmounting
+		 * cells would satisfy every assertion above — AND the non-matching
+		 * ones must actually carry the de-emphasis class, or "de-emphasised
+		 * rather than removed" is only half proven.
+		 */
 		expect(
 			await gridItems.count(),
 			'non-matching tiles must be de-emphasised, not removed from the grid layout',
 		).toBe(gridCountBefore)
+
+		await expect
+			.poll(async () => page.locator(DIMMED).count(), {
+				message: 'the tiles that do not match must be visibly de-emphasised',
+				timeout: 15_000,
+			})
+			.toBeGreaterThan(0)
 
 		expect(
 			requestsWhileTyping,
@@ -469,12 +489,25 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		await input.fill('zaak')
 		await expect.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 }).toBe(2)
 
-		// CONTROL — something really is dimmed before Escape, so "nothing is
-		// dimmed after" is a change rather than a description of the resting
-		// state.
-		const dimmed = page.locator('.launchpad-grid-item, .grid-stack-item')
-			.locator('.is-search-dimmed, .search-dimmed, [data-search-dimmed="true"]')
-		const dimmedBefore = await dimmed.count()
+		/*
+		 * CONTROL — tiles really are dimmed before Escape, so "nothing is
+		 * dimmed after" is a change and not a description of the resting
+		 * state.
+		 *
+		 * The class is `launchpad-grid-item--dimmed`, which is what
+		 * `WorkspaceApp.vue::applySearchDimming()` toggles. Getting this
+		 * selector wrong is not a loud failure — a selector that matches
+		 * nothing makes both the before and the after count zero, and the
+		 * assertion passes while proving nothing. Hence the explicit
+		 * non-zero requirement below rather than a conditional check.
+		 */
+		const dimmed = page.locator(DIMMED)
+		await expect
+			.poll(async () => dimmed.count(), {
+				message: 'CONTROL: a query must dim the non-matching tiles, or the undim assertion below is vacuous',
+				timeout: 15_000,
+			})
+			.toBeGreaterThan(0)
 
 		await page.keyboard.press('Escape')
 
@@ -482,11 +515,9 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		await expect(page.locator(OPTION), 'the result list must close').toHaveCount(0)
 		await expect(input, 'focus must leave the search bar and return to the grid').not.toBeFocused()
 
-		if (dimmedBefore > 0) {
-			await expect
-				.poll(async () => dimmed.count(), { message: 'every tile must return to its undimmed state', timeout: 10_000 })
-				.toBe(0)
-		}
+		await expect
+			.poll(async () => dimmed.count(), { message: 'every tile must return to its undimmed state', timeout: 10_000 })
+			.toBe(0)
 
 		// Whatever holds focus now must be a real element inside the app, not
 		// the document body — "returns focus to the tile grid" is only true if

@@ -440,26 +440,36 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		await openWorkspace(page)
 
 		/*
-		 * The seeded tiles link to `https://example.invalid/...`, which is
-		 * unroutable on purpose — the assertion is about which target the app
-		 * ASKS for, not about a page loading. Recording `window.open` and
-		 * blocking navigation captures that without depending on the network,
-		 * and it is the same technique image-widget.spec.ts uses for
-		 * REQ-IMG-003.
+		 * HOW ACTIVATION ACTUALLY HAPPENS, because it decides what can be
+		 * observed. `WorkspaceApp.vue::activateSearchResult()` does NOT call
+		 * `window.open`: it finds the rendered cell by `data-placement-id`,
+		 * scrolls it into view, and calls `.click()` on the cell's own
+		 * `a[href]`. `TileWidget.vue` renders that anchor with
+		 * `:target="tile.linkType === 'url' ? '_blank' : '_self'"`.
+		 *
+		 * So "honouring its configured link target" is a property of the
+		 * anchor that gets clicked, and the way to observe it is to catch the
+		 * click. A capture-phase listener records the anchor's href and
+		 * target and cancels the event, which keeps the assertion off the
+		 * network entirely — the seeded links point at the reserved
+		 * `.invalid` TLD and must never be dialled.
 		 */
 		await page.evaluate(() => {
-			const w = window as unknown as { __opened?: string[] }
-			w.__opened = []
-			const realOpen = window.open.bind(window)
-			window.open = ((url?: string | URL, ...rest: unknown[]) => {
-				w.__opened!.push(String(url ?? ''))
-				return null as unknown as ReturnType<typeof realOpen>
-			}) as typeof window.open
+			const w = window as unknown as { __activated?: Array<{ href: string, target: string }> }
+			w.__activated = []
+			document.addEventListener('click', (e) => {
+				const anchor = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
+				if (anchor) {
+					w.__activated!.push({
+						href: anchor.getAttribute('href') ?? '',
+						target: anchor.getAttribute('target') ?? '',
+					})
+					// Do not let the browser act on it: this test is about
+					// the request the app makes, not about a page loading.
+					e.preventDefault()
+				}
+			}, true)
 		})
-		// Nothing should actually leave the page; if the app navigates in the
-		// same tab instead, this route abort makes that visible rather than
-		// letting the test wander onto a dead host.
-		await page.route('https://example.invalid/**', route => route.abort())
 
 		const input = page.locator(INPUT)
 		await input.fill('Zaaksysteem')
@@ -467,18 +477,30 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 
 		await page.keyboard.press('Enter')
 
+		const activated = async () => page.evaluate(
+			() => (window as unknown as { __activated?: Array<{ href: string, target: string }> }).__activated ?? [],
+		)
 		await expect
-			.poll(
-				async () => page.evaluate(() => (window as unknown as { __opened?: string[] }).__opened ?? []),
-				{ message: 'Enter must activate the selected tile', timeout: 15_000 },
-			)
+			.poll(activated, { message: 'Enter must activate the selected tile', timeout: 15_000 })
 			.not.toHaveLength(0)
 
-		const opened = await page.evaluate(() => (window as unknown as { __opened?: string[] }).__opened ?? [])
+		const hits = await activated()
 		expect(
-			opened.join(' | '),
-			'the activation must target the tile\'s own configured link, not a generic route',
-		).toContain('example.invalid')
+			hits.map(h => h.href).join(' | '),
+			'the activation must follow the tile\'s own configured link, not a generic route',
+		).toContain(encodeURIComponent(TILES[0]))
+
+		/*
+		 * THE "honouring its configured link target" half. The tile was
+		 * seeded with `linkType: 'url'`, which TileWidget renders as
+		 * `target="_blank"`. A regression that dropped the target — opening
+		 * an external link in the dashboard's own tab — would still satisfy
+		 * the href assertion above.
+		 */
+		expect(
+			hits[0].target,
+			'a linkType:url tile must be activated with its new-tab target intact',
+		).toBe('_blank')
 	})
 
 	// @e2e tile-quick-search::escape-clears-and-returns-focus

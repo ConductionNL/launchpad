@@ -157,10 +157,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
 		<!-- REQ-WIZ-010: setup wizard via `php occ launchpad:setup`. -->
 		<command>OCA\LaunchPad\Command\SetupCommand</command>
-		<!-- REQ-GFSB-008: one-time DB→GroupFolder content migration. -->
-		<command>OCA\LaunchPad\Command\MigrateStorageToGroupFolder</command>
-		<!-- REQ-GFSB-010: toggle the active storage backend. -->
-		<command>OCA\LaunchPad\Command\ToggleStorageSetting</command>
 	</commands>
 
 	<navigations>

@@ -83,10 +83,6 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplateDescription(?string $templateDescription)
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
- * @method string|null getContent()
- * @method void setContent(?string $content)
- * @method string|null getLocale()
- * @method void setLocale(?string $locale)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
  *                                        column on `oc_launchpad_dashboards`
@@ -592,30 +588,6 @@ class Dashboard extends Entity implements JsonSerializable
     protected ?string $templatePreviewImage = null;
 
     /**
-     * The serialized dashboard content JSON (REQ-GFSB-002).
-     *
-     * Populated when the `db` storage backend is active; NULL when the
-     * `groupfolder` backend is active (content lives in the GroupFolder
-     * file system in that case). `jsonSerialize()` always surfaces this
-     * field (possibly null) so the API contract is stable regardless of
-     * the active backend.
-     *
-     * @var string|null
-     */
-    protected ?string $content = null;
-
-    /**
-     * Optional locale code associated with the dashboard content (REQ-GFSB-004).
-     *
-     * Used by the GroupFolder backend to route reads/writes to the
-     * locale-specific sub-path `LaunchPad/<locale>/<uuid>.json`. NULL
-     * means locale-neutral storage.
-     *
-     * @var string|null
-     */
-    protected ?string $locale = null;
-
-    /**
      * Constructor
      *
      * Registers column types for proper ORM handling.
@@ -718,36 +690,8 @@ class Dashboard extends Entity implements JsonSerializable
             'templateCategory'     => $this->templateCategory,
             'templateDescription'  => $this->templateDescription,
             'templatePreviewImage' => $this->templatePreviewImage,
-            // REQ-GFSB-002: content field; null when GroupFolder backend is active.
-            'content'              => $this->decodeContent(),
-            'locale'               => $this->locale,
         ];
     }//end jsonSerialize()
-
-    /**
-     * Decode the raw `content` JSON string for API serialisation (REQ-GFSB-002).
-     *
-     * Returns null when the column is null or empty; returns the decoded array
-     * when content is valid JSON; returns null and degrades gracefully when
-     * the stored value is corrupt.
-     *
-     * @return array|null The decoded content, or null.
-     *
-     * @spec openspec/changes/groupfolder-storage-backend/tasks.md#task-6
-     */
-    private function decodeContent(): ?array
-    {
-        if ($this->content === null || $this->content === '') {
-            return null;
-        }
-
-        $decoded = json_decode(json: $this->content, associative: true);
-        if (is_array($decoded) === true) {
-            return $decoded;
-        }
-
-        return null;
-    }//end decodeContent()
 
     /**
      * Serialize for a non-owner viewer (M5 — strips internal identity

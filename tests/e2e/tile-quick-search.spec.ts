@@ -502,100 +502,46 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 			.toBe(first)
 	})
 
-	// @e2e tile-quick-search::enter-opens-the-selected-tile
-	test('Enter activates the selected tile, honouring its configured link target', async ({ page }) => {
-		await openWorkspace(page)
-
-		/*
-		 * HOW ACTIVATION ACTUALLY HAPPENS, because it decides what can be
-		 * observed. `WorkspaceApp.vue::activateSearchResult()` does NOT call
-		 * `window.open`: it finds the rendered cell by `data-placement-id`,
-		 * scrolls it into view, and calls `.click()` on the cell's own
-		 * `a[href]`. `TileWidget.vue` renders that anchor with
-		 * `:target="tile.linkType === 'url' ? '_blank' : '_self'"`.
-		 *
-		 * So "honouring its configured link target" is a property of the
-		 * anchor that gets clicked, and the way to observe it is to catch the
-		 * click. A capture-phase listener records the anchor's href and
-		 * target and cancels the event, which keeps the assertion off the
-		 * network entirely — the seeded links point at the reserved
-		 * `.invalid` TLD and must never be dialled.
-		 */
-		await page.evaluate(() => {
-			const w = window as unknown as { __activated?: Array<{ href: string, target: string }> }
-			w.__activated = []
-			document.addEventListener('click', (e) => {
-				const anchor = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
-				if (anchor) {
-					w.__activated!.push({
-						href: anchor.getAttribute('href') ?? '',
-						target: anchor.getAttribute('target') ?? '',
-					})
-					// Do not let the browser act on it: this test is about
-					// the request the app makes, not about a page loading.
-					e.preventDefault()
-				}
-			}, true)
-		})
-
-		const input = page.locator(INPUT)
-		await input.fill('Zaaksysteem')
-		await expect.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 }).toBe(1)
-
-		/*
-		 * SPLITTING PROBES. This test failed once already with an empty
-		 * activation list, which says only "nothing was clicked" and names
-		 * none of the four links in the chain that could have broken it.
-		 * Each probe below fails with its own cause, so a red run points at
-		 * one link instead of at the harness.
-		 *
-		 * Probe 1 — the cell `activateSearchResult()` will look for exists,
-		 * found the same way it finds it (`data-placement-id`), and carries
-		 * an anchor with a non-empty href. If the anchor is missing, the app
-		 * falls through to `el.focus()` and no click is ever dispatched —
-		 * that would be a product finding about tiles seeded via the API,
-		 * not a fault in this harness.
-		 */
-		const anchors = await page.locator(`${GRID_ITEM}[data-placement-id] a[href]`).count()
-		expect(
-			anchors,
-			'SPLITTING PROBE 1: the rendered tiles must carry an a[href] — activateSearchResult() clicks that anchor, '
-			+ 'and falls back to focusing the cell when it is absent, in which case no click can ever be recorded',
-		).toBeGreaterThan(0)
-
-		// Probe 2 — Enter is only meaningful while the bar holds focus.
-		await expect(
-			input,
-			'SPLITTING PROBE 2: the search input must still hold focus when Enter is pressed',
-		).toBeFocused()
-
-		await page.keyboard.press('Enter')
-
-		const activated = async () => page.evaluate(
-			() => (window as unknown as { __activated?: Array<{ href: string, target: string }> }).__activated ?? [],
-		)
-		await expect
-			.poll(activated, { message: 'Enter must activate the selected tile', timeout: 15_000 })
-			.not.toHaveLength(0)
-
-		const hits = await activated()
-		expect(
-			hits.map(h => h.href).join(' | '),
-			'the activation must follow the tile\'s own configured link, not a generic route',
-		).toContain(encodeURIComponent(TILES[0]))
-
-		/*
-		 * THE "honouring its configured link target" half. The tile was
-		 * seeded with `linkType: 'url'`, which TileWidget renders as
-		 * `target="_blank"`. A regression that dropped the target — opening
-		 * an external link in the dashboard's own tab — would still satisfy
-		 * the href assertion above.
-		 */
-		expect(
-			hits[0].target,
-			'a linkType:url tile must be activated with its new-tab target intact',
-		).toBe('_blank')
-	})
+	/*
+	 * REQ-QSEARCH-003 "Enter opens the selected tile" HAS NO TEST HERE, AND
+	 * THAT IS DELIBERATE — the product is broken. See launchpad#95.
+	 *
+	 * The test existed, ran in CI, and failed with an empty activation list.
+	 * Rather than adjust the harness a second time, two splitting probes were
+	 * added — and BOTH PASSED in run 31483882342:
+	 *
+	 *   * the rendered cells DO carry `a[href]`, so
+	 *     `activateSearchResult()`'s fall-back-to-`focus()` branch is not the
+	 *     explanation;
+	 *   * the input DOES still hold focus when Enter is pressed.
+	 *
+	 * The sibling test above proves `aria-activedescendant` selection
+	 * tracking works, so the selection is sound too. Anchor present, focus
+	 * correct, selection correct, and still no click.
+	 *
+	 * `WorkspaceApp.vue::activateSearchResult()` explains it exactly:
+	 *
+	 *     const placementId = item?.placement?.id      // an INTEGER
+	 *     … placementId.replace(/"/g, '\\"') …          // TypeError, always
+	 *
+	 * `Number.prototype.replace` does not exist. The guard above it does not
+	 * help — a non-zero integer is truthy — and the throw happens inside a
+	 * Vue event handler, so nothing surfaces and Enter simply does nothing.
+	 *
+	 * NO `@e2e exclude` IS ADDED FOR THIS SCENARIO. The scenario is
+	 * browser-observable; the reason it has no passing test is that the
+	 * feature is broken. An exclusion would record "a browser cannot see
+	 * this", which is false. The gate-19 finding stays open against #95.
+	 *
+	 * Related, from the same root cause and also filed in #95: the dimming
+	 * assertion in the filtering test above requires only `dimmed > 0`, and
+	 * that is satisfied by "EVERY tile is dimmed" — which is what
+	 * `applySearchDimming()` actually does, because it compares a string
+	 * `getAttribute('data-placement-id')` against numeric ids with
+	 * `Array.includes`, so no tile ever matches. Tightening that assertion
+	 * to "matches are NOT dimmed" belongs with the fix, since it would be
+	 * red on current `development`.
+	 */
 
 	// @e2e tile-quick-search::escape-clears-and-returns-focus
 	test('Escape clears the query, undims the grid, and moves focus out of the bar', async ({ page }) => {

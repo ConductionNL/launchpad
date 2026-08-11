@@ -208,6 +208,9 @@ async function createDashboard(api: APIRequestContext, label: string): Promise<{
 	const body = await res.json()
 	const dash = body.dashboard ?? body.data?.dashboard ?? body
 	expect(dash?.id, `no numeric id in create response: ${JSON.stringify(body)}`).toBeTruthy()
+	// Registered BEFORE the caller can throw, so a failing test still gets
+	// its dashboard cleaned up — see the teardown note on `createdDashboards`.
+	createdDashboards.push(Number(dash.id))
 	return { id: Number(dash.id), uuid: dash.uuid }
 }
 
@@ -243,6 +246,24 @@ let priorAllowUserDash = true
  * below creates its OWN dashboard — which is the state that actually needs to
  * be isolated.
  */
+/*
+ * Every dashboard this file creates, so `afterAll` can remove them.
+ *
+ * WHY THIS EXISTS. Each test below creates its own dashboard — that is the
+ * isolation that matters, since `workers: 1, fullyParallel: false` means the
+ * only thing to isolate is state, not concurrency. But creating ten and
+ * deleting none leaves them in a register every other spec in the job reads,
+ * and `POST /api/dashboard` also moves the caller's ACTIVE dashboard. That is
+ * not hypothetical here: `tile-quick-search.spec.ts` failed on this branch
+ * precisely because a dashboard it did not create was active when its tests
+ * ran, and this file runs before it (`ci/…` sorts ahead of `tile-…`).
+ *
+ * Ids are recorded inside `createDashboard()` at the moment of creation, not
+ * by the caller afterwards, so a test that throws mid-way still has its
+ * dashboard removed.
+ */
+const createdDashboards: number[] = []
+
 let bob: { user: string, pass: string }
 let carol: { user: string, pass: string }
 let dave: { user: string, pass: string }
@@ -269,6 +290,18 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
+	/*
+	 * Dashboards first, and tolerantly: a delete that 404s because a test
+	 * already removed the row must not stop the accounts below from being
+	 * cleaned up. `afterAll` runs on the failure path too, which is the path
+	 * that matters — a red run that leaves rows behind poisons the next one.
+	 */
+	const cleanup = await apiAs(ADMIN)
+	for (const id of createdDashboards) {
+		await cleanup.delete(dashboardUrl(id)).catch(() => undefined)
+	}
+	await cleanup.dispose()
+
 	await Promise.all([
 		deleteUser(bob.user),
 		deleteUser(carol.user),

@@ -618,6 +618,347 @@
 			]
 		},
 		{
+			"name": "Page routes (HTML shells)",
+			"item": [
+				{
+					"name": "page#deepLink renders the workspace shell for a known slug",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/{{fixtureDashboardSlug}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"{{fixtureDashboardSlug}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Older backends did not auto-derive a slug on create. The",
+									"// unknown-slug request below covers the same route without a",
+									"// fixture, so skipping here loses no coverage of page#deepLink.",
+									"if (!pm.environment.get('fixtureDashboardSlug')) {",
+									"    pm.execution.skipRequest();",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// page#deepLink delegates to page#index, so the wire contract is",
+									"// the WORKSPACE shell: templates/index.php's two ids plus the",
+									"// bundle that mounts on them. Asserting only '200 + text/html'",
+									"// cannot tell the workspace apart from the public-share page or",
+									"// from Nextcloud's own error page, both of which are 200 HTML.",
+									"pm.test('200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Content-Type is HTML', () => {",
+									"    pm.expect(pm.response.headers.get('Content-Type') || '').to.match(/text\\/html/);",
+									"});",
+									"pm.test('renders the workspace chrome wrapper + Vue mount point', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('id=\"app-workspace\"');",
+									"    pm.expect(body).to.include('id=\"workspace-vue\"');",
+									"});",
+									"pm.test('boots the workspace bundle, not the public-share bundle', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('launchpad-main');",
+									"    pm.expect(body).to.not.include('id=\"app-public-share\"');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#deepLink falls back silently for an unresolvable slug chain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/newman-page-deeplink/no-such-chain",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"newman-page-deeplink",
+								"no-such-chain"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// The catch-all route accepts multi-segment chains and MUST NOT",
+									"// 404 on a stale bookmark: PageController logs and falls through",
+									"// to the default resolver. A 404 here would break every renamed",
+									"// or deleted dashboard's saved URL.",
+									"pm.test('200 OK (silent fallback, not 404)', () => pm.response.to.have.status(200));",
+									"pm.test('still renders the workspace shell', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('id=\"app-workspace\"');",
+									"    pm.expect(body).to.include('id=\"workspace-vue\"');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "fixture: create a public share to exercise page#publicShare",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/public-share",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"public-share"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201 Created', () => pm.response.to.have.status(201));",
+									"pm.test('returns a 64-char token', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('token');",
+									"    pm.expect(json.token).to.be.a('string');",
+									"    pm.expect(json.token).to.have.lengthOf(64);",
+									"    pm.environment.set('fixturePublicShareToken', String(json.token));",
+									"});",
+									"pm.test('an unprotected share reports passwordRequired = false', () => {",
+									"    pm.expect(pm.response.json().passwordRequired).to.eql(false);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#publicShare renders the anonymous public SPA for a valid token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/s/{{fixturePublicShareToken}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"s",
+								"{{fixturePublicShareToken}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.environment.get('fixturePublicShareToken')) {",
+									"    pm.execution.skipRequest();",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// REQ-PSHR-004. This request carries NO credentials (auth: noauth)",
+									"// while the collection default is admin Basic, so a 200 here is",
+									"// proof the route really is #[PublicPage] — the assertion that",
+									"// matters, and the one that silently disappears if the request",
+									"// inherits collection auth.",
+									"pm.test('200 OK for an anonymous caller', () => pm.response.to.have.status(200));",
+									"pm.test('Content-Type is HTML', () => {",
+									"    pm.expect(pm.response.headers.get('Content-Type') || '').to.match(/text\\/html/);",
+									"});",
+									"pm.test('renders the public-share shell, not the workspace', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('id=\"app-public-share\"');",
+									"    pm.expect(body).to.include('id=\"public-share-vue\"');",
+									"    pm.expect(body).to.not.include('id=\"app-workspace\"');",
+									"});",
+									"pm.test('boots the standalone public bundle', () => {",
+									"    pm.expect(pm.response.text()).to.include('launchpad-public');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#publicShare data endpoint serves the shared dashboard anonymously",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/s/{{fixturePublicShareToken}}/data",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"s",
+								"{{fixturePublicShareToken}}",
+								"data"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.environment.get('fixturePublicShareToken')) {",
+									"    pm.execution.skipRequest();",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Without this the page assertions above would pass just as well",
+									"// on a garbage token — page#publicShare renders a token-agnostic",
+									"// shell by design. This is what proves the fixture token is a",
+									"// live share, and that the SPA's data source works unauthenticated.",
+									"pm.test('200 OK for an anonymous caller', () => pm.response.to.have.status(200));",
+									"pm.test('payload carries the shared dashboard and its placements', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('dashboard');",
+									"    pm.expect(json.dashboard.uuid).to.eql(pm.environment.get('fixtureDashboardUuid'));",
+									"    pm.expect(json).to.have.property('placements').that.is.an('array');",
+									"});",
+									"pm.test('the share envelope never exposes its creator to anonymous callers', () => {",
+									"    pm.expect(pm.response.json().share).to.not.have.property('createdBy');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#publicShare renders a token-agnostic shell for an unknown token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/s/newmanunknownsharetoken",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"s",
+								"newmanunknownsharetoken"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Documented contract: the page route does NOT validate the",
+									"// token — the SPA it boots asks /s/{token}/data, which answers",
+									"// 404. Pinning it stops anyone 'fixing' the page route into a",
+									"// 404, which would turn the share page into an existence oracle",
+									"// answering before any throttle applies.",
+									"pm.test('200 OK (the shell is token-agnostic)', () => pm.response.to.have.status(200));",
+									"pm.test('renders the public-share shell', () => {",
+									"    pm.expect(pm.response.text()).to.include('id=\"app-public-share\"');",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "Dashboards - Personal scope",
 			"item": [
 				{

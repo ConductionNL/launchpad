@@ -511,8 +511,10 @@ export default {
 		 * `null` undims everything; an array dims every item whose id is
 		 * NOT present (an empty array therefore dims everything).
 		 *
-		 * @param {Array<string>|null} matchIds the current matching ids.
+		 * @param {Array<string|number>|null} matchIds the current matching ids
+		 *   (numbers off the API row, strings once normalised below).
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		applySearchDimming(matchIds) {
 			if (typeof document === 'undefined') {
@@ -552,9 +554,10 @@ export default {
 		 * REQ-QSEARCH-003 "honouring its configured link target"). Non-tile
 		 * placements without a link are focused instead, best-effort.
 		 *
-		 * @param {{id: string, placement: object}} item the opened search
-		 *   result.
+		 * @param {{id: (string|number), placement: object}} item the opened
+		 *   search result. `placement.id` is an INTEGER off the API row.
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md
 		 */
 		activateSearchResult(item) {
 			/*

@@ -829,11 +829,14 @@ export default {
 		 * placement objects are replaced wholesale by the store, so the
 		 * bound props update and the child re-renders normally.
 		 *
-		 * NOTE: the REQ-GRID-010 "Placement key regeneration" scenario still
-		 * describes the superseded `updatedAt` + `styleConfig` key. That
-		 * spelling is what broke keyboard move/resize; the accessibility
-		 * requirement below is the one this implementation serves, and the
-		 * stale scenario needs a spec correction.
+		 * NOTE: the "Placement key regeneration" scenario at
+		 * openspec/specs/grid-layout/spec.md:405 — filed, oddly, under
+		 * REQ-GRID-010 (Grid Styling) — still requires the superseded
+		 * `updatedAt` + `styleConfig` key via a `getPlacementKey()` that no
+		 * longer exists. That spelling is precisely what broke keyboard
+		 * move/resize, so the scenario is stale and this method deliberately
+		 * does not satisfy it. REQ-GRID-008 below is the requirement this
+		 * implementation serves. Tracked for spec correction in launchpad#101.
 		 *
 		 * @spec openspec/specs/grid-layout/spec.md#req-grid-008
 		 * @param {object} placement the placement (CnDashboardGrid layout item).

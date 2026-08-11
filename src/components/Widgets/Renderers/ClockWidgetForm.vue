@@ -152,6 +152,14 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The two style choices the author picks between — `digital` and
+		 * `analog` are the only values REQ-CLOCK-002 defines a persisted
+		 * shape for.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
+		 * @return {Array<{value: string, label: string}>}
+		 */
 		styleOptions() {
 			return [
 				{ value: 'digital', label: t('launchpad', 'Digital') },
@@ -159,6 +167,14 @@ export default {
 			]
 		},
 
+		/**
+		 * The hour-format choices: 12h, 24h, and `auto` — the last is what
+		 * makes "hourFormat following the user locale" (REQ-CLOCK-002
+		 * "Defaults when unset") selectable rather than implicit.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
+		 * @return {Array<{value: string, label: string}>}
+		 */
 		hourFormatOptions() {
 			return [
 				{ value: 'auto', label: t('launchpad', 'Follow language (automatic)') },
@@ -167,6 +183,14 @@ export default {
 			]
 		},
 
+		/**
+		 * The IANA timezone picker required by the REQ-CLOCK-002 "Analog
+		 * style configuration" scenario ("the config UI MUST offer a timezone
+		 * picker listing IANA timezone identifiers").
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
+		 * @return {Array<{value: string, label: string}>}
+		 */
 		timezoneOptions() {
 			return resolveTimezones().map((zone) => ({ value: zone, label: zone }))
 		},
@@ -175,6 +199,9 @@ export default {
 		 * The persisted content blob. An analog clock only persists
 		 * `{style, timezone}` — hourFormat/showDate are digital-only
 		 * concerns (REQ-CLOCK-002 "Analog style configuration").
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
+		 * @return {object}
 		 */
 		assembledContent() {
 			if (this.style === 'analog') {
@@ -196,8 +223,11 @@ export default {
 		t,
 
 		/**
-		 * Set a field and notify the parent via `update:content`.
+		 * Set a field and notify the parent via `update:content`, re-deriving
+		 * the persisted blob so switching to `analog` immediately drops the
+		 * digital-only keys (REQ-CLOCK-002).
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
 		 * @param {string} field one of: style, hourFormat, timezone, showDate.
 		 * @param {string|boolean} value the new value.
 		 * @return {void}
@@ -208,9 +238,11 @@ export default {
 		},
 
 		/**
-		 * Validate the form. The clock widget has no required fields — an
-		 * empty array always means valid.
+		 * Validate the form. The clock widget has no required fields — every
+		 * REQ-CLOCK-002 field has a documented default, so an empty array
+		 * always means valid.
 		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-clock-002
 		 * @return {string[]} the validation errors (always empty).
 		 */
 		validate() {

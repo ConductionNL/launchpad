@@ -87,6 +87,7 @@ export default {
 		 * they disable the button instead, so the rule is visible before the
 		 * user commits rather than silently swallowing the click.
 		 *
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
 		 * @return {boolean} whether Rename may be pressed.
 		 */
 		canSubmit() {
@@ -101,6 +102,7 @@ export default {
 		 * Without this, opening the dialog for a second dashboard would show
 		 * the first one's name, because `data()` runs once.
 		 *
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
 		 * @param {boolean} isOpen the new open state.
 		 * @return {void}
 		 */
@@ -117,6 +119,7 @@ export default {
 		 * Enter key reaches this method without going through the disabled
 		 * button, so the guard has to live here too.
 		 *
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
 		 * @return {void}
 		 */
 		submit() {

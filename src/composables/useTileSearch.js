@@ -57,6 +57,11 @@ export const FALLBACK_TARGET_UNIFIED_SEARCH = 'unified-search'
  * lower-case when `normalize` throws (defensive; every supported runtime
  * has it).
  *
+ * This is what makes the REQ-QSEARCH-002 "case-insensitive" match hold for
+ * accented labels too — without it "Verlof" would not match a label stored
+ * as "Vérlof".
+ *
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
  * @param {*} value the raw string (or nullish value) to normalise.
  * @return {string} the normalised, comparison-ready string.
  */

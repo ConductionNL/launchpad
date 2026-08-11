@@ -123,7 +123,14 @@ export default {
 	},
 
 	computed: {
-		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		/**
+		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
+		 * picker source every admin surface reads, so the picker cannot drift
+		 * from the registry (REQ-ICON-003).
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-003
+		 * @return {object} the frozen icon catalogue.
+		 */
 		iconCatalogue() {
 			return ICON_CATALOGUE
 		},

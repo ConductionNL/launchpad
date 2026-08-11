@@ -75,8 +75,10 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 	actions: {
 		/**
 		 * Fetch the admin groups list. The tab UI renders one row per
-		 * group plus the `default` sentinel.
+		 * group plus the `default` sentinel — REQ-DASH-015 "Admin opens the
+		 * Group dashboards tab".
 		 *
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
 		 * @return {Promise<void>}
 		 */
 		async fetchGroups() {

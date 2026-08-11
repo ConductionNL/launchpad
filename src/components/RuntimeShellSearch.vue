@@ -158,10 +158,25 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The id the `<label for=…>` binds to, so the input carries a
+		 * programmatically-associated accessible label. Instance-scoped so two
+		 * search bars on one page never collide on the same id.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-001
+		 * @return {string}
+		 */
 		inputId() {
 			return `${this.instanceId}-input`
 		},
 
+		/**
+		 * The results listbox id, referenced by the combobox's `aria-controls`
+		 * and used as the stem of every `aria-activedescendant` option id.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
+		 * @return {string}
+		 */
 		listboxId() {
 			return `${this.instanceId}-listbox`
 		},
@@ -170,16 +185,39 @@ export default {
 			return this.search.state.results.length > 0
 		},
 
+		/**
+		 * `aria-controls` is only meaningful while the listbox is rendered —
+		 * pointing it at an absent element would name a node that is not in
+		 * the accessibility tree, so it is dropped when there are no matches.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
+		 * @return {string|null}
+		 */
 		ariaControls() {
 			return this.hasResults ? this.listboxId : null
 		},
 
+		/**
+		 * REQ-QSEARCH-003 "Arrow keys move the selection": the active match is
+		 * exposed to assistive technology via `aria-activedescendant` on the
+		 * input rather than by moving DOM focus into the listbox.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
+		 * @return {string|null}
+		 */
 		activeOptionId() {
 			return this.search.state.activeIndex >= 0
 				? this.optionId(this.search.state.activeIndex)
 				: null
 		},
 
+		/**
+		 * The placeholder advertises both focus shortcuts, so the keyboard
+		 * affordance is discoverable without documentation.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-001
+		 * @return {string}
+		 */
 		placeholderText() {
 			return this.t('launchpad', 'Search tiles… (/ or Ctrl+K)')
 		},
@@ -188,6 +226,7 @@ export default {
 		 * REQ-QSEARCH-003 WCAG AA requirement: the result count (or
 		 * no-match state) is announced via `aria-live`.
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
 		 * @return {string}
 		 */
 		statusMessage() {
@@ -202,10 +241,26 @@ export default {
 			return this.n('launchpad', '%n matching tile', '%n matching tiles', count)
 		},
 
+		/**
+		 * The accessible "no results" text required by the REQ-QSEARCH-004
+		 * "No fallback configured" scenario, reused verbatim by the sr-only
+		 * live region so both surfaces say the same thing.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-004
+		 * @return {string}
+		 */
 		noResultsMessage() {
 			return this.t('launchpad', 'No matching tiles for "{query}"', { query: this.search.state.query })
 		},
 
+		/**
+		 * Gates the visible no-results affordance: shown only once a query has
+		 * actually been typed, so an empty bar is not permanently labelled "no
+		 * results" (REQ-QSEARCH-004 "No fallback configured").
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-004
+		 * @return {boolean}
+		 */
 		showNoResultsMessage() {
 			return this.search.state.query !== '' && this.search.state.results.length === 0
 		},
@@ -214,6 +269,15 @@ export default {
 	watch: {
 		items: {
 			immediate: true,
+			/**
+			 * Re-run the live filter against the new item set whenever the
+			 * owning page swaps dashboards or adds/removes a placement, so the
+			 * displayed matches never describe a grid that is no longer there.
+			 *
+			 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+			 * @param {Array} newItems the dashboard's searchable `{id,label}` pairs.
+			 * @return {void}
+			 */
 			handler(newItems) {
 				this.search.setItems(newItems)
 			},
@@ -234,6 +298,15 @@ export default {
 		t,
 		n,
 
+		/**
+		 * The per-option id that `aria-activedescendant` points at. Derived
+		 * from the index rather than the tile id so it stays stable against
+		 * tile ids that are not valid HTML id tokens.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
+		 * @param {number} index the option's index in `results`.
+		 * @return {string}
+		 */
 		optionId(index) {
 			return `${this.listboxId}-option-${index}`
 		},
@@ -243,6 +316,7 @@ export default {
 		 * `/` is ignored while the user is already typing elsewhere; `Ctrl+K`
 		 * / `Cmd+K` always focuses and prevents the browser default.
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-001
 		 * @param {KeyboardEvent} event the window-level keydown event.
 		 * @return {void}
 		 */
@@ -253,6 +327,14 @@ export default {
 			}
 		},
 
+		/**
+		 * Move DOM focus into the search input — the single implementation of
+		 * "the quick-search input MUST receive focus" shared by both the `/`
+		 * and the `Ctrl+K` shortcut.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-001
+		 * @return {void}
+		 */
 		focusInput() {
 			const el = this.$refs.inputEl
 			if (el && typeof el.focus === 'function') {
@@ -266,6 +348,7 @@ export default {
 		 * non-matching tiles in the grid (`null` = no active query, i.e.
 		 * every tile is undimmed).
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
 		 * @param {InputEvent} event the native input event.
 		 * @return {void}
 		 */
@@ -274,6 +357,14 @@ export default {
 			this.emitFilter()
 		},
 
+		/**
+		 * Publish the current match-id set to the owning page so non-matching
+		 * tiles are de-emphasised in place rather than removed from the grid
+		 * layout. `null` means "no active query" — every tile undimmed.
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+		 * @return {void}
+		 */
 		emitFilter() {
 			const query = this.search.state.query
 			if (!query) {
@@ -288,6 +379,7 @@ export default {
 		 * selection, Enter opens the active match (or dispatches the
 		 * no-match fallback per REQ-QSEARCH-004), Escape clears.
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
 		 * @param {KeyboardEvent} event the input's keydown event.
 		 * @return {void}
 		 */
@@ -318,6 +410,7 @@ export default {
 		 * selection cursor to the clicked option, then opens it exactly as
 		 * Enter would (single code path for "activate a match").
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
 		 * @param {number} index the clicked option's index in `results`.
 		 * @return {void}
 		 */
@@ -333,6 +426,7 @@ export default {
 		 * tree doesn't contain the grid, so focus-return is delegated via
 		 * the `clear` event.
 		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
 		 * @return {void}
 		 */
 		onEscape() {

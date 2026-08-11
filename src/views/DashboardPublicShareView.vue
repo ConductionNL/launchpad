@@ -126,6 +126,16 @@ export default defineComponent({
 		},
 	},
 
+	/**
+	 * The anonymous render path for a share token: fetch the dashboard by
+	 * token, surface the 404 shape for an invalid/revoked/expired token, and
+	 * raise the password gate when the share is protected. No Nextcloud
+	 * session is required or used.
+	 *
+	 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-004
+	 * @param {object} props the component props (`token`).
+	 * @return {object} the template bindings.
+	 */
 	setup(props) {
 		const shareStore = usePublicShareStore()
 

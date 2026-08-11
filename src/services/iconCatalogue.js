@@ -32,6 +32,11 @@ const BARE_ICON_NAME = /^[A-Za-z][A-Za-z0-9 _-]*$/
  * original choice still renders; anything already renderable (an SVG path, a
  * URL, or a name with no `@mdi/js` match) is returned unchanged.
  *
+ * This is what lets the single `icon` column hold legacy names, SVG paths and
+ * custom URLs side by side and still render, with no data migration
+ * (REQ-ICON-009 "Mixed values across rows render without migration").
+ *
+ * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
  * @param {string|null|undefined} value stored `icon` field value.
  * @return {string|null|undefined} an SVG path when a legacy name resolves,
  *   otherwise the input untouched.

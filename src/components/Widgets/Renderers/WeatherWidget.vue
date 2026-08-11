@@ -146,18 +146,39 @@ export default {
 	},
 
 	computed: {
-		/** Icon component for the current reading's condition code. */
+		/**
+		 * Icon component for the current reading's condition code. The icon
+		 * is only ever half of the signal — the template renders
+		 * `conditionText` beside it, because REQ-WEATHER-003 forbids
+		 * conveying the condition by icon or colour alone.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-003
+		 * @return {object} the icon component.
+		 */
 		conditionIcon() {
 			const code = this.reading?.condition
 			return CONDITION_ICONS[code] || WeatherPartlyCloudy
 		},
 
-		/** Localised unit suffix, e.g. °C / °F. */
+		/**
+		 * Unit suffix (°C / °F) driven by the `units` the server resolved
+		 * from the viewer's locale or the author's override — never a
+		 * hardcoded unit.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-003
+		 * @return {string}
+		 */
 		unitSuffix() {
 			return this.reading?.units === 'imperial' ? '°F' : '°C'
 		},
 
-		/** Formatted temperature, e.g. "18°C". */
+		/**
+		 * Formatted temperature, e.g. "18°C" — the visible value, always
+		 * stated together with its units.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-003
+		 * @return {string}
+		 */
 		temperatureText() {
 			if (!this.reading || typeof this.reading.tempValue !== 'number') {
 				return ''
@@ -165,7 +186,15 @@ export default {
 			return `${Math.round(this.reading.tempValue)}${this.unitSuffix}`
 		},
 
-		/** Accessible label for the temperature, spelling out the units. */
+		/**
+		 * Accessible label for the temperature, spelling the units out in
+		 * words — REQ-WEATHER-003 requires the temperature to carry an
+		 * accessible label including its units, which "18°C" read aloud
+		 * does not reliably give.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-003
+		 * @return {string}
+		 */
 		temperatureAriaLabel() {
 			if (!this.reading || typeof this.reading.tempValue !== 'number') {
 				return ''
@@ -192,6 +221,11 @@ export default {
 		 * failure — network error, 403, 5xx, missing placement id — renders
 		 * the error state; it never throws into the parent.
 		 *
+		 * The browser only ever calls LaunchPad's own per-placement endpoint
+		 * (via `weatherClient.js`), so no provider URL or API key is ever
+		 * reachable from here.
+		 *
+		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-001
 		 * @return {Promise<void>}
 		 */
 		async load() {

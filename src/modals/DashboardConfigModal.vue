@@ -446,7 +446,14 @@ export default {
 		isCreate() {
 			return this.mode === 'create'
 		},
-		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		/**
+		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
+		 * picker source every admin surface reads, so the picker cannot drift
+		 * from the registry (REQ-ICON-003).
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-003
+		 * @return {object} the frozen icon catalogue.
+		 */
 		iconCatalogue() {
 			return ICON_CATALOGUE
 		},
@@ -455,15 +462,21 @@ export default {
 		 * instance (computed) so the template can reference the module-imported
 		 * `uploadDataUrl` — a bare module import isn't visible in template scope.
 		 *
+		 * This is the custom-URL half of the REQ-ICON-008 dual input: it is
+		 * what turns an uploaded file into the URL the icon field stores.
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-008
 		 * @return {Function} the data-URL upload function.
 		 */
 		iconUploadFn() {
 			return uploadDataUrl
 		},
 		/**
-		 * Config-drawer tab descriptors (dashboard-sharing spec). The
-		 * Sharing tab is only offered when the user can manage shares.
+		 * Config-drawer tab descriptors. The Sharing tab is only offered when
+		 * the user can manage shares — REQ-SHARE-001 is owner-only, so a
+		 * recipient must not be shown a share-management surface at all.
 		 *
+		 * @spec openspec/specs/dashboard-sharing/spec.md#req-share-001
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		tabs() {

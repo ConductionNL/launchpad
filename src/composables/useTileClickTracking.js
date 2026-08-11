@@ -110,6 +110,7 @@ export function useTileClickTracking() {
 /**
  * Test-only reset of the module-level config cache.
  *
+ * @spec exclude test-only harness hook — the `__` prefix and the name mark it as such, and `src/composables/__tests__/useTileClickTracking.spec.js` is its only importer anywhere in the repo; it implements no product behaviour, it only clears `cachedEnabled` / `inflightConfigPromise` so each test starts from a cold cache.
  * @return {void}
  */
 export function __resetTileClickTrackingForTest() {

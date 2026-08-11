@@ -196,7 +196,14 @@ export default {
 	},
 
 	computed: {
-		/** The shared MDI icon catalogue passed to CnIconBrowser. */
+		/**
+		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
+		 * picker source every admin surface reads, so the picker cannot drift
+		 * from the registry (REQ-ICON-003).
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-003
+		 * @return {object} the frozen icon catalogue.
+		 */
 		iconCatalogue() {
 			return ICON_CATALOGUE
 		},
@@ -240,8 +247,11 @@ export default {
 		},
 
 		/**
-		 * Store the icon picked from CnIconBrowser (an SVG path or a URL).
+		 * Store the icon picked from CnIconBrowser — either a built-in SVG
+		 * path or a custom URL, the two inputs REQ-ICON-008 requires the
+		 * picker to switch between without losing the previous value.
 		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-008
 		 * @param {string|null} value the chosen icon path/URL.
 		 * @return {void}
 		 */

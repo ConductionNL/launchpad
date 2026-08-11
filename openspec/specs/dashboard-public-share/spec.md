@@ -118,6 +118,7 @@ Anonymous users MUST be able to render a dashboard via a public share token, sub
 - THEN the system MUST return HTTP 404
 
 #### Scenario: Public render must not reuse user session for GroupFolder content
+@e2e exclude the GroupFolders app is not installed on the Playwright fixture — code-quality.yml `additional-apps` provisions only ConductionNL/openregister and neither seed script adds groupfolders — so the GroupFolder branch of the render path cannot be entered from a browser at all; same reason as the sibling groupfolder-storage-backend spec
 - GIVEN dashboard content lives in the GroupFolder backend (sibling spec: `groupfolder-storage-backend`)
 - WHEN a public-share token renders the dashboard
 - THEN the system MUST use a service-account path (NOT the current Nextcloud user's permissions)
@@ -146,6 +147,7 @@ Password-protected shares MUST require a POST unlock before rendering via the pu
 - AND NOT block subsequent attempts (throttle is separate)
 
 #### Scenario: Unlock is throttled to prevent brute-force
+@e2e exclude the throttle bucket is IP-global by design, so spending it would leave every later test in the same job facing 429 from a shared runner IP — playwright.config.ts runs `workers: 1`, `fullyParallel: false`, so there is no isolated IP to burn; asserted instead by PublicShareControllerTest::testUnlockReturns429WhenThrottled
 - GIVEN a public share with a password
 - WHEN an attacker sends 11 failed unlock attempts from IP `203.0.113.100` within 60 seconds
 - THEN the system MUST invoke Nextcloud's `IThrottler` service with action `launchpad_share_password` (limit: 10 per 60 s, IP-global)
@@ -162,16 +164,19 @@ Password-protected shares MUST require a POST unlock before rendering via the pu
 Any mutation endpoint accessed with a public-share token (not a logged-in Nextcloud user session) MUST return HTTP 403.
 
 #### Scenario: Cannot create widget on public share
+@e2e exclude the guard is PublicShareContext, a request-scoped PHP marker set only inside PublicShareController::renderShare(); no route mutates anything under /s/{token}, so no request a browser can issue is both a public-share bearer and a mutation — an anonymous POST is refused as unauthenticated instead, which would make a passing test prove the wrong thing. Also note the endpoint this scenario names, POST /api/dashboards/{uuid}/placements, does not exist in appinfo/routes.php. Guard asserted by PublicShareContextTest::testRequireMutableThrowsAfterMarkBearer
 - GIVEN an anonymous user has rendered dashboard via public share
 - WHEN they attempt `POST /api/dashboards/{uuid}/placements`
 - THEN the system MUST detect the public-share bearer and return HTTP 403 with message "Cannot modify dashboard via public share"
 
 #### Scenario: Cannot edit dashboard via public share
+@e2e exclude same reason as the create-widget scenario above — PublicShareContext is request-scoped and only PublicShareController::renderShare() marks it, so an anonymous PUT /api/dashboard/{uuid} is refused as unauthenticated rather than as a public-share bearer; the choke point is DashboardService::updateDashboard()'s requireMutable() call, asserted by PublicShareContextTest::testRequireMutableThrowsAfterMarkBearer
 - GIVEN a public share allows viewing
 - WHEN an anonymous user attempts `PUT /api/dashboard/{uuid}` to rename
 - THEN the system MUST return HTTP 403
 
 #### Scenario: Cannot delete dashboard via public share
+@e2e exclude same reason as the two scenarios above — no browser-issuable request is simultaneously a public-share bearer and a DELETE; the choke point is DashboardService::deleteDashboard()'s requireMutable() call, asserted by PublicShareContextTest::testRequireMutableThrowsAfterMarkBearer. The fourth scenario of this requirement, logged-in-user-on-public-share-renders-read-only, IS browser-observable and has a real test in tests/e2e/ci/public-share.spec.ts
 - GIVEN a public share allows viewing
 - WHEN an anonymous user attempts `DELETE /api/dashboard/{uuid}`
 - THEN the system MUST return HTTP 403
@@ -182,6 +187,8 @@ Any mutation endpoint accessed with a public-share token (not a logged-in Nextcl
 - AND the user's normal dashboard edit permissions MUST NOT override the public-share read-only mode
 
 ### Requirement: REQ-PSHR-007 View Count Debouncing
+
+@e2e exclude viewCount and lastViewedAt are DB columns that no anonymous response echoes back, so a browser cannot read the value the debounce is about; the three scenarios additionally need either distinct client IPs (one CI runner has one) or 60-second-plus wall-clock waits inside a 60s per-test timeout
 
 View counts MUST be incremented at most once per minute per (token, client IP) pair to prevent refresh-spam inflation.
 
@@ -225,6 +232,8 @@ Shares with `expiresAt < now()` OR `revokedAt IS NOT NULL` MUST return HTTP 404 
 
 ### Requirement: REQ-PSHR-009 Brute-Force Protection
 
+@e2e exclude all three scenarios spend the IThrottler `launchpad_share_password` bucket, which the spec itself defines as IP-global; playwright.config.ts runs workers:1 / fullyParallel:false from one runner IP, so a test that exhausts it hands 429 to every test that follows and the throttle-resets scenario additionally needs a 60s+ wall-clock wait against a 60s test timeout. The 429 path is asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled
+
 Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent password guessing.
 
 #### Scenario: 10 failed unlocks per 60 seconds allowed
@@ -248,6 +257,8 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 - THEN the system MUST accept it (not return 429)
 
 ### Requirement: REQ-PSHR-010 Service-Account File Read for GroupFolder Content
+
+@e2e exclude both scenarios are about which account the GroupFolders backend is read as, and the GroupFolders app is not installed on the Playwright fixture — code-quality.yml `additional-apps` provisions only ConductionNL/openregister and neither seed script adds it — so the branch cannot be entered from a browser; same reason the sibling groupfolder-storage-backend spec carries
 
 Public shares referencing dashboards with GroupFolder-backed content MUST use a service-account read path, not the viewer's session.
 

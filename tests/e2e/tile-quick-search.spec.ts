@@ -473,8 +473,15 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 
 		// The selected option must be the one flagged aria-selected, or the
 		// pointer the input exposes disagrees with what a screen reader reads.
+		/*
+		 * Matched by attribute rather than `#${CSS.escape(id)}`. `CSS` is a
+		 * BROWSER global; this code runs in Node, where it is undefined —
+		 * the first CI run failed here with `ReferenceError: CSS is not
+		 * defined`. An `[id="…"]` attribute selector needs no escaping and
+		 * is exact.
+		 */
 		await expect(
-			page.locator(`#${CSS.escape(second!)}`),
+			page.locator(`[id="${second}"]`),
 			'the option named by aria-activedescendant must be the selected one',
 		).toHaveAttribute('aria-selected', 'true')
 
@@ -534,6 +541,33 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		const input = page.locator(INPUT)
 		await input.fill('Zaaksysteem')
 		await expect.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 }).toBe(1)
+
+		/*
+		 * SPLITTING PROBES. This test failed once already with an empty
+		 * activation list, which says only "nothing was clicked" and names
+		 * none of the four links in the chain that could have broken it.
+		 * Each probe below fails with its own cause, so a red run points at
+		 * one link instead of at the harness.
+		 *
+		 * Probe 1 — the cell `activateSearchResult()` will look for exists,
+		 * found the same way it finds it (`data-placement-id`), and carries
+		 * an anchor with a non-empty href. If the anchor is missing, the app
+		 * falls through to `el.focus()` and no click is ever dispatched —
+		 * that would be a product finding about tiles seeded via the API,
+		 * not a fault in this harness.
+		 */
+		const anchors = await page.locator(`${GRID_ITEM}[data-placement-id] a[href]`).count()
+		expect(
+			anchors,
+			'SPLITTING PROBE 1: the rendered tiles must carry an a[href] — activateSearchResult() clicks that anchor, '
+			+ 'and falls back to focusing the cell when it is absent, in which case no click can ever be recorded',
+		).toBeGreaterThan(0)
+
+		// Probe 2 — Enter is only meaningful while the bar holds focus.
+		await expect(
+			input,
+			'SPLITTING PROBE 2: the search input must still hold focus when Enter is pressed',
+		).toBeFocused()
 
 		await page.keyboard.press('Enter')
 

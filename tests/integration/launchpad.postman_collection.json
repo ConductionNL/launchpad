@@ -677,10 +677,19 @@
 									"    pm.expect(body).to.include('id=\"app-workspace\"');",
 									"    pm.expect(body).to.include('id=\"workspace-vue\"');",
 									"});",
-									"pm.test('boots the workspace bundle, not the public-share bundle', () => {",
+									"// The mount ids ARE the 'which SPA is this' claim: #workspace-vue is",
+									"// src/main.js's el and #public-share-vue is src/public.js's, and the two",
+									"// templates are mutually exclusive.",
+									"//",
+									"// This deliberately does NOT assert the <script src=\"…launchpad-main…\">",
+									"// tag. Nextcloud's JS resource locator emits a tag only for a file that",
+									"// exists on disk, and THIS JOB NEVER BUILDS THE FRONTEND — it runs",
+									"// composer install and nothing else — so the tag is absent here and",
+									"// present locally. That assertion measured the CI fixture, not launchpad.",
+									"pm.test('is the workspace page and not the public-share page', () => {",
 									"    const body = pm.response.text();",
-									"    pm.expect(body).to.include('launchpad-main');",
 									"    pm.expect(body).to.not.include('id=\"app-public-share\"');",
+									"    pm.expect(body).to.not.include('id=\"public-share-vue\"');",
 									"});"
 								]
 							}
@@ -842,10 +851,13 @@
 									"    pm.expect(body).to.include('id=\"app-public-share\"');",
 									"    pm.expect(body).to.include('id=\"public-share-vue\"');",
 									"    pm.expect(body).to.not.include('id=\"app-workspace\"');",
+									"    pm.expect(body).to.not.include('id=\"workspace-vue\"');",
 									"});",
-									"pm.test('boots the standalone public bundle', () => {",
-									"    pm.expect(pm.response.text()).to.include('launchpad-public');",
-									"});"
+									"// There was a `to.include('launchpad-public')` assertion here. It could",
+									"// not fail: templates/public.php carries class=\"launchpad-public-share\",",
+									"// so the needle was a substring of the shell's own markup whether or not",
+									"// any bundle existed. It read as a script-tag check and was a tautology —",
+									"// removed rather than left passing for the wrong reason."
 								]
 							}
 						}

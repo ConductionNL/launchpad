@@ -17,7 +17,7 @@
 		"lint:fix": "eslint src --fix",
 		"lint:initial-state": "node ./scripts/lint-initial-state.js",
 		"lint:translation-domain": "node ./scripts/lint-translation-domain.js",
-		"stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
+		"stylelint": "stylelint \"src/**/*.{vue,scss,css}\"",
 		"stylelint:fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix",
 		"test": "vitest run",
 		"test:watch": "vitest",

@@ -47,48 +47,47 @@ use OCP\Migration\SimpleMigrationStep;
  *
  * @spec openspec/changes/retire-groupfolder-storage-backend/tasks.md#task-3
  */
-class Version002009Date20260811000000 extends SimpleMigrationStep
-{
-    /**
-     * Alter the database schema to drop the content storage columns.
-     *
-     * Each column is dropped only when present, so the step is idempotent and
-     * safe on an install that never ran Version002001Date20260603000000.
-     *
-     * @param IOutput $output        Migration output.
-     * @param Closure $schemaClosure Schema closure (provides ISchemaWrapper).
-     * @param array   $options       Migration options (unused).
-     *
-     * @return ISchemaWrapper|null The modified schema, or null when unchanged.
-     *
-     * @spec openspec/changes/retire-groupfolder-storage-backend/tasks.md#task-3
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        // @var ISchemaWrapper $schema.
-        $schema = $schemaClosure();
+class Version002009Date20260811000000 extends SimpleMigrationStep {
+	/**
+	 * Alter the database schema to drop the content storage columns.
+	 *
+	 * Each column is dropped only when present, so the step is idempotent and
+	 * safe on an install that never ran Version002001Date20260603000000.
+	 *
+	 * @param IOutput $output Migration output.
+	 * @param Closure $schemaClosure Schema closure (provides ISchemaWrapper).
+	 * @param array $options Migration options (unused).
+	 *
+	 * @return ISchemaWrapper|null The modified schema, or null when unchanged.
+	 *
+	 * @spec openspec/changes/retire-groupfolder-storage-backend/tasks.md#task-3
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		// @var ISchemaWrapper $schema.
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return null;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return null;
+		}
 
-        $table   = $schema->getTable('launchpad_dashboards');
-        $changed = false;
+		$table = $schema->getTable('launchpad_dashboards');
+		$changed = false;
 
-        foreach (['content', 'locale'] as $column) {
-            if ($table->hasColumn($column) === true) {
-                $table->dropColumn($column);
-                $changed = true;
-            }
-        }
+		foreach (['content', 'locale'] as $column) {
+			if ($table->hasColumn($column) === true) {
+				$table->dropColumn($column);
+				$changed = true;
+			}
+		}
 
-        if ($changed === false) {
-            return null;
-        }
+		if ($changed === false) {
+			return null;
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

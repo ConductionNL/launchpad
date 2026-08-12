@@ -52,289 +52,282 @@ use OCP\IUserSession;
 /**
  * Org-wide navigation editor REST surface.
  */
-class AdminOrgNavigationController extends Controller
-{
-    /**
-     * Setting key for the global navigation rail position
-     * (REQ-ONAV-004). Stored in `launchpad_admin_settings` rather than
-     * `IAppData` because it is a scalar enum, not a tree.
-     *
-     * @var string
-     */
-    public const SETTING_KEY_POSITION = 'org_navigation_position';
+class AdminOrgNavigationController extends Controller {
+	/**
+	 * Setting key for the global navigation rail position
+	 * (REQ-ONAV-004). Stored in `launchpad_admin_settings` rather than
+	 * `IAppData` because it is a scalar enum, not a tree.
+	 *
+	 * @var string
+	 */
+	public const SETTING_KEY_POSITION = 'org_navigation_position';
 
-    /**
-     * Allowed values for the position setting (REQ-ONAV-004).
-     *
-     * @var array<int, string>
-     */
-    public const ALLOWED_POSITIONS = ['left', 'right', 'top', 'hidden'];
+	/**
+	 * Allowed values for the position setting (REQ-ONAV-004).
+	 *
+	 * @var array<int, string>
+	 */
+	public const ALLOWED_POSITIONS = ['left', 'right', 'top', 'hidden'];
 
-    /**
-     * Default position when the setting is unset (REQ-ONAV-004).
-     *
-     * @var string
-     */
-    public const DEFAULT_POSITION = 'hidden';
+	/**
+	 * Default position when the setting is unset (REQ-ONAV-004).
+	 *
+	 * @var string
+	 */
+	public const DEFAULT_POSITION = 'hidden';
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest             $request      Inbound request.
-     * @param OrgNavigationService $service      Tree storage + filter
-     *                                           service.
-     * @param AdminSettingMapper   $settings     Persistence layer for
-     *                                           the position scalar.
-     * @param IUserSession         $userSession  Current user session.
-     * @param IGroupManager        $groupManager Admin check for write endpoints.
-     * @param ActionAuthService    $actionAuth   ADR-023 action authorization.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly OrgNavigationService $service,
-        private readonly AdminSettingMapper $settings,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-        private readonly ActionAuthService $actionAuth,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request Inbound request.
+	 * @param OrgNavigationService $service Tree storage + filter
+	 *                                      service.
+	 * @param AdminSettingMapper $settings Persistence layer for
+	 *                                     the position scalar.
+	 * @param IUserSession $userSession Current user session.
+	 * @param IGroupManager $groupManager Admin check for write endpoints.
+	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly OrgNavigationService $service,
+		private readonly AdminSettingMapper $settings,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+		private readonly ActionAuthService $actionAuth,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Inline admin guard (returns null when the caller is an NC admin).
-     *
-     * @return JSONResponse|null Non-null = caller must be rejected.
-     */
-    private function assertAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                data: ['error' => 'Not authenticated'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Inline admin guard (returns null when the caller is an NC admin).
+	 *
+	 * @return JSONResponse|null Non-null = caller must be rejected.
+	 */
+	private function assertAdmin(): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(
+				data: ['error' => 'Not authenticated'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-            return new JSONResponse(
-                data: ['error' => 'Admin required'],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }
+		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
+			return new JSONResponse(
+				data: ['error' => 'Admin required'],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}
 
-        return null;
-    }//end assertAdmin()
+		return null;
+	}//end assertAdmin()
 
-    /**
-     * Read the org-navigation tree filtered for the current user.
-     *
-     * Accessible to any logged-in user (REQ-ONAV-002).
-     *
-     * @param string $lang Language code (defaults to `nl`).
-     *
-     * @return JSONResponse The filtered tree under `tree` plus the
-     *                      effective `language`.
-         *
-     * @spec openspec/specs/navigation-editor-org/spec.md
- */
-    #[NoAdminRequired]
-    public function getOrgNavigation(string $lang=OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Read the org-navigation tree filtered for the current user.
+	 *
+	 * Accessible to any logged-in user (REQ-ONAV-002).
+	 *
+	 * @param string $lang Language code (defaults to `nl`).
+	 *
+	 * @return JSONResponse The filtered tree under `tree` plus the
+	 *                      effective `language`.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 */
+	#[NoAdminRequired]
+	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        $language = $this->validateLanguage(language: $lang);
-        if ($language === null) {
-            return new JSONResponse(
-                data: ['error' => 'Unsupported language'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		$language = $this->validateLanguage(language: $lang);
+		if ($language === null) {
+			return new JSONResponse(
+				data: ['error' => 'Unsupported language'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        $tree     = $this->service->getTree(language: $language);
-        $filtered = $this->service->filterTreeByUserGroups(
-            tree: $tree,
-            userId: $user->getUID()
-        );
+		$tree = $this->service->getTree(language: $language);
+		$filtered = $this->service->filterTreeByUserGroups(
+			tree: $tree,
+			userId: $user->getUID()
+		);
 
-        return ResponseHelper::success(
-            data: [
-                'tree'     => $filtered,
-                'language' => $language,
-            ]
-        );
-    }//end getOrgNavigation()
+		return ResponseHelper::success(
+			data: [
+				'tree' => $filtered,
+				'language' => $language,
+			]
+		);
+	}//end getOrgNavigation()
 
-    /**
-     * Replace the org-navigation tree for the given language.
-     *
-     * Admin-only (REQ-ONAV-003); validates and persists in one go.
-     *
-     * @param array|null $tree The full replacement tree.
-     * @param string     $lang Language code (defaults to `nl`).
-     *
-     * @return JSONResponse The persisted tree (unchanged) on success.
-         *
-     * @spec openspec/specs/navigation-editor-org/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function updateOrgNavigation(
-        ?array $tree=null,
-        string $lang=OrgNavigationService::DEFAULT_LANGUAGE
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * Replace the org-navigation tree for the given language.
+	 *
+	 * Admin-only (REQ-ONAV-003); validates and persists in one go.
+	 *
+	 * @param array|null $tree The full replacement tree.
+	 * @param string $lang Language code (defaults to `nl`).
+	 *
+	 * @return JSONResponse The persisted tree (unchanged) on success.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateOrgNavigation(
+		?array $tree = null,
+		string $lang = OrgNavigationService::DEFAULT_LANGUAGE,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        $language = $this->validateLanguage(language: $lang);
-        if ($language === null) {
-            return new JSONResponse(
-                data: ['error' => 'Unsupported language'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		$language = $this->validateLanguage(language: $lang);
+		if ($language === null) {
+			return new JSONResponse(
+				data: ['error' => 'Unsupported language'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        if (is_array($tree) === false) {
-            return new JSONResponse(
-                data: ['error' => 'tree must be an array of node objects'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		if (is_array($tree) === false) {
+			return new JSONResponse(
+				data: ['error' => 'tree must be an array of node objects'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        try {
-            $this->service->setTree(tree: $tree, language: $language);
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$this->service->setTree(tree: $tree, language: $language);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return ResponseHelper::success(
-            data: [
-                'tree'     => $tree,
-                'language' => $language,
-            ]
-        );
-    }//end updateOrgNavigation()
+		return ResponseHelper::success(
+			data: [
+				'tree' => $tree,
+				'language' => $language,
+			]
+		);
+	}//end updateOrgNavigation()
 
-    /**
-     * Read the global rail-position setting (REQ-ONAV-004).
-     *
-     * @return JSONResponse The current effective position.
-         *
-     * @spec openspec/specs/navigation-editor-org/spec.md
- */
-    #[NoAdminRequired]
-    public function getPosition(): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Read the global rail-position setting (REQ-ONAV-004).
+	 *
+	 * @return JSONResponse The current effective position.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 */
+	#[NoAdminRequired]
+	public function getPosition(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        return ResponseHelper::success(
-            data: ['position' => $this->readPosition()]
-        );
-    }//end getPosition()
+		return ResponseHelper::success(
+			data: ['position' => $this->readPosition()]
+		);
+	}//end getPosition()
 
-    /**
-     * Replace the global rail-position setting (REQ-ONAV-004).
-     *
-     * Admin-only. Accepts `{position: 'left'|'right'|'top'|'hidden'}`.
-     *
-     * @param string|null $position The desired position.
-     *
-     * @return JSONResponse The persisted position on success.
-         *
-     * @spec openspec/specs/navigation-editor-org/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function updatePosition(?string $position=null): JSONResponse
-    {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * Replace the global rail-position setting (REQ-ONAV-004).
+	 *
+	 * Admin-only. Accepts `{position: 'left'|'right'|'top'|'hidden'}`.
+	 *
+	 * @param string|null $position The desired position.
+	 *
+	 * @return JSONResponse The persisted position on success.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updatePosition(?string $position = null): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        if ($position === null
-            || in_array(needle: $position, haystack: self::ALLOWED_POSITIONS, strict: true) === false
-        ) {
-            return new JSONResponse(
-                data: ['error' => 'position must be one of: '.implode(separator: ', ', array: self::ALLOWED_POSITIONS)],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		if ($position === null
+			|| in_array(needle: $position, haystack: self::ALLOWED_POSITIONS, strict: true) === false
+		) {
+			return new JSONResponse(
+				data: ['error' => 'position must be one of: ' . implode(separator: ', ', array: self::ALLOWED_POSITIONS)],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        $this->settings->setSetting(
-            key: self::SETTING_KEY_POSITION,
-            value: $position
-        );
+		$this->settings->setSetting(
+			key: self::SETTING_KEY_POSITION,
+			value: $position
+		);
 
-        return ResponseHelper::success(
-            data: ['position' => $position]
-        );
-    }//end updatePosition()
+		return ResponseHelper::success(
+			data: ['position' => $position]
+		);
+	}//end updatePosition()
 
-    /**
-     * Validate that a language code is one LaunchPad supports in v1.
-     *
-     * @param string $language The candidate language code.
-     *
-     * @return string|null The normalised language code, or `null`
-     *                     when the value is not supported.
-     */
-    private function validateLanguage(string $language): ?string
-    {
-        $lower = strtolower(string: trim(string: $language));
-        if (in_array(
-            needle: $lower,
-            haystack: OrgNavigationService::SUPPORTED_LANGUAGES,
-            strict: true
-        ) === false
-        ) {
-            return null;
-        }
+	/**
+	 * Validate that a language code is one LaunchPad supports in v1.
+	 *
+	 * @param string $language The candidate language code.
+	 *
+	 * @return string|null The normalised language code, or `null`
+	 *                     when the value is not supported.
+	 */
+	private function validateLanguage(string $language): ?string {
+		$lower = strtolower(string: trim(string: $language));
+		if (in_array(
+			needle: $lower,
+			haystack: OrgNavigationService::SUPPORTED_LANGUAGES,
+			strict: true
+		) === false
+		) {
+			return null;
+		}
 
-        return $lower;
-    }//end validateLanguage()
+		return $lower;
+	}//end validateLanguage()
 
-    /**
-     * Read the persisted position with a default fallback.
-     *
-     * @return string Always one of {@see self::ALLOWED_POSITIONS}.
-     */
-    private function readPosition(): string
-    {
-        $raw = $this->settings->getValue(
-            key: self::SETTING_KEY_POSITION,
-            default: self::DEFAULT_POSITION
-        );
+	/**
+	 * Read the persisted position with a default fallback.
+	 *
+	 * @return string Always one of {@see self::ALLOWED_POSITIONS}.
+	 */
+	private function readPosition(): string {
+		$raw = $this->settings->getValue(
+			key: self::SETTING_KEY_POSITION,
+			default: self::DEFAULT_POSITION
+		);
 
-        if (is_string($raw) === false
-            || in_array(needle: $raw, haystack: self::ALLOWED_POSITIONS, strict: true) === false
-        ) {
-            return self::DEFAULT_POSITION;
-        }
+		if (is_string($raw) === false
+			|| in_array(needle: $raw, haystack: self::ALLOWED_POSITIONS, strict: true) === false
+		) {
+			return self::DEFAULT_POSITION;
+		}
 
-        return $raw;
-    }//end readPosition()
+		return $raw;
+	}//end readPosition()
 }//end class

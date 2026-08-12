@@ -70,247 +70,243 @@ use OCP\IUserSession;
  *  service it must query to answer one request. Splitting the controller would
  *  move the coupling rather than remove it.
  */
-class TileAnalyticsController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest             $request              The HTTP request.
-     * @param TileAnalyticsService $tileAnalyticsService The tile analytics
-     *                                                   service.
-     * @param ActionAuthService    $actionAuth           ADR-023 action
-     *                                                   authorization.
-     * @param IUserSession         $userSession          Current user session.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly TileAnalyticsService $tileAnalyticsService,
-        private readonly ActionAuthService $actionAuth,
-        private readonly IUserSession $userSession,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class TileAnalyticsController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The HTTP request.
+	 * @param TileAnalyticsService $tileAnalyticsService The tile analytics
+	 *                                                   service.
+	 * @param ActionAuthService $actionAuth ADR-023 action
+	 *                                      authorization.
+	 * @param IUserSession $userSession Current user session.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly TileAnalyticsService $tileAnalyticsService,
+		private readonly ActionAuthService $actionAuth,
+		private readonly IUserSession $userSession,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Handle `POST /api/tile-click/{placementId}` (REQ-TANLT-002).
-     *
-     * Authenticated users only — empty body. Returns HTTP 204 after
-     * the daily counter has been incremented (or short-circuited to a
-     * silent no-op per REQ-TANLT-003). Returns 404 when the placement
-     * does not exist.
-     *
-     * @param string $placementId The widget-placement (tile) ID from
-     *                            the URL (numeric — enforced by the
-     *                            route `requirements`).
-     *
-     * @return JSONResponse An empty 204 response, 401 when
-     *                      unauthenticated, 404 when the placement
-     *                      does not exist.
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    #[NoAdminRequired]
-    public function recordClick(string $placementId): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `POST /api/tile-click/{placementId}` (REQ-TANLT-002).
+	 *
+	 * Authenticated users only — empty body. Returns HTTP 204 after
+	 * the daily counter has been incremented (or short-circuited to a
+	 * silent no-op per REQ-TANLT-003). Returns 404 when the placement
+	 * does not exist.
+	 *
+	 * @param string $placementId The widget-placement (tile) ID from
+	 *                            the URL (numeric — enforced by the
+	 *                            route `requirements`).
+	 *
+	 * @return JSONResponse An empty 204 response, 401 when
+	 *                      unauthenticated, 404 when the placement
+	 *                      does not exist.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[NoAdminRequired]
+	public function recordClick(string $placementId): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'tile-analytics.record-click');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'tile-analytics.record-click');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $this->tileAnalyticsService->recordClick(
-                placementId: (int) $placementId,
-                userId: $user->getUID()
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: [
-                    'status' => 'error',
-                    'error'  => 'not_found',
-                ],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        }
+		try {
+			$this->tileAnalyticsService->recordClick(
+				placementId: (int)$placementId,
+				userId: $user->getUID()
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'not_found',
+				],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		}
 
-        return new JSONResponse(
-            data: [],
-            statusCode: Http::STATUS_NO_CONTENT
-        );
-    }//end recordClick()
+		return new JSONResponse(
+			data: [],
+			statusCode: Http::STATUS_NO_CONTENT
+		);
+	}//end recordClick()
 
-    /**
-     * Handle `GET /api/tile-analytics/config`.
-     *
-     * Lets the frontend hook know whether tracking is currently
-     * active for the calling user, so it can suppress the fire-and-
-     * forget record call when analytics is globally disabled or the
-     * user has opted out — without re-implementing either gate
-     * client-side (REQ-TANLT-003).
-     *
-     * @return JSONResponse `{"enabled": bool}`; 401 when
-     *                      unauthenticated.
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    #[NoAdminRequired]
-    public function config(): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/tile-analytics/config`.
+	 *
+	 * Lets the frontend hook know whether tracking is currently
+	 * active for the calling user, so it can suppress the fire-and-
+	 * forget record call when analytics is globally disabled or the
+	 * user has opted out — without re-implementing either gate
+	 * client-side (REQ-TANLT-003).
+	 *
+	 * @return JSONResponse `{"enabled": bool}`; 401 when
+	 *                      unauthenticated.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[NoAdminRequired]
+	public function config(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        return ResponseHelper::success(
-            data: [
-                'enabled' => $this->tileAnalyticsService->isTrackingActiveFor(userId: $user->getUID()),
-            ]
-        );
-    }//end config()
+		return ResponseHelper::success(
+			data: [
+				'enabled' => $this->tileAnalyticsService->isTrackingActiveFor(userId: $user->getUID()),
+			]
+		);
+	}//end config()
 
-    /**
-     * Handle `GET /api/admin/analytics/tiles/top` (REQ-TANLT-004).
-     *
-     * @param string $period The period string (`7d`, `30d`, `90d`).
-     * @param int    $limit  Maximum rows.
-     *
-     * @return JSONResponse The response.
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function topTiles(
-        string $period='30d',
-        int $limit=10
-    ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/tiles/top` (REQ-TANLT-004).
+	 *
+	 * @param string $period The period string (`7d`, `30d`, `90d`).
+	 * @param int $limit Maximum rows.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function topTiles(
+		string $period = '30d',
+		int $limit = 10,
+	): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'tile-analytics.top-tiles');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'tile-analytics.top-tiles');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $rows = $this->tileAnalyticsService->getTopTiles(
-                period: $period,
-                limit: $limit
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$rows = $this->tileAnalyticsService->getTopTiles(
+				period: $period,
+				limit: $limit
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return ResponseHelper::success(data: $rows);
-    }//end topTiles()
+		return ResponseHelper::success(data: $rows);
+	}//end topTiles()
 
-    /**
-     * Handle `GET /api/admin/analytics/tiles/by-dashboard/{uuid}`
-     * (REQ-TANLT-004).
-     *
-     * @param string $uuid   The dashboard UUID from the URL.
-     * @param string $period The period string.
-     *
-     * @return JSONResponse The response.
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function dashboardBreakdown(
-        string $uuid,
-        string $period='30d'
-    ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/tiles/by-dashboard/{uuid}`
+	 * (REQ-TANLT-004).
+	 *
+	 * @param string $uuid The dashboard UUID from the URL.
+	 * @param string $period The period string.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function dashboardBreakdown(
+		string $uuid,
+		string $period = '30d',
+	): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'tile-analytics.dashboard-breakdown');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'tile-analytics.dashboard-breakdown');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $rows = $this->tileAnalyticsService->getDashboardBreakdown(
-                dashboardUuid: $uuid,
-                period: $period
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$rows = $this->tileAnalyticsService->getDashboardBreakdown(
+				dashboardUuid: $uuid,
+				period: $period
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return ResponseHelper::success(data: $rows);
-    }//end dashboardBreakdown()
+		return ResponseHelper::success(data: $rows);
+	}//end dashboardBreakdown()
 
-    /**
-     * Handle `GET /api/admin/analytics/tiles/export` (REQ-TANLT-005).
-     *
-     * Returns a `text/csv` attachment with the filename
-     * `tile-analytics-YYYY-MM-DD.csv` (today's UTC date).
-     *
-     * @param string $period The period string.
-     *
-     * @return Response The CSV download response or a JSON error
-     *                  envelope.
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function exportCsv(string $period='30d'): Response
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/tiles/export` (REQ-TANLT-005).
+	 *
+	 * Returns a `text/csv` attachment with the filename
+	 * `tile-analytics-YYYY-MM-DD.csv` (today's UTC date).
+	 *
+	 * @param string $period The period string.
+	 *
+	 * @return Response The CSV download response or a JSON error
+	 *                  envelope.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function exportCsv(string $period = '30d'): Response {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'tile-analytics.export-csv');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'tile-analytics.export-csv');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $csv = $this->tileAnalyticsService->generateCsvExport(period: $period);
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$csv = $this->tileAnalyticsService->generateCsvExport(period: $period);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return new DataDownloadResponse(
-            data: $csv,
-            filename: $this->tileAnalyticsService->csvExportFilename(),
-            contentType: 'text/csv'
-        );
-    }//end exportCsv()
+		return new DataDownloadResponse(
+			data: $csv,
+			filename: $this->tileAnalyticsService->csvExportFilename(),
+			contentType: 'text/csv'
+		);
+	}//end exportCsv()
 }//end class

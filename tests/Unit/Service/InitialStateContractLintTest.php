@@ -30,56 +30,54 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
 
-class InitialStateContractLintTest extends TestCase
-{
-    private const ALLOWED_FILE = 'InitialStateBuilder.php';
+class InitialStateContractLintTest extends TestCase {
+	private const ALLOWED_FILE = 'InitialStateBuilder.php';
 
-    public function testNoDirectProvideInitialStateCallsOutsideBuilder(): void
-    {
-        $libDir = dirname(__DIR__, 3) . '/lib';
-        $this->assertDirectoryExists($libDir);
+	public function testNoDirectProvideInitialStateCallsOutsideBuilder(): void {
+		$libDir = dirname(__DIR__, 3) . '/lib';
+		$this->assertDirectoryExists($libDir);
 
-        $offenders = [];
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(
-                $libDir,
-                RecursiveDirectoryIterator::SKIP_DOTS
-            )
-        );
+		$offenders = [];
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$libDir,
+				RecursiveDirectoryIterator::SKIP_DOTS
+			)
+		);
 
-        /** @var SplFileInfo $file */
-        foreach ($iterator as $file) {
-            if ($file->isFile() === false) {
-                continue;
-            }
-            if ($file->getExtension() !== 'php') {
-                continue;
-            }
-            if ($file->getFilename() === self::ALLOWED_FILE) {
-                continue;
-            }
+		/** @var SplFileInfo $file */
+		foreach ($iterator as $file) {
+			if ($file->isFile() === false) {
+				continue;
+			}
+			if ($file->getExtension() !== 'php') {
+				continue;
+			}
+			if ($file->getFilename() === self::ALLOWED_FILE) {
+				continue;
+			}
 
-            $contents = file_get_contents($file->getPathname());
-            if ($contents === false) {
-                continue;
-            }
+			$contents = file_get_contents($file->getPathname());
+			if ($contents === false) {
+				continue;
+			}
 
-            // Strip docblock contents so doc references to the method
-            // (allowed) do not trigger the lint.
-            $stripped = preg_replace('!/\*.*?\*/!s', '', $contents);
-            if ($stripped !== null
-                && preg_match('/\bprovideInitialState\s*\(/', $stripped) === 1
-            ) {
-                $offenders[] = $file->getPathname();
-            }
-        }
+			// Strip docblock contents so doc references to the method
+			// (allowed) do not trigger the lint.
+			$stripped = preg_replace('!/\*.*?\*/!s', '', $contents);
+			if ($stripped !== null
+				&& preg_match('/\bprovideInitialState\s*\(/', $stripped) === 1
+			) {
+				$offenders[] = $file->getPathname();
+			}
+		}
 
-        $this->assertSame(
-            [],
-            $offenders,
-            'Direct provideInitialState() call found outside InitialStateBuilder. '
-            . 'Use OCA\\LaunchPad\\Service\\InitialStateBuilder instead. Offenders: '
-            . implode(', ', $offenders)
-        );
-    }
+		$this->assertSame(
+			[],
+			$offenders,
+			'Direct provideInitialState() call found outside InitialStateBuilder. '
+			. 'Use OCA\\LaunchPad\\Service\\InitialStateBuilder instead. Offenders: '
+			. implode(', ', $offenders)
+		);
+	}
 }

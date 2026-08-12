@@ -33,99 +33,92 @@ use ReflectionClass;
 use RuntimeException;
 
 #[Small]
-class HealthPingRefreshJobTest extends TestCase
-{
+class HealthPingRefreshJobTest extends TestCase {
 
-    /** @var ITimeFactory&MockObject */
-    private $time;
+	/** @var ITimeFactory&MockObject */
+	private $time;
 
-    /** @var HealthPingService&MockObject */
-    private $healthPingService;
+	/** @var HealthPingService&MockObject */
+	private $healthPingService;
 
-    /** @var LoggerInterface&MockObject */
-    private $logger;
+	/** @var LoggerInterface&MockObject */
+	private $logger;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+	protected function setUp(): void {
+		parent::setUp();
 
-        $this->time              = $this->createMock(originalClassName: ITimeFactory::class);
-        $this->healthPingService = $this->createMock(originalClassName: HealthPingService::class);
-        $this->logger             = $this->createMock(originalClassName: LoggerInterface::class);
+		$this->time = $this->createMock(originalClassName: ITimeFactory::class);
+		$this->healthPingService = $this->createMock(originalClassName: HealthPingService::class);
+		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 
-        $this->time->method('getTime')->willReturn(1000);
-    }//end setUp()
+		$this->time->method('getTime')->willReturn(1000);
+	}//end setUp()
 
-    /**
-     * The constructor sets the fixed run interval.
-     *
-     * @return void
-     */
-    public function testIntervalIsFixedAtFifteenSeconds(): void
-    {
-        $job = $this->buildJob();
-        $this->assertSame(HealthPingRefreshJob::INTERVAL_SECONDS, $job->getInterval());
-    }//end testIntervalIsFixedAtFifteenSeconds()
+	/**
+	 * The constructor sets the fixed run interval.
+	 *
+	 * @return void
+	 */
+	public function testIntervalIsFixedAtFifteenSeconds(): void {
+		$job = $this->buildJob();
+		$this->assertSame(HealthPingRefreshJob::INTERVAL_SECONDS, $job->getInterval());
+	}//end testIntervalIsFixedAtFifteenSeconds()
 
-    /**
-     * `run()` delegates to `HealthPingService::refreshDuePlacements()`.
-     *
-     * @return void
-     */
-    public function testRunDelegatesToRefreshDuePlacements(): void
-    {
-        $this->healthPingService->expects($this->once())
-            ->method('refreshDuePlacements')
-            ->willReturn(3);
+	/**
+	 * `run()` delegates to `HealthPingService::refreshDuePlacements()`.
+	 *
+	 * @return void
+	 */
+	public function testRunDelegatesToRefreshDuePlacements(): void {
+		$this->healthPingService->expects($this->once())
+			->method('refreshDuePlacements')
+			->willReturn(3);
 
-        $job = $this->buildJob();
-        $this->invokeRun(job: $job);
-        $this->assertTrue(condition: true);
-    }//end testRunDelegatesToRefreshDuePlacements()
+		$job = $this->buildJob();
+		$this->invokeRun(job: $job);
+		$this->assertTrue(condition: true);
+	}//end testRunDelegatesToRefreshDuePlacements()
 
-    /**
-     * `run()` never lets a service-level exception escape — the job list
-     * must not be poisoned by one broken tick.
-     *
-     * @return void
-     */
-    public function testRunSwallowsServiceException(): void
-    {
-        $this->healthPingService->method('refreshDuePlacements')
-            ->willThrowException(new RuntimeException('unexpected failure'));
+	/**
+	 * `run()` never lets a service-level exception escape — the job list
+	 * must not be poisoned by one broken tick.
+	 *
+	 * @return void
+	 */
+	public function testRunSwallowsServiceException(): void {
+		$this->healthPingService->method('refreshDuePlacements')
+			->willThrowException(new RuntimeException('unexpected failure'));
 
-        $job = $this->buildJob();
-        // No exception should propagate out of run().
-        $this->invokeRun(job: $job);
-        $this->assertTrue(condition: true);
-    }//end testRunSwallowsServiceException()
+		$job = $this->buildJob();
+		// No exception should propagate out of run().
+		$this->invokeRun(job: $job);
+		$this->assertTrue(condition: true);
+	}//end testRunSwallowsServiceException()
 
-    /**
-     * Build the job under test using the current mock state.
-     *
-     * @return HealthPingRefreshJob
-     */
-    private function buildJob(): HealthPingRefreshJob
-    {
-        return new HealthPingRefreshJob(
-            time: $this->time,
-            healthPingService: $this->healthPingService,
-            logger: $this->logger,
-        );
-    }//end buildJob()
+	/**
+	 * Build the job under test using the current mock state.
+	 *
+	 * @return HealthPingRefreshJob
+	 */
+	private function buildJob(): HealthPingRefreshJob {
+		return new HealthPingRefreshJob(
+			time: $this->time,
+			healthPingService: $this->healthPingService,
+			logger: $this->logger,
+		);
+	}//end buildJob()
 
-    /**
-     * Invoke the protected `run` method via reflection.
-     *
-     * @param HealthPingRefreshJob $job The job under test.
-     *
-     * @return void
-     */
-    private function invokeRun(HealthPingRefreshJob $job): void
-    {
-        $ref    = new ReflectionClass(objectOrClass: $job);
-        $method = $ref->getMethod(name: 'run');
-        $method->setAccessible(accessible: true);
-        $method->invoke($job, null);
-    }//end invokeRun()
+	/**
+	 * Invoke the protected `run` method via reflection.
+	 *
+	 * @param HealthPingRefreshJob $job The job under test.
+	 *
+	 * @return void
+	 */
+	private function invokeRun(HealthPingRefreshJob $job): void {
+		$ref = new ReflectionClass(objectOrClass: $job);
+		$method = $ref->getMethod(name: 'run');
+		$method->setAccessible(accessible: true);
+		$method->invoke($job, null);
+	}//end invokeRun()
 }//end class

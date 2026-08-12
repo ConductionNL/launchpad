@@ -64,104 +64,101 @@ use Throwable;
 /**
  * Import the LaunchPad register descriptor into OpenRegister.
  */
-class ImportLaunchpadRegister implements IRepairStep
-{
-    /**
-     * App-relative path to the register descriptor.
-     *
-     * @var string
-     */
-    private const REGISTER_PATH = '/lib/Settings/launchpad_register.json';
+class ImportLaunchpadRegister implements IRepairStep {
+	/**
+	 * App-relative path to the register descriptor.
+	 *
+	 * @var string
+	 */
+	private const REGISTER_PATH = '/lib/Settings/launchpad_register.json';
 
-    /**
-     * Descriptor version handed to the importer's version_compare gate.
-     *
-     * Kept in step with `info.version` in the descriptor. The import is also
-     * content-authoritative for schemas — OpenRegister's
-     * `ImportHandler::schemaContentDiffers()` compares properties, required and
-     * authorization — so a schema edit still applies even when this version has
-     * not moved.
-     *
-     * @var string
-     */
-    private const REGISTER_VERSION = '1.0.1';
+	/**
+	 * Descriptor version handed to the importer's version_compare gate.
+	 *
+	 * Kept in step with `info.version` in the descriptor. The import is also
+	 * content-authoritative for schemas — OpenRegister's
+	 * `ImportHandler::schemaContentDiffers()` compares properties, required and
+	 * authorization — so a schema edit still applies even when this version has
+	 * not moved.
+	 *
+	 * @var string
+	 */
+	private const REGISTER_VERSION = '1.0.1';
 
-    /**
-     * Constructor.
-     *
-     * @param ContainerInterface $container  Resolves OpenRegister's
-     *                                       ConfigurationService lazily, by string,
-     *                                       so this file holds no compile-time
-     *                                       reference to a class that may be absent.
-     * @param IAppManager        $appManager Resolves this app's path on disk.
-     * @param LoggerInterface    $logger     PSR logger.
-     */
-    public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly IAppManager $appManager,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param ContainerInterface $container Resolves OpenRegister's
+	 *                                      ConfigurationService lazily, by string,
+	 *                                      so this file holds no compile-time
+	 *                                      reference to a class that may be absent.
+	 * @param IAppManager $appManager Resolves this app's path on disk.
+	 * @param LoggerInterface $logger PSR logger.
+	 */
+	public function __construct(
+		private readonly ContainerInterface $container,
+		private readonly IAppManager $appManager,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Human-readable step name shown by `occ upgrade`.
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return 'Import the LaunchPad register (launchpad register + dashboard schema)';
-    }//end getName()
+	/**
+	 * Human-readable step name shown by `occ upgrade`.
+	 *
+	 * @return string
+	 */
+	public function getName(): string {
+		return 'Import the LaunchPad register (launchpad register + dashboard schema)';
+	}//end getName()
 
-    /**
-     * Import the descriptor, degrading to a warning on any failure.
-     *
-     * Never throws. OpenRegister is an optional dependency — an instance without
-     * it must still install launchpad, it simply has no OR-backed dashboards. An
-     * exception here would abort the whole upgrade.
-     *
-     * @param IOutput $output Output interface for status messages.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/runtime-shell/spec.md
-     */
-    public function run(IOutput $output): void
-    {
-        try {
-            $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
-        } catch (Throwable $e) {
-            $output->info('LaunchPad: OpenRegister not available — skipping register import.');
-            return;
-        }
+	/**
+	 * Import the descriptor, degrading to a warning on any failure.
+	 *
+	 * Never throws. OpenRegister is an optional dependency — an instance without
+	 * it must still install launchpad, it simply has no OR-backed dashboards. An
+	 * exception here would abort the whole upgrade.
+	 *
+	 * @param IOutput $output Output interface for status messages.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 */
+	public function run(IOutput $output): void {
+		try {
+			$configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
+		} catch (Throwable $e) {
+			$output->info('LaunchPad: OpenRegister not available — skipping register import.');
+			return;
+		}
 
-        try {
-            $path = $this->appManager->getAppPath('launchpad').self::REGISTER_PATH;
-            if (is_file($path) === false) {
-                $output->warning('LaunchPad register descriptor not found: '.$path);
-                return;
-            }
+		try {
+			$path = $this->appManager->getAppPath('launchpad') . self::REGISTER_PATH;
+			if (is_file($path) === false) {
+				$output->warning('LaunchPad register descriptor not found: ' . $path);
+				return;
+			}
 
-            // The importer takes the DECODED descriptor. Its sibling
-            // importFromFilePath() expects a Nextcloud-root-relative path and
-            // would fail closed on this absolute one.
-            $data = json_decode((string) file_get_contents($path), true);
-            if (is_array($data) === false) {
-                $output->warning('LaunchPad register descriptor is not valid JSON: '.$path);
-                return;
-            }
+			// The importer takes the DECODED descriptor. Its sibling
+			// importFromFilePath() expects a Nextcloud-root-relative path and
+			// would fail closed on this absolute one.
+			$data = json_decode((string)file_get_contents($path), true);
+			if (is_array($data) === false) {
+				$output->warning('LaunchPad register descriptor is not valid JSON: ' . $path);
+				return;
+			}
 
-            $configurationService->importFromApp(
-                appId: 'launchpad',
-                data: $data,
-                version: self::REGISTER_VERSION,
-                force: false
-            );
+			$configurationService->importFromApp(
+				appId: 'launchpad',
+				data: $data,
+				version: self::REGISTER_VERSION,
+				force: false
+			);
 
-            $output->info('LaunchPad register imported (launchpad register + dashboard schema)');
-        } catch (Throwable $e) {
-            $this->logger->warning('[ImportLaunchpadRegister] import failed: '.$e->getMessage());
-            $output->warning('LaunchPad register import skipped: '.$e->getMessage());
-        }//end try
-    }//end run()
+			$output->info('LaunchPad register imported (launchpad register + dashboard schema)');
+		} catch (Throwable $e) {
+			$this->logger->warning('[ImportLaunchpadRegister] import failed: ' . $e->getMessage());
+			$output->warning('LaunchPad register import skipped: ' . $e->getMessage());
+		}//end try
+	}//end run()
 }//end class

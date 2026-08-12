@@ -47,41 +47,40 @@ use OCP\Migration\SimpleMigrationStep;
  *
  * @spec openspec/specs/admin-templates/spec.md
  */
-class Version002006Date20260723000000 extends SimpleMigrationStep
-{
-    /**
-     * Add the `template_placement_id` column to the placements table.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure Schema closure returning an ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     *
-     * @spec openspec/specs/admin-templates/spec.md
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version002006Date20260723000000 extends SimpleMigrationStep {
+	/**
+	 * Add the `template_placement_id` column to the placements table.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure Schema closure returning an ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_widget_placements') === true) {
-            $placements = $schema->getTable('launchpad_widget_placements');
+		if ($schema->hasTable('launchpad_widget_placements') === true) {
+			$placements = $schema->getTable('launchpad_widget_placements');
 
-            if ($placements->hasColumn('template_placement_id') === false) {
-                $placements->addColumn(
-                    'template_placement_id',
-                    Types::INTEGER,
-                    [
-                        'notnull'  => false,
-                        'unsigned' => true,
-                    ]
-                );
-            }
-        }
+			if ($placements->hasColumn('template_placement_id') === false) {
+				$placements->addColumn(
+					'template_placement_id',
+					Types::INTEGER,
+					[
+						'notnull' => false,
+						'unsigned' => true,
+					]
+				);
+			}
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

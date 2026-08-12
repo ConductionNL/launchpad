@@ -47,61 +47,59 @@ use Throwable;
  *
  * @implements IEventListener<AddContentSecurityPolicyEvent>
  */
-class CspListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param IframeService   $iframeService The allow-list source of truth.
-     * @param LoggerInterface $logger        PSR-3 logger for log-and-continue
-     *                                       failure handling — a CSP
-     *                                       contribution failure must never
-     *                                       break page rendering.
-     */
-    public function __construct(
-        private readonly IframeService $iframeService,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class CspListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param IframeService $iframeService The allow-list source of truth.
+	 * @param LoggerInterface $logger PSR-3 logger for log-and-continue
+	 *                                failure handling — a CSP
+	 *                                contribution failure must never
+	 *                                break page rendering.
+	 */
+	public function __construct(
+		private readonly IframeService $iframeService,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the AddContentSecurityPolicyEvent.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/iframe-embed-widget/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof AddContentSecurityPolicyEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the AddContentSecurityPolicyEvent.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/iframe-embed-widget/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof AddContentSecurityPolicyEvent) === false) {
+			return;
+		}
 
-        try {
-            $hosts = $this->iframeService->getAllowedHosts();
-            if ($hosts === []) {
-                // FAIL-CLOSED — no configured host means nothing is added
-                // to frame-src, matching the save/render-time allow-list
-                // behaviour (REQ-IFRAME-002, REQ-IFRAME-003).
-                return;
-            }
+		try {
+			$hosts = $this->iframeService->getAllowedHosts();
+			if ($hosts === []) {
+				// FAIL-CLOSED — no configured host means nothing is added
+				// to frame-src, matching the save/render-time allow-list
+				// behaviour (REQ-IFRAME-002, REQ-IFRAME-003).
+				return;
+			}
 
-            $policy = new EmptyContentSecurityPolicy();
-            foreach ($hosts as $host) {
-                // Exact host, HTTPS only, never a wildcard
-                // (REQ-IFRAME-003 "the app MUST NOT add a wildcard (*) to
-                // frame-src").
-                $policy->addAllowedFrameDomain(domain: 'https://'.$host);
-            }
+			$policy = new EmptyContentSecurityPolicy();
+			foreach ($hosts as $host) {
+				// Exact host, HTTPS only, never a wildcard
+				// (REQ-IFRAME-003 "the app MUST NOT add a wildcard (*) to
+				// frame-src").
+				$policy->addAllowedFrameDomain(domain: 'https://' . $host);
+			}
 
-            $event->addPolicy(csp: $policy);
-        } catch (Throwable $exception) {
-            $this->logger->warning(
-                message: 'launchpad CspListener: failed to contribute iframe allow-list to frame-src',
-                context: ['app' => 'launchpad', 'exception' => $exception->getMessage()]
-            );
-        }//end try
-    }//end handle()
+			$event->addPolicy(csp: $policy);
+		} catch (Throwable $exception) {
+			$this->logger->warning(
+				message: 'launchpad CspListener: failed to contribute iframe allow-list to frame-src',
+				context: ['app' => 'launchpad', 'exception' => $exception->getMessage()]
+			);
+		}//end try
+	}//end handle()
 }//end class

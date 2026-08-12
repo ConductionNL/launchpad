@@ -27,41 +27,32 @@ use OCA\LaunchPad\Exception\ShareReadOnlyException;
 use OCA\LaunchPad\Service\PublicShareContext;
 use PHPUnit\Framework\TestCase;
 
-class PublicShareContextTest extends TestCase
-{
+class PublicShareContextTest extends TestCase {
 
+	public function testDefaultsToNonBearer(): void {
+		$ctx = new PublicShareContext();
+		$this->assertFalse($ctx->isBearer());
+		$this->assertNull($ctx->getToken());
+	}//end testDefaultsToNonBearer()
 
-    public function testDefaultsToNonBearer(): void
-    {
-        $ctx = new PublicShareContext();
-        $this->assertFalse($ctx->isBearer());
-        $this->assertNull($ctx->getToken());
-    }//end testDefaultsToNonBearer()
+	public function testRequireMutablePassesByDefault(): void {
+		$ctx = new PublicShareContext();
+		$ctx->requireMutable();
+		// No exception — control reaches here.
+		$this->assertTrue(true);
+	}//end testRequireMutablePassesByDefault()
 
+	public function testMarkBearerFlipsFlagAndStoresToken(): void {
+		$ctx = new PublicShareContext();
+		$ctx->markBearer(token: 'tok_abc123');
+		$this->assertTrue($ctx->isBearer());
+		$this->assertSame('tok_abc123', $ctx->getToken());
+	}//end testMarkBearerFlipsFlagAndStoresToken()
 
-    public function testRequireMutablePassesByDefault(): void
-    {
-        $ctx = new PublicShareContext();
-        $ctx->requireMutable();
-        // No exception — control reaches here.
-        $this->assertTrue(true);
-    }//end testRequireMutablePassesByDefault()
-
-
-    public function testMarkBearerFlipsFlagAndStoresToken(): void
-    {
-        $ctx = new PublicShareContext();
-        $ctx->markBearer(token: 'tok_abc123');
-        $this->assertTrue($ctx->isBearer());
-        $this->assertSame('tok_abc123', $ctx->getToken());
-    }//end testMarkBearerFlipsFlagAndStoresToken()
-
-
-    public function testRequireMutableThrowsAfterMarkBearer(): void
-    {
-        $ctx = new PublicShareContext();
-        $ctx->markBearer(token: 'tok_xyz');
-        $this->expectException(ShareReadOnlyException::class);
-        $ctx->requireMutable();
-    }//end testRequireMutableThrowsAfterMarkBearer()
+	public function testRequireMutableThrowsAfterMarkBearer(): void {
+		$ctx = new PublicShareContext();
+		$ctx->markBearer(token: 'tok_xyz');
+		$this->expectException(ShareReadOnlyException::class);
+		$ctx->requireMutable();
+	}//end testRequireMutableThrowsAfterMarkBearer()
 }//end class

@@ -43,147 +43,139 @@ use JsonSerializable;
 /**
  * Per-category cleanup result DTO.
  */
-class CleanupResult implements JsonSerializable
-{
-    /**
-     * Constructor.
-     *
-     * @param array<string, int> $byCategory Per-category orphan counts.
-     * @param int                $totalRows  Sum of `byCategory` values.
-     * @param int                $durationMs Wall-clock duration in
-     *                                       milliseconds.
-     * @param bool               $dryRun     True for dry-run purges; the
-     *                                       scan path always sets this
-     *                                       to `false`.
-     * @param string             $scannedAt  ISO-8601 timestamp the
-     *                                       result was produced
-     *                                       (`Y-m-d\TH:i:s\Z` UTC).
-     * @param array<int, string> $skipped    Categories that were
-     *                                       skipped (missing tables,
-     *                                       disabled feature).
-     */
-    public function __construct(
-        private array $byCategory,
-        private int $totalRows,
-        private int $durationMs,
-        private bool $dryRun,
-        private string $scannedAt,
-        private array $skipped=[],
-    ) {
-    }//end __construct()
+class CleanupResult implements JsonSerializable {
+	/**
+	 * Constructor.
+	 *
+	 * @param array<string, int> $byCategory Per-category orphan counts.
+	 * @param int $totalRows Sum of `byCategory` values.
+	 * @param int $durationMs Wall-clock duration in
+	 *                        milliseconds.
+	 * @param bool $dryRun True for dry-run purges; the
+	 *                     scan path always sets this
+	 *                     to `false`.
+	 * @param string $scannedAt ISO-8601 timestamp the
+	 *                          result was produced
+	 *                          (`Y-m-d\TH:i:s\Z` UTC).
+	 * @param array<int, string> $skipped Categories that were
+	 *                                    skipped (missing tables,
+	 *                                    disabled feature).
+	 */
+	public function __construct(
+		private array $byCategory,
+		private int $totalRows,
+		private int $durationMs,
+		private bool $dryRun,
+		private string $scannedAt,
+		private array $skipped = [],
+	) {
+	}//end __construct()
 
-    /**
-     * Build a CleanupResult from a per-category map.
-     *
-     * Sums `byCategory` to derive `totalRows` and stamps `scannedAt`
-     * with the current UTC time. Convenience constructor for both the
-     * scan and purge paths.
-     *
-     * @param array<string, int> $byCategory Per-category counts.
-     * @param int                $durationMs Wall-clock duration in ms.
-     * @param bool               $dryRun     True for dry-run purges.
-     * @param array<int, string> $skipped    Skipped category names.
-     *
-     * @return CleanupResult The constructed DTO.
-     */
-    public static function fromCounts(
-        array $byCategory,
-        int $durationMs,
-        bool $dryRun=false,
-        array $skipped=[]
-    ): CleanupResult {
-        $total = 0;
-        foreach ($byCategory as $count) {
-            $total += (int) $count;
-        }
+	/**
+	 * Build a CleanupResult from a per-category map.
+	 *
+	 * Sums `byCategory` to derive `totalRows` and stamps `scannedAt`
+	 * with the current UTC time. Convenience constructor for both the
+	 * scan and purge paths.
+	 *
+	 * @param array<string, int> $byCategory Per-category counts.
+	 * @param int $durationMs Wall-clock duration in ms.
+	 * @param bool $dryRun True for dry-run purges.
+	 * @param array<int, string> $skipped Skipped category names.
+	 *
+	 * @return CleanupResult The constructed DTO.
+	 */
+	public static function fromCounts(
+		array $byCategory,
+		int $durationMs,
+		bool $dryRun = false,
+		array $skipped = [],
+	): CleanupResult {
+		$total = 0;
+		foreach ($byCategory as $count) {
+			$total += (int)$count;
+		}
 
-        $scannedAt = (new DateTime())->format(format: 'Y-m-d\TH:i:s\Z');
+		$scannedAt = (new DateTime())->format(format: 'Y-m-d\TH:i:s\Z');
 
-        return new CleanupResult(
-            byCategory: $byCategory,
-            totalRows: $total,
-            durationMs: $durationMs,
-            dryRun: $dryRun,
-            scannedAt: $scannedAt,
-            skipped: $skipped,
-        );
-    }//end fromCounts()
+		return new CleanupResult(
+			byCategory: $byCategory,
+			totalRows: $total,
+			durationMs: $durationMs,
+			dryRun: $dryRun,
+			scannedAt: $scannedAt,
+			skipped: $skipped,
+		);
+	}//end fromCounts()
 
-    /**
-     * Get the per-category orphan count map.
-     *
-     * @return array<string, int> The per-category counts.
-     */
-    public function getByCategory(): array
-    {
-        return $this->byCategory;
-    }//end getByCategory()
+	/**
+	 * Get the per-category orphan count map.
+	 *
+	 * @return array<string, int> The per-category counts.
+	 */
+	public function getByCategory(): array {
+		return $this->byCategory;
+	}//end getByCategory()
 
-    /**
-     * Get the total row count across all categories.
-     *
-     * @return int The total.
-     */
-    public function getTotalRows(): int
-    {
-        return $this->totalRows;
-    }//end getTotalRows()
+	/**
+	 * Get the total row count across all categories.
+	 *
+	 * @return int The total.
+	 */
+	public function getTotalRows(): int {
+		return $this->totalRows;
+	}//end getTotalRows()
 
-    /**
-     * Get the wall-clock duration in milliseconds.
-     *
-     * @return int The duration.
-     */
-    public function getDurationMs(): int
-    {
-        return $this->durationMs;
-    }//end getDurationMs()
+	/**
+	 * Get the wall-clock duration in milliseconds.
+	 *
+	 * @return int The duration.
+	 */
+	public function getDurationMs(): int {
+		return $this->durationMs;
+	}//end getDurationMs()
 
-    /**
-     * Whether this result represents a dry-run.
-     *
-     * @return bool True for dry-run, false otherwise.
-     */
-    public function isDryRun(): bool
-    {
-        return $this->dryRun;
-    }//end isDryRun()
+	/**
+	 * Whether this result represents a dry-run.
+	 *
+	 * @return bool True for dry-run, false otherwise.
+	 */
+	public function isDryRun(): bool {
+		return $this->dryRun;
+	}//end isDryRun()
 
-    /**
-     * Get the ISO-8601 UTC timestamp the result was produced.
-     *
-     * @return string The timestamp.
-     */
-    public function getScannedAt(): string
-    {
-        return $this->scannedAt;
-    }//end getScannedAt()
+	/**
+	 * Get the ISO-8601 UTC timestamp the result was produced.
+	 *
+	 * @return string The timestamp.
+	 */
+	public function getScannedAt(): string {
+		return $this->scannedAt;
+	}//end getScannedAt()
 
-    /**
-     * Get the list of category names that were skipped (missing
-     * tables, disabled feature, etc).
-     *
-     * @return array<int, string> The skipped category names.
-     */
-    public function getSkipped(): array
-    {
-        return $this->skipped;
-    }//end getSkipped()
+	/**
+	 * Get the list of category names that were skipped (missing
+	 * tables, disabled feature, etc).
+	 *
+	 * @return array<int, string> The skipped category names.
+	 */
+	public function getSkipped(): array {
+		return $this->skipped;
+	}//end getSkipped()
 
-    /**
-     * Serialize to JSON for API responses.
-     *
-     * @return array The serialized result.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'byCategory' => $this->byCategory,
-            'totalRows'  => $this->totalRows,
-            'durationMs' => $this->durationMs,
-            'dryRun'     => $this->dryRun,
-            'scannedAt'  => $this->scannedAt,
-            'skipped'    => $this->skipped,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON for API responses.
+	 *
+	 * @return array The serialized result.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'byCategory' => $this->byCategory,
+			'totalRows' => $this->totalRows,
+			'durationMs' => $this->durationMs,
+			'dryRun' => $this->dryRun,
+			'scannedAt' => $this->scannedAt,
+			'skipped' => $this->skipped,
+		];
+	}//end jsonSerialize()
 }//end class

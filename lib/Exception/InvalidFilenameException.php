@@ -27,30 +27,28 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Filename failed strict validation (empty, too long, or disallowed characters).
  */
-class InvalidFilenameException extends ResourceException
-{
+class InvalidFilenameException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'invalid_filename';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'invalid_filename';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 400;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 400;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Invalid filename')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Invalid filename') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

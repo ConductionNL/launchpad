@@ -40,29 +40,27 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\Db\Tile;
 use OCA\LaunchPad\Db\TileMapper;
 
-class TileService
-{
-    /**
-     * Constructor
-     *
-     * @param TileMapper $tileMapper The tile mapper.
-     */
-    public function __construct(
-        private readonly TileMapper $tileMapper,
-    ) {
-    }//end __construct()
+class TileService {
+	/**
+	 * Constructor
+	 *
+	 * @param TileMapper $tileMapper The tile mapper.
+	 */
+	public function __construct(
+		private readonly TileMapper $tileMapper,
+	) {
+	}//end __construct()
 
-    /**
-     * Get all tiles for a user.
-     *
-     * @param string $userId The user ID.
-     *
-     * @return Tile[] Array of tiles.
-     *
-     * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
-     */
-    public function getUserTiles(string $userId): array
-    {
-        return $this->tileMapper->findByUserId(userId: $userId);
-    }//end getUserTiles()
+	/**
+	 * Get all tiles for a user.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return Tile[] Array of tiles.
+	 *
+	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-29
+	 */
+	public function getUserTiles(string $userId): array {
+		return $this->tileMapper->findByUserId(userId: $userId);
+	}//end getUserTiles()
 }//end class

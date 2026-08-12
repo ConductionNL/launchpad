@@ -38,7 +38,6 @@ use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
-use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -50,123 +49,117 @@ use Psr\Log\LoggerInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the service constructor.
  */
-class DashboardServicePersonalGatingTest extends TestCase
-{
+class DashboardServicePersonalGatingTest extends TestCase {
 
-    /** @var AdminSettingMapper&MockObject */
-    private $settingMapper;
+	/** @var AdminSettingMapper&MockObject */
+	private $settingMapper;
 
-    private DashboardService $service;
+	private DashboardService $service;
 
-    /**
-     * Set up fresh mocks per test.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Set up fresh mocks per test.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        /** @var DashboardMapper&MockObject $dashboardMapper */
-        $dashboardMapper     = $this->createMock(DashboardMapper::class);
-        /** @var WidgetPlacementMapper&MockObject $placementMapper */
-        $placementMapper     = $this->createMock(WidgetPlacementMapper::class);
-        $this->settingMapper = $this->createMock(AdminSettingMapper::class);
-        /** @var TemplateService&MockObject $templateService */
-        $templateService     = $this->createMock(TemplateService::class);
-        /** @var DashboardResolver&MockObject $dashResolver */
-        $dashResolver        = $this->createMock(DashboardResolver::class);
-        /** @var IGroupManager&MockObject $groupManager */
-        $groupManager         = $this->createMock(IGroupManager::class);
-        /** @var AdminTemplateService&MockObject $adminTemplateService */
-        $adminTemplateService = $this->createMock(AdminTemplateService::class);
-        /** @var IDBConnection&MockObject $db */
-        $db                   = $this->createMock(IDBConnection::class);
-        /** @var IConfig&MockObject $config */
-        $config               = $this->createMock(IConfig::class);
-        /** @var IFactory&MockObject $l10nFactory */
-        $l10nFactory          = $this->createMock(IFactory::class);
-        /** @var LoggerInterface&MockObject $logger */
-        $logger               = $this->createMock(LoggerInterface::class);
+		/** @var DashboardMapper&MockObject $dashboardMapper */
+		$dashboardMapper = $this->createMock(DashboardMapper::class);
+		/** @var WidgetPlacementMapper&MockObject $placementMapper */
+		$placementMapper = $this->createMock(WidgetPlacementMapper::class);
+		$this->settingMapper = $this->createMock(AdminSettingMapper::class);
+		/** @var TemplateService&MockObject $templateService */
+		$templateService = $this->createMock(TemplateService::class);
+		/** @var DashboardResolver&MockObject $dashResolver */
+		$dashResolver = $this->createMock(DashboardResolver::class);
+		/** @var IGroupManager&MockObject $groupManager */
+		$groupManager = $this->createMock(IGroupManager::class);
+		/** @var AdminTemplateService&MockObject $adminTemplateService */
+		$adminTemplateService = $this->createMock(AdminTemplateService::class);
+		/** @var IDBConnection&MockObject $db */
+		$db = $this->createMock(IDBConnection::class);
+		/** @var IConfig&MockObject $config */
+		$config = $this->createMock(IConfig::class);
+		/** @var IFactory&MockObject $l10nFactory */
+		$l10nFactory = $this->createMock(IFactory::class);
+		/** @var LoggerInterface&MockObject $logger */
+		$logger = $this->createMock(LoggerInterface::class);
 
-        $this->service = new DashboardService(
-            dashboardMapper: $dashboardMapper,
-            placementMapper: $placementMapper,
-            settingMapper: $this->settingMapper,
-            templateService: $templateService,
-            dashboardFactory: new DashboardFactory(),
-            dashResolver: $dashResolver,
-            treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-            groupManager: $groupManager,
-            adminTemplateService: $adminTemplateService,
-            db: $db,
-            config: $config,
-            l10nFactory: $l10nFactory,
-            logger: $logger,
-            footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
-        );
-    }//end setUp()
+		$this->service = new DashboardService(
+			dashboardMapper: $dashboardMapper,
+			placementMapper: $placementMapper,
+			settingMapper: $this->settingMapper,
+			templateService: $templateService,
+			dashboardFactory: new DashboardFactory(),
+			dashResolver: $dashResolver,
+			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+			groupManager: $groupManager,
+			adminTemplateService: $adminTemplateService,
+			db: $db,
+			config: $config,
+			l10nFactory: $l10nFactory,
+			logger: $logger,
+			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+		);
+	}//end setUp()
 
-    /**
-     * REQ-ASET-003: missing row MUST default to `false`.
-     *
-     * @return void
-     */
-    public function testGetAllowUserDashboardsDefaultsToFalseWhenMissing(): void
-    {
-        $this->settingMapper
-            ->method('getValue')
-            ->with(AdminSetting::KEY_ALLOW_USER_DASHBOARDS, false)
-            ->willReturn(false);
+	/**
+	 * REQ-ASET-003: missing row MUST default to `false`.
+	 *
+	 * @return void
+	 */
+	public function testGetAllowUserDashboardsDefaultsToFalseWhenMissing(): void {
+		$this->settingMapper
+			->method('getValue')
+			->with(AdminSetting::KEY_ALLOW_USER_DASHBOARDS, false)
+			->willReturn(false);
 
-        $this->assertFalse($this->service->getAllowUserDashboards());
-    }//end testGetAllowUserDashboardsDefaultsToFalseWhenMissing()
+		$this->assertFalse($this->service->getAllowUserDashboards());
+	}//end testGetAllowUserDashboardsDefaultsToFalseWhenMissing()
 
-    /**
-     * REQ-ASET-003: explicit `true` MUST surface as `true`.
-     *
-     * @return void
-     */
-    public function testGetAllowUserDashboardsReturnsTrueWhenSet(): void
-    {
-        $this->settingMapper
-            ->method('getValue')
-            ->with(AdminSetting::KEY_ALLOW_USER_DASHBOARDS, false)
-            ->willReturn(true);
+	/**
+	 * REQ-ASET-003: explicit `true` MUST surface as `true`.
+	 *
+	 * @return void
+	 */
+	public function testGetAllowUserDashboardsReturnsTrueWhenSet(): void {
+		$this->settingMapper
+			->method('getValue')
+			->with(AdminSetting::KEY_ALLOW_USER_DASHBOARDS, false)
+			->willReturn(true);
 
-        $this->assertTrue($this->service->getAllowUserDashboards());
-    }//end testGetAllowUserDashboardsReturnsTrueWhenSet()
+		$this->assertTrue($this->service->getAllowUserDashboards());
+	}//end testGetAllowUserDashboardsReturnsTrueWhenSet()
 
-    /**
-     * REQ-ASET-003: assert MUST throw when the flag is off.
-     *
-     * @return void
-     */
-    public function testAssertPersonalDashboardsAllowedThrowsWhenFlagOff(): void
-    {
-        $this->settingMapper
-            ->method('getValue')
-            ->willReturn(false);
+	/**
+	 * REQ-ASET-003: assert MUST throw when the flag is off.
+	 *
+	 * @return void
+	 */
+	public function testAssertPersonalDashboardsAllowedThrowsWhenFlagOff(): void {
+		$this->settingMapper
+			->method('getValue')
+			->willReturn(false);
 
-        $this->expectException(PersonalDashboardsDisabledException::class);
+		$this->expectException(PersonalDashboardsDisabledException::class);
 
-        $this->service->assertPersonalDashboardsAllowed();
-    }//end testAssertPersonalDashboardsAllowedThrowsWhenFlagOff()
+		$this->service->assertPersonalDashboardsAllowed();
+	}//end testAssertPersonalDashboardsAllowedThrowsWhenFlagOff()
 
-    /**
-     * REQ-ASET-003: assert MUST be a no-op when the flag is on.
-     *
-     * @return void
-     *
-     * @doesNotPerformAssertions
-     */
-    public function testAssertPersonalDashboardsAllowedSilentWhenFlagOn(): void
-    {
-        $this->settingMapper
-            ->method('getValue')
-            ->willReturn(true);
+	/**
+	 * REQ-ASET-003: assert MUST be a no-op when the flag is on.
+	 *
+	 * @return void
+	 *
+	 * @doesNotPerformAssertions
+	 */
+	public function testAssertPersonalDashboardsAllowedSilentWhenFlagOn(): void {
+		$this->settingMapper
+			->method('getValue')
+			->willReturn(true);
 
-        $this->service->assertPersonalDashboardsAllowed();
-    }//end testAssertPersonalDashboardsAllowedSilentWhenFlagOn()
+		$this->service->assertPersonalDashboardsAllowed();
+	}//end testAssertPersonalDashboardsAllowedSilentWhenFlagOn()
 
 }//end class

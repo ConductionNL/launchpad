@@ -42,189 +42,186 @@ use OCP\Migration\SimpleMigrationStep;
  *
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
-class Version002004Date20260707000000 extends SimpleMigrationStep
-{
-    /**
-     * Create the receipt table and add the acknowledgement placement columns.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returning an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     *
-     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version002004Date20260707000000 extends SimpleMigrationStep {
+	/**
+	 * Create the receipt table and add the acknowledgement placement columns.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returning an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        // 1. Create `launchpad_acknowledgements` receipt table.
-        $this->createAcknowledgementsTable(schema: $schema);
+		// 1. Create `launchpad_acknowledgements` receipt table.
+		$this->createAcknowledgementsTable(schema: $schema);
 
-        // 2. Additive acknowledgement columns on the placements table.
-        $this->addPlacementAcknowledgementColumns(schema: $schema);
+		// 2. Additive acknowledgement columns on the placements table.
+		$this->addPlacementAcknowledgementColumns(schema: $schema);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 
-    /**
-     * Create the `launchpad_acknowledgements` receipt table.
-     *
-     * No-op when the table already exists, so the step stays idempotent.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-     */
-    private function createAcknowledgementsTable(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable('launchpad_acknowledgements') === true) {
-            return;
-        }
+	/**
+	 * Create the `launchpad_acknowledgements` receipt table.
+	 *
+	 * No-op when the table already exists, so the step stays idempotent.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	private function createAcknowledgementsTable(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('launchpad_acknowledgements') === true) {
+			return;
+		}
 
-        $table = $schema->createTable('launchpad_acknowledgements');
+		$table = $schema->createTable('launchpad_acknowledgements');
 
-        $table->addColumn(
-            'id',
-            Types::BIGINT,
-            [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            'announcement_key',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 36,
-            ]
-        );
-        $table->addColumn(
-            'user_id',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 64,
-            ]
-        );
-        $table->addColumn(
-            'content_version',
-            Types::INTEGER,
-            [
-                'notnull'  => true,
-                'default'  => 1,
-                'unsigned' => true,
-            ]
-        );
-        $table->addColumn(
-            'acknowledged_at',
-            Types::DATETIME,
-            ['notnull' => true]
-        );
+		$table->addColumn(
+			'id',
+			Types::BIGINT,
+			[
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'announcement_key',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 36,
+			]
+		);
+		$table->addColumn(
+			'user_id',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 64,
+			]
+		);
+		$table->addColumn(
+			'content_version',
+			Types::INTEGER,
+			[
+				'notnull' => true,
+				'default' => 1,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'acknowledged_at',
+			Types::DATETIME,
+			['notnull' => true]
+		);
 
-        $table->setPrimaryKey(['id']);
+		$table->setPrimaryKey(['id']);
 
-        // Composite uniqueness — REQ-ACK-003 idempotency guarantee.
-        $table->addUniqueIndex(
-            ['announcement_key', 'user_id', 'content_version'],
-            'launchpad_ack_unique'
-        );
+		// Composite uniqueness — REQ-ACK-003 idempotency guarantee.
+		$table->addUniqueIndex(
+			['announcement_key', 'user_id', 'content_version'],
+			'launchpad_ack_unique'
+		);
 
-        // Report aggregation lookups — REQ-ACK-004.
-        $table->addIndex(
-            ['announcement_key', 'content_version'],
-            'launchpad_ack_ann_ver'
-        );
-    }//end createAcknowledgementsTable()
+		// Report aggregation lookups — REQ-ACK-004.
+		$table->addIndex(
+			['announcement_key', 'content_version'],
+			'launchpad_ack_ann_ver'
+		);
+	}//end createAcknowledgementsTable()
 
-    /**
-     * Add the additive acknowledgement columns to
-     * `launchpad_widget_placements`.
-     *
-     * Each column is added only when absent, so the step stays
-     * idempotent on an instance that has already run it.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-     */
-    private function addPlacementAcknowledgementColumns(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable('launchpad_widget_placements') === false) {
-            return;
-        }
+	/**
+	 * Add the additive acknowledgement columns to
+	 * `launchpad_widget_placements`.
+	 *
+	 * Each column is added only when absent, so the step stays
+	 * idempotent on an instance that has already run it.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	private function addPlacementAcknowledgementColumns(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('launchpad_widget_placements') === false) {
+			return;
+		}
 
-        $placements = $schema->getTable('launchpad_widget_placements');
+		$placements = $schema->getTable('launchpad_widget_placements');
 
-        // NOTE: 'ack_content_version', not 'acknowledgement_content_version'.
-        // Nextcloud rejects any identifier longer than 30 characters during
-        // app install, and the long form is 31 — so this made a FRESH
-        // INSTALL of the app impossible. The entity keeps the descriptive
-        // property name (and therefore the unchanged JSON key) by aliasing
-        // it in WidgetPlacement::propertyToColumn(). Existing installs carry
-        // the long column and are repaired by Version002008Date20260803000000.
-        // One condition, not two: this step only ever runs once per instance,
-        // and an instance that already ran the old version has the long
-        // column plus a recorded migration, so it never re-enters here. If it
-        // somehow did, Version002008Date20260803000000 handles "both columns
-        // present" by dropping the long one.
-        $columns = [
-            'requires_acknowledgement' => [
-                'type'    => Types::SMALLINT,
-                'options' => [
-                    'notnull'  => true,
-                    'default'  => 0,
-                    'unsigned' => true,
-                ],
-            ],
-            'acknowledgement_prompt'   => [
-                'type'    => Types::TEXT,
-                'options' => ['notnull' => false],
-            ],
-            'acknowledgement_deadline' => [
-                'type'    => Types::DATE,
-                'options' => ['notnull' => false],
-            ],
-            'reacknowledge_on_change'  => [
-                'type'    => Types::SMALLINT,
-                'options' => [
-                    'notnull'  => true,
-                    'default'  => 0,
-                    'unsigned' => true,
-                ],
-            ],
-            'ack_content_version'      => [
-                'type'    => Types::INTEGER,
-                'options' => [
-                    'notnull'  => true,
-                    'default'  => 1,
-                    'unsigned' => true,
-                ],
-            ],
-            'announcement_key'         => [
-                'type'    => Types::STRING,
-                'options' => [
-                    'notnull' => false,
-                    'length'  => 36,
-                ],
-            ],
-        ];
+		// NOTE: 'ack_content_version', not 'acknowledgement_content_version'.
+		// Nextcloud rejects any identifier longer than 30 characters during
+		// app install, and the long form is 31 — so this made a FRESH
+		// INSTALL of the app impossible. The entity keeps the descriptive
+		// property name (and therefore the unchanged JSON key) by aliasing
+		// it in WidgetPlacement::propertyToColumn(). Existing installs carry
+		// the long column and are repaired by Version002008Date20260803000000.
+		// One condition, not two: this step only ever runs once per instance,
+		// and an instance that already ran the old version has the long
+		// column plus a recorded migration, so it never re-enters here. If it
+		// somehow did, Version002008Date20260803000000 handles "both columns
+		// present" by dropping the long one.
+		$columns = [
+			'requires_acknowledgement' => [
+				'type' => Types::SMALLINT,
+				'options' => [
+					'notnull' => true,
+					'default' => 0,
+					'unsigned' => true,
+				],
+			],
+			'acknowledgement_prompt' => [
+				'type' => Types::TEXT,
+				'options' => ['notnull' => false],
+			],
+			'acknowledgement_deadline' => [
+				'type' => Types::DATE,
+				'options' => ['notnull' => false],
+			],
+			'reacknowledge_on_change' => [
+				'type' => Types::SMALLINT,
+				'options' => [
+					'notnull' => true,
+					'default' => 0,
+					'unsigned' => true,
+				],
+			],
+			'ack_content_version' => [
+				'type' => Types::INTEGER,
+				'options' => [
+					'notnull' => true,
+					'default' => 1,
+					'unsigned' => true,
+				],
+			],
+			'announcement_key' => [
+				'type' => Types::STRING,
+				'options' => [
+					'notnull' => false,
+					'length' => 36,
+				],
+			],
+		];
 
-        foreach ($columns as $name => $spec) {
-            if ($placements->hasColumn($name) === false) {
-                $placements->addColumn($name, $spec['type'], $spec['options']);
-            }
-        }
-    }//end addPlacementAcknowledgementColumns()
+		foreach ($columns as $name => $spec) {
+			if ($placements->hasColumn($name) === false) {
+				$placements->addColumn($name, $spec['type'], $spec['options']);
+			}
+		}
+	}//end addPlacementAcknowledgementColumns()
 }//end class

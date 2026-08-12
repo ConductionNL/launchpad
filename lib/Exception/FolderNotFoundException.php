@@ -27,30 +27,28 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Files-widget folder-resolution failure.
  */
-class FolderNotFoundException extends ResourceException
-{
+class FolderNotFoundException extends ResourceException {
 
-    /**
-     * Stable error code surfaced to the API consumer.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'folder_not_found';
+	/**
+	 * Stable error code surfaced to the API consumer.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'folder_not_found';
 
-    /**
-     * HTTP status code used by the controller envelope.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 404;
+	/**
+	 * HTTP status code used by the controller envelope.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 404;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Optional override message.
-     */
-    public function __construct(string $message='The configured folder no longer exists')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Optional override message.
+	 */
+	public function __construct(string $message = 'The configured folder no longer exists') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

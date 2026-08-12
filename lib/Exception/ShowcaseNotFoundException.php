@@ -28,6 +28,5 @@ use RuntimeException;
 /**
  * Raised when a showcase ID is unknown.
  */
-class ShowcaseNotFoundException extends RuntimeException
-{
+class ShowcaseNotFoundException extends RuntimeException {
 }//end class

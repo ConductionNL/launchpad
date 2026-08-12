@@ -95,488 +95,479 @@ use stdClass;
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
-class WidgetPlacement extends Entity implements JsonSerializable
-{
+class WidgetPlacement extends Entity implements JsonSerializable {
 
-    /**
-     * The dashboard ID.
-     *
-     * @var integer
-     */
-    protected int $dashboardId = 0;
+	/**
+	 * The dashboard ID.
+	 *
+	 * @var integer
+	 */
+	protected int $dashboardId = 0;
 
-    /**
-     * The widget ID.
-     *
-     * @var string
-     */
-    protected string $widgetId = '';
+	/**
+	 * The widget ID.
+	 *
+	 * @var string
+	 */
+	protected string $widgetId = '';
 
-    /**
-     * The grid X position.
-     *
-     * @var integer
-     */
-    protected int $gridX = 0;
+	/**
+	 * The grid X position.
+	 *
+	 * @var integer
+	 */
+	protected int $gridX = 0;
 
-    /**
-     * The grid Y position.
-     *
-     * @var integer
-     */
-    protected int $gridY = 0;
+	/**
+	 * The grid Y position.
+	 *
+	 * @var integer
+	 */
+	protected int $gridY = 0;
 
-    /**
-     * The grid width.
-     *
-     * @var integer
-     */
-    protected int $gridWidth = 4;
+	/**
+	 * The grid width.
+	 *
+	 * @var integer
+	 */
+	protected int $gridWidth = 4;
 
-    /**
-     * The grid height.
-     *
-     * @var integer
-     */
-    protected int $gridHeight = 4;
+	/**
+	 * The grid height.
+	 *
+	 * @var integer
+	 */
+	protected int $gridHeight = 4;
 
-    /**
-     * Whether the widget is compulsory (SMALLINT 0/1).
-     *
-     * @var integer
-     */
-    protected int $isCompulsory = 0;
+	/**
+	 * Whether the widget is compulsory (SMALLINT 0/1).
+	 *
+	 * @var integer
+	 */
+	protected int $isCompulsory = 0;
 
-    /**
-     * Whether the widget is visible (SMALLINT 0/1).
-     *
-     * @var integer
-     */
-    protected int $isVisible = 1;
+	/**
+	 * Whether the widget is visible (SMALLINT 0/1).
+	 *
+	 * @var integer
+	 */
+	protected int $isVisible = 1;
 
-    /**
-     * The style configuration JSON.
-     *
-     * @var string|null
-     */
-    protected ?string $styleConfig = null;
+	/**
+	 * The style configuration JSON.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $styleConfig = null;
 
-    /**
-     * The custom title.
-     *
-     * @var string|null
-     */
-    protected ?string $customTitle = null;
+	/**
+	 * The custom title.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $customTitle = null;
 
-    /**
-     * The custom icon.
-     *
-     * @var string|null
-     */
-    protected ?string $customIcon = null;
+	/**
+	 * The custom icon.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $customIcon = null;
 
-    /**
-     * Whether to show the title (SMALLINT 0/1).
-     *
-     * @var integer
-     */
-    protected int $showTitle = 1;
+	/**
+	 * Whether to show the title (SMALLINT 0/1).
+	 *
+	 * @var integer
+	 */
+	protected int $showTitle = 1;
 
-    /**
-     * The sort order.
-     *
-     * @var integer
-     */
-    protected int $sortOrder = 0;
+	/**
+	 * The sort order.
+	 *
+	 * @var integer
+	 */
+	protected int $sortOrder = 0;
 
-    /**
-     * The tile type.
-     *
-     * @var string|null
-     */
-    protected ?string $tileType = null;
+	/**
+	 * The tile type.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileType = null;
 
-    /**
-     * The tile title.
-     *
-     * @var string|null
-     */
-    protected ?string $tileTitle = null;
+	/**
+	 * The tile title.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileTitle = null;
 
-    /**
-     * The tile icon — opaque single-column field.
-     *
-     * Per `dashboard-icons` REQ-ICON-009 the column may hold ANY of the
-     * following three forms; the backend treats the column as opaque
-     * and the frontend `IconRenderer` discriminates at render time via
-     * `isCustomIconUrl()`:
-     *
-     *   - `null` — render the default icon
-     *   - A built-in registry key (e.g. `'Star'`, `'ViewDashboard'`)
-     *   - A URL beginning with `/` or `http` (custom icon uploaded via
-     *     the `resource-uploads` capability)
-     *
-     * Switching between forms is a plain `UPDATE`; no schema migration
-     * is required and no auxiliary discriminator column exists.
-     *
-     * @var string|null
-     */
-    protected ?string $tileIcon = null;
+	/**
+	 * The tile icon — opaque single-column field.
+	 *
+	 * Per `dashboard-icons` REQ-ICON-009 the column may hold ANY of the
+	 * following three forms; the backend treats the column as opaque
+	 * and the frontend `IconRenderer` discriminates at render time via
+	 * `isCustomIconUrl()`:
+	 *
+	 *   - `null` — render the default icon
+	 *   - A built-in registry key (e.g. `'Star'`, `'ViewDashboard'`)
+	 *   - A URL beginning with `/` or `http` (custom icon uploaded via
+	 *     the `resource-uploads` capability)
+	 *
+	 * Switching between forms is a plain `UPDATE`; no schema migration
+	 * is required and no auxiliary discriminator column exists.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileIcon = null;
 
-    /**
-     * The tile icon type.
-     *
-     * @var string|null
-     */
-    protected ?string $tileIconType = null;
+	/**
+	 * The tile icon type.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileIconType = null;
 
-    /**
-     * The tile background color.
-     *
-     * @var string|null
-     */
-    protected ?string $tileBackgroundColor = null;
+	/**
+	 * The tile background color.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileBackgroundColor = null;
 
-    /**
-     * The tile text color.
-     *
-     * @var string|null
-     */
-    protected ?string $tileTextColor = null;
+	/**
+	 * The tile text color.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileTextColor = null;
 
-    /**
-     * The tile link type.
-     *
-     * @var string|null
-     */
-    protected ?string $tileLinkType = null;
+	/**
+	 * The tile link type.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileLinkType = null;
 
-    /**
-     * The tile link value.
-     *
-     * @var string|null
-     */
-    protected ?string $tileLinkValue = null;
+	/**
+	 * The tile link value.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $tileLinkValue = null;
 
-    /**
-     * The custom widget content blob (JSON-encoded).
-     *
-     * Stores the per-type configuration payload collected by AddWidgetModal
-     * for the 17 registry-driven custom widget types (see
-     * `src/constants/widgetRegistry.js`). The JSON shape is type-specific and
-     * mirrors each widget's `defaultContent`. Existing rows created before
-     * this column existed return an empty array via getContentArray().
-     *
-     * @var string|null
-     */
-    protected ?string $content = null;
+	/**
+	 * The custom widget content blob (JSON-encoded).
+	 *
+	 * Stores the per-type configuration payload collected by AddWidgetModal
+	 * for the 17 registry-driven custom widget types (see
+	 * `src/constants/widgetRegistry.js`). The JSON shape is type-specific and
+	 * mirrors each widget's `defaultContent`. Existing rows created before
+	 * this column existed return an empty array via getContentArray().
+	 *
+	 * @var string|null
+	 */
+	protected ?string $content = null;
 
-    /**
-     * Whether this placement requires a mandatory-read acknowledgement
-     * (SMALLINT 0/1). When 0 the placement behaves exactly as before this
-     * capability existed. REQ-ACK-001.
-     *
-     * @var integer
-     */
-    protected int $requiresAcknowledgement = 0;
+	/**
+	 * Whether this placement requires a mandatory-read acknowledgement
+	 * (SMALLINT 0/1). When 0 the placement behaves exactly as before this
+	 * capability existed. REQ-ACK-001.
+	 *
+	 * @var integer
+	 */
+	protected int $requiresAcknowledgement = 0;
 
-    /**
-     * The author-supplied sign-off text shown to the recipient (e.g.
-     * "I have read and understood the 2026 integriteitscode"). Free-text
-     * content, not an i18n key. REQ-ACK-001.
-     *
-     * @var string|null
-     */
-    protected ?string $acknowledgementPrompt = null;
+	/**
+	 * The author-supplied sign-off text shown to the recipient (e.g.
+	 * "I have read and understood the 2026 integriteitscode"). Free-text
+	 * content, not an i18n key. REQ-ACK-001.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $acknowledgementPrompt = null;
 
-    /**
-     * The optional acknowledgement deadline as a `Y-m-d` date string, or
-     * null for no deadline. Presented but never auto-acknowledged
-     * (REQ-ACK-002). REQ-ACK-001.
-     *
-     * @var string|null
-     */
-    protected ?string $acknowledgementDeadline = null;
+	/**
+	 * The optional acknowledgement deadline as a `Y-m-d` date string, or
+	 * null for no deadline. Presented but never auto-acknowledged
+	 * (REQ-ACK-002). REQ-ACK-001.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $acknowledgementDeadline = null;
 
-    /**
-     * Whether bumping the content version re-forces delivery for everyone
-     * (SMALLINT 0/1). REQ-ACK-005.
-     *
-     * @var integer
-     */
-    protected int $reacknowledgeOnChange = 0;
+	/**
+	 * Whether bumping the content version re-forces delivery for everyone
+	 * (SMALLINT 0/1). REQ-ACK-005.
+	 *
+	 * @var integer
+	 */
+	protected int $reacknowledgeOnChange = 0;
 
-    /**
-     * The current content version. Authors bump this when the content
-     * materially changes; with `reacknowledgeOnChange = 1` the item
-     * returns to the unacknowledged state for the new version.
-     * REQ-ACK-001 / REQ-ACK-005.
-     *
-     * @var integer
-     */
-    protected int $acknowledgementContentVersion = 1;
+	/**
+	 * The current content version. Authors bump this when the content
+	 * materially changes; with `reacknowledgeOnChange = 1` the item
+	 * returns to the unacknowledged state for the new version.
+	 * REQ-ACK-001 / REQ-ACK-005.
+	 *
+	 * @var integer
+	 */
+	protected int $acknowledgementContentVersion = 1;
 
-    /**
-     * The stable announcement identity (UUID) minted the first time
-     * acknowledgement is required and copied to every cloned placement so
-     * all recipients of one announcement share one identity. Null until a
-     * requirement is set. REQ-ACK-001 (design D2).
-     *
-     * @var string|null
-     */
-    protected ?string $announcementKey = null;
+	/**
+	 * The stable announcement identity (UUID) minted the first time
+	 * acknowledgement is required and copied to every cloned placement so
+	 * all recipients of one announcement share one identity. Null until a
+	 * requirement is set. REQ-ACK-001 (design D2).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $announcementKey = null;
 
-    /**
-     * The origin key linking this placement back to the source template's
-     * blueprint placement it was cloned from (by that placement's `id`).
-     * Null means "no known template origin" — either a genuinely
-     * user-added placement, or a copy provisioned before this column
-     * existed. Used by {@see \OCA\LaunchPad\Service\TemplateResyncService}
-     * to distinguish template-origin placements (reconciled on re-sync)
-     * from user-added ones (preserved under the `merge` strategy).
-     * REQ-RESYNC-003 / REQ-RESYNC-004.
-     *
-     * @var integer|null
-     */
-    protected ?int $templatePlacementId = null;
+	/**
+	 * The origin key linking this placement back to the source template's
+	 * blueprint placement it was cloned from (by that placement's `id`).
+	 * Null means "no known template origin" — either a genuinely
+	 * user-added placement, or a copy provisioned before this column
+	 * existed. Used by {@see \OCA\LaunchPad\Service\TemplateResyncService}
+	 * to distinguish template-origin placements (reconciled on re-sync)
+	 * from user-added ones (preserved under the `merge` strategy).
+	 * REQ-RESYNC-003 / REQ-RESYNC-004.
+	 *
+	 * @var integer|null
+	 */
+	protected ?int $templatePlacementId = null;
 
-    /**
-     * The creation timestamp as string.
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * The creation timestamp as string.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * The update timestamp as string.
-     *
-     * @var string|null
-     */
-    protected ?string $updatedAt = null;
+	/**
+	 * The update timestamp as string.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $updatedAt = null;
 
-    /**
-     * Constructor
-     *
-     * Registers column types for proper ORM handling.
-     * Note: Boolean columns are SMALLINT in DB (0/1).
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'dashboardId', type: 'integer');
-        $this->addType(fieldName: 'gridX', type: 'integer');
-        $this->addType(fieldName: 'gridY', type: 'integer');
-        $this->addType(fieldName: 'gridWidth', type: 'integer');
-        $this->addType(fieldName: 'gridHeight', type: 'integer');
-        $this->addType(fieldName: 'isCompulsory', type: 'integer');
-        // SMALLINT in DB (0/1).
-        $this->addType(fieldName: 'isVisible', type: 'integer');
-        // SMALLINT in DB (0/1).
-        $this->addType(fieldName: 'showTitle', type: 'integer');
-        // SMALLINT in DB (0/1).
-        $this->addType(fieldName: 'sortOrder', type: 'integer');
-        $this->addType(fieldName: 'requiresAcknowledgement', type: 'integer');
-        // SMALLINT in DB (0/1).
-        $this->addType(fieldName: 'reacknowledgeOnChange', type: 'integer');
-        // SMALLINT in DB (0/1).
-        $this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
-        $this->addType(fieldName: 'templatePlacementId', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor
+	 *
+	 * Registers column types for proper ORM handling.
+	 * Note: Boolean columns are SMALLINT in DB (0/1).
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'dashboardId', type: 'integer');
+		$this->addType(fieldName: 'gridX', type: 'integer');
+		$this->addType(fieldName: 'gridY', type: 'integer');
+		$this->addType(fieldName: 'gridWidth', type: 'integer');
+		$this->addType(fieldName: 'gridHeight', type: 'integer');
+		$this->addType(fieldName: 'isCompulsory', type: 'integer');
+		// SMALLINT in DB (0/1).
+		$this->addType(fieldName: 'isVisible', type: 'integer');
+		// SMALLINT in DB (0/1).
+		$this->addType(fieldName: 'showTitle', type: 'integer');
+		// SMALLINT in DB (0/1).
+		$this->addType(fieldName: 'sortOrder', type: 'integer');
+		$this->addType(fieldName: 'requiresAcknowledgement', type: 'integer');
+		// SMALLINT in DB (0/1).
+		$this->addType(fieldName: 'reacknowledgeOnChange', type: 'integer');
+		// SMALLINT in DB (0/1).
+		$this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
+		$this->addType(fieldName: 'templatePlacementId', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Get style config as array.
-     *
-     * @return array The decoded style configuration.
-     */
-    public function getStyleConfigArray(): array
-    {
-        if (empty($this->styleConfig) === true) {
-            return [];
-        }
+	/**
+	 * Get style config as array.
+	 *
+	 * @return array The decoded style configuration.
+	 */
+	public function getStyleConfigArray(): array {
+		if (empty($this->styleConfig) === true) {
+			return [];
+		}
 
-        $decoded = json_decode(json: $this->styleConfig, associative: true);
-        if (is_array($decoded) === true) {
-            return $decoded;
-        }
+		$decoded = json_decode(json: $this->styleConfig, associative: true);
+		if (is_array($decoded) === true) {
+			return $decoded;
+		}
 
-        return [];
-    }//end getStyleConfigArray()
+		return [];
+	}//end getStyleConfigArray()
 
-    /**
-     * Set style config from array.
-     *
-     * @param array $config The style configuration array.
-     *
-     * @return void
-     */
-    public function setStyleConfigArray(array $config): void
-    {
-        // Entity setters resolve via __call which uses $args[0]; named args
-        // would break the magic forwarding (see project memory).
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $this->setStyleConfig(json_encode($config));
-    }//end setStyleConfigArray()
+	/**
+	 * Set style config from array.
+	 *
+	 * @param array $config The style configuration array.
+	 *
+	 * @return void
+	 */
+	public function setStyleConfigArray(array $config): void {
+		// Entity setters resolve via __call which uses $args[0]; named args
+		// would break the magic forwarding (see project memory).
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setStyleConfig(json_encode($config));
+	}//end setStyleConfigArray()
 
-    /**
-     * Get the custom widget content blob as an associative array.
-     *
-     * @return array The decoded content payload, or [] when the column is null
-     *               or holds an unparseable string.
-     */
-    public function getContentArray(): array
-    {
-        if (empty($this->content) === true) {
-            return [];
-        }
+	/**
+	 * Get the custom widget content blob as an associative array.
+	 *
+	 * @return array The decoded content payload, or [] when the column is null
+	 *               or holds an unparseable string.
+	 */
+	public function getContentArray(): array {
+		if (empty($this->content) === true) {
+			return [];
+		}
 
-        $decoded = json_decode(json: $this->content, associative: true);
-        if (is_array($decoded) === true) {
-            return $decoded;
-        }
+		$decoded = json_decode(json: $this->content, associative: true);
+		if (is_array($decoded) === true) {
+			return $decoded;
+		}
 
-        return [];
-    }//end getContentArray()
+		return [];
+	}//end getContentArray()
 
-    /**
-     * Set the custom widget content blob from an associative array.
-     *
-     * @param array $content The content payload to JSON-encode and persist.
-     *
-     * @return void
-     */
-    public function setContentArray(array $content): void
-    {
-        // Entity setters resolve via __call which uses $args[0]; named args
-        // would break the magic forwarding (see project memory).
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $this->setContent(json_encode($content));
-    }//end setContentArray()
+	/**
+	 * Set the custom widget content blob from an associative array.
+	 *
+	 * @param array $content The content payload to JSON-encode and persist.
+	 *
+	 * @return void
+	 */
+	public function setContentArray(array $content): void {
+		// Entity setters resolve via __call which uses $args[0]; named args
+		// would break the magic forwarding (see project memory).
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setContent(json_encode($content));
+	}//end setContentArray()
 
-    /**
-     * Properties whose DB column deliberately differs from the derived name.
-     *
-     * Nextcloud rejects any identifier longer than 30 characters during app
-     * install. Entity's default mapping turns `acknowledgementContentVersion`
-     * into `acknowledgement_content_version`, which is 31 — so the app could not
-     * be installed on a fresh Nextcloud at all (existing installs already had
-     * the column and never re-validated it).
-     *
-     * Aliasing here rather than renaming the property is what keeps this an
-     * internal, non-breaking change: the property, every `lib/` caller, the
-     * `jsonSerialize()` output and the `acknowledgementContentVersion` JSON key
-     * that `src/stores/dashboard.js` and API consumers read all stay identical.
-     * Only the physical column is shortened.
-     *
-     * @var array<string, string> Property name => column name.
-     */
-    private const COLUMN_ALIASES = [
-        'acknowledgementContentVersion' => 'ack_content_version',
-    ];
+	/**
+	 * Properties whose DB column deliberately differs from the derived name.
+	 *
+	 * Nextcloud rejects any identifier longer than 30 characters during app
+	 * install. Entity's default mapping turns `acknowledgementContentVersion`
+	 * into `acknowledgement_content_version`, which is 31 — so the app could not
+	 * be installed on a fresh Nextcloud at all (existing installs already had
+	 * the column and never re-validated it).
+	 *
+	 * Aliasing here rather than renaming the property is what keeps this an
+	 * internal, non-breaking change: the property, every `lib/` caller, the
+	 * `jsonSerialize()` output and the `acknowledgementContentVersion` JSON key
+	 * that `src/stores/dashboard.js` and API consumers read all stay identical.
+	 * Only the physical column is shortened.
+	 *
+	 * @var array<string, string> Property name => column name.
+	 */
+	private const COLUMN_ALIASES = [
+		'acknowledgementContentVersion' => 'ack_content_version',
+	];
 
-    /**
-     * Map a property name to its column, honouring {@see COLUMN_ALIASES}.
-     *
-     * @param string $property The entity property name.
-     *
-     * @return string The database column name.
-     */
-    public function propertyToColumn(string $property): string
-    {
-        if (isset(self::COLUMN_ALIASES[$property]) === true) {
-            return self::COLUMN_ALIASES[$property];
-        }
+	/**
+	 * Map a property name to its column, honouring {@see COLUMN_ALIASES}.
+	 *
+	 * @param string $property The entity property name.
+	 *
+	 * @return string The database column name.
+	 */
+	public function propertyToColumn(string $property): string {
+		if (isset(self::COLUMN_ALIASES[$property]) === true) {
+			return self::COLUMN_ALIASES[$property];
+		}
 
-        return parent::propertyToColumn(property: $property);
-    }//end propertyToColumn()
+		return parent::propertyToColumn(property: $property);
+	}//end propertyToColumn()
 
-    /**
-     * Map a column name back to its property, honouring {@see COLUMN_ALIASES}.
-     *
-     * Both directions must be overridden: QBMapper writes through
-     * propertyToColumn() but hydrates rows through columnToProperty(), so
-     * overriding only one would load the aliased column into a property that
-     * does not exist and silently lose the value.
-     *
-     * @param string $columnName The database column name.
-     *
-     * @return string The entity property name.
-     */
-    public function columnToProperty(string $columnName)
-    {
-        $property = array_search($columnName, self::COLUMN_ALIASES, true);
-        if ($property !== false) {
-            return $property;
-        }
+	/**
+	 * Map a column name back to its property, honouring {@see COLUMN_ALIASES}.
+	 *
+	 * Both directions must be overridden: QBMapper writes through
+	 * propertyToColumn() but hydrates rows through columnToProperty(), so
+	 * overriding only one would load the aliased column into a property that
+	 * does not exist and silently lose the value.
+	 *
+	 * @param string $columnName The database column name.
+	 *
+	 * @return string The entity property name.
+	 */
+	public function columnToProperty(string $columnName) {
+		$property = array_search($columnName, self::COLUMN_ALIASES, true);
+		if ($property !== false) {
+			return $property;
+		}
 
-        return parent::columnToProperty(columnName: $columnName);
-    }//end columnToProperty()
+		return parent::columnToProperty(columnName: $columnName);
+	}//end columnToProperty()
 
-    /**
-     * Serialize to JSON.
-     *
-     * @return array The serialized widget placement.
-     */
-    public function jsonSerialize(): array
-    {
-        // The styleConfig and content are associative JSON blobs. An empty
-        // blob decodes to a PHP `[]`, which json_encodes to a JSON array
-        // (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
-        // so the wire format is always an object — clients type these fields
-        // as objects and a stray `[]` is truthy-but-wrong on the frontend.
-        $styleConfig = $this->getStyleConfigArray();
-        $content     = $this->getContentArray();
+	/**
+	 * Serialize to JSON.
+	 *
+	 * @return array The serialized widget placement.
+	 */
+	public function jsonSerialize(): array {
+		// The styleConfig and content are associative JSON blobs. An empty
+		// blob decodes to a PHP `[]`, which json_encodes to a JSON array
+		// (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
+		// so the wire format is always an object — clients type these fields
+		// as objects and a stray `[]` is truthy-but-wrong on the frontend.
+		$styleConfig = $this->getStyleConfigArray();
+		$content = $this->getContentArray();
 
-        $styleConfigOut = new stdClass();
-        if (empty($styleConfig) === false) {
-            $styleConfigOut = $styleConfig;
-        }
+		$styleConfigOut = new stdClass();
+		if (empty($styleConfig) === false) {
+			$styleConfigOut = $styleConfig;
+		}
 
-        $contentOut = new stdClass();
-        if (empty($content) === false) {
-            $contentOut = $content;
-        }
+		$contentOut = new stdClass();
+		if (empty($content) === false) {
+			$contentOut = $content;
+		}
 
-        $data = [
-            'id'                            => $this->getId(),
-            'dashboardId'                   => $this->dashboardId,
-            'widgetId'                      => $this->widgetId,
-            'gridX'                         => $this->gridX,
-            'gridY'                         => $this->gridY,
-            'gridWidth'                     => $this->gridWidth,
-            'gridHeight'                    => $this->gridHeight,
-            'isCompulsory'                  => $this->isCompulsory,
-            'isVisible'                     => $this->isVisible,
-            'styleConfig'                   => $styleConfigOut,
-            'customTitle'                   => $this->customTitle,
-            'customIcon'                    => $this->customIcon,
-            'content'                       => $contentOut,
-            'showTitle'                     => $this->showTitle,
-            'sortOrder'                     => $this->sortOrder,
-            'requiresAcknowledgement'       => $this->requiresAcknowledgement,
-            'acknowledgementPrompt'         => $this->acknowledgementPrompt,
-            'acknowledgementDeadline'       => $this->acknowledgementDeadline,
-            'reacknowledgeOnChange'         => $this->reacknowledgeOnChange,
-            'acknowledgementContentVersion' => $this->acknowledgementContentVersion,
-            'announcementKey'               => $this->announcementKey,
-            'templatePlacementId'           => $this->templatePlacementId,
-            'createdAt'                     => $this->createdAt,
-            'updatedAt'                     => $this->updatedAt,
-        ];
+		$data = [
+			'id' => $this->getId(),
+			'dashboardId' => $this->dashboardId,
+			'widgetId' => $this->widgetId,
+			'gridX' => $this->gridX,
+			'gridY' => $this->gridY,
+			'gridWidth' => $this->gridWidth,
+			'gridHeight' => $this->gridHeight,
+			'isCompulsory' => $this->isCompulsory,
+			'isVisible' => $this->isVisible,
+			'styleConfig' => $styleConfigOut,
+			'customTitle' => $this->customTitle,
+			'customIcon' => $this->customIcon,
+			'content' => $contentOut,
+			'showTitle' => $this->showTitle,
+			'sortOrder' => $this->sortOrder,
+			'requiresAcknowledgement' => $this->requiresAcknowledgement,
+			'acknowledgementPrompt' => $this->acknowledgementPrompt,
+			'acknowledgementDeadline' => $this->acknowledgementDeadline,
+			'reacknowledgeOnChange' => $this->reacknowledgeOnChange,
+			'acknowledgementContentVersion' => $this->acknowledgementContentVersion,
+			'announcementKey' => $this->announcementKey,
+			'templatePlacementId' => $this->templatePlacementId,
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
 
-        // Include tile configuration if this is a tile.
-        if ($this->tileType !== null) {
-            $data['tileType']            = $this->tileType;
-            $data['tileTitle']           = $this->tileTitle;
-            $data['tileIcon']            = $this->tileIcon;
-            $data['tileIconType']        = $this->tileIconType;
-            $data['tileBackgroundColor'] = $this->tileBackgroundColor;
-            $data['tileTextColor']       = $this->tileTextColor;
-            $data['tileLinkType']        = $this->tileLinkType;
-            $data['tileLinkValue']       = $this->tileLinkValue;
-        }
+		// Include tile configuration if this is a tile.
+		if ($this->tileType !== null) {
+			$data['tileType'] = $this->tileType;
+			$data['tileTitle'] = $this->tileTitle;
+			$data['tileIcon'] = $this->tileIcon;
+			$data['tileIconType'] = $this->tileIconType;
+			$data['tileBackgroundColor'] = $this->tileBackgroundColor;
+			$data['tileTextColor'] = $this->tileTextColor;
+			$data['tileLinkType'] = $this->tileLinkType;
+			$data['tileLinkValue'] = $this->tileLinkValue;
+		}
 
-        return $data;
-    }//end jsonSerialize()
+		return $data;
+	}//end jsonSerialize()
 }//end class

@@ -42,81 +42,77 @@ use OCP\AppFramework\Db\Entity;
  * @method \DateTime|null getAcknowledgedAt()
  * @method void setAcknowledgedAt(?\DateTime $acknowledgedAt)
  */
-class Acknowledgement extends Entity implements JsonSerializable
-{
+class Acknowledgement extends Entity implements JsonSerializable {
 
-    /**
-     * The stable announcement identity this receipt attests to.
-     *
-     * @var string|null
-     */
-    protected ?string $announcementKey = null;
+	/**
+	 * The stable announcement identity this receipt attests to.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $announcementKey = null;
 
-    /**
-     * The Nextcloud user ID of the acknowledging user.
-     *
-     * @var string|null
-     */
-    protected ?string $userId = null;
+	/**
+	 * The Nextcloud user ID of the acknowledging user.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $userId = null;
 
-    /**
-     * The content version that was acknowledged (REQ-ACK-005).
-     *
-     * @var integer
-     */
-    protected int $contentVersion = 1;
+	/**
+	 * The content version that was acknowledged (REQ-ACK-005).
+	 *
+	 * @var integer
+	 */
+	protected int $contentVersion = 1;
 
-    /**
-     * The instant the acknowledgement was recorded.
-     *
-     * @var \DateTime|null
-     */
-    protected ?DateTime $acknowledgedAt = null;
+	/**
+	 * The instant the acknowledgement was recorded.
+	 *
+	 * @var \DateTime|null
+	 */
+	protected ?DateTime $acknowledgedAt = null;
 
-    /**
-     * Constructor — registers column types.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'contentVersion', type: 'integer');
-        $this->addType(fieldName: 'acknowledgedAt', type: 'datetime');
-    }//end __construct()
+	/**
+	 * Constructor — registers column types.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'contentVersion', type: 'integer');
+		$this->addType(fieldName: 'acknowledgedAt', type: 'datetime');
+	}//end __construct()
 
-    /**
-     * Format the acknowledgement timestamp the same way other LaunchPad
-     * timestamps are exposed in the JSON envelope.
-     *
-     * @return string|null `Y-m-d H:i:s` format or null when unset.
-     *
-     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-     */
-    public function getAcknowledgedAtFormatted(): ?string
-    {
-        if ($this->acknowledgedAt === null) {
-            return null;
-        }
+	/**
+	 * Format the acknowledgement timestamp the same way other LaunchPad
+	 * timestamps are exposed in the JSON envelope.
+	 *
+	 * @return string|null `Y-m-d H:i:s` format or null when unset.
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function getAcknowledgedAtFormatted(): ?string {
+		if ($this->acknowledgedAt === null) {
+			return null;
+		}
 
-        return $this->acknowledgedAt->format(format: 'Y-m-d H:i:s');
-    }//end getAcknowledgedAtFormatted()
+		return $this->acknowledgedAt->format(format: 'Y-m-d H:i:s');
+	}//end getAcknowledgedAtFormatted()
 
-    /**
-     * Serialize to JSON.
-     *
-     * @return array The serialized acknowledgement.
-     *
-     * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'              => $this->getId(),
-            'announcementKey' => $this->announcementKey,
-            'userId'          => $this->userId,
-            'contentVersion'  => $this->contentVersion,
-            'acknowledgedAt'  => $this->getAcknowledgedAtFormatted(),
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON.
+	 *
+	 * @return array The serialized acknowledgement.
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'announcementKey' => $this->announcementKey,
+			'userId' => $this->userId,
+			'contentVersion' => $this->contentVersion,
+			'acknowledgedAt' => $this->getAcknowledgedAtFormatted(),
+		];
+	}//end jsonSerialize()
 }//end class

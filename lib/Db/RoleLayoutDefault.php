@@ -55,128 +55,125 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
-class RoleLayoutDefault extends Entity implements JsonSerializable
-{
+class RoleLayoutDefault extends Entity implements JsonSerializable {
 
-    /**
-     * Display name (e.g. "Manager — activiteiten").
-     *
-     * @var string
-     */
-    protected string $name = '';
+	/**
+	 * Display name (e.g. "Manager — activiteiten").
+	 *
+	 * @var string
+	 */
+	protected string $name = '';
 
-    /**
-     * Optional notes about why this widget appears at this position.
-     *
-     * @var string|null
-     */
-    protected ?string $description = null;
+	/**
+	 * Optional notes about why this widget appears at this position.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $description = null;
 
-    /**
-     * Nextcloud group ID this default layout slot applies to.
-     *
-     * @var string
-     */
-    protected string $groupId = '';
+	/**
+	 * Nextcloud group ID this default layout slot applies to.
+	 *
+	 * @var string
+	 */
+	protected string $groupId = '';
 
-    /**
-     * Nextcloud Dashboard widget ID to seed.
-     *
-     * @var string
-     */
-    protected string $widgetId = '';
+	/**
+	 * Nextcloud Dashboard widget ID to seed.
+	 *
+	 * @var string
+	 */
+	protected string $widgetId = '';
 
-    /**
-     * Column position (0-based).
-     *
-     * @var integer
-     */
-    protected int $gridX = 0;
+	/**
+	 * Column position (0-based).
+	 *
+	 * @var integer
+	 */
+	protected int $gridX = 0;
 
-    /**
-     * Row position (0-based).
-     *
-     * @var integer
-     */
-    protected int $gridY = 0;
+	/**
+	 * Row position (0-based).
+	 *
+	 * @var integer
+	 */
+	protected int $gridY = 0;
 
-    /**
-     * Widget width in grid columns (min 1).
-     *
-     * @var integer
-     */
-    protected int $gridWidth = 4;
+	/**
+	 * Widget width in grid columns (min 1).
+	 *
+	 * @var integer
+	 */
+	protected int $gridWidth = 4;
 
-    /**
-     * Widget height in grid rows (min 1).
-     *
-     * @var integer
-     */
-    protected int $gridHeight = 4;
+	/**
+	 * Widget height in grid rows (min 1).
+	 *
+	 * @var integer
+	 */
+	protected int $gridHeight = 4;
 
-    /**
-     * Sort order within the layout (lower = rendered first).
-     *
-     * @var integer
-     */
-    protected int $sortOrder = 0;
+	/**
+	 * Sort order within the layout (lower = rendered first).
+	 *
+	 * @var integer
+	 */
+	protected int $sortOrder = 0;
 
-    /**
-     * 0/1 — when 1, the user cannot remove this widget from a seeded layout.
-     *
-     * @var integer
-     */
-    protected int $isCompulsory = 0;
+	/**
+	 * 0/1 — when 1, the user cannot remove this widget from a seeded layout.
+	 *
+	 * @var integer
+	 */
+	protected int $isCompulsory = 0;
 
-    /**
-     * ISO-8601 creation timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * ISO-8601 creation timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * ISO-8601 last-modification timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $updatedAt = null;
+	/**
+	 * ISO-8601 last-modification timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $updatedAt = null;
 
-    /**
-     * Constructor — registers ORM column types.
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'gridX', type: 'integer');
-        $this->addType(fieldName: 'gridY', type: 'integer');
-        $this->addType(fieldName: 'gridWidth', type: 'integer');
-        $this->addType(fieldName: 'gridHeight', type: 'integer');
-        $this->addType(fieldName: 'sortOrder', type: 'integer');
-        $this->addType(fieldName: 'isCompulsory', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — registers ORM column types.
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'gridX', type: 'integer');
+		$this->addType(fieldName: 'gridY', type: 'integer');
+		$this->addType(fieldName: 'gridWidth', type: 'integer');
+		$this->addType(fieldName: 'gridHeight', type: 'integer');
+		$this->addType(fieldName: 'sortOrder', type: 'integer');
+		$this->addType(fieldName: 'isCompulsory', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Serialize to a JSON-friendly array.
-     *
-     * @return array The serialized representation.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'           => $this->getId(),
-            'name'         => $this->name,
-            'description'  => $this->description,
-            'groupId'      => $this->groupId,
-            'widgetId'     => $this->widgetId,
-            'gridX'        => $this->gridX,
-            'gridY'        => $this->gridY,
-            'gridWidth'    => $this->gridWidth,
-            'gridHeight'   => $this->gridHeight,
-            'sortOrder'    => $this->sortOrder,
-            'isCompulsory' => $this->isCompulsory === 1,
-            'createdAt'    => $this->createdAt,
-            'updatedAt'    => $this->updatedAt,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to a JSON-friendly array.
+	 *
+	 * @return array The serialized representation.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'name' => $this->name,
+			'description' => $this->description,
+			'groupId' => $this->groupId,
+			'widgetId' => $this->widgetId,
+			'gridX' => $this->gridX,
+			'gridY' => $this->gridY,
+			'gridWidth' => $this->gridWidth,
+			'gridHeight' => $this->gridHeight,
+			'sortOrder' => $this->sortOrder,
+			'isCompulsory' => $this->isCompulsory === 1,
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
+	}//end jsonSerialize()
 }//end class

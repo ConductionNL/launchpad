@@ -28,6 +28,5 @@ use RuntimeException;
 /**
  * Reactions are disabled (globally or per-dashboard).
  */
-class ReactionsDisabledException extends RuntimeException
-{
+class ReactionsDisabledException extends RuntimeException {
 }//end class

@@ -47,216 +47,198 @@ use Psr\Log\LoggerInterface;
 /**
  * Contract tests for the default-dashboard pin endpoints.
  */
-class DashboardApiControllerDefaultPreferenceTest extends TestCase
-{
+class DashboardApiControllerDefaultPreferenceTest extends TestCase {
 
-    /**
-     * HTTP request mock.
-     *
-     * @var IRequest&MockObject
-     */
-    private $request;
+	/**
+	 * HTTP request mock.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private $request;
 
-    /**
-     * Dashboard service mock.
-     *
-     * @var DashboardService&MockObject
-     */
-    private $dashboardService;
+	/**
+	 * Dashboard service mock.
+	 *
+	 * @var DashboardService&MockObject
+	 */
+	private $dashboardService;
 
-    /**
-     * User session mock.
-     *
-     * @var IUserSession&MockObject
-     */
-    private $userSession;
+	/**
+	 * User session mock.
+	 *
+	 * @var IUserSession&MockObject
+	 */
+	private $userSession;
 
-    /**
-     * Action authorization mock.
-     *
-     * @var ActionAuthService&MockObject
-     */
-    private $actionAuth;
+	/**
+	 * Action authorization mock.
+	 *
+	 * @var ActionAuthService&MockObject
+	 */
+	private $actionAuth;
 
+	/**
+	 * Set up shared mocks.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-    /**
-     * Set up shared mocks.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+		$this->request = $this->createMock(IRequest::class);
+		$this->dashboardService = $this->createMock(DashboardService::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->actionAuth = $this->createMock(ActionAuthService::class);
 
-        $this->request          = $this->createMock(IRequest::class);
-        $this->dashboardService = $this->createMock(DashboardService::class);
-        $this->userSession      = $this->createMock(IUserSession::class);
-        $this->actionAuth       = $this->createMock(ActionAuthService::class);
+	}//end setUp()
 
-    }//end setUp()
+	/**
+	 * Build the controller for the supplied user (NULL = anonymous).
+	 *
+	 * @param string|null $userId The acting user ID.
+	 *
+	 * @return DashboardApiController
+	 */
+	private function makeController(?string $userId): DashboardApiController {
+		$user = null;
+		if ($userId !== null) {
+			$user = $this->createMock(IUser::class);
+			$user->method('getUID')->willReturn($userId);
+		}
 
+		$this->userSession->method('getUser')->willReturn($user);
 
-    /**
-     * Build the controller for the supplied user (NULL = anonymous).
-     *
-     * @param string|null $userId The acting user ID.
-     *
-     * @return DashboardApiController
-     */
-    private function makeController(?string $userId): DashboardApiController
-    {
-        $user = null;
-        if ($userId !== null) {
-            $user = $this->createMock(IUser::class);
-            $user->method('getUID')->willReturn($userId);
-        }
+		return new DashboardApiController(
+			request: $this->request,
+			dashboardService: $this->dashboardService,
+			permissionService: $this->createMock(PermissionService::class),
+			treeService: $this->createMock(DashboardTreeService::class),
+			versionService: $this->createMock(DashboardVersionService::class),
+			analyticsService: $this->createMock(AnalyticsService::class),
+			logger: $this->createMock(LoggerInterface::class),
+			userSession: $this->userSession,
+			actionAuth: $this->actionAuth,
+			userId: $userId,
+		);
 
-        $this->userSession->method('getUser')->willReturn($user);
+	}//end makeController()
 
-        return new DashboardApiController(
-            request: $this->request,
-            dashboardService: $this->dashboardService,
-            permissionService: $this->createMock(PermissionService::class),
-            treeService: $this->createMock(DashboardTreeService::class),
-            versionService: $this->createMock(DashboardVersionService::class),
-            analyticsService: $this->createMock(AnalyticsService::class),
-            logger: $this->createMock(LoggerInterface::class),
-            userSession: $this->userSession,
-            actionAuth: $this->actionAuth,
-            userId: $userId,
-        );
+	/**
+	 * An anonymous caller MUST get 401 and MUST NOT write a pin.
+	 *
+	 * @return void
+	 */
+	public function testSetDefaultDashboardRejectsAnonymousWith401(): void {
+		$this->dashboardService->expects($this->never())
+			->method('setDefaultPreference');
 
-    }//end makeController()
+		$controller = $this->makeController(null);
+		$response = $controller->setDefaultDashboard(uuid: 'uuid-a');
 
+		$this->assertSame(
+			expected: Http::STATUS_UNAUTHORIZED,
+			actual: $response->getStatus()
+		);
 
-    /**
-     * An anonymous caller MUST get 401 and MUST NOT write a pin.
-     *
-     * @return void
-     */
-    public function testSetDefaultDashboardRejectsAnonymousWith401(): void
-    {
-        $this->dashboardService->expects($this->never())
-            ->method('setDefaultPreference');
+	}//end testSetDefaultDashboardRejectsAnonymousWith401()
 
-        $controller = $this->makeController(null);
-        $response   = $controller->setDefaultDashboard(uuid: 'uuid-a');
+	/**
+	 * The pin is written against the SESSION user, not against anything
+	 * the caller supplied.
+	 *
+	 * @return void
+	 */
+	public function testSetDefaultDashboardPinsForTheActingUser(): void {
+		$this->dashboardService->expects($this->once())
+			->method('setDefaultPreference')
+			->with(userId: 'alice', uuid: 'uuid-a');
 
-        $this->assertSame(
-            expected: Http::STATUS_UNAUTHORIZED,
-            actual: $response->getStatus()
-        );
+		$controller = $this->makeController('alice');
+		$response = $controller->setDefaultDashboard(uuid: 'uuid-a');
 
-    }//end testSetDefaultDashboardRejectsAnonymousWith401()
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(
+			expected: ['status' => 'success'],
+			actual: $response->getData()
+		);
 
+	}//end testSetDefaultDashboardPinsForTheActingUser()
 
-    /**
-     * The pin is written against the SESSION user, not against anything
-     * the caller supplied.
-     *
-     * @return void
-     */
-    public function testSetDefaultDashboardPinsForTheActingUser(): void
-    {
-        $this->dashboardService->expects($this->once())
-            ->method('setDefaultPreference')
-            ->with(userId: 'alice', uuid: 'uuid-a');
+	/**
+	 * A missing/NULL uuid CLEARS the pin — it is normalised to the empty
+	 * string and passed on, not rejected and not silently skipped.
+	 *
+	 * @return void
+	 */
+	public function testSetDefaultDashboardWithNullUuidClearsThePin(): void {
+		$this->dashboardService->expects($this->once())
+			->method('setDefaultPreference')
+			->with(userId: 'alice', uuid: '');
 
-        $controller = $this->makeController('alice');
-        $response   = $controller->setDefaultDashboard(uuid: 'uuid-a');
+		$controller = $this->makeController('alice');
+		$response = $controller->setDefaultDashboard(uuid: null);
 
-        $this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
-        $this->assertSame(
-            expected: ['status' => 'success'],
-            actual: $response->getData()
-        );
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
 
-    }//end testSetDefaultDashboardPinsForTheActingUser()
+	}//end testSetDefaultDashboardWithNullUuidClearsThePin()
 
+	/**
+	 * An anonymous caller MUST get 401 on the read side too, and MUST NOT
+	 * reach anybody's preference.
+	 *
+	 * @return void
+	 */
+	public function testGetDefaultDashboardRejectsAnonymousWith401(): void {
+		$this->dashboardService->expects($this->never())
+			->method('getDefaultPreference');
 
-    /**
-     * A missing/NULL uuid CLEARS the pin — it is normalised to the empty
-     * string and passed on, not rejected and not silently skipped.
-     *
-     * @return void
-     */
-    public function testSetDefaultDashboardWithNullUuidClearsThePin(): void
-    {
-        $this->dashboardService->expects($this->once())
-            ->method('setDefaultPreference')
-            ->with(userId: 'alice', uuid: '');
+		$controller = $this->makeController(null);
+		$response = $controller->getDefaultDashboard();
 
-        $controller = $this->makeController('alice');
-        $response   = $controller->setDefaultDashboard(uuid: null);
+		$this->assertSame(
+			expected: Http::STATUS_UNAUTHORIZED,
+			actual: $response->getStatus()
+		);
 
-        $this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+	}//end testGetDefaultDashboardRejectsAnonymousWith401()
 
-    }//end testSetDefaultDashboardWithNullUuidClearsThePin()
+	/**
+	 * The read returns the acting user's pin under the `uuid` key.
+	 *
+	 * @return void
+	 */
+	public function testGetDefaultDashboardReturnsTheActingUsersPin(): void {
+		$this->dashboardService->expects($this->once())
+			->method('getDefaultPreference')
+			->with(userId: 'alice')
+			->willReturn('uuid-a');
 
+		$controller = $this->makeController('alice');
+		$response = $controller->getDefaultDashboard();
 
-    /**
-     * An anonymous caller MUST get 401 on the read side too, and MUST NOT
-     * reach anybody's preference.
-     *
-     * @return void
-     */
-    public function testGetDefaultDashboardRejectsAnonymousWith401(): void
-    {
-        $this->dashboardService->expects($this->never())
-            ->method('getDefaultPreference');
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(
+			expected: ['uuid' => 'uuid-a'],
+			actual: $response->getData()
+		);
 
-        $controller = $this->makeController(null);
-        $response   = $controller->getDefaultDashboard();
+	}//end testGetDefaultDashboardReturnsTheActingUsersPin()
 
-        $this->assertSame(
-            expected: Http::STATUS_UNAUTHORIZED,
-            actual: $response->getStatus()
-        );
+	/**
+	 * "No pin set" is the empty string, not a 404 — the frontend reads it
+	 * as "fall through to the resolver".
+	 *
+	 * @return void
+	 */
+	public function testGetDefaultDashboardReturnsEmptyStringWhenUnpinned(): void {
+		$this->dashboardService->method('getDefaultPreference')->willReturn('');
 
-    }//end testGetDefaultDashboardRejectsAnonymousWith401()
+		$controller = $this->makeController('alice');
+		$response = $controller->getDefaultDashboard();
 
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['uuid' => ''], actual: $response->getData());
 
-    /**
-     * The read returns the acting user's pin under the `uuid` key.
-     *
-     * @return void
-     */
-    public function testGetDefaultDashboardReturnsTheActingUsersPin(): void
-    {
-        $this->dashboardService->expects($this->once())
-            ->method('getDefaultPreference')
-            ->with(userId: 'alice')
-            ->willReturn('uuid-a');
-
-        $controller = $this->makeController('alice');
-        $response   = $controller->getDefaultDashboard();
-
-        $this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
-        $this->assertSame(
-            expected: ['uuid' => 'uuid-a'],
-            actual: $response->getData()
-        );
-
-    }//end testGetDefaultDashboardReturnsTheActingUsersPin()
-
-
-    /**
-     * "No pin set" is the empty string, not a 404 — the frontend reads it
-     * as "fall through to the resolver".
-     *
-     * @return void
-     */
-    public function testGetDefaultDashboardReturnsEmptyStringWhenUnpinned(): void
-    {
-        $this->dashboardService->method('getDefaultPreference')->willReturn('');
-
-        $controller = $this->makeController('alice');
-        $response   = $controller->getDefaultDashboard();
-
-        $this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
-        $this->assertSame(expected: ['uuid' => ''], actual: $response->getData());
-
-    }//end testGetDefaultDashboardReturnsEmptyStringWhenUnpinned()
-
+	}//end testGetDefaultDashboardReturnsEmptyStringWhenUnpinned()
 
 }//end class

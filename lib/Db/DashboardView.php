@@ -39,66 +39,63 @@ use OCP\AppFramework\Db\Entity;
  * @method int getUniqueViewerCount()
  * @method void setUniqueViewerCount(int $uniqueViewerCount)
  */
-class DashboardView extends Entity implements JsonSerializable
-{
+class DashboardView extends Entity implements JsonSerializable {
 
-    /**
-     * Dashboard UUID this aggregate row belongs to.
-     *
-     * @var string|null
-     */
-    protected ?string $dashboardUuid = null;
+	/**
+	 * Dashboard UUID this aggregate row belongs to.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $dashboardUuid = null;
 
-    /**
-     * Calendar date in UTC (YYYY-MM-DD).
-     *
-     * @var string|null
-     */
-    protected ?string $viewBucket = null;
+	/**
+	 * Calendar date in UTC (YYYY-MM-DD).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $viewBucket = null;
 
-    /**
-     * Total view-event count for the bucket.
-     *
-     * @var integer
-     */
-    protected int $viewCount = 0;
+	/**
+	 * Total view-event count for the bucket.
+	 *
+	 * @var integer
+	 */
+	protected int $viewCount = 0;
 
-    /**
-     * Distinct viewer count for the bucket (cache-deduped).
-     *
-     * @var integer
-     */
-    protected int $uniqueViewerCount = 0;
+	/**
+	 * Distinct viewer count for the bucket (cache-deduped).
+	 *
+	 * @var integer
+	 */
+	protected int $uniqueViewerCount = 0;
 
-    /**
-     * Constructor — register column types.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'viewCount', type: 'integer');
-        $this->addType(fieldName: 'uniqueViewerCount', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — register column types.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'viewCount', type: 'integer');
+		$this->addType(fieldName: 'uniqueViewerCount', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Serialize to JSON.
-     *
-     * Stable, frontend-facing key names. The `viewBucket` key is the
-     * UTC date string `YYYY-MM-DD` — matches the spec scenarios in
-     * REQ-ANLT-007.
-     *
-     * @return array The serialized aggregate row.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'                => $this->getId(),
-            'dashboardUuid'     => $this->dashboardUuid,
-            'viewBucket'        => $this->viewBucket,
-            'viewCount'         => $this->viewCount,
-            'uniqueViewerCount' => $this->uniqueViewerCount,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON.
+	 *
+	 * Stable, frontend-facing key names. The `viewBucket` key is the
+	 * UTC date string `YYYY-MM-DD` — matches the spec scenarios in
+	 * REQ-ANLT-007.
+	 *
+	 * @return array The serialized aggregate row.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'dashboardUuid' => $this->dashboardUuid,
+			'viewBucket' => $this->viewBucket,
+			'viewCount' => $this->viewCount,
+			'uniqueViewerCount' => $this->uniqueViewerCount,
+		];
+	}//end jsonSerialize()
 }//end class

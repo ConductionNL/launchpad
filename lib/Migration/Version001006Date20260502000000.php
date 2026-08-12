@@ -30,45 +30,44 @@ use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
-class Version001006Date20260502000000 extends SimpleMigrationStep
-{
-    /**
-     * Add the `icon` column to `launchpad_dashboards`.
-     *
-     * Length 2000 mirrors `launchpad_tiles.icon` so that an uploaded icon
-     * URL added by the sibling `custom-icon-upload-pattern` capability
-     * fits without a follow-up migration.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001006Date20260502000000 extends SimpleMigrationStep {
+	/**
+	 * Add the `icon` column to `launchpad_dashboards`.
+	 *
+	 * Length 2000 mirrors `launchpad_tiles.icon` so that an uploaded icon
+	 * URL added by the sibling `custom-icon-upload-pattern` capability
+	 * fits without a follow-up migration.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return null;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return null;
+		}
 
-        $table = $schema->getTable('launchpad_dashboards');
-        if ($table->hasColumn('icon') === false) {
-            $table->addColumn(
-                'icon',
-                Types::STRING,
-                [
-                    'notnull' => false,
-                    'length'  => 2000,
-                    'comment' => 'Dashboard icon: registry key (dashboard-icons) or upload URL; NULL = default.',
-                ]
-            );
-        }
+		$table = $schema->getTable('launchpad_dashboards');
+		if ($table->hasColumn('icon') === false) {
+			$table->addColumn(
+				'icon',
+				Types::STRING,
+				[
+					'notnull' => false,
+					'length' => 2000,
+					'comment' => 'Dashboard icon: registry key (dashboard-icons) or upload URL; NULL = default.',
+				]
+			);
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

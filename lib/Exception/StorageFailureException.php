@@ -26,31 +26,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Persisting the resource to app data failed.
  */
-class StorageFailureException extends ResourceException
-{
+class StorageFailureException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'storage_failure';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'storage_failure';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 500;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 500;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(
-        string $message='Failed to store resource'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(
+		string $message = 'Failed to store resource',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

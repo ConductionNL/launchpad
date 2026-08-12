@@ -66,71 +66,69 @@ use Throwable;
  *
  * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Metrics Endpoint (REQ-PROM-001)
  */
-class MetricsController extends Controller
-{
-    /**
-     * Prometheus text exposition content type.
-     *
-     * Inlined rather than read from `PrometheusRenderer::CONTENT_TYPE`, because
-     * referencing that constant is itself a compile-time dependency on a class
-     * that may not be installed — the same trap as the old `extends`.
-     *
-     * @var string
-     */
-    public const CONTENT_TYPE = 'text/plain; version=0.0.4; charset=utf-8';
+class MetricsController extends Controller {
+	/**
+	 * Prometheus text exposition content type.
+	 *
+	 * Inlined rather than read from `PrometheusRenderer::CONTENT_TYPE`, because
+	 * referencing that constant is itself a compile-time dependency on a class
+	 * that may not be installed — the same trap as the old `extends`.
+	 *
+	 * @var string
+	 */
+	public const CONTENT_TYPE = 'text/plain; version=0.0.4; charset=utf-8';
 
-    /**
-     * Constructor.
-     *
-     * @param string      $appName        This leaf's app id (`launchpad`), which the
-     *                                    engine uses to locate the manifest and to
-     *                                    prefix the emitted metrics.
-     * @param IRequest    $request        The HTTP request.
-     * @param object|null $manifestLoader OpenRegister's ManifestLoader, or null when
-     *                                    OpenRegister is unavailable. Untyped on
-     *                                    purpose — see the class docblock.
-     * @param object|null $engine         OpenRegister's MetricsEngine, or null.
-     */
-    public function __construct(
-        string $appName,
-        IRequest $request,
-        private readonly ?object $manifestLoader=null,
-        private readonly ?object $engine=null,
-    ) {
-        parent::__construct(appName: $appName, request: $request);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $appName This leaf's app id (`launchpad`), which the
+	 *                        engine uses to locate the manifest and to
+	 *                        prefix the emitted metrics.
+	 * @param IRequest $request The HTTP request.
+	 * @param object|null $manifestLoader OpenRegister's ManifestLoader, or null when
+	 *                                    OpenRegister is unavailable. Untyped on
+	 *                                    purpose — see the class docblock.
+	 * @param object|null $engine OpenRegister's MetricsEngine, or null.
+	 */
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private readonly ?object $manifestLoader = null,
+		private readonly ?object $engine = null,
+	) {
+		parent::__construct(appName: $appName, request: $request);
+	}//end __construct()
 
-    /**
-     * GET /api/metrics — declarative Prometheus metrics (admin-only, ADR-006).
-     *
-     * @return TextPlainResponse Prometheus text exposition 0.0.4, or a plain 503
-     *                           body when the engine is unavailable.
-     *
-     * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Metrics Endpoint (REQ-PROM-001)
-     */
-    #[NoCSRFRequired]
-    public function index(): TextPlainResponse
-    {
-        if ($this->manifestLoader === null || $this->engine === null) {
-            return new TextPlainResponse(
-                '# OpenRegister AppHost observability engine unavailable'."\n",
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }
+	/**
+	 * GET /api/metrics — declarative Prometheus metrics (admin-only, ADR-006).
+	 *
+	 * @return TextPlainResponse Prometheus text exposition 0.0.4, or a plain 503
+	 *                           body when the engine is unavailable.
+	 *
+	 * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Metrics Endpoint (REQ-PROM-001)
+	 */
+	#[NoCSRFRequired]
+	public function index(): TextPlainResponse {
+		if ($this->manifestLoader === null || $this->engine === null) {
+			return new TextPlainResponse(
+				'# OpenRegister AppHost observability engine unavailable' . "\n",
+				Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}
 
-        try {
-            $manifest = $this->manifestLoader->load(appId: $this->appName);
-            $body     = $this->engine->render(manifest: $manifest);
-        } catch (Throwable $e) {
-            return new TextPlainResponse(
-                '# metrics unavailable: '.$e->getMessage()."\n",
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }
+		try {
+			$manifest = $this->manifestLoader->load(appId: $this->appName);
+			$body = $this->engine->render(manifest: $manifest);
+		} catch (Throwable $e) {
+			return new TextPlainResponse(
+				'# metrics unavailable: ' . $e->getMessage() . "\n",
+				Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}
 
-        $response = new TextPlainResponse($body);
-        $response->addHeader('Content-Type', self::CONTENT_TYPE);
+		$response = new TextPlainResponse($body);
+		$response->addHeader('Content-Type', self::CONTENT_TYPE);
 
-        return $response;
-    }//end index()
+		return $response;
+	}//end index()
 }//end class

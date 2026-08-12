@@ -32,33 +32,31 @@ use RuntimeException;
 /**
  * Caller cannot VIEW / mutate the targeted dashboard(s).
  */
-class PermissionDeniedException extends RuntimeException
-{
-    /**
-     * Constructor.
-     *
-     * @param string   $message     The error message surfaced to the
-     *                              caller.
-     * @param string[] $deniedUuids The UUIDs the caller could not act on.
-     *                              Empty when the caller is not an admin
-     *                              at all (no per-uuid breakdown applies)
-     *                              or when the caller is a single-dashboard
-     *                              reaction path that has no batch context.
-     */
-    public function __construct(
-        string $message='',
-        private readonly array $deniedUuids=[]
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+class PermissionDeniedException extends RuntimeException {
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message The error message surfaced to the
+	 *                        caller.
+	 * @param string[] $deniedUuids The UUIDs the caller could not act on.
+	 *                              Empty when the caller is not an admin
+	 *                              at all (no per-uuid breakdown applies)
+	 *                              or when the caller is a single-dashboard
+	 *                              reaction path that has no batch context.
+	 */
+	public function __construct(
+		string $message = '',
+		private readonly array $deniedUuids = [],
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 
-    /**
-     * The UUIDs that caused the permission denial.
-     *
-     * @return string[] The denied UUID list.
-     */
-    public function getDeniedUuids(): array
-    {
-        return $this->deniedUuids;
-    }//end getDeniedUuids()
+	/**
+	 * The UUIDs that caused the permission denial.
+	 *
+	 * @return string[] The denied UUID list.
+	 */
+	public function getDeniedUuids(): array {
+		return $this->deniedUuids;
+	}//end getDeniedUuids()
 }//end class

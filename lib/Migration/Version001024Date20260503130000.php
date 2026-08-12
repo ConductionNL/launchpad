@@ -39,33 +39,32 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Add footer-override columns to launchpad_dashboards (REQ-FTR-006).
  */
-class Version001024Date20260503130000 extends SimpleMigrationStep
-{
-    /**
-     * Add the dashboard_footer_mode / dashboard_footer_html columns.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001024Date20260503130000 extends SimpleMigrationStep {
+	/**
+	 * Add the dashboard_footer_mode / dashboard_footer_html columns.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return $schema;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return $schema;
+		}
 
-        $table = $schema->getTable('launchpad_dashboards');
+		$table = $schema->getTable('launchpad_dashboards');
 
-        DashboardTableBuilder::addFooterColumns(table: $table);
+		DashboardTableBuilder::addFooterColumns(table: $table);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

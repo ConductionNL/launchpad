@@ -33,87 +33,83 @@ use RuntimeException;
 /**
  * Tests for ReactionsListener cascade delete.
  */
-class ReactionsListenerTest extends TestCase
-{
-    /**
-     * Live cleanup invokes ReactionService::deleteReactionsByDashboard
-     * with the UUID from the event. REQ-RXN-009.
-     */
-    public function testHandleInvokesServiceWithEventUuid(): void
-    {
-        $service = $this->createMock(originalClassName: ReactionService::class);
-        $logger  = $this->createMock(originalClassName: LoggerInterface::class);
+class ReactionsListenerTest extends TestCase {
+	/**
+	 * Live cleanup invokes ReactionService::deleteReactionsByDashboard
+	 * with the UUID from the event. REQ-RXN-009.
+	 */
+	public function testHandleInvokesServiceWithEventUuid(): void {
+		$service = $this->createMock(originalClassName: ReactionService::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 
-        $service->expects($this->once())
-            ->method('deleteReactionsByDashboard')
-            ->with($this->equalTo('abc-123'))
-            ->willReturn(7);
+		$service->expects($this->once())
+			->method('deleteReactionsByDashboard')
+			->with($this->equalTo('abc-123'))
+			->willReturn(7);
 
-        $listener = new ReactionsListener(
-            reactionService: $service,
-            logger: $logger
-        );
+		$listener = new ReactionsListener(
+			reactionService: $service,
+			logger: $logger
+		);
 
-        $listener->handle(
-            event: new DashboardDeletedEvent(
-                dashboardUuid: 'abc-123',
-                ownerUserId: 'alice',
-                type: 'user',
-                deletedAt: new DateTimeImmutable(),
-            )
-        );
-    }
+		$listener->handle(
+			event: new DashboardDeletedEvent(
+				dashboardUuid: 'abc-123',
+				ownerUserId: 'alice',
+				type: 'user',
+				deletedAt: new DateTimeImmutable(),
+			)
+		);
+	}
 
-    /**
-     * Foreign event types are silently ignored — the instanceof guard
-     * short-circuits before the service is touched.
-     */
-    public function testIgnoresForeignEventTypes(): void
-    {
-        $service = $this->createMock(originalClassName: ReactionService::class);
-        $logger  = $this->createMock(originalClassName: LoggerInterface::class);
+	/**
+	 * Foreign event types are silently ignored — the instanceof guard
+	 * short-circuits before the service is touched.
+	 */
+	public function testIgnoresForeignEventTypes(): void {
+		$service = $this->createMock(originalClassName: ReactionService::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 
-        $service->expects($this->never())
-            ->method('deleteReactionsByDashboard');
+		$service->expects($this->never())
+			->method('deleteReactionsByDashboard');
 
-        $listener = new ReactionsListener(
-            reactionService: $service,
-            logger: $logger
-        );
+		$listener = new ReactionsListener(
+			reactionService: $service,
+			logger: $logger
+		);
 
-        $foreign = new class extends Event {
-        };
+		$foreign = new class extends Event {
+		};
 
-        $listener->handle(event: $foreign);
-    }
+		$listener->handle(event: $foreign);
+	}
 
-    /**
-     * REQ-CSC-006 — listener swallows service failure, logs at WARNING,
-     * does not let the exception escape (failure isolation between
-     * cascade siblings).
-     */
-    public function testServiceFailureIsLoggedAndSwallowed(): void
-    {
-        $service = $this->createMock(originalClassName: ReactionService::class);
-        $logger  = $this->createMock(originalClassName: LoggerInterface::class);
+	/**
+	 * REQ-CSC-006 — listener swallows service failure, logs at WARNING,
+	 * does not let the exception escape (failure isolation between
+	 * cascade siblings).
+	 */
+	public function testServiceFailureIsLoggedAndSwallowed(): void {
+		$service = $this->createMock(originalClassName: ReactionService::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 
-        $service->method('deleteReactionsByDashboard')
-            ->willThrowException(new RuntimeException(message: 'boom'));
+		$service->method('deleteReactionsByDashboard')
+			->willThrowException(new RuntimeException(message: 'boom'));
 
-        $logger->expects($this->once())->method('warning');
+		$logger->expects($this->once())->method('warning');
 
-        $listener = new ReactionsListener(
-            reactionService: $service,
-            logger: $logger
-        );
+		$listener = new ReactionsListener(
+			reactionService: $service,
+			logger: $logger
+		);
 
-        $listener->handle(
-            event: new DashboardDeletedEvent(
-                dashboardUuid: 'abc-123',
-                ownerUserId: 'alice',
-                type: 'user',
-                deletedAt: new DateTimeImmutable(),
-            )
-        );
-    }
+		$listener->handle(
+			event: new DashboardDeletedEvent(
+				dashboardUuid: 'abc-123',
+				ownerUserId: 'alice',
+				type: 'user',
+				deletedAt: new DateTimeImmutable(),
+			)
+		);
+	}
 }

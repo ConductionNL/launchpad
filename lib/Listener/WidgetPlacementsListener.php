@@ -38,63 +38,61 @@ use Throwable;
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
-class WidgetPlacementsListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-     * @param LoggerInterface       $logger          PSR-3 logger for
-     *                                               log-and-continue failure
-     *                                               handling per REQ-CSC-006.
-     */
-    public function __construct(
-        private readonly WidgetPlacementMapper $placementMapper,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class WidgetPlacementsListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
+	 * @param LoggerInterface $logger PSR-3 logger for
+	 *                                log-and-continue failure
+	 *                                handling per REQ-CSC-006.
+	 */
+	public function __construct(
+		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-cascade-events/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid = $event->getDashboardUuid();
+		$uuid = $event->getDashboardUuid();
 
-        try {
-            $deleted = $this->placementMapper->deleteByDashboardUuid(
-                dashboardUuid: $uuid
-            );
+		try {
+			$deleted = $this->placementMapper->deleteByDashboardUuid(
+				dashboardUuid: $uuid
+			);
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad WidgetPlacementsListener: deleted %d placement rows for dashboard %s',
-                    $deleted,
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            // Failure isolation per REQ-CSC-006 — log at WARN, do not
-            // rethrow so peer listeners still execute.
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad WidgetPlacementsListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad WidgetPlacementsListener: deleted %d placement rows for dashboard %s',
+					$deleted,
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			// Failure isolation per REQ-CSC-006 — log at WARN, do not
+			// rethrow so peer listeners still execute.
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad WidgetPlacementsListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

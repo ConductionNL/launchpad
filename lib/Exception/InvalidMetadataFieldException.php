@@ -29,12 +29,11 @@ use Exception;
 /**
  * Validation failure on the dashboard-metadata-fields capability.
  */
-class InvalidMetadataFieldException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'invalid_metadata_field';
+class InvalidMetadataFieldException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'invalid_metadata_field';
 }//end class

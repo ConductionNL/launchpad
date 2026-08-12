@@ -27,31 +27,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Invalid role-assignment payload (REQ-ROLE-004).
  */
-class InvalidRoleAssignmentException extends ResourceException
-{
+class InvalidRoleAssignmentException extends ResourceException {
 
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'invalid_role_assignment';
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'invalid_role_assignment';
 
-    /**
-     * HTTP status code.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 400;
+	/**
+	 * HTTP status code.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 400;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message (translatable English string).
-     */
-    public function __construct(
-        string $message='Role assignment payload is invalid'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message (translatable English string).
+	 */
+	public function __construct(
+		string $message = 'Role assignment payload is invalid',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

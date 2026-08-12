@@ -31,8 +31,7 @@ namespace OCA\LaunchPad\Service\InitialState;
 /**
  * Page identifier for the initial-state contract (REQ-INIT-001).
  */
-enum Page: string
-{
-    case WORKSPACE = 'workspace';
-    case ADMIN     = 'admin';
+enum Page: string {
+	case WORKSPACE = 'workspace';
+	case ADMIN = 'admin';
 }//end enum

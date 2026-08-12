@@ -37,62 +37,60 @@ use Throwable;
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
-class TranslationsListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param DashboardTranslationMapper $translationMapper Translation mapper.
-     * @param LoggerInterface            $logger            PSR-3 logger for
-     *                                                      log-and-continue
-     *                                                      failure handling per
-     *                                                      REQ-CSC-006.
-     */
-    public function __construct(
-        private readonly DashboardTranslationMapper $translationMapper,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class TranslationsListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param DashboardTranslationMapper $translationMapper Translation mapper.
+	 * @param LoggerInterface $logger PSR-3 logger for
+	 *                                log-and-continue
+	 *                                failure handling per
+	 *                                REQ-CSC-006.
+	 */
+	public function __construct(
+		private readonly DashboardTranslationMapper $translationMapper,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-cascade-events/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid = $event->getDashboardUuid();
+		$uuid = $event->getDashboardUuid();
 
-        try {
-            $deleted = $this->translationMapper->deleteByDashboardUuid(
-                dashboardUuid: $uuid
-            );
+		try {
+			$deleted = $this->translationMapper->deleteByDashboardUuid(
+				dashboardUuid: $uuid
+			);
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad TranslationsListener: deleted %d translation rows for dashboard %s',
-                    $deleted,
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad TranslationsListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad TranslationsListener: deleted %d translation rows for dashboard %s',
+					$deleted,
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad TranslationsListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

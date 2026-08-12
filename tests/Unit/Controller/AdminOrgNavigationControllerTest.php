@@ -33,211 +33,183 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class AdminOrgNavigationControllerTest extends TestCase
-{
+class AdminOrgNavigationControllerTest extends TestCase {
 
-    /** @var IRequest&MockObject */
-    private $request;
+	/** @var IRequest&MockObject */
+	private $request;
 
-    /** @var OrgNavigationService&MockObject */
-    private $service;
+	/** @var OrgNavigationService&MockObject */
+	private $service;
 
-    /** @var AdminSettingMapper&MockObject */
-    private $settings;
+	/** @var AdminSettingMapper&MockObject */
+	private $settings;
 
-    /** @var IGroupManager&MockObject */
-    private $groupManager;
+	/** @var IGroupManager&MockObject */
+	private $groupManager;
 
-    /** @var IUserSession&MockObject */
-    private $userSession;
+	/** @var IUserSession&MockObject */
+	private $userSession;
 
-    /** @var ActionAuthService&MockObject */
-    private $actionAuth;
+	/** @var ActionAuthService&MockObject */
+	private $actionAuth;
 
-    private AdminOrgNavigationController $controller;
+	private AdminOrgNavigationController $controller;
 
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->service = $this->createMock(OrgNavigationService::class);
+		$this->settings = $this->createMock(AdminSettingMapper::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->actionAuth = $this->createMock(ActionAuthService::class);
 
-    protected function setUp(): void
-    {
-        $this->request      = $this->createMock(IRequest::class);
-        $this->service      = $this->createMock(OrgNavigationService::class);
-        $this->settings     = $this->createMock(AdminSettingMapper::class);
-        $this->groupManager = $this->createMock(IGroupManager::class);
-        $this->userSession  = $this->createMock(IUserSession::class);
-        $this->actionAuth   = $this->createMock(ActionAuthService::class);
+		$this->controller = new AdminOrgNavigationController(
+			request: $this->request,
+			service: $this->service,
+			settings: $this->settings,
+			userSession: $this->userSession,
+			groupManager: $this->groupManager,
+			actionAuth: $this->actionAuth,
+		);
 
-        $this->controller = new AdminOrgNavigationController(
-            request: $this->request,
-            service: $this->service,
-            settings: $this->settings,
-            userSession: $this->userSession,
-            groupManager: $this->groupManager,
-            actionAuth: $this->actionAuth,
-        );
+	}//end setUp()
 
-    }//end setUp()
+	private function loginAs(string $uid, bool $admin): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($uid);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')
+			->with($uid)
+			->willReturn($admin);
 
+	}//end loginAs()
 
-    private function loginAs(string $uid, bool $admin): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn($uid);
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->groupManager->method('isAdmin')
-            ->with($uid)
-            ->willReturn($admin);
+	public function testGetReturnsUnauthorizedWhenNoUser(): void {
+		$this->userSession->method('getUser')->willReturn(null);
 
-    }//end loginAs()
+		$response = $this->controller->getOrgNavigation();
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 
+	}//end testGetReturnsUnauthorizedWhenNoUser()
 
-    public function testGetReturnsUnauthorizedWhenNoUser(): void
-    {
-        $this->userSession->method('getUser')->willReturn(null);
+	public function testGetReturnsFilteredTreeForLoggedInUser(): void {
+		$this->loginAs('alice', false);
 
-        $response = $this->controller->getOrgNavigation();
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->service->method('getTree')
+			->with('nl')
+			->willReturn([['id' => 'x', 'label' => 'Raw']]);
+		$this->service->method('filterTreeByUserGroups')
+			->willReturn([['id' => 'x', 'label' => 'Filtered']]);
 
-    }//end testGetReturnsUnauthorizedWhenNoUser()
+		$response = $this->controller->getOrgNavigation(lang: 'nl');
+		$body = $response->getData();
 
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('nl', $body['language']);
+		$this->assertSame('Filtered', $body['tree'][0]['label']);
 
-    public function testGetReturnsFilteredTreeForLoggedInUser(): void
-    {
-        $this->loginAs('alice', false);
+	}//end testGetReturnsFilteredTreeForLoggedInUser()
 
-        $this->service->method('getTree')
-            ->with('nl')
-            ->willReturn([['id' => 'x', 'label' => 'Raw']]);
-        $this->service->method('filterTreeByUserGroups')
-            ->willReturn([['id' => 'x', 'label' => 'Filtered']]);
+	public function testGetRejectsUnsupportedLanguage(): void {
+		$this->loginAs('alice', false);
 
-        $response = $this->controller->getOrgNavigation(lang: 'nl');
-        $body     = $response->getData();
+		$response = $this->controller->getOrgNavigation(lang: 'de');
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame('nl', $body['language']);
-        $this->assertSame('Filtered', $body['tree'][0]['label']);
+	}//end testGetRejectsUnsupportedLanguage()
 
-    }//end testGetReturnsFilteredTreeForLoggedInUser()
+	public function testUpdateReturns403ForNonAdmin(): void {
+		$this->loginAs('bob', false);
 
+		$this->service->expects($this->never())->method('setTree');
 
-    public function testGetRejectsUnsupportedLanguage(): void
-    {
-        $this->loginAs('alice', false);
+		$response = $this->controller->updateOrgNavigation(tree: []);
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 
-        $response = $this->controller->getOrgNavigation(lang: 'de');
-        $this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}//end testUpdateReturns403ForNonAdmin()
 
-    }//end testGetRejectsUnsupportedLanguage()
+	public function testUpdateReturns400WhenTreeMissing(): void {
+		$this->loginAs('admin', true);
 
+		$response = $this->controller->updateOrgNavigation(tree: null);
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 
-    public function testUpdateReturns403ForNonAdmin(): void
-    {
-        $this->loginAs('bob', false);
+	}//end testUpdateReturns400WhenTreeMissing()
 
-        $this->service->expects($this->never())->method('setTree');
+	public function testUpdateReturns400OnValidationFailure(): void {
+		$this->loginAs('admin', true);
 
-        $response = $this->controller->updateOrgNavigation(tree: []);
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->service->method('setTree')
+			->willThrowException(
+				new InvalidArgumentException('Tree depth cannot exceed 3 levels')
+			);
 
-    }//end testUpdateReturns403ForNonAdmin()
+		$response = $this->controller->updateOrgNavigation(tree: [['id' => 'x']]);
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$this->assertStringContainsString(
+			'Tree depth',
+			(string)$response->getData()['error']
+		);
 
+	}//end testUpdateReturns400OnValidationFailure()
 
-    public function testUpdateReturns400WhenTreeMissing(): void
-    {
-        $this->loginAs('admin', true);
+	public function testUpdatePersistsTree(): void {
+		$this->loginAs('admin', true);
 
-        $response = $this->controller->updateOrgNavigation(tree: null);
-        $this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$tree = [['id' => 'one', 'label' => 'A']];
+		$this->service->expects($this->once())
+			->method('setTree')
+			->with($tree, 'en');
 
-    }//end testUpdateReturns400WhenTreeMissing()
+		$response = $this->controller->updateOrgNavigation(tree: $tree, lang: 'en');
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('en', $response->getData()['language']);
 
+	}//end testUpdatePersistsTree()
 
-    public function testUpdateReturns400OnValidationFailure(): void
-    {
-        $this->loginAs('admin', true);
+	public function testGetPositionReturnsDefaultWhenUnset(): void {
+		$this->loginAs('alice', false);
 
-        $this->service->method('setTree')
-            ->willThrowException(
-                new InvalidArgumentException('Tree depth cannot exceed 3 levels')
-            );
+		$this->settings->method('getValue')
+			->with(AdminOrgNavigationController::SETTING_KEY_POSITION, 'hidden')
+			->willReturn('hidden');
 
-        $response = $this->controller->updateOrgNavigation(tree: [['id' => 'x']]);
-        $this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-        $this->assertStringContainsString(
-            'Tree depth',
-            (string) $response->getData()['error']
-        );
+		$response = $this->controller->getPosition();
+		$this->assertSame('hidden', $response->getData()['position']);
 
-    }//end testUpdateReturns400OnValidationFailure()
+	}//end testGetPositionReturnsDefaultWhenUnset()
 
+	public function testUpdatePositionRejectsBadValue(): void {
+		$this->loginAs('admin', true);
 
-    public function testUpdatePersistsTree(): void
-    {
-        $this->loginAs('admin', true);
+		$this->settings->expects($this->never())->method('setSetting');
 
-        $tree = [['id' => 'one', 'label' => 'A']];
-        $this->service->expects($this->once())
-            ->method('setTree')
-            ->with($tree, 'en');
+		$response = $this->controller->updatePosition(position: 'sideways');
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 
-        $response = $this->controller->updateOrgNavigation(tree: $tree, lang: 'en');
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame('en', $response->getData()['language']);
+	}//end testUpdatePositionRejectsBadValue()
 
-    }//end testUpdatePersistsTree()
+	public function testUpdatePositionPersistsAccepted(): void {
+		$this->loginAs('admin', true);
 
+		$this->settings->expects($this->once())
+			->method('setSetting')
+			->with(AdminOrgNavigationController::SETTING_KEY_POSITION, 'left');
 
-    public function testGetPositionReturnsDefaultWhenUnset(): void
-    {
-        $this->loginAs('alice', false);
+		$response = $this->controller->updatePosition(position: 'left');
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('left', $response->getData()['position']);
 
-        $this->settings->method('getValue')
-            ->with(AdminOrgNavigationController::SETTING_KEY_POSITION, 'hidden')
-            ->willReturn('hidden');
+	}//end testUpdatePositionPersistsAccepted()
 
-        $response = $this->controller->getPosition();
-        $this->assertSame('hidden', $response->getData()['position']);
+	public function testUpdatePositionRejectsNonAdmin(): void {
+		$this->loginAs('bob', false);
 
-    }//end testGetPositionReturnsDefaultWhenUnset()
+		$this->settings->expects($this->never())->method('setSetting');
 
+		$response = $this->controller->updatePosition(position: 'left');
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 
-    public function testUpdatePositionRejectsBadValue(): void
-    {
-        $this->loginAs('admin', true);
-
-        $this->settings->expects($this->never())->method('setSetting');
-
-        $response = $this->controller->updatePosition(position: 'sideways');
-        $this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-
-    }//end testUpdatePositionRejectsBadValue()
-
-
-    public function testUpdatePositionPersistsAccepted(): void
-    {
-        $this->loginAs('admin', true);
-
-        $this->settings->expects($this->once())
-            ->method('setSetting')
-            ->with(AdminOrgNavigationController::SETTING_KEY_POSITION, 'left');
-
-        $response = $this->controller->updatePosition(position: 'left');
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame('left', $response->getData()['position']);
-
-    }//end testUpdatePositionPersistsAccepted()
-
-
-    public function testUpdatePositionRejectsNonAdmin(): void
-    {
-        $this->loginAs('bob', false);
-
-        $this->settings->expects($this->never())->method('setSetting');
-
-        $response = $this->controller->updatePosition(position: 'left');
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-
-    }//end testUpdatePositionRejectsNonAdmin()
-
+	}//end testUpdatePositionRejectsNonAdmin()
 
 }//end class

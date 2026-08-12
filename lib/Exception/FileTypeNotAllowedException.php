@@ -26,31 +26,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Extension is outside the admin-configured allow-list.
  */
-class FileTypeNotAllowedException extends ResourceException
-{
+class FileTypeNotAllowedException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'file_type_not_allowed';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'file_type_not_allowed';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 400;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 400;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(
-        string $message='File type not allowed'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(
+		string $message = 'File type not allowed',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

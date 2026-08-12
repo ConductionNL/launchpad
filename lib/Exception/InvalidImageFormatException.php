@@ -26,31 +26,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Declared image type is not in the allowed list.
  */
-class InvalidImageFormatException extends ResourceException
-{
+class InvalidImageFormatException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'invalid_image_format';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'invalid_image_format';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 400;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 400;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(
-        string $message='Allowed image formats: jpeg, jpg, png, gif, svg, webp'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(
+		string $message = 'Allowed image formats: jpeg, jpg, png, gif, svg, webp',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

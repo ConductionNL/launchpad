@@ -30,35 +30,33 @@ use Exception;
  * Cascade-delete guard tripped — the field still has values
  * (REQ-MDFL-003).
  */
-class MetadataFieldHasValuesException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'metadata_field_has_values';
+class MetadataFieldHasValuesException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'metadata_field_has_values';
 
-    /**
-     * Constructor.
-     *
-     * @param int $valueCount The number of dependent value rows.
-     */
-    public function __construct(
-        private readonly int $valueCount
-    ) {
-        parent::__construct(
-            message: 'Metadata field has '.$valueCount.' values. Use ?cascade=true to delete them.'
-        );
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param int $valueCount The number of dependent value rows.
+	 */
+	public function __construct(
+		private readonly int $valueCount,
+	) {
+		parent::__construct(
+			message: 'Metadata field has ' . $valueCount . ' values. Use ?cascade=true to delete them.'
+		);
+	}//end __construct()
 
-    /**
-     * Returns the number of dependent value rows.
-     *
-     * @return int The value count.
-     */
-    public function getValueCount(): int
-    {
-        return $this->valueCount;
-    }//end getValueCount()
+	/**
+	 * Returns the number of dependent value rows.
+	 *
+	 * @return int The value count.
+	 */
+	public function getValueCount(): int {
+		return $this->valueCount;
+	}//end getValueCount()
 }//end class

@@ -27,30 +27,28 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Decoded payload exceeds the 5 MB hard cap.
  */
-class FileTooLargeException extends ResourceException
-{
+class FileTooLargeException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'file_too_large';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'file_too_large';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 400;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 400;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Maximum size is 5MB')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Maximum size is 5MB') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

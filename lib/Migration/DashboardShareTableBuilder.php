@@ -27,88 +27,86 @@ use OCP\DB\Types;
 /**
  * Builder for the dashboard_shares database table schema.
  */
-class DashboardShareTableBuilder
-{
-    /**
-     * Create the launchpad_dashboard_shares table.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function create(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable('launchpad_dashboard_shares') === true) {
-            return;
-        }
+class DashboardShareTableBuilder {
+	/**
+	 * Create the launchpad_dashboard_shares table.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function create(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('launchpad_dashboard_shares') === true) {
+			return;
+		}
 
-        $table = $schema->createTable('launchpad_dashboard_shares');
+		$table = $schema->createTable('launchpad_dashboard_shares');
 
-        $table->addColumn(
-            'id',
-            Types::BIGINT,
-            [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            'dashboard_id',
-            Types::BIGINT,
-            [
-                'notnull'  => true,
-                'unsigned' => true,
-            ]
-        );
-        $table->addColumn(
-            'share_type',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 8,
-            ]
-        );
-        $table->addColumn(
-            'share_with',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 64,
-            ]
-        );
-        $table->addColumn(
-            'permission_level',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 16,
-                'default' => 'view_only',
-            ]
-        );
-        $table->addColumn(
-            'created_at',
-            Types::DATETIME,
-            ['notnull' => true]
-        );
-        $table->addColumn(
-            'updated_at',
-            Types::DATETIME,
-            ['notnull' => false]
-        );
+		$table->addColumn(
+			'id',
+			Types::BIGINT,
+			[
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'dashboard_id',
+			Types::BIGINT,
+			[
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'share_type',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 8,
+			]
+		);
+		$table->addColumn(
+			'share_with',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 64,
+			]
+		);
+		$table->addColumn(
+			'permission_level',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 16,
+				'default' => 'view_only',
+			]
+		);
+		$table->addColumn(
+			'created_at',
+			Types::DATETIME,
+			['notnull' => true]
+		);
+		$table->addColumn(
+			'updated_at',
+			Types::DATETIME,
+			['notnull' => false]
+		);
 
-        $table->setPrimaryKey(['id']);
-        $table->addIndex(
-            ['dashboard_id'],
-            'launchpad_share_dash_idx'
-        );
-        $table->addIndex(
-            ['share_type', 'share_with'],
-            'launchpad_share_recip_idx'
-        );
-        $table->addUniqueIndex(
-            ['dashboard_id', 'share_type', 'share_with'],
-            'launchpad_share_unique_idx'
-        );
-    }//end create()
+		$table->setPrimaryKey(['id']);
+		$table->addIndex(
+			['dashboard_id'],
+			'launchpad_share_dash_idx'
+		);
+		$table->addIndex(
+			['share_type', 'share_with'],
+			'launchpad_share_recip_idx'
+		);
+		$table->addUniqueIndex(
+			['dashboard_id', 'share_type', 'share_with'],
+			'launchpad_share_unique_idx'
+		);
+	}//end create()
 }//end class

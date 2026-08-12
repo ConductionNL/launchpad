@@ -24,40 +24,39 @@ use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
-class Version001004Date20260204150000 extends SimpleMigrationStep
-{
-    /**
-     * Add custom_icon column to widget placements.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        // Get the schema wrapper.
-        $schema = $schemaClosure();
+class Version001004Date20260204150000 extends SimpleMigrationStep {
+	/**
+	 * Add custom_icon column to widget placements.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		// Get the schema wrapper.
+		$schema = $schemaClosure();
 
-        $table = $schema->getTable(
-            'launchpad_widget_placements'
-        );
+		$table = $schema->getTable(
+			'launchpad_widget_placements'
+		);
 
-        if ($table->hasColumn('custom_icon') === false) {
-            $table->addColumn(
-                'custom_icon',
-                Types::TEXT,
-                [
-                    'notnull' => false,
-                    'length'  => 2000,
-                ]
-            );
-        }
+		if ($table->hasColumn('custom_icon') === false) {
+			$table->addColumn(
+				'custom_icon',
+				Types::TEXT,
+				[
+					'notnull' => false,
+					'length' => 2000,
+				]
+			);
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

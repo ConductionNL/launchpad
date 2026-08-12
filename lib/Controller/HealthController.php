@@ -49,88 +49,86 @@ use Throwable;
  *
  * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
  */
-class HealthController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param string      $appName        This leaf's app id (`launchpad`).
-     * @param IRequest    $request        The HTTP request.
-     * @param object|null $manifestLoader OpenRegister's ManifestLoader, or null when
-     *                                    OpenRegister is unavailable. Untyped on
-     *                                    purpose: a parameter TYPE is also a
-     *                                    compile-time reference to a class that may
-     *                                    not exist.
-     * @param object|null $executor       OpenRegister's HealthCheckExecutor, or null.
-     */
-    public function __construct(
-        string $appName,
-        IRequest $request,
-        private readonly ?object $manifestLoader=null,
-        private readonly ?object $executor=null,
-    ) {
-        parent::__construct(appName: $appName, request: $request);
-    }//end __construct()
+class HealthController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param string $appName This leaf's app id (`launchpad`).
+	 * @param IRequest $request The HTTP request.
+	 * @param object|null $manifestLoader OpenRegister's ManifestLoader, or null when
+	 *                                    OpenRegister is unavailable. Untyped on
+	 *                                    purpose: a parameter TYPE is also a
+	 *                                    compile-time reference to a class that may
+	 *                                    not exist.
+	 * @param object|null $executor OpenRegister's HealthCheckExecutor, or null.
+	 */
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private readonly ?object $manifestLoader = null,
+		private readonly ?object $executor = null,
+	) {
+		parent::__construct(appName: $appName, request: $request);
+	}//end __construct()
 
-    /**
-     * GET /api/health — declarative health check (ADR-006), public.
-     *
-     * Reports `status: unavailable` with HTTP 503 when the engine is absent,
-     * which is a meaningful answer for a monitoring probe: the app is reachable,
-     * its declarative health engine is not.
-     *
-     * @return JSONResponse `{status, app, version, checks}`.
-     *
-     * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    public function index(): JSONResponse
-    {
-        $appId = $this->appName;
+	/**
+	 * GET /api/health — declarative health check (ADR-006), public.
+	 *
+	 * Reports `status: unavailable` with HTTP 503 when the engine is absent,
+	 * which is a meaningful answer for a monitoring probe: the app is reachable,
+	 * its declarative health engine is not.
+	 *
+	 * @return JSONResponse `{status, app, version, checks}`.
+	 *
+	 * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	public function index(): JSONResponse {
+		$appId = $this->appName;
 
-        if ($this->manifestLoader === null || $this->executor === null) {
-            return new JSONResponse(
-                [
-                    'status' => 'unavailable',
-                    'app'    => $appId,
-                    'error'  => 'OpenRegister AppHost observability engine unavailable',
-                    'checks' => [],
-                ],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }
+		if ($this->manifestLoader === null || $this->executor === null) {
+			return new JSONResponse(
+				[
+					'status' => 'unavailable',
+					'app' => $appId,
+					'error' => 'OpenRegister AppHost observability engine unavailable',
+					'checks' => [],
+				],
+				Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}
 
-        try {
-            $manifest = $this->manifestLoader->load(appId: $appId);
-            $result   = $this->executor->execute(manifest: $manifest);
+		try {
+			$manifest = $this->manifestLoader->load(appId: $appId);
+			$result = $this->executor->execute(manifest: $manifest);
 
-            $response = new JSONResponse(
-                [
-                    'status'  => $result->status,
-                    'app'     => $appId,
-                    'version' => $this->manifestLoader->appVersion(appId: $appId),
-                    'checks'  => $result->checks,
-                ],
-                $result->httpStatusCode
-            );
+			$response = new JSONResponse(
+				[
+					'status' => $result->status,
+					'app' => $appId,
+					'version' => $this->manifestLoader->appVersion(appId: $appId),
+					'checks' => $result->checks,
+				],
+				$result->httpStatusCode
+			);
 
-            if ($manifest->cors === true) {
-                $response->addHeader('Access-Control-Allow-Origin', '*');
-                $response->addHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-            }
+			if ($manifest->cors === true) {
+				$response->addHeader('Access-Control-Allow-Origin', '*');
+				$response->addHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+			}
 
-            return $response;
-        } catch (Throwable $e) {
-            return new JSONResponse(
-                [
-                    'status' => 'unavailable',
-                    'app'    => $appId,
-                    'error'  => $e->getMessage(),
-                    'checks' => [],
-                ],
-                Http::STATUS_SERVICE_UNAVAILABLE
-            );
-        }//end try
-    }//end index()
+			return $response;
+		} catch (Throwable $e) {
+			return new JSONResponse(
+				[
+					'status' => 'unavailable',
+					'app' => $appId,
+					'error' => $e->getMessage(),
+					'checks' => [],
+				],
+				Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}//end try
+	}//end index()
 }//end class

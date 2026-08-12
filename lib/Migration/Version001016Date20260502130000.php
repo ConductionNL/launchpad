@@ -44,27 +44,26 @@ use OCP\Migration\SimpleMigrationStep;
  * Create metadata-field registry + per-dashboard value tables
  * (REQ-MDFL-001..008).
  */
-class Version001016Date20260502130000 extends SimpleMigrationStep
-{
-    /**
-     * Create the `launchpad_meta_fields` and `launchpad_meta_values` tables.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001016Date20260502130000 extends SimpleMigrationStep {
+	/**
+	 * Create the `launchpad_meta_fields` and `launchpad_meta_values` tables.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        MetadataTablesBuilder::create(schema: $schema);
+		MetadataTablesBuilder::create(schema: $schema);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

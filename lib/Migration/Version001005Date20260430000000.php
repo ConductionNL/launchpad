@@ -33,48 +33,47 @@ use OCP\Migration\SimpleMigrationStep;
  * Migration adding the group_id column and a (type, group_id) composite
  * index on the dashboards table.
  */
-class Version001005Date20260430000000 extends SimpleMigrationStep
-{
-    /**
-     * Add group_id column + composite index to launchpad_dashboards.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure (returns ISchemaWrapper).
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001005Date20260430000000 extends SimpleMigrationStep {
+	/**
+	 * Add group_id column + composite index to launchpad_dashboards.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure (returns ISchemaWrapper).
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return $schema;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return $schema;
+		}
 
-        $table = $schema->getTable('launchpad_dashboards');
+		$table = $schema->getTable('launchpad_dashboards');
 
-        if ($table->hasColumn('group_id') === false) {
-            $table->addColumn(
-                'group_id',
-                Types::STRING,
-                [
-                    'notnull' => false,
-                    'length'  => 64,
-                ]
-            );
-        }
+		if ($table->hasColumn('group_id') === false) {
+			$table->addColumn(
+				'group_id',
+				Types::STRING,
+				[
+					'notnull' => false,
+					'length' => 64,
+				]
+			);
+		}
 
-        if ($table->hasIndex('launchpad_dash_type_group') === false) {
-            $table->addIndex(
-                ['type', 'group_id'],
-                'launchpad_dash_type_group'
-            );
-        }
+		if ($table->hasIndex('launchpad_dash_type_group') === false) {
+			$table->addIndex(
+				['type', 'group_id'],
+				'launchpad_dash_type_group'
+			);
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

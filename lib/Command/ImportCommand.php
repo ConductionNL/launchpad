@@ -33,118 +33,116 @@ use Throwable;
 /**
  * `launchpad:import` console command.
  */
-class ImportCommand extends Command
-{
-    /**
-     * Constructor.
-     *
-     * @param ImportService $importService Import service.
-     */
-    public function __construct(
-        private readonly ImportService $importService,
-    ) {
-        parent::__construct();
-    }//end __construct()
+class ImportCommand extends Command {
+	/**
+	 * Constructor.
+	 *
+	 * @param ImportService $importService Import service.
+	 */
+	public function __construct(
+		private readonly ImportService $importService,
+	) {
+		parent::__construct();
+	}//end __construct()
 
-    /**
-     * Configure CLI options.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-export-import/spec.md
-     */
-    protected function configure(): void
-    {
-        $this->setName(name: 'launchpad:import')
-            ->setDescription(description: 'Import LaunchPad dashboards from a versioned ZIP archive.')
-            ->addOption(
-                name: 'file',
-                shortcut: 'f',
-                mode: InputOption::VALUE_REQUIRED,
-                description: 'Path to the ZIP archive to import.'
-            )
-            ->addOption(
-                name: 'preserve-uuids',
-                shortcut: null,
-                mode: InputOption::VALUE_NONE,
-                description: 'Preserve dashboard UUIDs (fail on collision).'
-            )
-            ->addOption(
-                name: 'user',
-                shortcut: 'u',
-                mode: InputOption::VALUE_REQUIRED,
-                description: 'User ID to attribute the import to (defaults to "cli").',
-                default: 'cli'
-            );
-    }//end configure()
+	/**
+	 * Configure CLI options.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-export-import/spec.md
+	 */
+	protected function configure(): void {
+		$this->setName(name: 'launchpad:import')
+			->setDescription(description: 'Import LaunchPad dashboards from a versioned ZIP archive.')
+			->addOption(
+				name: 'file',
+				shortcut: 'f',
+				mode: InputOption::VALUE_REQUIRED,
+				description: 'Path to the ZIP archive to import.'
+			)
+			->addOption(
+				name: 'preserve-uuids',
+				shortcut: null,
+				mode: InputOption::VALUE_NONE,
+				description: 'Preserve dashboard UUIDs (fail on collision).'
+			)
+			->addOption(
+				name: 'user',
+				shortcut: 'u',
+				mode: InputOption::VALUE_REQUIRED,
+				description: 'User ID to attribute the import to (defaults to "cli").',
+				default: 'cli'
+			);
+	}//end configure()
 
-    /**
-     * Execute the import.
-     *
-     * @param InputInterface  $input  CLI input.
-     * @param OutputInterface $output CLI output.
-     *
-     * @return int Exit code (0 success, 1 error).
-     *
-     * @spec openspec/specs/dashboard-export-import/spec.md
-     */
-    protected function execute(
-        InputInterface $input,
-        OutputInterface $output
-    ): int {
-        $file          = (string) ($input->getOption(name: 'file') ?? '');
-        $preserveUuids = (bool) $input->getOption(name: 'preserve-uuids');
-        $user          = (string) ($input->getOption(name: 'user') ?? 'cli');
+	/**
+	 * Execute the import.
+	 *
+	 * @param InputInterface $input CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return int Exit code (0 success, 1 error).
+	 *
+	 * @spec openspec/specs/dashboard-export-import/spec.md
+	 */
+	protected function execute(
+		InputInterface $input,
+		OutputInterface $output,
+	): int {
+		$file = (string)($input->getOption(name: 'file') ?? '');
+		$preserveUuids = (bool)$input->getOption(name: 'preserve-uuids');
+		$user = (string)($input->getOption(name: 'user') ?? 'cli');
 
-        if ($file === '') {
-            $output->writeln(messages: '<error>--file parameter is required</error>');
-            return self::FAILURE;
-        }
+		if ($file === '') {
+			$output->writeln(messages: '<error>--file parameter is required</error>');
+			return self::FAILURE;
+		}
 
-        if (file_exists(filename: $file) === false) {
-            $output->writeln(messages: '<error>File not found: '.$file.'</error>');
-            return self::FAILURE;
-        }
+		if (file_exists(filename: $file) === false) {
+			$output->writeln(messages: '<error>File not found: ' . $file . '</error>');
+			return self::FAILURE;
+		}
 
-        try {
-            $result = $this->importService->import(
-                zipPath: $file,
-                preserveUuids: $preserveUuids,
-                currentUserId: $user
-            );
-        } catch (InvalidArgumentException $e) {
-            $output->writeln(messages: '<error>'.$e->getMessage().'</error>');
-            return self::FAILURE;
-        } catch (Throwable $e) {
-            $output->writeln(messages: '<error>Import failed: '.$e->getMessage().'</error>');
-            return self::FAILURE;
-        }
+		try {
+			$result = $this->importService->import(
+				zipPath: $file,
+				preserveUuids: $preserveUuids,
+				currentUserId: $user
+			);
+		} catch (InvalidArgumentException $e) {
+			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
+			return self::FAILURE;
+		} catch (Throwable $e) {
+			$output->writeln(messages: '<error>Import failed: ' . $e->getMessage() . '</error>');
+			return self::FAILURE;
+		}
 
-        if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
-            $output->writeln(messages: '<error>UUID collisions detected (--preserve-uuids):</error>');
-            foreach ($result['errors'] as $err) {
-                $msg = (string) ($err['message'] ?? 'collision');
-                $output->writeln(messages: ' - '.$msg);
-            }
+		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
+			$output->writeln(messages: '<error>UUID collisions detected (--preserve-uuids):</error>');
+			foreach ($result['errors'] as $err) {
+				$msg = (string)($err['message'] ?? 'collision');
+				$output->writeln(messages: ' - ' . $msg);
+			}
 
-            return self::FAILURE;
-        }
+			return self::FAILURE;
+		}
 
-        $imported = $result['importedDashboardCount'];
-        $skipped  = $result['skippedDashboardCount'];
-        $errors   = $result['errors'];
+		$imported = $result['importedDashboardCount'];
+		$skipped = $result['skippedDashboardCount'];
+		$errors = $result['errors'];
 
-        $head = 'Imported '.(string) $imported.' dashboards, ';
-        $tail = 'skipped '.(string) $skipped.', errors: '.(string) count($errors);
-        $output->writeln(messages: ($head.$tail));
+		$head = 'Imported ' . (string)$imported . ' dashboards, ';
+		$tail = 'skipped ' . (string)$skipped . ', errors: ' . (string)count($errors);
+		$output->writeln(messages: ($head . $tail));
 
-        foreach ($errors as $err) {
-            $msg = (string) ($err['message'] ?? '');
-            if ($msg !== '') {
-                $output->writeln(messages: ' - '.$msg);
-            }
-        }
+		foreach ($errors as $err) {
+			$msg = (string)($err['message'] ?? '');
+			if ($msg !== '') {
+				$output->writeln(messages: ' - ' . $msg);
+			}
+		}
 
-        return self::SUCCESS;
-    }//end execute()
+		return self::SUCCESS;
+	}//end execute()
 }//end class

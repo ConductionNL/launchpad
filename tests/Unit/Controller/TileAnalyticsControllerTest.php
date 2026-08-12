@@ -36,188 +36,174 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class TileAnalyticsControllerTest extends TestCase
-{
-    /**
-     * @var IRequest&MockObject
-     */
-    private $request;
+class TileAnalyticsControllerTest extends TestCase {
+	/**
+	 * @var IRequest&MockObject
+	 */
+	private $request;
 
-    /**
-     * @var TileAnalyticsService&MockObject
-     */
-    private $tileAnalyticsService;
+	/**
+	 * @var TileAnalyticsService&MockObject
+	 */
+	private $tileAnalyticsService;
 
-    /**
-     * @var ActionAuthService&MockObject
-     */
-    private $actionAuth;
+	/**
+	 * @var ActionAuthService&MockObject
+	 */
+	private $actionAuth;
 
-    /**
-     * @var IUserSession&MockObject
-     */
-    private $userSession;
+	/**
+	 * @var IUserSession&MockObject
+	 */
+	private $userSession;
 
-    private TileAnalyticsController $controller;
+	private TileAnalyticsController $controller;
 
-    protected function setUp(): void
-    {
-        $this->request              = $this->createMock(IRequest::class);
-        $this->tileAnalyticsService = $this->createMock(TileAnalyticsService::class);
-        $this->actionAuth           = $this->createMock(ActionAuthService::class);
-        $this->userSession          = $this->createMock(IUserSession::class);
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->tileAnalyticsService = $this->createMock(TileAnalyticsService::class);
+		$this->actionAuth = $this->createMock(ActionAuthService::class);
+		$this->userSession = $this->createMock(IUserSession::class);
 
-        $this->controller = new TileAnalyticsController(
-            request: $this->request,
-            tileAnalyticsService: $this->tileAnalyticsService,
-            actionAuth: $this->actionAuth,
-            userSession: $this->userSession,
-        );
-    }//end setUp()
+		$this->controller = new TileAnalyticsController(
+			request: $this->request,
+			tileAnalyticsService: $this->tileAnalyticsService,
+			actionAuth: $this->actionAuth,
+			userSession: $this->userSession,
+		);
+	}//end setUp()
 
-    private function loginAs(string $uid): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn($uid);
-        $this->userSession->method('getUser')->willReturn($user);
-    }//end loginAs()
+	private function loginAs(string $uid): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($uid);
+		$this->userSession->method('getUser')->willReturn($user);
+	}//end loginAs()
 
-    public function testRecordClickReturns401WhenUnauthenticated(): void
-    {
-        $this->userSession->method('getUser')->willReturn(null);
+	public function testRecordClickReturns401WhenUnauthenticated(): void {
+		$this->userSession->method('getUser')->willReturn(null);
 
-        $response = $this->controller->recordClick(placementId: '1');
+		$response = $this->controller->recordClick(placementId: '1');
 
-        $this->assertInstanceOf(JSONResponse::class, $response);
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-    }
+		$this->assertInstanceOf(JSONResponse::class, $response);
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	}
 
-    public function testRecordClickReturns204OnSuccess(): void
-    {
-        $this->loginAs(uid: 'alice');
-        $this->tileAnalyticsService->method('recordClick')->willReturn(true);
+	public function testRecordClickReturns204OnSuccess(): void {
+		$this->loginAs(uid: 'alice');
+		$this->tileAnalyticsService->method('recordClick')->willReturn(true);
 
-        $response = $this->controller->recordClick(placementId: '5');
+		$response = $this->controller->recordClick(placementId: '5');
 
-        $this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
+	}
 
-    /**
-     * REQ-TANLT-003 — even when the service short-circuits to a
-     * no-op (globally disabled / opted out), the endpoint still
-     * returns 204, never an error.
-     */
-    public function testRecordClickReturns204EvenWhenServiceNoOps(): void
-    {
-        $this->loginAs(uid: 'eve');
-        $this->tileAnalyticsService->method('recordClick')->willReturn(false);
+	/**
+	 * REQ-TANLT-003 — even when the service short-circuits to a
+	 * no-op (globally disabled / opted out), the endpoint still
+	 * returns 204, never an error.
+	 */
+	public function testRecordClickReturns204EvenWhenServiceNoOps(): void {
+		$this->loginAs(uid: 'eve');
+		$this->tileAnalyticsService->method('recordClick')->willReturn(false);
 
-        $response = $this->controller->recordClick(placementId: '5');
+		$response = $this->controller->recordClick(placementId: '5');
 
-        $this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
+	}
 
-    public function testRecordClickReturns404WhenPlacementMissing(): void
-    {
-        $this->loginAs(uid: 'alice');
-        $this->tileAnalyticsService->method('recordClick')
-            ->willThrowException(new DoesNotExistException(msg: 'gone'));
+	public function testRecordClickReturns404WhenPlacementMissing(): void {
+		$this->loginAs(uid: 'alice');
+		$this->tileAnalyticsService->method('recordClick')
+			->willThrowException(new DoesNotExistException(msg: 'gone'));
 
-        $response = $this->controller->recordClick(placementId: '999');
+		$response = $this->controller->recordClick(placementId: '999');
 
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
 
-    public function testRecordClickReturns403WhenActionAuthDenies(): void
-    {
-        $this->loginAs(uid: 'mallory');
-        $this->actionAuth->method('requireAction')
-            ->willThrowException(new OCSForbiddenException('denied'));
+	public function testRecordClickReturns403WhenActionAuthDenies(): void {
+		$this->loginAs(uid: 'mallory');
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new OCSForbiddenException('denied'));
 
-        $response = $this->controller->recordClick(placementId: '5');
+		$response = $this->controller->recordClick(placementId: '5');
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testConfigReturns401WhenUnauthenticated(): void
-    {
-        $this->userSession->method('getUser')->willReturn(null);
+	public function testConfigReturns401WhenUnauthenticated(): void {
+		$this->userSession->method('getUser')->willReturn(null);
 
-        $response = $this->controller->config();
+		$response = $this->controller->config();
 
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	}
 
-    public function testConfigReturnsEnabledFlagFromService(): void
-    {
-        $this->loginAs(uid: 'alice');
-        $this->tileAnalyticsService->method('isTrackingActiveFor')
-            ->with('alice')
-            ->willReturn(false);
+	public function testConfigReturnsEnabledFlagFromService(): void {
+		$this->loginAs(uid: 'alice');
+		$this->tileAnalyticsService->method('isTrackingActiveFor')
+			->with('alice')
+			->willReturn(false);
 
-        $response = $this->controller->config();
+		$response = $this->controller->config();
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertFalse($response->getData()['enabled']);
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertFalse($response->getData()['enabled']);
+	}
 
-    public function testTopTilesReturnsSortedRows(): void
-    {
-        $this->loginAs(uid: 'admin');
-        $rows = [
-            ['placementUuid' => '1', 'dashboardUuid' => 'd1', 'clickCount' => 120, 'uniqueActorCount' => 80],
-            ['placementUuid' => '2', 'dashboardUuid' => 'd1', 'clickCount' => 40, 'uniqueActorCount' => 20],
-        ];
-        $this->tileAnalyticsService->method('getTopTiles')->willReturn($rows);
+	public function testTopTilesReturnsSortedRows(): void {
+		$this->loginAs(uid: 'admin');
+		$rows = [
+			['placementUuid' => '1', 'dashboardUuid' => 'd1', 'clickCount' => 120, 'uniqueActorCount' => 80],
+			['placementUuid' => '2', 'dashboardUuid' => 'd1', 'clickCount' => 40, 'uniqueActorCount' => 20],
+		];
+		$this->tileAnalyticsService->method('getTopTiles')->willReturn($rows);
 
-        $response = $this->controller->topTiles(period: '7d', limit: 10);
+		$response = $this->controller->topTiles(period: '7d', limit: 10);
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame($rows, $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame($rows, $response->getData());
+	}
 
-    public function testTopTilesReturns403WhenActionAuthDenies(): void
-    {
-        $this->loginAs(uid: 'bob');
-        $this->actionAuth->method('requireAction')
-            ->willThrowException(new OCSForbiddenException('denied'));
+	public function testTopTilesReturns403WhenActionAuthDenies(): void {
+		$this->loginAs(uid: 'bob');
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new OCSForbiddenException('denied'));
 
-        $response = $this->controller->topTiles();
+		$response = $this->controller->topTiles();
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testDashboardBreakdownReturnsRows(): void
-    {
-        $this->loginAs(uid: 'admin');
-        $rows = [
-            ['placementUuid' => '3', 'clickCount' => 5, 'uniqueActorCount' => 3],
-        ];
-        $this->tileAnalyticsService->method('getDashboardBreakdown')->willReturn($rows);
+	public function testDashboardBreakdownReturnsRows(): void {
+		$this->loginAs(uid: 'admin');
+		$rows = [
+			['placementUuid' => '3', 'clickCount' => 5, 'uniqueActorCount' => 3],
+		];
+		$this->tileAnalyticsService->method('getDashboardBreakdown')->willReturn($rows);
 
-        $response = $this->controller->dashboardBreakdown(uuid: 'dsh-9', period: '30d');
+		$response = $this->controller->dashboardBreakdown(uuid: 'dsh-9', period: '30d');
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame($rows, $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame($rows, $response->getData());
+	}
 
-    // NOTE: the success path of `exportCsv()` constructs a
-    // `DataDownloadResponse`, which cannot be instantiated under the
-    // OCP stub bootstrap used by this unit-test suite (missing
-    // `Symfony\Component\HttpFoundation\HeaderUtils` — mirrors the
-    // same documented limitation in `AcknowledgementControllerTest`
-    // and `AnalyticsController::exportCsv`). That path is covered by
-    // the Playwright e2e / gate-19 spec instead; only the
-    // authorization-failure path is unit-tested here.
+	// NOTE: the success path of `exportCsv()` constructs a
+	// `DataDownloadResponse`, which cannot be instantiated under the
+	// OCP stub bootstrap used by this unit-test suite (missing
+	// `Symfony\Component\HttpFoundation\HeaderUtils` — mirrors the
+	// same documented limitation in `AcknowledgementControllerTest`
+	// and `AnalyticsController::exportCsv`). That path is covered by
+	// the Playwright e2e / gate-19 spec instead; only the
+	// authorization-failure path is unit-tested here.
 
-    public function testExportCsvReturns403WhenActionAuthDenies(): void
-    {
-        $this->loginAs(uid: 'bob');
-        $this->actionAuth->method('requireAction')
-            ->willThrowException(new OCSForbiddenException('denied'));
+	public function testExportCsvReturns403WhenActionAuthDenies(): void {
+		$this->loginAs(uid: 'bob');
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new OCSForbiddenException('denied'));
 
-        $response = $this->controller->exportCsv();
+		$response = $this->controller->exportCsv();
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 }

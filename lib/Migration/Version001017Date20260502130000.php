@@ -38,27 +38,26 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Add the per-language dashboard translations table (REQ-DASH-038..044).
  */
-class Version001017Date20260502130000 extends SimpleMigrationStep
-{
-    /**
-     * Create the dashboard translations table.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returning an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001017Date20260502130000 extends SimpleMigrationStep {
+	/**
+	 * Create the dashboard translations table.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returning an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        DashboardTranslationTableBuilder::create(schema: $schema);
+		DashboardTranslationTableBuilder::create(schema: $schema);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

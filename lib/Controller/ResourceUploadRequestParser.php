@@ -31,60 +31,58 @@ use OCP\IRequest;
 /**
  * Parses request bodies for the resource upload endpoint.
  */
-class ResourceUploadRequestParser
-{
-    /**
-     * Extract the `base64` field from the raw JSON body.
-     *
-     * @param IRequest $request The HTTP request.
-     * @param string   $rawBody The raw request body bytes.
-     *
-     * @return string The base64 data URL.
-     *
-     * @throws UnsupportedMediaTypeException When the request looks
-     *                                       like multipart instead of
-     *                                       JSON.
-     * @throws InvalidDataUrlException       When the body is missing,
-     *                                       not JSON, or lacks the
-     *                                       `base64` field.
-     *
-     * @spec openspec/specs/resource-uploads/spec.md
-     */
-    public function extractBase64(IRequest $request, string $rawBody): string
-    {
-        $contentType = (string) $request->getHeader(name: 'Content-Type');
-        if ($contentType !== '' && stripos(
-            haystack: $contentType,
-            needle: 'multipart/form-data'
-        ) !== false
-        ) {
-            throw new UnsupportedMediaTypeException();
-        }
+class ResourceUploadRequestParser {
+	/**
+	 * Extract the `base64` field from the raw JSON body.
+	 *
+	 * @param IRequest $request The HTTP request.
+	 * @param string $rawBody The raw request body bytes.
+	 *
+	 * @return string The base64 data URL.
+	 *
+	 * @throws UnsupportedMediaTypeException When the request looks
+	 *                                       like multipart instead of
+	 *                                       JSON.
+	 * @throws InvalidDataUrlException When the body is missing,
+	 *                                 not JSON, or lacks the
+	 *                                 `base64` field.
+	 *
+	 * @spec openspec/specs/resource-uploads/spec.md
+	 */
+	public function extractBase64(IRequest $request, string $rawBody): string {
+		$contentType = (string)$request->getHeader(name: 'Content-Type');
+		if ($contentType !== '' && stripos(
+			haystack: $contentType,
+			needle: 'multipart/form-data'
+		) !== false
+		) {
+			throw new UnsupportedMediaTypeException();
+		}
 
-        if ($rawBody === '') {
-            throw new InvalidDataUrlException();
-        }
+		if ($rawBody === '') {
+			throw new InvalidDataUrlException();
+		}
 
-        try {
-            $decoded = json_decode(
-                json: $rawBody,
-                associative: true,
-                depth: 4,
-                flags: JSON_THROW_ON_ERROR
-            );
-        } catch (JsonException $e) {
-            throw new InvalidDataUrlException(
-                message: 'Body must be valid JSON'
-            );
-        }
+		try {
+			$decoded = json_decode(
+				json: $rawBody,
+				associative: true,
+				depth: 4,
+				flags: JSON_THROW_ON_ERROR
+			);
+		} catch (JsonException $e) {
+			throw new InvalidDataUrlException(
+				message: 'Body must be valid JSON'
+			);
+		}
 
-        if (is_array(value: $decoded) === false
-            || isset($decoded['base64']) === false
-            || is_string(value: $decoded['base64']) === false
-        ) {
-            throw new InvalidDataUrlException();
-        }
+		if (is_array(value: $decoded) === false
+			|| isset($decoded['base64']) === false
+			|| is_string(value: $decoded['base64']) === false
+		) {
+			throw new InvalidDataUrlException();
+		}
 
-        return $decoded['base64'];
-    }//end extractBase64()
+		return $decoded['base64'];
+	}//end extractBase64()
 }//end class

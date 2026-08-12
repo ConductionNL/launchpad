@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Listener;
 
-use DateTimeImmutable;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
@@ -41,90 +40,88 @@ use Throwable;
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
-class TreeListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param DashboardMapper  $dashboardMapper Dashboard row mapper (read
-     *                                          children by parentUuid).
-     * @param IEventDispatcher $dispatcher      NC event dispatcher for
-     *                                          recursive child dispatch.
-     * @param LoggerInterface  $logger          PSR-3 logger for
-     *                                          log-and-continue failure
-     *                                          handling per REQ-CSC-006.
-     */
-    public function __construct(
-        private readonly DashboardMapper $dashboardMapper,
-        private readonly IEventDispatcher $dispatcher,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class TreeListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param DashboardMapper $dashboardMapper Dashboard row mapper (read
+	 *                                         children by parentUuid).
+	 * @param IEventDispatcher $dispatcher NC event dispatcher for
+	 *                                     recursive child dispatch.
+	 * @param LoggerInterface $logger PSR-3 logger for
+	 *                                log-and-continue failure
+	 *                                handling per REQ-CSC-006.
+	 */
+	public function __construct(
+		private readonly DashboardMapper $dashboardMapper,
+		private readonly IEventDispatcher $dispatcher,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent.
-     *
-     * Dispatches a fresh DashboardDeletedEvent for each direct child so the
-     * full listener stack (placements, locks, shares, …) runs for every node
-     * in the tree. The event dispatcher will invoke this listener again for
-     * each child, providing recursive cascade without a manual loop.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-cascade-events/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent.
+	 *
+	 * Dispatches a fresh DashboardDeletedEvent for each direct child so the
+	 * full listener stack (placements, locks, shares, …) runs for every node
+	 * in the tree. The event dispatcher will invoke this listener again for
+	 * each child, providing recursive cascade without a manual loop.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid      = $event->getDashboardUuid();
-        $deletedAt = $event->getDeletedAt();
+		$uuid = $event->getDashboardUuid();
+		$deletedAt = $event->getDeletedAt();
 
-        try {
-            $children = $this->dashboardMapper->findByParent(
-                parentUuid: $uuid
-            );
+		try {
+			$children = $this->dashboardMapper->findByParent(
+				parentUuid: $uuid
+			);
 
-            foreach ($children as $child) {
-                $childUuid = (string) $child->getUuid();
-                if ($childUuid === '') {
-                    continue;
-                }
+			foreach ($children as $child) {
+				$childUuid = (string)$child->getUuid();
+				if ($childUuid === '') {
+					continue;
+				}
 
-                $childOwnerId = (string) ($child->getUserId() ?? $event->getOwnerUserId());
-                $childType    = (string) ($child->getType() ?? $event->getType());
+				$childOwnerId = (string)($child->getUserId() ?? $event->getOwnerUserId());
+				$childType = (string)($child->getType() ?? $event->getType());
 
-                $this->dispatcher->dispatchTyped(
-                    new DashboardDeletedEvent(
-                        dashboardUuid: $childUuid,
-                        ownerUserId:   $childOwnerId,
-                        type:          $childType,
-                        deletedAt:     $deletedAt
-                    )
-                );
-            }//end foreach
+				$this->dispatcher->dispatchTyped(
+					new DashboardDeletedEvent(
+						dashboardUuid: $childUuid,
+						ownerUserId:   $childOwnerId,
+						type:          $childType,
+						deletedAt:     $deletedAt
+					)
+				);
+			}//end foreach
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad TreeListener: dispatched delete for %d children of dashboard %s',
-                    count($children),
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad TreeListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad TreeListener: dispatched delete for %d children of dashboard %s',
+					count($children),
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad TreeListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

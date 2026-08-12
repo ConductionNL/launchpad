@@ -37,263 +37,251 @@ use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 
-class RoleFeaturePermissionServiceTest extends TestCase
-{
-    private RoleFeaturePermissionService $service;
+class RoleFeaturePermissionServiceTest extends TestCase {
+	private RoleFeaturePermissionService $service;
 
-    private RoleFeaturePermissionMapper $permMapper;
+	private RoleFeaturePermissionMapper $permMapper;
 
-    private RoleLayoutDefaultMapper $defaultMapper;
+	private RoleLayoutDefaultMapper $defaultMapper;
 
-    private WidgetPlacementMapper $placementMapper;
+	private WidgetPlacementMapper $placementMapper;
 
-    private AdminSettingsService $adminSettings;
+	private AdminSettingsService $adminSettings;
 
-    private AdminTemplateService $adminTemplateService;
+	private AdminTemplateService $adminTemplateService;
 
-    private IUserManager $userManager;
+	private IUserManager $userManager;
 
-    private IGroupManager $groupManager;
+	private IGroupManager $groupManager;
 
-    protected function setUp(): void
-    {
-        $this->permMapper           = $this->createMock(originalClassName: RoleFeaturePermissionMapper::class);
-        $this->defaultMapper        = $this->createMock(originalClassName: RoleLayoutDefaultMapper::class);
-        $this->placementMapper      = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-        $this->adminSettings        = $this->createMock(originalClassName: AdminSettingsService::class);
-        $this->adminTemplateService = $this->createMock(originalClassName: AdminTemplateService::class);
-        $this->userManager          = $this->createMock(originalClassName: IUserManager::class);
-        $this->groupManager         = $this->createMock(originalClassName: IGroupManager::class);
+	protected function setUp(): void {
+		$this->permMapper = $this->createMock(originalClassName: RoleFeaturePermissionMapper::class);
+		$this->defaultMapper = $this->createMock(originalClassName: RoleLayoutDefaultMapper::class);
+		$this->placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+		$this->adminSettings = $this->createMock(originalClassName: AdminSettingsService::class);
+		$this->adminTemplateService = $this->createMock(originalClassName: AdminTemplateService::class);
+		$this->userManager = $this->createMock(originalClassName: IUserManager::class);
+		$this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
 
-        // Default: the user under test is NOT an admin so the existing
-        // role-resolution assertions exercise the group-matching path.
-        $this->groupManager->method('isAdmin')->willReturn(false);
+		// Default: the user under test is NOT an admin so the existing
+		// role-resolution assertions exercise the group-matching path.
+		$this->groupManager->method('isAdmin')->willReturn(false);
 
-        $this->service = new RoleFeaturePermissionService(
-            permissionMapper: $this->permMapper,
-            defaultMapper: $this->defaultMapper,
-            placementMapper: $this->placementMapper,
-            adminSettings: $this->adminSettings,
-            adminTemplateService: $this->adminTemplateService,
-            userManager: $this->userManager,
-            groupManager: $this->groupManager,
-        );
-    }//end setUp()
+		$this->service = new RoleFeaturePermissionService(
+			permissionMapper: $this->permMapper,
+			defaultMapper: $this->defaultMapper,
+			placementMapper: $this->placementMapper,
+			adminSettings: $this->adminSettings,
+			adminTemplateService: $this->adminTemplateService,
+			userManager: $this->userManager,
+			groupManager: $this->groupManager,
+		);
+	}//end setUp()
 
-    /**
-     * Build a RoleFeaturePermission entity from arrays.
-     */
-    private function makePerm(
-        string $groupId,
-        array $allowed,
-        array $denied = []
-    ): RoleFeaturePermission {
-        $entity = new RoleFeaturePermission();
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setName('perm-' . $groupId);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setGroupId($groupId);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setAllowedWidgets(json_encode(value: $allowed));
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setDeniedWidgets(json_encode(value: $denied));
-        return $entity;
-    }//end makePerm()
+	/**
+	 * Build a RoleFeaturePermission entity from arrays.
+	 */
+	private function makePerm(
+		string $groupId,
+		array $allowed,
+		array $denied = [],
+	): RoleFeaturePermission {
+		$entity = new RoleFeaturePermission();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setName('perm-' . $groupId);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setGroupId($groupId);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setAllowedWidgets(json_encode(value: $allowed));
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setDeniedWidgets(json_encode(value: $denied));
+		return $entity;
+	}//end makePerm()
 
-    /**
-     * Mock IUserManager + AdminTemplateService so the user is in a list
-     * of groups. The service calls
-     * {@see AdminTemplateService::getUserGroupIdsFor()} to honour the
-     * REQ-TMPL-013 routing-resolver invariant — group lookups never
-     * touch IGroupManager directly.
-     */
-    private function withUserGroups(string $userId, array $groupIds): void
-    {
-        $user = $this->createMock(originalClassName: IUser::class);
-        $this->userManager->method('get')
-            ->willReturn(value: $user);
-        $this->adminTemplateService->method('getUserGroupIdsFor')
-            ->willReturn(value: $groupIds);
-    }//end withUserGroups()
+	/**
+	 * Mock IUserManager + AdminTemplateService so the user is in a list
+	 * of groups. The service calls
+	 * {@see AdminTemplateService::getUserGroupIdsFor()} to honour the
+	 * REQ-TMPL-013 routing-resolver invariant — group lookups never
+	 * touch IGroupManager directly.
+	 */
+	private function withUserGroups(string $userId, array $groupIds): void {
+		$user = $this->createMock(originalClassName: IUser::class);
+		$this->userManager->method('get')
+			->willReturn(value: $user);
+		$this->adminTemplateService->method('getUserGroupIdsFor')
+			->willReturn(value: $groupIds);
+	}//end withUserGroups()
 
-    public function testNoRestrictionConfiguredReturnsNull(): void
-    {
-        $this->withUserGroups(userId: 'alice', groupIds: ['employees']);
-        $this->adminSettings->method('getGroupOrder')
-            ->willReturn(value: ['employees']);
-        $this->permMapper->method('findByGroupIds')
-            ->willReturn(value: []);
-        $this->permMapper->method('findByGroupId')
-            ->will($this->throwException(exception: new DoesNotExistException(msg: 'no row')));
+	public function testNoRestrictionConfiguredReturnsNull(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: ['employees']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: ['employees']);
+		$this->permMapper->method('findByGroupIds')
+			->willReturn(value: []);
+		$this->permMapper->method('findByGroupId')
+			->will($this->throwException(exception: new DoesNotExistException(msg: 'no row')));
 
-        $result = $this->service->getAllowedWidgetIds(userId: 'alice');
-        $this->assertNull(actual: $result);
-    }//end testNoRestrictionConfiguredReturnsNull()
+		$result = $this->service->getAllowedWidgetIds(userId: 'alice');
+		$this->assertNull(actual: $result);
+	}//end testNoRestrictionConfiguredReturnsNull()
 
-    public function testSingleGroupReturnsAllowedSet(): void
-    {
-        $this->withUserGroups(userId: 'alice', groupIds: ['employees']);
-        $this->adminSettings->method('getGroupOrder')
-            ->willReturn(value: ['employees', 'managers']);
-        $this->permMapper->method('findByGroupIds')
-            ->willReturn(value: [
-                $this->makePerm(groupId: 'employees', allowed: ['activity', 'recommendations']),
-            ]);
+	public function testSingleGroupReturnsAllowedSet(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: ['employees']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: ['employees', 'managers']);
+		$this->permMapper->method('findByGroupIds')
+			->willReturn(value: [
+				$this->makePerm(groupId: 'employees', allowed: ['activity', 'recommendations']),
+			]);
 
-        $result = $this->service->getAllowedWidgetIds(userId: 'alice');
-        $this->assertSame(expected: ['activity', 'recommendations'], actual: $result);
-    }//end testSingleGroupReturnsAllowedSet()
+		$result = $this->service->getAllowedWidgetIds(userId: 'alice');
+		$this->assertSame(expected: ['activity', 'recommendations'], actual: $result);
+	}//end testSingleGroupReturnsAllowedSet()
 
-    public function testMultiGroupUnionWidens(): void
-    {
-        $this->withUserGroups(userId: 'alice', groupIds: ['employees', 'managers']);
-        $this->adminSettings->method('getGroupOrder')
-            ->willReturn(value: ['employees', 'managers']);
-        $this->permMapper->method('findByGroupIds')
-            ->willReturn(value: [
-                $this->makePerm(groupId: 'employees', allowed: ['activity']),
-                $this->makePerm(groupId: 'managers', allowed: ['analytics']),
-            ]);
+	public function testMultiGroupUnionWidens(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: ['employees', 'managers']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: ['employees', 'managers']);
+		$this->permMapper->method('findByGroupIds')
+			->willReturn(value: [
+				$this->makePerm(groupId: 'employees', allowed: ['activity']),
+				$this->makePerm(groupId: 'managers', allowed: ['analytics']),
+			]);
 
-        $result = $this->service->getAllowedWidgetIds(userId: 'alice');
-        $this->assertSame(expected: ['activity', 'analytics'], actual: $result);
-    }//end testMultiGroupUnionWidens()
+		$result = $this->service->getAllowedWidgetIds(userId: 'alice');
+		$this->assertSame(expected: ['activity', 'analytics'], actual: $result);
+	}//end testMultiGroupUnionWidens()
 
-    public function testDenyWinsOverAllow(): void
-    {
-        $this->withUserGroups(userId: 'alice', groupIds: ['employees', 'security']);
-        $this->adminSettings->method('getGroupOrder')
-            ->willReturn(value: ['employees', 'security']);
-        $this->permMapper->method('findByGroupIds')
-            ->willReturn(value: [
-                $this->makePerm(groupId: 'employees', allowed: ['activity', 'analytics']),
-                $this->makePerm(groupId: 'security', allowed: [], denied: ['analytics']),
-            ]);
+	public function testDenyWinsOverAllow(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: ['employees', 'security']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: ['employees', 'security']);
+		$this->permMapper->method('findByGroupIds')
+			->willReturn(value: [
+				$this->makePerm(groupId: 'employees', allowed: ['activity', 'analytics']),
+				$this->makePerm(groupId: 'security', allowed: [], denied: ['analytics']),
+			]);
 
-        $result = $this->service->getAllowedWidgetIds(userId: 'alice');
-        $this->assertSame(expected: ['activity'], actual: $result);
-    }//end testDenyWinsOverAllow()
+		$result = $this->service->getAllowedWidgetIds(userId: 'alice');
+		$this->assertSame(expected: ['activity'], actual: $result);
+	}//end testDenyWinsOverAllow()
 
-    public function testFallbackToDefaultGroupWhenNoGroupOrderMatch(): void
-    {
-        $this->withUserGroups(userId: 'alice', groupIds: ['unmapped']);
-        $this->adminSettings->method('getGroupOrder')
-            ->willReturn(value: []);
-        $this->permMapper->method('findByGroupIds')
-            ->willReturn(value: []);
-        $this->permMapper->method('findByGroupId')
-            ->with($this->equalTo(value: RoleFeaturePermission::GROUP_DEFAULT))
-            ->willReturn(value: $this->makePerm(groupId: 'default', allowed: ['recommendations']));
+	public function testFallbackToDefaultGroupWhenNoGroupOrderMatch(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: ['unmapped']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: []);
+		$this->permMapper->method('findByGroupIds')
+			->willReturn(value: []);
+		$this->permMapper->method('findByGroupId')
+			->with($this->equalTo(value: RoleFeaturePermission::GROUP_DEFAULT))
+			->willReturn(value: $this->makePerm(groupId: 'default', allowed: ['recommendations']));
 
-        $result = $this->service->getAllowedWidgetIds(userId: 'alice');
-        $this->assertSame(expected: ['recommendations'], actual: $result);
-    }//end testFallbackToDefaultGroupWhenNoGroupOrderMatch()
+		$result = $this->service->getAllowedWidgetIds(userId: 'alice');
+		$this->assertSame(expected: ['recommendations'], actual: $result);
+	}//end testFallbackToDefaultGroupWhenNoGroupOrderMatch()
 
-    public function testIsWidgetAllowedTrueWhenUnconfigured(): void
-    {
-        $this->withUserGroups(userId: 'alice', groupIds: []);
-        $this->permMapper->method('findByGroupId')
-            ->will($this->throwException(exception: new DoesNotExistException(msg: 'no row')));
+	public function testIsWidgetAllowedTrueWhenUnconfigured(): void {
+		$this->withUserGroups(userId: 'alice', groupIds: []);
+		$this->permMapper->method('findByGroupId')
+			->will($this->throwException(exception: new DoesNotExistException(msg: 'no row')));
 
-        $this->assertTrue(condition: $this->service->isWidgetAllowed(
-            userId: 'alice',
-            widgetId: 'whatever'
-        ));
-    }//end testIsWidgetAllowedTrueWhenUnconfigured()
+		$this->assertTrue(condition: $this->service->isWidgetAllowed(
+			userId: 'alice',
+			widgetId: 'whatever'
+		));
+	}//end testIsWidgetAllowedTrueWhenUnconfigured()
 
-    /**
-     * Admin break-glass: a Nextcloud admin is never restricted by the
-     * role-feature-permission allow-list, even when a restrictive `default`
-     * row exists (the bug — admins were falling back to the demo-seeded
-     * `default` row and getting 403 on their own dashboard).
-     */
-    public function testAdminBypassesDefaultRestriction(): void
-    {
-        $admin = $this->createMock(originalClassName: IGroupManager::class);
-        $admin->method('isAdmin')->willReturn(true);
+	/**
+	 * Admin break-glass: a Nextcloud admin is never restricted by the
+	 * role-feature-permission allow-list, even when a restrictive `default`
+	 * row exists (the bug — admins were falling back to the demo-seeded
+	 * `default` row and getting 403 on their own dashboard).
+	 */
+	public function testAdminBypassesDefaultRestriction(): void {
+		$admin = $this->createMock(originalClassName: IGroupManager::class);
+		$admin->method('isAdmin')->willReturn(true);
 
-        $service = new RoleFeaturePermissionService(
-            permissionMapper: $this->permMapper,
-            defaultMapper: $this->defaultMapper,
-            placementMapper: $this->placementMapper,
-            adminSettings: $this->adminSettings,
-            adminTemplateService: $this->adminTemplateService,
-            userManager: $this->userManager,
-            groupManager: $admin,
-        );
+		$service = new RoleFeaturePermissionService(
+			permissionMapper: $this->permMapper,
+			defaultMapper: $this->defaultMapper,
+			placementMapper: $this->placementMapper,
+			adminSettings: $this->adminSettings,
+			adminTemplateService: $this->adminTemplateService,
+			userManager: $this->userManager,
+			groupManager: $admin,
+		);
 
-        // Even if a restrictive `default` row would be returned, the admin
-        // short-circuit must run first: getAllowedWidgetIds → null (no
-        // restriction) and isWidgetAllowed → true for any widget.
-        $this->permMapper->method('findByGroupId')
-            ->willReturn(value: $this->makePerm(groupId: 'default', allowed: ['activity']));
+		// Even if a restrictive `default` row would be returned, the admin
+		// short-circuit must run first: getAllowedWidgetIds → null (no
+		// restriction) and isWidgetAllowed → true for any widget.
+		$this->permMapper->method('findByGroupId')
+			->willReturn(value: $this->makePerm(groupId: 'default', allowed: ['activity']));
 
-        $this->assertNull(actual: $service->getAllowedWidgetIds(userId: 'admin'));
-        $this->assertTrue(condition: $service->isWidgetAllowed(
-            userId: 'admin',
-            widgetId: 'links'
-        ));
-    }//end testAdminBypassesDefaultRestriction()
+		$this->assertNull(actual: $service->getAllowedWidgetIds(userId: 'admin'));
+		$this->assertTrue(condition: $service->isWidgetAllowed(
+			userId: 'admin',
+			widgetId: 'links'
+		));
+	}//end testAdminBypassesDefaultRestriction()
 
-    public function testSeedLayoutNoOpWhenDashboardHasPlacements(): void
-    {
-        $dashboard = new Dashboard();
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setId(42);
-        $this->placementMapper->method('findByDashboardId')
-            ->willReturn(value: ['existing-placement']);
+	public function testSeedLayoutNoOpWhenDashboardHasPlacements(): void {
+		$dashboard = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setId(42);
+		$this->placementMapper->method('findByDashboardId')
+			->willReturn(value: ['existing-placement']);
 
-        // No mapper / group manager calls expected because the guard fires first.
-        $this->defaultMapper->expects($this->never())
-            ->method('findByGroupId');
+		// No mapper / group manager calls expected because the guard fires first.
+		$this->defaultMapper->expects($this->never())
+			->method('findByGroupId');
 
-        $created = $this->service->seedLayoutFromRoleDefaults(
-            userId: 'alice',
-            dashboard: $dashboard
-        );
-        $this->assertSame(expected: 0, actual: $created);
-    }//end testSeedLayoutNoOpWhenDashboardHasPlacements()
+		$created = $this->service->seedLayoutFromRoleDefaults(
+			userId: 'alice',
+			dashboard: $dashboard
+		);
+		$this->assertSame(expected: 0, actual: $created);
+	}//end testSeedLayoutNoOpWhenDashboardHasPlacements()
 
-    public function testSeedLayoutCreatesPlacementsWhenEmpty(): void
-    {
-        $dashboard = new Dashboard();
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setId(99);
+	public function testSeedLayoutCreatesPlacementsWhenEmpty(): void {
+		$dashboard = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setId(99);
 
-        $this->placementMapper->method('findByDashboardId')
-            ->willReturn(value: []);
-        $this->withUserGroups(userId: 'alice', groupIds: ['managers']);
-        $this->adminSettings->method('getGroupOrder')
-            ->willReturn(value: ['managers']);
+		$this->placementMapper->method('findByDashboardId')
+			->willReturn(value: []);
+		$this->withUserGroups(userId: 'alice', groupIds: ['managers']);
+		$this->adminSettings->method('getGroupOrder')
+			->willReturn(value: ['managers']);
 
-        $rld = new RoleLayoutDefault();
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setName('manager-activity');
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setGroupId('managers');
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setWidgetId('activity');
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setGridX(0);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setGridY(0);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setGridWidth(6);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setGridHeight(5);
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $rld->setSortOrder(0);
+		$rld = new RoleLayoutDefault();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setName('manager-activity');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setGroupId('managers');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setWidgetId('activity');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setGridX(0);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setGridY(0);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setGridWidth(6);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setGridHeight(5);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$rld->setSortOrder(0);
 
-        $this->defaultMapper->method('findByGroupId')
-            ->willReturn(value: [$rld]);
+		$this->defaultMapper->method('findByGroupId')
+			->willReturn(value: [$rld]);
 
-        $this->placementMapper->expects($this->once())
-            ->method('insert');
+		$this->placementMapper->expects($this->once())
+			->method('insert');
 
-        $created = $this->service->seedLayoutFromRoleDefaults(
-            userId: 'alice',
-            dashboard: $dashboard
-        );
-        $this->assertSame(expected: 1, actual: $created);
-    }//end testSeedLayoutCreatesPlacementsWhenEmpty()
+		$created = $this->service->seedLayoutFromRoleDefaults(
+			userId: 'alice',
+			dashboard: $dashboard
+		);
+		$this->assertSame(expected: 1, actual: $created);
+	}//end testSeedLayoutCreatesPlacementsWhenEmpty()
 }//end class

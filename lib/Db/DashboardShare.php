@@ -42,112 +42,109 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
-class DashboardShare extends Entity implements JsonSerializable
-{
+class DashboardShare extends Entity implements JsonSerializable {
 
-    /**
-     * Share type for a single user recipient.
-     *
-     * @var string
-     */
-    public const SHARE_TYPE_USER = 'user';
+	/**
+	 * Share type for a single user recipient.
+	 *
+	 * @var string
+	 */
+	public const SHARE_TYPE_USER = 'user';
 
-    /**
-     * Share type for a Nextcloud group recipient.
-     *
-     * @var string
-     */
-    public const SHARE_TYPE_GROUP = 'group';
+	/**
+	 * Share type for a Nextcloud group recipient.
+	 *
+	 * @var string
+	 */
+	public const SHARE_TYPE_GROUP = 'group';
 
-    /**
-     * Valid share types.
-     *
-     * @var string[]
-     */
-    public const VALID_SHARE_TYPES = [
-        self::SHARE_TYPE_USER,
-        self::SHARE_TYPE_GROUP,
-    ];
+	/**
+	 * Valid share types.
+	 *
+	 * @var string[]
+	 */
+	public const VALID_SHARE_TYPES = [
+		self::SHARE_TYPE_USER,
+		self::SHARE_TYPE_GROUP,
+	];
 
-    /**
-     * Valid permission levels (mirrors Dashboard constants).
-     *
-     * @var string[]
-     */
-    public const VALID_PERMISSION_LEVELS = [
-        Dashboard::PERMISSION_VIEW_ONLY,
-        Dashboard::PERMISSION_ADD_ONLY,
-        Dashboard::PERMISSION_FULL,
-    ];
+	/**
+	 * Valid permission levels (mirrors Dashboard constants).
+	 *
+	 * @var string[]
+	 */
+	public const VALID_PERMISSION_LEVELS = [
+		Dashboard::PERMISSION_VIEW_ONLY,
+		Dashboard::PERMISSION_ADD_ONLY,
+		Dashboard::PERMISSION_FULL,
+	];
 
-    /**
-     * The dashboard ID.
-     *
-     * @var integer|null
-     */
-    protected ?int $dashboardId = null;
+	/**
+	 * The dashboard ID.
+	 *
+	 * @var integer|null
+	 */
+	protected ?int $dashboardId = null;
 
-    /**
-     * The share type ('user' or 'group').
-     *
-     * @var string|null
-     */
-    protected ?string $shareType = null;
+	/**
+	 * The share type ('user' or 'group').
+	 *
+	 * @var string|null
+	 */
+	protected ?string $shareType = null;
 
-    /**
-     * The recipient user ID or group ID.
-     *
-     * @var string|null
-     */
-    protected ?string $shareWith = null;
+	/**
+	 * The recipient user ID or group ID.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $shareWith = null;
 
-    /**
-     * The permission level.
-     *
-     * @var string|null
-     */
-    protected ?string $permissionLevel = null;
+	/**
+	 * The permission level.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $permissionLevel = null;
 
-    /**
-     * The creation timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * The creation timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * The update timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $updatedAt = null;
+	/**
+	 * The update timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $updatedAt = null;
 
-    /**
-     * Constructor — registers column types.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'dashboardId', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — registers column types.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'dashboardId', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Serialize to JSON.
-     *
-     * @return array The serialized share.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'              => $this->getId(),
-            'dashboardId'     => $this->dashboardId,
-            'shareType'       => $this->shareType,
-            'shareWith'       => $this->shareWith,
-            'permissionLevel' => $this->permissionLevel,
-            'createdAt'       => $this->createdAt,
-            'updatedAt'       => $this->updatedAt,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON.
+	 *
+	 * @return array The serialized share.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'dashboardId' => $this->dashboardId,
+			'shareType' => $this->shareType,
+			'shareWith' => $this->shareWith,
+			'permissionLevel' => $this->permissionLevel,
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
+	}//end jsonSerialize()
 }//end class

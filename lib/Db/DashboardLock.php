@@ -43,176 +43,169 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(?string $updatedAt)
  * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
-class DashboardLock extends Entity implements JsonSerializable
-{
+class DashboardLock extends Entity implements JsonSerializable {
 
-    /**
-     * Default lock TTL in seconds (15 minutes).
-     *
-     * @var int
-     */
-    public const LOCK_TIMEOUT_SECONDS = 900;
+	/**
+	 * Default lock TTL in seconds (15 minutes).
+	 *
+	 * @var int
+	 */
+	public const LOCK_TIMEOUT_SECONDS = 900;
 
-    /**
-     * The dashboard UUID this lock guards.
-     *
-     * @var string|null
-     */
-    protected ?string $dashboardUuid = null;
+	/**
+	 * The dashboard UUID this lock guards.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $dashboardUuid = null;
 
-    /**
-     * The Nextcloud user ID of the lock owner.
-     *
-     * @var string|null
-     */
-    protected ?string $userId = null;
+	/**
+	 * The Nextcloud user ID of the lock owner.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $userId = null;
 
-    /**
-     * Cached display name at acquire time (for UI feedback).
-     *
-     * @var string|null
-     */
-    protected ?string $displayName = null;
+	/**
+	 * Cached display name at acquire time (for UI feedback).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $displayName = null;
 
-    /**
-     * The creation timestamp (set on first acquire, never updated).
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * The creation timestamp (set on first acquire, never updated).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * The last-heartbeat timestamp; bumped on every heartbeat.
-     *
-     * @var string|null
-     */
-    protected ?string $updatedAt = null;
+	/**
+	 * The last-heartbeat timestamp; bumped on every heartbeat.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $updatedAt = null;
 
-    /**
-     * Constructor — registers column types.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — registers column types.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Whether this lock is past its TTL (`updatedAt + 15 min < now`).
-     *
-     * Returns `true` for an entity with no `updatedAt` (defensive
-     * default — a malformed row should not block a fresh acquire).
-     *
-     * @return bool True when the lock is stale.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function isExpired(): bool
-    {
-        if ($this->updatedAt === null) {
-            return true;
-        }
+	/**
+	 * Whether this lock is past its TTL (`updatedAt + 15 min < now`).
+	 *
+	 * Returns `true` for an entity with no `updatedAt` (defensive
+	 * default — a malformed row should not block a fresh acquire).
+	 *
+	 * @return bool True when the lock is stale.
+	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 */
+	public function isExpired(): bool {
+		if ($this->updatedAt === null) {
+			return true;
+		}
 
-        $heartbeat = strtotime(datetime: $this->updatedAt);
-        if ($heartbeat === false) {
-            return true;
-        }
+		$heartbeat = strtotime(datetime: $this->updatedAt);
+		if ($heartbeat === false) {
+			return true;
+		}
 
-        return ($heartbeat + self::LOCK_TIMEOUT_SECONDS) < time();
-    }//end isExpired()
+		return ($heartbeat + self::LOCK_TIMEOUT_SECONDS) < time();
+	}//end isExpired()
 
-    /**
-     * Number of seconds remaining before this lock expires.
-     *
-     * Returns 0 (never negative) for an already-expired lock.
-     *
-     * @return int Seconds remaining, clamped to >= 0.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function expiresIn(): int
-    {
-        if ($this->updatedAt === null) {
-            return 0;
-        }
+	/**
+	 * Number of seconds remaining before this lock expires.
+	 *
+	 * Returns 0 (never negative) for an already-expired lock.
+	 *
+	 * @return int Seconds remaining, clamped to >= 0.
+	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 */
+	public function expiresIn(): int {
+		if ($this->updatedAt === null) {
+			return 0;
+		}
 
-        $heartbeat = strtotime(datetime: $this->updatedAt);
-        if ($heartbeat === false) {
-            return 0;
-        }
+		$heartbeat = strtotime(datetime: $this->updatedAt);
+		if ($heartbeat === false) {
+			return 0;
+		}
 
-        $remaining = (($heartbeat + self::LOCK_TIMEOUT_SECONDS) - time());
+		$remaining = (($heartbeat + self::LOCK_TIMEOUT_SECONDS) - time());
 
-        return max(0, $remaining);
-    }//end expiresIn()
+		return max(0, $remaining);
+	}//end expiresIn()
 
-    /**
-     * Compute the implied expiry timestamp (`updatedAt + 15 min`).
-     *
-     * Useful for clients that prefer an absolute moment over a duration.
-     * Returns `null` for an entity without `updatedAt`.
-     *
-     * @return string|null ISO-style timestamp (Y-m-d H:i:s) or null.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function impliedExpiresAt(): ?string
-    {
-        if ($this->updatedAt === null) {
-            return null;
-        }
+	/**
+	 * Compute the implied expiry timestamp (`updatedAt + 15 min`).
+	 *
+	 * Useful for clients that prefer an absolute moment over a duration.
+	 * Returns `null` for an entity without `updatedAt`.
+	 *
+	 * @return string|null ISO-style timestamp (Y-m-d H:i:s) or null.
+	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 */
+	public function impliedExpiresAt(): ?string {
+		if ($this->updatedAt === null) {
+			return null;
+		}
 
-        $heartbeat = strtotime(datetime: $this->updatedAt);
-        if ($heartbeat === false) {
-            return null;
-        }
+		$heartbeat = strtotime(datetime: $this->updatedAt);
+		if ($heartbeat === false) {
+			return null;
+		}
 
-        $expiry = ($heartbeat + self::LOCK_TIMEOUT_SECONDS);
-        return (new DateTime())->setTimestamp(timestamp: $expiry)
-            ->format(format: 'Y-m-d H:i:s');
-    }//end impliedExpiresAt()
+		$expiry = ($heartbeat + self::LOCK_TIMEOUT_SECONDS);
+		return (new DateTime())->setTimestamp(timestamp: $expiry)
+			->format(format: 'Y-m-d H:i:s');
+	}//end impliedExpiresAt()
 
-    /**
-     * Serialize to JSON for API responses (REQ-LOCK-004 shape).
-     *
-     * @return array The serialized lock.
-     * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'             => $this->getId(),
-            'dashboardUuid'  => $this->dashboardUuid,
-            'userId'         => $this->userId,
-            'displayName'    => $this->displayName,
-            'acquiredAt'     => $this->createdAt,
-            'lastHeartbeat'  => $this->updatedAt,
-            'expiresAt'      => $this->impliedExpiresAt(),
-            'expiresIn'      => $this->expiresIn(),
-            'lockTimeoutSec' => self::LOCK_TIMEOUT_SECONDS,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON for API responses (REQ-LOCK-004 shape).
+	 *
+	 * @return array The serialized lock.
+	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'dashboardUuid' => $this->dashboardUuid,
+			'userId' => $this->userId,
+			'displayName' => $this->displayName,
+			'acquiredAt' => $this->createdAt,
+			'lastHeartbeat' => $this->updatedAt,
+			'expiresAt' => $this->impliedExpiresAt(),
+			'expiresIn' => $this->expiresIn(),
+			'lockTimeoutSec' => self::LOCK_TIMEOUT_SECONDS,
+		];
+	}//end jsonSerialize()
 
-    /**
-     * Serialize to JSON for conflict responses (M2: strip userId so a
-     * third party cannot harvest user IDs from 409 responses).
-     *
-     * The opaque lock `id` is retained so the frontend can present a
-     * stable reference without exposing the internal user identifier.
-     *
-     * @return array The serialized lock without the userId field.
-     *
-     * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
-     */
-    public function jsonSerializeConflict(): array
-    {
-        return [
-            'id'             => $this->getId(),
-            'dashboardUuid'  => $this->dashboardUuid,
-            'displayName'    => $this->displayName,
-            'acquiredAt'     => $this->createdAt,
-            'lastHeartbeat'  => $this->updatedAt,
-            'expiresAt'      => $this->impliedExpiresAt(),
-            'expiresIn'      => $this->expiresIn(),
-            'lockTimeoutSec' => self::LOCK_TIMEOUT_SECONDS,
-        ];
-    }//end jsonSerializeConflict()
+	/**
+	 * Serialize to JSON for conflict responses (M2: strip userId so a
+	 * third party cannot harvest user IDs from 409 responses).
+	 *
+	 * The opaque lock `id` is retained so the frontend can present a
+	 * stable reference without exposing the internal user identifier.
+	 *
+	 * @return array The serialized lock without the userId field.
+	 *
+	 * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 */
+	public function jsonSerializeConflict(): array {
+		return [
+			'id' => $this->getId(),
+			'dashboardUuid' => $this->dashboardUuid,
+			'displayName' => $this->displayName,
+			'acquiredAt' => $this->createdAt,
+			'lastHeartbeat' => $this->updatedAt,
+			'expiresAt' => $this->impliedExpiresAt(),
+			'expiresIn' => $this->expiresIn(),
+			'lockTimeoutSec' => self::LOCK_TIMEOUT_SECONDS,
+		];
+	}//end jsonSerializeConflict()
 }//end class

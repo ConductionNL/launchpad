@@ -41,56 +41,53 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
-class RegisterBackgroundJobs implements IRepairStep
-{
-    /**
-     * Constructor.
-     *
-     * @param IJobList        $jobList The Nextcloud background job list.
-     * @param LoggerInterface $logger  PSR-3 logger.
-     */
-    public function __construct(
-        private readonly IJobList $jobList,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class RegisterBackgroundJobs implements IRepairStep {
+	/**
+	 * Constructor.
+	 *
+	 * @param IJobList $jobList The Nextcloud background job list.
+	 * @param LoggerInterface $logger PSR-3 logger.
+	 */
+	public function __construct(
+		private readonly IJobList $jobList,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Return the human-readable name of this repair step.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    public function getName(): string
-    {
-        return 'Register LaunchPad background jobs';
-    }//end getName()
+	/**
+	 * Return the human-readable name of this repair step.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	public function getName(): string {
+		return 'Register LaunchPad background jobs';
+	}//end getName()
 
-    /**
-     * Register each LaunchPad background job (idempotent).
-     *
-     * @param IOutput $output Migration output stream.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    public function run(IOutput $output): void
-    {
-        $jobs = [
-            PurgeViewsJob::class,
-            SaltRotationJob::class,
-            FeedRefreshJob::class,
-        ];
+	/**
+	 * Register each LaunchPad background job (idempotent).
+	 *
+	 * @param IOutput $output Migration output stream.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	public function run(IOutput $output): void {
+		$jobs = [
+			PurgeViewsJob::class,
+			SaltRotationJob::class,
+			FeedRefreshJob::class,
+		];
 
-        foreach ($jobs as $job) {
-            $this->jobList->add(job: $job);
-            $output->info(message: 'Ensured LaunchPad background job is registered: '.$job);
-        }
+		foreach ($jobs as $job) {
+			$this->jobList->add(job: $job);
+			$output->info(message: 'Ensured LaunchPad background job is registered: ' . $job);
+		}
 
-        $this->logger->info(
-            message: 'RegisterBackgroundJobs: ensured LaunchPad background jobs are registered.'
-        );
-    }//end run()
+		$this->logger->info(
+			message: 'RegisterBackgroundJobs: ensured LaunchPad background jobs are registered.'
+		);
+	}//end run()
 }//end class

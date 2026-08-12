@@ -45,27 +45,26 @@ use OCP\Migration\SimpleMigrationStep;
  *  Nextcloud's migrator, not the DI container, so a static call is the only
  *  way to share the table definition with the test suite.
  */
-class Version002007Date20260724000000 extends SimpleMigrationStep
-{
-    /**
-     * Create the daily-aggregate tile-clicks table.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version002007Date20260724000000 extends SimpleMigrationStep {
+	/**
+	 * Create the daily-aggregate tile-clicks table.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        TileClicksTableBuilder::create(schema: $schema);
+		TileClicksTableBuilder::create(schema: $schema);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

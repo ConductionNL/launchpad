@@ -36,40 +36,39 @@ use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
-class Version001025Date20260508060000 extends SimpleMigrationStep
-{
-    /**
-     * Add the `content` column to the widget placements table.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure that returns an ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null when no change is needed.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001025Date20260508060000 extends SimpleMigrationStep {
+	/**
+	 * Add the `content` column to the widget placements table.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure that returns an ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null when no change is needed.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_widget_placements') === false) {
-            return null;
-        }
+		if ($schema->hasTable('launchpad_widget_placements') === false) {
+			return null;
+		}
 
-        $table = $schema->getTable('launchpad_widget_placements');
+		$table = $schema->getTable('launchpad_widget_placements');
 
-        if ($table->hasColumn('content') === false) {
-            $table->addColumn(
-                'content',
-                Types::TEXT,
-                [
-                    'notnull' => false,
-                ]
-            );
-        }
+		if ($table->hasColumn('content') === false) {
+			$table->addColumn(
+				'content',
+				Types::TEXT,
+				[
+					'notnull' => false,
+				]
+			);
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

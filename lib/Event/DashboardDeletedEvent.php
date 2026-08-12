@@ -45,66 +45,61 @@ use OCP\EventDispatcher\Event;
  * @see \OCA\LaunchPad\Listener\ViewAnalyticsListener
  * @see \OCA\LaunchPad\Listener\TreeListener
  */
-final class DashboardDeletedEvent extends Event
-{
-    /**
-     * Constructor.
-     *
-     * @param string            $dashboardUuid The UUID of the deleted dashboard.
-     * @param string            $ownerUserId   The owner user ID at the time of deletion.
-     * @param string            $type          The dashboard type (`user`, `group_shared`, `admin_template`).
-     * @param DateTimeImmutable $deletedAt     The instant the soft-delete completed.
-     */
-    public function __construct(
-        private readonly string $dashboardUuid,
-        private readonly string $ownerUserId,
-        private readonly string $type,
-        private readonly DateTimeImmutable $deletedAt,
-    ) {
-        parent::__construct();
-    }//end __construct()
+final class DashboardDeletedEvent extends Event {
+	/**
+	 * Constructor.
+	 *
+	 * @param string $dashboardUuid The UUID of the deleted dashboard.
+	 * @param string $ownerUserId The owner user ID at the time of deletion.
+	 * @param string $type The dashboard type (`user`, `group_shared`, `admin_template`).
+	 * @param DateTimeImmutable $deletedAt The instant the soft-delete completed.
+	 */
+	public function __construct(
+		private readonly string $dashboardUuid,
+		private readonly string $ownerUserId,
+		private readonly string $type,
+		private readonly DateTimeImmutable $deletedAt,
+	) {
+		parent::__construct();
+	}//end __construct()
 
-    /**
-     * Get the UUID of the deleted dashboard.
-     *
-     * @return string The dashboard UUID.
-     */
-    public function getDashboardUuid(): string
-    {
-        return $this->dashboardUuid;
-    }//end getDashboardUuid()
+	/**
+	 * Get the UUID of the deleted dashboard.
+	 *
+	 * @return string The dashboard UUID.
+	 */
+	public function getDashboardUuid(): string {
+		return $this->dashboardUuid;
+	}//end getDashboardUuid()
 
-    /**
-     * Get the owner user ID at the time of deletion.
-     *
-     * For `group_shared` dashboards this is the actor (admin) who
-     * performed the delete, not the original creator. REQ-CSC-001
-     * scenario "Event carries correct type for group-shared dashboard".
-     *
-     * @return string The owner / actor user ID.
-     */
-    public function getOwnerUserId(): string
-    {
-        return $this->ownerUserId;
-    }//end getOwnerUserId()
+	/**
+	 * Get the owner user ID at the time of deletion.
+	 *
+	 * For `group_shared` dashboards this is the actor (admin) who
+	 * performed the delete, not the original creator. REQ-CSC-001
+	 * scenario "Event carries correct type for group-shared dashboard".
+	 *
+	 * @return string The owner / actor user ID.
+	 */
+	public function getOwnerUserId(): string {
+		return $this->ownerUserId;
+	}//end getOwnerUserId()
 
-    /**
-     * Get the dashboard type.
-     *
-     * @return string One of `user`, `group_shared`, `admin_template`.
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }//end getType()
+	/**
+	 * Get the dashboard type.
+	 *
+	 * @return string One of `user`, `group_shared`, `admin_template`.
+	 */
+	public function getType(): string {
+		return $this->type;
+	}//end getType()
 
-    /**
-     * Get the deletion timestamp.
-     *
-     * @return DateTimeImmutable The instant the soft-delete completed.
-     */
-    public function getDeletedAt(): DateTimeImmutable
-    {
-        return $this->deletedAt;
-    }//end getDeletedAt()
+	/**
+	 * Get the deletion timestamp.
+	 *
+	 * @return DateTimeImmutable The instant the soft-delete completed.
+	 */
+	public function getDeletedAt(): DateTimeImmutable {
+		return $this->deletedAt;
+	}//end getDeletedAt()
 }//end class

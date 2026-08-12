@@ -28,7 +28,6 @@ use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
-use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
@@ -36,205 +35,191 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class KioskControllerTest extends TestCase
-{
+class KioskControllerTest extends TestCase {
 
-    /** @var IRequest&MockObject */
-    private $request;
+	/** @var IRequest&MockObject */
+	private $request;
 
-    /** @var KioskService&MockObject */
-    private $kioskService;
+	/** @var KioskService&MockObject */
+	private $kioskService;
 
-    /** @var PublicShareContext&MockObject */
-    private $shareContext;
+	/** @var PublicShareContext&MockObject */
+	private $shareContext;
 
-    /** @var LoggerInterface&MockObject */
-    private $logger;
+	/** @var LoggerInterface&MockObject */
+	private $logger;
 
-    protected function setUp(): void
-    {
-        $this->request      = $this->createMock(IRequest::class);
-        $this->kioskService = $this->createMock(KioskService::class);
-        $this->shareContext = $this->createMock(PublicShareContext::class);
-        $this->logger       = $this->createMock(LoggerInterface::class);
-    }
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->kioskService = $this->createMock(KioskService::class);
+		$this->shareContext = $this->createMock(PublicShareContext::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+	}
 
-    private function makeController(?string $userId='alice'): KioskController
-    {
-        return new KioskController(
-            request: $this->request,
-            kioskService: $this->kioskService,
-            shareContext: $this->shareContext,
-            logger: $this->logger,
-            userId: $userId,
-        );
-    }
+	private function makeController(?string $userId = 'alice'): KioskController {
+		return new KioskController(
+			request: $this->request,
+			kioskService: $this->kioskService,
+			shareContext: $this->shareContext,
+			logger: $this->logger,
+			userId: $userId,
+		);
+	}
 
-    private function playlist(): KioskPlaylist
-    {
-        $playlist = new KioskPlaylist();
-        $playlist->setName('Wall');
-        $playlist->setToken(str_repeat('a', 64));
-        return $playlist;
-    }
+	private function playlist(): KioskPlaylist {
+		$playlist = new KioskPlaylist();
+		$playlist->setName('Wall');
+		$playlist->setToken(str_repeat('a', 64));
+		return $playlist;
+	}
 
-    // -------------------------------------------------------------------------
-    // create
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// create
+	// -------------------------------------------------------------------------
 
-    public function testCreateReturns201OnSuccess(): void
-    {
-        $this->kioskService->method('createPlaylist')->willReturn($this->playlist());
+	public function testCreateReturns201OnSuccess(): void {
+		$this->kioskService->method('createPlaylist')->willReturn($this->playlist());
 
-        $response = $this->makeController()->create(
-            name: 'Wall',
-            entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]],
-            refreshSeconds: 60
-        );
+		$response = $this->makeController()->create(
+			name: 'Wall',
+			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]],
+			refreshSeconds: 60
+		);
 
-        $this->assertSame(Http::STATUS_CREATED, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
+	}
 
-    public function testCreateReturns401WhenNotLoggedIn(): void
-    {
-        $controller = $this->makeController(userId: null);
+	public function testCreateReturns401WhenNotLoggedIn(): void {
+		$controller = $this->makeController(userId: null);
 
-        $response = $controller->create(name: 'Wall', entries: [], refreshSeconds: 60);
+		$response = $controller->create(name: 'Wall', entries: [], refreshSeconds: 60);
 
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	}
 
-    public function testCreateReturns403WhenForbidden(): void
-    {
-        $this->kioskService
-            ->method('createPlaylist')
-            ->willThrowException(new OCSForbiddenException('Not authorized'));
+	public function testCreateReturns403WhenForbidden(): void {
+		$this->kioskService
+			->method('createPlaylist')
+			->willThrowException(new OCSForbiddenException('Not authorized'));
 
-        $response = $this->makeController()->create(
-            name: 'Wall',
-            entries: [['dashboardUuid' => 'uuid-1']],
-            refreshSeconds: 60
-        );
+		$response = $this->makeController()->create(
+			name: 'Wall',
+			entries: [['dashboardUuid' => 'uuid-1']],
+			refreshSeconds: 60
+		);
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    // -------------------------------------------------------------------------
-    // index
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// index
+	// -------------------------------------------------------------------------
 
-    public function testIndexReturns200WithPlaylists(): void
-    {
-        $this->kioskService
-            ->method('listPlaylists')
-            ->willReturn([$this->playlist()]);
+	public function testIndexReturns200WithPlaylists(): void {
+		$this->kioskService
+			->method('listPlaylists')
+			->willReturn([$this->playlist()]);
 
-        $response = $this->makeController()->index();
+		$response = $this->makeController()->index();
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertCount(1, $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertCount(1, $response->getData());
+	}
 
-    // -------------------------------------------------------------------------
-    // update
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// update
+	// -------------------------------------------------------------------------
 
-    public function testUpdateReturns404WhenPlaylistMissing(): void
-    {
-        $this->kioskService
-            ->method('updatePlaylist')
-            ->willThrowException(new PlaylistNotFoundException());
+	public function testUpdateReturns404WhenPlaylistMissing(): void {
+		$this->kioskService
+			->method('updatePlaylist')
+			->willThrowException(new PlaylistNotFoundException());
 
-        $response = $this->makeController()->update(
-            id: 99,
-            name: 'Wall',
-            entries: [],
-            refreshSeconds: 60
-        );
+		$response = $this->makeController()->update(
+			id: 99,
+			name: 'Wall',
+			entries: [],
+			refreshSeconds: 60
+		);
 
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
 
-    public function testUpdateReturns403WhenForbidden(): void
-    {
-        $this->kioskService
-            ->method('updatePlaylist')
-            ->willThrowException(new OCSForbiddenException('Not authorized'));
+	public function testUpdateReturns403WhenForbidden(): void {
+		$this->kioskService
+			->method('updatePlaylist')
+			->willThrowException(new OCSForbiddenException('Not authorized'));
 
-        $response = $this->makeController()->update(
-            id: 5,
-            name: 'Wall',
-            entries: [],
-            refreshSeconds: 60
-        );
+		$response = $this->makeController()->update(
+			id: 5,
+			name: 'Wall',
+			entries: [],
+			refreshSeconds: 60
+		);
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    // -------------------------------------------------------------------------
-    // destroy (revoke)
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// destroy (revoke)
+	// -------------------------------------------------------------------------
 
-    public function testDestroyReturns204OnSuccess(): void
-    {
-        $this->kioskService->method('revokePlaylist');
+	public function testDestroyReturns204OnSuccess(): void {
+		$this->kioskService->method('revokePlaylist');
 
-        $response = $this->makeController()->destroy(id: 7);
+		$response = $this->makeController()->destroy(id: 7);
 
-        $this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
+	}
 
-    public function testDestroyReturns404WhenPlaylistMissing(): void
-    {
-        $this->kioskService
-            ->method('revokePlaylist')
-            ->willThrowException(new PlaylistNotFoundException());
+	public function testDestroyReturns404WhenPlaylistMissing(): void {
+		$this->kioskService
+			->method('revokePlaylist')
+			->willThrowException(new PlaylistNotFoundException());
 
-        $response = $this->makeController()->destroy(id: 99);
+		$response = $this->makeController()->destroy(id: 99);
 
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
 
-    // -------------------------------------------------------------------------
-    // render (public)
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// render (public)
+	// -------------------------------------------------------------------------
 
-    public function testRenderReturns200AndMarksBearer(): void
-    {
-        $controller = $this->makeController(userId: null);
+	public function testRenderReturns200AndMarksBearer(): void {
+		$controller = $this->makeController(userId: null);
 
-        $payload = [
-            'playlist' => ['name' => 'Wall'],
-            'entries'  => [],
-        ];
-        $this->kioskService->method('renderPlaylist')->willReturn($payload);
+		$payload = [
+			'playlist' => ['name' => 'Wall'],
+			'entries' => [],
+		];
+		$this->kioskService->method('renderPlaylist')->willReturn($payload);
 
-        // The render path marks the request as a read-only bearer.
-        $this->shareContext
-            ->expects($this->once())
-            ->method('markBearer')
-            ->with(token: 'tok');
+		// The render path marks the request as a read-only bearer.
+		$this->shareContext
+			->expects($this->once())
+			->method('markBearer')
+			->with(token: 'tok');
 
-        $response = $controller->render(token: 'tok');
+		$response = $controller->render(token: 'tok');
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertArrayHasKey('playlist', $response->getData());
-        $this->assertArrayHasKey('entries', $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertArrayHasKey('playlist', $response->getData());
+		$this->assertArrayHasKey('entries', $response->getData());
+	}
 
-    public function testRenderReturns404WithThrottleOnUnknownToken(): void
-    {
-        $controller = $this->makeController(userId: null);
+	public function testRenderReturns404WithThrottleOnUnknownToken(): void {
+		$controller = $this->makeController(userId: null);
 
-        $this->kioskService
-            ->method('renderPlaylist')
-            ->willThrowException(new PlaylistNotFoundException());
+		$this->kioskService
+			->method('renderPlaylist')
+			->willThrowException(new PlaylistNotFoundException());
 
-        // No bearer is marked when the token is unknown.
-        $this->shareContext->expects($this->never())->method('markBearer');
+		// No bearer is marked when the token is unknown.
+		$this->shareContext->expects($this->never())->method('markBearer');
 
-        $response = $controller->render(token: 'bogus');
+		$response = $controller->render(token: 'bogus');
 
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
 }//end class

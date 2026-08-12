@@ -48,349 +48,345 @@ use OCP\IUserSession;
 /**
  * Bulk admin endpoints for dashboards (REQ-BULK-001..011).
  */
-class AdminBulkController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest             $request      The current request.
-     * @param BulkOperationService $bulkService  The bulk service.
-     * @param IUserSession         $userSession  The user session.
-     * @param IGroupManager        $groupManager NC group manager for inline admin guard.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly BulkOperationService $bulkService,
-        private readonly IUserSession $userSession,
-        private readonly IGroupManager $groupManager,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class AdminBulkController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The current request.
+	 * @param BulkOperationService $bulkService The bulk service.
+	 * @param IUserSession $userSession The user session.
+	 * @param IGroupManager $groupManager NC group manager for inline admin guard.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly BulkOperationService $bulkService,
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Inline admin guard — returns a 401/403 JSONResponse when the caller
-     * is not authenticated or not an NC admin, or null when the guard passes.
-     *
-     * @return JSONResponse|null Non-null means the request must be rejected.
-     */
-    private function assertAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                data: ['error' => 'Not authenticated'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Inline admin guard — returns a 401/403 JSONResponse when the caller
+	 * is not authenticated or not an NC admin, or null when the guard passes.
+	 *
+	 * @return JSONResponse|null Non-null means the request must be rejected.
+	 */
+	private function assertAdmin(): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(
+				data: ['error' => 'Not authenticated'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-            return new JSONResponse(
-                data: ['error' => 'Admin required'],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }
+		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
+			return new JSONResponse(
+				data: ['error' => 'Admin required'],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}
 
-        return null;
-    }//end assertAdmin()
+		return null;
+	}//end assertAdmin()
 
-    /**
-     * `POST /api/admin/dashboards/bulk-delete` — REQ-BULK-001.
-     *
-     * @param mixed     $dashboardUuids The UUID array.
-     * @param bool|null $dryRun         When true, preview only.
-     * @param bool|null $cascade        When true, cascade into children.
-     *
-     * @return JSONResponse The bulk-delete envelope.
-         *
-     * @spec openspec/specs/dashboard-bulk-operations/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function bulkDelete(
-        mixed $dashboardUuids=null,
-        ?bool $dryRun=null,
-        ?bool $cascade=null
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `POST /api/admin/dashboards/bulk-delete` — REQ-BULK-001.
+	 *
+	 * @param mixed $dashboardUuids The UUID array.
+	 * @param bool|null $dryRun When true, preview only.
+	 * @param bool|null $cascade When true, cascade into children.
+	 *
+	 * @return JSONResponse The bulk-delete envelope.
+	 *
+	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function bulkDelete(
+		mixed $dashboardUuids = null,
+		?bool $dryRun = null,
+		?bool $cascade = null,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        $uuids = $this->extractUuids(value: $dashboardUuids);
-        if ($uuids === null) {
-            return new JSONResponse(
-                data: ['error' => 'dashboardUuids must be an array of strings'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		$uuids = $this->extractUuids(value: $dashboardUuids);
+		if ($uuids === null) {
+			return new JSONResponse(
+				data: ['error' => 'dashboardUuids must be an array of strings'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        $userId    = (string) $this->userSession->getUser()?->getUID();
-        $isDryRun  = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
-        $doCascade = $this->resolveBool(value: $cascade, queryKey: 'cascade');
+		$userId = (string)$this->userSession->getUser()?->getUID();
+		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
+		$doCascade = $this->resolveBool(value: $cascade, queryKey: 'cascade');
 
-        try {
-            $result = $this->bulkService->bulkDelete(
-                dashboardUuids: $uuids,
-                userId: $userId,
-                dryRun: $isDryRun,
-                cascade: $doCascade
-            );
-        } catch (PermissionDeniedException $e) {
-            return new JSONResponse(
-                data: [
-                    'error'       => $e->getMessage(),
-                    'deniedUuids' => $e->getDeniedUuids(),
-                ],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }//end try
+		try {
+			$result = $this->bulkService->bulkDelete(
+				dashboardUuids: $uuids,
+				userId: $userId,
+				dryRun: $isDryRun,
+				cascade: $doCascade
+			);
+		} catch (PermissionDeniedException $e) {
+			return new JSONResponse(
+				data: [
+					'error' => $e->getMessage(),
+					'deniedUuids' => $e->getDeniedUuids(),
+				],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}//end try
 
-        return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
-    }//end bulkDelete()
+		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+	}//end bulkDelete()
 
-    /**
-     * `POST /api/admin/dashboards/bulk-move` — REQ-BULK-002.
-     *
-     * @param mixed       $dashboardUuids The UUID array.
-     * @param string|null $parentUuid     The new parent UUID
-     *                                    (NULL ⇒ root).
-     * @param bool|null   $dryRun         When true, preview only.
-     *
-     * @return JSONResponse The bulk-move envelope.
-         *
-     * @spec openspec/specs/dashboard-bulk-operations/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function bulkMove(
-        mixed $dashboardUuids=null,
-        ?string $parentUuid=null,
-        ?bool $dryRun=null
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `POST /api/admin/dashboards/bulk-move` — REQ-BULK-002.
+	 *
+	 * @param mixed $dashboardUuids The UUID array.
+	 * @param string|null $parentUuid The new parent UUID
+	 *                                (NULL ⇒ root).
+	 * @param bool|null $dryRun When true, preview only.
+	 *
+	 * @return JSONResponse The bulk-move envelope.
+	 *
+	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function bulkMove(
+		mixed $dashboardUuids = null,
+		?string $parentUuid = null,
+		?bool $dryRun = null,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        $uuids = $this->extractUuids(value: $dashboardUuids);
-        if ($uuids === null) {
-            return new JSONResponse(
-                data: ['error' => 'dashboardUuids must be an array of strings'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		$uuids = $this->extractUuids(value: $dashboardUuids);
+		if ($uuids === null) {
+			return new JSONResponse(
+				data: ['error' => 'dashboardUuids must be an array of strings'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        $userId   = (string) $this->userSession->getUser()?->getUID();
-        $isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
+		$userId = (string)$this->userSession->getUser()?->getUID();
+		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
-        try {
-            $result = $this->bulkService->bulkMove(
-                dashboardUuids: $uuids,
-                parentUuid: $parentUuid,
-                userId: $userId,
-                dryRun: $isDryRun
-            );
-        } catch (PermissionDeniedException $e) {
-            return new JSONResponse(
-                data: [
-                    'error'       => $e->getMessage(),
-                    'deniedUuids' => $e->getDeniedUuids(),
-                ],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }//end try
+		try {
+			$result = $this->bulkService->bulkMove(
+				dashboardUuids: $uuids,
+				parentUuid: $parentUuid,
+				userId: $userId,
+				dryRun: $isDryRun
+			);
+		} catch (PermissionDeniedException $e) {
+			return new JSONResponse(
+				data: [
+					'error' => $e->getMessage(),
+					'deniedUuids' => $e->getDeniedUuids(),
+				],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}//end try
 
-        return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
-    }//end bulkMove()
+		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+	}//end bulkMove()
 
-    /**
-     * `POST /api/admin/dashboards/bulk-status` — REQ-BULK-003.
-     *
-     * @param mixed       $dashboardUuids    The UUID array.
-     * @param string|null $publicationStatus The target status enum value.
-     * @param string|null $publishAt         Future ISO-8601 timestamp.
-     * @param bool|null   $dryRun            When true, preview only.
-     *
-     * @return JSONResponse The bulk-status envelope.
-         *
-     * @spec openspec/specs/dashboard-bulk-operations/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function bulkStatus(
-        mixed $dashboardUuids=null,
-        ?string $publicationStatus=null,
-        ?string $publishAt=null,
-        ?bool $dryRun=null
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `POST /api/admin/dashboards/bulk-status` — REQ-BULK-003.
+	 *
+	 * @param mixed $dashboardUuids The UUID array.
+	 * @param string|null $publicationStatus The target status enum value.
+	 * @param string|null $publishAt Future ISO-8601 timestamp.
+	 * @param bool|null $dryRun When true, preview only.
+	 *
+	 * @return JSONResponse The bulk-status envelope.
+	 *
+	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function bulkStatus(
+		mixed $dashboardUuids = null,
+		?string $publicationStatus = null,
+		?string $publishAt = null,
+		?bool $dryRun = null,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        $uuids = $this->extractUuids(value: $dashboardUuids);
-        if ($uuids === null) {
-            return new JSONResponse(
-                data: ['error' => 'dashboardUuids must be an array of strings'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		$uuids = $this->extractUuids(value: $dashboardUuids);
+		if ($uuids === null) {
+			return new JSONResponse(
+				data: ['error' => 'dashboardUuids must be an array of strings'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        if ($publicationStatus === null || trim($publicationStatus) === '') {
-            return new JSONResponse(
-                data: ['error' => 'publicationStatus is required'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		if ($publicationStatus === null || trim($publicationStatus) === '') {
+			return new JSONResponse(
+				data: ['error' => 'publicationStatus is required'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        $userId   = (string) $this->userSession->getUser()?->getUID();
-        $isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
+		$userId = (string)$this->userSession->getUser()?->getUID();
+		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
-        try {
-            $result = $this->bulkService->bulkStatus(
-                dashboardUuids: $uuids,
-                publicationStatus: $publicationStatus,
-                publishAt: $publishAt,
-                userId: $userId,
-                dryRun: $isDryRun
-            );
-        } catch (PermissionDeniedException $e) {
-            return new JSONResponse(
-                data: [
-                    'error'       => $e->getMessage(),
-                    'deniedUuids' => $e->getDeniedUuids(),
-                ],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }//end try
+		try {
+			$result = $this->bulkService->bulkStatus(
+				dashboardUuids: $uuids,
+				publicationStatus: $publicationStatus,
+				publishAt: $publishAt,
+				userId: $userId,
+				dryRun: $isDryRun
+			);
+		} catch (PermissionDeniedException $e) {
+			return new JSONResponse(
+				data: [
+					'error' => $e->getMessage(),
+					'deniedUuids' => $e->getDeniedUuids(),
+				],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}//end try
 
-        return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
-    }//end bulkStatus()
+		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+	}//end bulkStatus()
 
-    /**
-     * `POST /api/admin/dashboards/bulk-reindex` — REQ-BULK-004.
-     *
-     * @param mixed     $dashboardUuids The UUID array.
-     * @param bool|null $dryRun         When true, preview only.
-     *
-     * @return JSONResponse The bulk-reindex envelope.
-         *
-     * @spec openspec/specs/dashboard-bulk-operations/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function bulkReindex(
-        mixed $dashboardUuids=null,
-        ?bool $dryRun=null
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `POST /api/admin/dashboards/bulk-reindex` — REQ-BULK-004.
+	 *
+	 * @param mixed $dashboardUuids The UUID array.
+	 * @param bool|null $dryRun When true, preview only.
+	 *
+	 * @return JSONResponse The bulk-reindex envelope.
+	 *
+	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function bulkReindex(
+		mixed $dashboardUuids = null,
+		?bool $dryRun = null,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        $uuids = $this->extractUuids(value: $dashboardUuids);
-        if ($uuids === null) {
-            return new JSONResponse(
-                data: ['error' => 'dashboardUuids must be an array of strings'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		$uuids = $this->extractUuids(value: $dashboardUuids);
+		if ($uuids === null) {
+			return new JSONResponse(
+				data: ['error' => 'dashboardUuids must be an array of strings'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        $userId   = (string) $this->userSession->getUser()?->getUID();
-        $isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
+		$userId = (string)$this->userSession->getUser()?->getUID();
+		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
-        try {
-            $result = $this->bulkService->bulkReindex(
-                dashboardUuids: $uuids,
-                userId: $userId,
-                dryRun: $isDryRun
-            );
-        } catch (PermissionDeniedException $e) {
-            return new JSONResponse(
-                data: [
-                    'error'       => $e->getMessage(),
-                    'deniedUuids' => $e->getDeniedUuids(),
-                ],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$result = $this->bulkService->bulkReindex(
+				dashboardUuids: $uuids,
+				userId: $userId,
+				dryRun: $isDryRun
+			);
+		} catch (PermissionDeniedException $e) {
+			return new JSONResponse(
+				data: [
+					'error' => $e->getMessage(),
+					'deniedUuids' => $e->getDeniedUuids(),
+				],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
-    }//end bulkReindex()
+		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+	}//end bulkReindex()
 
-    /**
-     * Validate and unwrap a `dashboardUuids` body field into a string
-     * list. Returns null when the value is not a list of strings.
-     *
-     * @param mixed $value The raw decoded value.
-     *
-     * @return string[]|null The extracted UUID list, or null on
-     *                       validation failure.
-     */
-    private function extractUuids(mixed $value): ?array
-    {
-        if (is_array($value) === false) {
-            return null;
-        }
+	/**
+	 * Validate and unwrap a `dashboardUuids` body field into a string
+	 * list. Returns null when the value is not a list of strings.
+	 *
+	 * @param mixed $value The raw decoded value.
+	 *
+	 * @return string[]|null The extracted UUID list, or null on
+	 *                       validation failure.
+	 */
+	private function extractUuids(mixed $value): ?array {
+		if (is_array($value) === false) {
+			return null;
+		}
 
-        $uuids = [];
-        foreach ($value as $item) {
-            if (is_string($item) === false) {
-                return null;
-            }
+		$uuids = [];
+		foreach ($value as $item) {
+			if (is_string($item) === false) {
+				return null;
+			}
 
-            $trimmed = trim($item);
-            if ($trimmed === '') {
-                return null;
-            }
+			$trimmed = trim($item);
+			if ($trimmed === '') {
+				return null;
+			}
 
-            $uuids[] = $trimmed;
-        }
+			$uuids[] = $trimmed;
+		}
 
-        return $uuids;
-    }//end extractUuids()
+		return $uuids;
+	}//end extractUuids()
 
-    /**
-     * Resolve a boolean parameter that may arrive either in the body
-     * (`bool`) or via the query string (`?dryRun=true`). The query
-     * string takes precedence when the body parameter is null.
-     *
-     * @param bool|null $value    The body-parsed value.
-     * @param string    $queryKey The query string key.
-     *
-     * @return bool The resolved boolean.
-     */
-    private function resolveBool(?bool $value, string $queryKey): bool
-    {
-        if ($value !== null) {
-            return $value;
-        }
+	/**
+	 * Resolve a boolean parameter that may arrive either in the body
+	 * (`bool`) or via the query string (`?dryRun=true`). The query
+	 * string takes precedence when the body parameter is null.
+	 *
+	 * @param bool|null $value The body-parsed value.
+	 * @param string $queryKey The query string key.
+	 *
+	 * @return bool The resolved boolean.
+	 */
+	private function resolveBool(?bool $value, string $queryKey): bool {
+		if ($value !== null) {
+			return $value;
+		}
 
-        $raw = $this->request->getParam(key: $queryKey);
-        if ($raw === null || $raw === '') {
-            return false;
-        }
+		$raw = $this->request->getParam(key: $queryKey);
+		if ($raw === null || $raw === '') {
+			return false;
+		}
 
-        $lower = strtolower((string) $raw);
-        return in_array(needle: $lower, haystack: ['1', 'true', 'yes', 'on'], strict: true);
-    }//end resolveBool()
+		$lower = strtolower((string)$raw);
+		return in_array(needle: $lower, haystack: ['1', 'true', 'yes', 'on'], strict: true);
+	}//end resolveBool()
 }//end class

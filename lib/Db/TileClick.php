@@ -43,76 +43,73 @@ use OCP\AppFramework\Db\Entity;
  * @method int getUniqueActorCount()
  * @method void setUniqueActorCount(int $uniqueActorCount)
  */
-class TileClick extends Entity implements JsonSerializable
-{
+class TileClick extends Entity implements JsonSerializable {
 
-    /**
-     * The widget-placement (tile) UUID this aggregate row belongs to.
-     *
-     * @var string|null
-     */
-    protected ?string $placementUuid = null;
+	/**
+	 * The widget-placement (tile) UUID this aggregate row belongs to.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $placementUuid = null;
 
-    /**
-     * The dashboard UUID the placement belongs to (denormalised for
-     * the per-dashboard breakdown query — REQ-TANLT-004).
-     *
-     * @var string|null
-     */
-    protected ?string $dashboardUuid = null;
+	/**
+	 * The dashboard UUID the placement belongs to (denormalised for
+	 * the per-dashboard breakdown query — REQ-TANLT-004).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $dashboardUuid = null;
 
-    /**
-     * Calendar date in UTC (YYYY-MM-DD).
-     *
-     * @var string|null
-     */
-    protected ?string $clickBucket = null;
+	/**
+	 * Calendar date in UTC (YYYY-MM-DD).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $clickBucket = null;
 
-    /**
-     * Total click-event count for the bucket.
-     *
-     * @var integer
-     */
-    protected int $clickCount = 0;
+	/**
+	 * Total click-event count for the bucket.
+	 *
+	 * @var integer
+	 */
+	protected int $clickCount = 0;
 
-    /**
-     * Distinct actor count for the bucket (cache-deduped, reusing
-     * the same salted-daily-hash mechanism as dashboard-view
-     * analytics — REQ-TANLT-002).
-     *
-     * @var integer
-     */
-    protected int $uniqueActorCount = 0;
+	/**
+	 * Distinct actor count for the bucket (cache-deduped, reusing
+	 * the same salted-daily-hash mechanism as dashboard-view
+	 * analytics — REQ-TANLT-002).
+	 *
+	 * @var integer
+	 */
+	protected int $uniqueActorCount = 0;
 
-    /**
-     * Constructor — register column types.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'clickCount', type: 'integer');
-        $this->addType(fieldName: 'uniqueActorCount', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — register column types.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'clickCount', type: 'integer');
+		$this->addType(fieldName: 'uniqueActorCount', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Serialize to JSON.
-     *
-     * Stable, frontend-facing key names matching REQ-TANLT-004 /
-     * REQ-TANLT-005 scenario payload shapes.
-     *
-     * @return array The serialized aggregate row.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'               => $this->getId(),
-            'placementUuid'    => $this->placementUuid,
-            'dashboardUuid'    => $this->dashboardUuid,
-            'clickBucket'      => $this->clickBucket,
-            'clickCount'       => $this->clickCount,
-            'uniqueActorCount' => $this->uniqueActorCount,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON.
+	 *
+	 * Stable, frontend-facing key names matching REQ-TANLT-004 /
+	 * REQ-TANLT-005 scenario payload shapes.
+	 *
+	 * @return array The serialized aggregate row.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'placementUuid' => $this->placementUuid,
+			'dashboardUuid' => $this->dashboardUuid,
+			'clickBucket' => $this->clickBucket,
+			'clickCount' => $this->clickCount,
+			'uniqueActorCount' => $this->uniqueActorCount,
+		];
+	}//end jsonSerialize()
 }//end class

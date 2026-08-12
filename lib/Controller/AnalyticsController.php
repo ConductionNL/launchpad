@@ -55,214 +55,211 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/archive/2026-05-02-dashboard-view-analytics/tasks.md
  */
-class AnalyticsController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest          $request          The HTTP request.
-     * @param AnalyticsService  $analyticsService The analytics reporting service.
-     * @param ActionAuthService $actionAuth       ADR-023 action authorization.
-     * @param IUserSession      $userSession      Current user session.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly AnalyticsService $analyticsService,
-        private readonly ActionAuthService $actionAuth,
-        private readonly IUserSession $userSession,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class AnalyticsController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The HTTP request.
+	 * @param AnalyticsService $analyticsService The analytics reporting service.
+	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param IUserSession $userSession Current user session.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly AnalyticsService $analyticsService,
+		private readonly ActionAuthService $actionAuth,
+		private readonly IUserSession $userSession,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Handle `GET /api/admin/analytics/dashboards/top` (REQ-ANLT-006).
-     *
-     * @param string $period The period string (`7d`, `30d`, `90d`).
-     * @param int    $limit  Maximum rows.
-     *
-     * @return JSONResponse The response.
-         *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function topDashboards(
-        string $period='30d',
-        int $limit=10
-    ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/dashboards/top` (REQ-ANLT-006).
+	 *
+	 * @param string $period The period string (`7d`, `30d`, `90d`).
+	 * @param int $limit Maximum rows.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function topDashboards(
+		string $period = '30d',
+		int $limit = 10,
+	): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'analytics.top-dashboards');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'analytics.top-dashboards');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $rows = $this->analyticsService->getTopDashboards(
-                period: $period,
-                limit: $limit
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$rows = $this->analyticsService->getTopDashboards(
+				period: $period,
+				limit: $limit
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return ResponseHelper::success(data: $rows);
-    }//end topDashboards()
+		return ResponseHelper::success(data: $rows);
+	}//end topDashboards()
 
-    /**
-     * Handle `GET /api/admin/analytics/dashboards/{uuid}`
-     * (REQ-ANLT-007).
-     *
-     * @param string $uuid   The dashboard UUID from the URL.
-     * @param string $period The period string.
-     *
-     * @return JSONResponse The response.
-         *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function dashboardDetail(
-        string $uuid,
-        string $period='30d'
-    ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/dashboards/{uuid}`
+	 * (REQ-ANLT-007).
+	 *
+	 * @param string $uuid The dashboard UUID from the URL.
+	 * @param string $period The period string.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function dashboardDetail(
+		string $uuid,
+		string $period = '30d',
+	): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'analytics.dashboard-detail');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'analytics.dashboard-detail');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $rows = $this->analyticsService->getDashboardDetail(
-                dashboardUuid: $uuid,
-                period: $period
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: [
-                    'status' => 'error',
-                    'error'  => 'not_found',
-                ],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }//end try
+		try {
+			$rows = $this->analyticsService->getDashboardDetail(
+				dashboardUuid: $uuid,
+				period: $period
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'not_found',
+				],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}//end try
 
-        return ResponseHelper::success(data: $rows);
-    }//end dashboardDetail()
+		return ResponseHelper::success(data: $rows);
+	}//end dashboardDetail()
 
-    /**
-     * Handle `GET /api/admin/analytics/summary` (REQ-ANLT-008).
-     *
-     * @param string $period The period string.
-     *
-     * @return JSONResponse The response.
-         *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function instanceSummary(string $period='30d'): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/summary` (REQ-ANLT-008).
+	 *
+	 * @param string $period The period string.
+	 *
+	 * @return JSONResponse The response.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function instanceSummary(string $period = '30d'): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'analytics.instance-summary');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'analytics.instance-summary');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $summary = $this->analyticsService->getInstanceSummary(
-                period: $period
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$summary = $this->analyticsService->getInstanceSummary(
+				period: $period
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return ResponseHelper::success(data: $summary);
-    }//end instanceSummary()
+		return ResponseHelper::success(data: $summary);
+	}//end instanceSummary()
 
-    /**
-     * Handle `GET /api/admin/analytics/export` (REQ-ANLT-010).
-     *
-     * Returns a `text/csv` attachment with the filename
-     * `dashboard-analytics-YYYY-MM-DD.csv` (today's UTC date).
-     *
-     * @param string $period The period string.
-     *
-     * @return Response The CSV download response or a JSON error
-     *                  envelope.
-         *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function exportCsv(string $period='30d'): Response
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/admin/analytics/export` (REQ-ANLT-010).
+	 *
+	 * Returns a `text/csv` attachment with the filename
+	 * `dashboard-analytics-YYYY-MM-DD.csv` (today's UTC date).
+	 *
+	 * @param string $period The period string.
+	 *
+	 * @return Response The CSV download response or a JSON error
+	 *                  envelope.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function exportCsv(string $period = '30d'): Response {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'analytics.export-csv');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'analytics.export-csv');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $csv = $this->analyticsService->generateCsvExport(
-                period: $period
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'invalid_period',
-                    'message' => $e->getMessage(),
-                ],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+		try {
+			$csv = $this->analyticsService->generateCsvExport(
+				period: $period
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'invalid_period',
+					'message' => $e->getMessage(),
+				],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return new DataDownloadResponse(
-            data: $csv,
-            filename: $this->analyticsService->csvExportFilename(),
-            contentType: 'text/csv'
-        );
-    }//end exportCsv()
+		return new DataDownloadResponse(
+			data: $csv,
+			filename: $this->analyticsService->csvExportFilename(),
+			contentType: 'text/csv'
+		);
+	}//end exportCsv()
 }//end class

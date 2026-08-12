@@ -26,31 +26,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Personal-dashboard creation blocked by admin flag (REQ-ASET-003).
  */
-class PersonalDashboardsDisabledException extends ResourceException
-{
+class PersonalDashboardsDisabledException extends ResourceException {
 
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'personal_dashboards_disabled';
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'personal_dashboards_disabled';
 
-    /**
-     * HTTP status code.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 403;
+	/**
+	 * HTTP status code.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 403;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message (translatable English string).
-     */
-    public function __construct(
-        string $message='Personal dashboards are not enabled by your administrator'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message (translatable English string).
+	 */
+	public function __construct(
+		string $message = 'Personal dashboards are not enabled by your administrator',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

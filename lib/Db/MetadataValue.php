@@ -36,51 +36,48 @@ use OCP\AppFramework\Db\Entity;
  * @method string getValue()
  * @method void setValue(string $value)
  */
-class MetadataValue extends Entity implements JsonSerializable
-{
+class MetadataValue extends Entity implements JsonSerializable {
 
-    /**
-     * Dashboard UUID this value belongs to.
-     *
-     * @var string
-     */
-    protected string $dashboardUuid = '';
+	/**
+	 * Dashboard UUID this value belongs to.
+	 *
+	 * @var string
+	 */
+	protected string $dashboardUuid = '';
 
-    /**
-     * Foreign key to the field-definition row.
-     *
-     * @var integer
-     */
-    protected int $fieldId = 0;
+	/**
+	 * Foreign key to the field-definition row.
+	 *
+	 * @var integer
+	 */
+	protected int $fieldId = 0;
 
-    /**
-     * Type-encoded value string.
-     *
-     * @var string
-     */
-    protected string $value = '';
+	/**
+	 * Type-encoded value string.
+	 *
+	 * @var string
+	 */
+	protected string $value = '';
 
-    /**
-     * Constructor — declare ORM column types.
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'fieldId', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — declare ORM column types.
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'fieldId', type: 'integer');
+	}//end __construct()
 
-    /**
-     * JSON serialise.
-     *
-     * @return array<string, mixed> The serialised value record.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'            => $this->getId(),
-            'dashboardUuid' => $this->dashboardUuid,
-            'fieldId'       => $this->fieldId,
-            'value'         => $this->value,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * JSON serialise.
+	 *
+	 * @return array<string, mixed> The serialised value record.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'dashboardUuid' => $this->dashboardUuid,
+			'fieldId' => $this->fieldId,
+			'value' => $this->value,
+		];
+	}//end jsonSerialize()
 }//end class

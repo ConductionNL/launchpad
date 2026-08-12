@@ -30,8 +30,8 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
-use OCA\LaunchPad\Service\ReactionService;
 use OCA\LaunchPad\Service\ReactionsDisabledException;
+use OCA\LaunchPad\Service\ReactionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -56,238 +56,234 @@ use Throwable;
  *                                                  and four exception types
  *                                                  across four routes.
  */
-class DashboardReactionApiController extends Controller
-{
-    /**
-     * Constructor
-     *
-     * @param IRequest          $request         The request.
-     * @param ReactionService   $reactionService The reaction service.
-     * @param ActionAuthService $actionAuth      ADR-023 action authorization.
-     * @param IUserSession      $userSession     The current user session.
-     * @param LoggerInterface   $logger          PSR logger.
-     * @param string|null       $userId          The acting user ID.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly ReactionService $reactionService,
-        private readonly ActionAuthService $actionAuth,
-        private readonly IUserSession $userSession,
-        private readonly LoggerInterface $logger,
-        private readonly ?string $userId,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class DashboardReactionApiController extends Controller {
+	/**
+	 * Constructor
+	 *
+	 * @param IRequest $request The request.
+	 * @param ReactionService $reactionService The reaction service.
+	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param IUserSession $userSession The current user session.
+	 * @param LoggerInterface $logger PSR logger.
+	 * @param string|null $userId The acting user ID.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly ReactionService $reactionService,
+		private readonly ActionAuthService $actionAuth,
+		private readonly IUserSession $userSession,
+		private readonly LoggerInterface $logger,
+		private readonly ?string $userId,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * GET /api/dashboards/{uuid}/reactions — return the
-     * `{counts, mine, enabled}` summary. REQ-RXN-003.
-     *
-     * @param string $uuid The dashboard UUID.
-     *
-     * @return JSONResponse The summary.
-     *
-     * @spec openspec/specs/dashboard-reactions/spec.md
-     */
-    #[NoAdminRequired]
-    public function getReactions(string $uuid): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * GET /api/dashboards/{uuid}/reactions — return the
+	 * `{counts, mine, enabled}` summary. REQ-RXN-003.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return JSONResponse The summary.
+	 *
+	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 */
+	#[NoAdminRequired]
+	public function getReactions(string $uuid): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $this->actionAuth->requireAction($user, 'dashboard-reaction.get-reactions');
+		$this->actionAuth->requireAction($user, 'dashboard-reaction.get-reactions');
 
-        try {
-            $summary = $this->reactionService->getReactionsSummary(
-                dashboardUuid: $uuid,
-                userId: $this->userId
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (PermissionDeniedException $e) {
-            return ResponseHelper::forbidden(message: $e->getMessage());
-        } catch (Throwable $e) {
-            $this->logger->error(
-                message: 'getReactions failed: '.$e->getMessage(),
-                context: ['exception' => $e]
-            );
-            return new JSONResponse(
-                data: ['error' => 'Operation failed'],
-                statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
+		try {
+			$summary = $this->reactionService->getReactionsSummary(
+				dashboardUuid: $uuid,
+				userId: $this->userId
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (PermissionDeniedException $e) {
+			return ResponseHelper::forbidden(message: $e->getMessage());
+		} catch (Throwable $e) {
+			$this->logger->error(
+				message: 'getReactions failed: ' . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+			return new JSONResponse(
+				data: ['error' => 'Operation failed'],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
 
-        return ResponseHelper::success(data: $summary);
-    }//end getReactions()
+		return ResponseHelper::success(data: $summary);
+	}//end getReactions()
 
-    /**
-     * POST /api/dashboards/{uuid}/reactions — add the calling user's
-     * reaction. Idempotent (REQ-RXN-001 scenario "User re-posts the
-     * same emoji").
-     *
-     * @param string $uuid  The dashboard UUID.
-     * @param string $emoji The emoji to add (request body field).
-     *
-     * @return JSONResponse The updated summary.
-     *
-     * @spec openspec/specs/dashboard-reactions/spec.md
-     */
-    #[NoAdminRequired]
-    public function addReaction(string $uuid, string $emoji=''): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * POST /api/dashboards/{uuid}/reactions — add the calling user's
+	 * reaction. Idempotent (REQ-RXN-001 scenario "User re-posts the
+	 * same emoji").
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 * @param string $emoji The emoji to add (request body field).
+	 *
+	 * @return JSONResponse The updated summary.
+	 *
+	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 */
+	#[NoAdminRequired]
+	public function addReaction(string $uuid, string $emoji = ''): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $this->actionAuth->requireAction($user, 'dashboard-reaction.add-reaction');
+		$this->actionAuth->requireAction($user, 'dashboard-reaction.add-reaction');
 
-        try {
-            $summary = $this->reactionService->addReaction(
-                dashboardUuid: $uuid,
-                userId: $this->userId,
-                emoji: $emoji
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (PermissionDeniedException $e) {
-            return ResponseHelper::forbidden(message: $e->getMessage());
-        } catch (ReactionsDisabledException $e) {
-            return ResponseHelper::forbidden(message: $e->getMessage());
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        } catch (Throwable $e) {
-            $this->logger->error(
-                message: 'addReaction failed: '.$e->getMessage(),
-                context: ['exception' => $e]
-            );
-            return new JSONResponse(
-                data: ['error' => 'Operation failed'],
-                statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
+		try {
+			$summary = $this->reactionService->addReaction(
+				dashboardUuid: $uuid,
+				userId: $this->userId,
+				emoji: $emoji
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (PermissionDeniedException $e) {
+			return ResponseHelper::forbidden(message: $e->getMessage());
+		} catch (ReactionsDisabledException $e) {
+			return ResponseHelper::forbidden(message: $e->getMessage());
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (Throwable $e) {
+			$this->logger->error(
+				message: 'addReaction failed: ' . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+			return new JSONResponse(
+				data: ['error' => 'Operation failed'],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
 
-        return ResponseHelper::success(data: $summary);
-    }//end addReaction()
+		return ResponseHelper::success(data: $summary);
+	}//end addReaction()
 
-    /**
-     * DELETE /api/dashboards/{uuid}/reactions/{emoji} — remove the
-     * calling user's reaction. Idempotent (REQ-RXN-002).
-     *
-     * @param string $uuid  The dashboard UUID.
-     * @param string $emoji The emoji to remove.
-     *
-     * @return JSONResponse Empty 204 response.
-     *
-     * @spec openspec/specs/dashboard-reactions/spec.md
-     */
-    #[NoAdminRequired]
-    public function removeReaction(string $uuid, string $emoji): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * DELETE /api/dashboards/{uuid}/reactions/{emoji} — remove the
+	 * calling user's reaction. Idempotent (REQ-RXN-002).
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 * @param string $emoji The emoji to remove.
+	 *
+	 * @return JSONResponse Empty 204 response.
+	 *
+	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 */
+	#[NoAdminRequired]
+	public function removeReaction(string $uuid, string $emoji): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $this->actionAuth->requireAction($user, 'dashboard-reaction.remove-reaction');
+		$this->actionAuth->requireAction($user, 'dashboard-reaction.remove-reaction');
 
-        try {
-            $this->reactionService->removeReaction(
-                dashboardUuid: $uuid,
-                userId: $this->userId,
-                emoji: $emoji
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (PermissionDeniedException $e) {
-            return ResponseHelper::forbidden(message: $e->getMessage());
-        } catch (Throwable $e) {
-            $this->logger->error(
-                message: 'removeReaction failed: '.$e->getMessage(),
-                context: ['exception' => $e]
-            );
-            return new JSONResponse(
-                data: ['error' => 'Operation failed'],
-                statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
+		try {
+			$this->reactionService->removeReaction(
+				dashboardUuid: $uuid,
+				userId: $this->userId,
+				emoji: $emoji
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (PermissionDeniedException $e) {
+			return ResponseHelper::forbidden(message: $e->getMessage());
+		} catch (Throwable $e) {
+			$this->logger->error(
+				message: 'removeReaction failed: ' . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+			return new JSONResponse(
+				data: ['error' => 'Operation failed'],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
 
-        // 204 No Content — JSONResponse with empty body and explicit
-        // status (the framework still emits headers/body shape, but
-        // the contract is "204 always" per REQ-RXN-002).
-        return new JSONResponse(
-            data: [],
-            statusCode: Http::STATUS_NO_CONTENT
-        );
-    }//end removeReaction()
+		// 204 No Content — JSONResponse with empty body and explicit
+		// status (the framework still emits headers/body shape, but
+		// the contract is "204 always" per REQ-RXN-002).
+		return new JSONResponse(
+			data: [],
+			statusCode: Http::STATUS_NO_CONTENT
+		);
+	}//end removeReaction()
 
-    /**
-     * GET /api/dashboards/{uuid}/reactions/{emoji}/users — return the
-     * paginated list of reactors. REQ-RXN-004.
-     *
-     * @param string      $uuid   The dashboard UUID.
-     * @param string      $emoji  The emoji.
-     * @param string|null $cursor Optional opaque cursor (offset).
-     *
-     * @return JSONResponse The reactors page.
-     *
-     * @spec openspec/specs/dashboard-reactions/spec.md
-     */
-    #[NoAdminRequired]
-    public function getReactorsByEmoji(
-        string $uuid,
-        string $emoji,
-        ?string $cursor=null
-    ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * GET /api/dashboards/{uuid}/reactions/{emoji}/users — return the
+	 * paginated list of reactors. REQ-RXN-004.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 * @param string $emoji The emoji.
+	 * @param string|null $cursor Optional opaque cursor (offset).
+	 *
+	 * @return JSONResponse The reactors page.
+	 *
+	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 */
+	#[NoAdminRequired]
+	public function getReactorsByEmoji(
+		string $uuid,
+		string $emoji,
+		?string $cursor = null,
+	): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        $this->actionAuth->requireAction($user, 'dashboard-reaction.get-reactors-by-emoji');
+		$this->actionAuth->requireAction($user, 'dashboard-reaction.get-reactors-by-emoji');
 
-        try {
-            $page = $this->reactionService->getReactorsByEmoji(
-                dashboardUuid: $uuid,
-                emoji: $emoji,
-                userId: $this->userId,
-                cursor: $cursor
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (PermissionDeniedException $e) {
-            return ResponseHelper::forbidden(message: $e->getMessage());
-        } catch (Throwable $e) {
-            $this->logger->error(
-                message: 'getReactorsByEmoji failed: '.$e->getMessage(),
-                context: ['exception' => $e]
-            );
-            return new JSONResponse(
-                data: ['error' => 'Operation failed'],
-                statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
+		try {
+			$page = $this->reactionService->getReactorsByEmoji(
+				dashboardUuid: $uuid,
+				emoji: $emoji,
+				userId: $this->userId,
+				cursor: $cursor
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (PermissionDeniedException $e) {
+			return ResponseHelper::forbidden(message: $e->getMessage());
+		} catch (Throwable $e) {
+			$this->logger->error(
+				message: 'getReactorsByEmoji failed: ' . $e->getMessage(),
+				context: ['exception' => $e]
+			);
+			return new JSONResponse(
+				data: ['error' => 'Operation failed'],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
 
-        return ResponseHelper::success(data: $page);
-    }//end getReactorsByEmoji()
+		return ResponseHelper::success(data: $page);
+	}//end getReactorsByEmoji()
 }//end class

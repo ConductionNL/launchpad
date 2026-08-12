@@ -30,12 +30,11 @@ use Exception;
  * Lock operation refused — caller is neither owner nor admin
  * (REQ-LOCK-002, REQ-LOCK-003, REQ-LOCK-006).
  */
-class LockForbiddenException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'lock_forbidden';
+class LockForbiddenException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'lock_forbidden';
 }//end class

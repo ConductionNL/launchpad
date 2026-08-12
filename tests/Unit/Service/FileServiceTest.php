@@ -39,413 +39,389 @@ use OCP\IURLGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class FileServiceTest extends TestCase
-{
+class FileServiceTest extends TestCase {
 
-    private FileService $service;
+	private FileService $service;
 
-    /**
-     * @var IRootFolder&MockObject
-     */
-    private $rootFolder;
+	/**
+	 * @var IRootFolder&MockObject
+	 */
+	private $rootFolder;
 
-    /**
-     * @var IURLGenerator&MockObject
-     */
-    private $urlGenerator;
+	/**
+	 * @var IURLGenerator&MockObject
+	 */
+	private $urlGenerator;
 
-    /**
-     * @var AdminSettingMapper&MockObject
-     */
-    private $settingMapper;
+	/**
+	 * @var AdminSettingMapper&MockObject
+	 */
+	private $settingMapper;
 
-    /**
-     * @var Folder&MockObject
-     */
-    private $userFolder;
+	/**
+	 * @var Folder&MockObject
+	 */
+	private $userFolder;
 
-    protected function setUp(): void
-    {
-        $this->rootFolder    = $this->createMock(IRootFolder::class);
-        $this->urlGenerator  = $this->createMock(IURLGenerator::class);
-        $this->settingMapper = $this->createMock(AdminSettingMapper::class);
-        $this->userFolder    = $this->createMock(Folder::class);
+	protected function setUp(): void {
+		$this->rootFolder = $this->createMock(IRootFolder::class);
+		$this->urlGenerator = $this->createMock(IURLGenerator::class);
+		$this->settingMapper = $this->createMock(AdminSettingMapper::class);
+		$this->userFolder = $this->createMock(Folder::class);
 
-        $this->settingMapper->method('getValue')->willReturn(null);
+		$this->settingMapper->method('getValue')->willReturn(null);
 
-        $this->urlGenerator->method('linkToRouteAbsolute')
-            ->willReturnCallback(
-                    static function (string $route, array $args): string {
-                        return 'https://nc/files?openfile='.($args['openfile'] ?? '');
-                    }
-                    );
+		$this->urlGenerator->method('linkToRouteAbsolute')
+			->willReturnCallback(
+				static function (string $route, array $args): string {
+					return 'https://nc/files?openfile=' . ($args['openfile'] ?? '');
+				}
+			);
 
-        $this->rootFolder->method('getUserFolder')->willReturn($this->userFolder);
+		$this->rootFolder->method('getUserFolder')->willReturn($this->userFolder);
 
-        $this->service = new FileService(
-            rootFolder: $this->rootFolder,
-            urlGenerator: $this->urlGenerator,
-            settingMapper: $this->settingMapper,
-        );
-    }//end setUp()
+		$this->service = new FileService(
+			rootFolder: $this->rootFolder,
+			urlGenerator: $this->urlGenerator,
+			settingMapper: $this->settingMapper,
+		);
+	}//end setUp()
 
-    /**
-     * REQ-LBN-004 task 6.1: filename traversal sequence rejected.
-     */
-    public function testPathTraversalIsRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: '../../etc/passwd',
-            dir: '/'
-        );
-    }//end testPathTraversalIsRejected()
+	/**
+	 * REQ-LBN-004 task 6.1: filename traversal sequence rejected.
+	 */
+	public function testPathTraversalIsRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: '../../etc/passwd',
+			dir: '/'
+		);
+	}//end testPathTraversalIsRejected()
 
-    public function testForwardSlashIsRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'foo/bar.txt',
-            dir: '/'
-        );
-    }//end testForwardSlashIsRejected()
+	public function testForwardSlashIsRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'foo/bar.txt',
+			dir: '/'
+		);
+	}//end testForwardSlashIsRejected()
 
-    public function testBackslashIsRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'foo\\bar.txt',
-            dir: '/'
-        );
-    }//end testBackslashIsRejected()
+	public function testBackslashIsRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'foo\\bar.txt',
+			dir: '/'
+		);
+	}//end testBackslashIsRejected()
 
-    public function testNullByteIsRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: "evil\0.txt",
-            dir: '/'
-        );
-    }//end testNullByteIsRejected()
+	public function testNullByteIsRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: "evil\0.txt",
+			dir: '/'
+		);
+	}//end testNullByteIsRejected()
 
-    public function testEmptyFilenameIsRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: '',
-            dir: '/'
-        );
-    }//end testEmptyFilenameIsRejected()
+	public function testEmptyFilenameIsRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: '',
+			dir: '/'
+		);
+	}//end testEmptyFilenameIsRejected()
 
-    public function testOversizedFilenameIsRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        // 256 chars (> 255 cap). Use only allowed chars so the size check
-        // is what fires.
-        $this->service->createFile(
-            userId: 'alice',
-            filename: str_repeat('a', 252).'.txt',
-            dir: '/'
-        );
-    }//end testOversizedFilenameIsRejected()
+	public function testOversizedFilenameIsRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		// 256 chars (> 255 cap). Use only allowed chars so the size check
+		// is what fires.
+		$this->service->createFile(
+			userId: 'alice',
+			filename: str_repeat('a', 252) . '.txt',
+			dir: '/'
+		);
+	}//end testOversizedFilenameIsRejected()
 
-    public function testSpecialCharactersAreRejected(): void
-    {
-        $this->expectException(InvalidFilenameException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'evil*.txt',
-            dir: '/'
-        );
-    }//end testSpecialCharactersAreRejected()
+	public function testSpecialCharactersAreRejected(): void {
+		$this->expectException(InvalidFilenameException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'evil*.txt',
+			dir: '/'
+		);
+	}//end testSpecialCharactersAreRejected()
 
-    public function testDirectoryTraversalIsRejected(): void
-    {
-        $this->expectException(InvalidDirectoryException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'safe.txt',
-            dir: '/../etc'
-        );
-    }//end testDirectoryTraversalIsRejected()
+	public function testDirectoryTraversalIsRejected(): void {
+		$this->expectException(InvalidDirectoryException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'safe.txt',
+			dir: '/../etc'
+		);
+	}//end testDirectoryTraversalIsRejected()
 
-    public function testDirectoryNullByteIsRejected(): void
-    {
-        $this->expectException(InvalidDirectoryException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'safe.txt',
-            dir: "/foo\0bar"
-        );
-    }//end testDirectoryNullByteIsRejected()
+	public function testDirectoryNullByteIsRejected(): void {
+		$this->expectException(InvalidDirectoryException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'safe.txt',
+			dir: "/foo\0bar"
+		);
+	}//end testDirectoryNullByteIsRejected()
 
-    /**
-     * REQ-LBN-004 task 6.2: extension allow-list — disallowed extension
-     * surfaces as FileTypeNotAllowedException (HTTP 400).
-     */
-    public function testDisallowedExtensionIsRejected(): void
-    {
-        $this->expectException(FileTypeNotAllowedException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'foo.exe',
-            dir: '/'
-        );
-    }//end testDisallowedExtensionIsRejected()
+	/**
+	 * REQ-LBN-004 task 6.2: extension allow-list — disallowed extension
+	 * surfaces as FileTypeNotAllowedException (HTTP 400).
+	 */
+	public function testDisallowedExtensionIsRejected(): void {
+		$this->expectException(FileTypeNotAllowedException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'foo.exe',
+			dir: '/'
+		);
+	}//end testDisallowedExtensionIsRejected()
 
-    public function testNoExtensionIsRejected(): void
-    {
-        $this->expectException(FileTypeNotAllowedException::class);
-        $this->service->createFile(
-            userId: 'alice',
-            filename: 'README',
-            dir: '/'
-        );
-    }//end testNoExtensionIsRejected()
+	public function testNoExtensionIsRejected(): void {
+		$this->expectException(FileTypeNotAllowedException::class);
+		$this->service->createFile(
+			userId: 'alice',
+			filename: 'README',
+			dir: '/'
+		);
+	}//end testNoExtensionIsRejected()
 
-    /**
-     * REQ-LBN-004 task 6.2: allowed extension passes through to storage.
-     */
-    public function testAllowedExtensionWritesNewFile(): void
-    {
-        $file = $this->createMock(File::class);
-        $file->method('getId')->willReturn(42);
+	/**
+	 * REQ-LBN-004 task 6.2: allowed extension passes through to storage.
+	 */
+	public function testAllowedExtensionWritesNewFile(): void {
+		$file = $this->createMock(File::class);
+		$file->method('getId')->willReturn(42);
 
-        $this->userFolder->method('nodeExists')->with('hello.txt')->willReturn(false);
-        $this->userFolder->method('newFile')->with('hello.txt', 'hi')->willReturn($file);
+		$this->userFolder->method('nodeExists')->with('hello.txt')->willReturn(false);
+		$this->userFolder->method('newFile')->with('hello.txt', 'hi')->willReturn($file);
 
-        $result = $this->service->createFile(
-            userId: 'alice',
-            filename: 'hello.txt',
-            dir: '/',
-            content: 'hi'
-        );
+		$result = $this->service->createFile(
+			userId: 'alice',
+			filename: 'hello.txt',
+			dir: '/',
+			content: 'hi'
+		);
 
-        $this->assertSame('success', $result['status']);
-        $this->assertSame(42, $result['fileId']);
-        $this->assertSame('https://nc/files?openfile=42', $result['url']);
-    }//end testAllowedExtensionWritesNewFile()
+		$this->assertSame('success', $result['status']);
+		$this->assertSame(42, $result['fileId']);
+		$this->assertSame('https://nc/files?openfile=42', $result['url']);
+	}//end testAllowedExtensionWritesNewFile()
 
-    /**
-     * REQ-LBN-004 task 6.3: existing file is overwritten and its fileId
-     * matches the existing entry.
-     */
-    public function testExistingFileIsOverwritten(): void
-    {
-        $existing = $this->createMock(File::class);
-        $existing->method('getId')->willReturn(99);
-        $existing->expects($this->once())
-            ->method('putContent')
-            ->with('new contents');
+	/**
+	 * REQ-LBN-004 task 6.3: existing file is overwritten and its fileId
+	 * matches the existing entry.
+	 */
+	public function testExistingFileIsOverwritten(): void {
+		$existing = $this->createMock(File::class);
+		$existing->method('getId')->willReturn(99);
+		$existing->expects($this->once())
+			->method('putContent')
+			->with('new contents');
 
-        $this->userFolder->method('nodeExists')->with('report.docx')->willReturn(true);
-        $this->userFolder->method('get')->with('report.docx')->willReturn($existing);
-        $this->userFolder->expects($this->never())->method('newFile');
+		$this->userFolder->method('nodeExists')->with('report.docx')->willReturn(true);
+		$this->userFolder->method('get')->with('report.docx')->willReturn($existing);
+		$this->userFolder->expects($this->never())->method('newFile');
 
-        $result = $this->service->createFile(
-            userId: 'alice',
-            filename: 'report.docx',
-            dir: '/',
-            content: 'new contents'
-        );
+		$result = $this->service->createFile(
+			userId: 'alice',
+			filename: 'report.docx',
+			dir: '/',
+			content: 'new contents'
+		);
 
-        $this->assertSame(99, $result['fileId']);
-    }//end testExistingFileIsOverwritten()
+		$this->assertSame(99, $result['fileId']);
+	}//end testExistingFileIsOverwritten()
 
-    /**
-     * REQ-LBN-004 task 6.4: raw exception messages are NEVER leaked.
-     * NotPermittedException-from-storage surfaces as the typed
-     * StorageFailureException with a curated display message.
-     */
-    public function testStorageFailureIsWrappedNotLeaked(): void
-    {
-        $this->userFolder->method('nodeExists')->willReturn(false);
-        $this->userFolder->method('newFile')
-            ->willThrowException(new NotPermittedException('disk full at /var/lib/raw'));
+	/**
+	 * REQ-LBN-004 task 6.4: raw exception messages are NEVER leaked.
+	 * NotPermittedException-from-storage surfaces as the typed
+	 * StorageFailureException with a curated display message.
+	 */
+	public function testStorageFailureIsWrappedNotLeaked(): void {
+		$this->userFolder->method('nodeExists')->willReturn(false);
+		$this->userFolder->method('newFile')
+			->willThrowException(new NotPermittedException('disk full at /var/lib/raw'));
 
-        try {
-            $this->service->createFile(
-                userId: 'alice',
-                filename: 'hello.txt',
-                dir: '/',
-                content: 'hi'
-            );
-            $this->fail('Expected StorageFailureException');
-        } catch (StorageFailureException $e) {
-            // Curated, never the underlying raw message.
-            $this->assertStringNotContainsString('disk full', $e->getMessage());
-            $this->assertStringNotContainsString('/var/lib/raw', $e->getMessage());
-        }
-    }//end testStorageFailureIsWrappedNotLeaked()
+		try {
+			$this->service->createFile(
+				userId: 'alice',
+				filename: 'hello.txt',
+				dir: '/',
+				content: 'hi'
+			);
+			$this->fail('Expected StorageFailureException');
+		} catch (StorageFailureException $e) {
+			// Curated, never the underlying raw message.
+			$this->assertStringNotContainsString('disk full', $e->getMessage());
+			$this->assertStringNotContainsString('/var/lib/raw', $e->getMessage());
+		}
+	}//end testStorageFailureIsWrappedNotLeaked()
 
-    public function testTargetSubdirectoryAutoCreated(): void
-    {
-        $sub  = $this->createMock(Folder::class);
-        $file = $this->createMock(File::class);
-        $file->method('getId')->willReturn(7);
+	public function testTargetSubdirectoryAutoCreated(): void {
+		$sub = $this->createMock(Folder::class);
+		$file = $this->createMock(File::class);
+		$file->method('getId')->willReturn(7);
 
-        $this->userFolder->method('get')
-            ->with('/notes')
-            ->willThrowException(new NotFoundException());
-        $this->userFolder->method('newFolder')
-            ->with('/notes')
-            ->willReturn($sub);
+		$this->userFolder->method('get')
+			->with('/notes')
+			->willThrowException(new NotFoundException());
+		$this->userFolder->method('newFolder')
+			->with('/notes')
+			->willReturn($sub);
 
-        $sub->method('nodeExists')->with('hello.txt')->willReturn(false);
-        $sub->method('newFile')->willReturn($file);
+		$sub->method('nodeExists')->with('hello.txt')->willReturn(false);
+		$sub->method('newFile')->willReturn($file);
 
-        $result = $this->service->createFile(
-            userId: 'alice',
-            filename: 'hello.txt',
-            dir: '/notes',
-            content: ''
-        );
+		$result = $this->service->createFile(
+			userId: 'alice',
+			filename: 'hello.txt',
+			dir: '/notes',
+			content: ''
+		);
 
-        $this->assertSame(7, $result['fileId']);
-    }//end testTargetSubdirectoryAutoCreated()
+		$this->assertSame(7, $result['fileId']);
+	}//end testTargetSubdirectoryAutoCreated()
 
-    public function testCustomAllowListReplacesDefault(): void
-    {
-        $custom = $this->createMock(AdminSettingMapper::class);
-        $custom->method('getValue')->willReturn(['md', 'csv']);
+	public function testCustomAllowListReplacesDefault(): void {
+		$custom = $this->createMock(AdminSettingMapper::class);
+		$custom->method('getValue')->willReturn(['md', 'csv']);
 
-        $service = new FileService(
-            rootFolder: $this->rootFolder,
-            urlGenerator: $this->urlGenerator,
-            settingMapper: $custom,
-        );
+		$service = new FileService(
+			rootFolder: $this->rootFolder,
+			urlGenerator: $this->urlGenerator,
+			settingMapper: $custom,
+		);
 
-        // .txt is in the DEFAULT list but not in this custom list.
-        $this->expectException(FileTypeNotAllowedException::class);
-        $service->createFile(
-            userId: 'alice',
-            filename: 'note.txt',
-            dir: '/'
-        );
-    }//end testCustomAllowListReplacesDefault()
+		// .txt is in the DEFAULT list but not in this custom list.
+		$this->expectException(FileTypeNotAllowedException::class);
+		$service->createFile(
+			userId: 'alice',
+			filename: 'note.txt',
+			dir: '/'
+		);
+	}//end testCustomAllowListReplacesDefault()
 
-    public function testGetAllowedExtensionsFallsBackOnEmptyStored(): void
-    {
-        $this->settingMapper = $this->createMock(AdminSettingMapper::class);
-        $this->settingMapper->method('getValue')->willReturn([]);
+	public function testGetAllowedExtensionsFallsBackOnEmptyStored(): void {
+		$this->settingMapper = $this->createMock(AdminSettingMapper::class);
+		$this->settingMapper->method('getValue')->willReturn([]);
 
-        $service = new FileService(
-            rootFolder: $this->rootFolder,
-            urlGenerator: $this->urlGenerator,
-            settingMapper: $this->settingMapper,
-        );
+		$service = new FileService(
+			rootFolder: $this->rootFolder,
+			urlGenerator: $this->urlGenerator,
+			settingMapper: $this->settingMapper,
+		);
 
-        $this->assertSame(
-            FileService::DEFAULT_ALLOWED_EXTENSIONS,
-            $service->getAllowedExtensions()
-        );
-    }//end testGetAllowedExtensionsFallsBackOnEmptyStored()
+		$this->assertSame(
+			FileService::DEFAULT_ALLOWED_EXTENSIONS,
+			$service->getAllowedExtensions()
+		);
+	}//end testGetAllowedExtensionsFallsBackOnEmptyStored()
 
-    public function testSetAllowedExtensionsNormalisesAndPersists(): void
-    {
-        $this->settingMapper = $this->createMock(AdminSettingMapper::class);
-        $this->settingMapper->expects($this->once())
-            ->method('setSetting')
-            ->with(
-                AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
-                ['txt', 'docx']
-            );
+	public function testSetAllowedExtensionsNormalisesAndPersists(): void {
+		$this->settingMapper = $this->createMock(AdminSettingMapper::class);
+		$this->settingMapper->expects($this->once())
+			->method('setSetting')
+			->with(
+				AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
+				['txt', 'docx']
+			);
 
-        $service = new FileService(
-            rootFolder: $this->rootFolder,
-            urlGenerator: $this->urlGenerator,
-            settingMapper: $this->settingMapper,
-        );
+		$service = new FileService(
+			rootFolder: $this->rootFolder,
+			urlGenerator: $this->urlGenerator,
+			settingMapper: $this->settingMapper,
+		);
 
-        $stored = $service->setAllowedExtensions(['TXT', '.docx', '..', 'bad/path']);
-        $this->assertSame(['txt', 'docx'], $stored);
-    }//end testSetAllowedExtensionsNormalisesAndPersists()
+		$stored = $service->setAllowedExtensions(['TXT', '.docx', '..', 'bad/path']);
+		$this->assertSame(['txt', 'docx'], $stored);
+	}//end testSetAllowedExtensionsNormalisesAndPersists()
 
-    // ------------------------------------------------------------------
-    // FILENAME_PATTERN constant tests (task-11)
-    // These tests exercise the public constant directly via preg_match so
-    // they are not confounded by the other guards (null-byte, `..`, slash)
-    // that assertValidFilename() runs before reaching the pattern.
-    // ------------------------------------------------------------------
+	// ------------------------------------------------------------------
+	// FILENAME_PATTERN constant tests (task-11)
+	// These tests exercise the public constant directly via preg_match so
+	// they are not confounded by the other guards (null-byte, `..`, slash)
+	// that assertValidFilename() runs before reaching the pattern.
+	// ------------------------------------------------------------------
 
-    /**
-     * Verifies FILENAME_PATTERN allows valid filename characters.
-     *
-     * @param string $filename The filename to test against the pattern.
-     *
-     * @return void
-     *
-     * @dataProvider allowedFilenameProvider
-     *
-     * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
-     */
-    public function testFilenamePatternAllowsValidNames(string $filename): void
-    {
-        $this->assertSame(
-            expected: 1,
-            actual: preg_match(FileService::FILENAME_PATTERN, $filename),
-            message: "Expected FILENAME_PATTERN to allow: {$filename}"
-        );
-    }//end testFilenamePatternAllowsValidNames()
+	/**
+	 * Verifies FILENAME_PATTERN allows valid filename characters.
+	 *
+	 * @param string $filename The filename to test against the pattern.
+	 *
+	 * @return void
+	 *
+	 * @dataProvider allowedFilenameProvider
+	 *
+	 * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
+	 */
+	public function testFilenamePatternAllowsValidNames(string $filename): void {
+		$this->assertSame(
+			expected: 1,
+			actual: preg_match(FileService::FILENAME_PATTERN, $filename),
+			message: "Expected FILENAME_PATTERN to allow: {$filename}"
+		);
+	}//end testFilenamePatternAllowsValidNames()
 
-    /**
-     * Verifies FILENAME_PATTERN rejects filenames with forbidden characters.
-     *
-     * @param string $filename The filename to test against the pattern.
-     *
-     * @return void
-     *
-     * @dataProvider rejectedFilenameProvider
-     *
-     * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
-     */
-    public function testFilenamePatternRejectsInvalidNames(string $filename): void
-    {
-        $this->assertSame(
-            expected: 0,
-            actual: preg_match(FileService::FILENAME_PATTERN, $filename),
-            message: "Expected FILENAME_PATTERN to reject: {$filename}"
-        );
-    }//end testFilenamePatternRejectsInvalidNames()
+	/**
+	 * Verifies FILENAME_PATTERN rejects filenames with forbidden characters.
+	 *
+	 * @param string $filename The filename to test against the pattern.
+	 *
+	 * @return void
+	 *
+	 * @dataProvider rejectedFilenameProvider
+	 *
+	 * @spec openspec/changes/launchpad-adopt-or-abstractions/tasks.md#task-11
+	 */
+	public function testFilenamePatternRejectsInvalidNames(string $filename): void {
+		$this->assertSame(
+			expected: 0,
+			actual: preg_match(FileService::FILENAME_PATTERN, $filename),
+			message: "Expected FILENAME_PATTERN to reject: {$filename}"
+		);
+	}//end testFilenamePatternRejectsInvalidNames()
 
-    /**
-     * Data provider: valid filenames that FILENAME_PATTERN must accept.
-     *
-     * @return array<string, array{string}>
-     */
-    public static function allowedFilenameProvider(): array
-    {
-        return [
-            'simple json'        => ['dashboard-export.json'],
-            'underscore version' => ['template_v2.json'],
-            'multi-hyphen'       => ['template-with-dashes.json'],
-            'alphanumeric only'  => ['report2026.txt'],
-            'uppercase letters'  => ['README.md'],
-            'space in name'      => ['my dashboard.json'],
-        ];
-    }//end allowedFilenameProvider()
+	/**
+	 * Data provider: valid filenames that FILENAME_PATTERN must accept.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function allowedFilenameProvider(): array {
+		return [
+			'simple json' => ['dashboard-export.json'],
+			'underscore version' => ['template_v2.json'],
+			'multi-hyphen' => ['template-with-dashes.json'],
+			'alphanumeric only' => ['report2026.txt'],
+			'uppercase letters' => ['README.md'],
+			'space in name' => ['my dashboard.json'],
+		];
+	}//end allowedFilenameProvider()
 
-    /**
-     * Data provider: filenames with forbidden characters that FILENAME_PATTERN must reject.
-     *
-     * @return array<string, array{string}>
-     */
-    public static function rejectedFilenameProvider(): array
-    {
-        return [
-            'asterisk wildcard' => ['evil*.txt'],
-            'pipe character'    => ['foo|bar.txt'],
-            'question mark'     => ['what?.json'],
-            'semicolon'         => ['cmd;rm.sh'],
-            'at sign'           => ['user@host.txt'],
-            'hash'              => ['#comment.txt'],
-            'dollar sign'       => ['$HOME.txt'],
-            'exclamation mark'  => ['fire!.txt'],
-        ];
-    }//end rejectedFilenameProvider()
+	/**
+	 * Data provider: filenames with forbidden characters that FILENAME_PATTERN must reject.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function rejectedFilenameProvider(): array {
+		return [
+			'asterisk wildcard' => ['evil*.txt'],
+			'pipe character' => ['foo|bar.txt'],
+			'question mark' => ['what?.json'],
+			'semicolon' => ['cmd;rm.sh'],
+			'at sign' => ['user@host.txt'],
+			'hash' => ['#comment.txt'],
+			'dollar sign' => ['$HOME.txt'],
+			'exclamation mark' => ['fire!.txt'],
+		];
+	}//end rejectedFilenameProvider()
 }//end class

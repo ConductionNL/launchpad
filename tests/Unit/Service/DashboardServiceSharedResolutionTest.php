@@ -56,416 +56,405 @@ use Psr\Log\LoggerInterface;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class DashboardServiceSharedResolutionTest extends TestCase
-{
+class DashboardServiceSharedResolutionTest extends TestCase {
 
-    /** @var DashboardMapper&MockObject */
-    private $dashboardMapper;
+	/** @var DashboardMapper&MockObject */
+	private $dashboardMapper;
 
-    /** @var WidgetPlacementMapper&MockObject */
-    private $placementMapper;
+	/** @var WidgetPlacementMapper&MockObject */
+	private $placementMapper;
 
-    /** @var DashboardResolver&MockObject */
-    private $dashResolver;
+	/** @var DashboardResolver&MockObject */
+	private $dashResolver;
 
-    /** @var AdminTemplateService&MockObject */
-    private $adminTemplateService;
+	/** @var AdminTemplateService&MockObject */
+	private $adminTemplateService;
 
-    /** @var IGroupManager&MockObject */
-    private $groupManager;
+	/** @var IGroupManager&MockObject */
+	private $groupManager;
 
-    /** @var IConfig&MockObject */
-    private $config;
+	/** @var IConfig&MockObject */
+	private $config;
 
-    private DashboardService $service;
+	private DashboardService $service;
 
-    /**
-     * Set up fresh mocks per test.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Set up fresh mocks per test.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $this->dashboardMapper      = $this->createMock(DashboardMapper::class);
-        $this->placementMapper      = $this->createMock(WidgetPlacementMapper::class);
-        $this->dashResolver         = $this->createMock(DashboardResolver::class);
-        $this->adminTemplateService = $this->createMock(AdminTemplateService::class);
-        $this->groupManager         = $this->createMock(IGroupManager::class);
-        $this->config               = $this->createMock(IConfig::class);
+		$this->dashboardMapper = $this->createMock(DashboardMapper::class);
+		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
+		$this->dashResolver = $this->createMock(DashboardResolver::class);
+		$this->adminTemplateService = $this->createMock(AdminTemplateService::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
+		$this->config = $this->createMock(IConfig::class);
 
-        $this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
-        $this->groupManager->method('isAdmin')->willReturn(false);
-        $this->config->method('getUserValue')->willReturn('');
+		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->config->method('getUserValue')->willReturn('');
 
-        $this->service = new DashboardService(
-            dashboardMapper: $this->dashboardMapper,
-            placementMapper: $this->placementMapper,
-            settingMapper: $this->createMock(AdminSettingMapper::class),
-            templateService: $this->createMock(TemplateService::class),
-            dashboardFactory: new DashboardFactory(),
-            dashResolver: $this->dashResolver,
-            treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-            groupManager: $this->groupManager,
-            adminTemplateService: $this->adminTemplateService,
-            db: $this->createMock(IDBConnection::class),
-            config: $this->config,
-            l10nFactory: $this->createMock(IFactory::class),
-            logger: $this->createMock(LoggerInterface::class),
-        );
-    }//end setUp()
+		$this->service = new DashboardService(
+			dashboardMapper: $this->dashboardMapper,
+			placementMapper: $this->placementMapper,
+			settingMapper: $this->createMock(AdminSettingMapper::class),
+			templateService: $this->createMock(TemplateService::class),
+			dashboardFactory: new DashboardFactory(),
+			dashResolver: $this->dashResolver,
+			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+			groupManager: $this->groupManager,
+			adminTemplateService: $this->adminTemplateService,
+			db: $this->createMock(IDBConnection::class),
+			config: $this->config,
+			l10nFactory: $this->createMock(IFactory::class),
+			logger: $this->createMock(LoggerInterface::class),
+		);
+	}//end setUp()
 
-    /**
-     * Build a published Dashboard entity.
-     *
-     * @param integer $id    Entity id.
-     * @param string  $uuid  Entity uuid.
-     * @param ?string $owner Owning user id.
-     * @param string  $type  Dashboard type.
-     *
-     * @return Dashboard
-     */
-    private function makeDashboard(
-        int $id,
-        string $uuid,
-        ?string $owner,
-        string $type=Dashboard::TYPE_USER
-    ): Dashboard {
-        $dashboard = new Dashboard();
-        $dashboard->setId($id);
-        $dashboard->setUuid($uuid);
-        $dashboard->setName('Board '.$id);
-        $dashboard->setUserId($owner);
-        $dashboard->setType($type);
-        $dashboard->setPermissionLevel(Dashboard::PERMISSION_FULL);
-        $dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+	/**
+	 * Build a published Dashboard entity.
+	 *
+	 * @param integer $id Entity id.
+	 * @param string $uuid Entity uuid.
+	 * @param ?string $owner Owning user id.
+	 * @param string $type Dashboard type.
+	 *
+	 * @return Dashboard
+	 */
+	private function makeDashboard(
+		int $id,
+		string $uuid,
+		?string $owner,
+		string $type = Dashboard::TYPE_USER,
+	): Dashboard {
+		$dashboard = new Dashboard();
+		$dashboard->setId($id);
+		$dashboard->setUuid($uuid);
+		$dashboard->setName('Board ' . $id);
+		$dashboard->setUserId($owner);
+		$dashboard->setType($type);
+		$dashboard->setPermissionLevel(Dashboard::PERMISSION_FULL);
+		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
 
-        return $dashboard;
-    }//end makeDashboard()
+		return $dashboard;
+	}//end makeDashboard()
 
-    /**
-     * REGRESSION (found by e2e, missed by every unit test here): a
-     * dashboard as the FACTORY actually produces it is `draft`, and
-     * `filterByPublicationState()` hides drafts from non-owners — so an
-     * earlier version of this fix appended the share and then filtered it
-     * straight back out. Every fixture above sets `STATUS_PUBLISHED`
-     * explicitly and therefore could not see it.
-     *
-     * This test deliberately builds the dashboard through
-     * {@see DashboardFactory} so it inherits whatever the real default is.
-     * If someone changes the factory default, this test — not a browser —
-     * should be what notices.
-     *
-     * @return void
-     */
-    public function testSharedDraftDashboardIsStillVisibleToItsRecipient(): void
-    {
-        $factory = new DashboardFactory();
-        $shared  = $factory->create(userId: 'owner', name: 'Draft board');
-        $shared->setId(7);
-        $shared->setUuid('uuid-shared-draft');
+	/**
+	 * REGRESSION (found by e2e, missed by every unit test here): a
+	 * dashboard as the FACTORY actually produces it is `draft`, and
+	 * `filterByPublicationState()` hides drafts from non-owners — so an
+	 * earlier version of this fix appended the share and then filtered it
+	 * straight back out. Every fixture above sets `STATUS_PUBLISHED`
+	 * explicitly and therefore could not see it.
+	 *
+	 * This test deliberately builds the dashboard through
+	 * {@see DashboardFactory} so it inherits whatever the real default is.
+	 * If someone changes the factory default, this test — not a browser —
+	 * should be what notices.
+	 *
+	 * @return void
+	 */
+	public function testSharedDraftDashboardIsStillVisibleToItsRecipient(): void {
+		$factory = new DashboardFactory();
+		$shared = $factory->create(userId: 'owner', name: 'Draft board');
+		$shared->setId(7);
+		$shared->setUuid('uuid-shared-draft');
 
-        // Guard the premise: if the factory ever stops producing drafts this
-        // test must be re-thought, not silently keep passing.
-        $this->assertSame(
-            Dashboard::STATUS_DRAFT,
-            $shared->getPublicationStatus(),
-            'Factory default changed — revisit the share/publication interaction.'
-        );
+		// Guard the premise: if the factory ever stops producing drafts this
+		// test must be re-thought, not silently keep passing.
+		$this->assertSame(
+			Dashboard::STATUS_DRAFT,
+			$shared->getPublicationStatus(),
+			'Factory default changed — revisit the share/publication interaction.'
+		);
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $shared,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
 
-        $visible = $this->service->getVisibleToUser(userId: 'recipient');
+		$visible = $this->service->getVisibleToUser(userId: 'recipient');
 
-        $this->assertCount(
-            1,
-            $visible,
-            'A draft shared with a user must remain visible to that user — '
-            .'the share is the owner\'s explicit grant.'
-        );
-        $this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
-    }//end testSharedDraftDashboardIsStillVisibleToItsRecipient()
+		$this->assertCount(
+			1,
+			$visible,
+			'A draft shared with a user must remain visible to that user — '
+			. 'the share is the owner\'s explicit grant.'
+		);
+		$this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
+	}//end testSharedDraftDashboardIsStillVisibleToItsRecipient()
 
-    /**
-     * The exemption is scoped to the share: a draft the user was NOT given
-     * still stays hidden. This is what stops the fix from becoming a
-     * blanket draft leak.
-     *
-     * @return void
-     */
-    public function testUnsharedDraftStaysHiddenFromNonOwners(): void
-    {
-        $draft = $this->makeDashboard(3, 'uuid-foreign-draft', 'someone-else');
-        $draft->setPublicationStatus(Dashboard::STATUS_DRAFT);
+	/**
+	 * The exemption is scoped to the share: a draft the user was NOT given
+	 * still stays hidden. This is what stops the fix from becoming a
+	 * blanket draft leak.
+	 *
+	 * @return void
+	 */
+	public function testUnsharedDraftStaysHiddenFromNonOwners(): void {
+		$draft = $this->makeDashboard(3, 'uuid-foreign-draft', 'someone-else');
+		$draft->setPublicationStatus(Dashboard::STATUS_DRAFT);
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn(
-            [
-                [
-                    'dashboard' => $draft,
-                    'source'    => Dashboard::SOURCE_DEFAULT,
-                ],
-            ]
-        );
-        $this->dashResolver->method('findSharedDashboards')->willReturn([]);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[
+				[
+					'dashboard' => $draft,
+					'source' => Dashboard::SOURCE_DEFAULT,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedDashboards')->willReturn([]);
 
-        $this->assertSame(
-            [],
-            $this->service->getVisibleToUser(userId: 'recipient'),
-            'A draft nobody shared with this user must stay hidden.'
-        );
-    }//end testUnsharedDraftStaysHiddenFromNonOwners()
+		$this->assertSame(
+			[],
+			$this->service->getVisibleToUser(userId: 'recipient'),
+			'A draft nobody shared with this user must stay hidden.'
+		);
+	}//end testUnsharedDraftStaysHiddenFromNonOwners()
 
-    /**
-     * REQ-SHARE-002: a shared dashboard is part of "visible to me", tagged
-     * with the `shared` source. Without the fix `getVisibleToUser()` returns
-     * only what the mapper's three-bucket union produced — an empty set.
-     *
-     * @return void
-     */
-    public function testVisibleToUserIncludesSharedDashboards(): void
-    {
-        $shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+	/**
+	 * REQ-SHARE-002: a shared dashboard is part of "visible to me", tagged
+	 * with the `shared` source. Without the fix `getVisibleToUser()` returns
+	 * only what the mapper's three-bucket union produced — an empty set.
+	 *
+	 * @return void
+	 */
+	public function testVisibleToUserIncludesSharedDashboards(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $shared,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
 
-        $visible = $this->service->getVisibleToUser(userId: 'recipient');
+		$visible = $this->service->getVisibleToUser(userId: 'recipient');
 
-        $this->assertCount(1, $visible);
-        $this->assertSame('uuid-shared', $visible[0]['dashboard']->getUuid());
-        $this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
-    }//end testVisibleToUserIncludesSharedDashboards()
+		$this->assertCount(1, $visible);
+		$this->assertSame('uuid-shared', $visible[0]['dashboard']->getUuid());
+		$this->assertSame(Dashboard::SOURCE_SHARED, $visible[0]['source']);
+	}//end testVisibleToUserIncludesSharedDashboards()
 
-    /**
-     * A dashboard reached BOTH by ownership/group and by a share keeps its
-     * stronger source tag — the shared copy is deduped away by uuid.
-     *
-     * @return void
-     */
-    public function testSharedEntryIsDedupedAgainstAStrongerSource(): void
-    {
-        $own = $this->makeDashboard(7, 'uuid-dup', 'recipient');
+	/**
+	 * A dashboard reached BOTH by ownership/group and by a share keeps its
+	 * stronger source tag — the shared copy is deduped away by uuid.
+	 *
+	 * @return void
+	 */
+	public function testSharedEntryIsDedupedAgainstAStrongerSource(): void {
+		$own = $this->makeDashboard(7, 'uuid-dup', 'recipient');
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn(
-            [
-                [
-                    'dashboard' => $own,
-                    'source'    => Dashboard::SOURCE_USER,
-                ],
-            ]
-        );
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $own,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[
+				[
+					'dashboard' => $own,
+					'source' => Dashboard::SOURCE_USER,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $own,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
 
-        $visible = $this->service->getVisibleToUser(userId: 'recipient');
+		$visible = $this->service->getVisibleToUser(userId: 'recipient');
 
-        $this->assertCount(1, $visible);
-        $this->assertSame(Dashboard::SOURCE_USER, $visible[0]['source']);
-    }//end testSharedEntryIsDedupedAgainstAStrongerSource()
+		$this->assertCount(1, $visible);
+		$this->assertSame(Dashboard::SOURCE_USER, $visible[0]['source']);
+	}//end testSharedEntryIsDedupedAgainstAStrongerSource()
 
-    /**
-     * REQ-DASH-018 step 6b: a recipient with NOTHING of their own resolves
-     * to the dashboard shared with them instead of the empty state. This is
-     * the whole point of the fix — without it `resolveActiveDashboard()`
-     * returns null and the share is inert.
-     *
-     * @return void
-     */
-    public function testResolveActiveDashboardLandsOnASharedDashboard(): void
-    {
-        $shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+	/**
+	 * REQ-DASH-018 step 6b: a recipient with NOTHING of their own resolves
+	 * to the dashboard shared with them instead of the empty state. This is
+	 * the whole point of the fix — without it `resolveActiveDashboard()`
+	 * returns null and the share is inert.
+	 *
+	 * @return void
+	 */
+	public function testResolveActiveDashboardLandsOnASharedDashboard(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $shared,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
 
-        $result = $this->service->resolveActiveDashboard(
-            userId: 'recipient',
-            primaryGroupId: null
-        );
+		$result = $this->service->resolveActiveDashboard(
+			userId: 'recipient',
+			primaryGroupId: null
+		);
 
-        $this->assertNotNull($result, 'A recipient must land on the shared dashboard.');
-        $this->assertSame('uuid-shared', $result['dashboard']->getUuid());
-        $this->assertSame(Dashboard::SOURCE_SHARED, $result['source']);
-    }//end testResolveActiveDashboardLandsOnASharedDashboard()
+		$this->assertNotNull($result, 'A recipient must land on the shared dashboard.');
+		$this->assertSame('uuid-shared', $result['dashboard']->getUuid());
+		$this->assertSame(Dashboard::SOURCE_SHARED, $result['source']);
+	}//end testResolveActiveDashboardLandsOnASharedDashboard()
 
-    /**
-     * PRECEDENCE: the user's OWN dashboard beats a shared one. A share must
-     * never hijack a selection the user already has.
-     *
-     * @return void
-     */
-    public function testOwnDashboardWinsOverASharedOne(): void
-    {
-        $own    = $this->makeDashboard(1, 'uuid-own', 'recipient');
-        $shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+	/**
+	 * PRECEDENCE: the user's OWN dashboard beats a shared one. A share must
+	 * never hijack a selection the user already has.
+	 *
+	 * @return void
+	 */
+	public function testOwnDashboardWinsOverASharedOne(): void {
+		$own = $this->makeDashboard(1, 'uuid-own', 'recipient');
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn(
-            [
-                [
-                    'dashboard' => $own,
-                    'source'    => Dashboard::SOURCE_USER,
-                ],
-            ]
-        );
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $shared,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[
+				[
+					'dashboard' => $own,
+					'source' => Dashboard::SOURCE_USER,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
 
-        $result = $this->service->resolveActiveDashboard(
-            userId: 'recipient',
-            primaryGroupId: null
-        );
+		$result = $this->service->resolveActiveDashboard(
+			userId: 'recipient',
+			primaryGroupId: null
+		);
 
-        $this->assertSame('uuid-own', $result['dashboard']->getUuid());
-        $this->assertSame(Dashboard::SOURCE_USER, $result['source']);
-    }//end testOwnDashboardWinsOverASharedOne()
+		$this->assertSame('uuid-own', $result['dashboard']->getUuid());
+		$this->assertSame(Dashboard::SOURCE_USER, $result['source']);
+	}//end testOwnDashboardWinsOverASharedOne()
 
-    /**
-     * PRECEDENCE: a group-shared dashboard (steps 2-5) also beats a share.
-     *
-     * @return void
-     */
-    public function testGroupSharedDashboardWinsOverASharedOne(): void
-    {
-        $groupBoard = $this->makeDashboard(
-            2,
-            'uuid-group',
-            null,
-            Dashboard::TYPE_GROUP_SHARED
-        );
-        $groupBoard->setGroupId(Dashboard::DEFAULT_GROUP_ID);
-        $shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+	/**
+	 * PRECEDENCE: a group-shared dashboard (steps 2-5) also beats a share.
+	 *
+	 * @return void
+	 */
+	public function testGroupSharedDashboardWinsOverASharedOne(): void {
+		$groupBoard = $this->makeDashboard(
+			2,
+			'uuid-group',
+			null,
+			Dashboard::TYPE_GROUP_SHARED
+		);
+		$groupBoard->setGroupId(Dashboard::DEFAULT_GROUP_ID);
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn(
-            [
-                [
-                    'dashboard' => $groupBoard,
-                    'source'    => Dashboard::SOURCE_DEFAULT,
-                ],
-            ]
-        );
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $shared,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[
+				[
+					'dashboard' => $groupBoard,
+					'source' => Dashboard::SOURCE_DEFAULT,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
 
-        $result = $this->service->resolveActiveDashboard(
-            userId: 'recipient',
-            primaryGroupId: null
-        );
+		$result = $this->service->resolveActiveDashboard(
+			userId: 'recipient',
+			primaryGroupId: null
+		);
 
-        $this->assertSame('uuid-group', $result['dashboard']->getUuid());
-    }//end testGroupSharedDashboardWinsOverASharedOne()
+		$this->assertSame('uuid-group', $result['dashboard']->getUuid());
+	}//end testGroupSharedDashboardWinsOverASharedOne()
 
-    /**
-     * REQ-SHARE-002: `getEffectiveDashboard()` (the `GET /api/dashboard`
-     * path) consults the share BEFORE auto-provisioning a dashboard from a
-     * template — minting an empty personal dashboard would permanently bury
-     * the share behind step 6.
-     *
-     * @return void
-     */
-    public function testEffectiveDashboardPrefersASharedDashboardOverTemplateCreation(): void
-    {
-        $shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+	/**
+	 * REQ-SHARE-002: `getEffectiveDashboard()` (the `GET /api/dashboard`
+	 * path) consults the share BEFORE auto-provisioning a dashboard from a
+	 * template — minting an empty personal dashboard would permanently bury
+	 * the share behind step 6.
+	 *
+	 * @return void
+	 */
+	public function testEffectiveDashboardPrefersASharedDashboardOverTemplateCreation(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
 
-        $this->dashResolver->method('tryGetActiveDashboard')->willReturn(null);
-        $this->dashResolver->method('tryActivateExistingDashboard')->willReturn(null);
-        $this->dashResolver->method('tryGetSharedDashboard')->willReturn(
-            [
-                'dashboard'       => $shared,
-                'placements'      => [],
-                'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
-            ]
-        );
+		$this->dashResolver->method('tryGetActiveDashboard')->willReturn(null);
+		$this->dashResolver->method('tryActivateExistingDashboard')->willReturn(null);
+		$this->dashResolver->method('tryGetSharedDashboard')->willReturn(
+			[
+				'dashboard' => $shared,
+				'placements' => [],
+				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
+			]
+		);
 
-        // If the shared step were missing, resolution would fall through to
-        // the template path, which asks the mapper for admin templates.
-        $this->dashboardMapper
-            ->expects($this->never())
-            ->method('findAdminTemplates');
+		// If the shared step were missing, resolution would fall through to
+		// the template path, which asks the mapper for admin templates.
+		$this->dashboardMapper
+			->expects($this->never())
+			->method('findAdminTemplates');
 
-        $result = $this->service->getEffectiveDashboard(userId: 'recipient');
+		$result = $this->service->getEffectiveDashboard(userId: 'recipient');
 
-        $this->assertNotNull($result);
-        $this->assertSame('uuid-shared', $result['dashboard']->getUuid());
-        $this->assertSame(
-            Dashboard::PERMISSION_VIEW_ONLY,
-            $result['permissionLevel']
-        );
-    }//end testEffectiveDashboardPrefersASharedDashboardOverTemplateCreation()
+		$this->assertNotNull($result);
+		$this->assertSame('uuid-shared', $result['dashboard']->getUuid());
+		$this->assertSame(
+			Dashboard::PERMISSION_VIEW_ONLY,
+			$result['permissionLevel']
+		);
+	}//end testEffectiveDashboardPrefersASharedDashboardOverTemplateCreation()
 
-    /**
-     * REQ-SHARE-004: fetching a shared dashboard by id reports the SHARE's
-     * permission level, not the owning row's.
-     *
-     * @return void
-     */
-    public function testGetDashboardForUserReportsTheSharePermissionLevel(): void
-    {
-        $shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
+	/**
+	 * REQ-SHARE-004: fetching a shared dashboard by id reports the SHARE's
+	 * permission level, not the owning row's.
+	 *
+	 * @return void
+	 */
+	public function testGetDashboardForUserReportsTheSharePermissionLevel(): void {
+		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
 
-        $this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
-        $this->dashResolver->method('findSharedDashboards')->willReturn(
-            [
-                [
-                    'dashboard' => $shared,
-                    'source'    => Dashboard::SOURCE_SHARED,
-                ],
-            ]
-        );
-        $this->dashResolver->method('findSharedLevels')->willReturn(
-            [7 => Dashboard::PERMISSION_VIEW_ONLY]
-        );
-        $this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
+		$this->dashResolver->method('findSharedDashboards')->willReturn(
+			[
+				[
+					'dashboard' => $shared,
+					'source' => Dashboard::SOURCE_SHARED,
+				],
+			]
+		);
+		$this->dashResolver->method('findSharedLevels')->willReturn(
+			[7 => Dashboard::PERMISSION_VIEW_ONLY]
+		);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
 
-        $result = $this->service->getDashboardForUser(
-            dashboardId: 7,
-            userId: 'recipient'
-        );
+		$result = $this->service->getDashboardForUser(
+			dashboardId: 7,
+			userId: 'recipient'
+		);
 
-        $this->assertNotNull($result, 'A shared dashboard must be fetchable by id.');
-        $this->assertSame(
-            Dashboard::PERMISSION_VIEW_ONLY,
-            $result['permissionLevel']
-        );
-    }//end testGetDashboardForUserReportsTheSharePermissionLevel()
+		$this->assertNotNull($result, 'A shared dashboard must be fetchable by id.');
+		$this->assertSame(
+			Dashboard::PERMISSION_VIEW_ONLY,
+			$result['permissionLevel']
+		);
+	}//end testGetDashboardForUserReportsTheSharePermissionLevel()
 }//end class

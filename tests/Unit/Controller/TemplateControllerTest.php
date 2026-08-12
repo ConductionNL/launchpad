@@ -35,92 +35,88 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class TemplateControllerTest extends TestCase
-{
-    /** @var IRequest&MockObject */
-    private $request;
+class TemplateControllerTest extends TestCase {
+	/** @var IRequest&MockObject */
+	private $request;
 
-    /** @var AdminTemplateService&MockObject */
-    private $service;
+	/** @var AdminTemplateService&MockObject */
+	private $service;
 
-    /** @var IUserSession&MockObject */
-    private $userSession;
+	/** @var IUserSession&MockObject */
+	private $userSession;
 
-    /** @var ActionAuthService&MockObject */
-    private $actionAuth;
+	/** @var ActionAuthService&MockObject */
+	private $actionAuth;
 
-    /**
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        $this->request    = $this->createMock(IRequest::class);
-        $this->service    = $this->createMock(AdminTemplateService::class);
-        $this->userSession = $this->createMock(IUserSession::class);
-        $this->actionAuth  = $this->createMock(ActionAuthService::class);
-    }//end setUp()
+	/**
+	 * @return void
+	 */
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->service = $this->createMock(AdminTemplateService::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->actionAuth = $this->createMock(ActionAuthService::class);
+	}//end setUp()
 
-    /**
-     * Build a controller with the given session-user.
-     *
-     * @param string|null $userId The user ID, or null for anonymous.
-     *
-     * @return TemplateController
-     */
-    private function buildController(?string $userId): TemplateController
-    {
-        if ($userId === null) {
-            $this->userSession->method('getUser')->willReturn(null);
-        } else {
-            $user = $this->createMock(IUser::class);
-            $user->method('getUID')->willReturn($userId);
-            $this->userSession->method('getUser')->willReturn($user);
-        }
+	/**
+	 * Build a controller with the given session-user.
+	 *
+	 * @param string|null $userId The user ID, or null for anonymous.
+	 *
+	 * @return TemplateController
+	 */
+	private function buildController(?string $userId): TemplateController {
+		if ($userId === null) {
+			$this->userSession->method('getUser')->willReturn(null);
+		} else {
+			$user = $this->createMock(IUser::class);
+			$user->method('getUID')->willReturn($userId);
+			$this->userSession->method('getUser')->willReturn($user);
+		}
 
-        return new TemplateController(
-            request: $this->request,
-            templateService: $this->service,
-            userSession: $this->userSession,
-            actionAuth: $this->actionAuth,
-        );
-    }//end buildController()
+		return new TemplateController(
+			request: $this->request,
+			templateService: $this->service,
+			userSession: $this->userSession,
+			actionAuth: $this->actionAuth,
+		);
+	}//end buildController()
 
-    /**
-     * REQ-TMPL-014: gallery returns the success envelope with the
-     * `templates` array.
-     *
-     * @return void
-     */
-    public function testGalleryReturnsSuccessEnvelope(): void
-    {
-        $payload = [
-            [
-                'uuid'          => 'uuid-1',
-                'name'          => 'Marketing dashboard',
-                'description'   => 'Gallery description',
-                'category'      => 'marketing',
-                'previewImage'  => null,
-                'gridColumns'   => 12,
-                'widgetCount'   => 4,
-                'lastUpdatedAt' => '2026-05-01 09:00:00',
-            ],
-        ];
+	/**
+	 * REQ-TMPL-014: gallery returns the success envelope with the
+	 * `templates` array.
+	 *
+	 * @return void
+	 */
+	public function testGalleryReturnsSuccessEnvelope(): void {
+		$payload = [
+			[
+				'uuid' => 'uuid-1',
+				'name' => 'Marketing dashboard',
+				'description' => 'Gallery description',
+				'category' => 'marketing',
+				'previewImage' => null,
+				'gridColumns' => 12,
+				'widgetCount' => 4,
+				'lastUpdatedAt' => '2026-05-01 09:00:00',
+			],
+		];
 
-        $this->service
-            ->expects($this->once())
-            ->method('getGallery')
-            ->with('marketing', 'name')
-            ->willReturn($payload);
+		$this->service
+			->expects($this->once())
+			->method('getGallery')
+			->with('marketing', 'name')
+			->willReturn($payload);
 
-        $controller = $this->buildController(userId: 'alice');
-        $response   = $controller->gallery(category: 'marketing');
+		$controller = $this->buildController(userId: 'alice');
+		$response = $controller->gallery(category: 'marketing');
 
-        $this->assertSame(
-            expected: Http::STATUS_OK,
-            actual: $response->getStatus()
-        );
-        $data = $response->getData();
-        $this->assertSame(expected: 'success', actual: $data['status']);
-        $this->assertSame(expected: $payload, actual: $data['templates']);
-    }//end testGalleryReturnsSuccessEnvelope()
+		$this->assertSame(
+			expected: Http::STATUS_OK,
+			actual: $response->getStatus()
+		);
+		$data = $response->getData();
+		$this->assertSame(expected: 'success', actual: $data['status']);
+		$this->assertSame(expected: $payload, actual: $data['templates']);
+	}//end testGalleryReturnsSuccessEnvelope()
 }//end class

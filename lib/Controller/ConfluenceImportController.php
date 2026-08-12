@@ -42,122 +42,118 @@ use Throwable;
  *      `$_FILES` is the only multipart entry point under Nextcloud.
  * @spec                                 openspec/specs/confluence-html-import/spec.md
  */
-class ConfluenceImportController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest                $request       Request handle.
-     * @param ConfluenceImportService $importService The import orchestrator.
-     * @param IUserSession            $userSession   Current session.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly ConfluenceImportService $importService,
-        private readonly IUserSession $userSession,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class ConfluenceImportController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request Request handle.
+	 * @param ConfluenceImportService $importService The import orchestrator.
+	 * @param IUserSession $userSession Current session.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly ConfluenceImportService $importService,
+		private readonly IUserSession $userSession,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * `POST /api/admin/import/confluence/dry-run` — REQ-CFLI-007.
-     *
-     * @return JSONResponse The dry-run preview, or an error response.
-     *
-     * @spec openspec/specs/confluence-html-import/spec.md
-     */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function dryRun(): JSONResponse
-    {
-        $tmpName = $this->resolveUpload();
-        if ($tmpName instanceof JSONResponse) {
-            return $tmpName;
-        }
+	/**
+	 * `POST /api/admin/import/confluence/dry-run` — REQ-CFLI-007.
+	 *
+	 * @return JSONResponse The dry-run preview, or an error response.
+	 *
+	 * @spec openspec/specs/confluence-html-import/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function dryRun(): JSONResponse {
+		$tmpName = $this->resolveUpload();
+		if ($tmpName instanceof JSONResponse) {
+			return $tmpName;
+		}
 
-        try {
-            $result = $this->importService->dryRun(zipPath: $tmpName);
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        } catch (Throwable $e) {
-            return new JSONResponse(
-                data: ['error' => 'Confluence dry-run failed: '.$e->getMessage()],
-                statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }
+		try {
+			$result = $this->importService->dryRun(zipPath: $tmpName);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (Throwable $e) {
+			return new JSONResponse(
+				data: ['error' => 'Confluence dry-run failed: ' . $e->getMessage()],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}
 
-        return new JSONResponse(data: $result);
-    }//end dryRun()
+		return new JSONResponse(data: $result);
+	}//end dryRun()
 
-    /**
-     * `POST /api/admin/import/confluence` — REQ-CFLI-001..006, 009, 012.
-     *
-     * @param string|null $parentUuid Optional parent dashboard UUID
-     *                                under which root pages will be slotted.
-     *
-     * @return JSONResponse The import summary, or an error response.
-     *
-     * @spec openspec/specs/confluence-html-import/spec.md
-     */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function import(?string $parentUuid=null): JSONResponse
-    {
-        $tmpName = $this->resolveUpload();
-        if ($tmpName instanceof JSONResponse) {
-            return $tmpName;
-        }
+	/**
+	 * `POST /api/admin/import/confluence` — REQ-CFLI-001..006, 009, 012.
+	 *
+	 * @param string|null $parentUuid Optional parent dashboard UUID
+	 *                                under which root pages will be slotted.
+	 *
+	 * @return JSONResponse The import summary, or an error response.
+	 *
+	 * @spec openspec/specs/confluence-html-import/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function import(?string $parentUuid = null): JSONResponse {
+		$tmpName = $this->resolveUpload();
+		if ($tmpName instanceof JSONResponse) {
+			return $tmpName;
+		}
 
-        $userId = (string) $this->userSession->getUser()?->getUID();
+		$userId = (string)$this->userSession->getUser()?->getUID();
 
-        $resolvedParent = null;
-        if ($parentUuid !== null && $parentUuid !== '') {
-            $resolvedParent = $parentUuid;
-        }
+		$resolvedParent = null;
+		if ($parentUuid !== null && $parentUuid !== '') {
+			$resolvedParent = $parentUuid;
+		}
 
-        try {
-            $result = $this->importService->import(
-                zipPath: $tmpName,
-                currentUserId: $userId,
-                parentUuid: $resolvedParent
-            );
-        } catch (InvalidArgumentException $e) {
-            return new JSONResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        } catch (Throwable $e) {
-            return new JSONResponse(
-                data: ['error' => 'Confluence import failed: '.$e->getMessage()],
-                statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }
+		try {
+			$result = $this->importService->import(
+				zipPath: $tmpName,
+				currentUserId: $userId,
+				parentUuid: $resolvedParent
+			);
+		} catch (InvalidArgumentException $e) {
+			return new JSONResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (Throwable $e) {
+			return new JSONResponse(
+				data: ['error' => 'Confluence import failed: ' . $e->getMessage()],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}
 
-        return new JSONResponse(data: $result);
-    }//end import()
+		return new JSONResponse(data: $result);
+	}//end import()
 
-    /**
-     * Locate and validate the uploaded ZIP, returning its tmp path.
-     *
-     * @return string|JSONResponse Either the tmp path or a 400 response.
-     */
-    private function resolveUpload(): string|JSONResponse
-    {
-        $upload = $_FILES['file'] ?? null;
-        if (is_array($upload) === false
-            || isset($upload['tmp_name']) === false
-            || (string) $upload['tmp_name'] === ''
-        ) {
-            return new JSONResponse(
-                data: ['error' => 'No file uploaded under field "file".'],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
+	/**
+	 * Locate and validate the uploaded ZIP, returning its tmp path.
+	 *
+	 * @return string|JSONResponse Either the tmp path or a 400 response.
+	 */
+	private function resolveUpload(): string|JSONResponse {
+		$upload = $_FILES['file'] ?? null;
+		if (is_array($upload) === false
+			|| isset($upload['tmp_name']) === false
+			|| (string)$upload['tmp_name'] === ''
+		) {
+			return new JSONResponse(
+				data: ['error' => 'No file uploaded under field "file".'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
 
-        return (string) $upload['tmp_name'];
-    }//end resolveUpload()
+		return (string)$upload['tmp_name'];
+	}//end resolveUpload()
 }//end class

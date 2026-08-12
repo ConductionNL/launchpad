@@ -26,31 +26,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Duplicate role assignment (REQ-ROLE-004).
  */
-class DuplicateRoleAssignmentException extends ResourceException
-{
+class DuplicateRoleAssignmentException extends ResourceException {
 
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'duplicate_role_assignment';
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'duplicate_role_assignment';
 
-    /**
-     * HTTP status code.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 409;
+	/**
+	 * HTTP status code.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 409;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message (translatable English string).
-     */
-    public function __construct(
-        string $message='That target already has the requested role assigned'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message (translatable English string).
+	 */
+	public function __construct(
+		string $message = 'That target already has the requested role assigned',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

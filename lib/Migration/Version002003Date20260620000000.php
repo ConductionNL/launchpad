@@ -33,28 +33,27 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Drops the now-unused launchpad_feed_tokens table (outbound RSS feature retired).
  */
-class Version002003Date20260620000000 extends SimpleMigrationStep
-{
-    /**
-     * Drop launchpad_feed_tokens if present.
-     *
-     * @param IOutput $output        Migration output handler.
-     * @param Closure $schemaClosure Returns an ISchemaWrapper.
-     * @param array   $options       Migration options.
-     *
-     * @return ISchemaWrapper|null
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version002003Date20260620000000 extends SimpleMigrationStep {
+	/**
+	 * Drop launchpad_feed_tokens if present.
+	 *
+	 * @param IOutput $output Migration output handler.
+	 * @param Closure $schemaClosure Returns an ISchemaWrapper.
+	 * @param array $options Migration options.
+	 *
+	 * @return ISchemaWrapper|null
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_feed_tokens') === true) {
-            $schema->dropTable('launchpad_feed_tokens');
-        }
+		if ($schema->hasTable('launchpad_feed_tokens') === true) {
+			$schema->dropTable('launchpad_feed_tokens');
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

@@ -37,63 +37,61 @@ use Throwable;
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
-class ReactionsListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param ReactionService $reactionService Service that owns the
-     *                                         `deleteReactionsByDashboard`
-     *                                         cascade path.
-     * @param LoggerInterface $logger          PSR-3 logger for
-     *                                         log-and-continue failure
-     *                                         handling per REQ-CSC-006.
-     */
-    public function __construct(
-        private readonly ReactionService $reactionService,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class ReactionsListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param ReactionService $reactionService Service that owns the
+	 *                                         `deleteReactionsByDashboard`
+	 *                                         cascade path.
+	 * @param LoggerInterface $logger PSR-3 logger for
+	 *                                log-and-continue failure
+	 *                                handling per REQ-CSC-006.
+	 */
+	public function __construct(
+		private readonly ReactionService $reactionService,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-cascade-events/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid = $event->getDashboardUuid();
+		$uuid = $event->getDashboardUuid();
 
-        try {
-            $deleted = $this->reactionService->deleteReactionsByDashboard(
-                dashboardUuid: $uuid
-            );
+		try {
+			$deleted = $this->reactionService->deleteReactionsByDashboard(
+				dashboardUuid: $uuid
+			);
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad ReactionsListener: deleted %d reactions for dashboard %s',
-                    $deleted,
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad ReactionsListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad ReactionsListener: deleted %d reactions for dashboard %s',
+					$deleted,
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad ReactionsListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

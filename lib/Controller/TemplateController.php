@@ -41,77 +41,76 @@ use OCP\IUserSession;
 /**
  * Controller for the template gallery (REQ-TMPL-014).
  */
-class TemplateController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest             $request         The request.
-     * @param AdminTemplateService $templateService The template service.
-     * @param IUserSession         $userSession     The current user
-     *                                              session (required for
-     *                                              the owner check).
-     * @param ActionAuthService    $actionAuth      ADR-023 action
-     *                                              authorization.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly AdminTemplateService $templateService,
-        private readonly IUserSession $userSession,
-        private readonly ActionAuthService $actionAuth,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class TemplateController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request.
+	 * @param AdminTemplateService $templateService The template service.
+	 * @param IUserSession $userSession The current user
+	 *                                  session (required for
+	 *                                  the owner check).
+	 * @param ActionAuthService $actionAuth ADR-023 action
+	 *                                      authorization.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly AdminTemplateService $templateService,
+		private readonly IUserSession $userSession,
+		private readonly ActionAuthService $actionAuth,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * `GET /api/templates/gallery` — list all admin templates with the
-     * gallery metadata (REQ-TMPL-014).
-     *
-     * Query parameters:
-     *   - `category` (string, optional): exact-match category filter.
-     *   - `sort` (string, optional): `name` (default) or `updatedAt`.
-     *
-     * Available to every logged-in user. Returns a `{status: 'success',
-     * templates: [...]}` envelope with no widget bodies — gallery is a
-     * list view, not a render.
-     *
-     * @param string|null $category Optional category filter.
-     * @param string      $sort     Sort key (`name` or `updatedAt`).
-     *
-     * @return JSONResponse The gallery list envelope.
-         *
-     * @spec openspec/specs/admin-templates/spec.md
- */
-    #[NoAdminRequired]
-    public function gallery(
-        ?string $category=null,
-        string $sort='name'
-    ): JSONResponse {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * `GET /api/templates/gallery` — list all admin templates with the
+	 * gallery metadata (REQ-TMPL-014).
+	 *
+	 * Query parameters:
+	 *   - `category` (string, optional): exact-match category filter.
+	 *   - `sort` (string, optional): `name` (default) or `updatedAt`.
+	 *
+	 * Available to every logged-in user. Returns a `{status: 'success',
+	 * templates: [...]}` envelope with no widget bodies — gallery is a
+	 * list view, not a render.
+	 *
+	 * @param string|null $category Optional category filter.
+	 * @param string $sort Sort key (`name` or `updatedAt`).
+	 *
+	 * @return JSONResponse The gallery list envelope.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md
+	 */
+	#[NoAdminRequired]
+	public function gallery(
+		?string $category = null,
+		string $sort = 'name',
+	): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'template.gallery');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'template.gallery');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        $templates = $this->templateService->getGallery(
-            category: $category,
-            sortBy: $sort
-        );
+		$templates = $this->templateService->getGallery(
+			category: $category,
+			sortBy: $sort
+		);
 
-        return new JSONResponse(
-            data: [
-                'status'    => 'success',
-                'templates' => $templates,
-            ],
-            statusCode: Http::STATUS_OK
-        );
-    }//end gallery()
+		return new JSONResponse(
+			data: [
+				'status' => 'success',
+				'templates' => $templates,
+			],
+			statusCode: Http::STATUS_OK
+		);
+	}//end gallery()
 }//end class

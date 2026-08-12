@@ -28,107 +28,105 @@ use OCP\DB\Types;
 /**
  * Builder for the dashboard_translations database table schema.
  */
-class DashboardTranslationTableBuilder
-{
-    /**
-     * Create the launchpad_dash_translations table.
-     *
-     * Idempotent — returns immediately when the table already exists.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function create(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable('launchpad_dash_translations') === true) {
-            return;
-        }
+class DashboardTranslationTableBuilder {
+	/**
+	 * Create the launchpad_dash_translations table.
+	 *
+	 * Idempotent — returns immediately when the table already exists.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function create(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('launchpad_dash_translations') === true) {
+			return;
+		}
 
-        $table = $schema->createTable(
-            'launchpad_dash_translations'
-        );
+		$table = $schema->createTable(
+			'launchpad_dash_translations'
+		);
 
-        $table->addColumn(
-            'id',
-            Types::BIGINT,
-            [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            'dashboard_uuid',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 36,
-            ]
-        );
-        $table->addColumn(
-            'language_code',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 16,
-                'comment' => 'ISO 639-1 base code (nl, en, de, fr); normalised by mapper.',
-            ]
-        );
-        $table->addColumn(
-            'name',
-            Types::STRING,
-            [
-                'notnull' => false,
-                'length'  => 255,
-            ]
-        );
-        $table->addColumn(
-            'description',
-            Types::TEXT,
-            ['notnull' => false]
-        );
-        $table->addColumn(
-            'widget_tree_json',
-            Types::TEXT,
-            [
-                'notnull' => false,
-                'comment' => 'Localised widget tree JSON — mirrors oc_launchpad_dashboards shape.',
-            ]
-        );
-        $table->addColumn(
-            'is_primary',
-            Types::SMALLINT,
-            [
-                'notnull'  => true,
-                'default'  => 0,
-                'unsigned' => true,
-                'comment'  => 'Exactly one row per dashboard MUST have is_primary=1 (service-enforced).',
-            ]
-        );
-        $table->addColumn(
-            'created_at',
-            Types::DATETIME,
-            ['notnull' => true]
-        );
-        $table->addColumn(
-            'updated_at',
-            Types::DATETIME,
-            ['notnull' => false]
-        );
+		$table->addColumn(
+			'id',
+			Types::BIGINT,
+			[
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'dashboard_uuid',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 36,
+			]
+		);
+		$table->addColumn(
+			'language_code',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 16,
+				'comment' => 'ISO 639-1 base code (nl, en, de, fr); normalised by mapper.',
+			]
+		);
+		$table->addColumn(
+			'name',
+			Types::STRING,
+			[
+				'notnull' => false,
+				'length' => 255,
+			]
+		);
+		$table->addColumn(
+			'description',
+			Types::TEXT,
+			['notnull' => false]
+		);
+		$table->addColumn(
+			'widget_tree_json',
+			Types::TEXT,
+			[
+				'notnull' => false,
+				'comment' => 'Localised widget tree JSON — mirrors oc_launchpad_dashboards shape.',
+			]
+		);
+		$table->addColumn(
+			'is_primary',
+			Types::SMALLINT,
+			[
+				'notnull' => true,
+				'default' => 0,
+				'unsigned' => true,
+				'comment' => 'Exactly one row per dashboard MUST have is_primary=1 (service-enforced).',
+			]
+		);
+		$table->addColumn(
+			'created_at',
+			Types::DATETIME,
+			['notnull' => true]
+		);
+		$table->addColumn(
+			'updated_at',
+			Types::DATETIME,
+			['notnull' => false]
+		);
 
-        $table->setPrimaryKey(['id']);
-        $table->addIndex(
-            ['dashboard_uuid'],
-            'launchpad_trans_dash_idx'
-        );
-        $table->addUniqueIndex(
-            ['dashboard_uuid', 'language_code'],
-            'launchpad_trans_unique_idx'
-        );
-        $table->addIndex(
-            ['dashboard_uuid', 'is_primary'],
-            'launchpad_trans_primary_idx'
-        );
-    }//end create()
+		$table->setPrimaryKey(['id']);
+		$table->addIndex(
+			['dashboard_uuid'],
+			'launchpad_trans_dash_idx'
+		);
+		$table->addUniqueIndex(
+			['dashboard_uuid', 'language_code'],
+			'launchpad_trans_unique_idx'
+		);
+		$table->addIndex(
+			['dashboard_uuid', 'is_primary'],
+			'launchpad_trans_primary_idx'
+		);
+	}//end create()
 }//end class

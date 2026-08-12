@@ -81,683 +81,668 @@ use OCP\IUserManager;
  * All public methods are stateless — no per-request memoisation. Caller
  * concerns (controllers, other services) inject this directly.
  */
-class RoleFeaturePermissionService
-{
-    /**
-     * Constructor.
-     *
-     * @param RoleFeaturePermissionMapper $permissionMapper     Permission mapper.
-     * @param RoleLayoutDefaultMapper     $defaultMapper        Layout default mapper.
-     * @param WidgetPlacementMapper       $placementMapper      Widget placement mapper.
-     * @param AdminSettingsService        $adminSettings        Admin settings reader.
-     * @param AdminTemplateService        $adminTemplateService Routing resolver — single
-     *                                                          source of truth for
-     *                                                          `IGroupManager::getUserGroupIds`
-     *                                                          (REQ-TMPL-013).
-     * @param IUserManager                $userManager          Nextcloud user manager.
-     * @param IGroupManager               $groupManager         Group manager for the admin
-     *                                                          break-glass bypass (mirrors
-     *                                                          ActionAuthService /
-     *                                                          PermissionService).
-     */
-    public function __construct(
-        private readonly RoleFeaturePermissionMapper $permissionMapper,
-        private readonly RoleLayoutDefaultMapper $defaultMapper,
-        private readonly WidgetPlacementMapper $placementMapper,
-        private readonly AdminSettingsService $adminSettings,
-        private readonly AdminTemplateService $adminTemplateService,
-        private readonly IUserManager $userManager,
-        private readonly IGroupManager $groupManager,
-    ) {
-    }//end __construct()
+class RoleFeaturePermissionService {
+	/**
+	 * Constructor.
+	 *
+	 * @param RoleFeaturePermissionMapper $permissionMapper Permission mapper.
+	 * @param RoleLayoutDefaultMapper $defaultMapper Layout default mapper.
+	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
+	 * @param AdminSettingsService $adminSettings Admin settings reader.
+	 * @param AdminTemplateService $adminTemplateService Routing resolver — single
+	 *                                                   source of truth for
+	 *                                                   `IGroupManager::getUserGroupIds`
+	 *                                                   (REQ-TMPL-013).
+	 * @param IUserManager $userManager Nextcloud user manager.
+	 * @param IGroupManager $groupManager Group manager for the admin
+	 *                                    break-glass bypass (mirrors
+	 *                                    ActionAuthService /
+	 *                                    PermissionService).
+	 */
+	public function __construct(
+		private readonly RoleFeaturePermissionMapper $permissionMapper,
+		private readonly RoleLayoutDefaultMapper $defaultMapper,
+		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly AdminSettingsService $adminSettings,
+		private readonly AdminTemplateService $adminTemplateService,
+		private readonly IUserManager $userManager,
+		private readonly IGroupManager $groupManager,
+	) {
+	}//end __construct()
 
-    /**
-     * List all RoleFeaturePermission rows for the admin UI.
-     *
-     * @return RoleFeaturePermission[] All rows.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function listPermissions(): array
-    {
-        return $this->permissionMapper->findAll();
-    }//end listPermissions()
+	/**
+	 * List all RoleFeaturePermission rows for the admin UI.
+	 *
+	 * @return RoleFeaturePermission[] All rows.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function listPermissions(): array {
+		return $this->permissionMapper->findAll();
+	}//end listPermissions()
 
-    /**
-     * List all RoleLayoutDefault rows for the admin UI.
-     *
-     * @return RoleLayoutDefault[] All rows.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function listLayoutDefaults(): array
-    {
-        return $this->defaultMapper->findAll();
-    }//end listLayoutDefaults()
+	/**
+	 * List all RoleLayoutDefault rows for the admin UI.
+	 *
+	 * @return RoleLayoutDefault[] All rows.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function listLayoutDefaults(): array {
+		return $this->defaultMapper->findAll();
+	}//end listLayoutDefaults()
 
-    /**
-     * Upsert a RoleFeaturePermission row keyed by `groupId`.
-     *
-     * @param array $data The submitted permission data.
-     *
-     * @return RoleFeaturePermission The persisted row.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function savePermission(array $data): RoleFeaturePermission
-    {
-        $groupId = (string) ($data['groupId'] ?? '');
-        if ($groupId === '') {
-            throw new InvalidArgumentException(message: 'groupId is required');
-        }
+	/**
+	 * Upsert a RoleFeaturePermission row keyed by `groupId`.
+	 *
+	 * @param array $data The submitted permission data.
+	 *
+	 * @return RoleFeaturePermission The persisted row.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function savePermission(array $data): RoleFeaturePermission {
+		$groupId = (string)($data['groupId'] ?? '');
+		if ($groupId === '') {
+			throw new InvalidArgumentException(message: 'groupId is required');
+		}
 
-        $entity = $this->resolvePermissionEntity(groupId: $groupId);
+		$entity = $this->resolvePermissionEntity(groupId: $groupId);
 
-        $this->applyPermissionCopy(entity: $entity, data: $data);
-        $this->applyPermissionWidgetLists(entity: $entity, data: $data);
+		$this->applyPermissionCopy(entity: $entity, data: $data);
+		$this->applyPermissionWidgetLists(entity: $entity, data: $data);
 
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setUpdatedAt((new DateTime())->format(format: 'c'));
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setUpdatedAt((new DateTime())->format(format: 'c'));
 
-        // Entity::getId() can return null when the row hasn't been
-        // persisted yet (REQ-RFP-007 — upsert semantics). PHPStan's
-        // PHPDoc says `int` but the runtime allows null until insert.
-        // @phpstan-ignore-next-line identical.alwaysFalse — null on insert, ok.
-        if ($entity->getId() === null) {
-            return $this->permissionMapper->insert(entity: $entity);
-        }
+		// Entity::getId() can return null when the row hasn't been
+		// persisted yet (REQ-RFP-007 — upsert semantics). PHPStan's
+		// PHPDoc says `int` but the runtime allows null until insert.
+		// @phpstan-ignore-next-line identical.alwaysFalse — null on insert, ok.
+		if ($entity->getId() === null) {
+			return $this->permissionMapper->insert(entity: $entity);
+		}
 
-        return $this->permissionMapper->update(entity: $entity);
-    }//end savePermission()
+		return $this->permissionMapper->update(entity: $entity);
+	}//end savePermission()
 
-    /**
-     * Load the existing permission row for a group, or mint a fresh one.
-     *
-     * A miss is the insert half of the upsert (REQ-RFP-007): the new
-     * entity is stamped with `createdAt` and the group key so the caller
-     * only has to apply the submitted fields.
-     *
-     * @param string $groupId The group key.
-     *
-     * @return RoleFeaturePermission The existing or freshly minted row.
-     */
-    private function resolvePermissionEntity(string $groupId): RoleFeaturePermission
-    {
-        try {
-            return $this->permissionMapper->findByGroupId(groupId: $groupId);
-        } catch (DoesNotExistException $e) {
-            $entity = new RoleFeaturePermission();
-            $now    = (new DateTime())->format(format: 'c');
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setCreatedAt($now);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGroupId($groupId);
-            return $entity;
-        }
-    }//end resolvePermissionEntity()
+	/**
+	 * Load the existing permission row for a group, or mint a fresh one.
+	 *
+	 * A miss is the insert half of the upsert (REQ-RFP-007): the new
+	 * entity is stamped with `createdAt` and the group key so the caller
+	 * only has to apply the submitted fields.
+	 *
+	 * @param string $groupId The group key.
+	 *
+	 * @return RoleFeaturePermission The existing or freshly minted row.
+	 */
+	private function resolvePermissionEntity(string $groupId): RoleFeaturePermission {
+		try {
+			return $this->permissionMapper->findByGroupId(groupId: $groupId);
+		} catch (DoesNotExistException $e) {
+			$entity = new RoleFeaturePermission();
+			$now = (new DateTime())->format(format: 'c');
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setCreatedAt($now);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setGroupId($groupId);
+			return $entity;
+		}
+	}//end resolvePermissionEntity()
 
-    /**
-     * Apply the human-facing name/description fields when submitted.
-     *
-     * Both use `array_key_exists` so an omitted key leaves the stored
-     * value alone while an explicit null clears the description.
-     *
-     * @param RoleFeaturePermission $entity The row being upserted.
-     * @param array                 $data   The submitted permission data.
-     *
-     * @return void
-     */
-    private function applyPermissionCopy(
-        RoleFeaturePermission $entity,
-        array $data
-    ): void {
-        if (array_key_exists(key: 'name', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setName((string) $data['name']);
-        }
+	/**
+	 * Apply the human-facing name/description fields when submitted.
+	 *
+	 * Both use `array_key_exists` so an omitted key leaves the stored
+	 * value alone while an explicit null clears the description.
+	 *
+	 * @param RoleFeaturePermission $entity The row being upserted.
+	 * @param array $data The submitted permission data.
+	 *
+	 * @return void
+	 */
+	private function applyPermissionCopy(
+		RoleFeaturePermission $entity,
+		array $data,
+	): void {
+		if (array_key_exists(key: 'name', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setName((string)$data['name']);
+		}
 
-        if (array_key_exists(key: 'description', array: $data) === true) {
-            $description = null;
-            if ($data['description'] !== null) {
-                $description = (string) $data['description'];
-            }
+		if (array_key_exists(key: 'description', array: $data) === true) {
+			$description = null;
+			if ($data['description'] !== null) {
+				$description = (string)$data['description'];
+			}
 
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setDescription($description);
-        }
-    }//end applyPermissionCopy()
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setDescription($description);
+		}
+	}//end applyPermissionCopy()
 
-    /**
-     * Apply the JSON-encoded widget allow/deny lists and priority weights.
-     *
-     * The two widget lists are re-indexed with `array_values()` so they
-     * always encode as a JSON array; `priorityWeights` is a keyed map and
-     * is encoded as-is.
-     *
-     * @param RoleFeaturePermission $entity The row being upserted.
-     * @param array                 $data   The submitted permission data.
-     *
-     * @return void
-     */
-    private function applyPermissionWidgetLists(
-        RoleFeaturePermission $entity,
-        array $data
-    ): void {
-        if (array_key_exists(key: 'allowedWidgets', array: $data) === true) {
-            $allowed = self::normaliseArrayPayload(data: $data, key: 'allowedWidgets');
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setAllowedWidgets(json_encode(value: array_values(array: $allowed)));
-        }
+	/**
+	 * Apply the JSON-encoded widget allow/deny lists and priority weights.
+	 *
+	 * The two widget lists are re-indexed with `array_values()` so they
+	 * always encode as a JSON array; `priorityWeights` is a keyed map and
+	 * is encoded as-is.
+	 *
+	 * @param RoleFeaturePermission $entity The row being upserted.
+	 * @param array $data The submitted permission data.
+	 *
+	 * @return void
+	 */
+	private function applyPermissionWidgetLists(
+		RoleFeaturePermission $entity,
+		array $data,
+	): void {
+		if (array_key_exists(key: 'allowedWidgets', array: $data) === true) {
+			$allowed = self::normaliseArrayPayload(data: $data, key: 'allowedWidgets');
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setAllowedWidgets(json_encode(value: array_values(array: $allowed)));
+		}
 
-        if (array_key_exists(key: 'deniedWidgets', array: $data) === true) {
-            $denied = self::normaliseArrayPayload(data: $data, key: 'deniedWidgets');
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setDeniedWidgets(json_encode(value: array_values(array: $denied)));
-        }
+		if (array_key_exists(key: 'deniedWidgets', array: $data) === true) {
+			$denied = self::normaliseArrayPayload(data: $data, key: 'deniedWidgets');
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setDeniedWidgets(json_encode(value: array_values(array: $denied)));
+		}
 
-        if (array_key_exists(key: 'priorityWeights', array: $data) === true) {
-            $weights = self::normaliseArrayPayload(data: $data, key: 'priorityWeights');
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setPriorityWeights(json_encode(value: $weights));
-        }
-    }//end applyPermissionWidgetLists()
+		if (array_key_exists(key: 'priorityWeights', array: $data) === true) {
+			$weights = self::normaliseArrayPayload(data: $data, key: 'priorityWeights');
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setPriorityWeights(json_encode(value: $weights));
+		}
+	}//end applyPermissionWidgetLists()
 
-    /**
-     * Read an array-typed payload key, defaulting a non-array to `[]`.
-     *
-     * Clients occasionally submit a scalar or null for a list field; the
-     * empty array keeps the JSON column well-formed instead of storing
-     * `"null"` or a coerced scalar.
-     *
-     * @param array  $data The submitted data.
-     * @param string $key  The key to read.
-     *
-     * @return array The array value, or [] when the value is not an array.
-     */
-    private static function normaliseArrayPayload(array $data, string $key): array
-    {
-        if (is_array(value: $data[$key]) === true) {
-            return $data[$key];
-        }
+	/**
+	 * Read an array-typed payload key, defaulting a non-array to `[]`.
+	 *
+	 * Clients occasionally submit a scalar or null for a list field; the
+	 * empty array keeps the JSON column well-formed instead of storing
+	 * `"null"` or a coerced scalar.
+	 *
+	 * @param array $data The submitted data.
+	 * @param string $key The key to read.
+	 *
+	 * @return array The array value, or [] when the value is not an array.
+	 */
+	private static function normaliseArrayPayload(array $data, string $key): array {
+		if (is_array(value: $data[$key]) === true) {
+			return $data[$key];
+		}
 
-        return [];
-    }//end normaliseArrayPayload()
+		return [];
+	}//end normaliseArrayPayload()
 
-    /**
-     * Delete a RoleFeaturePermission row by id.
-     *
-     * @param int $id The row id.
-     *
-     * @return void
-     *
-     * @throws DoesNotExistException When the row does not exist.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function deletePermission(int $id): void
-    {
-        $entity = $this->permissionMapper->find(id: $id);
-        $this->permissionMapper->delete(entity: $entity);
-    }//end deletePermission()
+	/**
+	 * Delete a RoleFeaturePermission row by id.
+	 *
+	 * @param int $id The row id.
+	 *
+	 * @return void
+	 *
+	 * @throws DoesNotExistException When the row does not exist.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function deletePermission(int $id): void {
+		$entity = $this->permissionMapper->find(id: $id);
+		$this->permissionMapper->delete(entity: $entity);
+	}//end deletePermission()
 
-    /**
-     * Upsert a RoleLayoutDefault row keyed by `(groupId, widgetId)`.
-     *
-     * @param array $data The submitted layout default data.
-     *
-     * @return RoleLayoutDefault The persisted row.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function saveLayoutDefault(array $data): RoleLayoutDefault
-    {
-        $groupId  = (string) ($data['groupId'] ?? '');
-        $widgetId = (string) ($data['widgetId'] ?? '');
-        if ($groupId === '' || $widgetId === '') {
-            throw new InvalidArgumentException(
-                message: 'groupId and widgetId are required'
-            );
-        }
+	/**
+	 * Upsert a RoleLayoutDefault row keyed by `(groupId, widgetId)`.
+	 *
+	 * @param array $data The submitted layout default data.
+	 *
+	 * @return RoleLayoutDefault The persisted row.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function saveLayoutDefault(array $data): RoleLayoutDefault {
+		$groupId = (string)($data['groupId'] ?? '');
+		$widgetId = (string)($data['widgetId'] ?? '');
+		if ($groupId === '' || $widgetId === '') {
+			throw new InvalidArgumentException(
+				message: 'groupId and widgetId are required'
+			);
+		}
 
-        $entity = $this->resolveLayoutDefaultEntity(
-            groupId: $groupId,
-            widgetId: $widgetId
-        );
+		$entity = $this->resolveLayoutDefaultEntity(
+			groupId: $groupId,
+			widgetId: $widgetId
+		);
 
-        $this->applyLayoutDefaultCopy(entity: $entity, data: $data);
-        $this->applyLayoutDefaultGeometry(entity: $entity, data: $data);
-        $this->applyLayoutDefaultOrdering(entity: $entity, data: $data);
+		$this->applyLayoutDefaultCopy(entity: $entity, data: $data);
+		$this->applyLayoutDefaultGeometry(entity: $entity, data: $data);
+		$this->applyLayoutDefaultOrdering(entity: $entity, data: $data);
 
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $entity->setUpdatedAt((new DateTime())->format(format: 'c'));
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$entity->setUpdatedAt((new DateTime())->format(format: 'c'));
 
-        // Same upsert semantics as above — null-on-insert tolerated.
-        // @phpstan-ignore-next-line identical.alwaysFalse — null on insert, ok.
-        if ($entity->getId() === null) {
-            return $this->defaultMapper->insert(entity: $entity);
-        }
+		// Same upsert semantics as above — null-on-insert tolerated.
+		// @phpstan-ignore-next-line identical.alwaysFalse — null on insert, ok.
+		if ($entity->getId() === null) {
+			return $this->defaultMapper->insert(entity: $entity);
+		}
 
-        return $this->defaultMapper->update(entity: $entity);
-    }//end saveLayoutDefault()
+		return $this->defaultMapper->update(entity: $entity);
+	}//end saveLayoutDefault()
 
-    /**
-     * Load the existing layout default for a `(groupId, widgetId)` pair,
-     * or mint a fresh one.
-     *
-     * A miss is the insert half of the upsert: the new entity is stamped
-     * with `createdAt` and both key columns so the caller only has to
-     * apply the submitted fields.
-     *
-     * @param string $groupId  The group key.
-     * @param string $widgetId The widget key.
-     *
-     * @return RoleLayoutDefault The existing or freshly minted row.
-     */
-    private function resolveLayoutDefaultEntity(
-        string $groupId,
-        string $widgetId
-    ): RoleLayoutDefault {
-        try {
-            return $this->defaultMapper->findByGroupAndWidget(
-                groupId: $groupId,
-                widgetId: $widgetId
-            );
-        } catch (DoesNotExistException $e) {
-            $entity = new RoleLayoutDefault();
-            $now    = (new DateTime())->format(format: 'c');
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setCreatedAt($now);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGroupId($groupId);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setWidgetId($widgetId);
-            return $entity;
-        }
-    }//end resolveLayoutDefaultEntity()
+	/**
+	 * Load the existing layout default for a `(groupId, widgetId)` pair,
+	 * or mint a fresh one.
+	 *
+	 * A miss is the insert half of the upsert: the new entity is stamped
+	 * with `createdAt` and both key columns so the caller only has to
+	 * apply the submitted fields.
+	 *
+	 * @param string $groupId The group key.
+	 * @param string $widgetId The widget key.
+	 *
+	 * @return RoleLayoutDefault The existing or freshly minted row.
+	 */
+	private function resolveLayoutDefaultEntity(
+		string $groupId,
+		string $widgetId,
+	): RoleLayoutDefault {
+		try {
+			return $this->defaultMapper->findByGroupAndWidget(
+				groupId: $groupId,
+				widgetId: $widgetId
+			);
+		} catch (DoesNotExistException $e) {
+			$entity = new RoleLayoutDefault();
+			$now = (new DateTime())->format(format: 'c');
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setCreatedAt($now);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setGroupId($groupId);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setWidgetId($widgetId);
+			return $entity;
+		}
+	}//end resolveLayoutDefaultEntity()
 
-    /**
-     * Apply the human-facing name/description fields when submitted.
-     *
-     * Both use `array_key_exists` so an omitted key leaves the stored
-     * value alone while an explicit null clears the description.
-     *
-     * @param RoleLayoutDefault $entity The row being upserted.
-     * @param array             $data   The submitted layout default data.
-     *
-     * @return void
-     */
-    private function applyLayoutDefaultCopy(
-        RoleLayoutDefault $entity,
-        array $data
-    ): void {
-        if (array_key_exists(key: 'name', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setName((string) $data['name']);
-        }
+	/**
+	 * Apply the human-facing name/description fields when submitted.
+	 *
+	 * Both use `array_key_exists` so an omitted key leaves the stored
+	 * value alone while an explicit null clears the description.
+	 *
+	 * @param RoleLayoutDefault $entity The row being upserted.
+	 * @param array $data The submitted layout default data.
+	 *
+	 * @return void
+	 */
+	private function applyLayoutDefaultCopy(
+		RoleLayoutDefault $entity,
+		array $data,
+	): void {
+		if (array_key_exists(key: 'name', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setName((string)$data['name']);
+		}
 
-        if (array_key_exists(key: 'description', array: $data) === true) {
-            $description = null;
-            if ($data['description'] !== null) {
-                $description = (string) $data['description'];
-            }
+		if (array_key_exists(key: 'description', array: $data) === true) {
+			$description = null;
+			if ($data['description'] !== null) {
+				$description = (string)$data['description'];
+			}
 
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setDescription($description);
-        }
-    }//end applyLayoutDefaultCopy()
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setDescription($description);
+		}
+	}//end applyLayoutDefaultCopy()
 
-    /**
-     * Apply the grid geometry fields when submitted.
-     *
-     * Width and height are floored at 1 — a zero or negative span would
-     * make the widget unrenderable on the grid.
-     *
-     * @param RoleLayoutDefault $entity The row being upserted.
-     * @param array             $data   The submitted layout default data.
-     *
-     * @return void
-     */
-    private function applyLayoutDefaultGeometry(
-        RoleLayoutDefault $entity,
-        array $data
-    ): void {
-        if (array_key_exists(key: 'gridX', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGridX((int) $data['gridX']);
-        }
+	/**
+	 * Apply the grid geometry fields when submitted.
+	 *
+	 * Width and height are floored at 1 — a zero or negative span would
+	 * make the widget unrenderable on the grid.
+	 *
+	 * @param RoleLayoutDefault $entity The row being upserted.
+	 * @param array $data The submitted layout default data.
+	 *
+	 * @return void
+	 */
+	private function applyLayoutDefaultGeometry(
+		RoleLayoutDefault $entity,
+		array $data,
+	): void {
+		if (array_key_exists(key: 'gridX', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setGridX((int)$data['gridX']);
+		}
 
-        if (array_key_exists(key: 'gridY', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGridY((int) $data['gridY']);
-        }
+		if (array_key_exists(key: 'gridY', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setGridY((int)$data['gridY']);
+		}
 
-        if (array_key_exists(key: 'gridWidth', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGridWidth(max(1, (int) $data['gridWidth']));
-        }
+		if (array_key_exists(key: 'gridWidth', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setGridWidth(max(1, (int)$data['gridWidth']));
+		}
 
-        if (array_key_exists(key: 'gridHeight', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setGridHeight(max(1, (int) $data['gridHeight']));
-        }
-    }//end applyLayoutDefaultGeometry()
+		if (array_key_exists(key: 'gridHeight', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setGridHeight(max(1, (int)$data['gridHeight']));
+		}
+	}//end applyLayoutDefaultGeometry()
 
-    /**
-     * Apply the ordering and compulsory-placement fields when submitted.
-     *
-     * `isCompulsory` is normalised to the canonical 0/1 column value so
-     * any truthy shape the client sends lands consistently.
-     *
-     * @param RoleLayoutDefault $entity The row being upserted.
-     * @param array             $data   The submitted layout default data.
-     *
-     * @return void
-     */
-    private function applyLayoutDefaultOrdering(
-        RoleLayoutDefault $entity,
-        array $data
-    ): void {
-        if (array_key_exists(key: 'sortOrder', array: $data) === true) {
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setSortOrder((int) $data['sortOrder']);
-        }
+	/**
+	 * Apply the ordering and compulsory-placement fields when submitted.
+	 *
+	 * `isCompulsory` is normalised to the canonical 0/1 column value so
+	 * any truthy shape the client sends lands consistently.
+	 *
+	 * @param RoleLayoutDefault $entity The row being upserted.
+	 * @param array $data The submitted layout default data.
+	 *
+	 * @return void
+	 */
+	private function applyLayoutDefaultOrdering(
+		RoleLayoutDefault $entity,
+		array $data,
+	): void {
+		if (array_key_exists(key: 'sortOrder', array: $data) === true) {
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setSortOrder((int)$data['sortOrder']);
+		}
 
-        if (array_key_exists(key: 'isCompulsory', array: $data) === true) {
-            $isCompulsory = 0;
-            if ((bool) $data['isCompulsory'] === true) {
-                $isCompulsory = 1;
-            }
+		if (array_key_exists(key: 'isCompulsory', array: $data) === true) {
+			$isCompulsory = 0;
+			if ((bool)$data['isCompulsory'] === true) {
+				$isCompulsory = 1;
+			}
 
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $entity->setIsCompulsory($isCompulsory);
-        }
-    }//end applyLayoutDefaultOrdering()
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setIsCompulsory($isCompulsory);
+		}
+	}//end applyLayoutDefaultOrdering()
 
-    /**
-     * Delete a RoleLayoutDefault row by id.
-     *
-     * @param int $id The row id.
-     *
-     * @return void
-     *
-     * @throws DoesNotExistException When the row does not exist.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function deleteLayoutDefault(int $id): void
-    {
-        $entity = $this->defaultMapper->find(id: $id);
-        $this->defaultMapper->delete(entity: $entity);
-    }//end deleteLayoutDefault()
+	/**
+	 * Delete a RoleLayoutDefault row by id.
+	 *
+	 * @param int $id The row id.
+	 *
+	 * @return void
+	 *
+	 * @throws DoesNotExistException When the row does not exist.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function deleteLayoutDefault(int $id): void {
+		$entity = $this->defaultMapper->find(id: $id);
+		$this->defaultMapper->delete(entity: $entity);
+	}//end deleteLayoutDefault()
 
-    /**
-     * Resolve the effective allowed-widget ID list for a user.
-     *
-     * Returns `null` (= no restriction, REQ-RFP-009) when none of the user's
-     * groups are mapped AND no `default` RoleFeaturePermission exists.
-     *
-     * Algorithm (REQ-RFP-005):
-     * 1. Walk the configured `group_order` array.
-     * 2. The FIRST group that matches BOTH the user's group memberships AND
-     *    has a RoleFeaturePermission row provides the BASE allowed set.
-     * 3. ALL subsequent groups that match the user widen the allowed set
-     *    via union.
-     * 4. ANY group's `deniedWidgets` removes those widget IDs from the
-     *    final set (deny-wins).
-     * 5. If no `group_order` group matched, fall back to the row whose
-     *    groupId == 'default' (REQ-RFP-009).
-     *
-     * @param string $userId The user's UID.
-     *
-     * @return array|null Sorted list of allowed widget IDs, or null.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function getAllowedWidgetIds(string $userId): ?array
-    {
-        // Admin break-glass: Nextcloud admins are never restricted by the
-        // role-feature-permission allow-list (mirrors the admin short-circuit
-        // in ActionAuthService::requireAction and PermissionService::
-        // resolveAccessLevel). Returning null signals "no restriction" so an
-        // admin can always add any widget to their own dashboard.
-        if ($this->groupManager->isAdmin(userId: $userId) === true) {
-            return null;
-        }
+	/**
+	 * Resolve the effective allowed-widget ID list for a user.
+	 *
+	 * Returns `null` (= no restriction, REQ-RFP-009) when none of the user's
+	 * groups are mapped AND no `default` RoleFeaturePermission exists.
+	 *
+	 * Algorithm (REQ-RFP-005):
+	 * 1. Walk the configured `group_order` array.
+	 * 2. The FIRST group that matches BOTH the user's group memberships AND
+	 *    has a RoleFeaturePermission row provides the BASE allowed set.
+	 * 3. ALL subsequent groups that match the user widen the allowed set
+	 *    via union.
+	 * 4. ANY group's `deniedWidgets` removes those widget IDs from the
+	 *    final set (deny-wins).
+	 * 5. If no `group_order` group matched, fall back to the row whose
+	 *    groupId == 'default' (REQ-RFP-009).
+	 *
+	 * @param string $userId The user's UID.
+	 *
+	 * @return array|null Sorted list of allowed widget IDs, or null.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function getAllowedWidgetIds(string $userId): ?array {
+		// Admin break-glass: Nextcloud admins are never restricted by the
+		// role-feature-permission allow-list (mirrors the admin short-circuit
+		// in ActionAuthService::requireAction and PermissionService::
+		// resolveAccessLevel). Returning null signals "no restriction" so an
+		// admin can always add any widget to their own dashboard.
+		if ($this->groupManager->isAdmin(userId: $userId) === true) {
+			return null;
+		}
 
-        $userGroups = $this->groupIdsForUser(userId: $userId);
-        if ($userGroups === []) {
-            return $this->fallbackAllowedWidgets();
-        }
+		$userGroups = $this->groupIdsForUser(userId: $userId);
+		if ($userGroups === []) {
+			return $this->fallbackAllowedWidgets();
+		}
 
-        $resolved = $this->resolveGroupOrderWidgets(userGroups: $userGroups);
-        if ($resolved === null) {
-            // No group_order match — try the explicit 'default' row.
-            return $this->fallbackAllowedWidgets();
-        }
+		$resolved = $this->resolveGroupOrderWidgets(userGroups: $userGroups);
+		if ($resolved === null) {
+			// No group_order match — try the explicit 'default' row.
+			return $this->fallbackAllowedWidgets();
+		}
 
-        $effective = array_values(
-            array: array_diff($resolved['allowed'], $resolved['denied'])
-        );
-        sort(array: $effective);
-        return $effective;
-    }//end getAllowedWidgetIds()
+		$effective = array_values(
+			array: array_diff($resolved['allowed'], $resolved['denied'])
+		);
+		sort(array: $effective);
+		return $effective;
+	}//end getAllowedWidgetIds()
 
-    /**
-     * Walk the configured `group_order` and fold the matching user's
-     * RoleFeaturePermission rows into a base + union allow-set with a
-     * deny-wins overlay (REQ-RFP-005). Returns `null` when none of the
-     * user's `group_order` groups have a permission row, so the caller can
-     * fall back to the explicit `default` row.
-     *
-     * @param array $userGroups The user's group IDs.
-     *
-     * @return array{allowed: array, denied: array}|null The folded allow/deny
-     *                                                    sets, or null on no match.
-     */
-    private function resolveGroupOrderWidgets(array $userGroups): ?array
-    {
-        $groupOrder = $this->adminSettings->getGroupOrder();
-        $base       = null;
-        $allowed    = [];
-        $denied     = [];
+	/**
+	 * Walk the configured `group_order` and fold the matching user's
+	 * RoleFeaturePermission rows into a base + union allow-set with a
+	 * deny-wins overlay (REQ-RFP-005). Returns `null` when none of the
+	 * user's `group_order` groups have a permission row, so the caller can
+	 * fall back to the explicit `default` row.
+	 *
+	 * @param array $userGroups The user's group IDs.
+	 *
+	 * @return array{allowed: array, denied: array}|null The folded allow/deny
+	 *                                                   sets, or null on no match.
+	 */
+	private function resolveGroupOrderWidgets(array $userGroups): ?array {
+		$groupOrder = $this->adminSettings->getGroupOrder();
+		$base = null;
+		$allowed = [];
+		$denied = [];
 
-        // Pre-fetch all RoleFeaturePermission rows for the user's groups (one query).
-        $rows  = $this->permissionMapper->findByGroupIds(groupIds: $userGroups);
-        $byGid = [];
-        foreach ($rows as $row) {
-            $byGid[$row->getGroupId()] = $row;
-        }
+		// Pre-fetch all RoleFeaturePermission rows for the user's groups (one query).
+		$rows = $this->permissionMapper->findByGroupIds(groupIds: $userGroups);
+		$byGid = [];
+		foreach ($rows as $row) {
+			$byGid[$row->getGroupId()] = $row;
+		}
 
-        foreach ($groupOrder as $gid) {
-            $matchesUser = in_array(needle: $gid, haystack: $userGroups, strict: true);
-            if ($matchesUser === false || array_key_exists(key: $gid, array: $byGid) === false) {
-                continue;
-            }
+		foreach ($groupOrder as $gid) {
+			$matchesUser = in_array(needle: $gid, haystack: $userGroups, strict: true);
+			if ($matchesUser === false || array_key_exists(key: $gid, array: $byGid) === false) {
+				continue;
+			}
 
-            $row          = $byGid[$gid];
-            $rowAllow     = $row->getAllowedWidgetsDecoded();
-            $rowDeny      = $row->getDeniedWidgetsDecoded();
-            $isFirstMatch = ($base === null);
-            if ($isFirstMatch === true) {
-                $base    = true;
-                $allowed = $rowAllow;
-            }
+			$row = $byGid[$gid];
+			$rowAllow = $row->getAllowedWidgetsDecoded();
+			$rowDeny = $row->getDeniedWidgetsDecoded();
+			$isFirstMatch = ($base === null);
+			if ($isFirstMatch === true) {
+				$base = true;
+				$allowed = $rowAllow;
+			}
 
-            if ($isFirstMatch === false) {
-                $allowed = array_values(
-                    array: array_unique(array: array_merge($allowed, $rowAllow))
-                );
-            }
+			if ($isFirstMatch === false) {
+				$allowed = array_values(
+					array: array_unique(array: array_merge($allowed, $rowAllow))
+				);
+			}
 
-            $denied = array_values(
-                array: array_unique(array: array_merge($denied, $rowDeny))
-            );
-        }//end foreach
+			$denied = array_values(
+				array: array_unique(array: array_merge($denied, $rowDeny))
+			);
+		}//end foreach
 
-        if ($base === null) {
-            return null;
-        }
+		if ($base === null) {
+			return null;
+		}
 
-        return [
-            'allowed' => $allowed,
-            'denied'  => $denied,
-        ];
-    }//end resolveGroupOrderWidgets()
+		return [
+			'allowed' => $allowed,
+			'denied' => $denied,
+		];
+	}//end resolveGroupOrderWidgets()
 
-    /**
-     * Check whether a specific widget is allowed for the given user.
-     *
-     * Returns `true` when the role configuration imposes no restriction on
-     * the user (i.e. `getAllowedWidgetIds()` returns `null`), or when the
-     * widget ID is explicitly included in the allowed set.
-     *
-     * @param string $userId   The user's UID.
-     * @param string $widgetId The widget identifier to check.
-     *
-     * @return bool True when the widget is accessible to the user.
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function isWidgetAllowed(string $userId, string $widgetId): bool
-    {
-        // Admin break-glass — admins may add any widget regardless of role
-        // configuration (mirrors ActionAuthService / PermissionService).
-        if ($this->groupManager->isAdmin(userId: $userId) === true) {
-            return true;
-        }
+	/**
+	 * Check whether a specific widget is allowed for the given user.
+	 *
+	 * Returns `true` when the role configuration imposes no restriction on
+	 * the user (i.e. `getAllowedWidgetIds()` returns `null`), or when the
+	 * widget ID is explicitly included in the allowed set.
+	 *
+	 * @param string $userId The user's UID.
+	 * @param string $widgetId The widget identifier to check.
+	 *
+	 * @return bool True when the widget is accessible to the user.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function isWidgetAllowed(string $userId, string $widgetId): bool {
+		// Admin break-glass — admins may add any widget regardless of role
+		// configuration (mirrors ActionAuthService / PermissionService).
+		if ($this->groupManager->isAdmin(userId: $userId) === true) {
+			return true;
+		}
 
-        $allowed = $this->getAllowedWidgetIds(userId: $userId);
-        if ($allowed === null) {
-            return true;
-        }
+		$allowed = $this->getAllowedWidgetIds(userId: $userId);
+		if ($allowed === null) {
+			return true;
+		}
 
-        return in_array(needle: $widgetId, haystack: $allowed, strict: true);
-    }//end isWidgetAllowed()
+		return in_array(needle: $widgetId, haystack: $allowed, strict: true);
+	}//end isWidgetAllowed()
 
-    /**
-     * Seed the default layout for a freshly created dashboard from the
-     * RoleLayoutDefault rows attached to the user's primary group.
-     *
-     * No-op when the dashboard already has placements (REQ-RFP-002 scenario 3
-     * — never overwrite personal customisations).
-     *
-     * Resolves the user's primary group by walking `group_order` and taking
-     * the first match that has at least one RoleLayoutDefault row.
-     *
-     * @param string    $userId    The user's UID.
-     * @param Dashboard $dashboard The dashboard to seed (must already exist).
-     *
-     * @return int The number of placements created (0 when no-op).
-     *
-     * @spec openspec/specs/admin-roles/spec.md
-     */
-    public function seedLayoutFromRoleDefaults(string $userId, Dashboard $dashboard): int
-    {
-        $existing = $this->placementMapper->findByDashboardId(
-            dashboardId: $dashboard->getId()
-        );
-        if (count(value: $existing) > 0) {
-            return 0;
-        }
+	/**
+	 * Seed the default layout for a freshly created dashboard from the
+	 * RoleLayoutDefault rows attached to the user's primary group.
+	 *
+	 * No-op when the dashboard already has placements (REQ-RFP-002 scenario 3
+	 * — never overwrite personal customisations).
+	 *
+	 * Resolves the user's primary group by walking `group_order` and taking
+	 * the first match that has at least one RoleLayoutDefault row.
+	 *
+	 * @param string $userId The user's UID.
+	 * @param Dashboard $dashboard The dashboard to seed (must already exist).
+	 *
+	 * @return int The number of placements created (0 when no-op).
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function seedLayoutFromRoleDefaults(string $userId, Dashboard $dashboard): int {
+		$existing = $this->placementMapper->findByDashboardId(
+			dashboardId: $dashboard->getId()
+		);
+		if (count(value: $existing) > 0) {
+			return 0;
+		}
 
-        $userGroups = $this->groupIdsForUser(userId: $userId);
-        if ($userGroups === []) {
-            return 0;
-        }
+		$userGroups = $this->groupIdsForUser(userId: $userId);
+		if ($userGroups === []) {
+			return 0;
+		}
 
-        $groupOrder = $this->adminSettings->getGroupOrder();
-        $defaults   = [];
-        foreach ($groupOrder as $gid) {
-            if (in_array(needle: $gid, haystack: $userGroups, strict: true) === false) {
-                continue;
-            }
+		$groupOrder = $this->adminSettings->getGroupOrder();
+		$defaults = [];
+		foreach ($groupOrder as $gid) {
+			if (in_array(needle: $gid, haystack: $userGroups, strict: true) === false) {
+				continue;
+			}
 
-            $defaults = $this->defaultMapper->findByGroupId(groupId: $gid);
-            if (count(value: $defaults) > 0) {
-                break;
-            }
-        }
+			$defaults = $this->defaultMapper->findByGroupId(groupId: $gid);
+			if (count(value: $defaults) > 0) {
+				break;
+			}
+		}
 
-        if (count(value: $defaults) === 0) {
-            return 0;
-        }
+		if (count(value: $defaults) === 0) {
+			return 0;
+		}
 
-        $created = 0;
-        $now     = (new DateTime())->format(format: 'Y-m-d H:i:s');
-        foreach ($defaults as $default) {
-            $placement = new WidgetPlacement();
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setDashboardId($dashboard->getId());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setWidgetId($default->getWidgetId());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setGridX($default->getGridX());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setGridY($default->getGridY());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setGridWidth($default->getGridWidth());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setGridHeight($default->getGridHeight());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setSortOrder($default->getSortOrder());
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setShowTitle(1);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setIsVisible(1);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setCreatedAt($now);
-            // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-            $placement->setUpdatedAt($now);
+		$created = 0;
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		foreach ($defaults as $default) {
+			$placement = new WidgetPlacement();
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setDashboardId($dashboard->getId());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setWidgetId($default->getWidgetId());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setGridX($default->getGridX());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setGridY($default->getGridY());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setGridWidth($default->getGridWidth());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setGridHeight($default->getGridHeight());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setSortOrder($default->getSortOrder());
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setShowTitle(1);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setIsVisible(1);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setCreatedAt($now);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setUpdatedAt($now);
 
-            $this->placementMapper->insert(entity: $placement);
-            $created++;
-        }//end foreach
+			$this->placementMapper->insert(entity: $placement);
+			$created++;
+		}//end foreach
 
-        return $created;
-    }//end seedLayoutFromRoleDefaults()
+		return $created;
+	}//end seedLayoutFromRoleDefaults()
 
-    /**
-     * Look up `default` RoleFeaturePermission row when no user-group match
-     * occurred. Returns null when there is no `default` row.
-     *
-     * @return array|null The allowed widget list from the default row.
-     */
-    private function fallbackAllowedWidgets(): ?array
-    {
-        try {
-            $row = $this->permissionMapper->findByGroupId(
-                groupId: RoleFeaturePermission::GROUP_DEFAULT
-            );
-        } catch (DoesNotExistException $e) {
-            return null;
-        }
+	/**
+	 * Look up `default` RoleFeaturePermission row when no user-group match
+	 * occurred. Returns null when there is no `default` row.
+	 *
+	 * @return array|null The allowed widget list from the default row.
+	 */
+	private function fallbackAllowedWidgets(): ?array {
+		try {
+			$row = $this->permissionMapper->findByGroupId(
+				groupId: RoleFeaturePermission::GROUP_DEFAULT
+			);
+		} catch (DoesNotExistException $e) {
+			return null;
+		}
 
-        $allowed = $row->getAllowedWidgetsDecoded();
-        $denied  = $row->getDeniedWidgetsDecoded();
-        $eff     = array_values(array: array_diff($allowed, $denied));
-        sort(array: $eff);
-        return $eff;
-    }//end fallbackAllowedWidgets()
+		$allowed = $row->getAllowedWidgetsDecoded();
+		$denied = $row->getDeniedWidgetsDecoded();
+		$eff = array_values(array: array_diff($allowed, $denied));
+		sort(array: $eff);
+		return $eff;
+	}//end fallbackAllowedWidgets()
 
-    /**
-     * Pull the list of group IDs a user belongs to. Wraps `IGroupManager`.
-     *
-     * @param string $userId The user UID.
-     *
-     * @return array The user's group IDs (may be empty).
-     */
-    private function groupIdsForUser(string $userId): array
-    {
-        // REQ-TMPL-013: the routing resolver invariant requires every
-        // `getUserGroupIds(...)` call to live inside AdminTemplateService.
-        // Delegating here keeps the role-feature-permission resolver
-        // honest with the grep guard while still letting the service
-        // make a per-user group-membership decision.
-        $user = $this->userManager->get(uid: $userId);
-        if ($user === null) {
-            return [];
-        }
+	/**
+	 * Pull the list of group IDs a user belongs to. Wraps `IGroupManager`.
+	 *
+	 * @param string $userId The user UID.
+	 *
+	 * @return array The user's group IDs (may be empty).
+	 */
+	private function groupIdsForUser(string $userId): array {
+		// REQ-TMPL-013: the routing resolver invariant requires every
+		// `getUserGroupIds(...)` call to live inside AdminTemplateService.
+		// Delegating here keeps the role-feature-permission resolver
+		// honest with the grep guard while still letting the service
+		// make a per-user group-membership decision.
+		$user = $this->userManager->get(uid: $userId);
+		if ($user === null) {
+			return [];
+		}
 
-        return $this->adminTemplateService->getUserGroupIdsFor(userId: $userId);
-    }//end groupIdsForUser()
+		return $this->adminTemplateService->getUserGroupIdsFor(userId: $userId);
+	}//end groupIdsForUser()
 }//end class

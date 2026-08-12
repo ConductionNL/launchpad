@@ -39,77 +39,73 @@ use OCP\AppFramework\Db\Entity;
  * @method \DateTime|null getReactedAt()
  * @method void setReactedAt(?\DateTime $reactedAt)
  */
-class DashboardReaction extends Entity implements JsonSerializable
-{
+class DashboardReaction extends Entity implements JsonSerializable {
 
-    /**
-     * The dashboard UUID this reaction targets.
-     *
-     * @var string|null
-     */
-    protected ?string $dashboardUuid = null;
+	/**
+	 * The dashboard UUID this reaction targets.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $dashboardUuid = null;
 
-    /**
-     * The Nextcloud user ID of the reactor.
-     *
-     * @var string|null
-     */
-    protected ?string $userId = null;
+	/**
+	 * The Nextcloud user ID of the reactor.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $userId = null;
 
-    /**
-     * The unicode emoji string (e.g. `👍`, `❤️`, `🎉`).
-     *
-     * @var string|null
-     */
-    protected ?string $emoji = null;
+	/**
+	 * The unicode emoji string (e.g. `👍`, `❤️`, `🎉`).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $emoji = null;
 
-    /**
-     * The instant the reaction was created.
-     *
-     * @var \DateTime|null
-     */
-    protected ?DateTime $reactedAt = null;
+	/**
+	 * The instant the reaction was created.
+	 *
+	 * @var \DateTime|null
+	 */
+	protected ?DateTime $reactedAt = null;
 
-    /**
-     * Constructor — registers column types.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(fieldName: 'reactedAt', type: 'datetime');
-    }//end __construct()
+	/**
+	 * Constructor — registers column types.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(fieldName: 'reactedAt', type: 'datetime');
+	}//end __construct()
 
-    /**
-     * Format the reaction timestamp the same way other dashboard
-     * timestamps are exposed in the JSON envelope. REQ-RXN-001
-     * scenario "User adds a reaction to a dashboard they can view".
-     *
-     * @return string|null `Y-m-d H:i:s` format or null when unset.
-     */
-    public function getReactedAtFormatted(): ?string
-    {
-        if ($this->reactedAt === null) {
-            return null;
-        }
+	/**
+	 * Format the reaction timestamp the same way other dashboard
+	 * timestamps are exposed in the JSON envelope. REQ-RXN-001
+	 * scenario "User adds a reaction to a dashboard they can view".
+	 *
+	 * @return string|null `Y-m-d H:i:s` format or null when unset.
+	 */
+	public function getReactedAtFormatted(): ?string {
+		if ($this->reactedAt === null) {
+			return null;
+		}
 
-        return $this->reactedAt->format(format: 'Y-m-d H:i:s');
-    }//end getReactedAtFormatted()
+		return $this->reactedAt->format(format: 'Y-m-d H:i:s');
+	}//end getReactedAtFormatted()
 
-    /**
-     * Serialize to JSON.
-     *
-     * @return array The serialized reaction.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'            => $this->getId(),
-            'dashboardUuid' => $this->dashboardUuid,
-            'userId'        => $this->userId,
-            'emoji'         => $this->emoji,
-            'reactedAt'     => $this->getReactedAtFormatted(),
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON.
+	 *
+	 * @return array The serialized reaction.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'dashboardUuid' => $this->dashboardUuid,
+			'userId' => $this->userId,
+			'emoji' => $this->emoji,
+			'reactedAt' => $this->getReactedAtFormatted(),
+		];
+	}//end jsonSerialize()
 }//end class

@@ -38,161 +38,151 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class AdminControllerFooterSettingsTest extends TestCase
-{
-    /** @var IRequest&MockObject */
-    private $request;
+class AdminControllerFooterSettingsTest extends TestCase {
+	/** @var IRequest&MockObject */
+	private $request;
 
-    /** @var FooterService&MockObject */
-    private $footerService;
+	/** @var FooterService&MockObject */
+	private $footerService;
 
-    /** @var IGroupManager&MockObject */
-    private $groupManager;
+	/** @var IGroupManager&MockObject */
+	private $groupManager;
 
-    /** @var IUserSession&MockObject */
-    private $userSession;
+	/** @var IUserSession&MockObject */
+	private $userSession;
 
-    private AdminController $controller;
+	private AdminController $controller;
 
-    protected function setUp(): void
-    {
-        $this->request       = $this->createMock(IRequest::class);
-        $this->footerService = $this->createMock(FooterService::class);
-        $this->groupManager  = $this->createMock(IGroupManager::class);
-        $this->userSession   = $this->createMock(IUserSession::class);
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->footerService = $this->createMock(FooterService::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
+		$this->userSession = $this->createMock(IUserSession::class);
 
-        $this->controller = new AdminController(
-            request: $this->request,
-            templateService: $this->createMock(AdminTemplateService::class),
-            settingsService: $this->createMock(AdminSettingsService::class),
-            groupManager: $this->groupManager,
-            userSession: $this->userSession,
-            exportService: $this->createMock(ExportService::class),
-            importService: $this->createMock(ImportService::class),
-            roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-            feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
-            footerService: $this->footerService,
-            setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class),
-            actionAuth: $this->createMock(ActionAuthService::class),
-            resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class),
-        );
-    }
+		$this->controller = new AdminController(
+			request: $this->request,
+			templateService: $this->createMock(AdminTemplateService::class),
+			settingsService: $this->createMock(AdminSettingsService::class),
+			groupManager: $this->groupManager,
+			userSession: $this->userSession,
+			exportService: $this->createMock(ExportService::class),
+			importService: $this->createMock(ImportService::class),
+			roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
+			feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
+			footerService: $this->footerService,
+			setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class),
+			actionAuth: $this->createMock(ActionAuthService::class),
+			resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class),
+		);
+	}
 
-    private function loginAsAdmin(): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn('admin');
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
-    }
+	private function loginAsAdmin(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('admin');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+	}
 
-    private function loginAsNonAdmin(): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn('alice');
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->groupManager->method('isAdmin')->with('alice')->willReturn(false);
-    }
+	private function loginAsNonAdmin(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->with('alice')->willReturn(false);
+	}
 
-    public function testGetFooterSettingsRejectsNonAdmin(): void
-    {
-        $this->loginAsNonAdmin();
-        $this->footerService->expects($this->never())->method('getGlobalSettings');
+	public function testGetFooterSettingsRejectsNonAdmin(): void {
+		$this->loginAsNonAdmin();
+		$this->footerService->expects($this->never())->method('getGlobalSettings');
 
-        $response = $this->controller->getFooterSettings();
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$response = $this->controller->getFooterSettings();
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testGetFooterSettingsReturnsServicePayload(): void
-    {
-        $this->loginAsAdmin();
+	public function testGetFooterSettingsReturnsServicePayload(): void {
+		$this->loginAsAdmin();
 
-        $payload = [
-            'footerEnabled'         => true,
-            'footerHtml'            => '<p>Hi</p>',
-            'footerConfig'          => [],
-            'footerBackgroundColor' => null,
-            'footerTextColor'       => null,
-        ];
-        $this->footerService->method('getGlobalSettings')->willReturn($payload);
+		$payload = [
+			'footerEnabled' => true,
+			'footerHtml' => '<p>Hi</p>',
+			'footerConfig' => [],
+			'footerBackgroundColor' => null,
+			'footerTextColor' => null,
+		];
+		$this->footerService->method('getGlobalSettings')->willReturn($payload);
 
-        $response = $this->controller->getFooterSettings();
+		$response = $this->controller->getFooterSettings();
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame($payload, $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame($payload, $response->getData());
+	}
 
-    public function testUpdateFooterSettingsRejectsNonAdmin(): void
-    {
-        $this->loginAsNonAdmin();
-        $this->footerService->expects($this->never())->method('updateGlobalSettings');
+	public function testUpdateFooterSettingsRejectsNonAdmin(): void {
+		$this->loginAsNonAdmin();
+		$this->footerService->expects($this->never())->method('updateGlobalSettings');
 
-        $response = $this->controller->updateFooterSettings(footerEnabled: true);
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$response = $this->controller->updateFooterSettings(footerEnabled: true);
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testUpdateFooterSettingsForwardsPatch(): void
-    {
-        $this->loginAsAdmin();
-        // Controller pulls keys from request->getParams to preserve null
-        // markers (admin clearing a value). Stub the params accordingly.
-        $this->request->method('getParams')->willReturn([
-            'footerEnabled' => true,
-            'footerHtml'    => '<p>Hi</p>',
-        ]);
+	public function testUpdateFooterSettingsForwardsPatch(): void {
+		$this->loginAsAdmin();
+		// Controller pulls keys from request->getParams to preserve null
+		// markers (admin clearing a value). Stub the params accordingly.
+		$this->request->method('getParams')->willReturn([
+			'footerEnabled' => true,
+			'footerHtml' => '<p>Hi</p>',
+		]);
 
-        $this->footerService
-            ->expects($this->once())
-            ->method('updateGlobalSettings')
-            ->with([
-                'footerEnabled' => true,
-                'footerHtml'    => '<p>Hi</p>',
-            ]);
+		$this->footerService
+			->expects($this->once())
+			->method('updateGlobalSettings')
+			->with([
+				'footerEnabled' => true,
+				'footerHtml' => '<p>Hi</p>',
+			]);
 
-        $response = $this->controller->updateFooterSettings(
-            footerEnabled: true,
-            footerHtml: '<p>Hi</p>'
-        );
+		$response = $this->controller->updateFooterSettings(
+			footerEnabled: true,
+			footerHtml: '<p>Hi</p>'
+		);
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+	}
 
-    public function testUpdateFooterSettingsMapsOversizeTo413(): void
-    {
-        $this->loginAsAdmin();
-        $this->request->method('getParams')->willReturn([
-            'footerHtml' => str_repeat('a', 9000),
-        ]);
+	public function testUpdateFooterSettingsMapsOversizeTo413(): void {
+		$this->loginAsAdmin();
+		$this->request->method('getParams')->willReturn([
+			'footerHtml' => str_repeat('a', 9000),
+		]);
 
-        $this->footerService
-            ->method('updateGlobalSettings')
-            ->willThrowException(new InvalidArgumentException('footerHtml exceeds 8 KB limit'));
+		$this->footerService
+			->method('updateGlobalSettings')
+			->willThrowException(new InvalidArgumentException('footerHtml exceeds 8 KB limit'));
 
-        $response = $this->controller->updateFooterSettings(
-            footerHtml: str_repeat('a', 9000)
-        );
+		$response = $this->controller->updateFooterSettings(
+			footerHtml: str_repeat('a', 9000)
+		);
 
-        $this->assertSame(
-            Http::STATUS_REQUEST_ENTITY_TOO_LARGE,
-            $response->getStatus()
-        );
-    }
+		$this->assertSame(
+			Http::STATUS_REQUEST_ENTITY_TOO_LARGE,
+			$response->getStatus()
+		);
+	}
 
-    public function testUpdateFooterSettingsMapsValidationTo400(): void
-    {
-        $this->loginAsAdmin();
-        $this->request->method('getParams')->willReturn([
-            'footerConfig' => ['weird' => 'x'],
-        ]);
+	public function testUpdateFooterSettingsMapsValidationTo400(): void {
+		$this->loginAsAdmin();
+		$this->request->method('getParams')->willReturn([
+			'footerConfig' => ['weird' => 'x'],
+		]);
 
-        $this->footerService
-            ->method('updateGlobalSettings')
-            ->willThrowException(new InvalidArgumentException('unknown key'));
+		$this->footerService
+			->method('updateGlobalSettings')
+			->willThrowException(new InvalidArgumentException('unknown key'));
 
-        $response = $this->controller->updateFooterSettings(
-            footerConfig: ['weird' => 'x']
-        );
+		$response = $this->controller->updateFooterSettings(
+			footerConfig: ['weird' => 'x']
+		);
 
-        $this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}
 }

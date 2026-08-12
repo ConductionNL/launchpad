@@ -29,12 +29,11 @@ use Exception;
 /**
  * No active lock exists for the requested dashboard (REQ-LOCK-002).
  */
-class LockNotFoundException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'lock_not_found';
+class LockNotFoundException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'lock_not_found';
 }//end class

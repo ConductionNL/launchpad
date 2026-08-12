@@ -25,30 +25,28 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Admin-only endpoint accessed by a non-admin user.
  */
-class ForbiddenException extends ResourceException
-{
+class ForbiddenException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'forbidden';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'forbidden';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 403;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 403;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Admin privileges required')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Admin privileges required') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

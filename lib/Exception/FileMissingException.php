@@ -26,31 +26,30 @@ namespace OCA\LaunchPad\Exception;
 /**
  * No usable file was present in the multipart upload request.
  */
-class FileMissingException extends ResourceException
-{
+class FileMissingException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'no_file';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'no_file';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 400;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 400;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(
-        string $message='No file was uploaded'
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(
+		string $message = 'No file was uploaded',
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

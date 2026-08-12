@@ -34,123 +34,119 @@ use OCP\DB\Types;
 /**
  * Builder for the tile usage-analytics database table schema.
  */
-class TileClicksTableBuilder
-{
-    /**
-     * Create the `launchpad_tile_clicks` table (REQ-TANLT-001).
-     *
-     * Idempotent — early-returns when the table already exists. The
-     * composite unique index on `(placement_uuid, click_bucket)` is
-     * the one-row-per-(tile, day) invariant; the secondary
-     * `click_bucket` index speeds up date-range scans for the admin
-     * top-tiles / breakdown / export endpoints.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function create(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable('launchpad_tile_clicks') === true) {
-            return;
-        }
+class TileClicksTableBuilder {
+	/**
+	 * Create the `launchpad_tile_clicks` table (REQ-TANLT-001).
+	 *
+	 * Idempotent — early-returns when the table already exists. The
+	 * composite unique index on `(placement_uuid, click_bucket)` is
+	 * the one-row-per-(tile, day) invariant; the secondary
+	 * `click_bucket` index speeds up date-range scans for the admin
+	 * top-tiles / breakdown / export endpoints.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function create(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('launchpad_tile_clicks') === true) {
+			return;
+		}
 
-        $table = $schema->createTable('launchpad_tile_clicks');
+		$table = $schema->createTable('launchpad_tile_clicks');
 
-        self::addColumns(table: $table);
-        self::addIndexes(table: $table);
-    }//end create()
+		self::addColumns(table: $table);
+		self::addIndexes(table: $table);
+	}//end create()
 
-    /**
-     * Add columns to the `launchpad_tile_clicks` table.
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
-     *
-     * @return void
-     */
-    private static function addColumns($table): void
-    {
-        $table->addColumn(
-            'id',
-            Types::BIGINT,
-            [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            'placement_uuid',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 36,
-                'comment' => 'The widget placement (tile) this aggregate row belongs to (REQ-TANLT-001).',
-            ]
-        );
-        $table->addColumn(
-            'dashboard_uuid',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 36,
-                'comment' => 'The dashboard the placement belongs to (denormalised for breakdown queries).',
-            ]
-        );
-        $table->addColumn(
-            'click_bucket',
-            Types::DATE,
-            [
-                'notnull' => true,
-                'comment' => 'Calendar date in UTC; one row per (tile, day).',
-            ]
-        );
-        $table->addColumn(
-            'click_count',
-            Types::INTEGER,
-            [
-                'notnull'  => true,
-                'default'  => 0,
-                'unsigned' => true,
-                'comment'  => 'Total number of click events on this date.',
-            ]
-        );
-        $table->addColumn(
-            'unique_actor_count',
-            Types::INTEGER,
-            [
-                'notnull'  => true,
-                'default'  => 0,
-                'unsigned' => true,
-                'comment'  => 'Distinct actors on this date (cache-deduped, reused salted-daily-hash).',
-            ]
-        );
-    }//end addColumns()
+	/**
+	 * Add columns to the `launchpad_tile_clicks` table.
+	 *
+	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 *
+	 * @return void
+	 */
+	private static function addColumns($table): void {
+		$table->addColumn(
+			'id',
+			Types::BIGINT,
+			[
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'placement_uuid',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 36,
+				'comment' => 'The widget placement (tile) this aggregate row belongs to (REQ-TANLT-001).',
+			]
+		);
+		$table->addColumn(
+			'dashboard_uuid',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 36,
+				'comment' => 'The dashboard the placement belongs to (denormalised for breakdown queries).',
+			]
+		);
+		$table->addColumn(
+			'click_bucket',
+			Types::DATE,
+			[
+				'notnull' => true,
+				'comment' => 'Calendar date in UTC; one row per (tile, day).',
+			]
+		);
+		$table->addColumn(
+			'click_count',
+			Types::INTEGER,
+			[
+				'notnull' => true,
+				'default' => 0,
+				'unsigned' => true,
+				'comment' => 'Total number of click events on this date.',
+			]
+		);
+		$table->addColumn(
+			'unique_actor_count',
+			Types::INTEGER,
+			[
+				'notnull' => true,
+				'default' => 0,
+				'unsigned' => true,
+				'comment' => 'Distinct actors on this date (cache-deduped, reused salted-daily-hash).',
+			]
+		);
+	}//end addColumns()
 
-    /**
-     * Add indexes to the `launchpad_tile_clicks` table.
-     *
-     * Composite unique index `(placement_uuid, click_bucket)`
-     * enforces the "one row per tile per day" invariant
-     * (REQ-TANLT-001). The standalone `click_bucket` index supports
-     * the date-range predicates used by the admin report endpoints
-     * and the shared retention-purge job (REQ-TANLT-004,
-     * REQ-TANLT-005).
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
-     *
-     * @return void
-     */
-    private static function addIndexes($table): void
-    {
-        $table->setPrimaryKey(['id']);
-        $table->addUniqueIndex(
-            ['placement_uuid', 'click_bucket'],
-            'launchpad_tanlt_uniq'
-        );
-        $table->addIndex(
-            ['click_bucket'],
-            'launchpad_tanlt_bucket'
-        );
-    }//end addIndexes()
+	/**
+	 * Add indexes to the `launchpad_tile_clicks` table.
+	 *
+	 * Composite unique index `(placement_uuid, click_bucket)`
+	 * enforces the "one row per tile per day" invariant
+	 * (REQ-TANLT-001). The standalone `click_bucket` index supports
+	 * the date-range predicates used by the admin report endpoints
+	 * and the shared retention-purge job (REQ-TANLT-004,
+	 * REQ-TANLT-005).
+	 *
+	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 *
+	 * @return void
+	 */
+	private static function addIndexes($table): void {
+		$table->setPrimaryKey(['id']);
+		$table->addUniqueIndex(
+			['placement_uuid', 'click_bucket'],
+			'launchpad_tanlt_uniq'
+		);
+		$table->addIndex(
+			['click_bucket'],
+			'launchpad_tanlt_bucket'
+		);
+	}//end addIndexes()
 }//end class

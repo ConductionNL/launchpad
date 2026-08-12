@@ -35,99 +35,92 @@ use OCA\LaunchPad\Db\DashboardShareMapper;
 /**
  * Sweeps share rows whose dashboard no longer exists.
  */
-class OrphanedSharesCategory implements CleanupCategoryInterface
-{
-    /**
-     * Stable category identifier (REQ-CLN-008 default auto-purge list).
-     *
-     * Named `expired_share_tokens` to match the spec vocabulary even
-     * though the current schema has no expiry/revocation columns —
-     * the dangling-FK orphan is the only orphan kind shares can
-     * currently produce.
-     *
-     * @var string
-     */
-    public const NAME = 'expired_share_tokens';
+class OrphanedSharesCategory implements CleanupCategoryInterface {
+	/**
+	 * Stable category identifier (REQ-CLN-008 default auto-purge list).
+	 *
+	 * Named `expired_share_tokens` to match the spec vocabulary even
+	 * though the current schema has no expiry/revocation columns —
+	 * the dangling-FK orphan is the only orphan kind shares can
+	 * currently produce.
+	 *
+	 * @var string
+	 */
+	public const NAME = 'expired_share_tokens';
 
-    /**
-     * Constructor.
-     *
-     * @param DashboardShareMapper $shareMapper The share mapper.
-     */
-    public function __construct(
-        private readonly DashboardShareMapper $shareMapper,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param DashboardShareMapper $shareMapper The share mapper.
+	 */
+	public function __construct(
+		private readonly DashboardShareMapper $shareMapper,
+	) {
+	}//end __construct()
 
-    /**
-     * Stable identifier.
-     *
-     * @return string The identifier.
-     */
-    public function getName(): string
-    {
-        return self::NAME;
-    }//end getName()
+	/**
+	 * Stable identifier.
+	 *
+	 * @return string The identifier.
+	 */
+	public function getName(): string {
+		return self::NAME;
+	}//end getName()
 
-    /**
-     * Human-readable label for the admin UI.
-     *
-     * @return string The label.
-     */
-    public function getDisplayName(): string
-    {
-        return 'Expired or orphaned share tokens';
-    }//end getDisplayName()
+	/**
+	 * Human-readable label for the admin UI.
+	 *
+	 * @return string The label.
+	 */
+	public function getDisplayName(): string {
+		return 'Expired or orphaned share tokens';
+	}//end getDisplayName()
 
-    /**
-     * Tier-A — always safe to auto-purge. The share is unreachable
-     * because its dashboard is gone.
-     *
-     * @return bool True.
-     */
-    public function getSafeToPurgeAutomatically(): bool
-    {
-        return true;
-    }//end getSafeToPurgeAutomatically()
+	/**
+	 * Tier-A — always safe to auto-purge. The share is unreachable
+	 * because its dashboard is gone.
+	 *
+	 * @return bool True.
+	 */
+	public function getSafeToPurgeAutomatically(): bool {
+		return true;
+	}//end getSafeToPurgeAutomatically()
 
-    /**
-     * Always available — `launchpad_dashboard_shares` ships in the core
-     * schema.
-     *
-     * @return bool True.
-     */
-    public function isAvailable(): bool
-    {
-        return true;
-    }//end isAvailable()
+	/**
+	 * Always available — `launchpad_dashboard_shares` ships in the core
+	 * schema.
+	 *
+	 * @return bool True.
+	 */
+	public function isAvailable(): bool {
+		return true;
+	}//end isAvailable()
 
-    /**
-     * Count orphaned share rows.
-     *
-     * @return int The orphan count.
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    public function scan(): int
-    {
-        return $this->shareMapper->countOrphaned();
-    }//end scan()
+	/**
+	 * Count orphaned share rows.
+	 *
+	 * @return int The orphan count.
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	public function scan(): int {
+		return $this->shareMapper->countOrphaned();
+	}//end scan()
 
-    /**
-     * Delete orphaned share rows.
-     *
-     * Dry-run safety is provided by the orchestrator wrapping this
-     * call in a transaction and rolling back; this implementation
-     * runs the same delete in either mode.
-     *
-     * @param bool $dryRun True for dry-run.
-     *
-     * @return int The number of rows deleted.
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    public function purge(bool $dryRun=false): int
-    {
-        return $this->shareMapper->deleteOrphaned();
-    }//end purge()
+	/**
+	 * Delete orphaned share rows.
+	 *
+	 * Dry-run safety is provided by the orchestrator wrapping this
+	 * call in a transaction and rolling back; this implementation
+	 * runs the same delete in either mode.
+	 *
+	 * @param bool $dryRun True for dry-run.
+	 *
+	 * @return int The number of rows deleted.
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	public function purge(bool $dryRun = false): int {
+		return $this->shareMapper->deleteOrphaned();
+	}//end purge()
 }//end class

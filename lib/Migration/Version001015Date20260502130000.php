@@ -36,27 +36,26 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Add the launchpad_dash_versions table (REQ-VERS-001..009).
  */
-class Version001015Date20260502130000 extends SimpleMigrationStep
-{
-    /**
-     * Create the dashboard versions table.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure (returns
-     *                               ISchemaWrapper).
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001015Date20260502130000 extends SimpleMigrationStep {
+	/**
+	 * Create the dashboard versions table.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure (returns
+	 *                               ISchemaWrapper).
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        DashboardVersionTableBuilder::create(schema: $schema);
+		DashboardVersionTableBuilder::create(schema: $schema);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

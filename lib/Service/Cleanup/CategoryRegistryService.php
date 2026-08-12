@@ -37,104 +37,99 @@ namespace OCA\LaunchPad\Service\Cleanup;
 /**
  * Lookup registry over the cleanup categories.
  */
-class CategoryRegistryService
-{
+class CategoryRegistryService {
 
-    /**
-     * The registered categories, keyed by their stable name.
-     *
-     * @var array<string, CleanupCategoryInterface>
-     */
-    private array $categories;
+	/**
+	 * The registered categories, keyed by their stable name.
+	 *
+	 * @var array<string, CleanupCategoryInterface>
+	 */
+	private array $categories;
 
-    /**
-     * Constructor.
-     *
-     * Each category is injected explicitly so the registry stays
-     * compatible with installs that don't have Nextcloud DI tag
-     * support. New categories MUST be appended to both the parameter
-     * list and the keyed-by-name map.
-     *
-     * @param ExpiredLocksCategory             $expiredLocks       Tier-A.
-     * @param OrphanedSharesCategory           $orphanedShares     Tier-A.
-     * @param OrphanedWidgetPlacementsCategory $orphanedPlacements Tier-B.
-     * @param OrphanedConditionalRulesCategory $orphanedRules      Tier-B.
-     */
-    public function __construct(
-        ExpiredLocksCategory $expiredLocks,
-        OrphanedSharesCategory $orphanedShares,
-        OrphanedWidgetPlacementsCategory $orphanedPlacements,
-        OrphanedConditionalRulesCategory $orphanedRules,
-    ) {
-        // Order is significant: it determines the row order of the
-        // CLI scan table and the JSON object key order in API
-        // responses. Group Tier-A first so the most common entries
-        // appear at the top of admin previews.
-        $this->categories = [
-            $expiredLocks->getName()       => $expiredLocks,
-            $orphanedShares->getName()     => $orphanedShares,
-            $orphanedPlacements->getName() => $orphanedPlacements,
-            $orphanedRules->getName()      => $orphanedRules,
-        ];
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * Each category is injected explicitly so the registry stays
+	 * compatible with installs that don't have Nextcloud DI tag
+	 * support. New categories MUST be appended to both the parameter
+	 * list and the keyed-by-name map.
+	 *
+	 * @param ExpiredLocksCategory $expiredLocks Tier-A.
+	 * @param OrphanedSharesCategory $orphanedShares Tier-A.
+	 * @param OrphanedWidgetPlacementsCategory $orphanedPlacements Tier-B.
+	 * @param OrphanedConditionalRulesCategory $orphanedRules Tier-B.
+	 */
+	public function __construct(
+		ExpiredLocksCategory $expiredLocks,
+		OrphanedSharesCategory $orphanedShares,
+		OrphanedWidgetPlacementsCategory $orphanedPlacements,
+		OrphanedConditionalRulesCategory $orphanedRules,
+	) {
+		// Order is significant: it determines the row order of the
+		// CLI scan table and the JSON object key order in API
+		// responses. Group Tier-A first so the most common entries
+		// appear at the top of admin previews.
+		$this->categories = [
+			$expiredLocks->getName() => $expiredLocks,
+			$orphanedShares->getName() => $orphanedShares,
+			$orphanedPlacements->getName() => $orphanedPlacements,
+			$orphanedRules->getName() => $orphanedRules,
+		];
+	}//end __construct()
 
-    /**
-     * All registered categories, keyed by their stable name.
-     *
-     * @return array<string, CleanupCategoryInterface> The categories.
-     */
-    public function getCategories(): array
-    {
-        return $this->categories;
-    }//end getCategories()
+	/**
+	 * All registered categories, keyed by their stable name.
+	 *
+	 * @return array<string, CleanupCategoryInterface> The categories.
+	 */
+	public function getCategories(): array {
+		return $this->categories;
+	}//end getCategories()
 
-    /**
-     * The names of all registered categories, in registration order.
-     *
-     * @return array<int, string> The names.
-     */
-    public function getCategoryNames(): array
-    {
-        return array_keys(array: $this->categories);
-    }//end getCategoryNames()
+	/**
+	 * The names of all registered categories, in registration order.
+	 *
+	 * @return array<int, string> The names.
+	 */
+	public function getCategoryNames(): array {
+		return array_keys(array: $this->categories);
+	}//end getCategoryNames()
 
-    /**
-     * Look up a category by its stable name.
-     *
-     * Returns `null` when the name is unknown so callers (CLI,
-     * controller) can surface a deterministic 400 / "Unknown
-     * category" message.
-     *
-     * @param string $name The category name.
-     *
-     * @return CleanupCategoryInterface|null The category or null.
-     */
-    public function getCategoryByName(string $name): ?CleanupCategoryInterface
-    {
-        return ($this->categories[$name] ?? null);
-    }//end getCategoryByName()
+	/**
+	 * Look up a category by its stable name.
+	 *
+	 * Returns `null` when the name is unknown so callers (CLI,
+	 * controller) can surface a deterministic 400 / "Unknown
+	 * category" message.
+	 *
+	 * @param string $name The category name.
+	 *
+	 * @return CleanupCategoryInterface|null The category or null.
+	 */
+	public function getCategoryByName(string $name): ?CleanupCategoryInterface {
+		return ($this->categories[$name] ?? null);
+	}//end getCategoryByName()
 
-    /**
-     * The names of every category whose
-     * `getSafeToPurgeAutomatically()` returns `true` (REQ-CLN-008).
-     *
-     * Used as the factory default for the daily background job's
-     * auto-purge config and as the "checked by default" set in the
-     * admin UI.
-     *
-     * @return array<int, string> The Tier-A category names.
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    public function getAutoSafeCategoryNames(): array
-    {
-        $names = [];
-        foreach ($this->categories as $name => $category) {
-            if ($category->getSafeToPurgeAutomatically() === true) {
-                $names[] = $name;
-            }
-        }
+	/**
+	 * The names of every category whose
+	 * `getSafeToPurgeAutomatically()` returns `true` (REQ-CLN-008).
+	 *
+	 * Used as the factory default for the daily background job's
+	 * auto-purge config and as the "checked by default" set in the
+	 * admin UI.
+	 *
+	 * @return array<int, string> The Tier-A category names.
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	public function getAutoSafeCategoryNames(): array {
+		$names = [];
+		foreach ($this->categories as $name => $category) {
+			if ($category->getSafeToPurgeAutomatically() === true) {
+				$names[] = $name;
+			}
+		}
 
-        return $names;
-    }//end getAutoSafeCategoryNames()
+		return $names;
+	}//end getAutoSafeCategoryNames()
 }//end class

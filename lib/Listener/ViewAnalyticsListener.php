@@ -37,61 +37,59 @@ use Throwable;
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
-class ViewAnalyticsListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param DashboardViewMapper $viewMapper View row mapper.
-     * @param LoggerInterface     $logger     PSR-3 logger for
-     *                                        log-and-continue failure
-     *                                        handling per REQ-CSC-006.
-     */
-    public function __construct(
-        private readonly DashboardViewMapper $viewMapper,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class ViewAnalyticsListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param DashboardViewMapper $viewMapper View row mapper.
+	 * @param LoggerInterface $logger PSR-3 logger for
+	 *                                log-and-continue failure
+	 *                                handling per REQ-CSC-006.
+	 */
+	public function __construct(
+		private readonly DashboardViewMapper $viewMapper,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid = $event->getDashboardUuid();
+		$uuid = $event->getDashboardUuid();
 
-        try {
-            $deleted = $this->viewMapper->deleteByDashboard(
-                dashboardUuid: $uuid
-            );
+		try {
+			$deleted = $this->viewMapper->deleteByDashboard(
+				dashboardUuid: $uuid
+			);
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad ViewAnalyticsListener: deleted %d view rows for dashboard %s',
-                    $deleted,
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad ViewAnalyticsListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad ViewAnalyticsListener: deleted %d view rows for dashboard %s',
+					$deleted,
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad ViewAnalyticsListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

@@ -31,37 +31,35 @@ use Exception;
  * Cascade-delete guard tripped — the dashboard has children
  * (REQ-DASH-030).
  */
-class DashboardHasChildrenException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'dashboard_has_children';
+class DashboardHasChildrenException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'dashboard_has_children';
 
-    /**
-     * Constructor.
-     *
-     * @param int $childCount The number of direct children blocking the
-     *                        delete. Surfaced in the HTTP 409 response
-     *                        body so the UI can display the count.
-     */
-    public function __construct(
-        private readonly int $childCount
-    ) {
-        parent::__construct(
-            message: 'Dashboard has '.$childCount.' children. Use ?cascade=true to delete the subtree.'
-        );
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param int $childCount The number of direct children blocking the
+	 *                        delete. Surfaced in the HTTP 409 response
+	 *                        body so the UI can display the count.
+	 */
+	public function __construct(
+		private readonly int $childCount,
+	) {
+		parent::__construct(
+			message: 'Dashboard has ' . $childCount . ' children. Use ?cascade=true to delete the subtree.'
+		);
+	}//end __construct()
 
-    /**
-     * Returns the number of direct children blocking the delete.
-     *
-     * @return int The child count.
-     */
-    public function getChildCount(): int
-    {
-        return $this->childCount;
-    }//end getChildCount()
+	/**
+	 * Returns the number of direct children blocking the delete.
+	 *
+	 * @return int The child count.
+	 */
+	public function getChildCount(): int {
+		return $this->childCount;
+	}//end getChildCount()
 }//end class

@@ -77,11 +77,13 @@ jobs:
       # their single server, so with the inherited default those three jobs ran
       # entirely on the version openregister cannot load.
       #
-      # launchpad's own appinfo/info.xml floor stays at 29: src/manifest.json
-      # declares no required app dependency, and launchpad's OpenRegister use is
-      # via AppHost, probed at runtime. The NC32 constraint here is a property of
-      # the CI fixture, not of launchpad's code.
-      nextcloud-test-refs: '["stable34"]'
+      # THE LIST IS THE WHOLE DECLARED RANGE. This comment previously said
+      # "launchpad's own appinfo/info.xml floor stays at 29 … the NC32 constraint
+      # here is a property of the CI fixture, not of launchpad's code" — that is
+      # no longer true of the file it describes. info.xml on this branch declares
+      # <nextcloud min-version="32" max-version="34"/>, so 32 is the app's own
+      # floor, not a fixture artefact, and 32, 33 and 34 each get a leg.
+      nextcloud-test-refs: '["stable34", "stable32", "stable33"]'
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true

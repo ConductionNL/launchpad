@@ -283,12 +283,18 @@ XML;
     }//end testRefreshFeed200ParsesAndPersists()
 
     /**
-     * `refreshFeed` on HTTP 500: records `"500 ..."` failure reason,
+     * `refreshFeed` on HTTP 503: records `"503 ..."` failure reason,
      * leaves prior `itemsJson` untouched (REQ-FRJ-006).
+     *
+     * The stub answers 503 and the assertion pins `"503 ..."`; the name and
+     * this docblock both used to say 500, which named a status the body never
+     * exercises. REQ-FRJ-006 is written about failure tolerance generally and
+     * does not single out a status, so 503 is a faithful representative — the
+     * only thing wrong here was the label.
      *
      * @return void
      */
-    public function testRefreshFeed500RecordsFailurePreservesItems(): void
+    public function testRefreshFeed503RecordsFailurePreservesItems(): void
     {
         $existing = new FeedCache();
         $existing->setFeedUrl('https://gone.example.com/rss');
@@ -322,7 +328,7 @@ XML;
         $this->assertNotNull(actual: $captured);
         $this->assertStringStartsWith(prefix: '503', string: (string) $captured->getLastFailureReason());
         $this->assertCount(expectedCount: 1, haystack: $captured->decodeItems());
-    }//end testRefreshFeed500RecordsFailurePreservesItems()
+    }//end testRefreshFeed503RecordsFailurePreservesItems()
 
     /**
      * `refreshFeed` on transport exception (e.g. timeout): records

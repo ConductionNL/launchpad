@@ -45,25 +45,25 @@ final class HealthPingInMemoryFakeCache implements ICache {
 	/** @var array<string,mixed> */
 	private array $store = [];
 
-	public function get(string $key): mixed {
+	public function get($key): mixed {
 		return $this->store[$key] ?? null;
 	}
 
-	public function set(string $key, $value, int $ttl = 0): bool {
+	public function set($key, $value, $ttl = 0): bool {
 		$this->store[$key] = $value;
 		return true;
 	}
 
-	public function hasKey(string $key): bool {
+	public function hasKey($key): bool {
 		return array_key_exists($key, $this->store);
 	}
 
-	public function remove(string $key): bool {
+	public function remove($key): bool {
 		unset($this->store[$key]);
 		return true;
 	}
 
-	public function clear(string $prefix = ''): bool {
+	public function clear($prefix = ''): bool {
 		$this->store = [];
 		return true;
 	}

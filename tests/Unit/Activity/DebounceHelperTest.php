@@ -52,7 +52,7 @@ final class FakeDebounceCache implements ICache {
 	 *
 	 * @return mixed
 	 */
-	public function get(string $key) {
+	public function get($key) {
 		return ($this->store[$key] ?? null);
 	}//end get()
 
@@ -65,7 +65,7 @@ final class FakeDebounceCache implements ICache {
 	 *
 	 * @return bool
 	 */
-	public function set(string $key, $value, int $ttl = 0): bool {
+	public function set($key, $value, $ttl = 0): bool {
 		$this->store[$key] = $value;
 		return true;
 	}//end set()
@@ -77,7 +77,7 @@ final class FakeDebounceCache implements ICache {
 	 *
 	 * @return bool
 	 */
-	public function hasKey(string $key): bool {
+	public function hasKey($key): bool {
 		return array_key_exists($key, $this->store);
 	}//end hasKey()
 
@@ -88,7 +88,7 @@ final class FakeDebounceCache implements ICache {
 	 *
 	 * @return bool
 	 */
-	public function remove(string $key): bool {
+	public function remove($key): bool {
 		unset($this->store[$key]);
 		return true;
 	}//end remove()
@@ -100,7 +100,7 @@ final class FakeDebounceCache implements ICache {
 	 *
 	 * @return bool
 	 */
-	public function clear(string $prefix = ''): bool {
+	public function clear($prefix = ''): bool {
 		$this->store = [];
 		return true;
 	}//end clear()

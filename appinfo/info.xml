@@ -83,10 +83,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<nextcloud min-version="32" max-version="34"/>
 	</dependencies>
 
-	<!-- Surface dashboards, widget content, and metadata in NC unified search. REQ-SRCH-001. -->
-	<types>
-		<search/>
-	</types>
+	<!-- Surface dashboards, widget content, and metadata in NC unified search
+	     (REQ-SRCH-001). Registered in PHP via
+	     IRegistrationContext::registerSearchProvider(LaunchPadSearchProvider) in
+	     lib/AppInfo/Application.php — there is no `search` app type: the App
+	     Store schema allows only prelogin, filesystem, authentication,
+	     extended_authentication, logging, dav, prevent_group_restriction and
+	     session under <types>, and Nextcloud does nothing with an unknown one. -->
 
 	<background-jobs>
 		<job>OCA\LaunchPad\BackgroundJob\OrphanedDataCleanupJob</job>
@@ -96,22 +99,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 	<repair-steps>
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
-		<install>
-			<step>OCA\LaunchPad\Repair\InitializeActions</step>
-			<!-- ADR-023: broaden pristine admin-only entries to the shipped
-			     non-admin baseline so a fresh install is usable by ordinary
-			     users. Must run AFTER InitializeActions. -->
-			<step>OCA\LaunchPad\Repair\ApplyActionBaseline</step>
-			<!-- role-based-content task-2: seed default role-feature permissions. -->
-			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
-			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
-			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
-			<!-- Provision the `launchpad` register + `dashboard` schema in
-			     OpenRegister. Nothing imported the descriptor before this, so a
-			     fresh install had no register and every OR-backed feature — the
-			     v2 manifest above all — failed with "Register not found". -->
-			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
-		</install>
 		<post-migration>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
 			<!-- ADR-023: instances installed before the baseline shipped are
@@ -128,12 +115,23 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     content-gated. -->
 			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
 		</post-migration>
+		<install>
+			<step>OCA\LaunchPad\Repair\InitializeActions</step>
+			<!-- ADR-023: broaden pristine admin-only entries to the shipped
+			     non-admin baseline so a fresh install is usable by ordinary
+			     users. Must run AFTER InitializeActions. -->
+			<step>OCA\LaunchPad\Repair\ApplyActionBaseline</step>
+			<!-- role-based-content task-2: seed default role-feature permissions. -->
+			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
+			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
+			<!-- Provision the `launchpad` register + `dashboard` schema in
+			     OpenRegister. Nothing imported the descriptor before this, so a
+			     fresh install had no register and every OR-backed feature — the
+			     v2 manifest above all — failed with "Register not found". -->
+			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
+		</install>
 	</repair-steps>
-
-	<settings>
-		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
-		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
-	</settings>
 
 	<commands>
 		<!-- REQ-EXIM-010: dashboard export / import via `php occ`. -->
@@ -159,6 +157,23 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\LaunchPad\Command\SetupCommand</command>
 	</commands>
 
+	<settings>
+		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
+	</settings>
+
+	<activity>
+		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
+		     surfaces the 13-event catalogue defined in
+		     OCA\LaunchPad\Activity\Extension. The <provider> entry must be
+		     wrapped in <providers>: that is what the App Store schema declares
+		     and what Nextcloud's InfoParser reads
+		     ($info['activity']['providers']['provider']). -->
+		<providers>
+			<provider>OCA\LaunchPad\Activity\Extension</provider>
+		</providers>
+	</activity>
+
 	<navigations>
 		<navigation>
 			<name>LaunchPad</name>
@@ -167,11 +182,4 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<order>-5</order>
 		</navigation>
 	</navigations>
-
-	<activity>
-		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
-		     surfaces the 13-event catalogue defined in
-		     OCA\LaunchPad\Activity\Extension. -->
-		<provider>OCA\LaunchPad\Activity\Extension</provider>
-	</activity>
 </info>

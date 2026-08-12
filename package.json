@@ -18,7 +18,7 @@
 		"lint:initial-state": "node ./scripts/lint-initial-state.js",
 		"lint:translation-domain": "node ./scripts/lint-translation-domain.js",
 		"stylelint": "stylelint \"src/**/*.{vue,scss,css}\"",
-		"stylelint:fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix",
+		"stylelint:fix": "stylelint \"src/**/*.{vue,scss,css}\" --fix",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:ui": "vitest --ui",

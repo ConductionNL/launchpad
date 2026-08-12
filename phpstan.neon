@@ -1,68 +1,35 @@
+# Launchpad — Conduction PHPStan config.
+#
+# The shared base is the single source of truth. Everything here is either the
+# app's own tracked debt or an ignore naming a symbol that exists in no other
+# fleet app. Anything you are tempted to add that another app would also need
+# belongs in the base, not here.
+#
+# No baseline: this app ships no `phpstan-baseline.neon`.
+includes:
+    - vendor/conduction/hydra-gates/quality-config/phpstan-base.neon
+
 parameters:
-    level: 5
-    paths:
-        - lib
-    bootstrapFiles:
-        - phpstan-bootstrap.php
+    # App-specific only. The base already sets level, paths, bootstrapFiles,
+    # excludePaths, scanDirectories and every fleet-wide ignore.
     scanFiles:
         # AppHost engine base classes live in the sibling openregister app and are
         # not in vendor/ here. scanFiles (not stubFiles) registers these symbols so
         # the leaf Health/Metrics controllers' "extends unknown class" resolves,
         # WITHOUT phpstan analysing/reporting the skeleton file itself (ADR-040).
         - tests/phpstan/apphost-symbols.php
-    excludePaths:
-        - vendor
-        - vendor-bin
-        # Apps that ship a verbatim template snapshot under lib/Resources/template/ (e.g. openbuild).
-        - lib/Resources/template
-    scanDirectories:
-        - vendor/nextcloud/ocp
-    reportUnmatchedIgnoredErrors: false
+
     # Prevents false-positive "always true/false" errors caused by defensive runtime
     # checks on values whose PHPDoc type is narrower than what callers may pass.
     treatPhpDocTypesAsCertain: false
+
     ignoreErrors:
-        # Nextcloud server internals (\OC, OC_App, OC\) not stubbed in nextcloud/ocp
-        - '#Call to an undefined method OC::#'
-        - '#Class OC not found#'
-        - '#Access to static property \$server on an unknown class OC#'
-        - '#unknown class OC\\#'
-        - '#Caught class OC\\#'
-        - '#unknown class OC_App#'
-        - '#Class OC_App not found#'
-        # OCA\DAV is server-internal and not in nextcloud/ocp stubs
-        - '#unknown class OCA\\DAV\\#'
-        - '#Class OCA\\DAV\\#'
-        # OCA classes from other apps (OpenRegister) not available during static analysis
-        - '#unknown class OCA\\OpenRegister\\#'
-        - '#OCA\\OpenRegister\\[a-zA-Z\\]+.*not found#'
-        - '#on an unknown class OCA\\OpenRegister\\#'
-        - '#has invalid return type OCA\\OpenRegister\\#'
-        - '#has invalid type OCA\\OpenRegister\\#'
-        - '#implements unknown interface OCA\\OpenRegister\\#'
-        # GuzzleHttp is available at runtime via Nextcloud but not in composer require
-        - '#unknown class GuzzleHttp\\#'
-        - '#GuzzleHttp\\[a-zA-Z\\]+.*not found#'
-        - '#on an unknown class GuzzleHttp\\#'
-        - '#invalid type GuzzleHttp\\#'
-        - '#Caught class GuzzleHttp\\#'
-        # Doctrine\DBAL is shipped by Nextcloud server but not stubbed in nextcloud/ocp
-        - '#unknown class Doctrine\\DBAL\\#'
-        - '#Doctrine\\DBAL\\[a-zA-Z\\]+.*not found#'
-        - '#on an unknown class Doctrine\\DBAL\\#'
         # Doctrine\DBAL types used in migration table-builder helpers are valid at runtime
         # but PHPStan cannot verify them without the Doctrine stubs available here.
         - '#has invalid type Doctrine\\DBAL\\#'
         # DataResponse constructor accepts plain array at runtime; OCP stub types
         # it with a generic bound that PHPStan cannot satisfy when passing array directly.
         - '#Parameter \$data of class OCP\\AppFramework\\Http\\DataResponse constructor expects#'
-        # Dynamic HTTP status codes from business rule validation results
-        # (matches both JSONResponse and DataResponse, and both Parameter $statusCode and Parameter #N $statusCode forms)
+        # Dynamic HTTP status codes from business rule validation results. The base covers
+        # the JSONResponse half; this app also passes them to DataResponse.
         - '#Parameter (\#\d+ )?\$statusCode of class OCP\\AppFramework\\Http\\(JSON|Data)Response constructor expects#'
-        # registerRepairStep exists on server; not yet in nextcloud/ocp stub used for analysis
-        - '#Call to an undefined method OCP\\AppFramework\\Bootstrap\\IRegistrationContext::registerRepairStep#'
-        # OCP stub gaps for methods that exist at runtime
-        - '#Call to an undefined method OCP\\IRequest::getContent\(\)#'
-        - '#Call to an undefined method OCP\\IRequest::setParameter\(\)#'
-        - '#Call to an undefined method OCP\\Mail\\IMessage::attachFile\(\)#'
-        - '#Call to an undefined method OCP\\AppFramework\\Db\\Entity::jsonSerialize#'

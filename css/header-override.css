@@ -19,8 +19,6 @@ html body #header,
 body #header,
 #body-user #header,
 #header {
-	background-color: #ffffff !important;
-	background-image: none !important;
 	background: #ffffff !important;
 	border-bottom: 1px solid #e0e0e0 !important;
 }

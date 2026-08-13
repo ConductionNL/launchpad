@@ -26,7 +26,8 @@ const stubs = {
 	NcModal: { template: '<div class="nc-modal"><slot /></div>' },
 	NcButton: {
 		emits: ['click'],
-		template: '<button class="nc-button" :data-testid="$attrs[\'data-testid\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
+		template:
+			'<button class="nc-button" :data-testid="$attrs[\'data-testid\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
 	},
 	// Vue 3 renamed the `v-model` contract: the prop is `modelValue`
 	// (was `value`) and the event is `update:modelValue` (was `input`).
@@ -36,7 +37,8 @@ const stubs = {
 	NcSelect: {
 		props: ['modelValue', 'options'],
 		emits: ['update:modelValue'],
-		template: '<select class="nc-select" :data-testid="$attrs[\'data-testid\']" @change="onChange"><option v-for="o in options" :key="o.id" :value="o.id">{{ o.label }}</option></select>',
+		template:
+			'<select class="nc-select" :data-testid="$attrs[\'data-testid\']" @change="onChange"><option v-for="o in options" :key="o.id" :value="o.id">{{ o.label }}</option></select>',
 		methods: {
 			onChange(event) {
 				const opt = this.options.find((o) => o.id === event.target.value)
@@ -105,19 +107,33 @@ describe('TemplateResyncModal', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
-		expect(wrapper.find('[data-testid="template-resync-apply"]').attributes('disabled')).toBeUndefined()
+		expect(
+			wrapper
+				.find('[data-testid="template-resync-apply"]')
+				.attributes('disabled'),
+		).toBeUndefined()
 
 		// Switch strategy — the previous plan no longer applies.
-		await wrapper.find('[data-testid="template-resync-strategy"]').setValue('merge')
+		await wrapper
+			.find('[data-testid="template-resync-strategy"]')
+			.setValue('merge')
 
 		expect(wrapper.vm.strategy.id).toBe('merge')
-		expect(wrapper.find('[data-testid="template-resync-apply"]').attributes('disabled')).toBeDefined()
+		expect(
+			wrapper
+				.find('[data-testid="template-resync-apply"]')
+				.attributes('disabled'),
+		).toBeDefined()
 	})
 
 	it('applies with dryRun:false using the selected strategy and emits "resynced"', async () => {
 		resyncAdminTemplateMock
-			.mockResolvedValueOnce({ data: { totalCopies: 8, affectedCount: 3, copies: [] } })
-			.mockResolvedValueOnce({ data: { async: false, affectedCount: 3, totalCopies: 8 } })
+			.mockResolvedValueOnce({
+				data: { totalCopies: 8, affectedCount: 3, copies: [] },
+			})
+			.mockResolvedValueOnce({
+				data: { async: false, affectedCount: 3, totalCopies: 8 },
+			})
 
 		const wrapper = mountModal()
 		await wrapper.find('[data-testid="template-resync-dryrun"]').trigger('click')

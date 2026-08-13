@@ -37,7 +37,15 @@ import { test, expect, type Page } from '@playwright/test'
 import * as path from 'path'
 import * as fs from 'fs'
 
-const SHOT_ROOT = path.resolve(__dirname, '..', '..', 'docs', 'static', 'screenshots', 'tutorials')
+const SHOT_ROOT = path.resolve(
+	__dirname,
+	'..',
+	'..',
+	'docs',
+	'static',
+	'screenshots',
+	'tutorials',
+)
 
 /**
  * Save a screenshot under `docs/static/screenshots/tutorials/<track>/<file>`.
@@ -45,7 +53,11 @@ const SHOT_ROOT = path.resolve(__dirname, '..', '..', 'docs', 'static', 'screens
  * markdown image refs use the absolute `/screenshots/...` path the static
  * dir resolves to. Ensures the destination directory exists.
  */
-async function shoot(page: Page, track: 'user' | 'admin', file: string): Promise<void> {
+async function shoot(
+	page: Page,
+	track: 'user' | 'admin',
+	file: string,
+): Promise<void> {
 	const dir = path.join(SHOT_ROOT, track)
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true })
@@ -80,7 +92,9 @@ async function closeSidebar(page: Page): Promise<void> {
  */
 async function openCogFor(page: Page, name: string): Promise<void> {
 	const row = page.locator('.dashboard-switcher-sidebar__item', { hasText: name })
-	await row.locator('.dashboard-switcher-sidebar__cog, [aria-label="Dashboard menu"]').click()
+	await row
+		.locator('.dashboard-switcher-sidebar__cog, [aria-label="Dashboard menu"]')
+		.click()
 	await expect(page.getByRole('menuitem').first()).toBeVisible()
 }
 
@@ -111,7 +125,12 @@ test.describe('docs: user track', () => {
 		await shoot(page, 'user', '02-sidebar-open.png')
 
 		// 03-cog-menu: per-row cog popover for the active dashboard
-		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		const activeName = await page
+			.locator(
+				'.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label',
+			)
+			.first()
+			.innerText()
 		await openCogFor(page, activeName.trim())
 		await shoot(page, 'user', '03-cog-menu.png')
 	})
@@ -124,9 +143,15 @@ test.describe('docs: user track', () => {
 		// 02-create-modal: the configuration modal mid-form. Hooked on
 		// `data-testid` attributes baked into DashboardConfigModal.vue.
 		await page.locator('[data-action="create"]').click()
-		await page.locator('input[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 5000 })
-		await page.locator('input[data-testid="dashboard-name-input"]').fill(`Docs example ${Date.now()}`)
-		await page.locator('[data-testid="dashboard-description-input"]').fill('Created by docs-screenshots.spec.ts')
+		await page
+			.locator('input[data-testid="dashboard-name-input"]')
+			.waitFor({ state: 'visible', timeout: 5000 })
+		await page
+			.locator('input[data-testid="dashboard-name-input"]')
+			.fill(`Docs example ${Date.now()}`)
+		await page
+			.locator('[data-testid="dashboard-description-input"]')
+			.fill('Created by docs-screenshots.spec.ts')
 		await shoot(page, 'user', '02-create-modal.png')
 
 		// Save & screenshot the resulting dashboard with the default bundle
@@ -136,14 +161,20 @@ test.describe('docs: user track', () => {
 		// notification poll keeps a request in flight for the life of the
 		// page — so this either burned the full timeout or screenshotted an
 		// arbitrary moment. The modal closing is the actual completion signal.
-		await page.locator('input[data-testid="dashboard-name-input"]')
+		await page
+			.locator('input[data-testid="dashboard-name-input"]')
 			.waitFor({ state: 'hidden', timeout: 10000 })
 		await shoot(page, 'user', '02-create-success.png')
 	})
 
 	test('U3 add a widget — edit-mode → picker → form → added', async ({ page }) => {
 		await openSidebar(page)
-		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		const activeName = await page
+			.locator(
+				'.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label',
+			)
+			.first()
+			.innerText()
 		await openCogFor(page, activeName.trim())
 		// 03-edit-mode-enter: cog menu with Edit dashboard highlighted
 		await shoot(page, 'user', '03-edit-mode-enter.png')
@@ -154,7 +185,9 @@ test.describe('docs: user track', () => {
 		// Open the AddWidgetModal via the cog → Add custom widget…
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-add-widget"]').click()
-		await page.locator('[data-testid="widget-type-select"]').waitFor({ state: 'visible', timeout: 5000 })
+		await page
+			.locator('[data-testid="widget-type-select"]')
+			.waitFor({ state: 'visible', timeout: 5000 })
 		// 03-widget-picker: the type picker (default = label widget)
 		await shoot(page, 'user', '03-widget-picker.png')
 
@@ -163,24 +196,38 @@ test.describe('docs: user track', () => {
 		// swap via the registry (REQ-WDG-014).
 		await page.locator('[data-testid="widget-type-select"]').selectOption('text')
 		await page.waitForTimeout(300)
-		const body = page.locator('textarea[placeholder*="markdown" i], textarea[placeholder*="text" i]').first()
-		if (await body.count() > 0) {
-			await body.fill('# Hello docs\n\nThis was added by `docs-screenshots.spec.ts`.')
+		const body = page
+			.locator(
+				'textarea[placeholder*="markdown" i], textarea[placeholder*="text" i]',
+			)
+			.first()
+		if ((await body.count()) > 0) {
+			await body.fill(
+				'# Hello docs\n\nThis was added by `docs-screenshots.spec.ts`.',
+			)
 		}
 		await shoot(page, 'user', '03-widget-form.png')
 
 		await page.locator('[data-testid="add-widget-save"]').click()
 		// The add-widget modal closing is the completion signal; `networkidle`
 		// never settles on Nextcloud (ADR-074 rule 4).
-		await page.locator('[data-testid="add-widget-save"]')
+		await page
+			.locator('[data-testid="add-widget-save"]')
 			.waitFor({ state: 'hidden', timeout: 10000 })
 		await shoot(page, 'user', '03-widget-added.png')
 	})
 
-	test('U4 reposition & resize — edit mode + drag + drop + resize + save', async ({ page }) => {
+	test('U4 reposition & resize — edit mode + drag + drop + resize + save', async ({
+		page,
+	}) => {
 		// 04-edit-mode: post-edit-mode-toggle grid
 		await openSidebar(page)
-		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		const activeName = await page
+			.locator(
+				'.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label',
+			)
+			.first()
+			.innerText()
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-edit-dashboard"]').click()
 		await page.waitForTimeout(500)
@@ -189,7 +236,9 @@ test.describe('docs: user track', () => {
 		// 04-dragging: mid-drag — start a drag, screenshot before drop.
 		// `[data-testid^="widget-placement-"]` matches the WidgetWrapper
 		// root for any placement (id is appended for uniqueness).
-		const firstWidget = page.locator('[data-testid^="widget-placement-"]').first()
+		const firstWidget = page
+			.locator('[data-testid^="widget-placement-"]')
+			.first()
 		const box = await firstWidget.boundingBox()
 		if (box) {
 			await page.mouse.move(box.x + box.width / 2, box.y + 30)
@@ -207,8 +256,10 @@ test.describe('docs: user track', () => {
 		// in edit mode — that's a third-party class we can't control,
 		// but the stable testid on the placement scopes the lookup.
 		const resizable = page.locator('[data-testid^="widget-placement-"]').first()
-		const corner = resizable.locator('.ui-resizable-handle.ui-resizable-se, .gs-resize-handle').first()
-		if (await corner.count() > 0) {
+		const corner = resizable
+			.locator('.ui-resizable-handle.ui-resizable-se, .gs-resize-handle')
+			.first()
+		if ((await corner.count()) > 0) {
 			const cbox = await corner.boundingBox()
 			if (cbox) {
 				await page.mouse.move(cbox.x + 4, cbox.y + 4)
@@ -226,12 +277,16 @@ test.describe('docs: user track', () => {
 		await shoot(page, 'user', '04-save-layout.png')
 	})
 
-	test('U5 edit content & style — context menu, edit modal, style modal', async ({ page }) => {
+	test('U5 edit content & style — context menu, edit modal, style modal', async ({
+		page,
+	}) => {
 		const widget = page.locator('[data-testid^="widget-placement-"]').first()
 
 		// 05-context-menu: right-click anchored popover
 		await widget.click({ button: 'right' })
-		await page.locator('[data-testid="widget-context-menu"]').waitFor({ state: 'visible', timeout: 5000 })
+		await page
+			.locator('[data-testid="widget-context-menu"]')
+			.waitFor({ state: 'visible', timeout: 5000 })
 		await shoot(page, 'user', '05-context-menu.png')
 
 		// 05-edit-content: Edit → AddWidgetModal pre-filled
@@ -244,10 +299,15 @@ test.describe('docs: user track', () => {
 		// 05-style-editor: opens via the per-widget cog button (visible
 		// only in edit mode). Enter edit mode first if not already.
 		await openSidebar(page)
-		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		const activeName = await page
+			.locator(
+				'.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label',
+			)
+			.first()
+			.innerText()
 		await openCogFor(page, activeName.trim())
 		const editEntry = page.locator('[data-testid="cog-edit-dashboard"]')
-		if (await editEntry.count() > 0) {
+		if ((await editEntry.count()) > 0) {
 			await editEntry.click()
 			await page.waitForTimeout(500)
 		} else {
@@ -255,9 +315,11 @@ test.describe('docs: user track', () => {
 		}
 
 		const cog = widget.locator('[data-testid="widget-edit-cog"]').first()
-		if (await cog.count() > 0) {
+		if ((await cog.count()) > 0) {
 			await cog.click()
-			await page.locator('[data-testid="widget-style-editor"]').waitFor({ state: 'visible', timeout: 5000 })
+			await page
+				.locator('[data-testid="widget-style-editor"]')
+				.waitFor({ state: 'visible', timeout: 5000 })
 			await shoot(page, 'user', '05-style-editor.png')
 			await page.keyboard.press('Escape')
 		}
@@ -266,7 +328,9 @@ test.describe('docs: user track', () => {
 	test('U6 remove widget — context menu + after', async ({ page }) => {
 		const widget = page.locator('[data-testid^="widget-placement-"]').last()
 		await widget.click({ button: 'right' })
-		await page.locator('[data-testid="widget-context-menu"]').waitFor({ state: 'visible', timeout: 5000 })
+		await page
+			.locator('[data-testid="widget-context-menu"]')
+			.waitFor({ state: 'visible', timeout: 5000 })
 		// reuse 05-context-menu.png; capture only the after state
 		await page.locator('[data-testid="ctx-remove"]').click()
 		await page.waitForTimeout(500)
@@ -275,7 +339,12 @@ test.describe('docs: user track', () => {
 
 	test('U7 set as default — sidebar with star marker', async ({ page }) => {
 		await openSidebar(page)
-		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		const activeName = await page
+			.locator(
+				'.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label',
+			)
+			.first()
+			.innerText()
 		await openCogFor(page, activeName.trim())
 		// Whether the row is currently pinned or not, the same testid hits.
 		await page.locator('[data-testid="cog-set-default"]').click()
@@ -306,7 +375,9 @@ test.describe('docs: user track', () => {
 
 		// 08-url-after-switch: switch to a different dashboard via the sidebar
 		await openSidebar(page)
-		const otherRow = page.locator('.dashboard-switcher-sidebar__item:not(.active)').first()
+		const otherRow = page
+			.locator('.dashboard-switcher-sidebar__item:not(.active)')
+			.first()
 		await otherRow.click()
 		await page.waitForTimeout(500)
 		await shoot(page, 'user', '08-url-after-switch.png')
@@ -314,18 +385,29 @@ test.describe('docs: user track', () => {
 
 	test('U9 switch dashboards — after-switch grid', async ({ page }) => {
 		await openSidebar(page)
-		const otherRow = page.locator('.dashboard-switcher-sidebar__item:not(.active)').first()
+		const otherRow = page
+			.locator('.dashboard-switcher-sidebar__item:not(.active)')
+			.first()
 		await otherRow.click()
 		await page.waitForTimeout(500)
 		await shoot(page, 'user', '09-after-switch.png')
 	})
 
-	test('U10 rename or delete — config modal + delete confirm', async ({ page }) => {
+	test('U10 rename or delete — config modal + delete confirm', async ({
+		page,
+	}) => {
 		await openSidebar(page)
-		const activeName = await page.locator('.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label').first().innerText()
+		const activeName = await page
+			.locator(
+				'.dashboard-switcher-sidebar__item.active .dashboard-switcher-sidebar__label',
+			)
+			.first()
+			.innerText()
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-dashboard-config"]').click()
-		await page.locator('[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 5000 })
+		await page
+			.locator('[data-testid="dashboard-name-input"]')
+			.waitFor({ state: 'visible', timeout: 5000 })
 		await shoot(page, 'user', '10-config-modal.png')
 
 		// 10-delete-confirm: open delete prompt without confirming. The
@@ -333,9 +415,9 @@ test.describe('docs: user track', () => {
 		// screenshot to capture, so we just shoot the modal-with-delete-
 		// button-highlighted state.
 		const deleteBtn = page.locator('[data-testid="dashboard-delete-button"]')
-		if (await deleteBtn.count() > 0) {
+		if ((await deleteBtn.count()) > 0) {
 			// Set up a handler to dismiss the confirm dialog automatically
-			page.once('dialog', d => d.dismiss())
+			page.once('dialog', (d) => d.dismiss())
 			await deleteBtn.scrollIntoViewIfNeeded()
 			await shoot(page, 'user', '10-delete-confirm.png')
 		}
@@ -355,19 +437,24 @@ test.describe('docs: admin track', () => {
 		// rule 4), and every test in this block goes straight on to address
 		// this section — so waiting for it is both the correct signal and the
 		// precondition those tests actually need.
-		await page.locator('[data-testid="admin-default-settings"]')
+		await page
+			.locator('[data-testid="admin-default-settings"]')
 			.waitFor({ state: 'visible', timeout: 15000 })
 	})
 
 	test('A1 toggle personal dashboards', async ({ page }) => {
 		// 01-admin-settings: the full admin page above-the-fold
-		await page.locator('[data-testid="admin-default-settings"]').scrollIntoViewIfNeeded()
+		await page
+			.locator('[data-testid="admin-default-settings"]')
+			.scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '01-admin-settings.png')
 
 		// 01-toggle: zoom in on the Default settings section so the
 		// "Allow users to create custom dashboards" switch is the focal
 		// point of the screenshot.
-		await page.locator('[data-testid="admin-allow-user-dashboards"]').scrollIntoViewIfNeeded()
+		await page
+			.locator('[data-testid="admin-allow-user-dashboards"]')
+			.scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '01-toggle.png')
 
 		// 01-user-disabled: requires actually flipping the toggle off and
@@ -376,8 +463,12 @@ test.describe('docs: admin track', () => {
 		// dashboards disabled.
 	})
 
-	test('A2 admin templates — list + create + edit + test-user view', async ({ page }) => {
-		await page.locator('[data-testid="admin-templates-section"]').scrollIntoViewIfNeeded()
+	test('A2 admin templates — list + create + edit + test-user view', async ({
+		page,
+	}) => {
+		await page
+			.locator('[data-testid="admin-templates-section"]')
+			.scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '02-templates-list.png')
 
 		await page.locator('[data-testid="admin-create-template"]').click()
@@ -389,14 +480,18 @@ test.describe('docs: admin track', () => {
 		// 02-template-edit: best-effort — opens the first existing
 		// template's edit affordance if any. Selector permissive because
 		// the per-template Edit button isn't testid-instrumented yet.
-		const firstEdit = page.locator('[data-testid="admin-templates-section"]').getByRole('button', { name: /^Edit$/ }).first()
-		if (await firstEdit.count() > 0) {
+		const firstEdit = page
+			.locator('[data-testid="admin-templates-section"]')
+			.getByRole('button', { name: /^Edit$/ })
+			.first()
+		if ((await firstEdit.count()) > 0) {
 			await firstEdit.click()
 			// The template editor's name field appearing is the completion
 			// signal; `networkidle` never settles on Nextcloud (ADR-074
 			// rule 4). The editor is a client-side modal, so there may be no
 			// request at all to go idle.
-			await page.getByRole('heading', { name: /^(Edit|Create) template$/ })
+			await page
+				.getByRole('heading', { name: /^(Edit|Create) template$/ })
 				.waitFor({ state: 'visible', timeout: 10000 })
 			await shoot(page, 'admin', '02-template-edit.png')
 		}
@@ -409,12 +504,16 @@ test.describe('docs: admin track', () => {
 		await page.goto('/apps/launchpad/')
 		await page.waitForSelector('.launchpad-sidebar-toggle')
 		await openSidebar(page)
-		const groupRow = page.locator('[data-source="group"], [data-source="default"]').first()
+		const groupRow = page
+			.locator('[data-source="group"], [data-source="default"]')
+			.first()
 		if ((await groupRow.count()) > 0) {
 			await groupRow.locator('[aria-label="Dashboard menu"]').click()
 			await shoot(page, 'admin', '03-group-cog.png')
 
-			const setForGroup = page.getByRole('menuitem', { name: /^Set as default for / })
+			const setForGroup = page.getByRole('menuitem', {
+				name: /^Set as default for /,
+			})
 			if ((await setForGroup.count()) > 0) {
 				await setForGroup.click()
 				await page.waitForTimeout(300)
@@ -424,10 +523,14 @@ test.describe('docs: admin track', () => {
 		// 03-member-default: capture manually as a non-admin member
 	})
 
-	test('A4 restrict widgets per role — section + create modal', async ({ page }) => {
+	test('A4 restrict widgets per role — section + create modal', async ({
+		page,
+	}) => {
 		// 04-roles-tab: scroll the roles section into view (admin
 		// settings is one long page, not tabbed)
-		await page.locator('[data-testid="admin-roles-section"]').scrollIntoViewIfNeeded()
+		await page
+			.locator('[data-testid="admin-roles-section"]')
+			.scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '04-roles-tab.png')
 
 		// 04-role-create: open the Add role permission modal
@@ -442,7 +545,9 @@ test.describe('docs: admin track', () => {
 	test('A5 bulk operations — panel scroll-into-view', async ({ page }) => {
 		// 05-bulk-panel: bulk ops is a section on the same admin page,
 		// not a separate tab. Scroll it into view and screenshot.
-		await page.locator('[data-testid="admin-bulk-section"]').scrollIntoViewIfNeeded()
+		await page
+			.locator('[data-testid="admin-bulk-section"]')
+			.scrollIntoViewIfNeeded()
 		await shoot(page, 'admin', '05-bulk-panel.png')
 
 		// 05-bulk-filter, 05-bulk-move-target, 05-bulk-confirm: depend

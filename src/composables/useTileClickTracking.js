@@ -55,7 +55,8 @@ function isTrackingActive() {
 	}
 
 	if (!inflightConfigPromise) {
-		inflightConfigPromise = axios.get(`${baseUrl}/api/tile-analytics/config`)
+		inflightConfigPromise = axios
+			.get(`${baseUrl}/api/tile-analytics/config`)
 			.then((response) => {
 				cachedEnabled = response?.data?.enabled !== false
 				return cachedEnabled
@@ -97,7 +98,11 @@ export function useTileClickTracking() {
 				return
 			}
 
-			axios.post(`${baseUrl}/api/tile-click/${encodeURIComponent(placementId)}`, {})
+			axios
+				.post(
+					`${baseUrl}/api/tile-click/${encodeURIComponent(placementId)}`,
+					{},
+				)
 				.catch((error) => {
 					console.warn('Failed to record tile click:', error)
 				})

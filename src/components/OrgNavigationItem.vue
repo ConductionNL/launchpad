@@ -70,7 +70,10 @@
 				<span class="org-nav-item__label">{{ node.label }}</span>
 			</button>
 		</div>
-		<ul v-if="hasChildren && expanded" class="org-nav-item__children" role="group">
+		<ul
+			v-if="hasChildren && expanded"
+			class="org-nav-item__children"
+			role="group">
 			<OrgNavigationItem
 				v-for="child in node.children"
 				:key="child.id"
@@ -181,7 +184,7 @@ export default {
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		indentPx() {
 			// Visual indent — 12px per level beyond root.
-			return ((this.level - 1) * 12) + 'px'
+			return (this.level - 1) * 12 + 'px'
 		},
 	},
 

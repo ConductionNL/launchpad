@@ -35,7 +35,9 @@ describe('SidebarFooter', () => {
 	describe('Brand attribution', () => {
 		it('renders the Sendent logo wrapped in a target=_blank, rel=noopener noreferrer link', () => {
 			const wrapper = mountFooter()
-			const links = wrapper.findAll('a.dashboard-switcher-sidebar-footer__brand-link')
+			const links = wrapper.findAll(
+				'a.dashboard-switcher-sidebar-footer__brand-link',
+			)
 			expect(links.length).toBe(2)
 
 			const sendent = links.at(0)
@@ -47,12 +49,16 @@ describe('SidebarFooter', () => {
 			expect(img.attributes('alt')).toBe('Sendent')
 			// App id is `launchpad` — generating with `launchpad` 404s (no
 			// appswebroots entry for the display name).
-			expect(img.attributes('src')).toBe('/apps/launchpad/img/sendent-logo.png')
+			expect(img.attributes('src')).toBe(
+				'/apps/launchpad/img/sendent-logo.png',
+			)
 		})
 
 		it('renders the Conduction logo wrapped in a target=_blank, rel=noopener noreferrer link', () => {
 			const wrapper = mountFooter()
-			const links = wrapper.findAll('a.dashboard-switcher-sidebar-footer__brand-link')
+			const links = wrapper.findAll(
+				'a.dashboard-switcher-sidebar-footer__brand-link',
+			)
 			const conduction = links.at(1)
 			expect(conduction.attributes('href')).toBe('https://conduction.nl')
 			expect(conduction.attributes('target')).toBe('_blank')
@@ -60,12 +66,16 @@ describe('SidebarFooter', () => {
 			expect(conduction.attributes('aria-label')).toBe('Conduction')
 			const img = conduction.find('img')
 			expect(img.attributes('alt')).toBe('Conduction')
-			expect(img.attributes('src')).toBe('/apps/launchpad/img/conduction-logo.png')
+			expect(img.attributes('src')).toBe(
+				'/apps/launchpad/img/conduction-logo.png',
+			)
 		})
 
 		it('neither brand link omits rel="noopener noreferrer" (security gate)', () => {
 			const wrapper = mountFooter()
-			const links = wrapper.findAll('a.dashboard-switcher-sidebar-footer__brand-link')
+			const links = wrapper.findAll(
+				'a.dashboard-switcher-sidebar-footer__brand-link',
+			)
 			links.forEach((link) => {
 				expect(link.attributes('rel')).toBe('noopener noreferrer')
 				expect(link.attributes('target')).toBe('_blank')
@@ -74,15 +84,20 @@ describe('SidebarFooter', () => {
 
 		it('renders the localised "Powered by" caption', () => {
 			const wrapper = mountFooter()
-			expect(wrapper.find('.dashboard-switcher-sidebar-footer__brand-caption').text())
-				.toBe('Powered by')
+			expect(
+				wrapper
+					.find('.dashboard-switcher-sidebar-footer__brand-caption')
+					.text(),
+			).toBe('Powered by')
 		})
 	})
 
 	describe('Documentation link', () => {
 		it('renders the documentation link with the same URL the gear-menu used', () => {
 			const wrapper = mountFooter()
-			const link = wrapper.find('a.dashboard-switcher-sidebar-footer__doc-link')
+			const link = wrapper.find(
+				'a.dashboard-switcher-sidebar-footer__doc-link',
+			)
 			expect(link.exists()).toBe(true)
 			expect(link.attributes('href')).toBe(DOCS_URL)
 			expect(link.attributes('target')).toBe('_blank')
@@ -91,9 +106,12 @@ describe('SidebarFooter', () => {
 
 		it('renders the localised "Documentation" label next to the icon', () => {
 			const wrapper = mountFooter()
-			const link = wrapper.find('a.dashboard-switcher-sidebar-footer__doc-link')
-			expect(link.find('.dashboard-switcher-sidebar-footer__doc-label').text())
-				.toBe('Documentation')
+			const link = wrapper.find(
+				'a.dashboard-switcher-sidebar-footer__doc-link',
+			)
+			expect(
+				link.find('.dashboard-switcher-sidebar-footer__doc-label').text(),
+			).toBe('Documentation')
 			expect(link.find('.book-icon-stub').exists()).toBe(true)
 		})
 	})

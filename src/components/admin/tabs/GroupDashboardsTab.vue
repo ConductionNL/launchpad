@@ -10,7 +10,12 @@
 				{{ t('launchpad', 'Group dashboards') }}
 			</h3>
 			<p class="group-dashboards-tab__lead">
-				{{ t('launchpad', 'Manage dashboards shared with a Nextcloud group. The “Default group” row controls the org-wide default dashboard set.') }}
+				{{
+					t(
+						'launchpad',
+						'Manage dashboards shared with a Nextcloud group. The “Default group” row controls the org-wide default dashboard set.',
+					)
+				}}
 			</p>
 		</div>
 
@@ -27,13 +32,21 @@
 			v-else-if="groups.length === 0"
 			data-test="group-dashboards-empty"
 			:name="t('launchpad', 'No groups configured')"
-			:description="t('launchpad', 'Add Nextcloud groups via the Sharing tab to start managing per-group dashboards.')">
+			:description="
+				t(
+					'launchpad',
+					'Add Nextcloud groups via the Sharing tab to start managing per-group dashboards.',
+				)
+			">
 			<template #icon>
 				<AccountMultipleIcon :size="48" />
 			</template>
 		</NcEmptyContent>
 
-		<ul v-else class="group-dashboards-tab__list" data-test="group-dashboards-list">
+		<ul
+			v-else
+			class="group-dashboards-tab__list"
+			data-test="group-dashboards-list">
 			<li
 				v-for="group in groups"
 				:key="group.id"
@@ -89,11 +102,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-	NcLoadingIcon,
-} from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import AccountMultipleIcon from 'vue-material-design-icons/AccountMultiple.vue'
 
 import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
@@ -145,7 +154,9 @@ export default {
 		// paint. Per-group requests run in parallel; the per-group endpoint
 		// is already paginated server side so this stays cheap.
 		await Promise.all(
-			this.groups.map((g) => this.store.fetchGroupDashboards(g.id).catch(() => null)),
+			this.groups.map((g) =>
+				this.store.fetchGroupDashboards(g.id).catch(() => null),
+			),
 		)
 	},
 

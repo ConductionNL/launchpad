@@ -33,26 +33,50 @@ beforeEach(() => {
 describe('useVisibilityPreview', () => {
 	it('posts the editor rule set unchanged and the supplied context', async () => {
 		api.previewVisibility.mockResolvedValue({
-			data: { visible: true, matchedIncludeRuleIds: [1], matchedExcludeRuleIds: [] },
+			data: {
+				visible: true,
+				matchedIncludeRuleIds: [1],
+				matchedExcludeRuleIds: [],
+			},
 		})
 
 		const { runPreview } = useVisibilityPreview()
 		const rules = [
-			{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true, _localKey: undefined },
+			{
+				id: 1,
+				ruleType: 'group',
+				ruleConfig: { groups: ['marketing'] },
+				isInclude: true,
+				_localKey: undefined,
+			},
 		]
 
-		await runPreview(rules, { groups: ['marketing'], datetime: '2026-07-15T10:00:00.000Z' })
+		await runPreview(rules, {
+			groups: ['marketing'],
+			datetime: '2026-07-15T10:00:00.000Z',
+		})
 
 		expect(api.previewVisibility).toHaveBeenCalledWith({
 			rules: [
-				{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true },
+				{
+					id: 1,
+					ruleType: 'group',
+					ruleConfig: { groups: ['marketing'] },
+					isInclude: true,
+				},
 			],
 			context: { groups: ['marketing'], datetime: '2026-07-15T10:00:00.000Z' },
 		})
 	})
 
 	it('sends the exact ruleConfig object reference — no translation layer', async () => {
-		api.previewVisibility.mockResolvedValue({ data: { visible: true, matchedIncludeRuleIds: [], matchedExcludeRuleIds: [] } })
+		api.previewVisibility.mockResolvedValue({
+			data: {
+				visible: true,
+				matchedIncludeRuleIds: [],
+				matchedExcludeRuleIds: [],
+			},
+		})
 		const { runPreview } = useVisibilityPreview()
 		const ruleConfig = { startTime: '09:00', endTime: '17:00', days: ['mon'] }
 		const rules = [{ id: 2, ruleType: 'time', ruleConfig, isInclude: true }]
@@ -64,7 +88,11 @@ describe('useVisibilityPreview', () => {
 	})
 
 	it('maps the response into state.result and clears loading', async () => {
-		const result = { visible: false, matchedIncludeRuleIds: [], matchedExcludeRuleIds: [3] }
+		const result = {
+			visible: false,
+			matchedIncludeRuleIds: [],
+			matchedExcludeRuleIds: [3],
+		}
 		api.previewVisibility.mockResolvedValue({ data: result })
 
 		const { state, runPreview } = useVisibilityPreview()
@@ -80,7 +108,13 @@ describe('useVisibilityPreview', () => {
 	})
 
 	it('defaults groups to [] and datetime to null when the context omits them', async () => {
-		api.previewVisibility.mockResolvedValue({ data: { visible: true, matchedIncludeRuleIds: [], matchedExcludeRuleIds: [] } })
+		api.previewVisibility.mockResolvedValue({
+			data: {
+				visible: true,
+				matchedIncludeRuleIds: [],
+				matchedExcludeRuleIds: [],
+			},
+		})
 		const { runPreview } = useVisibilityPreview()
 
 		await runPreview([], {})
@@ -96,7 +130,9 @@ describe('useVisibilityPreview', () => {
 		api.previewVisibility.mockRejectedValue(error)
 
 		const { state, runPreview } = useVisibilityPreview()
-		await expect(runPreview([], { groups: [], datetime: null })).rejects.toThrow('boom')
+		await expect(runPreview([], { groups: [], datetime: null })).rejects.toThrow(
+			'boom',
+		)
 
 		expect(state.error).toBe(error)
 		expect(state.result).toBeNull()
@@ -104,7 +140,13 @@ describe('useVisibilityPreview', () => {
 	})
 
 	it('reset() clears loading/error/result', async () => {
-		api.previewVisibility.mockResolvedValue({ data: { visible: true, matchedIncludeRuleIds: [], matchedExcludeRuleIds: [] } })
+		api.previewVisibility.mockResolvedValue({
+			data: {
+				visible: true,
+				matchedIncludeRuleIds: [],
+				matchedExcludeRuleIds: [],
+			},
+		})
 		const { state, runPreview, reset } = useVisibilityPreview()
 		await runPreview([], { groups: [], datetime: null })
 		expect(state.result).not.toBeNull()

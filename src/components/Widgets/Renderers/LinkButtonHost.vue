@@ -48,7 +48,7 @@
 						type="text"
 						class="link-button-host__modal-input"
 						:placeholder="t('launchpad', 'Enter filename')"
-						@keyup.enter="onCreateConfirm">
+						@keyup.enter="onCreateConfirm" />
 				</label>
 				<p class="link-button-host__modal-extension">
 					.{{ pendingExtension }}
@@ -66,7 +66,11 @@
 						class="link-button-host__modal-create"
 						:disabled="!canCreate || isExecuting"
 						@click="onCreateConfirm">
-						{{ isExecuting ? t('launchpad', 'Creating…') : t('launchpad', 'Create') }}
+						{{
+							isExecuting
+								? t('launchpad', 'Creating…')
+								: t('launchpad', 'Create')
+						}}
 					</button>
 				</div>
 			</div>
@@ -149,7 +153,10 @@ export default {
 		 * @return {void}
 		 */
 		onCreateFile(token) {
-			this.pendingExtension = String(token || '').trim().replace(/^\./, '').toLowerCase()
+			this.pendingExtension = String(token || '')
+				.trim()
+				.replace(/^\./, '')
+				.toLowerCase()
 			this.filenameDraft = ''
 			this.modalOpen = true
 			this.$nextTick(() => {
@@ -182,18 +189,23 @@ export default {
 
 			this.isExecuting = true
 			try {
-				const [{ default: axios }, { generateUrl }, { showError }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-					import('@nextcloud/dialogs'),
-				])
+				const [{ default: axios }, { generateUrl }, { showError }] =
+					await Promise.all([
+						import('@nextcloud/axios'),
+						import('@nextcloud/router'),
+						import('@nextcloud/dialogs'),
+					])
 				try {
 					const response = await axios.post(
 						generateUrl('/apps/launchpad/api/files/create'),
 						{ filename, dir: '/', content: '' },
 					)
 					const data = response?.data
-					if (data && data.status === 'success' && typeof data.url === 'string') {
+					if (
+						data
+						&& data.status === 'success'
+						&& typeof data.url === 'string'
+					) {
 						window.open(data.url, '_blank')
 						this.modalOpen = false
 					} else {

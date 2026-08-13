@@ -63,7 +63,8 @@ describe('NewsWidget — summary truncation (REQ-NEWS-004/005)', () => {
 		// Visible text is "See the announcement now" (24 chars). A budget of
 		// 10 falls INSIDE the anchor, which is exactly where a raw
 		// `slice(0, 10)` would cut through `<a href="https://exa…`.
-		const summary = '<p>See <a href="https://example.com/a/very/long/path">the announcement</a> now</p>'
+		const summary =
+			'<p>See <a href="https://example.com/a/very/long/path">the announcement</a> now</p>'
 		const out = renderSummary(summary, 10)
 
 		// Every '<' that opens a tag must have a matching '>'.
@@ -77,7 +78,8 @@ describe('NewsWidget — summary truncation (REQ-NEWS-004/005)', () => {
 	it('preserves rel="noopener noreferrer" on an anchor cut short by truncation', () => {
 		// Budget 10 lands inside the anchor's own text, so the anchor is
 		// kept but shortened — the hardening must survive that.
-		const summary = '<p>See <a href="https://example.com">the announcement</a> and more after it</p>'
+		const summary =
+			'<p>See <a href="https://example.com">the announcement</a> and more after it</p>'
 		const out = renderSummary(summary, 10)
 
 		expect(out).toContain('<a')
@@ -93,7 +95,8 @@ describe('NewsWidget — summary truncation (REQ-NEWS-004/005)', () => {
 	})
 
 	it('strips tags outside the allow-list on the client too', () => {
-		const summary = '<p>ok</p><script>alert(1)</script><img src=x onerror="alert(1)">'
+		const summary =
+			'<p>ok</p><script>alert(1)</script><img src=x onerror="alert(1)">'
 		const out = renderSummary(summary, 500)
 
 		expect(out).not.toContain('<script')

@@ -8,7 +8,12 @@
 		<div class="org-nav-editor__header">
 			<h3>{{ t('launchpad', 'Organization navigation') }}</h3>
 			<p class="org-nav-editor__hint">
-				{{ t('launchpad', 'Build an organisation-wide navigation tree shown next to the dashboard surface. Drag nodes to reorder, click Edit to change properties, and use the group visibility selector to restrict sections to specific Nextcloud groups.') }}
+				{{
+					t(
+						'launchpad',
+						'Build an organisation-wide navigation tree shown next to the dashboard surface. Drag nodes to reorder, click Edit to change properties, and use the group visibility selector to restrict sections to specific Nextcloud groups.',
+					)
+				}}
 			</p>
 		</div>
 
@@ -93,7 +98,12 @@
 		</draggable>
 
 		<p v-if="workingTree.length === 0" class="org-nav-editor__empty">
-			{{ t('launchpad', 'No navigation configured. Add a section or link to start building the tree.') }}
+			{{
+				t(
+					'launchpad',
+					'No navigation configured. Add a section or link to start building the tree.',
+				)
+			}}
 		</p>
 
 		<p v-if="successFlag" class="org-nav-editor__success" role="status">
@@ -107,7 +117,10 @@ import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
 
 import OrgNavigationEditorRow from './OrgNavigationEditorRow.vue'
-import { useOrgNavigationStore, ORG_NAV_POSITIONS } from '../../stores/orgNavigation.js'
+import {
+	useOrgNavigationStore,
+	ORG_NAV_POSITIONS,
+} from '../../stores/orgNavigation.js'
 
 /**
  * OrgNavigationEditor — admin-only editor for the org-wide navigation
@@ -201,15 +214,17 @@ export default {
 		generateUuid() {
 			// RFC 4122 v4 — uses crypto.getRandomValues when available
 			// so the UUIDs pass the backend validator's regex.
-			if (typeof globalThis !== 'undefined'
+			if (
+				typeof globalThis !== 'undefined'
 				&& globalThis.crypto
-				&& typeof globalThis.crypto.randomUUID === 'function') {
+				&& typeof globalThis.crypto.randomUUID === 'function'
+			) {
 				return globalThis.crypto.randomUUID()
 			}
 			// Fallback — Math.random based (acceptable for admin UI).
 			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-				const r = Math.random() * 16 | 0
-				const v = c === 'x' ? r : (r & 0x3 | 0x8)
+				const r = (Math.random() * 16) | 0
+				const v = c === 'x' ? r : (r & 0x3) | 0x8
 				return v.toString(16)
 			})
 		},
@@ -225,7 +240,10 @@ export default {
 		makeNode(kind) {
 			return {
 				id: this.generateUuid(),
-				label: kind === 'section' ? t('launchpad', 'New section') : t('launchpad', 'New link'),
+				label:
+					kind === 'section'
+						? t('launchpad', 'New section')
+						: t('launchpad', 'New link'),
 				icon: null,
 				url: kind === 'section' ? null : '/',
 				openInNewTab: false,
@@ -335,7 +353,10 @@ export default {
 		async save() {
 			this.saving = true
 			this.successFlag = false
-			const ok = await this.store.updateTree(this.workingTree, this.selectedLanguage)
+			const ok = await this.store.updateTree(
+				this.workingTree,
+				this.selectedLanguage,
+			)
 			this.saving = false
 			if (ok) {
 				this.successFlag = true

@@ -6,7 +6,12 @@
 <template>
 	<div class="clock-widget-form">
 		<p class="clock-widget-form__hint">
-			{{ t('launchpad', 'Show the current time and date, entirely in the browser — no data leaves your device.') }}
+			{{
+				t(
+					'launchpad',
+					'Show the current time and date, entirely in the browser — no data leaves your device.',
+				)
+			}}
 		</p>
 
 		<!-- @nextcloud/vue@9: `value`/`checked` + `update:value`/`update:checked`
@@ -177,7 +182,10 @@ export default {
 		 */
 		hourFormatOptions() {
 			return [
-				{ value: 'auto', label: t('launchpad', 'Follow language (automatic)') },
+				{
+					value: 'auto',
+					label: t('launchpad', 'Follow language (automatic)'),
+				},
 				{ value: '12h', label: t('launchpad', '12-hour (AM/PM)') },
 				{ value: '24h', label: t('launchpad', '24-hour') },
 			]

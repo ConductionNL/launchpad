@@ -111,11 +111,18 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="group"
@@ -125,7 +132,9 @@
 							:active-dashboard-id="activeDashboardId"
 							@toggle-edit="onRowToggleEdit(dashboard, 'group')"
 							@open-config="onRowOpenConfig(dashboard, 'group')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'group')"
+							@add-custom-widget="
+								onRowAddCustomWidget(dashboard, 'group')
+							"
 							@delete="onRowDelete(dashboard, 'group')"
 							@set-default="onRowSetDefault(dashboard, 'group')" />
 					</li>
@@ -134,8 +143,11 @@
 
 			<!-- Divider 1 ↔ 2 -->
 			<hr
-				v-if="primaryGroupDashboards.length > 0 && defaultGroupDashboards.length > 0"
-				class="dashboard-switcher-sidebar__divider">
+				v-if="
+					primaryGroupDashboards.length > 0
+					&& defaultGroupDashboards.length > 0
+				"
+				class="dashboard-switcher-sidebar__divider" />
 
 			<!-- 2. Default group dashboards -->
 			<section
@@ -164,11 +176,18 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="default"
@@ -178,7 +197,9 @@
 							:active-dashboard-id="activeDashboardId"
 							@toggle-edit="onRowToggleEdit(dashboard, 'default')"
 							@open-config="onRowOpenConfig(dashboard, 'default')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'default')"
+							@add-custom-widget="
+								onRowAddCustomWidget(dashboard, 'default')
+							"
 							@delete="onRowDelete(dashboard, 'default')"
 							@set-default="onRowSetDefault(dashboard, 'default')" />
 					</li>
@@ -187,8 +208,12 @@
 
 			<!-- Divider before personal section (only when prev section non-empty) -->
 			<hr
-				v-if="(primaryGroupDashboards.length > 0 || defaultGroupDashboards.length > 0) && showPersonalSection"
-				class="dashboard-switcher-sidebar__divider">
+				v-if="
+					(primaryGroupDashboards.length > 0
+						|| defaultGroupDashboards.length > 0)
+					&& showPersonalSection
+				"
+				class="dashboard-switcher-sidebar__divider" />
 
 			<!-- 3. Personal dashboards -->
 			<section
@@ -217,11 +242,18 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="user"
@@ -231,7 +263,9 @@
 							:active-dashboard-id="activeDashboardId"
 							@toggle-edit="onRowToggleEdit(dashboard, 'user')"
 							@open-config="onRowOpenConfig(dashboard, 'user')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'user')"
+							@add-custom-widget="
+								onRowAddCustomWidget(dashboard, 'user')
+							"
 							@delete="onRowDelete(dashboard, 'user')"
 							@set-default="onRowSetDefault(dashboard, 'user')" />
 					</li>
@@ -253,7 +287,11 @@
 						data-testid="add-dashboard-button"
 						:disabled="dashboardQuotaReached"
 						:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
-						:aria-label="dashboardQuotaReached ? dashboardQuotaTooltip : t('launchpad', 'Add dashboard')"
+						:aria-label="
+							dashboardQuotaReached
+								? dashboardQuotaTooltip
+								: t('launchpad', 'Add dashboard')
+						"
 						@click="onCreate">
 						<template #icon>
 							<Plus :size="20" />
@@ -271,8 +309,13 @@
 
 			<!-- Divider before the shared section -->
 			<hr
-				v-if="sharedDashboards.length > 0 && (primaryGroupDashboards.length > 0 || defaultGroupDashboards.length > 0 || showPersonalSection)"
-				class="dashboard-switcher-sidebar__divider">
+				v-if="
+					sharedDashboards.length > 0
+					&& (primaryGroupDashboards.length > 0
+						|| defaultGroupDashboards.length > 0
+						|| showPersonalSection)
+				"
+				class="dashboard-switcher-sidebar__divider" />
 
 			<!-- 4. Dashboards shared with the user (REQ-SHARE-002) -->
 			<section
@@ -301,11 +344,18 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="shared"
@@ -315,7 +365,9 @@
 							:active-dashboard-id="activeDashboardId"
 							@toggle-edit="onRowToggleEdit(dashboard, 'shared')"
 							@open-config="onRowOpenConfig(dashboard, 'shared')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'shared')"
+							@add-custom-widget="
+								onRowAddCustomWidget(dashboard, 'shared')
+							"
 							@delete="onRowDelete(dashboard, 'shared')"
 							@set-default="onRowSetDefault(dashboard, 'shared')" />
 					</li>
@@ -506,12 +558,14 @@ export default {
 	computed: {
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		primaryGroupDashboards() {
-			return this.groupDashboards.filter(d => d.source !== 'default' && d.source !== 'shared')
+			return this.groupDashboards.filter(
+				(d) => d.source !== 'default' && d.source !== 'shared',
+			)
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		defaultGroupDashboards() {
-			return this.groupDashboards.filter(d => d.source === 'default')
+			return this.groupDashboards.filter((d) => d.source === 'default')
 		},
 
 		/**
@@ -525,7 +579,7 @@ export default {
 		 * @spec openspec/specs/dashboard-sharing/spec.md
 		 */
 		sharedDashboards() {
-			return this.groupDashboards.filter(d => d.source === 'shared')
+			return this.groupDashboards.filter((d) => d.source === 'shared')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
@@ -539,7 +593,9 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		showPersonalSection() {
-			return this.userDashboards.length > 0 || this.allowUserDashboards === true
+			return (
+				this.userDashboards.length > 0 || this.allowUserDashboards === true
+			)
 		},
 
 		/**
@@ -614,8 +670,10 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		isDefaultDashboard(dashboard) {
-			return Boolean(this.effectiveDefaultUuid)
+			return (
+				Boolean(this.effectiveDefaultUuid)
 				&& dashboard?.uuid === this.effectiveDefaultUuid
+			)
 		},
 
 		/**
@@ -869,8 +927,10 @@ export default {
 	color: var(--color-error, #c0392b);
 }
 
-.dashboard-switcher-sidebar__item--personal:hover .dashboard-switcher-sidebar__delete,
-.dashboard-switcher-sidebar__item--personal:focus-within .dashboard-switcher-sidebar__delete {
+.dashboard-switcher-sidebar__item--personal:hover
+	.dashboard-switcher-sidebar__delete,
+.dashboard-switcher-sidebar__item--personal:focus-within
+	.dashboard-switcher-sidebar__delete {
 	display: inline-flex;
 }
 

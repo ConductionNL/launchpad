@@ -26,7 +26,10 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`)
+				Object.prototype.hasOwnProperty.call(vars, name)
+					? vars[name]
+					: `{${name}}`,
+			)
 		}
 		return key
 	}
@@ -39,7 +42,12 @@ afterEach(() => {
 
 describe('HealthPingBadge — REQ-HPING-003 fetches via the placement endpoint only', () => {
 	it('calls fetchHealthPingBadge(placementId) on mount', async () => {
-		fetchHealthPingBadge.mockResolvedValue({ state: 'online', checkedAt: '2026-07-23T10:00:00Z', latencyMs: 42, stale: false })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'online',
+			checkedAt: '2026-07-23T10:00:00Z',
+			latencyMs: 42,
+			stale: false,
+		})
 		mount(HealthPingBadge, { propsData: { placementId: 7, interval: 60 } })
 		await flushPromises()
 		expect(fetchHealthPingBadge).toHaveBeenCalledWith(7)
@@ -54,8 +62,15 @@ describe('HealthPingBadge — REQ-HPING-003 fetches via the placement endpoint o
 
 describe('HealthPingBadge — REQ-HPING-004 renders icon + text, never colour alone', () => {
 	it('renders the online state with an icon AND a text label', async () => {
-		fetchHealthPingBadge.mockResolvedValue({ state: 'online', checkedAt: '2026-07-23T10:00:00Z', latencyMs: 42, stale: false })
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 1, interval: 60 } })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'online',
+			checkedAt: '2026-07-23T10:00:00Z',
+			latencyMs: 42,
+			stale: false,
+		})
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 1, interval: 60 },
+		})
 		await flushPromises()
 		const badge = wrapper.find('.health-ping-badge')
 		expect(badge.exists()).toBe(true)
@@ -65,8 +80,15 @@ describe('HealthPingBadge — REQ-HPING-004 renders icon + text, never colour al
 	})
 
 	it('renders the degraded state with an icon AND a text label', async () => {
-		fetchHealthPingBadge.mockResolvedValue({ state: 'degraded', checkedAt: '2026-07-23T10:00:00Z', latencyMs: 3000, stale: false })
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 2, interval: 60 } })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'degraded',
+			checkedAt: '2026-07-23T10:00:00Z',
+			latencyMs: 3000,
+			stale: false,
+		})
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 2, interval: 60 },
+		})
 		await flushPromises()
 		const badge = wrapper.find('.health-ping-badge')
 		expect(badge.classes()).toContain('health-ping-badge--degraded')
@@ -75,8 +97,15 @@ describe('HealthPingBadge — REQ-HPING-004 renders icon + text, never colour al
 	})
 
 	it('renders the offline state with an icon AND a text label', async () => {
-		fetchHealthPingBadge.mockResolvedValue({ state: 'offline', checkedAt: '2026-07-23T10:00:00Z', latencyMs: null, stale: false })
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 3, interval: 60 } })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'offline',
+			checkedAt: '2026-07-23T10:00:00Z',
+			latencyMs: null,
+			stale: false,
+		})
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 3, interval: 60 },
+		})
 		await flushPromises()
 		const badge = wrapper.find('.health-ping-badge')
 		expect(badge.classes()).toContain('health-ping-badge--offline')
@@ -85,8 +114,15 @@ describe('HealthPingBadge — REQ-HPING-004 renders icon + text, never colour al
 	})
 
 	it('exposes checked-at time and latency via a keyboard-reachable, announced tooltip', async () => {
-		fetchHealthPingBadge.mockResolvedValue({ state: 'online', checkedAt: '2026-07-23T10:00:00Z', latencyMs: 55, stale: false })
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 4, interval: 60 } })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'online',
+			checkedAt: '2026-07-23T10:00:00Z',
+			latencyMs: 55,
+			stale: false,
+		})
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 4, interval: 60 },
+		})
 		await flushPromises()
 		const badge = wrapper.find('.health-ping-badge')
 		// A real <button> is natively keyboard-reachable (focusable, Enter/Space
@@ -100,14 +136,18 @@ describe('HealthPingBadge — REQ-HPING-004 renders icon + text, never colour al
 describe('HealthPingBadge — REQ-HPING-004 ping disabled / no data shows no badge', () => {
 	it('renders nothing when the endpoint reports not_configured', async () => {
 		fetchHealthPingBadge.mockResolvedValue({ error: 'not_configured' })
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 5, interval: 60 } })
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 5, interval: 60 },
+		})
 		await flushPromises()
 		expect(wrapper.find('.health-ping-badge').exists()).toBe(false)
 	})
 
 	it('renders nothing (never crashes) on a network failure', async () => {
 		fetchHealthPingBadge.mockRejectedValue(new Error('network error'))
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 6, interval: 60 } })
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 6, interval: 60 },
+		})
 		await flushPromises()
 		expect(wrapper.find('.health-ping-badge').exists()).toBe(false)
 	})
@@ -115,18 +155,27 @@ describe('HealthPingBadge — REQ-HPING-004 ping disabled / no data shows no bad
 
 describe('HealthPingBadge — interval clamp', () => {
 	it('clamps a below-minimum interval to 15s for the poll cadence', () => {
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 1, interval: 5 } })
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 1, interval: 5 },
+		})
 		expect(wrapper.vm.clampedInterval).toBe(15)
 	})
 
 	it('defaults an unset/zero interval to 60s', () => {
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 1, interval: 0 } })
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 1, interval: 0 },
+		})
 		expect(wrapper.vm.clampedInterval).toBe(60)
 	})
 
 	it('polls again after the clamped interval elapses', async () => {
 		vi.useFakeTimers()
-		fetchHealthPingBadge.mockResolvedValue({ state: 'online', checkedAt: '2026-07-23T10:00:00Z', latencyMs: 1, stale: false })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'online',
+			checkedAt: '2026-07-23T10:00:00Z',
+			latencyMs: 1,
+			stale: false,
+		})
 		mount(HealthPingBadge, { propsData: { placementId: 1, interval: 15 } })
 		// Mount's own load() call.
 		await vi.advanceTimersByTimeAsync(0)
@@ -139,8 +188,15 @@ describe('HealthPingBadge — interval clamp', () => {
 
 describe('HealthPingBadge — stale reading', () => {
 	it('still renders the last-known state when the badge is marked stale', async () => {
-		fetchHealthPingBadge.mockResolvedValue({ state: 'online', checkedAt: '2026-07-23T09:00:00Z', latencyMs: 40, stale: true })
-		const wrapper = mount(HealthPingBadge, { propsData: { placementId: 8, interval: 60 } })
+		fetchHealthPingBadge.mockResolvedValue({
+			state: 'online',
+			checkedAt: '2026-07-23T09:00:00Z',
+			latencyMs: 40,
+			stale: true,
+		})
+		const wrapper = mount(HealthPingBadge, {
+			propsData: { placementId: 8, interval: 60 },
+		})
 		await flushPromises()
 		const badge = wrapper.find('.health-ping-badge')
 		expect(badge.exists()).toBe(true)

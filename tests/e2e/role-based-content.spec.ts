@@ -32,7 +32,9 @@ const ADMIN_URL = `${BASE}/index.php/settings/admin/launchpad`
  * @e2e role-based-content::admin-role-layout-defaults-section-visible
  * @spec openspec/changes/role-based-content/tasks.md#task-10
  */
-test('admin settings page contains role-layout-defaults section', async ({ page }) => {
+test('admin settings page contains role-layout-defaults section', async ({
+	page,
+}) => {
 	// The shared storageState already carries the admin session, so navigate
 	// straight to the LaunchPad admin settings page (no redundant form login,
 	// which previously hung the test).
@@ -41,7 +43,10 @@ test('admin settings page contains role-layout-defaults section', async ({ page 
 	// If the settings page is not reachable in this environment, skip rather
 	// than fail.
 	if (resp && resp.status() >= 400) {
-		test.skip(true, `Admin settings page returned ${resp.status()} in this environment`)
+		test.skip(
+			true,
+			`Admin settings page returned ${resp.status()} in this environment`,
+		)
 		return
 	}
 

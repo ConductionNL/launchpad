@@ -31,7 +31,6 @@ import { generateUrl } from '@nextcloud/router'
  * parsing the human message.
  */
 export class ResourceUploadError extends Error {
-
 	/**
 	 * Create a new resource upload error.
 	 *
@@ -46,7 +45,6 @@ export class ResourceUploadError extends Error {
 		this.code = code
 		this.httpStatus = httpStatus
 	}
-
 }
 
 /**
@@ -170,7 +168,8 @@ export async function uploadFile(file) {
 export function readFileAsDataUrl(file) {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader()
-		reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '')
+		reader.onload = () =>
+			resolve(typeof reader.result === 'string' ? reader.result : '')
 		reader.onerror = () => reject(reader.error || new Error('FileReader failed'))
 		reader.readAsDataURL(file)
 	})

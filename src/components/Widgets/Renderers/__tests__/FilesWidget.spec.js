@@ -32,10 +32,11 @@ vi.mock('@nextcloud/axios', () => ({
 	},
 }))
 vi.mock('@nextcloud/router', () => ({
-	generateUrl: (path, params = {}) => Object.entries(params).reduce(
-		(acc, [key, value]) => acc.replace(`{${key}}`, value),
-		path,
-	),
+	generateUrl: (path, params = {}) =>
+		Object.entries(params).reduce(
+			(acc, [key, value]) => acc.replace(`{${key}}`, value),
+			path,
+		),
 }))
 
 const SAMPLE_ITEMS = [
@@ -143,7 +144,11 @@ describe('FilesWidget', () => {
 		await flushPromises()
 
 		await wrapper.findAll('.files-widget__row-name').at(0).trigger('click')
-		expect(openSpy).toHaveBeenCalledWith('/apps/files/?fileid=1', '_blank', 'noopener,noreferrer')
+		expect(openSpy).toHaveBeenCalledWith(
+			'/apps/files/?fileid=1',
+			'_blank',
+			'noopener,noreferrer',
+		)
 		openSpy.mockRestore()
 	})
 
@@ -241,7 +246,9 @@ describe('FilesWidget', () => {
 		await wrapper.find('.files-widget__modal-confirm').trigger('click')
 		await flushPromises()
 
-		expect(axios.delete).toHaveBeenCalledWith('/apps/launchpad/api/widgets/files/7/files/1')
+		expect(axios.delete).toHaveBeenCalledWith(
+			'/apps/launchpad/api/widgets/files/7/files/1',
+		)
 		// Optimistic remove — file should be gone from the listing.
 		expect(wrapper.vm.items.find((item) => item.fileId === 1)).toBeUndefined()
 	})

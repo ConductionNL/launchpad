@@ -39,19 +39,29 @@
 						v-if="widget.iconUrl"
 						:src="widget.iconUrl"
 						:alt="widget.title"
-						class="widget-picker__widget-icon">
+						class="widget-picker__widget-icon" />
 					<span
 						v-else-if="widget.iconClass"
 						:class="widget.iconClass"
 						class="widget-picker__widget-icon" />
 					<div class="widget-picker__widget-info">
-						<span class="widget-picker__widget-title">{{ widget.title }}</span>
-						<span v-if="isPlaced(widget.id)" class="widget-picker__widget-badge">
+						<span class="widget-picker__widget-title">{{
+							widget.title
+						}}</span>
+						<span
+							v-if="isPlaced(widget.id)"
+							class="widget-picker__widget-badge">
 							{{ t('launchpad', 'Already added') }}
 						</span>
 					</div>
-					<Plus v-if="!isPlaced(widget.id)" :size="20" class="widget-picker__widget-action" />
-					<Check v-else :size="20" class="widget-picker__widget-action widget-picker__widget-action--check" />
+					<Plus
+						v-if="!isPlaced(widget.id)"
+						:size="20"
+						class="widget-picker__widget-action" />
+					<Check
+						v-else
+						:size="20"
+						class="widget-picker__widget-action widget-picker__widget-action--check" />
 				</button>
 
 				<NcEmptyContent
@@ -116,8 +126,8 @@ export default {
 				return this.sortedWidgets
 			}
 			const query = this.searchQuery.toLowerCase()
-			return this.sortedWidgets.filter(
-				w => w.title.toLowerCase().includes(query),
+			return this.sortedWidgets.filter((w) =>
+				w.title.toLowerCase().includes(query),
 			)
 		},
 		/** @spec openspec/specs/widgets/spec.md */

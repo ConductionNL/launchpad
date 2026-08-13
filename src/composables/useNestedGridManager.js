@@ -25,9 +25,7 @@
  * via the existing widget-update API.
  */
 
-import {
-	placeNewWidget as outerPlaceNewWidget,
-} from './useGridManager.js'
+import { placeNewWidget as outerPlaceNewWidget } from './useGridManager.js'
 
 /**
  * Inner-grid column count (REQ-CONT-002).
@@ -99,16 +97,14 @@ export function getNestedGridOptions() {
  * @spec openspec/specs/container-widget/spec.md
  */
 export function placeNewWidget(spec, placements, options = {}) {
-	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : NESTED_DEFAULT_W
-	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : NESTED_DEFAULT_H
-	return outerPlaceNewWidget(
-		{ ...spec, w, h },
-		placements,
-		{
-			...options,
-			gridColumns: NESTED_COLUMNS,
-		},
-	)
+	const w =
+		spec && Number.isFinite(spec.w) && spec.w > 0 ? spec.w : NESTED_DEFAULT_W
+	const h =
+		spec && Number.isFinite(spec.h) && spec.h > 0 ? spec.h : NESTED_DEFAULT_H
+	return outerPlaceNewWidget({ ...spec, w, h }, placements, {
+		...options,
+		gridColumns: NESTED_COLUMNS,
+	})
 }
 
 /**
@@ -136,9 +132,10 @@ export function placeNewWidget(spec, placements, options = {}) {
  * @spec openspec/specs/container-widget/spec.md
  */
 export function useNestedGridManager(options = {}) {
-	const persistPlacements = typeof options.persistPlacements === 'function'
-		? options.persistPlacements
-		: () => {}
+	const persistPlacements =
+		typeof options.persistPlacements === 'function'
+			? options.persistPlacements
+			: () => {}
 
 	return {
 		getOptions: getNestedGridOptions,

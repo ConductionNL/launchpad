@@ -15,7 +15,11 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { provisionThrowawayUser, deprovisionUser, loginAs } from './fixtures/secondary-user'
+import {
+	provisionThrowawayUser,
+	deprovisionUser,
+	loginAs,
+} from './fixtures/secondary-user'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -37,7 +41,9 @@ async function gotoApp(page: any) {
 
 test.describe('active-dashboard-resolution — empty state', () => {
 	// @e2e active-dashboard-resolution::empty-state-renders-for-fresh-user
-	test('empty state renders when GET /api/dashboard returns no active dashboard', async ({ browser }) => {
+	test('empty state renders when GET /api/dashboard returns no active dashboard', async ({
+		browser,
+	}) => {
 		// The empty-state branch keys off the server-rendered `activeDashboardId`
 		// initial-state value, NOT the /api/dashboard fetch — so route-mocking a
 		// 404 cannot produce it. Reaching it requires a Nextcloud account that
@@ -51,7 +57,9 @@ test.describe('active-dashboard-resolution — empty state', () => {
 				await page.goto('/index.php/apps/launchpad')
 				const empty = page.locator('.workspace-shell__empty')
 				await expect(empty).toBeVisible({ timeout: 15_000 })
-				await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(/no dashboards available/i)
+				await expect(
+					empty.locator('.workspace-shell__empty-title'),
+				).toHaveText(/no dashboards available/i)
 			} finally {
 				await context.close()
 			}
@@ -67,12 +75,16 @@ test.describe('active-dashboard-resolution — empty state', () => {
 
 test.describe('active-dashboard-resolution — switchDashboard wires the POST', () => {
 	// @e2e active-dashboard-resolution::switch-dashboard-posts-active-preference
-	test('clicking a sidebar row activates the chosen dashboard server-side', async ({ page }) => {
+	test('clicking a sidebar row activates the chosen dashboard server-side', async ({
+		page,
+	}) => {
 		await gotoApp(page)
 
 		// Open the sidebar so the dashboard rows are visible.
 		await page.locator('.launchpad-sidebar-toggle').first().click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 8_000,
+		})
 
 		const rows = page.locator('.dashboard-switcher-sidebar__item')
 		const rowCount = await rows.count()
@@ -86,15 +98,19 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 		// preference is owned by that endpoint, not a separate body). Arm the
 		// request listener BEFORE the click.
 		const activatePromise = page.waitForRequest(
-			req => req.method() === 'POST' && /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
+			(req) =>
+				req.method() === 'POST'
+				&& /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
 			{ timeout: 8_000 },
 		)
 
 		// Click a non-active PERSONAL (owned) row — only owned dashboards take
 		// an active flag, so this exercises the real switch + persistence path.
-		const ownedInactiveRow = page.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
-		).first()
+		const ownedInactiveRow = page
+			.locator(
+				'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
+			)
+			.first()
 		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
 		await ownedInactiveRow.click()
 
@@ -110,7 +126,9 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 
 test.describe('active-dashboard-resolution — stale preference', () => {
 	// @e2e active-dashboard-resolution::stale-preference-falls-through-silently
-	test('a stale saved UUID is silently discarded — no error toast shown', async ({ page }) => {
+	test('a stale saved UUID is silently discarded — no error toast shown', async ({
+		page,
+	}) => {
 		// Simulate a session where the backend has already cleared the stale
 		// active_dashboard_uuid and resolved through to a group dashboard.
 		// The page initial state carries activeDashboardId from the backend resolver.
@@ -123,14 +141,18 @@ test.describe('active-dashboard-resolution — stale preference', () => {
 		await page.waitForTimeout(2_000)
 
 		// Assert no error toast or alert dialog appeared during load.
-		const errorToasts = await page.locator(
-			'[class*="toast--error"], [class*="nc-toast-error"], [role="alertdialog"]',
-		).count()
+		const errorToasts = await page
+			.locator(
+				'[class*="toast--error"], [class*="nc-toast-error"], [role="alertdialog"]',
+			)
+			.count()
 		expect(errorToasts).toBe(0)
 
 		// The workspace MUST render either a dashboard grid or the empty-state —
 		// never a blank page / loading spinner after 2 s.
-		const gridOrEmpty = page.locator('.launchpad-grid, .launchpad-empty, [class*="grid-stack"]')
+		const gridOrEmpty = page.locator(
+			'.launchpad-grid, .launchpad-empty, [class*="grid-stack"]',
+		)
 		await expect(gridOrEmpty.first()).toBeAttached({ timeout: 5_000 })
 	})
 })

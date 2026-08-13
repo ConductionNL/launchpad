@@ -90,11 +90,26 @@ describe('dashboard store — acknowledgements', () => {
 		})
 		await store.fetchPendingAcknowledgements()
 
-		expect(store.isPlacementOutstanding({ requiresAcknowledgement: 1, announcementKey: 'ak-1' })).toBe(true)
+		expect(
+			store.isPlacementOutstanding({
+				requiresAcknowledgement: 1,
+				announcementKey: 'ak-1',
+			}),
+		).toBe(true)
 		// Not pending → false.
-		expect(store.isPlacementOutstanding({ requiresAcknowledgement: 1, announcementKey: 'ak-9' })).toBe(false)
+		expect(
+			store.isPlacementOutstanding({
+				requiresAcknowledgement: 1,
+				announcementKey: 'ak-9',
+			}),
+		).toBe(false)
 		// Requirement off → false.
-		expect(store.isPlacementOutstanding({ requiresAcknowledgement: 0, announcementKey: 'ak-1' })).toBe(false)
+		expect(
+			store.isPlacementOutstanding({
+				requiresAcknowledgement: 0,
+				announcementKey: 'ak-1',
+			}),
+		).toBe(false)
 	})
 
 	it('acknowledgePlacement records the receipt and drops the item from the count', async () => {
@@ -104,7 +119,10 @@ describe('dashboard store — acknowledgements', () => {
 		await store.fetchPendingAcknowledgements()
 		api.acknowledge.mockResolvedValue({ data: {} })
 
-		await store.acknowledgePlacement({ announcementKey: 'ak-1', acknowledgementContentVersion: 1 })
+		await store.acknowledgePlacement({
+			announcementKey: 'ak-1',
+			acknowledgementContentVersion: 1,
+		})
 
 		expect(api.acknowledge).toHaveBeenCalledWith('ak-1', 1)
 		expect(store.outstandingAcknowledgementCount).toBe(1)

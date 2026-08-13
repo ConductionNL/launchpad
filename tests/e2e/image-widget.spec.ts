@@ -31,7 +31,11 @@
 
 import { test, expect, type Page } from '@playwright/test'
 import * as path from 'path'
-import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import {
+	gotoLaunchPad,
+	openAddWidgetModal,
+	closeSidebar,
+} from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
 
@@ -73,7 +77,8 @@ async function addUrlImage(page: Page, link: string) {
 
 	await closeSidebar(page)
 
-	const cell = page.locator('.cn-image-widget')
+	const cell = page
+		.locator('.cn-image-widget')
 		.filter({ has: page.locator('img[src*="/core/img/logo/"]') })
 		.last()
 	await expect(cell).toBeAttached({ timeout: 8_000 })
@@ -86,7 +91,9 @@ test.describe('image widget', () => {
 	})
 
 	// @e2e image-widget::upload-populates-url-and-preview
-	test('REQ-IMG-005: upload → preview → save → reload still shows image', async ({ page }) => {
+	test('REQ-IMG-005: upload → preview → save → reload still shows image', async ({
+		page,
+	}) => {
 		const dialog = await openImageForm(page)
 
 		// The form moved to nc-vue's CnImageWidgetForm, which replaced the old
@@ -95,13 +102,15 @@ test.describe('image widget', () => {
 		// cancelled dialog never writes an orphaned file. Set the file on the
 		// input directly rather than driving a source toggle that no longer
 		// exists.
-		await dialog.locator('.cn-image-widget-form__file-input')
+		await dialog
+			.locator('.cn-image-widget-form__file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
 		// Before save the preview is a local object-URL (nothing uploaded yet);
 		// assert the preview renders so "upload → preview" is still covered.
-		await expect(dialog.locator('.cn-image-widget-form__preview'))
-			.toBeAttached({ timeout: 15_000 })
+		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+			timeout: 15_000,
+		})
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -111,18 +120,25 @@ test.describe('image widget', () => {
 		await closeSidebar(page)
 
 		// The uploaded image renders via the resource serve route.
-		const uploaded = page.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last()
+		const uploaded = page
+			.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)
+			.last()
 		await expect(uploaded).toBeAttached({ timeout: 8_000 })
 
 		// Reload and verify persistence.
 		await page.reload()
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`).last())
-			.toBeAttached({ timeout: 10_000 })
+		await expect(
+			page
+				.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)
+				.last(),
+		).toBeAttached({ timeout: 10_000 })
 	})
 
 	// @e2e image-widget::empty-url-fails-validation
-	test('REQ-IMG-002: empty-URL cell shows camera placeholder and ignores clicks', async ({ page }) => {
+	test('REQ-IMG-002: empty-URL cell shows camera placeholder and ignores clicks', async ({
+		page,
+	}) => {
 		const dialog = await openImageForm(page)
 
 		// The validator blocks save with an empty URL: the Add button stays
@@ -135,7 +151,9 @@ test.describe('image widget', () => {
 	})
 
 	// @e2e image-widget::direct-url-string-is-also-accepted
-	test('REQ-IMG-005: a directly typed URL is accepted and the preview loads it', async ({ page }) => {
+	test('REQ-IMG-005: a directly typed URL is accepted and the preview loads it', async ({
+		page,
+	}) => {
 		const dialog = await openImageForm(page)
 
 		// No file chosen — the URL field alone must drive the preview.
@@ -147,28 +165,41 @@ test.describe('image widget', () => {
 
 		// A typed URL is sufficient to save — the counterpart of the
 		// empty-URL validation above.
-		await expect(dialog.getByRole('button', { name: /^add$/i })).toBeEnabled({ timeout: 5_000 })
+		await expect(dialog.getByRole('button', { name: /^add$/i })).toBeEnabled({
+			timeout: 5_000,
+		})
 	})
 
 	// @e2e image-widget::all-allowed-fit-values-selectable
-	test('REQ-IMG-005: the fit control offers exactly cover, contain, fill and none', async ({ page }) => {
+	test('REQ-IMG-005: the fit control offers exactly cover, contain, fill and none', async ({
+		page,
+	}) => {
 		const dialog = await openImageForm(page)
 
 		// `fit` is an NcSelect (vue-select), not a native <select> as the
 		// scenario's prose assumes, so the options live in a popper that only
 		// exists once the control is opened.
-		const fit = dialog.locator('.v-select').filter({ has: page.getByText(/^Fit$/) }).first()
-		const control = (await fit.count()) > 0 ? fit : dialog.locator('.v-select').last()
+		const fit = dialog
+			.locator('.v-select')
+			.filter({ has: page.getByText(/^Fit$/) })
+			.first()
+		const control =
+			(await fit.count()) > 0 ? fit : dialog.locator('.v-select').last()
 
 		// The default selected value for a new placement is Cover.
-		await expect(control.locator('.vs__selected')).toHaveText(/cover/i, { timeout: 10_000 })
+		await expect(control.locator('.vs__selected')).toHaveText(/cover/i, {
+			timeout: 10_000,
+		})
 
 		await control.locator('.vs__dropdown-toggle').click()
-		const options = control.locator('.vs__dropdown-option')
+		const options = control
+			.locator('.vs__dropdown-option')
 			.or(page.locator('.vs__dropdown-menu .vs__dropdown-option'))
 		await expect(options.first()).toBeVisible({ timeout: 5_000 })
 
-		const labels = (await options.allTextContents()).map(s => s.trim().toLowerCase())
+		const labels = (await options.allTextContents()).map((s) =>
+			s.trim().toLowerCase(),
+		)
 		expect(
 			labels,
 			'REQ-IMG-005 pins the allowed object-fit set to exactly these four',
@@ -176,20 +207,26 @@ test.describe('image widget', () => {
 	})
 
 	// @e2e image-widget::upload-error-surfaces-to-user
-	test('REQ-IMG-005: a failed upload surfaces inline and leaves the URL unset', async ({ page }) => {
+	test('REQ-IMG-005: a failed upload surfaces inline and leaves the URL unset', async ({
+		page,
+	}) => {
 		// The upload is DEFERRED to commit(), so the failure lands when Add is
 		// pressed, not when the file is chosen.
-		await page.route('**/apps/launchpad/api/resources/upload', route => route.fulfill({
-			status: 400,
-			contentType: 'application/json',
-			body: '{"error":"file too large (forced by image-widget.spec.ts)"}',
-		}))
+		await page.route('**/apps/launchpad/api/resources/upload', (route) =>
+			route.fulfill({
+				status: 400,
+				contentType: 'application/json',
+				body: '{"error":"file too large (forced by image-widget.spec.ts)"}',
+			}),
+		)
 
 		const dialog = await openImageForm(page)
-		await dialog.locator('.cn-image-widget-form__file-input')
+		await dialog
+			.locator('.cn-image-widget-form__file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
-		await expect(dialog.locator('.cn-image-widget-form__preview'))
-			.toBeAttached({ timeout: 15_000 })
+		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+			timeout: 15_000,
+		})
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -202,8 +239,9 @@ test.describe('image widget', () => {
 		//    so the translated fallback the spec names is unreachable on this
 		//    path. The divergence is reported, not asserted away: what is
 		//    asserted here is that an error is shown at all.
-		await expect(dialog.locator('.cn-image-widget-form__error'))
-			.toBeVisible({ timeout: 15_000 })
+		await expect(dialog.locator('.cn-image-widget-form__error')).toBeVisible({
+			timeout: 15_000,
+		})
 
 		// 2. `form.url` MUST remain unchanged — commit() throws before it
 		//    reaches updateField('url', …). The modal therefore stays open
@@ -214,14 +252,19 @@ test.describe('image widget', () => {
 
 	// @e2e image-widget::click-opens-link-in-new-tab
 	// @e2e image-widget::pointer-cursor-only-with-link
-	test('REQ-IMG-003: a linked cell shows a pointer cursor and opens the link via window.open', async ({ page }) => {
+	test('REQ-IMG-003: a linked cell shows a pointer cursor and opens the link via window.open', async ({
+		page,
+	}) => {
 		// Record window.open rather than waiting for a real tab. The scenario
 		// asserts the CALL — including the 'noopener,noreferrer' features
 		// string, which an opened page cannot report.
 		await page.addInitScript(() => {
 			;(window as unknown as Record<string, unknown>).__opened = []
 			window.open = ((...args: unknown[]) => {
-				;((window as unknown as Record<string, unknown>).__opened as unknown[]).push(args)
+				;(
+					(window as unknown as Record<string, unknown>)
+						.__opened as unknown[]
+				).push(args)
 				return null
 			}) as typeof window.open
 		})
@@ -230,8 +273,12 @@ test.describe('image widget', () => {
 		const cell = await addUrlImage(page, 'https://example.com')
 
 		// Pointer cursor is the affordance half of REQ-IMG-003.
-		const cursor = await cell.evaluate(el => window.getComputedStyle(el).cursor)
-		expect(cursor, 'a linked cell must advertise itself as clickable').toBe('pointer')
+		const cursor = await cell.evaluate(
+			(el) => window.getComputedStyle(el).cursor,
+		)
+		expect(cursor, 'a linked cell must advertise itself as clickable').toBe(
+			'pointer',
+		)
 
 		// `dispatchEvent` rather than `click()`: the handler under test is a
 		// plain @click, and dispatching it directly does not depend on the cell
@@ -239,8 +286,15 @@ test.describe('image widget', () => {
 		// real-popup version of this test red in CI.
 		await cell.dispatchEvent('click')
 
-		const opened = await page.evaluate(() => (window as unknown as Record<string, unknown>).__opened as unknown[][])
-		expect(opened.length, 'a click on a linked cell must open the link').toBeGreaterThan(0)
+		const opened = await page.evaluate(
+			() =>
+				(window as unknown as Record<string, unknown>)
+					.__opened as unknown[][],
+		)
+		expect(
+			opened.length,
+			'a click on a linked cell must open the link',
+		).toBeGreaterThan(0)
 		expect(opened[opened.length - 1]).toEqual([
 			'https://example.com',
 			'_blank',
@@ -249,11 +303,16 @@ test.describe('image widget', () => {
 	})
 
 	// @e2e image-widget::no-link-no-click-no-pointer
-	test('REQ-IMG-003: an unlinked cell keeps the default cursor and clicking does nothing', async ({ page }) => {
+	test('REQ-IMG-003: an unlinked cell keeps the default cursor and clicking does nothing', async ({
+		page,
+	}) => {
 		await page.addInitScript(() => {
 			;(window as unknown as Record<string, unknown>).__opened = []
 			window.open = ((...args: unknown[]) => {
-				;((window as unknown as Record<string, unknown>).__opened as unknown[]).push(args)
+				;(
+					(window as unknown as Record<string, unknown>)
+						.__opened as unknown[]
+				).push(args)
 				return null
 			}) as typeof window.open
 		})
@@ -261,7 +320,9 @@ test.describe('image widget', () => {
 
 		const cell = await addUrlImage(page, '')
 
-		const cursor = await cell.evaluate(el => window.getComputedStyle(el).cursor)
+		const cursor = await cell.evaluate(
+			(el) => window.getComputedStyle(el).cursor,
+		)
 		expect(
 			cursor,
 			'an unlinked cell must NOT offer a misleading clickable affordance',
@@ -269,7 +330,11 @@ test.describe('image widget', () => {
 
 		await cell.dispatchEvent('click')
 
-		const opened = await page.evaluate(() => (window as unknown as Record<string, unknown>).__opened as unknown[][])
+		const opened = await page.evaluate(
+			() =>
+				(window as unknown as Record<string, unknown>)
+					.__opened as unknown[][],
+		)
 		expect(opened, 'clicking an unlinked cell must not navigate').toHaveLength(0)
 	})
 })

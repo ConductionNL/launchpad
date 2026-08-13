@@ -17,9 +17,16 @@
 -->
 
 <template>
-	<div class="conditional-visibility-editor" data-test="conditional-visibility-editor">
+	<div
+		class="conditional-visibility-editor"
+		data-test="conditional-visibility-editor">
 		<p class="conditional-visibility-editor__hint">
-			{{ t('launchpad', 'Show or hide this widget based on group membership, time of day, date range, or a user attribute.') }}
+			{{
+				t(
+					'launchpad',
+					'Show or hide this widget based on group membership, time of day, date range, or a user attribute.',
+				)
+			}}
 		</p>
 
 		<div v-if="loading" class="conditional-visibility-editor__loading">
@@ -31,7 +38,12 @@
 				v-if="isEmpty"
 				class="conditional-visibility-editor__empty"
 				data-test="visibility-empty-state">
-				{{ t('launchpad', 'No visibility rules yet — this widget is always shown.') }}
+				{{
+					t(
+						'launchpad',
+						'No visibility rules yet — this widget is always shown.',
+					)
+				}}
 			</p>
 
 			<section
@@ -82,7 +94,9 @@
 			</NcButton>
 
 			<!-- REQ-CVUI-004: preview as audience/date. -->
-			<section class="conditional-visibility-editor__preview" data-test="visibility-preview">
+			<section
+				class="conditional-visibility-editor__preview"
+				data-test="visibility-preview">
 				<h3>{{ t('launchpad', 'Preview as audience / date') }}</h3>
 				<div class="conditional-visibility-editor__preview-fields">
 					<div class="conditional-visibility-editor__preview-field">
@@ -90,8 +104,12 @@
 							v-model="previewGroups"
 							:options="availableGroups"
 							:multiple="true"
-							:aria-label-combobox="t('launchpad', 'Preview as groups')"
-							:placeholder="t('launchpad', 'Select groups to preview as')"
+							:aria-label-combobox="
+								t('launchpad', 'Preview as groups')
+							"
+							:placeholder="
+								t('launchpad', 'Select groups to preview as')
+							"
 							data-test="preview-groups" />
 					</div>
 					<div class="conditional-visibility-editor__preview-field">
@@ -110,7 +128,9 @@
 					</NcButton>
 				</div>
 
-				<div v-if="preview.state.loading" class="conditional-visibility-editor__preview-loading">
+				<div
+					v-if="preview.state.loading"
+					class="conditional-visibility-editor__preview-loading">
 					<NcLoadingIcon :size="24" />
 				</div>
 
@@ -118,7 +138,12 @@
 					v-else-if="preview.state.error"
 					class="conditional-visibility-editor__preview-error"
 					data-test="preview-error">
-					{{ t('launchpad', 'Preview failed — check the rules above and try again.') }}
+					{{
+						t(
+							'launchpad',
+							'Preview failed — check the rules above and try again.',
+						)
+					}}
 				</div>
 
 				<div
@@ -129,7 +154,11 @@
 						<Eye v-if="preview.state.result.visible" :size="20" />
 						<EyeOff v-else :size="20" />
 						<strong data-test="preview-verdict-text">
-							{{ preview.state.result.visible ? t('launchpad', 'Visible') : t('launchpad', 'Hidden') }}
+							{{
+								preview.state.result.visible
+									? t('launchpad', 'Visible')
+									: t('launchpad', 'Hidden')
+							}}
 						</strong>
 					</p>
 					<p
@@ -137,14 +166,22 @@
 						:key="'inc-' + rule.id"
 						class="conditional-visibility-editor__preview-reason"
 						data-test="preview-matched-include">
-						{{ t('launchpad', 'Matched include rule: {summary}', { summary: describeRule(rule) }) }}
+						{{
+							t('launchpad', 'Matched include rule: {summary}', {
+								summary: describeRule(rule),
+							})
+						}}
 					</p>
 					<p
 						v-for="rule in matchedExcludeRules"
 						:key="'exc-' + rule.id"
 						class="conditional-visibility-editor__preview-reason"
 						data-test="preview-matched-exclude">
-						{{ t('launchpad', 'Matched exclude rule: {summary}', { summary: describeRule(rule) }) }}
+						{{
+							t('launchpad', 'Matched exclude rule: {summary}', {
+								summary: describeRule(rule),
+							})
+						}}
 					</p>
 				</div>
 			</section>
@@ -153,7 +190,12 @@
 </template>
 
 <script>
-import { NcButton, NcSelectTags, NcTextField, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import {
+	NcButton,
+	NcSelectTags,
+	NcTextField,
+	NcLoadingIcon,
+} from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Eye from 'vue-material-design-icons/Eye.vue'
@@ -224,13 +266,19 @@ export default {
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		matchedIncludeRules() {
-			const ids = (this.preview.state.result && this.preview.state.result.matchedIncludeRuleIds) || []
+			const ids =
+				(this.preview.state.result
+					&& this.preview.state.result.matchedIncludeRuleIds)
+				|| []
 			return this.rules.filter((r) => ids.includes(r.id))
 		},
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		matchedExcludeRules() {
-			const ids = (this.preview.state.result && this.preview.state.result.matchedExcludeRuleIds) || []
+			const ids =
+				(this.preview.state.result
+					&& this.preview.state.result.matchedExcludeRuleIds)
+				|| []
 			return this.rules.filter((r) => ids.includes(r.id))
 		},
 	},
@@ -258,7 +306,9 @@ export default {
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md
 		 */
 		rowKey(row) {
-			return row.id !== null && row.id !== undefined ? `id-${row.id}` : `local-${row._localKey}`
+			return row.id !== null && row.id !== undefined
+				? `id-${row.id}`
+				: `local-${row._localKey}`
 		},
 
 		isRowBusy(row) {
@@ -279,9 +329,18 @@ export default {
 			this.preview.reset()
 			try {
 				const { data } = await api.getWidgetRules(this.placementId)
-				const payload = (data && data.rules) ? data : (data && data.data) ? data.data : {}
-				const list = Array.isArray(payload.rules) ? payload.rules : (Array.isArray(data) ? data : [])
-				this.rules = list.map((r) => ({ ...r, id: r.id, _localKey: undefined }))
+				const payload =
+					data && data.rules ? data : data && data.data ? data.data : {}
+				const list = Array.isArray(payload.rules)
+					? payload.rules
+					: Array.isArray(data)
+						? data
+						: []
+				this.rules = list.map((r) => ({
+					...r,
+					id: r.id,
+					_localKey: undefined,
+				}))
 			} catch (error) {
 				console.error('Failed to load visibility rules:', error)
 				this.rules = []
@@ -343,15 +402,18 @@ export default {
 			try {
 				if (row.id !== null && row.id !== undefined) {
 					const { data } = await api.updateRule(row.id, payload)
-					const updated = (data && data.data) ? data.data : data
+					const updated = data && data.data ? data.data : data
 					const index = this.rules.indexOf(row)
 					if (index !== -1) {
 						this.rules[index] = { ...row, ...updated }
 					}
 					this.$emit('rule-updated')
 				} else {
-					const { data } = await api.addWidgetRule(this.placementId, payload)
-					const created = (data && data.data) ? data.data : data
+					const { data } = await api.addWidgetRule(
+						this.placementId,
+						payload,
+					)
+					const created = data && data.data ? data.data : data
 					const index = this.rules.indexOf(row)
 					if (index !== -1 && created && created.id) {
 						this.rules[index] = { ...created, _localKey: undefined }
@@ -400,7 +462,9 @@ export default {
 			try {
 				await this.preview.runPreview(this.rules, {
 					groups: this.previewGroups,
-					datetime: this.previewDatetime ? new Date(this.previewDatetime).toISOString() : null,
+					datetime: this.previewDatetime
+						? new Date(this.previewDatetime).toISOString()
+						: null,
 				})
 			} catch (error) {
 				// Surfaced via preview.state.error in the template.
@@ -418,16 +482,16 @@ export default {
 		describeRule(rule) {
 			const cfg = rule.ruleConfig || {}
 			switch (rule.ruleType) {
-			case 'group':
-				return (cfg.groups || []).join(', ')
-			case 'time':
-				return `${cfg.startTime || ''}–${cfg.endTime || ''}`
-			case 'date':
-				return `${cfg.startDate || '…'} → ${cfg.endDate || '…'}`
-			case 'attribute':
-				return `${cfg.attribute || ''} ${cfg.operator || ''} ${cfg.value || ''}`
-			default:
-				return ''
+				case 'group':
+					return (cfg.groups || []).join(', ')
+				case 'time':
+					return `${cfg.startTime || ''}–${cfg.endTime || ''}`
+				case 'date':
+					return `${cfg.startDate || '…'} → ${cfg.endDate || '…'}`
+				case 'attribute':
+					return `${cfg.attribute || ''} ${cfg.operator || ''} ${cfg.value || ''}`
+				default:
+					return ''
 			}
 		},
 	},

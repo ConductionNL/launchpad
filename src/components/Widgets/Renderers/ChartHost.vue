@@ -18,7 +18,20 @@ import { CnChartWidget } from '@conduction/nextcloud-vue'
 // CnChartWidget verbatim (apexcharts passthrough). `dataSource` resolves the
 // series when present, so these are optional overrides only — mirrors
 // CnDashboardPage.CHART_PROP_KEYS for the in-app-editable (ADR-041) path.
-const CHART_PROP_KEYS = ['series', 'categories', 'labels', 'options', 'colors', 'toolbar', 'legend', 'height', 'width', 'stacked', 'horizontal', 'colorScheme']
+const CHART_PROP_KEYS = [
+	'series',
+	'categories',
+	'labels',
+	'options',
+	'colors',
+	'toolbar',
+	'legend',
+	'height',
+	'width',
+	'stacked',
+	'horizontal',
+	'colorScheme',
+]
 
 /**
  * ChartHost — thin LaunchPad wrapper adapting the registry's `content` shape

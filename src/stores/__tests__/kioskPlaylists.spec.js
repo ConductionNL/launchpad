@@ -42,9 +42,15 @@ describe('kioskPlaylists store', () => {
 	})
 
 	it('createPlaylist appends the created playlist', async () => {
-		axios.post.mockResolvedValue({ data: { id: 5, name: 'Reception', entries: [] } })
+		axios.post.mockResolvedValue({
+			data: { id: 5, name: 'Reception', entries: [] },
+		})
 		const store = useKioskPlaylistStore()
-		const created = await store.createPlaylist({ name: 'Reception', entries: [], refreshSeconds: 300 })
+		const created = await store.createPlaylist({
+			name: 'Reception',
+			entries: [],
+			refreshSeconds: 300,
+		})
 		expect(created.id).toBe(5)
 		expect(store.playlists).toContainEqual(created)
 		expect(axios.post).toHaveBeenCalledWith(
@@ -57,7 +63,11 @@ describe('kioskPlaylists store', () => {
 		const store = useKioskPlaylistStore()
 		store.playlists = [{ id: 7, name: 'Old' }]
 		axios.put.mockResolvedValue({ data: { id: 7, name: 'New' } })
-		await store.updatePlaylist(7, { name: 'New', entries: [], refreshSeconds: 60 })
+		await store.updatePlaylist(7, {
+			name: 'New',
+			entries: [],
+			refreshSeconds: 60,
+		})
 		expect(store.playlists).toEqual([{ id: 7, name: 'New' }])
 	})
 
@@ -74,6 +84,8 @@ describe('kioskPlaylists store', () => {
 		const store = useKioskPlaylistStore()
 		const payload = await store.fetchRender('tok123')
 		expect(payload).toEqual({ playlist: { id: 1 }, entries: [] })
-		expect(axios.get).toHaveBeenCalledWith('/index.php/apps/launchpad/kiosk/tok123')
+		expect(axios.get).toHaveBeenCalledWith(
+			'/index.php/apps/launchpad/kiosk/tok123',
+		)
 	})
 })

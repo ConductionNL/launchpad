@@ -38,7 +38,12 @@ describe('applyManifestFragments (ADR-037)', () => {
 	})
 
 	it('is a no-op for an empty / placeholder fragment set', () => {
-		const base = { version: '1.0.0', pages: [], menu: [], runtime: { loadFrom: 'x' } }
+		const base = {
+			version: '1.0.0',
+			pages: [],
+			menu: [],
+			runtime: { loadFrom: 'x' },
+		}
 		const merged = applyManifestFragments(base, [{ pages: [], menu: [] }])
 
 		expect(merged.pages).toEqual([])
@@ -48,7 +53,11 @@ describe('applyManifestFragments (ADR-037)', () => {
 
 	it('ignores fragments without pages/menu arrays', () => {
 		const base = { pages: [{ id: 'home' }], menu: [] }
-		const merged = applyManifestFragments(base, [{}, { pages: 'not-an-array' }, null])
+		const merged = applyManifestFragments(base, [
+			{},
+			{ pages: 'not-an-array' },
+			null,
+		])
 
 		expect(merged.pages.map((p) => p.id)).toEqual(['home'])
 		expect(merged.menu).toEqual([])

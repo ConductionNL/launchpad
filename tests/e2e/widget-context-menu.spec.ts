@@ -55,7 +55,7 @@ async function waitForStableBox(locator: Locator, timeoutMs = 2_000) {
 	const deadline = Date.now() + timeoutMs
 	let previous = await locator.boundingBox()
 	for (;;) {
-		await new Promise(resolve => setTimeout(resolve, 60))
+		await new Promise((resolve) => setTimeout(resolve, 60))
 		const current = await locator.boundingBox()
 		if (!current) {
 			throw new Error('Locator has no bounding box (detached or hidden).')
@@ -94,10 +94,14 @@ async function openInEditMode(page: import('@playwright/test').Page) {
 	// Open the sidebar and enter edit mode for the active personal dashboard
 	// via its per-row cog menu ("Edit dashboard").
 	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
-	const activeRow = page.locator(
-		'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-	).first()
+	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+		timeout: 8_000,
+	})
+	const activeRow = page
+		.locator(
+			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+		)
+		.first()
 	await activeRow.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
 
@@ -107,10 +111,12 @@ async function openInEditMode(page: import('@playwright/test').Page) {
 	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 	if (await closeBtn.isVisible().catch(() => false)) {
 		await closeBtn.click()
-		await page.waitForFunction(
-			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-			{ timeout: 5_000 },
-		).catch(() => null)
+		await page
+			.waitForFunction(
+				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+				{ timeout: 5_000 },
+			)
+			.catch(() => null)
 	}
 }
 
@@ -119,7 +125,9 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await openInEditMode(page)
 	})
 
-	test('REQ-WDG-017 right edge: popover stays within viewport when right-clicked near right edge', async ({ page }) => {
+	test('REQ-WDG-017 right edge: popover stays within viewport when right-clicked near right edge', async ({
+		page,
+	}) => {
 		// Narrow the viewport so 50 px from the right puts us near the edge.
 		await page.setViewportSize({ width: 800, height: 600 })
 
@@ -160,7 +168,9 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await expect(menu).not.toBeVisible()
 	})
 
-	test('REQ-WDG-017 bottom edge: popover stays within viewport when right-clicked near bottom edge', async ({ page }) => {
+	test('REQ-WDG-017 bottom edge: popover stays within viewport when right-clicked near bottom edge', async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 1200, height: 600 })
 
 		const placement = page.locator('.grid-stack-item').first()
@@ -192,20 +202,28 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await page.locator('[data-testid="ctx-cancel"]').click()
 	})
 
-	test('REQ-WDG-015 + persistence: Remove via context menu persists after reload', async ({ page }) => {
+	test('REQ-WDG-015 + persistence: Remove via context menu persists after reload', async ({
+		page,
+	}) => {
 		test.setTimeout(60_000)
 
 		// Right-click must land on rendered widget CONTENT to open the popover
 		// (a bare grid-cell gap, or a container widget's inner grid, does not
 		// forward the contextmenu). Pick a grid item that holds a simple
 		// widget renderer content element and use its placement id.
-		const placement = page.locator('.grid-stack-item').filter({ has: page.locator('.cn-widget-wrapper__content') }).first()
+		const placement = page
+			.locator('.grid-stack-item')
+			.filter({ has: page.locator('.cn-widget-wrapper__content') })
+			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		const gsId = await placement.getAttribute('gs-id')
 		expect(gsId).toBeTruthy()
 
 		// Right-click the widget content (not the cell padding) to open the menu.
-		await placement.locator('.cn-widget-wrapper__content').first().click({ button: 'right' })
+		await placement
+			.locator('.cn-widget-wrapper__content')
+			.first()
+			.click({ button: 'right' })
 
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
@@ -214,7 +232,9 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await page.locator('[data-testid="ctx-remove"]').click()
 		await expect(menu).not.toBeVisible()
 		// The removed widget's grid item must be gone from the DOM.
-		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0, { timeout: 5_000 })
+		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0, {
+			timeout: 5_000,
+		})
 
 		// Reload and confirm the placement is absent (DELETE persisted).
 		await page.reload({ waitUntil: 'domcontentloaded' })

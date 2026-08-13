@@ -46,7 +46,10 @@ describe('VisibilityRulesModal', () => {
 	})
 
 	it('renders ConditionalVisibilityEditor with the placement id and available groups forwarded', () => {
-		const wrapper = mountModal({ placementId: 42, availableGroups: ['marketing'] })
+		const wrapper = mountModal({
+			placementId: 42,
+			availableGroups: ['marketing'],
+		})
 		const editor = wrapper.findComponent(ConditionalVisibilityEditorStub)
 
 		expect(editor.exists()).toBe(true)

@@ -5,36 +5,34 @@
 
 <template>
 	<div class="clock-widget" :class="`clock-widget--${style}`">
-		<div v-if="style === 'analog'"
+		<div
+			v-if="style === 'analog'"
 			class="clock-widget__analog"
 			role="img"
 			:aria-label="accessibleLabel">
 			<svg viewBox="0 0 100 100" class="clock-widget__face" aria-hidden="true">
-				<circle cx="50"
-					cy="50"
-					r="48"
-					class="clock-widget__rim" />
+				<circle cx="50" cy="50" r="48" class="clock-widget__rim" />
 				<line
 					v-for="tick in 12"
 					:key="`tick-${tick}`"
 					class="clock-widget__tick"
 					v-bind="tickCoords(tick)" />
-				<line class="clock-widget__hand clock-widget__hand--hour"
+				<line
+					class="clock-widget__hand clock-widget__hand--hour"
 					x1="50"
 					y1="50"
 					v-bind="handCoords(hourAngle, 26)" />
-				<line class="clock-widget__hand clock-widget__hand--minute"
+				<line
+					class="clock-widget__hand clock-widget__hand--minute"
 					x1="50"
 					y1="50"
 					v-bind="handCoords(minuteAngle, 38)" />
-				<line class="clock-widget__hand clock-widget__hand--second"
+				<line
+					class="clock-widget__hand clock-widget__hand--second"
 					x1="50"
 					y1="50"
 					v-bind="handCoords(secondAngle, 42)" />
-				<circle cx="50"
-					cy="50"
-					r="2.2"
-					class="clock-widget__pivot" />
+				<circle cx="50" cy="50" r="2.2" class="clock-widget__pivot" />
 			</svg>
 		</div>
 
@@ -103,7 +101,9 @@ export default {
 	computed: {
 		/** Resolved style — `digital` or `analog`. @spec openspec/specs/clock-weather-widgets/spec.md */
 		style() {
-			return this.content?.style === 'analog' ? 'analog' : DEFAULT_CONTENT.style
+			return this.content?.style === 'analog'
+				? 'analog'
+				: DEFAULT_CONTENT.style
 		},
 
 		/** Resolved hour format — `12h`, `24h`, or `auto` (follows locale). @spec openspec/specs/clock-weather-widgets/spec.md */
@@ -136,7 +136,9 @@ export default {
 
 		/** Resolved IANA timezone, or '' to use the browser/device timezone. @spec openspec/specs/clock-weather-widgets/spec.md */
 		timezone() {
-			return typeof this.content?.timezone === 'string' ? this.content.timezone : DEFAULT_CONTENT.timezone
+			return typeof this.content?.timezone === 'string'
+				? this.content.timezone
+				: DEFAULT_CONTENT.timezone
 		},
 
 		/**
@@ -198,12 +200,17 @@ export default {
 		 */
 		timeText() {
 			try {
-				return new Intl.DateTimeFormat(this.locale, this.timeFormatOptions).format(this.now)
+				return new Intl.DateTimeFormat(
+					this.locale,
+					this.timeFormatOptions,
+				).format(this.now)
 			} catch (e) {
 				// Invalid/unknown IANA timezone — fall back to the device zone
 				// rather than crashing the widget.
 				const { timeZone, ...fallbackOptions } = this.timeFormatOptions
-				return new Intl.DateTimeFormat(this.locale, fallbackOptions).format(this.now)
+				return new Intl.DateTimeFormat(this.locale, fallbackOptions).format(
+					this.now,
+				)
 			}
 		},
 
@@ -237,10 +244,15 @@ export default {
 		 */
 		dateText() {
 			try {
-				return new Intl.DateTimeFormat(this.locale, this.dateFormatOptions).format(this.now)
+				return new Intl.DateTimeFormat(
+					this.locale,
+					this.dateFormatOptions,
+				).format(this.now)
 			} catch (e) {
 				const { timeZone, ...fallbackOptions } = this.dateFormatOptions
-				return new Intl.DateTimeFormat(this.locale, fallbackOptions).format(this.now)
+				return new Intl.DateTimeFormat(this.locale, fallbackOptions).format(
+					this.now,
+				)
 			}
 		},
 
@@ -255,7 +267,10 @@ export default {
 		 */
 		accessibleLabel() {
 			if (this.showDate) {
-				return t('launchpad', '{date}, {time}', { date: this.dateText, time: this.timeText })
+				return t('launchpad', '{date}, {time}', {
+					date: this.dateText,
+					time: this.timeText,
+				})
 			}
 			return this.timeText
 		},
@@ -279,7 +294,7 @@ export default {
 		 * @return {number}
 		 */
 		minuteAngle() {
-			return (this.now.getMinutes() + (this.now.getSeconds() / 60)) * 6
+			return (this.now.getMinutes() + this.now.getSeconds() / 60) * 6
 		},
 
 		/**
@@ -289,7 +304,7 @@ export default {
 		 * @return {number}
 		 */
 		hourAngle() {
-			return ((this.now.getHours() % 12) + (this.now.getMinutes() / 60)) * 30
+			return ((this.now.getHours() % 12) + this.now.getMinutes() / 60) * 30
 		},
 	},
 
@@ -334,7 +349,7 @@ export default {
 		 * @return {{x1: number, y1: number, x2: number, y2: number}}
 		 */
 		tickCoords(tick) {
-			const angle = ((tick % 12) * 30)
+			const angle = (tick % 12) * 30
 			const outer = this.pointOnCircle(angle, 44)
 			const inner = this.pointOnCircle(angle, 38)
 			return { x1: inner.x, y1: inner.y, x2: outer.x, y2: outer.y }
@@ -366,8 +381,8 @@ export default {
 		pointOnCircle(angleDegrees, radius) {
 			const radians = ((angleDegrees - 90) * Math.PI) / 180
 			return {
-				x: 50 + (radius * Math.cos(radians)),
-				y: 50 + (radius * Math.sin(radians)),
+				x: 50 + radius * Math.cos(radians),
+				y: 50 + radius * Math.sin(radians),
 			}
 		},
 	},

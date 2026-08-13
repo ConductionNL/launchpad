@@ -17,7 +17,10 @@ import WidgetMovePanel from '../WidgetMovePanel.vue'
 
 const stubs = {
 	NcModal: { template: '<div class="nc-modal-stub"><slot /></div>' },
-	NcButton: { emits: ['click'], template: '<button @click="$emit(\'click\')"><slot /></button>' },
+	NcButton: {
+		emits: ['click'],
+		template: '<button @click="$emit(\'click\')"><slot /></button>',
+	},
 }
 
 beforeEach(() => {
@@ -51,13 +54,17 @@ function mountPanel(props = {}) {
 describe('WidgetMovePanel', () => {
 	it('ArrowRight nudges the pending column by one', async () => {
 		const wrapper = mountPanel()
-		await wrapper.find('[data-test="widget-move-panel"]').trigger('keydown', { key: 'ArrowRight' })
+		await wrapper
+			.find('[data-test="widget-move-panel"]')
+			.trigger('keydown', { key: 'ArrowRight' })
 		expect(wrapper.vm.working.gridX).toBe(4)
 		expect(wrapper.vm.working.gridY).toBe(2)
 	})
 
 	it('ArrowUp/ArrowLeft nudge and clamp at the grid origin', async () => {
-		const wrapper = mountPanel({ placement: { id: 'p1', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 4 } })
+		const wrapper = mountPanel({
+			placement: { id: 'p1', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 4 },
+		})
 		const el = wrapper.find('[data-test="widget-move-panel"]')
 		await el.trigger('keydown', { key: 'ArrowUp' })
 		await el.trigger('keydown', { key: 'ArrowLeft' })
@@ -66,7 +73,9 @@ describe('WidgetMovePanel', () => {
 	})
 
 	it('Shift+ArrowRight grows width; Shift+ArrowLeft shrinks it (floor at MIN_CELLS)', async () => {
-		const wrapper = mountPanel({ placement: { id: 'p1', gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 } })
+		const wrapper = mountPanel({
+			placement: { id: 'p1', gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 },
+		})
 		const el = wrapper.find('[data-test="widget-move-panel"]')
 		await el.trigger('keydown', { key: 'ArrowRight', shiftKey: true })
 		expect(wrapper.vm.working.gridWidth).toBe(3)
@@ -78,7 +87,9 @@ describe('WidgetMovePanel', () => {
 
 	it('the live readout reflects the pending position/size', async () => {
 		const wrapper = mountPanel()
-		await wrapper.find('[data-test="widget-move-panel"]').trigger('keydown', { key: 'ArrowDown' })
+		await wrapper
+			.find('[data-test="widget-move-panel"]')
+			.trigger('keydown', { key: 'ArrowDown' })
 		const readout = wrapper.find('[data-test="widget-move-readout"]')
 		// gridX 3 → column 4, gridY 3 → row 4, 4 wide by 4 tall.
 		expect(readout.text()).toContain('4')
@@ -94,7 +105,12 @@ describe('WidgetMovePanel', () => {
 
 		const saved = wrapper.emitted('save')
 		expect(saved).toHaveLength(1)
-		expect(saved[0][0]).toMatchObject({ gridX: 4, gridY: 3, gridWidth: 4, gridHeight: 4 })
+		expect(saved[0][0]).toMatchObject({
+			gridX: 4,
+			gridY: 3,
+			gridWidth: 4,
+			gridHeight: 4,
+		})
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 

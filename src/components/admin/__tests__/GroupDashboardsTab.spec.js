@@ -44,12 +44,16 @@ vi.mock('@nextcloud/axios', () => ({
 
 vi.mock('../../../services/api.js', () => ({
 	api: {
-		getAdminGroups: vi.fn(() => Promise.resolve({
-			data: { data: [{ id: 'admins', displayName: 'Admins' }] },
-		})),
-		listGroupDashboards: vi.fn(() => Promise.resolve({
-			data: { data: [{ uuid: 'u1', name: 'A', isDefault: false }] },
-		})),
+		getAdminGroups: vi.fn(() =>
+			Promise.resolve({
+				data: { data: [{ id: 'admins', displayName: 'Admins' }] },
+			}),
+		),
+		listGroupDashboards: vi.fn(() =>
+			Promise.resolve({
+				data: { data: [{ uuid: 'u1', name: 'A', isDefault: false }] },
+			}),
+		),
 		createGroupDashboard: vi.fn(),
 		updateGroupDashboard: vi.fn(),
 		deleteGroupDashboard: vi.fn(),
@@ -58,12 +62,23 @@ vi.mock('../../../services/api.js', () => ({
 }))
 
 const stubs = {
-	NcButton: { emits: ['click'], template: '<button class="nc-button" :data-test="$attrs[\'data-test\']" @click="$emit(\'click\')"><slot /></button>' },
-	NcEmptyContent: { template: '<div class="nc-empty-content" :data-test="$attrs[\'data-test\']"><slot name="icon" /><slot /></div>' },
+	NcButton: {
+		emits: ['click'],
+		template:
+			'<button class="nc-button" :data-test="$attrs[\'data-test\']" @click="$emit(\'click\')"><slot /></button>',
+	},
+	NcEmptyContent: {
+		template:
+			'<div class="nc-empty-content" :data-test="$attrs[\'data-test\']"><slot name="icon" /><slot /></div>',
+	},
 	NcLoadingIcon: { template: '<span class="nc-loading-icon" />' },
 	AccountMultipleIcon: { template: '<span class="icon-account-multiple" />' },
-	CreateGroupDashboardModal: { template: '<div data-test="create-modal-mounted" />' },
-	ManageGroupDashboardsModal: { template: '<div data-test="manage-modal-mounted" />' },
+	CreateGroupDashboardModal: {
+		template: '<div data-test="create-modal-mounted" />',
+	},
+	ManageGroupDashboardsModal: {
+		template: '<div data-test="manage-modal-mounted" />',
+	},
 }
 
 let GroupDashboardsTab
@@ -86,9 +101,15 @@ async function mountTab() {
 describe('GroupDashboardsTab', () => {
 	it('renders one row per group plus the default sentinel', async () => {
 		const wrapper = await mountTab()
-		expect(wrapper.find('[data-test="tab-group-dashboards"]').exists()).toBe(true)
-		expect(wrapper.find('[data-test="group-dashboards-row-default"]').exists()).toBe(true)
-		expect(wrapper.find('[data-test="group-dashboards-row-admins"]').exists()).toBe(true)
+		expect(wrapper.find('[data-test="tab-group-dashboards"]').exists()).toBe(
+			true,
+		)
+		expect(
+			wrapper.find('[data-test="group-dashboards-row-default"]').exists(),
+		).toBe(true)
+		expect(
+			wrapper.find('[data-test="group-dashboards-row-admins"]').exists(),
+		).toBe(true)
 	})
 
 	it('renders a count badge per group from the store', async () => {
@@ -100,20 +121,34 @@ describe('GroupDashboardsTab', () => {
 
 	it('opens the create modal when the Create action is clicked', async () => {
 		const wrapper = await mountTab()
-		expect(wrapper.find('[data-test="create-modal-mounted"]').exists()).toBe(false)
-		await wrapper.find('[data-test="group-dashboards-create-admins"]').trigger('click')
-		expect(wrapper.find('[data-test="create-modal-mounted"]').exists()).toBe(true)
+		expect(wrapper.find('[data-test="create-modal-mounted"]').exists()).toBe(
+			false,
+		)
+		await wrapper
+			.find('[data-test="group-dashboards-create-admins"]')
+			.trigger('click')
+		expect(wrapper.find('[data-test="create-modal-mounted"]').exists()).toBe(
+			true,
+		)
 	})
 
 	it('opens the manage modal when the Manage action is clicked', async () => {
 		const wrapper = await mountTab()
-		await wrapper.find('[data-test="group-dashboards-manage-admins"]').trigger('click')
-		expect(wrapper.find('[data-test="manage-modal-mounted"]').exists()).toBe(true)
+		await wrapper
+			.find('[data-test="group-dashboards-manage-admins"]')
+			.trigger('click')
+		expect(wrapper.find('[data-test="manage-modal-mounted"]').exists()).toBe(
+			true,
+		)
 	})
 
 	it('opens the manage modal when the View action is clicked (View is an alias for Manage today)', async () => {
 		const wrapper = await mountTab()
-		await wrapper.find('[data-test="group-dashboards-view-admins"]').trigger('click')
-		expect(wrapper.find('[data-test="manage-modal-mounted"]').exists()).toBe(true)
+		await wrapper
+			.find('[data-test="group-dashboards-view-admins"]')
+			.trigger('click')
+		expect(wrapper.find('[data-test="manage-modal-mounted"]').exists()).toBe(
+			true,
+		)
 	})
 })

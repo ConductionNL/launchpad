@@ -78,7 +78,8 @@ function mountShell(options = {}) {
 				name: 'NcButton',
 				props: ['type', 'disabled'],
 				emits: ['click'],
-				template: '<button v-bind="$attrs" :data-nc-button-type="type" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
+				template:
+					'<button v-bind="$attrs" :data-nc-button-type="type" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
 				inheritAttrs: false,
 			},
 			MenuIcon: true,
@@ -90,21 +91,33 @@ describe('WorkspaceApp', () => {
 	describe('REQ-SHELL-002: canEdit permission rule', () => {
 		it('canEdit true for admin on group dashboard', () => {
 			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: 'd1' },
+				inject: {
+					isAdmin: true,
+					dashboardSource: 'group',
+					activeDashboardId: 'd1',
+				},
 			})
 			expect(wrapper.vm.canEdit).toBe(true)
 		})
 
 		it('canEdit true for owner of personal dashboard', () => {
 			const wrapper = mountShell({
-				inject: { isAdmin: false, dashboardSource: 'user', activeDashboardId: 'd1' },
+				inject: {
+					isAdmin: false,
+					dashboardSource: 'user',
+					activeDashboardId: 'd1',
+				},
 			})
 			expect(wrapper.vm.canEdit).toBe(true)
 		})
 
 		it('canEdit false for non-admin viewing group-shared dashboard', () => {
 			const wrapper = mountShell({
-				inject: { isAdmin: false, dashboardSource: 'group', activeDashboardId: 'd1' },
+				inject: {
+					isAdmin: false,
+					dashboardSource: 'group',
+					activeDashboardId: 'd1',
+				},
 			})
 			expect(wrapper.vm.canEdit).toBe(false)
 		})
@@ -113,14 +126,22 @@ describe('WorkspaceApp', () => {
 	describe('edit toolbar removed (actions live in the dashboard cog menu)', () => {
 		it('does not render an in-page edit toolbar even when canEdit=true', () => {
 			const wrapper = mountShell({
-				inject: { isAdmin: true, dashboardSource: 'group', activeDashboardId: 'd1' },
+				inject: {
+					isAdmin: true,
+					dashboardSource: 'group',
+					activeDashboardId: 'd1',
+				},
 			})
 			// The Region-3 toolbar (Add Widget + Save Layout) was removed;
 			// editing actions now live in the per-dashboard cog menu
 			// (DashboardRowActions), so the page chrome stays clean.
 			expect(wrapper.find('.workspace-shell__toolbar').exists()).toBe(false)
-			expect(wrapper.find('.workspace-shell__save-button').exists()).toBe(false)
-			expect(wrapper.find('[data-test="add-widget-toolbar-button"]').exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__save-button').exists()).toBe(
+				false,
+			)
+			expect(
+				wrapper.find('[data-test="add-widget-toolbar-button"]').exists(),
+			).toBe(false)
 		})
 	})
 
@@ -162,7 +183,9 @@ describe('WorkspaceApp', () => {
 			expect(title.element.tagName).toBe('H1')
 			expect(title.text()).toBe('Marketing Overview')
 			// No <select> control should appear in the title strip.
-			expect(wrapper.find('.workspace-shell__strip select').exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__strip select').exists()).toBe(
+				false,
+			)
 		})
 	})
 
@@ -181,8 +204,9 @@ describe('WorkspaceApp', () => {
 				inject: { activeDashboardId: '', allowUserDashboards: false },
 			})
 			expect(wrapper.find('.workspace-shell__empty-cta').exists()).toBe(false)
-			expect(wrapper.find('.workspace-shell__empty-hint').text())
-				.toBe('Contact your administrator')
+			expect(wrapper.find('.workspace-shell__empty-hint').text()).toBe(
+				'Contact your administrator',
+			)
 		})
 	})
 
@@ -190,10 +214,14 @@ describe('WorkspaceApp', () => {
 		it('SidebarBackdrop is rendered when sidebarOpen is true', async () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
 			// Initially no backdrop.
-			expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(false)
+			expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(
+				false,
+			)
 			wrapper.vm.sidebarOpen = true
 			await wrapper.vm.$nextTick()
-			expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(true)
+			expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(
+				true,
+			)
 		})
 
 		it('closeSidebar sets sidebarOpen to false', () => {
@@ -237,9 +265,16 @@ describe('WorkspaceApp', () => {
 					{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' },
 				],
 			})
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' }, pinia })
+			const wrapper = mountShell({
+				inject: { activeDashboardId: 'd1' },
+				pinia,
+			})
 			expect(wrapper.vm.searchableTiles).toEqual([
-				{ id: 'p1', label: 'Zaaksysteem', placement: wrapper.vm.widgetPlacements[0] },
+				{
+					id: 'p1',
+					label: 'Zaaksysteem',
+					placement: wrapper.vm.widgetPlacements[0],
+				},
 			])
 		})
 
@@ -252,17 +287,25 @@ describe('WorkspaceApp', () => {
 				],
 				availableWidgets: [{ id: 'w1', title: 'Weather' }],
 			})
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' }, pinia })
+			const wrapper = mountShell({
+				inject: { activeDashboardId: 'd1' },
+				pinia,
+			})
 			const labels = wrapper.vm.searchableTiles.map((t) => t.label)
 			expect(labels).toEqual(['My custom title', 'Weather', 'Widget'])
 		})
 
 		it('passes the searchableTiles + fallbackTarget through as props', () => {
 			const pinia = buildPinia({
-				widgetPlacements: [{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' }],
+				widgetPlacements: [
+					{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' },
+				],
 			})
 			const wrapper = mountShell({
-				inject: { activeDashboardId: 'd1', quicksearchFallbackTarget: 'unified-search' },
+				inject: {
+					activeDashboardId: 'd1',
+					quicksearchFallbackTarget: 'unified-search',
+				},
 				pinia,
 			})
 			const search = wrapper.findComponent(RuntimeShellSearch)
@@ -288,13 +331,21 @@ describe('WorkspaceApp', () => {
 			grid.appendChild(otherEl)
 
 			wrapper.vm.onSearchFilter(['match'])
-			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
-			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(true)
+			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
+				false,
+			)
+			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
+				true,
+			)
 
 			// null (query cleared) undims everything.
 			wrapper.vm.onSearchFilter(null)
-			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
-			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
+			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
+				false,
+			)
+			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
+				false,
+			)
 		})
 
 		it('onSearchClear undims every tile and moves focus to the grid', () => {
@@ -311,7 +362,7 @@ describe('WorkspaceApp', () => {
 			expect(focusSpy).toHaveBeenCalled()
 		})
 
-		it('onSearchOpen scrolls to and clicks the matched tile\'s rendered link', () => {
+		it("onSearchOpen scrolls to and clicks the matched tile's rendered link", () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
 			const grid = wrapper.find('.workspace-shell__grid').element
 			const el = document.createElement('div')
@@ -329,7 +380,11 @@ describe('WorkspaceApp', () => {
 			el.scrollIntoView = scrollSpy
 			const clickSpy = vi.spyOn(link, 'click')
 
-			wrapper.vm.onSearchOpen({ id: 'p1', label: 'Deck', placement: { id: 'p1' } })
+			wrapper.vm.onSearchOpen({
+				id: 'p1',
+				label: 'Deck',
+				placement: { id: 'p1' },
+			})
 			expect(scrollSpy).toHaveBeenCalled()
 			expect(clickSpy).toHaveBeenCalled()
 		})
@@ -402,8 +457,14 @@ describe('WorkspaceApp', () => {
 
 			wrapper.vm.onSearchOpen({ id: 7, label: 'Deck', placement: { id: 7 } })
 
-			expect(scrollSpy, 'the matched tile must be scrolled into view').toHaveBeenCalled()
-			expect(clickSpy, 'Enter must activate the tile\'s rendered link').toHaveBeenCalled()
+			expect(
+				scrollSpy,
+				'the matched tile must be scrolled into view',
+			).toHaveBeenCalled()
+			expect(
+				clickSpy,
+				"Enter must activate the tile's rendered link",
+			).toHaveBeenCalled()
 		})
 
 		it('onSearchOpen ignores a placement with no id rather than looking for the string "null"', () => {
@@ -420,16 +481,30 @@ describe('WorkspaceApp', () => {
 			grid.appendChild(el)
 			const clickSpy = vi.spyOn(link, 'click')
 
-			wrapper.vm.onSearchOpen({ id: null, label: 'Deck', placement: { id: null } })
+			wrapper.vm.onSearchOpen({
+				id: null,
+				label: 'Deck',
+				placement: { id: null },
+			})
 
-			expect(clickSpy, 'a null id must not activate the tile that happens to be called "null"').not.toHaveBeenCalled()
+			expect(
+				clickSpy,
+				'a null id must not activate the tile that happens to be called "null"',
+			).not.toHaveBeenCalled()
 		})
 
 		it('onSearchFallback opens a web-search URL in a new tab', () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
 			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
-			wrapper.vm.onSearchFallback({ type: 'web-search', url: 'https://example.org/search?q=x' })
-			expect(openSpy).toHaveBeenCalledWith('https://example.org/search?q=x', '_blank', 'noopener,noreferrer')
+			wrapper.vm.onSearchFallback({
+				type: 'web-search',
+				url: 'https://example.org/search?q=x',
+			})
+			expect(openSpy).toHaveBeenCalledWith(
+				'https://example.org/search?q=x',
+				'_blank',
+				'noopener,noreferrer',
+			)
 			openSpy.mockRestore()
 		})
 
@@ -437,9 +512,14 @@ describe('WorkspaceApp', () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
 			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
 			const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-			wrapper.vm.onSearchFallback({ type: 'unified-search', query: 'invoices' })
+			wrapper.vm.onSearchFallback({
+				type: 'unified-search',
+				query: 'invoices',
+			})
 			expect(openSpy).not.toHaveBeenCalled()
-			const dispatched = dispatchSpy.mock.calls.find(([e]) => e.type === 'nextcloud:unified-search.search')
+			const dispatched = dispatchSpy.mock.calls.find(
+				([e]) => e.type === 'nextcloud:unified-search.search',
+			)
 			expect(dispatched).toBeTruthy()
 			expect(dispatched[0].detail).toEqual({ query: 'invoices' })
 			openSpy.mockRestore()

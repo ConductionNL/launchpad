@@ -8,7 +8,12 @@
 		<h3>{{ t('launchpad', 'Backup, restore & migrate dashboards') }}</h3>
 
 		<p class="launchpad-export-import__hint">
-			{{ t('launchpad', 'Download a versioned ZIP archive of all dashboards in this LaunchPad instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.') }}
+			{{
+				t(
+					'launchpad',
+					'Download a versioned ZIP archive of all dashboards in this LaunchPad instance, or upload a previously exported archive to restore or migrate it. The archive is portable across Nextcloud installations.',
+				)
+			}}
 		</p>
 
 		<!-- Export controls -->
@@ -21,18 +26,25 @@
 				<template #icon>
 					<Download :size="20" />
 				</template>
-				{{ exporting ? t('launchpad', 'Exporting…') : t('launchpad', 'Download all dashboards') }}
+				{{
+					exporting
+						? t('launchpad', 'Exporting…')
+						: t('launchpad', 'Download all dashboards')
+				}}
 			</NcButton>
 			<span v-if="exportError" class="launchpad-export-import__error">
 				{{ exportError }}
 			</span>
 		</div>
 
-		<hr class="launchpad-export-import__divider">
+		<hr class="launchpad-export-import__divider" />
 
 		<!-- Import controls -->
-		<div class="launchpad-export-import__row launchpad-export-import__row--column">
-			<label for="launchpad-import-file" class="launchpad-export-import__label">
+		<div
+			class="launchpad-export-import__row launchpad-export-import__row--column">
+			<label
+				for="launchpad-import-file"
+				class="launchpad-export-import__label">
 				{{ t('launchpad', 'Import a dashboard archive (.zip)') }}
 			</label>
 			<input
@@ -41,11 +53,15 @@
 				type="file"
 				accept=".zip,application/zip"
 				data-test="import-file-input"
-				@change="onFileSelected">
+				@change="onFileSelected" />
 
-			<NcCheckboxRadioSwitch
-				v-model="preserveUuids">
-				{{ t('launchpad', 'Preserve original dashboard UUIDs (fail on collision)') }}
+			<NcCheckboxRadioSwitch v-model="preserveUuids">
+				{{
+					t(
+						'launchpad',
+						'Preserve original dashboard UUIDs (fail on collision)',
+					)
+				}}
 			</NcCheckboxRadioSwitch>
 
 			<NcButton
@@ -56,15 +72,25 @@
 				<template #icon>
 					<Upload :size="20" />
 				</template>
-				{{ importing ? t('launchpad', 'Importing…') : t('launchpad', 'Upload archive') }}
+				{{
+					importing
+						? t('launchpad', 'Importing…')
+						: t('launchpad', 'Upload archive')
+				}}
 			</NcButton>
 
 			<div v-if="importResult" class="launchpad-export-import__result">
 				<p>
-					{{ t('launchpad', 'Imported {imported} dashboards, skipped {skipped}.', {
-						imported: importResult.importedDashboardCount,
-						skipped: importResult.skippedDashboardCount,
-					}) }}
+					{{
+						t(
+							'launchpad',
+							'Imported {imported} dashboards, skipped {skipped}.',
+							{
+								imported: importResult.importedDashboardCount,
+								skipped: importResult.skippedDashboardCount,
+							},
+						)
+					}}
 				</p>
 				<ul v-if="importResult.errors && importResult.errors.length > 0">
 					<li v-for="(err, idx) in importResult.errors" :key="idx">
@@ -117,7 +143,10 @@ export default {
 				const response = await api.exportDashboards({ scope: 'site' })
 				this.downloadBlob(response.data, this.suggestedFilename())
 			} catch (err) {
-				this.exportError = this.t('launchpad', 'Export failed. Please try again.')
+				this.exportError = this.t(
+					'launchpad',
+					'Export failed. Please try again.',
+				)
 				// eslint-disable-next-line no-console
 				console.error('launchpad export failed', err)
 			} finally {
@@ -133,7 +162,7 @@ export default {
 		 */
 		onFileSelected(event) {
 			const files = event?.target?.files
-			this.selectedFile = (files && files.length > 0) ? files[0] : null
+			this.selectedFile = files && files.length > 0 ? files[0] : null
 			this.importResult = null
 			this.importError = ''
 		},
@@ -154,7 +183,10 @@ export default {
 				if (data && Array.isArray(data.errors)) {
 					this.importResult = data
 				} else {
-					this.importError = this.t('launchpad', 'Import failed. Please try again.')
+					this.importError = this.t(
+						'launchpad',
+						'Import failed. Please try again.',
+					)
 				}
 				// eslint-disable-next-line no-console
 				console.error('launchpad import failed', err)
@@ -183,7 +215,10 @@ export default {
 
 		/** @spec openspec/specs/dashboard-export-import/spec.md */
 		suggestedFilename() {
-			const stamp = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14)
+			const stamp = new Date()
+				.toISOString()
+				.replace(/[-:T.Z]/g, '')
+				.slice(0, 14)
 			return `launchpad-export-${stamp}.zip`
 		},
 	},

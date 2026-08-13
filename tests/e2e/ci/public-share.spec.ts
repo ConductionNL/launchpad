@@ -64,7 +64,10 @@ function basic(user: string, pass: string): string {
 	return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`
 }
 
-async function apiAs(baseURL: string, creds: { user: string, pass: string }): Promise<APIRequestContext> {
+async function apiAs(
+	baseURL: string,
+	creds: { user: string; pass: string },
+): Promise<APIRequestContext> {
 	return request.newContext({
 		baseURL,
 		extraHTTPHeaders: {
@@ -98,7 +101,10 @@ test.describe('anonymous public share', () => {
 	// @e2e dashboard-public-share::invalid-token-returns-404
 	// @e2e dashboard-public-share::revoked-token-returns-404
 	// @e2e dashboard-public-share::soft-revoke-a-public-share
-	test('a valid token renders read-only for a visitor with no session, and stops on revoke', async ({ baseURL, browser }) => {
+	test('a valid token renders read-only for a visitor with no session, and stops on revoke', async ({
+		baseURL,
+		browser,
+	}) => {
 		const admin = await apiAs(baseURL!, ADMIN)
 		const anon = await anonymousApi(baseURL!)
 
@@ -109,13 +115,19 @@ test.describe('anonymous public share', () => {
 		// what it asserts — the original value is read first and restored at
 		// the end so the instance is left as it was found for whatever runs
 		// next in the same job.
-		const settingsBefore = await admin.get('/index.php/apps/launchpad/api/admin/settings')
+		const settingsBefore = await admin.get(
+			'/index.php/apps/launchpad/api/admin/settings',
+		)
 		expect(settingsBefore.status(), await settingsBefore.text()).toBe(200)
-		const priorAllowUserDash = (await settingsBefore.json()).allowUserDashboards === true
+		const priorAllowUserDash =
+			(await settingsBefore.json()).allowUserDashboards === true
 
-		const enable = await admin.put('/index.php/apps/launchpad/api/admin/settings', {
-			data: { allowUserDash: true },
-		})
+		const enable = await admin.put(
+			'/index.php/apps/launchpad/api/admin/settings',
+			{
+				data: { allowUserDash: true },
+			},
+		)
 		expect(enable.status(), await enable.text()).toBeLessThan(300)
 
 		// --- create a dashboard to publish -------------------------------
@@ -128,8 +140,12 @@ test.describe('anonymous public share', () => {
 		// — the new dashboard is nested, not at the root, and the default
 		// widget bundle comes back alongside it.
 		const createdBody = await created.json()
-		const uuid = createdBody.dashboard?.uuid ?? createdBody.uuid ?? createdBody.data?.uuid
-		expect(uuid, `no uuid in create response: ${JSON.stringify(createdBody)}`).toBeTruthy()
+		const uuid =
+			createdBody.dashboard?.uuid ?? createdBody.uuid ?? createdBody.data?.uuid
+		expect(
+			uuid,
+			`no uuid in create response: ${JSON.stringify(createdBody)}`,
+		).toBeTruthy()
 
 		// --- CONTROL, before any share exists ----------------------------
 		// A well-formed token that was never issued. If this returns 200 the
@@ -149,9 +165,13 @@ test.describe('anonymous public share', () => {
 		)
 		expect(share.status(), await share.text()).toBeLessThan(300)
 		const shareBody = await share.json()
-		const token = shareBody.token ?? shareBody.data?.token ?? shareBody.share?.token
+		const token =
+			shareBody.token ?? shareBody.data?.token ?? shareBody.share?.token
 		const shareId = shareBody.id ?? shareBody.data?.id ?? shareBody.share?.id
-		expect(token, `no token in share response: ${JSON.stringify(shareBody)}`).toBeTruthy()
+		expect(
+			token,
+			`no token in share response: ${JSON.stringify(shareBody)}`,
+		).toBeTruthy()
 
 		// --- the positive case, anonymously ------------------------------
 		const live = await anon.get(`/index.php/apps/launchpad/s/${token}/data`)
@@ -164,25 +184,41 @@ test.describe('anonymous public share', () => {
 		// A fresh context inherits no storage state, so this is a genuine
 		// first-time visitor. The API legs above could both pass while the
 		// rendered page still redirected to the login form.
-		const context = await browser.newContext({ baseURL, storageState: undefined })
+		const context = await browser.newContext({
+			baseURL,
+			storageState: undefined,
+		})
 		const page = await context.newPage()
 		const response = await page.goto(`/index.php/apps/launchpad/s/${token}`)
-		expect(response?.status(), 'the public page must not 4xx for an anonymous visitor').toBeLessThan(400)
+		expect(
+			response?.status(),
+			'the public page must not 4xx for an anonymous visitor',
+		).toBeLessThan(400)
 		// `.public-share-view` is DashboardPublicShareView.vue's root element —
 		// its presence means the public bundle booted and mounted, not merely
 		// that some HTML came back.
-		await expect(page.locator('.public-share-view')).toBeVisible({ timeout: 15000 })
-		expect(page.url(), 'an anonymous visitor must not be bounced to the login page').not.toContain('/login')
+		await expect(page.locator('.public-share-view')).toBeVisible({
+			timeout: 15000,
+		})
+		expect(
+			page.url(),
+			'an anonymous visitor must not be bounced to the login page',
+		).not.toContain('/login')
 		await context.close()
 
 		// --- revoke, and prove the same token stops working --------------
-		expect(shareId, `no share id in response: ${JSON.stringify(shareBody)}`).toBeTruthy()
+		expect(
+			shareId,
+			`no share id in response: ${JSON.stringify(shareBody)}`,
+		).toBeTruthy()
 		const revoked = await admin.delete(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares/${shareId}`,
 		)
 		expect(revoked.status(), await revoked.text()).toBeLessThan(300)
 
-		const afterRevoke = await anon.get(`/index.php/apps/launchpad/s/${token}/data`)
+		const afterRevoke = await anon.get(
+			`/index.php/apps/launchpad/s/${token}/data`,
+		)
 		expect(
 			afterRevoke.status(),
 			'a revoked token must stop serving data — this is the assertion that proves the token gates the route',
@@ -226,16 +262,25 @@ test.describe('anonymous public share', () => {
 	 * on the page.
 	 */
 	// @e2e dashboard-public-share::logged-in-user-on-public-share-renders-read-only
-	test('a logged-in owner opening the share link gets the same read-only page as a stranger', async ({ baseURL, page }) => {
+	test('a logged-in owner opening the share link gets the same read-only page as a stranger', async ({
+		baseURL,
+		page,
+	}) => {
 		const admin = await apiAs(baseURL!, ADMIN)
 		const anon = await anonymousApi(baseURL!)
 
-		const settingsBefore = await admin.get('/index.php/apps/launchpad/api/admin/settings')
+		const settingsBefore = await admin.get(
+			'/index.php/apps/launchpad/api/admin/settings',
+		)
 		expect(settingsBefore.status(), await settingsBefore.text()).toBe(200)
-		const priorAllowUserDash = (await settingsBefore.json()).allowUserDashboards === true
-		const enable = await admin.put('/index.php/apps/launchpad/api/admin/settings', {
-			data: { allowUserDash: true },
-		})
+		const priorAllowUserDash =
+			(await settingsBefore.json()).allowUserDashboards === true
+		const enable = await admin.put(
+			'/index.php/apps/launchpad/api/admin/settings',
+			{
+				data: { allowUserDash: true },
+			},
+		)
 		expect(enable.status(), await enable.text()).toBeLessThan(300)
 
 		const created = await admin.post('/index.php/apps/launchpad/api/dashboard', {
@@ -243,8 +288,12 @@ test.describe('anonymous public share', () => {
 		})
 		expect(created.status(), await created.text()).toBeLessThan(300)
 		const createdBody = await created.json()
-		const uuid = createdBody.dashboard?.uuid ?? createdBody.uuid ?? createdBody.data?.uuid
-		expect(uuid, `no uuid in create response: ${JSON.stringify(createdBody)}`).toBeTruthy()
+		const uuid =
+			createdBody.dashboard?.uuid ?? createdBody.uuid ?? createdBody.data?.uuid
+		expect(
+			uuid,
+			`no uuid in create response: ${JSON.stringify(createdBody)}`,
+		).toBeTruthy()
 
 		const share = await admin.post(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`,
@@ -252,8 +301,12 @@ test.describe('anonymous public share', () => {
 		)
 		expect(share.status(), await share.text()).toBe(201)
 		const shareBody = await share.json()
-		const token = shareBody.token ?? shareBody.data?.token ?? shareBody.share?.token
-		expect(token, `no token in share response: ${JSON.stringify(shareBody)}`).toBeTruthy()
+		const token =
+			shareBody.token ?? shareBody.data?.token ?? shareBody.share?.token
+		expect(
+			token,
+			`no token in share response: ${JSON.stringify(shareBody)}`,
+		).toBeTruthy()
 
 		/*
 		 * CONTROL — establish that this browser context really is logged in
@@ -272,7 +325,10 @@ test.describe('anonymous public share', () => {
 
 		// The same link, in the same authenticated context.
 		const response = await page.goto(`/index.php/apps/launchpad/s/${token}`)
-		expect(response?.status(), 'the share page must serve a logged-in visitor too').toBeLessThan(400)
+		expect(
+			response?.status(),
+			'the share page must serve a logged-in visitor too',
+		).toBeLessThan(400)
 
 		await expect(
 			page.locator('.public-share-view'),

@@ -24,7 +24,11 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import {
+	gotoLaunchPad,
+	openAddWidgetModal,
+	closeSidebar,
+} from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
@@ -41,7 +45,10 @@ async function addLabel(page: any, text: string): Promise<void> {
 	await openAddWidgetModal(page)
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
-	await dialog.getByLabel(/label text/i).first().fill(text)
+	await dialog
+		.getByLabel(/label text/i)
+		.first()
+		.fill(text)
 
 	const addBtn = dialog.getByRole('button', { name: /^add$/i })
 	await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -60,14 +67,22 @@ test.describe('label widget', () => {
 		await gotoLaunchPad(page)
 	})
 
-	test('add → fill → save → render round-trips the content and survives reload', async ({ page }) => {
+	test('add → fill → save → render round-trips the content and survives reload', async ({
+		page,
+	}) => {
 		const text = `Sales Q4 ${Date.now()}`
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 
-		await dialog.getByLabel(/label text/i).first().fill(text)
-		await dialog.getByLabel(/font size/i).first().fill('24px')
+		await dialog
+			.getByLabel(/label text/i)
+			.first()
+			.fill(text)
+		await dialog
+			.getByLabel(/font size/i)
+			.first()
+			.fill('24px')
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -78,21 +93,29 @@ test.describe('label widget', () => {
 
 		// The rendered widget carries the saved text + font-size (the add →
 		// persist → render content round-trip).
-		const placement = page.locator('.cn-label-widget').filter({ hasText: text }).first()
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: text })
+			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
-		const fontSize = await placement.locator('.cn-label-widget__text').first()
+		const fontSize = await placement
+			.locator('.cn-label-widget__text')
+			.first()
 			.evaluate((el) => window.getComputedStyle(el).fontSize)
 		expect(fontSize).toBe('24px')
 
 		// Persistence: the placement survives a full page reload.
 		await page.reload()
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator('.cn-label-widget').filter({ hasText: text }).first())
-			.toBeVisible({ timeout: 10_000 })
+		await expect(
+			page.locator('.cn-label-widget').filter({ hasText: text }).first(),
+		).toBeVisible({ timeout: 10_000 })
 	})
 
 	// @e2e label-widget::html-in-text-appears-as-literal-characters
-	test('REQ-LBL-001: pasted HTML renders as literal text on the dashboard', async ({ page }) => {
+	test('REQ-LBL-001: pasted HTML renders as literal text on the dashboard', async ({
+		page,
+	}) => {
 		const html = `<b>HTML</b> ${Date.now()}`
 		await addLabel(page, html)
 
@@ -104,7 +127,9 @@ test.describe('label widget', () => {
 	})
 
 	// @e2e label-widget::script-tag-in-text-appears-as-literal-characters
-	test('REQ-LBL-001: a pasted <script> tag renders as literal text and never executes', async ({ page }) => {
+	test('REQ-LBL-001: a pasted <script> tag renders as literal text and never executes', async ({
+		page,
+	}) => {
 		const marker = `XSS ${Date.now()}`
 		// If this string is ever parsed as markup rather than rendered as
 		// text, the assignment below runs and the sentinel becomes readable
@@ -113,7 +138,10 @@ test.describe('label widget', () => {
 
 		await addLabel(page, payload)
 
-		const placement = page.locator('.cn-label-widget').filter({ hasText: marker }).first()
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: marker })
+			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
 		// 1. The tag never became a real element.
@@ -128,7 +156,11 @@ test.describe('label widget', () => {
 		// 3. Nothing executed. This is the assertion that would catch a
 		//    regression to `v-html`, which the two above could still miss if
 		//    a sanitiser stripped the tag after it had already run.
-		const executed = await page.evaluate(() => (window as unknown as Record<string, unknown>).__labelWidgetXss === true)
+		const executed = await page.evaluate(
+			() =>
+				(window as unknown as Record<string, unknown>).__labelWidgetXss
+				=== true,
+		)
 		expect(executed, 'the pasted script must never execute').toBe(false)
 	})
 })

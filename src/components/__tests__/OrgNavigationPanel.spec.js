@@ -34,9 +34,13 @@ vi.mock('@nextcloud/router', () => ({
 
 vi.mock('../../services/api.js', () => ({
 	api: {
-		getOrgNavigation: vi.fn().mockResolvedValue({ data: { tree: [], language: 'nl' } }),
+		getOrgNavigation: vi
+			.fn()
+			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
 		updateOrgNavigation: vi.fn(),
-		getOrgNavigationPosition: vi.fn().mockResolvedValue({ data: { position: 'hidden' } }),
+		getOrgNavigationPosition: vi
+			.fn()
+			.mockResolvedValue({ data: { position: 'hidden' } }),
 		updateOrgNavigationPosition: vi.fn(),
 	},
 }))
@@ -58,7 +62,8 @@ describe('OrgNavigationPanel', () => {
 	it('REQ-ONAV-005: panel renders the tree when shouldRender is true', async () => {
 		const pinia = createPinia()
 		setActivePinia(pinia)
-		const { useOrgNavigationStore } = await import('../../stores/orgNavigation.js')
+		const { useOrgNavigationStore } =
+			await import('../../stores/orgNavigation.js')
 		const store = useOrgNavigationStore()
 		store.tree = [
 			{ id: 'a', label: 'Section A', url: null, icon: null, children: [] },
@@ -80,7 +85,10 @@ describe('OrgNavigationItem', () => {
 
 	it('REQ-ONAV-005: link nodes render as <a> with href', () => {
 		const wrapper = mountItem({
-			id: 'x', label: 'Reports', url: '/reports', children: [],
+			id: 'x',
+			label: 'Reports',
+			url: '/reports',
+			children: [],
 		})
 		const link = wrapper.find('a')
 		expect(link.exists()).toBe(true)
@@ -89,14 +97,21 @@ describe('OrgNavigationItem', () => {
 
 	it('REQ-ONAV-005: openInNewTab sets target="_blank"', () => {
 		const wrapper = mountItem({
-			id: 'x', label: 'Ext', url: 'https://example.com', openInNewTab: true, children: [],
+			id: 'x',
+			label: 'Ext',
+			url: 'https://example.com',
+			openInNewTab: true,
+			children: [],
 		})
 		expect(wrapper.find('a').attributes('target')).toBe('_blank')
 	})
 
 	it('REQ-ONAV-005: section nodes (no url) render as <button>', () => {
 		const wrapper = mountItem({
-			id: 'x', label: 'Section', url: null, children: [],
+			id: 'x',
+			label: 'Section',
+			url: null,
+			children: [],
 		})
 		expect(wrapper.find('a').exists()).toBe(false)
 		expect(wrapper.find('button').exists()).toBe(true)
@@ -104,7 +119,11 @@ describe('OrgNavigationItem', () => {
 
 	it('REQ-ONAV-006: URL icon renders as <img>', () => {
 		const wrapper = mountItem({
-			id: 'x', label: 'I', url: '/x', icon: '/icons/foo.png', children: [],
+			id: 'x',
+			label: 'I',
+			url: '/x',
+			icon: '/icons/foo.png',
+			children: [],
 		})
 		const img = wrapper.find('.org-nav-item__icon')
 		expect(img.element.tagName.toLowerCase()).toBe('img')
@@ -113,7 +132,11 @@ describe('OrgNavigationItem', () => {
 
 	it('REQ-ONAV-006: SVG-path icon renders as inline <svg>', () => {
 		const wrapper = mountItem({
-			id: 'x', label: 'I', url: '/x', icon: mdiStar, children: [],
+			id: 'x',
+			label: 'I',
+			url: '/x',
+			icon: mdiStar,
+			children: [],
 		})
 		const icon = wrapper.find('.org-nav-item__icon')
 		expect(icon.element.tagName.toLowerCase()).toBe('svg')
@@ -122,7 +145,11 @@ describe('OrgNavigationItem', () => {
 
 	it('REQ-ONAV-006: a legacy free-text MDI name renders via its resolved path', () => {
 		const wrapper = mountItem({
-			id: 'x', label: 'I', url: '/x', icon: 'star', children: [],
+			id: 'x',
+			label: 'I',
+			url: '/x',
+			icon: 'star',
+			children: [],
 		})
 		const icon = wrapper.find('.org-nav-item__icon')
 		expect(icon.element.tagName.toLowerCase()).toBe('svg')

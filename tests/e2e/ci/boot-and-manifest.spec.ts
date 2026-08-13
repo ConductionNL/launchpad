@@ -61,7 +61,9 @@ async function adminApi(baseURL: string): Promise<APIRequestContext> {
 }
 
 test.describe('launchpad boots and serves a populated manifest', () => {
-	test('the observability routes respond rather than fataling', async ({ baseURL }) => {
+	test('the observability routes respond rather than fataling', async ({
+		baseURL,
+	}) => {
 		const api = await adminApi(baseURL!)
 
 		/*
@@ -79,7 +81,10 @@ test.describe('launchpad boots and serves a populated manifest', () => {
 			health.status(),
 			'health 500 means a controller failed to LOAD — check for an `extends` on another app',
 		).not.toBe(500)
-		expect(health.status(), 'OpenRegister is installed in CI, so the engine should answer').toBe(200)
+		expect(
+			health.status(),
+			'OpenRegister is installed in CI, so the engine should answer',
+		).toBe(200)
 
 		const metrics = await api.get('/index.php/apps/launchpad/api/metrics')
 		expect(metrics.status()).not.toBe(500)
@@ -92,7 +97,9 @@ test.describe('launchpad boots and serves a populated manifest', () => {
 		await api.dispose()
 	})
 
-	test('a dashboard the caller owns appears in their manifest', async ({ baseURL }) => {
+	test('a dashboard the caller owns appears in their manifest', async ({
+		baseURL,
+	}) => {
 		const api = await adminApi(baseURL!)
 
 		const slug = `e2e-owned-${Date.now()}`
@@ -112,7 +119,7 @@ test.describe('launchpad boots and serves a populated manifest', () => {
 		const body = await manifest.json()
 		expect(body).toHaveProperty('pages')
 
-		const routes = (body.pages as Array<{ route?: string }>).map(p => p.route)
+		const routes = (body.pages as Array<{ route?: string }>).map((p) => p.route)
 		expect(
 			routes,
 			'the owner must see their own dashboard — an empty manifest here is the `owner` vs `@self` filter bug',

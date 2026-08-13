@@ -4,7 +4,10 @@
 -->
 
 <template>
-	<div class="roles-permissions-tab" data-test="roles-permissions-tab" data-testid="admin-roles-section">
+	<div
+		class="roles-permissions-tab"
+		data-test="roles-permissions-tab"
+		data-testid="admin-roles-section">
 		<RolePermissionsSection />
 		<div class="roles-permissions-tab__spacer" />
 		<RoleLayoutDefaultsSection data-testid="admin-layout-defaults-section" />

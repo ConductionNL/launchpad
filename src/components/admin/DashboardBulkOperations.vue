@@ -16,7 +16,12 @@
 	<div class="launchpad-bulk-ops" data-test="bulk-ops">
 		<h3>{{ t('launchpad', 'Bulk dashboard operations') }}</h3>
 		<p class="launchpad-bulk-ops__hint">
-			{{ t('launchpad', 'Select multiple dashboards and apply an admin action to all of them at once. Every operation supports a dry-run preview.') }}
+			{{
+				t(
+					'launchpad',
+					'Select multiple dashboards and apply an admin action to all of them at once. Every operation supports a dry-run preview.',
+				)
+			}}
 		</p>
 
 		<div v-if="loading" class="launchpad-bulk-ops__loading">
@@ -33,7 +38,7 @@
 							:indeterminate.prop="someSelected && !allSelected"
 							:aria-label="t('launchpad', 'Select all dashboards')"
 							data-test="bulk-ops-select-all"
-							@change="toggleSelectAll">
+							@change="toggleSelectAll" />
 					</th>
 					<th scope="col">{{ t('launchpad', 'Name') }}</th>
 					<th scope="col">{{ t('launchpad', 'Status') }}</th>
@@ -43,15 +48,21 @@
 				<tr
 					v-for="dash in dashboards"
 					:key="dash.uuid"
-					:class="{ 'launchpad-bulk-ops__row--selected': selectedUuids.includes(dash.uuid) }">
+					:class="{
+						'launchpad-bulk-ops__row--selected': selectedUuids.includes(
+							dash.uuid,
+						),
+					}">
 					<td>
 						<input
 							type="checkbox"
 							:value="dash.uuid"
 							:checked="selectedUuids.includes(dash.uuid)"
-							:aria-label="t('launchpad', 'Select {name}', { name: dash.name })"
+							:aria-label="
+								t('launchpad', 'Select {name}', { name: dash.name })
+							"
 							data-test="bulk-ops-row-select"
-							@change="toggleRow(dash.uuid)">
+							@change="toggleRow(dash.uuid)" />
 					</td>
 					<td>{{ dash.name }}</td>
 					<td>{{ dash.publicationStatus || 'published' }}</td>
@@ -81,14 +92,19 @@
 				</option>
 			</select>
 			<button
-				:disabled="selectedUuids.length === 0 || selectedAction === '' || running"
+				:disabled="
+					selectedUuids.length === 0 || selectedAction === '' || running
+				"
 				data-test="bulk-ops-run"
 				@click="runAction">
 				{{ running ? t('launchpad', 'Working…') : t('launchpad', 'Apply') }}
 			</button>
 		</div>
 
-		<div v-if="modal" class="launchpad-bulk-ops__modal" data-test="bulk-ops-modal">
+		<div
+			v-if="modal"
+			class="launchpad-bulk-ops__modal"
+			data-test="bulk-ops-modal">
 			<div class="launchpad-bulk-ops__modal-inner">
 				<h4>{{ modal.title }}</h4>
 				<p>{{ modal.message }}</p>
@@ -104,18 +120,24 @@
 					The ids are static because this modal is a singleton — it
 					renders once, for one pending bulk action.
 				-->
-				<div v-if="modal.action === 'move'" class="launchpad-bulk-ops__field">
+				<div
+					v-if="modal.action === 'move'"
+					class="launchpad-bulk-ops__field">
 					<label for="launchpad-bulk-ops-parent-uuid">
-						{{ t('launchpad', 'New parent UUID (leave empty for root)') }}
+						{{
+							t('launchpad', 'New parent UUID (leave empty for root)')
+						}}
 					</label>
 					<input
 						id="launchpad-bulk-ops-parent-uuid"
 						v-model="parentUuidInput"
 						type="text"
-						data-test="bulk-ops-parent-uuid">
+						data-test="bulk-ops-parent-uuid" />
 				</div>
 
-				<div v-if="modal.action === 'status'" class="launchpad-bulk-ops__field">
+				<div
+					v-if="modal.action === 'status'"
+					class="launchpad-bulk-ops__field">
 					<label for="launchpad-bulk-ops-status">
 						{{ t('launchpad', 'Publication status') }}
 					</label>
@@ -143,14 +165,14 @@
 						id="launchpad-bulk-ops-publish-at"
 						v-model="publishAtInput"
 						type="datetime-local"
-						data-test="bulk-ops-publish-at">
+						data-test="bulk-ops-publish-at" />
 				</div>
 
 				<label class="launchpad-bulk-ops__dryrun">
 					<input
 						v-model="dryRun"
 						type="checkbox"
-						data-test="bulk-ops-dryrun">
+						data-test="bulk-ops-dryrun" />
 					{{ t('launchpad', 'Dry run (preview only)') }}
 				</label>
 
@@ -168,15 +190,28 @@
 			</div>
 		</div>
 
-		<div v-if="resultSummary" class="launchpad-bulk-ops__result" data-test="bulk-ops-result">
+		<div
+			v-if="resultSummary"
+			class="launchpad-bulk-ops__result"
+			data-test="bulk-ops-result">
 			<p v-if="resultSummary.dryRun">
-				{{ t('launchpad', 'PREVIEW: would change {count} dashboards.', { count: resultSummary.changed }) }}
+				{{
+					t('launchpad', 'PREVIEW: would change {count} dashboards.', {
+						count: resultSummary.changed,
+					})
+				}}
 			</p>
 			<p v-else>
-				{{ t('launchpad', 'Changed {count} dashboards. Skipped {skipped}.', {
-					count: resultSummary.changed,
-					skipped: resultSummary.skipped,
-				}) }}
+				{{
+					t(
+						'launchpad',
+						'Changed {count} dashboards. Skipped {skipped}.',
+						{
+							count: resultSummary.changed,
+							skipped: resultSummary.skipped,
+						},
+					)
+				}}
 			</p>
 			<ul v-if="resultSummary.errors.length > 0">
 				<li v-for="(err, idx) in resultSummary.errors" :key="idx">
@@ -185,7 +220,10 @@
 			</ul>
 		</div>
 
-		<div v-if="errorMessage" class="launchpad-bulk-ops__error" data-test="bulk-ops-error">
+		<div
+			v-if="errorMessage"
+			class="launchpad-bulk-ops__error"
+			data-test="bulk-ops-error">
 			{{ errorMessage }}
 		</div>
 	</div>
@@ -217,8 +255,10 @@ export default {
 	computed: {
 		/** @spec openspec/specs/dashboard-bulk-operations/spec.md */
 		allSelected() {
-			return this.dashboards.length > 0
+			return (
+				this.dashboards.length > 0
 				&& this.selectedUuids.length === this.dashboards.length
+			)
 		},
 		/** @spec openspec/specs/dashboard-bulk-operations/spec.md */
 		someSelected() {
@@ -236,7 +276,7 @@ export default {
 			this.loading = true
 			try {
 				const { data } = await api.getVisibleDashboards()
-				this.dashboards = Array.isArray(data) ? data : (data.dashboards || [])
+				this.dashboards = Array.isArray(data) ? data : data.dashboards || []
 			} catch (e) {
 				this.errorMessage = t('launchpad', 'Failed to load dashboards')
 			} finally {
@@ -252,7 +292,7 @@ export default {
 		 */
 		toggleSelectAll(event) {
 			if (event.target.checked) {
-				this.selectedUuids = this.dashboards.map(d => d.uuid)
+				this.selectedUuids = this.dashboards.map((d) => d.uuid)
 			} else {
 				this.selectedUuids = []
 			}
@@ -284,10 +324,24 @@ export default {
 				reindex: t('launchpad', 'Reindex dashboards for search?'),
 			}
 			const messages = {
-				delete: t('launchpad', 'About to delete {n} dashboards. This cannot be undone.', { n: this.selectedUuids.length }),
-				move: t('launchpad', 'About to re-parent {n} dashboards.', { n: this.selectedUuids.length }),
-				status: t('launchpad', 'About to update the publication status of {n} dashboards.', { n: this.selectedUuids.length }),
-				reindex: t('launchpad', 'About to reindex {n} dashboards for unified search.', { n: this.selectedUuids.length }),
+				delete: t(
+					'launchpad',
+					'About to delete {n} dashboards. This cannot be undone.',
+					{ n: this.selectedUuids.length },
+				),
+				move: t('launchpad', 'About to re-parent {n} dashboards.', {
+					n: this.selectedUuids.length,
+				}),
+				status: t(
+					'launchpad',
+					'About to update the publication status of {n} dashboards.',
+					{ n: this.selectedUuids.length },
+				),
+				reindex: t(
+					'launchpad',
+					'About to reindex {n} dashboards for unified search.',
+					{ n: this.selectedUuids.length },
+				),
 			}
 			this.modal = {
 				action: this.selectedAction,
@@ -308,23 +362,47 @@ export default {
 				const opts = { dryRun: this.dryRun }
 				let response
 				if (this.modal.action === 'delete') {
-					response = await api.bulkDeleteDashboards(this.selectedUuids, opts)
+					response = await api.bulkDeleteDashboards(
+						this.selectedUuids,
+						opts,
+					)
 				} else if (this.modal.action === 'move') {
-					const parent = this.parentUuidInput.trim() === '' ? null : this.parentUuidInput.trim()
-					response = await api.bulkMoveDashboards(this.selectedUuids, parent, opts)
+					const parent =
+						this.parentUuidInput.trim() === ''
+							? null
+							: this.parentUuidInput.trim()
+					response = await api.bulkMoveDashboards(
+						this.selectedUuids,
+						parent,
+						opts,
+					)
 				} else if (this.modal.action === 'status') {
 					const extra = { ...opts }
 					if (this.statusInput === 'scheduled') {
 						extra.publishAt = this.publishAtInput
 					}
-					response = await api.bulkStatusDashboards(this.selectedUuids, this.statusInput, extra)
+					response = await api.bulkStatusDashboards(
+						this.selectedUuids,
+						this.statusInput,
+						extra,
+					)
 				} else if (this.modal.action === 'reindex') {
-					response = await api.bulkReindexDashboards(this.selectedUuids, opts)
+					response = await api.bulkReindexDashboards(
+						this.selectedUuids,
+						opts,
+					)
 				}
 
 				const data = response?.data || {}
-				const changed = data.deletedCount ?? data.movedCount ?? data.updatedCount ?? data.reindexedCount
-					?? data.wouldDeleteCount ?? data.wouldMoveCount ?? data.wouldUpdateCount ?? data.wouldReindexCount
+				const changed =
+					data.deletedCount
+					?? data.movedCount
+					?? data.updatedCount
+					?? data.reindexedCount
+					?? data.wouldDeleteCount
+					?? data.wouldMoveCount
+					?? data.wouldUpdateCount
+					?? data.wouldReindexCount
 					?? 0
 				const skipped = data.skippedCount ?? data.wouldSkipCount ?? 0
 				this.resultSummary = {
@@ -339,7 +417,9 @@ export default {
 					this.loadDashboards()
 				}
 			} catch (e) {
-				this.errorMessage = e?.response?.data?.error || t('launchpad', 'Bulk operation failed')
+				this.errorMessage =
+					e?.response?.data?.error
+					|| t('launchpad', 'Bulk operation failed')
 			} finally {
 				this.running = false
 				this.modal = null

@@ -9,7 +9,13 @@
 		:open="open"
 		@update:open="$emit('update:open', $event)">
 		<template #default>
-			<p>{{ t('launchpad', 'Delete role permission for group "{group}"?', { group: groupId }) }}</p>
+			<p>
+				{{
+					t('launchpad', 'Delete role permission for group "{group}"?', {
+						group: groupId,
+					})
+				}}
+			</p>
 		</template>
 		<template #actions>
 			<NcButton type="tertiary" @click="$emit('update:open', false)">
@@ -23,10 +29,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcDialog,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 
 /**
  * RolePermissionDeleteDialog — confirmation dialog extracted from

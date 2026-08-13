@@ -34,7 +34,8 @@ const ncButtonStub = {
 	name: 'NcButton',
 	props: ['type', 'disabled'],
 	emits: ['click'],
-	template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+	template:
+		'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
 }
 const ncModalStub = {
 	name: 'NcModal',
@@ -55,8 +56,12 @@ beforeEach(() => {
 			stepStatuses: { 1: 'done', 2: 'pending' },
 		},
 	})
-	api.setSetupWizardStorage.mockReset().mockResolvedValue({ data: { complete: false } })
-	api.completeSetupWizard.mockReset().mockResolvedValue({ data: { complete: true } })
+	api.setSetupWizardStorage
+		.mockReset()
+		.mockResolvedValue({ data: { complete: false } })
+	api.completeSetupWizard
+		.mockReset()
+		.mockResolvedValue({ data: { complete: true } })
 })
 
 function mountWizard() {
@@ -89,7 +94,9 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.vm.currentStep).toBe(1)
 		// The Vue mixin's t() stub returns the bare key; we just assert the
 		// counter element is present and tied to the wizard's step state.
-		expect(wrapper.find('[data-test="setup-wizard-counter"]').exists()).toBe(true)
+		expect(wrapper.find('[data-test="setup-wizard-counter"]').exists()).toBe(
+			true,
+		)
 		expect(wrapper.vm.totalSteps).toBe(7)
 	})
 

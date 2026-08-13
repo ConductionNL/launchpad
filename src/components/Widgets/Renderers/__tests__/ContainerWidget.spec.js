@@ -18,7 +18,9 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`,
+				Object.prototype.hasOwnProperty.call(vars, name)
+					? vars[name]
+					: `{${name}}`,
 			)
 		}
 		return key
@@ -40,8 +42,24 @@ describe('ContainerWidget — REQ-CONT-002 inner grid surface', () => {
 			propsData: {
 				content: {
 					placements: [
-						{ id: 1, type: 'label', content: { text: 'Hi' }, gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 },
-						{ id: 2, type: 'label', content: { text: 'There' }, gridX: 2, gridY: 0, gridWidth: 2, gridHeight: 2 },
+						{
+							id: 1,
+							type: 'label',
+							content: { text: 'Hi' },
+							gridX: 0,
+							gridY: 0,
+							gridWidth: 2,
+							gridHeight: 2,
+						},
+						{
+							id: 2,
+							type: 'label',
+							content: { text: 'There' },
+							gridX: 2,
+							gridY: 0,
+							gridWidth: 2,
+							gridHeight: 2,
+						},
 					],
 				},
 			},
@@ -57,7 +75,15 @@ describe('ContainerWidget — REQ-CONT-003 recursive dispatch', () => {
 			propsData: {
 				content: {
 					placements: [
-						{ id: 1, type: 'label', content: { text: 'A' }, gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 },
+						{
+							id: 1,
+							type: 'label',
+							content: { text: 'A' },
+							gridX: 0,
+							gridY: 0,
+							gridWidth: 2,
+							gridHeight: 2,
+						},
 					],
 				},
 			},

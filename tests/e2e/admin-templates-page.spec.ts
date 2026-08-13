@@ -45,25 +45,37 @@ test.describe('admin-templates — Templates page', () => {
 	test.beforeEach(async ({ page }) => {
 		// Same authentication shape as the neighbouring admin spec: the
 		// settings page is admin-only and NC answers 401 without it.
-		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+		await page
+			.context()
+			.setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 	})
 
-	test('renders as the default Beheer panel with its create affordance', async ({ page }) => {
+	test('renders as the default Beheer panel with its create affordance', async ({
+		page,
+	}) => {
 		await page.goto(SETTINGS_URL)
 
 		// The panel is the tab host; the inner root is TemplatesPage itself.
 		// Both, because an empty slot still renders the panel.
-		await expect(page.locator('[data-test="panel-templates"]')).toBeVisible({ timeout: 20_000 })
+		await expect(page.locator('[data-test="panel-templates"]')).toBeVisible({
+			timeout: 20_000,
+		})
 		const templatesPage = page.locator('[data-test="templates-page"]')
 		await expect(templatesPage).toBeVisible()
 
 		await expect(templatesPage.getByRole('heading', { level: 3 })).toBeVisible()
-		await expect(page.locator('[data-testid="admin-create-template"]')).toBeVisible()
+		await expect(
+			page.locator('[data-testid="admin-create-template"]'),
+		).toBeVisible()
 	})
 
-	test('the create CTA opens the template editor and cancelling leaves the page intact', async ({ page }) => {
+	test('the create CTA opens the template editor and cancelling leaves the page intact', async ({
+		page,
+	}) => {
 		await page.goto(SETTINGS_URL)
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({ timeout: 20_000 })
+		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({
+			timeout: 20_000,
+		})
 
 		const editor = page.locator('[data-testid="admin-template-editor"]')
 		await expect(editor).toBeHidden()
@@ -77,18 +89,28 @@ test.describe('admin-templates — Templates page', () => {
 		await expect(page.locator('[data-test="templates-page"]')).toBeVisible()
 	})
 
-	test('leaving the tab unmounts the page and returning re-mounts it', async ({ page }) => {
+	test('leaving the tab unmounts the page and returning re-mounts it', async ({
+		page,
+	}) => {
 		await page.goto(SETTINGS_URL)
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({ timeout: 20_000 })
+		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({
+			timeout: 20_000,
+		})
 
 		// BeheerTabs renders only the active panel, so switching tabs must
 		// remove TemplatesPage from the DOM entirely — that unmount is what
 		// makes its created() hook re-fetch the template list on return.
 		await page.locator('[data-test="tab-group-dashboards"]').click()
-		await expect(page.locator('[data-test="templates-page"]')).toBeHidden({ timeout: 10_000 })
+		await expect(page.locator('[data-test="templates-page"]')).toBeHidden({
+			timeout: 10_000,
+		})
 
 		await page.locator('[data-test="tab-templates"]').click()
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({ timeout: 10_000 })
-		await expect(page.locator('[data-testid="admin-create-template"]')).toBeVisible()
+		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({
+			timeout: 10_000,
+		})
+		await expect(
+			page.locator('[data-testid="admin-create-template"]'),
+		).toBeVisible()
 	})
 })

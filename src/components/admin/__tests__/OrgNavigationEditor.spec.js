@@ -29,10 +29,18 @@ vi.mock('@nextcloud/router', () => ({
 
 vi.mock('../../../services/api.js', () => ({
 	api: {
-		getOrgNavigation: vi.fn().mockResolvedValue({ data: { tree: [], language: 'nl' } }),
-		updateOrgNavigation: vi.fn().mockResolvedValue({ data: { tree: [], language: 'nl' } }),
-		getOrgNavigationPosition: vi.fn().mockResolvedValue({ data: { position: 'hidden' } }),
-		updateOrgNavigationPosition: vi.fn().mockResolvedValue({ data: { position: 'left' } }),
+		getOrgNavigation: vi
+			.fn()
+			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
+		updateOrgNavigation: vi
+			.fn()
+			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
+		getOrgNavigationPosition: vi
+			.fn()
+			.mockResolvedValue({ data: { position: 'hidden' } }),
+		updateOrgNavigationPosition: vi
+			.fn()
+			.mockResolvedValue({ data: { position: 'left' } }),
 	},
 }))
 
@@ -49,7 +57,8 @@ beforeEach(() => {
 	} else {
 		// Crypto exists but possibly without randomUUID — patch it.
 		try {
-			globalThis.crypto.randomUUID = () => '11111111-1111-4111-8111-111111111111'
+			globalThis.crypto.randomUUID = () =>
+				'11111111-1111-4111-8111-111111111111'
 		} catch (_e) {
 			// Read-only — leave as-is; the fallback Math.random branch is fine.
 		}
@@ -113,8 +122,9 @@ describe('OrgNavigationEditor', () => {
 		await wrapper.find('[data-test="org-nav-save"]').trigger('click')
 		await flush()
 
-		expect(wrapper.find('[data-test="org-nav-editor-error"]').text())
-			.toContain('Tree depth')
+		expect(wrapper.find('[data-test="org-nav-editor-error"]').text()).toContain(
+			'Tree depth',
+		)
 		expect(wrapper.vm.successFlag).toBe(false)
 	})
 

@@ -23,7 +23,11 @@
  */
 
 import { test, expect, request as pwRequest } from '@playwright/test'
-import { provisionThrowawayUser, deprovisionUser, loginAs } from './fixtures/secondary-user'
+import {
+	provisionThrowawayUser,
+	deprovisionUser,
+	loginAs,
+} from './fixtures/secondary-user'
 import { BASE_URL as BASE } from './support/baseUrl'
 
 const ADMIN = {
@@ -58,7 +62,9 @@ async function setAllowUserDashboards(enabled: boolean): Promise<void> {
 	try {
 		const res = await api.put(SETTINGS_URL, { data: { allowUserDash: enabled } })
 		if (!res.ok()) {
-			throw new Error(`setAllowUserDashboards(${enabled}): PUT ${SETTINGS_URL} returned ${res.status()}`)
+			throw new Error(
+				`setAllowUserDashboards(${enabled}): PUT ${SETTINGS_URL} returned ${res.status()}`,
+			)
 		}
 	} finally {
 		await api.dispose()
@@ -71,7 +77,9 @@ async function setAllowUserDashboards(enabled: boolean): Promise<void> {
  */
 async function waitForShell(page: ReturnType<typeof test.extend>['page']) {
 	await page.goto(APP_URL)
-	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', { timeout: 15_000 })
+	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', {
+		timeout: 15_000,
+	})
 }
 
 test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
@@ -93,7 +101,9 @@ test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
 	test('clicking the hamburger again closes the sidebar', async ({ page }) => {
 		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 5_000,
+		})
 
 		await ham.click()
 		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
@@ -109,7 +119,9 @@ test.describe('REQ-SHELL-006: backdrop click closes sidebar', () => {
 		// Open the sidebar first.
 		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 5_000,
+		})
 
 		// Click the backdrop (area outside the sidebar panel).
 		const backdrop = page.locator('.launchpad-sidebar-backdrop')
@@ -119,10 +131,14 @@ test.describe('REQ-SHELL-006: backdrop click closes sidebar', () => {
 		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
 	})
 
-	test('clicking inside the sidebar panel does NOT close the sidebar', async ({ page }) => {
+	test('clicking inside the sidebar panel does NOT close the sidebar', async ({
+		page,
+	}) => {
 		const ham = page.locator('.launchpad-sidebar-toggle').first()
 		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 5_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 5_000,
+		})
 
 		// Click on a safe non-interactive area inside the sidebar (its header).
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
@@ -153,7 +169,9 @@ test.describe('REQ-SHELL-005: empty state', () => {
 	})
 
 	// @e2e runtime-shell::empty-state-with-allow-user-dashboards
-	test('empty state renders with Create CTA when allowUserDashboards is true', async ({ browser }) => {
+	test('empty state renders with Create CTA when allowUserDashboards is true', async ({
+		browser,
+	}) => {
 		await setAllowUserDashboards(true)
 		const { username, password } = await provisionThrowawayUser()
 		throwawayUser = username
@@ -163,16 +181,22 @@ test.describe('REQ-SHELL-005: empty state', () => {
 			await page.goto(APP_URL)
 			const empty = page.locator('.workspace-shell__empty')
 			await expect(empty).toBeVisible({ timeout: 15_000 })
-			await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(/no dashboards available/i)
+			await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(
+				/no dashboards available/i,
+			)
 			await expect(empty.locator('.workspace-shell__empty-cta')).toBeVisible()
-			await expect(empty.locator('.workspace-shell__empty-cta')).toHaveText(/create your first dashboard/i)
+			await expect(empty.locator('.workspace-shell__empty-cta')).toHaveText(
+				/create your first dashboard/i,
+			)
 		} finally {
 			await context.close()
 		}
 	})
 
 	// @e2e runtime-shell::empty-state-without-allow-user-dashboards
-	test('empty state renders without Create CTA when allowUserDashboards is false', async ({ browser }) => {
+	test('empty state renders without Create CTA when allowUserDashboards is false', async ({
+		browser,
+	}) => {
 		await setAllowUserDashboards(false)
 		const { username, password } = await provisionThrowawayUser()
 		throwawayUser = username
@@ -182,8 +206,12 @@ test.describe('REQ-SHELL-005: empty state', () => {
 			await page.goto(APP_URL)
 			const empty = page.locator('.workspace-shell__empty')
 			await expect(empty).toBeVisible({ timeout: 15_000 })
-			await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(/no dashboards available/i)
-			await expect(empty.locator('.workspace-shell__empty-hint')).toHaveText(/contact your administrator/i)
+			await expect(empty.locator('.workspace-shell__empty-title')).toHaveText(
+				/no dashboards available/i,
+			)
+			await expect(empty.locator('.workspace-shell__empty-hint')).toHaveText(
+				/contact your administrator/i,
+			)
 			await expect(empty.locator('.workspace-shell__empty-cta')).toHaveCount(0)
 		} finally {
 			await context.close()
@@ -299,11 +327,14 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 	})
 
 	// @e2e action-authorization::fresh-install-is-usable-by-non-admins
-	test('the empty-state Create CTA it is offered actually works', async ({ browser }) => {
+	test('the empty-state Create CTA it is offered actually works', async ({
+		browser,
+	}) => {
 		test.setTimeout(90_000)
 
 		await setAllowUserDashboards(true)
-		const { username, password } = await provisionThrowawayUser('e2e-nonadmin-cta')
+		const { username, password } =
+			await provisionThrowawayUser('e2e-nonadmin-cta')
 		throwawayUser = username
 
 		const { context, page } = await loginAs(browser, username, password)
@@ -316,7 +347,8 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 			// user stayed stranded on the empty state forever.
 			const [res] = await Promise.all([
 				page.waitForResponse(
-					(r) => r.url().includes('/apps/launchpad/api/dashboard')
+					(r) =>
+						r.url().includes('/apps/launchpad/api/dashboard')
 						&& r.request().method() === 'POST',
 					{ timeout: 25_000 },
 				),

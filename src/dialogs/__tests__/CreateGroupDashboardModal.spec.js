@@ -33,8 +33,15 @@ vi.mock('../../services/api.js', () => ({
 }))
 
 const stubs = {
-	NcDialog: { template: '<div class="nc-dialog" :data-test="$attrs[\'data-test\']"><slot /><div class="actions"><slot name="actions" /></div></div>' },
-	NcButton: { emits: ['click'], template: '<button class="nc-button" :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>' },
+	NcDialog: {
+		template:
+			'<div class="nc-dialog" :data-test="$attrs[\'data-test\']"><slot /><div class="actions"><slot name="actions" /></div></div>',
+	},
+	NcButton: {
+		emits: ['click'],
+		template:
+			'<button class="nc-button" :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
+	},
 	// The component binds all three of these with `v-model`, which Vue 3
 	// compiles to `:modelValue` + `@update:modelValue` (Vue 2 used `value`
 	// + `input`, and NcCheckboxRadioSwitch used `checked`/`update:checked`).
@@ -43,7 +50,8 @@ const stubs = {
 	NcTextField: {
 		props: ['modelValue', 'label', 'error', 'helperText'],
 		emits: ['update:modelValue'],
-		template: '<input class="nc-text-field" :data-test="$attrs[\'data-test\']" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+		template:
+			'<input class="nc-text-field" :data-test="$attrs[\'data-test\']" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
 	// `options` is declared so the array is consumed as a prop rather than
 	// falling through onto the native <select> element, which rejects it.
@@ -55,7 +63,8 @@ const stubs = {
 	NcCheckboxRadioSwitch: {
 		props: ['modelValue'],
 		emits: ['update:modelValue'],
-		template: '<label class="nc-cbs" :data-test="$attrs[\'data-test\']"><input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" /><slot /></label>',
+		template:
+			'<label class="nc-cbs" :data-test="$attrs[\'data-test\']"><input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" /><slot /></label>',
 	},
 }
 
@@ -65,7 +74,8 @@ beforeEach(async () => {
 	setActivePinia(createPinia())
 	globalThis.t = (_app, key) => key
 	createGroupDashboardMock.mockReset()
-	CreateGroupDashboardModal = (await import('../CreateGroupDashboardModal.vue')).default
+	CreateGroupDashboardModal = (await import('../CreateGroupDashboardModal.vue'))
+		.default
 })
 
 function mountModal() {
@@ -91,7 +101,9 @@ describe('CreateGroupDashboardModal', () => {
 
 	it('surfaces the long-name validation error after 64 chars', async () => {
 		const wrapper = mountModal()
-		await wrapper.find('[data-test="create-group-dashboard-name"]').setValue('a'.repeat(65))
+		await wrapper
+			.find('[data-test="create-group-dashboard-name"]')
+			.setValue('a'.repeat(65))
 		expect(wrapper.vm.canSubmit).toBe(false)
 		expect(wrapper.vm.nameError).toBe('Name must be at most 64 characters')
 	})
@@ -101,19 +113,28 @@ describe('CreateGroupDashboardModal', () => {
 			data: { data: { uuid: 'u1', name: 'Ops' } },
 		})
 		const wrapper = mountModal()
-		await wrapper.find('[data-test="create-group-dashboard-name"]').setValue('Ops')
-		await wrapper.find('[data-test="create-group-dashboard-submit"]').trigger('click')
+		await wrapper
+			.find('[data-test="create-group-dashboard-name"]')
+			.setValue('Ops')
+		await wrapper
+			.find('[data-test="create-group-dashboard-submit"]')
+			.trigger('click')
 		await new Promise((resolve) => setTimeout(resolve, 0))
-		expect(createGroupDashboardMock).toHaveBeenCalledWith('admins', expect.objectContaining({
-			name: 'Ops',
-			isDefault: false,
-		}))
+		expect(createGroupDashboardMock).toHaveBeenCalledWith(
+			'admins',
+			expect.objectContaining({
+				name: 'Ops',
+				isDefault: false,
+			}),
+		)
 		expect(wrapper.emitted('created')).toBeTruthy()
 	})
 
 	it('emits "close" when Cancel is clicked', async () => {
 		const wrapper = mountModal()
-		await wrapper.find('[data-test="create-group-dashboard-cancel"]').trigger('click')
+		await wrapper
+			.find('[data-test="create-group-dashboard-cancel"]')
+			.trigger('click')
 		expect(wrapper.emitted('close')).toBeTruthy()
 	})
 })

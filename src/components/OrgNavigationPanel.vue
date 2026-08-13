@@ -20,7 +20,9 @@
 			<span class="org-nav__hamburger-bar" />
 			<span class="org-nav__hamburger-bar" />
 			<span class="org-nav__hamburger-bar" />
-			<span class="org-nav__hamburger-label">{{ t('launchpad', 'Navigation') }}</span>
+			<span class="org-nav__hamburger-label">{{
+				t('launchpad', 'Navigation')
+			}}</span>
 		</button>
 
 		<!-- Desktop rail and mobile drawer share the same template body -->
@@ -109,9 +111,10 @@ export default {
 
 	/** @spec openspec/specs/navigation-editor-org/spec.md */
 	mounted() {
-		this.currentUrl = (typeof window !== 'undefined' && window.location)
-			? window.location.pathname
-			: ''
+		this.currentUrl =
+			typeof window !== 'undefined' && window.location
+				? window.location.pathname
+				: ''
 		// Fire-and-forget — errors are surfaced via store.error.
 		this.store.fetchPosition()
 		this.store.fetchTree()

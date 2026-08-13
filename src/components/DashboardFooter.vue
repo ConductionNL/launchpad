@@ -31,25 +31,36 @@
 				'launchpad-footer__config--columns': layoutMode === 'columns',
 				'launchpad-footer__config--inline': layoutMode === 'inline',
 			}">
-			<div v-if="resolvedConfig.logoUrl || resolvedConfig.organisation" class="launchpad-footer__col">
+			<div
+				v-if="resolvedConfig.logoUrl || resolvedConfig.organisation"
+				class="launchpad-footer__col">
 				<img
 					v-if="resolvedConfig.logoUrl"
 					class="launchpad-footer__logo"
 					:src="resolvedConfig.logoUrl"
-					alt="">
+					alt="" />
 				<div v-if="orgName" class="launchpad-footer__org">
 					{{ orgName }}
 				</div>
 			</div>
-			<div v-if="addressLines.length > 0" class="launchpad-footer__col launchpad-footer__address">
+			<div
+				v-if="addressLines.length > 0"
+				class="launchpad-footer__col launchpad-footer__address">
 				<div v-for="(line, idx) in addressLines" :key="idx">
 					{{ line }}
 				</div>
 			</div>
 			<div v-if="hasLinksOrLegal" class="launchpad-footer__col">
-				<ul v-if="(resolvedConfig.links || []).length > 0" class="launchpad-footer__links">
+				<ul
+					v-if="(resolvedConfig.links || []).length > 0"
+					class="launchpad-footer__links">
 					<li v-for="(link, idx) in resolvedConfig.links" :key="idx">
-						<a :href="link.url" rel="noopener noreferrer" target="_blank">{{ link.label }}</a>
+						<a
+							:href="link.url"
+							rel="noopener noreferrer"
+							target="_blank"
+							>{{ link.label }}</a
+						>
 					</li>
 				</ul>
 				<div v-if="legalText" class="launchpad-footer__legal">
@@ -147,7 +158,12 @@ export default {
 			const out = {}
 			for (const key of Object.keys(config)) {
 				const value = config[key]
-				if (value && typeof value === 'object' && !Array.isArray(value) && !('label' in value)) {
+				if (
+					value
+					&& typeof value === 'object'
+					&& !Array.isArray(value)
+					&& !('label' in value)
+				) {
 					// Plain locale map — pick a variant.
 					out[key] = this.pickVariant(value)
 				} else {
@@ -197,8 +213,11 @@ export default {
 			if (!this.resolvedConfig) {
 				return false
 			}
-			const hasLinks = Array.isArray(this.resolvedConfig.links) && this.resolvedConfig.links.length > 0
-			const hasLegal = Boolean(this.legalText) || Boolean(this.resolvedConfig.copyrightYear)
+			const hasLinks =
+				Array.isArray(this.resolvedConfig.links)
+				&& this.resolvedConfig.links.length > 0
+			const hasLegal =
+				Boolean(this.legalText) || Boolean(this.resolvedConfig.copyrightYear)
 			return hasLinks || hasLegal
 		},
 
@@ -271,7 +290,9 @@ export default {
 	gap: 1rem;
 }
 
-.launchpad-footer__config--inline .launchpad-footer__col + .launchpad-footer__col::before {
+.launchpad-footer__config--inline
+	.launchpad-footer__col
+	+ .launchpad-footer__col::before {
 	content: '·';
 	margin-right: 1rem;
 	opacity: 0.5;

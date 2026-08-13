@@ -20,13 +20,13 @@
 				     belongs on the `<template>`; per-child keys (the Vue 2 form)
 				     are ignored and leave the breadcrumb list unkeyed. -->
 				<template v-for="(segment, index) in pathSegments" :key="index">
-					<span
-						aria-hidden="true"
-						class="files-widget__separator">/</span>
+					<span aria-hidden="true" class="files-widget__separator">/</span>
 					<button
 						type="button"
 						class="files-widget__crumb"
-						:aria-current="index === pathSegments.length - 1 ? 'page' : null"
+						:aria-current="
+							index === pathSegments.length - 1 ? 'page' : null
+						"
 						@click="navigateTo(segmentPathTo(index))">
 						{{ segment }}
 					</button>
@@ -38,7 +38,7 @@
 				type="search"
 				class="files-widget__search"
 				:aria-label="t('launchpad', 'Search this folder')"
-				:placeholder="t('launchpad', 'Search this folder…')">
+				:placeholder="t('launchpad', 'Search this folder…')" />
 
 			<button
 				v-if="canShowUpload"
@@ -67,7 +67,7 @@
 				class="files-widget__file-input"
 				:aria-hidden="true"
 				tabindex="-1"
-				@change="onFileInputChange">
+				@change="onFileInputChange" />
 		</div>
 
 		<div v-if="loading" class="files-widget__state">
@@ -77,7 +77,7 @@
 		<div
 			v-else-if="errorCode === 'no_access'"
 			class="files-widget__state files-widget__state--no-access">
-			{{ t('launchpad', 'You don\'t have access to this folder.') }}
+			{{ t('launchpad', "You don't have access to this folder.") }}
 		</div>
 
 		<div
@@ -90,10 +90,7 @@
 			v-else-if="errorCode"
 			class="files-widget__state files-widget__state--error">
 			{{ t('launchpad', 'Failed to load folder contents.') }}
-			<button
-				type="button"
-				class="files-widget__retry"
-				@click="fetchContents">
+			<button type="button" class="files-widget__retry" @click="fetchContents">
 				{{ t('launchpad', 'Retry') }}
 			</button>
 		</div>
@@ -126,12 +123,16 @@
 					<span class="files-widget__row-label">{{ item.name }}</span>
 				</button>
 				<span class="files-widget__row-modified">{{ item.modifiedAt }}</span>
-				<span class="files-widget__row-size">{{ formatSize(item.size, item.isFolder) }}</span>
+				<span class="files-widget__row-size">{{
+					formatSize(item.size, item.isFolder)
+				}}</span>
 				<button
 					v-if="canDeleteItem(item)"
 					type="button"
 					class="files-widget__row-delete"
-					:aria-label="t('launchpad', 'Delete {name}', { name: item.name })"
+					:aria-label="
+						t('launchpad', 'Delete {name}', { name: item.name })
+					"
 					@click="confirmDelete(item)">
 					{{ t('launchpad', 'Delete') }}
 				</button>
@@ -139,10 +140,7 @@
 		</ul>
 
 		<div v-if="nextCursor" class="files-widget__pagination">
-			<button
-				type="button"
-				class="files-widget__more"
-				@click="loadMore">
+			<button type="button" class="files-widget__more" @click="loadMore">
 				{{ t('launchpad', 'Load more') }}
 			</button>
 		</div>
@@ -166,7 +164,11 @@
 			@keydown.esc="cancelDelete">
 			<div class="files-widget__modal">
 				<p>
-					{{ t('launchpad', 'Are you sure you want to delete {name}?', { name: confirmTarget.name }) }}
+					{{
+						t('launchpad', 'Are you sure you want to delete {name}?', {
+							name: confirmTarget.name,
+						})
+					}}
 				</p>
 				<div class="files-widget__modal-actions">
 					<button type="button" @click="cancelDelete">
@@ -302,11 +304,9 @@ export default {
 
 		/** @spec openspec/specs/files-widget/spec.md */
 		noSearchResultsLabel() {
-			return t(
-				'launchpad',
-				'No files matching \'{query}\'',
-				{ query: this.searchQuery },
-			)
+			return t('launchpad', "No files matching '{query}'", {
+				query: this.searchQuery,
+			})
 		},
 	},
 
@@ -516,7 +516,9 @@ export default {
 					{ placementId: this.placementId, fileId: target.fileId },
 				)
 				await axios.delete(url)
-				this.items = this.items.filter((item) => item.fileId !== target.fileId)
+				this.items = this.items.filter(
+					(item) => item.fileId !== target.fileId,
+				)
 			} catch (err) {
 				// Swallow — refresh the listing so the UI stays
 				// truthful even if the optimistic remove failed.

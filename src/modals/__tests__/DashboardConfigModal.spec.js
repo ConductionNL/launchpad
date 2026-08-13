@@ -120,14 +120,20 @@ describe('DashboardConfigModal tab split', () => {
 		const wrapper = mountModal()
 		await wrapper.find('[data-test="config-tab-sharing"]').trigger('click')
 		expect(wrapper.vm.currentTab).toBe('sharing')
-		expect(wrapper.find('[data-test="config-panel-sharing"]').isVisible()).toBe(true)
-		expect(wrapper.find('[data-test="config-panel-general"]').isVisible()).toBe(false)
+		expect(wrapper.find('[data-test="config-panel-sharing"]').isVisible()).toBe(
+			true,
+		)
+		expect(wrapper.find('[data-test="config-panel-general"]').isVisible()).toBe(
+			false,
+		)
 	})
 
 	it('lands on the Sharing tab when initialTab is "sharing"', () => {
 		const wrapper = mountModal({ initialTab: 'sharing' })
 		expect(wrapper.vm.currentTab).toBe('sharing')
-		expect(wrapper.find('[data-test="config-panel-sharing"]').isVisible()).toBe(true)
+		expect(wrapper.find('[data-test="config-panel-sharing"]').isVisible()).toBe(
+			true,
+		)
 	})
 
 	it('falls back to General when initialTab is sharing but shares cannot be managed', () => {

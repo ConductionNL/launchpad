@@ -10,7 +10,13 @@
 		@update:open="$emit('update:open', $event)">
 		<template #default>
 			<p>
-				{{ t('launchpad', 'Remove the {name} showcase dashboard for all users? You can reinstall it later.', { name: showcaseName }) }}
+				{{
+					t(
+						'launchpad',
+						'Remove the {name} showcase dashboard for all users? You can reinstall it later.',
+						{ name: showcaseName },
+					)
+				}}
 			</p>
 		</template>
 		<template #actions>
@@ -25,10 +31,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcDialog,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 
 /**
  * DemoShowcaseUninstallDialog — confirmation dialog extracted from

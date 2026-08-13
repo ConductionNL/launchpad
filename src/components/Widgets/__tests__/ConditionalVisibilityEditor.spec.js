@@ -51,11 +51,16 @@ const RuleRowStub = {
 
 const stubs = {
 	VisibilityRuleRow: RuleRowStub,
-	NcButton: { emits: ['click'], template: '<button :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>' },
+	NcButton: {
+		emits: ['click'],
+		template:
+			'<button :data-test="$attrs[\'data-test\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
+	},
 	NcSelectTags: { template: '<div class="nc-selecttags-stub" />' },
 	NcTextField: {
 		props: ['value'],
-		template: '<input :data-test="$attrs[\'data-test\']" @input="$emit(\'update:value\', $event.target.value)" />',
+		template:
+			'<input :data-test="$attrs[\'data-test\']" @input="$emit(\'update:value\', $event.target.value)" />',
 	},
 	NcLoadingIcon: { template: '<span class="loading" />' },
 	Plus: { template: '<span />' },
@@ -85,8 +90,21 @@ describe('ConditionalVisibilityEditor', () => {
 		api.getWidgetRules.mockResolvedValue({
 			data: {
 				rules: [
-					{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true },
-					{ id: 2, ruleType: 'date', ruleConfig: { startDate: '2026-07-01', endDate: '2026-07-31' }, isInclude: false },
+					{
+						id: 1,
+						ruleType: 'group',
+						ruleConfig: { groups: ['marketing'] },
+						isInclude: true,
+					},
+					{
+						id: 2,
+						ruleType: 'date',
+						ruleConfig: {
+							startDate: '2026-07-01',
+							endDate: '2026-07-31',
+						},
+						isInclude: false,
+					},
 				],
 			},
 		})
@@ -97,8 +115,12 @@ describe('ConditionalVisibilityEditor', () => {
 		expect(api.getWidgetRules).toHaveBeenCalledWith(10)
 		expect(wrapper.find('[data-test="include-section"]').exists()).toBe(true)
 		expect(wrapper.find('[data-test="exclude-section"]').exists()).toBe(true)
-		expect(wrapper.findAll('[data-test="visibility-rule-row-include"]')).toHaveLength(1)
-		expect(wrapper.findAll('[data-test="visibility-rule-row-exclude"]')).toHaveLength(1)
+		expect(
+			wrapper.findAll('[data-test="visibility-rule-row-include"]'),
+		).toHaveLength(1)
+		expect(
+			wrapper.findAll('[data-test="visibility-rule-row-exclude"]'),
+		).toHaveLength(1)
 	})
 
 	it('shows the empty-state message explaining default visibility when there are no rules', async () => {
@@ -107,29 +129,51 @@ describe('ConditionalVisibilityEditor', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
-		expect(wrapper.find('[data-test="visibility-empty-state"]').exists()).toBe(true)
+		expect(wrapper.find('[data-test="visibility-empty-state"]').exists()).toBe(
+			true,
+		)
 	})
 
-	it('toggling a row\'s mode moves it live from the include to the exclude section', async () => {
+	it("toggling a row's mode moves it live from the include to the exclude section", async () => {
 		api.getWidgetRules.mockResolvedValue({
-			data: { rules: [{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true }] },
+			data: {
+				rules: [
+					{
+						id: 1,
+						ruleType: 'group',
+						ruleConfig: { groups: ['marketing'] },
+						isInclude: true,
+					},
+				],
+			},
 		})
 		const wrapper = mountEditor()
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
-		expect(wrapper.findAll('[data-test="visibility-rule-row-include"]')).toHaveLength(1)
+		expect(
+			wrapper.findAll('[data-test="visibility-rule-row-include"]'),
+		).toHaveLength(1)
 
 		await wrapper.find('.toggle-btn').trigger('click')
 
-		expect(wrapper.findAll('[data-test="visibility-rule-row-include"]')).toHaveLength(0)
-		expect(wrapper.findAll('[data-test="visibility-rule-row-exclude"]')).toHaveLength(1)
+		expect(
+			wrapper.findAll('[data-test="visibility-rule-row-include"]'),
+		).toHaveLength(0)
+		expect(
+			wrapper.findAll('[data-test="visibility-rule-row-exclude"]'),
+		).toHaveLength(1)
 	})
 
 	it('adding a rule then saving it POSTs to addWidgetRule (new row, no id yet)', async () => {
 		api.getWidgetRules.mockResolvedValue({ data: { rules: [] } })
 		api.addWidgetRule.mockResolvedValue({
-			data: { id: 99, ruleType: 'group', ruleConfig: { groups: ['sales'] }, isInclude: true },
+			data: {
+				id: 99,
+				ruleType: 'group',
+				ruleConfig: { groups: ['sales'] },
+				isInclude: true,
+			},
 		})
 		const wrapper = mountEditor()
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -153,10 +197,24 @@ describe('ConditionalVisibilityEditor', () => {
 
 	it('saving an existing (already-persisted) row PUTs to updateRule', async () => {
 		api.getWidgetRules.mockResolvedValue({
-			data: { rules: [{ id: 5, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true }] },
+			data: {
+				rules: [
+					{
+						id: 5,
+						ruleType: 'group',
+						ruleConfig: { groups: ['marketing'] },
+						isInclude: true,
+					},
+				],
+			},
 		})
 		api.updateRule.mockResolvedValue({
-			data: { id: 5, ruleType: 'group', ruleConfig: { groups: ['marketing', 'management'] }, isInclude: true },
+			data: {
+				id: 5,
+				ruleType: 'group',
+				ruleConfig: { groups: ['marketing', 'management'] },
+				isInclude: true,
+			},
 		})
 		const wrapper = mountEditor()
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -176,7 +234,11 @@ describe('ConditionalVisibilityEditor', () => {
 
 	it('removing an existing rule calls deleteRule and emits rule-removed', async () => {
 		api.getWidgetRules.mockResolvedValue({
-			data: { rules: [{ id: 5, ruleType: 'time', ruleConfig: {}, isInclude: false }] },
+			data: {
+				rules: [
+					{ id: 5, ruleType: 'time', ruleConfig: {}, isInclude: false },
+				],
+			},
 		})
 		api.deleteRule.mockResolvedValue({ data: { status: 'ok' } })
 		const wrapper = mountEditor()
@@ -208,10 +270,23 @@ describe('ConditionalVisibilityEditor', () => {
 
 	it('preview: calls the preview endpoint with the in-editor rule set and shows Visible', async () => {
 		api.getWidgetRules.mockResolvedValue({
-			data: { rules: [{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true }] },
+			data: {
+				rules: [
+					{
+						id: 1,
+						ruleType: 'group',
+						ruleConfig: { groups: ['marketing'] },
+						isInclude: true,
+					},
+				],
+			},
 		})
 		api.previewVisibility.mockResolvedValue({
-			data: { visible: true, matchedIncludeRuleIds: [1], matchedExcludeRuleIds: [] },
+			data: {
+				visible: true,
+				matchedIncludeRuleIds: [1],
+				matchedExcludeRuleIds: [],
+			},
 		})
 		const wrapper = mountEditor()
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -224,19 +299,43 @@ describe('ConditionalVisibilityEditor', () => {
 
 		expect(api.previewVisibility).toHaveBeenCalled()
 		const body = api.previewVisibility.mock.calls[0][0]
-		expect(body.rules).toEqual([{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true }])
+		expect(body.rules).toEqual([
+			{
+				id: 1,
+				ruleType: 'group',
+				ruleConfig: { groups: ['marketing'] },
+				isInclude: true,
+			},
+		])
 		expect(body.context.groups).toEqual(['marketing'])
 
-		expect(wrapper.find('[data-test="preview-verdict-text"]').text()).toBe('Visible')
-		expect(wrapper.find('[data-test="preview-matched-include"]').exists()).toBe(true)
+		expect(wrapper.find('[data-test="preview-verdict-text"]').text()).toBe(
+			'Visible',
+		)
+		expect(wrapper.find('[data-test="preview-matched-include"]').exists()).toBe(
+			true,
+		)
 	})
 
 	it('preview: shows Hidden with no matched include rule for a non-matching audience', async () => {
 		api.getWidgetRules.mockResolvedValue({
-			data: { rules: [{ id: 1, ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true }] },
+			data: {
+				rules: [
+					{
+						id: 1,
+						ruleType: 'group',
+						ruleConfig: { groups: ['marketing'] },
+						isInclude: true,
+					},
+				],
+			},
 		})
 		api.previewVisibility.mockResolvedValue({
-			data: { visible: false, matchedIncludeRuleIds: [], matchedExcludeRuleIds: [] },
+			data: {
+				visible: false,
+				matchedIncludeRuleIds: [],
+				matchedExcludeRuleIds: [],
+			},
 		})
 		const wrapper = mountEditor()
 		await new Promise((resolve) => setTimeout(resolve, 0))
@@ -246,7 +345,11 @@ describe('ConditionalVisibilityEditor', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
-		expect(wrapper.find('[data-test="preview-verdict-text"]').text()).toBe('Hidden')
-		expect(wrapper.find('[data-test="preview-matched-include"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="preview-verdict-text"]').text()).toBe(
+			'Hidden',
+		)
+		expect(wrapper.find('[data-test="preview-matched-include"]').exists()).toBe(
+			false,
+		)
 	})
 })

@@ -16,7 +16,6 @@
  * (window.OCA.Dashboard.register)
  */
 class WidgetBridge {
-
 	/** @spec openspec/specs/legacy-widget-bridge/spec.md */
 	constructor() {
 		this.widgetCallbacks = new Map()
@@ -59,7 +58,11 @@ class WidgetBridge {
 			this.widgetCallbacks.set(appId, callback)
 			// Surface the callback + a metadata stub where CnNcWidgetWidget looks.
 			dash.callbacks[appId] = callback
-			dash.widgets[appId] = { ...(dash.widgets[appId] || {}), id: appId, callback }
+			dash.widgets[appId] = {
+				...(dash.widgets[appId] || {}),
+				id: appId,
+				callback,
+			}
 
 			// Also call original if it exists (for compatibility)
 			if (originalRegister) {
@@ -123,7 +126,10 @@ class WidgetBridge {
 	 */
 	mountWidget(widgetId, container, widgetData = {}) {
 		console.log('[WidgetBridge] mountWidget called for:', widgetId)
-		console.log('[WidgetBridge] Available callbacks:', Array.from(this.widgetCallbacks.keys()))
+		console.log(
+			'[WidgetBridge] Available callbacks:',
+			Array.from(this.widgetCallbacks.keys()),
+		)
 
 		const callback = this.widgetCallbacks.get(widgetId)
 
@@ -137,9 +143,16 @@ class WidgetBridge {
 				// Some widgets expect a second parameter with widget metadata
 				callback(container, { widget: widgetData })
 				console.log('[WidgetBridge] Mounted legacy widget:', widgetId)
-				console.log('[WidgetBridge] Container after mount:', container.innerHTML.substring(0, 200))
+				console.log(
+					'[WidgetBridge] Container after mount:',
+					container.innerHTML.substring(0, 200),
+				)
 			} catch (error) {
-				console.error('[WidgetBridge] Error mounting legacy widget:', widgetId, error)
+				console.error(
+					'[WidgetBridge] Error mounting legacy widget:',
+					widgetId,
+					error,
+				)
 			}
 		} else {
 			console.warn('[WidgetBridge] No callback found for widget:', widgetId)
@@ -164,7 +177,11 @@ class WidgetBridge {
 				callback(container)
 				console.debug('LaunchPad: Mounted status widget:', widgetId)
 			} catch (error) {
-				console.error('LaunchPad: Error mounting status widget:', widgetId, error)
+				console.error(
+					'LaunchPad: Error mounting status widget:',
+					widgetId,
+					error,
+				)
 			}
 		}
 	}
@@ -273,7 +290,6 @@ class WidgetBridge {
 			}, intervalMs)
 		})
 	}
-
 }
 
 // Export singleton instance

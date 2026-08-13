@@ -9,20 +9,22 @@
 			<span
 				class="org-nav-row__handle"
 				:title="t('launchpad', 'Drag to reorder within this level')"
-				:aria-label="t('launchpad', 'Drag to reorder')">⋮⋮</span>
+				:aria-label="t('launchpad', 'Drag to reorder')"
+				>⋮⋮</span
+			>
 			<input
 				v-model="localLabel"
 				type="text"
 				class="org-nav-row__label"
 				:aria-label="t('launchpad', 'Label')"
-				@input="emitPatch({ label: localLabel })">
+				@input="emitPatch({ label: localLabel })" />
 			<input
 				v-model="localUrl"
 				type="text"
 				class="org-nav-row__url"
 				:placeholder="t('launchpad', 'URL (leave empty for section)')"
 				:aria-label="t('launchpad', 'URL')"
-				@input="emitPatch({ url: localUrl || null })">
+				@input="emitPatch({ url: localUrl || null })" />
 			<CnIconBrowser
 				class="org-nav-row__icon"
 				:label="t('launchpad', 'Icon')"
@@ -33,7 +35,7 @@
 				<input
 					v-model="localOpenInNewTab"
 					type="checkbox"
-					@change="emitPatch({ openInNewTab: localOpenInNewTab })">
+					@change="emitPatch({ openInNewTab: localOpenInNewTab })" />
 				{{ t('launchpad', 'New tab') }}
 			</label>
 			<button
@@ -56,7 +58,11 @@
 				type="button"
 				class="org-nav-row__btn"
 				:disabled="!canAddChild"
-				:title="canAddChild ? '' : t('launchpad', 'Tree depth cannot exceed 3 levels')"
+				:title="
+					canAddChild
+						? ''
+						: t('launchpad', 'Tree depth cannot exceed 3 levels')
+				"
 				@click="$emit('add-child', { parent: node, kind: 'link' })">
 				{{ t('launchpad', 'Add child') }}
 			</button>
@@ -72,7 +78,7 @@
 				<input
 					type="checkbox"
 					:checked="localVisibility === null"
-					@change="onToggleVisibilityAll($event.target.checked)">
+					@change="onToggleVisibilityAll($event.target.checked)" />
 				{{ t('launchpad', 'Visible to everyone') }}
 			</label>
 			<select
@@ -92,7 +98,7 @@
 				class="org-nav-row__groups-text"
 				:aria-label="t('launchpad', 'Group visibility')"
 				:placeholder="t('launchpad', 'Group ids, comma separated')"
-				@input="onFreeTextGroupsInput">
+				@input="onFreeTextGroupsInput" />
 		</div>
 		<!-- vuedraggable v4 (Vue 3): rows come from the `#item` scoped slot, and
 		     `item-key` replaces the manual :key binding. See OrgNavigationEditor. -->
@@ -229,7 +235,7 @@ export default {
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		indentPx() {
-			return ((this.level - 1) * 16) + 'px'
+			return (this.level - 1) * 16 + 'px'
 		},
 	},
 
@@ -320,7 +326,10 @@ export default {
 /* Placeholder shown for the dragged row while sorting. */
 .org-nav-row__ghost > .org-nav-row__row {
 	opacity: 0.5;
-	background: var(--color-primary-element-light, var(--color-background-hover, #e3f2fd));
+	background: var(
+		--color-primary-element-light,
+		var(--color-background-hover, #e3f2fd)
+	);
 	border-radius: 4px;
 }
 

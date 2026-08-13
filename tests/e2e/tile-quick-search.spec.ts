@@ -38,13 +38,22 @@
  * @spec openspec/specs/tile-quick-search/spec.md
  */
 
-import { expect, request, test, type APIRequestContext, type Page } from '@playwright/test'
+import {
+	expect,
+	request,
+	test,
+	type APIRequestContext,
+	type Page,
+} from '@playwright/test'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(/\/$/, '')
+const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(
+	/\/$/,
+	'',
+)
 
 const APP_URL = '/index.php/apps/launchpad'
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
@@ -125,18 +134,24 @@ test.beforeAll(async () => {
 	expect(dashboardId, `no dashboard id: ${JSON.stringify(body)}`).toBeTruthy()
 
 	for (const [i, title] of TILES.entries()) {
-		const res = await api.post(`/index.php/apps/launchpad/api/dashboard/${dashboardId}/tile`, {
-			data: {
-				title,
-				linkType: 'url',
-				linkValue: `https://example.invalid/${encodeURIComponent(title)}`,
-				gridX: (i % 2) * 3,
-				gridY: Math.floor(i / 2) * 2,
-				gridWidth: 3,
-				gridHeight: 2,
+		const res = await api.post(
+			`/index.php/apps/launchpad/api/dashboard/${dashboardId}/tile`,
+			{
+				data: {
+					title,
+					linkType: 'url',
+					linkValue: `https://example.invalid/${encodeURIComponent(title)}`,
+					gridX: (i % 2) * 3,
+					gridY: Math.floor(i / 2) * 2,
+					gridWidth: 3,
+					gridHeight: 2,
+				},
 			},
-		})
-		expect(res.status(), `seeding tile "${title}": ${await res.text()}`).toBeLessThan(300)
+		)
+		expect(
+			res.status(),
+			`seeding tile "${title}": ${await res.text()}`,
+		).toBeLessThan(300)
 	}
 
 	/*
@@ -156,12 +171,17 @@ test.beforeAll(async () => {
 	 * results, because a previously-run spec in the same serial job had left
 	 * a UUID preference behind and that preference won.
 	 */
-	const activate = await api.post(`/index.php/apps/launchpad/api/dashboard/${dashboardId}/activate`)
+	const activate = await api.post(
+		`/index.php/apps/launchpad/api/dashboard/${dashboardId}/activate`,
+	)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
 
-	const setPreference = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
-		data: { uuid: dash.uuid },
-	})
+	const setPreference = await api.post(
+		'/index.php/apps/launchpad/api/dashboards/active',
+		{
+			data: { uuid: dash.uuid },
+		},
+	)
 	expect(setPreference.status(), await setPreference.text()).toBeLessThan(300)
 
 	await api.dispose()
@@ -201,13 +221,16 @@ async function openWorkspace(page: Page): Promise<void> {
 	await expect(
 		page.locator(GRID_ITEM).filter({ hasText: STAMP }).first(),
 		`the active dashboard must be the one this suite seeded (tiles stamped ${STAMP}) — `
-		+ 'if this fails the shell resolved a different dashboard and no search assertion below is meaningful',
+			+ 'if this fails the shell resolved a different dashboard and no search assertion below is meaningful',
 	).toBeVisible({ timeout: 30_000 })
 
 	await expect
 		.poll(
 			async () => page.locator(GRID_ITEM).filter({ hasText: STAMP }).count(),
-			{ message: 'all four seeded tiles must be rendered before searching', timeout: 30_000 },
+			{
+				message: 'all four seeded tiles must be rendered before searching',
+				timeout: 30_000,
+			},
 		)
 		.toBeGreaterThanOrEqual(TILES.length)
 }
@@ -236,12 +259,14 @@ async function blurToGrid(page: Page): Promise<void> {
 
 /** The visible result labels, in the order the listbox presents them. */
 async function optionLabels(page: Page): Promise<string[]> {
-	return (await page.locator(OPTION).allInnerTexts()).map(t => t.trim())
+	return (await page.locator(OPTION).allInnerTexts()).map((t) => t.trim())
 }
 
 test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 	// @e2e tile-quick-search::search-bar-is-present-and-labelled
-	test('the bar renders above the grid, is wrapped in role=search, and is labelled and tabbable', async ({ page }) => {
+	test('the bar renders above the grid, is wrapped in role=search, and is labelled and tabbable', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 
 		const input = page.locator(INPUT)
@@ -258,11 +283,15 @@ test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 		// than the markup keeps this true if the mechanism changes.
 		const accessibleName = await input.evaluate((el) => {
 			const byLabel = el.id
-				? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent
+				? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)
+						?.textContent
 				: null
 			return (byLabel ?? el.getAttribute('aria-label') ?? '').trim()
 		})
-		expect(accessibleName, 'the quick-search input must have an accessible name').not.toBe('')
+		expect(
+			accessibleName,
+			'the quick-search input must have an accessible name',
+		).not.toBe('')
 
 		// Reachable in the normal tab order — i.e. not tabindex="-1".
 		expect(
@@ -277,14 +306,19 @@ test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 	})
 
 	// @e2e tile-quick-search::slash-focuses-the-bar
-	test('pressing / focuses the bar and does not type the slash into it', async ({ page }) => {
+	test('pressing / focuses the bar and does not type the slash into it', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 		const input = page.locator(INPUT)
 
 		// CONTROL — focus starts somewhere else, so "is focused" below is a
 		// change and not the initial state.
 		await blurToGrid(page)
-		await expect(input, 'CONTROL: the bar must not already hold focus').not.toBeFocused()
+		await expect(
+			input,
+			'CONTROL: the bar must not already hold focus',
+		).not.toBeFocused()
 
 		await page.keyboard.press('/')
 		await expect(input).toBeFocused()
@@ -299,31 +333,49 @@ test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 	})
 
 	// @e2e tile-quick-search::ctrlk-focuses-the-bar
-	test('Ctrl+K focuses the bar and prevents the browser default', async ({ page }) => {
+	test('Ctrl+K focuses the bar and prevents the browser default', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 		const input = page.locator(INPUT)
 
 		await blurToGrid(page)
-		await expect(input, 'CONTROL: the bar must not already hold focus').not.toBeFocused()
+		await expect(
+			input,
+			'CONTROL: the bar must not already hold focus',
+		).not.toBeFocused()
 
 		// Record whether the app called preventDefault on the very event it
 		// acted upon. Asserting focus alone would pass on a handler that
 		// leaves the browser's own Ctrl+K to fire as well.
 		await page.evaluate(() => {
-			;(window as unknown as { __ctrlKDefaultPrevented?: boolean }).__ctrlKDefaultPrevented = undefined
-			window.addEventListener('keydown', (e) => {
-				if (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) {
-					;(window as unknown as { __ctrlKDefaultPrevented?: boolean })
-						.__ctrlKDefaultPrevented = e.defaultPrevented
-				}
-			}, false)
+			;(
+				window as unknown as { __ctrlKDefaultPrevented?: boolean }
+			).__ctrlKDefaultPrevented = undefined
+			window.addEventListener(
+				'keydown',
+				(e) => {
+					if (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) {
+						;(
+							window as unknown as {
+								__ctrlKDefaultPrevented?: boolean
+							}
+						).__ctrlKDefaultPrevented = e.defaultPrevented
+					}
+				},
+				false,
+			)
 		})
 
 		await page.keyboard.press('Control+k')
 		await expect(input).toBeFocused()
 
 		expect(
-			await page.evaluate(() => (window as unknown as { __ctrlKDefaultPrevented?: boolean }).__ctrlKDefaultPrevented),
+			await page.evaluate(
+				() =>
+					(window as unknown as { __ctrlKDefaultPrevented?: boolean })
+						.__ctrlKDefaultPrevented,
+			),
 			'the shortcut must call preventDefault so the browser default does not also fire',
 		).toBe(true)
 	})
@@ -331,7 +383,9 @@ test.describe('tile quick-search — focus (REQ-QSEARCH-001)', () => {
 
 test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 	// @e2e tile-quick-search::typing-filters-tiles-by-label
-	test('typing narrows the matches, dims rather than removes non-matches, and issues no request', async ({ page }) => {
+	test('typing narrows the matches, dims rather than removes non-matches, and issues no request', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 
 		const gridItems = page.locator(GRID_ITEM)
@@ -345,12 +399,15 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 				requestsWhileTyping.push(url)
 			}
 		}
-		page.on('request', req => record(req.url()))
+		page.on('request', (req) => record(req.url()))
 
 		await page.locator(INPUT).fill('zaak')
 
 		await expect
-			.poll(async () => optionLabels(page), { message: 'the query must narrow the result list', timeout: 15_000 })
+			.poll(async () => optionLabels(page), {
+				message: 'the query must narrow the result list',
+				timeout: 15_000,
+			})
 			.toHaveLength(2)
 
 		const labels = await optionLabels(page)
@@ -393,20 +450,40 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 		// `.first()` on both: `evaluate()` throws on a locator that resolves to
 		// more than one node, and a strictness error would read as a product
 		// failure rather than as the selector problem it is.
-		const matching = page.locator(GRID_ITEM).filter({ hasText: `Zaaksysteem ${STAMP}` }).first()
-		const notMatching = page.locator(GRID_ITEM).filter({ hasText: `Verlof aanvragen ${STAMP}` }).first()
-		await expect(matching, 'the matching tile must be on screen').toBeVisible({ timeout: 15_000 })
-		await expect(notMatching, 'the non-matching tile must be on screen').toBeVisible({ timeout: 15_000 })
+		const matching = page
+			.locator(GRID_ITEM)
+			.filter({ hasText: `Zaaksysteem ${STAMP}` })
+			.first()
+		const notMatching = page
+			.locator(GRID_ITEM)
+			.filter({ hasText: `Verlof aanvragen ${STAMP}` })
+			.first()
+		await expect(matching, 'the matching tile must be on screen').toBeVisible({
+			timeout: 15_000,
+		})
+		await expect(
+			notMatching,
+			'the non-matching tile must be on screen',
+		).toBeVisible({ timeout: 15_000 })
 
 		await expect
-			.poll(async () => notMatching.evaluate(el => el.classList.contains('launchpad-grid-item--dimmed')), {
-				message: 'a tile whose label does not match the query must be visibly de-emphasised',
-				timeout: 15_000,
-			})
+			.poll(
+				async () =>
+					notMatching.evaluate((el) =>
+						el.classList.contains('launchpad-grid-item--dimmed'),
+					),
+				{
+					message:
+						'a tile whose label does not match the query must be visibly de-emphasised',
+					timeout: 15_000,
+				},
+			)
 			.toBe(true)
 
 		expect(
-			await matching.evaluate(el => el.classList.contains('launchpad-grid-item--dimmed')),
+			await matching.evaluate((el) =>
+				el.classList.contains('launchpad-grid-item--dimmed'),
+			),
 			'a MATCHING tile must not be de-emphasised — dimming everything satisfies a bare "something is dimmed" count while telling the user nothing',
 		).toBe(false)
 
@@ -432,15 +509,24 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 		await page.locator(INPUT).fill('verlof')
 
 		await expect
-			.poll(async () => optionLabels(page), { message: 'both verlof tiles must match', timeout: 15_000 })
+			.poll(async () => optionLabels(page), {
+				message: 'both verlof tiles must match',
+				timeout: 15_000,
+			})
 			.toHaveLength(2)
 
 		const labels = await optionLabels(page)
-		const prefix = labels.findIndex(l => l.includes('Verlof aanvragen'))
-		const midString = labels.findIndex(l => l.includes('Overzicht verlof'))
+		const prefix = labels.findIndex((l) => l.includes('Verlof aanvragen'))
+		const midString = labels.findIndex((l) => l.includes('Overzicht verlof'))
 
-		expect(prefix, '"Verlof aanvragen" must be among the results').toBeGreaterThanOrEqual(0)
-		expect(midString, '"Overzicht verlof" must be among the results').toBeGreaterThanOrEqual(0)
+		expect(
+			prefix,
+			'"Verlof aanvragen" must be among the results',
+		).toBeGreaterThanOrEqual(0)
+		expect(
+			midString,
+			'"Overzicht verlof" must be among the results',
+		).toBeGreaterThanOrEqual(0)
 		expect(
 			prefix,
 			'a label STARTING with the query must rank above one that matches mid-string',
@@ -448,7 +534,9 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 	})
 
 	// @e2e tile-quick-search::no-query-stored
-	test('the query is never persisted — no request carries it and no web storage holds it', async ({ page }) => {
+	test('the query is never persisted — no request carries it and no web storage holds it', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 
 		const secret = `qsprobe${STAMP}`
@@ -468,8 +556,9 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 		// Give any debounced persistence a chance to fire before concluding
 		// it did not — an assertion made too early would pass on a store that
 		// simply had not flushed yet.
-		await expect(page.locator('[data-test="quick-search-empty"], ' + OPTION).first())
-			.toBeVisible({ timeout: 15_000 })
+		await expect(
+			page.locator('[data-test="quick-search-empty"], ' + OPTION).first(),
+		).toBeVisible({ timeout: 15_000 })
 
 		expect(
 			carryingRequests,
@@ -481,32 +570,45 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 			for (const store of [localStorage, sessionStorage]) {
 				for (let i = 0; i < store.length; i++) {
 					const key = store.key(i)!
-					if (key.includes(needle) || (store.getItem(key) ?? '').includes(needle)) {
+					if (
+						key.includes(needle)
+						|| (store.getItem(key) ?? '').includes(needle)
+					) {
 						hits.push(key)
 					}
 				}
 			}
 			return hits
 		}, secret)
-		expect(stored, `the query must not be persisted to web storage: ${stored.join(', ')}`).toHaveLength(0)
+		expect(
+			stored,
+			`the query must not be persisted to web storage: ${stored.join(', ')}`,
+		).toHaveLength(0)
 	})
 })
 
 test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () => {
 	// @e2e tile-quick-search::arrow-keys-move-the-selection
-	test('ArrowDown then ArrowUp move the selection, tracked by aria-activedescendant and marked by more than colour', async ({ page }) => {
+	test('ArrowDown then ArrowUp move the selection, tracked by aria-activedescendant and marked by more than colour', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 		const input = page.locator(INPUT)
 		await input.fill('zaak')
 
-		await expect.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 }).toBe(2)
+		await expect
+			.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 })
+			.toBe(2)
 
 		const activeDescendant = () => input.getAttribute('aria-activedescendant')
 		const first = await activeDescendant()
 
 		await page.keyboard.press('ArrowDown')
 		await expect
-			.poll(activeDescendant, { message: 'ArrowDown must move the active option', timeout: 10_000 })
+			.poll(activeDescendant, {
+				message: 'ArrowDown must move the active option',
+				timeout: 10_000,
+			})
 			.not.toBe(first)
 		const second = await activeDescendant()
 		expect(second, 'aria-activedescendant must name an option').toBeTruthy()
@@ -532,13 +634,20 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		 * would leave zero.
 		 */
 		expect(
-			await page.locator('.runtime-shell-search__option-marker:not(.runtime-shell-search__option-marker--hidden)').count(),
+			await page
+				.locator(
+					'.runtime-shell-search__option-marker:not(.runtime-shell-search__option-marker--hidden)',
+				)
+				.count(),
 			'the active option needs a non-colour indicator, and exactly one option may carry it',
 		).toBe(1)
 
 		await page.keyboard.press('ArrowUp')
 		await expect
-			.poll(activeDescendant, { message: 'ArrowUp must move the selection back', timeout: 10_000 })
+			.poll(activeDescendant, {
+				message: 'ArrowUp must move the selection back',
+				timeout: 10_000,
+			})
 			.toBe(first)
 	})
 
@@ -557,19 +666,29 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 	 * `activateSearchResult()` did: which anchor it clicked, or none.
 	 */
 	// @e2e tile-quick-search::enter-opens-the-selected-tile
-	test('Enter activates the selected result\'s tile link (launchpad#95)', async ({ page }) => {
+	test("Enter activates the selected result's tile link (launchpad#95)", async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 
 		await page.evaluate(() => {
-			(window as unknown as { __lpActivations: string[] }).__lpActivations = []
-			document.addEventListener('click', (event) => {
-				const anchor = (event.target as HTMLElement | null)?.closest?.('a[href]')
-				if (anchor) {
-					event.preventDefault();
-					(window as unknown as { __lpActivations: string[] }).__lpActivations
-						.push(anchor.getAttribute('href') ?? '')
-				}
-			}, true)
+			;(window as unknown as { __lpActivations: string[] }).__lpActivations =
+				[]
+			document.addEventListener(
+				'click',
+				(event) => {
+					const anchor = (event.target as HTMLElement | null)?.closest?.(
+						'a[href]',
+					)
+					if (anchor) {
+						event.preventDefault()
+						;(
+							window as unknown as { __lpActivations: string[] }
+						).__lpActivations.push(anchor.getAttribute('href') ?? '')
+					}
+				},
+				true,
+			)
 		})
 
 		const input = page.locator(INPUT)
@@ -578,7 +697,10 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		// Exactly one match, so the selected option is unambiguous and the
 		// assertion below cannot be satisfied by the wrong tile.
 		await expect
-			.poll(async () => optionLabels(page), { message: 'the query must resolve to exactly one tile', timeout: 15_000 })
+			.poll(async () => optionLabels(page), {
+				message: 'the query must resolve to exactly one tile',
+				timeout: 15_000,
+			})
 			.toEqual([`Zaaksysteem ${STAMP}`])
 
 		/*
@@ -590,20 +712,32 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		 * instead of being read as "the fix was reverted".
 		 */
 		await expect(
-			page.locator(GRID_ITEM).filter({ hasText: `Zaaksysteem ${STAMP}` }).first().locator('a[href]').first(),
+			page
+				.locator(GRID_ITEM)
+				.filter({ hasText: `Zaaksysteem ${STAMP}` })
+				.first()
+				.locator('a[href]')
+				.first(),
 			'PROBE: the rendered tile must carry an anchor, or activation has nothing to click',
 		).toHaveCount(1)
-		await expect(input, 'PROBE: the search input must still hold focus when Enter is pressed').toBeFocused()
+		await expect(
+			input,
+			'PROBE: the search input must still hold focus when Enter is pressed',
+		).toBeFocused()
 
 		await page.keyboard.press('Enter')
 
-		const readActivations = async () => page.evaluate(
-			() => (window as unknown as { __lpActivations: string[] }).__lpActivations,
-		)
+		const readActivations = async () =>
+			page.evaluate(
+				() =>
+					(window as unknown as { __lpActivations: string[] })
+						.__lpActivations,
+			)
 
 		await expect
 			.poll(readActivations, {
-				message: 'Enter must activate the selected tile\'s link — an empty list is the launchpad#95 symptom '
+				message:
+					"Enter must activate the selected tile's link — an empty list is the launchpad#95 symptom "
 					+ '(a TypeError thrown inside a Vue event handler, where nothing surfaces it)',
 				timeout: 15_000,
 			})
@@ -612,7 +746,7 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		const activations = await readActivations()
 		expect(
 			activations.join(' | '),
-			'the activated link must be the SELECTED tile\'s, not just any anchor on the page',
+			"the activated link must be the SELECTED tile's, not just any anchor on the page",
 		).toContain(encodeURIComponent(`Zaaksysteem ${STAMP}`))
 	})
 
@@ -665,12 +799,16 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 	 */
 
 	// @e2e tile-quick-search::escape-clears-and-returns-focus
-	test('Escape clears the query, undims the grid, and moves focus out of the bar', async ({ page }) => {
+	test('Escape clears the query, undims the grid, and moves focus out of the bar', async ({
+		page,
+	}) => {
 		await openWorkspace(page)
 		const input = page.locator(INPUT)
 
 		await input.fill('zaak')
-		await expect.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 }).toBe(2)
+		await expect
+			.poll(async () => page.locator(OPTION).count(), { timeout: 15_000 })
+			.toBe(2)
 
 		/*
 		 * CONTROL — tiles really are dimmed before Escape, so "nothing is
@@ -687,7 +825,8 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		const dimmed = page.locator(DIMMED)
 		await expect
 			.poll(async () => dimmed.count(), {
-				message: 'CONTROL: a query must dim the non-matching tiles, or the undim assertion below is vacuous',
+				message:
+					'CONTROL: a query must dim the non-matching tiles, or the undim assertion below is vacuous',
 				timeout: 15_000,
 			})
 			.toBeGreaterThan(0)
@@ -695,17 +834,30 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		await page.keyboard.press('Escape')
 
 		await expect(input, 'Escape must clear the query').toHaveValue('')
-		await expect(page.locator(OPTION), 'the result list must close').toHaveCount(0)
-		await expect(input, 'focus must leave the search bar and return to the grid').not.toBeFocused()
+		await expect(page.locator(OPTION), 'the result list must close').toHaveCount(
+			0,
+		)
+		await expect(
+			input,
+			'focus must leave the search bar and return to the grid',
+		).not.toBeFocused()
 
 		await expect
-			.poll(async () => dimmed.count(), { message: 'every tile must return to its undimmed state', timeout: 10_000 })
+			.poll(async () => dimmed.count(), {
+				message: 'every tile must return to its undimmed state',
+				timeout: 10_000,
+			})
 			.toBe(0)
 
 		// Whatever holds focus now must be a real element inside the app, not
 		// the document body — "returns focus to the tile grid" is only true if
 		// something took it.
-		const focusedTag = await page.evaluate(() => document.activeElement?.tagName ?? '')
-		expect(focusedTag, 'focus must land on an element, not fall back to the body').not.toBe('')
+		const focusedTag = await page.evaluate(
+			() => document.activeElement?.tagName ?? '',
+		)
+		expect(
+			focusedTag,
+			'focus must land on an element, not fall back to the body',
+		).not.toBe('')
 	})
 })

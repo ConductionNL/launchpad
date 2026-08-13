@@ -8,7 +8,12 @@
 		<h3>{{ t('launchpad', 'Demo data showcases') }}</h3>
 
 		<p class="launchpad-demo-showcases__hint">
-			{{ t('launchpad', 'Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.') }}
+			{{
+				t(
+					'launchpad',
+					'Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.',
+				)
+			}}
 		</p>
 
 		<div v-if="loading" class="launchpad-demo-showcases__loading">
@@ -39,22 +44,34 @@
 							v-if="showcase.thumbnailUrl"
 							:src="showcase.thumbnailUrl"
 							:alt="showcase.name"
-							@error="onThumbError($event)">
+							@error="onThumbError($event)" />
 						<ViewDashboard v-else :size="64" />
 					</div>
 
 					<div class="launchpad-demo-showcases__body">
 						<div class="launchpad-demo-showcases__title-row">
-							<strong class="launchpad-demo-showcases__title">{{ showcase.name }}</strong>
-							<span class="launchpad-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+							<strong class="launchpad-demo-showcases__title">{{
+								showcase.name
+							}}</strong>
+							<span class="launchpad-demo-showcases__lang-badge">{{
+								showcase.language.toUpperCase()
+							}}</span>
 						</div>
 
 						<p class="launchpad-demo-showcases__desc">
 							{{ showcase.description }}
 						</p>
 
-						<div v-if="warnings[showcase.id]" class="launchpad-demo-showcases__warning">
-							{{ t('launchpad', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
+						<div
+							v-if="warnings[showcase.id]"
+							class="launchpad-demo-showcases__warning">
+							{{
+								t(
+									'launchpad',
+									'Installed but skipped widgets: {list}',
+									{ list: warnings[showcase.id].join(', ') },
+								)
+							}}
 						</div>
 
 						<div class="launchpad-demo-showcases__actions">
@@ -64,7 +81,11 @@
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-install-' + showcase.id"
 								@click="install(showcase)">
-								{{ busy[showcase.id] ? t('launchpad', 'Installing…') : t('launchpad', 'Install') }}
+								{{
+									busy[showcase.id]
+										? t('launchpad', 'Installing…')
+										: t('launchpad', 'Install')
+								}}
 							</NcButton>
 							<NcButton
 								v-else
@@ -72,7 +93,11 @@
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-uninstall-' + showcase.id"
 								@click="confirmUninstall(showcase)">
-								{{ busy[showcase.id] ? t('launchpad', 'Uninstalling…') : t('launchpad', 'Uninstall') }}
+								{{
+									busy[showcase.id]
+										? t('launchpad', 'Uninstalling…')
+										: t('launchpad', 'Uninstall')
+								}}
 							</NcButton>
 						</div>
 					</div>
@@ -136,7 +161,10 @@ export default {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
 			} catch (err) {
-				this.loadError = this.t('launchpad', 'Could not load demo showcases. Please try again.')
+				this.loadError = this.t(
+					'launchpad',
+					'Could not load demo showcases. Please try again.',
+				)
 			} finally {
 				this.loading = false
 			}
@@ -164,9 +192,15 @@ export default {
 				if (err.response && err.response.status === 404) {
 					this.actionError = this.t('launchpad', 'Showcase not found.')
 				} else if (err.response && err.response.status === 403) {
-					this.actionError = this.t('launchpad', 'You need admin privileges to install showcases.')
+					this.actionError = this.t(
+						'launchpad',
+						'You need admin privileges to install showcases.',
+					)
 				} else {
-					this.actionError = this.t('launchpad', 'Could not install showcase. Please try again.')
+					this.actionError = this.t(
+						'launchpad',
+						'Could not install showcase. Please try again.',
+					)
 				}
 			} finally {
 				this.busy[showcase.id] = false
@@ -209,7 +243,10 @@ export default {
 				delete this.warnings[showcase.id]
 				await this.fetch()
 			} catch (err) {
-				this.actionError = this.t('launchpad', 'Could not uninstall showcase. Please try again.')
+				this.actionError = this.t(
+					'launchpad',
+					'Could not uninstall showcase. Please try again.',
+				)
 			} finally {
 				this.busy[showcase.id] = false
 			}

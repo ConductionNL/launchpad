@@ -10,7 +10,10 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import axios from '@nextcloud/axios'
-import { useTileClickTracking, __resetTileClickTrackingForTest } from '../useTileClickTracking.js'
+import {
+	useTileClickTracking,
+	__resetTileClickTrackingForTest,
+} from '../useTileClickTracking.js'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn() },
@@ -37,7 +40,10 @@ describe('useTileClickTracking', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 
 		expect(axios.post).toHaveBeenCalledTimes(1)
-		expect(axios.post).toHaveBeenCalledWith('/apps/launchpad/api/tile-click/42', {})
+		expect(axios.post).toHaveBeenCalledWith(
+			'/apps/launchpad/api/tile-click/42',
+			{},
+		)
 	})
 
 	it('REQ-TANLT-003: suppresses the record call when tracking is disabled (globally off or opted out)', async () => {

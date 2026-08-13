@@ -29,7 +29,8 @@
  *     stay honoured; only the fallback value is gone.
  */
 
-const RAW = process.env.PLAYWRIGHT_BASE_URL?.trim()
+const RAW =
+	process.env.PLAYWRIGHT_BASE_URL?.trim()
 	|| process.env.BASE_URL?.trim()
 	|| process.env.NEXTCLOUD_URL?.trim()
 	|| process.env.NC_BASE_URL?.trim()
@@ -38,14 +39,14 @@ const RAW = process.env.PLAYWRIGHT_BASE_URL?.trim()
 if (!RAW) {
 	throw new Error(
 		'None of PLAYWRIGHT_BASE_URL, BASE_URL, NEXTCLOUD_URL or NC_BASE_URL is set.\n\n'
-		+ 'The e2e suite deliberately has no default: it used to fall back to\n'
-		+ 'http://localhost:8080, which is the SHARED dev container, and these\n'
-		+ 'tests write — dashboards, admin flags, group membership. Runs then\n'
-		+ 'mutated an environment other sessions were using.\n\n'
-		+ 'Point it at your own isolated instance, e.g.\n'
-		+ '  NC_BASE_URL=http://localhost:8097 npm run test:e2e\n\n'
-		+ 'In CI the shared quality workflow exports BASE_URL, which is also\n'
-		+ 'accepted; if you are seeing this in CI, that export is missing.\n',
+			+ 'The e2e suite deliberately has no default: it used to fall back to\n'
+			+ 'http://localhost:8080, which is the SHARED dev container, and these\n'
+			+ 'tests write — dashboards, admin flags, group membership. Runs then\n'
+			+ 'mutated an environment other sessions were using.\n\n'
+			+ 'Point it at your own isolated instance, e.g.\n'
+			+ '  NC_BASE_URL=http://localhost:8097 npm run test:e2e\n\n'
+			+ 'In CI the shared quality workflow exports BASE_URL, which is also\n'
+			+ 'accepted; if you are seeing this in CI, that export is missing.\n',
 	)
 }
 

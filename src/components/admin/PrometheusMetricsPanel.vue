@@ -25,7 +25,9 @@
 		<p v-else-if="error" class="metrics-panel__error" data-test="metrics-error">
 			{{ t('launchpad', 'Failed to load metrics.') }}
 		</p>
-		<pre v-else class="metrics-panel__pre" data-test="metrics-body">{{ body }}</pre>
+		<pre v-else class="metrics-panel__pre" data-test="metrics-body">{{
+			body
+		}}</pre>
 	</div>
 </template>
 
@@ -72,7 +74,8 @@ export default {
 			this.error = false
 			try {
 				const { data } = await api.getMetrics()
-				this.body = typeof data === 'string' ? data : JSON.stringify(data, null, 2)
+				this.body =
+					typeof data === 'string' ? data : JSON.stringify(data, null, 2)
 			} catch (e) {
 				this.error = true
 			} finally {

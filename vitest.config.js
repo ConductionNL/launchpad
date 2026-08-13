@@ -46,10 +46,7 @@ const cssNoop = {
 }
 
 module.exports = {
-	plugins: [
-		cssNoop,
-		vue.default ? vue.default() : vue(),
-	],
+	plugins: [cssNoop, vue.default ? vue.default() : vue()],
 	test: {
 		environment: 'jsdom',
 		globals: false,
@@ -92,7 +89,13 @@ module.exports = {
 			// VTU v2 silently ignores v1's top-level stubs/provide/mocks. This
 			// adapter hoists them into `global` so the legacy specs keep the
 			// isolation they were written with. See the file's docblock.
-			{ find: /^@vue\/test-utils$/, replacement: path.resolve(__dirname, 'tests/vitest/vueTestUtilsCompat.js') },
+			{
+				find: /^@vue\/test-utils$/,
+				replacement: path.resolve(
+					__dirname,
+					'tests/vitest/vueTestUtilsCompat.js',
+				),
+			},
 			// `@conduction/nextcloud-vue` ships a CJS bundle that
 			// `require()`s `.vue` files which Vite's transform pipeline
 			// cannot consume. Tests that need the actual component
@@ -103,7 +106,13 @@ module.exports = {
 			// suite runs against the real library — library integration is
 			// covered only by the Playwright e2e suite. See the stub's
 			// docblock ("CONSEQUENCE") before trusting a green unit run.
-			{ find: /^@conduction\/nextcloud-vue$/, replacement: path.resolve(__dirname, 'tests/vitest/stubs/conduction-nextcloud-vue.js') },
+			{
+				find: /^@conduction\/nextcloud-vue$/,
+				replacement: path.resolve(
+					__dirname,
+					'tests/vitest/stubs/conduction-nextcloud-vue.js',
+				),
+			},
 		],
 	},
 }

@@ -35,7 +35,9 @@
 				data-test="rule-type-select" />
 
 			<!-- group -->
-			<div v-if="local.ruleType === 'group'" class="visibility-rule-row__field">
+			<div
+				v-if="local.ruleType === 'group'"
+				class="visibility-rule-row__field">
 				<NcSelectTags
 					v-model="local.ruleConfig.groups"
 					:options="availableGroups"
@@ -53,8 +55,16 @@
 					:model-value="local.ruleConfig.startTime"
 					:label="t('launchpad', 'Start time (HH:MM)')"
 					placeholder="09:00"
-					:error="!!local.ruleConfig.startTime && !isValidTime(local.ruleConfig.startTime)"
-					:helper-text="(!!local.ruleConfig.startTime && !isValidTime(local.ruleConfig.startTime)) ? t('launchpad', 'Use HH:MM, e.g. 09:00') : ''"
+					:error="
+						!!local.ruleConfig.startTime
+						&& !isValidTime(local.ruleConfig.startTime)
+					"
+					:helper-text="
+						!!local.ruleConfig.startTime
+						&& !isValidTime(local.ruleConfig.startTime)
+							? t('launchpad', 'Use HH:MM, e.g. 09:00')
+							: ''
+					"
 					data-test="rule-start-time"
 					@update:modelValue="onStartTimeChange" />
 				<NcTextField
@@ -62,12 +72,25 @@
 					:model-value="local.ruleConfig.endTime"
 					:label="t('launchpad', 'End time (HH:MM)')"
 					placeholder="17:00"
-					:error="!!local.ruleConfig.endTime && !isValidTime(local.ruleConfig.endTime)"
-					:helper-text="(!!local.ruleConfig.endTime && !isValidTime(local.ruleConfig.endTime)) ? t('launchpad', 'Use HH:MM, e.g. 17:00') : ''"
+					:error="
+						!!local.ruleConfig.endTime
+						&& !isValidTime(local.ruleConfig.endTime)
+					"
+					:helper-text="
+						!!local.ruleConfig.endTime
+						&& !isValidTime(local.ruleConfig.endTime)
+							? t('launchpad', 'Use HH:MM, e.g. 17:00')
+							: ''
+					"
 					data-test="rule-end-time"
 					@update:modelValue="onEndTimeChange" />
 				<div class="visibility-rule-row__field visibility-rule-row__days">
-					<span class="visibility-rule-row__days-label">{{ t('launchpad', 'Days (optional — all days when none selected)') }}</span>
+					<span class="visibility-rule-row__days-label">{{
+						t(
+							'launchpad',
+							'Days (optional — all days when none selected)',
+						)
+					}}</span>
 					<NcCheckboxRadioSwitch
 						v-for="day in dayOptions"
 						:key="day.id"
@@ -87,8 +110,16 @@
 					:model-value="local.ruleConfig.startDate"
 					:label="t('launchpad', 'Start date (YYYY-MM-DD)')"
 					placeholder="2026-12-01"
-					:error="!!local.ruleConfig.startDate && !isValidDate(local.ruleConfig.startDate)"
-					:helper-text="(!!local.ruleConfig.startDate && !isValidDate(local.ruleConfig.startDate)) ? t('launchpad', 'Use YYYY-MM-DD') : ''"
+					:error="
+						!!local.ruleConfig.startDate
+						&& !isValidDate(local.ruleConfig.startDate)
+					"
+					:helper-text="
+						!!local.ruleConfig.startDate
+						&& !isValidDate(local.ruleConfig.startDate)
+							? t('launchpad', 'Use YYYY-MM-DD')
+							: ''
+					"
 					data-test="rule-start-date"
 					@update:modelValue="onStartDateChange" />
 				<NcTextField
@@ -96,8 +127,16 @@
 					:model-value="local.ruleConfig.endDate"
 					:label="t('launchpad', 'End date (YYYY-MM-DD)')"
 					placeholder="2026-12-31"
-					:error="!!local.ruleConfig.endDate && !isValidDate(local.ruleConfig.endDate)"
-					:helper-text="(!!local.ruleConfig.endDate && !isValidDate(local.ruleConfig.endDate)) ? t('launchpad', 'Use YYYY-MM-DD') : ''"
+					:error="
+						!!local.ruleConfig.endDate
+						&& !isValidDate(local.ruleConfig.endDate)
+					"
+					:helper-text="
+						!!local.ruleConfig.endDate
+						&& !isValidDate(local.ruleConfig.endDate)
+							? t('launchpad', 'Use YYYY-MM-DD')
+							: ''
+					"
 					data-test="rule-end-date"
 					@update:modelValue="onEndDateChange" />
 			</template>
@@ -110,7 +149,9 @@
 					:label="t('launchpad', 'Attribute')"
 					placeholder="language"
 					data-test="rule-attribute"
-					@update:modelValue="onAttributeFieldChange('attribute', $event)" />
+					@update:modelValue="
+						onAttributeFieldChange('attribute', $event)
+					" />
 				<NcSelect
 					v-model="operatorOption"
 					class="visibility-rule-row__field"
@@ -166,7 +207,11 @@
 			<NcButton
 				type="tertiary"
 				:disabled="busy"
-				:aria-label="isNew ? t('launchpad', 'Discard rule') : t('launchpad', 'Remove rule')"
+				:aria-label="
+					isNew
+						? t('launchpad', 'Discard rule')
+						: t('launchpad', 'Remove rule')
+				"
 				data-test="rule-remove"
 				@click="$emit('remove')">
 				<template #icon>
@@ -179,7 +224,13 @@
 </template>
 
 <script>
-import { NcButton, NcSelect, NcSelectTags, NcTextField, NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
+import {
+	NcButton,
+	NcSelect,
+	NcSelectTags,
+	NcTextField,
+	NcCheckboxRadioSwitch,
+} from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Delete from 'vue-material-design-icons/Delete.vue'
 
@@ -196,16 +247,16 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
  */
 function emptyConfigFor(ruleType) {
 	switch (ruleType) {
-	case 'group':
-		return { groups: [] }
-	case 'time':
-		return { startTime: '', endTime: '', days: [] }
-	case 'date':
-		return { startDate: '', endDate: '' }
-	case 'attribute':
-		return { attribute: '', operator: 'equals', value: '' }
-	default:
-		return {}
+		case 'group':
+			return { groups: [] }
+		case 'time':
+			return { startTime: '', endTime: '', days: [] }
+		case 'date':
+			return { startDate: '', endDate: '' }
+		case 'attribute':
+			return { attribute: '', operator: 'equals', value: '' }
+		default:
+			return {}
 	}
 }
 
@@ -275,7 +326,10 @@ export default {
 		typeOption: {
 			/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 			get() {
-				return this.typeOptions.find((o) => o.id === this.local.ruleType) || this.typeOptions[0]
+				return (
+					this.typeOptions.find((o) => o.id === this.local.ruleType)
+					|| this.typeOptions[0]
+				)
 			},
 			/**
 			 * Switch the rule type, resetting its config to the new type's
@@ -308,7 +362,11 @@ export default {
 		operatorOption: {
 			/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 			get() {
-				return this.operatorOptions.find((o) => o.id === this.local.ruleConfig.operator) || this.operatorOptions[0]
+				return (
+					this.operatorOptions.find(
+						(o) => o.id === this.local.ruleConfig.operator,
+					) || this.operatorOptions[0]
+				)
 			},
 			/**
 			 * Set the comparison operator, defaulting to `equals` when the
@@ -346,16 +404,26 @@ export default {
 		 */
 		isValid() {
 			switch (this.local.ruleType) {
-			case 'group':
-				return Array.isArray(this.local.ruleConfig.groups) && this.local.ruleConfig.groups.length > 0
-			case 'time':
-				return this.isValidTime(this.local.ruleConfig.startTime) && this.isValidTime(this.local.ruleConfig.endTime)
-			case 'date':
-				return this.hasAtLeastOneValidDate()
-			case 'attribute':
-				return !!this.local.ruleConfig.attribute && !!this.local.ruleConfig.operator && this.local.ruleConfig.value !== ''
-			default:
-				return false
+				case 'group':
+					return (
+						Array.isArray(this.local.ruleConfig.groups)
+						&& this.local.ruleConfig.groups.length > 0
+					)
+				case 'time':
+					return (
+						this.isValidTime(this.local.ruleConfig.startTime)
+						&& this.isValidTime(this.local.ruleConfig.endTime)
+					)
+				case 'date':
+					return this.hasAtLeastOneValidDate()
+				case 'attribute':
+					return (
+						!!this.local.ruleConfig.attribute
+						&& !!this.local.ruleConfig.operator
+						&& this.local.ruleConfig.value !== ''
+					)
+				default:
+					return false
 			}
 		},
 	},
@@ -374,7 +442,10 @@ export default {
 			const ruleType = rule.ruleType || 'group'
 			return {
 				ruleType,
-				ruleConfig: { ...emptyConfigFor(ruleType), ...(rule.ruleConfig || {}) },
+				ruleConfig: {
+					...emptyConfigFor(ruleType),
+					...(rule.ruleConfig || {}),
+				},
 				isInclude: rule.isInclude !== false,
 			}
 		},
@@ -499,36 +570,39 @@ export default {
 		 */
 		buildRuleConfig() {
 			switch (this.local.ruleType) {
-			case 'group':
-				return { groups: [...(this.local.ruleConfig.groups || [])] }
-			case 'time': {
-				const config = {
-					startTime: this.local.ruleConfig.startTime,
-					endTime: this.local.ruleConfig.endTime,
+				case 'group':
+					return { groups: [...(this.local.ruleConfig.groups || [])] }
+				case 'time': {
+					const config = {
+						startTime: this.local.ruleConfig.startTime,
+						endTime: this.local.ruleConfig.endTime,
+					}
+					if (
+						Array.isArray(this.local.ruleConfig.days)
+						&& this.local.ruleConfig.days.length > 0
+					) {
+						config.days = [...this.local.ruleConfig.days]
+					}
+					return config
 				}
-				if (Array.isArray(this.local.ruleConfig.days) && this.local.ruleConfig.days.length > 0) {
-					config.days = [...this.local.ruleConfig.days]
+				case 'date': {
+					const config = {}
+					if (this.local.ruleConfig.startDate) {
+						config.startDate = this.local.ruleConfig.startDate
+					}
+					if (this.local.ruleConfig.endDate) {
+						config.endDate = this.local.ruleConfig.endDate
+					}
+					return config
 				}
-				return config
-			}
-			case 'date': {
-				const config = {}
-				if (this.local.ruleConfig.startDate) {
-					config.startDate = this.local.ruleConfig.startDate
-				}
-				if (this.local.ruleConfig.endDate) {
-					config.endDate = this.local.ruleConfig.endDate
-				}
-				return config
-			}
-			case 'attribute':
-				return {
-					attribute: this.local.ruleConfig.attribute,
-					operator: this.local.ruleConfig.operator || 'equals',
-					value: this.local.ruleConfig.value,
-				}
-			default:
-				return {}
+				case 'attribute':
+					return {
+						attribute: this.local.ruleConfig.attribute,
+						operator: this.local.ruleConfig.operator || 'equals',
+						value: this.local.ruleConfig.value,
+					}
+				default:
+					return {}
 			}
 		},
 

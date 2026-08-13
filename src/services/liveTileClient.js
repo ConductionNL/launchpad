@@ -25,7 +25,9 @@ import { generateUrl } from '@nextcloud/router'
  * @spec openspec/specs/live-data-tile-widget/spec.md
  */
 export async function fetchLiveTileValue(placementId) {
-	const url = generateUrl('/apps/launchpad/api/livetile/{placementId}', { placementId })
+	const url = generateUrl('/apps/launchpad/api/livetile/{placementId}', {
+		placementId,
+	})
 	const response = await axios.get(url)
 	return response?.data || {}
 }

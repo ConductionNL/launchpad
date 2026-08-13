@@ -12,7 +12,10 @@
 
 		<!-- Fallback card — never a silent blank frame (REQ-IFRAME-004).
 		     Conveyed by icon AND text, never colour alone. -->
-		<div v-else-if="state === 'failed'" class="iframe-widget__fallback" role="status">
+		<div
+			v-else-if="state === 'failed'"
+			class="iframe-widget__fallback"
+			role="status">
 			<AlertCircleOutline :size="32" />
 			<span class="iframe-widget__fallback-title">{{ displayTitle }}</span>
 			<span class="iframe-widget__fallback-text">{{ fallbackMessage }}</span>
@@ -22,7 +25,11 @@
 				target="_blank"
 				rel="noopener noreferrer"
 				class="iframe-widget__fallback-link"
-				:aria-label="t('launchpad', 'Open {title} in a new tab', { title: displayTitle })">
+				:aria-label="
+					t('launchpad', 'Open {title} in a new tab', {
+						title: displayTitle,
+					})
+				">
 				<OpenInNew :size="16" />
 				{{ t('launchpad', 'Open in new tab') }}
 			</a>
@@ -150,7 +157,9 @@ export default {
 	computed: {
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
 		url() {
-			return typeof this.content?.url === 'string' ? this.content.url.trim() : ''
+			return typeof this.content?.url === 'string'
+				? this.content.url.trim()
+				: ''
 		},
 
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
@@ -160,7 +169,10 @@ export default {
 
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
 		displayTitle() {
-			const title = typeof this.content?.title === 'string' ? this.content.title.trim() : ''
+			const title =
+				typeof this.content?.title === 'string'
+					? this.content.title.trim()
+					: ''
 			return title !== '' ? title : t('launchpad', 'Embedded page')
 		},
 
@@ -173,21 +185,32 @@ export default {
 		 * @spec openspec/specs/iframe-embed-widget/spec.md
 		 */
 		sandboxAttr() {
-			const tokens = Array.isArray(this.content?.sandbox) ? this.content.sandbox : []
+			const tokens = Array.isArray(this.content?.sandbox)
+				? this.content.sandbox
+				: []
 			return tokens
-				.filter((token) => typeof token === 'string' && !token.startsWith('allow-top-navigation'))
+				.filter(
+					(token) =>
+						typeof token === 'string'
+						&& !token.startsWith('allow-top-navigation'),
+				)
 				.join(' ')
 		},
 
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
 		wrapperStyle() {
-			const aspect = typeof this.content?.aspect === 'string' ? this.content.aspect : 'none'
+			const aspect =
+				typeof this.content?.aspect === 'string'
+					? this.content.aspect
+					: 'none'
 			const ratio = ASPECT_RATIO_MAP[aspect]
 			if (ratio) {
 				return { aspectRatio: ratio, height: 'auto' }
 			}
 			const height = Number(this.content?.height)
-			return { height: `${Number.isFinite(height) && height > 0 ? height : DEFAULT_HEIGHT}px` }
+			return {
+				height: `${Number.isFinite(height) && height > 0 ? height : DEFAULT_HEIGHT}px`,
+			}
 		},
 
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
@@ -196,7 +219,10 @@ export default {
 				return t('launchpad', 'This embed has not been configured yet.')
 			}
 			if (this.failureReason === 'blocked') {
-				return t('launchpad', 'This site does not allow itself to be embedded. Its owner blocks framing, which cannot be overridden here.')
+				return t(
+					'launchpad',
+					'This site does not allow itself to be embedded. Its owner blocks framing, which cannot be overridden here.',
+				)
 			}
 			return t('launchpad', 'This page could not be loaded.')
 		},
@@ -298,7 +324,12 @@ export default {
 			try {
 				const frame = this.$refs.frame
 				const doc = frame && frame.contentDocument
-				if (doc && doc.body && doc.body.children.length === 0 && (doc.body.textContent || '').trim() === '') {
+				if (
+					doc
+					&& doc.body
+					&& doc.body.children.length === 0
+					&& (doc.body.textContent || '').trim() === ''
+				) {
 					blank = true
 				}
 			} catch (e) {

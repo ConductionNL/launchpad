@@ -6,7 +6,11 @@
 <template>
 	<NcDialog
 		data-test="manage-group-dashboards-modal"
-		:name="t('launchpad', 'Manage dashboards for {group}', { group: group.displayName })"
+		:name="
+			t('launchpad', 'Manage dashboards for {group}', {
+				group: group.displayName,
+			})
+		"
 		:open="true"
 		size="large"
 		@update:open="onClose">
@@ -71,10 +75,7 @@
 		</div>
 
 		<template #actions>
-			<NcButton
-				data-test="mgd-close"
-				type="primary"
-				@click="onClose">
+			<NcButton data-test="mgd-close" type="primary" @click="onClose">
 				{{ t('launchpad', 'Close') }}
 			</NcButton>
 		</template>
@@ -93,12 +94,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcDialog,
-	NcEmptyContent,
-	NcLoadingIcon,
-} from '@nextcloud/vue'
+import { NcButton, NcDialog, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ViewDashboardIcon from 'vue-material-design-icons/ViewDashboard.vue'
 
 import GroupDashboardDeleteDialog from './GroupDashboardDeleteDialog.vue'
@@ -130,7 +126,8 @@ export default {
 		group: {
 			type: Object,
 			required: true,
-			validator: (g) => typeof g.id === 'string' && typeof g.displayName === 'string',
+			validator: (g) =>
+				typeof g.id === 'string' && typeof g.displayName === 'string',
 		},
 	},
 
@@ -207,7 +204,9 @@ export default {
 			if (dashboard === null) {
 				return
 			}
-			await this.store.update(this.group.id, dashboard.uuid, { name: nextName })
+			await this.store.update(this.group.id, dashboard.uuid, {
+				name: nextName,
+			})
 		},
 
 		/**

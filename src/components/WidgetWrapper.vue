@@ -18,7 +18,9 @@
 	<div
 		class="launchpad-widget"
 		:class="{ 'launchpad-widget--editing': editMode }"
-		:data-testid="placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'"
+		:data-testid="
+			placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'
+		"
 		:data-widget-id="placement?.widgetId">
 		<CnWidgetWrapper
 			class="launchpad-widget__wrapper"
@@ -33,9 +35,7 @@
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:show-refresh="false"
 			:show-request-feature="false">
-			<WidgetRenderer
-				:widget="widget"
-				:placement="placement" />
+			<WidgetRenderer :widget="widget" :placement="placement" />
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
@@ -107,7 +107,10 @@ export default {
 
 	computed: {
 		isTileWidget() {
-			return this.placement.widgetId && this.placement.widgetId.startsWith('tile-')
+			return (
+				this.placement.widgetId
+				&& this.placement.widgetId.startsWith('tile-')
+			)
 		},
 
 		/**
@@ -123,8 +126,10 @@ export default {
 			if (this.editMode) {
 				return false
 			}
-			return Number(this.placement?.requiresAcknowledgement) === 1
+			return (
+				Number(this.placement?.requiresAcknowledgement) === 1
 				&& this.outstandingAcknowledgement
+			)
 		},
 
 		/**
@@ -138,7 +143,9 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile'].includes(this.placement?.widgetId)
+			return ['label', 'divider', 'header', 'tile'].includes(
+				this.placement?.widgetId,
+			)
 		},
 
 		/**
@@ -194,7 +201,11 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetTitle() {
-			return this.placement.customTitle || this.widget?.title || this.t('launchpad', 'Widget')
+			return (
+				this.placement.customTitle
+				|| this.widget?.title
+				|| this.t('launchpad', 'Widget')
+			)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

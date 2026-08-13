@@ -22,10 +22,7 @@
 			<NcButton type="tertiary" @click="$emit('update:open', false)">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
-			<NcButton
-				type="primary"
-				:disabled="!canSubmit"
-				@click="submit">
+			<NcButton type="primary" :disabled="!canSubmit" @click="submit">
 				{{ t('launchpad', 'Rename') }}
 			</NcButton>
 		</template>
@@ -33,11 +30,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcDialog,
-	NcTextField,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcDialog, NcTextField } from '@conduction/nextcloud-vue'
 
 /**
  * GroupDashboardRenameDialog — rename prompt extracted from

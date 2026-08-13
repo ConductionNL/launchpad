@@ -10,7 +10,8 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 <template>
 	<div class="public-share-view">
 		<!-- Password unlock dialog (extracted per ADR-004) -->
-		<PublicSharePasswordDialog v-if="showPasswordModal"
+		<PublicSharePasswordDialog
+			v-if="showPasswordModal"
 			:error="unlockError"
 			:loading="unlocking"
 			@unlock="submitPassword" />
@@ -33,7 +34,9 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 		<div v-else-if="dashboard" class="public-share-view__content">
 			<header class="public-share-view__header">
 				<h1>{{ dashboard.name || dashboard.title }}</h1>
-				<span class="public-share-view__badge">{{ t('launchpad', 'Read-only view') }}</span>
+				<span class="public-share-view__badge">{{
+					t('launchpad', 'Read-only view')
+				}}</span>
 			</header>
 			<p v-if="dashboard.description" class="public-share-view__description">
 				{{ dashboard.description }}
@@ -50,32 +53,54 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 						v-if="item.kind === 'tile'"
 						class="public-share-view__tile"
 						:href="item.tileLink || '#'"
-						:style="{ backgroundColor: item.tileBackgroundColor || undefined, color: item.tileTextColor || undefined }">
+						:style="{
+							backgroundColor: item.tileBackgroundColor || undefined,
+							color: item.tileTextColor || undefined,
+						}">
 						<img
-							v-if="item.tileIcon && /^(data:|https?:|\/)/.test(item.tileIcon)"
+							v-if="
+								item.tileIcon
+								&& /^(data:|https?:|\/)/.test(item.tileIcon)
+							"
 							class="public-share-view__tile-icon"
 							:src="item.tileIcon"
-							alt="">
-						<span class="public-share-view__tile-title">{{ item.title }}</span>
+							alt="" />
+						<span class="public-share-view__tile-title">{{
+							item.title
+						}}</span>
 					</a>
 
 					<!-- Static custom widgets that render safely for anonymous visitors. -->
 					<div v-else class="public-share-view__widget">
-						<h2 v-if="item.showTitle && item.title && item.kind !== 'divider'" class="public-share-view__widget-title">
+						<h2
+							v-if="
+								item.showTitle
+								&& item.title
+								&& item.kind !== 'divider'
+							"
+							class="public-share-view__widget-title">
 							{{ item.title }}
 						</h2>
-						<hr v-if="item.kind === 'divider'" class="public-share-view__divider">
-						<h3 v-else-if="item.kind === 'header' || item.kind === 'label'" class="public-share-view__widget-heading">
+						<hr
+							v-if="item.kind === 'divider'"
+							class="public-share-view__divider" />
+						<h3
+							v-else-if="
+								item.kind === 'header' || item.kind === 'label'
+							"
+							class="public-share-view__widget-heading">
 							{{ item.text || item.title }}
 						</h3>
-						<p v-else-if="item.kind === 'text'" class="public-share-view__widget-text">
+						<p
+							v-else-if="item.kind === 'text'"
+							class="public-share-view__widget-text">
 							{{ item.text }}
 						</p>
 						<img
 							v-else-if="item.kind === 'image' && item.url"
 							class="public-share-view__widget-image"
 							:src="item.url"
-							:alt="item.title">
+							:alt="item.title" />
 						<a
 							v-else-if="item.kind === 'link' && item.url"
 							class="public-share-view__widget-link"
@@ -83,13 +108,23 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 							{{ item.title || item.url }}
 						</a>
 						<p v-else class="public-share-view__widget-restricted">
-							{{ t('launchpad', 'This widget is only visible to signed-in users.') }}
+							{{
+								t(
+									'launchpad',
+									'This widget is only visible to signed-in users.',
+								)
+							}}
 						</p>
 					</div>
 				</div>
 			</div>
 			<p v-else class="public-share-view__empty">
-				{{ t('launchpad', 'This dashboard has no publicly viewable content.') }}
+				{{
+					t(
+						'launchpad',
+						'This dashboard has no publicly viewable content.',
+					)
+				}}
 			</p>
 		</div>
 	</div>
@@ -149,7 +184,9 @@ export default defineComponent({
 		const unlockError = ref(null)
 
 		const errorTitle = ref(t('launchpad', 'Not available'))
-		const errorDescription = ref(t('launchpad', 'This shared dashboard is not available.'))
+		const errorDescription = ref(
+			t('launchpad', 'This shared dashboard is not available.'),
+		)
 
 		const loadShare = async (password = null) => {
 			loading.value = true
@@ -165,10 +202,15 @@ export default defineComponent({
 				)
 				dashboard.value = data.dashboard
 				share.value = data.share
-				placements.value = Array.isArray(data.placements) ? data.placements : []
+				placements.value = Array.isArray(data.placements)
+					? data.placements
+					: []
 				showPasswordModal.value = false
 			} catch (err) {
-				if (err.response?.status === 401 && err.response?.data?.passwordRequired) {
+				if (
+					err.response?.status === 401
+					&& err.response?.data?.passwordRequired
+				) {
 					if (shareStore.isUnlocked(props.token)) {
 						shareStore.clearUnlocked(props.token)
 					}
@@ -176,11 +218,17 @@ export default defineComponent({
 				} else if (err.response?.status === 404) {
 					error.value = 'not_found'
 					errorTitle.value = t('launchpad', 'Not found')
-					errorDescription.value = t('launchpad', 'This shared dashboard does not exist or has expired.')
+					errorDescription.value = t(
+						'launchpad',
+						'This shared dashboard does not exist or has expired.',
+					)
 				} else {
 					error.value = 'server_error'
 					errorTitle.value = t('launchpad', 'Error')
-					errorDescription.value = t('launchpad', 'An error occurred loading the shared dashboard.')
+					errorDescription.value = t(
+						'launchpad',
+						'An error occurred loading the shared dashboard.',
+					)
 				}
 			} finally {
 				loading.value = false
@@ -202,7 +250,10 @@ export default defineComponent({
 					shareStore.markUnlocked(props.token)
 					await loadShare(password)
 				} else {
-					unlockError.value = t('launchpad', 'Incorrect password. Please try again.')
+					unlockError.value = t(
+						'launchpad',
+						'Incorrect password. Please try again.',
+					)
 				}
 			} catch (err) {
 				if (err.response?.status === 429) {
@@ -224,16 +275,23 @@ export default defineComponent({
 		 * placeholder so the layout stays honest.
 		 */
 		const items = computed(() => {
-			const list = [...placements.value].filter((p) => p.isVisible !== 0 && p.isVisible !== false)
-			list.sort((a, b) => (a.gridY - b.gridY) || (a.gridX - b.gridX))
+			const list = [...placements.value].filter(
+				(p) => p.isVisible !== 0 && p.isVisible !== false,
+			)
+			list.sort((a, b) => a.gridY - b.gridY || a.gridX - b.gridX)
 			return list.map((p) => {
-				const content = (p.content && typeof p.content === 'object') ? p.content : {}
+				const content =
+					p.content && typeof p.content === 'object' ? p.content : {}
 				const widgetId = p.widgetId || ''
 				const isTile = widgetId.startsWith('tile-') || !!p.tileType
 				let kind = 'restricted'
 				if (isTile) {
 					kind = 'tile'
-				} else if (['label', 'header', 'text', 'image', 'link', 'divider'].includes(widgetId)) {
+				} else if (
+					['label', 'header', 'text', 'image', 'link', 'divider'].includes(
+						widgetId,
+					)
+				) {
 					kind = widgetId
 				}
 				return {
@@ -241,7 +299,12 @@ export default defineComponent({
 					kind,
 					gridWidth: p.gridWidth || 4,
 					gridHeight: p.gridHeight || 4,
-					title: p.customTitle || p.tileTitle || content.label || content.title || '',
+					title:
+						p.customTitle
+						|| p.tileTitle
+						|| content.label
+						|| content.title
+						|| '',
 					showTitle: p.showTitle !== 0 && p.showTitle !== false,
 					tileIcon: p.tileIcon || '',
 					tileBackgroundColor: p.tileBackgroundColor || '',

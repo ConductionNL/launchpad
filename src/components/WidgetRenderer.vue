@@ -45,7 +45,10 @@
 		</template>
 
 		<!-- Legacy Widget - Mount via callback -->
-		<div v-else-if="!loading" ref="legacyWidgetContainer" class="widget-renderer__legacy" />
+		<div
+			v-else-if="!loading"
+			ref="legacyWidgetContainer"
+			class="widget-renderer__legacy" />
 
 		<!-- Loading state for unknown widget types -->
 		<div v-else-if="loading" class="widget-renderer__loading">
@@ -53,9 +56,7 @@
 		</div>
 
 		<!-- Unknown widget type -->
-		<NcEmptyContent
-			v-else
-			:description="t('launchpad', 'Widget not available')">
+		<NcEmptyContent v-else :description="t('launchpad', 'Widget not available')">
 			<template #icon>
 				<AlertCircleOutline :size="48" />
 			</template>
@@ -64,7 +65,11 @@
 </template>
 
 <script>
-import { NcDashboardWidget, NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import {
+	NcDashboardWidget,
+	NcEmptyContent,
+	NcLoadingIcon,
+} from '@conduction/nextcloud-vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import { mapActions, storeToRefs } from 'pinia'
 import { useWidgetStore } from '../stores/widgets.js'
@@ -72,7 +77,10 @@ import { useTileStore } from '../stores/tiles.js'
 import { widgetBridge } from '../services/widgetBridge.js'
 import TileWidget from './TileWidget.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
-import { buildWidgetDataProvide, buildRendererExtraProps } from '../services/widgetDataAdapters.js'
+import {
+	buildWidgetDataProvide,
+	buildRendererExtraProps,
+} from '../services/widgetDataAdapters.js'
 
 export default {
 	name: 'WidgetRenderer',
@@ -183,7 +191,10 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		isTileWidget() {
-			if (this.placement.widgetId && this.placement.widgetId.startsWith('tile-')) {
+			if (
+				this.placement.widgetId
+				&& this.placement.widgetId.startsWith('tile-')
+			) {
 				return true
 			}
 			// Inline tiles carry their config on the placement (tileType set)
@@ -219,7 +230,7 @@ export default {
 			}
 			// Referenced tile: resolve the Tile entity from the store by id.
 			const { tiles } = storeToRefs(useTileStore())
-			return tiles.value.find(t => t.id === this.tileId)
+			return tiles.value.find((t) => t.id === this.tileId)
 		},
 
 		isApiWidgetV2() {
@@ -290,7 +301,11 @@ export default {
 			 * @spec openspec/specs/widgets/spec.md
 			 */
 			handler(newWidget) {
-				console.log('[WidgetRenderer] widget watch triggered:', newWidget?.id, newWidget)
+				console.log(
+					'[WidgetRenderer] widget watch triggered:',
+					newWidget?.id,
+					newWidget,
+				)
 				if (newWidget || this.isTileWidget) {
 					this.initWidget()
 				}
@@ -300,7 +315,10 @@ export default {
 			immediate: false, // Don't run immediately
 			/** @spec openspec/specs/widgets/spec.md */
 			handler() {
-				console.log('[WidgetRenderer] placement watch triggered:', this.placement)
+				console.log(
+					'[WidgetRenderer] placement watch triggered:',
+					this.placement,
+				)
 				if (this.isTileWidget) {
 					this.loading = false
 				}
@@ -349,7 +367,11 @@ export default {
 				// Check if our widget's items were updated.
 				if (this.widget?.id && state.widgetItems[this.widget.id]) {
 					const newData = state.widgetItems[this.widget.id]
-					console.log('[WidgetRenderer] Store subscription fired for:', this.widget.id, newData)
+					console.log(
+						'[WidgetRenderer] Store subscription fired for:',
+						this.widget.id,
+						newData,
+					)
 					this.localWidgetItemsData = { ...newData }
 				}
 			})
@@ -361,7 +383,11 @@ export default {
 			const widgetStore = useWidgetStore()
 			const data = widgetStore.widgetItems[this.widget.id]
 			if (data) {
-				console.log('[WidgetRenderer] updateLocalWidgetItems:', this.widget.id, data)
+				console.log(
+					'[WidgetRenderer] updateLocalWidgetItems:',
+					this.widget.id,
+					data,
+				)
 				this.localWidgetItemsData = { ...data }
 			}
 		},
@@ -389,7 +415,11 @@ export default {
 				return
 			}
 
-			console.log('[WidgetRenderer] Initializing widget:', this.widget.id, this.widget)
+			console.log(
+				'[WidgetRenderer] Initializing widget:',
+				this.widget.id,
+				this.widget,
+			)
 
 			// Only show loading for API widgets
 			// Legacy widgets render themselves, so we don't need a loading state
@@ -407,16 +437,22 @@ export default {
 					this.updateLocalWidgetItems()
 
 					// Set up auto-refresh if widget supports it.
-					if (this.widget.reloadInterval && this.widget.reloadInterval > 0) {
+					if (
+						this.widget.reloadInterval
+						&& this.widget.reloadInterval > 0
+					) {
 						this.setupAutoRefresh(this.widget.reloadInterval)
 					}
 				} else {
-					console.log('[WidgetRenderer] Legacy widget detected:', this.widget.id)
+					console.log(
+						'[WidgetRenderer] Legacy widget detected:',
+						this.widget.id,
+					)
 					// Legacy widget - mount via callback.
 					// Wait for DOM to be ready
 					await this.$nextTick()
 					// Give it a bit more time for the ref to be available
-					await new Promise(resolve => setTimeout(resolve, 50))
+					await new Promise((resolve) => setTimeout(resolve, 50))
 					this.mountLegacyWidget()
 				}
 			} catch (error) {
@@ -435,27 +471,55 @@ export default {
 				return
 			}
 
-			console.log('[WidgetRenderer] Mounting legacy widget:', this.widget.id, 'Container:', this.$refs.legacyWidgetContainer)
+			console.log(
+				'[WidgetRenderer] Mounting legacy widget:',
+				this.widget.id,
+				'Container:',
+				this.$refs.legacyWidgetContainer,
+			)
 
 			// Widget scripts are loaded with defer, so we need to wait for them
 			// to register their callbacks. Try multiple times with increasing delays.
 			const tryMount = (attempt = 0, maxAttempts = 20) => {
-				console.log(`[WidgetRenderer] Mount attempt ${attempt + 1}/${maxAttempts} for:`, this.widget.id)
+				console.log(
+					`[WidgetRenderer] Mount attempt ${attempt + 1}/${maxAttempts} for:`,
+					this.widget.id,
+				)
 
 				// Check if callback is registered
 				if (widgetBridge.hasWidgetCallback(this.widget.id)) {
-					console.log('[WidgetRenderer] Callback found! Mounting:', this.widget.id)
+					console.log(
+						'[WidgetRenderer] Callback found! Mounting:',
+						this.widget.id,
+					)
 					// Pass widget data to the bridge so callbacks can access it
-					widgetBridge.mountWidget(this.widget.id, this.$refs.legacyWidgetContainer, this.widget)
-					console.log('[WidgetRenderer] After mountWidget, container innerHTML length:', this.$refs.legacyWidgetContainer?.innerHTML.length)
+					widgetBridge.mountWidget(
+						this.widget.id,
+						this.$refs.legacyWidgetContainer,
+						this.widget,
+					)
+					console.log(
+						'[WidgetRenderer] After mountWidget, container innerHTML length:',
+						this.$refs.legacyWidgetContainer?.innerHTML.length,
+					)
 				} else if (attempt < maxAttempts) {
 					// Try again after a short delay
 					const delay = Math.min(100 * (attempt + 1), 1000) // Exponential backoff up to 1s
-					console.log(`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`)
+					console.log(
+						`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`,
+					)
 					setTimeout(() => tryMount(attempt + 1, maxAttempts), delay)
 				} else {
-					console.error('[WidgetRenderer] Failed to mount widget after', maxAttempts, 'attempts:', this.widget.id)
-					console.log('[WidgetRenderer] Available callbacks:', widgetBridge.getRegisteredWidgetIds())
+					console.error(
+						'[WidgetRenderer] Failed to mount widget after',
+						maxAttempts,
+						'attempts:',
+						this.widget.id,
+					)
+					console.log(
+						'[WidgetRenderer] Available callbacks:',
+						widgetBridge.getRegisteredWidgetIds(),
+					)
 				}
 			}
 

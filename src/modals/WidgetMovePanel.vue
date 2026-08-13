@@ -21,7 +21,12 @@
 				{{ t('launchpad', 'Move widget') }}
 			</h2>
 			<p class="widget-move-panel__hint">
-				{{ t('launchpad', 'Use the arrow keys to move one cell. Hold Shift and use the arrow keys to resize. Press Enter to confirm or Escape to cancel.') }}
+				{{
+					t(
+						'launchpad',
+						'Use the arrow keys to move one cell. Hold Shift and use the arrow keys to resize. Press Enter to confirm or Escape to cancel.',
+					)
+				}}
 			</p>
 
 			<!-- Live readout of the pending position/size for screen readers. -->
@@ -33,8 +38,13 @@
 			</p>
 
 			<div class="widget-move-panel__controls">
-				<div class="widget-move-panel__group" role="group" :aria-label="t('launchpad', 'Position')">
-					<span class="widget-move-panel__group-label">{{ t('launchpad', 'Position') }}</span>
+				<div
+					class="widget-move-panel__group"
+					role="group"
+					:aria-label="t('launchpad', 'Position')">
+					<span class="widget-move-panel__group-label">{{
+						t('launchpad', 'Position')
+					}}</span>
 					<div class="widget-move-panel__buttons">
 						<NcButton
 							data-test="move-up"
@@ -63,8 +73,13 @@
 					</div>
 				</div>
 
-				<div class="widget-move-panel__group" role="group" :aria-label="t('launchpad', 'Size')">
-					<span class="widget-move-panel__group-label">{{ t('launchpad', 'Size') }}</span>
+				<div
+					class="widget-move-panel__group"
+					role="group"
+					:aria-label="t('launchpad', 'Size')">
+					<span class="widget-move-panel__group-label">{{
+						t('launchpad', 'Size')
+					}}</span>
 					<div class="widget-move-panel__buttons">
 						<NcButton
 							data-test="grow-width"
@@ -95,15 +110,10 @@
 			</div>
 
 			<div class="widget-move-panel__actions">
-				<NcButton
-					data-test="move-cancel"
-					@click="onCancel">
+				<NcButton data-test="move-cancel" @click="onCancel">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
-				<NcButton
-					type="primary"
-					data-test="move-save"
-					@click="onSave">
+				<NcButton type="primary" data-test="move-save" @click="onSave">
 					{{ t('launchpad', 'Confirm') }}
 				</NcButton>
 			</div>
@@ -187,16 +197,12 @@ export default {
 		 * @spec openspec/specs/grid-layout/spec.md
 		 */
 		readoutText() {
-			return t(
-				'launchpad',
-				'Column {x}, row {y}, {w} wide by {h} tall',
-				{
-					x: this.working.gridX + 1,
-					y: this.working.gridY + 1,
-					w: this.working.gridWidth,
-					h: this.working.gridHeight,
-				},
-			)
+			return t('launchpad', 'Column {x}, row {y}, {w} wide by {h} tall', {
+				x: this.working.gridX + 1,
+				y: this.working.gridY + 1,
+				w: this.working.gridWidth,
+				h: this.working.gridHeight,
+			})
 		},
 	},
 
@@ -212,7 +218,10 @@ export default {
 			if (isOpen) {
 				this.working = this.initialRect()
 				this.$nextTick(() => {
-					if (this.$refs.panel && typeof this.$refs.panel.focus === 'function') {
+					if (
+						this.$refs.panel
+						&& typeof this.$refs.panel.focus === 'function'
+					) {
 						this.$refs.panel.focus()
 					}
 				})

@@ -28,7 +28,10 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`)
+				Object.prototype.hasOwnProperty.call(vars, name)
+					? vars[name]
+					: `{${name}}`,
+			)
 		}
 		return key
 	}
@@ -53,7 +56,9 @@ describe('WeatherWidget — REQ-WEATHER-001 fetches via the placement endpoint o
 	})
 
 	it('renders an error state (never crashes) when the placement has no id yet', async () => {
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: null } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: null },
+		})
 		await flushPromises()
 		expect(fetchWeatherReading).not.toHaveBeenCalled()
 		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(true)
@@ -72,13 +77,17 @@ describe('WeatherWidget — REQ-WEATHER-003 accessible condition + temperature',
 			fetchedAt: '2024-06-15T13:00:00Z',
 			stale: false,
 		})
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: { id: 1 } } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 1 } },
+		})
 		await flushPromises()
 
 		// Icon present.
 		expect(wrapper.find('.weather-widget__icon').exists()).toBe(true)
 		// Text label present (not colour/icon alone).
-		expect(wrapper.find('.weather-widget__condition-text').text()).toBe('Light rain')
+		expect(wrapper.find('.weather-widget__condition-text').text()).toBe(
+			'Light rain',
+		)
 		// Temperature carries an accessible label including its units.
 		const temp = wrapper.find('.weather-widget__temp')
 		expect(temp.text()).toBe('18°C')
@@ -96,7 +105,9 @@ describe('WeatherWidget — REQ-WEATHER-003 accessible condition + temperature',
 			fetchedAt: '2024-06-15T13:00:00Z',
 			stale: false,
 		})
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: { id: 2 } } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 2 } },
+		})
 		await flushPromises()
 
 		const temp = wrapper.find('.weather-widget__temp')
@@ -117,28 +128,36 @@ describe('WeatherWidget — REQ-WEATHER-002 stale + error degradation', () => {
 			fetchedAt: '2024-06-15T10:00:00Z',
 			stale: true,
 		})
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: { id: 3 } } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 3 } },
+		})
 		await flushPromises()
 		expect(wrapper.find('.weather-widget__badge').exists()).toBe(true)
 	})
 
 	it('renders the error state — never throws — when the endpoint call rejects', async () => {
 		fetchWeatherReading.mockRejectedValue(new Error('network error'))
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: { id: 4 } } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 4 } },
+		})
 		await flushPromises()
 		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(true)
 	})
 
 	it('renders the error state when the endpoint returns an error shape with no cached reading', async () => {
 		fetchWeatherReading.mockResolvedValue({ error: 'no_cached_reading' })
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: { id: 5 } } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 5 } },
+		})
 		await flushPromises()
 		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(true)
 	})
 
 	it('retry button re-invokes fetchWeatherReading', async () => {
 		fetchWeatherReading.mockRejectedValueOnce(new Error('boom'))
-		const wrapper = mount(WeatherWidget, { propsData: { content: {}, placement: { id: 6 } } })
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 6 } },
+		})
 		await flushPromises()
 		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(true)
 

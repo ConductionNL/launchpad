@@ -46,7 +46,14 @@ import './styles/workspace.css'
 // is used, which collapses the Add-Widget picker to only the types launchpad
 // references directly (link + nc-widget). Calling this exported no-op forces
 // the aggregator — and therefore every widget registration — into the bundle.
-import { registerBuiltinDashboardWidgets, registerIcons, useAppManifest, registerDashboardWidget, CnNcWidgetWidget, CnNcDashboardWidgetForm } from '@conduction/nextcloud-vue'
+import {
+	registerBuiltinDashboardWidgets,
+	registerIcons,
+	useAppManifest,
+	registerDashboardWidget,
+	CnNcWidgetWidget,
+	CnNcDashboardWidgetForm,
+} from '@conduction/nextcloud-vue'
 registerBuiltinDashboardWidgets()
 
 // Populate the shared CnIcon registry with the MDI icons LaunchPad's
@@ -132,9 +139,13 @@ const manifestLoading = reactive({ value: true })
 		const url = generateUrl('/apps/launchpad/api/manifest')
 		const response = await axios.get(url)
 
-		if (response && response.status === 200 && response.data
-				&& typeof response.data === 'object'
-				&& response.data.$schema) {
+		if (
+			response
+			&& response.status === 200
+			&& response.data
+			&& typeof response.data === 'object'
+			&& response.data.$schema
+		) {
 			// Replace stub with live per-user manifest (no deep-merge per ADR-036)
 			runtimeManifest.value = response.data
 		}

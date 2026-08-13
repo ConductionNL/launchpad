@@ -14,9 +14,7 @@
 		     sidebar panel itself uses @click.stop so clicks inside never
 		     propagate to the backdrop. Starts at top:50px to clear the
 		     Nextcloud header chrome. -->
-		<SidebarBackdrop
-			v-if="sidebarOpen"
-			@close="closeSidebar" />
+		<SidebarBackdrop v-if="sidebarOpen" @close="closeSidebar" />
 
 		<!-- Region 2: hamburger + active-dashboard label strip
 		     (REQ-SHELL-004). Always visible regardless of canEdit.
@@ -72,18 +70,15 @@
 		     widget machinery. `tabindex="-1"` makes the grid a valid
 		     programmatic focus target for the quick-search Esc contract
 		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
-		<div
-			id="launchpad-main-content"
-			class="workspace-shell__grid"
-			tabindex="-1">
-			<Views
-				v-if="hasActiveDashboard"
-				ref="viewsRef" />
+		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
+			<Views v-if="hasActiveDashboard" ref="viewsRef" />
 			<div v-else class="workspace-shell__empty">
 				<p class="workspace-shell__empty-title">
 					{{ t('launchpad', 'No dashboards available') }}
 				</p>
-				<p v-if="injectedAllowUserDashboards" class="workspace-shell__empty-hint">
+				<p
+					v-if="injectedAllowUserDashboards"
+					class="workspace-shell__empty-hint">
 					{{ t('launchpad', 'Create your first dashboard') }}
 				</p>
 				<p v-else class="workspace-shell__empty-hint">
@@ -103,9 +98,7 @@
 		     dashboard grid. Renders nothing when `effectiveFooter` is
 		     null (REQ-FTR-001 disabled scenario, REQ-FTR-006 hidden
 		     mode). -->
-		<DashboardFooter
-			:footer="effectiveFooter"
-			:locale="injectedLocale" />
+		<DashboardFooter :footer="effectiveFooter" :locale="injectedLocale" />
 	</div>
 </template>
 
@@ -236,7 +229,10 @@ export default {
 		 * @spec openspec/changes/runtime-shell/tasks.md#task-3
 		 */
 		canEdit() {
-			return Boolean(this.injectedIsAdmin) || this.injectedDashboardSource === 'user'
+			return (
+				Boolean(this.injectedIsAdmin)
+				|| this.injectedDashboardSource === 'user'
+			)
 		},
 
 		/**
@@ -299,8 +295,10 @@ export default {
 				...(this.injectedUserDashboards || []),
 				...(this.injectedGroupDashboards || []),
 			]
-			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
-			return match ? (match.name || '') : ''
+			const match = all.find(
+				(d) => d && d.id === this.injectedActiveDashboardId,
+			)
+			return match ? match.name || '' : ''
 		},
 
 		/**
@@ -316,8 +314,13 @@ export default {
 				...(this.injectedUserDashboards || []),
 				...(this.injectedGroupDashboards || []),
 			]
-			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
-			if (match && Object.prototype.hasOwnProperty.call(match, 'effectiveFooter')) {
+			const match = all.find(
+				(d) => d && d.id === this.injectedActiveDashboardId,
+			)
+			if (
+				match
+				&& Object.prototype.hasOwnProperty.call(match, 'effectiveFooter')
+			) {
 				return match.effectiveFooter
 			}
 			return this.injectedEffectiveFooter
@@ -343,7 +346,10 @@ export default {
 			if (!this.orgNavStore.shouldRender) {
 				return []
 			}
-			return ['workspace-shell--org-nav-' + (this.orgNavStore.position || 'hidden')]
+			return [
+				'workspace-shell--org-nav-'
+					+ (this.orgNavStore.position || 'hidden'),
+			]
 		},
 	},
 
@@ -407,7 +413,10 @@ export default {
 					name: this.t('launchpad', 'My dashboard'),
 				})
 			} catch (error) {
-				console.error('[WorkspaceApp] Failed to create first dashboard:', error)
+				console.error(
+					'[WorkspaceApp] Failed to create first dashboard:',
+					error,
+				)
 			}
 		},
 
@@ -427,8 +436,14 @@ export default {
 			if (placement.tileType === 'custom') {
 				return placement.tileTitle || this.t('launchpad', 'Tile')
 			}
-			const widget = (this.availableWidgets || []).find((w) => w.id === placement.widgetId)
-			return placement.customTitle || widget?.title || this.t('launchpad', 'Widget')
+			const widget = (this.availableWidgets || []).find(
+				(w) => w.id === placement.widgetId,
+			)
+			return (
+				placement.customTitle
+				|| widget?.title
+				|| this.t('launchpad', 'Widget')
+			)
 		},
 
 		/**
@@ -489,9 +504,11 @@ export default {
 				// stays put, satisfying "MUST NOT navigate away from the
 				// dashboard on its own beyond what the unified-search
 				// integration does".
-				window.dispatchEvent(new CustomEvent('nextcloud:unified-search.search', {
-					detail: { query: action.query },
-				}))
+				window.dispatchEvent(
+					new CustomEvent('nextcloud:unified-search.search', {
+						detail: { query: action.query },
+					}),
+				)
 			}
 			// 'none' — RuntimeShellSearch already renders the accessible
 			// no-results message; no further action here.
@@ -524,7 +541,9 @@ export default {
 			if (typeof document === 'undefined') {
 				return
 			}
-			const items = this.$el?.querySelectorAll('.launchpad-grid-item[data-placement-id]')
+			const items = this.$el?.querySelectorAll(
+				'.launchpad-grid-item[data-placement-id]',
+			)
 			if (!items) {
 				return
 			}
@@ -540,14 +559,18 @@ export default {
 			 * Normalising both sides to strings makes the comparison one
 			 * between two values of the same type.
 			 */
-			const wanted = matchIds === null ? null : matchIds.map((id) => String(id))
+			const wanted =
+				matchIds === null ? null : matchIds.map((id) => String(id))
 			items.forEach((el) => {
 				if (wanted === null) {
 					el.classList.remove('launchpad-grid-item--dimmed')
 					return
 				}
 				const id = el.getAttribute('data-placement-id')
-				el.classList.toggle('launchpad-grid-item--dimmed', wanted.includes(id) === false)
+				el.classList.toggle(
+					'launchpad-grid-item--dimmed',
+					wanted.includes(id) === false,
+				)
 			})
 		},
 

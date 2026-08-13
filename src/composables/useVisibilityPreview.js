@@ -72,7 +72,7 @@ export function useVisibilityPreview() {
 				},
 			}
 			const { data } = await api.previewVisibility(body)
-			const result = (data && data.data) ? data.data : data
+			const result = data && data.data ? data.data : data
 			state.result = result
 			return result
 		} catch (error) {

@@ -16,7 +16,7 @@ export const useWidgetStore = defineStore('widgets', {
 
 	getters: {
 		getWidgetById: (state) => (id) => {
-			return state.availableWidgets.find(w => w.id === id)
+			return state.availableWidgets.find((w) => w.id === id)
 		},
 
 		getWidgetItems: (state) => (widgetId) => {
@@ -59,7 +59,14 @@ export const useWidgetStore = defineStore('widgets', {
 				const response = await api.getWidgetItems(widgetIds)
 				console.log('[WidgetStore] API response:', response.data)
 				for (const [widgetId, data] of Object.entries(response.data)) {
-					console.log('[WidgetStore] Setting items for widget:', widgetId, 'Items count:', data.items?.length, 'Items:', data.items)
+					console.log(
+						'[WidgetStore] Setting items for widget:',
+						widgetId,
+						'Items count:',
+						data.items?.length,
+						'Items:',
+						data.items,
+					)
 					this.widgetItems[widgetId] = {
 						items: data.items || [],
 						emptyContentMessage: data.emptyContentMessage || '',
@@ -70,7 +77,10 @@ export const useWidgetStore = defineStore('widgets', {
 			} catch (error) {
 				console.error('Failed to load widget items:', error)
 				for (const id of widgetIds) {
-					this.widgetItems[id] = { ...this.widgetItems[id], loading: false }
+					this.widgetItems[id] = {
+						...this.widgetItems[id],
+						loading: false,
+					}
 				}
 			}
 		},

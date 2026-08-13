@@ -45,13 +45,16 @@ const ncButtonStub = {
 const ncTextFieldStub = {
 	name: 'NcTextField',
 	props: ['value', 'label', 'placeholder'],
-	template: '<input :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+	template:
+		'<input :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
 }
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 	api.getAdminGroups.mockReset()
-	api.updateAdminGroupOrder.mockReset().mockResolvedValue({ data: { status: 'ok' } })
+	api.updateAdminGroupOrder
+		.mockReset()
+		.mockResolvedValue({ data: { status: 'ok' } })
 })
 
 function mountWith(payload) {

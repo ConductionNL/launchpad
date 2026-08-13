@@ -61,7 +61,8 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 		 *  given group id. Returns an empty array when not yet fetched —
 		 *  the tab UI treats that as a "needs fetch" signal.
 		 */
-		dashboardsFor: (state) => (groupId) => state.dashboardsByGroup[groupId] ?? [],
+		dashboardsFor: (state) => (groupId) =>
+			state.dashboardsByGroup[groupId] ?? [],
 
 		/**
 		 * @return {(groupId: string) => number} Group-scoped dashboard
@@ -102,7 +103,10 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 				// Always make sure the `default` sentinel sits at index 0
 				// so admins find the org-wide default first.
 				this.groups = [
-					{ id: DEFAULT_GROUP_ID, displayName: t('launchpad', 'Default group') },
+					{
+						id: DEFAULT_GROUP_ID,
+						displayName: t('launchpad', 'Default group'),
+					},
 					...groups.filter((g) => g.id !== DEFAULT_GROUP_ID),
 				]
 			} catch (e) {
@@ -123,7 +127,10 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 			try {
 				const res = await api.listGroupDashboards(groupId)
 				const list = res.data?.data ?? res.data ?? []
-				this.dashboardsByGroup = { ...this.dashboardsByGroup, [groupId]: list }
+				this.dashboardsByGroup = {
+					...this.dashboardsByGroup,
+					[groupId]: list,
+				}
 				return list
 			} catch (e) {
 				showError(t('launchpad', 'Failed to load group dashboards'))
@@ -180,8 +187,13 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 		async delete(groupId, uuid) {
 			try {
 				await api.deleteGroupDashboard(groupId, uuid)
-				const list = (this.dashboardsByGroup[groupId] ?? []).filter((d) => d.uuid !== uuid)
-				this.dashboardsByGroup = { ...this.dashboardsByGroup, [groupId]: list }
+				const list = (this.dashboardsByGroup[groupId] ?? []).filter(
+					(d) => d.uuid !== uuid,
+				)
+				this.dashboardsByGroup = {
+					...this.dashboardsByGroup,
+					[groupId]: list,
+				}
 			} catch (e) {
 				const code = e?.response?.data?.error
 				if (code === ERR_LAST_GROUP_DASHBOARD) {

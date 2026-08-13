@@ -113,26 +113,28 @@ export const useDashboardStore = defineStore('dashboard', {
 		activeDashboardId: (state) => state.activeDashboard?.id,
 
 		getPlacementById: (state) => (id) => {
-			return state.widgetPlacements.find(p => p.id === id)
+			return state.widgetPlacements.find((p) => p.id === id)
 		},
 
 		compulsoryPlacements: (state) => {
-			return state.widgetPlacements.filter(p => p.isCompulsory)
+			return state.widgetPlacements.filter((p) => p.isCompulsory)
 		},
 
 		// dashboard-acknowledgements REQ-ACK-002: the count of the user's
 		// outstanding (unacknowledged) mandatory items, surfaced as the
 		// dashboard-level indicator.
-		outstandingAcknowledgementCount: (state) => state.pendingAcknowledgements.length,
+		outstandingAcknowledgementCount: (state) =>
+			state.pendingAcknowledgements.length,
 
 		// The set of announcement keys the current user still owes a
 		// sign-off on. Used by the widget wrapper to decide whether to force
 		// delivery on a given placement.
-		pendingAnnouncementKeys: (state) => new Set(
-			state.pendingAcknowledgements
-				.map((item) => item.announcementKey)
-				.filter((key) => !!key),
-		),
+		pendingAnnouncementKeys: (state) =>
+			new Set(
+				state.pendingAcknowledgements
+					.map((item) => item.announcementKey)
+					.filter((key) => !!key),
+			),
 
 		// REQ-ACK-002: whether a placement is an outstanding mandatory item
 		// for the current user (requires acknowledgement AND its announcement
@@ -152,19 +154,19 @@ export const useDashboardStore = defineStore('dashboard', {
 		// REQ-DASH-013 — personal user-owned dashboards. Backed by the
 		// `/api/dashboards/visible` payload.
 		userDashboards: (state) => {
-			return state.dashboards.filter(d => d.source === SOURCE_USER)
+			return state.dashboards.filter((d) => d.source === SOURCE_USER)
 		},
 
 		// REQ-DASH-013 — personal user-owned dashboards (alias for
 		// userDashboards; matches the dev-branch naming).
 		personalDashboards: (state) => {
-			return state.dashboards.filter(d => d.source === SOURCE_USER)
+			return state.dashboards.filter((d) => d.source === SOURCE_USER)
 		},
 
 		// REQ-DASH-014 — group-matching shared dashboards (`source ===
 		// 'group'`).
 		groupSharedDashboards: (state) => {
-			return state.dashboards.filter(d => d.source === SOURCE_GROUP)
+			return state.dashboards.filter((d) => d.source === SOURCE_GROUP)
 		},
 
 		// dashboard-quota-limits REQ-QUOTA-006: whether the user has hit
@@ -187,7 +189,11 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (max <= 0 || (state.quota?.dashboardsUsed ?? 0) < max) {
 				return ''
 			}
-			return t('launchpad', 'You have reached the limit of {limit} dashboards', { limit: max })
+			return t(
+				'launchpad',
+				'You have reached the limit of {limit} dashboards',
+				{ limit: max },
+			)
 		},
 
 		// dashboard-quota-limits REQ-QUOTA-006: whether the active
@@ -208,13 +214,17 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (max <= 0 || (state.widgetPlacements?.length ?? 0) < max) {
 				return ''
 			}
-			return t('launchpad', 'You have reached the limit of {limit} widgets on this dashboard', { limit: max })
+			return t(
+				'launchpad',
+				'You have reached the limit of {limit} widgets on this dashboard',
+				{ limit: max },
+			)
 		},
 
 		// REQ-DASH-012 — default-group shared dashboards (`source ===
 		// 'default'`).
 		defaultGroupDashboards: (state) => {
-			return state.dashboards.filter(d => d.source === SOURCE_DEFAULT)
+			return state.dashboards.filter((d) => d.source === SOURCE_DEFAULT)
 		},
 
 		// REQ-SHARE-002 — dashboards reached through an explicit
@@ -222,7 +232,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		// own nor their group's, so they get their own bucket rather than
 		// being folded into `groupSharedDashboards`.
 		sharedWithMeDashboards: (state) => {
-			return state.dashboards.filter(d => d.source === SOURCE_SHARED)
+			return state.dashboards.filter((d) => d.source === SOURCE_SHARED)
 		},
 
 		/**
@@ -254,47 +264,50 @@ export const useDashboardStore = defineStore('dashboard', {
 			// Step 1: honour the currently-active dashboard if still visible.
 			const activeId = state.activeDashboard?.id
 			if (activeId !== undefined && activeId !== null) {
-				const stillVisible = list.find(d => d.id === activeId || d.uuid === activeId)
+				const stillVisible = list.find(
+					(d) => d.id === activeId || d.uuid === activeId,
+				)
 				if (stillVisible !== undefined) {
 					return stillVisible
 				}
 			}
 
 			const primary = state.primaryGroup || ''
-			const inPrimary = (d) => d.source === SOURCE_GROUP && d.groupId === primary
+			const inPrimary = (d) =>
+				d.source === SOURCE_GROUP && d.groupId === primary
 			const inDefault = (d) => d.source === SOURCE_DEFAULT
 			const isDefault = (d) => Number(d.isDefault) === 1
 
 			// Step 2: primary-group default.
 			if (primary !== '') {
-				const groupDefault = list.find(d => inPrimary(d) && isDefault(d))
+				const groupDefault = list.find((d) => inPrimary(d) && isDefault(d))
 				if (groupDefault !== undefined) {
 					return groupDefault
 				}
 			}
 
 			// Step 3: default-group default.
-			const defaultDefault = list.find(d => inDefault(d) && isDefault(d))
+			const defaultDefault = list.find((d) => inDefault(d) && isDefault(d))
 			if (defaultDefault !== undefined) {
 				return defaultDefault
 			}
 
 			// Step 4: first group-shared in primary group.
 			if (primary !== '') {
-				const firstInGroup = list.find(d => inPrimary(d))
+				const firstInGroup = list.find((d) => inPrimary(d))
 				if (firstInGroup !== undefined) {
 					return firstInGroup
 				}
 			}
 
 			// Step 5: first default-group dashboard.
-			const firstInDefault = list.find(d => inDefault(d))
+			const firstInDefault = list.find((d) => inDefault(d))
 			if (firstInDefault !== undefined) {
 				return firstInDefault
 			}
 
 			// Step 6: first personal dashboard.
-			const firstPersonal = list.find(d => d.source === SOURCE_USER)
+			const firstPersonal = list.find((d) => d.source === SOURCE_USER)
 			if (firstPersonal !== undefined) {
 				return firstPersonal
 			}
@@ -316,7 +329,9 @@ export const useDashboardStore = defineStore('dashboard', {
 			return [...state.metadataFields].sort((a, b) => {
 				const ao = Number(a.sortOrder || 0)
 				const bo = Number(b.sortOrder || 0)
-				return ao !== bo ? ao - bo : String(a.label).localeCompare(String(b.label))
+				return ao !== bo
+					? ao - bo
+					: String(a.label).localeCompare(String(b.label))
 			})
 		},
 	},
@@ -372,7 +387,10 @@ export const useDashboardStore = defineStore('dashboard', {
 				try {
 					response = await api.getVisibleDashboards()
 				} catch (visibleError) {
-					console.warn('Falling back to /api/dashboards (visible endpoint failed):', visibleError)
+					console.warn(
+						'Falling back to /api/dashboards (visible endpoint failed):',
+						visibleError,
+					)
 					response = await api.getDashboards()
 				}
 				// dashboard-quota-limits REQ-QUOTA-006: the list response is
@@ -387,11 +405,12 @@ export const useDashboardStore = defineStore('dashboard', {
 					this.quota = {
 						maxDashboards: payload.quota.maxDashboards ?? 0,
 						dashboardsUsed: payload.quota.dashboardsUsed ?? 0,
-						maxWidgetsPerDashboard: payload.quota.maxWidgetsPerDashboard ?? 0,
+						maxWidgetsPerDashboard:
+							payload.quota.maxWidgetsPerDashboard ?? 0,
 					}
 				}
 				// Defensive default — older backends may not tag rows.
-				this.dashboards = (rows || []).map(d => ({
+				this.dashboards = (rows || []).map((d) => ({
 					...d,
 					source: d.source ?? SOURCE_USER,
 				}))
@@ -409,7 +428,8 @@ export const useDashboardStore = defineStore('dashboard', {
 						sharedBy: activeResponse.data.sharedBy ?? null,
 					}
 					this.widgetPlacements = activeResponse.data.placements || []
-					this.permissionLevel = activeResponse.data.permissionLevel || 'full'
+					this.permissionLevel =
+						activeResponse.data.permissionLevel || 'full'
 				}
 			} catch (error) {
 				console.error('Failed to load dashboards:', error)
@@ -427,13 +447,14 @@ export const useDashboardStore = defineStore('dashboard', {
 		async switchDashboard(dashboardId) {
 			this.loading = true
 			try {
-				const target = this.dashboards.find(d => d.id === dashboardId)
+				const target = this.dashboards.find((d) => d.id === dashboardId)
 				// The legacy id-based activate endpoint writes the `is_active`
 				// SMALLINT column, which is only meaningful for personal
 				// `user`-type rows the caller owns. Group/default dashboards
 				// (user_id NULL) would be rejected with "Access denied"; they
 				// rely solely on the UUID preference persisted below.
-				const isPersonalOwned = target?.source === SOURCE_USER && target?.isOwner !== false
+				const isPersonalOwned =
+					target?.source === SOURCE_USER && target?.isOwner !== false
 
 				if (isPersonalOwned) {
 					// Persist the active flag for owned personal dashboards.
@@ -456,7 +477,9 @@ export const useDashboardStore = defineStore('dashboard', {
 				// page loads honour it via the backend resolver. Fire and
 				// forget — failure here is logged but does not block the
 				// UI; the resolver tolerates a missing pref.
-				this.persistActivePreference(this.activeDashboard?.uuid || dashboardId)
+				this.persistActivePreference(
+					this.activeDashboard?.uuid || dashboardId,
+				)
 			} catch (error) {
 				console.error('Failed to switch dashboard:', error)
 			} finally {
@@ -557,7 +580,7 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (!dashboard || !dashboard.uuid) {
 				return
 			}
-			const idx = this.dashboards.findIndex(d => d.uuid === dashboard.uuid)
+			const idx = this.dashboards.findIndex((d) => d.uuid === dashboard.uuid)
 			if (idx >= 0) {
 				this.dashboards[idx] = {
 					...this.dashboards[idx],
@@ -616,15 +639,16 @@ export const useDashboardStore = defineStore('dashboard', {
 		async createDashboard(payload = 'My Dashboard') {
 			// Accept either a plain name string or an object with
 			// name/description/icon (legacy callers may pass a string).
-			const data = typeof payload === 'string'
-				? { name: payload }
-				: {
-					name: payload.name || 'My Dashboard',
-					description: payload.description,
-					// Optional registry key from the `dashboard-icons`
-					// capability — null/undefined skips the field server-side.
-					icon: payload.icon ?? null,
-				}
+			const data =
+				typeof payload === 'string'
+					? { name: payload }
+					: {
+							name: payload.name || 'My Dashboard',
+							description: payload.description,
+							// Optional registry key from the `dashboard-icons`
+							// capability — null/undefined skips the field server-side.
+							icon: payload.icon ?? null,
+						}
 			this.loading = true
 			try {
 				const response = await api.createDashboard(data)
@@ -646,18 +670,34 @@ export const useDashboardStore = defineStore('dashboard', {
 				// stable `personal_dashboards_disabled` envelope, surface
 				// a localised toast — the UI may have offered a stale
 				// affordance or the call may bypass the UI altogether.
-				if (error?.response?.status === 403
-					&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED) {
-					showError(t('launchpad', 'Personal dashboards are not enabled by your administrator'))
+				if (
+					error?.response?.status === 403
+					&& error?.response?.data?.error
+						=== ERR_PERSONAL_DASHBOARDS_DISABLED
+				) {
+					showError(
+						t(
+							'launchpad',
+							'Personal dashboards are not enabled by your administrator',
+						),
+					)
 				}
 				// dashboard-quota-limits REQ-QUOTA-006 (race case): the UI
 				// affordance may have been stale (limit reached in another
 				// tab). Surface the structured 409 as a clear message and
 				// refresh the quota envelope so the button disables.
-				if (error?.response?.status === 409
-					&& error?.response?.data?.error === 'quota_exceeded') {
+				if (
+					error?.response?.status === 409
+					&& error?.response?.data?.error === 'quota_exceeded'
+				) {
 					const limit = error.response.data.limit
-					showError(t('launchpad', 'You have reached the limit of {limit} dashboards', { limit }))
+					showError(
+						t(
+							'launchpad',
+							'You have reached the limit of {limit} dashboards',
+							{ limit },
+						),
+					)
 					this.loadDashboards().catch(() => {})
 				}
 				console.error('Failed to create dashboard:', error)
@@ -690,7 +730,12 @@ export const useDashboardStore = defineStore('dashboard', {
 				if (fork) {
 					// Tag as `user`-source so `userDashboards` getter
 					// surfaces it without waiting for a /visible refresh.
-					this.dashboards.push({ ...fork, source: 'user', isOwner: true, sharedBy: null })
+					this.dashboards.push({
+						...fork,
+						source: 'user',
+						isOwner: true,
+						sharedBy: null,
+					})
 					this.activeDashboard = { ...fork, isOwner: true, sharedBy: null }
 					// Placements come back via the next switchDashboard /
 					// loadDashboards round-trip — fork is a brand-new
@@ -705,9 +750,17 @@ export const useDashboardStore = defineStore('dashboard', {
 				// for the gating envelope. Other errors (404 source
 				// not visible, 500 rollback) are surfaced via the
 				// caller; we just log here.
-				if (error?.response?.status === 403
-					&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED) {
-					showError(t('launchpad', 'Personal dashboards are not enabled by your administrator'))
+				if (
+					error?.response?.status === 403
+					&& error?.response?.data?.error
+						=== ERR_PERSONAL_DASHBOARDS_DISABLED
+				) {
+					showError(
+						t(
+							'launchpad',
+							'Personal dashboards are not enabled by your administrator',
+						),
+					)
 				} else if (error?.response?.status === 404) {
 					showError(t('launchpad', 'Dashboard not found'))
 				} else {
@@ -731,7 +784,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async updatePlacements(placements) {
-			console.log('[DashboardStore] updatePlacements called, count:', placements.length)
+			console.log(
+				'[DashboardStore] updatePlacements called, count:',
+				placements.length,
+			)
 
 			// Update local state immediately for responsiveness
 			this.widgetPlacements = placements
@@ -739,19 +795,26 @@ export const useDashboardStore = defineStore('dashboard', {
 			// Debounced save to backend
 			this.saving = true
 			try {
-				const placementsData = placements.map(p => ({
+				const placementsData = placements.map((p) => ({
 					id: p.id,
 					gridX: p.gridX,
 					gridY: p.gridY,
 					gridWidth: p.gridWidth,
 					gridHeight: p.gridHeight,
 				}))
-				console.log('[DashboardStore] Sending placements to API:', JSON.stringify(placementsData, null, 2))
+				console.log(
+					'[DashboardStore] Sending placements to API:',
+					JSON.stringify(placementsData, null, 2),
+				)
 
 				// REQ-DASH-013 — route the PUT to the correct endpoint
 				// based on the active dashboard's source.
 				const active = this.activeDashboard
-				if (active && (active.source === SOURCE_GROUP || active.source === SOURCE_DEFAULT)) {
+				if (
+					active
+					&& (active.source === SOURCE_GROUP
+						|| active.source === SOURCE_DEFAULT)
+				) {
 					await api.updateGroupDashboard(active.groupId, active.uuid, {
 						placements: placementsData,
 					})
@@ -798,27 +861,31 @@ export const useDashboardStore = defineStore('dashboard', {
 				// method, so unpack the object form into the API contract
 				// (`widgetId` string + `content` object) here rather than
 				// pushing the type-discrimination into every caller.
-				const isCustomPayload = (
+				const isCustomPayload =
 					widgetId !== null
 					&& typeof widgetId === 'object'
 					&& typeof widgetId.type === 'string'
-				)
 				const resolvedWidgetId = isCustomPayload ? widgetId.type : widgetId
-				const resolvedContent = isCustomPayload ? (widgetId.content ?? {}) : null
+				const resolvedContent = isCustomPayload
+					? (widgetId.content ?? {})
+					: null
 
-				const placement = (position && Number.isFinite(position.x) && Number.isFinite(position.y))
-					? {
-						x: position.x,
-						y: position.y,
-						w: position.w ?? DEFAULT_W,
-						h: position.h ?? DEFAULT_H,
-						pushed: [],
-					}
-					: placeNewWidget(
-						{ w: position?.w, h: position?.h },
-						this.widgetPlacements,
-						{ gridColumns: this.activeDashboard?.gridColumns },
-					)
+				const placement =
+					position
+					&& Number.isFinite(position.x)
+					&& Number.isFinite(position.y)
+						? {
+								x: position.x,
+								y: position.y,
+								w: position.w ?? DEFAULT_W,
+								h: position.h ?? DEFAULT_H,
+								pushed: [],
+							}
+						: placeNewWidget(
+								{ w: position?.w, h: position?.h },
+								this.widgetPlacements,
+								{ gridColumns: this.activeDashboard?.gridColumns },
+							)
 
 				const requestBody = {
 					widgetId: resolvedWidgetId,
@@ -831,7 +898,10 @@ export const useDashboardStore = defineStore('dashboard', {
 					requestBody.content = resolvedContent
 				}
 
-				const response = await api.addWidget(this.activeDashboard.id, requestBody)
+				const response = await api.addWidget(
+					this.activeDashboard.id,
+					requestBody,
+				)
 				this.widgetPlacements.push(response.data)
 
 				if (placement.pushed.length > 0) {
@@ -862,19 +932,22 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addTileToDashboard(tileData, position = null) {
 			try {
-				const placement = (position && Number.isFinite(position.x) && Number.isFinite(position.y))
-					? {
-						x: position.x,
-						y: position.y,
-						w: position.w ?? 2,
-						h: position.h ?? 2,
-						pushed: [],
-					}
-					: placeNewWidget(
-						{ w: position?.w ?? 2, h: position?.h ?? 2 },
-						this.widgetPlacements,
-						{ gridColumns: this.activeDashboard?.gridColumns },
-					)
+				const placement =
+					position
+					&& Number.isFinite(position.x)
+					&& Number.isFinite(position.y)
+						? {
+								x: position.x,
+								y: position.y,
+								w: position.w ?? 2,
+								h: position.h ?? 2,
+								pushed: [],
+							}
+						: placeNewWidget(
+								{ w: position?.w ?? 2, h: position?.h ?? 2 },
+								this.widgetPlacements,
+								{ gridColumns: this.activeDashboard?.gridColumns },
+							)
 
 				const response = await api.addTile(this.activeDashboard.id, {
 					...tileData,
@@ -913,11 +986,19 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-006-quota-status-surfacing-in-ui
 		 */
 		handleWidgetQuotaError(error) {
-			if (error?.response?.status === 409
+			if (
+				error?.response?.status === 409
 				&& error?.response?.data?.error === 'quota_exceeded'
-				&& error?.response?.data?.quota === 'widgets') {
+				&& error?.response?.data?.quota === 'widgets'
+			) {
 				const limit = error.response.data.limit
-				showError(t('launchpad', 'You have reached the limit of {limit} widgets on this dashboard', { limit }))
+				showError(
+					t(
+						'launchpad',
+						'You have reached the limit of {limit} widgets on this dashboard',
+						{ limit },
+					),
+				)
 			}
 		},
 
@@ -936,8 +1017,8 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (!pushed || pushed.length === 0) {
 				return
 			}
-			const pushIndex = new Map(pushed.map(p => [String(p.id), p.gridY]))
-			const merged = this.widgetPlacements.map(p => {
+			const pushIndex = new Map(pushed.map((p) => [String(p.id), p.gridY]))
+			const merged = this.widgetPlacements.map((p) => {
 				const newY = pushIndex.get(String(p.id))
 				if (newY !== undefined) {
 					return { ...p, gridY: newY }
@@ -962,7 +1043,9 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			try {
 				await api.removeWidget(placementId)
-				this.widgetPlacements = this.widgetPlacements.filter(p => p.id !== placementId)
+				this.widgetPlacements = this.widgetPlacements.filter(
+					(p) => p.id !== placementId,
+				)
 			} catch (error) {
 				console.error('Failed to remove widget:', error)
 			}
@@ -983,11 +1066,11 @@ export const useDashboardStore = defineStore('dashboard', {
 		async setGroupDashboardDefault(groupId, uuid) {
 			// Snapshot the affected rows so we can roll back on failure.
 			const snapshot = this.dashboards
-				.filter(d => d.groupId === groupId && d.source !== 'user')
-				.map(d => ({ id: d.id, uuid: d.uuid, isDefault: d.isDefault }))
+				.filter((d) => d.groupId === groupId && d.source !== 'user')
+				.map((d) => ({ id: d.id, uuid: d.uuid, isDefault: d.isDefault }))
 
 			// Optimistic update: target → 1, every other row in group → 0.
-			this.dashboards = this.dashboards.map(d => {
+			this.dashboards = this.dashboards.map((d) => {
 				if (d.groupId !== groupId || d.source === 'user') {
 					return d
 				}
@@ -998,8 +1081,8 @@ export const useDashboardStore = defineStore('dashboard', {
 				await api.setGroupDashboardDefault(groupId, uuid)
 			} catch (error) {
 				// Roll back the snapshot — restore every flipped row.
-				this.dashboards = this.dashboards.map(d => {
-					const prev = snapshot.find(s => s.uuid === d.uuid)
+				this.dashboards = this.dashboards.map((d) => {
+					const prev = snapshot.find((s) => s.uuid === d.uuid)
 					if (prev === undefined) {
 						return d
 					}
@@ -1023,7 +1106,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		async loadDashboardTree() {
 			try {
 				const response = await api.getDashboardTree()
-				this.dashboardTree = Array.isArray(response.data) ? response.data : []
+				this.dashboardTree = Array.isArray(response.data)
+					? response.data
+					: []
 			} catch (error) {
 				console.error('Failed to load dashboard tree:', error)
 				this.dashboardTree = []
@@ -1042,7 +1127,9 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async dashboardByPath(path) {
-			const key = String(path || '').replace(/\/+$/, '').replace(/^\/+/, '')
+			const key = String(path || '')
+				.replace(/\/+$/, '')
+				.replace(/^\/+/, '')
 			if (key === '') {
 				return null
 			}
@@ -1099,18 +1186,32 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async updateWidgetPlacement(placementId, updates) {
-			console.log('[DashboardStore] updateWidgetPlacement called:', JSON.stringify({ placementId, updates }, null, 2))
+			console.log(
+				'[DashboardStore] updateWidgetPlacement called:',
+				JSON.stringify({ placementId, updates }, null, 2),
+			)
 			try {
-				const response = await api.updateWidgetPlacement(placementId, updates)
-				console.log('[DashboardStore] API response:', JSON.stringify(response.data, null, 2))
+				const response = await api.updateWidgetPlacement(
+					placementId,
+					updates,
+				)
+				console.log(
+					'[DashboardStore] API response:',
+					JSON.stringify(response.data, null, 2),
+				)
 
-				const index = this.widgetPlacements.findIndex(p => p.id === placementId)
+				const index = this.widgetPlacements.findIndex(
+					(p) => p.id === placementId,
+				)
 				console.log('[DashboardStore] Found placement at index:', index)
 
 				if (index !== -1) {
-				// Use splice for reactive update.
+					// Use splice for reactive update.
 					this.widgetPlacements.splice(index, 1, response.data)
-					console.log('[DashboardStore] Updated placement:', JSON.stringify(this.widgetPlacements[index], null, 2))
+					console.log(
+						'[DashboardStore] Updated placement:',
+						JSON.stringify(this.widgetPlacements[index], null, 2),
+					)
 				}
 			} catch (error) {
 				console.error('Failed to update widget placement:', error)
@@ -1165,7 +1266,8 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return response.data
 			} catch (error) {
-				const message = error.response?.data?.error || t('launchpad', 'Operation failed')
+				const message =
+					error.response?.data?.error || t('launchpad', 'Operation failed')
 				showError(message)
 				return null
 			}
@@ -1189,7 +1291,8 @@ export const useDashboardStore = defineStore('dashboard', {
 				await api.removeDashboardReaction(dashboardUuid, emoji)
 				return await this.fetchReactionsSummary(dashboardUuid)
 			} catch (error) {
-				const message = error.response?.data?.error || t('launchpad', 'Operation failed')
+				const message =
+					error.response?.data?.error || t('launchpad', 'Operation failed')
 				showError(message)
 				return null
 			}
@@ -1241,16 +1344,20 @@ export const useDashboardStore = defineStore('dashboard', {
 			try {
 				const response = await api.getDashboardMetadata(uuid)
 				const payload = response?.data
-				const map = (payload && typeof payload === 'object' && !Array.isArray(payload))
-					? payload
-					: {}
+				const map =
+					payload && typeof payload === 'object' && !Array.isArray(payload)
+						? payload
+						: {}
 				this.metadataByDashboard = {
 					...this.metadataByDashboard,
 					[uuid]: map,
 				}
 				return map
 			} catch (error) {
-				if (error?.response?.status !== 403 && error?.response?.status !== 404) {
+				if (
+					error?.response?.status !== 403
+					&& error?.response?.status !== 404
+				) {
 					console.error('Failed to load dashboard metadata:', error)
 				}
 				this.metadataByDashboard = {
@@ -1282,16 +1389,18 @@ export const useDashboardStore = defineStore('dashboard', {
 			try {
 				const response = await api.updateDashboardMetadata(uuid, metadata)
 				const payload = response?.data
-				const map = (payload && typeof payload === 'object' && !Array.isArray(payload))
-					? payload
-					: {}
+				const map =
+					payload && typeof payload === 'object' && !Array.isArray(payload)
+						? payload
+						: {}
 				this.metadataByDashboard = {
 					...this.metadataByDashboard,
 					[uuid]: map,
 				}
 				return map
 			} catch (error) {
-				const message = error?.response?.data?.message
+				const message =
+					error?.response?.data?.message
 					|| t('launchpad', 'Failed to update dashboard metadata')
 				console.error('Failed to update dashboard metadata:', error)
 				showError(message)

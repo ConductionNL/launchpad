@@ -7,7 +7,12 @@
 	<div class="launchpad-admin__section">
 		<h3>{{ t('launchpad', 'Role-based widget permissions') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Restrict which widgets each Nextcloud group can add to their dashboard. Empty list = full catalogue (legacy).') }}
+			{{
+				t(
+					'launchpad',
+					'Restrict which widgets each Nextcloud group can add to their dashboard. Empty list = full catalogue (legacy).',
+				)
+			}}
 		</p>
 
 		<div v-if="store.error" class="launchpad-admin__error" role="alert">
@@ -17,41 +22,53 @@
 		<NcEmptyContent
 			v-if="!store.loading && store.permissions.length === 0"
 			:name="t('launchpad', 'No role permissions configured')"
-			:description="t('launchpad', 'Add a role-permission row to start filtering the widget catalogue per Nextcloud group.')">
+			:description="
+				t(
+					'launchpad',
+					'Add a role-permission row to start filtering the widget catalogue per Nextcloud group.',
+				)
+			">
 			<template #icon>
 				<AccountGroup :size="40" />
 			</template>
 		</NcEmptyContent>
 
 		<div v-else class="launchpad-admin__role-list">
-			<div v-for="row in store.permissions"
+			<div
+				v-for="row in store.permissions"
 				:key="row.id"
 				class="launchpad-admin__role-row">
 				<div class="launchpad-admin__role-meta">
 					<strong>{{ row.name }}</strong>
-					<span class="launchpad-admin__role-group">{{ row.groupId }}</span>
+					<span class="launchpad-admin__role-group">{{
+						row.groupId
+					}}</span>
 				</div>
 				<div class="launchpad-admin__role-widgets">
-					<span v-for="wid in row.allowedWidgets"
+					<span
+						v-for="wid in row.allowedWidgets"
 						:key="wid"
 						class="launchpad-admin__chip">
 						{{ wid }}
 					</span>
-					<span v-for="wid in row.deniedWidgets"
+					<span
+						v-for="wid in row.deniedWidgets"
 						:key="`d-${wid}`"
 						class="launchpad-admin__chip launchpad-admin__chip--denied">
 						{{ wid }}
 					</span>
 				</div>
 				<div class="launchpad-admin__role-actions">
-					<NcButton type="tertiary"
+					<NcButton
+						type="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
 							<Pencil :size="20" />
 						</template>
 					</NcButton>
-					<NcButton type="tertiary"
+					<NcButton
+						type="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="confirmDelete(row)">
 						<template #icon>
@@ -92,10 +109,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
@@ -195,8 +209,8 @@ export default {
 		parseCsv(s) {
 			return (s ?? '')
 				.split(',')
-				.map(x => x.trim())
-				.filter(x => x.length > 0)
+				.map((x) => x.trim())
+				.filter((x) => x.length > 0)
 		},
 		/** @spec openspec/specs/admin-roles/spec.md */
 		async save() {

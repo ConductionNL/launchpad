@@ -126,7 +126,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 				const response = await axios.post(DEFAULTS_URL, layoutDefault)
 				const saved = response.data?.data ?? response.data
 				const idx = this.layoutDefaults.findIndex(
-					(d) => d.groupId === saved.groupId && d.widgetId === saved.widgetId,
+					(d) =>
+						d.groupId === saved.groupId && d.widgetId === saved.widgetId,
 				)
 				if (idx >= 0) {
 					this.layoutDefaults.splice(idx, 1, saved)

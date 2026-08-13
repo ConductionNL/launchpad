@@ -15,7 +15,10 @@ import { setActivePinia, createPinia } from 'pinia'
 // Mock @nextcloud/vue to avoid CSS extension errors in jsdom.
 // Enumerate all components used across app source files.
 vi.mock('@nextcloud/vue', () => {
-	const makeStub = (name, template = `<div class="nc-stub-${name.toLowerCase()}" />`) => ({
+	const makeStub = (
+		name,
+		template = `<div class="nc-stub-${name.toLowerCase()}" />`,
+	) => ({
 		name,
 		template,
 		props: {
@@ -42,11 +45,15 @@ vi.mock('@nextcloud/vue', () => {
 				ariaLabel: { type: String, default: '' },
 			},
 			render(h) {
-				return h('button', {
-					class: 'button-vue',
-					attrs: { disabled: this.disabled || null },
-					on: this.$listeners,
-				}, [this.$slots.default, this.$slots.icon])
+				return h(
+					'button',
+					{
+						class: 'button-vue',
+						attrs: { disabled: this.disabled || null },
+						on: this.$listeners,
+					},
+					[this.$slots.default, this.$slots.icon],
+				)
 			},
 		},
 		NcEmptyContent: {
@@ -99,7 +106,7 @@ vi.mock('@nextcloud/axios', () => ({
 
 // Mock @nextcloud/router
 vi.mock('@nextcloud/router', () => ({
-	generateUrl: vi.fn(path => path),
+	generateUrl: vi.fn((path) => path),
 }))
 
 beforeAll(() => {
@@ -118,14 +125,23 @@ const DashboardGridStub = {
 	template: '<div class="stub-dashboard-grid" />',
 	props: ['placements', 'widgets', 'editMode', 'gridColumns'],
 	methods: {
-		placeWidget() { return { x: 0, y: 0, w: 4, h: 4 } },
+		placeWidget() {
+			return { x: 0, y: 0, w: 4, h: 4 }
+		},
 	},
 }
 
 const DashboardSwitcherSidebarStub = {
 	name: 'DashboardSwitcherSidebar',
 	template: '<div class="stub-sidebar" />',
-	props: ['isOpen', 'groupName', 'groupDashboards', 'userDashboards', 'activeDashboardId', 'allowUserDashboards'],
+	props: [
+		'isOpen',
+		'groupName',
+		'groupDashboards',
+		'userDashboards',
+		'activeDashboardId',
+		'allowUserDashboards',
+	],
 }
 
 const SidebarBackdropStub = {
@@ -311,10 +327,16 @@ describe('REQ-SHELL-004: Hamburger toggles sidebar', () => {
 
 	it('active-dashboard name is shown in the label', async () => {
 		const wrapper = await mountViews({
-			activeDashboard: { id: 'dash-1', name: 'Marketing Overview', gridColumns: 12 },
+			activeDashboard: {
+				id: 'dash-1',
+				name: 'Marketing Overview',
+				gridColumns: 12,
+			},
 		})
 
-		expect(wrapper.find('.launchpad-active-dashboard-label').text()).toContain('Marketing Overview')
+		expect(wrapper.find('.launchpad-active-dashboard-label').text()).toContain(
+			'Marketing Overview',
+		)
 	})
 })
 
@@ -325,7 +347,11 @@ describe('REQ-SHELL-004: Hamburger toggles sidebar', () => {
 describe('REQ-SHELL-005: Empty state', () => {
 	it('shows Create button when no dashboard + allowUserDashboards=true', async () => {
 		const wrapper = await mountViews({
-			injectOverrides: { allowUserDashboards: true, isAdmin: false, dashboardSource: 'group' },
+			injectOverrides: {
+				allowUserDashboards: true,
+				isAdmin: false,
+				dashboardSource: 'group',
+			},
 			activeDashboard: null,
 		})
 
@@ -349,7 +375,9 @@ describe('REQ-SHELL-005: Empty state', () => {
 
 		expect(wrapper.find('.launchpad-empty').exists()).toBe(true)
 		// v-if="allowUserDashboards" is false — no NcButton should be inside the empty-state area
-		const ncButtonsInEmpty = wrapper.find('.launchpad-empty').findAllComponents({ name: 'NcButton' })
+		const ncButtonsInEmpty = wrapper
+			.find('.launchpad-empty')
+			.findAllComponents({ name: 'NcButton' })
 		expect(ncButtonsInEmpty).toHaveLength(0)
 	})
 
@@ -379,7 +407,10 @@ describe('REQ-SHELL-003: Save Layout', () => {
 
 		await wrapper.vm.saveLayout()
 
-		expect(api.updateDashboard).toHaveBeenCalledWith('abc-123', expect.objectContaining({ layout: expect.any(Array) }))
+		expect(api.updateDashboard).toHaveBeenCalledWith(
+			'abc-123',
+			expect.objectContaining({ layout: expect.any(Array) }),
+		)
 	})
 
 	it('PUT to group endpoint for group source', async () => {
@@ -388,19 +419,34 @@ describe('REQ-SHELL-003: Save Layout', () => {
 
 		const wrapper = await mountViews({
 			injectOverrides: { dashboardSource: 'group', isAdmin: true },
-			activeDashboard: { id: 'abc-123', name: 'Group Board', gridColumns: 12, groupId: 'grp-1', uuid: 'uuid-001' },
+			activeDashboard: {
+				id: 'abc-123',
+				name: 'Group Board',
+				gridColumns: 12,
+				groupId: 'grp-1',
+				uuid: 'uuid-001',
+			},
 		})
 
 		await wrapper.vm.saveLayout()
 
-		expect(api.updateGroupDashboard).toHaveBeenCalledWith('grp-1', 'uuid-001', expect.objectContaining({ layout: expect.any(Array) }))
+		expect(api.updateGroupDashboard).toHaveBeenCalledWith(
+			'grp-1',
+			'uuid-001',
+			expect.objectContaining({ layout: expect.any(Array) }),
+		)
 	})
 
 	it('saving flag is true while request is in-flight and no double-submit fires', async () => {
 		const { api } = await import('../services/api.js')
 		// Use a manually-controlled promise so the in-flight state persists
 		let resolveSave
-		api.updateDashboard = vi.fn(() => new Promise((resolve) => { resolveSave = resolve }))
+		api.updateDashboard = vi.fn(
+			() =>
+				new Promise((resolve) => {
+					resolveSave = resolve
+				}),
+		)
 
 		const wrapper = await mountViews({
 			injectOverrides: { isAdmin: true, dashboardSource: 'user' },

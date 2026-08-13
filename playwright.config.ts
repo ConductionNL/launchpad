@@ -140,7 +140,9 @@ export default defineConfig({
 	// 2.0-2.4 min and the uploads after it take seconds, so 38m keeps ~7 min of
 	// margin while guaranteeing a tally and its artifacts.
 	globalTimeout: 38 * 60_000,
-	reporter: process.env.CI ? [['list'], ['github'], ['html', { open: 'never' }]] : 'list',
+	reporter: process.env.CI
+		? [['list'], ['github'], ['html', { open: 'never' }]]
+		: 'list',
 	globalSetup: path.resolve(__dirname, 'tests/e2e/global-setup.ts'),
 	use: {
 		baseURL,

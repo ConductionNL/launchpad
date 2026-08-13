@@ -8,10 +8,16 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
-	<NcDialog :name="t('launchpad', 'Password required')"
-		:can-close="false">
+	<NcDialog :name="t('launchpad', 'Password required')" :can-close="false">
 		<template #default>
-			<p>{{ t('launchpad', 'This dashboard is password protected. Enter the password to view it.') }}</p>
+			<p>
+				{{
+					t(
+						'launchpad',
+						'This dashboard is password protected. Enter the password to view it.',
+					)
+				}}
+			</p>
 			<NcPasswordField
 				v-model="passwordInput"
 				:label="t('launchpad', 'Password')"

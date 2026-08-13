@@ -53,7 +53,9 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		expect(wrapper.find('.launchpad-footer__config--columns').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-footer__config--columns').exists()).toBe(
+			true,
+		)
 		expect(wrapper.text()).toContain('ACME')
 		expect(wrapper.text()).toContain('1234 AB Amsterdam')
 		expect(wrapper.text()).toContain('Privacy')

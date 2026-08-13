@@ -61,12 +61,14 @@ for (const file of walk(SRC_DIR)) {
 if (offenders.length > 0) {
 	process.stderr.write(
 		'lint:initial-state — REQ-INIT-003 violation:\n'
-		+ '  Direct loadState(\'launchpad\', ...) call found outside src/utils/loadInitialState.js.\n'
-		+ '  Use loadInitialState(page) and inject the keys instead.\n'
-		+ '  Offending files:\n'
-		+ offenders.map(f => `    - ${f}\n`).join(''),
+			+ "  Direct loadState('launchpad', ...) call found outside src/utils/loadInitialState.js.\n"
+			+ '  Use loadInitialState(page) and inject the keys instead.\n'
+			+ '  Offending files:\n'
+			+ offenders.map((f) => `    - ${f}\n`).join(''),
 	)
 	process.exit(1)
 }
 
-process.stdout.write('lint:initial-state — OK (no direct loadState(\'launchpad\', ...) calls outside the reader)\n')
+process.stdout.write(
+	"lint:initial-state — OK (no direct loadState('launchpad', ...) calls outside the reader)\n",
+)

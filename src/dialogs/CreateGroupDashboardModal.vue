@@ -31,12 +31,14 @@
 			</div>
 
 			<div class="cgd-form__field">
-				<label class="cgd-form__label">{{ t('launchpad', 'Layout template') }}</label>
+				<label class="cgd-form__label">{{
+					t('launchpad', 'Layout template')
+				}}</label>
 				<NcSelect
 					v-model="form.layoutTemplate"
 					:options="layoutTemplates"
 					:input-label="t('launchpad', 'Layout template')"
-					:reduce="opt => opt.id"
+					:reduce="(opt) => opt.id"
 					label="label"
 					data-test="create-group-dashboard-layout" />
 			</div>
@@ -60,7 +62,11 @@
 				type="primary"
 				:disabled="submitting || !canSubmit"
 				@click="onSubmit">
-				{{ submitting ? t('launchpad', 'Creating…') : t('launchpad', 'Create') }}
+				{{
+					submitting
+						? t('launchpad', 'Creating…')
+						: t('launchpad', 'Create')
+				}}
 			</NcButton>
 		</template>
 	</NcDialog>
@@ -103,7 +109,8 @@ export default {
 		group: {
 			type: Object,
 			required: true,
-			validator: (g) => typeof g.id === 'string' && typeof g.displayName === 'string',
+			validator: (g) =>
+				typeof g.id === 'string' && typeof g.displayName === 'string',
 		},
 	},
 
@@ -160,8 +167,7 @@ export default {
 		},
 
 		canSubmit() {
-			return this.form.name.length >= 2
-				&& this.form.name.length <= 64
+			return this.form.name.length >= 2 && this.form.name.length <= 64
 		},
 	},
 

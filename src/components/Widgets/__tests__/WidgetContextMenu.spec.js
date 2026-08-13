@@ -39,7 +39,13 @@ describe('WidgetContextMenu', () => {
 		const buttons = wrapper.findAll('.widget-context-menu__item')
 		expect(buttons.length).toBe(5)
 		const labels = buttons.map((b) => b.text().trim())
-		expect(labels).toEqual(['Edit', 'Move', 'Visibility rules…', 'Remove', 'Cancel'])
+		expect(labels).toEqual([
+			'Edit',
+			'Move',
+			'Visibility rules…',
+			'Remove',
+			'Cancel',
+		])
 	})
 
 	it('grid-layout: clicking Move emits move then close (single-instance)', async () => {
@@ -109,7 +115,9 @@ describe('WidgetContextMenu', () => {
 		// NOT bubble to the document.
 		const wrapper = mountMenu({ attachTo: document.body })
 		let bubbled = false
-		const handler = () => { bubbled = true }
+		const handler = () => {
+			bubbled = true
+		}
 		document.addEventListener('click', handler)
 		await wrapper.find('.widget-context-menu').trigger('click')
 		expect(bubbled).toBe(false)

@@ -106,14 +106,19 @@ const ADMIN = {
  * a worker-scoped hook. The neighbouring public-share specs read the same
  * environment variable the config resolves it from; so does this file.
  */
-const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(/\/$/, '')
+const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(
+	/\/$/,
+	'',
+)
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'
 const VISIBLE = '/index.php/apps/launchpad/api/dashboards/visible'
-const sharesUrl = (id: number) => `/index.php/apps/launchpad/api/dashboard/${id}/shares`
+const sharesUrl = (id: number) =>
+	`/index.php/apps/launchpad/api/dashboard/${id}/shares`
 const dashboardUrl = (id: number) => `/index.php/apps/launchpad/api/dashboard/${id}`
-const shareesUrl = (query: string) => `/index.php/apps/launchpad/api/sharees?query=${encodeURIComponent(query)}`
+const shareesUrl = (query: string) =>
+	`/index.php/apps/launchpad/api/sharees?query=${encodeURIComponent(query)}`
 
 function basic(user: string, pass: string): string {
 	return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`
@@ -141,7 +146,10 @@ function basic(user: string, pass: string): string {
  * in the same form, closed an identical false green in pipelinq, where a
  * context created to be anonymous read back `ocs.data.id === "admin"`.)
  */
-async function apiAs(creds: { user: string, pass: string }): Promise<APIRequestContext> {
+async function apiAs(creds: {
+	user: string
+	pass: string
+}): Promise<APIRequestContext> {
 	return request.newContext({
 		baseURL: ENV_BASE_URL,
 		storageState: { cookies: [], origins: [] },
@@ -153,14 +161,19 @@ async function apiAs(creds: { user: string, pass: string }): Promise<APIRequestC
 }
 
 /** Provision a throwaway account through the OCS provisioning API. */
-async function makeUser(label: string): Promise<{ user: string, pass: string }> {
+async function makeUser(label: string): Promise<{ user: string; pass: string }> {
 	const user = `e2e-share-${label}-${Date.now()}-${Math.floor(Math.random() * 10_000)}`
 	// Nextcloud silently rejects passwords under the policy minimum, so this
 	// is comfortably over it and carries all four character classes.
 	const pass = `Share-${Math.random().toString(36).slice(2)}A1!`
 	const admin = await apiAs(ADMIN)
-	const res = await admin.post('/ocs/v1.php/cloud/users', { form: { userid: user, password: pass } })
-	expect(res.ok(), `provisioning ${user} failed: ${res.status()} ${await res.text()}`).toBeTruthy()
+	const res = await admin.post('/ocs/v1.php/cloud/users', {
+		form: { userid: user, password: pass },
+	})
+	expect(
+		res.ok(),
+		`provisioning ${user} failed: ${res.status()} ${await res.text()}`,
+	).toBeTruthy()
 	await admin.dispose()
 	return { user, pass }
 }
@@ -174,8 +187,13 @@ async function deleteUser(user: string): Promise<void> {
 async function makeGroup(label: string): Promise<string> {
 	const gid = `e2e-share-grp-${label}-${Date.now()}-${Math.floor(Math.random() * 10_000)}`
 	const admin = await apiAs(ADMIN)
-	const res = await admin.post('/ocs/v1.php/cloud/groups', { form: { groupid: gid } })
-	expect(res.ok(), `creating group ${gid} failed: ${res.status()} ${await res.text()}`).toBeTruthy()
+	const res = await admin.post('/ocs/v1.php/cloud/groups', {
+		form: { groupid: gid },
+	})
+	expect(
+		res.ok(),
+		`creating group ${gid} failed: ${res.status()} ${await res.text()}`,
+	).toBeTruthy()
 	await admin.dispose()
 	return gid
 }
@@ -188,10 +206,16 @@ async function deleteGroup(gid: string): Promise<void> {
 
 async function addToGroup(user: string, gid: string): Promise<void> {
 	const admin = await apiAs(ADMIN)
-	const res = await admin.post(`/ocs/v1.php/cloud/users/${encodeURIComponent(user)}/groups`, {
-		form: { groupid: gid },
-	})
-	expect(res.ok(), `adding ${user} to ${gid} failed: ${res.status()} ${await res.text()}`).toBeTruthy()
+	const res = await admin.post(
+		`/ocs/v1.php/cloud/users/${encodeURIComponent(user)}/groups`,
+		{
+			form: { groupid: gid },
+		},
+	)
+	expect(
+		res.ok(),
+		`adding ${user} to ${gid} failed: ${res.status()} ${await res.text()}`,
+	).toBeTruthy()
 	await admin.dispose()
 }
 
@@ -202,12 +226,20 @@ async function addToGroup(user: string, gid: string): Promise<void> {
  * public-share routes next door take the uuid, and the two are not
  * interchangeable.
  */
-async function createDashboard(api: APIRequestContext, label: string): Promise<{ id: number, uuid: string }> {
-	const res = await api.post(DASHBOARDS, { data: { name: `E2E Share ${label} ${Date.now()}` } })
+async function createDashboard(
+	api: APIRequestContext,
+	label: string,
+): Promise<{ id: number; uuid: string }> {
+	const res = await api.post(DASHBOARDS, {
+		data: { name: `E2E Share ${label} ${Date.now()}` },
+	})
 	expect(res.status(), await res.text()).toBeLessThan(300)
 	const body = await res.json()
 	const dash = body.dashboard ?? body.data?.dashboard ?? body
-	expect(dash?.id, `no numeric id in create response: ${JSON.stringify(body)}`).toBeTruthy()
+	expect(
+		dash?.id,
+		`no numeric id in create response: ${JSON.stringify(body)}`,
+	).toBeTruthy()
 	// Registered BEFORE the caller can throw, so a failing test still gets
 	// its dashboard cleaned up — see the teardown note on `createdDashboards`.
 	createdDashboards.push(Number(dash.id))
@@ -215,7 +247,10 @@ async function createDashboard(api: APIRequestContext, label: string): Promise<{
 }
 
 /** The share rows the owner can see for a dashboard. */
-async function listShares(api: APIRequestContext, id: number): Promise<Array<Record<string, unknown>>> {
+async function listShares(
+	api: APIRequestContext,
+	id: number,
+): Promise<Array<Record<string, unknown>>> {
 	const res = await api.get(sharesUrl(id))
 	expect(res.status(), await res.text()).toBe(200)
 	const body = await res.json()
@@ -223,7 +258,9 @@ async function listShares(api: APIRequestContext, id: number): Promise<Array<Rec
 }
 
 /** The dashboards visible to the caller, shares folded in. */
-async function listVisible(api: APIRequestContext): Promise<Array<Record<string, unknown>>> {
+async function listVisible(
+	api: APIRequestContext,
+): Promise<Array<Record<string, unknown>>> {
 	const res = await api.get(VISIBLE)
 	expect(res.status(), await res.text()).toBe(200)
 	const body = await res.json()
@@ -264,9 +301,9 @@ let priorAllowUserDash = true
  */
 const createdDashboards: number[] = []
 
-let bob: { user: string, pass: string }
-let carol: { user: string, pass: string }
-let dave: { user: string, pass: string }
+let bob: { user: string; pass: string }
+let carol: { user: string; pass: string }
+let dave: { user: string; pass: string }
 let salesGroup: string
 
 test.beforeAll(async () => {
@@ -330,12 +367,19 @@ test.describe('REQ-SHARE-001 owner-only share management', () => {
 		).toHaveLength(0)
 
 		const created = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'view_only' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'view_only',
+			},
 		})
 		expect(created.status(), await created.text()).toBeLessThan(300)
 
 		const shares = await listShares(owner, dash.id)
-		expect(shares, 'exactly the one share just added must be listed').toHaveLength(1)
+		expect(
+			shares,
+			'exactly the one share just added must be listed',
+		).toHaveLength(1)
 		expect(shares[0].shareWith).toBe(bob.user)
 		expect(shares[0].shareType).toBe('user')
 		expect(shares[0].permissionLevel).toBe('view_only')
@@ -353,7 +397,11 @@ test.describe('REQ-SHARE-001 owner-only share management', () => {
 		// below is about share MANAGEMENT being owner-only and not about bob
 		// lacking permission generally.
 		const grant = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'full' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'full',
+			},
 		})
 		expect(grant.status(), await grant.text()).toBeLessThan(300)
 
@@ -366,7 +414,11 @@ test.describe('REQ-SHARE-001 owner-only share management', () => {
 		).toBe(200)
 
 		const attempt = await asBob.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: dave.user, permissionLevel: 'view_only' },
+			data: {
+				shareType: 'user',
+				shareWith: dave.user,
+				permissionLevel: 'view_only',
+			},
 		})
 		expect(attempt.status(), await attempt.text()).toBe(403)
 
@@ -386,20 +438,31 @@ test.describe('REQ-SHARE-001 owner-only share management', () => {
 		const dash = await createDashboard(owner, 'upsert')
 
 		const first = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'view_only' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'view_only',
+			},
 		})
 		expect(first.status(), await first.text()).toBeLessThan(300)
 		expect(await listShares(owner, dash.id)).toHaveLength(1)
 
 		const second = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'full' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'full',
+			},
 		})
 		expect(second.status(), await second.text()).toBeLessThan(300)
 
 		// THE assertion. A duplicate row would also leave bob at `full`, so
 		// the count is what distinguishes an upsert from an insert.
 		const shares = await listShares(owner, dash.id)
-		expect(shares, 're-sharing the same recipient must update, not duplicate').toHaveLength(1)
+		expect(
+			shares,
+			're-sharing the same recipient must update, not duplicate',
+		).toHaveLength(1)
 		expect(shares[0].permissionLevel).toBe('full')
 
 		await owner.dispose()
@@ -417,20 +480,32 @@ test.describe('REQ-SHARE-002 listing dashboards visible to a user', () => {
 		// that makes the positive assertion mean anything: a union endpoint
 		// that returned every dashboard on the instance would pass the
 		// positive check alone.
-		const beforeIds = (await listVisible(asBob)).map(d => Number(d.id))
+		const beforeIds = (await listVisible(asBob)).map((d) => Number(d.id))
 		expect(
 			beforeIds,
-			'CONTROL: an unshared dashboard must not appear in another user\'s visible list',
+			"CONTROL: an unshared dashboard must not appear in another user's visible list",
 		).not.toContain(dash.id)
 
 		const grant = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'add_only' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'add_only',
+			},
 		})
 		expect(grant.status(), await grant.text()).toBeLessThan(300)
 
-		const entry = (await listVisible(asBob)).find(d => Number(d.id) === dash.id)
-		expect(entry, 'the shared dashboard must appear in the recipient\'s visible list').toBeTruthy()
-		expect(entry!.isOwner, 'the recipient is not the owner and the payload must say so').toBe(false)
+		const entry = (await listVisible(asBob)).find(
+			(d) => Number(d.id) === dash.id,
+		)
+		expect(
+			entry,
+			"the shared dashboard must appear in the recipient's visible list",
+		).toBeTruthy()
+		expect(
+			entry!.isOwner,
+			'the recipient is not the owner and the payload must say so',
+		).toBe(false)
 
 		// The resolved level is served by GET /api/dashboard/{id}, not by the
 		// list — see the header note about `effectivePermissionLevel`.
@@ -453,17 +528,26 @@ test.describe('REQ-SHARE-002 listing dashboards visible to a user', () => {
 		const dash = await createDashboard(owner, 'groupshare')
 
 		const grant = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'group', shareWith: salesGroup, permissionLevel: 'view_only' },
+			data: {
+				shareType: 'group',
+				shareWith: salesGroup,
+				permissionLevel: 'view_only',
+			},
 		})
 		expect(grant.status(), await grant.text()).toBeLessThan(300)
 
 		// carol is in the group and was never named.
-		const carolEntry = (await listVisible(asCarol)).find(d => Number(d.id) === dash.id)
-		expect(carolEntry, 'a group member must see a dashboard shared with their group').toBeTruthy()
+		const carolEntry = (await listVisible(asCarol)).find(
+			(d) => Number(d.id) === dash.id,
+		)
+		expect(
+			carolEntry,
+			'a group member must see a dashboard shared with their group',
+		).toBeTruthy()
 
 		// CONTROL — dave is NOT in the group. Without this, "carol can see it"
 		// would also hold if group shares granted visibility to everyone.
-		const daveIds = (await listVisible(asDave)).map(d => Number(d.id))
+		const daveIds = (await listVisible(asDave)).map((d) => Number(d.id))
 		expect(
 			daveIds,
 			'CONTROL: a non-member must not gain visibility from a group share',
@@ -486,7 +570,11 @@ test.describe('REQ-SHARE-002 listing dashboards visible to a user', () => {
 
 		// carol personally at view_only …
 		const direct = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: carol.user, permissionLevel: 'view_only' },
+			data: {
+				shareType: 'user',
+				shareWith: carol.user,
+				permissionLevel: 'view_only',
+			},
 		})
 		expect(direct.status(), await direct.text()).toBeLessThan(300)
 
@@ -502,7 +590,11 @@ test.describe('REQ-SHARE-002 listing dashboards visible to a user', () => {
 
 		// … and her group at full.
 		const viaGroup = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'group', shareWith: salesGroup, permissionLevel: 'full' },
+			data: {
+				shareType: 'group',
+				shareWith: salesGroup,
+				permissionLevel: 'full',
+			},
 		})
 		expect(viaGroup.status(), await viaGroup.text()).toBeLessThan(300)
 
@@ -528,11 +620,17 @@ test.describe('REQ-SHARE-004 per-share permission overrides the dashboard defaul
 		// Put the dashboard's OWN level at view_only, so that anything bob is
 		// allowed to do has to come from his share rather than from the
 		// dashboard's default.
-		const setLevel = await owner.put(dashboardUrl(dash.id), { data: { permissionLevel: 'view_only' } })
+		const setLevel = await owner.put(dashboardUrl(dash.id), {
+			data: { permissionLevel: 'view_only' },
+		})
 		expect(setLevel.status(), await setLevel.text()).toBeLessThan(300)
 
 		const viewOnly = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'view_only' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'view_only',
+			},
 		})
 		expect(viewOnly.status(), await viewOnly.text()).toBeLessThan(300)
 
@@ -542,20 +640,33 @@ test.describe('REQ-SHARE-004 per-share permission overrides the dashboard defaul
 		 * allowed here, the "allowed at full" assertion below would be
 		 * vacuous — it would pass on a build with no permission check at all.
 		 */
-		const refused = await asBob.post(`/index.php/apps/launchpad/api/dashboard/${dash.id}/widgets`, {
-			data: { widgetId: ALLOWED_WIDGET, gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
-		})
+		const refused = await asBob.post(
+			`/index.php/apps/launchpad/api/dashboard/${dash.id}/widgets`,
+			{
+				data: {
+					widgetId: ALLOWED_WIDGET,
+					gridX: 0,
+					gridY: 0,
+					gridWidth: 4,
+					gridHeight: 2,
+				},
+			},
+		)
 		expect(
 			refused.status(),
 			'CONTROL: a view_only recipient must be refused the widget add. This refusal is '
-			+ 'attributable to the share check only because the SAME widget id succeeds for the '
-			+ 'same user at `full` below — that arm is what rules out the role-feature allow-list '
-			+ `as the cause. Body: ${await refused.text()}`,
+				+ 'attributable to the share check only because the SAME widget id succeeds for the '
+				+ 'same user at `full` below — that arm is what rules out the role-feature allow-list '
+				+ `as the cause. Body: ${await refused.text()}`,
 		).toBe(403)
 
 		// Upgrade the share only. Nothing else about the dashboard changes.
 		const upgrade = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'full' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'full',
+			},
 		})
 		expect(upgrade.status(), await upgrade.text()).toBeLessThan(300)
 
@@ -567,16 +678,26 @@ test.describe('REQ-SHARE-004 per-share permission overrides the dashboard defaul
 		 * reading `full` under a refused add means the per-share level is
 		 * being ignored downstream.
 		 */
-		const rowAfterUpgrade = (await listShares(owner, dash.id))
-			.find(s => String(s.shareWith) === bob.user)
+		const rowAfterUpgrade = (await listShares(owner, dash.id)).find(
+			(s) => String(s.shareWith) === bob.user,
+		)
 		expect(
 			rowAfterUpgrade?.permissionLevel,
-			'SPLITTING PROBE: the upgrade POST must leave bob\'s share row at `full`',
+			"SPLITTING PROBE: the upgrade POST must leave bob's share row at `full`",
 		).toBe('full')
 
-		const allowed = await asBob.post(`/index.php/apps/launchpad/api/dashboard/${dash.id}/widgets`, {
-			data: { widgetId: ALLOWED_WIDGET, gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 },
-		})
+		const allowed = await asBob.post(
+			`/index.php/apps/launchpad/api/dashboard/${dash.id}/widgets`,
+			{
+				data: {
+					widgetId: ALLOWED_WIDGET,
+					gridX: 0,
+					gridY: 0,
+					gridWidth: 4,
+					gridHeight: 2,
+				},
+			},
+		)
 		expect(
 			allowed.status(),
 			`a full-level share must override the dashboard's own view_only level: ${await allowed.text()}`,
@@ -598,21 +719,30 @@ test.describe('REQ-SHARE-006 sharee autocomplete', () => {
 		expect(res.status(), await res.text()).toBe(200)
 		const body = await res.json()
 		const users: string[] = (body.users ?? body.data?.users ?? []).map(
-			(u: Record<string, unknown>) => String(u.id ?? u.shareWith ?? u.label ?? ''),
+			(u: Record<string, unknown>) =>
+				String(u.id ?? u.shareWith ?? u.label ?? ''),
 		)
 		const groups: string[] = (body.groups ?? body.data?.groups ?? []).map(
-			(g: Record<string, unknown>) => String(g.id ?? g.shareWith ?? g.label ?? ''),
+			(g: Record<string, unknown>) =>
+				String(g.id ?? g.shareWith ?? g.label ?? ''),
 		)
 
-		expect(users, 'a provisioned user matching the query must be offered').toContain(bob.user)
-		expect(groups, 'a group matching the query must be offered').toContain(salesGroup)
+		expect(
+			users,
+			'a provisioned user matching the query must be offered',
+		).toContain(bob.user)
+		expect(groups, 'a group matching the query must be offered').toContain(
+			salesGroup,
+		)
 
 		/*
 		 * CONTROL — a query that matches nothing must come back empty. An
 		 * autocomplete that ignored its query and returned every account
 		 * would satisfy both assertions above.
 		 */
-		const noMatch = await owner.get(shareesUrl(`zzz-no-such-principal-${Date.now()}`))
+		const noMatch = await owner.get(
+			shareesUrl(`zzz-no-such-principal-${Date.now()}`),
+		)
 		expect(noMatch.status(), await noMatch.text()).toBe(200)
 		const noMatchBody = await noMatch.json()
 		expect(
@@ -632,31 +762,60 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 
 		for (const payload of [
 			{ shareType: 'user', shareWith: bob.user, permissionLevel: 'view_only' },
-			{ shareType: 'user', shareWith: carol.user, permissionLevel: 'view_only' },
-			{ shareType: 'group', shareWith: salesGroup, permissionLevel: 'view_only' },
+			{
+				shareType: 'user',
+				shareWith: carol.user,
+				permissionLevel: 'view_only',
+			},
+			{
+				shareType: 'group',
+				shareWith: salesGroup,
+				permissionLevel: 'view_only',
+			},
 		]) {
 			const res = await owner.post(sharesUrl(dash.id), { data: payload })
 			expect(res.status(), await res.text()).toBeLessThan(300)
 		}
-		expect(await listShares(owner, dash.id), 'three shares must exist before the replace').toHaveLength(3)
+		expect(
+			await listShares(owner, dash.id),
+			'three shares must exist before the replace',
+		).toHaveLength(3)
 
 		const replaced = await owner.put(sharesUrl(dash.id), {
 			data: {
 				shares: [
-					{ shareType: 'user', shareWith: bob.user, permissionLevel: 'full' },
-					{ shareType: 'user', shareWith: dave.user, permissionLevel: 'view_only' },
+					{
+						shareType: 'user',
+						shareWith: bob.user,
+						permissionLevel: 'full',
+					},
+					{
+						shareType: 'user',
+						shareWith: dave.user,
+						permissionLevel: 'view_only',
+					},
 				],
 			},
 		})
 		expect(replaced.status(), await replaced.text()).toBeLessThan(300)
 
 		const after = await listShares(owner, dash.id)
-		expect(after, 'the replace must leave exactly the two rows it was given').toHaveLength(2)
-		const byRecipient = Object.fromEntries(after.map(s => [String(s.shareWith), String(s.permissionLevel)]))
+		expect(
+			after,
+			'the replace must leave exactly the two rows it was given',
+		).toHaveLength(2)
+		const byRecipient = Object.fromEntries(
+			after.map((s) => [String(s.shareWith), String(s.permissionLevel)]),
+		)
 		expect(byRecipient[bob.user], 'bob must be upgraded in place').toBe('full')
 		expect(byRecipient[dave.user], 'dave must be added').toBe('view_only')
-		expect(Object.keys(byRecipient), 'carol must be removed').not.toContain(carol.user)
-		expect(Object.keys(byRecipient), 'the group share must be removed').not.toContain(salesGroup)
+		expect(Object.keys(byRecipient), 'carol must be removed').not.toContain(
+			carol.user,
+		)
+		expect(
+			Object.keys(byRecipient),
+			'the group share must be removed',
+		).not.toContain(salesGroup)
 
 		await owner.dispose()
 	})
@@ -676,7 +835,11 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 		const payload = {
 			shares: [
 				{ shareType: 'user', shareWith: bob.user, permissionLevel: 'full' },
-				{ shareType: 'user', shareWith: dave.user, permissionLevel: 'view_only' },
+				{
+					shareType: 'user',
+					shareWith: dave.user,
+					permissionLevel: 'view_only',
+				},
 			],
 		}
 
@@ -692,9 +855,13 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 		// Compare the meaningful tuple rather than the raw rows: an id or a
 		// createdAt that moved is exactly the "row changed" this asserts
 		// against, so both are included.
-		const shape = (rows: Array<Record<string, unknown>>) => rows
-			.map(r => `${r.shareType}:${r.shareWith}:${r.permissionLevel}:${r.id}:${r.createdAt}`)
-			.sort()
+		const shape = (rows: Array<Record<string, unknown>>) =>
+			rows
+				.map(
+					(r) =>
+						`${r.shareType}:${r.shareWith}:${r.permissionLevel}:${r.id}:${r.createdAt}`,
+				)
+				.sort()
 		expect(
 			shape(afterSecond),
 			'an identical re-PUT must leave every row byte-identical, ids and timestamps included',
@@ -710,21 +877,33 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 		const dash = await createDashboard(owner, 'replace-denied')
 
 		const grant = await owner.post(sharesUrl(dash.id), {
-			data: { shareType: 'user', shareWith: bob.user, permissionLevel: 'full' },
+			data: {
+				shareType: 'user',
+				shareWith: bob.user,
+				permissionLevel: 'full',
+			},
 		})
 		expect(grant.status(), await grant.text()).toBeLessThan(300)
 		const before = await listShares(owner, dash.id)
 
 		const attempt = await asBob.put(sharesUrl(dash.id), {
-			data: { shares: [{ shareType: 'user', shareWith: dave.user, permissionLevel: 'full' }] },
+			data: {
+				shares: [
+					{
+						shareType: 'user',
+						shareWith: dave.user,
+						permissionLevel: 'full',
+					},
+				],
+			},
 		})
 		expect(attempt.status(), await attempt.text()).toBe(403)
 
 		const after = await listShares(owner, dash.id)
 		expect(
-			after.map(s => `${s.shareWith}:${s.permissionLevel}`).sort(),
+			after.map((s) => `${s.shareWith}:${s.permissionLevel}`).sort(),
 			'a refused replace must modify no rows',
-		).toEqual(before.map(s => `${s.shareWith}:${s.permissionLevel}`).sort())
+		).toEqual(before.map((s) => `${s.shareWith}:${s.permissionLevel}`).sort())
 
 		await owner.dispose()
 		await asBob.dispose()

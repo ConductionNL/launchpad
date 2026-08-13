@@ -89,7 +89,9 @@ describe('RuntimeShellSearch', () => {
 		it('is case-insensitive', async () => {
 			const wrapper = track(mountSearch())
 			await wrapper.find('input').setValue('ZAAK')
-			expect(wrapper.findAll('[data-test="quick-search-option"]')).toHaveLength(2)
+			expect(
+				wrapper.findAll('[data-test="quick-search-option"]'),
+			).toHaveLength(2)
 		})
 
 		it('emits filter(null) when the query is cleared back to empty by typing', async () => {
@@ -111,10 +113,14 @@ describe('RuntimeShellSearch', () => {
 		it('re-filters when the items prop changes (e.g. dashboard switch)', async () => {
 			const wrapper = track(mountSearch())
 			await wrapper.find('input').setValue('zaak')
-			expect(wrapper.findAll('[data-test="quick-search-option"]')).toHaveLength(2)
+			expect(
+				wrapper.findAll('[data-test="quick-search-option"]'),
+			).toHaveLength(2)
 
 			await wrapper.setProps({ items: [{ id: 'other', label: 'Weer' }] })
-			expect(wrapper.findAll('[data-test="quick-search-option"]')).toHaveLength(0)
+			expect(
+				wrapper.findAll('[data-test="quick-search-option"]'),
+			).toHaveLength(0)
 		})
 	})
 
@@ -125,13 +131,19 @@ describe('RuntimeShellSearch', () => {
 			await input.setValue('za') // 2 matches
 
 			const options = wrapper.findAll('[data-test="quick-search-option"]')
-			expect(input.attributes('aria-activedescendant')).toBe(options.at(0).attributes('id'))
+			expect(input.attributes('aria-activedescendant')).toBe(
+				options.at(0).attributes('id'),
+			)
 
 			await input.trigger('keydown', { key: 'ArrowDown' })
-			expect(input.attributes('aria-activedescendant')).toBe(options.at(1).attributes('id'))
+			expect(input.attributes('aria-activedescendant')).toBe(
+				options.at(1).attributes('id'),
+			)
 
 			await input.trigger('keydown', { key: 'ArrowDown' })
-			expect(input.attributes('aria-activedescendant')).toBe(options.at(0).attributes('id'))
+			expect(input.attributes('aria-activedescendant')).toBe(
+				options.at(0).attributes('id'),
+			)
 		})
 
 		it('the active option is marked aria-selected and carries a non-colour marker', async () => {
@@ -141,8 +153,18 @@ describe('RuntimeShellSearch', () => {
 			expect(options.at(0).attributes('aria-selected')).toBe('true')
 			expect(options.at(1).attributes('aria-selected')).toBe('false')
 			// The active option's check-mark icon is not visibility:hidden.
-			expect(options.at(0).find('.runtime-shell-search__option-marker--hidden').exists()).toBe(false)
-			expect(options.at(1).find('.runtime-shell-search__option-marker--hidden').exists()).toBe(true)
+			expect(
+				options
+					.at(0)
+					.find('.runtime-shell-search__option-marker--hidden')
+					.exists(),
+			).toBe(false)
+			expect(
+				options
+					.at(1)
+					.find('.runtime-shell-search__option-marker--hidden')
+					.exists(),
+			).toBe(true)
 		})
 
 		it('Enter opens the active match and emits "open" with its raw item', async () => {
@@ -178,7 +200,9 @@ describe('RuntimeShellSearch', () => {
 			await input.trigger('keydown', { key: 'Escape' })
 
 			expect(input.element.value).toBe('')
-			expect(wrapper.findAll('[data-test="quick-search-option"]')).toHaveLength(0)
+			expect(
+				wrapper.findAll('[data-test="quick-search-option"]'),
+			).toHaveLength(0)
 			expect(wrapper.emitted('clear')).toBeTruthy()
 			const filterEvents = wrapper.emitted('filter')
 			expect(filterEvents[filterEvents.length - 1][0]).toBeNull()
@@ -191,12 +215,17 @@ describe('RuntimeShellSearch', () => {
 			const input = wrapper.find('input')
 			await input.setValue('nonexistent')
 			await input.trigger('keydown', { key: 'Enter' })
-			expect(wrapper.emitted('fallback')[0][0]).toEqual({ type: 'unified-search', query: 'nonexistent' })
+			expect(wrapper.emitted('fallback')[0][0]).toEqual({
+				type: 'unified-search',
+				query: 'nonexistent',
+			})
 			expect(wrapper.emitted('open')).toBeFalsy()
 		})
 
 		it('emits a "fallback" web-search action with the query URL-encoded', async () => {
-			const wrapper = track(mountSearch({ fallbackTarget: 'https://duckduckgo.com/?q={query}' }))
+			const wrapper = track(
+				mountSearch({ fallbackTarget: 'https://duckduckgo.com/?q={query}' }),
+			)
 			const input = wrapper.find('input')
 			await input.setValue('hello world')
 			await input.trigger('keydown', { key: 'Enter' })
@@ -237,7 +266,11 @@ describe('RuntimeShellSearch', () => {
 			// Dispatched on the actually-focused element (not window
 			// directly) so `event.target` reflects reality — a real keydown
 			// fires on the focused element and bubbles up to `window`.
-			const event = new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true })
+			const event = new KeyboardEvent('keydown', {
+				key: '/',
+				bubbles: true,
+				cancelable: true,
+			})
 			const preventDefault = vi.spyOn(event, 'preventDefault')
 			outside.dispatchEvent(event)
 			await wrapper.vm.$nextTick()
@@ -253,7 +286,11 @@ describe('RuntimeShellSearch', () => {
 			document.body.appendChild(otherInput)
 			otherInput.focus()
 
-			const event = new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true })
+			const event = new KeyboardEvent('keydown', {
+				key: '/',
+				bubbles: true,
+				cancelable: true,
+			})
 			otherInput.dispatchEvent(event)
 			await wrapper.vm.$nextTick()
 
@@ -263,7 +300,12 @@ describe('RuntimeShellSearch', () => {
 
 		it('Ctrl+K focuses the input and prevents the browser default', async () => {
 			const wrapper = track(mountSearch())
-			const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true })
+			const event = new KeyboardEvent('keydown', {
+				key: 'k',
+				ctrlKey: true,
+				bubbles: true,
+				cancelable: true,
+			})
 			const preventDefault = vi.spyOn(event, 'preventDefault')
 			document.body.dispatchEvent(event)
 			await wrapper.vm.$nextTick()
@@ -278,7 +320,12 @@ describe('RuntimeShellSearch', () => {
 			document.body.appendChild(otherInput)
 			otherInput.focus()
 
-			const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true })
+			const event = new KeyboardEvent('keydown', {
+				key: 'k',
+				ctrlKey: true,
+				bubbles: true,
+				cancelable: true,
+			})
 			otherInput.dispatchEvent(event)
 			await wrapper.vm.$nextTick()
 

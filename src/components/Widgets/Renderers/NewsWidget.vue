@@ -5,7 +5,10 @@
 
 <template>
 	<div class="news-widget" :class="layoutClass">
-		<div v-if="failedCount > 0" class="news-widget__badge" :title="failedTooltip">
+		<div
+			v-if="failedCount > 0"
+			class="news-widget__badge"
+			:title="failedTooltip">
 			{{ failedBadgeLabel }}
 		</div>
 
@@ -13,12 +16,21 @@
 			{{ t('launchpad', 'Loading news…') }}
 		</div>
 
-		<div v-else-if="hasError" class="news-widget__state news-widget__state--error">
+		<div
+			v-else-if="hasError"
+			class="news-widget__state news-widget__state--error">
 			{{ t('launchpad', 'Unable to load news. Please try again later.') }}
 		</div>
 
-		<div v-else-if="items.length === 0" class="news-widget__state news-widget__state--empty">
-			{{ t('launchpad', 'No news yet — try adding feeds in the widget settings') }}
+		<div
+			v-else-if="items.length === 0"
+			class="news-widget__state news-widget__state--empty">
+			{{
+				t(
+					'launchpad',
+					'No news yet — try adding feeds in the widget settings',
+				)
+			}}
 		</div>
 
 		<ul v-else class="news-widget__list">
@@ -34,7 +46,7 @@
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						:alt="''">
+						:alt="''" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">{{ item.title }}</h4>
 						<!-- Feed summaries carry inline markup REQ-NEWS-005
@@ -50,17 +62,23 @@
 							v-html="formattedSummary(item)" />
 						<!-- eslint-enable vue/no-v-html -->
 						<div class="news-widget__meta">
-							<span class="news-widget__source">{{ item.sourceTitle }}</span>
-							<span class="news-widget__date">{{ formatDate(item.pubDate) }}</span>
+							<span class="news-widget__source">{{
+								item.sourceTitle
+							}}</span>
+							<span class="news-widget__date">{{
+								formatDate(item.pubDate)
+							}}</span>
 						</div>
 					</div>
 				</a>
-				<div v-else class="news-widget__item-link news-widget__item-link--inert">
+				<div
+					v-else
+					class="news-widget__item-link news-widget__item-link--inert">
 					<img
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						:alt="''">
+						:alt="''" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">
 							{{ item.title }}
@@ -78,8 +96,12 @@
 							v-html="formattedSummary(item)" />
 						<!-- eslint-enable vue/no-v-html -->
 						<div class="news-widget__meta">
-							<span class="news-widget__source">{{ item.sourceTitle }}</span>
-							<span class="news-widget__date">{{ formatDate(item.pubDate) }}</span>
+							<span class="news-widget__source">{{
+								item.sourceTitle
+							}}</span>
+							<span class="news-widget__date">{{
+								formatDate(item.pubDate)
+							}}</span>
 						</div>
 					</div>
 				</div>
@@ -229,7 +251,10 @@ export default {
 		/** @spec openspec/specs/news-widget/spec.md */
 		layout() {
 			const value = this.content && this.content.layout
-			if (typeof value !== 'string' || ALLOWED_LAYOUTS.includes(value) === false) {
+			if (
+				typeof value !== 'string'
+				|| ALLOWED_LAYOUTS.includes(value) === false
+			) {
 				return DEFAULT_LAYOUT
 			}
 			return value
@@ -286,7 +311,10 @@ export default {
 			if (this.failedCount === 1) {
 				return t('launchpad', '1 feed failed')
 			}
-			return t('launchpad', '{count} feeds failed').replace('{count}', String(this.failedCount))
+			return t('launchpad', '{count} feeds failed').replace(
+				'{count}',
+				String(this.failedCount),
+			)
 		},
 
 		/** @spec openspec/specs/news-widget/spec.md */
@@ -294,7 +322,10 @@ export default {
 			if (this.failedUrls.length === 0) {
 				return ''
 			}
-			return t('launchpad', 'Failed: {urls}').replace('{urls}', this.failedUrls.join(', '))
+			return t('launchpad', 'Failed: {urls}').replace(
+				'{urls}',
+				this.failedUrls.join(', '),
+			)
 		},
 	},
 
@@ -327,14 +358,22 @@ export default {
 			this.hasError = false
 
 			try {
-				const url = generateUrl('/apps/launchpad/api/widgets/news/{placementId}/items', {
-					placementId: this.placementId,
+				const url = generateUrl(
+					'/apps/launchpad/api/widgets/news/{placementId}/items',
+					{
+						placementId: this.placementId,
+					},
+				)
+				const response = await axios.get(url, {
+					params: { limit: this.itemLimit },
 				})
-				const response = await axios.get(url, { params: { limit: this.itemLimit } })
 				const data = response && response.data ? response.data : {}
 				this.items = Array.isArray(data.items) ? data.items : []
-				this.failedCount = typeof data.feedsFailed === 'number' ? data.feedsFailed : 0
-				this.failedUrls = Array.isArray(data.failedUrls) ? data.failedUrls : []
+				this.failedCount =
+					typeof data.feedsFailed === 'number' ? data.feedsFailed : 0
+				this.failedUrls = Array.isArray(data.failedUrls)
+					? data.failedUrls
+					: []
 			} catch (err) {
 				this.hasError = true
 				this.items = []
@@ -410,11 +449,17 @@ export default {
 			}
 			const diffMinutes = Math.floor(diffSeconds / 60)
 			if (diffMinutes < 60) {
-				return t('launchpad', '{n} minutes ago').replace('{n}', String(diffMinutes))
+				return t('launchpad', '{n} minutes ago').replace(
+					'{n}',
+					String(diffMinutes),
+				)
 			}
 			const diffHours = Math.floor(diffMinutes / 60)
 			if (diffHours < 24) {
-				return t('launchpad', '{n} hours ago').replace('{n}', String(diffHours))
+				return t('launchpad', '{n} hours ago').replace(
+					'{n}',
+					String(diffHours),
+				)
 			}
 			const diffDays = Math.floor(diffHours / 24)
 			return t('launchpad', '{n} days ago').replace('{n}', String(diffDays))

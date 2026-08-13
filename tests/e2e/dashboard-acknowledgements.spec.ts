@@ -47,7 +47,9 @@ test.beforeAll(async () => {
  * @e2e dashboard-acknowledgements::first-acknowledgement-writes-exactly-one-receipt
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
-test('recipient is blocked by the sign-off prompt and can acknowledge', async ({ page }) => {
+test('recipient is blocked by the sign-off prompt and can acknowledge', async ({
+	page,
+}) => {
 	await page.goto(APP_URL, { waitUntil: 'domcontentloaded' })
 
 	// The forced-delivery prompt overlays the compulsory widget.
@@ -56,11 +58,19 @@ test('recipient is blocked by the sign-off prompt and can acknowledge', async ({
 
 	// REQ-ACK-002: there is exactly one affordance (sign-off) and NO
 	// dismiss / close / snooze bypass control.
-	await expect(prompt.locator('[data-testid="acknowledgement-signoff"]')).toHaveCount(1)
-	await expect(prompt.locator('[data-testid*="dismiss"], [data-testid*="close"], [data-testid*="snooze"]')).toHaveCount(0)
+	await expect(
+		prompt.locator('[data-testid="acknowledgement-signoff"]'),
+	).toHaveCount(1)
+	await expect(
+		prompt.locator(
+			'[data-testid*="dismiss"], [data-testid*="close"], [data-testid*="snooze"]',
+		),
+	).toHaveCount(0)
 
 	// The dashboard-level outstanding-count indicator is shown.
-	await expect(page.locator('[data-testid="acknowledgement-outstanding-count"]')).toBeVisible()
+	await expect(
+		page.locator('[data-testid="acknowledgement-outstanding-count"]'),
+	).toBeVisible()
 
 	// REQ-ACK-003: signing off clears the gate.
 	await prompt.locator('[data-testid="acknowledgement-signoff"]').click()
@@ -90,5 +100,7 @@ test('admin read-receipt report shows acknowledged vs pending', async ({ page })
 	// The report renders acknowledged + pending counts and a CSV export link.
 	await expect(report.locator('[data-testid="ack-count"]')).toBeVisible()
 	await expect(report.locator('[data-testid="pending-count"]')).toBeVisible()
-	await expect(report.locator('[data-testid="acknowledgement-report-csv"]')).toBeVisible()
+	await expect(
+		report.locator('[data-testid="acknowledgement-report-csv"]'),
+	).toBeVisible()
 })

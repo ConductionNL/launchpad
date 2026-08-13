@@ -25,9 +25,7 @@
 -->
 
 <template>
-	<footer
-		class="dashboard-switcher-sidebar-footer"
-		data-testid="sidebar-footer">
+	<footer class="dashboard-switcher-sidebar-footer" data-testid="sidebar-footer">
 		<a
 			class="dashboard-switcher-sidebar-footer__doc-link"
 			:href="docsUrl"
@@ -53,7 +51,7 @@
 					<img
 						:src="sendentLogo"
 						alt="Sendent"
-						class="dashboard-switcher-sidebar-footer__brand-image">
+						class="dashboard-switcher-sidebar-footer__brand-image" />
 				</a>
 				<a
 					class="dashboard-switcher-sidebar-footer__brand-link"
@@ -64,7 +62,7 @@
 					<img
 						:src="conductionLogo"
 						alt="Conduction"
-						class="dashboard-switcher-sidebar-footer__brand-image dashboard-switcher-sidebar-footer__brand-image--invert">
+						class="dashboard-switcher-sidebar-footer__brand-image dashboard-switcher-sidebar-footer__brand-image--invert" />
 				</a>
 			</div>
 		</div>

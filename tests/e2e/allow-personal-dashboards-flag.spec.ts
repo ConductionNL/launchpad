@@ -24,10 +24,12 @@ const ADMIN = {
 }
 
 const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/api/admin/settings`
-const APP_URL      = '/index.php/apps/launchpad'
+const APP_URL = '/index.php/apps/launchpad'
 
 /** Make an authenticated request context using HTTP Basic auth. */
-async function adminApi(playwright: { request: { newContext: typeof import('@playwright/test').request.newContext } }): Promise<APIRequestContext> {
+async function adminApi(playwright: {
+	request: { newContext: typeof import('@playwright/test').request.newContext }
+}): Promise<APIRequestContext> {
 	return playwright.request.newContext({
 		baseURL: BASE,
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
@@ -36,25 +38,36 @@ async function adminApi(playwright: { request: { newContext: typeof import('@pla
 }
 
 /** Toggle the allow_user_dashboards admin flag. */
-async function setAllowUserDashboards(api: APIRequestContext, enabled: boolean): Promise<void> {
+async function setAllowUserDashboards(
+	api: APIRequestContext,
+	enabled: boolean,
+): Promise<void> {
 	const res = await api.put(SETTINGS_URL, { data: { allowUserDash: enabled } })
 	// Non-200 is not fatal for test setup — the flag may be unchanged if
 	// the environment already matches.  We log rather than throw so the
 	// test still runs and produces a meaningful failure message.
 	if (!res.ok()) {
 		// eslint-disable-next-line no-console
-		console.warn(`setAllowUserDashboards(${enabled}): PUT returned ${res.status()}`)
+		console.warn(
+			`setAllowUserDashboards(${enabled}): PUT returned ${res.status()}`,
+		)
 	}
 }
 
 /** Wait for the workspace Vue shell to hydrate past initial bootstrap. */
-async function waitForShell(page: ReturnType<typeof test.extend>['page']): Promise<void> {
+async function waitForShell(
+	page: ReturnType<typeof test.extend>['page'],
+): Promise<void> {
 	await page.goto(APP_URL)
-	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', { timeout: 20_000 })
+	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', {
+		timeout: 20_000,
+	})
 }
 
 /** Open the dashboard-switcher sidebar via the floating toggle button. */
-async function openSidebar(page: ReturnType<typeof test.extend>['page']): Promise<void> {
+async function openSidebar(
+	page: ReturnType<typeof test.extend>['page'],
+): Promise<void> {
 	// The floating hamburger toggle is always visible in the workspace shell.
 	// Target `.launchpad-sidebar-toggle` EXACTLY: `.launchpad-floating-controls`
 	// also hosts the dashboard-cog and Share buttons, and the cog precedes the
@@ -63,10 +76,15 @@ async function openSidebar(page: ReturnType<typeof test.extend>['page']): Promis
 	const ham = page.locator('.launchpad-sidebar-toggle').first()
 	await expect(ham).toBeVisible({ timeout: 10_000 })
 	// Only click if the sidebar is not already open.
-	const isOpen = await page.locator('.dashboard-switcher-sidebar.open').isVisible().catch(() => false)
+	const isOpen = await page
+		.locator('.dashboard-switcher-sidebar.open')
+		.isVisible()
+		.catch(() => false)
 	if (!isOpen) {
 		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 8_000,
+		})
 	}
 }
 
@@ -88,7 +106,9 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 	})
 
 	// @e2e allow-personal-dashboards-flag::sidebar-add-button-hidden-when-flag-off
-	test('Add-Dashboard button is hidden in sidebar when allowUserDashboards is false', async ({ page }) => {
+	test('Add-Dashboard button is hidden in sidebar when allowUserDashboards is false', async ({
+		page,
+	}) => {
 		await setAllowUserDashboards(api, false)
 
 		// Full page reload so the server re-pushes the updated initial state.
@@ -96,14 +116,18 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addBtn  = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+		const addBtn = sidebar.getByRole('button', {
+			name: /add dashboard|dashboard toevoegen/i,
+		})
 
 		// The button MUST be absent from the DOM (v-if removes it entirely).
 		await expect(addBtn).toHaveCount(0)
 	})
 
 	// @e2e allow-personal-dashboards-flag::sidebar-add-button-visible-when-flag-on
-	test('Add-Dashboard button is visible in sidebar when allowUserDashboards is true', async ({ page }) => {
+	test('Add-Dashboard button is visible in sidebar when allowUserDashboards is true', async ({
+		page,
+	}) => {
 		await setAllowUserDashboards(api, true)
 
 		// Reload to pick up the new initial state.
@@ -111,7 +135,9 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addBtn  = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+		const addBtn = sidebar.getByRole('button', {
+			name: /add dashboard|dashboard toevoegen/i,
+		})
 
 		await expect(addBtn).toBeVisible({ timeout: 8_000 })
 	})

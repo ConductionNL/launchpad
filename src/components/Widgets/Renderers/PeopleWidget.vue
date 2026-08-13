@@ -11,7 +11,7 @@
 				type="search"
 				class="people-widget__search"
 				:aria-label="t('launchpad', 'Search people')"
-				:placeholder="t('launchpad', 'Search by name or email…')">
+				:placeholder="t('launchpad', 'Search by name or email…')" />
 			<button
 				type="button"
 				class="people-widget__refresh"
@@ -26,7 +26,9 @@
 			{{ t('launchpad', 'Loading…') }}
 		</div>
 
-		<div v-else-if="error" class="people-widget__state people-widget__state--error">
+		<div
+			v-else-if="error"
+			class="people-widget__state people-widget__state--error">
 			<p>{{ t('launchpad', 'Failed to load users') }}</p>
 			<button type="button" class="people-widget__retry" @click="forceRefresh">
 				{{ t('launchpad', 'Retry') }}
@@ -34,14 +36,14 @@
 		</div>
 
 		<div v-else-if="filteredUsers.length === 0" class="people-widget__state">
-			{{ search ? t('launchpad', 'No users match your search') : t('launchpad', 'No matching users.') }}
+			{{
+				search
+					? t('launchpad', 'No users match your search')
+					: t('launchpad', 'No matching users.')
+			}}
 		</div>
 
-		<div
-			v-else
-			class="people-widget__items"
-			:style="gridStyle"
-			role="list">
+		<div v-else class="people-widget__items" :style="gridStyle" role="list">
 			<a
 				v-for="user in filteredUsers"
 				:key="user.uid"
@@ -52,21 +54,38 @@
 					:src="user.avatarUrl"
 					:width="avatarSize"
 					:height="avatarSize"
-					:alt="t('launchpad', 'Avatar of {name}', { name: user.displayName })"
-					class="people-widget__avatar">
+					:alt="
+						t('launchpad', 'Avatar of {name}', {
+							name: user.displayName,
+						})
+					"
+					class="people-widget__avatar" />
 
 				<div class="people-widget__meta">
-					<strong class="people-widget__name">{{ user.displayName }}</strong>
-					<span v-if="layout !== 'grid' && user.role" class="people-widget__role">
+					<strong class="people-widget__name">{{
+						user.displayName
+					}}</strong>
+					<span
+						v-if="layout !== 'grid' && user.role"
+						class="people-widget__role">
 						{{ user.role }}
 					</span>
-					<span v-if="layout !== 'grid' && (user.organisation || user.department)" class="people-widget__org">
+					<span
+						v-if="
+							layout !== 'grid'
+							&& (user.organisation || user.department)
+						"
+						class="people-widget__org">
 						{{ user.organisation || user.department }}
 					</span>
-					<span v-if="layout !== 'grid' && user.email" class="people-widget__email">
+					<span
+						v-if="layout !== 'grid' && user.email"
+						class="people-widget__email">
 						{{ user.email }}
 					</span>
-					<span v-if="showBirthdayBadge(user)" class="people-widget__birthday">
+					<span
+						v-if="showBirthdayBadge(user)"
+						class="people-widget__birthday">
 						{{ formatBirthdayBadge(user) }}
 					</span>
 				</div>
@@ -79,7 +98,11 @@
 				class="people-widget__load-more"
 				:disabled="loading"
 				@click="loadMore">
-				{{ loading ? t('launchpad', 'Loading…') : t('launchpad', 'Load more') }}
+				{{
+					loading
+						? t('launchpad', 'Loading…')
+						: t('launchpad', 'Load more')
+				}}
 			</button>
 		</footer>
 	</div>
@@ -148,7 +171,9 @@ export default {
 		/** @spec openspec/specs/people-widget/spec.md */
 		layout() {
 			const value = this.content?.layout
-			return ['card', 'grid', 'list'].includes(value) ? value : DEFAULT_CONTENT.layout
+			return ['card', 'grid', 'list'].includes(value)
+				? value
+				: DEFAULT_CONTENT.layout
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */
@@ -170,19 +195,21 @@ export default {
 			if (this.layout === 'list') {
 				return {}
 			}
-			return { 'grid-template-columns': `repeat(${this.columns}, minmax(0, 1fr))` }
+			return {
+				'grid-template-columns': `repeat(${this.columns}, minmax(0, 1fr))`,
+			}
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */
 		avatarSize() {
 			switch (this.layout) {
-			case 'card':
-				return 80
-			case 'list':
-				return 44
-			case 'grid':
-			default:
-				return 64
+				case 'card':
+					return 80
+				case 'list':
+					return 44
+				case 'grid':
+				default:
+					return 64
 			}
 		},
 
@@ -215,7 +242,9 @@ export default {
 
 		/** @spec openspec/specs/people-widget/spec.md */
 		queryParams() {
-			const filters = Array.isArray(this.content?.filters) ? this.content.filters : []
+			const filters = Array.isArray(this.content?.filters)
+				? this.content.filters
+				: []
 			return {
 				filters: JSON.stringify(filters),
 				excludeDisabled: this.content?.excludeDisabled === false ? 0 : 1,
@@ -350,8 +379,9 @@ export default {
 		 */
 		async fetchPage(offset) {
 			const cacheKey = JSON.stringify({ params: this.queryParams, offset })
-			const fresh = this.cacheKey === cacheKey
-				&& (Date.now() - this.cacheStoredAt) < CACHE_TTL_MS
+			const fresh =
+				this.cacheKey === cacheKey
+				&& Date.now() - this.cacheStoredAt < CACHE_TTL_MS
 			if (fresh && this.users.length > 0) {
 				return
 			}
@@ -384,7 +414,8 @@ export default {
 				} else {
 					this.users = this.users.concat(incoming)
 				}
-				this.total = typeof data.total === 'number' ? data.total : this.users.length
+				this.total =
+					typeof data.total === 'number' ? data.total : this.users.length
 				this.hasMore = data.hasMore === true
 
 				this.cacheKey = cacheKey

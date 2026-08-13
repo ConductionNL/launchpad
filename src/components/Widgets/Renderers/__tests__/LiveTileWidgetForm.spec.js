@@ -12,7 +12,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LiveTileWidgetForm from '../LiveTileWidgetForm.vue'
-import { fetchConnectorAvailability, validateLiveTileSource } from '../../../../services/liveTileClient.js'
+import {
+	fetchConnectorAvailability,
+	validateLiveTileSource,
+} from '../../../../services/liveTileClient.js'
 
 vi.mock('../../../../services/liveTileClient.js', () => ({
 	fetchConnectorAvailability: vi.fn(),
@@ -28,7 +31,10 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`)
+				Object.prototype.hasOwnProperty.call(vars, name)
+					? vars[name]
+					: `{${name}}`,
+			)
 		}
 		return key
 	}
@@ -41,7 +47,13 @@ beforeEach(() => {
 describe('LiveTileWidgetForm — REQ-LIVETILE-002 persisted shape', () => {
 	it('assembles the full content shape with defaults', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com/api', valueExpr: '$.count' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com/api',
+					valueExpr: '$.count',
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.assembledContent).toMatchObject({
@@ -92,7 +104,13 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-002 persisted shape', () => {
 describe('LiveTileWidgetForm — REQ-LIVETILE-002 refresh interval bounds', () => {
 	it('clamps a refresh value below 30 seconds up to the 30s minimum', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		wrapper.vm.onRefreshChange('5')
@@ -102,7 +120,13 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-002 refresh interval bounds', () =
 
 	it('defaults an unset (zero/blank) refresh to 300 seconds', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		wrapper.vm.onRefreshChange('0')
@@ -112,7 +136,13 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-002 refresh interval bounds', () =
 
 	it('leaves a valid refresh value (>= 30) unclamped', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		wrapper.vm.onRefreshChange('120')
@@ -132,7 +162,13 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-002 URL validation', () => {
 
 	it('rejects a non-http(s) URL', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'ftp://example.com/data', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'ftp://example.com/data',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.validate()).toContain('Enter a valid http(s) URL.')
@@ -140,25 +176,48 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-002 URL validation', () => {
 
 	it('requires a value expression', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com', valueExpr: '' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com',
+					valueExpr: '',
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.validate()).toContain('Value expression is required')
 	})
 
 	it('surfaces the async host allow-list error from checkUrlAllowed() on submit', async () => {
-		validateLiveTileSource.mockResolvedValue({ valid: false, errors: ['host_not_allowed'] })
+		validateLiveTileSource.mockResolvedValue({
+			valid: false,
+			errors: ['host_not_allowed'],
+		})
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://blocked.example.com', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://blocked.example.com',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		await wrapper.vm.checkUrlAllowed()
-		expect(wrapper.vm.validate()).toContain('This host is not on the allow-list.')
+		expect(wrapper.vm.validate()).toContain(
+			'This host is not on the allow-list.',
+		)
 	})
 
 	it('passes validation for a valid https URL + expression with no allow-list error', async () => {
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com/api', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com/api',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.validate()).toEqual([])
@@ -169,7 +228,13 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-005 connector-mode gating', () => 
 	it('offers only the "url" source-mode option when OpenConnector is absent', async () => {
 		fetchConnectorAvailability.mockResolvedValue(false)
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.sourceModeOptions.map((o) => o.value)).toEqual(['url'])
@@ -178,16 +243,31 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-005 connector-mode gating', () => 
 	it('offers "connector" mode once the capability probe reports availability', async () => {
 		fetchConnectorAvailability.mockResolvedValue(true)
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'url', url: 'https://example.com', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'url',
+					url: 'https://example.com',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
-		expect(wrapper.vm.sourceModeOptions.map((o) => o.value)).toEqual(['url', 'connector'])
+		expect(wrapper.vm.sourceModeOptions.map((o) => o.value)).toEqual([
+			'url',
+			'connector',
+		])
 	})
 
 	it('falls back an existing connector-mode placement to url mode when OpenConnector is absent', async () => {
 		fetchConnectorAvailability.mockResolvedValue(false)
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'connector', sourceId: 'src-1', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'connector',
+					sourceId: 'src-1',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.sourceMode).toBe('url')
@@ -196,7 +276,13 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-005 connector-mode gating', () => 
 	it('fails validation for connector mode when OpenConnector is unavailable', async () => {
 		fetchConnectorAvailability.mockResolvedValue(false)
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'connector', sourceId: 'src-1', valueExpr: '$.a' } },
+			propsData: {
+				value: {
+					sourceMode: 'connector',
+					sourceId: 'src-1',
+					valueExpr: '$.a',
+				},
+			},
 		})
 		await flushPromises()
 		// Component self-heals to url mode; force back to connector to
@@ -208,7 +294,9 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-005 connector-mode gating', () => 
 	it('requires a source id in connector mode', async () => {
 		fetchConnectorAvailability.mockResolvedValue(true)
 		const wrapper = mount(LiveTileWidgetForm, {
-			propsData: { value: { sourceMode: 'connector', sourceId: '', valueExpr: '$.a' } },
+			propsData: {
+				value: { sourceMode: 'connector', sourceId: '', valueExpr: '$.a' },
+			},
 		})
 		await flushPromises()
 		expect(wrapper.vm.validate()).toContain('Source id is required')

@@ -137,15 +137,21 @@ export default {
 			const checkedLabel = this.checkedAt
 				? new Date(this.checkedAt).toLocaleTimeString()
 				: t('launchpad', 'never')
-			const staleSuffix = this.stale ? ' ' + t('launchpad', '(last known)') : ''
+			const staleSuffix = this.stale
+				? ' ' + t('launchpad', '(last known)')
+				: ''
 
 			if (this.latencyMs !== null && this.latencyMs !== undefined) {
-				return t('launchpad', '{state} — checked {checkedAt} ({latency} ms){staleSuffix}', {
-					state: this.stateLabel,
-					checkedAt: checkedLabel,
-					latency: this.latencyMs,
-					staleSuffix,
-				})
+				return t(
+					'launchpad',
+					'{state} — checked {checkedAt} ({latency} ms){staleSuffix}',
+					{
+						state: this.stateLabel,
+						checkedAt: checkedLabel,
+						latency: this.latencyMs,
+						staleSuffix,
+					},
+				)
 			}
 
 			return t('launchpad', '{state} — checked {checkedAt}{staleSuffix}', {
@@ -200,7 +206,10 @@ export default {
 				}
 				this.state = data.state
 				this.checkedAt = data.checkedAt ?? null
-				this.latencyMs = (data.latencyMs === null || data.latencyMs === undefined) ? null : Number(data.latencyMs)
+				this.latencyMs =
+					data.latencyMs === null || data.latencyMs === undefined
+						? null
+						: Number(data.latencyMs)
 				this.stale = Boolean(data.stale)
 			} catch (e) {
 				this.state = null

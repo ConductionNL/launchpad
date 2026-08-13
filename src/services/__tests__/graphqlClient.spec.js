@@ -17,10 +17,11 @@ vi.mock('@nextcloud/axios', () => ({
 	default: { post: vi.fn() },
 }))
 vi.mock('@nextcloud/router', () => ({
-	generateUrl: (path, params = {}) => Object.entries(params).reduce(
-		(acc, [key, value]) => acc.replace(`{${key}}`, value),
-		path,
-	),
+	generateUrl: (path, params = {}) =>
+		Object.entries(params).reduce(
+			(acc, [key, value]) => acc.replace(`{${key}}`, value),
+			path,
+		),
 }))
 
 describe('graphqlClient (REQ-SAW-004 / REQ-SAW-005)', () => {
@@ -30,7 +31,11 @@ describe('graphqlClient (REQ-SAW-004 / REQ-SAW-005)', () => {
 
 	it('POSTs to /apps/<app>/graphql with query + variables', async () => {
 		axios.post.mockResolvedValue({ data: { data: { transactions: [] } } })
-		await queryGraphql({ app: 'financeq', query: 'query X { x }', variables: { period: 'quarter' } })
+		await queryGraphql({
+			app: 'financeq',
+			query: 'query X { x }',
+			variables: { period: 'quarter' },
+		})
 
 		expect(axios.post).toHaveBeenCalledTimes(1)
 		const [url, body] = axios.post.mock.calls[0]
@@ -40,14 +45,18 @@ describe('graphqlClient (REQ-SAW-004 / REQ-SAW-005)', () => {
 	})
 
 	it('returns the GraphQL data payload on success', async () => {
-		axios.post.mockResolvedValue({ data: { data: { transactions: [{ totalAmount: 5 }] } } })
+		axios.post.mockResolvedValue({
+			data: { data: { transactions: [{ totalAmount: 5 }] } },
+		})
 		const data = await queryGraphql({ app: 'financeq', query: 'q' })
 		expect(data).toEqual({ transactions: [{ totalAmount: 5 }] })
 	})
 
 	it('maps a 404 to a not_installed GraphQLSourceError', async () => {
 		axios.post.mockRejectedValue({ response: { status: 404 } })
-		await expect(queryGraphql({ app: 'procest', query: 'q' })).rejects.toMatchObject({
+		await expect(
+			queryGraphql({ app: 'procest', query: 'q' }),
+		).rejects.toMatchObject({
 			name: 'GraphQLSourceError',
 			code: 'not_installed',
 			app: 'procest',
@@ -56,15 +65,21 @@ describe('graphqlClient (REQ-SAW-004 / REQ-SAW-005)', () => {
 
 	it('maps an ECONNABORTED timeout to a timeout error', async () => {
 		axios.post.mockRejectedValue({ code: 'ECONNABORTED' })
-		await expect(queryGraphql({ app: 'financeq', query: 'q' })).rejects.toMatchObject({ code: 'timeout' })
+		await expect(
+			queryGraphql({ app: 'financeq', query: 'q' }),
+		).rejects.toMatchObject({ code: 'timeout' })
 	})
 
 	it('surfaces GraphQL errors[] as a graphql_errors error', async () => {
 		axios.post.mockResolvedValue({ data: { errors: [{ message: 'boom' }] } })
-		await expect(queryGraphql({ app: 'financeq', query: 'q' })).rejects.toBeInstanceOf(GraphQLSourceError)
+		await expect(
+			queryGraphql({ app: 'financeq', query: 'q' }),
+		).rejects.toBeInstanceOf(GraphQLSourceError)
 	})
 
 	it('rejects an empty app id', async () => {
-		await expect(queryGraphql({ app: '', query: 'q' })).rejects.toMatchObject({ code: 'invalid_app' })
+		await expect(queryGraphql({ app: '', query: 'q' })).rejects.toMatchObject({
+			code: 'invalid_app',
+		})
 	})
 })

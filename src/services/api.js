@@ -28,7 +28,10 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	createGroupDashboard(groupId, data) {
-		return axios.post(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`, data)
+		return axios.post(
+			`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`,
+			data,
+		)
 	},
 
 	/**
@@ -41,7 +44,10 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	updateGroupDashboard(groupId, uuid, data) {
-		return axios.put(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`, data)
+		return axios.put(
+			`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`,
+			data,
+		)
 	},
 
 	/**
@@ -53,7 +59,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	deleteGroupDashboard(groupId, uuid) {
-		return axios.delete(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`)
+		return axios.delete(
+			`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}/${encodeURIComponent(uuid)}`,
+		)
 	},
 
 	getActiveDashboard() {
@@ -160,7 +168,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	listGroupDashboards(groupId) {
-		return axios.get(`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`)
+		return axios.get(
+			`${baseUrl}/api/dashboards/group/${encodeURIComponent(groupId)}`,
+		)
 	},
 
 	/**
@@ -191,10 +201,12 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	forkDashboard(sourceUuid, name) {
-		const payload = (name === undefined || name === null || name === '')
-			? {}
-			: { name }
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(sourceUuid)}/fork`, payload)
+		const payload =
+			name === undefined || name === null || name === '' ? {} : { name }
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(sourceUuid)}/fork`,
+			payload,
+		)
 	},
 
 	/**
@@ -206,7 +218,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	publishDashboard(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/publish`)
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/publish`,
+		)
 	},
 
 	/**
@@ -218,7 +232,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	unpublishDashboard(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/unpublish`)
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/unpublish`,
+		)
 	},
 
 	/**
@@ -287,10 +303,9 @@ export const api = {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	getAnalyticsTopTiles(period = '30d', limit = 10) {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/tiles/top`,
-			{ params: { period, limit } },
-		)
+		return axios.get(`${baseUrl}/api/admin/analytics/tiles/top`, {
+			params: { period, limit },
+		})
 	},
 
 	/**
@@ -318,10 +333,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	getAnalyticsTopDashboards(period = '30d', limit = 10) {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/dashboards/top`,
-			{ params: { period, limit } },
-		)
+		return axios.get(`${baseUrl}/api/admin/analytics/dashboards/top`, {
+			params: { period, limit },
+		})
 	},
 
 	/**
@@ -333,10 +347,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	getAnalyticsInstanceSummary(period = '30d') {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/summary`,
-			{ params: { period } },
-		)
+		return axios.get(`${baseUrl}/api/admin/analytics/summary`, {
+			params: { period },
+		})
 	},
 
 	/**
@@ -349,10 +362,10 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	getAnalyticsCsvExport(period = '30d') {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/export`,
-			{ params: { period }, responseType: 'blob' },
-		)
+		return axios.get(`${baseUrl}/api/admin/analytics/export`, {
+			params: { period },
+			responseType: 'blob',
+		})
 	},
 
 	/**
@@ -363,10 +376,10 @@ export const api = {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	getTileAnalyticsCsvExport(period = '30d') {
-		return axios.get(
-			`${baseUrl}/api/admin/analytics/tiles/export`,
-			{ params: { period }, responseType: 'blob' },
-		)
+		return axios.get(`${baseUrl}/api/admin/analytics/tiles/export`, {
+			params: { period },
+			responseType: 'blob',
+		})
 	},
 
 	// Fetch the nested dashboard tree (REQ-DASH-026).
@@ -385,7 +398,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	getDashboardByPath(path) {
-		const cleanPath = String(path || '').replace(/^\/+/, '').replace(/\/+$/, '')
+		const cleanPath = String(path || '')
+			.replace(/^\/+/, '')
+			.replace(/\/+$/, '')
 		return axios.get(`${baseUrl}/api/dashboards/by-path/${cleanPath}`)
 	},
 
@@ -400,7 +415,9 @@ export const api = {
 	 *   addressable URL.
 	 */
 	getDashboardPath(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/path`)
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/path`,
+		)
 	},
 
 	// Sharing endpoints
@@ -426,7 +443,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	replaceShares(dashboardId, shares) {
-		return axios.put(`${baseUrl}/api/dashboard/${dashboardId}/shares`, { shares })
+		return axios.put(`${baseUrl}/api/dashboard/${dashboardId}/shares`, {
+			shares,
+		})
 	},
 
 	/**
@@ -458,7 +477,7 @@ export const api = {
 	 */
 	getWidgetItems(widgetIds, limit = 7) {
 		const params = new URLSearchParams()
-		widgetIds.forEach(id => params.append('widgets[]', id))
+		widgetIds.forEach((id) => params.append('widgets[]', id))
 		params.append('limit', String(limit))
 		return axios.get(`${baseUrl}/api/widgets/items?${params.toString()}`)
 	},
@@ -655,7 +674,10 @@ export const api = {
 	 * @spec openspec/specs/admin-templates/spec.md
 	 */
 	resyncAdminTemplate(id, { strategy, dryRun }) {
-		return axios.post(`${baseUrl}/api/admin/templates/${id}/resync`, { strategy, dryRun })
+		return axios.post(`${baseUrl}/api/admin/templates/${id}/resync`, {
+			strategy,
+			dryRun,
+		})
 	},
 
 	getAdminSettings() {
@@ -790,11 +812,9 @@ export const api = {
 	confluenceImportDryRun(file) {
 		const form = new FormData()
 		form.append('file', file)
-		return axios.post(
-			`${baseUrl}/api/admin/import/confluence/dry-run`,
-			form,
-			{ headers: { 'Content-Type': 'multipart/form-data' } },
-		)
+		return axios.post(`${baseUrl}/api/admin/import/confluence/dry-run`, form, {
+			headers: { 'Content-Type': 'multipart/form-data' },
+		})
 	},
 
 	/**
@@ -828,7 +848,9 @@ export const api = {
 
 	// Per-dashboard metadata read/write (REQ-MDFL-004..006, REQ-MDFL-008).
 	getDashboardMetadata(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`)
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`,
+		)
 	},
 
 	/**
@@ -841,7 +863,10 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	updateDashboardMetadata(uuid, metadata) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`, { metadata })
+		return axios.put(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`,
+			{ metadata },
+		)
 	},
 
 	// Org-wide navigation editor (REQ-ONAV-001..012). The GET endpoint
@@ -864,7 +889,11 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	updateOrgNavigation(tree, lang = 'nl') {
-		return axios.put(`${baseUrl}/api/admin/org-navigation`, { tree }, { params: { lang } })
+		return axios.put(
+			`${baseUrl}/api/admin/org-navigation`,
+			{ tree },
+			{ params: { lang } },
+		)
 	},
 
 	getOrgNavigationPosition() {
@@ -879,7 +908,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	updateOrgNavigationPosition(position) {
-		return axios.put(`${baseUrl}/api/admin/org-navigation/position`, { position })
+		return axios.put(`${baseUrl}/api/admin/org-navigation/position`, {
+			position,
+		})
 	},
 
 	// Dashboard bulk operations (REQ-BULK-001..011). All four endpoints
@@ -940,7 +971,11 @@ export const api = {
 	 * @return {Promise} Axios response resolving to the bulk-result envelope.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	bulkStatusDashboards(dashboardUuids, publicationStatus, { publishAt = null, dryRun = false } = {}) {
+	bulkStatusDashboards(
+		dashboardUuids,
+		publicationStatus,
+		{ publishAt = null, dryRun = false } = {},
+	) {
 		return axios.post(`${baseUrl}/api/admin/dashboards/bulk-status`, {
 			dashboardUuids,
 			publicationStatus,
@@ -989,7 +1024,11 @@ export const api = {
 		if (force) {
 			params.force = true
 		}
-		return axios.post(`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}/install`, null, { params })
+		return axios.post(
+			`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}/install`,
+			null,
+			{ params },
+		)
 	},
 
 	/**
@@ -1000,7 +1039,9 @@ export const api = {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	uninstallDemoShowcase(id) {
-		return axios.delete(`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}`)
+		return axios.delete(
+			`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}`,
+		)
 	},
 
 	// Tile endpoints
@@ -1044,7 +1085,9 @@ export const api = {
 
 	// Dashboard reaction endpoints (REQ-RXN-001..004).
 	getDashboardReactions(uuid) {
-		return axios.get(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`)
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`,
+		)
 	},
 
 	/**
@@ -1126,5 +1169,4 @@ export const api = {
 	getAcknowledgementReportCsvUrl(announcementKey) {
 		return `${baseUrl}/api/acknowledgements/report/${encodeURIComponent(announcementKey)}/csv`
 	},
-
 }

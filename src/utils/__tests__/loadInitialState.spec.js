@@ -241,7 +241,14 @@ describe('loadInitialState', () => {
 		expect(state.allowUserDashboards).toBe(false)
 		// REQ-LBN-004: createFile extension allow-list defaults to the
 		// curated list when the admin has not customised it.
-		expect(state.linkCreateFileExtensions).toEqual(['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'])
+		expect(state.linkCreateFileExtensions).toEqual([
+			'txt',
+			'md',
+			'docx',
+			'xlsx',
+			'csv',
+			'odt',
+		])
 		for (const value of Object.values(state)) {
 			expect(value).not.toBeUndefined()
 		}
@@ -261,7 +268,10 @@ describe('loadInitialState', () => {
 		})
 
 		it('returns the server-pushed value when present', async () => {
-			pushedState = { _schemaVersion: 2, quicksearchFallbackTarget: 'unified-search' }
+			pushedState = {
+				_schemaVersion: 2,
+				quicksearchFallbackTarget: 'unified-search',
+			}
 			const { loadInitialState } = await import('../loadInitialState.js')
 			const state = loadInitialState('workspace')
 			expect(state.quicksearchFallbackTarget).toBe('unified-search')

@@ -48,7 +48,7 @@ export function normaliseIconValue(value) {
 	const pascal = value
 		.split(/[\s_-]+/)
 		.filter(Boolean)
-		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join('')
 	const path = mdi['mdi' + pascal]
 	return typeof path === 'string' ? path : value

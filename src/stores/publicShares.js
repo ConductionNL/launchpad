@@ -16,7 +16,9 @@ export const usePublicShareStore = defineStore('publicShares', {
 		sharesByDashboard: {},
 		loading: false,
 		/** @type {Record<string, boolean>} token -> unlocked flag */
-		unlockedTokens: JSON.parse(localStorage.getItem('mydash_unlocked_tokens') ?? '{}'),
+		unlockedTokens: JSON.parse(
+			localStorage.getItem('mydash_unlocked_tokens') ?? '{}',
+		),
 	}),
 
 	getters: {
@@ -51,7 +53,10 @@ export const usePublicShareStore = defineStore('publicShares', {
 		 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-001
 		 * @return {Promise<object>} The created share record.
 		 */
-		async createShare(dashboardUuid, { password = null, expiresAt = null } = {}) {
+		async createShare(
+			dashboardUuid,
+			{ password = null, expiresAt = null } = {},
+		) {
 			this.loading = true
 			try {
 				const body = {}
@@ -60,7 +65,7 @@ export const usePublicShareStore = defineStore('publicShares', {
 
 				const { data } = await axios.post(
 					`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/public-share`,
-					body
+					body,
 				)
 				if (this.sharesByDashboard[dashboardUuid] === undefined) {
 					this.sharesByDashboard[dashboardUuid] = []
@@ -83,7 +88,7 @@ export const usePublicShareStore = defineStore('publicShares', {
 			this.loading = true
 			try {
 				const { data } = await axios.get(
-					`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/public-shares`
+					`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/public-shares`,
 				)
 				this.sharesByDashboard[dashboardUuid] = data
 				return data
@@ -101,11 +106,12 @@ export const usePublicShareStore = defineStore('publicShares', {
 		 */
 		async revokeShare(dashboardUuid, shareId) {
 			await axios.delete(
-				`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/public-shares/${shareId}`
+				`${baseUrl}/api/dashboards/${encodeURIComponent(dashboardUuid)}/public-shares/${shareId}`,
 			)
 			if (this.sharesByDashboard[dashboardUuid]) {
-				this.sharesByDashboard[dashboardUuid] = this.sharesByDashboard[dashboardUuid]
-					.filter((s) => s.id !== shareId)
+				this.sharesByDashboard[dashboardUuid] = this.sharesByDashboard[
+					dashboardUuid
+				].filter((s) => s.id !== shareId)
 			}
 		},
 
@@ -121,7 +127,10 @@ export const usePublicShareStore = defineStore('publicShares', {
 		 */
 		markUnlocked(token) {
 			this.unlockedTokens = { ...this.unlockedTokens, [token]: true }
-			localStorage.setItem('mydash_unlocked_tokens', JSON.stringify(this.unlockedTokens))
+			localStorage.setItem(
+				'mydash_unlocked_tokens',
+				JSON.stringify(this.unlockedTokens),
+			)
 		},
 
 		/**

@@ -24,7 +24,11 @@
  * @return {object} The manifest with all fragment pages/menu appended.
  */
 export function applyManifestFragments(base, fragments) {
-	const merged = { ...base, pages: [...(base.pages || [])], menu: [...(base.menu || [])] }
+	const merged = {
+		...base,
+		pages: [...(base.pages || [])],
+		menu: [...(base.menu || [])],
+	}
 	fragments.forEach((frag) => {
 		if (frag && Array.isArray(frag.pages)) {
 			merged.pages.push(...frag.pages)
@@ -48,6 +52,9 @@ export function applyManifestFragments(base, fragments) {
  */
 export function mergeManifestFragments(base) {
 	const ctx = require.context('./../manifest.d/', false, /\.json$/)
-	const fragments = ctx.keys().sort().map((key) => ctx(key))
+	const fragments = ctx
+		.keys()
+		.sort()
+		.map((key) => ctx(key))
 	return applyManifestFragments(base, fragments)
 }

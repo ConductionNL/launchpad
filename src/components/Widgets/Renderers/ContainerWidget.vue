@@ -19,9 +19,7 @@
 				:gs-w="child.gridWidth || 2"
 				:gs-h="child.gridHeight || 2">
 				<div class="grid-stack-item-content">
-					<ContainerChild
-						:placement="child"
-						:edit-mode="editMode" />
+					<ContainerChild :placement="child" :edit-mode="editMode" />
 				</div>
 			</div>
 		</div>
@@ -95,13 +93,16 @@ export default {
 		/** @spec openspec/specs/container-widget/spec.md */
 		backgroundColor() {
 			const value = this.content?.backgroundColor
-			return (typeof value === 'string' && value !== '') ? value : 'transparent'
+			return typeof value === 'string' && value !== '' ? value : 'transparent'
 		},
 
 		/** @spec openspec/specs/container-widget/spec.md */
 		paddingToken() {
 			const value = this.content?.padding
-			if (typeof value === 'string' && Object.prototype.hasOwnProperty.call(PADDING_TOKENS, value)) {
+			if (
+				typeof value === 'string'
+				&& Object.prototype.hasOwnProperty.call(PADDING_TOKENS, value)
+			) {
 				return value
 			}
 			return 'medium'
@@ -159,7 +160,7 @@ export default {
 		 * @spec openspec/specs/container-widget/spec.md
 		 */
 		childKey(child, index) {
-			if (child && (child.id !== undefined && child.id !== null)) {
+			if (child && child.id !== undefined && child.id !== null) {
 				return `id-${child.id}`
 			}
 			if (child && typeof child.uuid === 'string' && child.uuid !== '') {
@@ -229,7 +230,12 @@ export default {
 				byKey.set(this.childKey(child, 0), child)
 			}
 			const updated = this.children.map((child, index) => {
-				const node = nodes.find(n => n.el && n.el.dataset && n.el.dataset.launchpadIndex === String(index))
+				const node = nodes.find(
+					(n) =>
+						n.el
+						&& n.el.dataset
+						&& n.el.dataset.launchpadIndex === String(index),
+				)
 				if (!node) {
 					return child
 				}
@@ -262,7 +268,10 @@ export default {
 
 		/** @spec openspec/specs/container-widget/spec.md */
 		destroyInnerGrid() {
-			if (this.gridInstance && typeof this.gridInstance.destroy === 'function') {
+			if (
+				this.gridInstance
+				&& typeof this.gridInstance.destroy === 'function'
+			) {
 				try {
 					this.gridInstance.destroy(false)
 				} catch (e) {

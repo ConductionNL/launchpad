@@ -8,11 +8,19 @@
 		<h3>{{ t('launchpad', 'Import from Confluence') }}</h3>
 
 		<p class="launchpad-confluence-import__hint">
-			{{ t('launchpad', 'Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a LaunchPad dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree.') }}
+			{{
+				t(
+					'launchpad',
+					'Upload a Confluence HTML export ZIP archive. Each Confluence page becomes a LaunchPad dashboard with a single full-width text widget; the page hierarchy is mirrored using the dashboard tree.',
+				)
+			}}
 		</p>
 
-		<div class="launchpad-confluence-import__row launchpad-confluence-import__row--column">
-			<label for="launchpad-cfli-file" class="launchpad-confluence-import__label">
+		<div
+			class="launchpad-confluence-import__row launchpad-confluence-import__row--column">
+			<label
+				for="launchpad-cfli-file"
+				class="launchpad-confluence-import__label">
 				{{ t('launchpad', 'Confluence export archive (.zip)') }}
 			</label>
 			<input
@@ -21,17 +29,26 @@
 				type="file"
 				accept=".zip,application/zip"
 				data-test="confluence-import-file"
-				@change="onFileSelected">
+				@change="onFileSelected" />
 
-			<label for="launchpad-cfli-parent" class="launchpad-confluence-import__label">
-				{{ t('launchpad', 'Optional parent dashboard UUID (root pages will be slotted under this dashboard)') }}
+			<label
+				for="launchpad-cfli-parent"
+				class="launchpad-confluence-import__label">
+				{{
+					t(
+						'launchpad',
+						'Optional parent dashboard UUID (root pages will be slotted under this dashboard)',
+					)
+				}}
 			</label>
 			<input
 				id="launchpad-cfli-parent"
 				v-model="parentUuid"
 				type="text"
 				class="launchpad-confluence-import__text-input"
-				:placeholder="t('launchpad', 'Leave empty to import as root dashboards')">
+				:placeholder="
+					t('launchpad', 'Leave empty to import as root dashboards')
+				" />
 
 			<div class="launchpad-confluence-import__actions">
 				<NcButton
@@ -42,7 +59,11 @@
 					<template #icon>
 						<Eye :size="20" />
 					</template>
-					{{ running === 'dry-run' ? t('launchpad', 'Inspecting…') : t('launchpad', 'Dry-run preview') }}
+					{{
+						running === 'dry-run'
+							? t('launchpad', 'Inspecting…')
+							: t('launchpad', 'Dry-run preview')
+					}}
 				</NcButton>
 
 				<NcButton
@@ -53,20 +74,36 @@
 					<template #icon>
 						<Upload :size="20" />
 					</template>
-					{{ running === 'import' ? t('launchpad', 'Importing…') : t('launchpad', 'Import dashboards') }}
+					{{
+						running === 'import'
+							? t('launchpad', 'Importing…')
+							: t('launchpad', 'Import dashboards')
+					}}
 				</NcButton>
 			</div>
 
 			<div v-if="dryRunResult" class="launchpad-confluence-import__result">
 				<p>
-					{{ t('launchpad', '{pages} pages, {attachments} attachments — would create {dashboards} dashboards.', {
-						pages: dryRunResult.pageCount,
-						attachments: dryRunResult.attachmentCount,
-						dashboards: dryRunResult.estimatedDashboards,
-					}) }}
+					{{
+						t(
+							'launchpad',
+							'{pages} pages, {attachments} attachments — would create {dashboards} dashboards.',
+							{
+								pages: dryRunResult.pageCount,
+								attachments: dryRunResult.attachmentCount,
+								dashboards: dryRunResult.estimatedDashboards,
+							},
+						)
+					}}
 				</p>
-				<p v-if="dryRunResult.assetFolder" class="launchpad-confluence-import__sub">
-					{{ t('launchpad', 'Assets would be uploaded to {folder}', { folder: dryRunResult.assetFolder }) }}
+				<p
+					v-if="dryRunResult.assetFolder"
+					class="launchpad-confluence-import__sub">
+					{{
+						t('launchpad', 'Assets would be uploaded to {folder}', {
+							folder: dryRunResult.assetFolder,
+						})
+					}}
 				</p>
 				<ul v-if="dryRunResult.warnings && dryRunResult.warnings.length > 0">
 					<li v-for="(w, i) in dryRunResult.warnings" :key="i">
@@ -77,13 +114,25 @@
 
 			<div v-if="importResult" class="launchpad-confluence-import__result">
 				<p>
-					{{ t('launchpad', 'Imported {imported} dashboards, skipped {skipped}.', {
-						imported: importResult.createdDashboardCount,
-						skipped: importResult.skippedPageCount,
-					}) }}
+					{{
+						t(
+							'launchpad',
+							'Imported {imported} dashboards, skipped {skipped}.',
+							{
+								imported: importResult.createdDashboardCount,
+								skipped: importResult.skippedPageCount,
+							},
+						)
+					}}
 				</p>
-				<p v-if="importResult.assetFolder" class="launchpad-confluence-import__sub">
-					{{ t('launchpad', 'Assets uploaded to {folder}', { folder: importResult.assetFolder }) }}
+				<p
+					v-if="importResult.assetFolder"
+					class="launchpad-confluence-import__sub">
+					{{
+						t('launchpad', 'Assets uploaded to {folder}', {
+							folder: importResult.assetFolder,
+						})
+					}}
 				</p>
 				<ul v-if="importResult.errors && importResult.errors.length > 0">
 					<li v-for="(err, i) in importResult.errors" :key="i">
@@ -139,7 +188,7 @@ export default {
 		 */
 		onFileSelected(event) {
 			const files = event?.target?.files
-			this.selectedFile = (files && files.length > 0) ? files[0] : null
+			this.selectedFile = files && files.length > 0 ? files[0] : null
 			this.dryRunResult = null
 			this.importResult = null
 			this.errorMessage = ''
@@ -155,8 +204,12 @@ export default {
 				const response = await api.confluenceImportDryRun(this.selectedFile)
 				this.dryRunResult = response.data
 			} catch (err) {
-				this.errorMessage = err?.response?.data?.error
-					|| this.t('launchpad', 'Confluence dry-run failed. Please try again.')
+				this.errorMessage =
+					err?.response?.data?.error
+					|| this.t(
+						'launchpad',
+						'Confluence dry-run failed. Please try again.',
+					)
 				// eslint-disable-next-line no-console
 				console.error('launchpad confluence dry-run failed', err)
 			} finally {
@@ -176,8 +229,12 @@ export default {
 				})
 				this.importResult = response.data
 			} catch (err) {
-				this.errorMessage = err?.response?.data?.error
-					|| this.t('launchpad', 'Confluence import failed. Please try again.')
+				this.errorMessage =
+					err?.response?.data?.error
+					|| this.t(
+						'launchpad',
+						'Confluence import failed. Please try again.',
+					)
 				// eslint-disable-next-line no-console
 				console.error('launchpad confluence import failed', err)
 			} finally {

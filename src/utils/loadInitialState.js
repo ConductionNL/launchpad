@@ -84,7 +84,9 @@ const PAGE_KEYS = {
 export function loadInitialState(page) {
 	const defaults = PAGE_KEYS[page]
 	if (!defaults) {
-		throw new Error(`loadInitialState: unknown page "${page}" — known: ${Object.keys(PAGE_KEYS).join(', ')}`)
+		throw new Error(
+			`loadInitialState: unknown page "${page}" — known: ${Object.keys(PAGE_KEYS).join(', ')}`,
+		)
 	}
 
 	const state = {}

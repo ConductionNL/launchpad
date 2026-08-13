@@ -14,7 +14,12 @@
 			{{ t('launchpad', 'Enable the legacy widget bridge') }}
 		</NcCheckboxRadioSwitch>
 		<p class="bridge-toggle__hint">
-			{{ t('launchpad', 'When disabled, existing dashboards that embed bridged Nextcloud widgets render an "Unavailable" state until the bridge is re-enabled.') }}
+			{{
+				t(
+					'launchpad',
+					'When disabled, existing dashboards that embed bridged Nextcloud widgets render an "Unavailable" state until the bridge is re-enabled.',
+				)
+			}}
 		</p>
 	</div>
 </template>

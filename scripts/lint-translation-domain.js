@@ -86,12 +86,12 @@ for (const file of walk(SRC_DIR)) {
 if (offenders.length > 0) {
 	process.stderr.write(
 		'lint:translation-domain — i18n-translation-domain violation:\n'
-		+ `  Every t()/n() call in src/ must use the '${ALLOWED_DOMAIN}' translation domain\n`
-		+ '  (the domain the shipped l10n/<lang>.js bundles register under).\n'
-		+ '  Offending calls:\n'
-		+ offenders
-			.map(o => `    - ${o.file}:${o.line} uses t/n('${o.domain}', …)\n`)
-			.join(''),
+			+ `  Every t()/n() call in src/ must use the '${ALLOWED_DOMAIN}' translation domain\n`
+			+ '  (the domain the shipped l10n/<lang>.js bundles register under).\n'
+			+ '  Offending calls:\n'
+			+ offenders
+				.map((o) => `    - ${o.file}:${o.line} uses t/n('${o.domain}', …)\n`)
+				.join(''),
 	)
 	process.exit(1)
 }

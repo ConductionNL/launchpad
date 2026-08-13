@@ -6,7 +6,12 @@
 <template>
 	<div class="weather-widget-form">
 		<p class="weather-widget-form__hint">
-			{{ t('launchpad', 'Show current conditions for a location. Units and language follow your Nextcloud locale unless overridden below.') }}
+			{{
+				t(
+					'launchpad',
+					'Show current conditions for a location. Units and language follow your Nextcloud locale unless overridden below.',
+				)
+			}}
 		</p>
 
 		<!-- @nextcloud/vue@9: `value` + `update:value` were renamed to

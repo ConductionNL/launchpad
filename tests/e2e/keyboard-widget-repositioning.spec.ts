@@ -47,10 +47,14 @@ async function openInEditMode(page: import('@playwright/test').Page) {
 	}
 
 	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
-	const activeRow = page.locator(
-		'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-	).first()
+	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+		timeout: 8_000,
+	})
+	const activeRow = page
+		.locator(
+			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+		)
+		.first()
 	await activeRow.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
 
@@ -58,10 +62,12 @@ async function openInEditMode(page: import('@playwright/test').Page) {
 	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 	if (await closeBtn.isVisible().catch(() => false)) {
 		await closeBtn.click()
-		await page.waitForFunction(
-			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-			{ timeout: 5_000 },
-		).catch(() => null)
+		await page
+			.waitForFunction(
+				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+				{ timeout: 5_000 },
+			)
+			.catch(() => null)
 	}
 }
 
@@ -70,7 +76,9 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 		await openInEditMode(page)
 	})
 
-	test('SC 4.1.2: grid items are keyboard-focusable and expose a role + accessible name', async ({ page }) => {
+	test('SC 4.1.2: grid items are keyboard-focusable and expose a role + accessible name', async ({
+		page,
+	}) => {
 		const placement = page.locator('.grid-stack-item').first()
 		await expect(placement).toBeVisible({ timeout: 5_000 })
 
@@ -81,11 +89,15 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 
 		// The item can actually take keyboard focus.
 		await placement.focus()
-		const isFocused = await placement.evaluate((el) => el === document.activeElement)
+		const isFocused = await placement.evaluate(
+			(el) => el === document.activeElement,
+		)
 		expect(isFocused).toBe(true)
 	})
 
-	test('SC 2.1.1: keyboard-only move repositions the widget and persists after reload', async ({ page }) => {
+	test('SC 2.1.1: keyboard-only move repositions the widget and persists after reload', async ({
+		page,
+	}) => {
 		test.setTimeout(60_000)
 
 		const placement = page.locator('.grid-stack-item').first()
@@ -130,13 +142,17 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 		expect(persistedX).toBe(movedX)
 	})
 
-	test('accessibility: the move panel exposes an accessible group name and traps focus', async ({ page }) => {
+	test('accessibility: the move panel exposes an accessible group name and traps focus', async ({
+		page,
+	}) => {
 		const placement = page.locator('.grid-stack-item').first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
 		await placement.focus()
 		await page.keyboard.press('Enter')
-		await expect(page.locator('[data-testid="widget-context-menu"]')).toBeVisible({ timeout: 5_000 })
+		await expect(
+			page.locator('[data-testid="widget-context-menu"]'),
+		).toBeVisible({ timeout: 5_000 })
 		await page.locator('[data-testid="ctx-move"]').focus()
 		await page.keyboard.press('Enter')
 
@@ -150,9 +166,12 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 		// canvas behind it.
 		await page.keyboard.press('Tab')
 		const focusInsidePanel = await page.evaluate(() => {
-			const modal = document.querySelector('[data-test="widget-move-panel"]')?.closest('.modal-wrapper, .modal-container, .nc-modal-stub')
+			const modal = document
+				.querySelector('[data-test="widget-move-panel"]')
+				?.closest('.modal-wrapper, .modal-container, .nc-modal-stub')
 			const active = document.activeElement
-			const root = modal ?? document.querySelector('[data-test="widget-move-panel"]')
+			const root =
+				modal ?? document.querySelector('[data-test="widget-move-panel"]')
 			return !!(root && active && root.contains(active))
 		})
 		expect(focusInsidePanel).toBe(true)

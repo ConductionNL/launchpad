@@ -83,7 +83,11 @@ function toUnavailable(err, app) {
  *   or `{available:false, reason, code}` when financeq is absent/empty
  * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
-export async function fetchFinanceSummary({ period, categoryIds = [], departmentIds = [] }) {
+export async function fetchFinanceSummary({
+	period,
+	categoryIds = [],
+	departmentIds = [],
+}) {
 	let data
 	try {
 		data = await queryGraphql({
@@ -97,17 +101,31 @@ export async function fetchFinanceSummary({ period, categoryIds = [], department
 
 	const rows = Array.isArray(data?.transactions) ? data.transactions : []
 	if (rows.length === 0) {
-		return { available: true, empty: true, total: 0, currency: 'EUR', byCategory: [], trend: [] }
+		return {
+			available: true,
+			empty: true,
+			total: 0,
+			currency: 'EUR',
+			byCategory: [],
+			trend: [],
+		}
 	}
 
-	const currency = rows.find((row) => typeof row.currency === 'string')?.currency || 'EUR'
+	const currency =
+		rows.find((row) => typeof row.currency === 'string')?.currency || 'EUR'
 	const total = rows.reduce((sum, row) => sum + (Number(row.totalAmount) || 0), 0)
 
 	// Aggregate by category (top categories view).
 	const byCategoryMap = new Map()
 	for (const row of rows) {
-		const key = typeof row.category === 'string' && row.category ? row.category : 'uncategorised'
-		byCategoryMap.set(key, (byCategoryMap.get(key) || 0) + (Number(row.totalAmount) || 0))
+		const key =
+			typeof row.category === 'string' && row.category
+				? row.category
+				: 'uncategorised'
+		byCategoryMap.set(
+			key,
+			(byCategoryMap.get(key) || 0) + (Number(row.totalAmount) || 0),
+		)
 	}
 	const byCategory = [...byCategoryMap.entries()]
 		.map(([category, amount]) => ({ category, amount }))
@@ -116,8 +134,12 @@ export async function fetchFinanceSummary({ period, categoryIds = [], department
 	// Aggregate by booking month (trend view).
 	const trendMap = new Map()
 	for (const row of rows) {
-		const month = typeof row.bookedAt === 'string' ? row.bookedAt.slice(0, 7) : 'unknown'
-		trendMap.set(month, (trendMap.get(month) || 0) + (Number(row.totalAmount) || 0))
+		const month =
+			typeof row.bookedAt === 'string' ? row.bookedAt.slice(0, 7) : 'unknown'
+		trendMap.set(
+			month,
+			(trendMap.get(month) || 0) + (Number(row.totalAmount) || 0),
+		)
 	}
 	const trend = [...trendMap.entries()]
 		.map(([month, amount]) => ({ month, amount }))
@@ -155,8 +177,12 @@ export async function fetchVendorCommitments({ period, vendorIds = [] }) {
 
 	const vendorMap = new Map()
 	for (const row of rows) {
-		const vendor = typeof row.vendor === 'string' && row.vendor ? row.vendor : 'unknown'
-		vendorMap.set(vendor, (vendorMap.get(vendor) || 0) + (Number(row.totalCommitted) || 0))
+		const vendor =
+			typeof row.vendor === 'string' && row.vendor ? row.vendor : 'unknown'
+		vendorMap.set(
+			vendor,
+			(vendorMap.get(vendor) || 0) + (Number(row.totalCommitted) || 0),
+		)
 	}
 	const topVendors = [...vendorMap.entries()]
 		.map(([vendor, committed]) => ({ vendor, committed }))
@@ -190,7 +216,9 @@ export const LLM_SOURCE_ALIAS = 'local-llm'
  * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export async function fetchSpendNarrative({ summary, timeoutMs = 5000 }) {
-	const url = generateUrl('/apps/openconnector/api/sources/{source}/call', { source: LLM_SOURCE_ALIAS })
+	const url = generateUrl('/apps/openconnector/api/sources/{source}/call', {
+		source: LLM_SOURCE_ALIAS,
+	})
 	try {
 		const response = await axios.post(
 			url,
@@ -207,12 +235,24 @@ export async function fetchSpendNarrative({ summary, timeoutMs = 5000 }) {
 	} catch (err) {
 		const status = err?.response?.status
 		if (status === 404) {
-			return { available: false, reason: 'openconnector local-llm source is not configured', code: 'not_installed' }
+			return {
+				available: false,
+				reason: 'openconnector local-llm source is not configured',
+				code: 'not_installed',
+			}
 		}
 		if (err?.code === 'ECONNABORTED') {
-			return { available: false, reason: 'The LLM source did not respond in time', code: 'timeout' }
+			return {
+				available: false,
+				reason: 'The LLM source did not respond in time',
+				code: 'timeout',
+			}
 		}
-		return { available: false, reason: err?.message || 'Inference failed', code: 'network_error' }
+		return {
+			available: false,
+			reason: err?.message || 'Inference failed',
+			code: 'network_error',
+		}
 	}
 }
 

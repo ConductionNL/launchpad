@@ -86,7 +86,7 @@ describe('widgetRegistry completeness (REQ-WDG-023)', () => {
 		if (unexpectedInRegistry.length) {
 			diagnostic.push(
 				`DRIFT: widgetRegistry contains type(s) not in EXPECTED_TYPES: ${JSON.stringify(unexpectedInRegistry)}. `
-				+ 'Update EXPECTED_TYPES in widgetRegistry.completeness.spec.js',
+					+ 'Update EXPECTED_TYPES in widgetRegistry.completeness.spec.js',
 			)
 		}
 
@@ -94,15 +94,28 @@ describe('widgetRegistry completeness (REQ-WDG-023)', () => {
 	})
 
 	it('listWidgetTypes() MUST surface every EXPECTED_TYPES entry with non-null form + renderer', async () => {
-		const { widgetRegistry, listWidgetTypes } = await import('../widgetRegistry.js')
+		const { widgetRegistry, listWidgetTypes } =
+			await import('../widgetRegistry.js')
 		const surfaced = listWidgetTypes()
 
 		for (const type of EXPECTED_TYPES) {
 			const entry = widgetRegistry[type]
-			expect(entry, `EXPECTED_TYPES member '${type}' missing from widgetRegistry`).toBeDefined()
-			expect(entry.form, `EXPECTED_TYPES member '${type}' has null/undefined form -- would be filtered out by listWidgetTypes`).toBeTruthy()
-			expect(entry.renderer, `EXPECTED_TYPES member '${type}' has null/undefined renderer -- placement would not render`).toBeTruthy()
-			expect(surfaced, `EXPECTED_TYPES member '${type}' missing from listWidgetTypes() output -- picker would not offer it`).toContain(type)
+			expect(
+				entry,
+				`EXPECTED_TYPES member '${type}' missing from widgetRegistry`,
+			).toBeDefined()
+			expect(
+				entry.form,
+				`EXPECTED_TYPES member '${type}' has null/undefined form -- would be filtered out by listWidgetTypes`,
+			).toBeTruthy()
+			expect(
+				entry.renderer,
+				`EXPECTED_TYPES member '${type}' has null/undefined renderer -- placement would not render`,
+			).toBeTruthy()
+			expect(
+				surfaced,
+				`EXPECTED_TYPES member '${type}' missing from listWidgetTypes() output -- picker would not offer it`,
+			).toContain(type)
 		}
 	})
 
@@ -111,11 +124,23 @@ describe('widgetRegistry completeness (REQ-WDG-023)', () => {
 
 		for (const type of Object.keys(widgetRegistry)) {
 			const entry = widgetRegistry[type]
-			expect(entry.displayName, `entry '${type}' missing displayName`).toBeTruthy()
+			expect(
+				entry.displayName,
+				`entry '${type}' missing displayName`,
+			).toBeTruthy()
 			expect(entry.icon, `entry '${type}' missing icon`).toBeTruthy()
-			expect(entry.defaultContent, `entry '${type}' missing defaultContent`).toBeDefined()
-			expect(typeof entry.defaultContent, `entry '${type}' defaultContent must be an object`).toBe('object')
-			expect(entry.defaultContent, `entry '${type}' defaultContent must not be null`).not.toBeNull()
+			expect(
+				entry.defaultContent,
+				`entry '${type}' missing defaultContent`,
+			).toBeDefined()
+			expect(
+				typeof entry.defaultContent,
+				`entry '${type}' defaultContent must be an object`,
+			).toBe('object')
+			expect(
+				entry.defaultContent,
+				`entry '${type}' defaultContent must not be null`,
+			).not.toBeNull()
 		}
 	})
 })

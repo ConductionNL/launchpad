@@ -103,7 +103,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 			} catch (err) {
 				this.tree = []
-				this.error = (err && err.message) ? err.message : 'Failed to load navigation'
+				this.error =
+					err && err.message ? err.message : 'Failed to load navigation'
 			} finally {
 				this.loading = false
 			}
@@ -134,9 +135,10 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 				return true
 			} catch (err) {
-				const responseError = err && err.response && err.response.data
-					? err.response.data.error
-					: null
+				const responseError =
+					err && err.response && err.response.data
+						? err.response.data.error
+						: null
 				this.error = responseError || 'Failed to save navigation'
 				return false
 			} finally {
@@ -159,7 +161,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				}
 			} catch (err) {
 				// Defensive — leave the previous value in place.
-				this.error = (err && err.message) ? err.message : 'Failed to load position'
+				this.error =
+					err && err.message ? err.message : 'Failed to load position'
 			}
 		},
 
@@ -182,9 +185,10 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 				return true
 			} catch (err) {
-				const responseError = err && err.response && err.response.data
-					? err.response.data.error
-					: null
+				const responseError =
+					err && err.response && err.response.data
+						? err.response.data.error
+						: null
 				this.error = responseError || 'Failed to save position'
 				return false
 			}

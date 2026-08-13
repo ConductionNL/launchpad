@@ -18,7 +18,10 @@
 
 <script>
 import { getWidgetTypeEntry } from '../../../constants/widgetRegistry.js'
-import { buildWidgetDataProvide, buildRendererExtraProps } from '../../../services/widgetDataAdapters.js'
+import {
+	buildWidgetDataProvide,
+	buildRendererExtraProps,
+} from '../../../services/widgetDataAdapters.js'
 
 /**
  * ContainerChild — registry-driven dispatcher for a single child placement

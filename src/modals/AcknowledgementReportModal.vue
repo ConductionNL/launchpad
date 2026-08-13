@@ -27,16 +27,24 @@
 				<NcLoadingIcon :size="32" />
 			</div>
 
-			<div v-else-if="error" class="launchpad-ack-report__error" data-testid="acknowledgement-report-error">
+			<div
+				v-else-if="error"
+				class="launchpad-ack-report__error"
+				data-testid="acknowledgement-report-error">
 				{{ error }}
 			</div>
 
 			<template v-else-if="report">
 				<div class="launchpad-ack-report__stats">
-					<span class="launchpad-ack-report__stat launchpad-ack-report__stat--ack" data-testid="ack-count">
-						{{ t('launchpad', 'Acknowledged') }}: {{ report.acknowledgedCount }}
+					<span
+						class="launchpad-ack-report__stat launchpad-ack-report__stat--ack"
+						data-testid="ack-count">
+						{{ t('launchpad', 'Acknowledged') }}:
+						{{ report.acknowledgedCount }}
 					</span>
-					<span class="launchpad-ack-report__stat launchpad-ack-report__stat--pending" data-testid="pending-count">
+					<span
+						class="launchpad-ack-report__stat launchpad-ack-report__stat--pending"
+						data-testid="pending-count">
 						{{ t('launchpad', 'Pending') }}: {{ report.pendingCount }}
 					</span>
 					<span
@@ -52,15 +60,25 @@
 						<tr>
 							<th scope="col">{{ t('launchpad', 'User') }}</th>
 							<th scope="col">{{ t('launchpad', 'Status') }}</th>
-							<th scope="col">{{ t('launchpad', 'Acknowledged at') }}</th>
+							<th scope="col">
+								{{ t('launchpad', 'Acknowledged at') }}
+							</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr v-for="row in report.rows" :key="row.userId" :data-testid="`ack-row-${row.userId}`">
+						<tr
+							v-for="row in report.rows"
+							:key="row.userId"
+							:data-testid="`ack-row-${row.userId}`">
 							<td>{{ row.userId }}</td>
 							<td>
-								<span :class="`launchpad-ack-report__badge launchpad-ack-report__badge--${row.status}`">
-									{{ row.status === 'acknowledged' ? t('launchpad', 'Acknowledged') : t('launchpad', 'Pending') }}
+								<span
+									:class="`launchpad-ack-report__badge launchpad-ack-report__badge--${row.status}`">
+									{{
+										row.status === 'acknowledged'
+											? t('launchpad', 'Acknowledged')
+											: t('launchpad', 'Pending')
+									}}
 								</span>
 							</td>
 							<td>{{ row.acknowledgedAt || '—' }}</td>
@@ -173,10 +191,15 @@ export default {
 			this.error = ''
 			this.report = null
 			try {
-				const response = await api.getAcknowledgementReport(this.announcementKey)
+				const response = await api.getAcknowledgementReport(
+					this.announcementKey,
+				)
 				this.report = response.data
 			} catch (e) {
-				this.error = t('launchpad', 'Could not load the read-receipt report.')
+				this.error = t(
+					'launchpad',
+					'Could not load the read-receipt report.',
+				)
 			} finally {
 				this.loading = false
 			}

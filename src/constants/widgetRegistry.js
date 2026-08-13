@@ -273,7 +273,10 @@ function offerableTypes() {
  * @type {Record<string, WidgetRegistryEntry>}
  */
 export const widgetRegistry = Object.fromEntries(
-	offerableTypes().map((type) => [type, decorate(type, dashboardWidgetRegistry[type])]),
+	offerableTypes().map((type) => [
+		type,
+		decorate(type, dashboardWidgetRegistry[type]),
+	]),
 )
 
 /**

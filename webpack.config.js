@@ -31,8 +31,8 @@ webpackConfig.resolve = {
 		...(useLocalLib ? { '@conduction/nextcloud-vue': localLib } : {}),
 		// Deduplicate shared packages so the aliased library source uses
 		// the same instances as the app (prevents dual-Pinia / dual-Vue bugs).
-		'vue$': path.resolve(__dirname, 'node_modules/vue'),
-		'pinia$': path.resolve(__dirname, 'node_modules/pinia'),
+		vue$: path.resolve(__dirname, 'node_modules/vue'),
+		pinia$: path.resolve(__dirname, 'node_modules/pinia'),
 		// @nextcloud/vue@9 and @nextcloud/dialogs@7 (the Vue-3 lines) are
 		// ESM-only: no `main`/`module`, just an `exports` map with a single
 		// "import" condition. Aliasing to the package DIRECTORY (as before)
@@ -40,21 +40,27 @@ webpackConfig.resolve = {
 		// so every import fails to resolve. Point at the concrete ESM entry.
 		// The `$` keeps deep imports (`@nextcloud/vue/components/NcButton`)
 		// going through the exports map.
-		'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue/dist/index.mjs'),
-		'@nextcloud/dialogs$': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/index.mjs'),
+		'@nextcloud/vue$': path.resolve(
+			__dirname,
+			'node_modules/@nextcloud/vue/dist/index.mjs',
+		),
+		'@nextcloud/dialogs$': path.resolve(
+			__dirname,
+			'node_modules/@nextcloud/dialogs/dist/index.mjs',
+		),
 		// `@nextcloud/axios@2.6+` is ESM-only and its `exports` map has no
 		// `require` condition, so the CJS bundle of `@nextcloud/vue@8.x`
 		// (which does `require('@nextcloud/axios')`) fails to resolve.
 		// Alias directly to the ESM entry so webpack bypasses the exports
 		// map and transforms/interops the ESM module itself.
-		'@nextcloud/axios$': path.resolve(__dirname, 'node_modules/@nextcloud/axios/dist/index.js'),
+		'@nextcloud/axios$': path.resolve(
+			__dirname,
+			'node_modules/@nextcloud/axios/dist/index.js',
+		),
 	},
 	// Ensure webpack resolves dependencies from the app's node_modules first,
 	// preventing Vue 3 packages from nextcloud-vue/node_modules leaking in.
-	modules: [
-		path.resolve(__dirname, 'node_modules'),
-		'node_modules',
-	],
+	modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
 }
 
 module.exports = webpackConfig

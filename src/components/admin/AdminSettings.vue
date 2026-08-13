@@ -7,7 +7,9 @@
 	<div class="launchpad-admin">
 		<CnSettingsSection
 			:name="t('launchpad', 'LaunchPad settings')"
-			:description="t('launchpad', 'Configure dashboard permissions and defaults')"
+			:description="
+				t('launchpad', 'Configure dashboard permissions and defaults')
+			"
 			doc-url="https://launchpad.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
 			     page, above the Beheer tabs, so the call-to-action is always
@@ -19,7 +21,12 @@
 				<div>
 					<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
 					<p>
-						{{ t('launchpad', 'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.') }}
+						{{
+							t(
+								'launchpad',
+								'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.',
+							)
+						}}
 					</p>
 				</div>
 				<NcButton
@@ -42,7 +49,9 @@
 			</div>
 
 			<!-- Global Settings — always visible above the tab strip. -->
-			<div class="launchpad-admin__section" data-testid="admin-default-settings">
+			<div
+				class="launchpad-admin__section"
+				data-testid="admin-default-settings">
 				<h3>{{ t('launchpad', 'Default settings') }}</h3>
 
 				<div class="launchpad-admin__field">
@@ -59,16 +68,25 @@
 				<NcCheckboxRadioSwitch
 					:model-value="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
-					@update:modelValue="updateSetting('allowUserDashboards', $event)">
+					@update:modelValue="
+						updateSetting('allowUserDashboards', $event)
+					">
 					{{ t('launchpad', 'Allow users to create custom dashboards') }}
 				</NcCheckboxRadioSwitch>
 				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-					{{ t('launchpad', 'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.') }}
+					{{
+						t(
+							'launchpad',
+							'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.',
+						)
+					}}
 				</p>
 
 				<NcCheckboxRadioSwitch
 					:model-value="settings.allowMultipleDashboards"
-					@update:modelValue="updateSetting('allowMultipleDashboards', $event)">
+					@update:modelValue="
+						updateSetting('allowMultipleDashboards', $event)
+					">
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
@@ -83,29 +101,47 @@
 
 				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
 				     quotas. `0` = unlimited (no enforcement). -->
-				<div class="launchpad-admin__field" data-testid="admin-quota-dashboards">
+				<div
+					class="launchpad-admin__field"
+					data-testid="admin-quota-dashboards">
 					<NcTextField
 						v-model="settings.maxDashboardsPerUser"
 						type="number"
 						min="0"
 						max="10000"
 						:label="t('launchpad', 'Maximum dashboards per user')"
-						@update:modelValue="onQuotaInput('maxDashboardsPerUser', $event)" />
+						@update:modelValue="
+							onQuotaInput('maxDashboardsPerUser', $event)
+						" />
 					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-						{{ t('launchpad', '0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.') }}
+						{{
+							t(
+								'launchpad',
+								'0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.',
+							)
+						}}
 					</p>
 				</div>
 
-				<div class="launchpad-admin__field" data-testid="admin-quota-widgets">
+				<div
+					class="launchpad-admin__field"
+					data-testid="admin-quota-widgets">
 					<NcTextField
 						v-model="settings.maxWidgetsPerDashboard"
 						type="number"
 						min="0"
 						max="10000"
 						:label="t('launchpad', 'Maximum widgets per dashboard')"
-						@update:modelValue="onQuotaInput('maxWidgetsPerDashboard', $event)" />
+						@update:modelValue="
+							onQuotaInput('maxWidgetsPerDashboard', $event)
+						" />
 					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-						{{ t('launchpad', '0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.') }}
+						{{
+							t(
+								'launchpad',
+								'0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.',
+							)
+						}}
 					</p>
 				</div>
 			</div>
@@ -119,7 +155,12 @@
 				</div>
 
 				<p class="launchpad-admin__hint">
-					{{ t('launchpad', 'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.') }}
+					{{
+						t(
+							'launchpad',
+							'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.',
+						)
+					}}
 				</p>
 
 				<div v-if="loadingGroupDashboards" class="launchpad-admin__hint">
@@ -134,7 +175,12 @@
 						{{ groupId }}
 					</h4>
 					<div v-if="rows.length === 0" class="launchpad-admin__hint">
-						{{ t('launchpad', 'No group-shared dashboards in this group yet.') }}
+						{{
+							t(
+								'launchpad',
+								'No group-shared dashboards in this group yet.',
+							)
+						}}
 					</div>
 					<div v-else class="launchpad-admin__templates">
 						<div
@@ -204,7 +250,12 @@
 			<div class="launchpad-admin__section">
 				<h3>{{ t('launchpad', 'Setting as default app') }}</h3>
 				<p>
-					{{ t('launchpad', 'To make LaunchPad the default app for users, go to Settings > Administration > Theming and select LaunchPad as the default app.') }}
+					{{
+						t(
+							'launchpad',
+							'To make LaunchPad the default app for users, go to Settings > Administration > Theming and select LaunchPad as the default app.',
+						)
+					}}
 				</p>
 			</div>
 		</CnSettingsSection>
@@ -281,7 +332,10 @@ export default {
 		return {
 			loading: true,
 			settings: {
-				defaultPermissionLevel: { id: 'add_only', label: this.t('launchpad', 'Add only') },
+				defaultPermissionLevel: {
+					id: 'add_only',
+					label: this.t('launchpad', 'Add only'),
+				},
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
@@ -318,12 +372,24 @@ export default {
 			return [
 				{ slug: 'templates', label: this.t('launchpad', 'Templates') },
 				{ slug: 'operations', label: this.t('launchpad', 'Operations') },
-				{ slug: 'roles-permissions', label: this.t('launchpad', 'Roles & Permissions') },
-				{ slug: 'versioning-audit', label: this.t('launchpad', 'Versioning & Audit') },
+				{
+					slug: 'roles-permissions',
+					label: this.t('launchpad', 'Roles & Permissions'),
+				},
+				{
+					slug: 'versioning-audit',
+					label: this.t('launchpad', 'Versioning & Audit'),
+				},
 				{ slug: 'sharing', label: this.t('launchpad', 'Sharing') },
-				{ slug: 'org-navigation', label: this.t('launchpad', 'Org navigation') },
+				{
+					slug: 'org-navigation',
+					label: this.t('launchpad', 'Org navigation'),
+				},
 				{ slug: 'demo-data', label: this.t('launchpad', 'Demo data') },
-				{ slug: 'group-dashboards', label: this.t('launchpad', 'Group dashboards') },
+				{
+					slug: 'group-dashboards',
+					label: this.t('launchpad', 'Group dashboards'),
+				},
 			]
 		},
 	},
@@ -356,9 +422,10 @@ export default {
 					this.settings = {
 						...this.settings,
 						...data,
-						defaultPermissionLevel: this.permissionOptions.find(
-							p => p.id === data.defaultPermissionLevel,
-						) || this.permissionOptions[1],
+						defaultPermissionLevel:
+							this.permissionOptions.find(
+								(p) => p.id === data.defaultPermissionLevel,
+							) || this.permissionOptions[1],
 					}
 				}
 			} catch (error) {
@@ -378,8 +445,12 @@ export default {
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].
-					maxDashboardsPerUser: this.clampQuota(this.settings.maxDashboardsPerUser),
-					maxWidgetsPerDashboard: this.clampQuota(this.settings.maxWidgetsPerDashboard),
+					maxDashboardsPerUser: this.clampQuota(
+						this.settings.maxDashboardsPerUser,
+					),
+					maxWidgetsPerDashboard: this.clampQuota(
+						this.settings.maxWidgetsPerDashboard,
+					),
 				})
 			} catch (error) {
 				console.error('Failed to save settings:', error)
@@ -466,9 +537,14 @@ export default {
 				groupIds.map(async (groupId) => {
 					try {
 						const response = await api.listGroupDashboards(groupId)
-						next[groupId] = Array.isArray(response.data) ? response.data : []
+						next[groupId] = Array.isArray(response.data)
+							? response.data
+							: []
 					} catch (e) {
-						console.warn(`Failed to load group dashboards for ${groupId}:`, e)
+						console.warn(
+							`Failed to load group dashboards for ${groupId}:`,
+							e,
+						)
 						next[groupId] = []
 					}
 				}),
@@ -524,10 +600,13 @@ export default {
 		 */
 		async setGroupDefault(groupId, uuid) {
 			const rows = this.groupSharedDashboards[groupId] || []
-			const snapshot = rows.map(d => ({ uuid: d.uuid, isDefault: d.isDefault }))
+			const snapshot = rows.map((d) => ({
+				uuid: d.uuid,
+				isDefault: d.isDefault,
+			}))
 			this.groupSharedDashboards = {
 				...this.groupSharedDashboards,
-				[groupId]: rows.map(d => ({
+				[groupId]: rows.map((d) => ({
 					...d,
 					isDefault: d.uuid === uuid ? 1 : 0,
 				})),
@@ -539,7 +618,7 @@ export default {
 				this.groupSharedDashboards = {
 					...this.groupSharedDashboards,
 					[groupId]: rows.map((d) => {
-						const prev = snapshot.find(s => s.uuid === d.uuid)
+						const prev = snapshot.find((s) => s.uuid === d.uuid)
 						return prev ? { ...d, isDefault: prev.isDefault } : d
 					}),
 				}

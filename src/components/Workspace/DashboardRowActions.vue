@@ -50,7 +50,11 @@
 				<ContentSave v-if="showSave" :size="20" />
 				<Pencil v-else :size="20" />
 			</template>
-			{{ showSave ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit dashboard') }}
+			{{
+				showSave
+					? t('launchpad', 'Save dashboard')
+					: t('launchpad', 'Edit dashboard')
+			}}
 		</NcActionButton>
 		<NcActionButton
 			v-if="isOwner"
@@ -80,7 +84,11 @@
 				<StarCheck v-if="isDefault" :size="20" />
 				<Star v-else :size="20" />
 			</template>
-			{{ isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default') }}
+			{{
+				isDefault
+					? t('launchpad', 'Default dashboard')
+					: t('launchpad', 'Set as default')
+			}}
 		</NcActionButton>
 		<NcActionButton
 			v-if="canShare"
@@ -143,7 +151,7 @@ export default {
 		source: {
 			type: String,
 			required: true,
-			validator: v => ['group', 'default', 'user', 'shared'].includes(v),
+			validator: (v) => ['group', 'default', 'user', 'shared'].includes(v),
 		},
 		canEdit: {
 			type: Boolean,
@@ -211,7 +219,14 @@ export default {
 		},
 	},
 
-	emits: ['toggle-edit', 'open-config', 'add-custom-widget', 'delete', 'set-default', 'share'],
+	emits: [
+		'toggle-edit',
+		'open-config',
+		'add-custom-widget',
+		'delete',
+		'set-default',
+		'share',
+	],
 
 	computed: {
 		/*
@@ -254,9 +269,11 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		showSave() {
-			return this.isEditMode
+			return (
+				this.isEditMode
 				&& this.activeDashboardId != null
 				&& this.dashboard?.id === this.activeDashboardId
+			)
 		},
 	},
 

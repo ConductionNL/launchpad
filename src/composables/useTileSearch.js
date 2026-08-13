@@ -151,7 +151,7 @@ export function rankItems(query, items) {
 	const list = Array.isArray(items) ? items : []
 	const scored = []
 	list.forEach((item, index) => {
-		const label = (item && item.label) ? String(item.label) : ''
+		const label = item && item.label ? String(item.label) : ''
 		const rank = matchRank(query, label)
 		if (rank !== null) {
 			scored.push({
@@ -163,7 +163,7 @@ export function rankItems(query, items) {
 			})
 		}
 	})
-	scored.sort((a, b) => (a.rank - b.rank) || (a.index - b.index))
+	scored.sort((a, b) => a.rank - b.rank || a.index - b.index)
 	return scored
 }
 
@@ -188,7 +188,9 @@ export function isValidFallbackTemplate(template) {
 		return false
 	}
 	try {
-		const probe = new URL(template.replace('{query}', 'quicksearch-validation-probe'))
+		const probe = new URL(
+			template.replace('{query}', 'quicksearch-validation-probe'),
+		)
 		return probe.protocol === 'https:'
 	} catch {
 		return false
@@ -235,7 +237,8 @@ export function isTypingTarget(target) {
 	if (!target || typeof target !== 'object') {
 		return false
 	}
-	const tagName = typeof target.tagName === 'string' ? target.tagName.toLowerCase() : ''
+	const tagName =
+		typeof target.tagName === 'string' ? target.tagName.toLowerCase() : ''
 	if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') {
 		return true
 	}
@@ -381,7 +384,7 @@ export function useTileSearch(options = {}) {
 			return
 		}
 		const current = state.activeIndex < 0 ? 0 : state.activeIndex
-		state.activeIndex = ((current + delta) % len + len) % len
+		state.activeIndex = (((current + delta) % len) + len) % len
 	}
 
 	/**
@@ -416,7 +419,10 @@ export function useTileSearch(options = {}) {
 			return { type: 'open', result }
 		}
 
-		const target = typeof getFallbackTarget === 'function' ? getFallbackTarget() : FALLBACK_TARGET_NONE
+		const target =
+			typeof getFallbackTarget === 'function'
+				? getFallbackTarget()
+				: FALLBACK_TARGET_NONE
 		const action = resolveFallbackAction(target, state.query.trim())
 		if (typeof onFallback === 'function') {
 			onFallback(action)

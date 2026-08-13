@@ -71,13 +71,14 @@ describe('resourceService.uploadDataUrl', () => {
 		}
 		postMock.mockRejectedValueOnce(err)
 
-		await expect(uploadDataUrl('data:image/png;base64,xxx')).rejects
-			.toMatchObject({
-				name: 'ResourceUploadError',
-				code: 'file_too_large',
-				message: 'Maximum size is 5MB',
-				httpStatus: 400,
-			})
+		await expect(
+			uploadDataUrl('data:image/png;base64,xxx'),
+		).rejects.toMatchObject({
+			name: 'ResourceUploadError',
+			code: 'file_too_large',
+			message: 'Maximum size is 5MB',
+			httpStatus: 400,
+		})
 	})
 
 	it('throws network_error when the transport itself fails', async () => {
@@ -95,8 +96,9 @@ describe('resourceService.uploadDataUrl', () => {
 	it('throws unknown_error when server returns 200 with malformed body', async () => {
 		postMock.mockResolvedValueOnce({ status: 200, data: { status: 'success' } })
 
-		await expect(uploadDataUrl('data:image/png;base64,xxx')).rejects
-			.toMatchObject({ code: 'unknown_error' })
+		await expect(
+			uploadDataUrl('data:image/png;base64,xxx'),
+		).rejects.toMatchObject({ code: 'unknown_error' })
 	})
 })
 
@@ -117,7 +119,9 @@ describe('resourceService.uploadFile', () => {
 
 		expect(postMock).toHaveBeenCalledTimes(1)
 		const [calledUrl, body] = postMock.mock.calls[0]
-		expect(calledUrl).toBe('http://localhost/apps/launchpad/api/resources/upload')
+		expect(calledUrl).toBe(
+			'http://localhost/apps/launchpad/api/resources/upload',
+		)
 		expect(body).toBeInstanceOf(FormData)
 		expect(body.get('file')).toBe(file)
 		// The transport returns the server's logical path unchanged; the renderer
@@ -133,18 +137,26 @@ describe('resourceService.uploadFile', () => {
 		const err = new Error('Request failed')
 		err.response = {
 			status: 400,
-			data: { status: 'error', error: 'invalid_image_format', message: 'Bad type' },
+			data: {
+				status: 'error',
+				error: 'invalid_image_format',
+				message: 'Bad type',
+			},
 		}
 		postMock.mockRejectedValueOnce(err)
 
-		await expect(uploadFile(new File(['x'], 'a.bmp'))).rejects
-			.toMatchObject({ name: 'ResourceUploadError', code: 'invalid_image_format', httpStatus: 400 })
+		await expect(uploadFile(new File(['x'], 'a.bmp'))).rejects.toMatchObject({
+			name: 'ResourceUploadError',
+			code: 'invalid_image_format',
+			httpStatus: 400,
+		})
 	})
 
 	it('throws network_error when the transport itself fails', async () => {
 		postMock.mockRejectedValueOnce(new Error('boom'))
 
-		await expect(uploadFile(new File(['x'], 'a.png'))).rejects
-			.toMatchObject({ code: 'network_error' })
+		await expect(uploadFile(new File(['x'], 'a.png'))).rejects.toMatchObject({
+			code: 'network_error',
+		})
 	})
 })

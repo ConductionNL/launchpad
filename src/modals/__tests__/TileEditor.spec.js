@@ -25,28 +25,53 @@ function mountEditor(tile) {
 
 describe('TileEditor legacy-icon display', () => {
 	it('resolves a legacy lowercase MDI shortname to its path', () => {
-		const wrapper = mountEditor({ id: 1, title: 'Link', icon: 'link', iconType: 'class' })
+		const wrapper = mountEditor({
+			id: 1,
+			title: 'Link',
+			icon: 'link',
+			iconType: 'class',
+		})
 		expect(wrapper.vm.displayIcon).toBe(mdiLink)
 	})
 
 	it('resolves a legacy PascalCase MDI key to its path', () => {
-		const wrapper = mountEditor({ id: 2, title: 'Alert', icon: 'AlertCircle', iconType: 'mdi' })
+		const wrapper = mountEditor({
+			id: 2,
+			title: 'Alert',
+			icon: 'AlertCircle',
+			iconType: 'mdi',
+		})
 		expect(wrapper.vm.displayIcon).toBe(mdiAlertCircle)
 	})
 
 	it('passes an SVG path through unchanged', () => {
-		const wrapper = mountEditor({ id: 3, title: 'Path', icon: mdiLink, iconType: 'svg' })
+		const wrapper = mountEditor({
+			id: 3,
+			title: 'Path',
+			icon: mdiLink,
+			iconType: 'svg',
+		})
 		expect(wrapper.vm.displayIcon).toBe(mdiLink)
 	})
 
 	it('passes a custom icon URL through unchanged', () => {
 		const url = '/apps/nldesign/img/icons/Star.svg'
-		const wrapper = mountEditor({ id: 4, title: 'Url', icon: url, iconType: 'url' })
+		const wrapper = mountEditor({
+			id: 4,
+			title: 'Url',
+			icon: url,
+			iconType: 'url',
+		})
 		expect(wrapper.vm.displayIcon).toBe(url)
 	})
 
 	it('leaves the stored icon untouched (preserved until the user picks)', () => {
-		const wrapper = mountEditor({ id: 5, title: 'Link', icon: 'link', iconType: 'class' })
+		const wrapper = mountEditor({
+			id: 5,
+			title: 'Link',
+			icon: 'link',
+			iconType: 'class',
+		})
 		expect(wrapper.vm.form.icon).toBe('link')
 		expect(wrapper.vm.form.iconType).toBe('class')
 	})
@@ -68,10 +93,20 @@ describe('TileEditor onIcon / isUrlIcon', () => {
 	})
 
 	it('isUrlIcon is true for a URL value and false for an SVG path', () => {
-		const urlTile = mountEditor({ id: 3, title: 'X', icon: 'https://example.com/i.png', iconType: 'url' })
+		const urlTile = mountEditor({
+			id: 3,
+			title: 'X',
+			icon: 'https://example.com/i.png',
+			iconType: 'url',
+		})
 		expect(urlTile.vm.isUrlIcon).toBe(true)
 
-		const pathTile = mountEditor({ id: 4, title: 'X', icon: mdiLink, iconType: 'svg' })
+		const pathTile = mountEditor({
+			id: 4,
+			title: 'X',
+			icon: mdiLink,
+			iconType: 'svg',
+		})
 		expect(pathTile.vm.isUrlIcon).toBe(false)
 	})
 })
@@ -100,7 +135,9 @@ describe('TileEditor health-ping config — REQ-HPING-001', () => {
 			pingInterval: 30,
 		})
 		expect(wrapper.vm.form.healthPingEnabled).toBe(true)
-		expect(wrapper.vm.form.healthUrl).toBe('https://zaaksysteem.example.com/health')
+		expect(wrapper.vm.form.healthUrl).toBe(
+			'https://zaaksysteem.example.com/health',
+		)
 		expect(wrapper.vm.form.pingInterval).toBe(30)
 	})
 
@@ -143,7 +180,10 @@ describe('TileEditor health-ping config — REQ-HPING-001', () => {
 	})
 
 	it('checkHealthUrlAllowed surfaces the host_not_allowed error', async () => {
-		validateHealthPingConfig.mockResolvedValue({ valid: false, errors: ['host_not_allowed'] })
+		validateHealthPingConfig.mockResolvedValue({
+			valid: false,
+			errors: ['host_not_allowed'],
+		})
 		const wrapper = mountEditor(null)
 		wrapper.vm.form.healthPingEnabled = true
 		wrapper.vm.form.healthUrl = 'https://blocked.example.com'

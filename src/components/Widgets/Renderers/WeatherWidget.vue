@@ -10,7 +10,9 @@
 			<span>{{ t('launchpad', 'Loading weather…') }}</span>
 		</div>
 
-		<div v-else-if="errorMessage" class="weather-widget__state weather-widget__state--error">
+		<div
+			v-else-if="errorMessage"
+			class="weather-widget__state weather-widget__state--error">
 			<AlertCircleOutline :size="32" />
 			<span>{{ errorMessage }}</span>
 			<button type="button" class="weather-widget__retry" @click="load">
@@ -19,10 +21,7 @@
 		</div>
 
 		<div v-else-if="reading" class="weather-widget__reading">
-			<span
-				v-if="reading.stale"
-				class="weather-widget__badge"
-				role="status">
+			<span v-if="reading.stale" class="weather-widget__badge" role="status">
 				{{ t('launchpad', 'Showing last known reading') }}
 			</span>
 
@@ -199,9 +198,10 @@ export default {
 			if (!this.reading || typeof this.reading.tempValue !== 'number') {
 				return ''
 			}
-			const unitWord = this.reading.units === 'imperial'
-				? t('launchpad', 'degrees Fahrenheit')
-				: t('launchpad', 'degrees Celsius')
+			const unitWord =
+				this.reading.units === 'imperial'
+					? t('launchpad', 'degrees Fahrenheit')
+					: t('launchpad', 'degrees Celsius')
 			return t('launchpad', '{value} {unit}', {
 				value: Math.round(this.reading.tempValue),
 				unit: unitWord,
@@ -232,7 +232,10 @@ export default {
 			const placementId = this.placement?.id
 			if (placementId === undefined || placementId === null) {
 				this.loading = false
-				this.errorMessage = t('launchpad', 'Weather is not available until this tile is saved.')
+				this.errorMessage = t(
+					'launchpad',
+					'Weather is not available until this tile is saved.',
+				)
 				return
 			}
 
@@ -242,7 +245,10 @@ export default {
 				const data = await fetchWeatherReading(placementId)
 				if (data && data.error) {
 					this.reading = null
-					this.errorMessage = t('launchpad', 'Weather is currently unavailable.')
+					this.errorMessage = t(
+						'launchpad',
+						'Weather is currently unavailable.',
+					)
 					return
 				}
 				this.reading = data

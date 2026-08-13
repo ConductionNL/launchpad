@@ -4,11 +4,7 @@
 -->
 
 <template>
-	<NcModal
-		v-if="open"
-		size="normal"
-		:name="modalTitle"
-		@close="$emit('close')">
+	<NcModal v-if="open" size="normal" :name="modalTitle" @close="$emit('close')">
 		<div class="dashboard-config">
 			<h2 class="dashboard-config__title">
 				{{ modalTitle }}
@@ -21,7 +17,8 @@
 			     follow the fleet tablist pattern (nc-vue CnTabbedFormDialog /
 			     NC sidebar tabs): justified tabs, icon + label, active
 			     primary underline. -->
-			<ul v-if="!isCreate"
+			<ul
+				v-if="!isCreate"
 				class="dashboard-config__tabs"
 				role="tablist"
 				data-test="config-tabs">
@@ -36,7 +33,9 @@
 						:aria-selected="currentTab === tab.id ? 'true' : 'false'"
 						:aria-controls="`config-panel-${tab.id}`"
 						class="dashboard-config__tab"
-						:class="{ 'dashboard-config__tab--active': currentTab === tab.id }"
+						:class="{
+							'dashboard-config__tab--active': currentTab === tab.id,
+						}"
 						:data-test="`config-tab-${tab.id}`"
 						@click="currentTab = tab.id">
 						<component :is="tab.icon" v-if="tab.icon" :size="16" />
@@ -61,7 +60,9 @@
 				</div>
 
 				<div class="dashboard-config__field">
-					<label class="dashboard-config__label" for="dashboard-config-description">
+					<label
+						class="dashboard-config__label"
+						for="dashboard-config-description">
 						{{ t('launchpad', 'Description') }}
 					</label>
 					<textarea
@@ -70,7 +71,9 @@
 						class="dashboard-config__textarea"
 						rows="3"
 						data-testid="dashboard-description-input"
-						:placeholder="t('launchpad', 'What is this dashboard for?')" />
+						:placeholder="
+							t('launchpad', 'What is this dashboard for?')
+						" />
 				</div>
 
 				<!-- Icon browser — searchable grid over the full MDI set plus a
@@ -102,14 +105,21 @@
 				role="tabpanel"
 				data-test="config-panel-default"
 				class="dashboard-config__panel">
-				<div v-if="!isCreate" class="dashboard-config__field dashboard-config__field--toggle">
+				<div
+					v-if="!isCreate"
+					class="dashboard-config__field dashboard-config__field--toggle">
 					<NcCheckboxRadioSwitch
 						:model-value="form.isDefault"
 						type="switch"
 						@update:modelValue="form.isDefault = $event">
 						<strong>{{ t('launchpad', 'Default dashboard') }}</strong>
 						<span class="dashboard-config__hint">
-							{{ t('launchpad', 'Open this dashboard automatically when visiting LaunchPad.') }}
+							{{
+								t(
+									'launchpad',
+									'Open this dashboard automatically when visiting LaunchPad.',
+								)
+							}}
 						</span>
 					</NcCheckboxRadioSwitch>
 				</div>
@@ -124,7 +134,9 @@
 				role="tabpanel"
 				data-test="config-panel-sharing"
 				class="dashboard-config__panel">
-				<div v-if="!isCreate && canManageShares" class="dashboard-config__field">
+				<div
+					v-if="!isCreate && canManageShares"
+					class="dashboard-config__field">
 					<label class="dashboard-config__label">
 						{{ t('launchpad', 'Share with users and groups') }}
 					</label>
@@ -134,7 +146,9 @@
 						:options="shareeOptions"
 						:filterable="false"
 						:loading="shareeLoading"
-						:aria-label-combobox="t('launchpad', 'Share with users and groups')"
+						:aria-label-combobox="
+							t('launchpad', 'Share with users and groups')
+						"
 						:placeholder="t('launchpad', 'Search users and groups…')"
 						label="displayName"
 						track-by="key"
@@ -143,32 +157,42 @@
 						@update:modelValue="onShareeSelected">
 						<template #option="option">
 							<span class="sharee-option">
-								<AccountGroup v-if="option.shareType === 'group'" :size="18" />
+								<AccountGroup
+									v-if="option.shareType === 'group'"
+									:size="18" />
 								<Account v-else :size="18" />
 								{{ option.displayName }}
 							</span>
 						</template>
 					</NcSelect>
 
-					<ul v-if="localShares.length > 0" class="dashboard-config__shares">
+					<ul
+						v-if="localShares.length > 0"
+						class="dashboard-config__shares">
 						<li
 							v-for="(share, idx) in localShares"
 							:key="`${share.shareType}:${share.shareWith}`"
 							class="dashboard-config__share">
 							<span class="dashboard-config__share-name">
-								<AccountGroup v-if="share.shareType === 'group'" :size="18" />
+								<AccountGroup
+									v-if="share.shareType === 'group'"
+									:size="18" />
 								<Account v-else :size="18" />
 								{{ share.displayName || share.shareWith }}
 							</span>
 							<NcSelect
-								:model-value="permissionOptionFor(share.permissionLevel)"
+								:model-value="
+									permissionOptionFor(share.permissionLevel)
+								"
 								:options="permissionOptions"
 								:input-label="t('launchpad', 'Permission level')"
 								label="label"
 								track-by="value"
 								:clearable="false"
 								class="dashboard-config__share-level"
-								@update:modelValue="onShareLevelChange(idx, $event)" />
+								@update:modelValue="
+									onShareLevelChange(idx, $event)
+								" />
 							<NcButton
 								type="tertiary"
 								:aria-label="t('launchpad', 'Remove share')"
@@ -182,22 +206,35 @@
 					<p v-else class="dashboard-config__hint">
 						{{ t('launchpad', 'Not shared with anyone yet.') }}
 					</p>
-					<p v-if="sharesDirty" class="dashboard-config__hint dashboard-config__hint--dirty">
-						{{ t('launchpad', 'Unsaved changes — click Save to apply.') }}
+					<p
+						v-if="sharesDirty"
+						class="dashboard-config__hint dashboard-config__hint--dirty">
+						{{
+							t('launchpad', 'Unsaved changes — click Save to apply.')
+						}}
 					</p>
 				</div>
 
 				<!-- Public link (anonymous read-only share). Applies immediately;
 				     independent of the Save button. -->
-				<div v-if="!isCreate && canManageShares" class="dashboard-config__field dashboard-config__public">
+				<div
+					v-if="!isCreate && canManageShares"
+					class="dashboard-config__field dashboard-config__public">
 					<label class="dashboard-config__label">
 						{{ t('launchpad', 'Public link') }}
 					</label>
 					<p class="dashboard-config__hint">
-						{{ t('launchpad', 'Anyone with the link can view this dashboard read-only, without a Nextcloud account.') }}
+						{{
+							t(
+								'launchpad',
+								'Anyone with the link can view this dashboard read-only, without a Nextcloud account.',
+							)
+						}}
 					</p>
 
-					<ul v-if="publicShares.length > 0" class="dashboard-config__public-list">
+					<ul
+						v-if="publicShares.length > 0"
+						class="dashboard-config__public-list">
 						<li
 							v-for="share in publicShares"
 							:key="share.id"
@@ -213,22 +250,37 @@
 								readonly
 								:aria-label="t('launchpad', 'Public share link')"
 								:value="publicShareUrl(share.token)"
-								@focus="$event.target.select()">
+								@focus="$event.target.select()" />
 							<NcButton
 								type="tertiary"
 								:aria-label="t('launchpad', 'Copy link')"
-								:title="copiedToken === share.token ? t('launchpad', 'Copied') : t('launchpad', 'Copy link')"
+								:title="
+									copiedToken === share.token
+										? t('launchpad', 'Copied')
+										: t('launchpad', 'Copy link')
+								"
 								@click="copyPublicShareUrl(share)">
 								<template #icon>
-									<Check v-if="copiedToken === share.token" :size="18" />
+									<Check
+										v-if="copiedToken === share.token"
+										:size="18" />
 									<ContentCopy v-else :size="18" />
 								</template>
 							</NcButton>
-							<span v-if="share.passwordRequired" class="dashboard-config__public-badge" :title="t('launchpad', 'Password protected')">
+							<span
+								v-if="share.passwordRequired"
+								class="dashboard-config__public-badge"
+								:title="t('launchpad', 'Password protected')">
 								<Lock :size="16" />
 							</span>
-							<span v-if="share.expiresAt" class="dashboard-config__public-expiry">
-								{{ t('launchpad', 'until {date}', { date: share.expiresAt }) }}
+							<span
+								v-if="share.expiresAt"
+								class="dashboard-config__public-expiry">
+								{{
+									t('launchpad', 'until {date}', {
+										date: share.expiresAt,
+									})
+								}}
 							</span>
 							<NcButton
 								type="tertiary"
@@ -241,7 +293,9 @@
 							</NcButton>
 						</li>
 					</ul>
-					<p v-else-if="!publicSharesLoading" class="dashboard-config__hint">
+					<p
+						v-else-if="!publicSharesLoading"
+						class="dashboard-config__hint">
 						{{ t('launchpad', 'No public links yet.') }}
 					</p>
 
@@ -255,7 +309,7 @@
 							v-model="newShareExpiry"
 							class="dashboard-config__public-date"
 							type="date"
-							:aria-label="t('launchpad', 'Expiry date (optional)')">
+							:aria-label="t('launchpad', 'Expiry date (optional)')" />
 						<NcButton
 							type="secondary"
 							:disabled="creatingPublicShare"
@@ -283,7 +337,10 @@
 					{{ t('launchpad', 'Delete dashboard') }}
 				</NcButton>
 				<div class="dashboard-config__actions-right">
-					<NcButton type="tertiary" :disabled="saving" @click="$emit('close')">
+					<NcButton
+						type="tertiary"
+						:disabled="saving"
+						@click="$emit('close')">
 						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
@@ -304,7 +361,13 @@
 </template>
 
 <script>
-import { NcModal, NcButton, NcTextField, NcSelect, NcCheckboxRadioSwitch } from '@nextcloud/vue'
+import {
+	NcModal,
+	NcButton,
+	NcTextField,
+	NcSelect,
+	NcCheckboxRadioSwitch,
+} from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
 
 import Delete from 'vue-material-design-icons/Delete.vue'
@@ -373,7 +436,7 @@ export default {
 		mode: {
 			type: String,
 			default: 'edit',
-			validator: v => ['edit', 'create'].includes(v),
+			validator: (v) => ['edit', 'create'].includes(v),
 		},
 
 		/*
@@ -396,7 +459,7 @@ export default {
 		initialTab: {
 			type: String,
 			default: 'general',
-			validator: v => ['general', 'sharing', 'default'].includes(v),
+			validator: (v) => ['general', 'sharing', 'default'].includes(v),
 		},
 	},
 
@@ -484,15 +547,26 @@ export default {
 				{ id: 'general', label: t('launchpad', 'General'), icon: Tune },
 			]
 			if (this.canManageShares) {
-				list.push({ id: 'sharing', label: t('launchpad', 'Sharing'), icon: ShareVariant })
+				list.push({
+					id: 'sharing',
+					label: t('launchpad', 'Sharing'),
+					icon: ShareVariant,
+				})
 			}
-			list.push({ id: 'default', label: t('launchpad', 'Default'), icon: StarOutline })
+			list.push({
+				id: 'default',
+				label: t('launchpad', 'Default'),
+				icon: StarOutline,
+			})
 			return list
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		canManageShares() {
 			// Only the owner can see / manage shares.
-			return this.dashboard?.isOwner !== false && (this.dashboard?.id ?? null) !== null
+			return (
+				this.dashboard?.isOwner !== false
+				&& (this.dashboard?.id ?? null) !== null
+			)
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		modalTitle() {
@@ -503,13 +577,15 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		primaryButtonLabel() {
 			if (this.saving) {
-				return this.isCreate ? t('launchpad', 'Creating…') : t('launchpad', 'Saving…')
+				return this.isCreate
+					? t('launchpad', 'Creating…')
+					: t('launchpad', 'Saving…')
 			}
 			return this.isCreate ? t('launchpad', 'Create') : t('launchpad', 'Save')
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		permissionOptions() {
-			return PERMISSION_OPTIONS.map(o => ({
+			return PERMISSION_OPTIONS.map((o) => ({
 				value: o.value,
 				label: t('launchpad', o.label),
 			}))
@@ -518,7 +594,10 @@ export default {
 			/** @spec openspec/specs/dashboards/spec.md */
 			get() {
 				const level = this.dashboard?.permissionLevel || 'full'
-				return this.permissionOptions.find(o => o.value === level) || this.permissionOptions[2]
+				return (
+					this.permissionOptions.find((o) => o.value === level)
+					|| this.permissionOptions[2]
+				)
 			},
 			/** @spec openspec/specs/dashboards/spec.md */
 			set() {
@@ -532,7 +611,7 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		sharesDirty() {
 			if (this.localShares.length !== this.serverShares.length) return true
-			const key = s => `${s.shareType}:${s.shareWith}:${s.permissionLevel}`
+			const key = (s) => `${s.shareType}:${s.shareWith}:${s.permissionLevel}`
 			const a = [...this.localShares].map(key).sort()
 			const b = [...this.serverShares].map(key).sort()
 			return a.some((v, i) => v !== b[i])
@@ -567,9 +646,10 @@ export default {
 				// to General if the requested tab is the share tab but the
 				// user cannot manage shares.
 				const wanted = this.initialTab || 'general'
-				this.currentTab = (wanted === 'sharing' && !this.canManageShares)
-					? 'general'
-					: wanted
+				this.currentTab =
+					wanted === 'sharing' && !this.canManageShares
+						? 'general'
+						: wanted
 				if (this.isCreate) {
 					this.form.name = ''
 					this.form.description = ''
@@ -587,7 +667,9 @@ export default {
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.
-					this.form.isDefault = !!this.dashboard.uuid && this.dashboard.uuid === this.defaultUuid
+					this.form.isDefault =
+						!!this.dashboard.uuid
+						&& this.dashboard.uuid === this.defaultUuid
 					this._initialIsDefault = this.form.isDefault
 					if (this.canManageShares) {
 						this.loadShares()
@@ -610,15 +692,18 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		permissionOptionFor(level) {
-			return this.permissionOptions.find(o => o.value === level) || this.permissionOptions[0]
+			return (
+				this.permissionOptions.find((o) => o.value === level)
+				|| this.permissionOptions[0]
+			)
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		async loadShares() {
 			try {
 				const response = await api.listShares(this.dashboard.id)
 				const fresh = response.data || []
-				this.serverShares = fresh.map(s => ({ ...s }))
-				this.localShares = fresh.map(s => ({ ...s }))
+				this.serverShares = fresh.map((s) => ({ ...s }))
+				this.localShares = fresh.map((s) => ({ ...s }))
 			} catch (error) {
 				console.error('Failed to load shares:', error)
 				this.serverShares = []
@@ -637,7 +722,9 @@ export default {
 			}
 			this.publicSharesLoading = true
 			try {
-				this.publicShares = await usePublicShareStore().fetchShares(this.dashboard.uuid)
+				this.publicShares = await usePublicShareStore().fetchShares(
+					this.dashboard.uuid,
+				)
 			} catch (error) {
 				console.error('Failed to load public shares:', error)
 				this.publicShares = []
@@ -699,7 +786,10 @@ export default {
 		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 		 */
 		publicShareUrl(token) {
-			return window.location.origin + generateUrl('/apps/launchpad/s/{token}', { token })
+			return (
+				window.location.origin
+				+ generateUrl('/apps/launchpad/s/{token}', { token })
+			)
 		},
 		/**
 		 * Copy a link to the clipboard and flag the row as copied briefly.
@@ -744,13 +834,13 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		mapShareeResults(response) {
-			const users = (response.data?.users || []).map(u => ({
+			const users = (response.data?.users || []).map((u) => ({
 				key: `user:${u.id}`,
 				shareType: 'user',
 				id: u.id,
 				displayName: u.displayName,
 			}))
-			const groups = (response.data?.groups || []).map(g => ({
+			const groups = (response.data?.groups || []).map((g) => ({
 				key: `group:${g.id}`,
 				shareType: 'group',
 				id: g.id,
@@ -801,7 +891,7 @@ export default {
 			if (!option) return
 			// Buffer locally — do not write to server until Save.
 			const exists = this.localShares.find(
-				s => s.shareType === option.shareType && s.shareWith === option.id,
+				(s) => s.shareType === option.shareType && s.shareWith === option.id,
 			)
 			if (!exists) {
 				this.localShares.push({
@@ -852,7 +942,7 @@ export default {
 					try {
 						await api.replaceShares(
 							this.dashboard.id,
-							this.localShares.map(s => ({
+							this.localShares.map((s) => ({
 								shareType: s.shareType,
 								shareWith: s.shareWith,
 								permissionLevel: s.permissionLevel,
@@ -875,7 +965,8 @@ export default {
 				// blocking the rest of the save flow. Skip on create
 				// (no UUID yet — pin via the per-row cog after the
 				// row appears in the list).
-				if (!this.isCreate
+				if (
+					!this.isCreate
 					&& this.dashboard
 					&& this.form.isDefault !== this._initialIsDefault
 				) {

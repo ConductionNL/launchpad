@@ -76,7 +76,10 @@ const SCHEMA = 'dashboard'
  * permission test that silently authenticates as the privileged user does not
  * error, it just stops discriminating.
  */
-async function apiAs(baseURL: string, creds: { user: string, pass: string }): Promise<APIRequestContext> {
+async function apiAs(
+	baseURL: string,
+	creds: { user: string; pass: string },
+): Promise<APIRequestContext> {
 	return request.newContext({
 		baseURL,
 		storageState: undefined,
@@ -97,18 +100,23 @@ async function manifestSlugs(api: APIRequestContext): Promise<string[]> {
 	 * "nothing is shared" — which is exactly how this scenario was once
 	 * mis-verified by hand.
 	 */
-	expect(res.status(), `manifest returned ${res.status()}: ${await res.text()}`).toBe(200)
+	expect(
+		res.status(),
+		`manifest returned ${res.status()}: ${await res.text()}`,
+	).toBe(200)
 
 	const body = await res.json()
 	expect(body).toHaveProperty('pages')
 
 	return (body.pages as Array<{ route?: string }>)
-		.map(p => (p.route ?? '').replace(/^\//, ''))
-		.filter(s => s !== '')
+		.map((p) => (p.route ?? '').replace(/^\//, ''))
+		.filter((s) => s !== '')
 }
 
 test.describe('object grants surface a shared dashboard in the manifest', () => {
-	test('the recipient sees exactly the granted dashboard, and loses it on revoke', async ({ baseURL }) => {
+	test('the recipient sees exactly the granted dashboard, and loses it on revoke', async ({
+		baseURL,
+	}) => {
 		const admin = await apiAs(baseURL!, ADMIN)
 		const grantee = await apiAs(baseURL!, RECIPIENT)
 
@@ -133,7 +141,10 @@ test.describe('object grants surface a shared dashboard in the manifest', () => 
 
 		// CONTROL, before the grant: the recipient sees neither.
 		const before = await manifestSlugs(grantee)
-		expect(before, 'the recipient must not see either dashboard before any grant').not.toContain(sharedSlug)
+		expect(
+			before,
+			'the recipient must not see either dashboard before any grant',
+		).not.toContain(sharedSlug)
 		expect(before).not.toContain(privateSlug)
 
 		// Grant read on one of them. shareType 0 = user, permission 1 = read.
@@ -145,7 +156,10 @@ test.describe('object grants surface a shared dashboard in the manifest', () => 
 		const shareId = (await grant.json()).id
 
 		const after = await manifestSlugs(grantee)
-		expect(after, 'a granted dashboard must appear in the recipient manifest').toContain(sharedSlug)
+		expect(
+			after,
+			'a granted dashboard must appear in the recipient manifest',
+		).toContain(sharedSlug)
 		expect(
 			after,
 			'the recipient must NOT see the ungranted dashboard — that would be a manifest-wide leak',
@@ -159,7 +173,10 @@ test.describe('object grants surface a shared dashboard in the manifest', () => 
 		expect(revoke.status(), await revoke.text()).toBeLessThan(300)
 
 		const afterRevoke = await manifestSlugs(grantee)
-		expect(afterRevoke, 'revoking the grant must remove it from the manifest').not.toContain(sharedSlug)
+		expect(
+			afterRevoke,
+			'revoking the grant must remove it from the manifest',
+		).not.toContain(sharedSlug)
 
 		await admin.dispose()
 		await grantee.dispose()

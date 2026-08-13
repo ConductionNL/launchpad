@@ -34,7 +34,8 @@ const ncButtonStub = {
 	name: 'NcButton',
 	props: ['type', 'disabled'],
 	emits: ['click'],
-	template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+	template:
+		'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
 }
 
 const checkboxStub = {
@@ -89,7 +90,9 @@ describe('ActionAuthMatrix', () => {
 	it('labels the sentinel column readably instead of showing "@all" raw', async () => {
 		const wrapper = await mountWith(payload)
 
-		const headings = wrapper.findAll('.launchpad-admin__matrix-group').map((th) => th.text())
+		const headings = wrapper
+			.findAll('.launchpad-admin__matrix-group')
+			.map((th) => th.text())
 		expect(headings).toEqual(['admin', 'All logged-in users', 'editors'])
 	})
 
@@ -97,7 +100,9 @@ describe('ActionAuthMatrix', () => {
 		const wrapper = await mountWith(payload)
 
 		expect(wrapper.vm.isChecked('dashboard.list', '@all')).toBe(true)
-		expect(wrapper.vm.isChecked('analytics.instance-summary', '@all')).toBe(false)
+		expect(wrapper.vm.isChecked('analytics.instance-summary', '@all')).toBe(
+			false,
+		)
 	})
 
 	it('lets an admin revoke the baseline grant', async () => {

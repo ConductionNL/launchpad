@@ -7,7 +7,10 @@
 	<div class="templates-page" data-test="templates-page">
 		<div class="launchpad-admin__section-header">
 			<h3>{{ t('launchpad', 'Dashboard templates') }}</h3>
-			<NcButton type="primary" data-testid="admin-create-template" @click="createTemplate">
+			<NcButton
+				type="primary"
+				data-testid="admin-create-template"
+				@click="createTemplate">
 				<template #icon>
 					<Plus :size="20" />
 				</template>
@@ -16,7 +19,12 @@
 		</div>
 
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Create dashboard templates that will be applied to users based on their groups.') }}
+			{{
+				t(
+					'launchpad',
+					'Create dashboard templates that will be applied to users based on their groups.',
+				)
+			}}
 		</p>
 
 		<div v-if="templates.length === 0" class="launchpad-admin__empty">
@@ -74,11 +82,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-	CnDashboardIcon,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent, CnDashboardIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
@@ -176,7 +180,11 @@ export default {
 		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		async deleteTemplate(template) {
-			if (!confirm(t('launchpad', 'Are you sure you want to delete this template?'))) {
+			if (
+				!confirm(
+					t('launchpad', 'Are you sure you want to delete this template?'),
+				)
+			) {
 				return
 			}
 

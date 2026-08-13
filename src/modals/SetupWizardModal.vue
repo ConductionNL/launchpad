@@ -12,7 +12,12 @@
 			<header class="setup-wizard__header">
 				<h2>{{ t('launchpad', 'LaunchPad setup wizard') }}</h2>
 				<p class="setup-wizard__counter" data-test="setup-wizard-counter">
-					{{ t('launchpad', 'Step {n} / {total}', { n: currentStep, total: totalSteps }) }}
+					{{
+						t('launchpad', 'Step {n} / {total}', {
+							n: currentStep,
+							total: totalSteps,
+						})
+					}}
 				</p>
 			</header>
 
@@ -21,43 +26,81 @@
 				<div v-if="currentStep === 1" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Welcome') }}</h3>
 					<p>
-						{{ t('launchpad', 'Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.') }}
+						{{
+							t(
+								'launchpad',
+								'Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.',
+							)
+						}}
 					</p>
 				</div>
 
 				<!-- Step 2 — Storage backend (REQ-WIZ-003) -->
 				<div v-else-if="currentStep === 2" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Storage backend') }}</h3>
-					<p>{{ t('launchpad', 'Choose how LaunchPad stores dashboard content.') }}</p>
+					<p>
+						{{
+							t(
+								'launchpad',
+								'Choose how LaunchPad stores dashboard content.',
+							)
+						}}
+					</p>
 
 					<label class="setup-wizard__radio">
 						<input
 							v-model="storage"
 							type="radio"
 							value="database"
-							data-test="storage-database">
+							data-test="storage-database" />
 						<div>
-							<strong>{{ t('launchpad', 'Database (default)') }}</strong>
+							<strong>{{
+								t('launchpad', 'Database (default)')
+							}}</strong>
 							<p class="setup-wizard__hint">
-								{{ t('launchpad', 'Store dashboard content in the LaunchPad database table.') }}
+								{{
+									t(
+										'launchpad',
+										'Store dashboard content in the LaunchPad database table.',
+									)
+								}}
 							</p>
 						</div>
 					</label>
 
 					<label
 						class="setup-wizard__radio"
-						:class="{ 'setup-wizard__radio--disabled': !groupfolderAvailable }"
-						:title="groupfolderAvailable ? '' : t('launchpad', 'GroupFolder app is not installed. Install \'Nextcloud GroupFolders\' to use this option.')">
+						:class="{
+							'setup-wizard__radio--disabled': !groupfolderAvailable,
+						}"
+						:title="
+							groupfolderAvailable
+								? ''
+								: t(
+										'launchpad',
+										'GroupFolder app is not installed. Install \'Nextcloud GroupFolders\' to use this option.',
+									)
+						">
 						<input
 							v-model="storage"
 							type="radio"
 							value="groupfolder"
 							:disabled="!groupfolderAvailable"
-							data-test="storage-groupfolder">
+							data-test="storage-groupfolder" />
 						<div>
-							<strong>{{ t('launchpad', 'GroupFolder (recommended for org use)') }}</strong>
+							<strong>{{
+								t(
+									'launchpad',
+									'GroupFolder (recommended for org use)',
+								)
+							}}</strong>
 							<p class="setup-wizard__hint">
-								{{ t('launchpad', 'Store dashboard content in Nextcloud GroupFolders for collaborative access.') }}
+								{{
+									t(
+										'launchpad',
+										'Store dashboard content in Nextcloud GroupFolders for collaborative access.',
+									)
+								}}
 							</p>
 						</div>
 					</label>
@@ -67,7 +110,12 @@
 				<div v-else-if="currentStep === 3" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Group priority order') }}</h3>
 					<p>
-						{{ t('launchpad', 'Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.') }}
+						{{
+							t(
+								'launchpad',
+								'Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.',
+							)
+						}}
 					</p>
 					<GroupPriorityOrder :initial-active="[]" />
 				</div>
@@ -85,10 +133,20 @@
 				<div v-else-if="currentStep === 5" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Admin roles') }}</h3>
 					<p>
-						{{ t('launchpad', 'Assign the "Dashboard Admin" role to a Nextcloud group to delegate LaunchPad administration.') }}
+						{{
+							t(
+								'launchpad',
+								'Assign the "Dashboard Admin" role to a Nextcloud group to delegate LaunchPad administration.',
+							)
+						}}
 					</p>
 					<p class="setup-wizard__note" data-test="admin-roles-stub">
-						{{ t('launchpad', 'The admin-roles capability is not yet available; this step will activate once it ships.') }}
+						{{
+							t(
+								'launchpad',
+								'The admin-roles capability is not yet available; this step will activate once it ships.',
+							)
+						}}
 					</p>
 				</div>
 
@@ -100,10 +158,20 @@
 				<div v-else-if="currentStep === 6" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Footer configuration') }}</h3>
 					<p>
-						{{ t('launchpad', 'Customize the footer content and appearance for your intranet.') }}
+						{{
+							t(
+								'launchpad',
+								'Customize the footer content and appearance for your intranet.',
+							)
+						}}
 					</p>
 					<p class="setup-wizard__note" data-test="footer-stub">
-						{{ t('launchpad', 'The footer-customization capability is not yet available; this step will activate once it ships.') }}
+						{{
+							t(
+								'launchpad',
+								'The footer-customization capability is not yet available; this step will activate once it ships.',
+							)
+						}}
 					</p>
 				</div>
 
@@ -111,7 +179,12 @@
 				<div v-else-if="currentStep === 7" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'All set') }}</h3>
 					<p>
-						{{ t('launchpad', 'Your setup is complete. Click Finish to save changes and dismiss the setup banner.') }}
+						{{
+							t(
+								'launchpad',
+								'Your setup is complete. Click Finish to save changes and dismiss the setup banner.',
+							)
+						}}
 					</p>
 				</div>
 			</section>
@@ -136,7 +209,11 @@
 					:disabled="loading"
 					data-test="setup-wizard-next"
 					@click="onNext">
-					{{ isFinalStep ? t('launchpad', 'Finish') : t('launchpad', 'Next') }}
+					{{
+						isFinalStep
+							? t('launchpad', 'Finish')
+							: t('launchpad', 'Next')
+					}}
 				</NcButton>
 			</footer>
 		</div>
@@ -201,7 +278,10 @@ export default {
 					this.storage = data.contentStorage || 'database'
 					this.groupfolderAvailable = !!data.groupfolderAvailable
 					if (data.currentRecommendedStep && !data.complete) {
-						this.currentStep = Math.max(1, Math.min(data.currentRecommendedStep, this.totalSteps))
+						this.currentStep = Math.max(
+							1,
+							Math.min(data.currentRecommendedStep, this.totalSteps),
+						)
 					}
 				}
 			} catch (error) {

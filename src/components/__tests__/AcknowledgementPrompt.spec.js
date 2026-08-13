@@ -59,10 +59,15 @@ describe('AcknowledgementPrompt', () => {
 			propsData: { placement },
 		})
 
-		expect(wrapper.find('[data-testid="acknowledgement-prompt"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="acknowledgement-prompt-text"]').text())
-			.toContain('I have read the 2026 integriteitscode')
-		expect(wrapper.findAll('[data-testid="acknowledgement-signoff"]')).toHaveLength(1)
+		expect(wrapper.find('[data-testid="acknowledgement-prompt"]').exists()).toBe(
+			true,
+		)
+		expect(
+			wrapper.find('[data-testid="acknowledgement-prompt-text"]').text(),
+		).toContain('I have read the 2026 integriteitscode')
+		expect(
+			wrapper.findAll('[data-testid="acknowledgement-signoff"]'),
+		).toHaveLength(1)
 	})
 
 	it('REQ-ACK-002: exposes NO dismiss / close / snooze bypass affordance', () => {

@@ -7,7 +7,12 @@
 	<div class="sharing-policy" data-test="dashboard-sharing-policy">
 		<h3>{{ t('launchpad', 'Organisation sharing defaults') }}</h3>
 		<p class="sharing-policy__hint">
-			{{ t('launchpad', 'Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.') }}
+			{{
+				t(
+					'launchpad',
+					'Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.',
+				)
+			}}
 		</p>
 
 		<div class="sharing-policy__field">
@@ -35,7 +40,12 @@
 				data-test="sharing-policy-forced-groups"
 				@update:modelValue="save" />
 			<p class="sharing-policy__hint">
-				{{ t('launchpad', 'Members of these groups always receive every newly created dashboard.') }}
+				{{
+					t(
+						'launchpad',
+						'Members of these groups always receive every newly created dashboard.',
+					)
+				}}
 			</p>
 		</div>
 	</div>
@@ -76,7 +86,10 @@ export default {
 
 	data() {
 		return {
-			permissionOptions: PERMISSION_OPTIONS.map(o => ({ id: o.id, label: t('launchpad', o.label) })),
+			permissionOptions: PERMISSION_OPTIONS.map((o) => ({
+				id: o.id,
+				label: t('launchpad', o.label),
+			})),
 			defaultPermission: null,
 			forcedGroups: [],
 		}
@@ -97,7 +110,8 @@ export default {
 				const { data } = await api.getAdminSettings()
 				const settings = data?.data ?? data ?? {}
 				const level = settings.defaultSharePermissionLevel
-				this.defaultPermission = this.permissionOptions.find(o => o.id === level)
+				this.defaultPermission =
+					this.permissionOptions.find((o) => o.id === level)
 					|| this.permissionOptions[1]
 				this.forcedGroups = Array.isArray(settings.forcedShareGroups)
 					? settings.forcedShareGroups

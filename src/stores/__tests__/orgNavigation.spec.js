@@ -100,7 +100,10 @@ describe('useOrgNavigationStore', () => {
 		const ok = await store.updateTree([{ id: 'b', label: 'B' }], 'en')
 
 		expect(ok).toBe(true)
-		expect(mockApi.updateOrgNavigation).toHaveBeenCalledWith([{ id: 'b', label: 'B' }], 'en')
+		expect(mockApi.updateOrgNavigation).toHaveBeenCalledWith(
+			[{ id: 'b', label: 'B' }],
+			'en',
+		)
 		expect(store.tree).toEqual([{ id: 'b', label: 'B' }])
 		expect(store.language).toBe('en')
 	})
@@ -120,7 +123,9 @@ describe('useOrgNavigationStore', () => {
 
 	it('REQ-ONAV-004: fetchPosition stores the value when valid', async () => {
 		const { useOrgNavigationStore } = await import('../orgNavigation.js')
-		mockApi.getOrgNavigationPosition.mockResolvedValue({ data: { position: 'left' } })
+		mockApi.getOrgNavigationPosition.mockResolvedValue({
+			data: { position: 'left' },
+		})
 
 		const store = useOrgNavigationStore()
 		await store.fetchPosition()
@@ -141,7 +146,9 @@ describe('useOrgNavigationStore', () => {
 
 	it('REQ-ONAV-004: updatePosition persists accepted values', async () => {
 		const { useOrgNavigationStore } = await import('../orgNavigation.js')
-		mockApi.updateOrgNavigationPosition.mockResolvedValue({ data: { position: 'top' } })
+		mockApi.updateOrgNavigationPosition.mockResolvedValue({
+			data: { position: 'top' },
+		})
 
 		const store = useOrgNavigationStore()
 		const ok = await store.updatePosition('top')

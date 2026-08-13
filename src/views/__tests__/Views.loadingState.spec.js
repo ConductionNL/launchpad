@@ -54,8 +54,14 @@ beforeEach(() => {
 })
 
 const childStubs = {
-	DashboardGrid: { name: 'DashboardGrid', template: '<div class="stub-dashboard-grid" />' },
-	DashboardSwitcherSidebar: { name: 'DashboardSwitcherSidebar', template: '<div />' },
+	DashboardGrid: {
+		name: 'DashboardGrid',
+		template: '<div class="stub-dashboard-grid" />',
+	},
+	DashboardSwitcherSidebar: {
+		name: 'DashboardSwitcherSidebar',
+		template: '<div />',
+	},
 	SidebarBackdrop: { name: 'SidebarBackdrop', template: '<div />' },
 	WidgetPickerModal: { name: 'WidgetPickerModal', template: '<div />' },
 	CnAddWidgetModal: { name: 'CnAddWidgetModal', template: '<div />' },
@@ -63,11 +69,15 @@ const childStubs = {
 	TileEditor: { name: 'TileEditor', template: '<div />' },
 	WidgetContextMenu: { name: 'WidgetContextMenu', template: '<div />' },
 	DashboardConfigModal: { name: 'DashboardConfigModal', template: '<div />' },
-	NcLoadingIcon: { name: 'NcLoadingIcon', template: '<span class="nc-loading-icon-stub" />' },
+	NcLoadingIcon: {
+		name: 'NcLoadingIcon',
+		template: '<span class="nc-loading-icon-stub" />',
+	},
 	NcEmptyContent: {
 		name: 'NcEmptyContent',
 		props: { name: String, description: String },
-		template: '<div class="empty-content"><slot name="icon" /><slot /><slot name="action" /></div>',
+		template:
+			'<div class="empty-content"><slot name="icon" /><slot /><slot name="action" /></div>',
 	},
 	NcButton: { name: 'NcButton', template: '<button><slot /></button>' },
 	ViewDashboard: { name: 'ViewDashboard', template: '<span />' },

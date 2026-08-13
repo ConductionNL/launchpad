@@ -24,7 +24,6 @@ function makeWidgetBridge() {
 	// We cannot re-import the singleton, so we replicate the class here and
 	// verify the same behaviour as the exported singleton's methods.
 	class WidgetBridge {
-
 		constructor() {
 			this.widgetCallbacks = new Map()
 			this.statusCallbacks = new Map()
@@ -39,8 +38,10 @@ function makeWidgetBridge() {
 		}
 
 		pollForCallback(widgetId, options = {}) {
-			const intervalMs = options.intervalMs !== undefined ? options.intervalMs : 200
-			const maxRetries = options.maxRetries !== undefined ? options.maxRetries : 15
+			const intervalMs =
+				options.intervalMs !== undefined ? options.intervalMs : 200
+			const maxRetries =
+				options.maxRetries !== undefined ? options.maxRetries : 15
 			const signal = options.signal || null
 
 			if (this.hasWidgetCallback(widgetId)) {
@@ -93,7 +94,6 @@ function makeWidgetBridge() {
 				}, intervalMs)
 			})
 		}
-
 	}
 
 	return new WidgetBridge()
@@ -131,7 +131,10 @@ describe('WidgetBridge.pollForCallback — REQ-LWB-005 + REQ-LWB-006', () => {
 
 	it('resolves true when callback registers mid-poll (happy path)', async () => {
 		const bridge = makeWidgetBridge()
-		const promise = bridge.pollForCallback('notes', { intervalMs: 200, maxRetries: 15 })
+		const promise = bridge.pollForCallback('notes', {
+			intervalMs: 200,
+			maxRetries: 15,
+		})
 
 		// Advance 2 ticks (400 ms) without registering
 		vi.advanceTimersByTime(400)
@@ -147,7 +150,10 @@ describe('WidgetBridge.pollForCallback — REQ-LWB-005 + REQ-LWB-006', () => {
 
 	it('resolves false after max retries are exhausted (timeout)', async () => {
 		const bridge = makeWidgetBridge()
-		const promise = bridge.pollForCallback('fictional_widget', { intervalMs: 200, maxRetries: 15 })
+		const promise = bridge.pollForCallback('fictional_widget', {
+			intervalMs: 200,
+			maxRetries: 15,
+		})
 
 		// Exhaust all 15 retries (15 × 200 ms = 3000 ms)
 		vi.advanceTimersByTime(3000)
@@ -160,7 +166,10 @@ describe('WidgetBridge.pollForCallback — REQ-LWB-005 + REQ-LWB-006', () => {
 		const bridge = makeWidgetBridge()
 		const hasCallbackSpy = vi.spyOn(bridge, 'hasWidgetCallback')
 
-		const promise = bridge.pollForCallback('fictional_widget', { intervalMs: 200, maxRetries: 3 })
+		const promise = bridge.pollForCallback('fictional_widget', {
+			intervalMs: 200,
+			maxRetries: 3,
+		})
 
 		// 3 retries
 		vi.advanceTimersByTime(600)
@@ -180,14 +189,20 @@ describe('WidgetBridge.pollForCallback — REQ-LWB-005 + REQ-LWB-006', () => {
 		const controller = new AbortController()
 		controller.abort()
 
-		const result = await bridge.pollForCallback('notes', { signal: controller.signal })
+		const result = await bridge.pollForCallback('notes', {
+			signal: controller.signal,
+		})
 		expect(result).toBe(false)
 	})
 
 	it('resolves false and clears interval when signal is aborted mid-poll', async () => {
 		const bridge = makeWidgetBridge()
 		const controller = new AbortController()
-		const promise = bridge.pollForCallback('notes', { intervalMs: 200, maxRetries: 15, signal: controller.signal })
+		const promise = bridge.pollForCallback('notes', {
+			intervalMs: 200,
+			maxRetries: 15,
+			signal: controller.signal,
+		})
 
 		// Advance a couple of ticks
 		vi.advanceTimersByTime(400)
@@ -228,7 +243,9 @@ describe('WidgetBridge.pollForCallback — REQ-LWB-005 + REQ-LWB-006', () => {
 
 		// pollForCallback should resolve synchronously too (already registered)
 		let resolved = null
-		bridge.pollForCallback('notes').then((v) => { resolved = v })
+		bridge.pollForCallback('notes').then((v) => {
+			resolved = v
+		})
 		// Resolved synchronously via Promise.resolve — microtask flush needed
 		return Promise.resolve().then(() => {
 			expect(resolved).toBe(true)

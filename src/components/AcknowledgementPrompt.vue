@@ -26,7 +26,9 @@
 			<p class="launchpad-ack-prompt__title">
 				{{ t('launchpad', 'Acknowledgement required') }}
 			</p>
-			<p class="launchpad-ack-prompt__text" data-testid="acknowledgement-prompt-text">
+			<p
+				class="launchpad-ack-prompt__text"
+				data-testid="acknowledgement-prompt-text">
 				{{ promptText }}
 			</p>
 			<p
@@ -36,7 +38,10 @@
 				data-testid="acknowledgement-prompt-deadline">
 				{{ deadlineLabel }}
 			</p>
-			<p v-if="error" class="launchpad-ack-prompt__error" data-testid="acknowledgement-prompt-error">
+			<p
+				v-if="error"
+				class="launchpad-ack-prompt__error"
+				data-testid="acknowledgement-prompt-error">
 				{{ error }}
 			</p>
 			<div class="launchpad-ack-prompt__actions">
@@ -99,8 +104,10 @@ export default {
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 		 */
 		promptText() {
-			return this.placement.acknowledgementPrompt
+			return (
+				this.placement.acknowledgementPrompt
 				|| t('launchpad', 'Please confirm you have read this item.')
+			)
 		},
 
 		/**
@@ -126,7 +133,9 @@ export default {
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 		 */
 		deadlineLabel() {
-			return t('launchpad', 'Deadline: {date}', { date: this.placement.acknowledgementDeadline })
+			return t('launchpad', 'Deadline: {date}', {
+				date: this.placement.acknowledgementDeadline,
+			})
 		},
 	},
 
@@ -147,7 +156,10 @@ export default {
 				await this.dashboardStore.acknowledgePlacement(this.placement)
 				this.$emit('acknowledged', this.placement)
 			} catch (e) {
-				this.error = t('launchpad', 'Could not record your acknowledgement. Please try again.')
+				this.error = t(
+					'launchpad',
+					'Could not record your acknowledgement. Please try again.',
+				)
 				showError(this.error)
 			} finally {
 				this.submitting = false

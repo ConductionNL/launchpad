@@ -30,11 +30,14 @@ const ADMIN = {
 }
 
 const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/api/admin/settings`
-const CREATE_URL   = `${BASE}/index.php/apps/launchpad/api/dashboard`
-const FORK_URL     = (uuid: string) => `${BASE}/index.php/apps/launchpad/api/dashboards/${encodeURIComponent(uuid)}/fork`
+const CREATE_URL = `${BASE}/index.php/apps/launchpad/api/dashboard`
+const FORK_URL = (uuid: string) =>
+	`${BASE}/index.php/apps/launchpad/api/dashboards/${encodeURIComponent(uuid)}/fork`
 
 /** Make an authenticated request context using HTTP Basic auth. */
-async function adminApi(playwright: { request: { newContext: typeof import('@playwright/test').request.newContext } }): Promise<APIRequestContext> {
+async function adminApi(playwright: {
+	request: { newContext: typeof import('@playwright/test').request.newContext }
+}): Promise<APIRequestContext> {
 	return playwright.request.newContext({
 		baseURL: BASE,
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
@@ -43,11 +46,16 @@ async function adminApi(playwright: { request: { newContext: typeof import('@pla
 }
 
 /** Toggle the allow_user_dashboards admin flag. */
-async function setAllowUserDashboards(api: APIRequestContext, enabled: boolean): Promise<void> {
+async function setAllowUserDashboards(
+	api: APIRequestContext,
+	enabled: boolean,
+): Promise<void> {
 	const res = await api.put(SETTINGS_URL, { data: { allowUserDash: enabled } })
 	if (!res.ok()) {
 		// eslint-disable-next-line no-console
-		console.warn(`setAllowUserDashboards(${enabled}): PUT returned ${res.status()}`)
+		console.warn(
+			`setAllowUserDashboards(${enabled}): PUT returned ${res.status()}`,
+		)
 	}
 }
 
@@ -75,7 +83,7 @@ test.describe('allow-personal-dashboards-flag — API-level 403 enforcement', ()
 		// Flag is off — creation MUST be blocked.
 		expect(res.status()).toBe(403)
 
-		const body = await res.json() as Record<string, unknown>
+		const body = (await res.json()) as Record<string, unknown>
 		const payload = (body.data ?? body) as Record<string, unknown>
 		expect(payload.error).toBe('personal_dashboards_disabled')
 		expect(payload.status).toBe('error')
@@ -92,7 +100,7 @@ test.describe('allow-personal-dashboards-flag — API-level 403 enforcement', ()
 		// Flag is off — fork MUST be blocked regardless of UUID.
 		expect(res.status()).toBe(403)
 
-		const body = await res.json() as Record<string, unknown>
+		const body = (await res.json()) as Record<string, unknown>
 		const payload = (body.data ?? body) as Record<string, unknown>
 		expect(payload.error).toBe('personal_dashboards_disabled')
 		expect(payload.status).toBe('error')

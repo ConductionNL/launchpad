@@ -15,20 +15,26 @@
 		size="normal"
 		@close="$emit('close')">
 		<div class="tile-editor">
-			<h2>{{ tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile') }}</h2>
+			<h2>
+				{{
+					tile
+						? t('launchpad', 'Edit Tile')
+						: t('launchpad', 'Create Tile')
+				}}
+			</h2>
 
 			<div class="tile-editor__preview">
 				<div
 					class="tile-preview"
 					:style="{
 						backgroundColor: form.backgroundColor,
-						color: form.textColor
+						color: form.textColor,
 					}">
 					<img
 						v-if="isUrlIcon"
 						class="tile-preview__icon"
 						:src="displayIcon"
-						alt="">
+						alt="" />
 					<svg
 						v-else
 						class="tile-preview__icon"
@@ -63,15 +69,18 @@
 				<div class="form-row">
 					<div class="form-row__item">
 						<label>{{ t('launchpad', 'Background Color') }}</label>
-						<NcColorPicker
-							v-model="form.backgroundColor">
+						<NcColorPicker v-model="form.backgroundColor">
 							<NcButton
 								type="tertiary"
-								:aria-label="t('launchpad', 'Pick background color')">
+								:aria-label="
+									t('launchpad', 'Pick background color')
+								">
 								<template #icon>
 									<div
 										class="color-preview"
-										:style="{ backgroundColor: form.backgroundColor }" />
+										:style="{
+											backgroundColor: form.backgroundColor,
+										}" />
 								</template>
 								{{ form.backgroundColor }}
 							</NcButton>
@@ -80,15 +89,16 @@
 
 					<div class="form-row__item">
 						<label>{{ t('launchpad', 'Text Color') }}</label>
-						<NcColorPicker
-							v-model="form.textColor">
+						<NcColorPicker v-model="form.textColor">
 							<NcButton
 								type="tertiary"
 								:aria-label="t('launchpad', 'Pick text color')">
 								<template #icon>
 									<div
 										class="color-preview"
-										:style="{ backgroundColor: form.textColor }" />
+										:style="{
+											backgroundColor: form.textColor,
+										}" />
 								</template>
 								{{ form.textColor }}
 							</NcButton>
@@ -99,7 +109,9 @@
 				<NcTextField
 					v-model="form.linkValue"
 					:label="t('launchpad', 'URL')"
-					:placeholder="t('launchpad', 'https://example.com or /apps/files')"
+					:placeholder="
+						t('launchpad', 'https://example.com or /apps/files')
+					"
 					type="text" />
 
 				<div class="tile-editor__health-ping">
@@ -107,7 +119,9 @@
 						:model-value="form.healthPingEnabled"
 						type="switch"
 						@update:modelValue="onHealthPingToggle">
-						{{ t('launchpad', 'Show a live status badge (health ping)') }}
+						{{
+							t('launchpad', 'Show a live status badge (health ping)')
+						}}
 					</NcCheckboxRadioSwitch>
 
 					<template v-if="form.healthPingEnabled">
@@ -127,26 +141,31 @@
 								<NcTextField
 									v-model="form.expectedStatus"
 									type="number"
-									:label="t('launchpad', 'Expected HTTP status')" />
+									:label="
+										t('launchpad', 'Expected HTTP status')
+									" />
 							</div>
 							<div class="form-row__item">
 								<NcTextField
 									v-model="form.pingInterval"
 									type="number"
-									:label="t('launchpad', 'Check interval (seconds)')" />
+									:label="
+										t('launchpad', 'Check interval (seconds)')
+									" />
 							</div>
 						</div>
 						<p class="tile-editor__hint-small">
-							{{ t('launchpad', 'Minimum {min} seconds.', { min: MIN_PING_INTERVAL }) }}
+							{{
+								t('launchpad', 'Minimum {min} seconds.', {
+									min: MIN_PING_INTERVAL,
+								})
+							}}
 						</p>
 					</template>
 				</div>
 
 				<div class="tile-editor__actions">
-					<NcButton
-						v-if="tile"
-						type="error"
-						@click="$emit('delete')">
+					<NcButton v-if="tile" type="error" @click="$emit('delete')">
 						{{ t('launchpad', 'Delete') }}
 					</NcButton>
 					<div class="tile-editor__actions-right">
@@ -164,7 +183,15 @@
 </template>
 
 <script>
-import { NcModal, NcButton, NcTextField, NcColorPicker, NcCheckboxRadioSwitch, CnIconBrowser, isCustomIconUrl } from '@conduction/nextcloud-vue'
+import {
+	NcModal,
+	NcButton,
+	NcTextField,
+	NcColorPicker,
+	NcCheckboxRadioSwitch,
+	CnIconBrowser,
+	isCustomIconUrl,
+} from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
@@ -372,7 +399,10 @@ export default {
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
 		async checkHealthUrlAllowed() {
-			if (!this.form.healthPingEnabled || String(this.form.healthUrl || '').trim() === '') {
+			if (
+				!this.form.healthPingEnabled
+				|| String(this.form.healthUrl || '').trim() === ''
+			) {
 				this.healthUrlError = ''
 				return
 			}
@@ -380,9 +410,18 @@ export default {
 				healthPingEnabled: true,
 				healthUrl: this.form.healthUrl,
 			})
-			if (result.valid === false && result.errors.includes('host_not_allowed')) {
-				this.healthUrlError = t('launchpad', 'This host is not on the allow-list.')
-			} else if (result.valid === false && result.errors.includes('invalid_url')) {
+			if (
+				result.valid === false
+				&& result.errors.includes('host_not_allowed')
+			) {
+				this.healthUrlError = t(
+					'launchpad',
+					'This host is not on the allow-list.',
+				)
+			} else if (
+				result.valid === false
+				&& result.errors.includes('invalid_url')
+			) {
 				this.healthUrlError = t('launchpad', 'Enter a valid http(s) URL.')
 			} else {
 				this.healthUrlError = ''
@@ -393,7 +432,8 @@ export default {
 		saveTile() {
 			this.$emit('save', {
 				...this.form,
-				expectedStatus: Number(this.form.expectedStatus) || DEFAULT_EXPECTED_STATUS,
+				expectedStatus:
+					Number(this.form.expectedStatus) || DEFAULT_EXPECTED_STATUS,
 				pingInterval: this.clampPingInterval(this.form.pingInterval),
 			})
 		},

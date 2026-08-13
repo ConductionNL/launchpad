@@ -8,13 +8,20 @@
 		<header class="launchpad-analytics__header">
 			<h3>{{ t('launchpad', 'View analytics') }}</h3>
 			<p class="launchpad-analytics__hint">
-				{{ t('launchpad', 'Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored.') }}
+				{{
+					t(
+						'launchpad',
+						'Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored.',
+					)
+				}}
 			</p>
 		</header>
 
 		<!-- Period selector -->
 		<div class="launchpad-analytics__field">
-			<label for="launchpad-analytics-period" class="launchpad-analytics__label">
+			<label
+				for="launchpad-analytics-period"
+				class="launchpad-analytics__label">
 				{{ t('launchpad', 'Period') }}
 			</label>
 			<select
@@ -110,9 +117,11 @@
 					class="launchpad-analytics__button"
 					:disabled="exporting"
 					@click="exportCsv">
-					{{ exporting
-						? t('launchpad', 'Exporting…')
-						: t('launchpad', 'Export analytics (CSV)') }}
+					{{
+						exporting
+							? t('launchpad', 'Exporting…')
+							: t('launchpad', 'Export analytics (CSV)')
+					}}
 				</button>
 			</div>
 		</template>
@@ -168,9 +177,7 @@ export default {
 					period: this.period,
 					top5: [],
 				}
-				this.topDashboards = Array.isArray(topResp.data)
-					? topResp.data
-					: []
+				this.topDashboards = Array.isArray(topResp.data) ? topResp.data : []
 			} catch (e) {
 				console.error('Failed to load analytics:', e)
 				this.error = t(
@@ -192,10 +199,7 @@ export default {
 			this.exporting = true
 			try {
 				const response = await api.getAnalyticsCsvExport(this.period)
-				const blob = new Blob(
-					[response.data],
-					{ type: 'text/csv' },
-				)
+				const blob = new Blob([response.data], { type: 'text/csv' })
 				const url = URL.createObjectURL(blob)
 				const today = new Date().toISOString().slice(0, 10)
 				const a = document.createElement('a')

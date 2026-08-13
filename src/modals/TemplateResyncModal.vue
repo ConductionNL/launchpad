@@ -25,7 +25,12 @@
 		<div class="launchpad-resync" data-testid="template-resync-dialog">
 			<h2>{{ t('launchpad', 'Re-sync to existing copies') }}</h2>
 			<p class="launchpad-resync__hint">
-				{{ t('launchpad', 'Push this template’s current layout to everyone who already has a copy.') }}
+				{{
+					t(
+						'launchpad',
+						'Push this template’s current layout to everyone who already has a copy.',
+					)
+				}}
 			</p>
 
 			<div class="launchpad-resync__field">
@@ -43,7 +48,10 @@
 				</p>
 			</div>
 
-			<div v-if="error" class="launchpad-resync__error" data-testid="template-resync-error">
+			<div
+				v-if="error"
+				class="launchpad-resync__error"
+				data-testid="template-resync-error">
 				{{ error }}
 			</div>
 
@@ -52,8 +60,15 @@
 			</div>
 
 			<template v-else-if="plan">
-				<div class="launchpad-resync__summary" data-testid="template-resync-summary">
-					{{ t('launchpad', '{count} of {total} copies affected', { count: plan.affectedCount, total: plan.totalCopies }) }}
+				<div
+					class="launchpad-resync__summary"
+					data-testid="template-resync-summary">
+					{{
+						t('launchpad', '{count} of {total} copies affected', {
+							count: plan.affectedCount,
+							total: plan.totalCopies,
+						})
+					}}
 				</div>
 
 				<table v-if="plan.copies.length > 0" class="launchpad-resync__table">
@@ -81,17 +96,33 @@
 				</table>
 			</template>
 
-			<div v-if="applied" class="launchpad-resync__success" data-testid="template-resync-success">
+			<div
+				v-if="applied"
+				class="launchpad-resync__success"
+				data-testid="template-resync-success">
 				<span v-if="applied.async">
-					{{ t('launchpad', 'Re-sync queued — {count} copies will be updated in the background.', { count: applied.affectedCount }) }}
+					{{
+						t(
+							'launchpad',
+							'Re-sync queued — {count} copies will be updated in the background.',
+							{ count: applied.affectedCount },
+						)
+					}}
 				</span>
 				<span v-else>
-					{{ t('launchpad', 'Re-sync applied — {count} copies updated.', { count: applied.affectedCount }) }}
+					{{
+						t('launchpad', 'Re-sync applied — {count} copies updated.', {
+							count: applied.affectedCount,
+						})
+					}}
 				</span>
 			</div>
 
 			<div class="launchpad-resync__actions">
-				<NcButton type="secondary" data-testid="template-resync-cancel" @click="handleClose">
+				<NcButton
+					type="secondary"
+					data-testid="template-resync-cancel"
+					@click="handleClose">
 					{{ t('launchpad', 'Close') }}
 				</NcButton>
 				<NcButton
@@ -114,7 +145,12 @@
 </template>
 
 <script>
-import { NcModal, NcButton, NcSelect, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import {
+	NcModal,
+	NcButton,
+	NcSelect,
+	NcLoadingIcon,
+} from '@conduction/nextcloud-vue'
 import { api } from '../services/api.js'
 
 /**
@@ -152,8 +188,14 @@ export default {
 				label: t('launchpad', 'Overwrite — replace the whole layout'),
 			},
 			strategyOptions: [
-				{ id: 'overwrite', label: t('launchpad', 'Overwrite — replace the whole layout') },
-				{ id: 'merge', label: t('launchpad', 'Merge — keep personally added widgets') },
+				{
+					id: 'overwrite',
+					label: t('launchpad', 'Overwrite — replace the whole layout'),
+				},
+				{
+					id: 'merge',
+					label: t('launchpad', 'Merge — keep personally added widgets'),
+				},
 			],
 			loading: false,
 			applying: false,
@@ -172,7 +214,11 @@ export default {
 		 * @spec openspec/specs/admin-templates/spec.md
 		 */
 		canApply() {
-			return this.plan !== null && this.loading === false && this.applying === false
+			return (
+				this.plan !== null
+				&& this.loading === false
+				&& this.applying === false
+			)
 		},
 
 		/**
@@ -183,9 +229,15 @@ export default {
 		 */
 		strategyHint() {
 			if (this.strategy?.id === 'merge') {
-				return t('launchpad', 'Adds and updates template widgets and restores compulsory widgets, but keeps widgets users added themselves.')
+				return t(
+					'launchpad',
+					'Adds and updates template widgets and restores compulsory widgets, but keeps widgets users added themselves.',
+				)
 			}
-			return t('launchpad', 'Replaces each copy’s entire layout with the template’s current layout — personally-added widgets will be removed.')
+			return t(
+				'launchpad',
+				'Replaces each copy’s entire layout with the template’s current layout — personally-added widgets will be removed.',
+			)
 		},
 	},
 

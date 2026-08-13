@@ -27,7 +27,10 @@
 
 			<div v-else-if="error" class="calendar-widget__error">
 				<p>{{ t('launchpad', 'Failed to load events') }}</p>
-				<button type="button" class="calendar-widget__retry" @click="fetchEvents">
+				<button
+					type="button"
+					class="calendar-widget__retry"
+					@click="fetchEvents">
 					{{ t('launchpad', 'Retry') }}
 				</button>
 			</div>
@@ -36,7 +39,9 @@
 				{{ t('launchpad', 'No calendars configured') }}
 			</div>
 
-			<div v-else-if="events.length === 0 && activeMode === 'agenda'" class="calendar-widget__empty">
+			<div
+				v-else-if="events.length === 0 && activeMode === 'agenda'"
+				class="calendar-widget__empty">
 				{{ emptyMessage }}
 			</div>
 
@@ -52,9 +57,14 @@
 					v-for="day in monthGrid"
 					:key="day.iso"
 					class="calendar-widget__month-cell"
-					:class="{ 'is-today': day.isToday, 'is-other-month': day.isOtherMonth }">
+					:class="{
+						'is-today': day.isToday,
+						'is-other-month': day.isOtherMonth,
+					}">
 					<span class="calendar-widget__month-day">{{ day.dayNum }}</span>
-					<ul v-if="day.events.length" class="calendar-widget__month-events">
+					<ul
+						v-if="day.events.length"
+						class="calendar-widget__month-events">
 						<li
 							v-for="event in day.events.slice(0, 3)"
 							:key="event.uid + '-' + event.start"
@@ -80,22 +90,30 @@
 					class="calendar-widget__week-col"
 					:class="{ 'is-today': day.isToday }">
 					<header class="calendar-widget__week-day">
-						<span class="calendar-widget__week-name">{{ day.weekday }}</span>
-						<span class="calendar-widget__week-num">{{ day.dayNum }}</span>
+						<span class="calendar-widget__week-name">{{
+							day.weekday
+						}}</span>
+						<span class="calendar-widget__week-num">{{
+							day.dayNum
+						}}</span>
 					</header>
-					<ul v-if="day.events.length" class="calendar-widget__week-events">
+					<ul
+						v-if="day.events.length"
+						class="calendar-widget__week-events">
 						<li
 							v-for="event in day.events"
 							:key="event.uid + '-' + event.start"
 							class="calendar-widget__week-event"
 							:style="eventStyle(event)">
-							<span class="calendar-widget__week-time">{{ formatTime(event) }}</span>
-							<span class="calendar-widget__week-title">{{ event.title }}</span>
+							<span class="calendar-widget__week-time">{{
+								formatTime(event)
+							}}</span>
+							<span class="calendar-widget__week-title">{{
+								event.title
+							}}</span>
 						</li>
 					</ul>
-					<p v-else class="calendar-widget__week-empty">
-						—
-					</p>
+					<p v-else class="calendar-widget__week-empty">—</p>
 				</div>
 			</div>
 
@@ -114,9 +132,15 @@
 						:key="event.uid + '-' + event.start"
 						class="calendar-widget__agenda-row"
 						:style="eventStyle(event)">
-						<span class="calendar-widget__agenda-time">{{ formatTime(event) }}</span>
-						<span class="calendar-widget__agenda-title">{{ event.title }}</span>
-						<span v-if="event.calendarName" class="calendar-widget__agenda-cal">
+						<span class="calendar-widget__agenda-time">{{
+							formatTime(event)
+						}}</span>
+						<span class="calendar-widget__agenda-title">{{
+							event.title
+						}}</span>
+						<span
+							v-if="event.calendarName"
+							class="calendar-widget__agenda-cal">
 							{{ event.calendarName }}
 						</span>
 					</li>
@@ -219,15 +243,19 @@ export default {
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		emptyMessage() {
-			return t('launchpad', 'No events in the next {N} days')
-				.replace('{N}', String(this.daysAhead))
+			return t('launchpad', 'No events in the next {N} days').replace(
+				'{N}',
+				String(this.daysAhead),
+			)
 		},
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		failureSummary() {
 			const count = this.failures.length
-			return t('launchpad', '{N} calendar source(s) unavailable')
-				.replace('{N}', String(count))
+			return t('launchpad', '{N} calendar source(s) unavailable').replace(
+				'{N}',
+				String(count),
+			)
 		},
 
 		/** @spec openspec/specs/calendar-widget/spec.md */
@@ -325,7 +353,11 @@ export default {
 				const date = this.parseDate(event.start)
 				const iso = this.toIsoDate(date)
 				if (!seen[iso]) {
-					seen[iso] = { iso, label: this.formatDayHeader(date), events: [] }
+					seen[iso] = {
+						iso,
+						label: this.formatDayHeader(date),
+						events: [],
+					}
 					groups.push(seen[iso])
 				}
 				seen[iso].events.push(event)
@@ -416,15 +448,20 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				const url = generateUrl('/apps/launchpad/api/widgets/calendar/{id}/events', {
-					id: this.placementId,
-				})
+				const url = generateUrl(
+					'/apps/launchpad/api/widgets/calendar/{id}/events',
+					{
+						id: this.placementId,
+					},
+				)
 				const response = await axios.get(url, {
 					params: { from: from.toISOString(), to: to.toISOString() },
 				})
 				const payload = response?.data ?? {}
 				this.events = Array.isArray(payload.events) ? payload.events : []
-				this.failures = Array.isArray(payload.failures) ? payload.failures : []
+				this.failures = Array.isArray(payload.failures)
+					? payload.failures
+					: []
 			} catch (err) {
 				this.error = err
 				this.events = []

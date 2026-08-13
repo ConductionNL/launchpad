@@ -56,7 +56,7 @@ export const useTileStore = defineStore('tiles', {
 		async updateTile(id, tileData) {
 			try {
 				const response = await api.updateTile(id, tileData)
-				const index = this.tiles.findIndex(t => t.id === id)
+				const index = this.tiles.findIndex((t) => t.id === id)
 				if (index !== -1) {
 					this.tiles[index] = response.data
 				}
@@ -76,7 +76,7 @@ export const useTileStore = defineStore('tiles', {
 		async deleteTile(id) {
 			try {
 				await api.deleteTile(id)
-				this.tiles = this.tiles.filter(t => t.id !== id)
+				this.tiles = this.tiles.filter((t) => t.id !== id)
 			} catch (error) {
 				console.error('Failed to delete tile:', error)
 				throw error

@@ -4,12 +4,13 @@
 -->
 
 <template>
-	<div v-if="tile"
+	<div
+		v-if="tile"
 		class="tile-widget"
 		:data-tile-id="tile.id"
 		:style="{
 			'--tile-bg-color': tile.backgroundColor || '#0082c9',
-			'--tile-text-color': tile.textColor || '#ffffff'
+			'--tile-text-color': tile.textColor || '#ffffff',
 		}">
 		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
 		     OpenBuild widget chrome used across the dashboard. The absolute
@@ -50,9 +51,18 @@
 			</svg>
 			<!-- Icon class or emoji or URL or MDI registry name -->
 			<div v-else class="tile-widget__icon">
-				<span v-if="tile.iconType === 'class'" :class="['icon', tile.icon]" />
-				<img v-else-if="tile.iconType === 'url'" :src="tile.icon" alt="Icon">
-				<span v-else-if="tile.iconType === 'emoji'" class="tile-widget__emoji">{{ tile.icon }}</span>
+				<span
+					v-if="tile.iconType === 'class'"
+					:class="['icon', tile.icon]" />
+				<img
+					v-else-if="tile.iconType === 'url'"
+					:src="tile.icon"
+					alt="Icon" />
+				<span
+					v-else-if="tile.iconType === 'emoji'"
+					class="tile-widget__emoji"
+					>{{ tile.icon }}</span
+				>
 				<!-- MDI registry name (export/import + demo-showcase tiles). The
 				     MDI component fills with currentColor, so tint via color. -->
 				<CnDashboardIcon
@@ -65,7 +75,7 @@
 				class="tile-widget__title"
 				:style="{
 					color: tile.textColor || '#ffffff',
-					'--title-color': tile.textColor || '#ffffff'
+					'--title-color': tile.textColor || '#ffffff',
 				}">
 				{{ tile.title }}
 			</div>
@@ -143,7 +153,11 @@ export default {
 			// through generateUrl so instances served under a sub-directory or
 			// requiring an /index.php prefix route correctly. External URLs
 			// (http(s)://, protocol-relative //, mailto:, tel:) pass through.
-			if (typeof value === 'string' && value.startsWith('/') && value.startsWith('//') === false) {
+			if (
+				typeof value === 'string'
+				&& value.startsWith('/')
+				&& value.startsWith('//') === false
+			) {
 				return generateUrl(value)
 			}
 			return value
@@ -152,15 +166,25 @@ export default {
 
 	/** @spec openspec/specs/tiles/spec.md */
 	mounted() {
-		console.log('[TileWidget] Mounted with tile:', JSON.stringify({
-			id: this.tile?.id,
-			title: this.tile?.title,
-			backgroundColor: this.tile?.backgroundColor,
-			textColor: this.tile?.textColor,
-			icon: this.tile?.icon?.substring(0, 30),
-			iconType: this.tile?.iconType,
-		}, null, 2))
-		console.log('[TileWidget] Full tile object keys:', this.tile ? Object.keys(this.tile) : 'tile is null')
+		console.log(
+			'[TileWidget] Mounted with tile:',
+			JSON.stringify(
+				{
+					id: this.tile?.id,
+					title: this.tile?.title,
+					backgroundColor: this.tile?.backgroundColor,
+					textColor: this.tile?.textColor,
+					icon: this.tile?.icon?.substring(0, 30),
+					iconType: this.tile?.iconType,
+				},
+				null,
+				2,
+			),
+		)
+		console.log(
+			'[TileWidget] Full tile object keys:',
+			this.tile ? Object.keys(this.tile) : 'tile is null',
+		)
 
 		// Add dynamic style to override nldesign's aggressive CSS.
 		const styleId = `tile-${this.tile.id}-style`
@@ -220,7 +244,9 @@ export default {
 	border-radius: 0;
 	padding: 20px;
 	gap: 12px;
-	transition: transform 0.2s ease, opacity 0.2s ease;
+	transition:
+		transform 0.2s ease,
+		opacity 0.2s ease;
 	box-shadow: none;
 	background-color: var(--tile-bg-color) !important;
 	color: var(--tile-text-color) !important;

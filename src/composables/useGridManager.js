@@ -116,7 +116,7 @@ export const CELL_HEIGHT_CSS_VAR = '--launchpad-cell-height'
 /** @spec openspec/specs/grid-layout/spec.md */
 export function getColumnOpts() {
 	return {
-		breakpoints: BREAKPOINTS.map(b => ({ ...b })),
+		breakpoints: BREAKPOINTS.map((b) => ({ ...b })),
 		layout: COLUMN_LAYOUT,
 		breakpointForWindow: true,
 	}
@@ -180,8 +180,8 @@ export const DEFAULT_H = 4
  * @spec openspec/specs/grid-layout/spec.md
  */
 export function placeNewWidget(spec, placements, options = {}) {
-	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : DEFAULT_W
-	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : DEFAULT_H
+	const w = spec && Number.isFinite(spec.w) && spec.w > 0 ? spec.w : DEFAULT_W
+	const h = spec && Number.isFinite(spec.h) && spec.h > 0 ? spec.h : DEFAULT_H
 
 	const safePlacements = Array.isArray(placements) ? placements : []
 	let bottomY = 0
@@ -215,10 +215,7 @@ export const MIN_CELLS = 2
  * @return {boolean} true when the two rectangles share at least one cell.
  */
 function rectsOverlap(a, b) {
-	return a.x < b.x + b.w
-		&& b.x < a.x + a.w
-		&& a.y < b.y + b.h
-		&& b.y < a.y + a.h
+	return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
 }
 
 /**
@@ -256,7 +253,9 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	const x = Number.isFinite(placement?.gridX) ? placement.gridX : 0
 	const y = Number.isFinite(placement?.gridY) ? placement.gridY : 0
 	const w = Number.isFinite(placement?.gridWidth) ? placement.gridWidth : MIN_CELLS
-	const h = Number.isFinite(placement?.gridHeight) ? placement.gridHeight : MIN_CELLS
+	const h = Number.isFinite(placement?.gridHeight)
+		? placement.gridHeight
+		: MIN_CELLS
 
 	let nx = x
 	let ny = y
@@ -264,33 +263,33 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	let nh = h
 
 	switch (action) {
-	case 'move-up':
-		ny = Math.max(0, y - 1)
-		break
-	case 'move-down':
-		ny = y + 1
-		break
-	case 'move-left':
-		nx = Math.max(0, x - 1)
-		break
-	case 'move-right':
-		nx = Math.min(Math.max(0, columns - w), x + 1)
-		break
-	case 'grow-width':
-		nw = Math.min(columns - x, w + 1)
-		break
-	case 'shrink-width':
-		nw = Math.max(MIN_CELLS, w - 1)
-		break
-	case 'grow-height':
-		nh = h + 1
-		break
-	case 'shrink-height':
-		nh = Math.max(MIN_CELLS, h - 1)
-		break
-	default:
-		// Unknown action → no change.
-		break
+		case 'move-up':
+			ny = Math.max(0, y - 1)
+			break
+		case 'move-down':
+			ny = y + 1
+			break
+		case 'move-left':
+			nx = Math.max(0, x - 1)
+			break
+		case 'move-right':
+			nx = Math.min(Math.max(0, columns - w), x + 1)
+			break
+		case 'grow-width':
+			nw = Math.min(columns - x, w + 1)
+			break
+		case 'shrink-width':
+			nw = Math.max(MIN_CELLS, w - 1)
+			break
+		case 'grow-height':
+			nh = h + 1
+			break
+		case 'shrink-height':
+			nh = Math.max(MIN_CELLS, h - 1)
+			break
+		default:
+			// Unknown action → no change.
+			break
 	}
 
 	// Keep the widget inside the horizontal bounds after any width change.
@@ -312,7 +311,7 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 			h: Number.isFinite(other.gridHeight) ? other.gridHeight : 1,
 		}
 		if (rectsOverlap(newRect, otherRect)) {
-			pushed.push({ id: other.id, gridY: (ny + nh) })
+			pushed.push({ id: other.id, gridY: ny + nh })
 		}
 	}
 
@@ -466,7 +465,11 @@ export function useGridManager(options = {}) {
 			return
 		}
 		const target = event.target
-		if (target && typeof target.closest === 'function' && target.closest('.widget-context-menu')) {
+		if (
+			target
+			&& typeof target.closest === 'function'
+			&& target.closest('.widget-context-menu')
+		) {
 			return
 		}
 		closeContextMenu()

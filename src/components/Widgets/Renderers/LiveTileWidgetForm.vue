@@ -6,7 +6,12 @@
 <template>
 	<div class="live-tile-widget-form">
 		<p class="live-tile-widget-form__hint">
-			{{ t('launchpad', 'Bind this tile to a live value from a data source: a count, a status, a KPI number.') }}
+			{{
+				t(
+					'launchpad',
+					'Bind this tile to a live value from a data source: a count, a status, a KPI number.',
+				)
+			}}
 		</p>
 
 		<!-- @nextcloud/vue@9 renamed the two-way prop of every form control
@@ -34,7 +39,12 @@
 
 		<template v-if="sourceMode === 'connector'">
 			<p v-if="!connectorAvailable" class="live-tile-widget-form__warning">
-				{{ t('launchpad', 'OpenConnector is not installed — direct-URL mode only.') }}
+				{{
+					t(
+						'launchpad',
+						'OpenConnector is not installed — direct-URL mode only.',
+					)
+				}}
 			</p>
 			<NcTextField
 				:model-value="sourceId"
@@ -67,7 +77,11 @@
 			:label="t('launchpad', 'Refresh interval (seconds)')"
 			@update:modelValue="onRefreshChange" />
 		<p class="live-tile-widget-form__hint-small">
-			{{ t('launchpad', 'Minimum {min} seconds.', { min: MIN_REFRESH_SECONDS }) }}
+			{{
+				t('launchpad', 'Minimum {min} seconds.', {
+					min: MIN_REFRESH_SECONDS,
+				})
+			}}
 		</p>
 
 		<div class="live-tile-widget-form__row">
@@ -97,14 +111,19 @@
 			:input-label="t('launchpad', 'Link target')"
 			:reduce="(option) => option.value"
 			label="label"
-			@update:modelValue="(val) => updateField('linkTarget', val || 'same-tab')" />
+			@update:modelValue="
+				(val) => updateField('linkTarget', val || 'same-tab')
+			" />
 	</div>
 </template>
 
 <script>
 import { NcTextField, NcSelect, NcCheckboxRadioSwitch } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
-import { fetchConnectorAvailability, validateLiveTileSource } from '../../../services/liveTileClient.js'
+import {
+	fetchConnectorAvailability,
+	validateLiveTileSource,
+} from '../../../services/liveTileClient.js'
 
 const MIN_REFRESH_SECONDS = 30
 const DEFAULT_REFRESH_SECONDS = 300
@@ -196,7 +215,10 @@ export default {
 			// REQ-LIVETILE-005: only offer `connector` mode when the
 			// capability probe confirms OpenConnector is present.
 			if (this.connectorAvailable) {
-				options.push({ value: 'connector', label: t('launchpad', 'OpenConnector source') })
+				options.push({
+					value: 'connector',
+					label: t('launchpad', 'OpenConnector source'),
+				})
 			}
 			return options
 		},
@@ -266,7 +288,10 @@ export default {
 		 */
 		async refreshConnectorAvailability() {
 			this.connectorAvailable = await fetchConnectorAvailability()
-			if (this.connectorAvailable === false && this.sourceMode === 'connector') {
+			if (
+				this.connectorAvailable === false
+				&& this.sourceMode === 'connector'
+			) {
 				this.sourceMode = 'url'
 				this.emitUpdate()
 			}
@@ -358,9 +383,18 @@ export default {
 				return
 			}
 			const result = await validateLiveTileSource(this.assembledContent)
-			if (result.valid === false && result.errors.includes('host_not_allowed')) {
-				this.urlAllowListError = t('launchpad', 'This host is not on the allow-list.')
-			} else if (result.valid === false && result.errors.includes('invalid_url')) {
+			if (
+				result.valid === false
+				&& result.errors.includes('host_not_allowed')
+			) {
+				this.urlAllowListError = t(
+					'launchpad',
+					'This host is not on the allow-list.',
+				)
+			} else if (
+				result.valid === false
+				&& result.errors.includes('invalid_url')
+			) {
 				this.urlAllowListError = t('launchpad', 'Enter a valid http(s) URL.')
 			} else {
 				this.urlAllowListError = ''
@@ -392,7 +426,10 @@ export default {
 				if (!this.connectorAvailable) {
 					errors.push(t('launchpad', 'OpenConnector is not available.'))
 				}
-				if (typeof this.sourceId !== 'string' || this.sourceId.trim() === '') {
+				if (
+					typeof this.sourceId !== 'string'
+					|| this.sourceId.trim() === ''
+				) {
 					errors.push(t('launchpad', 'Source id is required'))
 				}
 			}

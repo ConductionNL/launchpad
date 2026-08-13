@@ -7,7 +7,12 @@
 	<div class="cv-overview" data-test="conditional-visibility-overview">
 		<h3>{{ t('launchpad', 'Widgets with visibility rules') }}</h3>
 		<p class="cv-overview__hint">
-			{{ t('launchpad', 'Every widget placement that has at least one conditional visibility rule, across all dashboards.') }}
+			{{
+				t(
+					'launchpad',
+					'Every widget placement that has at least one conditional visibility rule, across all dashboards.',
+				)
+			}}
 		</p>
 
 		<div v-if="loading" class="cv-overview__loading">
@@ -17,7 +22,12 @@
 		<NcEmptyContent
 			v-else-if="rows.length === 0"
 			:name="t('launchpad', 'No visibility rules yet')"
-			:description="t('launchpad', 'When users add conditional visibility rules to their widgets, they appear here.')">
+			:description="
+				t(
+					'launchpad',
+					'When users add conditional visibility rules to their widgets, they appear here.',
+				)
+			">
 			<template #icon>
 				<EyeOff :size="48" />
 			</template>
@@ -38,7 +48,11 @@
 					v-for="row in rows"
 					:key="row.placementId"
 					data-test="cv-overview-row">
-					<td>{{ row.dashboardName || t('launchpad', 'Unknown dashboard') }}</td>
+					<td>
+						{{
+							row.dashboardName || t('launchpad', 'Unknown dashboard')
+						}}
+					</td>
 					<td>{{ row.widgetType }}</td>
 					<td>{{ row.ruleCount }}</td>
 					<td>{{ row.includeCount }}</td>
@@ -92,9 +106,12 @@ export default {
 				const { data } = await api.getAdminWidgetsWithRules()
 				// ResponseHelper::success wraps the payload; tolerate both
 				// the bare array and the `{ data: [...] }` envelope.
-				this.rows = Array.isArray(data) ? data : (data?.data || [])
+				this.rows = Array.isArray(data) ? data : data?.data || []
 			} catch (error) {
-				console.error('Failed to load conditional visibility overview:', error)
+				console.error(
+					'Failed to load conditional visibility overview:',
+					error,
+				)
 				this.rows = []
 			} finally {
 				this.loading = false

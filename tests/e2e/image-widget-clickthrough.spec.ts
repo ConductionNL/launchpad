@@ -29,7 +29,11 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import {
+	gotoLaunchPad,
+	openAddWidgetModal,
+	closeSidebar,
+} from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
 
@@ -42,7 +46,10 @@ test.describe('image widget — real popup click-through', () => {
 		await gotoLaunchPad(page)
 	})
 
-	test('REQ-IMG-003: a URL image with a click-through link opens the link in a new tab', async ({ context, page }) => {
+	test('REQ-IMG-003: a URL image with a click-through link opens the link in a new tab', async ({
+		context,
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
@@ -50,7 +57,9 @@ test.describe('image widget — real popup click-through', () => {
 		// Default source is "URL/Link". Use a SAME-ORIGIN image asset so the
 		// cell renders without depending on outbound internet in the sandbox,
 		// plus a click-through link.
-		await dialog.getByLabel(/image url/i).fill(`${NEXTCLOUD_URL}/core/img/logo/logo.svg`)
+		await dialog
+			.getByLabel(/image url/i)
+			.fill(`${NEXTCLOUD_URL}/core/img/logo/logo.svg`)
 		await dialog.getByLabel(/link \(optional\)/i).fill('https://example.com')
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
@@ -62,7 +71,10 @@ test.describe('image widget — real popup click-through', () => {
 
 		// The newly-added URL image is the last image-widget whose src points at
 		// the logo asset (resource-backed uploads have a different src).
-		const cell = page.locator('.cn-image-widget').filter({ has: page.locator('img[src*="/core/img/logo/"]') }).last()
+		const cell = page
+			.locator('.cn-image-widget')
+			.filter({ has: page.locator('img[src*="/core/img/logo/"]') })
+			.last()
 		await expect(cell).toBeAttached({ timeout: 8_000 })
 		await cell.scrollIntoViewIfNeeded()
 		await expect(cell).toBeVisible({ timeout: 5_000 })

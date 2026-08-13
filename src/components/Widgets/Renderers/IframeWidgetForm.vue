@@ -6,7 +6,12 @@
 <template>
 	<div class="iframe-widget-form">
 		<p class="iframe-widget-form__hint">
-			{{ t('launchpad', 'Embed an external page — only hosts your administrator has allow-listed can be embedded.') }}
+			{{
+				t(
+					'launchpad',
+					'Embed an external page — only hosts your administrator has allow-listed can be embedded.',
+				)
+			}}
 		</p>
 
 		<!-- @nextcloud/vue@9: `value`/`checked` + `update:value`/`update:checked`
@@ -22,7 +27,9 @@
 		<p v-if="urlAllowListError" class="iframe-widget-form__warning">
 			{{ urlAllowListError }}
 		</p>
-		<p v-else-if="allowListChecked && url" class="iframe-widget-form__hint-small">
+		<p
+			v-else-if="allowListChecked && url"
+			class="iframe-widget-form__hint-small">
 			{{ t('launchpad', 'This host is allow-listed.') }}
 		</p>
 
@@ -32,7 +39,12 @@
 			:placeholder="t('launchpad', 'e.g. Status page')"
 			@update:modelValue="updateField('title', $event)" />
 		<p class="iframe-widget-form__hint-small">
-			{{ t('launchpad', 'Read by screen readers — required for accessibility.') }}
+			{{
+				t(
+					'launchpad',
+					'Read by screen readers — required for accessibility.',
+				)
+			}}
 		</p>
 
 		<div class="iframe-widget-form__row">
@@ -58,11 +70,18 @@
 				:key="token.value"
 				:model-value="sandbox.includes(token.value)"
 				type="switch"
-				@update:modelValue="(checked) => toggleSandboxToken(token.value, checked)">
+				@update:modelValue="
+					(checked) => toggleSandboxToken(token.value, checked)
+				">
 				{{ token.label }}
 			</NcCheckboxRadioSwitch>
 			<p class="iframe-widget-form__hint-small">
-				{{ t('launchpad', 'The frame can never navigate this page away — that permission is not offered.') }}
+				{{
+					t(
+						'launchpad',
+						'The frame can never navigate this page away — that permission is not offered.',
+					)
+				}}
 			</p>
 		</fieldset>
 	</div>
@@ -178,7 +197,9 @@ export default {
 				// Defence-in-depth — never assemble a payload carrying the
 				// forbidden token, even though it is never offered as a
 				// toggle (REQ-IFRAME-004).
-				sandbox: this.sandbox.filter((token) => !token.startsWith('allow-top-navigation')),
+				sandbox: this.sandbox.filter(
+					(token) => !token.startsWith('allow-top-navigation'),
+				),
 				allowListChecked: this.allowListChecked,
 			}
 		},
@@ -201,7 +222,9 @@ export default {
 				return [...DEFAULT_CONTENT.sandbox]
 			}
 			const permitted = sandboxTokenOptions().map((option) => option.value)
-			const clean = raw.filter((token) => typeof token === 'string' && permitted.includes(token))
+			const clean = raw.filter(
+				(token) => typeof token === 'string' && permitted.includes(token),
+			)
 			return clean.length > 0 ? clean : [...DEFAULT_CONTENT.sandbox]
 		},
 
@@ -301,9 +324,18 @@ export default {
 			}
 			const result = await validateIframeUrl(this.assembledContent)
 			this.allowListChecked = result.valid === true
-			if (result.valid === false && result.errors.includes('host_not_allowed')) {
-				this.urlAllowListError = t('launchpad', 'This host is not on the allow-list.')
-			} else if (result.valid === false && result.errors.includes('invalid_url')) {
+			if (
+				result.valid === false
+				&& result.errors.includes('host_not_allowed')
+			) {
+				this.urlAllowListError = t(
+					'launchpad',
+					'This host is not on the allow-list.',
+				)
+			} else if (
+				result.valid === false
+				&& result.errors.includes('invalid_url')
+			) {
 				this.urlAllowListError = t('launchpad', 'Enter a valid http(s) URL.')
 			} else {
 				this.urlAllowListError = ''

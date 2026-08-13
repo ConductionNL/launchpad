@@ -22,7 +22,10 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`)
+				Object.prototype.hasOwnProperty.call(vars, name)
+					? vars[name]
+					: `{${name}}`,
+			)
 		}
 		return key
 	}
@@ -33,7 +36,9 @@ beforeEach(() => {
 describe('IframeWidgetForm — REQ-IFRAME-001 persisted shape', () => {
 	it('assembles the full content shape with defaults', () => {
 		const wrapper = mount(IframeWidgetForm, {
-			propsData: { value: { url: 'https://status.example.com/board', title: 'Status' } },
+			propsData: {
+				value: { url: 'https://status.example.com/board', title: 'Status' },
+			},
 		})
 		expect(wrapper.vm.assembledContent).toMatchObject({
 			url: 'https://status.example.com/board',
@@ -68,7 +73,9 @@ describe('IframeWidgetForm — REQ-IFRAME-001 persisted shape', () => {
 	})
 
 	it('emits update:content when a field changes', async () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: '', title: '' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: '', title: '' } },
+		})
 		wrapper.vm.updateField('title', 'Board')
 		await wrapper.vm.$nextTick()
 		const emitted = wrapper.emitted('update:content')
@@ -78,14 +85,18 @@ describe('IframeWidgetForm — REQ-IFRAME-001 persisted shape', () => {
 
 describe('IframeWidgetForm — REQ-IFRAME-004 sandbox toggles never grant allow-top-navigation', () => {
 	it('SANDBOX_TOKEN_OPTIONS never offers allow-top-navigation', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: '', title: '' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: '', title: '' } },
+		})
 		const values = wrapper.vm.SANDBOX_TOKEN_OPTIONS.map((option) => option.value)
 		expect(values).not.toContain('allow-top-navigation')
 		expect(values.some((v) => v.startsWith('allow-top-navigation'))).toBe(false)
 	})
 
 	it('toggleSandboxToken can add/remove a permitted token', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: '', title: '', sandbox: [] } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: '', title: '', sandbox: [] } },
+		})
 		wrapper.vm.toggleSandboxToken('allow-forms', true)
 		expect(wrapper.vm.sandbox).toContain('allow-forms')
 		wrapper.vm.toggleSandboxToken('allow-forms', false)
@@ -95,42 +106,65 @@ describe('IframeWidgetForm — REQ-IFRAME-004 sandbox toggles never grant allow-
 	it('strips a forbidden token from a persisted sandbox list at load time (defence-in-depth)', () => {
 		const wrapper = mount(IframeWidgetForm, {
 			propsData: {
-				editingWidget: { content: { url: 'https://a.example.com', title: 'A', sandbox: ['allow-scripts', 'allow-top-navigation'] } },
+				editingWidget: {
+					content: {
+						url: 'https://a.example.com',
+						title: 'A',
+						sandbox: ['allow-scripts', 'allow-top-navigation'],
+					},
+				},
 			},
 		})
 		expect(wrapper.vm.sandbox).not.toContain('allow-top-navigation')
-		expect(wrapper.vm.assembledContent.sandbox).not.toContain('allow-top-navigation')
+		expect(wrapper.vm.assembledContent.sandbox).not.toContain(
+			'allow-top-navigation',
+		)
 	})
 })
 
 describe('IframeWidgetForm — REQ-IFRAME-002 URL + title validation', () => {
 	it('requires a URL', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: '', title: 'Status' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: '', title: 'Status' } },
+		})
 		expect(wrapper.vm.validate()).toContain('URL is required')
 	})
 
 	it('rejects a non-http(s) URL', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: 'ftp://example.com', title: 'Status' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: 'ftp://example.com', title: 'Status' } },
+		})
 		expect(wrapper.vm.validate()).toContain('Enter a valid http(s) URL.')
 	})
 
 	it('requires a title (REQ-IFRAME-004 accessible frame title)', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: 'https://example.com', title: '' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: 'https://example.com', title: '' } },
+		})
 		expect(wrapper.vm.validate()).toContain('Title is required')
 	})
 
 	it('surfaces the async host allow-list error from checkUrlAllowed() on submit', async () => {
-		validateIframeUrl.mockResolvedValue({ valid: false, errors: ['host_not_allowed'] })
+		validateIframeUrl.mockResolvedValue({
+			valid: false,
+			errors: ['host_not_allowed'],
+		})
 		const wrapper = mount(IframeWidgetForm, {
-			propsData: { value: { url: 'https://blocked.example.com', title: 'Blocked' } },
+			propsData: {
+				value: { url: 'https://blocked.example.com', title: 'Blocked' },
+			},
 		})
 		await wrapper.vm.checkUrlAllowed()
-		expect(wrapper.vm.validate()).toContain('This host is not on the allow-list.')
+		expect(wrapper.vm.validate()).toContain(
+			'This host is not on the allow-list.',
+		)
 	})
 
 	it('passes validation for a valid https URL + title with no allow-list error', () => {
 		const wrapper = mount(IframeWidgetForm, {
-			propsData: { value: { url: 'https://status.example.com/board', title: 'Status' } },
+			propsData: {
+				value: { url: 'https://status.example.com/board', title: 'Status' },
+			},
 		})
 		expect(wrapper.vm.validate()).toEqual([])
 	})
@@ -138,7 +172,9 @@ describe('IframeWidgetForm — REQ-IFRAME-002 URL + title validation', () => {
 	it('sets allowListChecked=true and clears the warning when the host is allowed', async () => {
 		validateIframeUrl.mockResolvedValue({ valid: true, errors: [] })
 		const wrapper = mount(IframeWidgetForm, {
-			propsData: { value: { url: 'https://status.example.com/board', title: 'Status' } },
+			propsData: {
+				value: { url: 'https://status.example.com/board', title: 'Status' },
+			},
 		})
 		await wrapper.vm.checkUrlAllowed()
 		expect(wrapper.vm.allowListChecked).toBe(true)
@@ -148,7 +184,9 @@ describe('IframeWidgetForm — REQ-IFRAME-002 URL + title validation', () => {
 	it('resets allowListChecked when the URL is edited again', async () => {
 		validateIframeUrl.mockResolvedValue({ valid: true, errors: [] })
 		const wrapper = mount(IframeWidgetForm, {
-			propsData: { value: { url: 'https://status.example.com/board', title: 'Status' } },
+			propsData: {
+				value: { url: 'https://status.example.com/board', title: 'Status' },
+			},
 		})
 		await wrapper.vm.checkUrlAllowed()
 		expect(wrapper.vm.allowListChecked).toBe(true)
@@ -159,13 +197,17 @@ describe('IframeWidgetForm — REQ-IFRAME-002 URL + title validation', () => {
 
 describe('IframeWidgetForm — height clamping', () => {
 	it('clamps a non-positive height to the 400px default', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: '', title: '' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: '', title: '' } },
+		})
 		wrapper.vm.onHeightChange('0')
 		expect(wrapper.vm.assembledContent.height).toBe(400)
 	})
 
 	it('rounds a fractional height', () => {
-		const wrapper = mount(IframeWidgetForm, { propsData: { value: { url: '', title: '' } } })
+		const wrapper = mount(IframeWidgetForm, {
+			propsData: { value: { url: '', title: '' } },
+		})
 		wrapper.vm.onHeightChange('320.6')
 		expect(wrapper.vm.assembledContent.height).toBe(321)
 	})

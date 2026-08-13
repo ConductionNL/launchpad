@@ -58,7 +58,9 @@ describe('BeheerTabs', () => {
 	it('persists the selected tab to localStorage', async () => {
 		const wrapper = mountTabs()
 		await wrapper.find('[data-test="tab-roles-permissions"]').trigger('click')
-		expect(localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)).toBe('roles-permissions')
+		expect(localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)).toBe(
+			'roles-permissions',
+		)
 	})
 
 	it('restores the persisted tab on next mount', () => {

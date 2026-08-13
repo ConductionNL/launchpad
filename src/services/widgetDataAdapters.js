@@ -68,8 +68,12 @@ export async function fetchCalendarEvents(placementId, args = {}) {
 		import('@nextcloud/axios'),
 		import('@nextcloud/router'),
 	])
-	const url = genUrl('/apps/launchpad/api/widgets/calendar/{placementId}/events', { placementId })
-	const response = await axios.get(url, { params: { from: args.from, to: args.to } })
+	const url = genUrl('/apps/launchpad/api/widgets/calendar/{placementId}/events', {
+		placementId,
+	})
+	const response = await axios.get(url, {
+		params: { from: args.from, to: args.to },
+	})
 	const data = response?.data || {}
 	return {
 		events: Array.isArray(data.events) ? data.events : [],
@@ -88,7 +92,9 @@ export async function fetchCalendarEvents(placementId, args = {}) {
 export function buildWidgetDataProvide(getPlacementId) {
 	return {
 		cnPeopleSource: { fetchPeople: fetchPeoplePage },
-		cnCalendarSource: { fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args) },
+		cnCalendarSource: {
+			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),
+		},
 		cnSpendAnalyticsSource: {
 			fetchSummary: fetchFinanceSummary,
 			fetchVendorCommitments,
@@ -108,10 +114,10 @@ export function buildWidgetDataProvide(getPlacementId) {
 export function buildRendererExtraProps(widgetId) {
 	if (widgetId === 'news') {
 		return {
-			itemsEndpoint: (placementId) => generateUrl(
-				'/apps/launchpad/api/widgets/news/{placementId}/items',
-				{ placementId },
-			),
+			itemsEndpoint: (placementId) =>
+				generateUrl('/apps/launchpad/api/widgets/news/{placementId}/items', {
+					placementId,
+				}),
 		}
 	}
 	if (widgetId === 'files') {

@@ -66,8 +66,13 @@ export default {
 		tabs: {
 			type: Array,
 			required: true,
-			validator: (value) => Array.isArray(value)
-				&& value.every((tab) => typeof tab.slug === 'string' && typeof tab.label === 'string'),
+			validator: (value) =>
+				Array.isArray(value)
+				&& value.every(
+					(tab) =>
+						typeof tab.slug === 'string'
+						&& typeof tab.label === 'string',
+				),
 		},
 
 		/**
@@ -109,7 +114,7 @@ export default {
 			const known = this.tabs.map((tab) => tab.slug)
 			const fallback = known.includes(this.defaultTab)
 				? this.defaultTab
-				: (known[0] || '')
+				: known[0] || ''
 
 			const fromQuery = this.readQueryTab()
 			if (fromQuery && known.includes(fromQuery)) {

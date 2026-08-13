@@ -35,7 +35,9 @@ const MANIFEST_GLOB = '**/apps/launchpad/api/manifest*'
 const APP_LANDMARK = '.launchpad-sidebar-toggle'
 
 test.describe('runtime manifest boot', () => {
-	test('boot issues the runtime-manifest fetch and renders the app', async ({ page }) => {
+	test('boot issues the runtime-manifest fetch and renders the app', async ({
+		page,
+	}) => {
 		// Record the request rather than waiting for it after the fact: the
 		// loader is fired at module scope, so it can complete before `goto()`
 		// resolves and a later `waitForRequest` would hang on an event that
@@ -48,7 +50,9 @@ test.describe('runtime manifest boot', () => {
 		})
 
 		await page.goto(APP_URL)
-		await expect(page.locator(APP_LANDMARK).first()).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator(APP_LANDMARK).first()).toBeVisible({
+			timeout: 30_000,
+		})
 
 		expect(
 			manifestRequests,
@@ -56,7 +60,9 @@ test.describe('runtime manifest boot', () => {
 		).not.toHaveLength(0)
 	})
 
-	test('a failing manifest fetch degrades silently and still renders the app', async ({ page }) => {
+	test('a failing manifest fetch degrades silently and still renders the app', async ({
+		page,
+	}) => {
 		const warnings: string[] = []
 		page.on('console', (msg) => {
 			if (msg.type() === 'warning') {
@@ -67,11 +73,13 @@ test.describe('runtime manifest boot', () => {
 		// Fail the runtime manifest only. Everything else — including the
 		// bundled stub, which ships inside the JS bundle — is untouched, so
 		// this isolates the fallback branch.
-		await page.route(MANIFEST_GLOB, (route) => route.fulfill({
-			status: 500,
-			contentType: 'application/json',
-			body: '{"error":"forced by manifest-boot.spec.ts"}',
-		}))
+		await page.route(MANIFEST_GLOB, (route) =>
+			route.fulfill({
+				status: 500,
+				contentType: 'application/json',
+				body: '{"error":"forced by manifest-boot.spec.ts"}',
+			}),
+		)
 
 		await page.goto(APP_URL)
 
@@ -85,8 +93,14 @@ test.describe('runtime manifest boot', () => {
 
 		await expect
 			.poll(
-				() => warnings.some(w => w.includes('Runtime manifest fetch failed')),
-				{ message: 'the fallback must be logged, not swallowed', timeout: 15_000 },
+				() =>
+					warnings.some((w) =>
+						w.includes('Runtime manifest fetch failed'),
+					),
+				{
+					message: 'the fallback must be logged, not swallowed',
+					timeout: 15_000,
+				},
 			)
 			.toBe(true)
 	})

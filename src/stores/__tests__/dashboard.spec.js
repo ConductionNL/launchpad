@@ -94,7 +94,7 @@ describe('useDashboardStore — source-aware getters', () => {
 			{ id: 4, uuid: 'd', source: 'default' },
 		]
 		expect(store.groupSharedDashboards).toHaveLength(2)
-		expect(store.groupSharedDashboards.map(d => d.uuid)).toEqual(['b', 'c'])
+		expect(store.groupSharedDashboards.map((d) => d.uuid)).toEqual(['b', 'c'])
 	})
 
 	it('defaultGroupDashboards returns only `source === "default"` rows', async () => {
@@ -135,7 +135,7 @@ describe('useDashboardStore — source-aware getters', () => {
 			{ id: 4, uuid: 'd', source: 'shared' },
 			{ id: 5, uuid: 'e', source: 'shared' },
 		]
-		expect(store.sharedWithMeDashboards.map(d => d.uuid)).toEqual(['d', 'e'])
+		expect(store.sharedWithMeDashboards.map((d) => d.uuid)).toEqual(['d', 'e'])
 	})
 
 	it('does not leak shared rows into the owned or group buckets', async () => {
@@ -145,7 +145,7 @@ describe('useDashboardStore — source-aware getters', () => {
 			{ id: 1, uuid: 'a', source: 'user' },
 			{ id: 4, uuid: 'd', source: 'shared' },
 		]
-		expect(store.userDashboards.map(d => d.uuid)).toEqual(['a'])
+		expect(store.userDashboards.map((d) => d.uuid)).toEqual(['a'])
 		expect(store.groupSharedDashboards).toEqual([])
 		expect(store.defaultGroupDashboards).toEqual([])
 	})
@@ -222,17 +222,27 @@ describe('useDashboardStore — forkDashboard (REQ-DASH-020)', () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
 
-		const fork = { id: 99, uuid: 'fork-uuid', name: 'My Marketing', source: 'user' }
+		const fork = {
+			id: 99,
+			uuid: 'fork-uuid',
+			name: 'My Marketing',
+			source: 'user',
+		}
 		mockApi.forkDashboard.mockResolvedValue({ data: { dashboard: fork } })
 
 		const returned = await store.forkDashboard('src-uuid', 'My Marketing')
 
-		expect(mockApi.forkDashboard).toHaveBeenCalledWith('src-uuid', 'My Marketing')
+		expect(mockApi.forkDashboard).toHaveBeenCalledWith(
+			'src-uuid',
+			'My Marketing',
+		)
 		expect(returned).toEqual(fork)
 		// New dashboard pushed onto store with `source: 'user'` so the
 		// `userDashboards` getter picks it up immediately.
-		expect(store.dashboards.find(d => d.uuid === 'fork-uuid')).toBeTruthy()
-		expect(store.dashboards.find(d => d.uuid === 'fork-uuid').source).toBe('user')
+		expect(store.dashboards.find((d) => d.uuid === 'fork-uuid')).toBeTruthy()
+		expect(store.dashboards.find((d) => d.uuid === 'fork-uuid').source).toBe(
+			'user',
+		)
 		// Active dashboard pinned so the UI rerenders without a reload.
 		expect(store.activeDashboard?.uuid).toBe('fork-uuid')
 		expect(store.permissionLevel).toBe('full')
@@ -344,7 +354,7 @@ describe('useDashboardStore — loadDashboards source plumbing', () => {
 		expect(mockApi.getDashboards).toHaveBeenCalled()
 		expect(store.dashboards).toHaveLength(2)
 		// Legacy payloads receive `source: 'user'` so getters still work.
-		expect(store.dashboards.every(d => d.source === 'user')).toBe(true)
+		expect(store.dashboards.every((d) => d.source === 'user')).toBe(true)
 	})
 })
 
@@ -413,8 +423,18 @@ describe('useDashboardStore — resolveActive (REQ-DASH-018)', () => {
 		const store = useDashboardStore()
 		store.primaryGroup = 'orphan'
 		store.dashboards = [
-			make({ uuid: 'd1', source: 'default', groupId: 'default', isDefault: 0 }),
-			make({ uuid: 'd2', source: 'default', groupId: 'default', isDefault: 0 }),
+			make({
+				uuid: 'd1',
+				source: 'default',
+				groupId: 'default',
+				isDefault: 0,
+			}),
+			make({
+				uuid: 'd2',
+				source: 'default',
+				groupId: 'default',
+				isDefault: 0,
+			}),
 		]
 		expect(store.resolveActive.uuid).toBe('d1')
 	})
@@ -423,9 +443,7 @@ describe('useDashboardStore — resolveActive (REQ-DASH-018)', () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
 		store.primaryGroup = ''
-		store.dashboards = [
-			make({ uuid: 'mine', source: 'user' }),
-		]
+		store.dashboards = [make({ uuid: 'mine', source: 'user' })]
 		expect(store.resolveActive.uuid).toBe('mine')
 	})
 })
@@ -434,7 +452,9 @@ describe('useDashboardStore — persistActivePreference (REQ-DASH-019)', () => {
 	it('POSTs the uuid to /api/dashboards/active fire-and-forget', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
-		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({
+			data: { status: 'success' },
+		})
 
 		store.persistActivePreference('uuid-xyz')
 
@@ -444,7 +464,9 @@ describe('useDashboardStore — persistActivePreference (REQ-DASH-019)', () => {
 	it('passes empty string when called with no uuid (clears the preference)', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
-		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({
+			data: { status: 'success' },
+		})
 
 		store.persistActivePreference('')
 
@@ -460,7 +482,7 @@ describe('useDashboardStore — persistActivePreference (REQ-DASH-019)', () => {
 		const ret = store.persistActivePreference('uuid-xyz')
 		expect(ret).toBeUndefined()
 		// Settle the rejected promise so the test doesn't leak an unhandled rejection.
-		await new Promise(resolve => setTimeout(resolve, 0))
+		await new Promise((resolve) => setTimeout(resolve, 0))
 	})
 })
 
@@ -468,7 +490,9 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 	it('calls setActiveDashboardPreference with the new uuid after a successful switch', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
-		store.dashboards = [{ id: 'd-1', uuid: 'uuid-1', source: 'user', isOwner: true }]
+		store.dashboards = [
+			{ id: 'd-1', uuid: 'uuid-1', source: 'user', isOwner: true },
+		]
 
 		mockApi.activateDashboard.mockResolvedValue({ data: { status: 'ok' } })
 		mockApi.getDashboardById.mockResolvedValue({
@@ -480,7 +504,9 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 				sharedBy: null,
 			},
 		})
-		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({
+			data: { status: 'success' },
+		})
 
 		await store.switchDashboard('d-1')
 
@@ -492,7 +518,9 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 		const store = useDashboardStore()
 		// Group/default rows have user_id NULL → isOwner false; the legacy
 		// id-based activate would 400 with "Access denied".
-		store.dashboards = [{ id: 1, uuid: 'group-uuid', source: 'group', isOwner: false }]
+		store.dashboards = [
+			{ id: 1, uuid: 'group-uuid', source: 'group', isOwner: false },
+		]
 
 		mockApi.getDashboardById.mockResolvedValue({
 			data: {
@@ -503,17 +531,21 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 				sharedBy: 'someone',
 			},
 		})
-		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({
+			data: { status: 'success' },
+		})
 
 		await store.switchDashboard(1)
 
 		expect(mockApi.activateDashboard).not.toHaveBeenCalled()
-		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('group-uuid')
+		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith(
+			'group-uuid',
+		)
 	})
 })
 
 describe('useDashboardStore — setGroupDashboardDefault (REQ-DASH-015)', () => {
-	const seed = () => ([
+	const seed = () => [
 		{ id: 1, uuid: 'a', source: 'group', groupId: 'marketing', isDefault: 1 },
 		{ id: 2, uuid: 'b', source: 'group', groupId: 'marketing', isDefault: 0 },
 		{ id: 3, uuid: 'c', source: 'group', groupId: 'marketing', isDefault: 0 },
@@ -521,24 +553,29 @@ describe('useDashboardStore — setGroupDashboardDefault (REQ-DASH-015)', () => 
 		{ id: 4, uuid: 'x', source: 'group', groupId: 'sales', isDefault: 1 },
 		// Personal — must NOT be touched.
 		{ id: 5, uuid: 'p', source: 'user', groupId: null, isDefault: 0 },
-	])
+	]
 
 	it('optimistically flips target → 1 and every other row in the same group → 0 on success', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
 		store.dashboards = seed()
-		mockApi.setGroupDashboardDefault.mockResolvedValue({ data: { status: 'ok' } })
+		mockApi.setGroupDashboardDefault.mockResolvedValue({
+			data: { status: 'ok' },
+		})
 
 		await store.setGroupDashboardDefault('marketing', 'c')
 
-		const byUuid = Object.fromEntries(store.dashboards.map(d => [d.uuid, d]))
+		const byUuid = Object.fromEntries(store.dashboards.map((d) => [d.uuid, d]))
 		expect(byUuid.a.isDefault).toBe(0)
 		expect(byUuid.b.isDefault).toBe(0)
 		expect(byUuid.c.isDefault).toBe(1)
 		// Untouched scopes remain stable.
 		expect(byUuid.x.isDefault).toBe(1)
 		expect(byUuid.p.isDefault).toBe(0)
-		expect(mockApi.setGroupDashboardDefault).toHaveBeenCalledWith('marketing', 'c')
+		expect(mockApi.setGroupDashboardDefault).toHaveBeenCalledWith(
+			'marketing',
+			'c',
+		)
 	})
 
 	it('rolls back the snapshot on a 4xx/5xx and re-throws', async () => {
@@ -547,9 +584,11 @@ describe('useDashboardStore — setGroupDashboardDefault (REQ-DASH-015)', () => 
 		store.dashboards = seed()
 		mockApi.setGroupDashboardDefault.mockRejectedValue(new Error('403'))
 
-		await expect(store.setGroupDashboardDefault('marketing', 'c')).rejects.toThrow('403')
+		await expect(
+			store.setGroupDashboardDefault('marketing', 'c'),
+		).rejects.toThrow('403')
 
-		const byUuid = Object.fromEntries(store.dashboards.map(d => [d.uuid, d]))
+		const byUuid = Object.fromEntries(store.dashboards.map((d) => [d.uuid, d]))
 		// Snapshot restored.
 		expect(byUuid.a.isDefault).toBe(1)
 		expect(byUuid.b.isDefault).toBe(0)

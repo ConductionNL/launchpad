@@ -50,8 +50,8 @@ const SHAREE = process.env.LAUNCHPAD_E2E_SHAREE ?? 'recipient'
 // The recipient's password is reset to this known value through the OCS
 // provisioning API before the recipient-side scenario logs in — the
 // pre-seeded account's original password is not known to the suite.
-const RECIPIENT_PASSWORD = process.env.LAUNCHPAD_E2E_SHAREE_PASS
-	?? 'Recipient-e2e-A1!'
+const RECIPIENT_PASSWORD =
+	process.env.LAUNCHPAD_E2E_SHAREE_PASS ?? 'Recipient-e2e-A1!'
 
 /**
  * Open the active personal dashboard's config modal and switch to the
@@ -70,17 +70,23 @@ async function openSharingTab(page: Page) {
 	}
 
 	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+		timeout: 8_000,
+	})
 
 	// Open the active personal dashboard's cog menu → "Dashboard settings".
-	const activeRow = page.locator(
-		'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-	).first()
+	const activeRow = page
+		.locator(
+			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+		)
+		.first()
 	await activeRow.locator('.dashboard-row-actions button').first().click()
 	await page.locator('[data-testid="cog-dashboard-config"]').click()
 
 	// The modal opens on the General tab; switch to Sharing.
-	await page.locator('[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 8_000 })
+	await page
+		.locator('[data-testid="dashboard-name-input"]')
+		.waitFor({ state: 'visible', timeout: 8_000 })
 	await page.locator('[data-test="config-tab-sharing"]').click()
 	const panel = page.locator('[data-test="config-panel-sharing"]')
 	await expect(panel).toBeVisible({ timeout: 5_000 })
@@ -94,13 +100,19 @@ async function openSharingTab(page: Page) {
  * @param {import('@playwright/test').Locator} panel the sharing panel.
  * @param {string} sharee the user id to search for and select.
  */
-async function addSharee(page: Page, panel: import('@playwright/test').Locator, sharee: string) {
+async function addSharee(
+	page: Page,
+	panel: import('@playwright/test').Locator,
+	sharee: string,
+) {
 	const combobox = panel.getByLabel(/share with users and groups/i).first()
 	await combobox.click()
 	await combobox.fill(sharee)
 	// The autocomplete option carries the recipient's display name; pick the
 	// first matching option row.
-	const option = page.locator('.sharee-option', { hasText: new RegExp(sharee, 'i') }).first()
+	const option = page
+		.locator('.sharee-option', { hasText: new RegExp(sharee, 'i') })
+		.first()
 	await expect(option).toBeVisible({ timeout: 8_000 })
 	await option.click()
 }
@@ -114,27 +126,38 @@ async function saveConfig(page: Page) {
 	const save = page.locator('[data-testid="dashboard-save-button"]')
 	await expect(save).toBeEnabled({ timeout: 5_000 })
 	await save.click()
-	await expect(page.locator('[data-testid="dashboard-name-input"]')).not.toBeVisible({ timeout: 8_000 })
+	await expect(
+		page.locator('[data-testid="dashboard-name-input"]'),
+	).not.toBeVisible({ timeout: 8_000 })
 }
 
 test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
-	test('owner adds a user share and it appears in the shares list', async ({ page }) => {
+	test('owner adds a user share and it appears in the shares list', async ({
+		page,
+	}) => {
 		test.setTimeout(60_000)
 		const panel = await openSharingTab(page)
 
 		await addSharee(page, panel, SHAREE)
 
 		const shares = panel.locator('.dashboard-config__shares')
-		await expect(shares).toContainText(new RegExp(SHAREE, 'i'), { timeout: 8_000 })
+		await expect(shares).toContainText(new RegExp(SHAREE, 'i'), {
+			timeout: 8_000,
+		})
 
 		await saveConfig(page)
 
 		// Reopen and confirm the share persisted.
 		const panel2 = await openSharingTab(page)
-		await expect(panel2.locator('.dashboard-config__shares')).toContainText(new RegExp(SHAREE, 'i'), { timeout: 8_000 })
+		await expect(panel2.locator('.dashboard-config__shares')).toContainText(
+			new RegExp(SHAREE, 'i'),
+			{ timeout: 8_000 },
+		)
 	})
 
-	test('owner changes a share permission level and it persists across reload', async ({ page }) => {
+	test('owner changes a share permission level and it persists across reload', async ({
+		page,
+	}) => {
 		test.setTimeout(60_000)
 		const panel = await openSharingTab(page)
 
@@ -146,7 +169,11 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			await openSharingTab(page)
 		}
 
-		const row = page.locator('.dashboard-config__share', { hasText: new RegExp(SHAREE, 'i') }).first()
+		const row = page
+			.locator('.dashboard-config__share', {
+				hasText: new RegExp(SHAREE, 'i'),
+			})
+			.first()
 		await expect(row).toBeVisible({ timeout: 8_000 })
 
 		// Open the per-share permission-level NcSelect and pick "Full".
@@ -157,11 +184,19 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 
 		// Reopen and confirm the level persisted.
 		await openSharingTab(page)
-		const persistedRow = page.locator('.dashboard-config__share', { hasText: new RegExp(SHAREE, 'i') }).first()
-		await expect(persistedRow.locator('.dashboard-config__share-level')).toContainText(/full/i, { timeout: 8_000 })
+		const persistedRow = page
+			.locator('.dashboard-config__share', {
+				hasText: new RegExp(SHAREE, 'i'),
+			})
+			.first()
+		await expect(
+			persistedRow.locator('.dashboard-config__share-level'),
+		).toContainText(/full/i, { timeout: 8_000 })
 	})
 
-	test('owner removes a share and it stays gone across reload', async ({ page }) => {
+	test('owner removes a share and it stays gone across reload', async ({
+		page,
+	}) => {
 		test.setTimeout(60_000)
 		const panel = await openSharingTab(page)
 
@@ -172,7 +207,11 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			await openSharingTab(page)
 		}
 
-		const row = page.locator('.dashboard-config__share', { hasText: new RegExp(SHAREE, 'i') }).first()
+		const row = page
+			.locator('.dashboard-config__share', {
+				hasText: new RegExp(SHAREE, 'i'),
+			})
+			.first()
 		await expect(row).toBeVisible({ timeout: 8_000 })
 		await row.getByRole('button', { name: /remove share/i }).click()
 
@@ -181,11 +220,16 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		// Reopen: the recipient must no longer be listed.
 		const panel2 = await openSharingTab(page)
 		await expect(
-			panel2.locator('.dashboard-config__share', { hasText: new RegExp(SHAREE, 'i') }),
+			panel2.locator('.dashboard-config__share', {
+				hasText: new RegExp(SHAREE, 'i'),
+			}),
 		).toHaveCount(0, { timeout: 8_000 })
 	})
 
-	test('recipient sees the shared dashboard in their switcher', async ({ page, browser }) => {
+	test('recipient sees the shared dashboard in their switcher', async ({
+		page,
+		browser,
+	}) => {
 		test.setTimeout(120_000)
 
 		// The preceding "owner removes a share" test may have just removed the
@@ -193,8 +237,13 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		// first, exactly like "owner adds a user share" above.
 		const panel = await openSharingTab(page)
 		const shares = panel.locator('.dashboard-config__shares')
-		const alreadyShared = await shares.isVisible().catch(() => false)
-			&& await panel.locator('.dashboard-config__share', { hasText: new RegExp(SHAREE, 'i') }).count() > 0
+		const alreadyShared =
+			(await shares.isVisible().catch(() => false))
+			&& (await panel
+				.locator('.dashboard-config__share', {
+					hasText: new RegExp(SHAREE, 'i'),
+				})
+				.count()) > 0
 		if (!alreadyShared) {
 			await addSharee(page, panel, SHAREE)
 			await saveConfig(page)
@@ -255,9 +304,13 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 
 			// (3) The shell renders — which also requires every bootstrap
 			// AJAX call to have passed the action matrix as a non-admin.
-			await recipientPage.waitForSelector('.launchpad-sidebar-toggle', { timeout: 30_000 })
+			await recipientPage.waitForSelector('.launchpad-sidebar-toggle', {
+				timeout: 30_000,
+			})
 			await recipientPage.locator('.launchpad-sidebar-toggle').first().click()
-			await recipientPage.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 10_000 })
+			await recipientPage.waitForSelector('.dashboard-switcher-sidebar.open', {
+				timeout: 10_000,
+			})
 
 			// (4) Visibility: the share shows up in its own switcher
 			// section, not smuggled in under the recipient's group heading.

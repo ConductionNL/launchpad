@@ -14,12 +14,16 @@
 			<span>{{ t('launchpad', 'Loading…') }}</span>
 		</div>
 
-		<div v-else-if="unavailable" class="live-tile-widget__state live-tile-widget__state--unavailable">
+		<div
+			v-else-if="unavailable"
+			class="live-tile-widget__state live-tile-widget__state--unavailable">
 			<CloudOffOutline :size="32" />
 			<span>{{ t('launchpad', 'Data source unavailable') }}</span>
 		</div>
 
-		<div v-else-if="errorMessage" class="live-tile-widget__state live-tile-widget__state--error">
+		<div
+			v-else-if="errorMessage"
+			class="live-tile-widget__state live-tile-widget__state--error">
 			<AlertCircleOutline :size="32" />
 			<span>{{ errorMessage }}</span>
 			<button type="button" class="live-tile-widget__retry" @click.stop="load">
@@ -45,7 +49,10 @@
 
 			<!-- Threshold badge conveyed by icon AND text (WCAG AA — never
 			     colour alone), REQ-LIVETILE-004. -->
-			<div v-if="reading.badge" class="live-tile-widget__badge" :class="badgeClass">
+			<div
+				v-if="reading.badge"
+				class="live-tile-widget__badge"
+				:class="badgeClass">
 				<component :is="badgeIcon" :size="16" />
 				<span>{{ reading.badge.label }}</span>
 			</div>
@@ -148,10 +155,12 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		unavailable() {
-			return this.content?.sourceMode === 'connector'
+			return (
+				this.content?.sourceMode === 'connector'
 				&& this.reading !== null
 				&& this.reading.value === null
 				&& this.reading.stale === true
+			)
 		},
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
@@ -159,7 +168,10 @@ export default {
 			if (!this.reading) {
 				return ''
 			}
-			if (typeof this.reading.formatted === 'string' && this.reading.formatted !== '') {
+			if (
+				typeof this.reading.formatted === 'string'
+				&& this.reading.formatted !== ''
+			) {
 				return this.reading.formatted
 			}
 			return this.reading.value === null || this.reading.value === undefined
@@ -172,7 +184,10 @@ export default {
 			if (!this.label) {
 				return this.displayValue
 			}
-			return t('launchpad', '{label}: {value}', { label: this.label, value: this.displayValue })
+			return t('launchpad', '{label}: {value}', {
+				label: this.label,
+				value: this.displayValue,
+			})
 		},
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
@@ -188,7 +203,10 @@ export default {
 		},
 
 		hasLink() {
-			return typeof this.content?.linkUrl === 'string' && this.content.linkUrl.trim() !== ''
+			return (
+				typeof this.content?.linkUrl === 'string'
+				&& this.content.linkUrl.trim() !== ''
+			)
 		},
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
@@ -242,7 +260,10 @@ export default {
 			const placementId = this.placement?.id
 			if (placementId === undefined || placementId === null) {
 				this.loading = false
-				this.errorMessage = t('launchpad', 'This tile is not available until it is saved.')
+				this.errorMessage = t(
+					'launchpad',
+					'This tile is not available until it is saved.',
+				)
 				return
 			}
 
@@ -252,7 +273,10 @@ export default {
 				const data = await fetchLiveTileValue(placementId)
 				if (data && data.error) {
 					this.reading = null
-					this.errorMessage = t('launchpad', 'The value is currently unavailable.')
+					this.errorMessage = t(
+						'launchpad',
+						'The value is currently unavailable.',
+					)
 					return
 				}
 				this.reading = data

@@ -9,7 +9,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { useInternalActions, __resetInternalActionsForTest } from '../useInternalActions.js'
+import {
+	useInternalActions,
+	__resetInternalActionsForTest,
+} from '../useInternalActions.js'
 
 beforeEach(() => {
 	__resetInternalActionsForTest()
@@ -35,7 +38,9 @@ describe('useInternalActions', () => {
 		const { invoke } = useInternalActions()
 
 		expect(() => invoke('does-not-exist')).not.toThrow()
-		expect(warnSpy).toHaveBeenCalledWith('Unknown internal action: does-not-exist')
+		expect(warnSpy).toHaveBeenCalledWith(
+			'Unknown internal action: does-not-exist',
+		)
 
 		warnSpy.mockRestore()
 	})
@@ -82,7 +87,7 @@ describe('useInternalActions', () => {
 		expect(has('foo')).toBe(false)
 	})
 
-	it('REQ-LBN-005: invoke() forwards the registered function\'s return value', () => {
+	it("REQ-LBN-005: invoke() forwards the registered function's return value", () => {
 		const { register, invoke } = useInternalActions()
 		register('plain', () => 'value')
 

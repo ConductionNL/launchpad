@@ -120,11 +120,15 @@ describe('rankItems', () => {
 
 describe('isValidFallbackTemplate', () => {
 	it('accepts an https URL containing {query}', () => {
-		expect(isValidFallbackTemplate('https://example.org/search?q={query}')).toBe(true)
+		expect(isValidFallbackTemplate('https://example.org/search?q={query}')).toBe(
+			true,
+		)
 	})
 
 	it('rejects a non-https URL', () => {
-		expect(isValidFallbackTemplate('http://example.org/search?q={query}')).toBe(false)
+		expect(isValidFallbackTemplate('http://example.org/search?q={query}')).toBe(
+			false,
+		)
 	})
 
 	it('rejects a template missing the {query} placeholder', () => {
@@ -149,14 +153,19 @@ describe('isValidFallbackTemplate', () => {
 
 describe('resolveFallbackAction', () => {
 	it('resolves "unified-search" to a unified-search action carrying the query', () => {
-		expect(resolveFallbackAction(FALLBACK_TARGET_UNIFIED_SEARCH, 'invoices')).toEqual({
+		expect(
+			resolveFallbackAction(FALLBACK_TARGET_UNIFIED_SEARCH, 'invoices'),
+		).toEqual({
 			type: 'unified-search',
 			query: 'invoices',
 		})
 	})
 
 	it('resolves a valid web-search template to a URL with the query substituted + encoded', () => {
-		const action = resolveFallbackAction('https://example.org/search?q={query}', 'hello world')
+		const action = resolveFallbackAction(
+			'https://example.org/search?q={query}',
+			'hello world',
+		)
 		expect(action).toEqual({
 			type: 'web-search',
 			url: 'https://example.org/search?q=hello%20world',
@@ -164,27 +173,40 @@ describe('resolveFallbackAction', () => {
 	})
 
 	it('resolves "none" to a none action', () => {
-		expect(resolveFallbackAction(FALLBACK_TARGET_NONE, 'invoices')).toEqual({ type: 'none' })
+		expect(resolveFallbackAction(FALLBACK_TARGET_NONE, 'invoices')).toEqual({
+			type: 'none',
+		})
 	})
 
 	it('resolves an invalid/malformed template to a none action (fail-safe)', () => {
-		expect(resolveFallbackAction('not-a-template', 'invoices')).toEqual({ type: 'none' })
-		expect(resolveFallbackAction(undefined, 'invoices')).toEqual({ type: 'none' })
+		expect(resolveFallbackAction('not-a-template', 'invoices')).toEqual({
+			type: 'none',
+		})
+		expect(resolveFallbackAction(undefined, 'invoices')).toEqual({
+			type: 'none',
+		})
 	})
 })
 
 describe('isTypingTarget', () => {
-	it.each(['input', 'textarea', 'select'])('treats a %s element as a typing target', (tagName) => {
-		expect(isTypingTarget({ tagName })).toBe(true)
-		expect(isTypingTarget({ tagName: tagName.toUpperCase() })).toBe(true)
-	})
+	it.each(['input', 'textarea', 'select'])(
+		'treats a %s element as a typing target',
+		(tagName) => {
+			expect(isTypingTarget({ tagName })).toBe(true)
+			expect(isTypingTarget({ tagName: tagName.toUpperCase() })).toBe(true)
+		},
+	)
 
 	it('treats a contenteditable element as a typing target', () => {
-		expect(isTypingTarget({ tagName: 'DIV', isContentEditable: true })).toBe(true)
+		expect(isTypingTarget({ tagName: 'DIV', isContentEditable: true })).toBe(
+			true,
+		)
 	})
 
 	it('does not treat a plain element as a typing target', () => {
-		expect(isTypingTarget({ tagName: 'DIV', isContentEditable: false })).toBe(false)
+		expect(isTypingTarget({ tagName: 'DIV', isContentEditable: false })).toBe(
+			false,
+		)
 		expect(isTypingTarget({ tagName: 'BUTTON' })).toBe(false)
 	})
 
@@ -196,23 +218,54 @@ describe('isTypingTarget', () => {
 
 describe('isSlashFocusShortcut (REQ-QSEARCH-001 "Slash focuses the bar")', () => {
 	it('is true for a bare "/" outside a text field', () => {
-		expect(isSlashFocusShortcut({ key: '/', target: { tagName: 'DIV' } })).toBe(true)
+		expect(isSlashFocusShortcut({ key: '/', target: { tagName: 'DIV' } })).toBe(
+			true,
+		)
 	})
 
 	it('is false while focus is in an input/textarea/contenteditable', () => {
-		expect(isSlashFocusShortcut({ key: '/', target: { tagName: 'INPUT' } })).toBe(false)
-		expect(isSlashFocusShortcut({ key: '/', target: { tagName: 'TEXTAREA' } })).toBe(false)
-		expect(isSlashFocusShortcut({ key: '/', target: { tagName: 'DIV', isContentEditable: true } })).toBe(false)
+		expect(
+			isSlashFocusShortcut({ key: '/', target: { tagName: 'INPUT' } }),
+		).toBe(false)
+		expect(
+			isSlashFocusShortcut({ key: '/', target: { tagName: 'TEXTAREA' } }),
+		).toBe(false)
+		expect(
+			isSlashFocusShortcut({
+				key: '/',
+				target: { tagName: 'DIV', isContentEditable: true },
+			}),
+		).toBe(false)
 	})
 
 	it('is false for a modified "/" press', () => {
-		expect(isSlashFocusShortcut({ key: '/', ctrlKey: true, target: { tagName: 'DIV' } })).toBe(false)
-		expect(isSlashFocusShortcut({ key: '/', metaKey: true, target: { tagName: 'DIV' } })).toBe(false)
-		expect(isSlashFocusShortcut({ key: '/', altKey: true, target: { tagName: 'DIV' } })).toBe(false)
+		expect(
+			isSlashFocusShortcut({
+				key: '/',
+				ctrlKey: true,
+				target: { tagName: 'DIV' },
+			}),
+		).toBe(false)
+		expect(
+			isSlashFocusShortcut({
+				key: '/',
+				metaKey: true,
+				target: { tagName: 'DIV' },
+			}),
+		).toBe(false)
+		expect(
+			isSlashFocusShortcut({
+				key: '/',
+				altKey: true,
+				target: { tagName: 'DIV' },
+			}),
+		).toBe(false)
 	})
 
 	it('is false for any other key', () => {
-		expect(isSlashFocusShortcut({ key: 'a', target: { tagName: 'DIV' } })).toBe(false)
+		expect(isSlashFocusShortcut({ key: 'a', target: { tagName: 'DIV' } })).toBe(
+			false,
+		)
 	})
 })
 
@@ -226,7 +279,13 @@ describe('isCtrlKFocusShortcut (REQ-QSEARCH-001 "Ctrl+K focuses the bar")', () =
 	})
 
 	it('fires even while focus is inside a text field (explicit chord, not a printable char)', () => {
-		expect(isCtrlKFocusShortcut({ key: 'k', ctrlKey: true, target: { tagName: 'INPUT' } })).toBe(true)
+		expect(
+			isCtrlKFocusShortcut({
+				key: 'k',
+				ctrlKey: true,
+				target: { tagName: 'INPUT' },
+			}),
+		).toBe(true)
 	})
 
 	it('is false for a bare "k"', () => {
@@ -234,8 +293,12 @@ describe('isCtrlKFocusShortcut (REQ-QSEARCH-001 "Ctrl+K focuses the bar")', () =
 	})
 
 	it('is false when Shift or Alt is also held', () => {
-		expect(isCtrlKFocusShortcut({ key: 'k', ctrlKey: true, shiftKey: true })).toBe(false)
-		expect(isCtrlKFocusShortcut({ key: 'k', ctrlKey: true, altKey: true })).toBe(false)
+		expect(
+			isCtrlKFocusShortcut({ key: 'k', ctrlKey: true, shiftKey: true }),
+		).toBe(false)
+		expect(isCtrlKFocusShortcut({ key: 'k', ctrlKey: true, altKey: true })).toBe(
+			false,
+		)
 	})
 })
 
@@ -338,7 +401,10 @@ describe('useTileSearch()', () => {
 	describe('pressEnter — no-match fallback (REQ-QSEARCH-004)', () => {
 		it('resolves and dispatches the unified-search fallback when configured', () => {
 			const onFallback = vi.fn()
-			const search = useTileSearch({ onFallback, getFallbackTarget: () => FALLBACK_TARGET_UNIFIED_SEARCH })
+			const search = useTileSearch({
+				onFallback,
+				getFallbackTarget: () => FALLBACK_TARGET_UNIFIED_SEARCH,
+			})
 			search.setItems(items)
 			search.setQuery('nonexistent')
 			const action = search.pressEnter()
@@ -355,14 +421,21 @@ describe('useTileSearch()', () => {
 			search.setItems(items)
 			search.setQuery('nonexistent tile')
 			const action = search.pressEnter()
-			expect(action).toEqual({ type: 'web-search', url: 'https://duckduckgo.com/?q=nonexistent%20tile' })
+			expect(action).toEqual({
+				type: 'web-search',
+				url: 'https://duckduckgo.com/?q=nonexistent%20tile',
+			})
 			expect(onFallback).toHaveBeenCalledWith(action)
 		})
 
 		it('does nothing beyond the "none" action when no fallback is configured', () => {
 			const onFallback = vi.fn()
 			const onOpen = vi.fn()
-			const search = useTileSearch({ onOpen, onFallback, getFallbackTarget: () => FALLBACK_TARGET_NONE })
+			const search = useTileSearch({
+				onOpen,
+				onFallback,
+				getFallbackTarget: () => FALLBACK_TARGET_NONE,
+			})
 			search.setItems(items)
 			search.setQuery('nonexistent')
 			const action = search.pressEnter()

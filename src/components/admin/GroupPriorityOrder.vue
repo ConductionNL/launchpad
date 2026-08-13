@@ -8,7 +8,12 @@
 		<div class="group-priority__header">
 			<h3>{{ t('launchpad', 'Group priority order') }}</h3>
 			<p class="group-priority__hint">
-				{{ t('launchpad', 'Drag groups between the columns to control which Nextcloud groups LaunchPad uses, and in what order. The first active group becomes the user\'s primary workspace.') }}
+				{{
+					t(
+						'launchpad',
+						"Drag groups between the columns to control which Nextcloud groups LaunchPad uses, and in what order. The first active group becomes the user's primary workspace.",
+					)
+				}}
 			</p>
 		</div>
 
@@ -40,10 +45,17 @@
 						@dragstart="onDragStart($event, id, 'active', index)"
 						@dragover.prevent="onItemDragOver($event, index, 'active')"
 						@drop.prevent.stop="onItemDrop($event, index, 'active')">
-						<span class="group-priority__handle" aria-hidden="true">⋮⋮</span>
-						<span class="group-priority__label">{{ displayName(id) }}<span
-							v-if="isStale(id)"
-							class="group-priority__stale-affix"> {{ t('launchpad', '(removed)') }}</span></span>
+						<span class="group-priority__handle" aria-hidden="true"
+							>⋮⋮</span
+						>
+						<span class="group-priority__label"
+							>{{ displayName(id)
+							}}<span
+								v-if="isStale(id)"
+								class="group-priority__stale-affix">
+								{{ t('launchpad', '(removed)') }}</span
+							></span
+						>
 						<NcButton
 							type="tertiary"
 							:aria-label="t('launchpad', 'Move to inactive')"
@@ -52,8 +64,17 @@
 							→
 						</NcButton>
 					</li>
-					<li v-if="filteredActive.length === 0" class="group-priority__empty">
-						{{ activeFilter ? t('launchpad', 'No matches.') : t('launchpad', 'No active groups. Drag groups here from the inactive column.') }}
+					<li
+						v-if="filteredActive.length === 0"
+						class="group-priority__empty">
+						{{
+							activeFilter
+								? t('launchpad', 'No matches.')
+								: t(
+										'launchpad',
+										'No active groups. Drag groups here from the inactive column.',
+									)
+						}}
 					</li>
 				</ul>
 			</div>
@@ -82,8 +103,12 @@
 						class="group-priority__item"
 						:data-test-id="id"
 						@dragstart="onDragStart($event, id, 'inactive', null)">
-						<span class="group-priority__handle" aria-hidden="true">⋮⋮</span>
-						<span class="group-priority__label">{{ displayName(id) }}</span>
+						<span class="group-priority__handle" aria-hidden="true"
+							>⋮⋮</span
+						>
+						<span class="group-priority__label">{{
+							displayName(id)
+						}}</span>
 						<NcButton
 							type="tertiary"
 							:aria-label="t('launchpad', 'Move to active')"
@@ -92,8 +117,14 @@
 							←
 						</NcButton>
 					</li>
-					<li v-if="filteredInactive.length === 0" class="group-priority__empty">
-						{{ inactiveFilter ? t('launchpad', 'No matches.') : t('launchpad', 'No inactive groups.') }}
+					<li
+						v-if="filteredInactive.length === 0"
+						class="group-priority__empty">
+						{{
+							inactiveFilter
+								? t('launchpad', 'No matches.')
+								: t('launchpad', 'No inactive groups.')
+						}}
 					</li>
 				</ul>
 			</div>
@@ -337,7 +368,8 @@ export default {
 				if (fromIndex === targetIndex) return
 				const next = [...this.active]
 				next.splice(fromIndex, 1)
-				const adjustedTarget = fromIndex < targetIndex ? targetIndex - 1 : targetIndex
+				const adjustedTarget =
+					fromIndex < targetIndex ? targetIndex - 1 : targetIndex
 				next.splice(adjustedTarget, 0, id)
 				this.active = next
 				this.queueSave()
@@ -368,7 +400,11 @@ export default {
 
 			if (toColumn === 'active') {
 				const next = [...this.active]
-				if (insertIndex === null || insertIndex < 0 || insertIndex >= next.length) {
+				if (
+					insertIndex === null
+					|| insertIndex < 0
+					|| insertIndex >= next.length
+				) {
 					next.push(id)
 				} else {
 					next.splice(insertIndex, 0, id)

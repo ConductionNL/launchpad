@@ -112,7 +112,9 @@ export const useKioskPlaylistStore = defineStore('kioskPlaylists', {
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md#req-kiosk-002
 		 */
 		async revokePlaylist(id) {
-			await axios.delete(`${baseUrl}/api/kiosk/playlists/${encodeURIComponent(id)}`)
+			await axios.delete(
+				`${baseUrl}/api/kiosk/playlists/${encodeURIComponent(id)}`,
+			)
 			this.playlists = this.playlists.filter((p) => p.id !== id)
 		},
 

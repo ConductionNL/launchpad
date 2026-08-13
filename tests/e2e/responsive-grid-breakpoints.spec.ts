@@ -37,17 +37,20 @@ import { gotoLaunchPad } from './fixtures/widget-flow'
  * @return {Promise<number>} The active column count.
  */
 async function readColumns(page: import('@playwright/test').Page): Promise<number> {
-	await page.waitForFunction(() => {
-		const el = document.querySelector('.grid-stack') as
-			| (HTMLElement & { gridstack?: { opts: { column: number } } })
-			| null
-		return Boolean(el?.gridstack)
-	}, { timeout: 15_000 })
+	await page.waitForFunction(
+		() => {
+			const el = document.querySelector('.grid-stack') as
+				(HTMLElement & { gridstack?: { opts: { column: number } } }) | null
+			return Boolean(el?.gridstack)
+		},
+		{ timeout: 15_000 },
+	)
 	// Allow the breakpoint reflow to settle after the viewport change.
 	await page.waitForTimeout(400)
 	return page.evaluate(() => {
-		const el = document.querySelector('.grid-stack') as
-			HTMLElement & { gridstack: { opts: { column: number } } }
+		const el = document.querySelector('.grid-stack') as HTMLElement & {
+			gridstack: { opts: { column: number } }
+		}
 		return Number(el.gridstack.opts.column)
 	})
 }
@@ -59,7 +62,9 @@ test.describe('responsive grid breakpoints', () => {
 
 	// @e2e grid-layout::12-columns-on-wide-desktop
 	// @e2e grid-layout::below-smallest-breakpoint
-	test('REQ-GRID-007: a wide desktop uses the full 12-column grid', async ({ page }) => {
+	test('REQ-GRID-007: a wide desktop uses the full 12-column grid', async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 1600, height: 900 })
 		const columns = await readColumns(page)
 		// Above the largest breakpoint the grid uses its full column count.
@@ -67,7 +72,9 @@ test.describe('responsive grid breakpoints', () => {
 	})
 
 	// @e2e grid-layout::single-column-on-mobile
-	test('REQ-GRID-007: a narrow mobile viewport collapses to a single column', async ({ page }) => {
+	test('REQ-GRID-007: a narrow mobile viewport collapses to a single column', async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 360, height: 900 })
 		const columns = await readColumns(page)
 		// Below the smallest breakpoint the grid clamps to one column.
@@ -76,7 +83,9 @@ test.describe('responsive grid breakpoints', () => {
 
 	// @e2e grid-layout::reflow-at-1100-px
 	// @e2e grid-layout::grid-fills-container-width
-	test('REQ-GRID-007: column count is monotonically non-increasing as the viewport narrows', async ({ page }) => {
+	test('REQ-GRID-007: column count is monotonically non-increasing as the viewport narrows', async ({
+		page,
+	}) => {
 		// The exact column count at an intermediate width depends on the live
 		// container width (Nextcloud chrome offset) and GridStack's
 		// window-breakpoint matching, so assert the responsive INVARIANT —
@@ -98,7 +107,9 @@ test.describe('responsive grid breakpoints', () => {
 	})
 
 	// @e2e grid-layout::minimum-grid-height
-	test('REQ-GRID-012: the grid container fills its width and has a non-zero height', async ({ page }) => {
+	test('REQ-GRID-012: the grid container fills its width and has a non-zero height', async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 1400, height: 900 })
 		await readColumns(page)
 		const grid = page.locator('.grid-stack').first()

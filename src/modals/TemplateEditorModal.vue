@@ -18,11 +18,21 @@
 <template>
 	<NcModal
 		v-if="open"
-		:name="isEdit ? t('launchpad', 'Edit template') : t('launchpad', 'Create template')"
+		:name="
+			isEdit
+				? t('launchpad', 'Edit template')
+				: t('launchpad', 'Create template')
+		"
 		size="large"
 		@close="$emit('close')">
 		<div class="launchpad-admin__modal" data-testid="admin-template-editor">
-			<h2>{{ isEdit ? t('launchpad', 'Edit template') : t('launchpad', 'Create template') }}</h2>
+			<h2>
+				{{
+					isEdit
+						? t('launchpad', 'Edit template')
+						: t('launchpad', 'Create template')
+				}}
+			</h2>
 
 			<!--
 				The visible text moves from a bare `<label>` onto
@@ -58,7 +68,9 @@
 					:options="availableGroups"
 					:multiple="true"
 					:aria-label-combobox="t('launchpad', 'Target groups')"
-					:placeholder="t('launchpad', 'Select groups (leave empty for all users)')" />
+					:placeholder="
+						t('launchpad', 'Select groups (leave empty for all users)')
+					" />
 			</div>
 
 			<div class="launchpad-admin__field">
@@ -71,8 +83,7 @@
 					:clearable="false" />
 			</div>
 
-			<NcCheckboxRadioSwitch
-				v-model="form.isDefault">
+			<NcCheckboxRadioSwitch v-model="form.isDefault">
 				{{ t('launchpad', 'Set as default template') }}
 			</NcCheckboxRadioSwitch>
 
@@ -214,9 +225,10 @@ export default {
 
 			this.form = {
 				...this.template,
-				permissionLevel: this.permissionOptions.find(
-					p => p.id === this.template.permissionLevel,
-				) || defaultPermission,
+				permissionLevel:
+					this.permissionOptions.find(
+						(p) => p.id === this.template.permissionLevel,
+					) || defaultPermission,
 			}
 		},
 

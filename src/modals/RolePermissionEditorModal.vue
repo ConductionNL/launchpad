@@ -6,33 +6,45 @@
 <template>
 	<NcModal @close="$emit('close')">
 		<div class="launchpad-admin__editor">
-			<h3>{{ row.id ? t('launchpad', 'Edit role permission') : t('launchpad', 'Add role permission') }}</h3>
+			<h3>
+				{{
+					row.id
+						? t('launchpad', 'Edit role permission')
+						: t('launchpad', 'Add role permission')
+				}}
+			</h3>
 			<!-- @nextcloud/vue@9: `value` + `update:value` became
 			     `modelValue` + `update:modelValue`; the old pair is a
 			     silent no-op under Vue 3. Listener stays camelCase. -->
-			<NcTextField :model-value="row.name"
+			<NcTextField
+				:model-value="row.name"
 				:label="t('launchpad', 'Name')"
 				required
 				@update:modelValue="updateRow('name', $event)" />
-			<NcTextField :model-value="row.groupId"
+			<NcTextField
+				:model-value="row.groupId"
 				:label="t('launchpad', 'Nextcloud group ID')"
 				required
 				:disabled="!!row.id"
 				@update:modelValue="updateRow('groupId', $event)" />
-			<NcTextField :model-value="row.description"
+			<NcTextField
+				:model-value="row.description"
 				:label="t('launchpad', 'Description (optional)')"
 				@update:modelValue="updateRow('description', $event)" />
-			<NcTextField :model-value="allowedWidgetsCsv"
+			<NcTextField
+				:model-value="allowedWidgetsCsv"
 				:label="t('launchpad', 'Allowed widget IDs (comma separated)')"
 				@update:modelValue="$emit('update:allowedWidgetsCsv', $event)" />
-			<NcTextField :model-value="deniedWidgetsCsv"
+			<NcTextField
+				:model-value="deniedWidgetsCsv"
 				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
 				@update:modelValue="$emit('update:deniedWidgetsCsv', $event)" />
 			<div class="launchpad-admin__editor-actions">
 				<NcButton type="tertiary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
-				<NcButton type="primary"
+				<NcButton
+					type="primary"
 					:disabled="saving || !row.name || !row.groupId"
 					@click="$emit('save')">
 					{{ t('launchpad', 'Save') }}
@@ -43,11 +55,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcModal,
-	NcTextField,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcModal, NcTextField } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'RolePermissionEditorModal',

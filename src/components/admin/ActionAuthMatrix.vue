@@ -7,7 +7,12 @@
 	<div class="launchpad-admin__section" data-testid="admin-action-auth-section">
 		<h3>{{ t('launchpad', 'Action authorization') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Decide who may invoke each LaunchPad action (ADR-023). Admins always pass. Administrative actions default to admin-only; the ordinary end-user surface ships granted to "All logged-in users" so non-admins can use the app out of the box. Object-level access (whose dashboard you may edit) is enforced separately and is not affected by this table.') }}
+			{{
+				t(
+					'launchpad',
+					'Decide who may invoke each LaunchPad action (ADR-023). Admins always pass. Administrative actions default to admin-only; the ordinary end-user surface ships granted to "All logged-in users" so non-admins can use the app out of the box. Object-level access (whose dashboard you may edit) is enforced separately and is not affected by this table.',
+				)
+			}}
 		</p>
 
 		<div v-if="error" class="launchpad-admin__action-error" role="alert">
@@ -46,7 +51,13 @@
 							<NcCheckboxRadioSwitch
 								:model-value="isChecked(action, group)"
 								:disabled="group === 'admin'"
-								:aria-label="t('launchpad', 'Allow group {group} to perform {action}', { group: groupLabel(group), action })"
+								:aria-label="
+									t(
+										'launchpad',
+										'Allow group {group} to perform {action}',
+										{ group: groupLabel(group), action },
+									)
+								"
 								@update:modelValue="toggle(action, group, $event)" />
 						</td>
 					</tr>
@@ -60,7 +71,11 @@
 				data-testid="admin-action-matrix-save"
 				:disabled="loading || saving"
 				@click="save">
-				{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save action matrix') }}
+				{{
+					saving
+						? t('launchpad', 'Saving…')
+						: t('launchpad', 'Save action matrix')
+				}}
 			</NcButton>
 		</div>
 	</div>
@@ -120,7 +135,7 @@ export default {
 		 * @spec openspec/architecture/adr-023-action-authorization.md
 		 */
 		displayGroups() {
-			const rest = this.groups.filter(g => g !== 'admin' && g !== ALL_USERS)
+			const rest = this.groups.filter((g) => g !== 'admin' && g !== ALL_USERS)
 			return ['admin', ALL_USERS, ...rest]
 		},
 	},
@@ -141,9 +156,12 @@ export default {
 				this.groups = Array.isArray(data.groups) ? data.groups : []
 				// Clone the matrix into a plain editable map keyed by action.
 				const next = {}
-				const source = data.matrix && typeof data.matrix === 'object' ? data.matrix : {}
+				const source =
+					data.matrix && typeof data.matrix === 'object' ? data.matrix : {}
 				for (const action of this.actions) {
-					const allowed = Array.isArray(source[action]) ? source[action] : []
+					const allowed = Array.isArray(source[action])
+						? source[action]
+						: []
 					next[action] = [...allowed]
 				}
 				this.matrix = next
@@ -203,7 +221,9 @@ export default {
 			if (group === 'admin') {
 				return
 			}
-			const allowed = Array.isArray(this.matrix[action]) ? [...this.matrix[action]] : []
+			const allowed = Array.isArray(this.matrix[action])
+				? [...this.matrix[action]]
+				: []
 			const index = allowed.indexOf(group)
 			if (checked === true && index === -1) {
 				allowed.push(group)
@@ -221,11 +241,16 @@ export default {
 				// stored posture stays admin-inclusive and human-readable.
 				const payload = {}
 				for (const action of this.actions) {
-					const extra = (this.matrix[action] || []).filter(g => g !== 'admin')
+					const extra = (this.matrix[action] || []).filter(
+						(g) => g !== 'admin',
+					)
 					payload[action] = ['admin', ...extra]
 				}
 				const { data } = await api.updateActionMatrix(payload)
-				const saved = data && data.matrix && typeof data.matrix === 'object' ? data.matrix : {}
+				const saved =
+					data && data.matrix && typeof data.matrix === 'object'
+						? data.matrix
+						: {}
 				const next = {}
 				for (const action of this.actions) {
 					const allowed = Array.isArray(saved[action]) ? saved[action] : []

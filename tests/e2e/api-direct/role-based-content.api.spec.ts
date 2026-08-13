@@ -27,7 +27,7 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const PERMS_URL   = `${BASE}/index.php/apps/launchpad/api/role-feature-permissions`
+const PERMS_URL = `${BASE}/index.php/apps/launchpad/api/role-feature-permissions`
 const WIDGETS_URL = `${BASE}/index.php/apps/launchpad/api/widgets`
 
 /**

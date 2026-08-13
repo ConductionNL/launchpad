@@ -85,7 +85,7 @@ describe('useGridManager — grid configuration', () => {
 		it('height math: 4 rows + 3 inter-row margins = 264 px', () => {
 			const rows = 4
 			const innerMargins = rows - 1
-			expect((rows * CELL_HEIGHT) + (innerMargins * GRID_MARGIN)).toBe(264)
+			expect(rows * CELL_HEIGHT + innerMargins * GRID_MARGIN).toBe(264)
 		})
 	})
 
@@ -137,7 +137,8 @@ describe('useGridManager — grid configuration', () => {
 		it('syncCellHeightCssVar writes the cell height to documentElement', () => {
 			document.documentElement.style.removeProperty(CELL_HEIGHT_CSS_VAR)
 			syncCellHeightCssVar()
-			const value = document.documentElement.style.getPropertyValue(CELL_HEIGHT_CSS_VAR)
+			const value =
+				document.documentElement.style.getPropertyValue(CELL_HEIGHT_CSS_VAR)
 			expect(value).toBe(`${CELL_HEIGHT}px`)
 		})
 
@@ -157,7 +158,9 @@ describe('useGridManager — grid configuration', () => {
 			const placements = [
 				{ id: 'a', gridX: 0, gridY: 0, gridWidth: 6, gridHeight: 4 },
 			]
-			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
+			const result = placeNewWidget({ w: 4, h: 4 }, placements, {
+				gridColumns: 12,
+			})
 			// Free space remains at x=6,y=0, but we still drop the widget in a
 			// fresh row below everything (bottom edge of `a` is y=4).
 			expect(result).toMatchObject({ x: 0, y: 4, w: 4, h: 4, pushed: [] })
@@ -181,7 +184,9 @@ describe('useGridManager — grid configuration', () => {
 				{ id: 'c', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 4 },
 				{ id: 'd', gridX: 0, gridY: 6, gridWidth: 4, gridHeight: 2 },
 			]
-			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
+			const result = placeNewWidget({ w: 4, h: 4 }, placements, {
+				gridColumns: 12,
+			})
 			// Lowest bottom edge is `d` at gridY 6 + gridHeight 2 = 8.
 			expect(result).toMatchObject({ x: 0, y: 8, w: 4, h: 4, pushed: [] })
 		})
@@ -191,7 +196,9 @@ describe('useGridManager — grid configuration', () => {
 				{ id: 'low', gridX: 0, gridY: 5, gridWidth: 6, gridHeight: 3 }, // bottom edge = 8
 				{ id: 'high', gridX: 6, gridY: 0, gridWidth: 6, gridHeight: 2 }, // bottom edge = 2
 			]
-			const result = placeNewWidget({ w: 6, h: 3 }, placements, { gridColumns: 12 })
+			const result = placeNewWidget({ w: 6, h: 3 }, placements, {
+				gridColumns: 12,
+			})
 			expect(result).toMatchObject({ x: 0, y: 8, pushed: [] })
 		})
 
@@ -204,7 +211,9 @@ describe('useGridManager — grid configuration', () => {
 			const placements = [
 				{ id: 'a' }, // no coords → contributes bottom edge 1
 			]
-			const result = placeNewWidget({ w: 4, h: 4 }, placements, { gridColumns: 12 })
+			const result = placeNewWidget({ w: 4, h: 4 }, placements, {
+				gridColumns: 12,
+			})
 			expect(result).toMatchObject({ x: 0, y: 1, pushed: [] })
 		})
 
@@ -230,7 +239,10 @@ describe('useGridManager — grid configuration', () => {
 				if (st.isDirectory()) {
 					if (entry === 'node_modules') continue
 					walkSrc(full, acc)
-				} else if (st.isFile() && (entry.endsWith('.js') || entry.endsWith('.vue'))) {
+				} else if (
+					st.isFile()
+					&& (entry.endsWith('.js') || entry.endsWith('.vue'))
+				) {
 					acc.push(full)
 				}
 			}
@@ -501,7 +513,9 @@ describe('nudgePlacement (keyboard-accessible repositioning)', () => {
 	it('move-right clamps at the right edge (x + w <= columns)', () => {
 		const nearEdge = { id: 'a', gridX: 8, gridY: 0, gridWidth: 4, gridHeight: 4 }
 		// columns = 12, w = 4 → max x is 8, so move-right is a no-op.
-		expect(nudgePlacement(nearEdge, 'move-right', [], { gridColumns: 12 }).gridX).toBe(8)
+		expect(
+			nudgePlacement(nearEdge, 'move-right', [], { gridColumns: 12 }).gridX,
+		).toBe(8)
 	})
 
 	it('grow-width / grow-height increase size by one cell', () => {
@@ -517,7 +531,9 @@ describe('nudgePlacement (keyboard-accessible repositioning)', () => {
 
 	it('grow-width cannot exceed the column count', () => {
 		const wide = { id: 'a', gridX: 0, gridY: 0, gridWidth: 12, gridHeight: 4 }
-		expect(nudgePlacement(wide, 'grow-width', [], { gridColumns: 12 }).gridWidth).toBe(12)
+		expect(
+			nudgePlacement(wide, 'grow-width', [], { gridColumns: 12 }).gridWidth,
+		).toBe(12)
 	})
 
 	it('reports collisions with other placements as push-downs (drag parity)', () => {
@@ -534,6 +550,11 @@ describe('nudgePlacement (keyboard-accessible repositioning)', () => {
 
 	it('an unknown action is a no-op', () => {
 		const result = nudgePlacement(base, 'not-a-real-action', [])
-		expect(result).toMatchObject({ gridX: 3, gridY: 2, gridWidth: 4, gridHeight: 4 })
+		expect(result).toMatchObject({
+			gridX: 3,
+			gridY: 2,
+			gridWidth: 4,
+			gridHeight: 4,
+		})
 	})
 })

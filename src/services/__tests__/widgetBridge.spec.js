@@ -26,7 +26,10 @@ afterEach(() => {
 
 describe('WidgetBridge.pollForCallback', () => {
 	it('REQ-LWB-005: resolves true when callback registers mid-poll', async () => {
-		const promise = widgetBridge.pollForCallback('notes', { intervalMs: 200, maxRetries: 15 })
+		const promise = widgetBridge.pollForCallback('notes', {
+			intervalMs: 200,
+			maxRetries: 15,
+		})
 
 		// First synchronous check has already run and returned false; advance
 		// 600 ms then register, then run another tick so the next interval
@@ -39,7 +42,10 @@ describe('WidgetBridge.pollForCallback', () => {
 	})
 
 	it('REQ-LWB-005: resolves false after timeout when nothing registers', async () => {
-		const promise = widgetBridge.pollForCallback('fictional_widget', { intervalMs: 200, maxRetries: 15 })
+		const promise = widgetBridge.pollForCallback('fictional_widget', {
+			intervalMs: 200,
+			maxRetries: 15,
+		})
 
 		// 15 ticks * 200 ms = 3 s.
 		await vi.advanceTimersByTimeAsync(3000)
@@ -49,7 +55,9 @@ describe('WidgetBridge.pollForCallback', () => {
 
 	it('REQ-LWB-005: aborts immediately when the signal fires', async () => {
 		const controller = new AbortController()
-		const promise = widgetBridge.pollForCallback('notes', { signal: controller.signal })
+		const promise = widgetBridge.pollForCallback('notes', {
+			signal: controller.signal,
+		})
 
 		controller.abort()
 
@@ -60,7 +68,9 @@ describe('WidgetBridge.pollForCallback', () => {
 		const controller = new AbortController()
 		controller.abort()
 
-		await expect(widgetBridge.pollForCallback('notes', { signal: controller.signal })).resolves.toBe(false)
+		await expect(
+			widgetBridge.pollForCallback('notes', { signal: controller.signal }),
+		).resolves.toBe(false)
 	})
 
 	it('REQ-LWB-006: synchronously resolves true when callback already registered', async () => {
@@ -93,7 +103,9 @@ describe('WidgetBridge OCA.Dashboard exposure (CnNcWidgetWidget contract)', () =
 	it('setWidgetMetadata merges title/icon without clobbering the callback', () => {
 		const cb = () => {}
 		window.OCA.Dashboard.register('leads', cb)
-		widgetBridge.setWidgetMetadata([{ id: 'leads', title: 'My Leads', iconUrl: '/x.svg' }])
+		widgetBridge.setWidgetMetadata([
+			{ id: 'leads', title: 'My Leads', iconUrl: '/x.svg' },
+		])
 		const meta = window.OCA.Dashboard.getWidget('leads')
 		expect(meta.title).toBe('My Leads')
 		expect(meta.iconUrl).toBe('/x.svg')

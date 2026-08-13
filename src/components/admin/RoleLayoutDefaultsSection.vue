@@ -3,7 +3,12 @@
 	<div class="launchpad-admin__section">
 		<h3>{{ t('launchpad', 'Role-based default layouts') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Define the default grid positions for each group\'s widgets. New users whose group has no admin template will receive these positions as their starting layout.') }}
+			{{
+				t(
+					'launchpad',
+					"Define the default grid positions for each group's widgets. New users whose group has no admin template will receive these positions as their starting layout.",
+				)
+			}}
 		</p>
 
 		<div v-if="store.error" class="launchpad-admin__error" role="alert">
@@ -13,37 +18,56 @@
 		<NcEmptyContent
 			v-if="!store.loading && store.layoutDefaults.length === 0"
 			:name="t('launchpad', 'No layout defaults configured')"
-			:description="t('launchpad', 'Add layout default rows to seed role-based starting dashboards for new users.')">
+			:description="
+				t(
+					'launchpad',
+					'Add layout default rows to seed role-based starting dashboards for new users.',
+				)
+			">
 			<template #icon>
 				<ViewDashboard :size="40" />
 			</template>
 		</NcEmptyContent>
 
 		<div v-else class="launchpad-admin__role-list">
-			<div v-for="row in store.layoutDefaults"
+			<div
+				v-for="row in store.layoutDefaults"
 				:key="row.id"
 				class="launchpad-admin__role-row">
 				<div class="launchpad-admin__role-meta">
 					<strong>{{ row.name }}</strong>
-					<span class="launchpad-admin__role-group">{{ row.groupId }} / {{ row.widgetId }}</span>
+					<span class="launchpad-admin__role-group"
+						>{{ row.groupId }} / {{ row.widgetId }}</span
+					>
 				</div>
 				<div class="launchpad-admin__role-widgets">
 					<span class="launchpad-admin__chip">
-						{{ t('launchpad', '{x},{y} {w}×{h}', { x: row.gridX, y: row.gridY, w: row.gridWidth, h: row.gridHeight }) }}
+						{{
+							t('launchpad', '{x},{y} {w}×{h}', {
+								x: row.gridX,
+								y: row.gridY,
+								w: row.gridWidth,
+								h: row.gridHeight,
+							})
+						}}
 					</span>
-					<span v-if="row.isCompulsory" class="launchpad-admin__chip launchpad-admin__chip--compulsory">
+					<span
+						v-if="row.isCompulsory"
+						class="launchpad-admin__chip launchpad-admin__chip--compulsory">
 						{{ t('launchpad', 'Compulsory') }}
 					</span>
 				</div>
 				<div class="launchpad-admin__role-actions">
-					<NcButton type="tertiary"
+					<NcButton
+						type="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
 							<Pencil :size="20" />
 						</template>
 					</NcButton>
-					<NcButton type="tertiary"
+					<NcButton
+						type="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="openDeleteDialog(row)">
 						<template #icon>
@@ -54,7 +78,10 @@
 			</div>
 		</div>
 
-		<NcButton type="primary" data-testid="admin-add-layout-default" @click="openCreate">
+		<NcButton
+			type="primary"
+			data-testid="admin-add-layout-default"
+			@click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>
@@ -83,10 +110,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'

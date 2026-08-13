@@ -6,7 +6,10 @@
 			<label :for="inputId" class="hidden-visually">
 				{{ t('launchpad', 'Search dashboard tiles') }}
 			</label>
-			<MagnifyIcon :size="18" class="runtime-shell-search__icon" aria-hidden="true" />
+			<MagnifyIcon
+				:size="18"
+				class="runtime-shell-search__icon"
+				aria-hidden="true" />
 			<input
 				:id="inputId"
 				ref="inputEl"
@@ -23,7 +26,7 @@
 				data-test="quick-search-input"
 				:value="search.state.query"
 				@input="onInput"
-				@keydown="onInputKeydown">
+				@keydown="onInputKeydown" />
 		</div>
 
 		<!-- Ranked matches (REQ-QSEARCH-002/003). Non-matching tiles are dimmed
@@ -40,9 +43,14 @@
 				:id="optionId(index)"
 				:key="result.id"
 				role="option"
-				:aria-selected="index === search.state.activeIndex ? 'true' : 'false'"
+				:aria-selected="
+					index === search.state.activeIndex ? 'true' : 'false'
+				"
 				class="runtime-shell-search__option"
-				:class="{ 'runtime-shell-search__option--active': index === search.state.activeIndex }"
+				:class="{
+					'runtime-shell-search__option--active':
+						index === search.state.activeIndex,
+				}"
 				data-test="quick-search-option"
 				@mousedown.prevent="onOptionMouseDown(index)">
 				<!-- Active match is marked with an icon (not colour alone),
@@ -51,7 +59,10 @@
 				<CheckIcon
 					:size="16"
 					class="runtime-shell-search__option-marker"
-					:class="{ 'runtime-shell-search__option-marker--hidden': index !== search.state.activeIndex }"
+					:class="{
+						'runtime-shell-search__option-marker--hidden':
+							index !== search.state.activeIndex,
+					}"
 					aria-hidden="true" />
 				<span>{{ result.label }}</span>
 			</li>
@@ -84,7 +95,11 @@ import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
 
-import { useTileSearch, isCtrlKFocusShortcut, isSlashFocusShortcut } from '../composables/useTileSearch.js'
+import {
+	useTileSearch,
+	isCtrlKFocusShortcut,
+	isSlashFocusShortcut,
+} from '../composables/useTileSearch.js'
 
 let instanceCounter = 0
 
@@ -238,7 +253,12 @@ export default {
 			if (count === 0) {
 				return this.noResultsMessage
 			}
-			return this.n('launchpad', '%n matching tile', '%n matching tiles', count)
+			return this.n(
+				'launchpad',
+				'%n matching tile',
+				'%n matching tiles',
+				count,
+			)
 		},
 
 		/**
@@ -250,7 +270,9 @@ export default {
 		 * @return {string}
 		 */
 		noResultsMessage() {
-			return this.t('launchpad', 'No matching tiles for "{query}"', { query: this.search.state.query })
+			return this.t('launchpad', 'No matching tiles for "{query}"', {
+				query: this.search.state.query,
+			})
 		},
 
 		/**
@@ -262,7 +284,10 @@ export default {
 		 * @return {boolean}
 		 */
 		showNoResultsMessage() {
-			return this.search.state.query !== '' && this.search.state.results.length === 0
+			return (
+				this.search.state.query !== ''
+				&& this.search.state.results.length === 0
+			)
 		},
 	},
 
@@ -371,7 +396,10 @@ export default {
 				this.$emit('filter', null)
 				return
 			}
-			this.$emit('filter', this.search.state.results.map((r) => r.id))
+			this.$emit(
+				'filter',
+				this.search.state.results.map((r) => r.id),
+			)
 		},
 
 		/**

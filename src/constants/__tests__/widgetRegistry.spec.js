@@ -20,18 +20,39 @@ beforeEach(() => {
 describe('widgetRegistry — consumes the communal catalog', () => {
 	it('exposes the communal types with a renderer, form, and object defaultContent', async () => {
 		const { widgetRegistry } = await import('../widgetRegistry.js')
-		for (const type of ['label', 'text', 'image', 'divider', 'header', 'links', 'tile']) {
+		for (const type of [
+			'label',
+			'text',
+			'image',
+			'divider',
+			'header',
+			'links',
+			'tile',
+		]) {
 			expect(widgetRegistry[type], `missing ${type}`).toBeDefined()
 			expect(widgetRegistry[type].renderer, `${type} renderer`).toBeTruthy()
 			expect(widgetRegistry[type].form, `${type} form`).toBeTruthy()
-			expect(typeof widgetRegistry[type].defaultContent, `${type} defaultContent`).toBe('object')
+			expect(
+				typeof widgetRegistry[type].defaultContent,
+				`${type} defaultContent`,
+			).toBe('object')
 		}
 	})
 
 	it('listWidgetTypes() surfaces the addable communal types', async () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		const types = listWidgetTypes()
-		for (const type of ['label', 'text', 'image', 'link', 'divider', 'header', 'links', 'container', 'tile']) {
+		for (const type of [
+			'label',
+			'text',
+			'image',
+			'link',
+			'divider',
+			'header',
+			'links',
+			'container',
+			'tile',
+		]) {
 			expect(types, `picker should offer ${type}`).toContain(type)
 		}
 	})
@@ -39,7 +60,15 @@ describe('widgetRegistry — consumes the communal catalog', () => {
 	it('includes the analytics widgets from the shared catalog (OpenBuild parity)', async () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		const types = listWidgetTypes()
-		for (const type of ['stat', 'delta', 'gauge', 'object-list', 'chart', 'stats-block', 'table']) {
+		for (const type of [
+			'stat',
+			'delta',
+			'gauge',
+			'object-list',
+			'chart',
+			'stats-block',
+			'table',
+		]) {
 			expect(types, `picker should offer ${type}`).toContain(type)
 		}
 	})
@@ -78,25 +107,40 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 			const entry = getWidgetTypeEntry(type)
 			expect(entry, `missing ${type}`).toBeTruthy()
 			expect(entry.renderer, `${type} renderer`).toBeTruthy()
-			expect(entry.renderer.name, `${type} should use a LaunchPad host renderer`).not.toBe(`${type}-renderer`)
+			expect(
+				entry.renderer.name,
+				`${type} should use a LaunchPad host renderer`,
+			).not.toBe(`${type}-renderer`)
 		}
 	})
 
 	it('supplies a form for types the communal registry leaves form-less', async () => {
-		const { getWidgetTypeEntry, listWidgetTypes } = await import('../widgetRegistry.js')
+		const { getWidgetTypeEntry, listWidgetTypes } =
+			await import('../widgetRegistry.js')
 		const types = listWidgetTypes()
 		for (const type of ['calendar', 'people', 'spend-analytics', 'nc-widget']) {
 			expect(types, `picker should offer ${type}`).toContain(type)
-			expect(getWidgetTypeEntry(type).form, `${type} form override`).toBeTruthy()
+			expect(
+				getWidgetTypeEntry(type).form,
+				`${type} form override`,
+			).toBeTruthy()
 		}
 	})
 
 	it('localises the displayName through t(launchpad, …)', async () => {
 		let seen = null
-		globalThis.t = (app, key) => { if (app === 'launchpad') { seen = key } return key }
+		globalThis.t = (app, key) => {
+			if (app === 'launchpad') {
+				seen = key
+			}
+			return key
+		}
 		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
 		const entry = getWidgetTypeEntry('text')
 		expect(typeof entry.displayName).toBe('string')
-		expect(seen, 'displayName should pass through t(launchpad, …)').not.toBeNull()
+		expect(
+			seen,
+			'displayName should pass through t(launchpad, …)',
+		).not.toBeNull()
 	})
 })

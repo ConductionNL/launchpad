@@ -55,10 +55,12 @@ describe('normaliseIconValue', () => {
 	})
 
 	it('leaves custom URLs untouched', () => {
-		expect(normaliseIconValue('/apps/launchpad/resource/42.svg'))
-			.toBe('/apps/launchpad/resource/42.svg')
-		expect(normaliseIconValue('https://example.com/icon.png'))
-			.toBe('https://example.com/icon.png')
+		expect(normaliseIconValue('/apps/launchpad/resource/42.svg')).toBe(
+			'/apps/launchpad/resource/42.svg',
+		)
+		expect(normaliseIconValue('https://example.com/icon.png')).toBe(
+			'https://example.com/icon.png',
+		)
 	})
 
 	it('returns an unknown bare name unchanged (falls back to default downstream)', () => {

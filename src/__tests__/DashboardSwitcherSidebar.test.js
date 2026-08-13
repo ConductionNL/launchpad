@@ -27,7 +27,9 @@ describe('DashboardSwitcherSidebar', () => {
 			})
 
 			// Should have only "My Dashboards" section
-			expect(wrapper.find('.sidebar-section-heading').text()).toBe('My Dashboards')
+			expect(wrapper.find('.sidebar-section-heading').text()).toBe(
+				'My Dashboards',
+			)
 			expect(wrapper.findAll('.sidebar-section-heading')).toHaveLength(1)
 		})
 
@@ -36,8 +38,18 @@ describe('DashboardSwitcherSidebar', () => {
 				propsData: {
 					groupName: 'Engineering',
 					groupDashboards: [
-						{ id: 'g1', name: 'Group Dash', icon: 'Home', source: 'group' },
-						{ id: 'd1', name: 'Default Dash', icon: 'Star', source: 'default' },
+						{
+							id: 'g1',
+							name: 'Group Dash',
+							icon: 'Home',
+							source: 'group',
+						},
+						{
+							id: 'd1',
+							name: 'Default Dash',
+							icon: 'Star',
+							source: 'default',
+						},
 					],
 					userDashboards: [{ id: 'u1', name: 'User Dash', icon: 'Heart' }],
 				},
@@ -65,7 +77,9 @@ describe('DashboardSwitcherSidebar', () => {
 				},
 			})
 
-			expect(wrapper.find('.sidebar-section-heading').text()).toBe('My Dashboards')
+			expect(wrapper.find('.sidebar-section-heading').text()).toBe(
+				'My Dashboards',
+			)
 		})
 
 		it('does not render My Dashboards when empty and allowUserDashboards is false', () => {
@@ -88,7 +102,14 @@ describe('DashboardSwitcherSidebar', () => {
 		it('emits update:open(false) BEFORE switch event', async () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
-					groupDashboards: [{ id: 'g1', name: 'Group Dash', icon: 'Home', source: 'group' }],
+					groupDashboards: [
+						{
+							id: 'g1',
+							name: 'Group Dash',
+							icon: 'Home',
+							source: 'group',
+						},
+					],
 					userDashboards: [],
 				},
 				mocks: {
@@ -109,7 +130,14 @@ describe('DashboardSwitcherSidebar', () => {
 		it('emits switch with correct source for primary group items', async () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
-					groupDashboards: [{ id: 'g1', name: 'Group Dash', icon: 'Home', source: 'group' }],
+					groupDashboards: [
+						{
+							id: 'g1',
+							name: 'Group Dash',
+							icon: 'Home',
+							source: 'group',
+						},
+					],
 					userDashboards: [],
 				},
 				mocks: {
@@ -128,7 +156,14 @@ describe('DashboardSwitcherSidebar', () => {
 		it('emits switch with source "default" for default group items', async () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
-					groupDashboards: [{ id: 'd1', name: 'Default Dash', icon: 'Star', source: 'default' }],
+					groupDashboards: [
+						{
+							id: 'd1',
+							name: 'Default Dash',
+							icon: 'Star',
+							source: 'default',
+						},
+					],
 					userDashboards: [],
 				},
 				mocks: {
@@ -167,8 +202,18 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
 					groupDashboards: [
-						{ id: 'g1', name: 'Group Dash 1', icon: 'Home', source: 'group' },
-						{ id: 'g2', name: 'Group Dash 2', icon: 'Star', source: 'group' },
+						{
+							id: 'g1',
+							name: 'Group Dash 1',
+							icon: 'Home',
+							source: 'group',
+						},
+						{
+							id: 'g2',
+							name: 'Group Dash 2',
+							icon: 'Star',
+							source: 'group',
+						},
 					],
 					userDashboards: [],
 					activeDashboardId: 'g2',
@@ -186,7 +231,14 @@ describe('DashboardSwitcherSidebar', () => {
 		it('updates active class reactively when prop changes', async () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
-					groupDashboards: [{ id: 'g1', name: 'Group Dash', icon: 'Home', source: 'group' }],
+					groupDashboards: [
+						{
+							id: 'g1',
+							name: 'Group Dash',
+							icon: 'Home',
+							source: 'group',
+						},
+					],
 					userDashboards: [{ id: 'u1', name: 'User Dash', icon: 'Heart' }],
 					activeDashboardId: 'g1',
 				},
@@ -246,7 +298,14 @@ describe('DashboardSwitcherSidebar', () => {
 		it('shows delete button only for personal dashboards, not for group items', () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
-					groupDashboards: [{ id: 'g1', name: 'Group Dash', icon: 'Home', source: 'group' }],
+					groupDashboards: [
+						{
+							id: 'g1',
+							name: 'Group Dash',
+							icon: 'Home',
+							source: 'group',
+						},
+					],
 					userDashboards: [{ id: 'u1', name: 'User Dash', icon: 'Heart' }],
 				},
 				mocks: {
@@ -325,11 +384,15 @@ describe('DashboardSwitcherSidebar', () => {
 				},
 			})
 
-			expect(wrapper.find('.dashboard-switcher-sidebar').classes()).not.toContain('open')
+			expect(
+				wrapper.find('.dashboard-switcher-sidebar').classes(),
+			).not.toContain('open')
 
 			await wrapper.setProps({ isOpen: true })
 
-			expect(wrapper.find('.dashboard-switcher-sidebar').classes()).toContain('open')
+			expect(wrapper.find('.dashboard-switcher-sidebar').classes()).toContain(
+				'open',
+			)
 		})
 	})
 
@@ -339,7 +402,12 @@ describe('DashboardSwitcherSidebar', () => {
 				propsData: {
 					groupDashboards: [
 						{ id: 'g1', name: 'Home', icon: 'Home', source: 'group' },
-						{ id: 'g2', name: 'Chart', icon: 'ChartBar', source: 'group' },
+						{
+							id: 'g2',
+							name: 'Chart',
+							icon: 'ChartBar',
+							source: 'group',
+						},
 					],
 					userDashboards: [
 						{ id: 'u1', name: 'Star', icon: 'Star' },
@@ -379,7 +447,14 @@ describe('DashboardSwitcherSidebar', () => {
 		it('has aria-labels on dashboard items', () => {
 			const wrapper = mount(DashboardSwitcherSidebar, {
 				propsData: {
-					groupDashboards: [{ id: 'g1', name: 'Engineering Dashboard', icon: 'Home', source: 'group' }],
+					groupDashboards: [
+						{
+							id: 'g1',
+							name: 'Engineering Dashboard',
+							icon: 'Home',
+							source: 'group',
+						},
+					],
 					userDashboards: [],
 				},
 				mocks: {

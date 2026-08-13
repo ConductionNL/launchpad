@@ -28,9 +28,7 @@
 			@open-config="onRowOpenConfig"
 			@add-custom-widget="onRowAddCustomWidget"
 			@set-default="onRowSetDefault" />
-		<SidebarBackdrop
-			v-if="sidebarOpen"
-			@close="sidebarOpen = false" />
+		<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
 
 		<!-- Floating controls in top right.
 		     Wave3.3 removed the floating `DashboardConfigMenu` (cog) — its
@@ -63,10 +61,18 @@
 				button-type="secondary"
 				:icon-size="20"
 				class="launchpad-active-dashboard-cog"
-				@toggle-edit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
-				@open-config="onRowOpenConfig(activeDashboard, activeDashboardSource)"
-				@add-custom-widget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
-				@set-default="onRowSetDefault(activeDashboard, activeDashboardSource)"
+				@toggle-edit="
+					onRowToggleEdit(activeDashboard, activeDashboardSource)
+				"
+				@open-config="
+					onRowOpenConfig(activeDashboard, activeDashboardSource)
+				"
+				@add-custom-widget="
+					onRowAddCustomWidget(activeDashboard, activeDashboardSource)
+				"
+				@set-default="
+					onRowSetDefault(activeDashboard, activeDashboardSource)
+				"
 				@share="openShareDrawer"
 				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
@@ -87,7 +93,14 @@
 				class="launchpad-ack-indicator"
 				data-testid="acknowledgement-outstanding-count"
 				:title="t('launchpad', 'You have items awaiting acknowledgement')">
-				{{ n('launchpad', '%n item to acknowledge', '%n items to acknowledge', outstandingAcknowledgementCount) }}
+				{{
+					n(
+						'launchpad',
+						'%n item to acknowledge',
+						'%n items to acknowledge',
+						outstandingAcknowledgementCount,
+					)
+				}}
 			</span>
 			<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
 			     report opener. Only shown to an editor when the active
@@ -109,7 +122,9 @@
 				type="secondary"
 				:aria-label="t('launchpad', 'Read receipts')"
 				data-testid="open-acknowledgement-report"
-				@click="openAcknowledgementReport(acknowledgementAnnouncementKeys[0])">
+				@click="
+					openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
+				">
 				{{ t('launchpad', 'Read receipts') }}
 			</NcButton>
 		</div>
@@ -121,7 +136,9 @@
 			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
-		<div class="launchpad-container" :class="{ 'launchpad-edit-mode': isEditMode }">
+		<div
+			class="launchpad-container"
+			:class="{ 'launchpad-edit-mode': isEditMode }">
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -149,8 +166,13 @@
 							:tile="getTileData(item)"
 							:edit-mode="isEditMode"
 							:placement-id="item.id"
-							:health-ping-enabled="item.content && item.content.healthPingEnabled === true"
-							:ping-interval="item.content && item.content.pingInterval"
+							:health-ping-enabled="
+								item.content
+								&& item.content.healthPingEnabled === true
+							"
+							:ping-interval="
+								item.content && item.content.pingInterval
+							"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -159,7 +181,9 @@
 							:placement="item"
 							:widget="getWidget(item.widgetId)"
 							:edit-mode="isEditMode"
-							:outstanding-acknowledgement="isPlacementOutstanding(item)"
+							:outstanding-acknowledgement="
+								isPlacementOutstanding(item)
+							"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -296,7 +320,15 @@
 <script>
 import { reactive, provide, computed } from 'vue'
 import { mapState, mapActions } from 'pinia'
-import { NcButton, NcEmptyContent, NcLoadingIcon, CnDashboardGrid, CnWidgetStyleEditorModal, CnAddWidgetModal, getDashboardColumnOpts } from '@conduction/nextcloud-vue'
+import {
+	NcButton,
+	NcEmptyContent,
+	NcLoadingIcon,
+	CnDashboardGrid,
+	CnWidgetStyleEditorModal,
+	CnAddWidgetModal,
+	getDashboardColumnOpts,
+} from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 
@@ -450,7 +482,10 @@ export default {
 		// provided it down this component's tree, so the picker always saw
 		// nc-vue's inject default (`[]`) and rendered permanently empty.
 		// `computed` keeps it reactive to the store across the fetch.
-		provide('widgets', computed(() => useWidgetStore().availableWidgets))
+		provide(
+			'widgets',
+			computed(() => useWidgetStore().availableWidgets),
+		)
 
 		return { canEditRef, grid }
 	},
@@ -521,7 +556,10 @@ export default {
 		 */
 		acknowledgementAnnouncementKeys() {
 			const keys = (this.widgetPlacements || [])
-				.filter((p) => Number(p.requiresAcknowledgement) === 1 && p.announcementKey)
+				.filter(
+					(p) =>
+						Number(p.requiresAcknowledgement) === 1 && p.announcementKey,
+				)
 				.map((p) => p.announcementKey)
 			return [...new Set(keys)]
 		},
@@ -612,7 +650,7 @@ export default {
 		},
 		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
-			return this.widgetPlacements.map(p => p.widgetId)
+			return this.widgetPlacements.map((p) => p.widgetId)
 		},
 		/**
 		 * Combined input for the sidebar's `groupDashboards` prop —
@@ -648,19 +686,19 @@ export default {
 		activeDashboardSource() {
 			const id = this.activeDashboard?.id
 			if (id != null) {
-				if (this.userDashboards?.some(d => d.id === id)) {
+				if (this.userDashboards?.some((d) => d.id === id)) {
 					return 'user'
 				}
-				if (this.defaultGroupDashboards?.some(d => d.id === id)) {
+				if (this.defaultGroupDashboards?.some((d) => d.id === id)) {
 					return 'default'
 				}
-				if (this.groupSharedDashboards?.some(d => d.id === id)) {
+				if (this.groupSharedDashboards?.some((d) => d.id === id)) {
 					return 'group'
 				}
 				// REQ-SHARE-002: a dashboard reached through a share is not
 				// the caller's own, so the cog must gate its owner-only
 				// entries exactly as it does for a group row.
-				if (this.sharedWithMeDashboards?.some(d => d.id === id)) {
+				if (this.sharedWithMeDashboards?.some((d) => d.id === id)) {
 					return 'shared'
 				}
 			}
@@ -688,9 +726,15 @@ export default {
 		 */
 		emptyStateDescription() {
 			if (this.allowUserDashboards) {
-				return this.t('launchpad', 'Create your first dashboard to get started')
+				return this.t(
+					'launchpad',
+					'Create your first dashboard to get started',
+				)
 			}
-			return this.t('launchpad', 'Personal dashboards are not enabled by your administrator')
+			return this.t(
+				'launchpad',
+				'Personal dashboards are not enabled by your administrator',
+			)
 		},
 	},
 	watch: {
@@ -782,7 +826,10 @@ export default {
 			const res = await api.getDefaultDashboardPreference()
 			this.defaultDashboardUuid = res?.data?.uuid ?? ''
 		} catch (error) {
-			console.error('[Views] Failed to load default-dashboard preference:', error)
+			console.error(
+				'[Views] Failed to load default-dashboard preference:',
+				error,
+			)
 		}
 	},
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -853,7 +900,7 @@ export default {
 		 * @return {object|undefined} the widget definition, if registered.
 		 */
 		getWidget(widgetId) {
-			return this.availableWidgets.find(w => w.id === widgetId)
+			return this.availableWidgets.find((w) => w.id === widgetId)
 		},
 
 		/**
@@ -942,7 +989,7 @@ export default {
 			}
 			const now = Date.now()
 			const last = this.viewEventLastSent[uuid] || 0
-			if ((now - last) < 1000) {
+			if (now - last < 1000) {
 				return
 			}
 			this.viewEventLastSent[uuid] = now
@@ -1048,7 +1095,10 @@ export default {
 			try {
 				await this.removeWidget(placement.id)
 			} catch (error) {
-				console.error('[Views] Failed to remove widget via context menu:', error)
+				console.error(
+					'[Views] Failed to remove widget via context menu:',
+					error,
+				)
 			}
 		},
 		/**
@@ -1116,7 +1166,7 @@ export default {
 				return
 			}
 			const pushedById = new Map(
-				(rect.pushed || []).map(p => [p.id, p.gridY]),
+				(rect.pushed || []).map((p) => [p.id, p.gridY]),
 			)
 			const next = (this.widgetPlacements || []).map((placement) => {
 				if (placement.id === movedId) {
@@ -1210,13 +1260,13 @@ export default {
 			try {
 				const chrome = payload.chrome || {}
 				if (this.customWidgetEditing?.id) {
-					await this.updateWidgetPlacement(
-						this.customWidgetEditing.id,
-						{
-							content: payload.content,
-							...this.chromePatch(chrome, this.customWidgetEditing.styleConfig),
-						},
-					)
+					await this.updateWidgetPlacement(this.customWidgetEditing.id, {
+						content: payload.content,
+						...this.chromePatch(
+							chrome,
+							this.customWidgetEditing.styleConfig,
+						),
+					})
 				} else {
 					// Create the placement, then apply the chrome (title /
 					// background / icon) from the same modal as a follow-up
@@ -1226,7 +1276,10 @@ export default {
 						content: payload.content,
 					})
 					if (created?.id) {
-						await this.updateWidgetPlacement(created.id, this.chromePatch(chrome, created.styleConfig))
+						await this.updateWidgetPlacement(
+							created.id,
+							this.chromePatch(chrome, created.styleConfig),
+						)
 					}
 				}
 				this.closeCustomWidgetModal()
@@ -1474,7 +1527,9 @@ export default {
 					// the health-ping block with a follow-up patch only when
 					// the author actually enabled it.
 					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
-						await this.updateWidgetPlacement(newPlacement.id, { content: healthPingContent })
+						await this.updateWidgetPlacement(newPlacement.id, {
+							content: healthPingContent,
+						})
 					}
 				}
 				this.closeTileEditor()
@@ -1523,7 +1578,14 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async deleteCurrentDashboard(dashboard) {
-			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this dashboard?'))) {
+			if (
+				!confirm(
+					this.t(
+						'launchpad',
+						'Are you sure you want to delete this dashboard?',
+					),
+				)
+			) {
 				return
 			}
 
@@ -1599,12 +1661,18 @@ export default {
 			if (!target) {
 				return
 			}
-			if (window.location.pathname.replace(/\/+$/, '') === target.replace(/\/+$/, '')) {
+			if (
+				window.location.pathname.replace(/\/+$/, '')
+				=== target.replace(/\/+$/, '')
+			) {
 				return
 			}
 			try {
 				window.history.replaceState(
-					{ uuid: this.activeDashboard?.uuid ?? null, source: 'launchpad-deeplink' },
+					{
+						uuid: this.activeDashboard?.uuid ?? null,
+						source: 'launchpad-deeplink',
+					},
 					'',
 					target,
 				)
@@ -1672,7 +1740,10 @@ export default {
 			const pathname = window.location.pathname
 			let suffix = ''
 			if (pathname.startsWith(prefix)) {
-				suffix = pathname.slice(prefix.length).replace(/^\/+/, '').replace(/\/+$/, '')
+				suffix = pathname
+					.slice(prefix.length)
+					.replace(/^\/+/, '')
+					.replace(/\/+$/, '')
 			}
 			if (!suffix) {
 				return
@@ -1761,7 +1832,10 @@ export default {
 					this.defaultDashboardUuid = uuid
 				}
 			} catch (error) {
-				console.error('[Views] Failed to update default-dashboard preference:', error)
+				console.error(
+					'[Views] Failed to update default-dashboard preference:',
+					error,
+				)
 			}
 		},
 
@@ -1792,7 +1866,10 @@ export default {
 					this.defaultDashboardUuid = ''
 				}
 			} catch (error) {
-				console.error('[Views] Failed to update default-dashboard preference from modal:', error)
+				console.error(
+					'[Views] Failed to update default-dashboard preference from modal:',
+					error,
+				)
 			}
 		},
 
@@ -1839,7 +1916,14 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onSidebarDeleteDashboard(id) {
-			if (!confirm(this.t('launchpad', 'Are you sure you want to delete this dashboard?'))) {
+			if (
+				!confirm(
+					this.t(
+						'launchpad',
+						'Are you sure you want to delete this dashboard?',
+					),
+				)
+			) {
 				return
 			}
 			try {
@@ -1892,8 +1976,10 @@ export default {
    own surface, and the latter now carry the shared CnWidgetWrapper
    `nc-dashboard` chrome (its own blur panel), so the grid item must be
    transparent to avoid a double background / mismatched radius. */
-.launchpad-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
-.launchpad-container :deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
+.launchpad-container
+	:deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
+.launchpad-container
+	:deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
 .launchpad-container :deep(.grid-stack-item-content:has(.tile-widget)) {
 	background: transparent;
 	backdrop-filter: none;
@@ -1966,7 +2052,9 @@ export default {
 	flex: 1;
 	padding: 8px 0 0;
 	overflow: auto;
-	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
+	min-height: calc(
+		100vh - var(--header-height, 50px) - var(--body-container-margin, 8px)
+	);
 }
 
 .launchpad-empty,
@@ -1975,6 +2063,8 @@ export default {
 	align-items: center;
 	justify-content: center;
 	height: 100%;
-	min-height: calc(100vh - var(--header-height, 50px) - var(--body-container-margin, 8px));
+	min-height: calc(
+		100vh - var(--header-height, 50px) - var(--body-container-margin, 8px)
+	);
 }
 </style>

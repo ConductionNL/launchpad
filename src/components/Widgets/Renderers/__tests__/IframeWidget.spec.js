@@ -19,7 +19,9 @@ import { checkIframeFramable } from '../../../../services/iframeClient.js'
 // make a real request. Defaults to framable so the existing render/timeout
 // tests behave as before; the framing-refusal test overrides it.
 vi.mock('../../../../services/iframeClient.js', () => ({
-	checkIframeFramable: vi.fn(() => Promise.resolve({ framable: true, reason: 'ok' })),
+	checkIframeFramable: vi.fn(() =>
+		Promise.resolve({ framable: true, reason: 'ok' }),
+	),
 }))
 
 const TEST_TIMEOUT_MS = 20
@@ -35,7 +37,10 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`)
+				Object.prototype.hasOwnProperty.call(vars, name)
+					? vars[name]
+					: `{${name}}`,
+			)
 		}
 		return key
 	}
@@ -48,7 +53,11 @@ describe('IframeWidget — REQ-IFRAME-004 sandbox attribute', () => {
 	it('always carries a sandbox attribute limited to the configured tokens', async () => {
 		const wrapper = mount(IframeWidget, {
 			propsData: {
-				content: { url: 'https://status.example.com/board', title: 'Status', sandbox: ['allow-scripts', 'allow-forms'] },
+				content: {
+					url: 'https://status.example.com/board',
+					title: 'Status',
+					sandbox: ['allow-scripts', 'allow-forms'],
+				},
 			},
 		})
 		await flushPromises()
@@ -63,7 +72,11 @@ describe('IframeWidget — REQ-IFRAME-004 sandbox attribute', () => {
 				content: {
 					url: 'https://status.example.com/board',
 					title: 'Status',
-					sandbox: ['allow-scripts', 'allow-top-navigation', 'allow-top-navigation-by-user-activation'],
+					sandbox: [
+						'allow-scripts',
+						'allow-top-navigation',
+						'allow-top-navigation-by-user-activation',
+					],
 				},
 			},
 		})
@@ -74,7 +87,13 @@ describe('IframeWidget — REQ-IFRAME-004 sandbox attribute', () => {
 
 	it('renders an empty sandbox attribute (still present) when no tokens are configured', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://status.example.com/board', title: 'Status', sandbox: [] } },
+			propsData: {
+				content: {
+					url: 'https://status.example.com/board',
+					title: 'Status',
+					sandbox: [],
+				},
+			},
 		})
 		await flushPromises()
 		const frame = wrapper.find('iframe')
@@ -85,7 +104,13 @@ describe('IframeWidget — REQ-IFRAME-004 sandbox attribute', () => {
 describe('IframeWidget — REQ-IFRAME-004 accessible title', () => {
 	it('exposes the configured title via the iframe title attribute', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://status.example.com/board', title: 'Team status board', sandbox: [] } },
+			propsData: {
+				content: {
+					url: 'https://status.example.com/board',
+					title: 'Team status board',
+					sandbox: [],
+				},
+			},
 		})
 		await flushPromises()
 		expect(wrapper.find('iframe').attributes('title')).toBe('Team status board')
@@ -93,7 +118,9 @@ describe('IframeWidget — REQ-IFRAME-004 accessible title', () => {
 
 	it('falls back to a generic title when none is configured', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://status.example.com/board', sandbox: [] } },
+			propsData: {
+				content: { url: 'https://status.example.com/board', sandbox: [] },
+			},
 		})
 		await flushPromises()
 		expect(wrapper.find('iframe').attributes('title')).toBe('Embedded page')
@@ -103,7 +130,12 @@ describe('IframeWidget — REQ-IFRAME-004 accessible title', () => {
 describe('IframeWidget — REQ-IFRAME-004 loading state', () => {
 	it('shows a loading indicator before the frame has loaded', () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://status.example.com/board', title: 'Status' } },
+			propsData: {
+				content: {
+					url: 'https://status.example.com/board',
+					title: 'Status',
+				},
+			},
 		})
 		expect(wrapper.find('.iframe-widget__state').exists()).toBe(true)
 		expect(wrapper.find('.iframe-widget__fallback').exists()).toBe(false)
@@ -116,9 +148,15 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 		// (a blocked frame and a live cross-origin embed both leave
 		// contentDocument null), so the server-side framable check is what
 		// surfaces the fallback instead of a permanently blank frame.
-		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'x_frame_options' })
+		checkIframeFramable.mockResolvedValue({
+			framable: false,
+			reason: 'x_frame_options',
+		})
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://github.com/', title: 'GitHub' }, loadTimeoutMs: TEST_TIMEOUT_MS },
+			propsData: {
+				content: { url: 'https://github.com/', title: 'GitHub' },
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
 		})
 		await flushPromises()
 		const fallback = wrapper.find('.iframe-widget__fallback')
@@ -137,7 +175,11 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 		// before the async check resolved, that premature load would flip the
 		// state to 'ready' and hide the fallback. The frame must not exist yet.
 		let resolveCheck
-		checkIframeFramable.mockReturnValue(new Promise((resolve) => { resolveCheck = resolve }))
+		checkIframeFramable.mockReturnValue(
+			new Promise((resolve) => {
+				resolveCheck = resolve
+			}),
+		)
 		const wrapper = mount(IframeWidget, {
 			propsData: { content: { url: 'https://github.com/', title: 'GitHub' } },
 		})
@@ -153,7 +195,13 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 
 	it('renders the fallback card (never a silent blank frame) when no load event fires within the timeout', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://denied.example.com/', title: 'Denied target' }, loadTimeoutMs: TEST_TIMEOUT_MS },
+			propsData: {
+				content: {
+					url: 'https://denied.example.com/',
+					title: 'Denied target',
+				},
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
 		})
 		await new Promise((resolve) => setTimeout(resolve, TEST_TIMEOUT_MS + 30))
 		await flushPromises()
@@ -166,7 +214,13 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 
 	it('renders an "Open in new tab" link in the fallback that is focusable and points at the target URL', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://denied.example.com/', title: 'Denied target' }, loadTimeoutMs: TEST_TIMEOUT_MS },
+			propsData: {
+				content: {
+					url: 'https://denied.example.com/',
+					title: 'Denied target',
+				},
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
 		})
 		await new Promise((resolve) => setTimeout(resolve, TEST_TIMEOUT_MS + 30))
 		await flushPromises()
@@ -180,7 +234,12 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 
 	it('detects a blocked frame from a load event yielding an empty same-origin document', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://denied.example.com/', title: 'Denied target' } },
+			propsData: {
+				content: {
+					url: 'https://denied.example.com/',
+					title: 'Denied target',
+				},
+			},
 		})
 		// The iframe renders only after the framable check confirms framing.
 		await flushPromises()
@@ -197,7 +256,12 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 
 	it('treats a load event with an inaccessible (cross-origin) document as SUCCESS, not a failure', async () => {
 		const wrapper = mount(IframeWidget, {
-			propsData: { content: { url: 'https://allowed.example.com/', title: 'Allowed target' } },
+			propsData: {
+				content: {
+					url: 'https://allowed.example.com/',
+					title: 'Allowed target',
+				},
+			},
 		})
 		// The iframe renders only after the framable check confirms framing.
 		await flushPromises()
@@ -205,7 +269,10 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 		Object.defineProperty(frame.element, 'contentDocument', {
 			configurable: true,
 			get: () => {
-				throw new DOMException('Blocked a frame with origin from accessing a cross-origin frame.', 'SecurityError')
+				throw new DOMException(
+					'Blocked a frame with origin from accessing a cross-origin frame.',
+					'SecurityError',
+				)
 			},
 		})
 		await frame.trigger('load')

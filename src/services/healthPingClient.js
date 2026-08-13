@@ -25,7 +25,9 @@ import { generateUrl } from '@nextcloud/router'
  * @spec openspec/specs/service-health-ping/spec.md
  */
 export async function fetchHealthPingBadge(placementId) {
-	const url = generateUrl('/apps/launchpad/api/health-ping/{placementId}', { placementId })
+	const url = generateUrl('/apps/launchpad/api/health-ping/{placementId}', {
+		placementId,
+	})
 	const response = await axios.get(url)
 	return response?.data || {}
 }

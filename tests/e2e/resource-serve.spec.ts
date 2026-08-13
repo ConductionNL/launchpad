@@ -19,7 +19,11 @@
 
 import { test, expect } from '@playwright/test'
 import * as path from 'path'
-import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import {
+	gotoLaunchPad,
+	openAddWidgetModal,
+	closeSidebar,
+} from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 // Resolve the target instance through the one module the whole suite (and the
 // Playwright config) shares, so this spec can never target a different
@@ -34,7 +38,9 @@ test.beforeAll(async () => {
 })
 
 test.describe('resource-serving', () => {
-	test('REQ-RES-006: image widget renders uploaded resource via GET /apps/<app>/resource/<filename>', async ({ page }) => {
+	test('REQ-RES-006: image widget renders uploaded resource via GET /apps/<app>/resource/<filename>', async ({
+		page,
+	}) => {
 		await gotoLaunchPad(page)
 
 		// Upload a tiny PNG via the Image widget upload UI (cog-menu flow).
@@ -46,12 +52,14 @@ test.describe('resource-serving', () => {
 		// single file <label> wrapping a hidden input, and defers the upload to
 		// commit() so a cancelled dialog writes no orphaned file. Set the file
 		// directly; the serve-route URL only exists after Add is pressed.
-		await dialog.locator('.cn-image-widget-form__file-input')
+		await dialog
+			.locator('.cn-image-widget-form__file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
 
 		// Pre-save the preview is a local object-URL.
-		await expect(dialog.locator('.cn-image-widget-form__preview'))
-			.toBeAttached({ timeout: 15_000 })
+		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+			timeout: 15_000,
+		})
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -61,17 +69,21 @@ test.describe('resource-serving', () => {
 		await closeSidebar(page)
 
 		// The widget must render the image using the served URL.
-		const anyImg = page.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`).first()
+		const anyImg = page
+			.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)
+			.first()
 		await expect(anyImg).toBeVisible({ timeout: 8_000 })
 
 		// Verify the resource URL actually delivers image bytes (network-level).
-		const src = await anyImg.getAttribute('src') ?? ''
+		const src = (await anyImg.getAttribute('src')) ?? ''
 		const response = await page.request.get(src)
 		expect(response.status()).toBe(200)
 		expect(response.headers()['content-type']).toMatch(/^image\//)
 	})
 
-	test('REQ-RES-006: unauthenticated direct fetch of resource redirects to login', async ({ browser }) => {
+	test('REQ-RES-006: unauthenticated direct fetch of resource redirects to login', async ({
+		browser,
+	}) => {
 		// A fresh browser context with no stored auth cookies.
 		const context = await browser.newContext({ storageState: undefined })
 		const page = await context.newPage()

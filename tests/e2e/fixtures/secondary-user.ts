@@ -14,7 +14,13 @@
  * `acknowledgements.ts` — rather than faking session state.
  */
 
-import { request as pwRequest, type APIRequestContext, type Browser, type BrowserContext, type Page } from '@playwright/test'
+import {
+	request as pwRequest,
+	type APIRequestContext,
+	type Browser,
+	type BrowserContext,
+	type Page,
+} from '@playwright/test'
 import { BASE_URL as BASE } from '../support/baseUrl'
 
 const ADMIN = {
@@ -46,7 +52,7 @@ async function adminApi(): Promise<APIRequestContext> {
  */
 export async function provisionThrowawayUser(
 	prefix = 'e2e-throwaway',
-): Promise<{ username: string, password: string }> {
+): Promise<{ username: string; password: string }> {
 	const username = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10_000)}`
 	const password = `Probe-${Math.random().toString(36).slice(2)}A1!`
 	const api = await adminApi()
@@ -55,7 +61,9 @@ export async function provisionThrowawayUser(
 			form: { userid: username, password },
 		})
 		if (!res.ok()) {
-			throw new Error(`provisionThrowawayUser(${username}) failed: ${res.status()}`)
+			throw new Error(
+				`provisionThrowawayUser(${username}) failed: ${res.status()}`,
+			)
 		}
 	} finally {
 		await api.dispose()
@@ -90,14 +98,22 @@ export async function deprovisionUser(username: string): Promise<void> {
  * @param {string} password The password to set.
  * @return {Promise<void>}
  */
-export async function ensureKnownPassword(username: string, password: string): Promise<void> {
+export async function ensureKnownPassword(
+	username: string,
+	password: string,
+): Promise<void> {
 	const api = await adminApi()
 	try {
-		const res = await api.put(`/ocs/v1.php/cloud/users/${encodeURIComponent(username)}`, {
-			form: { key: 'password', value: password },
-		})
+		const res = await api.put(
+			`/ocs/v1.php/cloud/users/${encodeURIComponent(username)}`,
+			{
+				form: { key: 'password', value: password },
+			},
+		)
 		if (!res.ok()) {
-			throw new Error(`ensureKnownPassword(${username}) failed: ${res.status()}`)
+			throw new Error(
+				`ensureKnownPassword(${username}) failed: ${res.status()}`,
+			)
 		}
 	} finally {
 		await api.dispose()
@@ -128,8 +144,11 @@ export async function loginAs(
 	browser: Browser,
 	username: string,
 	password: string,
-): Promise<{ context: BrowserContext, page: Page }> {
-	const context = await browser.newContext({ baseURL: BASE, storageState: undefined })
+): Promise<{ context: BrowserContext; page: Page }> {
+	const context = await browser.newContext({
+		baseURL: BASE,
+		storageState: undefined,
+	})
 	const page = await context.newPage()
 	await page.goto('/index.php/login')
 	await page.locator('input[name="user"]').fill(username)

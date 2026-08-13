@@ -26,7 +26,9 @@ import { generateUrl } from '@nextcloud/router'
  *   caller (WeatherWidget.vue) catches this and renders the error state.
  */
 export async function fetchWeatherReading(placementId) {
-	const url = generateUrl('/apps/launchpad/api/weather/{placementId}', { placementId })
+	const url = generateUrl('/apps/launchpad/api/weather/{placementId}', {
+		placementId,
+	})
 	const response = await axios.get(url)
 	return response?.data || {}
 }

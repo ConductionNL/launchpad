@@ -9,7 +9,9 @@
 		:open="open"
 		@update:open="$emit('update:open', $event)">
 		<template #default>
-			<p>{{ t('launchpad', 'Delete this dashboard? This cannot be undone.') }}</p>
+			<p>
+				{{ t('launchpad', 'Delete this dashboard? This cannot be undone.') }}
+			</p>
 		</template>
 		<template #actions>
 			<NcButton type="tertiary" @click="$emit('update:open', false)">
@@ -23,10 +25,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcDialog,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 
 /**
  * GroupDashboardDeleteDialog — confirmation extracted from

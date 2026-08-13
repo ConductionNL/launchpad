@@ -77,13 +77,23 @@
  * @spec openspec/specs/conditional-visibility-editor/spec.md
  */
 
-import { expect, request, test, type APIRequestContext, type Locator, type Page } from '@playwright/test'
+import {
+	expect,
+	request,
+	test,
+	type APIRequestContext,
+	type Locator,
+	type Page,
+} from '@playwright/test'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(/\/$/, '')
+const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(
+	/\/$/,
+	'',
+)
 
 const APP_URL = '/index.php/apps/launchpad'
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
@@ -158,8 +168,12 @@ let placementId = 0
 let priorAllowUserDash = true
 
 /** Every rule currently stored against the shared placement. */
-async function storedRules(api: APIRequestContext): Promise<Array<Record<string, unknown>>> {
-	const res = await api.get(`/index.php/apps/launchpad/api/widgets/${placementId}/rules`)
+async function storedRules(
+	api: APIRequestContext,
+): Promise<Array<Record<string, unknown>>> {
+	const res = await api.get(
+		`/index.php/apps/launchpad/api/widgets/${placementId}/rules`,
+	)
 	expect(res.status(), `reading stored rules: ${await res.text()}`).toBe(200)
 	return (await res.json()).rules ?? []
 }
@@ -167,19 +181,37 @@ async function storedRules(api: APIRequestContext): Promise<Array<Record<string,
 /** Remove every rule on the shared placement, so each test starts clean. */
 async function clearRules(api: APIRequestContext): Promise<void> {
 	for (const rule of await storedRules(api)) {
-		const res = await api.delete(`/index.php/apps/launchpad/api/rules/${rule.id}`)
-		expect(res.status(), `clearing rule ${rule.id}: ${await res.text()}`).toBeLessThan(300)
+		const res = await api.delete(
+			`/index.php/apps/launchpad/api/rules/${rule.id}`,
+		)
+		expect(
+			res.status(),
+			`clearing rule ${rule.id}: ${await res.text()}`,
+		).toBeLessThan(300)
 	}
-	expect(await storedRules(api), 'the placement must start each test with no rules').toHaveLength(0)
+	expect(
+		await storedRules(api),
+		'the placement must start each test with no rules',
+	).toHaveLength(0)
 }
 
 /** Seed one rule directly, bypassing the UI. Returns its server id. */
 async function seedRule(
 	api: APIRequestContext,
-	rule: { ruleType: string, ruleConfig: Record<string, unknown>, isInclude: boolean },
+	rule: {
+		ruleType: string
+		ruleConfig: Record<string, unknown>
+		isInclude: boolean
+	},
 ): Promise<number> {
-	const res = await api.post(`/index.php/apps/launchpad/api/widgets/${placementId}/rules`, { data: rule })
-	expect(res.status(), `seeding ${rule.ruleType} rule: ${await res.text()}`).toBeLessThan(300)
+	const res = await api.post(
+		`/index.php/apps/launchpad/api/widgets/${placementId}/rules`,
+		{ data: rule },
+	)
+	expect(
+		res.status(),
+		`seeding ${rule.ruleType} rule: ${await res.text()}`,
+	).toBeLessThan(300)
 	const body = await res.json()
 	return Number(body.id ?? body.rule?.id)
 }
@@ -203,18 +235,24 @@ test.beforeAll(async () => {
 	dashboardUuid = String(dash.uuid)
 	expect(dashboardId, `no dashboard id: ${JSON.stringify(body)}`).toBeTruthy()
 
-	const tile = await api.post(`/index.php/apps/launchpad/api/dashboard/${dashboardId}/tile`, {
-		data: {
-			title: `Visibility subject ${STAMP}`,
-			linkType: 'url',
-			linkValue: `https://example.invalid/${STAMP}`,
-			gridX: 0,
-			gridY: 0,
-			gridWidth: 3,
-			gridHeight: 2,
+	const tile = await api.post(
+		`/index.php/apps/launchpad/api/dashboard/${dashboardId}/tile`,
+		{
+			data: {
+				title: `Visibility subject ${STAMP}`,
+				linkType: 'url',
+				linkValue: `https://example.invalid/${STAMP}`,
+				gridX: 0,
+				gridY: 0,
+				gridWidth: 3,
+				gridHeight: 2,
+			},
 		},
-	})
-	expect(tile.status(), `seeding the subject tile: ${await tile.text()}`).toBeLessThan(300)
+	)
+	expect(
+		tile.status(),
+		`seeding the subject tile: ${await tile.text()}`,
+	).toBeLessThan(300)
 	placementId = Number((await tile.json()).id)
 	expect(placementId, 'no placement id for the subject tile').toBeTruthy()
 
@@ -225,11 +263,16 @@ test.beforeAll(async () => {
 	 * first called, a preference left behind by an earlier spec in this serial
 	 * job wins and every assertion below runs against someone else's dashboard.
 	 */
-	const activate = await api.post(`/index.php/apps/launchpad/api/dashboard/${dashboardId}/activate`)
+	const activate = await api.post(
+		`/index.php/apps/launchpad/api/dashboard/${dashboardId}/activate`,
+	)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const preference = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
-		data: { uuid: dashboardUuid },
-	})
+	const preference = await api.post(
+		'/index.php/apps/launchpad/api/dashboards/active',
+		{
+			data: { uuid: dashboardUuid },
+		},
+	)
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
 
 	await api.dispose()
@@ -270,9 +313,11 @@ async function openWorkspaceInEditMode(page: Page): Promise<void> {
 	 * but the first then failed at the *next* step — the context menu never
 	 * opened — which reads like a context-menu bug and is not one.
 	 */
-	if (await page.locator('.launchpad-edit-mode').count() === 0) {
+	if ((await page.locator('.launchpad-edit-mode').count()) === 0) {
 		await page.locator('.launchpad-sidebar-toggle').first().click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 10_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 10_000,
+		})
 		/*
 		 * `.active`, NOT `.first()`. The sidebar lists every personal
 		 * dashboard, and the first one is whichever sorts first — not
@@ -286,7 +331,9 @@ async function openWorkspaceInEditMode(page: Page): Promise<void> {
 		 * right-click with "locator not found" — three steps from the cause,
 		 * and reading as a context-menu defect.
 		 */
-		const activeRow = page.locator('[data-source="user"].dashboard-switcher-sidebar__item.active').first()
+		const activeRow = page
+			.locator('[data-source="user"].dashboard-switcher-sidebar__item.active')
+			.first()
 		await expect(
 			activeRow,
 			'the active dashboard must be a personal one this suite owns before edit mode is entered',
@@ -299,10 +346,13 @@ async function openWorkspaceInEditMode(page: Page): Promise<void> {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) {
 			await closeBtn.click()
-			await page.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			).catch(() => null)
+			await page
+				.waitForFunction(
+					() =>
+						!document.querySelector('.dashboard-switcher-sidebar.open'),
+					{ timeout: 5_000 },
+				)
+				.catch(() => null)
 		}
 	}
 
@@ -323,9 +373,16 @@ async function openWorkspaceInEditMode(page: Page): Promise<void> {
 /** Open the Visibility rules modal on the seeded placement. */
 async function openVisibilityEditor(page: Page): Promise<void> {
 	await openWorkspaceInEditMode(page)
-	await page.locator('.launchpad-grid-item').filter({ hasText: STAMP }).first().click({ button: 'right' })
+	await page
+		.locator('.launchpad-grid-item')
+		.filter({ hasText: STAMP })
+		.first()
+		.click({ button: 'right' })
 	await page.locator('[data-testid="ctx-visibility-rules"]').click()
-	await expect(page.locator(EDITOR), 'the visibility editor must mount').toBeVisible({ timeout: 15_000 })
+	await expect(
+		page.locator(EDITOR),
+		'the visibility editor must mount',
+	).toBeVisible({ timeout: 15_000 })
 	// The editor renders its loading spinner in place of the body, so waiting
 	// for the Add-rule button is what says the rules fetch has settled.
 	await expect(page.locator(ADD_RULE)).toBeVisible({ timeout: 15_000 })
@@ -336,11 +393,17 @@ async function openVisibilityEditor(page: Page): Promise<void> {
  * The whole point of REQ-CVUI-001 is which endpoint and which shape, so the
  * wire is the evidence — not the re-rendered row.
  */
-function recordWrites(page: Page): Array<{ method: string, url: string, body: string }> {
-	const writes: Array<{ method: string, url: string, body: string }> = []
+function recordWrites(
+	page: Page,
+): Array<{ method: string; url: string; body: string }> {
+	const writes: Array<{ method: string; url: string; body: string }> = []
 	page.on('request', (req) => {
 		if (req.method() !== 'GET' && req.url().includes('/apps/launchpad/api/')) {
-			writes.push({ method: req.method(), url: req.url(), body: req.postData() ?? '' })
+			writes.push({
+				method: req.method(),
+				url: req.url(),
+				body: req.postData() ?? '',
+			})
 		}
 	})
 	return writes
@@ -376,7 +439,10 @@ function recordWrites(page: Page): Array<{ method: string, url: string, body: st
  */
 async function activateSwitch(input: Locator): Promise<void> {
 	const id = await input.getAttribute('id')
-	expect(id, 'an NcCheckboxRadioSwitch input must carry an id its content span can hang off').toBeTruthy()
+	expect(
+		id,
+		'an NcCheckboxRadioSwitch input must carry an id its content span can hang off',
+	).toBeTruthy()
 	await input.page().locator(`[id="${id}-label"]`).click()
 }
 
@@ -390,7 +456,10 @@ async function chooseType(page: Page, row: Locator, index: number): Promise<void
 	 * rendered text nodes. The order is fixed by `typeOptions`.
 	 */
 	const options = page.locator('.vs__dropdown-option')
-	await expect(options, 'the rule-type select must offer all four types').toHaveCount(4)
+	await expect(
+		options,
+		'the rule-type select must offer all four types',
+	).toHaveCount(4)
 	await options.nth(index).click()
 }
 
@@ -401,14 +470,16 @@ function anyRow(page: Page): Locator {
 
 /** The last write matching a method + URL fragment, as parsed JSON. */
 function lastWrite(
-	writes: Array<{ method: string, url: string, body: string }>,
+	writes: Array<{ method: string; url: string; body: string }>,
 	method: string,
 	fragment: string,
 ): Record<string, unknown> {
-	const hit = [...writes].reverse().find(w => w.method === method && w.url.includes(fragment))
+	const hit = [...writes]
+		.reverse()
+		.find((w) => w.method === method && w.url.includes(fragment))
 	expect(
 		hit,
-		`no ${method} to a URL containing "${fragment}" was sent. Seen: ${writes.map(w => `${w.method} ${w.url}`).join(' | ') || '(none)'}`,
+		`no ${method} to a URL containing "${fragment}" was sent. Seen: ${writes.map((w) => `${w.method} ${w.url}`).join(' | ') || '(none)'}`,
 	).toBeTruthy()
 	return JSON.parse(hit!.body || '{}')
 }
@@ -421,12 +492,18 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 	})
 
 	// @e2e conditional-visibility-editor::visibility-section-appears-in-the-settings-panel
-	test('the Visibility section loads the placement\'s existing rules and renders each as a populated row', async ({ page }) => {
+	test("the Visibility section loads the placement's existing rules and renders each as a populated row", async ({
+		page,
+	}) => {
 		// Both seeded as INCLUDE rules: an exclude rule cannot be created at
 		// all (launchpad#96), so a mixed fixture would fail in the seed rather
 		// than in the assertion, and say nothing about this scenario.
 		const api = await adminApi()
-		await seedRule(api, { ruleType: 'group', ruleConfig: { groups: ['marketing'] }, isInclude: true })
+		await seedRule(api, {
+			ruleType: 'group',
+			ruleConfig: { groups: ['marketing'] },
+			isInclude: true,
+		})
 		await seedRule(api, { ...KEEP_VISIBLE })
 		await api.dispose()
 
@@ -435,7 +512,10 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		// only its visible effect.
 		const rulesFetches: string[] = []
 		page.on('request', (req) => {
-			if (req.method() === 'GET' && req.url().includes(`/api/widgets/${placementId}/rules`)) {
+			if (
+				req.method() === 'GET'
+				&& req.url().includes(`/api/widgets/${placementId}/rules`)
+			) {
 				rulesFetches.push(req.url())
 			}
 		})
@@ -448,23 +528,34 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		).toBeGreaterThan(0)
 
 		// Each loaded rule renders as its own row.
-		await expect(page.locator(ROW_INCLUDE), 'both stored rules must render as rows').toHaveCount(2)
+		await expect(
+			page.locator(ROW_INCLUDE),
+			'both stored rules must render as rows',
+		).toHaveCount(2)
 
 		// …with their operands POPULATED and TYPE-CORRECT, not merely present.
 		// A pair of rows rendered with empty configs would satisfy a bare count,
 		// and so would two rows of the same type.
 		await expect(
-			page.locator(ROW_INCLUDE).nth(0).locator('[data-test="rule-type-select"]'),
+			page
+				.locator(ROW_INCLUDE)
+				.nth(0)
+				.locator('[data-test="rule-type-select"]'),
 			'the first row must show the stored group rule type',
 		).toContainText(/Group/)
 		await expect(
-			page.locator(ROW_INCLUDE).nth(1).locator('[data-test="rule-start-date"]'),
+			page
+				.locator(ROW_INCLUDE)
+				.nth(1)
+				.locator('[data-test="rule-start-date"]'),
 			'the second row must show the stored startDate operand',
 		).toHaveValue(MATCHING_START_DATE)
 	})
 
 	// @e2e conditional-visibility-editor::edit-an-existing-rule-through-the-ui
-	test('editing a row sends PUT /api/rules/{id} with the updated ruleConfig', async ({ page }) => {
+	test('editing a row sends PUT /api/rules/{id} with the updated ruleConfig', async ({
+		page,
+	}) => {
 		/*
 		 * The spec's GIVEN names a GROUP rule and adds a group to it. The group
 		 * operand cannot be edited through the UI at all (launchpad#97 — the
@@ -497,31 +588,46 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		await row.locator('[data-test="rule-save"]').click()
 
 		await expect
-			.poll(() => writes.filter(w => w.method === 'PUT' && w.url.includes(`/api/rules/${ruleId}`)).length, {
-				message: `an edit must be persisted with PUT /api/rules/${ruleId}`,
-				timeout: 15_000,
-			})
+			.poll(
+				() =>
+					writes.filter(
+						(w) =>
+							w.method === 'PUT'
+							&& w.url.includes(`/api/rules/${ruleId}`),
+					).length,
+				{
+					message: `an edit must be persisted with PUT /api/rules/${ruleId}`,
+					timeout: 15_000,
+				},
+			)
 			.toBeGreaterThan(0)
 
 		const sent = lastWrite(writes, 'PUT', `/api/rules/${ruleId}`)
-		expect(sent.ruleConfig, 'the PUT must carry the updated ruleConfig').toEqual({
-			attribute: 'language',
-			operator: 'equals',
-			value: 'de',
-		})
+		expect(sent.ruleConfig, 'the PUT must carry the updated ruleConfig').toEqual(
+			{
+				attribute: 'language',
+				operator: 'equals',
+				value: 'de',
+			},
+		)
 
 		// And it must really be stored — a request that the server rejected
 		// would still show up in `writes`.
 		const api2 = await adminApi()
 		const stored = await storedRules(api2)
 		await api2.dispose()
-		const edited = stored.find(r => r.ruleType === 'attribute')
-		expect(edited, `the edited attribute rule must still exist: ${JSON.stringify(stored)}`).toBeTruthy()
+		const edited = stored.find((r) => r.ruleType === 'attribute')
+		expect(
+			edited,
+			`the edited attribute rule must still exist: ${JSON.stringify(stored)}`,
+		).toBeTruthy()
 		expect((edited!.ruleConfig as Record<string, unknown>).value).toBe('de')
 	})
 
 	// @e2e conditional-visibility-editor::delete-a-rule-through-the-ui
-	test('removing a row sends DELETE /api/rules/{id} and the row disappears', async ({ page }) => {
+	test('removing a row sends DELETE /api/rules/{id} and the row disappears', async ({
+		page,
+	}) => {
 		// Seeded MATCHING, so the placement stays visible and right-clickable
 		// while the rule exists — see KEEP_VISIBLE.
 		const api = await adminApi()
@@ -530,21 +636,42 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
-		await expect(page.locator(ROW_INCLUDE), 'CONTROL: the row must exist before it can be removed').toHaveCount(1)
+		await expect(
+			page.locator(ROW_INCLUDE),
+			'CONTROL: the row must exist before it can be removed',
+		).toHaveCount(1)
 
-		await page.locator(ROW_INCLUDE).first().locator('[data-test="rule-remove"]').click()
+		await page
+			.locator(ROW_INCLUDE)
+			.first()
+			.locator('[data-test="rule-remove"]')
+			.click()
 
 		await expect
-			.poll(() => writes.filter(w => w.method === 'DELETE' && w.url.includes(`/api/rules/${ruleId}`)).length, {
-				message: `removing a row must send DELETE /api/rules/${ruleId}`,
-				timeout: 15_000,
-			})
+			.poll(
+				() =>
+					writes.filter(
+						(w) =>
+							w.method === 'DELETE'
+							&& w.url.includes(`/api/rules/${ruleId}`),
+					).length,
+				{
+					message: `removing a row must send DELETE /api/rules/${ruleId}`,
+					timeout: 15_000,
+				},
+			)
 			.toBeGreaterThan(0)
 
-		await expect(page.locator(ROW_INCLUDE), 'the row must disappear from the editor').toHaveCount(0)
+		await expect(
+			page.locator(ROW_INCLUDE),
+			'the row must disappear from the editor',
+		).toHaveCount(0)
 
 		const api2 = await adminApi()
-		expect(await storedRules(api2), 'the rule must be gone from the server too').toHaveLength(0)
+		expect(
+			await storedRules(api2),
+			'the rule must be gone from the server too',
+		).toHaveLength(0)
 		await api2.dispose()
 	})
 
@@ -582,7 +709,9 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 	})
 
 	// @e2e conditional-visibility-editor::time-row-operands-with-day-of-week
-	test('a time row emits startTime, endTime and a camelCase days array', async ({ page }) => {
+	test('a time row emits startTime, endTime and a camelCase days array', async ({
+		page,
+	}) => {
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
 
@@ -602,15 +731,24 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-save"]').click()
 
 		await expect
-			.poll(() => writes.filter(w => w.method === 'POST' && w.url.includes('/rules')).length, {
-				message: 'saving a time row must POST it',
-				timeout: 15_000,
-			})
+			.poll(
+				() =>
+					writes.filter(
+						(w) => w.method === 'POST' && w.url.includes('/rules'),
+					).length,
+				{
+					message: 'saving a time row must POST it',
+					timeout: 15_000,
+				},
+			)
 			.toBeGreaterThan(0)
 
 		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
 		expect(sent.ruleType).toBe('time')
-		expect(sent.ruleConfig, 'the time row must emit the canonical camelCase shape').toEqual({
+		expect(
+			sent.ruleConfig,
+			'the time row must emit the canonical camelCase shape',
+		).toEqual({
 			startTime: '09:00',
 			endTime: '17:00',
 			days: ['mon', 'tue', 'wed', 'thu', 'fri'],
@@ -618,7 +756,9 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 	})
 
 	// @e2e conditional-visibility-editor::date-row-operands-with-open-ended-range
-	test('a date row with only a start date omits endDate entirely rather than sending it empty', async ({ page }) => {
+	test('a date row with only a start date omits endDate entirely rather than sending it empty', async ({
+		page,
+	}) => {
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
 
@@ -629,7 +769,13 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-save"]').click()
 
 		await expect
-			.poll(() => writes.filter(w => w.method === 'POST' && w.url.includes('/rules')).length, { timeout: 15_000 })
+			.poll(
+				() =>
+					writes.filter(
+						(w) => w.method === 'POST' && w.url.includes('/rules'),
+					).length,
+				{ timeout: 15_000 },
+			)
 			.toBeGreaterThan(0)
 
 		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
@@ -644,7 +790,9 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 	})
 
 	// @e2e conditional-visibility-editor::attribute-row-operands
-	test('an attribute row emits attribute, operator and value', async ({ page }) => {
+	test('an attribute row emits attribute, operator and value', async ({
+		page,
+	}) => {
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
 
@@ -656,16 +804,28 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-save"]').click()
 
 		await expect
-			.poll(() => writes.filter(w => w.method === 'POST' && w.url.includes('/rules')).length, { timeout: 15_000 })
+			.poll(
+				() =>
+					writes.filter(
+						(w) => w.method === 'POST' && w.url.includes('/rules'),
+					).length,
+				{ timeout: 15_000 },
+			)
 			.toBeGreaterThan(0)
 
 		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
 		expect(sent.ruleType).toBe('attribute')
-		expect(sent.ruleConfig).toEqual({ attribute: 'language', operator: 'equals', value: 'nl' })
+		expect(sent.ruleConfig).toEqual({
+			attribute: 'language',
+			operator: 'equals',
+			value: 'nl',
+		})
 	})
 
 	// @e2e conditional-visibility-editor::includeexclude-toggle
-	test('toggling a row to exclude emits isInclude false and moves the row to the Hide-when section', async ({ page }) => {
+	test('toggling a row to exclude emits isInclude false and moves the row to the Hide-when section', async ({
+		page,
+	}) => {
 		/*
 		 * SCOPE, deliberately: REQ-CVUI-002's exclude scenario says the ROW
 		 * must emit `isInclude: false` and MOVE to the "Hide when…" section.
@@ -688,25 +848,54 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 
 		// CONTROL: a fresh row starts life in the include section, so "it is in
 		// the exclude section" below is a change and not the resting state.
-		await expect(page.locator(ROW_INCLUDE), 'CONTROL: a new row starts as an include rule').toHaveCount(1)
+		await expect(
+			page.locator(ROW_INCLUDE),
+			'CONTROL: a new row starts as an include rule',
+		).toHaveCount(1)
 		await expect(page.locator(ROW_EXCLUDE)).toHaveCount(0)
 
-		await activateSwitch(page.locator(ROW_INCLUDE).first().locator('[data-test="rule-mode-exclude"]'))
+		await activateSwitch(
+			page
+				.locator(ROW_INCLUDE)
+				.first()
+				.locator('[data-test="rule-mode-exclude"]'),
+		)
 
-		await expect(page.locator(ROW_EXCLUDE), 'the row must move to the exclude section').toHaveCount(1)
-		await expect(page.locator(ROW_INCLUDE), 'and leave the include section').toHaveCount(0)
+		await expect(
+			page.locator(ROW_EXCLUDE),
+			'the row must move to the exclude section',
+		).toHaveCount(1)
+		await expect(
+			page.locator(ROW_INCLUDE),
+			'and leave the include section',
+		).toHaveCount(0)
 
-		await page.locator(ROW_EXCLUDE).first().locator('[data-test="rule-save"]').click()
+		await page
+			.locator(ROW_EXCLUDE)
+			.first()
+			.locator('[data-test="rule-save"]')
+			.click()
 		await expect
-			.poll(() => writes.filter(w => w.method === 'POST' && w.url.includes('/rules')).length, {
-				message: 'saving the toggled row must emit a request carrying its state',
-				timeout: 15_000,
-			})
+			.poll(
+				() =>
+					writes.filter(
+						(w) => w.method === 'POST' && w.url.includes('/rules'),
+					).length,
+				{
+					message:
+						'saving the toggled row must emit a request carrying its state',
+					timeout: 15_000,
+				},
+			)
 			.toBeGreaterThan(0)
 
 		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
-		expect(sent.isInclude, 'an exclude row must emit isInclude false').toBe(false)
-		expect(sent.ruleType, 'and must still carry its own type and operands').toBe('date')
+		expect(sent.isInclude, 'an exclude row must emit isInclude false').toBe(
+			false,
+		)
+		expect(sent.ruleType, 'and must still carry its own type and operands').toBe(
+			'date',
+		)
 	})
 })
 
@@ -735,7 +924,9 @@ test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003
 	 */
 
 	// @e2e conditional-visibility-editor::semantics-conveyed-without-relying-on-colour
-	test('the include/exclude distinction survives with colour removed', async ({ page }) => {
+	test('the include/exclude distinction survives with colour removed', async ({
+		page,
+	}) => {
 		const api = await adminApi()
 		await seedRule(api, { ...KEEP_VISIBLE })
 		await api.dispose()
@@ -747,12 +938,19 @@ test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003
 		const draft = page.locator(ROW_INCLUDE).last()
 		await chooseType(page, draft, TYPE.date)
 		await activateSwitch(draft.locator('[data-test="rule-mode-exclude"]'))
-		await expect(page.locator(EXCLUDE_SECTION), 'both sections must be on screen for this comparison').toBeVisible()
+		await expect(
+			page.locator(EXCLUDE_SECTION),
+			'both sections must be on screen for this comparison',
+		).toBeVisible()
 		await expect(page.locator(INCLUDE_SECTION)).toBeVisible()
 
 		// The headings themselves, before colour is touched.
-		await expect(page.locator(`${INCLUDE_SECTION} h3`)).toHaveText(/Show when ANY of these match/i)
-		await expect(page.locator(`${EXCLUDE_SECTION} h3`)).toHaveText(/Hide when ANY of these match/i)
+		await expect(page.locator(`${INCLUDE_SECTION} h3`)).toHaveText(
+			/Show when ANY of these match/i,
+		)
+		await expect(page.locator(`${EXCLUDE_SECTION} h3`)).toHaveText(
+			/Hide when ANY of these match/i,
+		)
 
 		/*
 		 * Force every colour in the document to the same value. If the
@@ -762,15 +960,26 @@ test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003
 		 * doing the work.
 		 */
 		await page.addStyleTag({
-			content: '*, *::before, *::after { color: #000 !important; background: #fff !important; '
+			content:
+				'*, *::before, *::after { color: #000 !important; background: #fff !important; '
 				+ 'border-color: #000 !important; fill: #000 !important; }',
 		})
 
-		const includeText = (await page.locator(INCLUDE_SECTION).innerText()).toLowerCase()
-		const excludeText = (await page.locator(EXCLUDE_SECTION).innerText()).toLowerCase()
+		const includeText = (
+			await page.locator(INCLUDE_SECTION).innerText()
+		).toLowerCase()
+		const excludeText = (
+			await page.locator(EXCLUDE_SECTION).innerText()
+		).toLowerCase()
 
-		expect(includeText, 'the include section must say what it means in words').toContain('show when')
-		expect(excludeText, 'the exclude section must say what it means in words').toContain('hide when')
+		expect(
+			includeText,
+			'the include section must say what it means in words',
+		).toContain('show when')
+		expect(
+			excludeText,
+			'the exclude section must say what it means in words',
+		).toContain('hide when')
 		expect(
 			includeText === excludeText,
 			'the two sections must not read identically once colour is removed',
@@ -778,25 +987,40 @@ test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003
 
 		// The per-row toggle must be legible too — two radios, each labelled.
 		const modes = page.locator(`${ROW_INCLUDE} [data-test="rule-mode"]`).first()
-		await expect(modes, 'the row toggle must name both states in text').toContainText(/Include/i)
+		await expect(
+			modes,
+			'the row toggle must name both states in text',
+		).toContainText(/Include/i)
 		await expect(modes).toContainText(/Exclude/i)
 	})
 
 	// @e2e conditional-visibility-editor::empty-state-explains-default-visibility
-	test('with no rules the editor states the widget is always shown', async ({ page }) => {
+	test('with no rules the editor states the widget is always shown', async ({
+		page,
+	}) => {
 		await openVisibilityEditor(page)
 
-		await expect(page.locator(EMPTY_STATE), 'an empty rule set must explain the default').toBeVisible()
+		await expect(
+			page.locator(EMPTY_STATE),
+			'an empty rule set must explain the default',
+		).toBeVisible()
 		await expect(page.locator(EMPTY_STATE)).toHaveText(/always shown/i)
 
 		// CONTROL: the empty state is a statement about there being no rules,
 		// not a permanent fixture. Add one and it must go.
 		const api = await adminApi()
-		await seedRule(api, { ruleType: 'date', ruleConfig: { startDate: '2026-01-01' }, isInclude: true })
+		await seedRule(api, {
+			ruleType: 'date',
+			ruleConfig: { startDate: '2026-01-01' },
+			isInclude: true,
+		})
 		await api.dispose()
 
 		await openVisibilityEditor(page)
-		await expect(page.locator(EMPTY_STATE), 'CONTROL: with a rule present the empty state must not show').toHaveCount(0)
+		await expect(
+			page.locator(EMPTY_STATE),
+			'CONTROL: with a rule present the empty state must not show',
+		).toHaveCount(0)
 	})
 })
 
@@ -809,7 +1033,9 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 
 	// @e2e conditional-visibility-editor::preview-evaluates-unsaved-edits
 	// @e2e conditional-visibility-editor::preview-persists-nothing
-	test('preview evaluates a row that was never saved, and stores nothing', async ({ page }) => {
+	test('preview evaluates a row that was never saved, and stores nothing', async ({
+		page,
+	}) => {
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
 
@@ -823,7 +1049,10 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		// NOT saved. No rule-save click anywhere in this test.
 		await page.locator(RUN_PREVIEW).click()
 
-		await expect(page.locator(PREVIEW_VERDICT), 'the preview must return a verdict').toBeVisible({ timeout: 15_000 })
+		await expect(
+			page.locator(PREVIEW_VERDICT),
+			'the preview must return a verdict',
+		).toBeVisible({ timeout: 15_000 })
 		await expect(
 			page.locator(PREVIEW_VERDICT),
 			'an include rule whose window has passed must preview as Hidden',
@@ -834,16 +1063,25 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		const previewBody = lastWrite(writes, 'POST', '/api/visibility/preview')
 		const rules = previewBody.rules as Array<Record<string, unknown>>
 		expect(rules, 'the in-editor rule set must be sent').toHaveLength(1)
-		expect((rules[0].ruleConfig as Record<string, unknown>).startDate).toBe('2020-01-01')
+		expect((rules[0].ruleConfig as Record<string, unknown>).startDate).toBe(
+			'2020-01-01',
+		)
 
 		// REQ-CVUI-005: nothing persisted.
 		expect(
-			writes.filter(w => w.url.includes('/rules') || (w.method === 'PUT' && w.url.includes('/api/rules/'))),
+			writes.filter(
+				(w) =>
+					w.url.includes('/rules')
+					|| (w.method === 'PUT' && w.url.includes('/api/rules/')),
+			),
 			'preview must not write any rule',
 		).toHaveLength(0)
 
 		const api = await adminApi()
-		expect(await storedRules(api), 'no rule may exist on the server after a preview').toHaveLength(0)
+		expect(
+			await storedRules(api),
+			'no rule may exist on the server after a preview',
+		).toHaveLength(0)
 
 		/*
 		 * POSITIVE CONTROL for the two assertions above. "No rules were
@@ -851,7 +1089,11 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		 * placement id would also produce. Writing one through the same
 		 * endpoint proves the check can see a rule when there is one.
 		 */
-		await seedRule(api, { ruleType: 'date', ruleConfig: { startDate: '2026-01-01' }, isInclude: true })
+		await seedRule(api, {
+			ruleType: 'date',
+			ruleConfig: { startDate: '2026-01-01' },
+			isInclude: true,
+		})
 		expect(
 			await storedRules(api),
 			'CONTROL: the stored-rules probe must be able to see a rule, or its zero above means nothing',
@@ -860,7 +1102,9 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 	})
 
 	// @e2e conditional-visibility-editor::preview-uses-the-same-rule-shape-as-the-editor-emits
-	test('the preview request carries byte-identical ruleConfig to the one the row persists', async ({ page }) => {
+	test('the preview request carries byte-identical ruleConfig to the one the row persists', async ({
+		page,
+	}) => {
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
 
@@ -872,19 +1116,41 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 
 		await page.locator(RUN_PREVIEW).click()
 		await expect(page.locator(PREVIEW_VERDICT)).toBeVisible({ timeout: 15_000 })
-		const previewed = (lastWrite(writes, 'POST', '/api/visibility/preview').rules as Array<Record<string, unknown>>)[0]
+		const previewed = (
+			lastWrite(writes, 'POST', '/api/visibility/preview').rules as Array<
+				Record<string, unknown>
+			>
+		)[0]
 
 		await row.locator('[data-test="rule-save"]').click()
 		await expect
-			.poll(() => writes.filter(w => w.method === 'POST' && w.url.includes(`/api/widgets/${placementId}/rules`)).length, { timeout: 15_000 })
+			.poll(
+				() =>
+					writes.filter(
+						(w) =>
+							w.method === 'POST'
+							&& w.url.includes(`/api/widgets/${placementId}/rules`),
+					).length,
+				{ timeout: 15_000 },
+			)
 			.toBeGreaterThan(0)
-		const persisted = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		const persisted = lastWrite(
+			writes,
+			'POST',
+			`/api/widgets/${placementId}/rules`,
+		)
 
 		// The requirement is "no translation layer that could drift", so the
 		// two shapes are compared directly rather than each being checked
 		// against a hand-written expectation that could drift with them.
-		expect(previewed.ruleType, 'preview and save must agree on the rule type').toBe(persisted.ruleType)
-		expect(previewed.ruleConfig, 'preview and save must send the same ruleConfig').toEqual(persisted.ruleConfig)
+		expect(
+			previewed.ruleType,
+			'preview and save must agree on the rule type',
+		).toBe(persisted.ruleType)
+		expect(
+			previewed.ruleConfig,
+			'preview and save must send the same ruleConfig',
+		).toEqual(persisted.ruleConfig)
 		expect(previewed.isInclude).toBe(persisted.isInclude)
 	})
 
@@ -909,7 +1175,9 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 	 */
 
 	// @e2e conditional-visibility-editor::preview-rejects-an-invalid-rule-set
-	test('the preview endpoint refuses an unknown ruleType with HTTP 400', async ({ page }) => {
+	test('the preview endpoint refuses an unknown ruleType with HTTP 400', async ({
+		page,
+	}) => {
 		/*
 		 * Issued from the logged-in page rather than from a bare API context,
 		 * so it travels the same session, CSRF token and middleware stack the
@@ -921,24 +1189,46 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		await openVisibilityEditor(page)
 
 		const bad = await page.evaluate(async () => {
-			const res = await fetch('/index.php/apps/launchpad/api/visibility/preview', {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'OCS-APIRequest': 'true',
-					requesttoken: (document.head.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content
-						?? (window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken ?? '',
+			const res = await fetch(
+				'/index.php/apps/launchpad/api/visibility/preview',
+				{
+					method: 'POST',
+					credentials: 'include',
+					headers: {
+						'Content-Type': 'application/json',
+						'OCS-APIRequest': 'true',
+						requesttoken:
+							(
+								document.head.querySelector(
+									'meta[name="csrf-token"]',
+								) as HTMLMetaElement | null
+							)?.content
+							?? (
+								window as unknown as {
+									OC?: { requestToken?: string }
+								}
+							).OC?.requestToken
+							?? '',
+					},
+					body: JSON.stringify({
+						rules: [
+							{
+								ruleType: 'weather',
+								ruleConfig: { outlook: 'sunny' },
+								isInclude: true,
+							},
+						],
+						context: { groups: [], datetime: null },
+					}),
 				},
-				body: JSON.stringify({
-					rules: [{ ruleType: 'weather', ruleConfig: { outlook: 'sunny' }, isInclude: true }],
-					context: { groups: [], datetime: null },
-				}),
-			})
+			)
 			return { status: res.status, body: (await res.text()).slice(0, 400) }
 		})
 
-		expect(bad.status, `an unknown ruleType must be rejected — got ${bad.status}: ${bad.body}`).toBe(400)
+		expect(
+			bad.status,
+			`an unknown ruleType must be rejected — got ${bad.status}: ${bad.body}`,
+		).toBe(400)
 
 		/*
 		 * CONTROL. A 400 for every request would satisfy the line above, and
@@ -947,20 +1237,39 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		 * must succeed.
 		 */
 		const good = await page.evaluate(async () => {
-			const res = await fetch('/index.php/apps/launchpad/api/visibility/preview', {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-					'OCS-APIRequest': 'true',
-					requesttoken: (document.head.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content
-						?? (window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken ?? '',
+			const res = await fetch(
+				'/index.php/apps/launchpad/api/visibility/preview',
+				{
+					method: 'POST',
+					credentials: 'include',
+					headers: {
+						'Content-Type': 'application/json',
+						'OCS-APIRequest': 'true',
+						requesttoken:
+							(
+								document.head.querySelector(
+									'meta[name="csrf-token"]',
+								) as HTMLMetaElement | null
+							)?.content
+							?? (
+								window as unknown as {
+									OC?: { requestToken?: string }
+								}
+							).OC?.requestToken
+							?? '',
+					},
+					body: JSON.stringify({
+						rules: [
+							{
+								ruleType: 'date',
+								ruleConfig: { startDate: '2026-01-01' },
+								isInclude: true,
+							},
+						],
+						context: { groups: [], datetime: null },
+					}),
 				},
-				body: JSON.stringify({
-					rules: [{ ruleType: 'date', ruleConfig: { startDate: '2026-01-01' }, isInclude: true }],
-					context: { groups: [], datetime: null },
-				}),
-			})
+			)
 			return { status: res.status, body: (await res.text()).slice(0, 400) }
 		})
 
@@ -981,12 +1290,21 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 		})
 
-		const res = await anonymous.post('/index.php/apps/launchpad/api/visibility/preview', {
-			data: {
-				rules: [{ ruleType: 'date', ruleConfig: { startDate: '2026-01-01' }, isInclude: true }],
-				context: { groups: [], datetime: null },
+		const res = await anonymous.post(
+			'/index.php/apps/launchpad/api/visibility/preview',
+			{
+				data: {
+					rules: [
+						{
+							ruleType: 'date',
+							ruleConfig: { startDate: '2026-01-01' },
+							isInclude: true,
+						},
+					],
+					context: { groups: [], datetime: null },
+				},
 			},
-		})
+		)
 		expect(
 			res.status(),
 			`an anonymous preview must be refused, not served — got ${res.status()}: ${(await res.text()).slice(0, 300)}`,
@@ -1001,12 +1319,21 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		 * attributable to the missing session.
 		 */
 		const authed = await adminApi()
-		const ok = await authed.post('/index.php/apps/launchpad/api/visibility/preview', {
-			data: {
-				rules: [{ ruleType: 'date', ruleConfig: { startDate: '2026-01-01' }, isInclude: true }],
-				context: { groups: [], datetime: null },
+		const ok = await authed.post(
+			'/index.php/apps/launchpad/api/visibility/preview',
+			{
+				data: {
+					rules: [
+						{
+							ruleType: 'date',
+							ruleConfig: { startDate: '2026-01-01' },
+							isInclude: true,
+						},
+					],
+					context: { groups: [], datetime: null },
+				},
 			},
-		})
+		)
 		expect(
 			ok.status(),
 			`CONTROL: the same request WITH credentials must be served — got ${ok.status()}: ${(await ok.text()).slice(0, 300)}`,

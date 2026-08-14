@@ -40,11 +40,11 @@
 				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
 				@update:modelValue="$emit('update:deniedWidgetsCsv', $event)" />
 			<div class="launchpad-admin__editor-actions">
-				<NcButton variant="tertiary" @click="$emit('close')">
+				<NcButton type="tertiary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
 				<NcButton
-					variant="primary"
+					type="primary"
 					:disabled="saving || !row.name || !row.groupId"
 					@click="$emit('save')">
 					{{ t('launchpad', 'Save') }}

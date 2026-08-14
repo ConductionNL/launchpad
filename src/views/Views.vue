@@ -70,7 +70,7 @@
 				@share="openShareDrawer"
 				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
-				variant="secondary"
+				type="secondary"
 				:aria-label="t('launchpad', 'Dashboards')"
 				class="launchpad-sidebar-toggle"
 				@click="sidebarOpen = !sidebarOpen">
@@ -101,7 +101,7 @@
 			     dashboard carries at least one acknowledgement requirement. -->
 			<NcButton
 				v-if="canShareActiveDashboard"
-				variant="tertiary"
+				type="tertiary"
 				:aria-label="t('launchpad', 'Share')"
 				class="mydash-share-action"
 				data-test="dashboard-share-action"
@@ -113,7 +113,7 @@
 			</NcButton>
 			<NcButton
 				v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
-				variant="secondary"
+				type="secondary"
 				:aria-label="t('launchpad', 'Read receipts')"
 				data-testid="open-acknowledgement-report"
 				@click="
@@ -206,7 +206,7 @@
 						<ViewDashboard :size="64" />
 					</template>
 					<template v-if="allowUserDashboards" #action>
-						<NcButton variant="primary" @click="handleCreateDashboard">
+						<NcButton type="primary" @click="handleCreateDashboard">
 							{{ t('launchpad', 'Create dashboard') }}
 						</NcButton>
 					</template>

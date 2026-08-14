@@ -77,7 +77,7 @@
 						<div class="launchpad-demo-showcases__actions">
 							<NcButton
 								v-if="!showcase.isInstalled"
-								variant="primary"
+								type="primary"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-install-' + showcase.id"
 								@click="install(showcase)">
@@ -89,7 +89,7 @@
 							</NcButton>
 							<NcButton
 								v-else
-								variant="error"
+								type="error"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-uninstall-' + showcase.id"
 								@click="confirmUninstall(showcase)">

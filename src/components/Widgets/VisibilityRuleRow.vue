@@ -198,14 +198,14 @@
 
 		<div class="visibility-rule-row__actions">
 			<NcButton
-				variant="primary"
+				type="primary"
 				:disabled="busy || !isValid"
 				data-test="rule-save"
 				@click="save">
 				{{ isNew ? t('launchpad', 'Add rule') : t('launchpad', 'Save') }}
 			</NcButton>
 			<NcButton
-				variant="tertiary"
+				type="tertiary"
 				:disabled="busy"
 				:aria-label="
 					isNew

@@ -28,7 +28,7 @@
 		     (top-right) is the only entry point. -->
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
-				variant="tertiary"
+				type="tertiary"
 				:aria-label="t('launchpad', 'Open menu')"
 				class="workspace-shell__hamburger"
 				@click="toggleSidebar">

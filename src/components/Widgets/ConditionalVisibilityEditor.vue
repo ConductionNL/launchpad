@@ -86,7 +86,7 @@
 				</div>
 			</section>
 
-			<NcButton variant="secondary" data-test="add-rule" @click="addRule">
+			<NcButton type="secondary" data-test="add-rule" @click="addRule">
 				<template #icon>
 					<Plus :size="18" />
 				</template>
@@ -120,7 +120,7 @@
 							data-test="preview-datetime" />
 					</div>
 					<NcButton
-						variant="primary"
+						type="primary"
 						:disabled="preview.state.loading"
 						data-test="run-preview"
 						@click="runPreview">

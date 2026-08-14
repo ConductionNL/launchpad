@@ -191,7 +191,7 @@
 
 			<footer class="setup-wizard__footer">
 				<NcButton
-					variant="tertiary"
+					type="tertiary"
 					:disabled="currentStep <= 1"
 					data-test="setup-wizard-back"
 					@click="onBack">
@@ -199,13 +199,13 @@
 				</NcButton>
 				<NcButton
 					v-if="!isFinalStep"
-					variant="secondary"
+					type="secondary"
 					data-test="setup-wizard-skip"
 					@click="onSkip">
 					{{ t('launchpad', 'Skip') }}
 				</NcButton>
 				<NcButton
-					variant="primary"
+					type="primary"
 					:disabled="loading"
 					data-test="setup-wizard-next"
 					@click="onNext">

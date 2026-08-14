@@ -28,7 +28,7 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 			</NcNoteCard>
 		</template>
 		<template #actions>
-			<NcButton variant="primary" :disabled="loading" @click="submit">
+			<NcButton type="primary" :disabled="loading" @click="submit">
 				{{ t('launchpad', 'Unlock') }}
 			</NcButton>
 		</template>

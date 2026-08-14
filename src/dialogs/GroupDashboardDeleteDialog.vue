@@ -14,10 +14,10 @@
 			</p>
 		</template>
 		<template #actions>
-			<NcButton variant="tertiary" @click="$emit('update:open', false)">
+			<NcButton type="tertiary" @click="$emit('update:open', false)">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
-			<NcButton variant="error" @click="$emit('confirm')">
+			<NcButton type="error" @click="$emit('confirm')">
 				{{ t('launchpad', 'Delete') }}
 			</NcButton>
 		</template>

@@ -60,7 +60,7 @@
 				</div>
 				<div class="launchpad-admin__role-actions">
 					<NcButton
-						variant="tertiary"
+						type="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
@@ -68,7 +68,7 @@
 						</template>
 					</NcButton>
 					<NcButton
-						variant="tertiary"
+						type="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="confirmDelete(row)">
 						<template #icon>
@@ -79,7 +79,7 @@
 			</div>
 		</div>
 
-		<NcButton variant="primary" data-testid="admin-add-role" @click="openCreate">
+		<NcButton type="primary" data-testid="admin-add-role" @click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>

@@ -194,7 +194,7 @@
 									onShareLevelChange(idx, $event)
 								" />
 							<NcButton
-								variant="tertiary"
+								type="tertiary"
 								:aria-label="t('launchpad', 'Remove share')"
 								@click="onShareRemove(idx)">
 								<template #icon>
@@ -252,7 +252,7 @@
 								:value="publicShareUrl(share.token)"
 								@focus="$event.target.select()" />
 							<NcButton
-								variant="tertiary"
+								type="tertiary"
 								:aria-label="t('launchpad', 'Copy link')"
 								:title="
 									copiedToken === share.token
@@ -283,7 +283,7 @@
 								}}
 							</span>
 							<NcButton
-								variant="tertiary"
+								type="tertiary"
 								:aria-label="t('launchpad', 'Revoke link')"
 								:title="t('launchpad', 'Revoke link')"
 								@click="onRevokePublicShare(share.id)">
@@ -311,7 +311,7 @@
 							type="date"
 							:aria-label="t('launchpad', 'Expiry date (optional)')" />
 						<NcButton
-							variant="secondary"
+							type="secondary"
 							:disabled="creatingPublicShare"
 							@click="onCreatePublicShare">
 							<template #icon>
@@ -327,7 +327,7 @@
 			<div class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
-					variant="error"
+					type="error"
 					:disabled="saving"
 					data-testid="dashboard-delete-button"
 					@click="onDelete">
@@ -338,13 +338,13 @@
 				</NcButton>
 				<div class="dashboard-config__actions-right">
 					<NcButton
-						variant="tertiary"
+						type="tertiary"
 						:disabled="saving"
 						@click="$emit('close')">
 						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
-						variant="primary"
+						type="primary"
 						:disabled="!canSave || saving"
 						data-testid="dashboard-save-button"
 						@click="onSave">

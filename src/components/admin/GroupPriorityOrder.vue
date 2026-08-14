@@ -57,7 +57,7 @@
 							></span
 						>
 						<NcButton
-							variant="tertiary"
+							type="tertiary"
 							:aria-label="t('launchpad', 'Move to inactive')"
 							class="group-priority__move"
 							@click="moveToInactive(id)">
@@ -110,7 +110,7 @@
 							displayName(id)
 						}}</span>
 						<NcButton
-							variant="tertiary"
+							type="tertiary"
 							:aria-label="t('launchpad', 'Move to active')"
 							class="group-priority__move"
 							@click="moveToActive(id)">

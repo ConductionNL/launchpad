@@ -19,7 +19,7 @@
 		<!-- Export controls -->
 		<div class="launchpad-export-import__row">
 			<NcButton
-				variant="primary"
+				type="primary"
 				:disabled="exporting"
 				data-test="export-site-button"
 				@click="exportSite">
@@ -65,7 +65,7 @@
 			</NcCheckboxRadioSwitch>
 
 			<NcButton
-				variant="primary"
+				type="primary"
 				:disabled="!selectedFile || importing"
 				data-test="import-submit"
 				@click="runImport">

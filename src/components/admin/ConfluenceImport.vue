@@ -52,7 +52,7 @@
 
 			<div class="launchpad-confluence-import__actions">
 				<NcButton
-					variant="secondary"
+					type="secondary"
 					:disabled="!selectedFile || running"
 					data-test="confluence-dry-run"
 					@click="runDryRun">
@@ -67,7 +67,7 @@
 				</NcButton>
 
 				<NcButton
-					variant="primary"
+					type="primary"
 					:disabled="!selectedFile || running"
 					data-test="confluence-import-submit"
 					@click="runImport">

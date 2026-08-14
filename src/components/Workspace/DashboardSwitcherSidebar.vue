@@ -281,7 +281,7 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						variant="secondary"
+						type="secondary"
 						wide
 						data-action="create"
 						data-testid="add-dashboard-button"

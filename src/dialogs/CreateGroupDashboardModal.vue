@@ -53,13 +53,13 @@
 		<template #actions>
 			<NcButton
 				data-test="create-group-dashboard-cancel"
-				variant="tertiary"
+				type="tertiary"
 				@click="onClose">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
 			<NcButton
 				data-test="create-group-dashboard-submit"
-				variant="primary"
+				type="primary"
 				:disabled="submitting || !canSubmit"
 				@click="onSubmit">
 				{{

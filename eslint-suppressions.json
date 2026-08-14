@@ -20,6 +20,9 @@
     }
   },
   "src/components/AcknowledgementPrompt.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
@@ -40,6 +43,9 @@
     }
   },
   "src/components/Widgets/ConditionalVisibilityEditor.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     },
@@ -98,6 +104,11 @@
       "count": 1
     }
   },
+  "src/components/Widgets/VisibilityRuleRow.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
   "src/components/Widgets/WidgetContextMenu.vue": {
     "vue/custom-event-name-casing": {
       "count": 1
@@ -112,6 +123,9 @@
     }
   },
   "src/components/Workspace/DashboardSwitcherSidebar.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
     "eqeqeq": {
       "count": 1
     },
@@ -120,6 +134,9 @@
     }
   },
   "src/components/admin/ActionAuthMatrix.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
     "no-console": {
       "count": 2
     }
@@ -130,11 +147,17 @@
     }
   },
   "src/components/admin/AdminDemoData.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 2
     }
   },
   "src/components/admin/AdminSettings.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 3
+    },
     "no-console": {
       "count": 5
     }
@@ -149,9 +172,19 @@
       "count": 1
     }
   },
+  "src/components/admin/ConfluenceImport.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
   "src/components/admin/DashboardBulkOperations.vue": {
     "@typescript-eslint/no-unused-vars": {
       "count": 1
+    }
+  },
+  "src/components/admin/DashboardExportImport.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
     }
   },
   "src/components/admin/DashboardSharingPolicy.vue": {
@@ -160,6 +193,9 @@
     }
   },
   "src/components/admin/GroupPriorityOrder.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    },
     "no-console": {
       "count": 2
     }
@@ -180,16 +216,25 @@
     }
   },
   "src/components/admin/PrometheusMetricsPanel.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 2
     }
   },
   "src/components/admin/RoleLayoutDefaultsSection.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 3
+    },
     "no-console": {
       "count": 3
     }
   },
   "src/components/admin/RolePermissionsSection.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 3
+    },
     "no-console": {
       "count": 3
     }
@@ -199,7 +244,15 @@
       "count": 1
     }
   },
+  "src/components/admin/tabs/GroupDashboardsTab.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 3
+    }
+  },
   "src/components/admin/tabs/TemplatesPage.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 4
+    },
     "no-console": {
       "count": 2
     }
@@ -218,29 +271,71 @@
     }
   },
   "src/dialogs/CreateGroupDashboardModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
+  "src/dialogs/DemoShowcaseUninstallDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
+  "src/dialogs/GroupDashboardDeleteDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
+  "src/dialogs/GroupDashboardRenameDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
   "src/dialogs/ManageGroupDashboardsModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 4
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
   "src/dialogs/PublicSharePasswordDialog.vue": {
     "@nextcloud/no-deprecated-library-props": {
-      "count": 1
+      "count": 2
     },
     "jsdoc/require-param-type": {
       "count": 1
     }
   },
+  "src/dialogs/RoleLayoutDefaultDeleteDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
+  "src/dialogs/RoleLayoutDefaultEditorDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
+  "src/dialogs/RolePermissionDeleteDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
   "src/modals/AcknowledgementReportModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
   "src/modals/DashboardConfigModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 7
+    },
     "no-console": {
       "count": 8
     },
@@ -248,24 +343,48 @@
       "count": 1
     }
   },
+  "src/modals/RolePermissionEditorModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    }
+  },
   "src/modals/SetupWizardModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 3
+    },
     "no-console": {
       "count": 2
     }
   },
   "src/modals/TemplateEditorModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 2
+    },
     "no-console": {
       "count": 1
     }
   },
   "src/modals/TemplateResyncModal.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 3
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 2
+    }
+  },
+  "src/modals/TileEditor.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 4
     }
   },
   "src/modals/VisibilityRulesModal.vue": {
     "vue/custom-event-name-casing": {
       "count": 3
+    }
+  },
+  "src/modals/WidgetMovePanel.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
     }
   },
   "src/services/graphqlClient.js": {
@@ -327,6 +446,9 @@
     }
   },
   "src/views/Views.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 4
+    },
     "@typescript-eslint/no-unused-vars": {
       "count": 2
     },
@@ -341,6 +463,9 @@
     }
   },
   "src/views/WorkspaceApp.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
     "no-console": {
       "count": 1
     }

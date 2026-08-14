@@ -36,6 +36,7 @@ use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
@@ -529,6 +530,13 @@ class PageController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	// The public share page — one of only four rendered public pages in the
+	// fleet (ADR-081). The share TOKEN is checked by PublicShareController,
+	// which already has brute-force protection wired through
+	// PublicShareService::registerAttempt(); this is just the shell that hosts
+	// it, so a volume ceiling is the right control and it is deliberately
+	// generous — a recipient reloading the page must not be what trips it.
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function publicShare(): TemplateResponse {
 		Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
 		Util::addStyle(application: Application::APP_ID, file: 'launchpad');

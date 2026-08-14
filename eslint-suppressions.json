@@ -270,6 +270,11 @@
       "count": 1
     }
   },
+  "src/constants/__tests__/widgetRegistry.spec.js": {
+    "@nextcloud/l10n-non-breaking-space": {
+      "count": 2
+    }
+  },
   "src/dialogs/CreateGroupDashboardModal.vue": {
     "@nextcloud/no-deprecated-library-props": {
       "count": 2

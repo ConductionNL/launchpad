@@ -42,7 +42,6 @@ use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
-use OCP\Dashboard\IManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use OCP\Util;
@@ -62,7 +61,6 @@ class PageController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param IManager $dashboardManager Nextcloud dashboard widget manager.
 	 * @param IInitialState $initialState The Nextcloud initial-state service.
 	 * @param IUserSession $userSession Active user session.
 	 * @param WidgetService $widgetService Available-widgets descriptor formatter.
@@ -95,7 +93,6 @@ class PageController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IManager $dashboardManager,
 		private readonly IInitialState $initialState,
 		private readonly IUserSession $userSession,
 		private readonly WidgetService $widgetService,
@@ -160,8 +157,28 @@ class PageController extends Controller {
 		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
 		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
 
-		// Load all widget scripts so legacy widgets can register their callbacks.
-		$this->loadWidgetScripts();
+		// Settings are read once and reused below; getSettings() resolves every
+		// safe default, so neither read throws on an unset key.
+		$settings = $this->adminSettingsService->getSettings();
+
+		// Legacy-widget-bridge spec: touching the Nextcloud widget registry at
+		// all is what costs us here. `IManager::getWidgets()` is not a getter —
+		// it calls loadLazyPanels(), which calls load() on EVERY widget of every
+		// app enabled for the user, ignoring the dashboard layout, and load() is
+		// where widgets call Util::addScript(). Measured on this instance that is
+		// ~147 MB of widget JS injected into a page that renders no Nextcloud
+		// dashboard, every one of which then throws because OCA.Dashboard only
+		// exists on /apps/dashboard.
+		//
+		// So the registry is touched only when the bridge is actually on. When it
+		// is off, the workspace renders without paying for widgets it will never
+		// bridge, and the SPA still has everything it needs: Views.vue fetches the
+		// available-widget list from GET /api/widgets on boot.
+		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? true);
+		$bridgedWidgets = [];
+		if ($bridgeEnabled === true) {
+			$bridgedWidgets = $this->widgetService->getAvailableWidgets();
+		}
 
 		$userId = $this->resolveUserId();
 
@@ -193,7 +210,7 @@ class PageController extends Controller {
 		);
 
 		$builder
-			->setWidgets($this->widgetService->getAvailableWidgets())
+			->setWidgets($bridgedWidgets)
 			->setLayout($activeState['layout'])
 			->setPrimaryGroup($primaryGroupId)
 			->setPrimaryGroupName($primaryGroupName)
@@ -217,7 +234,7 @@ class PageController extends Controller {
 		// no-match fallback target. `getSettings()` already resolves the
 		// safe 'none' default when unset/invalid, so this never throws.
 		$quicksearchFallback = (string)(
-			$this->adminSettingsService->getSettings()['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
+			$settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
 		);
 
 		$builder
@@ -550,22 +567,4 @@ class PageController extends Controller {
 		return $response;
 	}//end publicShare()
 
-	/**
-	 * Load scripts for all available dashboard widgets.
-	 *
-	 * This ensures legacy widgets can register their callbacks via
-	 * OCA.Dashboard.register.
-	 *
-	 * @return array<string, \OCP\Dashboard\IWidget> Map of widget id to widget.
-	 */
-	private function loadWidgetScripts(): array {
-		$widgets = $this->dashboardManager->getWidgets();
-
-		foreach ($widgets as $widget) {
-			// Call the widget's load() method to inject its scripts.
-			$widget->load();
-		}
-
-		return $widgets;
-	}//end loadWidgetScripts()
 }//end class

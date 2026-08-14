@@ -72,7 +72,6 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { generateFilePath } from '@nextcloud/router'
-
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 
 /**
@@ -98,6 +97,7 @@ export default {
 		docsUrl() {
 			return DOCS_URL
 		},
+
 		/** @spec openspec/specs/footer-customization/spec.md */
 		sendentLogo() {
 			// App Store id is `launchpad` (info.xml) — `launchpad` is only the
@@ -105,6 +105,7 @@ export default {
 			// degrades the URL to /img/... and the logo 404s.
 			return generateFilePath('launchpad', 'img', 'sendent-logo.png')
 		},
+
 		/** @spec openspec/specs/footer-customization/spec.md */
 		conductionLogo() {
 			return generateFilePath('launchpad', 'img', 'conduction-logo.png')

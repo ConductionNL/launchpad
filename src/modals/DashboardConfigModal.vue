@@ -52,7 +52,7 @@
 				class="dashboard-config__panel">
 				<div class="dashboard-config__field">
 					<NcTextField
-						:model-value="form.name"
+						:modelValue="form.name"
 						:label="t('launchpad', 'Title')"
 						:placeholder="t('launchpad', 'My dashboard')"
 						data-testid="dashboard-name-input"
@@ -87,7 +87,7 @@
 						:label="t('launchpad', 'Icon')"
 						:value="form.icon"
 						:icons="iconCatalogue"
-						:upload-fn="iconUploadFn"
+						:uploadFn="iconUploadFn"
 						@input="form.icon = $event" />
 				</div>
 			</div>
@@ -109,7 +109,7 @@
 					v-if="!isCreate"
 					class="dashboard-config__field dashboard-config__field--toggle">
 					<NcCheckboxRadioSwitch
-						:model-value="form.isDefault"
+						:modelValue="form.isDefault"
 						type="switch"
 						@update:modelValue="form.isDefault = $event">
 						<strong>{{ t('launchpad', 'Default dashboard') }}</strong>
@@ -142,7 +142,7 @@
 					</label>
 
 					<NcSelect
-						:model-value="null"
+						:modelValue="null"
 						:options="shareeOptions"
 						:filterable="false"
 						:loading="shareeLoading"
@@ -151,7 +151,7 @@
 						"
 						:placeholder="t('launchpad', 'Search users and groups…')"
 						label="displayName"
-						track-by="key"
+						trackBy="key"
 						:clearable="false"
 						@search="onShareeSearch"
 						@update:modelValue="onShareeSelected">
@@ -181,20 +181,20 @@
 								{{ share.displayName || share.shareWith }}
 							</span>
 							<NcSelect
-								:model-value="
+								:modelValue="
 									permissionOptionFor(share.permissionLevel)
 								"
 								:options="permissionOptions"
-								:input-label="t('launchpad', 'Permission level')"
+								:inputLabel="t('launchpad', 'Permission level')"
 								label="label"
-								track-by="value"
+								trackBy="value"
 								:clearable="false"
 								class="dashboard-config__share-level"
 								@update:modelValue="
 									onShareLevelChange(idx, $event)
 								" />
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Remove share')"
 								@click="onShareRemove(idx)">
 								<template #icon>
@@ -252,7 +252,7 @@
 								:value="publicShareUrl(share.token)"
 								@focus="$event.target.select()" />
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Copy link')"
 								:title="
 									copiedToken === share.token
@@ -283,7 +283,7 @@
 								}}
 							</span>
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Revoke link')"
 								:title="t('launchpad', 'Revoke link')"
 								@click="onRevokePublicShare(share.id)">
@@ -311,7 +311,7 @@
 							type="date"
 							:aria-label="t('launchpad', 'Expiry date (optional)')" />
 						<NcButton
-							type="secondary"
+							variant="secondary"
 							:disabled="creatingPublicShare"
 							@click="onCreatePublicShare">
 							<template #icon>
@@ -327,7 +327,7 @@
 			<div class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
-					type="error"
+					variant="error"
 					:disabled="saving"
 					data-testid="dashboard-delete-button"
 					@click="onDelete">
@@ -338,13 +338,13 @@
 				</NcButton>
 				<div class="dashboard-config__actions-right">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:disabled="saving"
 						@click="$emit('close')">
 						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:disabled="!canSave || saving"
 						data-testid="dashboard-save-button"
 						@click="onSave">
@@ -361,33 +361,31 @@
 </template>
 
 <script>
-import {
-	NcModal,
-	NcButton,
-	NcTextField,
-	NcSelect,
-	NcCheckboxRadioSwitch,
-} from '@nextcloud/vue'
+import { CnIconBrowser, DEFAULT_ICON } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-
-import Delete from 'vue-material-design-icons/Delete.vue'
-import ContentSave from 'vue-material-design-icons/ContentSave.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import Close from 'vue-material-design-icons/Close.vue'
+import { generateUrl } from '@nextcloud/router'
+import {
+	NcButton,
+	NcCheckboxRadioSwitch,
+	NcModal,
+	NcSelect,
+	NcTextField,
+} from '@nextcloud/vue'
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
-import Tune from 'vue-material-design-icons/Tune.vue'
+import Check from 'vue-material-design-icons/Check.vue'
+import Close from 'vue-material-design-icons/Close.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
+import ContentSave from 'vue-material-design-icons/ContentSave.vue'
+import Delete from 'vue-material-design-icons/Delete.vue'
+import Lock from 'vue-material-design-icons/Lock.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
-import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
-import Check from 'vue-material-design-icons/Check.vue'
-import Lock from 'vue-material-design-icons/Lock.vue'
-
-import { generateUrl } from '@nextcloud/router'
-import { CnIconBrowser, DEFAULT_ICON } from '@conduction/nextcloud-vue'
+import Tune from 'vue-material-design-icons/Tune.vue'
+import { api } from '../services/api.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
-import { api } from '../services/api.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 
 const PERMISSION_OPTIONS = [
@@ -425,14 +423,17 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		dashboard: {
 			type: Object,
 			default: null,
 		},
+
 		canDelete: {
 			type: Boolean,
 			default: false,
 		},
+
 		mode: {
 			type: String,
 			default: 'edit',
@@ -482,6 +483,7 @@ export default {
 				 */
 				isDefault: false,
 			},
+
 			saving: false,
 			// Server snapshot of shares as last loaded; used to compute dirty state.
 			serverShares: [],
@@ -509,6 +511,7 @@ export default {
 		isCreate() {
 			return this.mode === 'create'
 		},
+
 		/**
 		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
 		 * picker source every admin surface reads, so the picker cannot drift
@@ -520,6 +523,7 @@ export default {
 		iconCatalogue() {
 			return ICON_CATALOGUE
 		},
+
 		/**
 		 * The icon-upload transport handed to CnIconBrowser. Exposed on the
 		 * instance (computed) so the template can reference the module-imported
@@ -534,6 +538,7 @@ export default {
 		iconUploadFn() {
 			return uploadDataUrl
 		},
+
 		/**
 		 * Config-drawer tab descriptors. The Sharing tab is only offered when
 		 * the user can manage shares — REQ-SHARE-001 is owner-only, so a
@@ -560,6 +565,7 @@ export default {
 			})
 			return list
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		canManageShares() {
 			// Only the owner can see / manage shares.
@@ -568,12 +574,14 @@ export default {
 				&& (this.dashboard?.id ?? null) !== null
 			)
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		modalTitle() {
 			return this.isCreate
 				? t('launchpad', 'Create dashboard')
 				: t('launchpad', 'Dashboard configuration')
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		primaryButtonLabel() {
 			if (this.saving) {
@@ -583,6 +591,7 @@ export default {
 			}
 			return this.isCreate ? t('launchpad', 'Create') : t('launchpad', 'Save')
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		permissionOptions() {
 			return PERMISSION_OPTIONS.map((o) => ({
@@ -590,6 +599,7 @@ export default {
 				label: t('launchpad', o.label),
 			}))
 		},
+
 		selectedPermission: {
 			/** @spec openspec/specs/dashboards/spec.md */
 			get() {
@@ -599,15 +609,18 @@ export default {
 					|| this.permissionOptions[2]
 				)
 			},
+
 			/** @spec openspec/specs/dashboards/spec.md */
 			set() {
 				// Read-only — admin-managed.
 			},
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		canSave() {
 			return this.form.name.trim().length > 0
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		sharesDirty() {
 			if (this.localShares.length !== this.serverShares.length) return true
@@ -697,6 +710,7 @@ export default {
 				|| this.permissionOptions[0]
 			)
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		async loadShares() {
 			try {
@@ -710,6 +724,7 @@ export default {
 				this.localShares = []
 			}
 		},
+
 		/**
 		 * Load the dashboard's active anonymous public-share links.
 		 *
@@ -732,6 +747,7 @@ export default {
 				this.publicSharesLoading = false
 			}
 		},
+
 		/**
 		 * Mint a new public link, optionally password-protected and/or expiring.
 		 *
@@ -761,6 +777,7 @@ export default {
 				this.creatingPublicShare = false
 			}
 		},
+
 		/**
 		 * Soft-revoke a public link.
 		 *
@@ -778,6 +795,7 @@ export default {
 				console.error('Failed to revoke public share:', error)
 			}
 		},
+
 		/**
 		 * Absolute, shareable URL for a public-share token.
 		 *
@@ -791,6 +809,7 @@ export default {
 				+ generateUrl('/apps/launchpad/s/{token}', { token })
 			)
 		},
+
 		/**
 		 * Copy a link to the clipboard and flag the row as copied briefly.
 		 *
@@ -805,6 +824,7 @@ export default {
 				console.error('Clipboard write failed:', error)
 			}
 		},
+
 		/**
 		 * Fetch the bounded empty-query suggestion list once per modal-open.
 		 * Mapped through the same shape as search results so options are
@@ -825,6 +845,7 @@ export default {
 				this.shareeSuggestions = []
 			}
 		},
+
 		/**
 		 * Map a sharee API response to flat picker options.
 		 *
@@ -848,6 +869,7 @@ export default {
 			}))
 			return [...users, ...groups]
 		},
+
 		/**
 		 * Search sharees as the user types; an empty query restores the
 		 * preloaded suggestions.
@@ -880,6 +902,7 @@ export default {
 				this.shareeLoading = false
 			}
 		},
+
 		/**
 		 * Buffer a picked sharee locally. Nothing is written to the server
 		 * until the user saves.
@@ -905,6 +928,7 @@ export default {
 			// previous search results.
 			this.shareeOptions = [...this.shareeSuggestions]
 		},
+
 		/**
 		 * Change one buffered share's permission level.
 		 *
@@ -921,6 +945,7 @@ export default {
 				permissionLevel: option.value,
 			}
 		},
+
 		/**
 		 * Drop one buffered share. Removal reaches the server on save.
 		 *
@@ -930,6 +955,7 @@ export default {
 		onShareRemove(idx) {
 			this.localShares.splice(idx, 1)
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		async onSave() {
 			if (!this.canSave) return
@@ -979,6 +1005,7 @@ export default {
 				this.saving = false
 			}
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		onDelete() {
 			if (!this.canDelete) return

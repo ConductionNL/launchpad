@@ -56,9 +56,9 @@
 						v-for="row in includeRules"
 						:key="rowKey(row)"
 						:rule="row"
-						:available-groups="availableGroups"
+						:availableGroups="availableGroups"
 						:busy="isRowBusy(row)"
-						:is-new="row.id === null"
+						:isNew="row.id === null"
 						data-test="visibility-rule-row-include"
 						@update:rule="onRowUpdate(row, $event)"
 						@save="onRowSave(row, $event)"
@@ -76,9 +76,9 @@
 						v-for="row in excludeRules"
 						:key="rowKey(row)"
 						:rule="row"
-						:available-groups="availableGroups"
+						:availableGroups="availableGroups"
 						:busy="isRowBusy(row)"
-						:is-new="row.id === null"
+						:isNew="row.id === null"
 						data-test="visibility-rule-row-exclude"
 						@update:rule="onRowUpdate(row, $event)"
 						@save="onRowSave(row, $event)"
@@ -86,7 +86,7 @@
 				</div>
 			</section>
 
-			<NcButton type="secondary" data-test="add-rule" @click="addRule">
+			<NcButton variant="secondary" data-test="add-rule" @click="addRule">
 				<template #icon>
 					<Plus :size="18" />
 				</template>
@@ -120,7 +120,7 @@
 							data-test="preview-datetime" />
 					</div>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:disabled="preview.state.loading"
 						data-test="run-preview"
 						@click="runPreview">
@@ -192,17 +192,17 @@
 <script>
 import {
 	NcButton,
+	NcLoadingIcon,
 	NcSelectTags,
 	NcTextField,
-	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import Plus from 'vue-material-design-icons/Plus.vue'
 import Eye from 'vue-material-design-icons/Eye.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
-import { api } from '../../services/api.js'
-import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import VisibilityRuleRow from './VisibilityRuleRow.vue'
+import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
+import { api } from '../../services/api.js'
 
 export default {
 	name: 'ConditionalVisibilityEditor',
@@ -224,6 +224,7 @@ export default {
 			type: [Number, String],
 			default: null,
 		},
+
 		/** Group-id options for the group-rule / preview-audience pickers. */
 		availableGroups: {
 			type: Array,

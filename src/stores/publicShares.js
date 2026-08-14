@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-import { defineStore } from 'pinia'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 const baseUrl = generateUrl('/apps/launchpad')
 

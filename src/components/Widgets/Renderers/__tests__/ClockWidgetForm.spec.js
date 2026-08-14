@@ -8,8 +8,8 @@
  * identifiers; validate() never fails (no required fields).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import ClockWidgetForm from '../ClockWidgetForm.vue'
 
 beforeEach(() => {

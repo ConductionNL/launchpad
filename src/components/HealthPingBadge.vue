@@ -17,10 +17,10 @@
 </template>
 
 <script>
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
-import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
-import CloseCircleOutline from 'vue-material-design-icons/CloseCircleOutline.vue'
 import { translate as t } from '@nextcloud/l10n'
+import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
+import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
+import CloseCircleOutline from 'vue-material-design-icons/CloseCircleOutline.vue'
 import { fetchHealthPingBadge } from '../services/healthPingClient.js'
 
 /**
@@ -66,6 +66,7 @@ export default {
 			type: [Number, String],
 			default: null,
 		},
+
 		/**
 		 * The tile's configured ping interval in seconds — drives the
 		 * badge's own poll cadence. Clamped client-side to the same

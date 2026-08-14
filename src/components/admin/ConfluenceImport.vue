@@ -52,7 +52,7 @@
 
 			<div class="launchpad-confluence-import__actions">
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					:disabled="!selectedFile || running"
 					data-test="confluence-dry-run"
 					@click="runDryRun">
@@ -67,7 +67,7 @@
 				</NcButton>
 
 				<NcButton
-					type="primary"
+					variant="primary"
 					:disabled="!selectedFile || running"
 					data-test="confluence-import-submit"
 					@click="runImport">
@@ -155,8 +155,8 @@
 
 <script>
 import { NcButton } from '@conduction/nextcloud-vue'
-import Upload from 'vue-material-design-icons/Upload.vue'
 import Eye from 'vue-material-design-icons/Eye.vue'
+import Upload from 'vue-material-design-icons/Upload.vue'
 import { api } from '../../services/api.js'
 
 export default {

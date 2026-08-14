@@ -57,17 +57,17 @@
 </template>
 
 <script>
-import { NcLoadingIcon } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcLoadingIcon } from '@nextcloud/vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
-import WeatherSunny from 'vue-material-design-icons/WeatherSunny.vue'
-import WeatherPartlyCloudy from 'vue-material-design-icons/WeatherPartlyCloudy.vue'
 import WeatherCloudy from 'vue-material-design-icons/WeatherCloudy.vue'
 import WeatherFog from 'vue-material-design-icons/WeatherFog.vue'
+import WeatherLightning from 'vue-material-design-icons/WeatherLightning.vue'
+import WeatherPartlyCloudy from 'vue-material-design-icons/WeatherPartlyCloudy.vue'
 import WeatherPouring from 'vue-material-design-icons/WeatherPouring.vue'
 import WeatherRainy from 'vue-material-design-icons/WeatherRainy.vue'
 import WeatherSnowy from 'vue-material-design-icons/WeatherSnowy.vue'
-import WeatherLightning from 'vue-material-design-icons/WeatherLightning.vue'
+import WeatherSunny from 'vue-material-design-icons/WeatherSunny.vue'
 import WeatherWindy from 'vue-material-design-icons/WeatherWindy.vue'
 import { fetchWeatherReading } from '../../../services/weatherClient.js'
 
@@ -124,6 +124,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/**
 		 * The widget placement — only `placement.id` is used, to call the
 		 * per-placement weather endpoint.

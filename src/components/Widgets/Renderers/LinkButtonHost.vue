@@ -13,8 +13,8 @@
 		<CnLinkButtonWidget
 			:content="content"
 			:placement="placement"
-			@internal-action="onInternalAction"
-			@create-file="onCreateFile" />
+			@internalAction="onInternalAction"
+			@createFile="onCreateFile" />
 
 		<!--
 			`tabindex="-1"` + `@keydown.esc` is what makes this dialog
@@ -79,8 +79,8 @@
 </template>
 
 <script>
-import { translate as t } from '@nextcloud/l10n'
 import { CnLinkButtonWidget } from '@conduction/nextcloud-vue'
+import { translate as t } from '@nextcloud/l10n'
 import { useInternalActions } from '../../../composables/useInternalActions.js'
 
 // `@nextcloud/axios` / `@nextcloud/router` / `@nextcloud/dialogs` are loaded
@@ -107,6 +107,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** The placement (carries `id`). */
 		placement: {
 			type: Object,

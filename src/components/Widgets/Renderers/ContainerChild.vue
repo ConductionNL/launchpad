@@ -9,7 +9,7 @@
 		v-if="childRenderer"
 		:content="childContent"
 		:placement="placement"
-		:edit-mode="editMode"
+		:editMode="editMode"
 		v-bind="extraProps" />
 	<div v-else class="container-child container-child--unknown">
 		<span class="container-child__missing">{{ unknownLabel }}</span>
@@ -19,8 +19,8 @@
 <script>
 import { getWidgetTypeEntry } from '../../../constants/widgetRegistry.js'
 import {
-	buildWidgetDataProvide,
 	buildRendererExtraProps,
+	buildWidgetDataProvide,
 } from '../../../services/widgetDataAdapters.js'
 
 /**
@@ -64,6 +64,7 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		editMode: {
 			type: Boolean,
 			default: false,

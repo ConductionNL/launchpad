@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import RolePermissionsSection from '../RolePermissionsSection.vue'
-import RoleLayoutDefaultsSection from '../RoleLayoutDefaultsSection.vue'
 import ActionAuthMatrix from '../ActionAuthMatrix.vue'
+import RoleLayoutDefaultsSection from '../RoleLayoutDefaultsSection.vue'
+import RolePermissionsSection from '../RolePermissionsSection.vue'
 
 /**
  * RolesPermissionsTab — Beheer ▸ Roles & Permissions tab (permissions spec).

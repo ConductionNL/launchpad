@@ -9,9 +9,9 @@
  *  - signing off records the receipt (via the store) and emits `acknowledged`
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AcknowledgementPrompt from '../AcknowledgementPrompt.vue'
 import { api } from '../../services/api.js'
 

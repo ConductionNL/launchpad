@@ -74,6 +74,7 @@ export default {
 			from: 'runtimeManifest',
 			default: null,
 		},
+
 		/**
 		 * Reactive Vue.observable tracking whether the manifest fetch is
 		 * in flight. False once the fetch resolves or fails.
@@ -84,6 +85,19 @@ export default {
 			from: 'manifestLoading',
 			default: () => ({ value: false }),
 		},
+	},
+
+	/** @spec openspec/specs/runtime-shell/spec.md */
+	provide() {
+		// Re-provide the reactive manifest refs so deeply nested
+		// descendants don't need to prop-drill through WorkspaceApp/Views.
+		// `cnIconCatalogue` feeds CnIconBrowser instances inside widget config
+		// forms (which can't easily receive an `icons` prop) the full MDI set.
+		return {
+			runtimeManifest: this.runtimeManifest,
+			manifestLoading: this.manifestLoading,
+			cnIconCatalogue: ICON_CATALOGUE,
+		}
 	},
 
 	methods: {
@@ -113,19 +127,6 @@ export default {
 				main.focus()
 			}
 		},
-	},
-
-	/** @spec openspec/specs/runtime-shell/spec.md */
-	provide() {
-		// Re-provide the reactive manifest refs so deeply nested
-		// descendants don't need to prop-drill through WorkspaceApp/Views.
-		// `cnIconCatalogue` feeds CnIconBrowser instances inside widget config
-		// forms (which can't easily receive an `icons` prop) the full MDI set.
-		return {
-			runtimeManifest: this.runtimeManifest,
-			manifestLoading: this.manifestLoading,
-			cnIconCatalogue: ICON_CATALOGUE,
-		}
 	},
 }
 </script>

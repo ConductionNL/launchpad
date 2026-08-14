@@ -1,0 +1,348 @@
+{
+  "src/__tests__/DashboardSwitcherSidebar.test.js": {
+    "n/no-unpublished-import": {
+      "count": 1
+    }
+  },
+  "src/__tests__/Views.test.js": {
+    "n/no-unpublished-import": {
+      "count": 1
+    }
+  },
+  "src/__tests__/internalActions.test.js": {
+    "n/no-unpublished-import": {
+      "count": 2
+    }
+  },
+  "src/__tests__/widgetBridge.test.js": {
+    "n/no-unpublished-import": {
+      "count": 2
+    }
+  },
+  "src/components/AcknowledgementPrompt.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/HealthPingBadge.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/TileWidget.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/components/WidgetRenderer.vue": {
+    "no-console": {
+      "count": 19
+    }
+  },
+  "src/components/Widgets/ConditionalVisibilityEditor.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-console": {
+      "count": 3
+    },
+    "vue/custom-event-name-casing": {
+      "count": 3
+    }
+  },
+  "src/components/Widgets/Renderers/ClockWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/Widgets/Renderers/ClockWidgetForm.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/Renderers/ContainerWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/Renderers/FilesWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/Widgets/Renderers/IframeWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/Renderers/LinkButtonHost.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/Renderers/LiveTileWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/Renderers/NewsWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/Renderers/WeatherWidget.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/Widgets/WidgetContextMenu.vue": {
+    "vue/custom-event-name-casing": {
+      "count": 1
+    }
+  },
+  "src/components/Workspace/DashboardRowActions.vue": {
+    "eqeqeq": {
+      "count": 1
+    },
+    "vue/custom-event-name-casing": {
+      "count": 4
+    }
+  },
+  "src/components/Workspace/DashboardSwitcherSidebar.vue": {
+    "eqeqeq": {
+      "count": 1
+    },
+    "vue/custom-event-name-casing": {
+      "count": 6
+    }
+  },
+  "src/components/admin/ActionAuthMatrix.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/components/admin/AdminAnalytics.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/components/admin/AdminDemoData.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/admin/AdminSettings.vue": {
+    "no-console": {
+      "count": 5
+    }
+  },
+  "src/components/admin/BeheerTabs.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/components/admin/ConditionalVisibilityOverview.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/components/admin/DashboardBulkOperations.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/admin/DashboardSharingPolicy.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/components/admin/GroupPriorityOrder.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/components/admin/HealthPanel.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/admin/LegacyWidgetBridgeToggle.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/components/admin/OrgNavigationEditorRow.vue": {
+    "vue/custom-event-name-casing": {
+      "count": 6
+    }
+  },
+  "src/components/admin/PrometheusMetricsPanel.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/components/admin/RoleLayoutDefaultsSection.vue": {
+    "no-console": {
+      "count": 3
+    }
+  },
+  "src/components/admin/RolePermissionsSection.vue": {
+    "no-console": {
+      "count": 3
+    }
+  },
+  "src/components/admin/__tests__/OrgNavigationEditor.spec.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/components/admin/tabs/TemplatesPage.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/composables/useGridManager.js": {
+    "eqeqeq": {
+      "count": 1
+    },
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/composables/useTileClickTracking.js": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/dialogs/CreateGroupDashboardModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/dialogs/ManageGroupDashboardsModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/dialogs/PublicSharePasswordDialog.vue": {
+    "@nextcloud/no-deprecated-library-props": {
+      "count": 1
+    },
+    "jsdoc/require-param-type": {
+      "count": 1
+    }
+  },
+  "src/modals/AcknowledgementReportModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/modals/DashboardConfigModal.vue": {
+    "no-console": {
+      "count": 8
+    },
+    "vue/custom-event-name-casing": {
+      "count": 1
+    }
+  },
+  "src/modals/SetupWizardModal.vue": {
+    "no-console": {
+      "count": 2
+    }
+  },
+  "src/modals/TemplateEditorModal.vue": {
+    "no-console": {
+      "count": 1
+    }
+  },
+  "src/modals/TemplateResyncModal.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/modals/VisibilityRulesModal.vue": {
+    "vue/custom-event-name-casing": {
+      "count": 3
+    }
+  },
+  "src/services/graphqlClient.js": {
+    "jsdoc/check-tag-names": {
+      "count": 1
+    }
+  },
+  "src/services/healthPingClient.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/services/iframeClient.js": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/services/liveTileClient.js": {
+    "no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/services/spendAnalytics.js": {
+    "jsdoc/check-tag-names": {
+      "count": 1
+    },
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/services/widgetBridge.js": {
+    "no-console": {
+      "count": 12
+    }
+  },
+  "src/stores/dashboard.js": {
+    "no-console": {
+      "count": 32
+    }
+  },
+  "src/stores/tiles.js": {
+    "no-console": {
+      "count": 4
+    }
+  },
+  "src/stores/widgets.js": {
+    "no-console": {
+      "count": 5
+    }
+  },
+  "src/utils/loadInitialState.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/utils/mergeManifestFragments.js": {
+    "no-undef": {
+      "count": 1
+    }
+  },
+  "src/views/Views.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "eqeqeq": {
+      "count": 2
+    },
+    "no-console": {
+      "count": 13
+    },
+    "vue/multi-word-component-names": {
+      "count": 1
+    }
+  },
+  "src/views/WorkspaceApp.vue": {
+    "no-console": {
+      "count": 1
+    }
+  }
+}

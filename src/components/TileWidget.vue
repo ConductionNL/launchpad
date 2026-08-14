@@ -21,9 +21,9 @@
 		     flow. Wrapping matches the shared nc-vue CnDashboardPage pattern. -->
 		<div v-if="editMode" class="tile-widget__edit">
 			<CnWidgetEditCog
-				:menu-label="t('launchpad', 'Tile menu')"
-				:edit-label="t('launchpad', 'Edit tile')"
-				:delete-label="t('launchpad', 'Delete tile')"
+				:menuLabel="t('launchpad', 'Tile menu')"
+				:editLabel="t('launchpad', 'Edit tile')"
+				:deleteLabel="t('launchpad', 'Delete tile')"
 				@edit="$emit('edit')"
 				@remove="$emit('remove')" />
 		</div>
@@ -32,7 +32,7 @@
 		     nothing) unless a ping is actually configured for this tile. -->
 		<HealthPingBadge
 			v-if="healthPingEnabled"
-			:placement-id="placementId"
+			:placementId="placementId"
 			:interval="pingInterval" />
 
 		<a
@@ -53,7 +53,8 @@
 			<div v-else class="tile-widget__icon">
 				<span
 					v-if="tile.iconType === 'class'"
-					:class="['icon', tile.icon]" />
+					class="icon"
+					:class="[tile.icon]" />
 				<img
 					v-else-if="tile.iconType === 'url'"
 					:src="tile.icon"
@@ -84,8 +85,8 @@
 </template>
 
 <script>
+import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { CnWidgetEditCog, CnDashboardIcon } from '@conduction/nextcloud-vue'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 
@@ -105,10 +106,12 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		editMode: {
 			type: Boolean,
 			default: false,
 		},
+
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}
 		 * so it can call the per-placement health-ping endpoint.
@@ -119,6 +122,7 @@ export default {
 			type: [Number, String],
 			default: null,
 		},
+
 		/**
 		 * Whether this tile has a health ping configured
 		 * (REQ-HPING-004 "Ping disabled shows no badge").
@@ -129,6 +133,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		/**
 		 * The tile's configured ping interval in seconds.
 		 *

@@ -11,7 +11,7 @@
  *  - returns `unknown_error` when the body is malformed
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/router', () => ({
 	generateUrl: (path) => `http://localhost${path}`,

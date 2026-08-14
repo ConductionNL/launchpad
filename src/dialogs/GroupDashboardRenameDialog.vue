@@ -19,10 +19,10 @@
 				@keyup.enter="submit" />
 		</template>
 		<template #actions>
-			<NcButton type="tertiary" @click="$emit('update:open', false)">
+			<NcButton variant="tertiary" @click="$emit('update:open', false)">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
-			<NcButton type="primary" :disabled="!canSubmit" @click="submit">
+			<NcButton variant="primary" :disabled="!canSubmit" @click="submit">
 				{{ t('launchpad', 'Rename') }}
 			</NcButton>
 		</template>
@@ -59,6 +59,7 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+
 		currentName: {
 			type: String,
 			default: '',

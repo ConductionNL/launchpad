@@ -8,20 +8,18 @@
  * `templates/public.php` page served at `/apps/launchpad/s/{token}`.
  */
 
-import './publicPath.js'
-
-import { createApp, h } from 'vue'
-import { createPinia } from 'pinia'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-
-import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
-import 'gridstack/dist/gridstack.min.css'
-
 // Populate the shared dashboard widget catalog so shared placements render.
 // Widget types self-register via import-time side effects that `sideEffects`
 // tree-shaking (ADR-061) would otherwise drop; calling this no-op forces the
 // aggregator — and every widget registration — into the bundle. See main.js.
 import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
+import { createPinia } from 'pinia'
+import { createApp, h } from 'vue'
+import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
+
+import './publicPath.js'
+import 'gridstack/dist/gridstack.min.css'
 registerBuiltinDashboardWidgets()
 
 // Vue 3 has no global Vue constructor — pinia and t/n are installed on the

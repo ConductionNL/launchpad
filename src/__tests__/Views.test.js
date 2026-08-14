@@ -4,9 +4,9 @@
  */
 
 /* eslint-disable n/no-unpublished-import */
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { setActivePinia, createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Global mocks

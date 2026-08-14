@@ -8,7 +8,7 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
-	<NcDialog :name="t('launchpad', 'Password required')" :can-close="false">
+	<NcDialog :name="t('launchpad', 'Password required')" :canClose="false">
 		<template #default>
 			<p>
 				{{
@@ -28,7 +28,7 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 			</NcNoteCard>
 		</template>
 		<template #actions>
-			<NcButton type="primary" :disabled="loading" @click="submit">
+			<NcButton variant="primary" :disabled="loading" @click="submit">
 				{{ t('launchpad', 'Unlock') }}
 			</NcButton>
 		</template>
@@ -36,8 +36,8 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
 import { translate as t } from '@nextcloud/l10n'
+import { defineComponent, ref } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
@@ -59,6 +59,7 @@ export default defineComponent({
 			type: String,
 			default: null,
 		},
+
 		/** Whether an unlock request is in flight. */
 		loading: {
 			type: Boolean,
@@ -77,6 +78,7 @@ export default defineComponent({
 	 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-005
 	 * @param {object} props the component props.
 	 * @param {object} ctx the setup context (`emit`).
+	 * @param ctx.emit
 	 * @return {object} the template bindings.
 	 */
 	setup(props, { emit }) {

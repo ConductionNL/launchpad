@@ -183,6 +183,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/**
 		 * Placement id used for the events endpoint (when present). When
 		 * absent — for example in standalone preview / story mode — the
@@ -374,6 +375,7 @@ export default {
 				this.fetchEvents()
 			},
 		},
+
 		/** @spec openspec/specs/calendar-widget/spec.md */
 		activeMode() {
 			this.fetchEvents()

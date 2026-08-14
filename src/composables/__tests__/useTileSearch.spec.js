@@ -6,15 +6,15 @@
  * REQ-QSEARCH-001..004).
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	FALLBACK_TARGET_NONE,
 	FALLBACK_TARGET_UNIFIED_SEARCH,
-	MATCH_RANK,
 	isCtrlKFocusShortcut,
 	isSlashFocusShortcut,
 	isTypingTarget,
 	isValidFallbackTemplate,
+	MATCH_RANK,
 	matchRank,
 	normalizeForSearch,
 	rankItems,

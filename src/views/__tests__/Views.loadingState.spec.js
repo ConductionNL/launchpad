@@ -13,9 +13,9 @@
  * state stays out of the DOM.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => {
 	const actual = await importOriginal()

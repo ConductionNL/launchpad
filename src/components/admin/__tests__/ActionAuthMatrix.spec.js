@@ -13,8 +13,8 @@
  * that ordinary users have access, and cannot revoke it.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ActionAuthMatrix from '../ActionAuthMatrix.vue'
 import { api } from '../../../services/api.js'
 

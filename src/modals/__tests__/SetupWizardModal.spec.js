@@ -12,8 +12,8 @@
  * pulling its mount-time API call into the wizard test scope.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SetupWizardModal from '../SetupWizardModal.vue'
 import { api } from '../../services/api.js'
 

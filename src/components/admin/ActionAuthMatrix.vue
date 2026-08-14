@@ -49,7 +49,7 @@
 							:key="`${action}-${group}`"
 							class="launchpad-admin__matrix-cell">
 							<NcCheckboxRadioSwitch
-								:model-value="isChecked(action, group)"
+								:modelValue="isChecked(action, group)"
 								:disabled="group === 'admin'"
 								:aria-label="
 									t(
@@ -67,7 +67,7 @@
 
 		<div class="launchpad-admin__matrix-actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="admin-action-matrix-save"
 				:disabled="loading || saving"
 				@click="save">

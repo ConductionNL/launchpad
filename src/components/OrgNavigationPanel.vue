@@ -43,7 +43,7 @@
 					:key="node.id"
 					:node="node"
 					:level="1"
-					:current-url="currentUrl"
+					:currentUrl="currentUrl"
 					@navigate="onNavigate" />
 			</ul>
 		</div>
@@ -52,7 +52,6 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-
 import OrgNavigationItem from './OrgNavigationItem.vue'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 
@@ -128,6 +127,7 @@ export default {
 		 * (REQ-ONAV-010). The link itself handles the actual
 		 * navigation via the standard `<a href>` semantics emitted by
 		 * `OrgNavigationItem`.
+		 *
 		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
 		onNavigate() {

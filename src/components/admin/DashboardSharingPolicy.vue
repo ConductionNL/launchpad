@@ -18,10 +18,10 @@
 		<div class="sharing-policy__field">
 			<NcSelect
 				v-model="defaultPermission"
-				:input-label="t('launchpad', 'Default share permission level')"
+				:inputLabel="t('launchpad', 'Default share permission level')"
 				:options="permissionOptions"
 				label="label"
-				track-by="id"
+				trackBy="id"
 				:clearable="false"
 				data-test="sharing-policy-permission"
 				@update:modelValue="save" />
@@ -90,6 +90,7 @@ export default {
 				id: o.id,
 				label: t('launchpad', o.label),
 			})),
+
 			defaultPermission: null,
 			forcedGroups: [],
 		}

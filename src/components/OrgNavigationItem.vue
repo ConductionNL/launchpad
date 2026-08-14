@@ -79,7 +79,7 @@
 				:key="child.id"
 				:node="child"
 				:level="level + 1"
-				:current-url="currentUrl"
+				:currentUrl="currentUrl"
 				@navigate="$emit('navigate')" />
 		</ul>
 	</li>
@@ -119,10 +119,12 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		level: {
 			type: Number,
 			default: 1,
 		},
+
 		currentUrl: {
 			type: String,
 			default: '',

@@ -8,7 +8,7 @@
 		<div class="metrics-panel__header">
 			<h3>{{ t('launchpad', 'Prometheus metrics') }}</h3>
 			<NcButton
-				type="secondary"
+				variant="secondary"
 				:disabled="!body"
 				data-test="metrics-copy"
 				@click="copy">

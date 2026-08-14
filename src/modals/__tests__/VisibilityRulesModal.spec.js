@@ -14,8 +14,8 @@
  * its own `close`.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import VisibilityRulesModal from '../VisibilityRulesModal.vue'
 
 const ConditionalVisibilityEditorStub = {

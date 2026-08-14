@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-import { describe, it, expect } from 'vitest'
 import * as mdi from '@mdi/js'
+import { describe, expect, it } from 'vitest'
 import { ICON_CATALOGUE, normaliseIconValue } from '../iconCatalogue.js'
 
 describe('ICON_CATALOGUE', () => {

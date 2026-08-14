@@ -28,7 +28,7 @@
 		     (top-right) is the only entry point. -->
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
-				type="tertiary"
+				variant="tertiary"
 				:aria-label="t('launchpad', 'Open menu')"
 				class="workspace-shell__hamburger"
 				@click="toggleSidebar">
@@ -55,7 +55,7 @@
 		<div v-if="hasActiveDashboard" class="workspace-shell__search-bar">
 			<RuntimeShellSearch
 				:items="searchableTiles"
-				:fallback-target="quicksearchFallbackTarget"
+				:fallbackTarget="quicksearchFallbackTarget"
 				@open="onSearchOpen"
 				@filter="onSearchFilter"
 				@fallback="onSearchFallback"
@@ -103,17 +103,15 @@
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
+import { NcButton } from '@nextcloud/vue'
 import { mapState } from 'pinia'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
-
-import Views from './Views.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 import RuntimeShellSearch from '../components/RuntimeShellSearch.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
-
+import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 import { useWidgetStore } from '../stores/widgets.js'
@@ -161,46 +159,57 @@ export default {
 			from: 'isAdmin',
 			default: false,
 		},
+
 		injectedDashboardSource: {
 			from: 'dashboardSource',
 			default: 'group',
 		},
+
 		injectedActiveDashboardId: {
 			from: 'activeDashboardId',
 			default: '',
 		},
+
 		injectedAllowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
 		},
+
 		injectedLayout: {
 			from: 'layout',
 			default: () => [],
 		},
+
 		injectedWidgets: {
 			from: 'widgets',
 			default: () => [],
 		},
+
 		injectedUserDashboards: {
 			from: 'userDashboards',
 			default: () => [],
 		},
+
 		injectedGroupDashboards: {
 			from: 'groupDashboards',
 			default: () => [],
 		},
+
 		injectedPrimaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
 		},
+
 		injectedEffectiveFooter: {
 			from: 'effectiveFooter',
 			default: null,
 		},
+
 		injectedLocale: {
 			from: 'viewerLocale',
 			default: 'en',
 		},
+
 		/**
 		 * tile-quick-search REQ-QSEARCH-004 — the admin-configured no-match
 		 * fallback target. Optional initial-state key (mirrors
@@ -317,10 +326,7 @@ export default {
 			const match = all.find(
 				(d) => d && d.id === this.injectedActiveDashboardId,
 			)
-			if (
-				match
-				&& Object.prototype.hasOwnProperty.call(match, 'effectiveFooter')
-			) {
+			if (match && Object.hasOwn(match, 'effectiveFooter')) {
 				return match.effectiveFooter
 			}
 			return this.injectedEffectiveFooter

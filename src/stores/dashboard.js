@@ -3,16 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-import { defineStore } from 'pinia'
 import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
-
-import { api } from '../services/api.js'
+import { defineStore } from 'pinia'
 import {
-	placeNewWidget,
-	DEFAULT_W,
 	DEFAULT_H,
+	DEFAULT_W,
+	placeNewWidget,
 } from '../composables/useGridManager.js'
+import { api } from '../services/api.js'
 
 /**
  * Stable backend error code returned by `POST /api/dashboard` when the admin

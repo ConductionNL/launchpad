@@ -117,7 +117,7 @@
 							)
 						}}
 					</p>
-					<GroupPriorityOrder :initial-active="[]" />
+					<GroupPriorityOrder :initialActive="[]" />
 				</div>
 
 				<!-- Step 4 — Demo data (REQ-WIZ-005; delivered by demo-data-showcases sibling). -->
@@ -191,7 +191,7 @@
 
 			<footer class="setup-wizard__footer">
 				<NcButton
-					type="tertiary"
+					variant="tertiary"
 					:disabled="currentStep <= 1"
 					data-test="setup-wizard-back"
 					@click="onBack">
@@ -199,13 +199,13 @@
 				</NcButton>
 				<NcButton
 					v-if="!isFinalStep"
-					type="secondary"
+					variant="secondary"
 					data-test="setup-wizard-skip"
 					@click="onSkip">
 					{{ t('launchpad', 'Skip') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					:disabled="loading"
 					data-test="setup-wizard-next"
 					@click="onNext">
@@ -222,8 +222,8 @@
 
 <script>
 import { NcButton, NcModal } from '@conduction/nextcloud-vue'
-import GroupPriorityOrder from '../components/admin/GroupPriorityOrder.vue'
 import AdminDemoData from '../components/admin/AdminDemoData.vue'
+import GroupPriorityOrder from '../components/admin/GroupPriorityOrder.vue'
 import { api } from '../services/api.js'
 
 /**

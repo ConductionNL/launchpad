@@ -9,8 +9,8 @@
  * never perform a real network call.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import IframeWidgetForm from '../IframeWidgetForm.vue'
 import { validateIframeUrl } from '../../../../services/iframeClient.js'
 
@@ -22,9 +22,7 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name)
-					? vars[name]
-					: `{${name}}`,
+				Object.hasOwn(vars, name) ? vars[name] : `{${name}}`,
 			)
 		}
 		return key

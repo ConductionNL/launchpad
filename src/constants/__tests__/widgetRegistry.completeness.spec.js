@@ -25,7 +25,7 @@
  * to add (or remove on deprecation).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key

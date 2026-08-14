@@ -7,7 +7,7 @@
 	<CnChartWidget
 		:type="chartType"
 		:data-source="dataSource"
-		:widget-id="widgetId"
+		:widgetId="widgetId"
 		v-bind="passthroughProps" />
 </template>
 
@@ -51,6 +51,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** The placement record (used for a stable widget id). */
 		placement: {
 			type: Object,

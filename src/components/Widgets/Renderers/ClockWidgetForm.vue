@@ -18,9 +18,9 @@
 		     were renamed to `modelValue` + `update:modelValue`; the old names
 		     fail silently under Vue 3. -->
 		<NcSelect
-			:model-value="style"
+			:modelValue="style"
 			:options="styleOptions"
-			:input-label="t('launchpad', 'Style')"
+			:inputLabel="t('launchpad', 'Style')"
 			:reduce="(option) => option.value"
 			label="label"
 			:clearable="false"
@@ -28,16 +28,16 @@
 
 		<template v-if="style === 'digital'">
 			<NcSelect
-				:model-value="hourFormat"
+				:modelValue="hourFormat"
 				:options="hourFormatOptions"
-				:input-label="t('launchpad', 'Hour format')"
+				:inputLabel="t('launchpad', 'Hour format')"
 				:reduce="(option) => option.value"
 				label="label"
 				:clearable="false"
 				@update:modelValue="updateField('hourFormat', $event)" />
 
 			<NcCheckboxRadioSwitch
-				:model-value="showDate"
+				:modelValue="showDate"
 				type="switch"
 				@update:modelValue="updateField('showDate', $event)">
 				{{ t('launchpad', 'Show date') }}
@@ -45,9 +45,9 @@
 		</template>
 
 		<NcSelect
-			:model-value="timezone"
+			:modelValue="timezone"
 			:options="timezoneOptions"
-			:input-label="t('launchpad', 'Timezone')"
+			:inputLabel="t('launchpad', 'Timezone')"
 			:placeholder="t('launchpad', 'Follow device timezone')"
 			:reduce="(option) => option.value"
 			label="label"
@@ -56,8 +56,8 @@
 </template>
 
 <script>
-import { NcSelect, NcCheckboxRadioSwitch } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcCheckboxRadioSwitch, NcSelect } from '@nextcloud/vue'
 
 const DEFAULT_CONTENT = Object.freeze({
 	style: 'digital',
@@ -133,6 +133,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		/**
 		 * Initial content values — used when not editing.
 		 *

@@ -17,34 +17,34 @@
 			     `modelValue` + `update:modelValue`; the old pair is a
 			     silent no-op under Vue 3. Listener stays camelCase. -->
 			<NcTextField
-				:model-value="row.name"
+				:modelValue="row.name"
 				:label="t('launchpad', 'Name')"
 				required
 				@update:modelValue="updateRow('name', $event)" />
 			<NcTextField
-				:model-value="row.groupId"
+				:modelValue="row.groupId"
 				:label="t('launchpad', 'Nextcloud group ID')"
 				required
 				:disabled="!!row.id"
 				@update:modelValue="updateRow('groupId', $event)" />
 			<NcTextField
-				:model-value="row.description"
+				:modelValue="row.description"
 				:label="t('launchpad', 'Description (optional)')"
 				@update:modelValue="updateRow('description', $event)" />
 			<NcTextField
-				:model-value="allowedWidgetsCsv"
+				:modelValue="allowedWidgetsCsv"
 				:label="t('launchpad', 'Allowed widget IDs (comma separated)')"
 				@update:modelValue="$emit('update:allowedWidgetsCsv', $event)" />
 			<NcTextField
-				:model-value="deniedWidgetsCsv"
+				:modelValue="deniedWidgetsCsv"
 				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
 				@update:modelValue="$emit('update:deniedWidgetsCsv', $event)" />
 			<div class="launchpad-admin__editor-actions">
-				<NcButton type="tertiary" @click="$emit('close')">
+				<NcButton variant="tertiary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					:disabled="saving || !row.name || !row.groupId"
 					@click="$emit('save')">
 					{{ t('launchpad', 'Save') }}
@@ -71,14 +71,17 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		allowedWidgetsCsv: {
 			type: String,
 			default: '',
 		},
+
 		deniedWidgetsCsv: {
 			type: String,
 			default: '',
 		},
+
 		saving: {
 			type: Boolean,
 			default: false,

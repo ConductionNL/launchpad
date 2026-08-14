@@ -11,8 +11,8 @@
  *  - no pointer/mouse events are required to drive any of this
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import WidgetMovePanel from '../WidgetMovePanel.vue'
 
 const stubs = {

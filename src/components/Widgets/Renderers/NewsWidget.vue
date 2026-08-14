@@ -46,7 +46,7 @@
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						:alt="''" />
+						alt="" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">{{ item.title }}</h4>
 						<!-- Feed summaries carry inline markup REQ-NEWS-005
@@ -78,7 +78,7 @@
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						:alt="''" />
+						alt="" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">
 							{{ item.title }}
@@ -224,6 +224,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** Placement entity carrying the id we hit the API with. */
 		placement: {
 			type: Object,

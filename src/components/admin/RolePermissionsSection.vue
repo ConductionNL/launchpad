@@ -60,7 +60,7 @@
 				</div>
 				<div class="launchpad-admin__role-actions">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
@@ -68,7 +68,7 @@
 						</template>
 					</NcButton>
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="confirmDelete(row)">
 						<template #icon>
@@ -79,7 +79,7 @@
 			</div>
 		</div>
 
-		<NcButton type="primary" data-testid="admin-add-role" @click="openCreate">
+		<NcButton variant="primary" data-testid="admin-add-role" @click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>
@@ -89,12 +89,12 @@
 		<RolePermissionEditorModal
 			v-if="showEditor"
 			:row="editorRow"
-			:allowed-widgets-csv="allowedWidgetsCsv"
-			:denied-widgets-csv="deniedWidgetsCsv"
+			:allowedWidgetsCsv="allowedWidgetsCsv"
+			:deniedWidgetsCsv="deniedWidgetsCsv"
 			:saving="store.saving"
 			@update:row="editorRow = $event"
-			@update:allowed-widgets-csv="allowedWidgetsCsv = $event"
-			@update:denied-widgets-csv="deniedWidgetsCsv = $event"
+			@update:allowedWidgetsCsv="allowedWidgetsCsv = $event"
+			@update:deniedWidgetsCsv="deniedWidgetsCsv = $event"
 			@save="save"
 			@close="closeEditor" />
 
@@ -102,7 +102,7 @@
 		<RolePermissionDeleteDialog
 			v-if="showDeleteDialog"
 			:open="showDeleteDialog"
-			:group-id="deleteTarget ? deleteTarget.groupId : ''"
+			:groupId="deleteTarget ? deleteTarget.groupId : ''"
 			@update:open="showDeleteDialog = $event"
 			@confirm="doDelete" />
 	</div>
@@ -111,11 +111,11 @@
 <script>
 import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
-import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import RolePermissionDeleteDialog from '../../dialogs/RolePermissionDeleteDialog.vue'
+import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 
 export default {
@@ -171,6 +171,7 @@ export default {
 				priorityWeights: {},
 			}
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		openCreate() {
 			this.editorRow = this.emptyRow()
@@ -178,6 +179,7 @@ export default {
 			this.deniedWidgetsCsv = ''
 			this.showEditor = true
 		},
+
 		/**
 		 * Open the editor pre-filled from an existing role-permission row.
 		 *
@@ -195,10 +197,12 @@ export default {
 			this.deniedWidgetsCsv = (row.deniedWidgets ?? []).join(', ')
 			this.showEditor = true
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		closeEditor() {
 			this.showEditor = false
 		},
+
 		/**
 		 * Split a comma-separated input into trimmed, non-empty entries.
 		 *
@@ -212,6 +216,7 @@ export default {
 				.map((x) => x.trim())
 				.filter((x) => x.length > 0)
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		async save() {
 			try {
@@ -229,6 +234,7 @@ export default {
 				console.error('Failed to save role permission', e)
 			}
 		},
+
 		/**
 		 * Stage a row for deletion and open the confirmation dialog.
 		 *
@@ -239,6 +245,7 @@ export default {
 			this.deleteTarget = row
 			this.showDeleteDialog = true
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-5 */
 		async doDelete() {
 			if (this.deleteTarget === null) {

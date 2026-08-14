@@ -260,6 +260,7 @@ export default {
 				&& this.selectedUuids.length === this.dashboards.length
 			)
 		},
+
 		/** @spec openspec/specs/dashboard-bulk-operations/spec.md */
 		someSelected() {
 			return this.selectedUuids.length > 0
@@ -329,14 +330,17 @@ export default {
 					'About to delete {n} dashboards. This cannot be undone.',
 					{ n: this.selectedUuids.length },
 				),
+
 				move: t('launchpad', 'About to re-parent {n} dashboards.', {
 					n: this.selectedUuids.length,
 				}),
+
 				status: t(
 					'launchpad',
 					'About to update the publication status of {n} dashboards.',
 					{ n: this.selectedUuids.length },
 				),
+
 				reindex: t(
 					'launchpad',
 					'About to reindex {n} dashboards for unified search.',

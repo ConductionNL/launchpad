@@ -11,12 +11,10 @@
  * Provided values are plain (non-reactive) snapshots (REQ-INIT-005).
  */
 
-import './publicPath.js'
-
-import { createApp, h } from 'vue'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { createPinia } from 'pinia'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-
+import { createApp, h } from 'vue'
+import AdminSettings from './components/admin/AdminSettings.vue'
 // Install the OCA.Dashboard shim before anything else runs. Rendering this
 // admin page calls WidgetService::getAvailableWidgets() server-side, which goes
 // through NC's IManager::getWidgets() — and that loads every dashboard widget's
@@ -26,13 +24,13 @@ import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 // workspace entry (where it loads via the widgets store) so the injected widget
 // bundles find a register() to call instead of throwing on undefined OCA.Dashboard.
 import { widgetBridge } from './services/widgetBridge.js'
-
-import AdminSettings from './components/admin/AdminSettings.vue'
 import { loadInitialState } from './utils/loadInitialState.js'
+
+import './publicPath.js'
 
 // Reference the imported singleton so its side-effecting construction is not
 // tree-shaken / flagged as an unused import.
-// eslint-disable-next-line no-void
+
 void widgetBridge
 
 // Vue 3 has no global Vue constructor — t/n are installed as an app-level

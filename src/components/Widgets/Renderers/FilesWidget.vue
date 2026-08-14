@@ -213,16 +213,19 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** Placement entity (provides `id` for endpoint scoping). */
 		placement: {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** Whether the dashboard shell is in admin mode. */
 		isAdmin: {
 			type: Boolean,
 			default: false,
 		},
+
 		/** Whether the dashboard shell is in edit mode. */
 		canEdit: {
 			type: Boolean,

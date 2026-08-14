@@ -6,7 +6,7 @@
  * OpenSpec change builds never collide on the shared src/manifest.json.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { applyManifestFragments } from '../utils/mergeManifestFragments.js'
 
 describe('applyManifestFragments (ADR-037)', () => {

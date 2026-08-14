@@ -73,13 +73,13 @@
 		     scoped slot; a v-for in the default slot throws "draggable element
 		     must have an item slot" at render. `item-key` replaces the manual
 		     :key binding. -->
-		<draggable
+		<Draggable
 			:list="workingTree"
 			tag="ul"
-			item-key="id"
+			itemKey="id"
 			class="org-nav-editor__tree"
 			handle=".org-nav-row__handle"
-			ghost-class="org-nav-row__ghost"
+			ghostClass="org-nav-row__ghost"
 			:animation="150">
 			<template #item="{ element: node, index: idx }">
 				<OrgNavigationEditorRow
@@ -87,15 +87,15 @@
 					:level="1"
 					:index="idx"
 					:siblings="workingTree"
-					:max-depth="maxDepth"
+					:maxDepth="maxDepth"
 					:groups="groups"
 					@update="onUpdate"
 					@delete="onDelete"
-					@move-up="moveUp"
-					@move-down="moveDown"
-					@add-child="addChild" />
+					@moveUp="moveUp"
+					@moveDown="moveDown"
+					@addChild="addChild" />
 			</template>
-		</draggable>
+		</Draggable>
 
 		<p v-if="workingTree.length === 0" class="org-nav-editor__empty">
 			{{
@@ -115,11 +115,10 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
-
 import OrgNavigationEditorRow from './OrgNavigationEditorRow.vue'
 import {
-	useOrgNavigationStore,
 	ORG_NAV_POSITIONS,
+	useOrgNavigationStore,
 } from '../../stores/orgNavigation.js'
 
 /**
@@ -145,7 +144,7 @@ export default {
 
 	components: {
 		OrgNavigationEditorRow,
-		draggable,
+		Draggable: draggable,
 	},
 
 	props: {
@@ -244,6 +243,7 @@ export default {
 					kind === 'section'
 						? t('launchpad', 'New section')
 						: t('launchpad', 'New link'),
+
 				icon: null,
 				url: kind === 'section' ? null : '/',
 				openInNewTab: false,

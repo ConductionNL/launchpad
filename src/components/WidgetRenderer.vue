@@ -21,17 +21,17 @@
 		<TileWidget
 			v-else-if="isTileWidget && tileData"
 			:tile="tileData"
-			:placement-id="placement.id"
-			:health-ping-enabled="normalizedContent.healthPingEnabled === true"
-			:ping-interval="normalizedContent.pingInterval" />
+			:placementId="placement.id"
+			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
+			:pingInterval="normalizedContent.pingInterval" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">
 			<NcDashboardWidget
 				:items="widgetItems"
-				:show-more-url="widget.widgetUrl"
+				:showMoreUrl="widget.widgetUrl"
 				:loading="loading || itemsLoading"
-				:round-icons="widget.itemIconsRound">
+				:roundIcons="widget.itemIconsRound">
 				<template #empty-content>
 					<NcEmptyContent
 						v-if="emptyContentMessage"
@@ -70,17 +70,17 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
-import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import { mapActions, storeToRefs } from 'pinia'
-import { useWidgetStore } from '../stores/widgets.js'
-import { useTileStore } from '../stores/tiles.js'
-import { widgetBridge } from '../services/widgetBridge.js'
+import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import TileWidget from './TileWidget.vue'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import { widgetBridge } from '../services/widgetBridge.js'
 import {
-	buildWidgetDataProvide,
 	buildRendererExtraProps,
+	buildWidgetDataProvide,
 } from '../services/widgetDataAdapters.js'
+import { useTileStore } from '../stores/tiles.js'
+import { useWidgetStore } from '../stores/widgets.js'
 
 export default {
 	name: 'WidgetRenderer',
@@ -111,6 +111,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		placement: {
 			type: Object,
 			required: true,
@@ -151,6 +152,7 @@ export default {
 		 * but this dispatcher only needs `renderer`, so we go through
 		 * `getWidgetTypeEntry` to keep types like `nc-widget` (renderer-only
 		 * proxy) flowing through this branch as well.
+		 *
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		registryEntry() {
@@ -311,6 +313,7 @@ export default {
 				}
 			},
 		},
+
 		placement: {
 			immediate: false, // Don't run immediately
 			/** @spec openspec/specs/widgets/spec.md */

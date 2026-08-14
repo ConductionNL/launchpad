@@ -19,7 +19,7 @@
 		     fail silently under Vue 3. Listener stays camelCase — `useModel()`
 		     matches a literal `onUpdate:modelValue`, not the kebab spelling. -->
 		<NcTextField
-			:model-value="url"
+			:modelValue="url"
 			:label="t('launchpad', 'URL')"
 			:placeholder="t('launchpad', 'https://…')"
 			@update:modelValue="onUrlChange"
@@ -34,7 +34,7 @@
 		</p>
 
 		<NcTextField
-			:model-value="title"
+			:modelValue="title"
 			:label="t('launchpad', 'Title')"
 			:placeholder="t('launchpad', 'e.g. Status page')"
 			@update:modelValue="updateField('title', $event)" />
@@ -49,15 +49,15 @@
 
 		<div class="iframe-widget-form__row">
 			<NcTextField
-				:model-value="String(height)"
+				:modelValue="String(height)"
 				type="number"
 				:label="t('launchpad', 'Height (px)')"
 				:disabled="aspect !== 'none'"
 				@update:modelValue="onHeightChange" />
 			<NcSelect
-				:model-value="aspect"
+				:modelValue="aspect"
 				:options="aspectOptions"
-				:input-label="t('launchpad', 'Aspect ratio')"
+				:inputLabel="t('launchpad', 'Aspect ratio')"
 				:reduce="(option) => option.value"
 				label="label"
 				@update:modelValue="(val) => updateField('aspect', val || 'none')" />
@@ -68,7 +68,7 @@
 			<NcCheckboxRadioSwitch
 				v-for="token in SANDBOX_TOKEN_OPTIONS"
 				:key="token.value"
-				:model-value="sandbox.includes(token.value)"
+				:modelValue="sandbox.includes(token.value)"
 				type="switch"
 				@update:modelValue="
 					(checked) => toggleSandboxToken(token.value, checked)
@@ -88,8 +88,8 @@
 </template>
 
 <script>
-import { NcTextField, NcSelect, NcCheckboxRadioSwitch } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import { validateIframeUrl } from '../../../services/iframeClient.js'
 
 const DEFAULT_HEIGHT = 400
@@ -148,6 +148,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		/**
 		 * Initial content values — used when not editing.
 		 *
@@ -200,6 +201,7 @@ export default {
 				sandbox: this.sandbox.filter(
 					(token) => !token.startsWith('allow-top-navigation'),
 				),
+
 				allowListChecked: this.allowListChecked,
 			}
 		},

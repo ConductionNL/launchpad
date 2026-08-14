@@ -22,8 +22,8 @@
  * dashboard-icons spec; brand-link coverage lives in SidebarFooter.spec.js).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import DashboardSwitcherSidebar from '../DashboardSwitcherSidebar.vue'
 
 beforeEach(() => {

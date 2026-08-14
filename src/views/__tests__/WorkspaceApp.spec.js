@@ -17,12 +17,11 @@
  * @spec openspec/changes/runtime-shell/tasks.md#task-11
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
-
-import WorkspaceApp from '../WorkspaceApp.vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import RuntimeShellSearch from '../../components/RuntimeShellSearch.vue'
+import WorkspaceApp from '../WorkspaceApp.vue'
 import { useDashboardStore } from '../../stores/dashboard.js'
 import { useWidgetStore } from '../../stores/widgets.js'
 

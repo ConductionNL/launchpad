@@ -11,9 +11,9 @@
  *  - `reset()` clears loading/error/result
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useVisibilityPreview } from '../useVisibilityPreview.js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '../../services/api.js'
+import { useVisibilityPreview } from '../useVisibilityPreview.js'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },

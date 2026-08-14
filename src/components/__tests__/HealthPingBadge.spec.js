@@ -7,8 +7,8 @@
  * perform a real network call.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import HealthPingBadge from '../HealthPingBadge.vue'
 import { fetchHealthPingBadge } from '../../services/healthPingClient.js'
 
@@ -26,9 +26,7 @@ beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name)
-					? vars[name]
-					: `{${name}}`,
+				Object.hasOwn(vars, name) ? vars[name] : `{${name}}`,
 			)
 		}
 		return key

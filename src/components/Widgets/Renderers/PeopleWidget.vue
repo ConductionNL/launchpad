@@ -265,6 +265,7 @@ export default {
 				this.hasMore = false
 				this.fetchPage(0)
 			},
+
 			deep: true,
 		},
 	},

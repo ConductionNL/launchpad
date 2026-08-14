@@ -8,9 +8,9 @@
  * library's render layer.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { setActivePinia, createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/dialogs', () => ({ showError: vi.fn() }))
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({

@@ -15,7 +15,7 @@
 					v-model="form.name"
 					:label="t('launchpad', 'Name')"
 					:error="!!nameError"
-					:helper-text="nameError"
+					:helperText="nameError"
 					data-test="create-group-dashboard-name"
 					required />
 			</div>
@@ -37,7 +37,7 @@
 				<NcSelect
 					v-model="form.layoutTemplate"
 					:options="layoutTemplates"
-					:input-label="t('launchpad', 'Layout template')"
+					:inputLabel="t('launchpad', 'Layout template')"
 					:reduce="(opt) => opt.id"
 					label="label"
 					data-test="create-group-dashboard-layout" />
@@ -53,13 +53,13 @@
 		<template #actions>
 			<NcButton
 				data-test="create-group-dashboard-cancel"
-				type="tertiary"
+				variant="tertiary"
 				@click="onClose">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
 			<NcButton
 				data-test="create-group-dashboard-submit"
-				type="primary"
+				variant="primary"
 				:disabled="submitting || !canSubmit"
 				@click="onSubmit">
 				{{
@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import { CnIconBrowser } from '@conduction/nextcloud-vue'
+import { mdiViewDashboard } from '@mdi/js'
 import {
 	NcButton,
 	NcCheckboxRadioSwitch,
@@ -80,11 +82,8 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@nextcloud/vue'
-import { CnIconBrowser } from '@conduction/nextcloud-vue'
-import { mdiViewDashboard } from '@mdi/js'
-
-import { useGroupDashboardsStore } from '../stores/groupDashboards.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
+import { useGroupDashboardsStore } from '../stores/groupDashboards.js'
 
 /**
  * CreateGroupDashboardModal — NcDialog-based create form for group-shared
@@ -125,6 +124,7 @@ export default {
 				layoutTemplate: 'blank',
 				isDefault: false,
 			},
+
 			submitting: false,
 		}
 	},

@@ -11,7 +11,7 @@
  * responsibility and are tested there, not re-frozen here.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
@@ -127,7 +127,7 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 		}
 	})
 
-	it('localises the displayName through t(launchpad, …)', async () => {
+	it('localises the displayName through t(launchpad, …)', async () => {
 		let seen = null
 		globalThis.t = (app, key) => {
 			if (app === 'launchpad') {
@@ -140,7 +140,7 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 		expect(typeof entry.displayName).toBe('string')
 		expect(
 			seen,
-			'displayName should pass through t(launchpad, …)',
+			'displayName should pass through t(launchpad, …)',
 		).not.toBeNull()
 	})
 })

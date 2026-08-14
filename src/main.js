@@ -22,24 +22,6 @@
  *     live value down to CnAppRoot.
  */
 
-import './publicPath.js'
-
-import { createApp, h, reactive } from 'vue'
-import { createPinia } from 'pinia'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
-
-import './services/widgetBridge.js'
-
-import App from './App.vue'
-import { LAUNCHPAD_ICONS } from './icons.js'
-import { loadInitialState } from './utils/loadInitialState.js'
-import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
-import bundledStub from './manifest.json'
-import 'gridstack/dist/gridstack.min.css'
-import './styles/workspace.css'
-
 // Populate the shared dashboard widget catalog. Each widget type self-registers
 // via an import-time side effect aggregated in nc-vue; `sideEffects`
 // tree-shaking (ADR-061) drops those bare side-effect imports unless a binding
@@ -47,13 +29,28 @@ import './styles/workspace.css'
 // references directly (link + nc-widget). Calling this exported no-op forces
 // the aggregator — and therefore every widget registration — into the bundle.
 import {
+	CnNcDashboardWidgetForm,
+	CnNcWidgetWidget,
 	registerBuiltinDashboardWidgets,
+	registerDashboardWidget,
 	registerIcons,
 	useAppManifest,
-	registerDashboardWidget,
-	CnNcWidgetWidget,
-	CnNcDashboardWidgetForm,
 } from '@conduction/nextcloud-vue'
+import axios from '@nextcloud/axios'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+import { createPinia } from 'pinia'
+import { createApp, h, reactive } from 'vue'
+import App from './App.vue'
+import { LAUNCHPAD_ICONS } from './icons.js'
+import bundledStub from './manifest.json'
+import { loadInitialState } from './utils/loadInitialState.js'
+import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
+
+import './publicPath.js'
+import './services/widgetBridge.js'
+import 'gridstack/dist/gridstack.min.css'
+import './styles/workspace.css'
 registerBuiltinDashboardWidgets()
 
 // Populate the shared CnIcon registry with the MDI icons LaunchPad's

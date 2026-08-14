@@ -147,12 +147,15 @@ export default {
 				period: '30d',
 				top5: [],
 			},
+
 			topDashboards: [],
 		}
 	},
+
 	created() {
 		this.reload()
 	},
+
 	methods: {
 		t,
 		/**
@@ -188,6 +191,7 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * REQ-ANLT-010 — trigger a CSV export download of the
 		 * currently selected period.

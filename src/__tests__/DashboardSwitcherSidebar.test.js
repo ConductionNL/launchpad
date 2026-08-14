@@ -4,8 +4,8 @@
  */
 
 /* eslint-disable n/no-unpublished-import */
-import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 import DashboardSwitcherSidebar from '@/components/Workspace/DashboardSwitcherSidebar.vue'
 
 // Mock the translate function

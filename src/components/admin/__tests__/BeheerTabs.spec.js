@@ -9,8 +9,8 @@
  *  - the default tab is used when neither query nor storage is set
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import BeheerTabs, { ACTIVE_TAB_STORAGE_KEY } from '../BeheerTabs.vue'
 
 const tabs = [

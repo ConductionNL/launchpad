@@ -28,10 +28,10 @@
  * fail this spec and force an explicit downstream update.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { toRaw } from 'vue'
-import { readFileSync, readdirSync, statSync } from 'fs'
+import { readdirSync, readFileSync, statSync } from 'fs'
 import { join, relative } from 'path'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { toRaw } from 'vue'
 import {
 	BREAKPOINTS,
 	CELL_HEIGHT,
@@ -40,9 +40,9 @@ import {
 	DEFAULT_COLUMNS,
 	DEFAULT_H,
 	DEFAULT_W,
+	getColumnOpts,
 	GRID_MARGIN,
 	MIN_CELLS,
-	getColumnOpts,
 	nudgePlacement,
 	placeNewWidget,
 	syncCellHeightCssVar,

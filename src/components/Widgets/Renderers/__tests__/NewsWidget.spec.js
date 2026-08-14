@@ -15,8 +15,8 @@
  * re-sanitise before render.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn().mockResolvedValue({ data: { items: [] } }) },

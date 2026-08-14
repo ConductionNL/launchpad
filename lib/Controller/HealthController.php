@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
@@ -84,6 +85,8 @@ class HealthController extends Controller {
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
+	// Liveness probe — no credential, so a ceiling and no counter.
+	#[AnonRateLimit(limit: 120, period: 60)]
 	public function index(): JSONResponse {
 		$appId = $this->appName;
 

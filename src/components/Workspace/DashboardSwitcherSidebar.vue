@@ -126,17 +126,17 @@
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="group"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'group')"
-							@open-config="onRowOpenConfig(dashboard, 'group')"
-							@add-custom-widget="
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'group')"
+							@openConfig="onRowOpenConfig(dashboard, 'group')"
+							@addCustomWidget="
 								onRowAddCustomWidget(dashboard, 'group')
 							"
 							@delete="onRowDelete(dashboard, 'group')"
-							@set-default="onRowSetDefault(dashboard, 'group')" />
+							@setDefault="onRowSetDefault(dashboard, 'group')" />
 					</li>
 				</ul>
 			</section>
@@ -191,17 +191,17 @@
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="default"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'default')"
-							@open-config="onRowOpenConfig(dashboard, 'default')"
-							@add-custom-widget="
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'default')"
+							@openConfig="onRowOpenConfig(dashboard, 'default')"
+							@addCustomWidget="
 								onRowAddCustomWidget(dashboard, 'default')
 							"
 							@delete="onRowDelete(dashboard, 'default')"
-							@set-default="onRowSetDefault(dashboard, 'default')" />
+							@setDefault="onRowSetDefault(dashboard, 'default')" />
 					</li>
 				</ul>
 			</section>
@@ -257,17 +257,17 @@
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="user"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'user')"
-							@open-config="onRowOpenConfig(dashboard, 'user')"
-							@add-custom-widget="
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'user')"
+							@openConfig="onRowOpenConfig(dashboard, 'user')"
+							@addCustomWidget="
 								onRowAddCustomWidget(dashboard, 'user')
 							"
 							@delete="onRowDelete(dashboard, 'user')"
-							@set-default="onRowSetDefault(dashboard, 'user')" />
+							@setDefault="onRowSetDefault(dashboard, 'user')" />
 					</li>
 				</ul>
 
@@ -359,17 +359,17 @@
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="shared"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'shared')"
-							@open-config="onRowOpenConfig(dashboard, 'shared')"
-							@add-custom-widget="
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'shared')"
+							@openConfig="onRowOpenConfig(dashboard, 'shared')"
+							@addCustomWidget="
 								onRowAddCustomWidget(dashboard, 'shared')
 							"
 							@delete="onRowDelete(dashboard, 'shared')"
-							@set-default="onRowSetDefault(dashboard, 'shared')" />
+							@setDefault="onRowSetDefault(dashboard, 'shared')" />
 					</li>
 				</ul>
 			</section>
@@ -385,14 +385,13 @@
 </template>
 
 <script>
+import { CnDashboardIcon, NcButton } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { NcButton, CnDashboardIcon } from '@conduction/nextcloud-vue'
-
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
-import SidebarFooter from './SidebarFooter.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
+import SidebarFooter from './SidebarFooter.vue'
 
 export default {
 	name: 'DashboardSwitcherSidebar',
@@ -590,6 +589,7 @@ export default {
 		/**
 		 * Personal section is rendered when there is at least one personal
 		 * dashboard OR the user is allowed to create one (REQ-SWITCH-001).
+		 *
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		showPersonalSection() {
@@ -705,6 +705,7 @@ export default {
 		onRowToggleEdit(dashboard, source) {
 			this.$emit('toggle-edit', dashboard, source)
 		},
+
 		/**
 		 * Re-emit the row's "Configure" action upward.
 		 *
@@ -715,6 +716,7 @@ export default {
 		onRowOpenConfig(dashboard, source) {
 			this.$emit('open-config', dashboard, source)
 		},
+
 		/**
 		 * Re-emit the row's "Add widget" action upward.
 		 *
@@ -725,6 +727,7 @@ export default {
 		onRowAddCustomWidget(dashboard, source) {
 			this.$emit('add-custom-widget', dashboard, source)
 		},
+
 		/**
 		 * Re-emit the row's "Delete" action upward, narrowed to the id.
 		 *
@@ -735,6 +738,7 @@ export default {
 		onRowDelete(dashboard, source) {
 			this.$emit('delete-dashboard', dashboard.id, source)
 		},
+
 		/**
 		 * Re-emit the row's "Set as default" action upward.
 		 *
@@ -749,6 +753,7 @@ export default {
 		/**
 		 * Click handler for the "Add Dashboard" card button. MUST emit
 		 * `update:open(false)` BEFORE `create-dashboard()` (REQ-SWITCH-008).
+		 *
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onCreate() {

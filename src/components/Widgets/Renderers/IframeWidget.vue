@@ -50,8 +50,8 @@
 </template>
 
 <script>
-import { NcLoadingIcon } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcLoadingIcon } from '@nextcloud/vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
 import { checkIframeFramable } from '../../../services/iframeClient.js'
@@ -115,6 +115,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/**
 		 * The widget placement (unused directly — the iframe embeds
 		 * `content.url` client-side; no per-placement fetch is performed).
@@ -125,6 +126,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		/**
 		 * Milliseconds to wait for the `load` event before treating the
 		 * embed as failed. Overridable so unit tests can exercise the

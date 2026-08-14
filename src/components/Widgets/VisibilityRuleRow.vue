@@ -27,10 +27,10 @@
 			<NcSelect
 				v-model="typeOption"
 				class="visibility-rule-row__field"
-				:input-label="t('launchpad', 'Rule type')"
+				:inputLabel="t('launchpad', 'Rule type')"
 				:options="typeOptions"
 				label="label"
-				track-by="id"
+				trackBy="id"
 				:clearable="false"
 				data-test="rule-type-select" />
 
@@ -52,14 +52,14 @@
 			<template v-else-if="local.ruleType === 'time'">
 				<NcTextField
 					class="visibility-rule-row__field"
-					:model-value="local.ruleConfig.startTime"
+					:modelValue="local.ruleConfig.startTime"
 					:label="t('launchpad', 'Start time (HH:MM)')"
 					placeholder="09:00"
 					:error="
 						!!local.ruleConfig.startTime
 						&& !isValidTime(local.ruleConfig.startTime)
 					"
-					:helper-text="
+					:helperText="
 						!!local.ruleConfig.startTime
 						&& !isValidTime(local.ruleConfig.startTime)
 							? t('launchpad', 'Use HH:MM, e.g. 09:00')
@@ -69,14 +69,14 @@
 					@update:modelValue="onStartTimeChange" />
 				<NcTextField
 					class="visibility-rule-row__field"
-					:model-value="local.ruleConfig.endTime"
+					:modelValue="local.ruleConfig.endTime"
 					:label="t('launchpad', 'End time (HH:MM)')"
 					placeholder="17:00"
 					:error="
 						!!local.ruleConfig.endTime
 						&& !isValidTime(local.ruleConfig.endTime)
 					"
-					:helper-text="
+					:helperText="
 						!!local.ruleConfig.endTime
 						&& !isValidTime(local.ruleConfig.endTime)
 							? t('launchpad', 'Use HH:MM, e.g. 17:00')
@@ -94,7 +94,7 @@
 					<NcCheckboxRadioSwitch
 						v-for="day in dayOptions"
 						:key="day.id"
-						:model-value="local.ruleConfig.days.includes(day.id)"
+						:modelValue="local.ruleConfig.days.includes(day.id)"
 						type="switch"
 						data-test="rule-day-toggle"
 						@update:modelValue="toggleDay(day.id)">
@@ -107,14 +107,14 @@
 			<template v-else-if="local.ruleType === 'date'">
 				<NcTextField
 					class="visibility-rule-row__field"
-					:model-value="local.ruleConfig.startDate"
+					:modelValue="local.ruleConfig.startDate"
 					:label="t('launchpad', 'Start date (YYYY-MM-DD)')"
 					placeholder="2026-12-01"
 					:error="
 						!!local.ruleConfig.startDate
 						&& !isValidDate(local.ruleConfig.startDate)
 					"
-					:helper-text="
+					:helperText="
 						!!local.ruleConfig.startDate
 						&& !isValidDate(local.ruleConfig.startDate)
 							? t('launchpad', 'Use YYYY-MM-DD')
@@ -124,14 +124,14 @@
 					@update:modelValue="onStartDateChange" />
 				<NcTextField
 					class="visibility-rule-row__field"
-					:model-value="local.ruleConfig.endDate"
+					:modelValue="local.ruleConfig.endDate"
 					:label="t('launchpad', 'End date (YYYY-MM-DD)')"
 					placeholder="2026-12-31"
 					:error="
 						!!local.ruleConfig.endDate
 						&& !isValidDate(local.ruleConfig.endDate)
 					"
-					:helper-text="
+					:helperText="
 						!!local.ruleConfig.endDate
 						&& !isValidDate(local.ruleConfig.endDate)
 							? t('launchpad', 'Use YYYY-MM-DD')
@@ -145,7 +145,7 @@
 			<template v-else-if="local.ruleType === 'attribute'">
 				<NcTextField
 					class="visibility-rule-row__field"
-					:model-value="local.ruleConfig.attribute"
+					:modelValue="local.ruleConfig.attribute"
 					:label="t('launchpad', 'Attribute')"
 					placeholder="language"
 					data-test="rule-attribute"
@@ -155,15 +155,15 @@
 				<NcSelect
 					v-model="operatorOption"
 					class="visibility-rule-row__field"
-					:input-label="t('launchpad', 'Operator')"
+					:inputLabel="t('launchpad', 'Operator')"
 					:options="operatorOptions"
 					label="label"
-					track-by="id"
+					trackBy="id"
 					:clearable="false"
 					data-test="rule-operator" />
 				<NcTextField
 					class="visibility-rule-row__field"
-					:model-value="local.ruleConfig.value"
+					:modelValue="local.ruleConfig.value"
 					:label="t('launchpad', 'Value')"
 					placeholder="nl"
 					data-test="rule-value"
@@ -179,7 +179,7 @@
 				{{ t('launchpad', 'Effect') }}
 			</legend>
 			<NcCheckboxRadioSwitch
-				:model-value="local.isInclude === true"
+				:modelValue="local.isInclude === true"
 				type="radio"
 				:name="'rule-mode-' + rowKey"
 				data-test="rule-mode-include"
@@ -187,7 +187,7 @@
 				{{ t('launchpad', 'Include — show when matched') }}
 			</NcCheckboxRadioSwitch>
 			<NcCheckboxRadioSwitch
-				:model-value="local.isInclude === false"
+				:modelValue="local.isInclude === false"
 				type="radio"
 				:name="'rule-mode-' + rowKey"
 				data-test="rule-mode-exclude"
@@ -226,10 +226,10 @@
 <script>
 import {
 	NcButton,
+	NcCheckboxRadioSwitch,
 	NcSelect,
 	NcSelectTags,
 	NcTextField,
-	NcCheckboxRadioSwitch,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Delete from 'vue-material-design-icons/Delete.vue'
@@ -278,16 +278,19 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		/** Group-id options for the group-rule multi-select. */
 		availableGroups: {
 			type: Array,
 			default: () => [],
 		},
+
 		/** Disables Save/Remove while a request for this row is in flight. */
 		busy: {
 			type: Boolean,
 			default: false,
 		},
+
 		/** True for a not-yet-persisted draft row (no `id` yet). */
 		isNew: {
 			type: Boolean,
@@ -331,6 +334,7 @@ export default {
 					|| this.typeOptions[0]
 				)
 			},
+
 			/**
 			 * Switch the rule type, resetting its config to the new type's
 			 * empty shape.
@@ -368,6 +372,7 @@ export default {
 					) || this.operatorOptions[0]
 				)
 			},
+
 			/**
 			 * Set the comparison operator, defaulting to `equals` when the
 			 * selection is cleared.
@@ -446,6 +451,7 @@ export default {
 					...emptyConfigFor(ruleType),
 					...(rule.ruleConfig || {}),
 				},
+
 				isInclude: rule.isInclude !== false,
 			}
 		},

@@ -82,7 +82,7 @@
 
 		<GroupDashboardRenameDialog
 			:open="renameTarget !== null"
-			:current-name="renameTarget ? renameTarget.name : ''"
+			:currentName="renameTarget ? renameTarget.name : ''"
 			@update:open="renameTarget = null"
 			@confirm="onRenameConfirm" />
 
@@ -96,7 +96,6 @@
 <script>
 import { NcButton, NcDialog, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ViewDashboardIcon from 'vue-material-design-icons/ViewDashboard.vue'
-
 import GroupDashboardDeleteDialog from './GroupDashboardDeleteDialog.vue'
 import GroupDashboardRenameDialog from './GroupDashboardRenameDialog.vue'
 import { useGroupDashboardsStore } from '../stores/groupDashboards.js'

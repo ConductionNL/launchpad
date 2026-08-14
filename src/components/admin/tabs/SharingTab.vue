@@ -7,7 +7,7 @@
 	<div class="sharing-tab" data-test="sharing-tab">
 		<DashboardSharingPolicy :groups="groups" />
 		<div class="sharing-tab__spacer" />
-		<GroupPriorityOrder :initial-active="configuredGroups" />
+		<GroupPriorityOrder :initialActive="configuredGroups" />
 	</div>
 </template>
 
@@ -34,6 +34,7 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+
 		/** Initial configured groups seed for GroupPriorityOrder. */
 		configuredGroups: {
 			type: Array,

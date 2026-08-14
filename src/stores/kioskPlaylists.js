@@ -9,9 +9,9 @@
  * @spec openspec/changes/dashboard-kiosk-mode/specs/dashboard-kiosk-mode/spec.md
  */
 
-import { defineStore } from 'pinia'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 const baseUrl = generateUrl('/apps/launchpad')
 

@@ -21,7 +21,7 @@
 
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
-import { queryGraphql, GraphQLSourceError } from './graphqlClient.js'
+import { GraphQLSourceError, queryGraphql } from './graphqlClient.js'
 
 /** Sibling app ids this widget reads from (REQ-SAW-004). */
 export const SPEND_SOURCES = Object.freeze({

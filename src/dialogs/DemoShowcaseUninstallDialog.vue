@@ -61,6 +61,7 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+
 		showcaseName: {
 			type: String,
 			default: '',

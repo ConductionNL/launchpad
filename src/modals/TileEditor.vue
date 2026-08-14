@@ -116,7 +116,7 @@
 
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
-						:model-value="form.healthPingEnabled"
+						:modelValue="form.healthPingEnabled"
 						type="switch"
 						@update:modelValue="onHealthPingToggle">
 						{{
@@ -184,17 +184,17 @@
 
 <script>
 import {
-	NcModal,
-	NcButton,
-	NcTextField,
-	NcColorPicker,
-	NcCheckboxRadioSwitch,
 	CnIconBrowser,
 	isCustomIconUrl,
+	NcButton,
+	NcCheckboxRadioSwitch,
+	NcColorPicker,
+	NcModal,
+	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
-import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
+import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
 const MIN_PING_INTERVAL = 15
 const DEFAULT_PING_INTERVAL = 60
@@ -217,6 +217,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		tile: {
 			type: Object,
 			default: null,
@@ -240,6 +241,7 @@ export default {
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
 				pingInterval: DEFAULT_PING_INTERVAL,
 			},
+
 			healthUrlError: '',
 			MIN_PING_INTERVAL,
 		}
@@ -251,6 +253,7 @@ export default {
 			get() {
 				return this.open
 			},
+
 			/**
 			 * Closing the modal is owned by the parent, so a `false` write
 			 * is forwarded as a `close` event rather than mutating the prop.
@@ -264,10 +267,12 @@ export default {
 				}
 			},
 		},
+
 		/** @spec openspec/specs/tiles/spec.md */
 		isUrlIcon() {
 			return isCustomIconUrl(this.form.icon)
 		},
+
 		/**
 		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
 		 * picker source every icon surface reads, so the picker cannot drift
@@ -279,6 +284,7 @@ export default {
 		iconCatalogue() {
 			return ICON_CATALOGUE
 		},
+
 		/**
 		 * Icon value for the picker and preview. Legacy tiles store an MDI
 		 * shortname (`link`) or key (`AlertCircle`) rather than the SVG path the

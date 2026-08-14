@@ -13,15 +13,15 @@
  * test controls exactly which keys "the server pushed".
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 let pushedState = {}
 
 vi.mock('@nextcloud/initial-state', () => ({
 	loadState: (_app, key, fallback) => {
-		if (Object.prototype.hasOwnProperty.call(pushedState, key)) {
+		if (Object.hasOwn(pushedState, key)) {
 			return pushedState[key]
 		}
 		return fallback

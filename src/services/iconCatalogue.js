@@ -10,8 +10,8 @@
  * isn't made reactive when referenced from components.
  */
 
-import * as mdi from '@mdi/js'
 import { mdiCatalogue } from '@conduction/nextcloud-vue'
+import * as mdi from '@mdi/js'
 
 export const ICON_CATALOGUE = Object.freeze(mdiCatalogue(mdi))
 

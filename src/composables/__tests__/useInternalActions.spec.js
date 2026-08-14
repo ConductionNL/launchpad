@@ -8,10 +8,10 @@
  * (separate `useInternalActions()` calls share the same Map).
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-	useInternalActions,
 	__resetInternalActionsForTest,
+	useInternalActions,
 } from '../useInternalActions.js'
 
 beforeEach(() => {

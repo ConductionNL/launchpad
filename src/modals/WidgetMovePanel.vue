@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { NcModal, NcButton } from '@conduction/nextcloud-vue'
+import { NcButton, NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { nudgePlacement } from '../composables/useGridManager.js'
 
@@ -166,14 +166,17 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		placement: {
 			type: Object,
 			default: null,
 		},
+
 		allPlacements: {
 			type: Array,
 			default: () => [],
 		},
+
 		gridColumns: {
 			type: Number,
 			default: 12,

@@ -36,29 +36,24 @@
  */
 
 import {
-	dashboardWidgetRegistry,
-	registerDashboardWidget,
-	listWidgetTypes as cnListWidgetTypes,
-	getWidgetTypeEntry as cnGetWidgetTypeEntry,
-	getDefaultContent as cnGetDefaultContent,
 	// Forms for types the communal registry leaves `form: null` (renderer-only
 	// in OpenBuild) but which LaunchPad configures — they rely on LaunchPad-
 	// injected context (NC widget catalog, people API, calendar/graphql sources).
 	CnCalendarWidgetForm as CalendarForm,
-	CnPeopleWidgetForm as PeopleForm,
-	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
-	CnNcDashboardWidgetForm as NcDashboardForm,
+	getDefaultContent as cnGetDefaultContent,
+	getWidgetTypeEntry as cnGetWidgetTypeEntry,
+	listWidgetTypes as cnListWidgetTypes,
 	// Renderer for the `nc-widget` proxy type. The shared bundle exports the
 	// component but (as of beta.155) does NOT self-register the type — see the
 	// registration guard below.
 	CnNcWidgetWidget,
+	dashboardWidgetRegistry,
+	CnNcDashboardWidgetForm as NcDashboardForm,
+	CnPeopleWidgetForm as PeopleForm,
+	registerDashboardWidget,
+	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
-// LaunchPad-specific host wrappers (app-side orchestration, NOT generic
-// dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
-import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
-import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
-import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
 // communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
@@ -67,19 +62,24 @@ import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 // communal type — no LaunchPad-side branching needed.
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
-import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
-import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
-// `livetile` — server-fetched, ICache-cached data-bound tile
-// (REQ-LIVETILE-001..005, openspec/specs/live-data-tile-widget/spec.md). Same
-// LaunchPad-only registration pattern as `clock`/`weather`.
-import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
-import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
 // refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
 // Same LaunchPad-only registration pattern as `clock`/`weather`/`livetile`.
 import IframeWidget from '../components/Widgets/Renderers/IframeWidget.vue'
 import IframeWidgetForm from '../components/Widgets/Renderers/IframeWidgetForm.vue'
+// LaunchPad-specific host wrappers (app-side orchestration, NOT generic
+// dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
+import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
+// `livetile` — server-fetched, ICache-cached data-bound tile
+// (REQ-LIVETILE-001..005, openspec/specs/live-data-tile-widget/spec.md). Same
+// LaunchPad-only registration pattern as `clock`/`weather`.
+import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
+import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
+import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry

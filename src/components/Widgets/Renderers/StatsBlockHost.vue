@@ -7,12 +7,12 @@
 	<CnStatsBlockWidget
 		:title="title"
 		:data-source="dataSource"
-		:count-label="props.countLabel"
+		:countLabel="props.countLabel"
 		:variant="props.variant"
-		:show-zero-count="props.showZeroCount"
+		:showZeroCount="props.showZeroCount"
 		:horizontal="props.horizontal"
 		:route="props.route"
-		:icon-class="props.iconClass" />
+		:iconClass="props.iconClass" />
 </template>
 
 <script>
@@ -36,6 +36,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** The placement record (unused; accepted for the renderer interface). */
 		placement: {
 			type: Object,

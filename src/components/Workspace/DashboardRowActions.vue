@@ -33,7 +33,7 @@
 <template>
 	<NcActions
 		:aria-label="t('launchpad', 'Dashboard menu')"
-		:force-menu="true"
+		:forceMenu="true"
 		placement="bottom-end"
 		:type="buttonType"
 		class="dashboard-row-actions"
@@ -43,7 +43,7 @@
 		</template>
 		<NcActionButton
 			v-if="canEdit"
-			:close-after-click="true"
+			:closeAfterClick="true"
 			data-testid="cog-edit-dashboard"
 			@click="$emit('toggle-edit')">
 			<template #icon>
@@ -58,7 +58,7 @@
 		</NcActionButton>
 		<NcActionButton
 			v-if="isOwner"
-			:close-after-click="true"
+			:closeAfterClick="true"
 			data-testid="cog-dashboard-config"
 			@click="$emit('open-config')">
 			<template #icon>
@@ -68,7 +68,7 @@
 		</NcActionButton>
 		<NcActionButton
 			v-if="canEdit"
-			:close-after-click="true"
+			:closeAfterClick="true"
 			data-testid="cog-add-widget"
 			@click="$emit('add-custom-widget')">
 			<template #icon>
@@ -77,7 +77,7 @@
 			{{ t('launchpad', 'Add custom widget…') }}
 		</NcActionButton>
 		<NcActionButton
-			:close-after-click="true"
+			:closeAfterClick="true"
 			data-testid="cog-set-default"
 			@click="$emit('set-default')">
 			<template #icon>
@@ -92,7 +92,7 @@
 		</NcActionButton>
 		<NcActionButton
 			v-if="canShare"
-			:close-after-click="true"
+			:closeAfterClick="true"
 			data-testid="cog-share"
 			@click="$emit('share')">
 			<template #icon>
@@ -102,7 +102,7 @@
 		</NcActionButton>
 		<NcActionButton
 			v-if="isOwner"
-			:close-after-click="true"
+			:closeAfterClick="true"
 			data-testid="cog-delete"
 			@click="$emit('delete')">
 			<template #icon>
@@ -115,16 +115,16 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { NcActions, NcActionButton } from '@nextcloud/vue'
+import { NcActionButton, NcActions } from '@nextcloud/vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
-import Tune from 'vue-material-design-icons/Tune.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
 import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
-import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
-import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
+import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import Tune from 'vue-material-design-icons/Tune.vue'
 
 export default {
 	name: 'DashboardRowActions',
@@ -148,15 +148,18 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		source: {
 			type: String,
 			required: true,
 			validator: (v) => ['group', 'default', 'user', 'shared'].includes(v),
 		},
+
 		canEdit: {
 			type: Boolean,
 			default: false,
 		},
+
 		/*
 		 * Wave3.7 — UUID of the user's pinned default dashboard, or
 		 * empty/null when no pin is set. The host fetches it once on
@@ -182,6 +185,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		activeDashboardId: {
 			type: [String, Number],
 			default: null,

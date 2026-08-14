@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { translate as t, getCanonicalLocale } from '@nextcloud/l10n'
+import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
 
 /**
  * Persisted-content field defaults (REQ-CLOCK-002). `timezone: ''` means

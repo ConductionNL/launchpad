@@ -155,8 +155,8 @@
 
 <script>
 import { NcButton } from '@conduction/nextcloud-vue'
-import Upload from 'vue-material-design-icons/Upload.vue'
 import Eye from 'vue-material-design-icons/Eye.vue'
+import Upload from 'vue-material-design-icons/Upload.vue'
 import { api } from '../../services/api.js'
 
 export default {

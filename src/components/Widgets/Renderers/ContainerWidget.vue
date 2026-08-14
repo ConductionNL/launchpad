@@ -19,7 +19,7 @@
 				:gs-w="child.gridWidth || 2"
 				:gs-h="child.gridHeight || 2">
 				<div class="grid-stack-item-content">
-					<ContainerChild :placement="child" :edit-mode="editMode" />
+					<ContainerChild :placement="child" :editMode="editMode" />
 				</div>
 			</div>
 		</div>
@@ -29,8 +29,8 @@
 <script>
 import ContainerChild from './ContainerChild.vue'
 import {
-	useNestedGridManager,
 	getNestedGridOptions,
+	useNestedGridManager,
 } from '../../../composables/useNestedGridManager.js'
 
 const PADDING_TOKENS = Object.freeze({
@@ -69,6 +69,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		editMode: {
 			type: Boolean,
 			default: false,
@@ -99,10 +100,7 @@ export default {
 		/** @spec openspec/specs/container-widget/spec.md */
 		paddingToken() {
 			const value = this.content?.padding
-			if (
-				typeof value === 'string'
-				&& Object.prototype.hasOwnProperty.call(PADDING_TOKENS, value)
-			) {
+			if (typeof value === 'string' && Object.hasOwn(PADDING_TOKENS, value)) {
 				return value
 			}
 			return 'medium'

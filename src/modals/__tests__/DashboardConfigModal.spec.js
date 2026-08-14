@@ -9,8 +9,8 @@
  *  - the `initialTab` prop lands the modal on the requested tab
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
 import DashboardConfigModal from '../DashboardConfigModal.vue'
 

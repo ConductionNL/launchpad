@@ -52,6 +52,7 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+
 		groupId: {
 			type: String,
 			default: '',

@@ -8,11 +8,11 @@
  * or the user opted out).
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import axios from '@nextcloud/axios'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-	useTileClickTracking,
 	__resetTileClickTrackingForTest,
+	useTileClickTracking,
 } from '../useTileClickTracking.js'
 
 vi.mock('@nextcloud/axios', () => ({

@@ -8,8 +8,8 @@
  * for closing whichever sidebar is open.
  */
 
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import SidebarBackdrop from '../SidebarBackdrop.vue'
 
 describe('SidebarBackdrop', () => {

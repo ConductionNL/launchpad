@@ -24,15 +24,15 @@
 		     `onUpdate:modelValue` in the vnode props, and a kebab-case
 		     `@update:model-value` does not match. -->
 		<NcTextField
-			:model-value="label"
+			:modelValue="label"
 			:label="t('launchpad', 'Label')"
 			:placeholder="t('launchpad', 'e.g. Open tickets')"
 			@update:modelValue="updateField('label', $event)" />
 
 		<NcSelect
-			:model-value="sourceMode"
+			:modelValue="sourceMode"
 			:options="sourceModeOptions"
-			:input-label="t('launchpad', 'Source')"
+			:inputLabel="t('launchpad', 'Source')"
 			:reduce="(option) => option.value"
 			label="label"
 			@update:modelValue="onSourceModeChange" />
@@ -47,7 +47,7 @@
 				}}
 			</p>
 			<NcTextField
-				:model-value="sourceId"
+				:modelValue="sourceId"
 				:label="t('launchpad', 'OpenConnector source id')"
 				:disabled="!connectorAvailable"
 				@update:modelValue="updateField('sourceId', $event)" />
@@ -55,7 +55,7 @@
 
 		<template v-else>
 			<NcTextField
-				:model-value="url"
+				:modelValue="url"
 				:label="t('launchpad', 'URL')"
 				:placeholder="t('launchpad', 'https://…')"
 				@update:modelValue="onUrlChange"
@@ -66,13 +66,13 @@
 		</template>
 
 		<NcTextField
-			:model-value="valueExpr"
+			:modelValue="valueExpr"
 			:label="t('launchpad', 'Value expression')"
 			placeholder="$.data.count"
 			@update:modelValue="updateField('valueExpr', $event)" />
 
 		<NcTextField
-			:model-value="String(refresh)"
+			:modelValue="String(refresh)"
 			type="number"
 			:label="t('launchpad', 'Refresh interval (seconds)')"
 			@update:modelValue="onRefreshChange" />
@@ -86,29 +86,29 @@
 
 		<div class="live-tile-widget-form__row">
 			<NcTextField
-				:model-value="formatPrefix"
+				:modelValue="formatPrefix"
 				:label="t('launchpad', 'Prefix')"
 				@update:modelValue="updateFormat('prefix', $event)" />
 			<NcTextField
-				:model-value="formatSuffix"
+				:modelValue="formatSuffix"
 				:label="t('launchpad', 'Suffix')"
 				@update:modelValue="updateFormat('suffix', $event)" />
 		</div>
 		<NcCheckboxRadioSwitch
-			:model-value="formatThousands"
+			:modelValue="formatThousands"
 			type="switch"
 			@update:modelValue="updateFormat('thousands', $event)">
 			{{ t('launchpad', 'Thousands separator') }}
 		</NcCheckboxRadioSwitch>
 
 		<NcTextField
-			:model-value="linkUrl"
+			:modelValue="linkUrl"
 			:label="t('launchpad', 'Click-through link (optional)')"
 			@update:modelValue="updateField('linkUrl', $event)" />
 		<NcSelect
-			:model-value="linkTarget"
+			:modelValue="linkTarget"
 			:options="linkTargetOptions"
-			:input-label="t('launchpad', 'Link target')"
+			:inputLabel="t('launchpad', 'Link target')"
 			:reduce="(option) => option.value"
 			label="label"
 			@update:modelValue="
@@ -118,8 +118,8 @@
 </template>
 
 <script>
-import { NcTextField, NcSelect, NcCheckboxRadioSwitch } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import {
 	fetchConnectorAvailability,
 	validateLiveTileSource,
@@ -172,6 +172,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		/**
 		 * Initial content values — used when not editing.
 		 *
@@ -245,6 +246,7 @@ export default {
 					suffix: this.formatSuffix,
 					thousands: this.formatThousands,
 				},
+
 				badge: this.badge,
 				linkUrl: this.linkUrl,
 				linkTarget: this.linkTarget,

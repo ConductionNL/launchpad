@@ -9,9 +9,9 @@
  * user picks a new icon.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mdiAlertCircle, mdiLink } from '@mdi/js'
 import { mount } from '@vue/test-utils'
-import { mdiLink, mdiAlertCircle } from '@mdi/js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TileEditor from '../TileEditor.vue'
 import { validateHealthPingConfig } from '../../services/healthPingClient.js'
 

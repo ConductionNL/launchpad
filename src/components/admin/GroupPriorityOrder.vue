@@ -140,8 +140,8 @@
 </template>
 
 <script>
-import { NcButton, NcTextField } from '@nextcloud/vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+import { NcButton, NcTextField } from '@nextcloud/vue'
 import { api } from '../../services/api.js'
 
 /**
@@ -194,16 +194,19 @@ export default {
 			}
 			return map
 		},
+
 		// Set of every known group id; anything in `active` not in here
 		// renders as a stale "(removed)" entry per REQ-ASET-013.
 		/** @spec openspec/specs/admin-roles/spec.md */
 		knownIdSet() {
 			return new Set(this.allKnown.map((row) => row.id))
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		filteredActive() {
 			return this.applyFilter(this.active, this.activeFilter)
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		filteredInactive() {
 			return this.applyFilter(this.inactive, this.inactiveFilter)

@@ -8,19 +8,20 @@
  * (CnWidgetWrapper applies them natively — no per-app CSS-var workaround).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import WidgetWrapper from '../WidgetWrapper.vue'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 })
 
-const mountWrapper = (placement, editMode = false) =>
-	shallowMount(WidgetWrapper, {
+function mountWrapper(placement, editMode = false) {
+	return shallowMount(WidgetWrapper, {
 		propsData: { placement, widget: { title: 'Widget' }, editMode },
 		mocks: { t: (_app, key) => key },
 	})
+}
 
 describe('WidgetWrapper — custom header style', () => {
 	it('forwards styleConfig (incl headerStyle) to CnWidgetWrapper', () => {

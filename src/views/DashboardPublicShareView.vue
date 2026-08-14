@@ -131,10 +131,10 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted } from 'vue'
 import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
 import { translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'

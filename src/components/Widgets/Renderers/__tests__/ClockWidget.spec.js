@@ -9,18 +9,16 @@
  * aria-label).
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { setLanguage, setLocale } from '@nextcloud/l10n'
 import { mount } from '@vue/test-utils'
-import { setLocale, setLanguage } from '@nextcloud/l10n'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ClockWidget from '../ClockWidget.vue'
 
 beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name)
-					? vars[name]
-					: `{${name}}`,
+				Object.hasOwn(vars, name) ? vars[name] : `{${name}}`,
 			)
 		}
 		return key

@@ -107,7 +107,7 @@
 
 		<DemoShowcaseUninstallDialog
 			:open="uninstallTarget !== null"
-			:showcase-name="uninstallTarget ? uninstallTarget.name : ''"
+			:showcaseName="uninstallTarget ? uninstallTarget.name : ''"
 			@update:open="uninstallTarget = null"
 			@confirm="onUninstallConfirm" />
 	</div>

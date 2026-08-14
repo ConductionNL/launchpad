@@ -104,10 +104,9 @@
 <script>
 import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import AccountMultipleIcon from 'vue-material-design-icons/AccountMultiple.vue'
-
-import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
 import CreateGroupDashboardModal from '../../../dialogs/CreateGroupDashboardModal.vue'
 import ManageGroupDashboardsModal from '../../../dialogs/ManageGroupDashboardsModal.vue'
+import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
 
 /**
  * GroupDashboardsTab — Beheer ▸ Group dashboards (admin-group-management
@@ -143,6 +142,7 @@ export default {
 		groups() {
 			return this.store.groups
 		},
+
 		loading() {
 			return this.store.loading
 		},

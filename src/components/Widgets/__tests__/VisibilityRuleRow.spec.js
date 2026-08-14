@@ -12,8 +12,8 @@
  *  - `update:rule` fires live on every valid change, before Save
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import VisibilityRuleRow from '../VisibilityRuleRow.vue'
 
 const stubs = {

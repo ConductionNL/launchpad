@@ -15,8 +15,8 @@
 import { generateUrl } from '@nextcloud/router'
 import {
 	fetchFinanceSummary,
-	fetchVendorCommitments,
 	fetchSpendNarrative,
+	fetchVendorCommitments,
 	resolveDeepLink,
 } from './spendAnalytics.js'
 

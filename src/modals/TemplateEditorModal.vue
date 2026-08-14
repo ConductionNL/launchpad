@@ -76,10 +76,10 @@
 			<div class="launchpad-admin__field">
 				<NcSelect
 					v-model="form.permissionLevel"
-					:input-label="t('launchpad', 'Permission level')"
+					:inputLabel="t('launchpad', 'Permission level')"
 					:options="permissionOptions"
 					label="label"
-					track-by="id"
+					trackBy="id"
 					:clearable="false" />
 			</div>
 
@@ -102,11 +102,11 @@
 <script>
 import {
 	NcButton,
+	NcCheckboxRadioSwitch,
+	NcModal,
 	NcSelect,
 	NcSelectTags,
 	NcTextField,
-	NcCheckboxRadioSwitch,
-	NcModal,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../services/api.js'
@@ -146,6 +146,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		/**
 		 * The template to edit, or `null` to open a blank create form.
 		 */

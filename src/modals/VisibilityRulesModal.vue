@@ -15,12 +15,12 @@
 			</h2>
 
 			<ConditionalVisibilityEditor
-				:placement-id="placementId"
-				:available-groups="availableGroups"
+				:placementId="placementId"
+				:availableGroups="availableGroups"
 				data-test="conditional-visibility-editor"
-				@rule-added="$emit('rule-added')"
-				@rule-updated="$emit('rule-updated')"
-				@rule-removed="$emit('rule-removed')" />
+				@ruleAdded="$emit('rule-added')"
+				@ruleUpdated="$emit('rule-updated')"
+				@ruleRemoved="$emit('rule-removed')" />
 		</div>
 	</NcModal>
 </template>
@@ -50,11 +50,13 @@ export default {
 			type: [Number, String],
 			default: null,
 		},
+
 		/** Whether the modal is shown. */
 		open: {
 			type: Boolean,
 			default: false,
 		},
+
 		/** Optional group-id list for the group-rule picker. */
 		availableGroups: {
 			type: Array,

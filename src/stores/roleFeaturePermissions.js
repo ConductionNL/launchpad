@@ -9,9 +9,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-import { defineStore } from 'pinia'
-import { generateUrl } from '@nextcloud/router'
 import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 const PERMS_URL = generateUrl('/apps/launchpad/api/role-feature-permissions')
 const DEFAULTS_URL = generateUrl('/apps/launchpad/api/role-layout-defaults')
@@ -28,6 +28,7 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 	actions: {
 		/**
 		 * Fetch all RoleFeaturePermission rows.
+		 *
 		 * @spec openspec/specs/admin-roles/spec.md
 		 */
 		async loadPermissions() {
@@ -47,6 +48,7 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 
 		/**
 		 * Fetch all RoleLayoutDefault rows.
+		 *
 		 * @spec openspec/specs/admin-roles/spec.md
 		 */
 		async loadLayoutDefaults() {

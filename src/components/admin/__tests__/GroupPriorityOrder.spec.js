@@ -19,8 +19,8 @@
  * default export wires DOM-bound toast helpers.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GroupPriorityOrder from '../GroupPriorityOrder.vue'
 import { api } from '../../../services/api.js'
 

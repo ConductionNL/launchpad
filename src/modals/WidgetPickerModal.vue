@@ -19,9 +19,9 @@
 					v-model="searchQuery"
 					:label="t('launchpad', 'Search widgets')"
 					:placeholder="t('launchpad', 'Search widgets…')"
-					:show-trailing-button="searchQuery !== ''"
-					trailing-button-icon="close"
-					@trailing-button-click="searchQuery = ''">
+					:showTrailingButton="searchQuery !== ''"
+					trailingButtonIcon="close"
+					@trailingButtonClick="searchQuery = ''">
 					<template #icon>
 						<Magnify :size="20" />
 					</template>
@@ -77,12 +77,11 @@
 </template>
 
 <script>
-import { NcModal, NcTextField, NcEmptyContent } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
-
+import { NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
+import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import Check from 'vue-material-design-icons/Check.vue'
 
 export default {
 	name: 'WidgetPickerModal',
@@ -101,10 +100,12 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		widgets: {
 			type: Array,
 			required: true,
 		},
+
 		placedWidgetIds: {
 			type: Array,
 			default: () => [],
@@ -130,6 +131,7 @@ export default {
 				w.title.toLowerCase().includes(query),
 			)
 		},
+
 		/** @spec openspec/specs/widgets/spec.md */
 		sortedWidgets() {
 			return [...this.widgets].sort((a, b) => {
@@ -163,6 +165,7 @@ export default {
 		isPlaced(widgetId) {
 			return this.placedWidgetIds.includes(widgetId)
 		},
+
 		/**
 		 * Ask the host to place the chosen widget.
 		 *

@@ -11,13 +11,12 @@
  * through the API.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { mdiStar } from '@mdi/js'
+import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-
-import OrgNavigationPanel from '../OrgNavigationPanel.vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import OrgNavigationItem from '../OrgNavigationItem.vue'
+import OrgNavigationPanel from '../OrgNavigationPanel.vue'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: {

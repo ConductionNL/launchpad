@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { NcModal, NcButton, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import { NcButton, NcLoadingIcon, NcModal } from '@conduction/nextcloud-vue'
 import { api } from '../services/api.js'
 
 export default {
@@ -120,6 +120,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		announcementKey: {
 			type: String,
 			default: '',
@@ -165,6 +166,7 @@ export default {
 				}
 			},
 		},
+
 		/**
 		 * Reload the report when the targeted announcement changes.
 		 *

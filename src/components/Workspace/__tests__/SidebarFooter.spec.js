@@ -11,8 +11,8 @@
  *    entry used before runtime-shell-trim (https://launchpad.conduction.nl)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SidebarFooter, { DOCS_URL } from '../SidebarFooter.vue'
 
 vi.mock('@nextcloud/router', () => ({

@@ -9,13 +9,13 @@
  * and deep-link resolution.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import axios from '@nextcloud/axios'
-import { queryGraphql, GraphQLSourceError } from '../graphqlClient.js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { GraphQLSourceError, queryGraphql } from '../graphqlClient.js'
 import {
 	fetchFinanceSummary,
-	fetchVendorCommitments,
 	fetchSpendNarrative,
+	fetchVendorCommitments,
 	resolveDeepLink,
 	SPEND_SOURCES,
 } from '../spendAnalytics.js'

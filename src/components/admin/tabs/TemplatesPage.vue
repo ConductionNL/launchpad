@@ -82,13 +82,13 @@
 </template>
 
 <script>
-import { NcButton, NcEmptyContent, CnDashboardIcon } from '@conduction/nextcloud-vue'
+import { CnDashboardIcon, NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
-import { api } from '../../../services/api.js'
-import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
 import TemplateEditorModal from '../../../modals/TemplateEditorModal.vue'
+import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
+import { api } from '../../../services/api.js'
 
 /**
  * TemplatesPage — the Templates SUB_PAGE for the admin Beheer area

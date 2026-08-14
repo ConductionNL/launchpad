@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import ConditionalVisibilityOverview from '../ConditionalVisibilityOverview.vue'
 import AdminAnalytics from '../AdminAnalytics.vue'
+import ConditionalVisibilityOverview from '../ConditionalVisibilityOverview.vue'
 
 /**
  * VersioningAuditTab — Beheer ▸ Versioning & Audit tab. Surfaces the

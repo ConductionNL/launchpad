@@ -59,6 +59,7 @@ export default {
 			type: Boolean,
 			required: true,
 		},
+
 		currentName: {
 			type: String,
 			default: '',

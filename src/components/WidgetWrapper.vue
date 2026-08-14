@@ -25,16 +25,16 @@
 		<CnWidgetWrapper
 			class="launchpad-widget__wrapper"
 			:title="widgetTitle"
-			:show-title="showHeader"
+			:showTitle="showHeader"
 			:chrome="wrapperChrome"
-			:icon-url="widgetIconUrl"
-			:icon-class="widget && widget.iconClass ? widget.iconClass : null"
-			:style-config="styleConfig"
+			:iconUrl="widgetIconUrl"
+			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
+			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
-			:show-refresh="false"
-			:show-request-feature="false">
+			:showRefresh="false"
+			:showRequestFeature="false">
 			<WidgetRenderer :widget="widget" :placement="placement" />
 		</CnWidgetWrapper>
 
@@ -57,9 +57,9 @@
 		     CnDashboardPage pattern. -->
 		<div v-if="editMode" class="launchpad-widget__cog">
 			<CnWidgetEditCog
-				:menu-label="t('launchpad', 'Widget menu')"
-				:edit-label="t('launchpad', 'Edit widget')"
-				:delete-label="t('launchpad', 'Delete widget')"
+				:menuLabel="t('launchpad', 'Widget menu')"
+				:editLabel="t('launchpad', 'Edit widget')"
+				:deleteLabel="t('launchpad', 'Delete widget')"
 				@edit="$emit('edit', placement)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
@@ -67,9 +67,9 @@
 </template>
 
 <script>
-import { CnWidgetWrapper, CnWidgetEditCog } from '@conduction/nextcloud-vue'
-import WidgetRenderer from './WidgetRenderer.vue'
+import { CnWidgetEditCog, CnWidgetWrapper } from '@conduction/nextcloud-vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
+import WidgetRenderer from './WidgetRenderer.vue'
 
 export default {
 	name: 'WidgetWrapper',
@@ -86,14 +86,17 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		widget: {
 			type: Object,
 			default: null,
 		},
+
 		editMode: {
 			type: Boolean,
 			default: false,
 		},
+
 		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
 		// item for the current user. Resolved by the parent from the pending
 		// set; defaults false so widgets without a requirement are unchanged.

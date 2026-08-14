@@ -10,9 +10,9 @@
  * client-side search).
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
 import axios from '@nextcloud/axios'
+import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import FilesWidget from '../FilesWidget.vue'
 
 // Vue 2's @vue/test-utils does not export `flushPromises`. The

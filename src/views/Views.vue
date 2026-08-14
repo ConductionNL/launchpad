@@ -9,25 +9,25 @@
 		     Once `runtime-shell` ships and replaces this view with
 		     `WorkspaceApp.vue`, the same binding shape applies. -->
 		<DashboardSwitcherSidebar
-			:is-open="sidebarOpen"
-			:group-name="primaryGroupName"
-			:group-dashboards="sidebarGroupDashboards"
-			:user-dashboards="sidebarUserDashboards"
-			:active-dashboard-id="activeDashboard?.id"
-			:allow-user-dashboards="allowUserDashboards"
-			:can-edit="canEdit"
-			:default-uuid="defaultDashboardUuid"
-			:dashboard-quota-reached="dashboardQuotaReached"
-			:dashboard-quota-tooltip="dashboardQuotaTooltip"
-			:is-edit-mode="isEditMode"
+			:isOpen="sidebarOpen"
+			:groupName="primaryGroupName"
+			:groupDashboards="sidebarGroupDashboards"
+			:userDashboards="sidebarUserDashboards"
+			:activeDashboardId="activeDashboard?.id"
+			:allowUserDashboards="allowUserDashboards"
+			:canEdit="canEdit"
+			:defaultUuid="defaultDashboardUuid"
+			:dashboardQuotaReached="dashboardQuotaReached"
+			:dashboardQuotaTooltip="dashboardQuotaTooltip"
+			:isEditMode="isEditMode"
 			@update:open="sidebarOpen = $event"
 			@switch="onSidebarSwitch"
-			@create-dashboard="onSidebarCreateDashboard"
-			@delete-dashboard="onSidebarDeleteDashboard"
-			@toggle-edit="onRowToggleEdit"
-			@open-config="onRowOpenConfig"
-			@add-custom-widget="onRowAddCustomWidget"
-			@set-default="onRowSetDefault" />
+			@createDashboard="onSidebarCreateDashboard"
+			@deleteDashboard="onSidebarDeleteDashboard"
+			@toggleEdit="onRowToggleEdit"
+			@openConfig="onRowOpenConfig"
+			@addCustomWidget="onRowAddCustomWidget"
+			@setDefault="onRowSetDefault" />
 		<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
 
 		<!-- Floating controls in top right.
@@ -53,26 +53,20 @@
 				v-if="activeDashboard"
 				:dashboard="activeDashboard"
 				:source="activeDashboardSource"
-				:can-edit="canEdit"
-				:can-share="canShareActiveDashboard"
-				:default-uuid="defaultDashboardUuid"
-				:is-edit-mode="isEditMode"
-				:active-dashboard-id="activeDashboard.id"
-				button-type="secondary"
-				:icon-size="20"
+				:canEdit="canEdit"
+				:canShare="canShareActiveDashboard"
+				:defaultUuid="defaultDashboardUuid"
+				:isEditMode="isEditMode"
+				:activeDashboardId="activeDashboard.id"
+				buttonType="secondary"
+				:iconSize="20"
 				class="launchpad-active-dashboard-cog"
-				@toggle-edit="
-					onRowToggleEdit(activeDashboard, activeDashboardSource)
-				"
-				@open-config="
-					onRowOpenConfig(activeDashboard, activeDashboardSource)
-				"
-				@add-custom-widget="
+				@toggleEdit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
+				@openConfig="onRowOpenConfig(activeDashboard, activeDashboardSource)"
+				@addCustomWidget="
 					onRowAddCustomWidget(activeDashboard, activeDashboardSource)
 				"
-				@set-default="
-					onRowSetDefault(activeDashboard, activeDashboardSource)
-				"
+				@setDefault="onRowSetDefault(activeDashboard, activeDashboardSource)"
 				@share="openShareDrawer"
 				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
@@ -132,7 +126,7 @@
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
 			:open="ackReportOpen"
-			:announcement-key="ackReportKey"
+			:announcementKey="ackReportKey"
 			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
@@ -144,12 +138,12 @@
 				:layout="widgetPlacements"
 				:editable="isEditMode"
 				:columns="activeDashboard.gridColumns || 12"
-				:cell-height="60"
+				:cellHeight="60"
 				:margin="8"
-				:column-opts="dashboardColumnOpts"
-				cell-height-css-var="--launchpad-cell-height"
-				:item-key="placementItemKey"
-				@layout-change="updatePlacements">
+				:columnOpts="dashboardColumnOpts"
+				cellHeightCssVar="--launchpad-cell-height"
+				:itemKey="placementItemKey"
+				@layoutChange="updatePlacements">
 				<template #widget="{ item }">
 					<!-- `data-placement-id` (tile-quick-search) lets the runtime
 					     shell's quick-search bar (mounted in WorkspaceApp.vue, a
@@ -164,15 +158,13 @@
 						<TileWidget
 							v-if="isTilePlacement(item)"
 							:tile="getTileData(item)"
-							:edit-mode="isEditMode"
-							:placement-id="item.id"
-							:health-ping-enabled="
+							:editMode="isEditMode"
+							:placementId="item.id"
+							:healthPingEnabled="
 								item.content
 								&& item.content.healthPingEnabled === true
 							"
-							:ping-interval="
-								item.content && item.content.pingInterval
-							"
+							:pingInterval="item.content && item.content.pingInterval"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -180,8 +172,8 @@
 							v-else
 							:placement="item"
 							:widget="getWidget(item.widgetId)"
-							:edit-mode="isEditMode"
-							:outstanding-acknowledgement="
+							:editMode="isEditMode"
+							:outstandingAcknowledgement="
 								isPlacementOutstanding(item)
 							"
 							@remove="removeWidget(item.id)"
@@ -226,7 +218,7 @@
 		<WidgetPickerModal
 			:open="isWidgetModalOpen"
 			:widgets="availableWidgets"
-			:placed-widget-ids="placedWidgetIds"
+			:placedWidgetIds="placedWidgetIds"
 			@close="closeWidgetModal"
 			@add="addWidget" />
 
@@ -235,11 +227,11 @@
 		     no API calls itself; this view persists the emitted payload. -->
 		<CnAddWidgetModal
 			:show="isCustomWidgetModalOpen"
-			:preselected-type="customWidgetPreselectedType"
-			:editing-widget="customWidgetEditing"
-			:upload-fn="iconUploadFn"
-			:file-upload-fn="imageFileUpload"
-			:calendars-fetcher="fetchCalendars"
+			:preselectedType="customWidgetPreselectedType"
+			:editingWidget="customWidgetEditing"
+			:uploadFn="iconUploadFn"
+			:fileUploadFn="imageFileUpload"
+			:calendarsFetcher="fetchCalendars"
 			@close="closeCustomWidgetModal"
 			@submit="saveCustomWidget" />
 
@@ -248,13 +240,13 @@
 			:open="isConfigModalOpen"
 			:dashboard="configModalMode === 'create' ? null : activeDashboard"
 			:mode="configModalMode"
-			:can-delete="dashboards.length > 1"
-			:default-uuid="defaultDashboardUuid"
-			:initial-tab="configModalInitialTab"
+			:canDelete="dashboards.length > 1"
+			:defaultUuid="defaultDashboardUuid"
+			:initialTab="configModalInitialTab"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
-			@set-default="onModalSetDefault" />
+			@setDefault="onModalSetDefault" />
 
 		<!-- Style editor modal. `extra-icon-options` is gone: CnIconBrowser now
 		     ships the NL Design sets itself (RVO lazily), so passing the pack here
@@ -288,7 +280,7 @@
 			@edit="grid.triggerEdit()"
 			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"
-			@visibility-rules="grid.triggerVisibilityRules()"
+			@visibilityRules="grid.triggerVisibilityRules()"
 			@close="grid.closeContextMenu()" />
 
 		<!-- Keyboard-operable move/resize panel (WCAG 2.1 SC 2.1.1). The
@@ -299,8 +291,8 @@
 		<WidgetMovePanel
 			:open="movePanelOpen"
 			:placement="movePanelPlacement"
-			:all-placements="widgetPlacements"
-			:grid-columns="activeDashboard?.gridColumns || 12"
+			:allPlacements="widgetPlacements"
+			:gridColumns="activeDashboard?.gridColumns || 12"
 			@save="handleMoveSave"
 			@close="closeMovePanel" />
 
@@ -309,58 +301,54 @@
 		     gated on `canEdit` so only dashboard owners reach it. -->
 		<VisibilityRulesModal
 			:open="isVisibilityModalOpen"
-			:placement-id="visibilityPlacementId"
+			:placementId="visibilityPlacementId"
 			@close="closeVisibilityRules"
-			@rule-added="onVisibilityRulesChanged"
-			@rule-updated="onVisibilityRulesChanged"
-			@rule-removed="onVisibilityRulesChanged" />
+			@ruleAdded="onVisibilityRulesChanged"
+			@ruleUpdated="onVisibilityRulesChanged"
+			@ruleRemoved="onVisibilityRulesChanged" />
 	</div>
 </template>
 
 <script>
-import { reactive, provide, computed } from 'vue'
-import { mapState, mapActions } from 'pinia'
 import {
+	CnAddWidgetModal,
+	CnDashboardGrid,
+	CnWidgetStyleEditorModal,
+	getDashboardColumnOpts,
 	NcButton,
 	NcEmptyContent,
 	NcLoadingIcon,
-	CnDashboardGrid,
-	CnWidgetStyleEditorModal,
-	CnAddWidgetModal,
-	getDashboardColumnOpts,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-
-// Icons
-import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import { mapActions, mapState } from 'pinia'
+import { computed, provide, reactive } from 'vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
-
+// Icons
+import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import TileWidget from '../components/TileWidget.vue'
+import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
-import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
-import TileWidget from '../components/TileWidget.vue'
-import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
-import TileEditor from '../modals/TileEditor.vue'
-import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
-import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
-import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
-import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
-import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
-import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
-import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
+import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
-
-// Stores
-import { useDashboardStore } from '../stores/dashboard.js'
-import { useWidgetStore } from '../stores/widgets.js'
-import { useTileStore } from '../stores/tiles.js'
-import { api } from '../services/api.js'
-
+import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
+import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
+import TileEditor from '../modals/TileEditor.vue'
+import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
+import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
+import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
 import { useGridManager } from '../composables/useGridManager.js'
+import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
+import { api } from '../services/api.js'
+import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
+// Stores
+import { useDashboardStore } from '../stores/dashboard.js'
+import { useTileStore } from '../stores/tiles.js'
+import { useWidgetStore } from '../stores/widgets.js'
 
 export default {
 	name: 'Views',
@@ -387,6 +375,7 @@ export default {
 		DashboardRowActions,
 		SidebarBackdrop,
 	},
+
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
 	// values down the tree. Defaults keep the UX safe when keys are missing.
 	inject: {
@@ -394,10 +383,12 @@ export default {
 			from: 'allowUserDashboards',
 			default: false,
 		},
+
 		primaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
 		},
+
 		// Canonical slug-chain path the server resolved for the active
 		// dashboard. Empty string when no dashboard is active OR the
 		// active one has no slug. Read once on mount to bring
@@ -408,6 +399,7 @@ export default {
 			default: '',
 		},
 	},
+
 	// Inject the typed initial-state snapshot pushed from `src/main.js`
 	// (REQ-INIT-003..005). Defaults match the reader contract so the
 	// sidebar still mounts when running under tests that don't set a
@@ -489,6 +481,7 @@ export default {
 
 		return { canEditRef, grid }
 	},
+
 	data() {
 		return {
 			isEditMode: false,
@@ -544,6 +537,7 @@ export default {
 			ackReportKey: '',
 		}
 	},
+
 	computed: {
 		/**
 		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
@@ -563,6 +557,7 @@ export default {
 				.map((p) => p.announcementKey)
 			return [...new Set(keys)]
 		},
+
 		/**
 		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007).
 		 * Built once from the shared nc-vue helper so the grid reflows its
@@ -593,6 +588,7 @@ export default {
 			'outstandingAcknowledgementCount',
 			'isPlacementOutstanding',
 		]),
+
 		...mapState(useWidgetStore, ['availableWidgets']),
 		...mapState(useTileStore, ['tiles']),
 
@@ -600,6 +596,7 @@ export default {
 		canEdit() {
 			return this.permissionLevel !== 'view_only'
 		},
+
 		/**
 		 * Whether the top-bar share action should be shown (dashboard-sharing
 		 * spec). Requires an active dashboard the user owns (only owners can
@@ -612,6 +609,7 @@ export default {
 			const dash = this.activeDashboard
 			return !!dash && dash.isOwner !== false && (dash.id ?? null) !== null
 		},
+
 		/**
 		 * Whether the right-click context menu (REQ-WDG-015) should open
 		 * for the current dashboard. Requires both the user permission
@@ -624,6 +622,7 @@ export default {
 		canEditForContextMenu() {
 			return this.canEdit && this.isEditMode
 		},
+
 		/*
 		 * Reactive bridges to `grid.state.*` (from the `useGridManager`
 		 * composable in `setup()`). Vue 2.7's template compiler does NOT
@@ -640,18 +639,22 @@ export default {
 		contextMenuVisible() {
 			return this.grid.state.contextMenuOpen
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuTop() {
 			return this.grid.state.contextMenuPosition.y
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		contextMenuLeft() {
 			return this.grid.state.contextMenuPosition.x
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
 			return this.widgetPlacements.map((p) => p.widgetId)
 		},
+
 		/**
 		 * Combined input for the sidebar's `groupDashboards` prop —
 		 * primary-group + default-group + shared-with-me rows, each carrying
@@ -672,6 +675,7 @@ export default {
 				...this.sharedWithMeDashboards,
 			]
 		},
+
 		/**
 		 * Section discriminator for the currently active dashboard, so the
 		 * top-right active-dashboard cog (DashboardRowActions) gates its
@@ -704,6 +708,7 @@ export default {
 			}
 			return this.activeDashboard?.isOwner === false ? 'group' : 'user'
 		},
+
 		/**
 		 * Personal dashboards for the sidebar's `userDashboards` prop.
 		 * Aliased so the sidebar's prop name reads naturally in the
@@ -715,6 +720,7 @@ export default {
 		sidebarUserDashboards() {
 			return this.userDashboards
 		},
+
 		/**
 		 * Empty-state copy. When personal dashboards are disabled by the
 		 * admin we swap the friendly "create one" prompt for a localised
@@ -737,6 +743,7 @@ export default {
 			)
 		},
 	},
+
 	watch: {
 		/**
 		 * Mirror the combined edit-mode / permission gate into the
@@ -761,6 +768,7 @@ export default {
 				}
 			},
 		},
+
 		/**
 		 * REQ-ANLT-011 — fire a view-event whenever the active
 		 * dashboard switches (and on initial render once the active
@@ -795,6 +803,7 @@ export default {
 			},
 		},
 	},
+
 	/** @spec openspec/specs/dashboards/spec.md */
 	async created() {
 		// Bind the host onto the grid composable so its onEdit / onRemove
@@ -832,6 +841,7 @@ export default {
 			)
 		}
 	},
+
 	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
 		// Attach the document-level click listener (REQ-WDG-016 outside-
@@ -849,6 +859,7 @@ export default {
 		// Browser back / forward → re-resolve the URL and switch.
 		window.addEventListener('popstate', this.handleHistoryPopState)
 	},
+
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
 		this.grid.detach()
@@ -857,6 +868,7 @@ export default {
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
 	},
+
 	methods: {
 		t,
 
@@ -1101,6 +1113,7 @@ export default {
 				)
 			}
 		},
+
 		/**
 		 * "Visibility rules…" click from the popover
 		 * (conditional-visibility spec). Stores the target placement id and
@@ -1204,10 +1217,12 @@ export default {
 			}
 			this.isWidgetModalOpen = true
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeWidgetModal() {
 			this.isWidgetModalOpen = false
 		},
+
 		/**
 		 * Open the registry-driven custom widget modal in create mode.
 		 * Pass a `type` to deep-link to a specific sub-form (REQ-WDG-010
@@ -1224,6 +1239,7 @@ export default {
 			this.customWidgetEditing = null
 			this.isCustomWidgetModalOpen = true
 		},
+
 		/**
 		 * Open the modal in edit mode for an existing custom-type
 		 * placement. The placement's type is immutable in edit mode
@@ -1237,12 +1253,14 @@ export default {
 			this.customWidgetPreselectedType = null
 			this.isCustomWidgetModalOpen = true
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeCustomWidgetModal() {
 			this.isCustomWidgetModalOpen = false
 			this.customWidgetPreselectedType = null
 			this.customWidgetEditing = null
 		},
+
 		/**
 		 * Persist the `{type, content}` payload emitted by AddWidgetModal.
 		 * In create mode we route through `addWidgetToDashboard` (which
@@ -1350,6 +1368,7 @@ export default {
 				},
 			}
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		openConfigModal() {
 			this.configModalMode = 'edit'
@@ -1369,15 +1388,18 @@ export default {
 			this.configModalInitialTab = 'sharing'
 			this.isConfigModalOpen = true
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		openCreateDashboardModal() {
 			this.configModalMode = 'create'
 			this.isConfigModalOpen = true
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeConfigModal() {
 			this.isConfigModalOpen = false
 		},
+
 		/**
 		 * Place a widget on the active dashboard.
 		 *
@@ -1387,6 +1409,7 @@ export default {
 		async addWidget(widgetId) {
 			await this.addWidgetToDashboard(widgetId)
 		},
+
 		/**
 		 * Remove a placement from the active dashboard.
 		 *
@@ -1396,6 +1419,7 @@ export default {
 		async removeWidget(placementId) {
 			await this.removeWidgetFromDashboard(placementId)
 		},
+
 		/**
 		 * Open the per-widget style editor for a placement.
 		 *
@@ -1409,12 +1433,14 @@ export default {
 			this.styleEditorWidget = JSON.parse(JSON.stringify(placement))
 			this.isStyleEditorOpen = true
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeStyleEditor() {
 			this.isStyleEditorOpen = false
 			this.editingPlacement = null
 			this.styleEditorWidget = null
 		},
+
 		/**
 		 * Bridge CnWidgetStyleEditorModal's mutate-in-place `@save(widget)` to
 		 * launchpad's immutable store path: derive the chrome+style patch from
@@ -1437,6 +1463,7 @@ export default {
 			})
 			this.closeStyleEditor()
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteWidget() {
 			if (this.editingPlacement?.id) {
@@ -1444,6 +1471,7 @@ export default {
 				this.closeStyleEditor()
 			}
 		},
+
 		/**
 		 * Open the launcher-tile editor, entering edit mode if needed.
 		 *
@@ -1458,6 +1486,7 @@ export default {
 			this.editingTile = tile
 			this.isTileEditorOpen = true
 		},
+
 		/**
 		 * Open the tile editor pre-filled from an existing tile placement.
 		 *
@@ -1486,11 +1515,13 @@ export default {
 			}
 			this.openTileEditor(tileData)
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeTileEditor() {
 			this.isTileEditorOpen = false
 			this.editingTile = null
 		},
+
 		/**
 		 * Create or update a launcher tile from the editor's form state.
 		 *
@@ -1537,6 +1568,7 @@ export default {
 				console.error('[Views] Failed to save tile:', error)
 			}
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteTile() {
 			if (this.editingTile?.id) {
@@ -1544,10 +1576,12 @@ export default {
 				this.closeTileEditor()
 			}
 		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		handleCreateDashboard() {
 			this.openCreateDashboardModal()
 		},
+
 		/**
 		 * Create or update a dashboard from the config modal's form state.
 		 *
@@ -1571,6 +1605,7 @@ export default {
 				console.error('Failed to save dashboard:', error)
 			}
 		},
+
 		/**
 		 * Delete a dashboard after an explicit user confirmation.
 		 *
@@ -1597,6 +1632,7 @@ export default {
 				console.error('Failed to delete dashboard:', error)
 			}
 		},
+
 		/**
 		 * Handle a switch emitted by `DashboardSwitcherSidebar`. The sidebar
 		 * passes the row's `source` discriminator alongside the id so we
@@ -1617,7 +1653,7 @@ export default {
 		 * @param {'group'|'default'|'user'} source Section discriminator.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		// eslint-disable-next-line no-unused-vars -- `source` is part of the
+
 		// REQ-SWITCH-002 contract and is kept in the signature so per-source
 		// endpoints can land without re-touching this view.
 		async onSidebarSwitch(id, source) {
@@ -1654,6 +1690,7 @@ export default {
 		 * server pushed via initial state. Runs once on mount; uses
 		 * `replaceState` so the bootstrap entry doesn't pollute the
 		 * back-button history.
+		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		replaceUrlFromInitialState() {
@@ -1691,6 +1728,7 @@ export default {
 		 * (the bootstrap render uses `replaceUrlFromInitialState`
 		 * instead). Failures are non-fatal; the URL just stays at its
 		 * previous value while the active dashboard moves on.
+		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async pushUrlForActiveDashboard() {
@@ -1776,6 +1814,7 @@ export default {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.toggleEditMode()
 		},
+
 		/**
 		 * Row cog "Configure" — switch to the row's dashboard, then open the
 		 * dashboard config modal.
@@ -1788,6 +1827,7 @@ export default {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openConfigModal()
 		},
+
 		/**
 		 * Row cog "Add widget" — switch to the row's dashboard, then open the
 		 * custom-widget picker.
@@ -1816,7 +1856,7 @@ export default {
 		 *   accepted for signature parity with the other row handlers.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		// eslint-disable-next-line no-unused-vars -- `source` is unused today
+
 		// but kept so every row-cog handler shares one signature.
 		async onRowSetDefault(dashboard, source) {
 			const uuid = dashboard?.uuid ?? ''
@@ -1888,11 +1928,13 @@ export default {
 			}
 			await this.onSidebarSwitch(id, source)
 		},
+
 		/**
 		 * Sidebar `+ New Dashboard` handler — forks the active dashboard
 		 * as a personal copy (REQ-DASH-020). The store action handles the
 		 * 403 toast when personal dashboards are disabled (REQ-ASET-003)
 		 * and pushes the new entry to `dashboards` on success.
+		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onSidebarCreateDashboard() {
@@ -1907,6 +1949,7 @@ export default {
 				// additional to do here.
 			}
 		},
+
 		/**
 		 * Sidebar personal-row delete handler. Mirrors the topbar
 		 * deletion flow (confirm → API → reload) but operates on an

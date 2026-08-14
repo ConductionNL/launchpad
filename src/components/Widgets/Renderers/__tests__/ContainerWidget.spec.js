@@ -10,17 +10,15 @@
  * cleanup contract on beforeDestroy.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import ContainerWidget from '../ContainerWidget.vue'
 
 beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name)
-					? vars[name]
-					: `{${name}}`,
+				Object.hasOwn(vars, name) ? vars[name] : `{${name}}`,
 			)
 		}
 		return key

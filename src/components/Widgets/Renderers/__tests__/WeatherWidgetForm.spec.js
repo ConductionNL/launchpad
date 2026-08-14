@@ -7,8 +7,8 @@
  * a location; pre-fills from an existing placement.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import WeatherWidgetForm from '../WeatherWidgetForm.vue'
 
 beforeEach(() => {

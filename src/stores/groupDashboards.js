@@ -11,10 +11,9 @@
  * mount, so we don't try to keep an authoritative client-side cache.
  */
 
-import { defineStore } from 'pinia'
 import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
-
+import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
 
 /**

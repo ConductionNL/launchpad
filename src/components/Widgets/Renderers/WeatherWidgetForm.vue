@@ -17,16 +17,16 @@
 		<!-- @nextcloud/vue@9: `value` + `update:value` were renamed to
 		     `modelValue` + `update:modelValue`; the old pair fails silently. -->
 		<NcTextField
-			:model-value="location"
+			:modelValue="location"
 			:label="t('launchpad', 'Location')"
 			:placeholder="t('launchpad', 'e.g. Amsterdam, NL')"
 			required
 			@update:modelValue="updateField('location', $event)" />
 
 		<NcSelect
-			:model-value="unitsOverride"
+			:modelValue="unitsOverride"
 			:options="unitsOptions"
-			:input-label="t('launchpad', 'Units')"
+			:inputLabel="t('launchpad', 'Units')"
 			:placeholder="t('launchpad', 'Follow my locale')"
 			:reduce="(option) => option.value"
 			label="label"
@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import { NcTextField, NcSelect } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcSelect, NcTextField } from '@nextcloud/vue'
 
 const DEFAULT_CONTENT = Object.freeze({
 	location: '',
@@ -70,6 +70,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		/**
 		 * Initial content values — used when not editing.
 		 *

@@ -20,21 +20,21 @@
 				     silently, so every field here rendered but never
 				     emitted. The listener must stay camelCase. -->
 				<NcTextField
-					:model-value="row.name"
+					:modelValue="row.name"
 					:label="t('launchpad', 'Name')"
 					:placeholder="t('launchpad', 'Manager — analysedashboard')"
 					@update:modelValue="
 						$emit('update:row', { ...row, name: $event })
 					" />
 				<NcTextField
-					:model-value="row.groupId"
+					:modelValue="row.groupId"
 					:label="t('launchpad', 'Group ID')"
 					:placeholder="t('launchpad', 'managers')"
 					@update:modelValue="
 						$emit('update:row', { ...row, groupId: $event })
 					" />
 				<NcTextField
-					:model-value="row.widgetId"
+					:modelValue="row.widgetId"
 					:label="t('launchpad', 'Widget ID')"
 					:placeholder="t('launchpad', 'analytics_dashboard')"
 					@update:modelValue="
@@ -42,14 +42,14 @@
 					" />
 				<div class="launchpad-admin__editor-row">
 					<NcTextField
-						:model-value="String(row.gridX)"
+						:modelValue="String(row.gridX)"
 						:label="t('launchpad', 'Grid X')"
 						type="number"
 						@update:modelValue="
 							$emit('update:row', { ...row, gridX: Number($event) })
 						" />
 					<NcTextField
-						:model-value="String(row.gridY)"
+						:modelValue="String(row.gridY)"
 						:label="t('launchpad', 'Grid Y')"
 						type="number"
 						@update:modelValue="
@@ -58,7 +58,7 @@
 				</div>
 				<div class="launchpad-admin__editor-row">
 					<NcTextField
-						:model-value="String(row.gridWidth)"
+						:modelValue="String(row.gridWidth)"
 						:label="t('launchpad', 'Width (columns)')"
 						type="number"
 						@update:modelValue="
@@ -68,7 +68,7 @@
 							})
 						" />
 					<NcTextField
-						:model-value="String(row.gridHeight)"
+						:modelValue="String(row.gridHeight)"
 						:label="t('launchpad', 'Height (rows)')"
 						type="number"
 						@update:modelValue="
@@ -79,14 +79,14 @@
 						" />
 				</div>
 				<NcTextField
-					:model-value="String(row.sortOrder)"
+					:modelValue="String(row.sortOrder)"
 					:label="t('launchpad', 'Sort order')"
 					type="number"
 					@update:modelValue="
 						$emit('update:row', { ...row, sortOrder: Number($event) })
 					" />
 				<NcCheckboxRadioSwitch
-					:model-value="Boolean(row.isCompulsory)"
+					:modelValue="Boolean(row.isCompulsory)"
 					@update:modelValue="
 						$emit('update:row', { ...row, isCompulsory: $event })
 					">
@@ -95,7 +95,7 @@
 					}}
 				</NcCheckboxRadioSwitch>
 				<NcTextField
-					:model-value="row.description || ''"
+					:modelValue="row.description || ''"
 					:label="t('launchpad', 'Description (optional)')"
 					@update:modelValue="
 						$emit('update:row', { ...row, description: $event })

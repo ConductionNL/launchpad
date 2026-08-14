@@ -36,10 +36,10 @@
 			<div class="launchpad-resync__field">
 				<NcSelect
 					v-model="strategy"
-					:input-label="t('launchpad', 'Strategy')"
+					:inputLabel="t('launchpad', 'Strategy')"
 					:options="strategyOptions"
 					label="label"
-					track-by="id"
+					trackBy="id"
 					:clearable="false"
 					data-testid="template-resync-strategy"
 					@update:modelValue="handleStrategyChange" />
@@ -146,10 +146,10 @@
 
 <script>
 import {
-	NcModal,
 	NcButton,
-	NcSelect,
 	NcLoadingIcon,
+	NcModal,
+	NcSelect,
 } from '@conduction/nextcloud-vue'
 import { api } from '../services/api.js'
 
@@ -173,6 +173,7 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		template: {
 			type: Object,
 			default: null,
@@ -187,6 +188,7 @@ export default {
 				id: 'overwrite',
 				label: t('launchpad', 'Overwrite — replace the whole layout'),
 			},
+
 			strategyOptions: [
 				{
 					id: 'overwrite',
@@ -197,6 +199,7 @@ export default {
 					label: t('launchpad', 'Merge — keep personally added widgets'),
 				},
 			],
+
 			loading: false,
 			applying: false,
 			error: '',

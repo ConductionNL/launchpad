@@ -102,8 +102,8 @@
 		<RoleLayoutDefaultDeleteDialog
 			v-if="showDeleteDialog"
 			:open="showDeleteDialog"
-			:group-id="deleteTarget ? deleteTarget.groupId : ''"
-			:widget-id="deleteTarget ? deleteTarget.widgetId : ''"
+			:groupId="deleteTarget ? deleteTarget.groupId : ''"
+			:widgetId="deleteTarget ? deleteTarget.widgetId : ''"
 			@update:open="showDeleteDialog = $event"
 			@confirm="confirmDelete" />
 	</div>
@@ -111,12 +111,12 @@
 
 <script>
 import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
-import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
-import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
+import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import RoleLayoutDefaultDeleteDialog from '../../dialogs/RoleLayoutDefaultDeleteDialog.vue'
+import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 
 export default {
@@ -174,11 +174,13 @@ export default {
 				description: '',
 			}
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
 		openCreate() {
 			this.editorRow = this.emptyRow()
 			this.showEditor = true
 		},
+
 		/**
 		 * Open the editor on a copy of an existing row, so edits are only
 		 * committed on save.
@@ -190,6 +192,7 @@ export default {
 			this.editorRow = { ...row }
 			this.showEditor = true
 		},
+
 		/**
 		 * Stage a row for deletion and open the confirmation dialog.
 		 *
@@ -200,6 +203,7 @@ export default {
 			this.deleteTarget = row
 			this.showDeleteDialog = true
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
 		async save() {
 			try {
@@ -209,6 +213,7 @@ export default {
 				console.error('Failed to save layout default', e)
 			}
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
 		async confirmDelete() {
 			if (this.deleteTarget === null) {

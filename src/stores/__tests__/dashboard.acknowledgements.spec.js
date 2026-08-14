@@ -12,8 +12,8 @@
  * The api module is mocked so the store logic is exercised in isolation.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '../../services/api.js'
 import { useDashboardStore } from '../dashboard.js'
 
@@ -42,14 +42,16 @@ vi.mock('../../services/api.js', () => ({
 	},
 }))
 
-const pendingItem = (key) => ({
-	placementId: 1,
-	dashboardUuid: 'dash-1',
-	announcementKey: key,
-	prompt: 'Read this',
-	deadline: null,
-	contentVersion: 1,
-})
+function pendingItem(key) {
+	return {
+		placementId: 1,
+		dashboardUuid: 'dash-1',
+		announcementKey: key,
+		prompt: 'Read this',
+		deadline: null,
+		contentVersion: 1,
+	}
+}
 
 describe('dashboard store — acknowledgements', () => {
 	let store

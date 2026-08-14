@@ -102,14 +102,14 @@
 		</div>
 		<!-- vuedraggable v4 (Vue 3): rows come from the `#item` scoped slot, and
 		     `item-key` replaces the manual :key binding. See OrgNavigationEditor. -->
-		<draggable
+		<Draggable
 			v-if="hasChildren"
 			:list="node.children"
 			tag="ul"
-			item-key="id"
+			itemKey="id"
 			class="org-nav-row__children"
 			handle=".org-nav-row__handle"
-			ghost-class="org-nav-row__ghost"
+			ghostClass="org-nav-row__ghost"
 			:animation="150">
 			<template #item="{ element: child, index: idx }">
 				<OrgNavigationEditorRow
@@ -117,22 +117,22 @@
 					:level="level + 1"
 					:index="idx"
 					:siblings="node.children"
-					:max-depth="maxDepth"
+					:maxDepth="maxDepth"
 					:groups="groups"
 					@update="(payload) => $emit('update', payload)"
 					@delete="(payload) => $emit('delete', payload)"
-					@move-up="(payload) => $emit('move-up', payload)"
-					@move-down="(payload) => $emit('move-down', payload)"
-					@add-child="(payload) => $emit('add-child', payload)" />
+					@moveUp="(payload) => $emit('move-up', payload)"
+					@moveDown="(payload) => $emit('move-down', payload)"
+					@addChild="(payload) => $emit('add-child', payload)" />
 			</template>
-		</draggable>
+		</Draggable>
 	</li>
 </template>
 
 <script>
+import { CnIconBrowser } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
-import { CnIconBrowser } from '@conduction/nextcloud-vue'
 import { ICON_CATALOGUE } from '../../services/iconCatalogue.js'
 
 /**
@@ -153,7 +153,7 @@ export default {
 	name: 'OrgNavigationEditorRow',
 
 	components: {
-		draggable,
+		Draggable: draggable,
 		CnIconBrowser,
 	},
 
@@ -162,22 +162,27 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		level: {
 			type: Number,
 			default: 1,
 		},
+
 		index: {
 			type: Number,
 			required: true,
 		},
+
 		siblings: {
 			type: Array,
 			required: true,
 		},
+
 		maxDepth: {
 			type: Number,
 			default: 3,
 		},
+
 		groups: {
 			type: Array,
 			default: () => [],
@@ -195,6 +200,7 @@ export default {
 			localVisibility: Array.isArray(this.node.groupVisibility)
 				? [...this.node.groupVisibility]
 				: null,
+
 			freeTextGroups: Array.isArray(this.node.groupVisibility)
 				? this.node.groupVisibility.join(', ')
 				: '',

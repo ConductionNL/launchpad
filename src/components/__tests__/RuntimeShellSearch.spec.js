@@ -10,9 +10,8 @@
  * events.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import RuntimeShellSearch from '../RuntimeShellSearch.vue'
 
 const ITEMS = [

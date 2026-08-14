@@ -65,8 +65,8 @@
 </template>
 
 <script>
-import { NcLoadingIcon } from '@nextcloud/vue'
 import { translate as t } from '@nextcloud/l10n'
+import { NcLoadingIcon } from '@nextcloud/vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
@@ -120,6 +120,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/**
 		 * The widget placement — only `placement.id` is used, to call the
 		 * per-placement live-tile endpoint.

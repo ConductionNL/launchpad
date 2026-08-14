@@ -108,6 +108,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		locale: {
 			type: String,
 			default: 'en',
@@ -240,6 +241,7 @@ export default {
 		 * empty string. The parent layer is responsible for inserting the
 		 * dashboard primary-language fallback before this component sees
 		 * the map.
+		 *
 		 * @param {Record<string, string>} map Locale-keyed variants.
 		 * @spec openspec/specs/footer-customization/spec.md
 		 */
@@ -247,7 +249,7 @@ export default {
 			if (!map || typeof map !== 'object') {
 				return ''
 			}
-			if (Object.prototype.hasOwnProperty.call(map, this.locale)) {
+			if (Object.hasOwn(map, this.locale)) {
 				return map[this.locale]
 			}
 			const keys = Object.keys(map)

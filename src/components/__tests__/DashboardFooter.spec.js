@@ -8,8 +8,8 @@
  * locale-variant pick, hidden-when-null) is exercised here.
  */
 
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import DashboardFooter from '../DashboardFooter.vue'
 
 describe('DashboardFooter', () => {

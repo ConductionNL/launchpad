@@ -15,10 +15,10 @@
  *    set and renders Visible/Hidden with matched-rule reasons (REQ-CVUI-004)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { api } from '../../../services/api.js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ConditionalVisibilityEditor from '../ConditionalVisibilityEditor.vue'
+import { api } from '../../../services/api.js'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },

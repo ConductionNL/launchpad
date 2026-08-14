@@ -91,14 +91,13 @@
 </template>
 
 <script>
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import CheckIcon from 'vue-material-design-icons/Check.vue'
-
+import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 import {
-	useTileSearch,
 	isCtrlKFocusShortcut,
 	isSlashFocusShortcut,
+	useTileSearch,
 } from '../composables/useTileSearch.js'
 
 let instanceCounter = 0
@@ -140,6 +139,7 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+
 		/**
 		 * The `quicksearch_fallback_target` setting value: `'none'`,
 		 * `'unified-search'`, or a validated `https` URL template
@@ -168,6 +168,7 @@ export default {
 				},
 				getFallbackTarget: () => this.fallbackTarget,
 			}),
+
 			instanceId: `runtime-shell-search-${(instanceCounter += 1)}`,
 		}
 	},

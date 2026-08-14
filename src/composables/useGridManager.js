@@ -391,6 +391,9 @@ export function useGridManager(options = {}) {
 		selectedWidget: null,
 	})
 
+	/**
+	 *
+	 */
 	function getViewport() {
 		const v = viewport || (typeof window !== 'undefined' ? window : null)
 		if (!v) {
@@ -399,6 +402,11 @@ export function useGridManager(options = {}) {
 		return { width: v.innerWidth, height: v.innerHeight }
 	}
 
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 */
 	function clampToViewport(x, y) {
 		const { width, height } = getViewport()
 		let clampedX = x
@@ -412,6 +420,11 @@ export function useGridManager(options = {}) {
 		return { x: clampedX, y: clampedY }
 	}
 
+	/**
+	 *
+	 * @param event
+	 * @param widget
+	 */
 	function onWidgetRightClick(event, widget) {
 		if (!canEdit || !canEdit.value) {
 			return
@@ -423,11 +436,17 @@ export function useGridManager(options = {}) {
 		state.contextMenuOpen = true
 	}
 
+	/**
+	 *
+	 */
 	function closeContextMenu() {
 		state.contextMenuOpen = false
 		state.selectedWidget = null
 	}
 
+	/**
+	 *
+	 */
 	function triggerEdit() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -436,6 +455,9 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 *
+	 */
 	function triggerRemove() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -444,6 +466,9 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 *
+	 */
 	function triggerMove() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -452,6 +477,9 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 *
+	 */
 	function triggerVisibilityRules() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -460,6 +488,10 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 *
+	 * @param event
+	 */
 	function handleDocumentClick(event) {
 		if (!state.contextMenuOpen) {
 			return
@@ -477,6 +509,9 @@ export function useGridManager(options = {}) {
 
 	let attached = false
 
+	/**
+	 *
+	 */
 	function attach() {
 		if (attached || typeof document === 'undefined') {
 			return
@@ -485,6 +520,9 @@ export function useGridManager(options = {}) {
 		attached = true
 	}
 
+	/**
+	 *
+	 */
 	function detach() {
 		if (!attached || typeof document === 'undefined') {
 			return

@@ -10,7 +10,7 @@
 			:description="
 				t('launchpad', 'Configure dashboard permissions and defaults')
 			"
-			doc-url="https://launchpad.conduction.nl/docs/intro">
+			docUrl="https://launchpad.conduction.nl/docs/intro">
 			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
 			     page, above the Beheer tabs, so the call-to-action is always
 			     the first thing the admin sees regardless of active tab. -->
@@ -57,16 +57,16 @@
 				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultPermissionLevel"
-						:input-label="t('launchpad', 'Default permission level')"
+						:inputLabel="t('launchpad', 'Default permission level')"
 						:options="permissionOptions"
 						label="label"
-						track-by="id"
+						trackBy="id"
 						:clearable="false"
 						@update:modelValue="saveSettings" />
 				</div>
 
 				<NcCheckboxRadioSwitch
-					:model-value="settings.allowUserDashboards"
+					:modelValue="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
 					@update:modelValue="
 						updateSetting('allowUserDashboards', $event)
@@ -83,7 +83,7 @@
 				</p>
 
 				<NcCheckboxRadioSwitch
-					:model-value="settings.allowMultipleDashboards"
+					:modelValue="settings.allowMultipleDashboards"
 					@update:modelValue="
 						updateSetting('allowMultipleDashboards', $event)
 					">
@@ -93,7 +93,7 @@
 				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultGridColumns"
-						:input-label="t('launchpad', 'Default grid columns')"
+						:inputLabel="t('launchpad', 'Default grid columns')"
 						:options="gridColumnOptions"
 						:clearable="false"
 						@update:modelValue="saveSettings" />
@@ -216,7 +216,7 @@
 			     content only renders when active (admin-settings spec). -->
 			<BeheerTabs
 				:tabs="beheerTabs"
-				default-tab="templates"
+				defaultTab="templates"
 				@change="onTabChange">
 				<template #templates>
 					<TemplatesPage />
@@ -233,7 +233,7 @@
 				<template #sharing>
 					<SharingTab
 						:groups="injectedAllGroups"
-						:configured-groups="configuredGroups" />
+						:configuredGroups="configuredGroups" />
 				</template>
 				<template #org-navigation>
 					<OrgNavigationTab :groups="injectedAllGroups" />
@@ -271,23 +271,23 @@
 
 <script>
 import {
+	CnDashboardIcon,
 	CnSettingsSection,
 	NcButton,
-	NcSelect,
 	NcCheckboxRadioSwitch,
+	NcSelect,
 	NcTextField,
-	CnDashboardIcon,
 } from '@conduction/nextcloud-vue'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
-import TemplatesPage from './tabs/TemplatesPage.vue'
-import OperationsTab from './tabs/OperationsTab.vue'
-import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
-import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
-import SharingTab from './tabs/SharingTab.vue'
-import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
+import OperationsTab from './tabs/OperationsTab.vue'
+import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
+import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
+import SharingTab from './tabs/SharingTab.vue'
+import TemplatesPage from './tabs/TemplatesPage.vue'
+import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -322,6 +322,7 @@ export default {
 			from: 'allowUserDashboards',
 			default: false,
 		},
+
 		configuredGroups: {
 			from: 'configuredGroups',
 			default: () => [],
@@ -336,6 +337,7 @@ export default {
 					id: 'add_only',
 					label: this.t('launchpad', 'Add only'),
 				},
+
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
 				defaultGridColumns: 12,
@@ -343,11 +345,13 @@ export default {
 				maxDashboardsPerUser: 0,
 				maxWidgetsPerDashboard: 0,
 			},
+
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('launchpad', 'View only') },
 				{ id: 'add_only', label: this.t('launchpad', 'Add only') },
 				{ id: 'full', label: this.t('launchpad', 'Full customization') },
 			],
+
 			gridColumnOptions: [6, 8, 12],
 			// REQ-DASH-015..017 — group-shared dashboards listing.
 			groupSharedDashboards: {},

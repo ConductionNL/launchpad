@@ -229,8 +229,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// Default share permission mirrors the dashboard default.
 		$this->assertSame(Dashboard::PERMISSION_ADD_ONLY, $settings['defaultSharePermissionLevel']);
 		$this->assertSame([], $settings['forcedShareGroups']);
-		// Bridge defaults ON so existing placements keep rendering.
-		$this->assertTrue($settings['legacyWidgetBridgeEnabled']);
+		// Bridge defaults OFF: enabling it makes the workspace read the
+		// Nextcloud widget registry, which injects every widget's scripts.
+		$this->assertFalse($settings['legacyWidgetBridgeEnabled']);
 	}//end testGetSettingsSharingAndBridgeDefaults()
 
 	public function testGetSettingsSharingAndBridgeStoredValues(): void {
@@ -238,7 +239,10 @@ class AdminSettingsServiceTest extends TestCase {
 			[
 				AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL => 'full',
 				AdminSetting::KEY_FORCED_SHARE_GROUPS => ['marketing', 'sales'],
-				AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED => false,
+				// Stored TRUE, the opposite of the default, so this assertion
+				// actually proves the stored value is read rather than passing
+				// on the default.
+				AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED => true,
 			]
 		);
 
@@ -246,7 +250,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 		$this->assertSame('full', $settings['defaultSharePermissionLevel']);
 		$this->assertSame(['marketing', 'sales'], $settings['forcedShareGroups']);
-		$this->assertFalse($settings['legacyWidgetBridgeEnabled']);
+		$this->assertTrue($settings['legacyWidgetBridgeEnabled']);
 	}//end testGetSettingsSharingAndBridgeStoredValues()
 
 	public function testUpdateSettingsPersistsForcedShareGroupsDeduplicated(): void {

@@ -174,7 +174,7 @@ class PageController extends Controller {
 		// is off, the workspace renders without paying for widgets it will never
 		// bridge, and the SPA still has everything it needs: Views.vue fetches the
 		// available-widget list from GET /api/widgets on boot.
-		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? true);
+		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? false);
 		$bridgedWidgets = [];
 		if ($bridgeEnabled === true) {
 			$bridgedWidgets = $this->widgetService->getAvailableWidgets();

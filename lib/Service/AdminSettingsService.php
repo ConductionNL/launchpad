@@ -130,9 +130,15 @@ class AdminSettingsService {
 			// dashboard default; forced-share groups default to none.
 			'defaultSharePermissionLevel' => $settings[$sharePermKey] ?? $permDef,
 			'forcedShareGroups' => array_values($forcedShareGroups),
-			// Legacy-widget-bridge spec: bridge defaults to ON so existing
-			// bridged placements keep rendering after upgrade.
-			'legacyWidgetBridgeEnabled' => $settings[$bridgeKey] ?? true,
+			// Legacy-widget-bridge spec: the bridge defaults to OFF because
+			// turning it on makes the workspace read the Nextcloud widget
+			// registry, and IManager::getWidgets() injects the scripts of EVERY
+			// widget of every enabled app — measured at 118.6 MB of JS and ~30s
+			// of load on this fleet, for widgets the workspace never renders.
+			// Instances that rely on bridged placements switch it back on in
+			// Beheer; the setting is read on every render, so it takes effect
+			// immediately.
+			'legacyWidgetBridgeEnabled' => $settings[$bridgeKey] ?? false,
 			// Dashboard-quota-limits REQ-QUOTA-001: numeric governance
 			// quotas. `0` = unlimited (no enforcement).
 			'maxDashboardsPerUser' => $this->clampQuota(value: $settings[$maxDashKey] ?? 0),

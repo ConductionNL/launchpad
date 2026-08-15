@@ -160,25 +160,7 @@ class PageController extends Controller {
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
 		$settings = $this->adminSettingsService->getSettings();
-
-		// Legacy-widget-bridge spec: touching the Nextcloud widget registry at
-		// all is what costs us here. `IManager::getWidgets()` is not a getter —
-		// it calls loadLazyPanels(), which calls load() on EVERY widget of every
-		// app enabled for the user, ignoring the dashboard layout, and load() is
-		// where widgets call Util::addScript(). Measured on this instance that is
-		// ~147 MB of widget JS injected into a page that renders no Nextcloud
-		// dashboard, every one of which then throws because OCA.Dashboard only
-		// exists on /apps/dashboard.
-		//
-		// So the registry is touched only when the bridge is actually on. When it
-		// is off, the workspace renders without paying for widgets it will never
-		// bridge, and the SPA still has everything it needs: Views.vue fetches the
-		// available-widget list from GET /api/widgets on boot.
-		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? false);
-		$bridgedWidgets = [];
-		if ($bridgeEnabled === true) {
-			$bridgedWidgets = $this->widgetService->getAvailableWidgets();
-		}
+		$bridgedWidgets = $this->resolveBridgedWidgets(settings: $settings);
 
 		$userId = $this->resolveUserId();
 
@@ -261,6 +243,38 @@ class PageController extends Controller {
 
 		return $response;
 	}//end index()
+
+	/**
+	 * Resolve the widgets to bridge into the workspace, if any.
+	 *
+	 * Legacy-widget-bridge spec: touching the Nextcloud widget registry at all is
+	 * what costs us. `IManager::getWidgets()` is not a getter — it calls
+	 * loadLazyPanels(), which calls load() on EVERY widget of every app enabled
+	 * for the user, ignoring the dashboard layout, and load() is where widgets
+	 * call `Util::addScript()`. Measured on this instance that is ~147 MB of
+	 * widget JS injected into a page rendering no Nextcloud dashboard, every one
+	 * of which then throws because `OCA.Dashboard` exists only on
+	 * `/apps/dashboard`.
+	 *
+	 * So the registry is touched only when the bridge is actually on. When it is
+	 * off the workspace renders without paying for widgets it will never bridge,
+	 * and the SPA still has everything it needs: Views.vue fetches the
+	 * available-widget list from `GET /api/widgets` on boot.
+	 *
+	 * @param array $settings Resolved admin settings (see AdminSettingsService).
+	 *
+	 * @return array The widget descriptors to bridge, empty when the bridge is off.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 */
+	private function resolveBridgedWidgets(array $settings): array {
+		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? false);
+		if ($bridgeEnabled === false) {
+			return [];
+		}
+
+		return $this->widgetService->getAvailableWidgets();
+	}//end resolveBridgedWidgets()
 
 	/**
 	 * Resolve the primary group this request routes through.

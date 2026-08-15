@@ -33,7 +33,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "2.2.0-vue3.16",
+		"@conduction/nextcloud-vue": "^2.3.0",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^7.4.1",
@@ -83,10 +83,7 @@
 	"overrides": {
 		"pinia": "~2.1.7",
 		"@vueuse/core": "^14.0.0",
-		"@vueuse/shared": "^14.0.0",
-		"@conduction/nextcloud-vue": {
-			"eslint": "$eslint"
-		}
+		"@vueuse/shared": "^14.0.0"
 	},
 	"prettier": "@nextcloud/prettier-config"
 }

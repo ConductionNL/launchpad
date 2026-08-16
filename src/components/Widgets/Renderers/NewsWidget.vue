@@ -74,11 +74,16 @@
 				<div
 					v-else
 					class="news-widget__item-link news-widget__item-link--inert">
+					<!-- Decorative: the headline beside it carries the meaning,
+					     and this card is inert, so there is no link for the
+					     image to name. aria-hidden states that explicitly
+					     rather than leaving alt="" to imply it. -->
 					<img
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						alt="" />
+						alt=""
+						aria-hidden="true" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">
 							{{ item.title }}

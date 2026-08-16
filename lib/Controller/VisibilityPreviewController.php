@@ -90,6 +90,13 @@ class VisibilityPreviewController extends Controller {
 	 *                      fail validation.
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+	 *
+	 * @no-admin-idor-exempt no object is addressed. Both parameters are the
+	 * candidate rule set and an evaluation context taken from the request
+	 * body; the method loads nothing by id, persists nothing, and evaluates
+	 * against `$this->userId` — which it null-checks — so there is no other
+	 * user's object for a caller to reach. An IDOR needs an attacker-supplied
+	 * identifier, and this endpoint accepts none.
 	 */
 	#[NoAdminRequired]
 	public function preview(

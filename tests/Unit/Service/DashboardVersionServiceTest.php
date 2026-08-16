@@ -545,25 +545,6 @@ class DashboardVersionServiceTest extends TestCase {
 		$this->assertSame(1, $result['version']->getVersionNumber());
 	}//end testAdminMayRestoreOtherUsersDashboard()
 
-	/**
-	 * Cascade cleanup delegates to the mapper.
-	 *
-	 * @return void
-	 */
-	public function testDeleteVersionsForDashboardDelegates(): void {
-		$this->versionMapper->expects($this->once())
-			->method('deleteByDashboardUuid')
-			->with(dashboardUuid: 'd-uuid-1')
-			->willReturn(7);
-
-		$this->assertSame(
-			7,
-			$this->service->deleteVersionsForDashboard(
-				dashboardUuid: 'd-uuid-1'
-			)
-		);
-	}//end testDeleteVersionsForDashboardDelegates()
-
 	// =========================================================================
 	// WF1: restoreVersion transaction envelope (wave-12 regression tests)
 	// =========================================================================

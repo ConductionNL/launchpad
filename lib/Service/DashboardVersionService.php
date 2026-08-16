@@ -527,23 +527,17 @@ class DashboardVersionService {
 		];
 	}//end restoreVersion()
 
-	/**
-	 * Cascade-delete every snapshot row for a dashboard.
+	/*
+	 * NO CASCADE-DELETE WRAPPER HERE.
 	 *
-	 * Designed to be called from the dashboard delete path or, in the
-	 * future, the cascade-events VersionsListener stub. Idempotent.
-	 *
-	 * @param string $dashboardUuid The dashboard UUID.
-	 *
-	 * @return integer The number of rows deleted.
-	 *
-	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 * This service used to carry `deleteVersionsForDashboard()`, a literal
+	 * pass-through to `DashboardVersionMapper::deleteByDashboardUuid()`. It
+	 * never had a caller: the live cascade path is `VersionsListener`, which
+	 * is registered against `DashboardDeletedEvent` in `Application.php`
+	 * (REQ-CSC-002) and calls the mapper directly, inside the
+	 * log-and-continue envelope REQ-CSC-006 requires. Routing that listener
+	 * through a second wrapper would add a hop and nothing else.
 	 */
-	public function deleteVersionsForDashboard(string $dashboardUuid): int {
-		return $this->versionMapper->deleteByDashboardUuid(
-			dashboardUuid: $dashboardUuid
-		);
-	}//end deleteVersionsForDashboard()
 
 	/**
 	 * Whether the supplied dashboard is groupfolder-backed

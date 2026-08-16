@@ -37,6 +37,7 @@ use RuntimeException;
 
 /**
  * @covers \OCA\LaunchPad\Listener\VersionsListener
+ * @uses   \OCA\LaunchPad\Event\DashboardDeletedEvent
  */
 class VersionsListenerTest extends TestCase {
 	/**

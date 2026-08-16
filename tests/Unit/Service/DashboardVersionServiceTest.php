@@ -545,18 +545,6 @@ class DashboardVersionServiceTest extends TestCase {
 		$this->assertSame(1, $result['version']->getVersionNumber());
 	}//end testAdminMayRestoreOtherUsersDashboard()
 
-	/**
-	 * Cascade cleanup delegates to the mapper.
-	 *
-	 * @return void
-	 */
-	// The cascade delete is covered where it actually happens, in
-	// tests/Unit/Listener/VersionsListenerTest.php. DashboardVersionService
-	// used to carry a deleteVersionsForDashboard() wrapper around the same
-	// single mapper call; nothing in production ever reached it, because
-	// VersionsListener — which IS registered on DashboardDeletedEvent — calls
-	// the mapper directly. This test was the wrapper's only caller anywhere.
-
 	// =========================================================================
 	// WF1: restoreVersion transaction envelope (wave-12 regression tests)
 	// =========================================================================

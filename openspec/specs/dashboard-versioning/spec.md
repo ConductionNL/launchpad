@@ -372,7 +372,7 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 
 ### Schema and storage
 - Migration `Version001015Date20260502130000` creates `oc_launchpad_dash_versions` via `DashboardVersionTableBuilder::create()` with columns `id` (BIGINT PK), `dashboard_uuid` (STRING(36)), `version_number` (BIGINT), `snapshot_json` (TEXT — MEDIUMTEXT on MySQL), `created_by` (STRING(64)), `created_at` (DATETIME), `note` (STRING(500) nullable). Indexes: `launchpad_dvers_uuid_num` UNIQUE on `(dashboard_uuid, version_number)` and `launchpad_dvers_uuid_ts` on `(dashboard_uuid, created_at)`.
-- Cascade cleanup: `DashboardVersionMapper::deleteByDashboardUuid()` and `DashboardVersionService::deleteVersionsForDashboard()` are wired and ready for the sibling cascade-events listener; the dashboard delete path itself does not yet invoke them (future work alongside `dashboard-cascade-events`).
+- Cascade cleanup: `DashboardVersionMapper::deleteByDashboardUuid()` is invoked by `Listener\VersionsListener`, registered against `DashboardDeletedEvent` in `Application.php` per `dashboard-cascade-events` REQ-CSC-002/REQ-CSC-003. There is deliberately no service-layer wrapper for it — the listener owns the log-and-continue envelope REQ-CSC-006 requires, and a pass-through would add a hop with no caller.
 
 ### Deferred / future work
 - REQ-VERS-007 (Activity events): NC `IActivityManager::publish()` integration deferred. `DashboardVersionService::restoreVersion()` already stamps the dashboard `updatedAt` so audit consumers can pick the change up via the existing dashboard mtime; full activity provider registration tracked as a follow-up.

@@ -152,6 +152,7 @@ export default {
 		 *
 		 * @param {string} token the extension token (e.g. `docx`).
 		 * @return {void}
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-003-createfile-flow
 		 */
 		onCreateFile(token) {
 			this.pendingExtension = String(token || '')
@@ -179,6 +180,7 @@ export default {
 		 * Create the document via launchpad's endpoint and open it.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-004-server-side-file-creation-endpoint
 		 */
 		async onCreateConfirm() {
 			if (!this.canCreate || this.isExecuting) {

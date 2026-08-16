@@ -62,6 +62,7 @@ export async function fetchPeoplePage(args = {}) {
  * @param {string|number} placementId the widget placement id.
  * @param {object} args `{ from, to }` ISO date strings.
  * @return {Promise<{events: object[], failures: object[]}>} the events payload.
+ * @spec openspec/specs/calendar-widget/spec.md#requirement-req-cal-003-events-endpoint
  */
 export async function fetchCalendarEvents(placementId, args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
@@ -88,6 +89,7 @@ export async function fetchCalendarEvents(placementId, args = {}) {
  *
  * @param {() => (string|number|undefined)} getPlacementId returns the placement id.
  * @return {object} the injected `cn*Source` adapters.
+ * @spec exclude wiring-only assembly — returns a literal map of the adapter functions defined in this file, each of which carries its own @spec; it encodes no behaviour of its own beyond naming the injection keys the nc-vue widgets expect.
  */
 export function buildWidgetDataProvide(getPlacementId) {
 	return {
@@ -110,6 +112,7 @@ export function buildWidgetDataProvide(getPlacementId) {
  *
  * @param {string} widgetId the placement widget type.
  * @return {object} extra props to v-bind onto the renderer (empty for most types).
+ * @spec openspec/specs/news-widget/spec.md#requirement-req-news-003-fetch-and-merge-feed-items
  */
 export function buildRendererExtraProps(widgetId) {
 	if (widgetId === 'news') {

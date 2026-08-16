@@ -166,6 +166,13 @@ export default {
 			return ''
 		},
 
+		/**
+		 * Whether the entered dashboard name satisfies the 2..64 character
+		 * bound the create endpoint enforces server-side.
+		 *
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
+		 * @return {boolean} True when the name length is in range.
+		 */
 		canSubmit() {
 			return this.form.name.length >= 2 && this.form.name.length <= 64
 		},

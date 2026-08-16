@@ -46,7 +46,7 @@
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						alt="" />
+						:alt="thumbnailAlt(item)" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">{{ item.title }}</h4>
 						<!-- Feed summaries carry inline markup REQ-NEWS-005
@@ -78,7 +78,7 @@
 						v-if="showThumbnails && item.thumbnailUrl"
 						class="news-widget__thumb"
 						:src="item.thumbnailUrl"
-						alt="" />
+						:alt="thumbnailAlt(item)" />
 					<div class="news-widget__body">
 						<h4 class="news-widget__title">
 							{{ item.title }}
@@ -420,6 +420,34 @@ export default {
 				return ''
 			}
 			return truncateSummaryHtml(raw, this.summaryMaxChars)
+		},
+
+		/**
+		 * Text alternative for an item's lead image (WCAG 2.2 AA SC 1.1.1).
+		 *
+		 * The image was previously silenced with `alt=""`, which claims it is
+		 * decorative. It is not: `thumbnailUrl` is the article's own lead
+		 * image, chosen by the publisher and carrying meaning a sighted
+		 * reader gets for free. RSS/Atom `media:thumbnail` ships no
+		 * description of its own, so the best honest alternative available
+		 * is to say what the image IS and which article it belongs to.
+		 *
+		 * An item with no title still gets a name rather than falling back
+		 * to `alt=""` — a nameless image is announced by its filename.
+		 *
+		 * @param {object} item News item as returned by the items endpoint.
+		 * @return {string} Non-empty text alternative for the thumbnail.
+		 * @spec openspec/specs/news-widget/spec.md
+		 */
+		thumbnailAlt(item) {
+			const title = typeof item?.title === 'string' ? item.title.trim() : ''
+			if (title === '') {
+				return t('launchpad', 'Article thumbnail')
+			}
+			return t('launchpad', 'Thumbnail for “{title}”').replace(
+				'{title}',
+				title,
+			)
 		},
 
 		/**

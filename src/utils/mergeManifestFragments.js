@@ -51,6 +51,12 @@ export function applyManifestFragments(base, fragments) {
  * @return {object} The manifest with all fragment pages/menu appended.
  */
 export function mergeManifestFragments(base) {
+	// `require.context` is a WEBPACK build-time API, not CommonJS `require`:
+	// the bundler rewrites this call at compile time and no `require` exists at
+	// runtime. eslint's browser globals therefore report `no-undef` correctly —
+	// the code is right and the linter is right. Scoped to this one identifier
+	// so a genuinely undefined name elsewhere in the file still fails.
+	/* global require */
 	const ctx = require.context('./../manifest.d/', false, /\.json$/)
 	const fragments = ctx
 		.keys()

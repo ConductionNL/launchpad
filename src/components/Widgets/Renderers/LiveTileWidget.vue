@@ -203,6 +203,12 @@ export default {
 			return state ? `live-tile-widget__badge--${state}` : ''
 		},
 
+		/**
+		 * Whether the configured tile source supplied a usable link URL.
+		 *
+		 * @spec openspec/specs/live-data-tile-widget/spec.md#requirement-req-livetile-002-configure-the-tile-source
+		 * @return {boolean} True when linkUrl is a non-blank string.
+		 */
 		hasLink() {
 			return (
 				typeof this.content?.linkUrl === 'string'

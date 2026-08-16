@@ -110,6 +110,13 @@ export default {
 		 *
 		 * @return {string} The slug to activate.
 		 */
+		/**
+		 * Pick the tab to open from the URL query, falling back to the
+		 * configured default and then to the first known tab.
+		 *
+		 * @spec exclude in-component tab routing — reads the query string and the component's own `tabs`/`defaultTab` props to choose an initial slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
+		 * @return {string} The slug of the tab to activate.
+		 */
 		resolveInitialTab() {
 			const known = this.tabs.map((tab) => tab.slug)
 			const fallback = known.includes(this.defaultTab)

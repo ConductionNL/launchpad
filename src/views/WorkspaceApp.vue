@@ -315,6 +315,13 @@ export default {
 		 *
 		 * @return {object | null}
 		 */
+		/**
+		 * Resolve the footer for the active dashboard, falling back to the
+		 * injected global footer when no dashboard is active.
+		 *
+		 * @spec openspec/specs/footer-customization/spec.md#requirement-req-ftr-006-per-dashboard-footer-override
+		 * @return {object|null} The footer to render.
+		 */
 		effectiveFooter() {
 			if (!this.injectedActiveDashboardId) {
 				return this.injectedEffectiveFooter

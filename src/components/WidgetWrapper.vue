@@ -109,6 +109,13 @@ export default {
 	emits: ['remove', 'style', 'edit', 'acknowledged'],
 
 	computed: {
+		/**
+		 * Whether this placement renders a reusable tile, identified by the
+		 * `tile-` widgetId prefix.
+		 *
+		 * @spec openspec/specs/tiles/spec.md#requirement-list-user-tiles-req-tile-002
+		 * @return {boolean} True for tile placements.
+		 */
 		isTileWidget() {
 			return (
 				this.placement.widgetId

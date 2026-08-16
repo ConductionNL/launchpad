@@ -300,6 +300,13 @@ class DashboardShareApiController extends Controller {
 	 * @return DataResponse The matching users and groups.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 *
+	 * @no-admin-idor-exempt no object is addressed. The only parameter is a
+	 * search string; the method reads no dashboard and no share, and returns
+	 * the same directory any authenticated user already sees through the core
+	 * share picker. It null-checks `$this->userId`, excludes the caller from
+	 * its own results, blocks single-character sweeps as a directory
+	 * enumeration guard, and bounds both searches to 10 rows.
 	 */
 	#[NoAdminRequired]
 	public function searchSharees(string $query = ''): DataResponse {

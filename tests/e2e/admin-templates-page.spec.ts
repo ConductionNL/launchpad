@@ -41,6 +41,13 @@ const ADMIN = {
 
 const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
 
+// The component under test, named after the file it covers. The selector is
+// unchanged — this only makes the link between spec and component readable in
+// executable code rather than only in the prose above. gate-26 matches a page
+// against its component stem, and the stem never appeared outside a comment,
+// so a page that HAS e2e coverage was reported as having none.
+const TemplatesPage = '[data-test="templates-page"]'
+
 test.describe('admin-templates — Templates page', () => {
 	test.beforeEach(async ({ page }) => {
 		// Same authentication shape as the neighbouring admin spec: the
@@ -60,7 +67,7 @@ test.describe('admin-templates — Templates page', () => {
 		await expect(page.locator('[data-test="panel-templates"]')).toBeVisible({
 			timeout: 20_000,
 		})
-		const templatesPage = page.locator('[data-test="templates-page"]')
+		const templatesPage = page.locator(TemplatesPage)
 		await expect(templatesPage).toBeVisible()
 
 		await expect(templatesPage.getByRole('heading', { level: 3 })).toBeVisible()
@@ -73,7 +80,7 @@ test.describe('admin-templates — Templates page', () => {
 		page,
 	}) => {
 		await page.goto(SETTINGS_URL)
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({
+		await expect(page.locator(TemplatesPage)).toBeVisible({
 			timeout: 20_000,
 		})
 
@@ -86,14 +93,14 @@ test.describe('admin-templates — Templates page', () => {
 		// Dismiss without saving — nothing is persisted by this spec.
 		await page.keyboard.press('Escape')
 		await expect(editor).toBeHidden({ timeout: 10_000 })
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible()
+		await expect(page.locator(TemplatesPage)).toBeVisible()
 	})
 
 	test('leaving the tab unmounts the page and returning re-mounts it', async ({
 		page,
 	}) => {
 		await page.goto(SETTINGS_URL)
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({
+		await expect(page.locator(TemplatesPage)).toBeVisible({
 			timeout: 20_000,
 		})
 
@@ -101,12 +108,12 @@ test.describe('admin-templates — Templates page', () => {
 		// remove TemplatesPage from the DOM entirely — that unmount is what
 		// makes its created() hook re-fetch the template list on return.
 		await page.locator('[data-test="tab-group-dashboards"]').click()
-		await expect(page.locator('[data-test="templates-page"]')).toBeHidden({
+		await expect(page.locator(TemplatesPage)).toBeHidden({
 			timeout: 10_000,
 		})
 
 		await page.locator('[data-test="tab-templates"]').click()
-		await expect(page.locator('[data-test="templates-page"]')).toBeVisible({
+		await expect(page.locator(TemplatesPage)).toBeVisible({
 			timeout: 10_000,
 		})
 		await expect(

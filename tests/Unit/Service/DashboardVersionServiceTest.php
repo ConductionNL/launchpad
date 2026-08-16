@@ -550,19 +550,12 @@ class DashboardVersionServiceTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteVersionsForDashboardDelegates(): void {
-		$this->versionMapper->expects($this->once())
-			->method('deleteByDashboardUuid')
-			->with(dashboardUuid: 'd-uuid-1')
-			->willReturn(7);
-
-		$this->assertSame(
-			7,
-			$this->service->deleteVersionsForDashboard(
-				dashboardUuid: 'd-uuid-1'
-			)
-		);
-	}//end testDeleteVersionsForDashboardDelegates()
+	// The cascade delete is covered where it actually happens, in
+	// tests/Unit/Listener/VersionsListenerTest.php. DashboardVersionService
+	// used to carry a deleteVersionsForDashboard() wrapper around the same
+	// single mapper call; nothing in production ever reached it, because
+	// VersionsListener — which IS registered on DashboardDeletedEvent — calls
+	// the mapper directly. This test was the wrapper's only caller anywhere.
 
 	// =========================================================================
 	// WF1: restoreVersion transaction envelope (wave-12 regression tests)

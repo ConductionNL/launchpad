@@ -528,24 +528,6 @@ class DashboardVersionService {
 	}//end restoreVersion()
 
 	/**
-	 * Cascade-delete every snapshot row for a dashboard.
-	 *
-	 * Designed to be called from the dashboard delete path or, in the
-	 * future, the cascade-events VersionsListener stub. Idempotent.
-	 *
-	 * @param string $dashboardUuid The dashboard UUID.
-	 *
-	 * @return integer The number of rows deleted.
-	 *
-	 * @spec openspec/specs/dashboard-versioning/spec.md
-	 */
-	public function deleteVersionsForDashboard(string $dashboardUuid): int {
-		return $this->versionMapper->deleteByDashboardUuid(
-			dashboardUuid: $dashboardUuid
-		);
-	}//end deleteVersionsForDashboard()
-
-	/**
 	 * Whether the supplied dashboard is groupfolder-backed
 	 * (REQ-VERS-008). Currently always false because the groupfolder
 	 * storage backend is DEFERRED to a sibling spec; the hook exists

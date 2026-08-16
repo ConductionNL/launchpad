@@ -121,6 +121,7 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 		 *
 		 * @param {string} groupId NC group id (or DEFAULT_GROUP_ID).
 		 * @return {Promise<Array<object>>}
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
 		 */
 		async fetchGroupDashboards(groupId) {
 			try {
@@ -182,6 +183,7 @@ export const useGroupDashboardsStore = defineStore('groupDashboards', {
 		 * @param {string} groupId NC group id (or DEFAULT_GROUP_ID).
 		 * @param {string} uuid    Dashboard UUID.
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
 		 */
 		async delete(groupId, uuid) {
 			try {

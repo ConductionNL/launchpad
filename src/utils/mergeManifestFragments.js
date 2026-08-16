@@ -22,6 +22,7 @@
  * @param {object} base The bundled base manifest.
  * @param {Array<object>} fragments Parsed fragment objects (each may have pages/menu).
  * @return {object} The manifest with all fragment pages/menu appended.
+ * @spec exclude build-time manifest assembly — implements ADR-037 (modular config fragments), which is a hydra-wide architecture decision with no spec file in this repo's openspec/architecture/ (only adr-001 and adr-023 live here). The function encodes no product behaviour: it concatenates pages/menu arrays and shallow-clones the base.
  */
 export function applyManifestFragments(base, fragments) {
 	const merged = {
@@ -49,6 +50,7 @@ export function applyManifestFragments(base, fragments) {
  *
  * @param {object} base The bundled base manifest.
  * @return {object} The manifest with all fragment pages/menu appended.
+ * @spec exclude build-time wiring for ADR-037 — binds webpack's `require.context` to applyManifestFragments above; the merge behaviour is that function's, and this one only supplies the fragment list at build time.
  */
 export function mergeManifestFragments(base) {
 	// `require.context` is a WEBPACK build-time API, not CommonJS `require`:

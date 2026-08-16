@@ -148,6 +148,13 @@ export default {
 		},
 	},
 
+	/**
+	 * Load the group list and their dashboard counts on mount, so the tab's
+	 * badges are populated on first paint.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
+	 * @return {Promise<void>}
+	 */
 	async created() {
 		await this.store.fetchGroups()
 		// Eagerly fetch dashboard counts so the badges render on first

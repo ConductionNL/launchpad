@@ -413,6 +413,7 @@ export const api = {
 	 * @return {Promise} Axios response resolving to `{path: string}`. An
 	 *   empty path is valid — the dashboard has no slug and therefore no
 	 *   addressable URL.
+	 * @spec openspec/specs/dashboard-deeplinking/spec.md#requirement-req-ddl-003-canonical-path-round-trip
 	 */
 	getDashboardPath(uuid) {
 		return axios.get(
@@ -846,7 +847,13 @@ export const api = {
 		return axios.get(`${baseUrl}/api/admin/metadata-fields`)
 	},
 
-	// Per-dashboard metadata read/write (REQ-MDFL-004..006, REQ-MDFL-008).
+	/**
+	 * Read the metadata field values recorded against one dashboard.
+	 *
+	 * @param {string} uuid UUID of the dashboard whose metadata to read.
+	 * @return {Promise} Axios response resolving to the field/value map.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md#requirement-dashboard-metadata-read-req-mdfl-004
+	 */
 	getDashboardMetadata(uuid) {
 		return axios.get(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/metadata`,
@@ -1084,6 +1091,14 @@ export const api = {
 	},
 
 	// Dashboard reaction endpoints (REQ-RXN-001..004).
+
+	/**
+	 * Read the aggregated reaction summary for one dashboard.
+	 *
+	 * @param {string} uuid UUID of the dashboard whose reactions to read.
+	 * @return {Promise} Axios response resolving to the per-emoji counts.
+	 * @spec openspec/specs/dashboard-reactions/spec.md#requirement-req-rxn-003-get-reactions-summary
+	 */
 	getDashboardReactions(uuid) {
 		return axios.get(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions`,

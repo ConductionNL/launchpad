@@ -79,13 +79,15 @@ class HealthController extends Controller {
 	 * which is a meaningful answer for a monitoring probe: the app is reachable,
 	 * its declarative health engine is not.
 	 *
+	 * Rate-limit rationale: this is a liveness probe — no credential, so a
+	 * ceiling and no counter.
+	 *
 	 * @return JSONResponse `{status, app, version, checks}`.
 	 *
 	 * @spec openspec/changes/adopt-apphost/specs/prometheus-metrics/spec.md — Requirement: Health Check Endpoint (REQ-PROM-007)
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
-	// Liveness probe — no credential, so a ceiling and no counter.
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function index(): JSONResponse {
 		$appId = $this->appName;

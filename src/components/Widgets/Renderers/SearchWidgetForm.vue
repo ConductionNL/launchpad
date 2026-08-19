@@ -192,6 +192,7 @@ export default {
 
 		/**
 		 * @return {string} explanatory text for the selected mode.
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		fallbackModeHint() {
 			if (this.fallbackMode === FALLBACK_INHERIT) {
@@ -220,6 +221,7 @@ export default {
 		 * when it is acceptable (or not in play).
 		 *
 		 * @return {string}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		templateError() {
 			if (this.fallbackMode !== 'web-search') {

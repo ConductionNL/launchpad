@@ -15,9 +15,10 @@
 - **spec_ref**: `openspec/changes/tile-search-widget/specs/tile-quick-search/spec.md#requirement-req-qsearch-001-render-the-quick-search-bar-as-a-placed-widget-and-focus-it-with-the-keyboard`
 - **files**: `src/composables/useTileSearchHost.js`, `src/composables/__tests__/useTileSearchHost.spec.js`
 - **acceptance_criteria**:
-  - GIVEN a placement id `7` (integer, off the API row) and a DOM element with `data-placement-id="7"` WHEN `applySearchDimming([7])` runs THEN that tile is NOT dimmed (launchpad#95 fix 1: both sides normalised via `String(...)` before `Array.includes`)
-  - GIVEN `item.placement.id` is an integer WHEN `activateSearchResult(item)` runs THEN no `TypeError` is thrown and the correct grid item (queried under `#launchpad-main-content`, not a component-relative `$el`) is scrolled into view and activated (launchpad#95 fix 2: `String(... ?? '')` cast, never a raw `.replace()` on a number)
-  - GIVEN `matchIds` is `null` WHEN `applySearchDimming(null)` runs THEN every tile under `#launchpad-main-content` is undimmed
+  - GIVEN a placement WHEN `tileSearchLabel(placement)` runs THEN it returns `tileTitle` for tile placements and `customTitle || widget.title || 'Widget'` otherwise, matching `WidgetWrapper.vue`'s `widgetTitle`
+  - GIVEN `item.placement.id` is an integer WHEN `activateSearchResult(item)` runs THEN no `TypeError` is thrown and the correct grid item (resolved under `#launchpad-main-content` via a selector built from the STORE id, never read back off the DOM) is scrolled into view and activated (launchpad#95 fix 2: `String(... ?? '')` cast, never a raw `.replace()` on a number)
+  - GIVEN Escape is pressed WHEN `focusGrid()` runs THEN `#launchpad-main-content` receives focus with `preventScroll`
+  - The composable performs NO dimming and reads NO `data-*` attribute — dimming is store state (Task 7), per ADR-004
 - [ ] Implement
 - [ ] Test
 
@@ -36,6 +37,8 @@
 - **files**: `src/components/Widgets/Renderers/SearchWidget.vue`, `src/components/Widgets/Renderers/__tests__/SearchWidget.spec.js`
 - **acceptance_criteria**:
   - GIVEN a `search` widget placement renders WHEN mounted THEN it reads `widgetPlacements` (`useDashboardStore`) and `availableWidgets` (`useWidgetStore`) and resolves searchable items via `useTileSearchHost`
+  - GIVEN the search bar emits `filter` / `clear` WHEN handled THEN the widget calls the `tileSearch` store's `setMatches(ids)` / `clear()` and touches no tile elements itself
+  - GIVEN the widget unmounts (deleted from the dashboard) WHEN teardown runs THEN it calls `clear()` so no tile is left dimmed by a widget that no longer exists
   - GIVEN `content.fallbackTarget` is empty WHEN a no-match Enter is pressed THEN the injected `quicksearchFallbackTarget` admin default is used
   - GIVEN `content.fallbackTarget` is `'none'` and the admin default is `'unified-search'` WHEN a no-match Enter is pressed THEN no navigation occurs (widget override wins)
 - [ ] Implement
@@ -60,11 +63,15 @@
 - [ ] Implement
 - [ ] Test
 
-### Task 7: Update `Views.vue` comments describing the bar as shell-mounted
-- **spec_ref**: `openspec/changes/tile-search-widget/specs/tile-quick-search/spec.md#requirement-req-qsearch-001-render-the-quick-search-bar-as-a-placed-widget-and-focus-it-with-the-keyboard`
-- **files**: `src/views/Views.vue`
+### Task 7: Add the `tileSearch` store and make dimming reactive in `Views.vue`
+- **spec_ref**: `openspec/changes/tile-search-widget/specs/tile-quick-search/spec.md#requirement-req-qsearch-002-filter-the-current-dashboards-tiles-live`
+- **files**: `src/stores/tileSearch.js`, `src/stores/__tests__/tileSearch.spec.js`, `src/views/Views.vue`
 - **acceptance_criteria**:
-  - GIVEN the `data-placement-id` comment (~lines 148-151) and the `.launchpad-grid-item--dimmed` comment (~lines 2038-2041) WHEN read THEN both describe the quick-search bar as a placed widget consuming `#launchpad-main-content`, not as shell chrome mounted in `WorkspaceApp.vue`
+  - GIVEN `matchIds` is `null` WHEN `isDimmed(anyId)` is read THEN it returns `false` (no active query undims everything)
+  - GIVEN `setMatches([7])` ran WHEN `isDimmed(7)` and `isDimmed(9)` are read THEN they return `false` and `true` respectively, and `isDimmed('7')` also returns `false` (both sides normalised via `String(...)`, so the launchpad#95 integer/string mismatch cannot recur)
+  - GIVEN `setMatches([])` ran WHEN any tile is checked THEN it is dimmed (empty match set dims everything)
+  - GIVEN `Views.vue` renders a grid item WHEN the store's match set changes THEN `.launchpad-grid-item--dimmed` is toggled by the reactive `:class` binding, with NO imperative `classList` call and NO `getAttribute('data-placement-id')` read anywhere (ADR-004)
+  - GIVEN the `data-placement-id` comment (~lines 148-151) and the `.launchpad-grid-item--dimmed` CSS comment (~lines 2038-2041) WHEN read THEN both describe the current design: a placed widget writing store state, not shell chrome toggling classes imperatively
 - [ ] Implement
 - [ ] Test
 

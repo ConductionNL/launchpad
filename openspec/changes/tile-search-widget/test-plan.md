@@ -164,13 +164,13 @@
 - **expected result**: Only the first-mounted instance's input receives focus on the first press; after the first instance is removed, the remaining instance is promoted and receives focus on the second press. No press ever focuses more than one input
 - **test command**: `/test-functional`
 
-### TC-19 (regression, unit-level): Dimming id comparison survives extraction
-- **spec_ref**: `openspec/changes/tile-search-widget/design.md#decisions` (launchpad#95 regression risk 1)
+### TC-19 (regression, unit-level): Dimming id comparison cannot regress
+- **spec_ref**: `openspec/changes/tile-search-widget/design.md#3-dimming-becomes-reactive-store-state-the-dom-is-never-read-for-it` (launchpad#95 regression risk 1)
 - **type**: regression
 - **persona**: n/a
-- **preconditions**: `useTileSearchHost.js`'s `applySearchDimming` exported as a pure function, called with integer placement ids matching string `data-placement-id` DOM attributes
-- **steps**: Unit test `useTileSearchHost.spec.js` asserting `String(id)` normalisation on both sides before `Array.includes`
-- **expected result**: A tile whose integer id matches the string DOM attribute is NOT dimmed; a non-matching tile is dimmed. Test fails if normalisation is dropped
+- **preconditions**: `src/stores/tileSearch.js` holds `matchIds`; `isDimmed(placementId)` is the only dimming decision point. No `getAttribute('data-placement-id')` read exists anywhere in the change.
+- **steps**: Unit test `tileSearch.spec.js` calling `setMatches([7])` then reading `isDimmed(7)`, `isDimmed('7')` and `isDimmed(9)`; plus a grep-style assertion in review that no `getAttribute('data-` read was introduced
+- **expected result**: `isDimmed(7)` and `isDimmed('7')` are both `false`, `isDimmed(9)` is `true`. The original bug (integer store id vs string DOM attribute compared with SameValueZero) is now unreachable by construction, since both sides originate in the store; the `String(...)` normalisation is retained as defence and this test fails if it is dropped.
 - **test command**: `/test-regression` (unit coverage exercised by the existing `npm run test:unit` vitest run)
 
 ### TC-20 (regression, unit-level): Activation id cast survives extraction

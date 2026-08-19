@@ -86,33 +86,68 @@ to keep byte-for-byte identical to their `WorkspaceApp.vue` originals, and
 therefore easiest to unit-test in isolation, when they are pure exported
 functions rather than component methods entangled with `this`.
 
-### 3. DOM queries re-anchor from `WorkspaceApp`'s `$el` to `#launchpad-main-content`
+### 3. Dimming becomes reactive store state; the DOM is never read for it
 
-`applySearchDimming` and `focusGrid` currently query
-`this.$el.querySelectorAll(...)` from `WorkspaceApp.vue`, whose `$el` wraps
-the whole shell including the grid. From inside a grid-placed widget, the
-widget's own `$el` is a small subtree that does **not** contain the grid —
-the grid is a *sibling* subtree, one level up and over, same as it always
-was relative to `WorkspaceApp.vue`. The fix is to query from the stable,
-page-level `#launchpad-main-content` element (declared once in
-`WorkspaceApp.vue`, `tabindex="-1"`) via `document.getElementById(...)`
-instead of a component-relative `$el` walk:
+`applySearchDimming` currently queries
+`this.$el.querySelectorAll('.launchpad-grid-item[data-placement-id]')` from
+`WorkspaceApp.vue` and then reads each tile's id back out with
+`el.getAttribute('data-placement-id')` to decide whether to toggle
+`.launchpad-grid-item--dimmed`. From inside a grid-placed widget that walk
+does not even resolve — the widget's `$el` is a small subtree that does not
+contain the grid — so the anchor has to change regardless.
 
-- `applySearchDimming` queries
-  `document.getElementById('launchpad-main-content')?.querySelectorAll('.launchpad-grid-item[data-placement-id]')`.
-- `activateSearchResult` scopes its single-item lookup the same way.
-- `focusGrid` becomes `document.getElementById('launchpad-main-content')?.focus(...)`
-  — the exact same element `WorkspaceApp.vue`'s old `.workspace-shell__grid`
-  class selector resolved to (one DOM node, two selectors), so this is a
-  like-for-like replacement, not a behaviour change.
+Re-anchoring the same imperative walk to `document.getElementById('launchpad-main-content')`
+would work, but it keeps the part of the design that **ADR-004 forbids**:
+"NEVER read app state from DOM (`document.getElementById`, `dataset`) — use
+backend API or store." The placement id is app state; it originates in the
+Pinia store, is written into the markup by `Views.vue`, and was then being
+read back out of the markup to drive behaviour. So the dimming moves to the
+store instead:
 
-**Alternative considered:** pass the grid container element down via
-`provide`/`inject` from `WorkspaceApp.vue`. Rejected — over-engineered for
-a single stable, page-unique id that already exists for exactly this
-purpose (the Esc-focus-target contract), and it would require plumbing the
-ref through `Views.vue` → `WidgetRenderer.vue` → `SearchWidget.vue` for no
-behavioural gain over a `getElementById` lookup on an id that is guaranteed
-unique per page.
+- **NEW `src/stores/tileSearch.js`** — a small Pinia store holding
+  `matchIds` (`null` = no active query). `setMatches(ids)` / `clear()`
+  actions; an `isDimmed(placementId)` getter.
+- `SearchWidget.vue` calls `setMatches(...)` on the search bar's `filter`
+  event and `clear()` on `clear`. It writes state; it touches no tiles.
+- **`Views.vue`** binds the class reactively on the grid item it already
+  renders: `:class="{ 'launchpad-grid-item--dimmed': isDimmed(item.id) }"`.
+  The tile that owns the markup owns the class.
+
+This deletes the `getAttribute('data-placement-id')` read entirely, which
+also **structurally removes launchpad#95 fix 1** rather than merely
+preserving it: there is no longer a comparison between a DOM string and a
+store integer, because both sides of the comparison now come from the store.
+The store still normalises through `String(...)` on both sides — defensive,
+and the reason is documented in the store — but the failure mode it guarded
+against can no longer arise.
+
+`data-placement-id` stays in the markup. It is still the addressing
+mechanism for the two remaining DOM *actions* below, and the e2e suite
+selects on it.
+
+**DOM actions that remain, and why they are not ADR-004 violations.**
+`activateSearchResult` (scroll the tile into view, then click its `a[href]`
+so the configured link target is honoured per REQ-QSEARCH-003) and
+`focusGrid` (Esc returns focus to the grid) are *imperative effects on
+elements*, not reads of application state. They cannot be expressed as
+reactive state — "click this link" and "move focus here" are actions. Both
+resolve their element from `document.getElementById('launchpad-main-content')`
+and, for activation, a selector built **from the store's id**
+(`[data-placement-id="<id>"]`), so nothing is ever read back out of the DOM.
+
+**Alternative considered:** keep the imperative DOM walk, anchored at
+`#launchpad-main-content`. Rejected on ADR-004 grounds above. Worth
+recording that it would *not* have failed the mechanical gate — gate-10's
+checker only matches `getElementById(...).getAttribute('data-x')` directly,
+or a `const el = getElementById(...)` binding read by that same name, and
+drops identifiers that are ever function parameters as ambiguous. Our read
+happened on a `forEach` parameter, so the gate would have stayed green on a
+design the ADR prohibits. The ADR, not the gate, is the binding constraint.
+
+**Alternative considered:** `provide`/`inject` the grid element from
+`WorkspaceApp.vue`. Rejected — plumbing through `Views.vue` →
+`WidgetRenderer.vue` → `SearchWidget.vue` for no gain over a page-unique id
+that already exists for the Esc-focus contract.
 
 ### 4. Keyboard-shortcut singleton guard lives in `RuntimeShellSearch.vue`
 
@@ -227,13 +262,19 @@ src/
         SearchWidget.vue             (NEW — renderer)
         SearchWidgetForm.vue         (NEW — config form)
   composables/
-    useTileSearchHost.js             (NEW — extracted host wiring)
+    useTileSearchHost.js             (NEW — extracted host wiring:
+                                       labels, activation, focus)
+  stores/
+    tileSearch.js                    (NEW — reactive dim state:
+                                       matchIds + isDimmed getter)
   constants/
     widgetRegistry.js                (CHANGED — register `search`)
   views/
     WorkspaceApp.vue                 (CHANGED — remove search region,
                                        handlers, computeds, CSS)
-    Views.vue                        (CHANGED — 2 comment updates only)
+    Views.vue                        (CHANGED — reactive `--dimmed` class
+                                       binding on the grid item, plus the
+                                       two stale comments)
 ```
 
 ## Seed Data

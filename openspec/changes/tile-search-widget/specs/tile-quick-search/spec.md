@@ -172,3 +172,44 @@ widgets are placed on the same dashboard.
 - WHEN the user presses `/` (outside a text input) or `Ctrl+K`
 - THEN only the first-mounted widget instance's input MUST receive focus
 - AND no other placed instance MUST also attempt to claim focus for that keypress
+
+### Requirement: REQ-QSEARCH-007 A search widget MUST NOT de-emphasise itself
+
+Now that the bar is a placement, it is a candidate for its own filtering. It
+MUST be exempt: the control the user is typing into can never fade out from
+under them.
+
+#### Scenario: The search widget stays at full emphasis while filtering
+
+- GIVEN a dashboard carrying a `search` widget and at least one other placement
+- WHEN the user types a query that does not match the search widget's own label
+- THEN every non-matching TILE MUST be de-emphasised
+- AND the `search` widget placement itself MUST NOT be de-emphasised
+
+#### Scenario: Several search widgets are all exempt
+
+- GIVEN a dashboard carrying more than one `search` widget
+- WHEN a query is active in any of them
+- THEN none of the `search` placements MUST be de-emphasised
+
+### Requirement: REQ-QSEARCH-008 Search labels MUST match the titles shown on the grid
+
+A placement's searchable label and the title rendered in its grid header MUST
+come from one rule. If they diverge, quick search either lists names the user
+cannot see on screen, or cannot find tiles they can.
+
+#### Scenario: A proxied Nextcloud dashboard widget is findable by its real name
+
+- GIVEN a placement of type `nc-widget` proxying a Nextcloud Dashboard widget
+  whose real id is carried in `content.widgetId`
+- WHEN the user searches for the proxied widget's title
+- THEN that placement MUST match
+- AND the label shown in the results MUST equal the title rendered on the tile
+
+#### Scenario: A typed widget with no catalog entry falls back to its type name
+
+- GIVEN a placement whose `widgetId` is a registered widget TYPE rather than a
+  Nextcloud Dashboard widget id
+- WHEN its title is resolved
+- THEN the widget type's display name MUST be used
+- AND the generic fallback word MUST be used only when nothing else resolves

@@ -84,6 +84,27 @@
 - [x] Implement
 - [x] Test
 
+### Task 9: Share one title rule between the grid header and quick search
+- **spec_ref**: `openspec/changes/tile-search-widget/specs/tile-quick-search/spec.md#requirement-req-qsearch-008-search-labels-must-match-the-titles-shown-on-the-grid`
+- **files**: `src/utils/widgetTitle.js`, `src/utils/__tests__/widgetTitle.spec.js`, `src/components/WidgetWrapper.vue`, `src/composables/useTileSearchHost.js`, `src/views/Views.vue`
+- **acceptance_criteria**:
+  - GIVEN an `nc-widget` placement whose real id is in `content.widgetId` WHEN its title is resolved THEN the proxied widget's title is returned, so it is findable by the name shown on the tile
+  - GIVEN a placement whose `widgetId` is a registered TYPE (e.g. `search`, `chart`) WHEN its title is resolved THEN the type's display name is used, never the generic word
+  - GIVEN `WidgetWrapper.vue` and `useTileSearchHost.js` WHEN both resolve a title THEN they call the same function, so the rendered header and the searchable label cannot drift
+  - `WidgetWrapper` receives the catalog as a PROP, not from the store, so it still mounts without pinia
+- [x] Implement
+- [x] Test
+
+### Task 10: A search widget must never de-emphasise itself
+- **spec_ref**: `openspec/changes/tile-search-widget/specs/tile-quick-search/spec.md#requirement-req-qsearch-007-a-search-widget-must-not-de-emphasise-itself`
+- **files**: `src/views/Views.vue`, `tests/e2e/tile-quick-search.spec.ts`
+- **acceptance_criteria**:
+  - GIVEN a query that does not match the search widget's own label WHEN dimming is applied THEN every non-matching tile dims and the `search` placement does not
+  - GIVEN a dashboard with several `search` widgets WHEN a query is active THEN none of them dim (keyed on the widget TYPE, not a single remembered id)
+
+- [x] Implement
+- [x] Test
+
 ## Quality checklist
 
 <!-- These are reminders for the builder, not tracked checkboxes.

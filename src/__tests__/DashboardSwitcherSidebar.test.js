@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-/* eslint-disable n/no-unpublished-import */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import DashboardSwitcherSidebar from '@/components/Workspace/DashboardSwitcherSidebar.vue'
@@ -290,7 +289,7 @@ describe('DashboardSwitcherSidebar', () => {
 			const deleteButton = wrapper.find('.sidebar-item-delete')
 			await deleteButton.trigger('click')
 
-			const deleteEmits = wrapper.emitted('delete-dashboard')
+			const deleteEmits = wrapper.emitted('deleteDashboard')
 			expect(deleteEmits).toHaveLength(1)
 			expect(deleteEmits[0]).toEqual(['u1'])
 		})
@@ -362,12 +361,12 @@ describe('DashboardSwitcherSidebar', () => {
 
 			const emits = []
 			wrapper.vm.$on('update:open', () => emits.push('update:open'))
-			wrapper.vm.$on('create-dashboard', () => emits.push('create-dashboard'))
+			wrapper.vm.$on('createDashboard', () => emits.push('createDashboard'))
 
 			const createButton = wrapper.find('.sidebar-item--action')
 			await createButton.trigger('click')
 
-			expect(emits).toEqual(['update:open', 'create-dashboard'])
+			expect(emits).toEqual(['update:open', 'createDashboard'])
 		})
 	})
 

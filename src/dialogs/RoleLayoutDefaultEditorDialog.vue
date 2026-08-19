@@ -105,11 +105,11 @@
 		<template #actions>
 			<NcButton
 				:disabled="saving"
-				type="tertiary"
+				variant="tertiary"
 				@click="$emit('update:open', false)">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
-			<NcButton :disabled="saving" type="primary" @click="$emit('save')">
+			<NcButton :disabled="saving" variant="primary" @click="$emit('save')">
 				{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save') }}
 			</NcButton>
 		</template>

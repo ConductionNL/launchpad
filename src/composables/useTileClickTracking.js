@@ -23,6 +23,7 @@
 
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
+import { logger } from '../utils/logger.js'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
@@ -104,7 +105,7 @@ export function useTileClickTracking() {
 					{},
 				)
 				.catch((error) => {
-					console.warn('Failed to record tile click:', error)
+					logger.warn('Failed to record tile click:', error)
 				})
 		})
 	}

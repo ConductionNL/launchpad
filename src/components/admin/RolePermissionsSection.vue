@@ -60,7 +60,7 @@
 				</div>
 				<div class="launchpad-admin__role-actions">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
@@ -68,7 +68,7 @@
 						</template>
 					</NcButton>
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="confirmDelete(row)">
 						<template #icon>
@@ -79,7 +79,7 @@
 			</div>
 		</div>
 
-		<NcButton type="primary" data-testid="admin-add-role" @click="openCreate">
+		<NcButton variant="primary" data-testid="admin-add-role" @click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>
@@ -117,6 +117,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import RolePermissionDeleteDialog from '../../dialogs/RolePermissionDeleteDialog.vue'
 import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'RolePermissionsSection',
@@ -154,7 +155,7 @@ export default {
 		try {
 			await this.store.loadPermissions()
 		} catch (e) {
-			console.error('Failed to load role permissions', e)
+			logger.error('Failed to load role permissions', e)
 		}
 	},
 
@@ -231,7 +232,7 @@ export default {
 				await this.store.savePermission(payload)
 				this.closeEditor()
 			} catch (e) {
-				console.error('Failed to save role permission', e)
+				logger.error('Failed to save role permission', e)
 			}
 		},
 
@@ -256,7 +257,7 @@ export default {
 				this.showDeleteDialog = false
 				this.deleteTarget = null
 			} catch (e) {
-				console.error('Failed to delete role permission', e)
+				logger.error('Failed to delete role permission', e)
 			}
 		},
 	},

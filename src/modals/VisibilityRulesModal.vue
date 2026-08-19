@@ -18,9 +18,9 @@
 				:placementId="placementId"
 				:availableGroups="availableGroups"
 				data-test="conditional-visibility-editor"
-				@ruleAdded="$emit('rule-added')"
-				@ruleUpdated="$emit('rule-updated')"
-				@ruleRemoved="$emit('rule-removed')" />
+				@ruleAdded="$emit('ruleAdded')"
+				@ruleUpdated="$emit('ruleUpdated')"
+				@ruleRemoved="$emit('ruleRemoved')" />
 		</div>
 	</NcModal>
 </template>
@@ -64,7 +64,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'rule-added', 'rule-updated', 'rule-removed'],
+	emits: ['close', 'ruleAdded', 'ruleUpdated', 'ruleRemoved'],
 
 	methods: {
 		t,

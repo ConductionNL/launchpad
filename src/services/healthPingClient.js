@@ -45,7 +45,7 @@ export async function validateHealthPingConfig(config) {
 	try {
 		const response = await axios.post(url, { config })
 		return response?.data || { valid: true, errors: [] }
-	} catch (e) {
+	} catch {
 		// A validation-endpoint failure must not silently mark the config
 		// valid (that would defeat fail-closed) — surface a generic error.
 		return { valid: false, errors: ['validation_unavailable'] }

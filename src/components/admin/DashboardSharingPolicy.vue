@@ -55,6 +55,7 @@
 import { NcSelect, NcSelectTags } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 const PERMISSION_OPTIONS = [
 	{ id: 'view_only', label: 'View only' },
@@ -118,7 +119,7 @@ export default {
 					? settings.forcedShareGroups
 					: []
 			} catch (error) {
-				console.error('Failed to load sharing policy:', error)
+				logger.error('Failed to load sharing policy:', error)
 			}
 		},
 
@@ -130,7 +131,7 @@ export default {
 					forcedShareGroups: this.forcedGroups,
 				})
 			} catch (error) {
-				console.error('Failed to save sharing policy:', error)
+				logger.error('Failed to save sharing policy:', error)
 			}
 		},
 	},

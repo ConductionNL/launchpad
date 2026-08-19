@@ -62,7 +62,7 @@ export const FALLBACK_TARGET_UNIFIED_SEARCH = 'unified-search'
  * as "Vérlof".
  *
  * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
- * @param {*} value the raw string (or nullish value) to normalise.
+ * @param {string|null|undefined} value the raw string (or nullish value) to normalise.
  * @return {string} the normalised, comparison-ready string.
  */
 export function normalizeForSearch(value) {
@@ -174,7 +174,7 @@ export function rankItems(query, items) {
  * template like `https://example.org/search?q={query}` — which is not a
  * valid URL as-is — still validates correctly.
  *
- * @param {*} template the candidate fallback-target value.
+ * @param {string|null|undefined} template the candidate fallback-target value.
  * @return {boolean} true when the template is a valid `https` URL
  *   containing `{query}`.
  *
@@ -298,13 +298,13 @@ export function isCtrlKFocusShortcut(event) {
  * `setup()`.
  *
  * @param {object} [options] factory options.
- * @param {Function} [options.onOpen] called with the matched item's raw
+ * @param {(item: object) => void} [options.onOpen] called with the matched item's raw
  *   payload (`result.item`) when Enter opens a highlighted match.
- * @param {Function} [options.onFallback] called with the
+ * @param {(action: {type: string, url?: string, query?: string}) => void} [options.onFallback] called with the
  *   {@link resolveFallbackAction} result when Enter is pressed with zero
  *   matches; the caller performs the actual navigation/dispatch side
  *   effect (this composable stays side-effect free by design).
- * @param {Function} [options.getFallbackTarget] returns the current
+ * @param {() => string} [options.getFallbackTarget] returns the current
  *   `quicksearch_fallback_target` value; consulted lazily so the caller
  *   can change it without recreating the composable.
  * @return {object} the `{state, ...methods}` API — see inline method docs.
@@ -407,7 +407,7 @@ export function useTileSearch(options = {}) {
 	 * {@link resolveFallbackAction} and invokes `onFallback(action)` —
 	 * this composable never navigates or dispatches anything itself.
 	 *
-	 * @return {{type: string, [key: string]: *}|{type: 'open', result: object}}
+	 * @return {{type: 'open', result: object}|{type: 'none'}|{type: 'unified-search', query: string}|{type: 'web-search', url: string}}
 	 *   the action taken, primarily useful for tests.
 	 */
 	function pressEnter() {

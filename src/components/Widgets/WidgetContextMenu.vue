@@ -97,7 +97,7 @@ export default {
 		},
 	},
 
-	emits: ['edit', 'move', 'remove', 'visibility-rules', 'close'],
+	emits: ['edit', 'move', 'remove', 'visibilityRules', 'close'],
 
 	computed: {
 		/**
@@ -135,7 +135,7 @@ export default {
 
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRules() {
-			this.$emit('visibility-rules')
+			this.$emit('visibilityRules')
 			this.$emit('close')
 		},
 

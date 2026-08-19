@@ -118,8 +118,15 @@ export default {
 		/**
 		 * Persisted widget content blob: `{location, unitsOverride}`.
 		 *
+		 * Declared but not read here on purpose: the reading is resolved
+		 * SERVER-side by `GET /api/weather/{placementId}`, which loads this
+		 * same blob off the placement row. Keeping the prop absorbs
+		 * `WidgetRenderer.vue`'s uniform `:content` binding and documents what
+		 * the type persists.
+		 *
 		 * @type {{location?: string, unitsOverride?: string}}
 		 */
+		// eslint-disable-next-line vue/no-unused-properties -- resolved server-side; see above
 		content: {
 			type: Object,
 			default: () => ({}),
@@ -253,7 +260,7 @@ export default {
 					return
 				}
 				this.reading = data
-			} catch (e) {
+			} catch {
 				this.reading = null
 				this.errorMessage = t('launchpad', 'Failed to load weather.')
 			} finally {

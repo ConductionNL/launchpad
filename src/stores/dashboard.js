@@ -12,6 +12,7 @@ import {
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
+import { logger } from '../utils/logger.js'
 
 /**
  * Stable backend error code returned by `POST /api/dashboard` when the admin
@@ -346,7 +347,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				const response = await api.getPendingAcknowledgements()
 				this.pendingAcknowledgements = response?.data?.items ?? []
 			} catch (error) {
-				console.warn('Failed to load pending acknowledgements:', error)
+				logger.warn('Failed to load pending acknowledgements:', error)
 				this.pendingAcknowledgements = []
 			}
 		},
@@ -386,7 +387,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				try {
 					response = await api.getVisibleDashboards()
 				} catch (visibleError) {
-					console.warn(
+					logger.warn(
 						'Falling back to /api/dashboards (visible endpoint failed):',
 						visibleError,
 					)
@@ -431,7 +432,7 @@ export const useDashboardStore = defineStore('dashboard', {
 						activeResponse.data.permissionLevel || 'full'
 				}
 			} catch (error) {
-				console.error('Failed to load dashboards:', error)
+				logger.error('Failed to load dashboards:', error)
 			} finally {
 				this.loading = false
 			}
@@ -480,7 +481,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					this.activeDashboard?.uuid || dashboardId,
 				)
 			} catch (error) {
-				console.error('Failed to switch dashboard:', error)
+				logger.error('Failed to switch dashboard:', error)
 			} finally {
 				this.loading = false
 			}
@@ -499,7 +500,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		persistActivePreference(uuid) {
 			api.setActiveDashboardPreference(uuid || '').catch((error) => {
-				console.warn('Failed to persist active dashboard preference:', error)
+				logger.warn('Failed to persist active dashboard preference:', error)
 			})
 		},
 
@@ -520,7 +521,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				this.applyPublicationPatch(response.data?.dashboard)
 				return response.data?.dashboard ?? null
 			} catch (error) {
-				console.error('Failed to publish dashboard:', error)
+				logger.error('Failed to publish dashboard:', error)
 				showError(t('launchpad', 'Publish dashboard'))
 				return null
 			}
@@ -540,7 +541,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				this.applyPublicationPatch(response.data?.dashboard)
 				return response.data?.dashboard ?? null
 			} catch (error) {
-				console.error('Failed to unpublish dashboard:', error)
+				logger.error('Failed to unpublish dashboard:', error)
 				showError(t('launchpad', 'Unpublish dashboard'))
 				return null
 			}
@@ -560,7 +561,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				this.applyPublicationPatch(response.data?.dashboard)
 				return response.data?.dashboard ?? null
 			} catch (error) {
-				console.error('Failed to schedule dashboard:', error)
+				logger.error('Failed to schedule dashboard:', error)
 				showError(t('launchpad', 'Schedule dashboard'))
 				return null
 			}
@@ -699,7 +700,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					)
 					this.loadDashboards().catch(() => {})
 				}
-				console.error('Failed to create dashboard:', error)
+				logger.error('Failed to create dashboard:', error)
 				throw error
 			} finally {
 				this.loading = false
@@ -765,7 +766,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				} else {
 					showError(t('launchpad', 'Failed to fork dashboard'))
 				}
-				console.error('Failed to fork dashboard:', error)
+				logger.error('Failed to fork dashboard:', error)
 				throw error
 			} finally {
 				this.loading = false
@@ -783,7 +784,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async updatePlacements(placements) {
-			console.log(
+			logger.debug(
 				'[DashboardStore] updatePlacements called, count:',
 				placements.length,
 			)
@@ -801,7 +802,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					gridWidth: p.gridWidth,
 					gridHeight: p.gridHeight,
 				}))
-				console.log(
+				logger.debug(
 					'[DashboardStore] Sending placements to API:',
 					JSON.stringify(placementsData, null, 2),
 				)
@@ -822,9 +823,9 @@ export const useDashboardStore = defineStore('dashboard', {
 						placements: placementsData,
 					})
 				}
-				console.log('[DashboardStore] Successfully saved placements')
+				logger.debug('[DashboardStore] Successfully saved placements')
 			} catch (error) {
-				console.error('Failed to save placements:', error)
+				logger.error('Failed to save placements:', error)
 			} finally {
 				this.saving = false
 			}
@@ -913,7 +914,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data
 			} catch (error) {
 				this.handleWidgetQuotaError(error)
-				console.error('Failed to add widget:', error)
+				logger.error('Failed to add widget:', error)
 			}
 		},
 
@@ -968,7 +969,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return response.data
 			} catch (error) {
 				this.handleWidgetQuotaError(error)
-				console.error('Failed to add tile:', error)
+				logger.error('Failed to add tile:', error)
 				throw error
 			}
 		},
@@ -1009,7 +1010,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * REQ-WDG-008 single-batch contract (no per-widget PUT storm) and
 		 * inherits the 300 ms debounce already in `updatePlacements`.
 		 *
-		 * @param {Array<{id: any, gridY: number}>} pushed list of push-down side effects from `placeNewWidget`
+		 * @param {Array<{id: (number|string), gridY: number}>} pushed list of push-down side effects from `placeNewWidget`
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async applyPushedPlacements(pushed) {
@@ -1036,7 +1037,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		async removeWidgetFromDashboard(placementId) {
 			const placement = this.getPlacementById(placementId)
 			if (placement?.isCompulsory && this.permissionLevel !== 'full') {
-				console.warn('Cannot remove compulsory widget')
+				logger.warn('Cannot remove compulsory widget')
 				return
 			}
 
@@ -1046,7 +1047,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					(p) => p.id !== placementId,
 				)
 			} catch (error) {
-				console.error('Failed to remove widget:', error)
+				logger.error('Failed to remove widget:', error)
 			}
 		},
 
@@ -1087,7 +1088,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					}
 					return { ...d, isDefault: prev.isDefault }
 				})
-				console.error('Failed to set group default dashboard:', error)
+				logger.error('Failed to set group default dashboard:', error)
 				throw error
 			}
 		},
@@ -1109,7 +1110,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					? response.data
 					: []
 			} catch (error) {
-				console.error('Failed to load dashboard tree:', error)
+				logger.error('Failed to load dashboard tree:', error)
 				this.dashboardTree = []
 			}
 		},
@@ -1144,7 +1145,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				return payload
 			} catch (error) {
 				if (error?.response?.status !== 404) {
-					console.error('Failed to resolve dashboard path:', error)
+					logger.error('Failed to resolve dashboard path:', error)
 				}
 				this.pathCache[key] = null
 				return null
@@ -1173,7 +1174,7 @@ export const useDashboardStore = defineStore('dashboard', {
 			try {
 				await api.recordDashboardViewEvent(uuid)
 			} catch (error) {
-				console.warn('Failed to record dashboard view event:', error)
+				logger.warn('Failed to record dashboard view event:', error)
 			}
 		},
 
@@ -1185,7 +1186,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async updateWidgetPlacement(placementId, updates) {
-			console.log(
+			logger.debug(
 				'[DashboardStore] updateWidgetPlacement called:',
 				JSON.stringify({ placementId, updates }, null, 2),
 			)
@@ -1194,7 +1195,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					placementId,
 					updates,
 				)
-				console.log(
+				logger.debug(
 					'[DashboardStore] API response:',
 					JSON.stringify(response.data, null, 2),
 				)
@@ -1202,19 +1203,19 @@ export const useDashboardStore = defineStore('dashboard', {
 				const index = this.widgetPlacements.findIndex(
 					(p) => p.id === placementId,
 				)
-				console.log('[DashboardStore] Found placement at index:', index)
+				logger.debug('[DashboardStore] Found placement at index:', index)
 
 				if (index !== -1) {
 					// Use splice for reactive update.
 					this.widgetPlacements.splice(index, 1, response.data)
-					console.log(
+					logger.debug(
 						'[DashboardStore] Updated placement:',
 						JSON.stringify(this.widgetPlacements[index], null, 2),
 					)
 				}
 			} catch (error) {
-				console.error('Failed to update widget placement:', error)
-				console.error('Error details:', error.response?.data)
+				logger.error('Failed to update widget placement:', error)
+				logger.error('Error details:', error.response?.data)
 			}
 		},
 
@@ -1238,7 +1239,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return response.data
 			} catch (error) {
-				console.error('Failed to fetch reactions summary:', error)
+				logger.error('Failed to fetch reactions summary:', error)
 				return null
 			}
 		},
@@ -1319,7 +1320,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 			} catch (error) {
 				if (error?.response?.status !== 403) {
-					console.error('Failed to load metadata fields:', error)
+					logger.error('Failed to load metadata fields:', error)
 				}
 				this.metadataFields = []
 			}
@@ -1357,7 +1358,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					error?.response?.status !== 403
 					&& error?.response?.status !== 404
 				) {
-					console.error('Failed to load dashboard metadata:', error)
+					logger.error('Failed to load dashboard metadata:', error)
 				}
 				this.metadataByDashboard = {
 					...this.metadataByDashboard,
@@ -1401,7 +1402,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				const message =
 					error?.response?.data?.message
 					|| t('launchpad', 'Failed to update dashboard metadata')
-				console.error('Failed to update dashboard metadata:', error)
+				logger.error('Failed to update dashboard metadata:', error)
 				showError(message)
 				return null
 			}

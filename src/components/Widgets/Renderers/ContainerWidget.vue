@@ -181,11 +181,13 @@ export default {
 			if (!this.$refs.innerGrid) {
 				return
 			}
-			let GridStackCtor = null
+			// No initialiser: the catch below returns, so the binding is only ever
+			// read after the try assigned it.
+			let GridStackCtor
 			try {
 				const mod = await import('gridstack')
 				GridStackCtor = mod && (mod.GridStack || mod.default)
-			} catch (e) {
+			} catch {
 				// GridStack runtime unavailable — non-fatal in tests.
 				return
 			}
@@ -272,7 +274,7 @@ export default {
 			) {
 				try {
 					this.gridInstance.destroy(false)
-				} catch (e) {
+				} catch {
 					// no-op — best-effort teardown
 				}
 			}

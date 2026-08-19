@@ -81,6 +81,7 @@ import {
 } from '../services/widgetDataAdapters.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { logger } from '../utils/logger.js'
 
 export default {
 	name: 'WidgetRenderer',
@@ -256,7 +257,7 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetItems() {
 			const items = this.widgetItemsData.items || []
-			console.log('[WidgetRenderer] widgetItems computed:', {
+			logger.debug('[WidgetRenderer] widgetItems computed:', {
 				widgetId: this.widget?.id,
 				rawItems: items,
 				itemsLength: items.length,
@@ -303,7 +304,7 @@ export default {
 			 * @spec openspec/specs/widgets/spec.md
 			 */
 			handler(newWidget) {
-				console.log(
+				logger.debug(
 					'[WidgetRenderer] widget watch triggered:',
 					newWidget?.id,
 					newWidget,
@@ -318,7 +319,7 @@ export default {
 			immediate: false, // Don't run immediately
 			/** @spec openspec/specs/widgets/spec.md */
 			handler() {
-				console.log(
+				logger.debug(
 					'[WidgetRenderer] placement watch triggered:',
 					this.placement,
 				)
@@ -332,7 +333,7 @@ export default {
 	/** @spec openspec/specs/widgets/spec.md */
 	mounted() {
 		// Initialize widget after component is mounted and refs are available
-		console.log('[WidgetRenderer] mounted hook called')
+		logger.debug('[WidgetRenderer] mounted hook called')
 		// Set up store subscription.
 		this.setupStoreSubscription()
 		// Registry-driven custom widgets render their own template directly
@@ -370,7 +371,7 @@ export default {
 				// Check if our widget's items were updated.
 				if (this.widget?.id && state.widgetItems[this.widget.id]) {
 					const newData = state.widgetItems[this.widget.id]
-					console.log(
+					logger.debug(
 						'[WidgetRenderer] Store subscription fired for:',
 						this.widget.id,
 						newData,
@@ -386,7 +387,7 @@ export default {
 			const widgetStore = useWidgetStore()
 			const data = widgetStore.widgetItems[this.widget.id]
 			if (data) {
-				console.log(
+				logger.debug(
 					'[WidgetRenderer] updateLocalWidgetItems:',
 					this.widget.id,
 					data,
@@ -397,7 +398,7 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		async initWidget() {
-			console.log('[WidgetRenderer] initWidget called:', {
+			logger.debug('[WidgetRenderer] initWidget called:', {
 				widgetId: this.widget?.id,
 				isTileWidget: this.isTileWidget,
 				isApiWidget: this.isApiWidget,
@@ -418,7 +419,7 @@ export default {
 				return
 			}
 
-			console.log(
+			logger.debug(
 				'[WidgetRenderer] Initializing widget:',
 				this.widget.id,
 				this.widget,
@@ -433,7 +434,7 @@ export default {
 
 			try {
 				if (this.isApiWidget) {
-					console.log('[WidgetRenderer] Detected as API widget')
+					logger.debug('[WidgetRenderer] Detected as API widget')
 					// Load widget items from API (supports both v1 and v2).
 					await this.loadWidgetItems([this.widget.id])
 					// Explicitly sync local data from store after loading.
@@ -447,7 +448,7 @@ export default {
 						this.setupAutoRefresh(this.widget.reloadInterval)
 					}
 				} else {
-					console.log(
+					logger.debug(
 						'[WidgetRenderer] Legacy widget detected:',
 						this.widget.id,
 					)
@@ -459,7 +460,7 @@ export default {
 					this.mountLegacyWidget()
 				}
 			} catch (error) {
-				console.error('Failed to initialize widget:', error)
+				logger.error('Failed to initialize widget:', error)
 			} finally {
 				if (!isLegacy) {
 					this.loading = false
@@ -470,11 +471,11 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		mountLegacyWidget() {
 			if (!this.$refs.legacyWidgetContainer) {
-				console.error('[WidgetRenderer] No legacyWidgetContainer ref found!')
+				logger.error('[WidgetRenderer] No legacyWidgetContainer ref found!')
 				return
 			}
 
-			console.log(
+			logger.debug(
 				'[WidgetRenderer] Mounting legacy widget:',
 				this.widget.id,
 				'Container:',
@@ -484,14 +485,14 @@ export default {
 			// Widget scripts are loaded with defer, so we need to wait for them
 			// to register their callbacks. Try multiple times with increasing delays.
 			const tryMount = (attempt = 0, maxAttempts = 20) => {
-				console.log(
+				logger.debug(
 					`[WidgetRenderer] Mount attempt ${attempt + 1}/${maxAttempts} for:`,
 					this.widget.id,
 				)
 
 				// Check if callback is registered
 				if (widgetBridge.hasWidgetCallback(this.widget.id)) {
-					console.log(
+					logger.debug(
 						'[WidgetRenderer] Callback found! Mounting:',
 						this.widget.id,
 					)
@@ -501,25 +502,25 @@ export default {
 						this.$refs.legacyWidgetContainer,
 						this.widget,
 					)
-					console.log(
+					logger.debug(
 						'[WidgetRenderer] After mountWidget, container innerHTML length:',
 						this.$refs.legacyWidgetContainer?.innerHTML.length,
 					)
 				} else if (attempt < maxAttempts) {
 					// Try again after a short delay
 					const delay = Math.min(100 * (attempt + 1), 1000) // Exponential backoff up to 1s
-					console.log(
+					logger.debug(
 						`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`,
 					)
 					setTimeout(() => tryMount(attempt + 1, maxAttempts), delay)
 				} else {
-					console.error(
+					logger.error(
 						'[WidgetRenderer] Failed to mount widget after',
 						maxAttempts,
 						'attempts:',
 						this.widget.id,
 					)
-					console.log(
+					logger.debug(
 						'[WidgetRenderer] Available callbacks:',
 						widgetBridge.getRegisteredWidgetIds(),
 					)

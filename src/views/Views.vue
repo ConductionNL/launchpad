@@ -70,7 +70,7 @@
 				@share="openShareDrawer"
 				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 			<NcButton
-				type="secondary"
+				variant="secondary"
 				:aria-label="t('launchpad', 'Dashboards')"
 				class="launchpad-sidebar-toggle"
 				@click="sidebarOpen = !sidebarOpen">
@@ -101,7 +101,7 @@
 			     dashboard carries at least one acknowledgement requirement. -->
 			<NcButton
 				v-if="canShareActiveDashboard"
-				type="tertiary"
+				variant="tertiary"
 				:aria-label="t('launchpad', 'Share')"
 				class="mydash-share-action"
 				data-test="dashboard-share-action"
@@ -113,7 +113,7 @@
 			</NcButton>
 			<NcButton
 				v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
-				type="secondary"
+				variant="secondary"
 				:aria-label="t('launchpad', 'Read receipts')"
 				data-testid="open-acknowledgement-report"
 				@click="
@@ -145,13 +145,20 @@
 				:itemKey="placementItemKey"
 				@layoutChange="updatePlacements">
 				<template #widget="{ item }">
-					<!-- `data-placement-id` (tile-quick-search) lets the runtime
-					     shell's quick-search bar (mounted in WorkspaceApp.vue, a
-					     sibling component) target this exact grid item via a
-					     plain DOM query to dim/scroll/activate it — the search bar
-					     has no other reach into this component's rendered tree. -->
+					<!-- tile-quick-search. Dimming is REACTIVE: the `search`
+					     widget writes the current match set into the tileSearch
+					     store and this binding renders the consequence, so no
+					     component reaches in to toggle classes and nothing reads
+					     the placement id back out of the DOM (ADR-004).
+					     `data-placement-id` remains as the addressing mechanism
+					     for the two things that must stay imperative — scrolling
+					     a chosen tile into view and clicking its link — and as
+					     the e2e suite's selector. -->
 					<div
 						class="launchpad-grid-item"
+						:class="{
+							'launchpad-grid-item--dimmed': isTileDimmed(item),
+						}"
 						:data-placement-id="item.id"
 						@contextmenu="onWidgetRightClick($event, item)">
 						<!-- Tile placements render the launcher tile directly. -->
@@ -172,6 +179,7 @@
 							v-else
 							:placement="item"
 							:widget="getWidget(item.widgetId)"
+							:availableWidgets="availableWidgets"
 							:editMode="isEditMode"
 							:outstandingAcknowledgement="
 								isPlacementOutstanding(item)
@@ -206,7 +214,7 @@
 						<ViewDashboard :size="64" />
 					</template>
 					<template v-if="allowUserDashboards" #action>
-						<NcButton type="primary" @click="handleCreateDashboard">
+						<NcButton variant="primary" @click="handleCreateDashboard">
 							{{ t('launchpad', 'Create dashboard') }}
 						</NcButton>
 					</template>
@@ -348,10 +356,15 @@ import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 // Stores
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useTileStore } from '../stores/tiles.js'
+import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { logger } from '../utils/logger.js'
 
 export default {
-	name: 'Views',
+	// Multi-word per vue/multi-word-component-names. This is the `name` option
+	// (devtools / findComponent), NOT the registration key — parents still
+	// register and stub it as `Views`.
+	name: 'DashboardViews',
 	components: {
 		NcButton,
 		NcEmptyContent,
@@ -540,6 +553,34 @@ export default {
 
 	computed: {
 		/**
+		 * tile-quick-search REQ-QSEARCH-002 — whether a given placement is
+		 * currently de-emphasised by an active quick-search query.
+		 *
+		 * Returns `false` for every placement when no query is running, which
+		 * is why a dashboard with no `search` widget never dims anything.
+		 *
+		 * A `search` placement NEVER dims itself. It is a placement like any
+		 * other, so without this it de-emphasises the very bar the user is
+		 * typing into the moment their query stops matching the word
+		 * "Search" — the control fades out from under the cursor.
+		 *
+		 * Keyed on the widget type rather than on a single remembered id so a
+		 * dashboard carrying more than one search widget behaves the same.
+		 *
+		 * @return {(placement: object) => boolean} the predicate.
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+		 */
+		isTileDimmed() {
+			const { isDimmed } = useTileSearchStore()
+			return (placement) => {
+				if (placement?.widgetId === 'search') {
+					return false
+				}
+				return isDimmed(placement?.id)
+			}
+		},
+
+		/**
 		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
 		 * the placements on the active dashboard that require acknowledgement.
 		 * Drives the admin "Read receipts" affordance (shown only when at least
@@ -590,7 +631,10 @@ export default {
 		]),
 
 		...mapState(useWidgetStore, ['availableWidgets']),
-		...mapState(useTileStore, ['tiles']),
+		/*
+		 * `tiles` is deliberately NOT mapped: `getTileData()` builds a tile
+		 * from the placement row itself, so nothing here reads the store list.
+		 */
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		canEdit() {
@@ -689,7 +733,7 @@ export default {
 		 */
 		activeDashboardSource() {
 			const id = this.activeDashboard?.id
-			if (id != null) {
+			if (id !== null && id !== undefined) {
 				if (this.userDashboards?.some((d) => d.id === id)) {
 					return 'user'
 				}
@@ -835,7 +879,7 @@ export default {
 			const res = await api.getDefaultDashboardPreference()
 			this.defaultDashboardUuid = res?.data?.uuid ?? ''
 		} catch (error) {
-			console.error(
+			logger.error(
 				'[Views] Failed to load default-dashboard preference:',
 				error,
 			)
@@ -1008,7 +1052,13 @@ export default {
 			this.recordViewEvent(uuid)
 		},
 
-		...mapActions(useTileStore, ['createTile', 'updateTile', 'deleteTile']),
+		/*
+		 * The tile-store actions are deliberately NOT mapped. `createTile` and
+		 * `updateTile` had no caller, and the mapped `deleteTile` was SHADOWED
+		 * by the local `deleteTile()` defined later in this same object — a
+		 * later key wins, so the store action could never run. The local one
+		 * (which delegates to `removeWidget`) is what `@delete` invokes.
+		 */
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		toggleEditMode() {
@@ -1107,7 +1157,7 @@ export default {
 			try {
 				await this.removeWidget(placement.id)
 			} catch (error) {
-				console.error(
+				logger.error(
 					'[Views] Failed to remove widget via context menu:',
 					error,
 				)
@@ -1168,7 +1218,7 @@ export default {
 		 * `updatePlacements` call so the whole layout is written atomically
 		 * on the same debounced path the drag handler uses.
 		 *
-		 * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: any, gridY: number}>}} rect
+		 * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: (number|string), gridY: number}>}} rect
 		 *   Confirmed geometry emitted by `WidgetMovePanel`.
 		 * @spec openspec/specs/grid-layout/spec.md
 		 */
@@ -1200,7 +1250,7 @@ export default {
 			try {
 				await this.updatePlacements(next)
 			} catch (error) {
-				console.error('[Views] Failed to persist keyboard move:', error)
+				logger.error('[Views] Failed to persist keyboard move:', error)
 			}
 		},
 
@@ -1302,7 +1352,7 @@ export default {
 				}
 				this.closeCustomWidgetModal()
 			} catch (error) {
-				console.error('[Views] Failed to save custom widget:', error)
+				logger.error('[Views] Failed to save custom widget:', error)
 			}
 		},
 
@@ -1565,7 +1615,7 @@ export default {
 				}
 				this.closeTileEditor()
 			} catch (error) {
-				console.error('[Views] Failed to save tile:', error)
+				logger.error('[Views] Failed to save tile:', error)
 			}
 		},
 
@@ -1594,7 +1644,7 @@ export default {
 		 */
 		async saveDashboardConfig({ id, name, description, icon }) {
 			try {
-				if (id == null) {
+				if (id === null || id === undefined) {
 					await this.createDashboard({ name, description, icon })
 				} else {
 					await api.updateDashboard(id, { name, description, icon })
@@ -1602,7 +1652,7 @@ export default {
 				}
 				this.closeConfigModal()
 			} catch (error) {
-				console.error('Failed to save dashboard:', error)
+				logger.error('Failed to save dashboard:', error)
 			}
 		},
 
@@ -1629,7 +1679,7 @@ export default {
 				await this.loadDashboards()
 				this.closeConfigModal()
 			} catch (error) {
-				console.error('Failed to delete dashboard:', error)
+				logger.error('Failed to delete dashboard:', error)
 			}
 		},
 
@@ -1656,7 +1706,7 @@ export default {
 
 		// REQ-SWITCH-002 contract and is kept in the signature so per-source
 		// endpoints can land without re-touching this view.
-		async onSidebarSwitch(id, source) {
+		async onSidebarSwitch(id, _source) {
 			// `source` is currently informational — `switchDashboard`
 			// resolves any visible dashboard via /api/dashboard/{id}. The
 			// signature is kept explicit so per-source behaviour can land
@@ -1717,7 +1767,7 @@ export default {
 				// SecurityError when running outside the page's origin
 				// (jsdom test harnesses, sandboxed iframes). Failure is
 				// non-fatal — the URL just stays out of sync.
-				console.warn('[Views] history.replaceState failed:', e)
+				logger.warn('[Views] history.replaceState failed:', e)
 			}
 		},
 
@@ -1752,7 +1802,7 @@ export default {
 					target,
 				)
 			} catch (e) {
-				console.warn('[Views] failed to push URL for active dashboard:', e)
+				logger.warn('[Views] failed to push URL for active dashboard:', e)
 			}
 		},
 
@@ -1794,7 +1844,7 @@ export default {
 					await this.switchDashboard(dashboard.id)
 				}
 			} catch (e) {
-				console.warn('[Views] popstate path resolution failed:', e)
+				logger.warn('[Views] popstate path resolution failed:', e)
 			}
 		},
 
@@ -1858,7 +1908,7 @@ export default {
 		 */
 
 		// but kept so every row-cog handler shares one signature.
-		async onRowSetDefault(dashboard, source) {
+		async onRowSetDefault(dashboard, _source) {
 			const uuid = dashboard?.uuid ?? ''
 			if (uuid === '') {
 				return
@@ -1872,7 +1922,7 @@ export default {
 					this.defaultDashboardUuid = uuid
 				}
 			} catch (error) {
-				console.error(
+				logger.error(
 					'[Views] Failed to update default-dashboard preference:',
 					error,
 				)
@@ -1906,7 +1956,7 @@ export default {
 					this.defaultDashboardUuid = ''
 				}
 			} catch (error) {
-				console.error(
+				logger.error(
 					'[Views] Failed to update default-dashboard preference from modal:',
 					error,
 				)
@@ -1973,7 +2023,7 @@ export default {
 				await api.deleteDashboard(id)
 				await this.loadDashboards()
 			} catch (error) {
-				console.error('Failed to delete dashboard:', error)
+				logger.error('Failed to delete dashboard:', error)
 			}
 		},
 	},
@@ -2036,11 +2086,10 @@ export default {
 }
 
 /* tile-quick-search REQ-QSEARCH-002 "Typing filters tiles by label":
-   non-matching tiles are de-emphasised, NOT removed from the grid layout.
-   The class is toggled imperatively by WorkspaceApp.vue (a sibling
-   component reacting to the search bar's `filter` event) via a plain DOM
-   query — scoped CSS still applies because the element itself carries the
-   compiled `[data-v-*]` attribute regardless of how the class was set. */
+   non-matching tiles are de-emphasised, NOT removed from the grid layout,
+   so the grid never reflows while the user types. The class is bound
+   reactively from the tileSearch store in this component's own template
+   (see `isTileDimmed`) — no other component reaches in to set it. */
 .launchpad-grid-item--dimmed {
 	opacity: 0.35;
 }

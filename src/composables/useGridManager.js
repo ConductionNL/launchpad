@@ -173,13 +173,11 @@ export const DEFAULT_H = 4
  * @param {object} spec target widget spec — `w`/`h` default to {@link DEFAULT_W}/{@link DEFAULT_H}
  * @param {Array<object>} placements current placements in LaunchPad field-name form
  *   (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`)
- * @param {object} [options] optional knobs (accepted for caller compatibility;
- *   none affect bottom placement)
- * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
+ * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: (number|string), gridY: number}> }}
  *   `pushed` is always empty — existing widgets are never moved.
  * @spec openspec/specs/grid-layout/spec.md
  */
-export function placeNewWidget(spec, placements, options = {}) {
+export function placeNewWidget(spec, placements) {
 	const w = spec && Number.isFinite(spec.w) && spec.w > 0 ? spec.w : DEFAULT_W
 	const h = spec && Number.isFinite(spec.h) && spec.h > 0 ? spec.h : DEFAULT_H
 
@@ -234,14 +232,14 @@ function rectsOverlap(a, b) {
  *     resize by one cell, clamped to {@link MIN_CELLS} and the column
  *     count.
  *
- * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, id?: any}} placement
+ * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, id?: (number|string)}} placement
  *   the placement being moved/resized (LaunchPad field-name form)
  * @param {string} action one of the supported action strings above
  * @param {Array<object>} allPlacements every placement on the dashboard
  *   (used to compute push-down side effects), in LaunchPad field-name form
  * @param {object} [options] optional knobs
  * @param {number} [options.gridColumns] column count, defaults to {@link DEFAULT_COLUMNS}
- * @return {{ gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: any, gridY: number}> }}
+ * @return {{ gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: (number|string), gridY: number}> }}
  *   the clamped candidate rect plus any existing placements that must be
  *   pushed down to `gridY = newRect.gridY + newRect.gridHeight` to avoid
  *   overlap. `pushed` is empty when the move/resize is a no-op or clear.
@@ -301,7 +299,7 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	const pushed = []
 	const others = Array.isArray(allPlacements) ? allPlacements : []
 	for (const other of others) {
-		if (other == null || other.id === placement?.id) {
+		if (other === null || other === undefined || other.id === placement?.id) {
 			continue
 		}
 		const otherRect = {
@@ -350,11 +348,11 @@ const DEFAULT_MENU_HEIGHT = 245
  * @param {object} options factory options
  * @param {{value: boolean}} options.canEdit reactive boolean controlling
  *   whether right-click opens the popover.
- * @param {Function} [options.onEdit] called with `(widget)` on Edit click.
- * @param {Function} [options.onRemove] called with `(widget)` on Remove click.
- * @param {Function} [options.onMove] called with `(widget)` on Move click —
+ * @param {(widget: object) => void} [options.onEdit] called on Edit click.
+ * @param {(widget: object) => void} [options.onRemove] called on Remove click.
+ * @param {(widget: object) => void} [options.onMove] called on Move click —
  *   opens the keyboard move/resize panel (WCAG 2.1 SC 2.1.1).
- * @param {Function} [options.onVisibilityRules] called with `(widget)` on
+ * @param {(widget: object) => void} [options.onVisibilityRules] called on
  *   "Visibility rules…" click.
  * @param {number} [options.menuWidth] override for clamp width (px)
  * @param {number} [options.menuHeight] override for clamp height (px)
@@ -403,9 +401,13 @@ export function useGridManager(options = {}) {
 	}
 
 	/**
+	 * Keep the context menu fully on screen by pulling it back inside the
+	 * viewport when opening it at the cursor would overflow the right or
+	 * bottom edge.
 	 *
-	 * @param x
-	 * @param y
+	 * @param {number} x the cursor's viewport X coordinate.
+	 * @param {number} y the cursor's viewport Y coordinate.
+	 * @return {{x: number, y: number}} the clamped menu origin.
 	 */
 	function clampToViewport(x, y) {
 		const { width, height } = getViewport()
@@ -421,9 +423,12 @@ export function useGridManager(options = {}) {
 	}
 
 	/**
+	 * Open the widget context menu at the cursor, suppressing the browser's
+	 * own menu. A no-op when the user cannot edit this dashboard.
 	 *
-	 * @param event
-	 * @param widget
+	 * @param {MouseEvent} event the contextmenu event.
+	 * @param {object} widget the placement that was right-clicked.
+	 * @return {void}
 	 */
 	function onWidgetRightClick(event, widget) {
 		if (!canEdit || !canEdit.value) {
@@ -489,8 +494,11 @@ export function useGridManager(options = {}) {
 	}
 
 	/**
+	 * Close the context menu on any click outside it (the standard popover
+	 * dismissal), while leaving clicks inside the menu to its own handlers.
 	 *
-	 * @param event
+	 * @param {MouseEvent} event the document click event.
+	 * @return {void}
 	 */
 	function handleDocumentClick(event) {
 		if (!state.contextMenuOpen) {

@@ -103,6 +103,26 @@ import {
 let instanceCounter = 0
 
 /**
+ * Every mounted bar, in mount order (REQ-QSEARCH-006).
+ *
+ * While the bar was page chrome exactly one instance ever existed, so each
+ * instance could act on `/` and `Ctrl+K` unconditionally. As a placeable
+ * widget a dashboard may carry two or more, and every instance's window
+ * listener fires on the same keypress — so without a guard the LAST-mounted
+ * bar would win, DOM focus being single-valued. That is the arbitrary one
+ * (registration order, not visual order). The guard in `onWindowKeydown`
+ * gives the shortcut to `activeInstances[0]` instead.
+ *
+ * Module-level rather than a store: this is transient, render-lifetime
+ * coordination between sibling instances that resets on every page load —
+ * exactly what a module closure is for, and nothing outside this file has any
+ * reason to observe it.
+ *
+ * @type {object[]}
+ */
+const activeInstances = []
+
+/**
  * RuntimeShellSearch — the on-dashboard quick-search / launcher bar
  * (tile-quick-search: REQ-QSEARCH-001..004).
  *
@@ -148,6 +168,16 @@ export default {
 		fallbackTarget: {
 			type: String,
 			default: 'none',
+		},
+
+		/**
+		 * Optional placeholder override supplied by the `search` widget's
+		 * config form (REQ-QSEARCH-005). Empty string keeps the built-in
+		 * text, which advertises both focus shortcuts.
+		 */
+		placeholder: {
+			type: String,
+			default: '',
 		},
 	},
 
@@ -229,13 +259,19 @@ export default {
 
 		/**
 		 * The placeholder advertises both focus shortcuts, so the keyboard
-		 * affordance is discoverable without documentation.
+		 * affordance is discoverable without documentation. A `search` widget
+		 * may override it with its own text (REQ-QSEARCH-005); the override is
+		 * author-supplied and therefore already in the author's language, so
+		 * it is used verbatim rather than passed through `t()`.
 		 *
 		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-001
 		 * @return {string}
 		 */
 		placeholderText() {
-			return this.t('launchpad', 'Search tiles… (/ or Ctrl+K)')
+			return (
+				this.placeholder
+				|| this.t('launchpad', 'Search tiles… (/ or Ctrl+K)')
+			)
 		},
 
 		/**
@@ -312,11 +348,18 @@ export default {
 
 	/** @spec openspec/specs/tile-quick-search/spec.md */
 	mounted() {
+		// Mount order IS the claim order for the focus shortcut — see
+		// `activeInstances` above and `onWindowKeydown` below.
+		activeInstances.push(this)
 		window.addEventListener('keydown', this.onWindowKeydown)
 	},
 
 	/** @spec openspec/specs/tile-quick-search/spec.md */
 	beforeUnmount() {
+		const index = activeInstances.indexOf(this)
+		if (index !== -1) {
+			activeInstances.splice(index, 1)
+		}
 		window.removeEventListener('keydown', this.onWindowKeydown)
 	},
 
@@ -347,10 +390,17 @@ export default {
 		 * @return {void}
 		 */
 		onWindowKeydown(event) {
-			if (isSlashFocusShortcut(event) || isCtrlKFocusShortcut(event)) {
-				event.preventDefault()
-				this.focusInput()
+			if (!isSlashFocusShortcut(event) && !isCtrlKFocusShortcut(event)) {
+				return
 			}
+			// Only the first-still-mounted bar acts. Checked per keypress
+			// rather than cached at mount, so removing the first search
+			// widget promotes the next one automatically (REQ-QSEARCH-006).
+			if (activeInstances[0] !== this) {
+				return
+			}
+			event.preventDefault()
+			this.focusInput()
 		},
 
 		/**

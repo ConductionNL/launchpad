@@ -127,7 +127,7 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 		}
 	})
 
-	it('localises the displayName through t(launchpad, …)', async () => {
+	it('localises the displayName through the t() helper', async () => {
 		let seen = null
 		globalThis.t = (app, key) => {
 			if (app === 'launchpad') {
@@ -140,7 +140,7 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 		expect(typeof entry.displayName).toBe('string')
 		expect(
 			seen,
-			'displayName should pass through t(launchpad, …)',
+			'displayName should pass through the t() helper',
 		).not.toBeNull()
 	})
 })

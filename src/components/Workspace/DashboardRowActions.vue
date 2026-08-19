@@ -45,7 +45,7 @@
 			v-if="canEdit"
 			:closeAfterClick="true"
 			data-testid="cog-edit-dashboard"
-			@click="$emit('toggle-edit')">
+			@click="$emit('toggleEdit')">
 			<template #icon>
 				<ContentSave v-if="showSave" :size="20" />
 				<Pencil v-else :size="20" />
@@ -60,7 +60,7 @@
 			v-if="isOwner"
 			:closeAfterClick="true"
 			data-testid="cog-dashboard-config"
-			@click="$emit('open-config')">
+			@click="$emit('openConfig')">
 			<template #icon>
 				<Tune :size="20" />
 			</template>
@@ -70,7 +70,7 @@
 			v-if="canEdit"
 			:closeAfterClick="true"
 			data-testid="cog-add-widget"
-			@click="$emit('add-custom-widget')">
+			@click="$emit('addCustomWidget')">
 			<template #icon>
 				<ShapePolygonPlus :size="20" />
 			</template>
@@ -79,7 +79,7 @@
 		<NcActionButton
 			:closeAfterClick="true"
 			data-testid="cog-set-default"
-			@click="$emit('set-default')">
+			@click="$emit('setDefault')">
 			<template #icon>
 				<StarCheck v-if="isDefault" :size="20" />
 				<Star v-else :size="20" />
@@ -224,11 +224,11 @@ export default {
 	},
 
 	emits: [
-		'toggle-edit',
-		'open-config',
-		'add-custom-widget',
+		'toggleEdit',
+		'openConfig',
+		'addCustomWidget',
 		'delete',
-		'set-default',
+		'setDefault',
 		'share',
 	],
 
@@ -275,7 +275,8 @@ export default {
 		showSave() {
 			return (
 				this.isEditMode
-				&& this.activeDashboardId != null
+				&& this.activeDashboardId !== null
+				&& this.activeDashboardId !== undefined
 				&& this.dashboard?.id === this.activeDashboardId
 			)
 		},

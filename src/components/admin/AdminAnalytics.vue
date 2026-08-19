@@ -131,6 +131,7 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'AdminAnalytics',
@@ -182,7 +183,7 @@ export default {
 				}
 				this.topDashboards = Array.isArray(topResp.data) ? topResp.data : []
 			} catch (e) {
-				console.error('Failed to load analytics:', e)
+				logger.error('Failed to load analytics:', e)
 				this.error = t(
 					'launchpad',
 					'Failed to load analytics data. Please try again.',
@@ -214,7 +215,7 @@ export default {
 				document.body.removeChild(a)
 				URL.revokeObjectURL(url)
 			} catch (e) {
-				console.error('Failed to export analytics CSV:', e)
+				logger.error('Failed to export analytics CSV:', e)
 				this.error = t(
 					'launchpad',
 					'Failed to export analytics CSV. Please try again.',

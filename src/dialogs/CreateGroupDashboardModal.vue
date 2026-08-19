@@ -53,13 +53,13 @@
 		<template #actions>
 			<NcButton
 				data-test="create-group-dashboard-cancel"
-				type="tertiary"
+				variant="tertiary"
 				@click="onClose">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
 			<NcButton
 				data-test="create-group-dashboard-submit"
-				type="primary"
+				variant="primary"
 				:disabled="submitting || !canSubmit"
 				@click="onSubmit">
 				{{
@@ -196,7 +196,7 @@ export default {
 					isDefault: this.form.isDefault,
 				})
 				this.$emit('created')
-			} catch (e) {
+			} catch {
 				// store.create surfaces toast on failure; keep modal open
 				// so the admin can retry.
 			} finally {

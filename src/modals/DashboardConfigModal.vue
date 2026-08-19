@@ -194,7 +194,7 @@
 									onShareLevelChange(idx, $event)
 								" />
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Remove share')"
 								@click="onShareRemove(idx)">
 								<template #icon>
@@ -252,7 +252,7 @@
 								:value="publicShareUrl(share.token)"
 								@focus="$event.target.select()" />
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Copy link')"
 								:title="
 									copiedToken === share.token
@@ -283,7 +283,7 @@
 								}}
 							</span>
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Revoke link')"
 								:title="t('launchpad', 'Revoke link')"
 								@click="onRevokePublicShare(share.id)">
@@ -311,7 +311,7 @@
 							type="date"
 							:aria-label="t('launchpad', 'Expiry date (optional)')" />
 						<NcButton
-							type="secondary"
+							variant="secondary"
 							:disabled="creatingPublicShare"
 							@click="onCreatePublicShare">
 							<template #icon>
@@ -327,7 +327,7 @@
 			<div class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
-					type="error"
+					variant="error"
 					:disabled="saving"
 					data-testid="dashboard-delete-button"
 					@click="onDelete">
@@ -338,13 +338,13 @@
 				</NcButton>
 				<div class="dashboard-config__actions-right">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:disabled="saving"
 						@click="$emit('close')">
 						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:disabled="!canSave || saving"
 						data-testid="dashboard-save-button"
 						@click="onSave">
@@ -387,6 +387,7 @@ import { api } from '../services/api.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { logger } from '../utils/logger.js'
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -464,7 +465,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'save', 'delete', 'set-default'],
+	emits: ['close', 'save', 'delete', 'setDefault'],
 
 	data() {
 		return {
@@ -533,7 +534,7 @@ export default {
 		 * what turns an uploaded file into the URL the icon field stores.
 		 *
 		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-008
-		 * @return {Function} the data-URL upload function.
+		 * @return {(dataUrl: string) => Promise<{url: string, name: string, size: number}>} the data-URL upload function.
 		 */
 		iconUploadFn() {
 			return uploadDataUrl
@@ -719,7 +720,7 @@ export default {
 				this.serverShares = fresh.map((s) => ({ ...s }))
 				this.localShares = fresh.map((s) => ({ ...s }))
 			} catch (error) {
-				console.error('Failed to load shares:', error)
+				logger.error('Failed to load shares:', error)
 				this.serverShares = []
 				this.localShares = []
 			}
@@ -741,7 +742,7 @@ export default {
 					this.dashboard.uuid,
 				)
 			} catch (error) {
-				console.error('Failed to load public shares:', error)
+				logger.error('Failed to load public shares:', error)
 				this.publicShares = []
 			} finally {
 				this.publicSharesLoading = false
@@ -772,7 +773,7 @@ export default {
 				this.newShareExpiry = ''
 				await this.loadPublicShares()
 			} catch (error) {
-				console.error('Failed to create public share:', error)
+				logger.error('Failed to create public share:', error)
 			} finally {
 				this.creatingPublicShare = false
 			}
@@ -792,7 +793,7 @@ export default {
 				await usePublicShareStore().revokeShare(this.dashboard.uuid, id)
 				await this.loadPublicShares()
 			} catch (error) {
-				console.error('Failed to revoke public share:', error)
+				logger.error('Failed to revoke public share:', error)
 			}
 		},
 
@@ -821,7 +822,7 @@ export default {
 				await navigator.clipboard.writeText(this.publicShareUrl(share.token))
 				this.copiedToken = share.token
 			} catch (error) {
-				console.error('Clipboard write failed:', error)
+				logger.error('Clipboard write failed:', error)
 			}
 		},
 
@@ -841,7 +842,7 @@ export default {
 					this.shareeOptions = [...this.shareeSuggestions]
 				}
 			} catch (error) {
-				console.error('Sharee suggestion preload failed:', error)
+				logger.error('Sharee suggestion preload failed:', error)
 				this.shareeSuggestions = []
 			}
 		},
@@ -896,7 +897,7 @@ export default {
 				if (seq !== this.shareeSearchSeq) return // stale result
 				this.shareeOptions = this.mapShareeResults(response)
 			} catch (error) {
-				console.error('Sharee search failed:', error)
+				logger.error('Sharee search failed:', error)
 				this.shareeOptions = []
 			} finally {
 				this.shareeLoading = false
@@ -975,7 +976,7 @@ export default {
 							})),
 						)
 					} catch (error) {
-						console.error('Failed to replace shares:', error)
+						logger.error('Failed to replace shares:', error)
 					}
 				}
 				await this.$emit('save', {
@@ -996,7 +997,7 @@ export default {
 					&& this.dashboard
 					&& this.form.isDefault !== this._initialIsDefault
 				) {
-					this.$emit('set-default', {
+					this.$emit('setDefault', {
 						uuid: this.dashboard.uuid,
 						isDefault: this.form.isDefault,
 					})

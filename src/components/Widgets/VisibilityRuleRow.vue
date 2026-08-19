@@ -198,14 +198,14 @@
 
 		<div class="visibility-rule-row__actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="busy || !isValid"
 				data-test="rule-save"
 				@click="save">
 				{{ isNew ? t('launchpad', 'Add rule') : t('launchpad', 'Save') }}
 			</NcButton>
 			<NcButton
-				type="tertiary"
+				variant="tertiary"
 				:disabled="busy"
 				:aria-label="
 					isNew
@@ -529,7 +529,7 @@ export default {
 		 * Set one field of an attribute-type rule's config.
 		 *
 		 * @param {string} field Config key to write.
-		 * @param {*} value New value for that key.
+		 * @param {string|number|boolean|string[]|null} value New value for that key.
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md
 		 */
 		onAttributeFieldChange(field, value) {

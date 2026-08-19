@@ -92,7 +92,7 @@
 						class="launchpad-ack-report__csv"
 						download
 						data-testid="acknowledgement-report-csv">
-						<NcButton type="secondary">
+						<NcButton variant="secondary">
 							{{ t('launchpad', 'Export CSV') }}
 						</NcButton>
 					</a>
@@ -197,7 +197,7 @@ export default {
 					this.announcementKey,
 				)
 				this.report = response.data
-			} catch (e) {
+			} catch {
 				this.error = t(
 					'launchpad',
 					'Could not load the read-receipt report.',

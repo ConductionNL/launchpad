@@ -86,7 +86,7 @@
 				</div>
 			</section>
 
-			<NcButton type="secondary" data-test="add-rule" @click="addRule">
+			<NcButton variant="secondary" data-test="add-rule" @click="addRule">
 				<template #icon>
 					<Plus :size="18" />
 				</template>
@@ -120,7 +120,7 @@
 							data-test="preview-datetime" />
 					</div>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:disabled="preview.state.loading"
 						data-test="run-preview"
 						@click="runPreview">
@@ -203,6 +203,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import VisibilityRuleRow from './VisibilityRuleRow.vue'
 import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'ConditionalVisibilityEditor',
@@ -232,7 +233,7 @@ export default {
 		},
 	},
 
-	emits: ['rule-added', 'rule-updated', 'rule-removed'],
+	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved'],
 
 	/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 	setup() {
@@ -343,7 +344,7 @@ export default {
 					_localKey: undefined,
 				}))
 			} catch (error) {
-				console.error('Failed to load visibility rules:', error)
+				logger.error('Failed to load visibility rules:', error)
 				this.rules = []
 			} finally {
 				this.loading = false
@@ -408,7 +409,7 @@ export default {
 					if (index !== -1) {
 						this.rules[index] = { ...row, ...updated }
 					}
-					this.$emit('rule-updated')
+					this.$emit('ruleUpdated')
 				} else {
 					const { data } = await api.addWidgetRule(
 						this.placementId,
@@ -421,10 +422,10 @@ export default {
 					} else {
 						await this.load()
 					}
-					this.$emit('rule-added')
+					this.$emit('ruleAdded')
 				}
 			} catch (error) {
-				console.error('Failed to save visibility rule:', error)
+				logger.error('Failed to save visibility rule:', error)
 			} finally {
 				this.setRowBusy(row, false)
 			}
@@ -449,10 +450,10 @@ export default {
 			this.rules = this.rules.filter((r) => r !== row)
 			try {
 				await api.deleteRule(row.id)
-				this.$emit('rule-removed')
+				this.$emit('ruleRemoved')
 			} catch (error) {
 				this.rules = snapshot
-				console.error('Failed to remove visibility rule:', error)
+				logger.error('Failed to remove visibility rule:', error)
 			} finally {
 				this.setRowBusy(row, false)
 			}
@@ -467,7 +468,7 @@ export default {
 						? new Date(this.previewDatetime).toISOString()
 						: null,
 				})
-			} catch (error) {
+			} catch {
 				// Surfaced via preview.state.error in the template.
 			}
 		},

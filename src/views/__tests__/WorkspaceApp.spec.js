@@ -22,8 +22,6 @@ import { createPinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import RuntimeShellSearch from '../../components/RuntimeShellSearch.vue'
 import WorkspaceApp from '../WorkspaceApp.vue'
-import { useDashboardStore } from '../../stores/dashboard.js'
-import { useWidgetStore } from '../../stores/widgets.js'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
@@ -75,10 +73,10 @@ function mountShell(options = {}) {
 			// separate `$listeners` object, so the pattern was safe there.
 			NcButton: {
 				name: 'NcButton',
-				props: ['type', 'disabled'],
+				props: ['variant', 'disabled'],
 				emits: ['click'],
 				template:
-					'<button v-bind="$attrs" :data-nc-button-type="type" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
+					'<button v-bind="$attrs" :data-nc-button-variant="variant" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
 				inheritAttrs: false,
 			},
 			MenuIcon: true,
@@ -161,8 +159,8 @@ describe('WorkspaceApp', () => {
 			expect(strip.exists()).toBe(true)
 			const hamburger = wrapper.find('.workspace-shell__hamburger')
 			expect(hamburger.exists()).toBe(true)
-			// Stubbed NcButton mirrors the `type` prop onto a data attribute.
-			expect(hamburger.attributes('data-nc-button-type')).toBe('tertiary')
+			// Stubbed NcButton mirrors the `variant` prop onto a data attribute.
+			expect(hamburger.attributes('data-nc-button-variant')).toBe('tertiary')
 			// Clicking the in-strip hamburger closes the sidebar.
 			await hamburger.trigger('click')
 			expect(wrapper.vm.sidebarOpen).toBe(false)
@@ -231,306 +229,52 @@ describe('WorkspaceApp', () => {
 		})
 	})
 
-	describe('tile-quick-search: RuntimeShellSearch wiring', () => {
-		/**
-		 * Build a pinia instance pre-populated with dashboard-store /
-		 * widget-store state so `searchableTiles` has something to derive.
+	describe('tile-quick-search: the shell no longer owns a search bar', () => {
+		/*
+		 * Quick search moved out of the page chrome and became the `search`
+		 * widget type (REQ-QSEARCH-001), so everything this block used to
+		 * assert now lives with its new owner:
 		 *
-		 * @param {object} [options] store overrides.
-		 * @param {Array} [options.widgetPlacements] placements to seed.
-		 * @param {Array} [options.availableWidgets] widget definitions to seed.
-		 * @return {import('pinia').Pinia}
+		 *   - label resolution, activation, focus-grid and fallback
+		 *     → src/composables/__tests__/useTileSearchHost.spec.js
+		 *   - dimming, including the launchpad#95 integer-vs-string guard
+		 *     → src/stores/__tests__/tileSearch.spec.js
+		 *   - prop wiring and fallback layering
+		 *     → src/components/Widgets/Renderers/__tests__/SearchWidget.spec.js
+		 *
+		 * What remains here is the assertion this component is still
+		 * responsible for: that it renders no search bar of its own, in
+		 * either branch. Without it, reintroducing the strip would go
+		 * unnoticed.
 		 */
-		function buildPinia({ widgetPlacements = [], availableWidgets = [] } = {}) {
-			const pinia = createPinia()
-			useDashboardStore(pinia).widgetPlacements = widgetPlacements
-			useWidgetStore(pinia).availableWidgets = availableWidgets
-			return pinia
-		}
-
-		it('renders the search bar above the grid when a dashboard is active', () => {
+		it('renders no search bar when a dashboard is active', () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			expect(wrapper.findComponent(RuntimeShellSearch).exists()).toBe(true)
+			expect(wrapper.findComponent(RuntimeShellSearch).exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__search-bar').exists()).toBe(false)
 		})
 
-		it('does not render the search bar in the empty state', () => {
+		it('renders no search bar in the empty state', () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: '' } })
 			expect(wrapper.findComponent(RuntimeShellSearch).exists()).toBe(false)
 		})
 
-		it('searchableTiles derives a tile placement label from tileTitle', () => {
-			const pinia = buildPinia({
-				widgetPlacements: [
-					{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' },
-				],
-			})
-			const wrapper = mountShell({
-				inject: { activeDashboardId: 'd1' },
-				pinia,
-			})
-			expect(wrapper.vm.searchableTiles).toEqual([
-				{
-					id: 'p1',
-					label: 'Zaaksysteem',
-					placement: wrapper.vm.widgetPlacements[0],
-				},
-			])
-		})
-
-		it('searchableTiles derives a widget placement label from customTitle, then widget.title, then a fallback', () => {
-			const pinia = buildPinia({
-				widgetPlacements: [
-					{ id: 'p1', widgetId: 'w1', customTitle: 'My custom title' },
-					{ id: 'p2', widgetId: 'w1' },
-					{ id: 'p3', widgetId: 'unknown' },
-				],
-				availableWidgets: [{ id: 'w1', title: 'Weather' }],
-			})
-			const wrapper = mountShell({
-				inject: { activeDashboardId: 'd1' },
-				pinia,
-			})
-			const labels = wrapper.vm.searchableTiles.map((t) => t.label)
-			expect(labels).toEqual(['My custom title', 'Weather', 'Widget'])
-		})
-
-		it('passes the searchableTiles + fallbackTarget through as props', () => {
-			const pinia = buildPinia({
-				widgetPlacements: [
-					{ id: 'p1', tileType: 'custom', tileTitle: 'Zaaksysteem' },
-				],
-			})
-			const wrapper = mountShell({
-				inject: {
-					activeDashboardId: 'd1',
-					quicksearchFallbackTarget: 'unified-search',
-				},
-				pinia,
-			})
-			const search = wrapper.findComponent(RuntimeShellSearch)
-			expect(search.props('items')).toEqual(wrapper.vm.searchableTiles)
-			expect(search.props('fallbackTarget')).toBe('unified-search')
-		})
-
-		it('defaults fallbackTarget to "none" when the initial-state key is absent', () => {
+		it('no longer exposes the removed host wiring', () => {
 			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			expect(wrapper.vm.quicksearchFallbackTarget).toBe('none')
-		})
-
-		it('onSearchFilter dims non-matching grid items and leaves matches undimmed', async () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const grid = wrapper.find('.workspace-shell__grid').element
-			const matchEl = document.createElement('div')
-			matchEl.className = 'launchpad-grid-item'
-			matchEl.setAttribute('data-placement-id', 'match')
-			const otherEl = document.createElement('div')
-			otherEl.className = 'launchpad-grid-item'
-			otherEl.setAttribute('data-placement-id', 'other')
-			grid.appendChild(matchEl)
-			grid.appendChild(otherEl)
-
-			wrapper.vm.onSearchFilter(['match'])
-			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
-				false,
-			)
-			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
-				true,
-			)
-
-			// null (query cleared) undims everything.
-			wrapper.vm.onSearchFilter(null)
-			expect(matchEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
-				false,
-			)
-			expect(otherEl.classList.contains('launchpad-grid-item--dimmed')).toBe(
-				false,
-			)
-		})
-
-		it('onSearchClear undims every tile and moves focus to the grid', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const grid = wrapper.find('.workspace-shell__grid').element
-			const el = document.createElement('div')
-			el.className = 'launchpad-grid-item launchpad-grid-item--dimmed'
-			el.setAttribute('data-placement-id', 'p1')
-			grid.appendChild(el)
-
-			const focusSpy = vi.spyOn(grid, 'focus')
-			wrapper.vm.onSearchClear()
-			expect(el.classList.contains('launchpad-grid-item--dimmed')).toBe(false)
-			expect(focusSpy).toHaveBeenCalled()
-		})
-
-		it("onSearchOpen scrolls to and clicks the matched tile's rendered link", () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const grid = wrapper.find('.workspace-shell__grid').element
-			const el = document.createElement('div')
-			el.className = 'launchpad-grid-item'
-			el.setAttribute('data-placement-id', 'p1')
-			// A hash-only href avoids jsdom's "navigation not implemented"
-			// console noise when `.click()` fires below, while still
-			// exercising the real `<a href>` activation path.
-			const link = document.createElement('a')
-			link.setAttribute('href', '#deck')
-			el.appendChild(link)
-			grid.appendChild(el)
-
-			const scrollSpy = vi.fn()
-			el.scrollIntoView = scrollSpy
-			const clickSpy = vi.spyOn(link, 'click')
-
-			wrapper.vm.onSearchOpen({
-				id: 'p1',
-				label: 'Deck',
-				placement: { id: 'p1' },
-			})
-			expect(scrollSpy).toHaveBeenCalled()
-			expect(clickSpy).toHaveBeenCalled()
-		})
-
-		/*
-		 * launchpad#95 — TWO DEFECTS, ONE ROOT CAUSE, AND A FIXTURE THAT HID
-		 * BOTH.
-		 *
-		 * Every test above seeds a placement id as a STRING (`'p1'`,
-		 * `'match'`). `WidgetPlacement` rows arrive from
-		 * `GET /api/dashboard/{id}` with an INTEGER `id` — the column is an
-		 * auto-increment primary key — so no fixture in this file had ever
-		 * exercised the type the product actually handles, and both defects
-		 * below were invisible to a green suite:
-		 *
-		 *   1. `applySearchDimming()` compared `getAttribute()` (always a
-		 *      string) against the raw ids with `Array.includes`, which does
-		 *      not coerce. With integer ids nothing ever matched, so EVERY
-		 *      tile was dimmed — including the ones the user searched for.
-		 *   2. `activateSearchResult()` called `.replace()` on the id.
-		 *      `Number.prototype.replace` does not exist, so Enter threw a
-		 *      `TypeError` inside a Vue event handler and silently did
-		 *      nothing.
-		 *
-		 * These two tests are the regression guard, and they are written
-		 * against the production shape on purpose. Both are RED on the code
-		 * as it stood before the fix: the first because `matchEl` is dimmed,
-		 * the second because the call throws before reaching the link.
-		 */
-		it('onSearchFilter leaves an INTEGER-id match undimmed (launchpad#95)', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const grid = wrapper.find('.workspace-shell__grid').element
-			const matchEl = document.createElement('div')
-			matchEl.className = 'launchpad-grid-item'
-			matchEl.setAttribute('data-placement-id', '7')
-			const otherEl = document.createElement('div')
-			otherEl.className = 'launchpad-grid-item'
-			otherEl.setAttribute('data-placement-id', '8')
-			grid.appendChild(matchEl)
-			grid.appendChild(otherEl)
-
-			// The ids are numbers, exactly as `searchableTiles()` copies them
-			// off the API row — NOT the strings the older fixtures used.
-			wrapper.vm.onSearchFilter([7])
-
-			expect(
-				matchEl.classList.contains('launchpad-grid-item--dimmed'),
-				'a matching tile must not be de-emphasised',
-			).toBe(false)
-			expect(
-				otherEl.classList.contains('launchpad-grid-item--dimmed'),
-				'CONTROL: a non-matching tile must still be de-emphasised, or the assertion above is satisfied by "nothing is ever dimmed"',
-			).toBe(true)
-		})
-
-		it('onSearchOpen activates a tile whose placement id is an INTEGER (launchpad#95)', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const grid = wrapper.find('.workspace-shell__grid').element
-			const el = document.createElement('div')
-			el.className = 'launchpad-grid-item'
-			el.setAttribute('data-placement-id', '7')
-			const link = document.createElement('a')
-			link.setAttribute('href', '#deck')
-			el.appendChild(link)
-			grid.appendChild(el)
-
-			const scrollSpy = vi.fn()
-			el.scrollIntoView = scrollSpy
-			const clickSpy = vi.spyOn(link, 'click')
-
-			wrapper.vm.onSearchOpen({ id: 7, label: 'Deck', placement: { id: 7 } })
-
-			expect(
-				scrollSpy,
-				'the matched tile must be scrolled into view',
-			).toHaveBeenCalled()
-			expect(
-				clickSpy,
-				"Enter must activate the tile's rendered link",
-			).toHaveBeenCalled()
-		})
-
-		it('onSearchOpen ignores a placement with no id rather than looking for the string "null"', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const grid = wrapper.find('.workspace-shell__grid').element
-			const el = document.createElement('div')
-			el.className = 'launchpad-grid-item'
-			// A cell literally labelled "null" — the shape a bare String()
-			// cast would go looking for, and find.
-			el.setAttribute('data-placement-id', 'null')
-			const link = document.createElement('a')
-			link.setAttribute('href', '#deck')
-			el.appendChild(link)
-			grid.appendChild(el)
-			const clickSpy = vi.spyOn(link, 'click')
-
-			wrapper.vm.onSearchOpen({
-				id: null,
-				label: 'Deck',
-				placement: { id: null },
-			})
-
-			expect(
-				clickSpy,
-				'a null id must not activate the tile that happens to be called "null"',
-			).not.toHaveBeenCalled()
-		})
-
-		it('onSearchFallback opens a web-search URL in a new tab', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
-			wrapper.vm.onSearchFallback({
-				type: 'web-search',
-				url: 'https://example.org/search?q=x',
-			})
-			expect(openSpy).toHaveBeenCalledWith(
-				'https://example.org/search?q=x',
-				'_blank',
-				'noopener,noreferrer',
-			)
-			openSpy.mockRestore()
-		})
-
-		it('onSearchFallback dispatches a unified-search CustomEvent without navigating', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
-			const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
-			wrapper.vm.onSearchFallback({
-				type: 'unified-search',
-				query: 'invoices',
-			})
-			expect(openSpy).not.toHaveBeenCalled()
-			const dispatched = dispatchSpy.mock.calls.find(
-				([e]) => e.type === 'nextcloud:unified-search.search',
-			)
-			expect(dispatched).toBeTruthy()
-			expect(dispatched[0].detail).toEqual({ query: 'invoices' })
-			openSpy.mockRestore()
-			dispatchSpy.mockRestore()
-		})
-
-		it('onSearchFallback does nothing observable for a "none" action', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			const openSpy = vi.spyOn(window, 'open').mockImplementation(() => {})
-			expect(() => wrapper.vm.onSearchFallback({ type: 'none' })).not.toThrow()
-			expect(openSpy).not.toHaveBeenCalled()
-			openSpy.mockRestore()
+			for (const name of [
+				'tileSearchLabel',
+				'onSearchOpen',
+				'onSearchFilter',
+				'onSearchFallback',
+				'onSearchClear',
+				'applySearchDimming',
+				'activateSearchResult',
+				'focusGrid',
+			]) {
+				expect(
+					typeof wrapper.vm[name],
+					`${name} must not survive on WorkspaceApp — it moved to useTileSearchHost/SearchWidget`,
+				).toBe('undefined')
+			}
 		})
 	})
 })

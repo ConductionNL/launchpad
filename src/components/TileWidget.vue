@@ -89,6 +89,7 @@ import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
+import { logger } from '../utils/logger.js'
 
 const { recordTileClick } = useTileClickTracking()
 
@@ -171,7 +172,7 @@ export default {
 
 	/** @spec openspec/specs/tiles/spec.md */
 	mounted() {
-		console.log(
+		logger.debug(
 			'[TileWidget] Mounted with tile:',
 			JSON.stringify(
 				{
@@ -186,7 +187,7 @@ export default {
 				2,
 			),
 		)
-		console.log(
+		logger.debug(
 			'[TileWidget] Full tile object keys:',
 			this.tile ? Object.keys(this.tile) : 'tile is null',
 		)

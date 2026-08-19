@@ -287,7 +287,7 @@ export default {
 					return
 				}
 				this.reading = data
-			} catch (e) {
+			} catch {
 				this.reading = null
 				this.errorMessage = t('launchpad', 'Failed to load the value.')
 			} finally {

@@ -122,6 +122,7 @@ export default {
 		 *
 		 * @type {{id?: number|string}|null}
 		 */
+		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding; see above
 		placement: {
 			type: Object,
 			default: null,
@@ -334,7 +335,7 @@ export default {
 				) {
 					blank = true
 				}
-			} catch (e) {
+			} catch {
 				// A SecurityError here means the target is cross-origin and
 				// DID load — that's the normal signal of success, not a
 				// failure to surface.

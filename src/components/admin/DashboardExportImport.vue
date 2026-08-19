@@ -19,7 +19,7 @@
 		<!-- Export controls -->
 		<div class="launchpad-export-import__row">
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="exporting"
 				data-test="export-site-button"
 				@click="exportSite">
@@ -49,7 +49,6 @@
 			</label>
 			<input
 				id="launchpad-import-file"
-				ref="fileInput"
 				type="file"
 				accept=".zip,application/zip"
 				data-test="import-file-input"
@@ -65,7 +64,7 @@
 			</NcCheckboxRadioSwitch>
 
 			<NcButton
-				type="primary"
+				variant="primary"
 				:disabled="!selectedFile || importing"
 				data-test="import-submit"
 				@click="runImport">
@@ -111,6 +110,7 @@ import { NcButton, NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import Download from 'vue-material-design-icons/Download.vue'
 import Upload from 'vue-material-design-icons/Upload.vue'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'DashboardExportImport',
@@ -147,8 +147,7 @@ export default {
 					'launchpad',
 					'Export failed. Please try again.',
 				)
-				// eslint-disable-next-line no-console
-				console.error('launchpad export failed', err)
+				logger.error('launchpad export failed', err)
 			} finally {
 				this.exporting = false
 			}
@@ -188,8 +187,7 @@ export default {
 						'Import failed. Please try again.',
 					)
 				}
-				// eslint-disable-next-line no-console
-				console.error('launchpad import failed', err)
+				logger.error('launchpad import failed', err)
 			} finally {
 				this.importing = false
 			}

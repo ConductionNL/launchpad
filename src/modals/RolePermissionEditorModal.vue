@@ -40,11 +40,11 @@
 				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
 				@update:modelValue="$emit('update:deniedWidgetsCsv', $event)" />
 			<div class="launchpad-admin__editor-actions">
-				<NcButton type="tertiary" @click="$emit('close')">
+				<NcButton variant="tertiary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					:disabled="saving || !row.name || !row.groupId"
 					@click="$emit('save')">
 					{{ t('launchpad', 'Save') }}
@@ -102,7 +102,7 @@ export default {
 		 * never mutated in place.
 		 *
 		 * @param {string} key Field to change.
-		 * @param {*} value New value for that field.
+		 * @param {string|number|boolean|string[]} value New value for that field.
 		 * @spec openspec/specs/admin-roles/spec.md
 		 */
 		updateRow(key, value) {

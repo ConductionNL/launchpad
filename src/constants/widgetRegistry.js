@@ -77,6 +77,11 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue
 // LaunchPad-only registration pattern as `clock`/`weather`.
 import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
 import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+// `search` — the quick-search / launcher bar, formerly runtime-shell chrome
+// (openspec/specs/tile-quick-search). Registered below like the other
+// LaunchPad-only types.
+import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
+import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
@@ -207,6 +212,26 @@ registerDashboardWidget('iframe', {
 	},
 	displayName: 'Embedded page',
 	icon: 'Web',
+})
+
+// `search` — the dashboard quick-search / launcher bar (REQ-QSEARCH-001,
+// REQ-QSEARCH-005). Until this change it was page chrome rendered
+// unconditionally by `WorkspaceApp.vue`; it is now placed like any other
+// widget, so an author decides whether a dashboard has one at all and where it
+// sits. Same LaunchPad-only registration pattern as `clock`/`weather`/
+// `livetile`/`iframe`.
+registerDashboardWidget('search', {
+	renderer: SearchWidget,
+	form: SearchWidgetForm,
+	defaultContent: {
+		// Empty = the built-in placeholder, which advertises / and Ctrl+K.
+		placeholder: '',
+		// Empty = inherit the admin `quicksearch_fallback_target` setting, so
+		// a freshly-placed widget matches the old shell bar's behaviour.
+		fallbackTarget: '',
+	},
+	displayName: 'Search',
+	icon: 'Magnify',
 })
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal

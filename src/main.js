@@ -45,6 +45,7 @@ import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import { loadInitialState } from './utils/loadInitialState.js'
+import { logger } from './utils/logger.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 
 import './publicPath.js'
@@ -150,8 +151,7 @@ const manifestLoading = reactive({ value: true })
 		// 404, network error, or unauthenticated — fall back to stub silently.
 		// The existing launchpad UI works entirely from its Pinia stores and does
 		// not depend on the manifest for page routing, so this is non-fatal.
-		// eslint-disable-next-line no-console
-		console.warn('[launchpad] Runtime manifest fetch failed; using stub', err)
+		logger.warn('[launchpad] Runtime manifest fetch failed; using stub', err)
 	} finally {
 		manifestLoading.value = false
 	}

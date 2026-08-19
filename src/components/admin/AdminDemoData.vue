@@ -77,7 +77,7 @@
 						<div class="launchpad-demo-showcases__actions">
 							<NcButton
 								v-if="!showcase.isInstalled"
-								type="primary"
+								variant="primary"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-install-' + showcase.id"
 								@click="install(showcase)">
@@ -89,7 +89,7 @@
 							</NcButton>
 							<NcButton
 								v-else
-								type="error"
+								variant="error"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-uninstall-' + showcase.id"
 								@click="confirmUninstall(showcase)">
@@ -160,7 +160,7 @@ export default {
 			try {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
-			} catch (err) {
+			} catch {
 				this.loadError = this.t(
 					'launchpad',
 					'Could not load demo showcases. Please try again.',
@@ -242,7 +242,7 @@ export default {
 				await api.uninstallDemoShowcase(showcase.id)
 				delete this.warnings[showcase.id]
 				await this.fetch()
-			} catch (err) {
+			} catch {
 				this.actionError = this.t(
 					'launchpad',
 					'Could not uninstall showcase. Please try again.',

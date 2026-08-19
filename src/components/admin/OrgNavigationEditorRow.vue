@@ -43,7 +43,7 @@
 				class="org-nav-row__btn"
 				:disabled="!canMoveUp"
 				:aria-label="t('launchpad', 'Move up')"
-				@click="$emit('move-up', { siblings, index })">
+				@click="$emit('moveUp', { siblings, index })">
 				↑
 			</button>
 			<button
@@ -51,7 +51,7 @@
 				class="org-nav-row__btn"
 				:disabled="!canMoveDown"
 				:aria-label="t('launchpad', 'Move down')"
-				@click="$emit('move-down', { siblings, index })">
+				@click="$emit('moveDown', { siblings, index })">
 				↓
 			</button>
 			<button
@@ -63,7 +63,7 @@
 						? ''
 						: t('launchpad', 'Tree depth cannot exceed 3 levels')
 				"
-				@click="$emit('add-child', { parent: node, kind: 'link' })">
+				@click="$emit('addChild', { parent: node, kind: 'link' })">
 				{{ t('launchpad', 'Add child') }}
 			</button>
 			<button
@@ -121,9 +121,9 @@
 					:groups="groups"
 					@update="(payload) => $emit('update', payload)"
 					@delete="(payload) => $emit('delete', payload)"
-					@moveUp="(payload) => $emit('move-up', payload)"
-					@moveDown="(payload) => $emit('move-down', payload)"
-					@addChild="(payload) => $emit('add-child', payload)" />
+					@moveUp="(payload) => $emit('moveUp', payload)"
+					@moveDown="(payload) => $emit('moveDown', payload)"
+					@addChild="(payload) => $emit('addChild', payload)" />
 			</template>
 		</Draggable>
 	</li>
@@ -189,7 +189,7 @@ export default {
 		},
 	},
 
-	emits: ['update', 'delete', 'move-up', 'move-down', 'add-child'],
+	emits: ['update', 'delete', 'moveUp', 'moveDown', 'addChild'],
 
 	data() {
 		return {

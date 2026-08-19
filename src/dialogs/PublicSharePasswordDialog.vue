@@ -8,7 +8,7 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
-	<NcDialog :name="t('launchpad', 'Password required')" :canClose="false">
+	<NcDialog :name="t('launchpad', 'Password required')" :noClose="true">
 		<template #default>
 			<p>
 				{{
@@ -28,7 +28,7 @@ Emits 'unlock' with the submitted password; parent handles the API call.
 			</NcNoteCard>
 		</template>
 		<template #actions>
-			<NcButton type="primary" :disabled="loading" @click="submit">
+			<NcButton variant="primary" :disabled="loading" @click="submit">
 				{{ t('launchpad', 'Unlock') }}
 			</NcButton>
 		</template>

@@ -51,19 +51,19 @@
 					<div class="mgd__row-actions">
 						<NcButton
 							v-if="!dashboard.isDefault"
-							type="tertiary"
+							variant="tertiary"
 							:data-test="`mgd-set-default-${dashboard.uuid}`"
 							@click="onSetDefault(dashboard)">
 							{{ t('launchpad', 'Set as default') }}
 						</NcButton>
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:data-test="`mgd-rename-${dashboard.uuid}`"
 							@click="onRename(dashboard)">
 							{{ t('launchpad', 'Rename') }}
 						</NcButton>
 						<NcButton
-							type="tertiary-no-background"
+							variant="tertiary-no-background"
 							:disabled="deleting === dashboard.uuid"
 							:data-test="`mgd-delete-${dashboard.uuid}`"
 							@click="onDelete(dashboard)">
@@ -75,7 +75,7 @@
 		</div>
 
 		<template #actions>
-			<NcButton data-test="mgd-close" type="primary" @click="onClose">
+			<NcButton data-test="mgd-close" variant="primary" @click="onClose">
 				{{ t('launchpad', 'Close') }}
 			</NcButton>
 		</template>

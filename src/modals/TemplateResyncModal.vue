@@ -120,20 +120,20 @@
 
 			<div class="launchpad-resync__actions">
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					data-testid="template-resync-cancel"
 					@click="handleClose">
 					{{ t('launchpad', 'Close') }}
 				</NcButton>
 				<NcButton
-					type="secondary"
+					variant="secondary"
 					data-testid="template-resync-dryrun"
 					:disabled="loading"
 					@click="runDryRun">
 					{{ t('launchpad', 'Dry-run') }}
 				</NcButton>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-testid="template-resync-apply"
 					:disabled="!canApply"
 					@click="apply">

@@ -88,10 +88,10 @@
 			</NcCheckboxRadioSwitch>
 
 			<div class="launchpad-admin__modal-actions">
-				<NcButton type="secondary" @click="$emit('close')">
+				<NcButton variant="secondary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
-				<NcButton type="primary" @click="saveTemplate">
+				<NcButton variant="primary" @click="saveTemplate">
 					{{ t('launchpad', 'Save') }}
 				</NcButton>
 			</div>

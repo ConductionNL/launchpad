@@ -113,7 +113,7 @@
 				<NcButton data-test="move-cancel" @click="onCancel">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
-				<NcButton type="primary" data-test="move-save" @click="onSave">
+				<NcButton variant="primary" data-test="move-save" @click="onSave">
 					{{ t('launchpad', 'Confirm') }}
 				</NcButton>
 			</div>

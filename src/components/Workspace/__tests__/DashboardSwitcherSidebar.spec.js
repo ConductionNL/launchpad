@@ -38,14 +38,14 @@ const iconRendererStub = {
 
 const ncButtonStub = {
 	name: 'NcButton',
-	props: ['type', 'wide', 'ariaLabel'],
+	props: ['variant', 'wide', 'ariaLabel'],
 	emits: ['click'],
 	template: `
 		<button
 			type="button"
 			class="nc-button-stub"
 			:data-action="$attrs['data-action']"
-			:data-button-type="type"
+			:data-button-variant="variant"
 			@click="$emit('click', $event)">
 			<slot name="icon" />
 			<slot />
@@ -327,10 +327,10 @@ describe('DashboardSwitcherSidebar', () => {
 					.exists(),
 			).toBe(true)
 			// NcButton renders the secondary (outlined) appearance — "outline"
-			// is not a valid NcButton type, so it uses "secondary".
+			// is not a valid NcButton variant, so it uses "secondary".
 			const button = card.find('[data-action="create"]')
 			expect(button.exists()).toBe(true)
-			expect(button.attributes('data-button-type')).toBe('secondary')
+			expect(button.attributes('data-button-variant')).toBe('secondary')
 			// Localised label
 			expect(button.text()).toContain('Add dashboard')
 		})
@@ -355,14 +355,14 @@ describe('DashboardSwitcherSidebar', () => {
 			})
 			await wrapper.find('[data-action="create"]').trigger('click')
 			expect(wrapper.emitted('update:open')[0]).toEqual([false])
-			expect(wrapper.emitted('create-dashboard')).toBeTruthy()
-			expect(wrapper.emitted('create-dashboard')[0]).toEqual([])
+			expect(wrapper.emitted('createDashboard')).toBeTruthy()
+			expect(wrapper.emitted('createDashboard')[0]).toEqual([])
 
 			const allEmits = Object.entries(wrapper.emitted()).flatMap(
 				([name, evs]) => evs.map(() => name),
 			)
 			expect(allEmits.indexOf('update:open')).toBeLessThan(
-				allEmits.indexOf('create-dashboard'),
+				allEmits.indexOf('createDashboard'),
 			)
 		})
 	})

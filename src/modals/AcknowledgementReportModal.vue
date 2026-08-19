@@ -92,7 +92,7 @@
 						class="launchpad-ack-report__csv"
 						download
 						data-testid="acknowledgement-report-csv">
-						<NcButton type="secondary">
+						<NcButton variant="secondary">
 							{{ t('launchpad', 'Export CSV') }}
 						</NcButton>
 					</a>

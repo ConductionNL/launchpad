@@ -8,7 +8,7 @@
 		<div class="launchpad-admin__section-header">
 			<h3>{{ t('launchpad', 'Dashboard templates') }}</h3>
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="admin-create-template"
 				@click="createTemplate">
 				<template #icon>
@@ -52,15 +52,15 @@
 				</div>
 				<div class="launchpad-admin__template-actions">
 					<NcButton
-						type="secondary"
+						variant="secondary"
 						data-testid="admin-resync-template"
 						@click="openResyncModal(template)">
 						{{ t('launchpad', 'Re-sync to existing copies') }}
 					</NcButton>
-					<NcButton type="secondary" @click="editTemplate(template)">
+					<NcButton variant="secondary" @click="editTemplate(template)">
 						{{ t('launchpad', 'Edit') }}
 					</NcButton>
-					<NcButton type="error" @click="deleteTemplate(template)">
+					<NcButton variant="error" @click="deleteTemplate(template)">
 						{{ t('launchpad', 'Delete') }}
 					</NcButton>
 				</div>

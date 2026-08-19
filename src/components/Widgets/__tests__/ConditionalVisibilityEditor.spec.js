@@ -191,7 +191,7 @@ describe('ConditionalVisibilityEditor', () => {
 			ruleConfig: { groups: [] },
 			isInclude: true,
 		})
-		expect(wrapper.emitted('rule-added')).toBeTruthy()
+		expect(wrapper.emitted('ruleAdded')).toBeTruthy()
 		expect(wrapper.vm.rules[0].id).toBe(99)
 	})
 
@@ -229,7 +229,7 @@ describe('ConditionalVisibilityEditor', () => {
 			isInclude: true,
 		})
 		expect(api.addWidgetRule).not.toHaveBeenCalled()
-		expect(wrapper.emitted('rule-updated')).toBeTruthy()
+		expect(wrapper.emitted('ruleUpdated')).toBeTruthy()
 	})
 
 	it('removing an existing rule calls deleteRule and emits rule-removed', async () => {
@@ -249,7 +249,7 @@ describe('ConditionalVisibilityEditor', () => {
 		await wrapper.vm.$nextTick()
 
 		expect(api.deleteRule).toHaveBeenCalledWith(5)
-		expect(wrapper.emitted('rule-removed')).toBeTruthy()
+		expect(wrapper.emitted('ruleRemoved')).toBeTruthy()
 		expect(wrapper.vm.rules).toHaveLength(0)
 	})
 

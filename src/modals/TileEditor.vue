@@ -71,7 +71,7 @@
 						<label>{{ t('launchpad', 'Background Color') }}</label>
 						<NcColorPicker v-model="form.backgroundColor">
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="
 									t('launchpad', 'Pick background color')
 								">
@@ -91,7 +91,7 @@
 						<label>{{ t('launchpad', 'Text Color') }}</label>
 						<NcColorPicker v-model="form.textColor">
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Pick text color')">
 								<template #icon>
 									<div
@@ -165,14 +165,14 @@
 				</div>
 
 				<div class="tile-editor__actions">
-					<NcButton v-if="tile" type="error" @click="$emit('delete')">
+					<NcButton v-if="tile" variant="error" @click="$emit('delete')">
 						{{ t('launchpad', 'Delete') }}
 					</NcButton>
 					<div class="tile-editor__actions-right">
 						<NcButton @click="$emit('close')">
 							{{ t('launchpad', 'Cancel') }}
 						</NcButton>
-						<NcButton type="primary" @click="saveTile">
+						<NcButton variant="primary" @click="saveTile">
 							{{ t('launchpad', 'Save') }}
 						</NcButton>
 					</div>

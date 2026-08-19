@@ -67,19 +67,19 @@
 				</div>
 				<div class="group-dashboards-tab__row-actions">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:data-test="`group-dashboards-view-${group.id}`"
 						@click="onView(group)">
 						{{ t('launchpad', 'View') }}
 					</NcButton>
 					<NcButton
-						type="secondary"
+						variant="secondary"
 						:data-test="`group-dashboards-create-${group.id}`"
 						@click="onCreate(group)">
 						{{ t('launchpad', 'Create group dashboard') }}
 					</NcButton>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:data-test="`group-dashboards-manage-${group.id}`"
 						@click="onManage(group)">
 						{{ t('launchpad', 'Manage') }}

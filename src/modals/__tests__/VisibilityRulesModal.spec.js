@@ -61,12 +61,12 @@ describe('VisibilityRulesModal', () => {
 		const wrapper = mountModal()
 		const editor = wrapper.findComponent(ConditionalVisibilityEditorStub)
 
-		editor.vm.$emit('rule-added')
-		editor.vm.$emit('rule-updated')
-		editor.vm.$emit('rule-removed')
+		editor.vm.$emit('ruleAdded')
+		editor.vm.$emit('ruleUpdated')
+		editor.vm.$emit('ruleRemoved')
 
-		expect(wrapper.emitted('rule-added')).toBeTruthy()
-		expect(wrapper.emitted('rule-updated')).toBeTruthy()
-		expect(wrapper.emitted('rule-removed')).toBeTruthy()
+		expect(wrapper.emitted('ruleAdded')).toBeTruthy()
+		expect(wrapper.emitted('ruleUpdated')).toBeTruthy()
+		expect(wrapper.emitted('ruleRemoved')).toBeTruthy()
 	})
 })

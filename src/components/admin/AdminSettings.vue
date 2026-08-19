@@ -30,7 +30,7 @@
 					</p>
 				</div>
 				<NcButton
-					type="primary"
+					variant="primary"
 					data-test="setup-wizard-open"
 					@click="openWizard">
 					{{ t('launchpad', 'Run setup wizard') }}
@@ -41,7 +41,7 @@
 				class="launchpad-admin__wizard-rerun"
 				data-test="setup-wizard-rerun">
 				<NcButton
-					type="tertiary"
+					variant="tertiary"
 					data-test="setup-wizard-rerun-open"
 					@click="openWizard">
 					{{ t('launchpad', 'Run setup wizard again') }}
@@ -200,7 +200,7 @@
 							<div class="launchpad-admin__template-actions">
 								<NcButton
 									v-if="dash.isDefault !== 1"
-									type="secondary"
+									variant="secondary"
 									data-test="set-group-default"
 									:disabled="settingGroupDefault === dash.uuid"
 									@click="setGroupDefault(groupId, dash.uuid)">

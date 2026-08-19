@@ -86,7 +86,7 @@ describe('WidgetContextMenu', () => {
 		const wrapper = mountMenu()
 		const btn = wrapper.find('[data-testid="ctx-visibility-rules"]')
 		await btn.trigger('click')
-		expect(wrapper.emitted('visibility-rules')).toHaveLength(1)
+		expect(wrapper.emitted('visibilityRules')).toHaveLength(1)
 		expect(wrapper.emitted('close')).toHaveLength(1)
 		expect(wrapper.emitted('edit')).toBeFalsy()
 		expect(wrapper.emitted('remove')).toBeFalsy()

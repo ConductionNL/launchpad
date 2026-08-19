@@ -86,7 +86,7 @@
 				</div>
 			</section>
 
-			<NcButton type="secondary" data-test="add-rule" @click="addRule">
+			<NcButton variant="secondary" data-test="add-rule" @click="addRule">
 				<template #icon>
 					<Plus :size="18" />
 				</template>
@@ -120,7 +120,7 @@
 							data-test="preview-datetime" />
 					</div>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:disabled="preview.state.loading"
 						data-test="run-preview"
 						@click="runPreview">
@@ -233,7 +233,7 @@ export default {
 		},
 	},
 
-	emits: ['rule-added', 'rule-updated', 'rule-removed'],
+	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved'],
 
 	/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 	setup() {
@@ -409,7 +409,7 @@ export default {
 					if (index !== -1) {
 						this.rules[index] = { ...row, ...updated }
 					}
-					this.$emit('rule-updated')
+					this.$emit('ruleUpdated')
 				} else {
 					const { data } = await api.addWidgetRule(
 						this.placementId,
@@ -422,7 +422,7 @@ export default {
 					} else {
 						await this.load()
 					}
-					this.$emit('rule-added')
+					this.$emit('ruleAdded')
 				}
 			} catch (error) {
 				logger.error('Failed to save visibility rule:', error)
@@ -450,7 +450,7 @@ export default {
 			this.rules = this.rules.filter((r) => r !== row)
 			try {
 				await api.deleteRule(row.id)
-				this.$emit('rule-removed')
+				this.$emit('ruleRemoved')
 			} catch (error) {
 				this.rules = snapshot
 				logger.error('Failed to remove visibility rule:', error)

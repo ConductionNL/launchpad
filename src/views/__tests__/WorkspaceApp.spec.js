@@ -73,10 +73,10 @@ function mountShell(options = {}) {
 			// separate `$listeners` object, so the pattern was safe there.
 			NcButton: {
 				name: 'NcButton',
-				props: ['type', 'disabled'],
+				props: ['variant', 'disabled'],
 				emits: ['click'],
 				template:
-					'<button v-bind="$attrs" :data-nc-button-type="type" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
+					'<button v-bind="$attrs" :data-nc-button-variant="variant" :disabled="disabled" @click="$emit(\'click\', $event)"><slot name="icon" /><slot /></button>',
 				inheritAttrs: false,
 			},
 			MenuIcon: true,
@@ -159,8 +159,8 @@ describe('WorkspaceApp', () => {
 			expect(strip.exists()).toBe(true)
 			const hamburger = wrapper.find('.workspace-shell__hamburger')
 			expect(hamburger.exists()).toBe(true)
-			// Stubbed NcButton mirrors the `type` prop onto a data attribute.
-			expect(hamburger.attributes('data-nc-button-type')).toBe('tertiary')
+			// Stubbed NcButton mirrors the `variant` prop onto a data attribute.
+			expect(hamburger.attributes('data-nc-button-variant')).toBe('tertiary')
 			// Clicking the in-strip hamburger closes the sidebar.
 			await hamburger.trigger('click')
 			expect(wrapper.vm.sidebarOpen).toBe(false)

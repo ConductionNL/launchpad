@@ -281,7 +281,7 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						type="secondary"
+						variant="secondary"
 						wide
 						data-action="create"
 						data-testid="add-dashboard-button"
@@ -539,19 +539,19 @@ export default {
 
 	emits: [
 		'switch',
-		'create-dashboard',
-		'delete-dashboard',
+		'createDashboard',
+		'deleteDashboard',
 		'update:open',
 		// wave3.6 — per-row events. Each carries `(dashboard, source)`
 		// so the host can switch to that dashboard and then apply the
 		// action. The sidebar emits the raw event; the host owns the
 		// switch-then-apply orchestration.
-		'toggle-edit',
-		'open-config',
-		'add-custom-widget',
+		'toggleEdit',
+		'openConfig',
+		'addCustomWidget',
 		// wave3.7 — `(dashboard, source)`. The host pins this row as
 		// the user's default via `POST /api/dashboards/default`.
-		'set-default',
+		'setDefault',
 	],
 
 	computed: {
@@ -707,7 +707,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowToggleEdit(dashboard, source) {
-			this.$emit('toggle-edit', dashboard, source)
+			this.$emit('toggleEdit', dashboard, source)
 		},
 
 		/**
@@ -718,7 +718,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowOpenConfig(dashboard, source) {
-			this.$emit('open-config', dashboard, source)
+			this.$emit('openConfig', dashboard, source)
 		},
 
 		/**
@@ -729,7 +729,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowAddCustomWidget(dashboard, source) {
-			this.$emit('add-custom-widget', dashboard, source)
+			this.$emit('addCustomWidget', dashboard, source)
 		},
 
 		/**
@@ -740,7 +740,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowDelete(dashboard, source) {
-			this.$emit('delete-dashboard', dashboard.id, source)
+			this.$emit('deleteDashboard', dashboard.id, source)
 		},
 
 		/**
@@ -751,7 +751,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		onRowSetDefault(dashboard, source) {
-			this.$emit('set-default', dashboard, source)
+			this.$emit('setDefault', dashboard, source)
 		},
 
 		/**
@@ -769,7 +769,7 @@ export default {
 				return
 			}
 			this.$emit('update:open', false)
-			this.$emit('create-dashboard')
+			this.$emit('createDashboard')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */

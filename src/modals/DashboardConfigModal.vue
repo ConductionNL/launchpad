@@ -194,7 +194,7 @@
 									onShareLevelChange(idx, $event)
 								" />
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Remove share')"
 								@click="onShareRemove(idx)">
 								<template #icon>
@@ -252,7 +252,7 @@
 								:value="publicShareUrl(share.token)"
 								@focus="$event.target.select()" />
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Copy link')"
 								:title="
 									copiedToken === share.token
@@ -283,7 +283,7 @@
 								}}
 							</span>
 							<NcButton
-								type="tertiary"
+								variant="tertiary"
 								:aria-label="t('launchpad', 'Revoke link')"
 								:title="t('launchpad', 'Revoke link')"
 								@click="onRevokePublicShare(share.id)">
@@ -311,7 +311,7 @@
 							type="date"
 							:aria-label="t('launchpad', 'Expiry date (optional)')" />
 						<NcButton
-							type="secondary"
+							variant="secondary"
 							:disabled="creatingPublicShare"
 							@click="onCreatePublicShare">
 							<template #icon>
@@ -327,7 +327,7 @@
 			<div class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
-					type="error"
+					variant="error"
 					:disabled="saving"
 					data-testid="dashboard-delete-button"
 					@click="onDelete">
@@ -338,13 +338,13 @@
 				</NcButton>
 				<div class="dashboard-config__actions-right">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:disabled="saving"
 						@click="$emit('close')">
 						{{ t('launchpad', 'Cancel') }}
 					</NcButton>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:disabled="!canSave || saving"
 						data-testid="dashboard-save-button"
 						@click="onSave">
@@ -465,7 +465,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'save', 'delete', 'set-default'],
+	emits: ['close', 'save', 'delete', 'setDefault'],
 
 	data() {
 		return {
@@ -997,7 +997,7 @@ export default {
 					&& this.dashboard
 					&& this.form.isDefault !== this._initialIsDefault
 				) {
-					this.$emit('set-default', {
+					this.$emit('setDefault', {
 						uuid: this.dashboard.uuid,
 						isDefault: this.form.isDefault,
 					})

@@ -80,7 +80,7 @@ function resolveTimezones() {
 	if (typeof Intl.supportedValuesOf === 'function') {
 		try {
 			return Intl.supportedValuesOf('timeZone')
-		} catch (e) {
+		} catch {
 			// fall through to the curated fallback below.
 		}
 	}

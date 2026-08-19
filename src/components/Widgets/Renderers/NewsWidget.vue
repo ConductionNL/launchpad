@@ -380,7 +380,7 @@ export default {
 				this.failedUrls = Array.isArray(data.failedUrls)
 					? data.failedUrls
 					: []
-			} catch (err) {
+			} catch {
 				this.hasError = true
 				this.items = []
 			} finally {

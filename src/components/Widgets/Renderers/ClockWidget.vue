@@ -99,14 +99,24 @@ export default {
 	},
 
 	computed: {
-		/** Resolved style — `digital` or `analog`. @spec openspec/specs/clock-weather-widgets/spec.md */
+		/**
+		 * Resolved style — `digital` or `analog`.
+		 *
+		 * @return {string} the style key.
+		 * @spec openspec/specs/clock-weather-widgets/spec.md
+		 */
 		style() {
 			return this.content?.style === 'analog'
 				? 'analog'
 				: DEFAULT_CONTENT.style
 		},
 
-		/** Resolved hour format — `12h`, `24h`, or `auto` (follows locale). @spec openspec/specs/clock-weather-widgets/spec.md */
+		/**
+		 * Resolved hour format — `12h`, `24h`, or `auto` (follows locale).
+		 *
+		 * @return {string} the hour-format key.
+		 * @spec openspec/specs/clock-weather-widgets/spec.md
+		 */
 		hourFormat() {
 			const value = this.content?.hourFormat
 			if (value === '12h' || value === '24h') {
@@ -134,7 +144,12 @@ export default {
 			return undefined
 		},
 
-		/** Resolved IANA timezone, or '' to use the browser/device timezone. @spec openspec/specs/clock-weather-widgets/spec.md */
+		/**
+		 * Resolved IANA timezone, or '' to use the browser/device timezone.
+		 *
+		 * @return {string} the IANA timezone name, or the empty string.
+		 * @spec openspec/specs/clock-weather-widgets/spec.md
+		 */
 		timezone() {
 			return typeof this.content?.timezone === 'string'
 				? this.content.timezone
@@ -204,7 +219,7 @@ export default {
 					this.locale,
 					this.timeFormatOptions,
 				).format(this.now)
-			} catch (e) {
+			} catch {
 				// Invalid/unknown IANA timezone — fall back to the device zone
 				// rather than crashing the widget.
 				const { timeZone, ...fallbackOptions } = this.timeFormatOptions
@@ -248,7 +263,7 @@ export default {
 					this.locale,
 					this.dateFormatOptions,
 				).format(this.now)
-			} catch (e) {
+			} catch {
 				const { timeZone, ...fallbackOptions } = this.dateFormatOptions
 				return new Intl.DateTimeFormat(this.locale, fallbackOptions).format(
 					this.now,

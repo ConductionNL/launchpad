@@ -215,7 +215,7 @@ export default {
 		 * at load time (defence-in-depth for placements saved before this
 		 * client existed, or via direct API access).
 		 *
-		 * @param {*} raw the persisted sandbox list.
+		 * @param {string[]|unknown} raw the persisted sandbox list — any shape, since it may predate this client or arrive via direct API access.
 		 * @return {string[]} the sanitised token list.
 		 * @spec openspec/specs/iframe-embed-widget/spec.md
 		 */
@@ -274,7 +274,7 @@ export default {
 		 * Set one top-level form field.
 		 *
 		 * @param {string} field Name of the data property to write.
-		 * @param {*} val New value for that field.
+		 * @param {string|number|boolean|string[]} val New value for that field.
 		 * @spec openspec/specs/iframe-embed-widget/spec.md
 		 */
 		updateField(field, val) {

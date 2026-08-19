@@ -57,15 +57,14 @@ export const PROCEST_VENDOR_QUERY = `query VendorCommitments($period: String!, $
 }`
 
 /**
- * Map a thrown {@see GraphQLSourceError} to a stable per-source
+ * Map a thrown {@link GraphQLSourceError} to a stable per-source
  * unavailable envelope. Re-throws anything that is not a source error
  * so genuine programming bugs surface in dev.
  *
  * @param {unknown} err  the caught error
- * @param {string}  app  the sibling app id
  * @return {{available: false, reason: string, code: string}}
  */
-function toUnavailable(err, app) {
+function toUnavailable(err) {
 	if (err instanceof GraphQLSourceError) {
 		return { available: false, reason: err.message, code: err.code }
 	}
@@ -96,7 +95,7 @@ export async function fetchFinanceSummary({
 			variables: { period, categoryIds, departmentIds },
 		})
 	} catch (err) {
-		return toUnavailable(err, SPEND_SOURCES.FINANCE)
+		return toUnavailable(err)
 	}
 
 	const rows = Array.isArray(data?.transactions) ? data.transactions : []
@@ -167,7 +166,7 @@ export async function fetchVendorCommitments({ period, vendorIds = [] }) {
 			variables: { period, vendorIds },
 		})
 	} catch (err) {
-		return toUnavailable(err, SPEND_SOURCES.PROCEST)
+		return toUnavailable(err)
 	}
 
 	const rows = Array.isArray(data?.cases) ? data.cases : []

@@ -278,7 +278,7 @@ export default {
 			try {
 				const { data } = await api.getVisibleDashboards()
 				this.dashboards = Array.isArray(data) ? data : data.dashboards || []
-			} catch (e) {
+			} catch {
 				this.errorMessage = t('launchpad', 'Failed to load dashboards')
 			} finally {
 				this.loading = false

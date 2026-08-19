@@ -289,6 +289,7 @@ import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'AdminSettings',
@@ -433,7 +434,7 @@ export default {
 					}
 				}
 			} catch (error) {
-				console.error('Failed to load admin data:', error)
+				logger.error('Failed to load admin data:', error)
 			} finally {
 				this.loading = false
 			}
@@ -457,7 +458,7 @@ export default {
 					),
 				})
 			} catch (error) {
-				console.error('Failed to save settings:', error)
+				logger.error('Failed to save settings:', error)
 			}
 		},
 
@@ -465,7 +466,7 @@ export default {
 		 * Write one setting and persist the whole set.
 		 *
 		 * @param {string} key Setting key to write.
-		 * @param {*} value New value for that key.
+		 * @param {string|number|boolean|object} value New value for that key.
 		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		updateSetting(key, value) {
@@ -479,7 +480,7 @@ export default {
 		 * so the UI never round-trips a value the backend would reject
 		 * (dashboard-quota-limits REQ-QUOTA-001).
 		 *
-		 * @param {*} value the raw input value
+		 * @param {string|number} value the raw input value
 		 * @return {number} the clamped non-negative integer
 		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
 		 */
@@ -500,7 +501,7 @@ export default {
 		 * persist (dashboard-quota-limits REQ-QUOTA-001).
 		 *
 		 * @param {string} key the settings key (`maxDashboardsPerUser` | `maxWidgetsPerDashboard`)
-		 * @param {*} value the raw input value
+		 * @param {string|number} value the raw input value
 		 * @return {void}
 		 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-001-quota-admin-settings
 		 */
@@ -545,7 +546,7 @@ export default {
 							? response.data
 							: []
 					} catch (e) {
-						console.warn(
+						logger.warn(
 							`Failed to load group dashboards for ${groupId}:`,
 							e,
 						)
@@ -568,7 +569,7 @@ export default {
 				const { data } = await api.getSetupWizardState()
 				this.wizardState = data || null
 			} catch (e) {
-				console.warn('Failed to load setup wizard state:', e)
+				logger.warn('Failed to load setup wizard state:', e)
 				this.wizardState = null
 			}
 		},
@@ -626,7 +627,7 @@ export default {
 						return prev ? { ...d, isDefault: prev.isDefault } : d
 					}),
 				}
-				console.error(
+				logger.error(
 					this.t('launchpad', 'Failed to set the group default dashboard'),
 					error,
 				)

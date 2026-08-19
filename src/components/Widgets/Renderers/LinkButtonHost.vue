@@ -28,7 +28,6 @@
 		-->
 		<div
 			v-if="modalOpen"
-			ref="modalBackdrop"
 			class="link-button-host__modal-backdrop"
 			role="dialog"
 			aria-modal="true"
@@ -214,7 +213,7 @@ export default {
 					} else {
 						showError(t('launchpad', 'Failed to create document'))
 					}
-				} catch (err) {
+				} catch {
 					showError(t('launchpad', 'Failed to create document'))
 				}
 			} finally {

@@ -19,7 +19,7 @@ import { generateUrl } from '@nextcloud/router'
  * Fetch the cached (or freshly resolved) value for one placement.
  *
  * @param {number|string} placementId the widget placement id.
- * @return {Promise<{value: *, formatted: string|null, badge: {state: string, label: string}|null, fetchedAt: string|null, stale: boolean}>} the reading.
+ * @return {Promise<{value: (string|number|null), formatted: string|null, badge: {state: string, label: string}|null, fetchedAt: string|null, stale: boolean}>} the reading.
  * @throws {Error} when the request fails (network error, 403, 404, 5xx, …) — the
  *   caller (LiveTileWidget.vue) catches this and renders the error state.
  * @spec openspec/specs/live-data-tile-widget/spec.md
@@ -45,7 +45,7 @@ export async function fetchConnectorAvailability() {
 	try {
 		const response = await axios.get(url)
 		return response?.data?.available === true
-	} catch (e) {
+	} catch {
 		// Fail closed on the picker too — an unreachable status endpoint is
 		// treated the same as "OpenConnector absent" (REQ-LIVETILE-005).
 		return false
@@ -65,7 +65,7 @@ export async function validateLiveTileSource(config) {
 	try {
 		const response = await axios.post(url, { config })
 		return response?.data || { valid: true, errors: [] }
-	} catch (e) {
+	} catch {
 		// A validation-endpoint failure must not silently mark the config
 		// valid (that would defeat fail-closed) — surface a generic error.
 		return { valid: false, errors: ['validation_unavailable'] }

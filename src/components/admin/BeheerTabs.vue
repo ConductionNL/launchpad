@@ -149,7 +149,7 @@ export default {
 				}
 				const params = new URLSearchParams(window.location.search || '')
 				return params.get('tab')
-			} catch (e) {
+			} catch {
 				return null
 			}
 		},
@@ -165,7 +165,7 @@ export default {
 					return null
 				}
 				return localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)
-			} catch (e) {
+			} catch {
 				return null
 			}
 		},
@@ -186,7 +186,7 @@ export default {
 				if (typeof localStorage !== 'undefined') {
 					localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, slug)
 				}
-			} catch (e) {
+			} catch {
 				// localStorage may be unavailable (private mode); the tab
 				// still switches for the current session.
 			}

@@ -76,7 +76,7 @@ export default {
 				const { data } = await api.getMetrics()
 				this.body =
 					typeof data === 'string' ? data : JSON.stringify(data, null, 2)
-			} catch (e) {
+			} catch {
 				this.error = true
 			} finally {
 				this.loading = false
@@ -93,7 +93,7 @@ export default {
 						this.copied = false
 					}, 2000)
 				}
-			} catch (e) {
+			} catch {
 				// Clipboard may be blocked; leave the body visible for manual copy.
 			}
 		},

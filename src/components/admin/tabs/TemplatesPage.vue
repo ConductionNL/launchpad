@@ -89,6 +89,7 @@ import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TemplateEditorModal from '../../../modals/TemplateEditorModal.vue'
 import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
 import { api } from '../../../services/api.js'
+import { logger } from '../../../utils/logger.js'
 
 /**
  * TemplatesPage — the Templates SUB_PAGE for the admin Beheer area
@@ -136,7 +137,7 @@ export default {
 				const { data } = await api.getAdminTemplates()
 				this.templates = data || []
 			} catch (error) {
-				console.error('Failed to load templates:', error)
+				logger.error('Failed to load templates:', error)
 			}
 		},
 
@@ -192,7 +193,7 @@ export default {
 				await api.deleteAdminTemplate(template.id)
 				await this.loadTemplates()
 			} catch (error) {
-				console.error('Failed to delete template:', error)
+				logger.error('Failed to delete template:', error)
 			}
 		},
 

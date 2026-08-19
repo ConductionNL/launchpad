@@ -143,6 +143,7 @@
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { NcButton, NcTextField } from '@nextcloud/vue'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 /**
  * Two-list drag-and-drop component for the admin group priority order
@@ -235,7 +236,7 @@ export default {
 				this.inactive = Array.isArray(data.inactive) ? data.inactive : []
 				this.allKnown = Array.isArray(data.allKnown) ? data.allKnown : []
 			} catch (error) {
-				console.error('Failed to load admin groups:', error)
+				logger.error('Failed to load admin groups:', error)
 				showError(this.t('launchpad', 'Failed to load group list.'))
 			} finally {
 				this.loading = false
@@ -466,7 +467,7 @@ export default {
 				await api.updateAdminGroupOrder(this.active)
 				showSuccess(this.t('launchpad', 'Group order saved.'))
 			} catch (error) {
-				console.error('Failed to save group order:', error)
+				logger.error('Failed to save group order:', error)
 				showError(this.t('launchpad', 'Failed to save group order.'))
 			} finally {
 				this.saving = false

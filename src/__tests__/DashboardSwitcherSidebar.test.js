@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-/* eslint-disable n/no-unpublished-import */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import DashboardSwitcherSidebar from '@/components/Workspace/DashboardSwitcherSidebar.vue'

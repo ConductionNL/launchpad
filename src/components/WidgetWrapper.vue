@@ -70,6 +70,7 @@
 import { CnWidgetEditCog, CnWidgetWrapper } from '@conduction/nextcloud-vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
 	name: 'WidgetWrapper',
@@ -90,6 +91,20 @@ export default {
 		widget: {
 			type: Object,
 			default: null,
+		},
+
+		/**
+		 * The Nextcloud Dashboard widget catalog.
+		 *
+		 * Needed in addition to `widget` because an `nc-widget` placement
+		 * proxies a DIFFERENT widget than its own `widgetId` names, and
+		 * resolving that title needs the whole catalog rather than the single
+		 * pre-resolved entry. Passed as a prop rather than read from the store
+		 * so this stays a presentational component that mounts without pinia.
+		 */
+		availableWidgets: {
+			type: Array,
+			default: () => [],
 		},
 
 		editMode: {
@@ -210,12 +225,20 @@ export default {
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * The header title. Shares one resolver with quick search so the name
+		 * shown on the tile and the name it is findable by cannot drift — see
+		 * `utils/widgetTitle.js`.
+		 *
+		 * `availableWidgets` rather than the single `widget` prop, because an
+		 * `nc-widget` placement proxies a DIFFERENT widget than its own
+		 * `widgetId` names, and resolving that needs the whole catalog.
+		 *
+		 * @return {string} the title to render.
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+		 */
 		widgetTitle() {
-			return (
-				this.placement.customTitle
-				|| this.widget?.title
-				|| this.t('launchpad', 'Widget')
-			)
+			return resolveWidgetTitle(this.placement, this.availableWidgets)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

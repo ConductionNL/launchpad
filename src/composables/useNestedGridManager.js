@@ -92,7 +92,7 @@ export function getNestedGridOptions() {
  * @param {Array<object>} placements current child placements in LaunchPad
  *   field-name form (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`).
  * @param {object} [options] optional knobs (accepted for caller compatibility)
- * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
+ * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: (number|string), gridY: number}> }}
  *   `pushed` is always empty — existing children are never moved.
  * @spec openspec/specs/container-widget/spec.md
  */
@@ -119,7 +119,7 @@ export function placeNewWidget(spec, placements, options = {}) {
  * `attach(grid)`.
  *
  * @param {object} options factory options
- * @param {Function} options.persistPlacements called with the new
+ * @param {(placements: Array<object>) => void} options.persistPlacements called with the new
  *   `placements[]` array whenever a child is added / moved / resized /
  *   removed. The renderer wires this to a `update:content` emit so the
  *   parent placement's `content.placements[]` is persisted via the

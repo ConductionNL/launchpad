@@ -110,6 +110,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../services/api.js'
+import { logger } from '../utils/logger.js'
 
 /**
  * A blank template form — the shape the create path starts from.
@@ -257,7 +258,7 @@ export default {
 
 				this.$emit('saved')
 			} catch (error) {
-				console.error('Failed to save template:', error)
+				logger.error('Failed to save template:', error)
 			}
 		},
 	},

@@ -324,7 +324,7 @@ export default {
 					dryRun: true,
 				})
 				this.plan = data
-			} catch (e) {
+			} catch {
 				this.error = t('launchpad', 'Could not compute the re-sync plan.')
 			} finally {
 				this.loading = false
@@ -353,7 +353,7 @@ export default {
 				this.applied = data
 				this.plan = null
 				this.$emit('resynced', data)
-			} catch (e) {
+			} catch {
 				this.error = t('launchpad', 'Could not apply the re-sync.')
 			} finally {
 				this.applying = false

@@ -78,7 +78,7 @@ export default defineComponent({
 	 * @spec openspec/specs/dashboard-public-share/spec.md#req-pshr-005
 	 * @param {object} props the component props.
 	 * @param {object} ctx the setup context (`emit`).
-	 * @param ctx.emit
+	 * @param {(event: string, ...args: unknown[]) => void} ctx.emit the emit helper.
 	 * @return {object} the template bindings.
 	 */
 	setup(props, { emit }) {

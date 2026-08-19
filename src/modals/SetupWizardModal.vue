@@ -225,6 +225,7 @@ import { NcButton, NcModal } from '@conduction/nextcloud-vue'
 import AdminDemoData from '../components/admin/AdminDemoData.vue'
 import GroupPriorityOrder from '../components/admin/GroupPriorityOrder.vue'
 import { api } from '../services/api.js'
+import { logger } from '../utils/logger.js'
 
 /**
  * SetupWizardModal — multi-step first-run wizard (REQ-WIZ-002).
@@ -287,7 +288,7 @@ export default {
 			} catch (error) {
 				// REQ-WIZ-008: a failed state read MUST NOT block the wizard.
 				// Default to Step 1 with a Database default.
-				console.warn('Failed to load wizard state', error)
+				logger.warn('Failed to load wizard state', error)
 			}
 		},
 
@@ -311,7 +312,7 @@ export default {
 				}
 				this.currentStep += 1
 			} catch (error) {
-				console.error('Wizard step failed', error)
+				logger.error('Wizard step failed', error)
 			} finally {
 				this.loading = false
 			}

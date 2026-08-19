@@ -25,7 +25,6 @@
 			</label>
 			<input
 				id="launchpad-cfli-file"
-				ref="fileInput"
 				type="file"
 				accept=".zip,application/zip"
 				data-test="confluence-import-file"
@@ -158,6 +157,7 @@ import { NcButton } from '@conduction/nextcloud-vue'
 import Eye from 'vue-material-design-icons/Eye.vue'
 import Upload from 'vue-material-design-icons/Upload.vue'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'ConfluenceImport',
@@ -210,8 +210,7 @@ export default {
 						'launchpad',
 						'Confluence dry-run failed. Please try again.',
 					)
-				// eslint-disable-next-line no-console
-				console.error('launchpad confluence dry-run failed', err)
+				logger.error('launchpad confluence dry-run failed', err)
 			} finally {
 				this.running = ''
 			}
@@ -235,8 +234,7 @@ export default {
 						'launchpad',
 						'Confluence import failed. Please try again.',
 					)
-				// eslint-disable-next-line no-console
-				console.error('launchpad confluence import failed', err)
+				logger.error('launchpad confluence import failed', err)
 			} finally {
 				this.running = ''
 			}

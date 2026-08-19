@@ -72,7 +72,7 @@ function resolveGraphqlUrl(app) {
 /**
  * Issue a read-only GraphQL operation against a sibling app's
  * OR-mounted endpoint. Resolves to the `data` payload, or throws a
- * {@see GraphQLSourceError} the renderer can map to an empty-state.
+ * {@link GraphQLSourceError} the renderer can map to an empty-state.
  *
  * @param {object}  params              call parameters
  * @param {string}  params.app          sibling app id (e.g. `financeq`)

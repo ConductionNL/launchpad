@@ -61,7 +61,7 @@ export default {
 				const { data } = await api.getHealth()
 				const payload = data?.data ?? data ?? {}
 				this.healthy = payload.status === 'ok'
-			} catch (e) {
+			} catch {
 				// Non-200 / network error → degraded.
 				this.healthy = false
 			} finally {

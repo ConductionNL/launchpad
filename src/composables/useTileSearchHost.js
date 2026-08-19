@@ -27,7 +27,7 @@
  * markup.
  */
 
-import { translate as t } from '@nextcloud/l10n'
+import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 /**
  * Id of the grid container declared once in `WorkspaceApp.vue`. It carries
@@ -55,12 +55,10 @@ function gridContainer() {
 /**
  * Resolve a placement's quick-search display label (REQ-QSEARCH-002).
  *
- * Mirrors the exact rule the grid itself uses so search results read like the
- * rendered tile titles: tile placements use `tileTitle`; every other
- * placement uses `customTitle || widget.title || 'Widget'` — the same
- * expression as `WidgetWrapper.vue`'s `widgetTitle` computed. If those two
- * ever diverge, the search bar starts listing names the user cannot see on
- * screen.
+ * Delegates to the shared resolver so search results read exactly like the
+ * rendered tile titles — `WidgetWrapper.vue`'s header calls the same function.
+ * The two used to be separate copies of the same expression and had drifted
+ * into being wrong together; see `utils/widgetTitle.js` for what that cost.
  *
  * @param {object} placement a `widgetPlacements` row.
  * @param {Array<object>} availableWidgets the widget catalog to resolve
@@ -69,13 +67,7 @@ function gridContainer() {
  * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
  */
 export function tileSearchLabel(placement, availableWidgets) {
-	if (placement.tileType === 'custom') {
-		return placement.tileTitle || t('launchpad', 'Tile')
-	}
-	const widget = (availableWidgets || []).find(
-		(w) => w.id === placement.widgetId,
-	)
-	return placement.customTitle || widget?.title || t('launchpad', 'Widget')
+	return resolveWidgetTitle(placement, availableWidgets)
 }
 
 /**

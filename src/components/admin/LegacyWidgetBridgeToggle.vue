@@ -28,6 +28,7 @@
 import { NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 /**
  * LegacyWidgetBridgeToggle — Beheer ▸ Operations enable/disable switch for
@@ -65,7 +66,7 @@ export default {
 				const settings = data?.data ?? data ?? {}
 				this.enabled = settings.legacyWidgetBridgeEnabled !== false
 			} catch (error) {
-				console.error('Failed to load bridge setting:', error)
+				logger.error('Failed to load bridge setting:', error)
 			} finally {
 				this.loading = false
 			}
@@ -86,7 +87,7 @@ export default {
 			} catch (error) {
 				// Roll back so the switch never lies about the persisted state.
 				this.enabled = previous
-				console.error('Failed to save bridge setting:', error)
+				logger.error('Failed to save bridge setting:', error)
 			}
 		},
 	},

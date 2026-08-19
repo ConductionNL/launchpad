@@ -8,7 +8,7 @@
  * Other capabilities register named functions at any time during the
  * page lifecycle; the link-button renderer looks up the persisted
  * `url` field (the action ID) and invokes the registered function.
- * Missing IDs MUST log `console.warn('Unknown internal action: <id>')`
+ * Missing IDs MUST log `logger.warn('Unknown internal action: <id>')`
  * but MUST NOT throw — a stale dashboard placement that references a
  * removed action degrades gracefully instead of breaking the page.
  *
@@ -22,6 +22,8 @@
  * the link-button widget capability has no implicit dependency on
  * any of those features being installed.
  */
+
+import { logger } from '../utils/logger.js'
 
 /**
  * Module-level registry shared across every `useInternalActions()`
@@ -73,8 +75,7 @@ export function useInternalActions() {
 	function invoke(id) {
 		const fn = REGISTRY.get(id)
 		if (!fn) {
-			// eslint-disable-next-line no-console
-			console.warn(`Unknown internal action: ${id}`)
+			logger.warn(`Unknown internal action: ${id}`)
 			return undefined
 		}
 		return fn()

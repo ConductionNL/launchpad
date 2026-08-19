@@ -5,6 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
+import { logger } from '../utils/logger.js'
 
 export const useTileStore = defineStore('tiles', {
 	state: () => ({
@@ -20,7 +21,7 @@ export const useTileStore = defineStore('tiles', {
 				const response = await api.getTiles()
 				this.tiles = response.data
 			} catch (error) {
-				console.error('Failed to load tiles:', error)
+				logger.error('Failed to load tiles:', error)
 			} finally {
 				this.loading = false
 			}
@@ -40,7 +41,7 @@ export const useTileStore = defineStore('tiles', {
 				this.tiles.push(response.data)
 				return response.data
 			} catch (error) {
-				console.error('Failed to create tile:', error)
+				logger.error('Failed to create tile:', error)
 				throw error
 			}
 		},
@@ -62,7 +63,7 @@ export const useTileStore = defineStore('tiles', {
 				}
 				return response.data
 			} catch (error) {
-				console.error('Failed to update tile:', error)
+				logger.error('Failed to update tile:', error)
 				throw error
 			}
 		},
@@ -78,7 +79,7 @@ export const useTileStore = defineStore('tiles', {
 				await api.deleteTile(id)
 				this.tiles = this.tiles.filter((t) => t.id !== id)
 			} catch (error) {
-				console.error('Failed to delete tile:', error)
+				logger.error('Failed to delete tile:', error)
 				throw error
 			}
 		},

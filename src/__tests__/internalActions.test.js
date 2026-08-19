@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-/* eslint-disable n/no-unpublished-import */
 import { describe, expect, it, vi } from 'vitest'
-/* eslint-enable n/no-unpublished-import */
 /**
  * Vitest tests for useInternalActions composable (REQ-LBN-005 + task 6.6).
  *

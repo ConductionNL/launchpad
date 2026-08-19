@@ -59,7 +59,7 @@
 		     programmatic focus target for the quick-search Esc contract
 		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
 		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
-			<Views v-if="hasActiveDashboard" ref="viewsRef" />
+			<Views v-if="hasActiveDashboard" />
 			<div v-else class="workspace-shell__empty">
 				<p class="workspace-shell__empty-title">
 					{{ t('launchpad', 'No dashboards available') }}
@@ -100,6 +100,7 @@ import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
+import { logger } from '../utils/logger.js'
 
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
@@ -368,7 +369,7 @@ export default {
 					name: this.t('launchpad', 'My dashboard'),
 				})
 			} catch (error) {
-				console.error(
+				logger.error(
 					'[WorkspaceApp] Failed to create first dashboard:',
 					error,
 				)

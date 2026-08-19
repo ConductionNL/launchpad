@@ -436,7 +436,7 @@ export default {
 			type: Array,
 			required: true,
 			/**
-			 * @param {*} value Prop value to validate.
+			 * @param {unknown} value Prop value to validate.
 			 * @return {boolean} True when the value is an array.
 			 * @spec openspec/specs/dashboard-switcher/spec.md
 			 */
@@ -452,7 +452,7 @@ export default {
 			type: Array,
 			required: true,
 			/**
-			 * @param {*} value Prop value to validate.
+			 * @param {unknown} value Prop value to validate.
 			 * @return {boolean} True when the value is an array.
 			 * @spec openspec/specs/dashboard-switcher/spec.md
 			 */
@@ -656,7 +656,11 @@ export default {
 		t,
 
 		isActive(id) {
-			return this.activeDashboardId != null && id === this.activeDashboardId
+			return (
+				this.activeDashboardId !== null
+				&& this.activeDashboardId !== undefined
+				&& id === this.activeDashboardId
+			)
 		},
 
 		/**

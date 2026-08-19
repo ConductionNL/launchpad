@@ -6,6 +6,7 @@
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
 import { widgetBridge } from '../services/widgetBridge.js'
+import { logger } from '../utils/logger.js'
 
 export const useWidgetStore = defineStore('widgets', {
 	state: () => ({
@@ -35,7 +36,7 @@ export const useWidgetStore = defineStore('widgets', {
 				// renders a human header instead of the raw widget id.
 				widgetBridge.setWidgetMetadata(this.availableWidgets)
 			} catch (error) {
-				console.error('Failed to load available widgets:', error)
+				logger.error('Failed to load available widgets:', error)
 			} finally {
 				this.loading = false
 			}
@@ -49,7 +50,7 @@ export const useWidgetStore = defineStore('widgets', {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		async loadWidgetItems(widgetIds) {
-			console.log('[WidgetStore] loadWidgetItems called:', widgetIds)
+			logger.debug('[WidgetStore] loadWidgetItems called:', widgetIds)
 			// Mark widgets as loading
 			for (const id of widgetIds) {
 				this.widgetItems[id] = { ...this.widgetItems[id], loading: true }
@@ -57,9 +58,9 @@ export const useWidgetStore = defineStore('widgets', {
 
 			try {
 				const response = await api.getWidgetItems(widgetIds)
-				console.log('[WidgetStore] API response:', response.data)
+				logger.debug('[WidgetStore] API response:', response.data)
 				for (const [widgetId, data] of Object.entries(response.data)) {
-					console.log(
+					logger.debug(
 						'[WidgetStore] Setting items for widget:',
 						widgetId,
 						'Items count:',
@@ -75,7 +76,7 @@ export const useWidgetStore = defineStore('widgets', {
 					}
 				}
 			} catch (error) {
-				console.error('Failed to load widget items:', error)
+				logger.error('Failed to load widget items:', error)
 				for (const id of widgetIds) {
 					this.widgetItems[id] = {
 						...this.widgetItems[id],

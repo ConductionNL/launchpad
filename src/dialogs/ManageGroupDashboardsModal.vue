@@ -235,7 +235,7 @@ export default {
 			this.deleting = dashboard.uuid
 			try {
 				await this.store.delete(this.group.id, dashboard.uuid)
-			} catch (e) {
+			} catch {
 				// store.delete already toasted; modal stays open.
 			} finally {
 				this.deleting = null

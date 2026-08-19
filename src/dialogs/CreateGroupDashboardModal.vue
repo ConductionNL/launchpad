@@ -196,7 +196,7 @@ export default {
 					isDefault: this.form.isDefault,
 				})
 				this.$emit('created')
-			} catch (e) {
+			} catch {
 				// store.create surfaces toast on failure; keep modal open
 				// so the admin can retry.
 			} finally {

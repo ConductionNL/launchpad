@@ -220,17 +220,14 @@ export default {
 			default: () => ({}),
 		},
 
-		/** Whether the dashboard shell is in admin mode. */
-		isAdmin: {
-			type: Boolean,
-			default: false,
-		},
-
-		/** Whether the dashboard shell is in edit mode. */
-		canEdit: {
-			type: Boolean,
-			default: false,
-		},
+		/*
+		 * `isAdmin` / `canEdit` used to be declared here and were removed: no
+		 * caller has ever passed them. Registry renderers are mounted by
+		 * `WidgetRenderer.vue` with `content`, `placement` and whatever
+		 * `buildRendererExtraProps()` returns for the type (`apiBase` here) —
+		 * shell permission state is not part of that contract, so both props
+		 * were permanently at their defaults.
+		 */
 	},
 
 	data() {
@@ -522,7 +519,7 @@ export default {
 				this.items = this.items.filter(
 					(item) => item.fileId !== target.fileId,
 				)
-			} catch (err) {
+			} catch {
 				// Swallow — refresh the listing so the UI stays
 				// truthful even if the optimistic remove failed.
 				this.fetchContents()
@@ -569,7 +566,7 @@ export default {
 					params: { currentPath: this.currentSubPath },
 				})
 				this.fetchContents()
-			} catch (err) {
+			} catch {
 				// Surface failure by re-fetching; the user can retry.
 				this.fetchContents()
 			} finally {

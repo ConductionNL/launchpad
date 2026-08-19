@@ -15,6 +15,7 @@
  */
 
 import { loadState } from '@nextcloud/initial-state'
+import { logger } from './logger.js'
 
 /**
  * Schema version compiled into the JS bundle. Compared against the
@@ -96,8 +97,7 @@ export function loadInitialState(page) {
 
 	const serverVersion = readKey(SCHEMA_VERSION_KEY, null)
 	if (serverVersion !== null && serverVersion !== INITIAL_STATE_SCHEMA_VERSION) {
-		// eslint-disable-next-line no-console
-		console.warn(
+		logger.warn(
 			`LaunchPad initial-state schema mismatch: server v${serverVersion} vs client v${INITIAL_STATE_SCHEMA_VERSION} — refresh recommended`,
 		)
 	}
@@ -111,8 +111,9 @@ export function loadInitialState(page) {
  * `undefined` reads — the JS bundle never crashes when PHP omits a key.
  *
  * @param {string} key The initial-state key.
- * @param {*} fallback Default to use when the key is missing.
- * @return {*} The pushed value, or the fallback.
+ * @param {T} fallback Default to use when the key is missing.
+ * @return {T} The pushed value, or the fallback.
+ * @template T
  */
 function readKey(key, fallback) {
 	// The app is installed under its canonical id 'launchpad', so PHP provides
@@ -121,7 +122,7 @@ function readKey(key, fallback) {
 	// bundle never crashes if the contract is violated.
 	try {
 		return loadState('launchpad', key, fallback)
-	} catch (e) {
+	} catch {
 		return fallback
 	}
 }

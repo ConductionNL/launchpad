@@ -337,7 +337,7 @@ export default {
 		 * Set one top-level form field.
 		 *
 		 * @param {string} field Name of the data property to write.
-		 * @param {*} val New value for that field.
+		 * @param {string|number|boolean|object} val New value for that field.
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		updateField(field, val) {
@@ -350,7 +350,7 @@ export default {
 		 *
 		 * @param {string} field Which option to write — `prefix`, `suffix`
 		 *   or `thousands`.
-		 * @param {*} val New value for that option.
+		 * @param {string|number|boolean} val New value for that option.
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		updateFormat(field, val) {

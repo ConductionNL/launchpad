@@ -38,6 +38,7 @@ export default {
 		},
 
 		/** The placement record (unused; accepted for the renderer interface). */
+		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding
 		placement: {
 			type: Object,
 			default: () => ({}),

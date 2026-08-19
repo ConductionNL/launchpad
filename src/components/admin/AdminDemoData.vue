@@ -160,7 +160,7 @@ export default {
 			try {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
-			} catch (err) {
+			} catch {
 				this.loadError = this.t(
 					'launchpad',
 					'Could not load demo showcases. Please try again.',
@@ -242,7 +242,7 @@ export default {
 				await api.uninstallDemoShowcase(showcase.id)
 				delete this.warnings[showcase.id]
 				await this.fetch()
-			} catch (err) {
+			} catch {
 				this.actionError = this.t(
 					'launchpad',
 					'Could not uninstall showcase. Please try again.',

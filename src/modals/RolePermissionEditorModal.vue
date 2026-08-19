@@ -102,7 +102,7 @@ export default {
 		 * never mutated in place.
 		 *
 		 * @param {string} key Field to change.
-		 * @param {*} value New value for that field.
+		 * @param {string|number|boolean|string[]} value New value for that field.
 		 * @spec openspec/specs/admin-roles/spec.md
 		 */
 		updateRow(key, value) {

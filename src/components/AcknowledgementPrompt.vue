@@ -155,7 +155,7 @@ export default {
 			try {
 				await this.dashboardStore.acknowledgePlacement(this.placement)
 				this.$emit('acknowledged', this.placement)
-			} catch (e) {
+			} catch {
 				this.error = t(
 					'launchpad',
 					'Could not record your acknowledgement. Please try again.',

@@ -387,6 +387,7 @@ import { api } from '../services/api.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { logger } from '../utils/logger.js'
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -533,7 +534,7 @@ export default {
 		 * what turns an uploaded file into the URL the icon field stores.
 		 *
 		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-008
-		 * @return {Function} the data-URL upload function.
+		 * @return {(dataUrl: string) => Promise<{url: string, name: string, size: number}>} the data-URL upload function.
 		 */
 		iconUploadFn() {
 			return uploadDataUrl
@@ -719,7 +720,7 @@ export default {
 				this.serverShares = fresh.map((s) => ({ ...s }))
 				this.localShares = fresh.map((s) => ({ ...s }))
 			} catch (error) {
-				console.error('Failed to load shares:', error)
+				logger.error('Failed to load shares:', error)
 				this.serverShares = []
 				this.localShares = []
 			}
@@ -741,7 +742,7 @@ export default {
 					this.dashboard.uuid,
 				)
 			} catch (error) {
-				console.error('Failed to load public shares:', error)
+				logger.error('Failed to load public shares:', error)
 				this.publicShares = []
 			} finally {
 				this.publicSharesLoading = false
@@ -772,7 +773,7 @@ export default {
 				this.newShareExpiry = ''
 				await this.loadPublicShares()
 			} catch (error) {
-				console.error('Failed to create public share:', error)
+				logger.error('Failed to create public share:', error)
 			} finally {
 				this.creatingPublicShare = false
 			}
@@ -792,7 +793,7 @@ export default {
 				await usePublicShareStore().revokeShare(this.dashboard.uuid, id)
 				await this.loadPublicShares()
 			} catch (error) {
-				console.error('Failed to revoke public share:', error)
+				logger.error('Failed to revoke public share:', error)
 			}
 		},
 
@@ -821,7 +822,7 @@ export default {
 				await navigator.clipboard.writeText(this.publicShareUrl(share.token))
 				this.copiedToken = share.token
 			} catch (error) {
-				console.error('Clipboard write failed:', error)
+				logger.error('Clipboard write failed:', error)
 			}
 		},
 
@@ -841,7 +842,7 @@ export default {
 					this.shareeOptions = [...this.shareeSuggestions]
 				}
 			} catch (error) {
-				console.error('Sharee suggestion preload failed:', error)
+				logger.error('Sharee suggestion preload failed:', error)
 				this.shareeSuggestions = []
 			}
 		},
@@ -896,7 +897,7 @@ export default {
 				if (seq !== this.shareeSearchSeq) return // stale result
 				this.shareeOptions = this.mapShareeResults(response)
 			} catch (error) {
-				console.error('Sharee search failed:', error)
+				logger.error('Sharee search failed:', error)
 				this.shareeOptions = []
 			} finally {
 				this.shareeLoading = false
@@ -975,7 +976,7 @@ export default {
 							})),
 						)
 					} catch (error) {
-						console.error('Failed to replace shares:', error)
+						logger.error('Failed to replace shares:', error)
 					}
 				}
 				await this.$emit('save', {

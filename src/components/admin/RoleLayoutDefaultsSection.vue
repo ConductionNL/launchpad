@@ -118,6 +118,7 @@ import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import RoleLayoutDefaultDeleteDialog from '../../dialogs/RoleLayoutDefaultDeleteDialog.vue'
 import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'RoleLayoutDefaultsSection',
@@ -153,7 +154,7 @@ export default {
 		try {
 			await this.store.loadLayoutDefaults()
 		} catch (e) {
-			console.error('Failed to load layout defaults', e)
+			logger.error('Failed to load layout defaults', e)
 		}
 	},
 
@@ -210,7 +211,7 @@ export default {
 				await this.store.saveLayoutDefault(this.editorRow)
 				this.showEditor = false
 			} catch (e) {
-				console.error('Failed to save layout default', e)
+				logger.error('Failed to save layout default', e)
 			}
 		},
 
@@ -224,7 +225,7 @@ export default {
 				this.showDeleteDialog = false
 				this.deleteTarget = null
 			} catch (e) {
-				console.error('Failed to delete layout default', e)
+				logger.error('Failed to delete layout default', e)
 			}
 		},
 	},

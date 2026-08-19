@@ -197,7 +197,7 @@ export default {
 					this.announcementKey,
 				)
 				this.report = response.data
-			} catch (e) {
+			} catch {
 				this.error = t(
 					'launchpad',
 					'Could not load the read-receipt report.',

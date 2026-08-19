@@ -68,6 +68,7 @@ import { NcEmptyContent, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 /**
  * ConditionalVisibilityOverview — admin table listing every widget placement
@@ -108,7 +109,7 @@ export default {
 				// the bare array and the `{ data: [...] }` envelope.
 				this.rows = Array.isArray(data) ? data : data?.data || []
 			} catch (error) {
-				console.error(
+				logger.error(
 					'Failed to load conditional visibility overview:',
 					error,
 				)

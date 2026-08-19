@@ -27,7 +27,7 @@ export async function validateIframeUrl(config) {
 	try {
 		const response = await axios.post(url, { config })
 		return response?.data || { valid: true, errors: [] }
-	} catch (e) {
+	} catch {
 		// A validation-endpoint failure must not silently mark the config
 		// valid (that would defeat fail-closed) — surface a generic error.
 		return { valid: false, errors: ['validation_unavailable'] }
@@ -52,7 +52,7 @@ export async function checkIframeFramable(targetUrl) {
 	try {
 		const response = await axios.post(url, { url: targetUrl })
 		return response?.data || { framable: false, reason: 'no_response' }
-	} catch (e) {
+	} catch {
 		return { framable: false, reason: 'check_unavailable' }
 	}
 }

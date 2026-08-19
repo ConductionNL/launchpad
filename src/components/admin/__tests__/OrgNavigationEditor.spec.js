@@ -58,7 +58,7 @@ beforeEach(() => {
 		try {
 			globalThis.crypto.randomUUID = () =>
 				'11111111-1111-4111-8111-111111111111'
-		} catch (_e) {
+		} catch {
 			// Read-only — leave as-is; the fallback Math.random branch is fine.
 		}
 	}

@@ -529,7 +529,7 @@ export default {
 		 * Set one field of an attribute-type rule's config.
 		 *
 		 * @param {string} field Config key to write.
-		 * @param {*} value New value for that key.
+		 * @param {string|number|boolean|string[]|null} value New value for that key.
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md
 		 */
 		onAttributeFieldChange(field, value) {

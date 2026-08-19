@@ -275,7 +275,8 @@ export default {
 		showSave() {
 			return (
 				this.isEditMode
-				&& this.activeDashboardId != null
+				&& this.activeDashboardId !== null
+				&& this.activeDashboardId !== undefined
 				&& this.dashboard?.id === this.activeDashboardId
 			)
 		},

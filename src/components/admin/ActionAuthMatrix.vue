@@ -85,6 +85,7 @@
 import { NcButton, NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 /**
  * Sentinel column meaning "every authenticated user". Mirrors
@@ -166,7 +167,7 @@ export default {
 				}
 				this.matrix = next
 			} catch (e) {
-				console.error('Failed to load action matrix', e)
+				logger.error('Failed to load action matrix', e)
 				this.error = this.t('launchpad', 'Failed to load the action matrix.')
 			} finally {
 				this.loading = false
@@ -259,7 +260,7 @@ export default {
 				this.matrix = next
 				showSuccess(this.t('launchpad', 'Action matrix saved.'))
 			} catch (e) {
-				console.error('Failed to save action matrix', e)
+				logger.error('Failed to save action matrix', e)
 				showError(this.t('launchpad', 'Failed to save the action matrix.'))
 			} finally {
 				this.saving = false

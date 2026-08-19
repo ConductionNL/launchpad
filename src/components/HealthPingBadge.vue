@@ -212,7 +212,7 @@ export default {
 						? null
 						: Number(data.latencyMs)
 				this.stale = Boolean(data.stale)
-			} catch (e) {
+			} catch {
 				this.state = null
 			}
 		},

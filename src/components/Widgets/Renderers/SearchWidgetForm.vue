@@ -207,10 +207,7 @@ export default {
 				)
 			}
 			if (this.fallbackMode === FALLBACK_TARGET_UNIFIED_SEARCH) {
-				return t(
-					'launchpad',
-					'Passes the query to Nextcloud’s own search.',
-				)
+				return t('launchpad', 'Passes the query to Nextcloud’s own search.')
 			}
 			return t(
 				'launchpad',
@@ -234,10 +231,7 @@ export default {
 			if (isValidFallbackTemplate(this.fallbackTemplate)) {
 				return ''
 			}
-			return t(
-				'launchpad',
-				'Enter an https URL containing {query}.',
-			)
+			return t('launchpad', 'Enter an https URL containing {query}.')
 		},
 
 		/**
@@ -311,9 +305,7 @@ export default {
 			if (this.fallbackTemplate.trim() === '') {
 				errors.push(t('launchpad', 'Search URL is required'))
 			} else if (!isValidFallbackTemplate(this.fallbackTemplate)) {
-				errors.push(
-					t('launchpad', 'Enter an https URL containing {query}.'),
-				)
+				errors.push(t('launchpad', 'Enter an https URL containing {query}.'))
 			}
 			return errors
 		},

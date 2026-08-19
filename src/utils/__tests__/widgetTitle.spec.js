@@ -45,7 +45,11 @@ describe('resolveWidgetTitle', () => {
 	it('prefers the author’s explicit override over everything else', () => {
 		expect(
 			resolveWidgetTitle(
-				{ widgetId: 'nc-widget', customTitle: 'Our pipeline', content: { widgetId: 'activity' } },
+				{
+					widgetId: 'nc-widget',
+					customTitle: 'Our pipeline',
+					content: { widgetId: 'activity' },
+				},
 				CATALOG,
 			),
 		).toBe('Our pipeline')
@@ -77,7 +81,10 @@ describe('resolveWidgetTitle', () => {
 	it('resolves the widget an nc-widget placement PROXIES (the unfindable-tile bug)', () => {
 		expect(
 			resolveWidgetTitle(
-				{ widgetId: 'nc-widget', content: { widgetId: 'pipelinq_deals_overview_widget' } },
+				{
+					widgetId: 'nc-widget',
+					content: { widgetId: 'pipelinq_deals_overview_widget' },
+				},
 				CATALOG,
 			),
 		).toBe('Deals overview')
@@ -106,9 +113,7 @@ describe('resolveWidgetTitle', () => {
 	it('tolerates a missing placement or catalog', () => {
 		expect(resolveWidgetTitle(null, CATALOG)).toBe('Widget')
 		expect(resolveWidgetTitle({ widgetId: 'search' }, null)).toBe('Search')
-		expect(resolveWidgetTitle({ widgetId: 'unknown' }, undefined)).toBe(
-			'Widget',
-		)
+		expect(resolveWidgetTitle({ widgetId: 'unknown' }, undefined)).toBe('Widget')
 	})
 
 	it('does not mistake a proxied id for a direct one when both could match', () => {

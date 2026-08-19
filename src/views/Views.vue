@@ -145,13 +145,20 @@
 				:itemKey="placementItemKey"
 				@layoutChange="updatePlacements">
 				<template #widget="{ item }">
-					<!-- `data-placement-id` (tile-quick-search) lets the runtime
-					     shell's quick-search bar (mounted in WorkspaceApp.vue, a
-					     sibling component) target this exact grid item via a
-					     plain DOM query to dim/scroll/activate it — the search bar
-					     has no other reach into this component's rendered tree. -->
+					<!-- tile-quick-search. Dimming is REACTIVE: the `search`
+					     widget writes the current match set into the tileSearch
+					     store and this binding renders the consequence, so no
+					     component reaches in to toggle classes and nothing reads
+					     the placement id back out of the DOM (ADR-004).
+					     `data-placement-id` remains as the addressing mechanism
+					     for the two things that must stay imperative — scrolling
+					     a chosen tile into view and clicking its link — and as
+					     the e2e suite's selector. -->
 					<div
 						class="launchpad-grid-item"
+						:class="{
+							'launchpad-grid-item--dimmed': isTileDimmed(item.id),
+						}"
 						:data-placement-id="item.id"
 						@contextmenu="onWidgetRightClick($event, item)">
 						<!-- Tile placements render the launcher tile directly. -->
@@ -348,6 +355,7 @@ import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 // Stores
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useTileStore } from '../stores/tiles.js'
+import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 
 export default {
@@ -539,6 +547,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * tile-quick-search REQ-QSEARCH-002 — whether a given placement is
+		 * currently de-emphasised by an active quick-search query.
+		 *
+		 * Exposed as a getter-returning-a-function so the template can call it
+		 * per grid item. Returns `false` for every tile when no query is
+		 * running, which is why an empty dashboard or a dashboard with no
+		 * `search` widget never dims anything.
+		 *
+		 * @return {(placementId: (string|number)) => boolean} the predicate.
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+		 */
+		isTileDimmed() {
+			return useTileSearchStore().isDimmed
+		},
+
 		/**
 		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
 		 * the placements on the active dashboard that require acknowledgement.
@@ -2036,11 +2060,10 @@ export default {
 }
 
 /* tile-quick-search REQ-QSEARCH-002 "Typing filters tiles by label":
-   non-matching tiles are de-emphasised, NOT removed from the grid layout.
-   The class is toggled imperatively by WorkspaceApp.vue (a sibling
-   component reacting to the search bar's `filter` event) via a plain DOM
-   query — scoped CSS still applies because the element itself carries the
-   compiled `[data-v-*]` attribute regardless of how the class was set. */
+   non-matching tiles are de-emphasised, NOT removed from the grid layout,
+   so the grid never reflows while the user types. The class is bound
+   reactively from the tileSearch store in this component's own template
+   (see `isTileDimmed`) — no other component reaches in to set it. */
 .launchpad-grid-item--dimmed {
 	opacity: 0.35;
 }

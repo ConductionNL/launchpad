@@ -53,6 +53,9 @@ const EXPECTED_TYPES = [
 	'news',
 	'people',
 	'quicklinks',
+	// tile-quick-search: the quick-search bar became a placeable widget
+	// rather than runtime-shell chrome (REQ-QSEARCH-001).
+	'search',
 	'spend-analytics',
 	'text',
 	'tile',

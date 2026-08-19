@@ -13,10 +13,10 @@
  * removed from the grid, whether `aria-activedescendant` tracks the arrow
  * keys. None of it is visible to a unit test of the component in isolation,
  * because the interesting half is the interaction between
- * `RuntimeShellSearch.vue` (which owns the combobox) and `Views.vue` (which
- * owns the grid) — `WorkspaceApp.vue` bridges them with a plain DOM query,
- * by its own comment, "because the grid DOM lives in a sibling component's
- * tree". A component test mounts one side of that bridge.
+ * `RuntimeShellSearch.vue` (which owns the combobox), `SearchWidget.vue`
+ * (which hosts it and writes the match set to the `tileSearch` store) and
+ * `Views.vue` (which renders the dimming from that store). A component test
+ * mounts one side of that chain; only a browser runs all three.
  *
  * WHAT THE SELECTORS ARE
  * ======================
@@ -27,7 +27,7 @@
  * THE FIXTURE BUILDS ITS OWN DASHBOARD
  * ====================================
  * The searchable label of a placement is decided by
- * `WorkspaceApp.vue::tileSearchLabel()`: a `custom` tile searches by
+ * `useTileSearchHost.js::tileSearchLabel()`: a `custom` tile searches by
  * `tileTitle`. So the dashboard below is seeded through
  * `POST /api/dashboard/{id}/tile` with titles chosen to exercise the ranking
  * rule the spec states — prefix beats mid-string beats subsequence — rather
@@ -61,11 +61,11 @@ const INPUT = '[data-test="quick-search-input"]'
 const OPTION = '[data-test="quick-search-option"]'
 const GRID_ITEM = '.launchpad-grid-item'
 /*
- * The de-emphasis class `WorkspaceApp.vue::applySearchDimming()` toggles on
- * every `.launchpad-grid-item[data-placement-id]` that is NOT a match. Named
- * once here because a wrong value fails SILENTLY: a selector matching nothing
- * reports zero dimmed both before and after, and any "…must be undimmed"
- * assertion built on it passes without ever having observed a dim.
+ * The de-emphasis class `Views.vue` binds on every grid item that is NOT a
+ * match, from the `tileSearch` store's `isDimmed` getter. Named once here
+ * because a wrong value fails SILENTLY: a selector matching nothing reports
+ * zero dimmed both before and after, and any "…must be undimmed" assertion
+ * built on it passes without ever having observed a dim.
  */
 const DIMMED = '.launchpad-grid-item--dimmed'
 
@@ -142,7 +142,9 @@ test.beforeAll(async () => {
 					linkType: 'url',
 					linkValue: `https://example.invalid/${encodeURIComponent(title)}`,
 					gridX: (i % 2) * 3,
-					gridY: Math.floor(i / 2) * 2,
+					// +2 leaves the top row free for the search widget seeded
+					// below, so the bar sits above the tiles as it used to.
+					gridY: Math.floor(i / 2) * 2 + 2,
 					gridWidth: 3,
 					gridHeight: 2,
 				},
@@ -153,6 +155,38 @@ test.beforeAll(async () => {
 			`seeding tile "${title}": ${await res.text()}`,
 		).toBeLessThan(300)
 	}
+
+	/*
+	 * SEED THE SEARCH WIDGET ITSELF.
+	 *
+	 * Quick search used to be page chrome: `WorkspaceApp.vue` rendered it on
+	 * every dashboard, so a fixture that seeded only tiles still got a search
+	 * bar for free. It is now the `search` widget type (REQ-QSEARCH-001), so a
+	 * dashboard has one only where an author placed it — and without this call
+	 * every `[data-test="quick-search-input"]` locator below would simply never
+	 * resolve.
+	 *
+	 * Empty `content` on purpose: both settings default to "inherit / built-in"
+	 * (REQ-QSEARCH-005), which is exactly the behaviour the assertions in this
+	 * file were written against. Tests that need an override set it themselves.
+	 */
+	const searchWidget = await api.post(
+		`/index.php/apps/launchpad/api/dashboard/${dashboardId}/widgets`,
+		{
+			data: {
+				widgetId: 'search',
+				gridX: 0,
+				gridY: 0,
+				gridWidth: 6,
+				gridHeight: 2,
+				content: { placeholder: '', fallbackTarget: '' },
+			},
+		},
+	)
+	expect(
+		searchWidget.status(),
+		`seeding the search widget: ${await searchWidget.text()}`,
+	).toBeLessThan(300)
 
 	/*
 	 * ACTIVATE THROUGH BOTH MECHANISMS, because there are two and they are
@@ -201,9 +235,9 @@ test.afterAll(async () => {
 /** Open the workspace on the seeded dashboard with the search bar mounted. */
 async function openWorkspace(page: Page): Promise<void> {
 	await page.goto(APP_URL)
-	// The bar only renders when an active dashboard is resolved
-	// (`v-if="hasActiveDashboard"` in WorkspaceApp.vue), so its presence is
-	// also the signal that the shell finished booting.
+	// The bar renders as the `search` widget seeded in beforeAll, so its
+	// presence is also the signal that the shell finished booting AND that the
+	// grid rendered the placement.
 	await expect(page.locator(INPUT)).toBeVisible({ timeout: 30_000 })
 	/*
 	 * THE GATE THAT WAS TOO WEAK, and the reason six tests failed with
@@ -766,7 +800,8 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 	 * tracking works, so the selection is sound too. Anchor present, focus
 	 * correct, selection correct, and still no click.
 	 *
-	 * `WorkspaceApp.vue::activateSearchResult()` explains it exactly:
+	 * `activateSearchResult()` — then in `WorkspaceApp.vue`, now in
+	 * `useTileSearchHost.js` — explained it exactly:
 	 *
 	 *     const placementId = item?.placement?.id      // an INTEGER
 	 *     … placementId.replace(/"/g, '\\"') …          // TypeError, always
@@ -815,8 +850,8 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		 * dimmed after" is a change and not a description of the resting
 		 * state.
 		 *
-		 * The class is `launchpad-grid-item--dimmed`, which is what
-		 * `WorkspaceApp.vue::applySearchDimming()` toggles. Getting this
+		 * The class is `launchpad-grid-item--dimmed`, which `Views.vue` binds
+		 * from the `tileSearch` store's `isDimmed` getter. Getting this
 		 * selector wrong is not a loud failure — a selector that matches
 		 * nothing makes both the before and the after count zero, and the
 		 * assertion passes while proving nothing. Hence the explicit

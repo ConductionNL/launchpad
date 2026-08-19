@@ -340,4 +340,85 @@ describe('RuntimeShellSearch', () => {
 			removeSpy.mockRestore()
 		})
 	})
+
+	describe('REQ-QSEARCH-005: placeholder override', () => {
+		it('uses the built-in placeholder, which advertises both shortcuts', () => {
+			const wrapper = track(mountSearch())
+			expect(wrapper.find('input').attributes('placeholder')).toBe(
+				'Search tiles… (/ or Ctrl+K)',
+			)
+		})
+
+		it('prefers an author-supplied placeholder when the widget sets one', () => {
+			const wrapper = track(
+				mountSearch({ placeholder: 'Find an application…' }),
+			)
+			expect(wrapper.find('input').attributes('placeholder')).toBe(
+				'Find an application…',
+			)
+		})
+
+		it('treats an empty placeholder as "use the default"', () => {
+			const wrapper = track(mountSearch({ placeholder: '' }))
+			expect(wrapper.find('input').attributes('placeholder')).toBe(
+				'Search tiles… (/ or Ctrl+K)',
+			)
+		})
+	})
+
+	/*
+	 * REQ-QSEARCH-006. While the bar was page chrome exactly one instance ever
+	 * existed, so it could act on the shortcut unconditionally. As a placeable
+	 * widget a dashboard may carry several, and each one's window listener
+	 * fires on the same keypress — so without a guard the LAST-mounted bar
+	 * would take focus, DOM focus being single-valued. That is the arbitrary
+	 * one (registration order, not visual order).
+	 */
+	describe('REQ-QSEARCH-006: only one bar claims the focus shortcut', () => {
+		/**
+		 * @param {import('@vue/test-utils').VueWrapper} wrapper the bar.
+		 * @return {object} a spy on that instance's input focus.
+		 */
+		function spyOnFocus(wrapper) {
+			return vi.spyOn(wrapper.find('input').element, 'focus')
+		}
+
+		it('gives the shortcut to the FIRST-mounted bar, not the last', async () => {
+			const first = track(mountSearch())
+			const second = track(mountSearch())
+			const firstFocus = spyOnFocus(first)
+			const secondFocus = spyOnFocus(second)
+
+			document.body.dispatchEvent(
+				new KeyboardEvent('keydown', { key: '/', bubbles: true }),
+			)
+
+			expect(
+				firstFocus,
+				'the first-mounted bar must take the shortcut',
+			).toHaveBeenCalled()
+			expect(
+				secondFocus,
+				'CONTROL: a second bar must NOT also steal focus, or the assertion above is satisfied by "everything focuses"',
+			).not.toHaveBeenCalled()
+		})
+
+		it('promotes the next bar when the first one is removed', async () => {
+			const first = mountSearch()
+			const second = track(mountSearch())
+			const secondFocus = spyOnFocus(second)
+
+			// The author deletes the first search widget.
+			first.unmount()
+
+			document.body.dispatchEvent(
+				new KeyboardEvent('keydown', { key: '/', bubbles: true }),
+			)
+
+			expect(
+				secondFocus,
+				'removing the claiming bar must hand the shortcut to the next one, not leave it dead',
+			).toHaveBeenCalled()
+		})
+	})
 })

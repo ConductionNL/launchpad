@@ -114,7 +114,7 @@
 <script>
 import { NcModal, NcButton } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { nudgePlacement } from '../../composables/useGridManager.js'
+import { nudgePlacement } from '../composables/useGridManager.js'
 
 /**
  * WidgetMovePanel — keyboard-operable move/resize panel for a dashboard

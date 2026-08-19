@@ -97,8 +97,8 @@ import {
 import AccountMultipleIcon from 'vue-material-design-icons/AccountMultiple.vue'
 
 import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
-import CreateGroupDashboardModal from '../group/CreateGroupDashboardModal.vue'
-import ManageGroupDashboardsModal from '../group/ManageGroupDashboardsModal.vue'
+import CreateGroupDashboardModal from '../../../dialogs/CreateGroupDashboardModal.vue'
+import ManageGroupDashboardsModal from '../../../dialogs/ManageGroupDashboardsModal.vue'
 
 /**
  * GroupDashboardsTab — Beheer ▸ Group dashboards (admin-group-management

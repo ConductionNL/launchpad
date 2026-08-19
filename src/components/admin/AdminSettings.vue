@@ -227,7 +227,7 @@ import {
 	NcTextField,
 	CnDashboardIcon,
 } from '@conduction/nextcloud-vue'
-import SetupWizardModal from './SetupWizardModal.vue'
+import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import OperationsTab from './tabs/OperationsTab.vue'

@@ -64,9 +64,23 @@ async function apiAs(baseURL: string, creds: { user: string, pass: string }): Pr
 	})
 }
 
-/** An API context with NO Authorization header — a real anonymous visitor. */
+/*
+ * An API context with NO Authorization header — a real anonymous visitor.
+ *
+ * `storageState: undefined` is not decoration. The root config sets
+ * `use.storageState` to the admin session `global-setup.ts` harvests, and a
+ * context created inside a test inherits it, so "anonymous" silently became
+ * "logged in as an administrator" (measured on the sibling specs in run
+ * 31389746411, where a grantee's create answered `"createdBy":"admin"`).
+ *
+ * This spec kept PASSING under that inheritance, which is the reason to fix it
+ * here too: token gating is independent of who the caller is, so the
+ * assertions below survive being made by an admin — and a test that passes
+ * while the premise in its name is false is the most expensive kind to leave
+ * alone.
+ */
 async function anonymousApi(baseURL: string): Promise<APIRequestContext> {
-	return request.newContext({ baseURL })
+	return request.newContext({ baseURL, storageState: undefined })
 }
 
 test.describe('anonymous public share', () => {
@@ -136,7 +150,7 @@ test.describe('anonymous public share', () => {
 		// A fresh context inherits no storage state, so this is a genuine
 		// first-time visitor. The API legs above could both pass while the
 		// rendered page still redirected to the login form.
-		const context = await browser.newContext({ baseURL })
+		const context = await browser.newContext({ baseURL, storageState: undefined })
 		const page = await context.newPage()
 		const response = await page.goto(`/index.php/apps/launchpad/s/${token}`)
 		expect(response?.status(), 'the public page must not 4xx for an anonymous visitor').toBeLessThan(400)

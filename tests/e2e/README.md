@@ -175,6 +175,68 @@ likely produce:
   widget so `.grid-stack` is mounted. The visual regression case will
   generate fresh baselines on first run.
 
+## Which of these does CI actually execute? (read this before adding `@e2e`)
+
+**Everything in this directory except what `playwright.config.ts` names in its
+`testIgnore`.** There is one config, it lives at the repo root, and both CI and
+gate-19 read that same file:
+
+- the workflow is called with `playwright-test-path: tests/e2e`, which holds no
+  config of its own, so the workflow's fallback selects the root
+  `playwright.config.ts`;
+- since `ConductionNL/.github#308` gate-19 parses that same root config and
+  refuses to count an `@e2e` annotation in a file no project would run.
+
+So the `testIgnore` list is simultaneously "what CI skips" and "what claims no
+coverage", and the two cannot disagree without an edit to that one file. **Do
+not add a second project to `playwright.config.ts`** — gate-19 counts a file
+live if *any* project would run it, so a "local-only" project silently hands
+back exactly the credit the `testIgnore` gives up. Configs gate-19 does not
+read (`playwright.excluded.config.ts`, `playwright.docs.config.ts`) are the
+place for suites that must be runnable without being counted.
+
+### Why this arrangement exists
+
+There used to be two configs: `tests/e2e/ci/playwright.config.ts` selected a
+four-test subset for CI, this file described the full suite, and nothing
+compared them. Measured 2026-08-10 (`ConductionNL/launchpad#82`): **CI executed
+4 tests while 113 existed**, and of **117 `@e2e` annotations only 9 were in
+files CI ran** — 108 coverage claims resting on tests that had never executed
+in CI. gate-19 reported **71** scenarios covered; **4** had an executing test
+behind them.
+
+Fixing the scope made gate-19's number go **up** (258 → 269 before new tests
+were added), because scenarios "covered" by tests that never ran became
+uncovered. That is the correct direction: the number got worse because it got
+true.
+
+### Running the excluded specs
+
+They are still real tests and still worth running:
+
+```bash
+npm run test:e2e            # what CI runs
+npm run test:e2e:excluded   # the specs testIgnore names
+npm run test:e2e:docs       # the screenshot capture job
+```
+
+### Promoting a spec into the gated suite
+
+1. Make the whole file green against a CI-like instance (NC 32 + openregister,
+   admin/admin, one extra `e2e-grantee` account — that is all CI has).
+2. Delete its glob from `testIgnore` in `playwright.config.ts` **and** from
+   `testMatch` in `playwright.excluded.config.ts`. Those two lists are
+   complements; a file in both, or in neither, means someone has quietly
+   changed what "covered" means.
+3. Confirm **the test names** appear with a `✓` in the "E2E Tests (Playwright)"
+   job's run list. **A green job is not the check** — a job can be green
+   because it ran four tests. Read the list.
+
+`testIgnore` is file-granular, so a file is excluded whole even when most of it
+passes. That is deliberate: a partially-executed file would still hand gate-19
+every annotation in its header, which is the over-claiming this whole
+arrangement exists to stop.
+
 ## Author guidelines
 
 - One spec file per OpenSpec change, named after the change folder.

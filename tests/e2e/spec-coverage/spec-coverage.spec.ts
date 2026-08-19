@@ -36,8 +36,15 @@
  *   @e2e label-widget::newly-added-label-uses-registry-defaults
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request as pwRequest, type APIRequestContext } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl'
+
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+
+const ADMIN_CREDS = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -150,40 +157,140 @@ test.describe('dashboard-switcher sidebar', () => {
 		await expect(rows.first()).toBeVisible()
 	})
 
+	/*
+	 * BOTH TESTS BELOW USED TO INHERIT THE FLAG THEY NAME, AND BOTH WERE GREEN
+	 * FOR A REASON THAT HAD NOTHING TO DO WITH THEM.
+	 *
+	 * `allow_user_dashboards` is OFF on a fresh instance. The first test
+	 * asserted the card is visible "when personal dashboards are enabled"
+	 * without enabling anything; the second read `GET /api/admin/settings` and
+	 * branched on it, falling through to `allowed = true` whenever the read
+	 * FAILED — so an unreadable settings response silently became "expect the
+	 * card to be visible", which is a check that cannot report its own
+	 * blindness.
+	 *
+	 * They passed because `allow-personal-dashboards-flag.spec.ts` runs
+	 * earlier in alphabetical order and switches the flag on. Measured in run
+	 * 31388540423: with that spec excluded (it is red in the CI fixture), both
+	 * of these went red — while the product was fine.
+	 *
+	 * A test that asserts behaviour under an admin flag has to SET that flag.
+	 * Each now establishes its own precondition and restores it, so the pair
+	 * is a real A/B: the two arms differ only in the setting, which is what
+	 * makes either of them evidence about the setting.
+	 */
+	const SETTINGS_API = '/index.php/apps/launchpad/api/admin/settings'
+
+	/*
+	 * `page.request` is the WRONG CLIENT for the admin API and this is the
+	 * second thing these two tests got wrong. It shares the page's cookie jar,
+	 * so it authenticates by session — and a session-authenticated call to
+	 * these endpoints needs Nextcloud's `requesttoken`, which the fixture does
+	 * not attach. Measured in run 31389746411: `GET /api/admin/settings`
+	 * through `page.request` answered NOT OK, and the previous version of this
+	 * test treated exactly that response as "personal dashboards are enabled".
+	 *
+	 * Every other spec in this repo talks to the API through an explicit
+	 * `Authorization: Basic` context for the same reason. So does this one now.
+	 * `storageState: undefined` keeps the admin session out of it, so the
+	 * header is what decides the caller.
+	 */
+	async function adminApi(): Promise<APIRequestContext> {
+		return pwRequest.newContext({
+			baseURL: BASE,
+			storageState: undefined,
+			extraHTTPHeaders: {
+				'OCS-APIRequest': 'true',
+				Authorization: `Basic ${Buffer.from(`${ADMIN_CREDS.user}:${ADMIN_CREDS.pass}`).toString('base64')}`,
+			},
+		})
+	}
+
+	/** Set `allowUserDashboards` and return the value it had before. */
+	async function setAllowUserDashboards(value: boolean): Promise<boolean> {
+		const api = await adminApi()
+		try {
+			const before = await api.get(SETTINGS_API)
+			expect(
+				before.status(),
+				'the admin settings must be readable — an unreadable response used to be read as "enabled"',
+			).toBe(200)
+			const prior = (await before.json()).allowUserDashboards === true
+			const put = await api.put(SETTINGS_API, { data: { allowUserDash: value } })
+			expect(put.status(), await put.text()).toBeLessThan(300)
+			return prior
+		} finally {
+			await api.dispose()
+		}
+	}
+
 	// @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
 	test('Add-Dashboard card renders in sidebar when personal dashboards are enabled', async ({ page }) => {
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
-		await expect(addCard).toBeVisible()
+		const prior = await setAllowUserDashboards(true)
+		try {
+			await gotoLaunchPad(page)
+			await openSidebar(page)
+			const sidebar = page.locator('.dashboard-switcher-sidebar')
+			const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+			await expect(addCard).toBeVisible()
+		} finally {
+			await setAllowUserDashboards(prior)
+		}
 	})
 
 	// @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
 	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({ page }) => {
-		// Check the current admin setting and assert the card visibility matches.
-		const settingsResp = await page.request.get('/index.php/apps/launchpad/api/admin/settings')
-		const settings = settingsResp.ok() ? await settingsResp.json() : {}
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
-		const allowed = settings?.allowUserDashboards !== false
-		if (allowed) {
-			await expect(addCard).toBeVisible()
-		} else {
+		const prior = await setAllowUserDashboards(false)
+		try {
+			await gotoLaunchPad(page)
+			await openSidebar(page)
+			const sidebar = page.locator('.dashboard-switcher-sidebar')
+			const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+			// Absent from the DOM, not merely hidden — a `display:none` card is
+			// still a create affordance to anything that walks the tree.
 			await expect(addCard).toHaveCount(0)
+		} finally {
+			await setAllowUserDashboards(prior)
 		}
 	})
 
+	/*
+	 * THIRD TEST WITH THE SAME DEFECT, AND THE MOST EXPENSIVE VERSION OF IT.
+	 *
+	 * This one inherited `allowUserDashboards` like the two above, but instead
+	 * of failing when the flag was off it SKIPPED — `test.skip(true,
+	 * 'allowUserDashboards is false in this environment')`. A skip is not a
+	 * neutral outcome here: the `@e2e` annotation on the line above keeps
+	 * claiming `dashboard-switcher::click-invokes-create-flow` as covered, so
+	 * the scenario counted while nothing exercised it. Measured in run
+	 * 31390900033: `65 tests … 64 passed, 1 skipped`, and this was the one.
+	 *
+	 * The environment it was describing is the DEFAULT one — the flag is off on
+	 * a fresh instance — so the skip was not a rare escape hatch, it was the
+	 * normal path. It sets the flag it needs, like its two siblings.
+	 */
 	// @e2e dashboard-switcher::click-invokes-create-flow
 	test('clicking Add-Dashboard card opens the Create dashboard dialog', async ({ page }) => {
+		const prior = await setAllowUserDashboards(true)
+		try {
+			await gotoLaunchPad(page)
+			await runCreateFlowAssertions(page)
+		} finally {
+			await setAllowUserDashboards(prior)
+		}
+	})
+
+	async function runCreateFlowAssertions(page: any) {
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
 		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
 
-		if (!await addCard.isVisible().catch(() => false)) {
-			test.skip(true, 'allowUserDashboards is false in this environment')
-			return
-		}
+		// No conditional skip. The precondition is established above, so an
+		// absent card is now a failure — which is what it always meant.
+		await expect(
+			addCard,
+			'the Add-Dashboard card must be present once personal dashboards are enabled',
+		).toBeVisible()
 
 		// Clicking "Add dashboard" either opens a "Create dashboard" dialog or
 		// fires a create POST immediately — the current UI forks the active
@@ -207,10 +314,10 @@ test.describe('dashboard-switcher sidebar', () => {
 		if (!dialogVisible) {
 			// No dialog — a create/fork POST must have fired instead.
 			const req = await createRequestPromise
-			expect(req).not.toBeNull()
+			expect(req, 'clicking Add-Dashboard must either open the dialog or fire a create/fork POST').not.toBeNull()
 		}
 		// If dialog IS visible, the create flow is working.
-	})
+	}
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

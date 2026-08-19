@@ -36,9 +36,42 @@ import {
 	closeSidebar,
 } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
+import { BASE_URL } from './support/baseUrl'
+import { request, type APIRequestContext } from '@playwright/test'
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
+
+	/*
+	 * SEED A DASHBOARD. `gotoLaunchPad()` needs the workspace shell, which only
+	 * renders once a dashboard is ACTIVE — `tests/e2e/seed.sh` creates the
+	 * `e2e-grantee` user and nothing else. On a fresh instance LaunchPad shows
+	 * "No dashboards available" instead and every locator here misses.
+	 */
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E LabelEdit ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
 })
 
 test.describe('label widget — content edit round-trip', () => {

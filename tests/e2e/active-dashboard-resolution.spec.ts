@@ -14,7 +14,13 @@
  * openspec/changes/active-dashboard-resolution/tasks.md#task-12.
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request, type APIRequestContext } from '@playwright/test'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
+import { BASE_URL } from './support/baseUrl'
 import {
 	provisionThrowawayUser,
 	deprovisionUser,
@@ -38,6 +44,45 @@ async function gotoApp(page: any) {
 // ─────────────────────────────────────────────────────────────────────────────
 // REQ-DASH-018 scenario: Empty state on a fresh user with no dashboards
 // ─────────────────────────────────────────────────────────────────────────────
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let api: APIRequestContext
+const seeded: SeededDashboard[] = []
+
+/*
+ * SEED TWO DASHBOARDS FOR THE ADMIN.
+ *
+ * The switching test needs at least two rows in the sidebar, and every test
+ * outside the empty-state block reaches `.launchpad-sidebar-toggle`, which
+ * only renders once a dashboard is ACTIVE. `tests/e2e/seed.sh` creates only
+ * the `e2e-grantee` user — never a dashboard — so on a fresh instance the
+ * shell renders its empty state and those waits time out. Measured in CI run
+ * 32308042394: 2 of 3 tests here failed that way at 25.1s each.
+ *
+ * This does NOT disturb the empty-state test above: that one provisions its
+ * own throwaway account precisely because the admin fixture has dashboards.
+ */
+test.beforeAll(async () => {
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	const stamp = Date.now()
+	seeded.push(await seedActiveDashboard(api, `E2E Resolution A ${stamp}`))
+	seeded.push(await seedActiveDashboard(api, `E2E Resolution B ${stamp}`))
+})
+
+test.afterAll(async () => {
+	for (const d of seeded) {
+		await removeSeededDashboard(api, d)
+	}
+	await api?.dispose()
+})
 
 test.describe('active-dashboard-resolution — empty state', () => {
 	// @e2e active-dashboard-resolution::empty-state-renders-for-fresh-user

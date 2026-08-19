@@ -13,13 +13,50 @@
  *   @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request, type APIRequestContext } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
+import { BASE_URL } from './support/baseUrl'
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
 
 // Install a restrictive `default` role-feature-permission; the admin
 // break-glass bypass lets the admin still add widgets (see fixtures helper).
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
+
+	/*
+	 * SEED A DASHBOARD. `gotoLaunchPad()` below waits for
+	 * `.launchpad-sidebar-toggle`, which only renders once a dashboard is
+	 * ACTIVE. `tests/e2e/seed.sh` creates only the `e2e-grantee` user, never a
+	 * dashboard, so on a fresh instance LaunchPad renders its empty state and
+	 * that wait times out — all 4 tests here failed that way in CI run
+	 * 32308042394, each at ~48s.
+	 *
+	 * The spec was depending on a dashboard some earlier spec happened to leave
+	 * behind, which is why it passed on a warm rig and failed on a cold one.
+	 */
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E AddWidget ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

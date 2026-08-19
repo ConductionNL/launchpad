@@ -2,9 +2,6 @@
 
 ## Purpose
 TBD - created by archiving change align-source-license-headers-to-eupl. Update Purpose after archive.
-
-> @e2e exclude every scenario in this spec asserts a property of the repository's own source files (SPDX identifiers, PHPDoc `@license`/`@copyright` tags, the README badge) rather than any behaviour of a running instance, so there is nothing for a browser to observe. The real coverage is static and it is wired: `scripts/check-license-headers.sh` fails the build on a reintroduced `AGPL-3.0` identifier under `lib/`, `src/` or `appinfo/` (REQ-LIC-005), and it runs as composer `lint:licenses` inside `composer check:strict`; hydra gate-1 (`check_spdx_headers.py`) enforces the `@license`/`@copyright` PHPDoc pair on every file under `lib/`, and the hydra `license-triangle` gate (`scripts/lib/check_license_triangle.py`) cross-checks `LICENSE`, `composer.json`, `publiccode.yml` and `REUSE.toml` against each other. `REUSE.toml` is what makes the PHPDoc form acceptable to `reuse lint` (REQ-LIC-002/003).
-
 ## Requirements
 ### Requirement: REQ-LIC-001 Source-file SPDX identifier is EUPL-1.2
 

@@ -34,14 +34,18 @@ import { BASE_URL as baseURL } from './tests/e2e/support/baseUrl'
 export default defineConfig({
 	testDir: './tests/e2e',
 	testMatch: [
+		// API-direct HTTP-contract specs: Newman owns their coverage, so the
+		// main job never runs them. They stay runnable here on purpose.
 		'**/api-direct/**/*.spec.ts',
-		'**/active-dashboard-resolution.spec.ts',
-		'**/add-widget-modal.spec.ts',
-		'**/allow-personal-dashboards-flag.spec.ts',
+		// Blocked on a fixture account (`recipient`) the CI seed does not
+		// create — see the note in playwright.config.ts.
 		'**/dashboard-sharing.spec.ts',
-		'**/image-widget-clickthrough.spec.ts',
-		'**/label-widget-content-edit.spec.ts',
-		'**/runtime-shell-canEdit.spec.ts',
+		// The six files that used to be listed here were PROMOTED into the
+		// main job on 2026-08-19 once Nextcloud's first-run wizard — the
+		// common cause of their "clicks do not land" failures — was dismissed
+		// in global-setup. Keeping stale entries here would mean this config
+		// and playwright.config.ts disagreed about what is excluded, and the
+		// only way to notice would be to read both.
 	],
 	fullyParallel: false,
 	workers: 1,

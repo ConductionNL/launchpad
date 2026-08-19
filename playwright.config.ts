@@ -72,49 +72,34 @@ export default defineConfig({
 		// `@e2e` annotations.
 		'**/docs-screenshots.spec.ts',
 
-		// ── Red in the CI fixture, measured, run 31367057618 ─────────────
-		// Each of these RUNS LOCALLY and is worth keeping; none of them is
-		// green in this job, so none of them may claim coverage here. The
-		// named test is the one that fails; the file is excluded whole
-		// because `testIgnore` is file-granular and a partially-executed
-		// file would still hand gate-19 the whole file's annotations.
-		//
-		// 2 of 3 fail — "clicking a sidebar row activates the chosen
-		// dashboard server-side" and "a stale saved UUID is silently
-		// discarded" both time out at 24s.
-		'**/active-dashboard-resolution.spec.ts',
-		// 4 of 4 fail, all at 47s: the add-widget modal never reaches the
-		// state the close-discipline assertions need.
-		'**/add-widget-modal.spec.ts',
-		// 2 of 2 fail at 14.6s — the sidebar Add-Dashboard button assertions.
-		'**/allow-personal-dashboards-flag.spec.ts',
+		// ── Blocked on a fixture account, not on the code ────────────────
 		// 4 of 4 fail. The suite needs a `recipient` account to be the share
 		// target (LAUNCHPAD_E2E_SHAREE, default `recipient`); the CI seed
 		// creates `e2e-grantee` and nothing else, so the recipient-side
-		// scenario has no second user to be.
+		// scenario has no second user to be. Un-excluding this one needs a
+		// change to the shared seed, not to launchpad.
 		'**/dashboard-sharing.spec.ts',
-		// The image suite WAS excluded whole because 1 of its 3 tests fails:
-		// "REQ-IMG-003: a URL image with a click-through link opens the link in
-		// a new tab" — the widget cell resolves but Playwright reports "element
-		// is outside of the viewport" through 23 click retries, then the popup
-		// wait times out. That one test now lives in its own file so the rest
-		// of the suite can run. It is unchanged and still runnable via
-		// `npm run test:e2e:excluded`; the SCENARIO it covers is now proven in
-		// `image-widget.spec.ts` by recording `window.open`, which asserts the
-		// 'noopener,noreferrer' argument a real popup cannot show.
-		'**/image-widget-clickthrough.spec.ts',
-		// The label suite WAS excluded whole because 1 of its 3 tests fails.
-		// That one test now lives in its own file, so the two green ones run
-		// here and the red one stays out — which is what file-granular
-		// `testIgnore` makes necessary. The failing test is unchanged and
-		// still runnable via `npm run test:e2e:excluded`.
-		'**/label-widget-content-edit.spec.ts',
-		// 7 of 8 pass. "ADR-023: … the empty-state Create CTA it is offered
-		// actually works" fails at 10.9s. The seven green ones are a real
-		// loss here and this is the first file to promote once that one is
-		// fixed; it carries no `@e2e` annotations, so excluding it costs no
-		// coverage credit today.
-		'**/runtime-shell-canEdit.spec.ts',
+
+		// ── PROMOTED 2026-08-19: the seven files that used to sit here ────
+		// `active-dashboard-resolution`, `add-widget-modal`,
+		// `allow-personal-dashboards-flag`, `image-widget-clickthrough`,
+		// `label-widget-content-edit` and `runtime-shell-canEdit` were all
+		// recorded RED against run 31367057618 with symptoms that never named
+		// their cause: clicks that did not land, "element is outside of the
+		// viewport" through 23 retries, and 14-47s timeouts.
+		//
+		// The common cause was Nextcloud's own first-run wizard. It ships
+		// enabled and renders a full-screen modal on any FRESH instance —
+		// which is exactly what the CI fixture provisions — and it does not
+		// merely obscure the page, it EATS KEYSTROKES and swallows clicks.
+		// `tests/e2e/global-setup.ts` now dismisses it once, per user, before
+		// any spec runs.
+		//
+		// Measured after that fix, against a clean isolated instance:
+		// `allow-personal-dashboards-flag` went 0/2 -> 4/4 green.
+		// The rest are promoted here so THIS job measures them rather than
+		// assuming; anything still red gets re-excluded with its own fresh
+		// evidence, not with the stale note it carried before.
 	],
 	// 60s, not 30s: the value the 80-test measurement run used, under which
 	// every promoted file was green. The old 30s was never exercised against

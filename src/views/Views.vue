@@ -157,7 +157,7 @@
 					<div
 						class="launchpad-grid-item"
 						:class="{
-							'launchpad-grid-item--dimmed': isTileDimmed(item.id),
+							'launchpad-grid-item--dimmed': isTileDimmed(item),
 						}"
 						:data-placement-id="item.id"
 						@contextmenu="onWidgetRightClick($event, item)">
@@ -556,16 +556,28 @@ export default {
 		 * tile-quick-search REQ-QSEARCH-002 — whether a given placement is
 		 * currently de-emphasised by an active quick-search query.
 		 *
-		 * Exposed as a getter-returning-a-function so the template can call it
-		 * per grid item. Returns `false` for every tile when no query is
-		 * running, which is why an empty dashboard or a dashboard with no
-		 * `search` widget never dims anything.
+		 * Returns `false` for every placement when no query is running, which
+		 * is why a dashboard with no `search` widget never dims anything.
 		 *
-		 * @return {(placementId: (string|number)) => boolean} the predicate.
+		 * A `search` placement NEVER dims itself. It is a placement like any
+		 * other, so without this it de-emphasises the very bar the user is
+		 * typing into the moment their query stops matching the word
+		 * "Search" — the control fades out from under the cursor.
+		 *
+		 * Keyed on the widget type rather than on a single remembered id so a
+		 * dashboard carrying more than one search widget behaves the same.
+		 *
+		 * @return {(placement: object) => boolean} the predicate.
 		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
 		 */
 		isTileDimmed() {
-			return useTileSearchStore().isDimmed
+			const { isDimmed } = useTileSearchStore()
+			return (placement) => {
+				if (placement?.widgetId === 'search') {
+					return false
+				}
+				return isDimmed(placement?.id)
+			}
 		},
 
 		/**

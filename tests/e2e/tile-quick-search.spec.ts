@@ -60,6 +60,34 @@ const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const INPUT = '[data-test="quick-search-input"]'
 const OPTION = '[data-test="quick-search-option"]'
 const GRID_ITEM = '.launchpad-grid-item'
+
+/**
+ * Grid items that are TILES — i.e. every grid item except the one hosting the
+ * search bar itself.
+ *
+ * THE SEARCH BAR IS NOW A GRID ITEM, AND IT ECHOES TILE NAMES
+ * ===========================================================
+ * Quick search used to be page chrome, so `.launchpad-grid-item` and "a tile"
+ * were the same set and `filter({hasText: 'Zaaksysteem …'})` could only ever
+ * match a tile. Since it became a placed widget, the search widget is itself a
+ * `.launchpad-grid-item`, and while a query is active its results listbox
+ * CONTAINS the matching tiles' labels — so a plain `hasText` filter matches
+ * the search widget too, and `.first()` picks it, because it sits in the top
+ * row.
+ *
+ * Measured: two specs failed against a correct build this way. One reported
+ * "the rendered tile must carry an anchor" (the search bar has none) and the
+ * other "a MATCHING tile must not be de-emphasised" — both describing the
+ * search widget, neither describing a real defect in the tile.
+ *
+ * `hasNot` the search input is the narrowest way to say "a tile".
+ *
+ * @param page the page under test.
+ * @return a locator over tile grid items only.
+ */
+function tileItems(page: Page) {
+	return page.locator(GRID_ITEM).filter({ hasNot: page.locator(INPUT) })
+}
 /*
  * The de-emphasis class `Views.vue` binds on every grid item that is NOT a
  * match, from the `tileSearch` store's `isDimmed` getter. Named once here
@@ -484,12 +512,10 @@ test.describe('tile quick-search — filtering (REQ-QSEARCH-002)', () => {
 		// `.first()` on both: `evaluate()` throws on a locator that resolves to
 		// more than one node, and a strictness error would read as a product
 		// failure rather than as the selector problem it is.
-		const matching = page
-			.locator(GRID_ITEM)
+		const matching = tileItems(page)
 			.filter({ hasText: `Zaaksysteem ${STAMP}` })
 			.first()
-		const notMatching = page
-			.locator(GRID_ITEM)
+		const notMatching = tileItems(page)
 			.filter({ hasText: `Verlof aanvragen ${STAMP}` })
 			.first()
 		await expect(matching, 'the matching tile must be on screen').toBeVisible({
@@ -746,8 +772,7 @@ test.describe('tile quick-search — keyboard navigation (REQ-QSEARCH-003)', () 
 		 * instead of being read as "the fix was reverted".
 		 */
 		await expect(
-			page
-				.locator(GRID_ITEM)
+			tileItems(page)
 				.filter({ hasText: `Zaaksysteem ${STAMP}` })
 				.first()
 				.locator('a[href]')

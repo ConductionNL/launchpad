@@ -115,7 +115,63 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 		)
 	}
 
+	await dismissFirstRunWizard(page)
+
 	// Persist the storage state so individual specs reuse the session.
 	await context.storageState({ path: STORAGE_STATE })
 	await browser.close()
+}
+
+/**
+ * Dismiss Nextcloud's first-run wizard for the test user.
+ *
+ * WHY THIS IS NOT OPTIONAL
+ * ------------------------
+ * `firstrunwizard` ships enabled by default. On a FRESH instance — which is
+ * exactly what CI provisions and what a disposable local rig is — it renders a
+ * full-screen modal ("A collaboration platform that puts you in control") over
+ * the app on first load.
+ *
+ * Measured 2026-08-19 against a clean rig: 7 of 9 `tile-quick-search` specs
+ * failed with it up. It does not merely obscure the page, it EATS KEYSTROKES —
+ * Escape closes the wizard instead of clearing the search bar, so
+ * "Escape clears the query" failed with the query still present. Any spec that
+ * types, clicks the grid, or asserts focus is affected, and the failure never
+ * names the modal, so it reads as a broken feature.
+ *
+ * It survives a fresh browser context because the dismissal is a SERVER-SIDE
+ * user preference, not localStorage — which is also why one call here fixes
+ * every spec rather than needing per-test handling.
+ *
+ * `DELETE /apps/firstrunwizard/wizard` is the app's own dismissal route. It is
+ * best-effort: an instance with the app disabled returns 404, which is fine.
+ *
+ * @param {import('@playwright/test').Page} page an authenticated page.
+ * @return {Promise<void>}
+ */
+async function dismissFirstRunWizard(page: import('@playwright/test').Page): Promise<void> {
+	try {
+		const status = await page.evaluate(async () => {
+			const token = document
+				.querySelector('head[data-requesttoken]')
+				?.getAttribute('data-requesttoken')
+				?? document.getElementById('requesttoken')?.getAttribute('value')
+				?? ''
+			const res = await fetch('/index.php/apps/firstrunwizard/wizard', {
+				method: 'DELETE',
+				headers: { requesttoken: token, 'OCS-APIRequest': 'true' },
+			})
+			return res.status
+		})
+		if (status >= 400 && status !== 404) {
+			// eslint-disable-next-line no-console
+			console.warn(
+				`[playwright globalSetup] first-run wizard dismissal returned ${status}; `
+					+ 'specs may hit a modal over the app.',
+			)
+		}
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.warn('[playwright globalSetup] could not dismiss the first-run wizard:', error)
+	}
 }

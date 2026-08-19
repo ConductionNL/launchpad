@@ -192,6 +192,7 @@ export default {
 
 		/**
 		 * @return {string} explanatory text for the selected mode.
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		fallbackModeHint() {
 			if (this.fallbackMode === FALLBACK_INHERIT) {
@@ -207,10 +208,7 @@ export default {
 				)
 			}
 			if (this.fallbackMode === FALLBACK_TARGET_UNIFIED_SEARCH) {
-				return t(
-					'launchpad',
-					'Passes the query to Nextcloud’s own search.',
-				)
+				return t('launchpad', 'Passes the query to Nextcloud’s own search.')
 			}
 			return t(
 				'launchpad',
@@ -223,6 +221,7 @@ export default {
 		 * when it is acceptable (or not in play).
 		 *
 		 * @return {string}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		templateError() {
 			if (this.fallbackMode !== 'web-search') {
@@ -234,10 +233,7 @@ export default {
 			if (isValidFallbackTemplate(this.fallbackTemplate)) {
 				return ''
 			}
-			return t(
-				'launchpad',
-				'Enter an https URL containing {query}.',
-			)
+			return t('launchpad', 'Enter an https URL containing {query}.')
 		},
 
 		/**
@@ -311,9 +307,7 @@ export default {
 			if (this.fallbackTemplate.trim() === '') {
 				errors.push(t('launchpad', 'Search URL is required'))
 			} else if (!isValidFallbackTemplate(this.fallbackTemplate)) {
-				errors.push(
-					t('launchpad', 'Enter an https URL containing {query}.'),
-				)
+				errors.push(t('launchpad', 'Enter an https URL containing {query}.'))
 			}
 			return errors
 		},

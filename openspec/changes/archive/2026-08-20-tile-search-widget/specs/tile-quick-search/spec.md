@@ -8,7 +8,7 @@ status: draft
 
 ## MODIFIED Requirements
 
-### Requirement: REQ-QSEARCH-001 Render the quick-search bar as a placed widget and focus it with the keyboard
+### Requirement: REQ-QSEARCH-001 Focus the quick-search bar with the keyboard
 
 The system MUST render the quick-search bar as a dashboard widget placement
 (widget type `search`) that a dashboard author explicitly adds to the grid,
@@ -25,7 +25,7 @@ removed by this change. The widget-placement/configuration mechanics are
 specified separately in REQ-QSEARCH-005; the zero/multiple-instance keyboard
 behaviour is specified in REQ-QSEARCH-006.
 
-#### Scenario: Search widget is present and labelled
+#### Scenario: Search bar is present and labelled
 
 - GIVEN a dashboard author has placed a `search` widget on the active dashboard
 - WHEN the dashboard renders

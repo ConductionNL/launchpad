@@ -107,10 +107,7 @@ export default {
 		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
 		 */
 		searchableTiles() {
-			return buildSearchableTiles(
-				this.widgetPlacements,
-				this.availableWidgets,
-			)
+			return buildSearchableTiles(this.widgetPlacements, this.availableWidgets)
 		},
 
 		/**
@@ -127,8 +124,7 @@ export default {
 		 */
 		effectiveFallbackTarget() {
 			return (
-				this.content.fallbackTarget
-				|| this.injectedQuicksearchFallbackTarget
+				this.content.fallbackTarget || this.injectedQuicksearchFallbackTarget
 			)
 		},
 	},

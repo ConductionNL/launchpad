@@ -114,9 +114,9 @@ describe('useTileSearchHost', () => {
 			el.scrollIntoView = scrollSpy
 			const clickSpy = vi.spyOn(link, 'click')
 
-			expect(
-				activateSearchResult({ id: 'p1', placement: { id: 'p1' } }),
-			).toBe(true)
+			expect(activateSearchResult({ id: 'p1', placement: { id: 'p1' } })).toBe(
+				true,
+			)
 			expect(scrollSpy).toHaveBeenCalled()
 			expect(clickSpy).toHaveBeenCalled()
 		})
@@ -133,9 +133,9 @@ describe('useTileSearchHost', () => {
 		})
 
 		it('does nothing when the grid is not on the page', () => {
-			expect(
-				activateSearchResult({ id: 'p1', placement: { id: 'p1' } }),
-			).toBe(false)
+			expect(activateSearchResult({ id: 'p1', placement: { id: 'p1' } })).toBe(
+				false,
+			)
 		})
 
 		/*

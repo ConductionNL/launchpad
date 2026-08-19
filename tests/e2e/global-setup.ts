@@ -149,12 +149,15 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
  * @param {import('@playwright/test').Page} page an authenticated page.
  * @return {Promise<void>}
  */
-async function dismissFirstRunWizard(page: import('@playwright/test').Page): Promise<void> {
+async function dismissFirstRunWizard(
+	page: import('@playwright/test').Page,
+): Promise<void> {
 	try {
 		const status = await page.evaluate(async () => {
-			const token = document
-				.querySelector('head[data-requesttoken]')
-				?.getAttribute('data-requesttoken')
+			const token =
+				document
+					.querySelector('head[data-requesttoken]')
+					?.getAttribute('data-requesttoken')
 				?? document.getElementById('requesttoken')?.getAttribute('value')
 				?? ''
 			const res = await fetch('/index.php/apps/firstrunwizard/wizard', {
@@ -172,6 +175,9 @@ async function dismissFirstRunWizard(page: import('@playwright/test').Page): Pro
 		}
 	} catch (error) {
 		// eslint-disable-next-line no-console
-		console.warn('[playwright globalSetup] could not dismiss the first-run wizard:', error)
+		console.warn(
+			'[playwright globalSetup] could not dismiss the first-run wizard:',
+			error,
+		)
 	}
 }

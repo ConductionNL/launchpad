@@ -138,9 +138,6 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
 		const entry = getWidgetTypeEntry('text')
 		expect(typeof entry.displayName).toBe('string')
-		expect(
-			seen,
-			'displayName should pass through the t() helper',
-		).not.toBeNull()
+		expect(seen, 'displayName should pass through the t() helper').not.toBeNull()
 	})
 })

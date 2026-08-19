@@ -39,9 +39,7 @@ describe('SearchWidgetForm — persisted shape (REQ-QSEARCH-005)', () => {
 	it('persists a custom placeholder', () => {
 		const wrapper = mountForm()
 		wrapper.vm.onPlaceholderChange('Find an application…')
-		expect(wrapper.vm.assembledContent.placeholder).toBe(
-			'Find an application…',
-		)
+		expect(wrapper.vm.assembledContent.placeholder).toBe('Find an application…')
 		expect(wrapper.emitted('update:content')).toBeTruthy()
 	})
 

@@ -80,6 +80,37 @@ export default defineConfig({
 		// change to the shared seed, not to launchpad.
 		'**/dashboard-sharing.spec.ts',
 
+		// ── Re-excluded 2026-08-19 with FRESH evidence, run 32308042394 ───
+		// These four were promoted alongside `image-widget-clickthrough` and
+		// `runtime-shell-canEdit` on the theory that Nextcloud's first-run
+		// wizard was the common cause of the whole `testIgnore` block. That
+		// theory was RIGHT for those two — both are green here now and stay
+		// promoted, which is where this job's +10 tests come from — and WRONG
+		// for these four, which failed again with the wizard already dismissed:
+		//
+		//   133 tests, 124 passed, 9 failed.
+		//
+		// The failures are the same ones each file carried before, so their
+		// causes are their own and predate the wizard fix:
+		//   active-dashboard-resolution  2 fail @25.1s (sidebar-row activation,
+		//     stale-UUID discard) — both need a dashboard to click and the suite
+		//     seeds only the `e2e-grantee` USER, never a dashboard.
+		//   add-widget-modal             4 fail @48.6s — same missing-dashboard
+		//     dependency: `gotoLaunchPad()` waits on `.launchpad-sidebar-toggle`,
+		//     which only renders once a dashboard is active.
+		//   allow-personal-dashboards-flag 2 fail @15.0s (sidebar button
+		//     visibility) — ditto.
+		//   label-widget-content-edit    1 fail @17.0s (content-edit round-trip).
+		//
+		// The fix for the first three is to make the specs SELF-SEEDING, the way
+		// tile-quick-search builds its own dashboard in `beforeAll` — not to
+		// re-run them and hope. That is its own change; excluding them here
+		// keeps this job's verdict honest in the meantime.
+		'**/active-dashboard-resolution.spec.ts',
+		'**/add-widget-modal.spec.ts',
+		'**/allow-personal-dashboards-flag.spec.ts',
+		'**/label-widget-content-edit.spec.ts',
+
 		// ── PROMOTED 2026-08-19: the seven files that used to sit here ────
 		// `active-dashboard-resolution`, `add-widget-modal`,
 		// `allow-personal-dashboards-flag`, `image-widget-clickthrough`,

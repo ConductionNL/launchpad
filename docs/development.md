@@ -82,7 +82,12 @@ All PRs to `main`, `beta`, and `development` must pass these **blocking** checks
 | PHP Mess Detection | PHPMD | `composer phpmd` |
 | PHP Code Metrics | phpmetrics (informational) | `composer phpmetrics` |
 | ESLint + Stylelint | ESLint + Stylelint | `npm run lint && npm run stylelint` |
+| Code formatting | Prettier | `npm run format` |
 | Branch Policy | GitHub Actions | Automatic |
+
+> ⚠️ **`npm run format` is a separate CI job** (`Frontend Check (format)`),
+> not part of `npm run lint`. Lint and stylelint can both be green while the
+> format gate is red — it has happened. Run all three.
 
 ### Running Quality Checks Locally
 
@@ -95,7 +100,21 @@ composer phpmd          # Mess detection
 composer phpmetrics     # Code metrics report
 
 # Frontend checks
-npm run lint && npm run stylelint
+npm run lint && npm run stylelint && npm run format
+```
+
+### Debug logging
+
+`src/` never calls `console.*` directly — everything goes through
+`src/utils/logger.js`, which is the app's single console boundary.
+
+`logger.warn` and `logger.error` always print. `logger.debug` is **silent by
+default**, because the tracing it carries used to run on every dashboard load
+in production. Turn it on from the browser console:
+
+```js
+localStorage.setItem('launchpad:debug', '1')   // then reload
+localStorage.removeItem('launchpad:debug')     // back to quiet
 ```
 
 ### Auto-fixing

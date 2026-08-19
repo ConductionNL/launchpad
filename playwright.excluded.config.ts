@@ -40,12 +40,19 @@ export default defineConfig({
 		// Blocked on a fixture account (`recipient`) the CI seed does not
 		// create — see the note in playwright.config.ts.
 		'**/dashboard-sharing.spec.ts',
-		// The six files that used to be listed here were PROMOTED into the
-		// main job on 2026-08-19 once Nextcloud's first-run wizard — the
-		// common cause of their "clicks do not land" failures — was dismissed
-		// in global-setup. Keeping stale entries here would mean this config
-		// and playwright.config.ts disagreed about what is excluded, and the
-		// only way to notice would be to read both.
+		// Re-excluded from the main job 2026-08-19 with fresh evidence (run
+		// 32308042394): still red with the first-run wizard already dismissed.
+		// The first three need a dashboard the suite never seeds; making them
+		// self-seeding is the fix. Runnable here in the meantime.
+		'**/active-dashboard-resolution.spec.ts',
+		'**/add-widget-modal.spec.ts',
+		'**/allow-personal-dashboards-flag.spec.ts',
+		'**/label-widget-content-edit.spec.ts',
+		// `image-widget-clickthrough` and `runtime-shell-canEdit` were PROMOTED
+		// into the main job on 2026-08-19 and are green there: dismissing
+		// Nextcloud's first-run wizard in global-setup really was their cause.
+		// They are deliberately absent from this list so the two configs cannot
+		// disagree about what is excluded.
 	],
 	fullyParallel: false,
 	workers: 1,

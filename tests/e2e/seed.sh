@@ -36,29 +36,61 @@ set -euo pipefail
 
 # The grant spec needs a second, non-admin account to be the share recipient;
 # a grant to yourself proves nothing.
-readonly SEED_UID='e2e-grantee'
-# >= 10 chars: Nextcloud's default password policy silently rejects shorter
-# ones, which would leave the account uncreated with a success-looking log.
-readonly SEED_PASSWORD='E2eGranteePw123'
+# The accounts the suite needs, as `uid:password` pairs.
+#
+#   e2e-grantee — the object-grant recipient (manifest-grants spec).
+#   recipient   — the share target for dashboard-sharing.spec.ts. That spec
+#                 reads LAUNCHPAD_E2E_SHAREE (default `recipient`) and resets
+#                 the password itself via the OCS provisioning API before the
+#                 recipient-side scenario logs in, so what it needs from here
+#                 is only that the ACCOUNT EXISTS. Without it the whole file
+#                 was excluded from the job — 4 of 4 failing for want of a
+#                 second user to be.
+readonly SEED_ACCOUNTS=(
+	'e2e-grantee:E2eGranteePw123'
+	'recipient:Recipient-e2e-A1!'
+)
 
-# `occ` is overridable so the accompanying test can drive this script's
-# decision logic without a booted Nextcloud. It defaults to the real thing.
 OCC="${OCC_CMD:-php occ}"
 
-if OC_PASS="${SEED_PASSWORD}" ${OCC} user:add --password-from-env "${SEED_UID}"; then
-	echo "seeded ${SEED_UID}"
-	exit 0
-fi
+# Exit non-zero if ANY account could not be seeded. Each account is handled
+# independently so one already-present account never masks a real failure on
+# another.
+# Disable Nextcloud's first-run wizard for the WHOLE INSTANCE.
+#
+# `global-setup.ts` dismisses it for the admin, but that is a PER-USER
+# preference and the suite logs in as other people: the seeded `recipient`,
+# and the throwaway accounts several specs provision mid-run. A brand-new
+# account meets the wizard on first login, and it does not merely cover the
+# page — it swallows clicks and keystrokes. Measured: with `recipient` seeded
+# but the wizard enabled, "recipient sees the shared dashboard in their
+# switcher" failed because `.launchpad-sidebar-toggle` never became
+# actionable.
+#
+# Best-effort: an instance without the app returns non-zero, which is fine.
+${OCC} app:disable firstrunwizard >/dev/null 2>&1 \
+	&& echo "disabled firstrunwizard" \
+	|| echo "firstrunwizard not present or already disabled — continuing"
 
-# `user:add` failed. The ONLY tolerable reason is that the account is already
-# there from an earlier run. Ask the instance rather than trusting the exit
-# code to mean one specific thing.
-if ${OCC} user:info "${SEED_UID}" >/dev/null 2>&1; then
-	echo "${SEED_UID} already present — idempotent re-run, continuing"
-	exit 0
-fi
+rc=0
+for entry in "${SEED_ACCOUNTS[@]}"; do
+	uid="${entry%%:*}"
+	password="${entry#*:}"
 
-echo "FATAL: could not create '${SEED_UID}', and it does not exist afterwards." >&2
-echo "The Playwright grant spec needs this account; starting the suite without" >&2
-echo "it would fail for a reason unrelated to the code under test." >&2
-exit 1
+	if OC_PASS="${password}" ${OCC} user:add --password-from-env "${uid}"; then
+		echo "seeded ${uid}"
+		continue
+	fi
+
+	if ${OCC} user:info "${uid}" >/dev/null 2>&1; then
+		echo "${uid} already present — idempotent re-run, continuing"
+		continue
+	fi
+
+	echo "FATAL: could not create '${uid}', and it does not exist afterwards." >&2
+	echo "The Playwright suite needs this account; starting without it would" >&2
+	echo "fail for a reason unrelated to the code under test." >&2
+	rc=1
+done
+
+exit "${rc}"

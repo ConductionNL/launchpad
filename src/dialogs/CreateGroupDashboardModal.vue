@@ -183,6 +183,12 @@ export default {
 			this.$emit('close')
 		},
 
+		/**
+		 * Create the group dashboard from the form state and close.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-06-14-admin-group-management/tasks.md#task-4
+		 */
 		async onSubmit() {
 			if (!this.canSubmit || this.submitting === true) {
 				return

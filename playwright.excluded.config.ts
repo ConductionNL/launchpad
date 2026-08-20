@@ -37,9 +37,6 @@ export default defineConfig({
 		// API-direct HTTP-contract specs: Newman owns their coverage, so the
 		// main job never runs them. They stay runnable here on purpose.
 		'**/api-direct/**/*.spec.ts',
-		// Blocked on a fixture account (`recipient`) the CI seed does not
-		// create — see the note in playwright.config.ts.
-		'**/dashboard-sharing.spec.ts',
 		// Re-excluded from the main job 2026-08-19 with fresh evidence (run
 		// 32308042394): still red with the first-run wizard already dismissed.
 		// The first three need a dashboard the suite never seeds; making them

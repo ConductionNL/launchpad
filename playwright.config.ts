@@ -72,13 +72,19 @@ export default defineConfig({
 		// `@e2e` annotations.
 		'**/docs-screenshots.spec.ts',
 
-		// ── Blocked on a fixture account, not on the code ────────────────
-		// 4 of 4 fail. The suite needs a `recipient` account to be the share
-		// target (LAUNCHPAD_E2E_SHAREE, default `recipient`); the CI seed
-		// creates `e2e-grantee` and nothing else, so the recipient-side
-		// scenario has no second user to be. Un-excluding this one needs a
-		// change to the shared seed, not to launchpad.
-		'**/dashboard-sharing.spec.ts',
+		// ── Nothing is excluded for being RED any more ───────────────────
+		// `dashboard-sharing` was the last one. Its note said it needed a
+		// `recipient` account "the CI seed does not create" and called that a
+		// change to the shared seed — but `tests/e2e/seed.sh` is a LAUNCHPAD
+		// file that the workflow invokes via `playwright-seed-command`, so the
+		// fix was ours to make all along. It now seeds `recipient` alongside
+		// `e2e-grantee`, and disables Nextcloud's first-run wizard for the whole
+		// instance — the per-user dismissal in global-setup covers the admin,
+		// but not the recipient or the throwaway accounts specs provision
+		// mid-run, and a brand-new account meets the wizard on first login.
+		//
+		// Measured on a clean isolated instance: 0/4 -> 3/4 with the account
+		// seeded, 4/4 once the wizard was out of the way.
 
 		// ── The 2026-08-19 exclusion block is GONE, and here is why ──────
 		// Six files sat here with notes like "4 of 4 fail at 47s". Two causes,

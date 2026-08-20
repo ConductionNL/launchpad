@@ -129,9 +129,14 @@ export default {
 		},
 	},
 
+	/**
+	 * A widget removed mid-query must not leave the tiles it dimmed stuck
+	 * that way — nothing else would ever clear them.
+	 *
+	 * @return {void}
+	 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+	 */
 	beforeUnmount() {
-		// A widget removed mid-query must not leave the tiles it dimmed stuck
-		// that way — nothing else would ever clear them.
 		useTileSearchStore().clear()
 	},
 

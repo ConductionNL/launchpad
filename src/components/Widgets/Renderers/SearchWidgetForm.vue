@@ -160,6 +160,7 @@ export default {
 		 * see what they get by leaving it empty.
 		 *
 		 * @return {string}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		defaultPlaceholder() {
 			return t('launchpad', 'Search tiles… (/ or Ctrl+K)')
@@ -240,6 +241,7 @@ export default {
 		 * The `content` blob as currently edited.
 		 *
 		 * @return {{placeholder: string, fallbackTarget: string}}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		assembledContent() {
 			return {
@@ -258,6 +260,7 @@ export default {
 		/**
 		 * @param {string} val the new placeholder text.
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		onPlaceholderChange(val) {
 			this.placeholder = val ?? ''
@@ -267,6 +270,7 @@ export default {
 		/**
 		 * @param {string|null} val the newly selected mode.
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		onFallbackModeChange(val) {
 			this.fallbackMode = val ?? FALLBACK_INHERIT
@@ -276,6 +280,7 @@ export default {
 		/**
 		 * @param {string} val the new URL template.
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		onTemplateChange(val) {
 			this.fallbackTemplate = val ?? ''
@@ -284,6 +289,7 @@ export default {
 
 		/**
 		 * @return {void}
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-005
 		 */
 		emitContent() {
 			this.$emit('update:content', this.assembledContent)

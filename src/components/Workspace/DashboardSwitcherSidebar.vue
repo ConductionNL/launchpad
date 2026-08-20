@@ -655,6 +655,14 @@ export default {
 	methods: {
 		t,
 
+		/**
+		 * Whether a row is the active dashboard (REQ-SWITCH-002 marks the
+		 * active row in the switcher).
+		 *
+		 * @param {string|number} id the row's dashboard id.
+		 * @return {boolean} true when it is the active dashboard.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		isActive(id) {
 			return (
 				this.activeDashboardId !== null

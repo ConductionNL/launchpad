@@ -70,6 +70,10 @@ export const logger = {
 	 *
 	 * @param {...unknown} args values to log.
 	 * @return {void}
+	 * @spec exclude console plumbing — this module carries no product
+	 *   behaviour. It exists so `src/` has ONE place that may touch the
+	 *   console; what gets logged, and when, is specified where the calling
+	 *   code is specified.
 	 */
 	debug(...args) {
 		if (debugEnabled()) {
@@ -82,6 +86,10 @@ export const logger = {
 	 *
 	 * @param {...unknown} args values to log.
 	 * @return {void}
+	 * @spec exclude console plumbing — this module carries no product
+	 *   behaviour. It exists so `src/` has ONE place that may touch the
+	 *   console; what gets logged, and when, is specified where the calling
+	 *   code is specified.
 	 */
 	warn(...args) {
 		console.warn(...args)
@@ -92,6 +100,10 @@ export const logger = {
 	 *
 	 * @param {...unknown} args values to log.
 	 * @return {void}
+	 * @spec exclude console plumbing — this module carries no product
+	 *   behaviour. It exists so `src/` has ONE place that may touch the
+	 *   console; what gets logged, and when, is specified where the calling
+	 *   code is specified.
 	 */
 	error(...args) {
 		console.error(...args)

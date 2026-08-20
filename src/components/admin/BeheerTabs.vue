@@ -141,6 +141,7 @@ export default {
 		 * (tests, SSR) where `window`/`URLSearchParams` is unavailable.
 		 *
 		 * @return {string|null} The requested tab slug, or null.
+		 * @spec exclude in-component tab routing — reads the query string, `localStorage` and the component's own `tabs`/`defaultTab` props to choose a slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
 		 */
 		readQueryTab() {
 			try {
@@ -158,6 +159,7 @@ export default {
 		 * Read the persisted tab slug from `localStorage`.
 		 *
 		 * @return {string|null} The persisted slug, or null.
+		 * @spec exclude in-component tab routing — reads the query string, `localStorage` and the component's own `tabs`/`defaultTab` props to choose a slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
 		 */
 		readStoredTab() {
 			try {
@@ -176,6 +178,7 @@ export default {
 		 *
 		 * @param {string} slug The tab slug to activate.
 		 * @return {void}
+		 * @spec exclude in-component tab routing — reads the query string, `localStorage` and the component's own `tabs`/`defaultTab` props to choose a slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
 		 */
 		selectTab(slug) {
 			if (slug === this.activeTab) {

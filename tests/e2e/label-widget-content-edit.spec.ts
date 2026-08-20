@@ -36,9 +36,42 @@ import {
 	closeSidebar,
 } from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
+import { BASE_URL } from './support/baseUrl'
+import { request, type APIRequestContext } from '@playwright/test'
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
+
+	/*
+	 * SEED A DASHBOARD. `gotoLaunchPad()` needs the workspace shell, which only
+	 * renders once a dashboard is ACTIVE — `tests/e2e/seed.sh` creates the
+	 * `e2e-grantee` user and nothing else. On a fresh instance LaunchPad shows
+	 * "No dashboards available" instead and every locator here misses.
+	 */
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E LabelEdit ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
 })
 
 test.describe('label widget — content edit round-trip', () => {
@@ -94,10 +127,25 @@ test.describe('label widget — content edit round-trip', () => {
 			.filter({ hasText: text })
 			.first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
+		/*
+		 * `dispatchEvent('contextmenu')` rather than `.click({button:'right'})`.
+		 *
+		 * The real click is ACTIONABILITY-CHECKED, and in CI the grid cell fails
+		 * that check: Playwright reports "element is visible, enabled and
+		 * stable → scrolling into view if needed → done scrolling → element is
+		 * outside of the viewport", then retries ~23 times and times out. It
+		 * passes when the file runs alone and fails at position 66 of 133, so
+		 * the cell's position depends on what the run did before it.
+		 *
+		 * The handler under test is a plain `@contextmenu` listener, so
+		 * dispatching the event directly exercises exactly the same code path
+		 * without depending on where the cell happens to sit. This is the same
+		 * remedy `image-widget.spec.ts` already uses for the identical symptom.
+		 */
 		await cell
 			.locator('.cn-widget-wrapper__content')
 			.first()
-			.click({ button: 'right' })
+			.dispatchEvent('contextmenu')
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
 		await page.locator('[data-testid="ctx-edit"]').click()

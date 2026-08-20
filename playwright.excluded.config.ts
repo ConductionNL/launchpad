@@ -44,10 +44,6 @@ export default defineConfig({
 		// 32308042394): still red with the first-run wizard already dismissed.
 		// The first three need a dashboard the suite never seeds; making them
 		// self-seeding is the fix. Runnable here in the meantime.
-		'**/active-dashboard-resolution.spec.ts',
-		'**/add-widget-modal.spec.ts',
-		'**/allow-personal-dashboards-flag.spec.ts',
-		'**/label-widget-content-edit.spec.ts',
 		// `image-widget-clickthrough` and `runtime-shell-canEdit` were PROMOTED
 		// into the main job on 2026-08-19 and are green there: dismissing
 		// Nextcloud's first-run wizard in global-setup really was their cause.

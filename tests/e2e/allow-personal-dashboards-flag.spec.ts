@@ -17,6 +17,11 @@
 
 import { test, expect, type APIRequestContext } from '@playwright/test'
 import { BASE_URL as BASE } from './support/baseUrl'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -94,12 +99,30 @@ async function openSidebar(
 
 test.describe('allow-personal-dashboards-flag — sidebar button visibility', () => {
 	let api: APIRequestContext
+	let seeded: SeededDashboard | null = null
 
 	test.beforeAll(async ({ playwright }) => {
 		api = await adminApi({ request: playwright.request })
+		/*
+		 * SEED A DASHBOARD. Both tests below reach for
+		 * `.launchpad-sidebar-toggle`, which lives in
+		 * `.launchpad-floating-controls` and only renders once a dashboard is
+		 * ACTIVE. `tests/e2e/seed.sh` creates only the `e2e-grantee` user, so on
+		 * a fresh instance LaunchPad renders its empty state instead and the
+		 * toggle is simply absent — measured in CI run 32308042394:
+		 *
+		 *     Locator: locator('.launchpad-sidebar-toggle').first()
+		 *     Error: element(s) not found
+		 *
+		 * Without this the spec silently depended on a dashboard some earlier
+		 * spec happened to leave behind, which is why it passed on a warm rig
+		 * and failed on a cold one.
+		 */
+		seeded = await seedActiveDashboard(api, `E2E AllowFlag ${Date.now()}`)
 	})
 
 	test.afterAll(async () => {
+		await removeSeededDashboard(api, seeded)
 		// Always restore to enabled so the shared fixture stays usable.
 		await setAllowUserDashboards(api, true)
 		await api.dispose()

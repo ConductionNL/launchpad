@@ -80,37 +80,33 @@ export default defineConfig({
 		// change to the shared seed, not to launchpad.
 		'**/dashboard-sharing.spec.ts',
 
-		// ── Re-excluded 2026-08-19 with FRESH evidence, run 32308042394 ───
-		// These four were promoted alongside `image-widget-clickthrough` and
-		// `runtime-shell-canEdit` on the theory that Nextcloud's first-run
-		// wizard was the common cause of the whole `testIgnore` block. That
-		// theory was RIGHT for those two — both are green here now and stay
-		// promoted, which is where this job's +10 tests come from — and WRONG
-		// for these four, which failed again with the wizard already dismissed:
+		// ── The 2026-08-19 exclusion block is GONE, and here is why ──────
+		// Six files sat here with notes like "4 of 4 fail at 47s". Two causes,
+		// both since fixed, and neither of them the code under test:
 		//
-		//   133 tests, 124 passed, 9 failed.
+		// 1. Nextcloud's first-run wizard. It ships enabled, renders a
+		//    full-screen modal on any FRESH instance — which is what CI
+		//    provisions — and swallows clicks and keystrokes.
+		//    `tests/e2e/global-setup.ts` now dismisses it once per user. That
+		//    alone made `image-widget-clickthrough` and `runtime-shell-canEdit`
+		//    green (CI run 32308042394).
 		//
-		// The failures are the same ones each file carried before, so their
-		// causes are their own and predate the wizard fix:
-		//   active-dashboard-resolution  2 fail @25.1s (sidebar-row activation,
-		//     stale-UUID discard) — both need a dashboard to click and the suite
-		//     seeds only the `e2e-grantee` USER, never a dashboard.
-		//   add-widget-modal             4 fail @48.6s — same missing-dashboard
-		//     dependency: `gotoLaunchPad()` waits on `.launchpad-sidebar-toggle`,
-		//     which only renders once a dashboard is active.
-		//   allow-personal-dashboards-flag 2 fail @15.0s (sidebar button
-		//     visibility) — ditto.
-		//   label-widget-content-edit    1 fail @17.0s (content-edit round-trip).
+		// 2. A dashboard that nothing seeds. `tests/e2e/seed.sh` creates the
+		//    `e2e-grantee` USER and nothing else, so on a cold instance
+		//    LaunchPad renders "No dashboards available" and every control in
+		//    the workspace shell is absent — `.launchpad-sidebar-toggle` most
+		//    of all. Four specs were quietly relying on a dashboard some
+		//    EARLIER spec happened to leave behind, which is exactly why they
+		//    passed on a warm rig and failed on a cold one. They now seed their
+		//    own via `tests/e2e/support/dashboardFixture.ts`, the way
+		//    `tile-quick-search` always did.
 		//
-		// The fix for the first three is to make the specs SELF-SEEDING, the way
-		// tile-quick-search builds its own dashboard in `beforeAll` — not to
-		// re-run them and hope. That is its own change; excluding them here
-		// keeps this job's verdict honest in the meantime.
-		'**/active-dashboard-resolution.spec.ts',
-		'**/add-widget-modal.spec.ts',
-		'**/allow-personal-dashboards-flag.spec.ts',
-		'**/label-widget-content-edit.spec.ts',
-
+		// Measured after both fixes, against a clean isolated instance:
+		// active-dashboard-resolution 3/3, add-widget-modal 4/4,
+		// allow-personal-dashboards-flag 2/2, label-widget-content-edit 1/1 —
+		// and 10/10 with all four run in one job, so they do not fight over
+		// each other's fixtures.
+		//
 		// ── PROMOTED 2026-08-19: the seven files that used to sit here ────
 		// `active-dashboard-resolution`, `add-widget-modal`,
 		// `allow-personal-dashboards-flag`, `image-widget-clickthrough`,
